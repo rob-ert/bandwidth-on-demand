@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
 import org.surfnet.bod.physicalresourcegroup.PhysicalResourceGroup;
+import org.surfnet.bod.port.PhysicalPort;
 
 privileged aspect ApplicationConversionServiceFactoryBean_Roo_ConversionService {
     
@@ -38,10 +39,37 @@ privileged aspect ApplicationConversionServiceFactoryBean_Roo_ConversionService 
         };
     }
     
+    public Converter<PhysicalPort, String> ApplicationConversionServiceFactoryBean.getPhysicalPortToStringConverter() {
+        return new org.springframework.core.convert.converter.Converter<org.surfnet.bod.port.PhysicalPort, java.lang.String>() {
+            public String convert(PhysicalPort physicalPort) {
+                return new StringBuilder().append(physicalPort.getName()).toString();
+            }
+        };
+    }
+    
+    public Converter<Long, PhysicalPort> ApplicationConversionServiceFactoryBean.getIdToPhysicalPortConverter() {
+        return new org.springframework.core.convert.converter.Converter<java.lang.Long, org.surfnet.bod.port.PhysicalPort>() {
+            public org.surfnet.bod.port.PhysicalPort convert(java.lang.Long id) {
+                return PhysicalPort.findPhysicalPort(id);
+            }
+        };
+    }
+    
+    public Converter<String, PhysicalPort> ApplicationConversionServiceFactoryBean.getStringToPhysicalPortConverter() {
+        return new org.springframework.core.convert.converter.Converter<java.lang.String, org.surfnet.bod.port.PhysicalPort>() {
+            public org.surfnet.bod.port.PhysicalPort convert(String id) {
+                return getObject().convert(getObject().convert(id, Long.class), PhysicalPort.class);
+            }
+        };
+    }
+    
     public void ApplicationConversionServiceFactoryBean.installLabelConverters(FormatterRegistry registry) {
         registry.addConverter(getPhysicalResourceGroupToStringConverter());
         registry.addConverter(getIdToPhysicalResourceGroupConverter());
         registry.addConverter(getStringToPhysicalResourceGroupConverter());
+        registry.addConverter(getPhysicalPortToStringConverter());
+        registry.addConverter(getIdToPhysicalPortConverter());
+        registry.addConverter(getStringToPhysicalPortConverter());
     }
     
     public void ApplicationConversionServiceFactoryBean.afterPropertiesSet() {

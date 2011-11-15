@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields" version="2.0">
+    <jsp:directive.page contentType="text/html;charset=UTF-8"/>
+    <jsp:output omit-xml-declaration="yes"/>
+    <page:list id="pl_org_surfnet_bod_port_PhysicalPort" items="${physicalports}" z="ExOBctgO/hjpoFq9dJ3tSs6pOz0=">
+        <table:table data="${physicalports}" id="l_org_surfnet_bod_port_PhysicalPort" path="/physicalports" z="Yc0Pr5ujDCOp1t7xPqQduxnBm2A=">
+            <table:column id="c_org_surfnet_bod_port_PhysicalPort_name" property="name" z="va2xZ5KG0ZP2YkUh6qtUVSh0Ods="/>
+            <table:column id="c_org_surfnet_bod_port_PhysicalPort_physicalResourceGroup" property="physicalResourceGroup" z="poEdeIE2Ze0UacEs8ZllhEvIe78="/>
+        </table:table>
+    </page:list>
+</div>
