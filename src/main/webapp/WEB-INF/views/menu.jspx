@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:menu="urn:jsptagdir:/WEB-INF/tags/menu"  xmlns:sec="http://www.springframework.org/security/tags" id="menu" version="2.0">
+    <jsp:directive.page contentType="text/html;charset=UTF-8"/>
+    <jsp:output omit-xml-declaration="yes"/>
+    <menu:menu id="_menu" z="nZaf43BjUg1iM0v70HJVEsXDopc=">
+        <sec:authorize ifAllGranted="ROLE_ADMIN">
+          <menu:category id="c_physicalresourcegroup" z="GYi7iY//7xm4gM8dPcjtykqSYeU=">
+              <menu:item id="i_physicalresourcegroup_new" messageCode="global_menu_new" url="/physicalresourcegroups?form" z="GOE9whAkDJ3+r7iInrQJboE79LE="/>
+              <menu:item id="i_physicalresourcegroup_list" messageCode="global_menu_list" url="/physicalresourcegroups?page=1&amp;size=${empty param.size ? 10 : param.size}" z="mPTwvMNuHrSvaYI3qSH7dx0Op0o="/>
+          </menu:category>
+        </sec:authorize>        
+        <menu:category id="c_institution" z="5+H17nsNm0/SudzTa4gvanI68Ak=">
+            <menu:item id="i_institution_new" messageCode="global_menu_new" url="/institutions?form" z="9lTrwxCP6sFAE0iz8yLFep1d+dw="/>
+            <menu:item id="i_institution_list" messageCode="global_menu_list" url="/institutions?page=1&amp;size=${empty param.size ? 10 : param.size}" z="0DSTMyH6k2wZwc2o34Tv+VM+zmA="/>
+        </menu:category>        
+        <menu:category id="c_seleniumtests" z="PPLMd2yNB6/LSbjIWogAacRPU+Q=">
+            <menu:item id="si_seleniumtests_test" messageCode="selenium_menu_test_suite" url="/resources/selenium/test-suite.xhtml" z="wwunW/IPDcunN97u41MvMJZQ2to="/>
+        </menu:category>
+    </menu:menu>
+</div>

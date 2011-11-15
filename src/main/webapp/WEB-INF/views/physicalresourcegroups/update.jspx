@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields" xmlns:form="urn:jsptagdir:/WEB-INF/tags/form" xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
+    <jsp:directive.page contentType="text/html;charset=UTF-8"/>
+    <jsp:output omit-xml-declaration="yes"/>
+    <form:update id="fu_org_surfnet_bod_physicalresourcegroup_PhysicalResourceGroup" modelAttribute="physicalResourceGroup" path="/physicalresourcegroups" versionField="Version" z="+4y/+WO3gcFjQwK79IMVYXxFSV8=">
+        <field:input field="name" id="c_org_surfnet_bod_physicalresourcegroup_PhysicalResourceGroup_name" required="true" z="AT1Fj/I99iqeBUPk3fYqkH1HB5w="/>
+        <field:input field="institutionName" id="c_org_surfnet_bod_physicalresourcegroup_PhysicalResourceGroup_institutionName" required="true" z="DaIGk/elU/L89UPJOBKtfWMOWdU="/>
+    </form:update>
+</div>

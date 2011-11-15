@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form" version="2.0">
+    <jsp:directive.page contentType="text/html;charset=UTF-8"/>
+    <jsp:output omit-xml-declaration="yes"/>
+    <page:show id="ps_org_surfnet_bod_institution_Institution" object="${institution}" path="/institutions" z="6rB4XDIXld4LoOdb5gS0Msn0RT0=">
+        <field:display field="name" id="s_org_surfnet_bod_institution_Institution_name" object="${institution}" z="LVgZhVDA8IgY5DH2w1sua7jekYY="/>
+        <field:display field="physicalResourceGroup" id="s_org_surfnet_bod_institution_Institution_physicalResourceGroup" object="${institution}" z="XCVyv2UUAKYOEiJBGtRhUYR7Sf8="/>
+    </page:show>
+</div>
