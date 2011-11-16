@@ -17,9 +17,9 @@
 	
   	<body class="tundra spring">
    		<div id="wrapper" class="wrapper">
-            <div id="header" class="header">
-		      <tiles:insertAttribute name="header" ignore="true" />
-            </div>
+            
+		    <tiles:insertAttribute name="header" ignore="true" />
+            
 		    <tiles:insertAttribute name="menu" ignore="true" />   
 		    <div id="main" class="main">
 	    		<tiles:insertAttribute name="body"/>
