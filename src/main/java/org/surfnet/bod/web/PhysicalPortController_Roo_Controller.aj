@@ -22,12 +22,12 @@ import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 import org.surfnet.bod.domain.PhysicalPort;
 import org.surfnet.bod.domain.PhysicalResourceGroup;
-import org.surfnet.bod.repo.PhysicalPortRepository;
+import org.surfnet.bod.service.PhysicalPortService;
 
 privileged aspect PhysicalPortController_Roo_Controller {
     
     @Autowired
-    PhysicalPortRepository PhysicalPortController.physicalPortRepository;
+    PhysicalPortService PhysicalPortController.physicalPortService;
     
     @RequestMapping(method = RequestMethod.POST)
     public String PhysicalPortController.create(@Valid PhysicalPort physicalPort, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
@@ -36,7 +36,7 @@ privileged aspect PhysicalPortController_Roo_Controller {
             return "physicalports/create";
         }
         uiModel.asMap().clear();
-        physicalPortRepository.save(physicalPort);
+        physicalPortService.savePhysicalPort(physicalPort);
         return "redirect:/physicalports/" + encodeUrlPathSegment(physicalPort.getId().toString(), httpServletRequest);
     }
     
@@ -48,7 +48,7 @@ privileged aspect PhysicalPortController_Roo_Controller {
     
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public String PhysicalPortController.show(@PathVariable("id") Long id, Model uiModel) {
-        uiModel.addAttribute("physicalport", physicalPortRepository.findOne(id));
+        uiModel.addAttribute("physicalport", physicalPortService.findPhysicalPort(id));
         uiModel.addAttribute("itemId", id);
         return "physicalports/show";
     }
@@ -58,11 +58,11 @@ privileged aspect PhysicalPortController_Roo_Controller {
         if (page != null || size != null) {
             int sizeNo = size == null ? 10 : size.intValue();
             final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
-            uiModel.addAttribute("physicalports", physicalPortRepository.findAll(new org.springframework.data.domain.PageRequest(firstResult / sizeNo, sizeNo)).getContent());
-            float nrOfPages = (float) physicalPortRepository.count() / sizeNo;
+            uiModel.addAttribute("physicalports", physicalPortService.findPhysicalPortEntries(firstResult, sizeNo));
+            float nrOfPages = (float) physicalPortService.countAllPhysicalPorts() / sizeNo;
             uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1 : nrOfPages));
         } else {
-            uiModel.addAttribute("physicalports", physicalPortRepository.findAll());
+            uiModel.addAttribute("physicalports", physicalPortService.findAllPhysicalPorts());
         }
         return "physicalports/list";
     }
@@ -74,20 +74,20 @@ privileged aspect PhysicalPortController_Roo_Controller {
             return "physicalports/update";
         }
         uiModel.asMap().clear();
-        physicalPortRepository.save(physicalPort);
+        physicalPortService.updatePhysicalPort(physicalPort);
         return "redirect:/physicalports/" + encodeUrlPathSegment(physicalPort.getId().toString(), httpServletRequest);
     }
     
     @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
     public String PhysicalPortController.updateForm(@PathVariable("id") Long id, Model uiModel) {
-        uiModel.addAttribute("physicalPort", physicalPortRepository.findOne(id));
+        uiModel.addAttribute("physicalPort", physicalPortService.findPhysicalPort(id));
         return "physicalports/update";
     }
     
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public String PhysicalPortController.delete(@PathVariable("id") Long id, @RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, Model uiModel) {
-        PhysicalPort physicalPort = physicalPortRepository.findOne(id);
-        physicalPortRepository.delete(physicalPort);
+        PhysicalPort physicalPort = physicalPortService.findPhysicalPort(id);
+        physicalPortService.deletePhysicalPort(physicalPort);
         uiModel.asMap().clear();
         uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
         uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
@@ -96,7 +96,7 @@ privileged aspect PhysicalPortController_Roo_Controller {
     
     @ModelAttribute("physicalports")
     public Collection<PhysicalPort> PhysicalPortController.populatePhysicalPorts() {
-        return physicalPortRepository.findAll();
+        return physicalPortService.findAllPhysicalPorts();
     }
     
     @ModelAttribute("physicalresourcegroups")

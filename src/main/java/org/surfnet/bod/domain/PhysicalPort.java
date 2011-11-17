@@ -15,4 +15,5 @@ public class PhysicalPort {
 
 	@ManyToOne
 	private PhysicalResourceGroup physicalResourceGroup;
+
 }

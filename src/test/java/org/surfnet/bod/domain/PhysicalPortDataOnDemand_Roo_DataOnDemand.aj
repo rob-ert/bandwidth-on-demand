@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import org.surfnet.bod.domain.PhysicalPort;
 import org.surfnet.bod.domain.PhysicalResourceGroup;
 import org.surfnet.bod.domain.PhysicalResourceGroupDataOnDemand;
-import org.surfnet.bod.repo.PhysicalPortRepository;
+import org.surfnet.bod.service.PhysicalPortService;
 
 privileged aspect PhysicalPortDataOnDemand_Roo_DataOnDemand {
     
@@ -30,7 +30,7 @@ privileged aspect PhysicalPortDataOnDemand_Roo_DataOnDemand {
     private PhysicalResourceGroupDataOnDemand PhysicalPortDataOnDemand.physicalResourceGroupDataOnDemand;
     
     @Autowired
-    PhysicalPortRepository PhysicalPortDataOnDemand.physicalPortRepository;
+    PhysicalPortService PhysicalPortDataOnDemand.physicalPortService;
     
     public PhysicalPort PhysicalPortDataOnDemand.getNewTransientPhysicalPort(int index) {
         PhysicalPort obj = new PhysicalPort();
@@ -55,14 +55,14 @@ privileged aspect PhysicalPortDataOnDemand_Roo_DataOnDemand {
         if (index > (data.size() - 1)) index = data.size() - 1;
         PhysicalPort obj = data.get(index);
         java.lang.Long id = obj.getId();
-        return physicalPortRepository.findOne(id);
+        return physicalPortService.findPhysicalPort(id);
     }
     
     public PhysicalPort PhysicalPortDataOnDemand.getRandomPhysicalPort() {
         init();
         PhysicalPort obj = data.get(rnd.nextInt(data.size()));
         java.lang.Long id = obj.getId();
-        return physicalPortRepository.findOne(id);
+        return physicalPortService.findPhysicalPort(id);
     }
     
     public boolean PhysicalPortDataOnDemand.modifyPhysicalPort(PhysicalPort obj) {
@@ -72,7 +72,7 @@ privileged aspect PhysicalPortDataOnDemand_Roo_DataOnDemand {
     public void PhysicalPortDataOnDemand.init() {
         int from = 0;
         int to = 10;
-        data = physicalPortRepository.findAll(new org.springframework.data.domain.PageRequest(from / to, to)).getContent();
+        data = physicalPortService.findPhysicalPortEntries(from, to);
         if (data == null) throw new IllegalStateException("Find entries implementation for 'PhysicalPort' illegally returned null");
         if (!data.isEmpty()) {
             return;
@@ -82,7 +82,7 @@ privileged aspect PhysicalPortDataOnDemand_Roo_DataOnDemand {
         for (int i = 0; i < 10; i++) {
             PhysicalPort obj = getNewTransientPhysicalPort(i);
             try {
-                physicalPortRepository.save(obj);
+                physicalPortService.savePhysicalPort(obj);
             } catch (ConstraintViolationException e) {
                 StringBuilder msg = new StringBuilder();
                 for (Iterator<ConstraintViolation<?>> it = e.getConstraintViolations().iterator(); it.hasNext();) {
@@ -91,7 +91,7 @@ privileged aspect PhysicalPortDataOnDemand_Roo_DataOnDemand {
                 }
                 throw new RuntimeException(msg.toString(), e);
             }
-            physicalPortRepository.flush();
+            obj.flush();
             data.add(obj);
         }
     }

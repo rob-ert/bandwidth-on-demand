@@ -11,14 +11,14 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
 import org.surfnet.bod.domain.PhysicalPort;
 import org.surfnet.bod.domain.PhysicalResourceGroup;
-import org.surfnet.bod.repo.PhysicalPortRepository;
+import org.surfnet.bod.service.PhysicalPortService;
 
 privileged aspect ApplicationConversionServiceFactoryBean_Roo_ConversionService {
     
     declare @type: ApplicationConversionServiceFactoryBean: @Configurable;
     
     @Autowired
-    PhysicalPortRepository ApplicationConversionServiceFactoryBean.physicalPortRepository;
+    PhysicalPortService ApplicationConversionServiceFactoryBean.physicalPortService;
     
     public Converter<PhysicalPort, String> ApplicationConversionServiceFactoryBean.getPhysicalPortToStringConverter() {
         return new org.springframework.core.convert.converter.Converter<org.surfnet.bod.domain.PhysicalPort, java.lang.String>() {
@@ -31,7 +31,7 @@ privileged aspect ApplicationConversionServiceFactoryBean_Roo_ConversionService 
     public Converter<Long, PhysicalPort> ApplicationConversionServiceFactoryBean.getIdToPhysicalPortConverter() {
         return new org.springframework.core.convert.converter.Converter<java.lang.Long, org.surfnet.bod.domain.PhysicalPort>() {
             public org.surfnet.bod.domain.PhysicalPort convert(java.lang.Long id) {
-                return physicalPortRepository.findOne(id);
+                return physicalPortService.findPhysicalPort(id);
             }
         };
     }

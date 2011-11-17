@@ -14,7 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import org.surfnet.bod.domain.PhysicalPortDataOnDemand;
-import org.surfnet.bod.repo.PhysicalPortRepository;
+import org.surfnet.bod.service.PhysicalPortService;
 
 privileged aspect PhysicalPortIntegrationTest_Roo_IntegrationTest {
     
@@ -28,44 +28,44 @@ privileged aspect PhysicalPortIntegrationTest_Roo_IntegrationTest {
     private PhysicalPortDataOnDemand PhysicalPortIntegrationTest.dod;
     
     @Autowired
-    PhysicalPortRepository PhysicalPortIntegrationTest.physicalPortRepository;
+    PhysicalPortService PhysicalPortIntegrationTest.physicalPortService;
     
     @Test
-    public void PhysicalPortIntegrationTest.testCount() {
+    public void PhysicalPortIntegrationTest.testCountAllPhysicalPorts() {
         Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to initialize correctly", dod.getRandomPhysicalPort());
-        long count = physicalPortRepository.count();
+        long count = physicalPortService.countAllPhysicalPorts();
         Assert.assertTrue("Counter for 'PhysicalPort' incorrectly reported there were no entries", count > 0);
     }
     
     @Test
-    public void PhysicalPortIntegrationTest.testFind() {
+    public void PhysicalPortIntegrationTest.testFindPhysicalPort() {
         PhysicalPort obj = dod.getRandomPhysicalPort();
         Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to initialize correctly", obj);
         Long id = obj.getId();
         Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to provide an identifier", id);
-        obj = physicalPortRepository.findOne(id);
+        obj = physicalPortService.findPhysicalPort(id);
         Assert.assertNotNull("Find method for 'PhysicalPort' illegally returned null for id '" + id + "'", obj);
         Assert.assertEquals("Find method for 'PhysicalPort' returned the incorrect identifier", id, obj.getId());
     }
     
     @Test
-    public void PhysicalPortIntegrationTest.testFindAll() {
+    public void PhysicalPortIntegrationTest.testFindAllPhysicalPorts() {
         Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to initialize correctly", dod.getRandomPhysicalPort());
-        long count = physicalPortRepository.count();
+        long count = physicalPortService.countAllPhysicalPorts();
         Assert.assertTrue("Too expensive to perform a find all test for 'PhysicalPort', as there are " + count + " entries; set the findAllMaximum to exceed this value or set findAll=false on the integration test annotation to disable the test", count < 250);
-        List<PhysicalPort> result = physicalPortRepository.findAll();
+        List<PhysicalPort> result = physicalPortService.findAllPhysicalPorts();
         Assert.assertNotNull("Find all method for 'PhysicalPort' illegally returned null", result);
         Assert.assertTrue("Find all method for 'PhysicalPort' failed to return any data", result.size() > 0);
     }
     
     @Test
-    public void PhysicalPortIntegrationTest.testFindEntries() {
+    public void PhysicalPortIntegrationTest.testFindPhysicalPortEntries() {
         Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to initialize correctly", dod.getRandomPhysicalPort());
-        long count = physicalPortRepository.count();
+        long count = physicalPortService.countAllPhysicalPorts();
         if (count > 20) count = 20;
         int firstResult = 0;
         int maxResults = (int) count;
-        List<PhysicalPort> result = physicalPortRepository.findAll(new org.springframework.data.domain.PageRequest(firstResult / maxResults, maxResults)).getContent();
+        List<PhysicalPort> result = physicalPortService.findPhysicalPortEntries(firstResult, maxResults);
         Assert.assertNotNull("Find entries method for 'PhysicalPort' illegally returned null", result);
         Assert.assertEquals("Find entries method for 'PhysicalPort' returned an incorrect number of entries", count, result.size());
     }
@@ -76,50 +76,50 @@ privileged aspect PhysicalPortIntegrationTest_Roo_IntegrationTest {
         Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to initialize correctly", obj);
         Long id = obj.getId();
         Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to provide an identifier", id);
-        obj = physicalPortRepository.findOne(id);
+        obj = physicalPortService.findPhysicalPort(id);
         Assert.assertNotNull("Find method for 'PhysicalPort' illegally returned null for id '" + id + "'", obj);
         boolean modified =  dod.modifyPhysicalPort(obj);
         Integer currentVersion = obj.getVersion();
-        physicalPortRepository.flush();
+        obj.flush();
         Assert.assertTrue("Version for 'PhysicalPort' failed to increment on flush directive", (currentVersion != null && obj.getVersion() > currentVersion) || !modified);
     }
     
     @Test
-    public void PhysicalPortIntegrationTest.testSaveUpdate() {
+    public void PhysicalPortIntegrationTest.testUpdatePhysicalPortUpdate() {
         PhysicalPort obj = dod.getRandomPhysicalPort();
         Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to initialize correctly", obj);
         Long id = obj.getId();
         Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to provide an identifier", id);
-        obj = physicalPortRepository.findOne(id);
+        obj = physicalPortService.findPhysicalPort(id);
         boolean modified =  dod.modifyPhysicalPort(obj);
         Integer currentVersion = obj.getVersion();
-        PhysicalPort merged = physicalPortRepository.save(obj);
-        physicalPortRepository.flush();
+        PhysicalPort merged = physicalPortService.updatePhysicalPort(obj);
+        obj.flush();
         Assert.assertEquals("Identifier of merged object not the same as identifier of original object", merged.getId(), id);
         Assert.assertTrue("Version for 'PhysicalPort' failed to increment on merge and flush directive", (currentVersion != null && obj.getVersion() > currentVersion) || !modified);
     }
     
     @Test
-    public void PhysicalPortIntegrationTest.testSave() {
+    public void PhysicalPortIntegrationTest.testSavePhysicalPort() {
         Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to initialize correctly", dod.getRandomPhysicalPort());
         PhysicalPort obj = dod.getNewTransientPhysicalPort(Integer.MAX_VALUE);
         Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to provide a new transient entity", obj);
         Assert.assertNull("Expected 'PhysicalPort' identifier to be null", obj.getId());
-        physicalPortRepository.save(obj);
-        physicalPortRepository.flush();
+        physicalPortService.savePhysicalPort(obj);
+        obj.flush();
         Assert.assertNotNull("Expected 'PhysicalPort' identifier to no longer be null", obj.getId());
     }
     
     @Test
-    public void PhysicalPortIntegrationTest.testDelete() {
+    public void PhysicalPortIntegrationTest.testDeletePhysicalPort() {
         PhysicalPort obj = dod.getRandomPhysicalPort();
         Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to initialize correctly", obj);
         Long id = obj.getId();
         Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to provide an identifier", id);
-        obj = physicalPortRepository.findOne(id);
-        physicalPortRepository.delete(obj);
-        physicalPortRepository.flush();
-        Assert.assertNull("Failed to remove 'PhysicalPort' with identifier '" + id + "'", physicalPortRepository.findOne(id));
+        obj = physicalPortService.findPhysicalPort(id);
+        physicalPortService.deletePhysicalPort(obj);
+        obj.flush();
+        Assert.assertNull("Failed to remove 'PhysicalPort' with identifier '" + id + "'", physicalPortService.findPhysicalPort(id));
     }
     
 }
