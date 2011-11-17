@@ -72,6 +72,7 @@
         <img alt="${fn:escapeXml(next_label)}" src="${next_image_url}" />
       </a>
     </c:if>
+    
     <c:if test="${page ne maxPages}">
       <spring:url value="" var="last">
         <spring:param name="page" value="${maxPages}" />

@@ -20,7 +20,7 @@
       <c:set var="enctype" value="multipart/form-data"/>
     </c:if>
     <spring:message arguments="${label}" code="entity_create" var="title_msg" htmlEscape="false" />
-    <util:panel id="${id}" title="${title_msg}" openPane="${openPane}">
+    
       <spring:url value="${path}" var="form_url"/>
       <c:set var="jsCall" value=""/>
       <c:if test="${not empty compositePkField}">
@@ -30,32 +30,15 @@
         <form:errors cssClass="errors" delimiter="&lt;p/&gt;"/>
         <c:if test="${not empty compositePkField}">
           <form:hidden id="_${fn:escapeXml(compositePkField)}_id" path="${fn:escapeXml(compositePkField)}" />
-          <script type="text/javascript">
-          <![CDATA[
-            dojo.require("dojox.encoding.base64");
-            function encodePk() {
-              var obj = new Object();
-              dojo.query("input[name^=\"${compositePkField}.\"]").forEach(function(node, index, nodelist){
-                obj[node.name.substring('${compositePkField}'.length + 1)] = node.value;
-              });
-              var json = dojo.toJson(obj);
-              var tokArr = [];
-              for (var i = 0; i < json.length; i++) {
-                tokArr.push(json.charCodeAt(i));
-              }
-              var encoded = dojox.encoding.base64.encode(tokArr);
-              dojo.byId('_${fn:escapeXml(compositePkField)}_id').value = encoded;
-            }
-          ]]>
-          </script>
         </c:if>
+        
         <jsp:doBody />
-        <div class="submit" id="${fn:escapeXml(id)}_submit">
+        
+        <div class="actions">
           <spring:message code="button_save" var="save_button" htmlEscape="false" />
-          <script type="text/javascript">Spring.addDecoration(new Spring.ValidateAllDecoration({elementId:'proceed', event:'onclick'}));</script>
-          <input id="proceed" type="submit" value="${fn:escapeXml(save_button)}"/>
+          <input type="submit" value="${fn:escapeXml(save_button)}" class="btn primary" />
         </div>
       </form:form>
-    </util:panel>
+    
   </c:if>
 </jsp:root>

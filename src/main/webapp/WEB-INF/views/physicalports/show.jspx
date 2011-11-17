@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<div xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form" version="2.0">
-    <jsp:directive.page contentType="text/html;charset=UTF-8"/>
-    <jsp:output omit-xml-declaration="yes"/>
-    <page:show id="ps_org_surfnet_bod_domain_PhysicalPort" object="${physicalport}" path="/physicalports" z="C/yUTJQy9BJpdj1xO9TzT9GeE0g=">
-        <field:display field="name" id="s_org_surfnet_bod_domain_PhysicalPort_name" object="${physicalport}" z="5BrNK1/d7hZui5emsUkQxSI5vwc="/>
-        <field:display field="physicalResourceGroup" id="s_org_surfnet_bod_domain_PhysicalPort_physicalResourceGroup" object="${physicalport}" z="ghAynIo/r89qq/Htyz6ubTqKCIU="/>
+<div xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields" xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:page="urn:jsptagdir:/WEB-INF/tags/form">
+    
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+    
+    <page:show id="ps_org_surfnet_bod_domain_PhysicalPort" object="${physicalport}" path="/physicalports">
+        <field:display field="name" id="s_org_surfnet_bod_domain_PhysicalPort_name" object="${physicalport}" />
+        <field:display field="physicalResourceGroup" id="s_org_surfnet_bod_domain_PhysicalPort_physicalResourceGroup"
+            object="${physicalport}" />
     </page:show>
 </div>

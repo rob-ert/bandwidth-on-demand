@@ -41,13 +41,13 @@
       <spring:escapeBody htmlEscape="true" >${itemLabel}</spring:escapeBody>
     </c:set>
 
-    <div id="_${fn:escapeXml(id)}_id">
+    <div class="clearfix" id="_${fn:escapeXml(id)}_id">
       <c:choose>
         <c:when test="${not empty items}">
           <label for="_${sec_field}_id">
             <c:out value="${fn:escapeXml(label)}" />
-            :
           </label>
+          <div class="input">
           <c:choose>
             <c:when test="${empty itemValue}">
               <c:choose>
@@ -182,6 +182,7 @@
               </c:choose>
             </c:otherwise>
           </c:choose>
+          </div>
           <c:choose>
             <c:when test="${multiple == false}">
               <script type="text/javascript">Spring.addDecoration(new Spring.ElementDecoration({elementId : '_${sec_field}_id', widgetType: 'dijit.form.FilteringSelect', widgetAttrs : {hasDownArrow : true}})); </script>
@@ -194,6 +195,5 @@
         </c:otherwise>
       </c:choose>
     </div>
-    <br />
   </c:if>
 </jsp:root>

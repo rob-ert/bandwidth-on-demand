@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<div xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form" version="2.0">
-    <jsp:directive.page contentType="text/html;charset=UTF-8"/>
-    <jsp:output omit-xml-declaration="yes"/>
-    <page:show id="ps_org_surfnet_bod_domain_PhysicalResourceGroup" object="${physicalresourcegroup}" path="/physicalresourcegroups" z="mwo0tUwOrKrhCvHID8x0gGuFep8=">
-        <field:display field="name" id="s_org_surfnet_bod_domain_PhysicalResourceGroup_name" object="${physicalresourcegroup}" z="P0l0jmR9R+8HHe8vnBPQyb7KSMQ="/>
-        <field:display field="institutionName" id="s_org_surfnet_bod_domain_PhysicalResourceGroup_institutionName" object="${physicalresourcegroup}" z="8K6Wl+x6X/78EvHl7l5ZZm5J3zQ="/>
+<div xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields" xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:page="urn:jsptagdir:/WEB-INF/tags/form">
+
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+
+    <page:show id="ps_org_surfnet_bod_domain_PhysicalResourceGroup" object="${physicalresourcegroup}"
+        path="/physicalresourcegroups">
+        <field:display field="name" id="s_org_surfnet_bod_domain_PhysicalResourceGroup_name"
+            object="${physicalresourcegroup}" />
+        <field:display field="institutionName" id="s_org_surfnet_bod_domain_PhysicalResourceGroup_institutionName"
+            object="${physicalresourcegroup}" />
     </page:show>
+
 </div>

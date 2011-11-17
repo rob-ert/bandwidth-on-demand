@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields" version="2.0">
-    <jsp:directive.page contentType="text/html;charset=UTF-8"/>
-    <jsp:output omit-xml-declaration="yes"/>
-    <page:list id="pl_org_surfnet_bod_domain_PhysicalResourceGroup" items="${physicalresourcegroups}" z="dx6DtV1sJiR8KZQMFjCZ3pR75bQ=">
-        <table:table data="${physicalresourcegroups}" id="l_org_surfnet_bod_domain_PhysicalResourceGroup" path="/physicalresourcegroups" z="7UHUCUP6/X/BFqNXsDYOBC6AFBI=">
-            <table:column id="c_org_surfnet_bod_domain_PhysicalResourceGroup_name" property="name" z="FM4zdAEP0fh/s3IttBWXpOJi1no="/>
-            <table:column id="c_org_surfnet_bod_domain_PhysicalResourceGroup_institutionName" property="institutionName" z="UkV8leF4F5jGBE1fKxUs3DLFArA="/>
+<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+    xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
+
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+
+    <page:list id="pl_org_surfnet_bod_domain_PhysicalResourceGroup" items="${physicalresourcegroups}">
+        <table:table data="${physicalresourcegroups}" id="l_org_surfnet_bod_domain_PhysicalResourceGroup"
+            path="/physicalresourcegroups">
+            <table:column id="c_org_surfnet_bod_domain_PhysicalResourceGroup_name" property="name" />
+            <table:column id="c_org_surfnet_bod_domain_PhysicalResourceGroup_institutionName" property="institutionName" />
         </table:table>
     </page:list>
 </div>
