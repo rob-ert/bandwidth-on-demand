@@ -5,42 +5,23 @@ package org.surfnet.bod.web;
 
 import java.lang.Long;
 import java.lang.String;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
-import org.surfnet.bod.physicalresourcegroup.PhysicalResourceGroup;
-import org.surfnet.bod.port.PhysicalPort;
+import org.surfnet.bod.domain.PhysicalPort;
+import org.surfnet.bod.domain.PhysicalResourceGroup;
+import org.surfnet.bod.repo.PhysicalPortRepository;
 
 privileged aspect ApplicationConversionServiceFactoryBean_Roo_ConversionService {
     
     declare @type: ApplicationConversionServiceFactoryBean: @Configurable;
     
-    public Converter<PhysicalResourceGroup, String> ApplicationConversionServiceFactoryBean.getPhysicalResourceGroupToStringConverter() {
-        return new org.springframework.core.convert.converter.Converter<org.surfnet.bod.physicalresourcegroup.PhysicalResourceGroup, java.lang.String>() {
-            public String convert(PhysicalResourceGroup physicalResourceGroup) {
-                return new StringBuilder().append(physicalResourceGroup.getName()).append(" ").append(physicalResourceGroup.getInstitutionName()).toString();
-            }
-        };
-    }
-    
-    public Converter<Long, PhysicalResourceGroup> ApplicationConversionServiceFactoryBean.getIdToPhysicalResourceGroupConverter() {
-        return new org.springframework.core.convert.converter.Converter<java.lang.Long, org.surfnet.bod.physicalresourcegroup.PhysicalResourceGroup>() {
-            public org.surfnet.bod.physicalresourcegroup.PhysicalResourceGroup convert(java.lang.Long id) {
-                return PhysicalResourceGroup.findPhysicalResourceGroup(id);
-            }
-        };
-    }
-    
-    public Converter<String, PhysicalResourceGroup> ApplicationConversionServiceFactoryBean.getStringToPhysicalResourceGroupConverter() {
-        return new org.springframework.core.convert.converter.Converter<java.lang.String, org.surfnet.bod.physicalresourcegroup.PhysicalResourceGroup>() {
-            public org.surfnet.bod.physicalresourcegroup.PhysicalResourceGroup convert(String id) {
-                return getObject().convert(getObject().convert(id, Long.class), PhysicalResourceGroup.class);
-            }
-        };
-    }
+    @Autowired
+    PhysicalPortRepository ApplicationConversionServiceFactoryBean.physicalPortRepository;
     
     public Converter<PhysicalPort, String> ApplicationConversionServiceFactoryBean.getPhysicalPortToStringConverter() {
-        return new org.springframework.core.convert.converter.Converter<org.surfnet.bod.port.PhysicalPort, java.lang.String>() {
+        return new org.springframework.core.convert.converter.Converter<org.surfnet.bod.domain.PhysicalPort, java.lang.String>() {
             public String convert(PhysicalPort physicalPort) {
                 return new StringBuilder().append(physicalPort.getName()).toString();
             }
@@ -48,28 +29,52 @@ privileged aspect ApplicationConversionServiceFactoryBean_Roo_ConversionService 
     }
     
     public Converter<Long, PhysicalPort> ApplicationConversionServiceFactoryBean.getIdToPhysicalPortConverter() {
-        return new org.springframework.core.convert.converter.Converter<java.lang.Long, org.surfnet.bod.port.PhysicalPort>() {
-            public org.surfnet.bod.port.PhysicalPort convert(java.lang.Long id) {
-                return PhysicalPort.findPhysicalPort(id);
+        return new org.springframework.core.convert.converter.Converter<java.lang.Long, org.surfnet.bod.domain.PhysicalPort>() {
+            public org.surfnet.bod.domain.PhysicalPort convert(java.lang.Long id) {
+                return physicalPortRepository.findOne(id);
             }
         };
     }
     
     public Converter<String, PhysicalPort> ApplicationConversionServiceFactoryBean.getStringToPhysicalPortConverter() {
-        return new org.springframework.core.convert.converter.Converter<java.lang.String, org.surfnet.bod.port.PhysicalPort>() {
-            public org.surfnet.bod.port.PhysicalPort convert(String id) {
+        return new org.springframework.core.convert.converter.Converter<java.lang.String, org.surfnet.bod.domain.PhysicalPort>() {
+            public org.surfnet.bod.domain.PhysicalPort convert(String id) {
                 return getObject().convert(getObject().convert(id, Long.class), PhysicalPort.class);
             }
         };
     }
     
+    public Converter<PhysicalResourceGroup, String> ApplicationConversionServiceFactoryBean.getPhysicalResourceGroupToStringConverter() {
+        return new org.springframework.core.convert.converter.Converter<org.surfnet.bod.domain.PhysicalResourceGroup, java.lang.String>() {
+            public String convert(PhysicalResourceGroup physicalResourceGroup) {
+                return new StringBuilder().append(physicalResourceGroup.getName()).append(" ").append(physicalResourceGroup.getInstitutionName()).toString();
+            }
+        };
+    }
+    
+    public Converter<Long, PhysicalResourceGroup> ApplicationConversionServiceFactoryBean.getIdToPhysicalResourceGroupConverter() {
+        return new org.springframework.core.convert.converter.Converter<java.lang.Long, org.surfnet.bod.domain.PhysicalResourceGroup>() {
+            public org.surfnet.bod.domain.PhysicalResourceGroup convert(java.lang.Long id) {
+                return PhysicalResourceGroup.findPhysicalResourceGroup(id);
+            }
+        };
+    }
+    
+    public Converter<String, PhysicalResourceGroup> ApplicationConversionServiceFactoryBean.getStringToPhysicalResourceGroupConverter() {
+        return new org.springframework.core.convert.converter.Converter<java.lang.String, org.surfnet.bod.domain.PhysicalResourceGroup>() {
+            public org.surfnet.bod.domain.PhysicalResourceGroup convert(String id) {
+                return getObject().convert(getObject().convert(id, Long.class), PhysicalResourceGroup.class);
+            }
+        };
+    }
+    
     public void ApplicationConversionServiceFactoryBean.installLabelConverters(FormatterRegistry registry) {
-        registry.addConverter(getPhysicalResourceGroupToStringConverter());
-        registry.addConverter(getIdToPhysicalResourceGroupConverter());
-        registry.addConverter(getStringToPhysicalResourceGroupConverter());
         registry.addConverter(getPhysicalPortToStringConverter());
         registry.addConverter(getIdToPhysicalPortConverter());
         registry.addConverter(getStringToPhysicalPortConverter());
+        registry.addConverter(getPhysicalResourceGroupToStringConverter());
+        registry.addConverter(getIdToPhysicalResourceGroupConverter());
+        registry.addConverter(getStringToPhysicalResourceGroupConverter());
     }
     
     public void ApplicationConversionServiceFactoryBean.afterPropertiesSet() {

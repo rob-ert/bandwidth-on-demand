@@ -10,6 +10,7 @@ import java.lang.String;
 import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,10 +20,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
-import org.surfnet.bod.physicalresourcegroup.PhysicalResourceGroup;
-import org.surfnet.bod.port.PhysicalPort;
+import org.surfnet.bod.domain.PhysicalPort;
+import org.surfnet.bod.domain.PhysicalResourceGroup;
+import org.surfnet.bod.repo.PhysicalPortRepository;
 
 privileged aspect PhysicalPortController_Roo_Controller {
+    
+    @Autowired
+    PhysicalPortRepository PhysicalPortController.physicalPortRepository;
     
     @RequestMapping(method = RequestMethod.POST)
     public String PhysicalPortController.create(@Valid PhysicalPort physicalPort, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
@@ -31,7 +36,7 @@ privileged aspect PhysicalPortController_Roo_Controller {
             return "physicalports/create";
         }
         uiModel.asMap().clear();
-        physicalPort.persist();
+        physicalPortRepository.save(physicalPort);
         return "redirect:/physicalports/" + encodeUrlPathSegment(physicalPort.getId().toString(), httpServletRequest);
     }
     
@@ -43,7 +48,7 @@ privileged aspect PhysicalPortController_Roo_Controller {
     
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public String PhysicalPortController.show(@PathVariable("id") Long id, Model uiModel) {
-        uiModel.addAttribute("physicalport", PhysicalPort.findPhysicalPort(id));
+        uiModel.addAttribute("physicalport", physicalPortRepository.findOne(id));
         uiModel.addAttribute("itemId", id);
         return "physicalports/show";
     }
@@ -53,11 +58,11 @@ privileged aspect PhysicalPortController_Roo_Controller {
         if (page != null || size != null) {
             int sizeNo = size == null ? 10 : size.intValue();
             final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
-            uiModel.addAttribute("physicalports", PhysicalPort.findPhysicalPortEntries(firstResult, sizeNo));
-            float nrOfPages = (float) PhysicalPort.countPhysicalPorts() / sizeNo;
+            uiModel.addAttribute("physicalports", physicalPortRepository.findAll(new org.springframework.data.domain.PageRequest(firstResult / sizeNo, sizeNo)).getContent());
+            float nrOfPages = (float) physicalPortRepository.count() / sizeNo;
             uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1 : nrOfPages));
         } else {
-            uiModel.addAttribute("physicalports", PhysicalPort.findAllPhysicalPorts());
+            uiModel.addAttribute("physicalports", physicalPortRepository.findAll());
         }
         return "physicalports/list";
     }
@@ -69,34 +74,34 @@ privileged aspect PhysicalPortController_Roo_Controller {
             return "physicalports/update";
         }
         uiModel.asMap().clear();
-        physicalPort.merge();
+        physicalPortRepository.save(physicalPort);
         return "redirect:/physicalports/" + encodeUrlPathSegment(physicalPort.getId().toString(), httpServletRequest);
     }
     
     @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
     public String PhysicalPortController.updateForm(@PathVariable("id") Long id, Model uiModel) {
-        uiModel.addAttribute("physicalPort", PhysicalPort.findPhysicalPort(id));
+        uiModel.addAttribute("physicalPort", physicalPortRepository.findOne(id));
         return "physicalports/update";
     }
     
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public String PhysicalPortController.delete(@PathVariable("id") Long id, @RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, Model uiModel) {
-        PhysicalPort physicalPort = PhysicalPort.findPhysicalPort(id);
-        physicalPort.remove();
+        PhysicalPort physicalPort = physicalPortRepository.findOne(id);
+        physicalPortRepository.delete(physicalPort);
         uiModel.asMap().clear();
         uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
         uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
         return "redirect:/physicalports";
     }
     
+    @ModelAttribute("physicalports")
+    public Collection<PhysicalPort> PhysicalPortController.populatePhysicalPorts() {
+        return physicalPortRepository.findAll();
+    }
+    
     @ModelAttribute("physicalresourcegroups")
     public Collection<PhysicalResourceGroup> PhysicalPortController.populatePhysicalResourceGroups() {
         return PhysicalResourceGroup.findAllPhysicalResourceGroups();
-    }
-    
-    @ModelAttribute("physicalports")
-    public Collection<PhysicalPort> PhysicalPortController.populatePhysicalPorts() {
-        return PhysicalPort.findAllPhysicalPorts();
     }
     
     String PhysicalPortController.encodeUrlPathSegment(String pathSegment, HttpServletRequest httpServletRequest) {

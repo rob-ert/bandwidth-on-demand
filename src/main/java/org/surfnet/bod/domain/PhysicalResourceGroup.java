@@ -1,4 +1,4 @@
-package org.surfnet.bod.physicalresourcegroup;
+package org.surfnet.bod.domain;
 
 import javax.validation.constraints.NotNull;
 

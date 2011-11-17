@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
-import org.surfnet.bod.physicalresourcegroup.PhysicalResourceGroup;
+import org.surfnet.bod.domain.PhysicalResourceGroup;
 
 privileged aspect PhysicalResourceGroupController_Roo_Controller {
     
