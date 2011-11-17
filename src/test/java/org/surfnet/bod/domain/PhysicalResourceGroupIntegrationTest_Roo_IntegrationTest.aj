@@ -14,6 +14,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import org.surfnet.bod.domain.PhysicalResourceGroupDataOnDemand;
+import org.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import org.surfnet.bod.service.PhysicalResourceGroupService;
 
 privileged aspect PhysicalResourceGroupIntegrationTest_Roo_IntegrationTest {
     
@@ -26,10 +28,16 @@ privileged aspect PhysicalResourceGroupIntegrationTest_Roo_IntegrationTest {
     @Autowired
     private PhysicalResourceGroupDataOnDemand PhysicalResourceGroupIntegrationTest.dod;
     
+    @Autowired
+    PhysicalResourceGroupService PhysicalResourceGroupIntegrationTest.physicalResourceGroupService;
+    
+    @Autowired
+    PhysicalResourceGroupRepo PhysicalResourceGroupIntegrationTest.physicalResourceGroupRepo;
+    
     @Test
-    public void PhysicalResourceGroupIntegrationTest.testCountPhysicalResourceGroups() {
+    public void PhysicalResourceGroupIntegrationTest.testCountAllPhysicalResourceGroups() {
         Assert.assertNotNull("Data on demand for 'PhysicalResourceGroup' failed to initialize correctly", dod.getRandomPhysicalResourceGroup());
-        long count = PhysicalResourceGroup.countPhysicalResourceGroups();
+        long count = physicalResourceGroupService.countAllPhysicalResourceGroups();
         Assert.assertTrue("Counter for 'PhysicalResourceGroup' incorrectly reported there were no entries", count > 0);
     }
     
@@ -39,7 +47,7 @@ privileged aspect PhysicalResourceGroupIntegrationTest_Roo_IntegrationTest {
         Assert.assertNotNull("Data on demand for 'PhysicalResourceGroup' failed to initialize correctly", obj);
         Long id = obj.getId();
         Assert.assertNotNull("Data on demand for 'PhysicalResourceGroup' failed to provide an identifier", id);
-        obj = PhysicalResourceGroup.findPhysicalResourceGroup(id);
+        obj = physicalResourceGroupService.findPhysicalResourceGroup(id);
         Assert.assertNotNull("Find method for 'PhysicalResourceGroup' illegally returned null for id '" + id + "'", obj);
         Assert.assertEquals("Find method for 'PhysicalResourceGroup' returned the incorrect identifier", id, obj.getId());
     }
@@ -47,9 +55,9 @@ privileged aspect PhysicalResourceGroupIntegrationTest_Roo_IntegrationTest {
     @Test
     public void PhysicalResourceGroupIntegrationTest.testFindAllPhysicalResourceGroups() {
         Assert.assertNotNull("Data on demand for 'PhysicalResourceGroup' failed to initialize correctly", dod.getRandomPhysicalResourceGroup());
-        long count = PhysicalResourceGroup.countPhysicalResourceGroups();
+        long count = physicalResourceGroupService.countAllPhysicalResourceGroups();
         Assert.assertTrue("Too expensive to perform a find all test for 'PhysicalResourceGroup', as there are " + count + " entries; set the findAllMaximum to exceed this value or set findAll=false on the integration test annotation to disable the test", count < 250);
-        List<PhysicalResourceGroup> result = PhysicalResourceGroup.findAllPhysicalResourceGroups();
+        List<PhysicalResourceGroup> result = physicalResourceGroupService.findAllPhysicalResourceGroups();
         Assert.assertNotNull("Find all method for 'PhysicalResourceGroup' illegally returned null", result);
         Assert.assertTrue("Find all method for 'PhysicalResourceGroup' failed to return any data", result.size() > 0);
     }
@@ -57,11 +65,11 @@ privileged aspect PhysicalResourceGroupIntegrationTest_Roo_IntegrationTest {
     @Test
     public void PhysicalResourceGroupIntegrationTest.testFindPhysicalResourceGroupEntries() {
         Assert.assertNotNull("Data on demand for 'PhysicalResourceGroup' failed to initialize correctly", dod.getRandomPhysicalResourceGroup());
-        long count = PhysicalResourceGroup.countPhysicalResourceGroups();
+        long count = physicalResourceGroupService.countAllPhysicalResourceGroups();
         if (count > 20) count = 20;
         int firstResult = 0;
         int maxResults = (int) count;
-        List<PhysicalResourceGroup> result = PhysicalResourceGroup.findPhysicalResourceGroupEntries(firstResult, maxResults);
+        List<PhysicalResourceGroup> result = physicalResourceGroupService.findPhysicalResourceGroupEntries(firstResult, maxResults);
         Assert.assertNotNull("Find entries method for 'PhysicalResourceGroup' illegally returned null", result);
         Assert.assertEquals("Find entries method for 'PhysicalResourceGroup' returned an incorrect number of entries", count, result.size());
     }
@@ -72,50 +80,50 @@ privileged aspect PhysicalResourceGroupIntegrationTest_Roo_IntegrationTest {
         Assert.assertNotNull("Data on demand for 'PhysicalResourceGroup' failed to initialize correctly", obj);
         Long id = obj.getId();
         Assert.assertNotNull("Data on demand for 'PhysicalResourceGroup' failed to provide an identifier", id);
-        obj = PhysicalResourceGroup.findPhysicalResourceGroup(id);
+        obj = physicalResourceGroupService.findPhysicalResourceGroup(id);
         Assert.assertNotNull("Find method for 'PhysicalResourceGroup' illegally returned null for id '" + id + "'", obj);
         boolean modified =  dod.modifyPhysicalResourceGroup(obj);
         Integer currentVersion = obj.getVersion();
-        obj.flush();
+        physicalResourceGroupRepo.flush();
         Assert.assertTrue("Version for 'PhysicalResourceGroup' failed to increment on flush directive", (currentVersion != null && obj.getVersion() > currentVersion) || !modified);
     }
     
     @Test
-    public void PhysicalResourceGroupIntegrationTest.testMergeUpdate() {
+    public void PhysicalResourceGroupIntegrationTest.testUpdatePhysicalResourceGroupUpdate() {
         PhysicalResourceGroup obj = dod.getRandomPhysicalResourceGroup();
         Assert.assertNotNull("Data on demand for 'PhysicalResourceGroup' failed to initialize correctly", obj);
         Long id = obj.getId();
         Assert.assertNotNull("Data on demand for 'PhysicalResourceGroup' failed to provide an identifier", id);
-        obj = PhysicalResourceGroup.findPhysicalResourceGroup(id);
+        obj = physicalResourceGroupService.findPhysicalResourceGroup(id);
         boolean modified =  dod.modifyPhysicalResourceGroup(obj);
         Integer currentVersion = obj.getVersion();
-        PhysicalResourceGroup merged = obj.merge();
-        obj.flush();
+        PhysicalResourceGroup merged = physicalResourceGroupService.updatePhysicalResourceGroup(obj);
+        physicalResourceGroupRepo.flush();
         Assert.assertEquals("Identifier of merged object not the same as identifier of original object", merged.getId(), id);
         Assert.assertTrue("Version for 'PhysicalResourceGroup' failed to increment on merge and flush directive", (currentVersion != null && obj.getVersion() > currentVersion) || !modified);
     }
     
     @Test
-    public void PhysicalResourceGroupIntegrationTest.testPersist() {
+    public void PhysicalResourceGroupIntegrationTest.testSavePhysicalResourceGroup() {
         Assert.assertNotNull("Data on demand for 'PhysicalResourceGroup' failed to initialize correctly", dod.getRandomPhysicalResourceGroup());
         PhysicalResourceGroup obj = dod.getNewTransientPhysicalResourceGroup(Integer.MAX_VALUE);
         Assert.assertNotNull("Data on demand for 'PhysicalResourceGroup' failed to provide a new transient entity", obj);
         Assert.assertNull("Expected 'PhysicalResourceGroup' identifier to be null", obj.getId());
-        obj.persist();
-        obj.flush();
+        physicalResourceGroupService.savePhysicalResourceGroup(obj);
+        physicalResourceGroupRepo.flush();
         Assert.assertNotNull("Expected 'PhysicalResourceGroup' identifier to no longer be null", obj.getId());
     }
     
     @Test
-    public void PhysicalResourceGroupIntegrationTest.testRemove() {
+    public void PhysicalResourceGroupIntegrationTest.testDeletePhysicalResourceGroup() {
         PhysicalResourceGroup obj = dod.getRandomPhysicalResourceGroup();
         Assert.assertNotNull("Data on demand for 'PhysicalResourceGroup' failed to initialize correctly", obj);
         Long id = obj.getId();
         Assert.assertNotNull("Data on demand for 'PhysicalResourceGroup' failed to provide an identifier", id);
-        obj = PhysicalResourceGroup.findPhysicalResourceGroup(id);
-        obj.remove();
-        obj.flush();
-        Assert.assertNull("Failed to remove 'PhysicalResourceGroup' with identifier '" + id + "'", PhysicalResourceGroup.findPhysicalResourceGroup(id));
+        obj = physicalResourceGroupService.findPhysicalResourceGroup(id);
+        physicalResourceGroupService.deletePhysicalResourceGroup(obj);
+        physicalResourceGroupRepo.flush();
+        Assert.assertNull("Failed to remove 'PhysicalResourceGroup' with identifier '" + id + "'", physicalResourceGroupService.findPhysicalResourceGroup(id));
     }
     
 }

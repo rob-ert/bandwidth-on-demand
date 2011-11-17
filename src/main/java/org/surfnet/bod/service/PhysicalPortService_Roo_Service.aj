@@ -4,6 +4,7 @@
 package org.surfnet.bod.service;
 
 import java.lang.Long;
+import java.util.List;
 import org.surfnet.bod.domain.PhysicalPort;
 
 privileged aspect PhysicalPortService_Roo_Service {
@@ -11,6 +12,8 @@ privileged aspect PhysicalPortService_Roo_Service {
     public abstract long PhysicalPortService.countAllPhysicalPorts();    
     public abstract void PhysicalPortService.deletePhysicalPort(PhysicalPort physicalPort);    
     public abstract PhysicalPort PhysicalPortService.findPhysicalPort(Long id);    
+    public abstract List<PhysicalPort> PhysicalPortService.findAllPhysicalPorts();    
+    public abstract List<PhysicalPort> PhysicalPortService.findPhysicalPortEntries(int firstResult, int maxResults);    
     public abstract void PhysicalPortService.savePhysicalPort(PhysicalPort physicalPort);    
     public abstract PhysicalPort PhysicalPortService.updatePhysicalPort(PhysicalPort physicalPort);    
 }

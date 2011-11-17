@@ -10,6 +10,7 @@ import java.lang.String;
 import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -20,8 +21,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 import org.surfnet.bod.domain.PhysicalResourceGroup;
+import org.surfnet.bod.service.PhysicalResourceGroupService;
 
 privileged aspect PhysicalResourceGroupController_Roo_Controller {
+    
+    @Autowired
+    PhysicalResourceGroupService PhysicalResourceGroupController.physicalResourceGroupService;
     
     @RequestMapping(method = RequestMethod.POST)
     public String PhysicalResourceGroupController.create(@Valid PhysicalResourceGroup physicalResourceGroup, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
@@ -30,7 +35,7 @@ privileged aspect PhysicalResourceGroupController_Roo_Controller {
             return "physicalresourcegroups/create";
         }
         uiModel.asMap().clear();
-        physicalResourceGroup.persist();
+        physicalResourceGroupService.savePhysicalResourceGroup(physicalResourceGroup);
         return "redirect:/physicalresourcegroups/" + encodeUrlPathSegment(physicalResourceGroup.getId().toString(), httpServletRequest);
     }
     
@@ -42,7 +47,7 @@ privileged aspect PhysicalResourceGroupController_Roo_Controller {
     
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public String PhysicalResourceGroupController.show(@PathVariable("id") Long id, Model uiModel) {
-        uiModel.addAttribute("physicalresourcegroup", PhysicalResourceGroup.findPhysicalResourceGroup(id));
+        uiModel.addAttribute("physicalresourcegroup", physicalResourceGroupService.findPhysicalResourceGroup(id));
         uiModel.addAttribute("itemId", id);
         return "physicalresourcegroups/show";
     }
@@ -52,11 +57,11 @@ privileged aspect PhysicalResourceGroupController_Roo_Controller {
         if (page != null || size != null) {
             int sizeNo = size == null ? 10 : size.intValue();
             final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
-            uiModel.addAttribute("physicalresourcegroups", PhysicalResourceGroup.findPhysicalResourceGroupEntries(firstResult, sizeNo));
-            float nrOfPages = (float) PhysicalResourceGroup.countPhysicalResourceGroups() / sizeNo;
+            uiModel.addAttribute("physicalresourcegroups", physicalResourceGroupService.findPhysicalResourceGroupEntries(firstResult, sizeNo));
+            float nrOfPages = (float) physicalResourceGroupService.countAllPhysicalResourceGroups() / sizeNo;
             uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1 : nrOfPages));
         } else {
-            uiModel.addAttribute("physicalresourcegroups", PhysicalResourceGroup.findAllPhysicalResourceGroups());
+            uiModel.addAttribute("physicalresourcegroups", physicalResourceGroupService.findAllPhysicalResourceGroups());
         }
         return "physicalresourcegroups/list";
     }
@@ -68,20 +73,20 @@ privileged aspect PhysicalResourceGroupController_Roo_Controller {
             return "physicalresourcegroups/update";
         }
         uiModel.asMap().clear();
-        physicalResourceGroup.merge();
+        physicalResourceGroupService.updatePhysicalResourceGroup(physicalResourceGroup);
         return "redirect:/physicalresourcegroups/" + encodeUrlPathSegment(physicalResourceGroup.getId().toString(), httpServletRequest);
     }
     
     @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
     public String PhysicalResourceGroupController.updateForm(@PathVariable("id") Long id, Model uiModel) {
-        uiModel.addAttribute("physicalResourceGroup", PhysicalResourceGroup.findPhysicalResourceGroup(id));
+        uiModel.addAttribute("physicalResourceGroup", physicalResourceGroupService.findPhysicalResourceGroup(id));
         return "physicalresourcegroups/update";
     }
     
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public String PhysicalResourceGroupController.delete(@PathVariable("id") Long id, @RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, Model uiModel) {
-        PhysicalResourceGroup physicalResourceGroup = PhysicalResourceGroup.findPhysicalResourceGroup(id);
-        physicalResourceGroup.remove();
+        PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.findPhysicalResourceGroup(id);
+        physicalResourceGroupService.deletePhysicalResourceGroup(physicalResourceGroup);
         uiModel.asMap().clear();
         uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
         uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
@@ -90,7 +95,7 @@ privileged aspect PhysicalResourceGroupController_Roo_Controller {
     
     @ModelAttribute("physicalresourcegroups")
     public Collection<PhysicalResourceGroup> PhysicalResourceGroupController.populatePhysicalResourceGroups() {
-        return PhysicalResourceGroup.findAllPhysicalResourceGroups();
+        return physicalResourceGroupService.findAllPhysicalResourceGroups();
     }
     
     String PhysicalResourceGroupController.encodeUrlPathSegment(String pathSegment, HttpServletRequest httpServletRequest) {

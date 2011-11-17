@@ -14,6 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import org.surfnet.bod.domain.PhysicalPortDataOnDemand;
+import org.surfnet.bod.repo.PhysicalPortRepo;
 import org.surfnet.bod.service.PhysicalPortService;
 
 privileged aspect PhysicalPortIntegrationTest_Roo_IntegrationTest {
@@ -29,6 +30,9 @@ privileged aspect PhysicalPortIntegrationTest_Roo_IntegrationTest {
     
     @Autowired
     PhysicalPortService PhysicalPortIntegrationTest.physicalPortService;
+    
+    @Autowired
+    PhysicalPortRepo PhysicalPortIntegrationTest.physicalPortRepo;
     
     @Test
     public void PhysicalPortIntegrationTest.testCountAllPhysicalPorts() {
@@ -46,16 +50,6 @@ privileged aspect PhysicalPortIntegrationTest_Roo_IntegrationTest {
         obj = physicalPortService.findPhysicalPort(id);
         Assert.assertNotNull("Find method for 'PhysicalPort' illegally returned null for id '" + id + "'", obj);
         Assert.assertEquals("Find method for 'PhysicalPort' returned the incorrect identifier", id, obj.getId());
-    }
-    
-    @Test
-    public void PhysicalPortIntegrationTest.testFindAllPhysicalPorts() {
-        Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to initialize correctly", dod.getRandomPhysicalPort());
-        long count = physicalPortService.countAllPhysicalPorts();
-        Assert.assertTrue("Too expensive to perform a find all test for 'PhysicalPort', as there are " + count + " entries; set the findAllMaximum to exceed this value or set findAll=false on the integration test annotation to disable the test", count < 250);
-        List<PhysicalPort> result = physicalPortService.findAllPhysicalPorts();
-        Assert.assertNotNull("Find all method for 'PhysicalPort' illegally returned null", result);
-        Assert.assertTrue("Find all method for 'PhysicalPort' failed to return any data", result.size() > 0);
     }
     
     @Test
@@ -80,7 +74,7 @@ privileged aspect PhysicalPortIntegrationTest_Roo_IntegrationTest {
         Assert.assertNotNull("Find method for 'PhysicalPort' illegally returned null for id '" + id + "'", obj);
         boolean modified =  dod.modifyPhysicalPort(obj);
         Integer currentVersion = obj.getVersion();
-        obj.flush();
+        physicalPortRepo.flush();
         Assert.assertTrue("Version for 'PhysicalPort' failed to increment on flush directive", (currentVersion != null && obj.getVersion() > currentVersion) || !modified);
     }
     
@@ -94,7 +88,7 @@ privileged aspect PhysicalPortIntegrationTest_Roo_IntegrationTest {
         boolean modified =  dod.modifyPhysicalPort(obj);
         Integer currentVersion = obj.getVersion();
         PhysicalPort merged = physicalPortService.updatePhysicalPort(obj);
-        obj.flush();
+        physicalPortRepo.flush();
         Assert.assertEquals("Identifier of merged object not the same as identifier of original object", merged.getId(), id);
         Assert.assertTrue("Version for 'PhysicalPort' failed to increment on merge and flush directive", (currentVersion != null && obj.getVersion() > currentVersion) || !modified);
     }
@@ -106,7 +100,7 @@ privileged aspect PhysicalPortIntegrationTest_Roo_IntegrationTest {
         Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to provide a new transient entity", obj);
         Assert.assertNull("Expected 'PhysicalPort' identifier to be null", obj.getId());
         physicalPortService.savePhysicalPort(obj);
-        obj.flush();
+        physicalPortRepo.flush();
         Assert.assertNotNull("Expected 'PhysicalPort' identifier to no longer be null", obj.getId());
     }
     
@@ -118,7 +112,7 @@ privileged aspect PhysicalPortIntegrationTest_Roo_IntegrationTest {
         Assert.assertNotNull("Data on demand for 'PhysicalPort' failed to provide an identifier", id);
         obj = physicalPortService.findPhysicalPort(id);
         physicalPortService.deletePhysicalPort(obj);
-        obj.flush();
+        physicalPortRepo.flush();
         Assert.assertNull("Failed to remove 'PhysicalPort' with identifier '" + id + "'", physicalPortService.findPhysicalPort(id));
     }
     

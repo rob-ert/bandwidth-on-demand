@@ -11,8 +11,11 @@ import java.util.List;
 import java.util.Random;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.surfnet.bod.domain.PhysicalResourceGroup;
+import org.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import org.surfnet.bod.service.PhysicalResourceGroupService;
 
 privileged aspect PhysicalResourceGroupDataOnDemand_Roo_DataOnDemand {
     
@@ -21,6 +24,12 @@ privileged aspect PhysicalResourceGroupDataOnDemand_Roo_DataOnDemand {
     private Random PhysicalResourceGroupDataOnDemand.rnd = new SecureRandom();
     
     private List<PhysicalResourceGroup> PhysicalResourceGroupDataOnDemand.data;
+    
+    @Autowired
+    PhysicalResourceGroupService PhysicalResourceGroupDataOnDemand.physicalResourceGroupService;
+    
+    @Autowired
+    PhysicalResourceGroupRepo PhysicalResourceGroupDataOnDemand.physicalResourceGroupRepo;
     
     public PhysicalResourceGroup PhysicalResourceGroupDataOnDemand.getNewTransientPhysicalResourceGroup(int index) {
         PhysicalResourceGroup obj = new PhysicalResourceGroup();
@@ -45,14 +54,14 @@ privileged aspect PhysicalResourceGroupDataOnDemand_Roo_DataOnDemand {
         if (index > (data.size() - 1)) index = data.size() - 1;
         PhysicalResourceGroup obj = data.get(index);
         java.lang.Long id = obj.getId();
-        return PhysicalResourceGroup.findPhysicalResourceGroup(id);
+        return physicalResourceGroupService.findPhysicalResourceGroup(id);
     }
     
     public PhysicalResourceGroup PhysicalResourceGroupDataOnDemand.getRandomPhysicalResourceGroup() {
         init();
         PhysicalResourceGroup obj = data.get(rnd.nextInt(data.size()));
         java.lang.Long id = obj.getId();
-        return PhysicalResourceGroup.findPhysicalResourceGroup(id);
+        return physicalResourceGroupService.findPhysicalResourceGroup(id);
     }
     
     public boolean PhysicalResourceGroupDataOnDemand.modifyPhysicalResourceGroup(PhysicalResourceGroup obj) {
@@ -62,7 +71,7 @@ privileged aspect PhysicalResourceGroupDataOnDemand_Roo_DataOnDemand {
     public void PhysicalResourceGroupDataOnDemand.init() {
         int from = 0;
         int to = 10;
-        data = PhysicalResourceGroup.findPhysicalResourceGroupEntries(from, to);
+        data = physicalResourceGroupService.findPhysicalResourceGroupEntries(from, to);
         if (data == null) throw new IllegalStateException("Find entries implementation for 'PhysicalResourceGroup' illegally returned null");
         if (!data.isEmpty()) {
             return;
@@ -72,7 +81,7 @@ privileged aspect PhysicalResourceGroupDataOnDemand_Roo_DataOnDemand {
         for (int i = 0; i < 10; i++) {
             PhysicalResourceGroup obj = getNewTransientPhysicalResourceGroup(i);
             try {
-                obj.persist();
+                physicalResourceGroupService.savePhysicalResourceGroup(obj);
             } catch (ConstraintViolationException e) {
                 StringBuilder msg = new StringBuilder();
                 for (Iterator<ConstraintViolation<?>> it = e.getConstraintViolations().iterator(); it.hasNext();) {
@@ -81,7 +90,7 @@ privileged aspect PhysicalResourceGroupDataOnDemand_Roo_DataOnDemand {
                 }
                 throw new RuntimeException(msg.toString(), e);
             }
-            obj.flush();
+            physicalResourceGroupRepo.flush();
             data.add(obj);
         }
     }

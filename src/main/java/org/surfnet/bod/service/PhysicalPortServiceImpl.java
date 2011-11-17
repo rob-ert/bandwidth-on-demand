@@ -7,29 +7,23 @@ import org.surfnet.bod.domain.PhysicalPort;
 public class PhysicalPortServiceImpl implements PhysicalPortService {
 
 	/**
-	 * Mock implementation which return a fixed List of {@link PhysicalPort}s
+	 * Basic implementation, just serves as a placeholder for the integration with
+	 * the NMS to retrieve physicalPorts
 	 * 
 	 * @return List<{@link PhysicalPort}>
 	 */
 	@Override
 	public List<PhysicalPort> findAllPhysicalPorts() {
 
-		List<PhysicalPort> physicalPorts = PhysicalPort.findAllPhysicalPorts();
-
-		PhysicalPort ppOne = new PhysicalPort();
-		ppOne.setName("TestPhysicalPort1");
-		// physicalPorts.add(ppOne);
-
-		PhysicalPort ppTwo = new PhysicalPort();
-		ppTwo.setName("TestPhysicalPort2");
-		// physicalPorts.add(ppTwo);
+		List<PhysicalPort> physicalPorts = physicalPortRepo.findAll();
 
 		return physicalPorts;
 	}
 
 	/**
 	 * Finds {@link PhysicalPort}s in case paging is used. Delegates to
-	 * {@link #findAllPhysicalPorts()} which will ignore the paging mechanism.
+	 * {@link #findAllPhysicalPorts()} which will ignore the paging mechanism for
+	 * now.
 	 * 
 	 * @param firstResult
 	 * @param sizeNo

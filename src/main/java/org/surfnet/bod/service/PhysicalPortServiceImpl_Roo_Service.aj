@@ -4,9 +4,11 @@
 package org.surfnet.bod.service;
 
 import java.lang.Long;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.surfnet.bod.domain.PhysicalPort;
+import org.surfnet.bod.repo.PhysicalPortRepo;
 
 privileged aspect PhysicalPortServiceImpl_Roo_Service {
     
@@ -14,24 +16,27 @@ privileged aspect PhysicalPortServiceImpl_Roo_Service {
     
     declare @type: PhysicalPortServiceImpl: @Transactional;
     
+    @Autowired
+    PhysicalPortRepo PhysicalPortServiceImpl.physicalPortRepo;
+    
     public long PhysicalPortServiceImpl.countAllPhysicalPorts() {
-        return PhysicalPort.countPhysicalPorts();
+        return physicalPortRepo.count();
     }
     
     public void PhysicalPortServiceImpl.deletePhysicalPort(PhysicalPort physicalPort) {
-        physicalPort.remove();
+        physicalPortRepo.delete(physicalPort);
     }
     
     public PhysicalPort PhysicalPortServiceImpl.findPhysicalPort(Long id) {
-        return PhysicalPort.findPhysicalPort(id);
+        return physicalPortRepo.findOne(id);
     }
     
     public void PhysicalPortServiceImpl.savePhysicalPort(PhysicalPort physicalPort) {
-        physicalPort.persist();
+        physicalPortRepo.save(physicalPort);
     }
     
     public PhysicalPort PhysicalPortServiceImpl.updatePhysicalPort(PhysicalPort physicalPort) {
-        return physicalPort.merge();
+        return physicalPortRepo.save(physicalPort);
     }
     
 }

@@ -23,11 +23,15 @@ import org.springframework.web.util.WebUtils;
 import org.surfnet.bod.domain.PhysicalPort;
 import org.surfnet.bod.domain.PhysicalResourceGroup;
 import org.surfnet.bod.service.PhysicalPortService;
+import org.surfnet.bod.service.PhysicalResourceGroupService;
 
 privileged aspect PhysicalPortController_Roo_Controller {
     
     @Autowired
     PhysicalPortService PhysicalPortController.physicalPortService;
+    
+    @Autowired
+    PhysicalResourceGroupService PhysicalPortController.physicalResourceGroupService;
     
     @RequestMapping(method = RequestMethod.POST)
     public String PhysicalPortController.create(@Valid PhysicalPort physicalPort, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
@@ -101,7 +105,7 @@ privileged aspect PhysicalPortController_Roo_Controller {
     
     @ModelAttribute("physicalresourcegroups")
     public Collection<PhysicalResourceGroup> PhysicalPortController.populatePhysicalResourceGroups() {
-        return PhysicalResourceGroup.findAllPhysicalResourceGroups();
+        return physicalResourceGroupService.findAllPhysicalResourceGroups();
     }
     
     String PhysicalPortController.encodeUrlPathSegment(String pathSegment, HttpServletRequest httpServletRequest) {

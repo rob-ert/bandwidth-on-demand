@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.surfnet.bod.domain.PhysicalPort;
 import org.surfnet.bod.domain.PhysicalResourceGroup;
 import org.surfnet.bod.domain.PhysicalResourceGroupDataOnDemand;
+import org.surfnet.bod.repo.PhysicalPortRepo;
 import org.surfnet.bod.service.PhysicalPortService;
 
 privileged aspect PhysicalPortDataOnDemand_Roo_DataOnDemand {
@@ -31,6 +32,9 @@ privileged aspect PhysicalPortDataOnDemand_Roo_DataOnDemand {
     
     @Autowired
     PhysicalPortService PhysicalPortDataOnDemand.physicalPortService;
+    
+    @Autowired
+    PhysicalPortRepo PhysicalPortDataOnDemand.physicalPortRepo;
     
     public PhysicalPort PhysicalPortDataOnDemand.getNewTransientPhysicalPort(int index) {
         PhysicalPort obj = new PhysicalPort();
@@ -91,7 +95,7 @@ privileged aspect PhysicalPortDataOnDemand_Roo_DataOnDemand {
                 }
                 throw new RuntimeException(msg.toString(), e);
             }
-            obj.flush();
+            physicalPortRepo.flush();
             data.add(obj);
         }
     }
