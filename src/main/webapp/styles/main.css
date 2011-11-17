@@ -1,5 +1,5 @@
 body {
-	padding-top: 40px;
+	padding-top: 50px;
 }
 input[type="image"] {
 	width: auto;
@@ -36,4 +36,10 @@ div.topbar h1 {
 	margin: 0;
 	padding: 20px 0 0 60px;
 	color: black;
+}
+.hero-unit h1 {
+  margin-bottom: 0;
+  font-size: 40px;
+  line-height: 1;
+  letter-spacing: -1px;
 }
