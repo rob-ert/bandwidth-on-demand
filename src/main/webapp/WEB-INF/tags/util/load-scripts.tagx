@@ -4,12 +4,14 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <!--<spring:url value="/resources/styles/screen.css" var="css_url" />-->
+    <spring:url value="/resources/styles/main.css" var="main_css_url" />
     <spring:url value="/resources/styles/bootstrap.min.css" var="bootstrap_css_url" />
     <spring:url value="/resources/js/bootstrap-dropdown.js" var="bootstrap_dropdown_url" />
     <spring:url value="/resources/js/jquery.min.js" var="jquery_url" />
     
     <!-- <link rel="stylesheet" type="text/css" media="screen" href="${css_url}" /> -->
     <link rel="stylesheet" type="text/csss" media="screen" href="${bootstrap_css_url}" />
+    <link rel="stylesheet" type="text/csss" media="screen" href="${main_css_url}" />
     
     <script src="${jquery_url}" type="text/javascript"><!-- needed --></script>
     <script src="${bootstrap_dropdown_url}" type="text/javascript"><!-- needed --></script>

@@ -15,26 +15,6 @@
         
         <spring:message code="application_name" var="app_name" htmlEscape="false" />
         <title><spring:message code="welcome_h3" arguments="${app_name}" /></title>
-        
-        <style type="text/css">
-          body {
-            padding-top: 60px;
-          }
-          input[type="image"] {
-            width: auto;
-            height: auto;
-            line-height: auto;
-            border: none;
-            padding: 0px;
-          }
-          form#command {
-            display: inline;
-            margin: 0px;
-          }
-          .utilbox a {
-            padding-right: 5px;
-          }
-        </style>
     </head>
         
     <body>

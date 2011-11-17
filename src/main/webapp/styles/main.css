@@ -1,0 +1,39 @@
+body {
+	padding-top: 40px;
+}
+input[type="image"] {
+	width: auto;
+	height: auto;
+	line-height: auto;
+	border: none;
+	padding: 0px;
+}
+form#command {
+	display: inline;
+	margin: 0px;
+}
+.utilbox a {
+	padding-right: 5px;
+}
+.container {
+	margin-top: 80px;
+}
+div.topbar {
+	background: url(../images/body_theme_bck.gif) no-repeat;
+	background-color: white;
+	width: 940px;
+	height: 120px;
+	margin-left: auto;
+	margin-right: auto;
+}
+div.topbar img.logo {
+	float: left;
+	margin: 10px 0 0 10px;
+	border: 0;
+}
+div.topbar h1 {
+	float: left;
+	margin: 0;
+	padding: 20px 0 0 60px;
+	color: black;
+}
