@@ -7,7 +7,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -39,9 +38,7 @@ public class NbiClient {
 	private Unmarshaller unMarshaller;
 	private OSSHandle ossHandle;
 
-	@SuppressWarnings("unused")
-	@PostConstruct
-	private void init() throws RemoteException, RMIAccessException,
+	public void init() throws RemoteException, RMIAccessException,
 	    MalformedURLException, NotBoundException, JAXBException {
 		log.info("Connecting with username {} to: {}", username, url);
 		final RMIAccessAPI rmiAccessApi = (RMIAccessAPI) Naming.lookup(url);
