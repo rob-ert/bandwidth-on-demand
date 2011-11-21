@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 
-@RequestMapping("/physicalports")
+@RequestMapping("/noc/physicalports")
 @Controller
 public class PhysicalPortController {
 
@@ -43,9 +43,8 @@ public class PhysicalPortController {
 		}
 		uiModel.asMap().clear();
 		physicalPortService.savePhysicalPort(physicalPort);
-		return "redirect:/physicalports/"
-		    + encodeUrlPathSegment(physicalPort.getId().toString(),
-		        httpServletRequest);
+		// Do not return to the create instance, but to the list view
+		return "redirect:physicalports/";
 	}
 
 	@RequestMapping(params = "form", method = RequestMethod.GET)
@@ -97,7 +96,7 @@ public class PhysicalPortController {
 		}
 		uiModel.asMap().clear();
 		physicalPortService.updatePhysicalPort(physicalPort);
-		return "redirect:/physicalports/"
+		return "redirect:physicalports/"
 		    + encodeUrlPathSegment(physicalPort.getId().toString(),
 		        httpServletRequest);
 	}
@@ -120,7 +119,7 @@ public class PhysicalPortController {
 		uiModel.asMap().clear();
 		uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
 		uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
-		return "redirect:/physicalports";
+		return "redirect:physicalports";
 	}
 
 	@ModelAttribute("physicalports")

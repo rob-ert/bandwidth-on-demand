@@ -6,11 +6,11 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
     
-    <form:create id="fc_org_surfnet_bod_domain_PhysicalPort" modelAttribute="physicalPort" path="/physicalports"
+    <form:create id="fc_org_surfnet_bod_domain_PhysicalPort" modelAttribute="physicalPort" path="/noc/physicalports"
         render="${empty dependencies}">
         <field:input field="name" id="c_org_surfnet_bod_domain_PhysicalPort_name" />
         <field:select field="physicalResourceGroup" id="c_org_surfnet_bod_domain_PhysicalPort_physicalResourceGroup"
-            itemValue="id" items="${physicalresourcegroups}" path="/physicalresourcegroups" />
+            itemValue="id" items="${physicalresourcegroups}" path="/noc/physicalresourcegroups" />
     </form:create>
     
     <form:dependency dependencies="${dependencies}" id="d_org_surfnet_bod_domain_PhysicalPort"

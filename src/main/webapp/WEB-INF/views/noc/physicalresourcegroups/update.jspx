@@ -6,7 +6,7 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <form:update id="fu_org_surfnet_bod_domain_PhysicalResourceGroup" modelAttribute="physicalResourceGroup"
-        path="/physicalresourcegroups" versionField="Version">
+        path="/noc/physicalresourcegroups" versionField="Version">
         <field:input field="name" id="c_org_surfnet_bod_domain_PhysicalResourceGroup_name" required="true" />
         <field:input field="institutionName" id="c_org_surfnet_bod_domain_PhysicalResourceGroup_institutionName"
             required="true" />
