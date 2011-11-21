@@ -1,6 +1,6 @@
 package nl.surfnet.bod.nbi.client;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@Ignore("Needs vpn")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/bod-nbi-client.xml" })
 public class NbiClientTest {
@@ -51,6 +53,5 @@ public class NbiClientTest {
 		final List<TerminationPoint> allTerminationPoints = nbiClient.getAllPorts();
 		assertEquals(260, allTerminationPoints.size());
 	}
-	
 
 }

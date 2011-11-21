@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Configurable
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:/META-INF/spring/applicationContext*.xml")
+@ContextConfiguration(locations = "classpath:/spring/applicationContext*.xml")
 @Transactional
 public class PhysicalResourceGroupIntegrationTest {
 

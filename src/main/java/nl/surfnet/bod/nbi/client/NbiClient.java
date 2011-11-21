@@ -63,7 +63,7 @@ public class NbiClient {
 			final String allPortsXml = ossHandle.getInventory(
 			    nbbiConfigurator.getUsername(), nbbiConfigurator.getPassword(),
 			    "getResourcesWithAttributes", "type=Port", null);
-			log.debug("Retrievd all ports: {}", allPortsXml);
+			log.debug("Retrieved all ports: {}", allPortsXml);
 			return ((InventoryResponse) unMarshaller.unmarshal(new StringReader(
 			    allPortsXml))).getTerminationPoint();
 		}
