@@ -6,11 +6,11 @@ input[type="image"] {
 	height: auto;
 	line-height: auto;
 	border: none;
-	padding: 0px;
+	padding: 0;
 }
 form#command {
 	display: inline;
-	margin: 0px;
+	margin: 0;
 }
 .utilbox a {
 	padding-right: 5px;
