@@ -2,12 +2,14 @@ package nl.surfnet.bod.web;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.PhysicalPortServiceImpl;
+import nl.surfnet.bod.service.PhysicalResourceGroupServiceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,95 +28,122 @@ import org.springframework.web.util.WebUtils;
 public class PhysicalPortController {
 
 	@Autowired
-    PhysicalPortService physicalPortService;
+	PhysicalPortServiceImpl physicalPortService;
 
 	@Autowired
-    PhysicalResourceGroupService physicalResourceGroupService;
+	PhysicalResourceGroupServiceImpl physicalResourceGroupService;
 
 	@RequestMapping(method = RequestMethod.POST)
-    public String create(@Valid PhysicalPort physicalPort, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
-        if (bindingResult.hasErrors()) {
-            uiModel.addAttribute("physicalPort", physicalPort);
-            return "physicalports/create";
-        }
-        uiModel.asMap().clear();
-        physicalPortService.savePhysicalPort(physicalPort);
-        return "redirect:/physicalports/" + encodeUrlPathSegment(physicalPort.getId().toString(), httpServletRequest);
-    }
+	public String create(@Valid final PhysicalPort physicalPort,
+	    final BindingResult bindingResult, final Model uiModel,
+	    final HttpServletRequest httpServletRequest) {
+		if (bindingResult.hasErrors()) {
+			uiModel.addAttribute("physicalPort", physicalPort);
+			return "physicalports/create";
+		}
+		uiModel.asMap().clear();
+		physicalPortService.savePhysicalPort(physicalPort);
+		return "redirect:/physicalports/"
+		    + encodeUrlPathSegment(physicalPort.getId().toString(),
+		        httpServletRequest);
+	}
 
 	@RequestMapping(params = "form", method = RequestMethod.GET)
-    public String createForm(Model uiModel) {
-        uiModel.addAttribute("physicalPort", new PhysicalPort());
-        return "physicalports/create";
-    }
+	public String createForm(final Model uiModel) {
+		uiModel.addAttribute("physicalPort", new PhysicalPort());
+		return "physicalports/create";
+	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public String show(@PathVariable("id") Long id, Model uiModel) {
-        uiModel.addAttribute("physicalport", physicalPortService.findPhysicalPort(id));
-        uiModel.addAttribute("itemId", id);
-        return "physicalports/show";
-    }
+	public String show(@PathVariable("id") final Long id, final Model uiModel) {
+		uiModel.addAttribute("physicalport",
+		    physicalPortService.findPhysicalPort(id));
+		uiModel.addAttribute("itemId", id);
+		return "physicalports/show";
+	}
 
 	@RequestMapping(method = RequestMethod.GET)
-    public String list(@RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, Model uiModel) {
-        if (page != null || size != null) {
-            int sizeNo = size == null ? 10 : size.intValue();
-            final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
-            uiModel.addAttribute("physicalports", physicalPortService.findPhysicalPortEntries(firstResult, sizeNo));
-            float nrOfPages = (float) physicalPortService.countAllPhysicalPorts() / sizeNo;
-            uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1 : nrOfPages));
-        } else {
-            uiModel.addAttribute("physicalports", physicalPortService.findAllPhysicalPorts());
-        }
-        return "physicalports/list";
-    }
+	public String list(
+	    @RequestParam(value = "page", required = false) final Integer page,
+	    @RequestParam(value = "size", required = false) final Integer size,
+	    final Model uiModel) {
+		if (page != null || size != null) {
+			int sizeNo = size == null ? 10 : size.intValue();
+			final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
+			uiModel.addAttribute("physicalports",
+			    physicalPortService.findPhysicalPortEntries(firstResult, sizeNo));
+			float nrOfPages = (float) physicalPortService.countAllPhysicalPorts()
+			    / sizeNo;
+			uiModel
+			    .addAttribute(
+			        "maxPages",
+			        (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
+			            : nrOfPages));
+		}
+		else {
+			uiModel.addAttribute("physicalports",
+			    physicalPortService.findAllPhysicalPorts());
+		}
+		return "physicalports/list";
+	}
 
 	@RequestMapping(method = RequestMethod.PUT)
-    public String update(@Valid PhysicalPort physicalPort, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
-        if (bindingResult.hasErrors()) {
-            uiModel.addAttribute("physicalPort", physicalPort);
-            return "physicalports/update";
-        }
-        uiModel.asMap().clear();
-        physicalPortService.updatePhysicalPort(physicalPort);
-        return "redirect:/physicalports/" + encodeUrlPathSegment(physicalPort.getId().toString(), httpServletRequest);
-    }
+	public String update(@Valid final PhysicalPort physicalPort,
+	    final BindingResult bindingResult, final Model uiModel,
+	    final HttpServletRequest httpServletRequest) {
+		if (bindingResult.hasErrors()) {
+			uiModel.addAttribute("physicalPort", physicalPort);
+			return "physicalports/update";
+		}
+		uiModel.asMap().clear();
+		physicalPortService.updatePhysicalPort(physicalPort);
+		return "redirect:/physicalports/"
+		    + encodeUrlPathSegment(physicalPort.getId().toString(),
+		        httpServletRequest);
+	}
 
 	@RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
-    public String updateForm(@PathVariable("id") Long id, Model uiModel) {
-        uiModel.addAttribute("physicalPort", physicalPortService.findPhysicalPort(id));
-        return "physicalports/update";
-    }
+	public String updateForm(@PathVariable("id") final Long id,
+	    final Model uiModel) {
+		uiModel.addAttribute("physicalPort",
+		    physicalPortService.findPhysicalPort(id));
+		return "physicalports/update";
+	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public String delete(@PathVariable("id") Long id, @RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, Model uiModel) {
-        PhysicalPort physicalPort = physicalPortService.findPhysicalPort(id);
-        physicalPortService.deletePhysicalPort(physicalPort);
-        uiModel.asMap().clear();
-        uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
-        uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
-        return "redirect:/physicalports";
-    }
+	public String delete(@PathVariable("id") final Long id,
+	    @RequestParam(value = "page", required = false) final Integer page,
+	    @RequestParam(value = "size", required = false) final Integer size,
+	    final Model uiModel) {
+		PhysicalPort physicalPort = physicalPortService.findPhysicalPort(id);
+		physicalPortService.deletePhysicalPort(physicalPort);
+		uiModel.asMap().clear();
+		uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
+		uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
+		return "redirect:/physicalports";
+	}
 
 	@ModelAttribute("physicalports")
-    public Collection<PhysicalPort> populatePhysicalPorts() {
-        return physicalPortService.findAllPhysicalPorts();
-    }
+	public Collection<PhysicalPort> populatePhysicalPorts() {
+		return physicalPortService.findAllPhysicalPorts();
+	}
 
 	@ModelAttribute("physicalresourcegroups")
-    public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
-        return physicalResourceGroupService.findAllPhysicalResourceGroups();
-    }
+	public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
+		return physicalResourceGroupService.findAllPhysicalResourceGroups();
+	}
 
-	String encodeUrlPathSegment(String pathSegment, HttpServletRequest httpServletRequest) {
-        String enc = httpServletRequest.getCharacterEncoding();
-        if (enc == null) {
-            enc = WebUtils.DEFAULT_CHARACTER_ENCODING;
-        }
-        try {
-            pathSegment = UriUtils.encodePathSegment(pathSegment, enc);
-        }
-        catch (UnsupportedEncodingException uee) {}
-        return pathSegment;
-    }
+	String encodeUrlPathSegment(String pathSegment,
+	    final HttpServletRequest httpServletRequest) {
+		String enc = httpServletRequest.getCharacterEncoding();
+		if (enc == null) {
+			enc = WebUtils.DEFAULT_CHARACTER_ENCODING;
+		}
+		try {
+			pathSegment = UriUtils.encodePathSegment(pathSegment, enc);
+		}
+		catch (UnsupportedEncodingException uee) {
+		}
+		return pathSegment;
+	}
 }

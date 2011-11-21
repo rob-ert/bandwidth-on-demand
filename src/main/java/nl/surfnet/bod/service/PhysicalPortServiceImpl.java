@@ -4,13 +4,14 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class PhysicalPortServiceImpl implements PhysicalPortService {
+public class PhysicalPortServiceImpl {
 
 	/**
 	 * Basic implementation, just serves as a placeholder for the integration with
@@ -18,7 +19,6 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 	 * 
 	 * @return List<{@link PhysicalPort}>
 	 */
-	@Override
 	public List<PhysicalPort> findAllPhysicalPorts() {
 
 		List<PhysicalPort> physicalPorts = physicalPortRepo.findAll();
@@ -35,33 +35,31 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 	 * @param sizeNo
 	 * @return List of PhysicalPorts
 	 */
-	@Override
 	public List<PhysicalPort> findPhysicalPortEntries(final int firstResult,
 	    final int sizeNo) {
 		return findAllPhysicalPorts();
 	}
 
-
 	@Autowired
-    PhysicalPortRepo physicalPortRepo;
+	PhysicalPortRepo physicalPortRepo;
 
 	public long countAllPhysicalPorts() {
-        return physicalPortRepo.count();
-    }
+		return physicalPortRepo.count();
+	}
 
-	public void deletePhysicalPort(PhysicalPort physicalPort) {
-        physicalPortRepo.delete(physicalPort);
-    }
+	public void deletePhysicalPort(final PhysicalPort physicalPort) {
+		physicalPortRepo.delete(physicalPort);
+	}
 
-	public PhysicalPort findPhysicalPort(Long id) {
-        return physicalPortRepo.findOne(id);
-    }
+	public PhysicalPort findPhysicalPort(final Long id) {
+		return physicalPortRepo.findOne(id);
+	}
 
-	public void savePhysicalPort(PhysicalPort physicalPort) {
-        physicalPortRepo.save(physicalPort);
-    }
+	public void savePhysicalPort(final PhysicalPort physicalPort) {
+		physicalPortRepo.save(physicalPort);
+	}
 
-	public PhysicalPort updatePhysicalPort(PhysicalPort physicalPort) {
-        return physicalPortRepo.save(physicalPort);
-    }
+	public PhysicalPort updatePhysicalPort(final PhysicalPort physicalPort) {
+		return physicalPortRepo.save(physicalPort);
+	}
 }
