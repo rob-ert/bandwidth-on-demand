@@ -485,7 +485,7 @@
                     </dependency>
                 </dependencies>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.jvnet.jaxb2.maven2</groupId>
                 <artifactId>maven-jaxb22-plugin</artifactId>
@@ -510,9 +510,32 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>2.5.1</version>
+                <configuration>
+                    <instrumentation>
+                        <ignores>
+                            <ignore>nl.surfnet.bod.nbi.client.*</ignore>
+                        </ignores>
+                        <excludes>
+                            <exclude>nl/surfnet/bod/nbi/client/**/*.class</exclude>
+                        </excludes>
+                    </instrumentation>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
-    
+
     <profiles>
         <profile>
             <id>junit</id>
@@ -536,7 +559,7 @@
             </properties>
         </profile>
     </profiles>
-    
+
     <repositories>
         <repository>
             <id>spring-maven-release</id>
@@ -569,15 +592,15 @@
     </pluginRepositories>
 
     <distributionManagement>
-       <repository>
-           <id>surfnet-releases</id>
-           <name>surfnet-releases</name>
-           <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/releases</url>
-       </repository>
-       <snapshotRepository>
-           <id>surfnet-snapshots</id>
-           <name>surfnet-snapshots</name>
-           <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/snapshots</url>
-       </snapshotRepository>
-   </distributionManagement>
+        <repository>
+            <id>surfnet-releases</id>
+            <name>surfnet-releases</name>
+            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>surfnet-snapshots</id>
+            <name>surfnet-snapshots</name>
+            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
