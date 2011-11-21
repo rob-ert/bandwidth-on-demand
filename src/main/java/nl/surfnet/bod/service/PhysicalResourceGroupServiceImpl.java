@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PhysicalResourceGroupServiceImpl {
 
 	@Autowired
-	PhysicalResourceGroupRepo physicalResourceGroupRepo;
+	private PhysicalResourceGroupRepo physicalResourceGroupRepo;
 
 	public long countAllPhysicalResourceGroups() {
 		return physicalResourceGroupRepo.count();
@@ -33,20 +33,16 @@ public class PhysicalResourceGroupServiceImpl {
 		return physicalResourceGroupRepo.findAll();
 	}
 
-	public List<PhysicalResourceGroup> findPhysicalResourceGroupEntries(
-	    final int firstResult, final int maxResults) {
+	public List<PhysicalResourceGroup> findPhysicalResourceGroupEntries(final int firstResult, final int maxResults) {
 		return physicalResourceGroupRepo.findAll(
-		    new org.springframework.data.domain.PageRequest(firstResult
-		        / maxResults, maxResults)).getContent();
+		    new org.springframework.data.domain.PageRequest(firstResult / maxResults, maxResults)).getContent();
 	}
 
-	public void savePhysicalResourceGroup(
-	    final PhysicalResourceGroup physicalResourceGroup) {
+    public void savePhysicalResourceGroup(final PhysicalResourceGroup physicalResourceGroup) {
 		physicalResourceGroupRepo.save(physicalResourceGroup);
 	}
 
-	public PhysicalResourceGroup updatePhysicalResourceGroup(
-	    final PhysicalResourceGroup physicalResourceGroup) {
+	public PhysicalResourceGroup updatePhysicalResourceGroup(final PhysicalResourceGroup physicalResourceGroup) {
 		return physicalResourceGroupRepo.save(physicalResourceGroup);
 	}
 }
