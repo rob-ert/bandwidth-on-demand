@@ -62,8 +62,7 @@ public class NbiClient {
 			log.debug("Retrieved all ports: {}", allPortsXml);
 			return ((InventoryResponse) unMarshaller.unmarshal(new StringReader(
 			    allPortsXml))).getTerminationPoint();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			log.error("Error: ", e);
 			return null;
 		}
@@ -73,11 +72,9 @@ public class NbiClient {
 		if (ossHandle == null) {
 			try {
 				init();
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				log.error("Error: ", e);
 			}
-
 		}
 	}
 
