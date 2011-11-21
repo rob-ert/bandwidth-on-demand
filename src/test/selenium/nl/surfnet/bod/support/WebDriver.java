@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import nl.surfnet.bod.pages.NewPhysicalGroupPage;
-import nl.surfnet.bod.pages.ShowPhysicalGroupPage;
+import nl.surfnet.bod.pages.ListPhysicalGroupPage;
 
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -16,9 +16,9 @@ import com.google.common.io.Files;
 
 public class WebDriver {
 
-    protected FirefoxDriver driver;
-    
-    private static final String URL_UNDER_TEST = System.getProperty("selenium.test.url");
+    private static final String URL_UNDER_TEST = withEndingSlash(System.getProperty("selenium.test.url"));
+
+    private FirefoxDriver driver;
 
     public synchronized void initializeOnce() {
         if (driver == null) {
@@ -41,21 +41,25 @@ public class WebDriver {
             Files.copy(temp, screenshot);
         }
     }
-    
-    
+
+
 
     public void createNewPhysicalGroup(String name) {
         NewPhysicalGroupPage page = NewPhysicalGroupPage.get(driver, URL_UNDER_TEST);
         page.sendName(name);
         page.sendInstitution("SURFnet B.V.");
-        
+
         page.save();
     }
 
     public void verifyGroupWasCreated(String name) {
-        ShowPhysicalGroupPage page = ShowPhysicalGroupPage.get(driver);
-        String row = page.getNameRow();
+        ListPhysicalGroupPage page = ListPhysicalGroupPage.get(driver);
+        String row = page.getTable();
 
         assertThat(row, containsString(name));
+    }
+
+    private static String withEndingSlash(String path) {
+        return path.endsWith("/") ? path : path + "/";
     }
 }
