@@ -7,7 +7,7 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <form:create id="fc_org_surfnet_bod_domain_PhysicalResourceGroup" modelAttribute="physicalResourceGroup"
-        path="/physicalresourcegroups" render="${empty dependencies}">
+        path="/noc/physicalresourcegroups" render="${empty dependencies}">
 
         <field:input field="name" id="c_org_surfnet_bod_domain_PhysicalResourceGroup_name" required="true" />
         <field:input field="institutionName" id="c_org_surfnet_bod_domain_PhysicalResourceGroup_institutionName"

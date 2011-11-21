@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 
-@RequestMapping("/physicalresourcegroups")
+@RequestMapping("/noc/physicalresourcegroups")
 @Controller
 public class PhysicalResourceGroupController {
 
@@ -40,7 +40,7 @@ public class PhysicalResourceGroupController {
 		uiModel.asMap().clear();
 		physicalResourceGroupService
 		    .savePhysicalResourceGroup(physicalResourceGroup);
-		return "redirect:/physicalresourcegroups/"
+		return "redirect:physicalresourcegroups/"
 		    + encodeUrlPathSegment(physicalResourceGroup.getId().toString(),
 		        httpServletRequest);
 	}
@@ -97,7 +97,7 @@ public class PhysicalResourceGroupController {
 		uiModel.asMap().clear();
 		physicalResourceGroupService
 		    .updatePhysicalResourceGroup(physicalResourceGroup);
-		return "redirect:/physicalresourcegroups/"
+		return "redirect:physicalresourcegroups/"
 		    + encodeUrlPathSegment(physicalResourceGroup.getId().toString(),
 		        httpServletRequest);
 	}
@@ -122,7 +122,7 @@ public class PhysicalResourceGroupController {
 		uiModel.asMap().clear();
 		uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
 		uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
-		return "redirect:/physicalresourcegroups";
+		return "redirect:physicalresourcegroups";
 	}
 
 	@ModelAttribute("physicalresourcegroups")

@@ -20,14 +20,14 @@
             <div class="container">
                 <menu:menu id="_menu">
                     <menu:category id="c_physicalresourcegroup">
-                        <menu:item id="i_prg_new" url="/physicalresourcegroups?form" messageCode="global_menu_new" />
+                        <menu:item id="i_prg_new" url="/noc/physicalresourcegroups?form" messageCode="global_menu_new" />
                         <menu:item id="i_prg_list" messageCode="global_menu_list"
-                            url="/physicalresourcegroups?page=1&amp;size=${empty param.size ? 10 : param.size}" />
+                            url="/noc/physicalresourcegroups?page=1&amp;size=${empty param.size ? 10 : param.size}" />
                     </menu:category>
                     <menu:category id="c_physicalport">
-                        <menu:item id="i_pp_new" url="/physicalports?form" messageCode="global_menu_new" />
+                        <menu:item id="i_pp_new" url="/noc/physicalports?form" messageCode="global_menu_new" />
                         <menu:item id="i_pp_list" messageCode="global_menu_list"
-                            url="/physicalports?page=1&amp;size=${empty param.size ? 10 : param.size}" />
+                            url="/noc/physicalports?page=1&amp;size=${empty param.size ? 10 : param.size}" />
                     </menu:category>
                 </menu:menu>
                 <ul class="nav secondary-nav">

@@ -6,7 +6,7 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <page:show id="ps_org_surfnet_bod_domain_PhysicalResourceGroup" object="${physicalresourcegroup}"
-        path="/physicalresourcegroups">
+        path="/noc/physicalresourcegroups">
         <field:display field="name" id="s_org_surfnet_bod_domain_PhysicalResourceGroup_name"
             object="${physicalresourcegroup}" />
         <field:display field="institutionName" id="s_org_surfnet_bod_domain_PhysicalResourceGroup_institutionName"
