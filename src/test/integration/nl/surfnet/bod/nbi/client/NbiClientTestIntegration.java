@@ -20,9 +20,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@Ignore("Needs vpn")
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "/spring/bod-nbi-client.xml" })
+@ContextConfiguration(locations = { "/spring/appCtx-nbi-client.xml" })
 public class NbiClientTestIntegration {
 
 	@SuppressWarnings("unused")

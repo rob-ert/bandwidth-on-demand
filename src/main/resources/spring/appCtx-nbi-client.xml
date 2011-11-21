@@ -15,7 +15,7 @@
        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd
        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
 
-  <bean class="nl.surfnet.bod.nbi.client.NbiClient" id="nbiClient" init-method="init" lazy-init="true">
+  <bean id="nbiClient" class="${nbiClientClass}" lazy-init="true">
     <property name="username" value="${nbiUsername}" />
     <property name="password" value="${nbiPassword}" />
     <property name="url" value="${nbiUrl}" />
@@ -53,7 +53,8 @@
     <property name="ignoreResourceNotFound" value="true" />
     <property name="locations">
         <list>
-          <value>classpath:env/bod-nbi-client-default.xml</value>
+          <value>classpath:env/bod-nbi-client-test.xml</value>
+          <value>classpath:env/bod-nbi-client-dev.xml</value>
           <value>classpath:env/database.xml</value>          
       </list>
     </property>     

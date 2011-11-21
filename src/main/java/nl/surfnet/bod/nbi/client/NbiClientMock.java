@@ -21,7 +21,7 @@ import com.adventnet.security.authentication.RMIAccessAPI;
 import com.adventnet.security.authentication.RMIAccessException;
 import com.esm.server.api.oss.OSSHandle;
 
-public class NbiClient {
+public class NbiClientMock {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
