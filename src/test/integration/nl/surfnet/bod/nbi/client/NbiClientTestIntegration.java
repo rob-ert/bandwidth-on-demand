@@ -27,6 +27,8 @@ public class NbiClientTestIntegration {
 	@SuppressWarnings("unused")
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	private boolean isSkiped = false;
+
 	@Autowired
 	@Qualifier("nbiClient")
 	private NbiClient nbiClient;
@@ -41,6 +43,9 @@ public class NbiClientTestIntegration {
 
 	@Before
 	public void setUp() throws Exception {
+		if (nbiClient.getClass().isAssignableFrom(NbiClientMock.class)) {
+			isSkiped = true;
+		}
 	}
 
 	@After
@@ -49,6 +54,9 @@ public class NbiClientTestIntegration {
 
 	@Test
 	public void testGetAllPortsWithDetails() {
+		if (isSkiped) {
+			return;
+		}
 		final List<TerminationPoint> allTerminationPoints = nbiClient.getAllPorts();
 		assertEquals(260, allTerminationPoints.size());
 	}
