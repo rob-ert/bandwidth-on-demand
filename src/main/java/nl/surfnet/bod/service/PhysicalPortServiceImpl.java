@@ -13,10 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PhysicalPortServiceImpl {
 
+    @Autowired
+    private PhysicalPortRepo physicalPortRepo;
+
 	/**
 	 * Basic implementation, just serves as a placeholder for the integration with
 	 * the NMS to retrieve physicalPorts
-	 * 
+	 *
 	 * @return List<{@link PhysicalPort}>
 	 */
 	public List<PhysicalPort> findAllPhysicalPorts() {
@@ -30,7 +33,7 @@ public class PhysicalPortServiceImpl {
 	 * Finds {@link PhysicalPort}s in case paging is used. Delegates to
 	 * {@link #findAllPhysicalPorts()} which will ignore the paging mechanism for
 	 * now.
-	 * 
+	 *
 	 * @param firstResult
 	 * @param sizeNo
 	 * @return List of PhysicalPorts
@@ -39,9 +42,6 @@ public class PhysicalPortServiceImpl {
 	    final int sizeNo) {
 		return findAllPhysicalPorts();
 	}
-
-	@Autowired
-	PhysicalPortRepo physicalPortRepo;
 
 	public long countAllPhysicalPorts() {
 		return physicalPortRepo.count();
