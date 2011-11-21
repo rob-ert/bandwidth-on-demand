@@ -1,7 +1,28 @@
 package nl.surfnet.bod.service;
 
-import org.springframework.roo.addon.layers.service.RooService;
+import java.util.List;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
-@RooService(domainTypes = { nl.surfnet.bod.domain.PhysicalResourceGroup.class })
 public interface PhysicalResourceGroupService {
+
+	public abstract long countAllPhysicalResourceGroups();
+
+
+	public abstract void deletePhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup);
+
+
+	public abstract PhysicalResourceGroup findPhysicalResourceGroup(Long id);
+
+
+	public abstract List<PhysicalResourceGroup> findAllPhysicalResourceGroups();
+
+
+	public abstract List<PhysicalResourceGroup> findPhysicalResourceGroupEntries(int firstResult, int maxResults);
+
+
+	public abstract void savePhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup);
+
+
+	public abstract PhysicalResourceGroup updatePhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup);
+
 }

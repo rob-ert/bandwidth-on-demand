@@ -3,7 +3,13 @@ package nl.surfnet.bod.service;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Service
+@Transactional
 public class PhysicalPortServiceImpl implements PhysicalPortService {
 
 	/**
@@ -35,4 +41,27 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 		return findAllPhysicalPorts();
 	}
 
+
+	@Autowired
+    PhysicalPortRepo physicalPortRepo;
+
+	public long countAllPhysicalPorts() {
+        return physicalPortRepo.count();
+    }
+
+	public void deletePhysicalPort(PhysicalPort physicalPort) {
+        physicalPortRepo.delete(physicalPort);
+    }
+
+	public PhysicalPort findPhysicalPort(Long id) {
+        return physicalPortRepo.findOne(id);
+    }
+
+	public void savePhysicalPort(PhysicalPort physicalPort) {
+        physicalPortRepo.save(physicalPort);
+    }
+
+	public PhysicalPort updatePhysicalPort(PhysicalPort physicalPort) {
+        return physicalPortRepo.save(physicalPort);
+    }
 }
