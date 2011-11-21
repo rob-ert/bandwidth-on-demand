@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:menu="urn:jsptagdir:/WEB-INF/tags/menu" id="menu" version="2.0">
+    <jsp:directive.page contentType="text/html;charset=UTF-8"/>
+    <jsp:output omit-xml-declaration="yes"/>
+    <menu:menu id="_menu" z="nZaf43BjUg1iM0v70HJVEsXDopc=">
+        <menu:category id="c_physicalport" z="1MMyA4ab6ayUwm4QtRGH8R6JxBQ=">
+            <menu:item id="i_physicalport_new" messageCode="global_menu_new" url="/physicalports?form" z="a7da1FSMHVpKYwKXFkWzPHkJViE="/>
+            <menu:item id="i_physicalport_list" messageCode="global_menu_list" url="/physicalports?page=1&amp;size=${empty param.size ? 10 : param.size}" z="wbOjauEw5lb31/aC+hP8XMAZAoY="/>
+        </menu:category>
+        <menu:category id="c_physicalresourcegroup" z="GYi7iY//7xm4gM8dPcjtykqSYeU=">
+            <menu:item id="i_physicalresourcegroup_new" messageCode="global_menu_new" url="/physicalresourcegroups?form" z="GOE9whAkDJ3+r7iInrQJboE79LE="/>
+            <menu:item id="i_physicalresourcegroup_list" messageCode="global_menu_list" url="/physicalresourcegroups?page=1&amp;size=${empty param.size ? 10 : param.size}" z="mPTwvMNuHrSvaYI3qSH7dx0Op0o="/>
+        </menu:category>
+    </menu:menu>
+</div>
