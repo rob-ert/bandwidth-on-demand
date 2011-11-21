@@ -28,6 +28,7 @@ public class NbiClientMock implements NbiClient {
 
 	}
 
+	@Override
 	public List<TerminationPoint> getAllPorts() {
 		return new ArrayList<TerminationPoint>();
 	}

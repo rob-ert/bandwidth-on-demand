@@ -57,6 +57,7 @@ public class NbiClientImpl implements NbiClient {
 
 	}
 
+	@Override
 	public List<TerminationPoint> getAllPorts() {
 		try {
 			final String allPortsXml = ossHandle.getInventory(username, password,
