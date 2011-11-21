@@ -19,7 +19,7 @@
     </properties>
 
     <scm>
-        <developerConnection>scm:git:ssh://git@atlas.dlp.surfnet.nl/bandwidth-on-demand.git</developerConnection>
+        <developerConnection>scm:git:ssh://gitolite@atlas.dlp.surfnet.nl/bandwidth-on-demand.git</developerConnection>
     </scm>
 
     <dependencies>
