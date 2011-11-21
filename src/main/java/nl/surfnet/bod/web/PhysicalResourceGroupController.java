@@ -40,9 +40,8 @@ public class PhysicalResourceGroupController {
 		uiModel.asMap().clear();
 		physicalResourceGroupService
 		    .savePhysicalResourceGroup(physicalResourceGroup);
-		return "redirect:physicalresourcegroups/"
-		    + encodeUrlPathSegment(physicalResourceGroup.getId().toString(),
-		        httpServletRequest);
+		// Do not return to the create instance, but to the list view
+		return "redirect:physicalresourcegroups/";
 	}
 
 	@RequestMapping(params = "form", method = RequestMethod.GET)

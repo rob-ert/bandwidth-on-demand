@@ -43,9 +43,8 @@ public class PhysicalPortController {
 		}
 		uiModel.asMap().clear();
 		physicalPortService.savePhysicalPort(physicalPort);
-		return "redirect:physicalports/"
-		    + encodeUrlPathSegment(physicalPort.getId().toString(),
-		        httpServletRequest);
+		// Do not return to the create instance, but to the list view
+		return "redirect:physicalports/";
 	}
 
 	@RequestMapping(params = "form", method = RequestMethod.GET)
