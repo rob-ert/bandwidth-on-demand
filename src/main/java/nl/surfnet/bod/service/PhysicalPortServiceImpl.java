@@ -23,10 +23,7 @@ public class PhysicalPortServiceImpl {
 	 * @return List<{@link PhysicalPort}>
 	 */
 	public List<PhysicalPort> findAllPhysicalPorts() {
-
-		List<PhysicalPort> physicalPorts = physicalPortRepo.findAll();
-
-		return physicalPorts;
+		return physicalPortRepo.findAll();
 	}
 
 	/**
@@ -38,8 +35,7 @@ public class PhysicalPortServiceImpl {
 	 * @param sizeNo
 	 * @return List of PhysicalPorts
 	 */
-	public List<PhysicalPort> findPhysicalPortEntries(final int firstResult,
-	    final int sizeNo) {
+	public List<PhysicalPort> findPhysicalPortEntries(final int firstResult, final int sizeNo) {
 		return findAllPhysicalPorts();
 	}
 

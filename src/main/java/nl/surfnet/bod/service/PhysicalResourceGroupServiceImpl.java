@@ -6,6 +6,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +21,7 @@ public class PhysicalResourceGroupServiceImpl {
 		return physicalResourceGroupRepo.count();
 	}
 
-	public void deletePhysicalResourceGroup(
-	    final PhysicalResourceGroup physicalResourceGroup) {
+	public void deletePhysicalResourceGroup(final PhysicalResourceGroup physicalResourceGroup) {
 		physicalResourceGroupRepo.delete(physicalResourceGroup);
 	}
 
@@ -34,8 +34,7 @@ public class PhysicalResourceGroupServiceImpl {
 	}
 
 	public List<PhysicalResourceGroup> findPhysicalResourceGroupEntries(final int firstResult, final int maxResults) {
-		return physicalResourceGroupRepo.findAll(
-		    new org.springframework.data.domain.PageRequest(firstResult / maxResults, maxResults)).getContent();
+		return physicalResourceGroupRepo.findAll(new PageRequest(firstResult / maxResults, maxResults)).getContent();
 	}
 
     public void savePhysicalResourceGroup(final PhysicalResourceGroup physicalResourceGroup) {
