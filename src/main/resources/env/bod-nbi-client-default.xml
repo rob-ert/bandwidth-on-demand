@@ -5,8 +5,8 @@
 
   <comment>BoD NBI Client Configuration</comment>
 
-  <entry key="nbiUsername">ENC(Pd6GI4AdNaAushZzJBvb3w==)</entry>
-  <entry key="nbiPassword">ENC(MXqk08QaE0arsM7iUA71Ww==)</entry>
-  <entry key="nbiUrl">ENC(mS/UZZTxCPPHp+bGFUBCqYiwaea66P5QAK5C+rsJNJqDlGy/qNiA2/uz3JA39w9t)</entry>
+  <entry key="nbiUsername">ENC(ayTIuLcpn+gv4XaTQfL9lw==)</entry>
+  <entry key="nbiPassword">ENC(A8liOH7cJvFIYdwK6IJl5w==)</entry>
+  <entry key="nbiUrl">ENC(QLfTsADZkY2dyQzh0MqhLfUUDdKbVUBAmhroyz59yIQpNkMJ7suuL77HuxzP8zpN)</entry>
 
 </properties>
