@@ -17,22 +17,23 @@ import nl.surfnet.bod.nbi.client.generated.TerminationPoint;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
 import com.adventnet.security.authentication.RMIAccessAPI;
 import com.adventnet.security.authentication.RMIAccessException;
 import com.esm.server.api.oss.OSSHandle;
 
-@Service("nbiClient")
 public class NbiClient {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	@Autowired
-	@Qualifier("nbiConfigurator")
-	private NbiConfigurator nbbiConfigurator;
+	// @Value("#{nbiProperties.nbiUsername}")
+	private String username;
+
+	// @Value("#{nbiProperties.nbiPassword}")
+	private String password;
+
+	// @Value("#{nbiProperties.nbiUrl}")
+	private String url;
 
 	private JAXBContext jaxbContext;
 	private Unmarshaller unMarshaller;
@@ -42,14 +43,12 @@ public class NbiClient {
 	@PostConstruct
 	private void init() throws RemoteException, RMIAccessException,
 	    MalformedURLException, NotBoundException, JAXBException {
-		log.info("Connecting with username {} to: {}",
-		    nbbiConfigurator.getUsername(), nbbiConfigurator.getUrl());
-		final RMIAccessAPI rmiAccessApi = (RMIAccessAPI) Naming
-		    .lookup(nbbiConfigurator.getUrl());
+		log.info("Connecting with username {} to: {}", username, url);
+		final RMIAccessAPI rmiAccessApi = (RMIAccessAPI) Naming.lookup(url);
 
 		log.info("Looked up EMS RMI access API: {}", rmiAccessApi);
-		ossHandle = (OSSHandle) rmiAccessApi.getAPI(nbbiConfigurator.getUsername(),
-		    nbbiConfigurator.getPassword(), "OSSHandle");
+		ossHandle = (OSSHandle) rmiAccessApi
+		    .getAPI(username, password, "OSSHandle");
 		log.info("Looked up OSS handle: {}", ossHandle);
 
 		jaxbContext = JAXBContext
@@ -60,8 +59,7 @@ public class NbiClient {
 
 	public List<TerminationPoint> getAllPorts() {
 		try {
-			final String allPortsXml = ossHandle.getInventory(
-			    nbbiConfigurator.getUsername(), nbbiConfigurator.getPassword(),
+			final String allPortsXml = ossHandle.getInventory(username, password,
 			    "getResourcesWithAttributes", "type=Port", null);
 			log.debug("Retrieved all ports: {}", allPortsXml);
 			return ((InventoryResponse) unMarshaller.unmarshal(new StringReader(
@@ -71,6 +69,18 @@ public class NbiClient {
 			log.error("Error: ", e);
 			return null;
 		}
+	}
+
+	public void setUsername(final String username) {
+		this.username = username;
+	}
+
+	public void setPassword(final String password) {
+		this.password = password;
+	}
+
+	public void setUrl(final String url) {
+		this.url = url;
 	}
 
 }
