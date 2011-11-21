@@ -4,7 +4,7 @@ import nl.surfnet.bod.support.TestExternalSupport;
 
 import org.junit.Test;
 
-public class CreatePhysicalGroupTestExternal extends TestExternalSupport {
+public class CreatePhysicalGroupTestSelenium extends TestExternalSupport {
 
     @Test
     public void createPhysicalGroup() {

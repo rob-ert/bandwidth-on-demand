@@ -23,7 +23,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @Ignore("Needs vpn")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/bod-nbi-client.xml" })
-public class NbiClientTest {
+public class NbiClientTestIntegration {
 
 	@SuppressWarnings("unused")
 	private final Logger log = LoggerFactory.getLogger(getClass());

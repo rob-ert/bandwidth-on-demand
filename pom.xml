@@ -413,8 +413,6 @@
                         <configuration>
                             <sources>
                                 <source>${basedir}/src/test/selenium</source>
-                            </sources>
-                            <sources>
                                 <source>${basedir}/src/test/integration</source>
                             </sources>
                         </configuration>
@@ -528,7 +526,13 @@
         <profile>
             <id>selenium</id>
             <properties>
-                <test.files>**/*TestExternal.java</test.files>
+                <test.files>**/*TestSelenium.java</test.files>
+            </properties>
+        </profile>
+        <profile>
+            <id>integration</id>
+            <properties>
+                <test.files>**/*TestIntegration.java</test.files>
             </properties>
         </profile>
     </profiles>
