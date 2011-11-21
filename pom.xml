@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.surfnet.bod</groupId>
     <artifactId>bod</artifactId>
     <packaging>war</packaging>
     <version>0.1.0-SNAPSHOT</version>
     <name>bod</name>
-    <properties>        
+    <properties>
         <spring.version>3.0.6.RELEASE</spring.version>
         <slf4j.version>1.6.1</slf4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <spring-security.version>3.0.5.RELEASE</spring-security.version>
+        <spring-security.version>3.0.5.RELEASE</spring-security.version>
+        <ems.version>5.6</ems.version>
     </properties>
     <repositories>
         <repository>
@@ -22,8 +24,8 @@
             <id>spring-maven-milestone</id>
             <name>Spring Maven Milestone Repository</name>
             <url>http://maven.springframework.org/milestone</url>
-        </repository>        
-    <repository>
+        </repository>
+        <repository>
             <id>JBoss Repo</id>
             <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
             <name>JBoss Repo</name>
@@ -39,14 +41,14 @@
             <id>spring-maven-milestone</id>
             <name>Spring Maven Milestone Repository</name>
             <url>http://maven.springframework.org/milestone</url>
-        </pluginRepository>        
+        </pluginRepository>
     </pluginRepositories>
     <dependencies>
         <!-- General dependencies for standard applications -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.2</version>
+            <version>4.9</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -61,14 +63,14 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
+            <artifactId>slf4j-log4j12</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
+            <artifactId>jcl-over-slf4j</artifactId>
             <version>${slf4j.version}</version>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -79,7 +81,7 @@
             <groupId>net.sf.flexjson</groupId>
             <artifactId>flexjson</artifactId>
             <version>2.1</version>
-        </dependency>        
+        </dependency>
         <!-- Spring dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -361,11 +363,36 @@
             <artifactId>h2</artifactId>
             <version>1.3.160</version>
         </dependency>
-    <dependency>
+        <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
             <version>1.0.1.RELEASE</version>
         </dependency>
+
+        <!-- EMS JARS -->
+        <dependency>
+            <groupId>com.esm.nbi</groupId>
+            <artifactId>ESMOSS</artifactId>
+            <version>${ems.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.esm.nbi</groupId>
+            <artifactId>clientAPI</artifactId>
+            <version>${ems.version}</version>
+        </dependency>
+
+        <!-- ENCRYPTION JARS -->
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+            <version>1.8</version>
+        </dependency>
+
+        <!-- <dependency> <groupId>org.bouncycastle</groupId> <artifactId>bcprov-jdk16</artifactId> 
+            <version>1.46</version> </dependency> -->
+
+
     </dependencies>
     <build>
         <plugins>
@@ -384,7 +411,7 @@
                     <target>1.6</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
-            </plugin>            
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -392,7 +419,7 @@
                 <configuration>
                     <encoding>UTF-8</encoding>
                 </configuration>
-            </plugin>            
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -402,7 +429,7 @@
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                 </configuration>
-            </plugin>            
+            </plugin>
             <plugin>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
@@ -414,19 +441,44 @@
                     <scanIntervalSeconds>10</scanIntervalSeconds>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb22-plugin</artifactId>
+                <version>0.8.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <schemaDirectory>${basedir}/src/main/resources/schemas
+                            </schemaDirectory>
+                            <schemaIncludes>
+                                <include>*.xsd</include>
+                            </schemaIncludes>
+                            <generatePackage>nl.surfnet.bod.nbi.client.generated</generatePackage>
+                            <removeOldOutput>true</removeOldOutput>
+                            <!-- <bindings> <file>${basedir}/src/main/resources/jaxb-bindings.xml 
+                                </file> </bindings> -->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
-    
+
     <distributionManagement>
-       <repository>
-           <id>surfnet-releases</id>
-           <name>surfnet-releases</name>
-           <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/releases</url>
-       </repository>
-       <snapshotRepository>
-           <id>surfnet-snapshots</id>
-           <name>surfnet-snapshots</name>
-           <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/snapshots</url>
-       </snapshotRepository>
-   </distributionManagement>
+        <repository>
+            <id>surfnet-releases</id>
+            <name>surfnet-releases</name>
+            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>surfnet-snapshots</id>
+            <name>surfnet-snapshots</name>
+            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
