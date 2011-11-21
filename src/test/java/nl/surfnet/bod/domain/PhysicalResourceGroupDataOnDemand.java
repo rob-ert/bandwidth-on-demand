@@ -65,10 +65,6 @@ public class PhysicalResourceGroupDataOnDemand {
         return physicalResourceGroupService.findPhysicalResourceGroup(id);
     }
 
-    public boolean modifyPhysicalResourceGroup(final PhysicalResourceGroup obj) {
-        return false;
-    }
-
     public void init() {
         int from = 0;
         int to = 10;
