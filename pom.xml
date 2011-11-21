@@ -414,6 +414,9 @@
                             <sources>
                                 <source>${basedir}/src/test/selenium</source>
                             </sources>
+                            <sources>
+                                <source>${basedir}/src/test/integration</source>
+                            </sources>
                         </configuration>
                     </execution>
                 </executions>
