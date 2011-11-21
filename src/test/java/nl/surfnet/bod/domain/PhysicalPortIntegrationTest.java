@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Configurable
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:/spring/applicationContext*.xml")
+@ContextConfiguration(locations = "classpath:/spring/appCtx*.xml")
 @Transactional
 public class PhysicalPortIntegrationTest {
 
