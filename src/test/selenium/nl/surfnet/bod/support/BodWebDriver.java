@@ -17,7 +17,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 
 import com.google.common.io.Files;
 
-public class WebDriver {
+public class BodWebDriver {
 
     private static final String URL_UNDER_TEST = withEndingSlash(System.getProperty("selenium.test.url"));
 

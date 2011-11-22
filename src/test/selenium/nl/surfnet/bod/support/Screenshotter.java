@@ -13,9 +13,9 @@ public class Screenshotter implements MethodRule {
         SCREENSHOTDIR.mkdirs();
     }
 
-    private final WebDriver webDriver;
+    private final BodWebDriver webDriver;
 
-    public Screenshotter(WebDriver driver) {
+    public Screenshotter(BodWebDriver driver) {
         this.webDriver = driver;
     }
 

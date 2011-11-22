@@ -5,7 +5,7 @@ import org.junit.Rule;
 
 public abstract class TestExternalSupport {
 
-    private static WebDriver webDriver = new WebDriver();
+    private static BodWebDriver webDriver = new BodWebDriver();
 
     @Rule
     public Screenshotter screenshotter = new Screenshotter(webDriver);
@@ -15,7 +15,7 @@ public abstract class TestExternalSupport {
         webDriver.initializeOnce();
     }
 
-    protected WebDriver getWebDriver() {
+    protected BodWebDriver getWebDriver() {
         return webDriver;
     }
 }
