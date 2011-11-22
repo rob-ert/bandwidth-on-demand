@@ -5,7 +5,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class NewPhysicalGroupPage {
+public class NewPhysicalResourceGroupPage {
 
     private static final String PAGE = "noc/physicalresourcegroups?form";
 
@@ -18,9 +18,9 @@ public class NewPhysicalGroupPage {
     @FindBy(css = "input[type='submit']")
     private WebElement saveButton;
 
-    public static NewPhysicalGroupPage get(RemoteWebDriver driver, String host) {
+    public static NewPhysicalResourceGroupPage get(RemoteWebDriver driver, String host) {
         driver.get(host + PAGE);
-        NewPhysicalGroupPage page = new NewPhysicalGroupPage();
+        NewPhysicalResourceGroupPage page = new NewPhysicalResourceGroupPage();
         PageFactory.initElements(driver, page);
 
         return page;
