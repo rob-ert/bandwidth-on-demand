@@ -40,7 +40,6 @@ public class ListPhysicalResourceGroupPage {
         List<WebElement> rows = table.findElements(By.tagName("tr"));
 
         for (WebElement row : rows) {
-            System.out.println(row.getText());
             if (row.getText().contains(name)) {
                 WebElement deleteButton = row.findElement(By.cssSelector("input[type=image]"));
                 deleteButton.click();
