@@ -1,6 +1,5 @@
 package nl.surfnet.bod.web;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,8 +19,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.util.UriUtils;
-import org.springframework.web.util.WebUtils;
 
 @RequestMapping("/noc/physicalports")
 @Controller
@@ -85,7 +82,8 @@ public class PhysicalPortController {
         }
         uiModel.asMap().clear();
         physicalPortService.update(physicalPort);
-        return "redirect:physicalports/" + encodeUrlPathSegment(physicalPort.getId().toString(), httpServletRequest);
+        return "redirect:physicalports/"
+                + HttpRequestUtils.encodeUrlPathSegment(physicalPort.getId().toString(), httpServletRequest);
     }
 
     @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
@@ -114,17 +112,5 @@ public class PhysicalPortController {
     @ModelAttribute("physicalresourcegroups")
     public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
         return physicalResourceGroupService.findAll();
-    }
-
-    String encodeUrlPathSegment(String pathSegment, final HttpServletRequest httpServletRequest) {
-        String enc = httpServletRequest.getCharacterEncoding();
-        if (enc == null) {
-            enc = WebUtils.DEFAULT_CHARACTER_ENCODING;
-        }
-        try {
-            pathSegment = UriUtils.encodePathSegment(pathSegment, enc);
-        } catch (UnsupportedEncodingException uee) {
-        }
-        return pathSegment;
     }
 }

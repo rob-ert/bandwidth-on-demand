@@ -1,6 +1,5 @@
 package nl.surfnet.bod.web;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,8 +17,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.util.UriUtils;
-import org.springframework.web.util.WebUtils;
 
 @RequestMapping("/noc/physicalresourcegroups")
 @Controller
@@ -31,12 +28,15 @@ public class PhysicalResourceGroupController {
     @RequestMapping(method = RequestMethod.POST)
     public String create(@Valid final PhysicalResourceGroup physicalResourceGroup, final BindingResult bindingResult,
             final Model uiModel, final HttpServletRequest httpServletRequest) {
+
         if (bindingResult.hasErrors()) {
             uiModel.addAttribute("physicalResourceGroup", physicalResourceGroup);
             return "physicalresourcegroups/create";
         }
+
         uiModel.asMap().clear();
         physicalResourceGroupService.save(physicalResourceGroup);
+
         // Do not return to the create instance, but to the list view
         return "redirect:physicalresourcegroups/";
     }
@@ -57,6 +57,7 @@ public class PhysicalResourceGroupController {
     @RequestMapping(method = RequestMethod.GET)
     public String list(@RequestParam(value = "page", required = false) final Integer page,
             @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
+
         if (page != null || size != null) {
             int sizeNo = size == null ? 10 : size.intValue();
             final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
@@ -74,6 +75,7 @@ public class PhysicalResourceGroupController {
     @RequestMapping(method = RequestMethod.PUT)
     public String update(@Valid final PhysicalResourceGroup physicalResourceGroup, final BindingResult bindingResult,
             final Model uiModel, final HttpServletRequest httpServletRequest) {
+
         if (bindingResult.hasErrors()) {
             uiModel.addAttribute("physicalResourceGroup", physicalResourceGroup);
             return "physicalresourcegroups/update";
@@ -81,7 +83,7 @@ public class PhysicalResourceGroupController {
         uiModel.asMap().clear();
         physicalResourceGroupService.update(physicalResourceGroup);
         return "redirect:physicalresourcegroups/"
-                + encodeUrlPathSegment(physicalResourceGroup.getId().toString(), httpServletRequest);
+                + HttpRequestUtils.encodeUrlPathSegment(physicalResourceGroup.getId().toString(), httpServletRequest);
     }
 
     @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
@@ -105,17 +107,5 @@ public class PhysicalResourceGroupController {
     @ModelAttribute("physicalresourcegroups")
     public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
         return physicalResourceGroupService.findAll();
-    }
-
-    String encodeUrlPathSegment(String pathSegment, final HttpServletRequest httpServletRequest) {
-        String enc = httpServletRequest.getCharacterEncoding();
-        if (enc == null) {
-            enc = WebUtils.DEFAULT_CHARACTER_ENCODING;
-        }
-        try {
-            pathSegment = UriUtils.encodePathSegment(pathSegment, enc);
-        } catch (UnsupportedEncodingException uee) {
-        }
-        return pathSegment;
     }
 }
