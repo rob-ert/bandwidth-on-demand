@@ -35,12 +35,13 @@ public class PhysicalResourceGroupController {
         physicalResourceGroupService.save(physicalResourceGroup);
 
         // Do not return to the create instance, but to the list view
-        return "redirect:physicalresourcegroups/";
+        return "redirect:physicalresourcegroups";
     }
 
     @RequestMapping(params = "form", method = RequestMethod.GET)
     public String createForm(final Model uiModel) {
         uiModel.addAttribute("physicalResourceGroup", new PhysicalResourceGroup());
+
         return "physicalresourcegroups/create";
     }
 
@@ -48,6 +49,7 @@ public class PhysicalResourceGroupController {
     public String show(@PathVariable("id") final Long id, final Model uiModel) {
         uiModel.addAttribute("physicalresourcegroup", physicalResourceGroupService.find(id));
         uiModel.addAttribute("itemId", id);
+
         return "physicalresourcegroups/show";
     }
 
@@ -66,6 +68,7 @@ public class PhysicalResourceGroupController {
         } else {
             uiModel.addAttribute("physicalresourcegroups", physicalResourceGroupService.findAll());
         }
+
         return "physicalresourcegroups/list";
     }
 
@@ -79,6 +82,7 @@ public class PhysicalResourceGroupController {
         }
         uiModel.asMap().clear();
         physicalResourceGroupService.update(physicalResourceGroup);
+
         return "redirect:physicalresourcegroups/"
                 + HttpRequestUtils.encodeUrlPathSegment(physicalResourceGroup.getId().toString(), httpServletRequest);
     }
@@ -86,6 +90,7 @@ public class PhysicalResourceGroupController {
     @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
     public String updateForm(@PathVariable("id") final Long id, final Model uiModel) {
         uiModel.addAttribute("physicalResourceGroup", physicalResourceGroupService.find(id));
+
         return "physicalresourcegroups/update";
     }
 
@@ -93,11 +98,15 @@ public class PhysicalResourceGroupController {
     public String delete(@PathVariable("id") final Long id,
             @RequestParam(value = "page", required = false) final Integer page,
             @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
+
         PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(id);
         physicalResourceGroupService.delete(physicalResourceGroup);
+
         uiModel.asMap().clear();
+
         uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
         uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
-        return "physicalresourcegroups/list";
+
+        return "redirect:";
     }
 }

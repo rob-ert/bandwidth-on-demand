@@ -37,10 +37,11 @@ public class PhysicalPortController {
             uiModel.addAttribute("physicalPort", physicalPort);
             return "physicalports/create";
         }
+
         uiModel.asMap().clear();
         physicalPortService.save(physicalPort);
-        // Do not return to the create instance, but to the list view
-        return "redirect:physicalports/";
+
+        return "redirect:physicalports";
     }
 
     @RequestMapping(params = "form", method = RequestMethod.GET)
@@ -96,18 +97,21 @@ public class PhysicalPortController {
     public String delete(@PathVariable("id") final Long id,
             @RequestParam(value = "page", required = false) final Integer page,
             @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
+
         PhysicalPort physicalPort = physicalPortService.find(id);
         physicalPortService.delete(physicalPort);
+
         uiModel.asMap().clear();
         uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
         uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
-        return "physicalports/list";
+
+        return "redirect:";
     }
 
     /**
      * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
      * group to a {@link PhysicalPort}.
-     * 
+     *
      * @return Collection<PhysicalResourceGroup>
      */
     @ModelAttribute("physicalresourcegroups")
