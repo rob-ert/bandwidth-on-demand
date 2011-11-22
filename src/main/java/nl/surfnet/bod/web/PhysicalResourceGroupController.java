@@ -101,7 +101,7 @@ public class PhysicalResourceGroupController {
         uiModel.asMap().clear();
         uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
         uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
-        return "redirect:physicalresourcegroups";
+        return "physicalresourcegroups/list";
     }
 
     @ModelAttribute("physicalresourcegroups")
