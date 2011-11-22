@@ -104,11 +104,12 @@ public class PhysicalPortController {
         return "physicalports/list";
     }
 
-    @ModelAttribute("physicalports")
-    public Collection<PhysicalPort> populatePhysicalPorts() {
-        return physicalPortService.findAll();
-    }
-
+    /**
+     * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
+     * group to a {@link PhysicalPort}.
+     * 
+     * @return Collection<PhysicalResourceGroup>
+     */
     @ModelAttribute("physicalresourcegroups")
     public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
         return physicalResourceGroupService.findAll();
