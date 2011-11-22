@@ -122,4 +122,13 @@ public class PhysicalResourceGroupIntegrationTest {
 
         physicalResourceGroupService.save(group);
     }
+
+    @Test(expected = ConstraintViolationException.class)
+    public void physicalResourceGroupWithAnEmptyNameShouldNotSave() {
+        PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName("").create();
+
+        physicalResourceGroupService.save(group);
+    }
+
+
 }

@@ -5,7 +5,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Version;
-import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 public class PhysicalResourceGroup {
@@ -17,10 +18,10 @@ public class PhysicalResourceGroup {
 	@Version
 	private Integer version;
 
-	@NotNull
+	@NotEmpty
 	private String name;
 
-	@NotNull
+	@NotEmpty
 	private String institutionName;
 
 	public Long getId() {

@@ -7,6 +7,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Version;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 @Entity
 public class PhysicalPort {
 
@@ -17,6 +19,7 @@ public class PhysicalPort {
     @Version
     private Integer version;
 
+    @NotEmpty
     private String name;
 
     @ManyToOne

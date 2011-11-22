@@ -8,8 +8,11 @@ import static org.hamcrest.Matchers.nullValue;
 
 import java.util.List;
 
+import javax.validation.ConstraintViolationException;
+
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.service.PhysicalPortServiceImpl;
+import nl.surfnet.bod.support.PhysicalPortFactory;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,5 +97,12 @@ public class PhysicalPortIntegrationTest {
         physicalPortRepo.flush();
 
         assertThat(physicalPortService.find(obj.getId()), nullValue());
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    public void aPortShouldNotSaveWithoutAName() {
+        PhysicalPort port = new PhysicalPortFactory().setName("").create();
+
+        physicalPortService.save(port);
     }
 }
