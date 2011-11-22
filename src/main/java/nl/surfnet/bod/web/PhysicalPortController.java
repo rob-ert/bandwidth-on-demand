@@ -61,16 +61,13 @@ public class PhysicalPortController {
     public String list(@RequestParam(value = "page", required = false) final Integer page,
             @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
 
-        if (page != null || size != null) {
-            int sizeNo = size == null ? 10 : size.intValue();
-            final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
-            uiModel.addAttribute("physicalports", physicalPortService.findEntries(firstResult, sizeNo));
-            float nrOfPages = (float) physicalPortService.count() / sizeNo;
-            uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
-                    : nrOfPages));
-        } else {
-            uiModel.addAttribute("physicalports", physicalPortService.findAll());
-        }
+        int sizeNo = size == null ? 10 : size.intValue();
+        final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
+        uiModel.addAttribute("physicalports", physicalPortService.findEntries(firstResult, sizeNo));
+        float nrOfPages = (float) physicalPortService.count() / sizeNo;
+        uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
+                : nrOfPages));
+
         return "physicalports/list";
     }
 
