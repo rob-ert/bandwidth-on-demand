@@ -36,7 +36,7 @@ public class PhysicalResourceGroupController {
             return "physicalresourcegroups/create";
         }
         uiModel.asMap().clear();
-        physicalResourceGroupService.savePhysicalResourceGroup(physicalResourceGroup);
+        physicalResourceGroupService.save(physicalResourceGroup);
         // Do not return to the create instance, but to the list view
         return "redirect:physicalresourcegroups/";
     }
@@ -49,7 +49,7 @@ public class PhysicalResourceGroupController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public String show(@PathVariable("id") final Long id, final Model uiModel) {
-        uiModel.addAttribute("physicalresourcegroup", physicalResourceGroupService.findPhysicalResourceGroup(id));
+        uiModel.addAttribute("physicalresourcegroup", physicalResourceGroupService.find(id));
         uiModel.addAttribute("itemId", id);
         return "physicalresourcegroups/show";
     }
@@ -61,12 +61,12 @@ public class PhysicalResourceGroupController {
             int sizeNo = size == null ? 10 : size.intValue();
             final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
             uiModel.addAttribute("physicalresourcegroups",
-                    physicalResourceGroupService.findPhysicalResourceGroupEntries(firstResult, sizeNo));
-            float nrOfPages = (float) physicalResourceGroupService.countAllPhysicalResourceGroups() / sizeNo;
+                    physicalResourceGroupService.findEntries(firstResult, sizeNo));
+            float nrOfPages = (float) physicalResourceGroupService.count() / sizeNo;
             uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
                     : nrOfPages));
         } else {
-            uiModel.addAttribute("physicalresourcegroups", physicalResourceGroupService.findAllPhysicalResourceGroups());
+            uiModel.addAttribute("physicalresourcegroups", physicalResourceGroupService.findAll());
         }
         return "physicalresourcegroups/list";
     }
@@ -79,14 +79,14 @@ public class PhysicalResourceGroupController {
             return "physicalresourcegroups/update";
         }
         uiModel.asMap().clear();
-        physicalResourceGroupService.updatePhysicalResourceGroup(physicalResourceGroup);
+        physicalResourceGroupService.update(physicalResourceGroup);
         return "redirect:physicalresourcegroups/"
                 + encodeUrlPathSegment(physicalResourceGroup.getId().toString(), httpServletRequest);
     }
 
     @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
     public String updateForm(@PathVariable("id") final Long id, final Model uiModel) {
-        uiModel.addAttribute("physicalResourceGroup", physicalResourceGroupService.findPhysicalResourceGroup(id));
+        uiModel.addAttribute("physicalResourceGroup", physicalResourceGroupService.find(id));
         return "physicalresourcegroups/update";
     }
 
@@ -94,8 +94,8 @@ public class PhysicalResourceGroupController {
     public String delete(@PathVariable("id") final Long id,
             @RequestParam(value = "page", required = false) final Integer page,
             @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
-        PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.findPhysicalResourceGroup(id);
-        physicalResourceGroupService.deletePhysicalResourceGroup(physicalResourceGroup);
+        PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(id);
+        physicalResourceGroupService.delete(physicalResourceGroup);
         uiModel.asMap().clear();
         uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
         uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
@@ -104,7 +104,7 @@ public class PhysicalResourceGroupController {
 
     @ModelAttribute("physicalresourcegroups")
     public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
-        return physicalResourceGroupService.findAllPhysicalResourceGroups();
+        return physicalResourceGroupService.findAll();
     }
 
     String encodeUrlPathSegment(String pathSegment, final HttpServletRequest httpServletRequest) {

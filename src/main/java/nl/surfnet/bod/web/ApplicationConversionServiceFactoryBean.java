@@ -40,7 +40,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
         return new Converter<Long, PhysicalPort>() {
             @Override
             public PhysicalPort convert(final java.lang.Long id) {
-                return physicalPortService.findPhysicalPort(id);
+                return physicalPortService.find(id);
             }
         };
     }
@@ -68,7 +68,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
         return new Converter<Long, PhysicalResourceGroup>() {
             @Override
             public nl.surfnet.bod.domain.PhysicalResourceGroup convert(final java.lang.Long id) {
-                return physicalResourceGroupService.findPhysicalResourceGroup(id);
+                return physicalResourceGroupService.find(id);
             }
         };
     }

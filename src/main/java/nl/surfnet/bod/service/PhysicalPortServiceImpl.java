@@ -22,40 +22,40 @@ public class PhysicalPortServiceImpl {
 	 *
 	 * @return List<{@link PhysicalPort}>
 	 */
-	public List<PhysicalPort> findAllPhysicalPorts() {
+	public List<PhysicalPort> findAll() {
 		return physicalPortRepo.findAll();
 	}
 
 	/**
 	 * Finds {@link PhysicalPort}s in case paging is used. Delegates to
-	 * {@link #findAllPhysicalPorts()} which will ignore the paging mechanism for
+	 * {@link #findAll()} which will ignore the paging mechanism for
 	 * now.
 	 *
 	 * @param firstResult
 	 * @param sizeNo
 	 * @return List of PhysicalPorts
 	 */
-	public List<PhysicalPort> findPhysicalPortEntries(final int firstResult, final int sizeNo) {
-		return findAllPhysicalPorts();
+	public List<PhysicalPort> findEntries(final int firstResult, final int sizeNo) {
+		return findAll();
 	}
 
-	public long countAllPhysicalPorts() {
+	public long count() {
 		return physicalPortRepo.count();
 	}
 
-	public void deletePhysicalPort(final PhysicalPort physicalPort) {
+	public void delete(final PhysicalPort physicalPort) {
 		physicalPortRepo.delete(physicalPort);
 	}
 
-	public PhysicalPort findPhysicalPort(final Long id) {
+	public PhysicalPort find(final Long id) {
 		return physicalPortRepo.findOne(id);
 	}
 
-	public void savePhysicalPort(final PhysicalPort physicalPort) {
+	public void save(final PhysicalPort physicalPort) {
 		physicalPortRepo.save(physicalPort);
 	}
 
-	public PhysicalPort updatePhysicalPort(final PhysicalPort physicalPort) {
+	public PhysicalPort update(final PhysicalPort physicalPort) {
 		return physicalPortRepo.save(physicalPort);
 	}
 }

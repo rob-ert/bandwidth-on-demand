@@ -17,31 +17,31 @@ public class PhysicalResourceGroupServiceImpl {
 	@Autowired
 	private PhysicalResourceGroupRepo physicalResourceGroupRepo;
 
-	public long countAllPhysicalResourceGroups() {
+	public long count() {
 		return physicalResourceGroupRepo.count();
 	}
 
-	public void deletePhysicalResourceGroup(final PhysicalResourceGroup physicalResourceGroup) {
+	public void delete(final PhysicalResourceGroup physicalResourceGroup) {
 		physicalResourceGroupRepo.delete(physicalResourceGroup);
 	}
 
-	public PhysicalResourceGroup findPhysicalResourceGroup(final Long id) {
+	public PhysicalResourceGroup find(final Long id) {
 		return physicalResourceGroupRepo.findOne(id);
 	}
 
-	public List<PhysicalResourceGroup> findAllPhysicalResourceGroups() {
+	public List<PhysicalResourceGroup> findAll() {
 		return physicalResourceGroupRepo.findAll();
 	}
 
-	public List<PhysicalResourceGroup> findPhysicalResourceGroupEntries(final int firstResult, final int maxResults) {
+	public List<PhysicalResourceGroup> findEntries(final int firstResult, final int maxResults) {
 		return physicalResourceGroupRepo.findAll(new PageRequest(firstResult / maxResults, maxResults)).getContent();
 	}
 
-    public void savePhysicalResourceGroup(final PhysicalResourceGroup physicalResourceGroup) {
+    public void save(final PhysicalResourceGroup physicalResourceGroup) {
 		physicalResourceGroupRepo.save(physicalResourceGroup);
 	}
 
-	public PhysicalResourceGroup updatePhysicalResourceGroup(final PhysicalResourceGroup physicalResourceGroup) {
+	public PhysicalResourceGroup update(final PhysicalResourceGroup physicalResourceGroup) {
 		return physicalResourceGroupRepo.save(physicalResourceGroup);
 	}
 }

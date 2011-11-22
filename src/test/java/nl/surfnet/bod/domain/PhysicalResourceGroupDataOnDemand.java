@@ -55,20 +55,20 @@ public class PhysicalResourceGroupDataOnDemand {
         PhysicalResourceGroup obj = data.get(index);
         Long id = obj.getId();
 
-        return physicalResourceGroupService.findPhysicalResourceGroup(id);
+        return physicalResourceGroupService.find(id);
     }
 
     public PhysicalResourceGroup getRandomPhysicalResourceGroup() {
         init();
         PhysicalResourceGroup obj = data.get(rnd.nextInt(data.size()));
         java.lang.Long id = obj.getId();
-        return physicalResourceGroupService.findPhysicalResourceGroup(id);
+        return physicalResourceGroupService.find(id);
     }
 
     public void init() {
         int from = 0;
         int to = 10;
-        data = physicalResourceGroupService.findPhysicalResourceGroupEntries(from, to);
+        data = physicalResourceGroupService.findEntries(from, to);
 
         if (data == null) {
             throw new IllegalStateException(
@@ -84,7 +84,7 @@ public class PhysicalResourceGroupDataOnDemand {
         for (int i = 0; i < 10; i++) {
             PhysicalResourceGroup obj = getNewTransientPhysicalResourceGroup(i);
             try {
-                physicalResourceGroupService.savePhysicalResourceGroup(obj);
+                physicalResourceGroupService.save(obj);
             } catch (ConstraintViolationException e) {
                 StringBuilder msg = new StringBuilder();
                 for (Iterator<ConstraintViolation<?>> it = e.getConstraintViolations().iterator(); it.hasNext();) {

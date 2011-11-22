@@ -57,14 +57,14 @@ public class PhysicalPortDataOnDemand {
             index = data.size() - 1;
         PhysicalPort obj = data.get(index);
         java.lang.Long id = obj.getId();
-        return physicalPortService.findPhysicalPort(id);
+        return physicalPortService.find(id);
     }
 
     public PhysicalPort getRandomPhysicalPort() {
         init();
         PhysicalPort obj = data.get(rnd.nextInt(data.size()));
         java.lang.Long id = obj.getId();
-        return physicalPortService.findPhysicalPort(id);
+        return physicalPortService.find(id);
     }
 
     public boolean modifyPhysicalPort(final PhysicalPort obj) {
@@ -74,7 +74,7 @@ public class PhysicalPortDataOnDemand {
     public void init() {
         int from = 0;
         int to = 10;
-        data = physicalPortService.findPhysicalPortEntries(from, to);
+        data = physicalPortService.findEntries(from, to);
         if (data == null)
             throw new IllegalStateException("Find entries implementation for 'PhysicalPort' illegally returned null");
         if (!data.isEmpty()) {
@@ -85,7 +85,7 @@ public class PhysicalPortDataOnDemand {
         for (int i = 0; i < 10; i++) {
             PhysicalPort obj = getNewTransientPhysicalPort(i);
             try {
-                physicalPortService.savePhysicalPort(obj);
+                physicalPortService.save(obj);
             } catch (ConstraintViolationException e) {
                 StringBuilder msg = new StringBuilder();
                 for (Iterator<ConstraintViolation<?>> it = e.getConstraintViolations().iterator(); it.hasNext();) {

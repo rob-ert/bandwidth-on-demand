@@ -41,7 +41,7 @@ public class PhysicalPortController {
             return "physicalports/create";
         }
         uiModel.asMap().clear();
-        physicalPortService.savePhysicalPort(physicalPort);
+        physicalPortService.save(physicalPort);
         // Do not return to the create instance, but to the list view
         return "redirect:physicalports/";
     }
@@ -54,7 +54,7 @@ public class PhysicalPortController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public String show(@PathVariable("id") final Long id, final Model uiModel) {
-        uiModel.addAttribute("physicalport", physicalPortService.findPhysicalPort(id));
+        uiModel.addAttribute("physicalport", physicalPortService.find(id));
         uiModel.addAttribute("itemId", id);
         return "physicalports/show";
     }
@@ -66,12 +66,12 @@ public class PhysicalPortController {
         if (page != null || size != null) {
             int sizeNo = size == null ? 10 : size.intValue();
             final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
-            uiModel.addAttribute("physicalports", physicalPortService.findPhysicalPortEntries(firstResult, sizeNo));
-            float nrOfPages = (float) physicalPortService.countAllPhysicalPorts() / sizeNo;
+            uiModel.addAttribute("physicalports", physicalPortService.findEntries(firstResult, sizeNo));
+            float nrOfPages = (float) physicalPortService.count() / sizeNo;
             uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
                     : nrOfPages));
         } else {
-            uiModel.addAttribute("physicalports", physicalPortService.findAllPhysicalPorts());
+            uiModel.addAttribute("physicalports", physicalPortService.findAll());
         }
         return "physicalports/list";
     }
@@ -84,13 +84,13 @@ public class PhysicalPortController {
             return "physicalports/update";
         }
         uiModel.asMap().clear();
-        physicalPortService.updatePhysicalPort(physicalPort);
+        physicalPortService.update(physicalPort);
         return "redirect:physicalports/" + encodeUrlPathSegment(physicalPort.getId().toString(), httpServletRequest);
     }
 
     @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
     public String updateForm(@PathVariable("id") final Long id, final Model uiModel) {
-        uiModel.addAttribute("physicalPort", physicalPortService.findPhysicalPort(id));
+        uiModel.addAttribute("physicalPort", physicalPortService.find(id));
         return "physicalports/update";
     }
 
@@ -98,8 +98,8 @@ public class PhysicalPortController {
     public String delete(@PathVariable("id") final Long id,
             @RequestParam(value = "page", required = false) final Integer page,
             @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
-        PhysicalPort physicalPort = physicalPortService.findPhysicalPort(id);
-        physicalPortService.deletePhysicalPort(physicalPort);
+        PhysicalPort physicalPort = physicalPortService.find(id);
+        physicalPortService.delete(physicalPort);
         uiModel.asMap().clear();
         uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
         uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
@@ -108,12 +108,12 @@ public class PhysicalPortController {
 
     @ModelAttribute("physicalports")
     public Collection<PhysicalPort> populatePhysicalPorts() {
-        return physicalPortService.findAllPhysicalPorts();
+        return physicalPortService.findAll();
     }
 
     @ModelAttribute("physicalresourcegroups")
     public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
-        return physicalResourceGroupService.findAllPhysicalResourceGroups();
+        return physicalResourceGroupService.findAll();
     }
 
     String encodeUrlPathSegment(String pathSegment, final HttpServletRequest httpServletRequest) {

@@ -9,8 +9,11 @@ import static org.hamcrest.Matchers.nullValue;
 
 import java.util.List;
 
+import javax.validation.ConstraintViolationException;
+
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.service.PhysicalResourceGroupServiceImpl;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +40,7 @@ public class PhysicalResourceGroupIntegrationTest {
     public void countAllPhysicalResourceGroups() {
         assertNotNull(dod.getRandomPhysicalResourceGroup());
 
-        long count = physicalResourceGroupService.countAllPhysicalResourceGroups();
+        long count = physicalResourceGroupService.count();
 
         assertThat(count, greaterThan(0L));
     }
@@ -46,7 +49,7 @@ public class PhysicalResourceGroupIntegrationTest {
     public void findPhysicalResourceGroup() {
         PhysicalResourceGroup randomGroup = dod.getRandomPhysicalResourceGroup();
 
-        PhysicalResourceGroup freshLoadedGroup = physicalResourceGroupService.findPhysicalResourceGroup(randomGroup
+        PhysicalResourceGroup freshLoadedGroup = physicalResourceGroupService.find(randomGroup
                 .getId());
 
         assertThat(randomGroup, is(freshLoadedGroup));
@@ -56,7 +59,7 @@ public class PhysicalResourceGroupIntegrationTest {
     public void findAllPhysicalResourceGroups() {
         dod.getRandomPhysicalResourceGroup();
 
-        List<PhysicalResourceGroup> result = physicalResourceGroupService.findAllPhysicalResourceGroups();
+        List<PhysicalResourceGroup> result = physicalResourceGroupService.findAll();
 
         assertThat(result, hasSize(greaterThan(0)));
     }
@@ -65,11 +68,11 @@ public class PhysicalResourceGroupIntegrationTest {
     public void findPhysicalResourceGroupEntries() {
         dod.getRandomPhysicalResourceGroup();
 
-        long count = physicalResourceGroupService.countAllPhysicalResourceGroups();
+        long count = physicalResourceGroupService.count();
 
         int maxResults = count > 20 ? 20 : (int) count;
 
-        List<PhysicalResourceGroup> result = physicalResourceGroupService.findPhysicalResourceGroupEntries(0,
+        List<PhysicalResourceGroup> result = physicalResourceGroupService.findEntries(0,
                 maxResults);
 
         assertThat(result, hasSize((int) count));
@@ -83,7 +86,7 @@ public class PhysicalResourceGroupIntegrationTest {
 
         obj.setName("New name");
 
-        PhysicalResourceGroup merged = physicalResourceGroupService.updatePhysicalResourceGroup(obj);
+        PhysicalResourceGroup merged = physicalResourceGroupService.update(obj);
 
         physicalResourceGroupRepo.flush();
 
@@ -95,7 +98,7 @@ public class PhysicalResourceGroupIntegrationTest {
     public void savePhysicalResourceGroup() {
         PhysicalResourceGroup obj = dod.getNewTransientPhysicalResourceGroup(Integer.MAX_VALUE);
 
-        physicalResourceGroupService.savePhysicalResourceGroup(obj);
+        physicalResourceGroupService.save(obj);
 
         physicalResourceGroupRepo.flush();
 
@@ -103,13 +106,20 @@ public class PhysicalResourceGroupIntegrationTest {
     }
 
     @Test
-    public void testDeletePhysicalResourceGroup() {
+    public void deletePhysicalResourceGroup() {
         PhysicalResourceGroup obj = dod.getRandomPhysicalResourceGroup();
 
-        physicalResourceGroupService.deletePhysicalResourceGroup(obj);
+        physicalResourceGroupService.delete(obj);
 
         physicalResourceGroupRepo.flush();
 
-        assertThat(physicalResourceGroupService.findPhysicalResourceGroup(obj.getId()), nullValue());
+        assertThat(physicalResourceGroupService.find(obj.getId()), nullValue());
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    public void physicalResourceGroupWithoutANameShouldNotSave() {
+        PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName(null).create();
+
+        physicalResourceGroupService.save(group);
     }
 }
