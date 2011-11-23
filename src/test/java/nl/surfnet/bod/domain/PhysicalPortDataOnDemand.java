@@ -10,9 +10,10 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
 import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.service.PhysicalPortServiceImpl;
+import nl.surfnet.bod.service.PhysicalPortService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -26,7 +27,8 @@ public class PhysicalPortDataOnDemand {
     private PhysicalResourceGroupDataOnDemand physicalResourceGroupDataOnDemand;
 
     @Autowired
-    private PhysicalPortServiceImpl physicalPortService;
+    @Qualifier("physicalPortServiceRepoImpl")
+    private PhysicalPortService physicalPortServiceRepoImpl;
 
     @Autowired
     private PhysicalPortRepo physicalPortRepo;
@@ -57,14 +59,14 @@ public class PhysicalPortDataOnDemand {
             index = data.size() - 1;
         PhysicalPort obj = data.get(index);
         java.lang.Long id = obj.getId();
-        return physicalPortService.find(id);
+        return physicalPortServiceRepoImpl.find(id);
     }
 
     public PhysicalPort getRandomPhysicalPort() {
         init();
         PhysicalPort obj = data.get(rnd.nextInt(data.size()));
         java.lang.Long id = obj.getId();
-        return physicalPortService.find(id);
+        return physicalPortServiceRepoImpl.find(id);
     }
 
     public boolean modifyPhysicalPort(final PhysicalPort obj) {
@@ -74,7 +76,7 @@ public class PhysicalPortDataOnDemand {
     public void init() {
         int from = 0;
         int to = 10;
-        data = physicalPortService.findEntries(from, to);
+        data = physicalPortServiceRepoImpl.findEntries(from, to);
         if (data == null)
             throw new IllegalStateException("Find entries implementation for 'PhysicalPort' illegally returned null");
         if (!data.isEmpty()) {
@@ -85,7 +87,7 @@ public class PhysicalPortDataOnDemand {
         for (int i = 0; i < 10; i++) {
             PhysicalPort obj = getNewTransientPhysicalPort(i);
             try {
-                physicalPortService.save(obj);
+                physicalPortServiceRepoImpl.save(obj);
             } catch (ConstraintViolationException e) {
                 StringBuilder msg = new StringBuilder();
                 for (Iterator<ConstraintViolation<?>> it = e.getConstraintViolations().iterator(); it.hasNext();) {

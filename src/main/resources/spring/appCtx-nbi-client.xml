@@ -54,7 +54,7 @@
     <property name="locations">
         <list>
           <value>classpath:env/bod-nbi-client-test.xml</value>
-          <value>classpath:env/bod-nbi-client-dev.xml</value>
+          <!-- <value>classpath:env/bod-nbi-client-dev.xml</value> -->
           <value>classpath:env/database.xml</value>          
       </list>
     </property>     

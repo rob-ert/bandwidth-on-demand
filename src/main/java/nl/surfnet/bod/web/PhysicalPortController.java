@@ -7,10 +7,11 @@ import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.service.PhysicalPortServiceImpl;
+import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupServiceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -25,7 +26,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class PhysicalPortController {
 
     @Autowired
-    private PhysicalPortServiceImpl physicalPortService;
+    @Qualifier("physicalPortServiceRepoImpl")
+    private PhysicalPortService physicalPortServiceRepoImpl;
+
+    @Autowired
+    @Qualifier("physicalPortServiceNbiImpl")
+    private PhysicalPortService physicalPortServiceNbiImpl;
 
     @Autowired
     private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
@@ -39,7 +45,7 @@ public class PhysicalPortController {
         }
 
         uiModel.asMap().clear();
-        physicalPortService.save(physicalPort);
+        physicalPortServiceRepoImpl.save(physicalPort);
 
         return "redirect:physicalports";
     }
@@ -52,7 +58,7 @@ public class PhysicalPortController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public String show(@PathVariable("id") final Long id, final Model uiModel) {
-        uiModel.addAttribute("physicalport", physicalPortService.find(id));
+        uiModel.addAttribute("physicalport", physicalPortServiceRepoImpl.find(id));
         uiModel.addAttribute("itemId", id);
         return "physicalports/show";
     }
@@ -63,8 +69,8 @@ public class PhysicalPortController {
 
         int sizeNo = size == null ? 10 : size.intValue();
         final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
-        uiModel.addAttribute("physicalports", physicalPortService.findEntries(firstResult, sizeNo));
-        float nrOfPages = (float) physicalPortService.count() / sizeNo;
+        uiModel.addAttribute("physicalports", physicalPortServiceNbiImpl.findEntries(firstResult, sizeNo));
+        float nrOfPages = (float) physicalPortServiceNbiImpl.count() / sizeNo;
         uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
                 : nrOfPages));
 
@@ -79,14 +85,14 @@ public class PhysicalPortController {
             return "physicalports/update";
         }
         uiModel.asMap().clear();
-        physicalPortService.update(physicalPort);
+        physicalPortServiceRepoImpl.update(physicalPort);
         return "redirect:physicalports/"
                 + HttpRequestUtils.encodeUrlPathSegment(physicalPort.getId().toString(), httpServletRequest);
     }
 
     @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
     public String updateForm(@PathVariable("id") final Long id, final Model uiModel) {
-        uiModel.addAttribute("physicalPort", physicalPortService.find(id));
+        uiModel.addAttribute("physicalPort", physicalPortServiceRepoImpl.find(id));
         return "physicalports/update";
     }
 
@@ -95,8 +101,8 @@ public class PhysicalPortController {
             @RequestParam(value = "page", required = false) final Integer page,
             @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
 
-        PhysicalPort physicalPort = physicalPortService.find(id);
-        physicalPortService.delete(physicalPort);
+        PhysicalPort physicalPort = physicalPortServiceRepoImpl.find(id);
+        physicalPortServiceRepoImpl.delete(physicalPort);
 
         uiModel.asMap().clear();
         uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
@@ -108,7 +114,7 @@ public class PhysicalPortController {
     /**
      * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
      * group to a {@link PhysicalPort}.
-     *
+     * 
      * @return Collection<PhysicalResourceGroup>
      */
     @ModelAttribute("physicalresourcegroups")

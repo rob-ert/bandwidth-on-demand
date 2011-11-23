@@ -2,10 +2,11 @@ package nl.surfnet.bod.web;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.service.PhysicalPortServiceImpl;
+import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupServiceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.format.support.FormattingConversionServiceFactoryBean;
@@ -16,7 +17,8 @@ import org.springframework.format.support.FormattingConversionServiceFactoryBean
 public class ApplicationConversionServiceFactoryBean extends FormattingConversionServiceFactoryBean {
 
     @Autowired
-    private PhysicalPortServiceImpl physicalPortService;
+    @Qualifier("physicalPortServiceRepoImpl")
+    private PhysicalPortService physicalPortServiceRepoImpl;
 
     @Autowired
     private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
@@ -40,7 +42,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
         return new Converter<Long, PhysicalPort>() {
             @Override
             public PhysicalPort convert(final java.lang.Long id) {
-                return physicalPortService.find(id);
+                return physicalPortServiceRepoImpl.find(id);
             }
         };
     }

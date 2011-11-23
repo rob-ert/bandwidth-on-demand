@@ -8,6 +8,6 @@
   <entry key="nbiUsername">ENC(ayTIuLcpn+gv4XaTQfL9lw==)</entry>
   <entry key="nbiPassword">ENC(A8liOH7cJvFIYdwK6IJl5w==)</entry>
   <entry key="nbiUrl">ENC(QLfTsADZkY2dyQzh0MqhLfUUDdKbVUBAmhroyz59yIQpNkMJ7suuL77HuxzP8zpN)</entry>
-  <entry key="nbiClientClass">nl.surfnet.bod.nbi.client.NbiClient</entry>
+  <entry key="nbiClientClass">nl.surfnet.bod.nbi.client.NbiClientImpl</entry>
 
 </properties>

@@ -1,5 +1,6 @@
 package nl.surfnet.bod.domain;
 
+import javax.annotation.Nullable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -21,6 +22,12 @@ public class PhysicalPort {
 
     @NotEmpty
     private String name;
+
+    @Nullable
+    private String portId;
+
+    @Nullable
+    private String displayName;
 
     @ManyToOne
     private PhysicalResourceGroup physicalResourceGroup;
@@ -65,6 +72,22 @@ public class PhysicalPort {
         sb.append("PhysicalResourceGroup: ").append(getPhysicalResourceGroup()).append(", ");
         sb.append("Version: ").append(getVersion());
         return sb.toString();
+    }
+
+    public void setPortId(final String portId) {
+        this.portId = portId;
+    }
+
+    public String getPortId() {
+        return portId;
+    }
+
+    public void setDisplayName(final String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
 }

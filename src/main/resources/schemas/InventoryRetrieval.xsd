@@ -25,6 +25,7 @@
 	<xsd:complexType name="PortDetail">   	
     		<xsd:attribute name="portId" type="xsd:string"/> 
     		<xsd:attribute name="portName" type="xsd:string"/> 
+            <xsd:attribute name="displayName" type="xsd:string"/>
     		<xsd:attribute name="description" type="xsd:string"/> 
     		<xsd:attribute name="portType" type="xsd:string"/> 
     		<xsd:attribute name="portMacAddress" type="xsd:string"/> 
