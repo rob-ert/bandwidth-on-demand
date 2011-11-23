@@ -58,7 +58,7 @@ public class PhysicalPortController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public String show(@PathVariable("id") final Long id, final Model uiModel) {
-        uiModel.addAttribute("physicalport", physicalPortServiceRepoImpl.find(id));
+        uiModel.addAttribute("physicalPort", physicalPortServiceRepoImpl.find(id));
         uiModel.addAttribute("itemId", id);
         return "physicalports/show";
     }
@@ -91,8 +91,8 @@ public class PhysicalPortController {
     }
 
     @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
-    public String updateForm(@PathVariable("id") final Long id, final Model uiModel) {
-        uiModel.addAttribute("physicalPort", physicalPortServiceRepoImpl.find(id));
+    public String updateForm(@PathVariable("id") final String portId, final Model uiModel) {
+        uiModel.addAttribute("physicalPort", physicalPortServiceNbiImpl.find(portId));
         return "physicalports/update";
     }
 

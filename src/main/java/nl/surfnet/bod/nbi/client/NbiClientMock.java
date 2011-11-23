@@ -37,9 +37,9 @@ public class NbiClientMock implements NbiClient {
             tp = new TerminationPoint();
             tp.setPortDetail(new PortDetail());
 
-            tp.getPortDetail().setName("Name_" + index);
-            tp.getPortDetail().setDisplayName("DisplayName_" + index);
-            tp.getPortDetail().setPortId("PortId_" + index);
+            tp.getPortDetail().setName("name_" + index);
+            tp.getPortDetail().setDisplayName("displayName_" + index);
+            tp.getPortDetail().setPortId("portId_" + index);
 
             terminationPoints.add(tp);
         }
