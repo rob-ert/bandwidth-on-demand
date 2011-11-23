@@ -94,7 +94,7 @@ public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
             ports = Collections2.transform(terminationPoints, new Function<TerminationPoint, PhysicalPort>() {
                 @Override
                 public PhysicalPort apply(final TerminationPoint terminationPoint) {
-                    return transform(terminationPoint);
+                    return mapTerminationPointToPhysicalPort(terminationPoint);
                 }
 
             });
@@ -137,7 +137,7 @@ public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
         }
 
         if ((!CollectionUtils.isEmpty(filteredPorts)) && (filteredPorts.size() == 1)) {
-            result = transform(filteredPorts.iterator().next());
+            result = mapTerminationPointToPhysicalPort(filteredPorts.iterator().next());
         }
 
         return result;
@@ -150,17 +150,19 @@ public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
      *            Object to transform
      * @return {@link PhysicalPort} transformed object
      */
-    PhysicalPort transform(final TerminationPoint terminationPoint) {
+    PhysicalPort mapTerminationPointToPhysicalPort(final TerminationPoint terminationPoint) {
         PhysicalPort physicalPort = new PhysicalPort();
 
-        if (terminationPoint.getPortBasic() != null) {
+        if (terminationPoint != null) {
+            if (terminationPoint.getPortBasic() != null) {
 
-        }
+            }
 
-        if (terminationPoint.getPortDetail() != null) {
-            physicalPort.setName(terminationPoint.getPortDetail().getName());
-            physicalPort.setDisplayName(terminationPoint.getPortDetail().getDisplayName());
-            physicalPort.setPortId(terminationPoint.getPortDetail().getPortId());
+            if (terminationPoint.getPortDetail() != null) {
+                physicalPort.setName(terminationPoint.getPortDetail().getName());
+                physicalPort.setDisplayName(terminationPoint.getPortDetail().getDisplayName());
+                physicalPort.setPortId(terminationPoint.getPortDetail().getPortId());
+            }
         }
 
         return physicalPort;
