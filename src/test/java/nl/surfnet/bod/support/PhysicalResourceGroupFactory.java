@@ -6,11 +6,13 @@ public class PhysicalResourceGroupFactory {
 
     private String name = "First group";
     private String institution = "SURFnet B.V.";
+    private String adminGroup = null;
 
     public PhysicalResourceGroup create() {
         PhysicalResourceGroup group = new PhysicalResourceGroup();
         group.setName(name);
         group.setInstitutionName(institution);
+        group.setAdminGroup(adminGroup);
         return group;
     }
 
@@ -21,6 +23,11 @@ public class PhysicalResourceGroupFactory {
 
     public PhysicalResourceGroupFactory setInstitution(String institution) {
         this.institution = institution;
+        return this;
+    }
+
+    public PhysicalResourceGroupFactory setAdminGroupName(String adminGroup) {
+        this.adminGroup = adminGroup;
         return this;
     }
 

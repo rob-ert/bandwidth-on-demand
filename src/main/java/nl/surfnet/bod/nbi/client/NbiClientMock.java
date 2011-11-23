@@ -9,7 +9,6 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBException;
 
-import nl.surfnet.bod.nbi.client.generated.GeneralBasic;
 import nl.surfnet.bod.nbi.client.generated.PortDetail;
 import nl.surfnet.bod.nbi.client.generated.TerminationPoint;
 
@@ -36,11 +35,10 @@ public class NbiClientMock implements NbiClient {
         TerminationPoint tp = null;
         for (int index = 1; index < 10; index++) {
             tp = new TerminationPoint();
-            tp.setPortBasic(new GeneralBasic());
             tp.setPortDetail(new PortDetail());
 
-            tp.getPortBasic().setName("Name_" + index);
-            tp.getPortBasic().setDisplayName("DisplayName_" + index);
+            tp.getPortDetail().setName("Name_" + index);
+            tp.getPortDetail().setDisplayName("DisplayName_" + index);
             tp.getPortDetail().setPortId("PortId_" + index);
 
             terminationPoints.add(tp);

@@ -52,7 +52,10 @@
 
             <div class="actions">
                 <spring:message code="button_save" var="save_button" htmlEscape="false" />
+                <spring:message code="button_cancel" var="cancel_button" htmlEscape="false" />
                 <input type="submit" value="${fn:escapeXml(save_button)}" class="btn primary" />
+                <c:out value=" " />
+                <button type="reset" class="btn">${cancel_button}</button>
             </div>
         </form:form>
 

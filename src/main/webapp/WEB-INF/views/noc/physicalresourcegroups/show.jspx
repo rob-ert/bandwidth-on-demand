@@ -5,12 +5,13 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <page:show id="ps_org_surfnet_bod_domain_PhysicalResourceGroup" object="${physicalresourcegroup}"
+    <page:show id="ps_nl_surfnet_bod_domain_PhysicalResourceGroup" object="${physicalresourcegroup}"
         path="/noc/physicalresourcegroups">
-        <field:display field="name" id="s_org_surfnet_bod_domain_PhysicalResourceGroup_name"
-            object="${physicalresourcegroup}" />
-        <field:display field="institutionName" id="s_org_surfnet_bod_domain_PhysicalResourceGroup_institutionName"
-            object="${physicalresourcegroup}" />
+
+        <field:display field="name" id="name" object="${physicalresourcegroup}" labelCode="physicalresourcegroup_name" />
+        <field:display field="institutionName" id="institutionName" object="${physicalresourcegroup}" labelCode="physicalresourcegroup_institutionName" />
+        <field:display field="adminGroup" id="adminGroup" object="${physicalresourcegroup}" labelCode="physicalresourcegroup_adminGroup" />
+        
     </page:show>
 
 </div>

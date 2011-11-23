@@ -1,4 +1,4 @@
-package nl.surfnet.bod.domain;
+package nl.surfnet.bod.support;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -9,6 +9,8 @@ import java.util.Random;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.service.PhysicalPortService;
 
