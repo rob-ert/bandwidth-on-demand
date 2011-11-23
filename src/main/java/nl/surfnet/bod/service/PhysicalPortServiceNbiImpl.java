@@ -154,12 +154,13 @@ public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
         PhysicalPort physicalPort = new PhysicalPort();
 
         if (terminationPoint.getPortBasic() != null) {
-            physicalPort.setName(terminationPoint.getPortBasic().getName());
+
         }
 
         if (terminationPoint.getPortDetail() != null) {
-            physicalPort.setPortId(terminationPoint.getPortDetail().getPortId());
+            physicalPort.setName(terminationPoint.getPortDetail().getName());
             physicalPort.setDisplayName(terminationPoint.getPortDetail().getDisplayName());
+            physicalPort.setPortId(terminationPoint.getPortDetail().getPortId());
         }
 
         return physicalPort;

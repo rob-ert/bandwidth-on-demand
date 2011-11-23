@@ -23,7 +23,8 @@
     
     
 	<xsd:complexType name="PortDetail">   	
-    		<xsd:attribute name="portId" type="xsd:string"/> 
+    		<xsd:attribute name="portId" type="xsd:string"/>
+            <xsd:attribute name="name" type="xsd:string"/> 
     		<xsd:attribute name="portName" type="xsd:string"/> 
             <xsd:attribute name="displayName" type="xsd:string"/>
     		<xsd:attribute name="description" type="xsd:string"/> 
