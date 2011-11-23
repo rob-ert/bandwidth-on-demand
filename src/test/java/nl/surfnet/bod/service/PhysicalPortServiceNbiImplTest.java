@@ -1,6 +1,7 @@
 package nl.surfnet.bod.service;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -125,6 +126,62 @@ public class PhysicalPortServiceNbiImplTest {
 
         // Verify
         assertTrue(CollectionUtils.isEmpty(ports));
+    }
+
+    @Test
+    public void testSelectByPortId() {
+
+        TerminationPoint tp1 = new TerminationPointFactory().create(PORT_ID_1, NAME_1, DISPLAY_NAME_1);
+        TerminationPoint tp2 = new TerminationPointFactory().create(PORT_ID_2, NAME_2, DISPLAY_NAME_2);
+        List<TerminationPoint> tpoints = Arrays.asList(tp1, tp2);
+
+        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortId(tpoints, PORT_ID_1);
+        assertEquals(PORT_ID_1, selectedPort.getPortId());
+        assertEquals(NAME_1, selectedPort.getName());
+        assertEquals(DISPLAY_NAME_1, selectedPort.getDisplayName());
+
+    }
+
+    @Test
+    public void testSelectByPortIdNotFound() {
+
+        TerminationPoint tp1 = new TerminationPointFactory().create(PORT_ID_1, NAME_1, DISPLAY_NAME_1);
+        List<TerminationPoint> tpoints = Arrays.asList(tp1);
+
+        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortId(tpoints, PORT_ID_2);
+        assertNull(selectedPort);
+
+    }
+
+    @Test
+    public void testSelectByPortIdSearchNullArg() {
+
+        TerminationPoint tp1 = new TerminationPointFactory().create(PORT_ID_1, NAME_1, DISPLAY_NAME_1);
+        TerminationPoint tp2 = new TerminationPointFactory().create(PORT_ID_2, NAME_2, DISPLAY_NAME_2);
+        List<TerminationPoint> tpoints = Arrays.asList(tp1, tp2);
+
+        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortId(tpoints, null);
+        assertNull(selectedPort);
+
+    }
+
+    @Test
+    public void testSelectByPortIdSearchEmptyArg() {
+
+        TerminationPoint tp1 = new TerminationPointFactory().create(PORT_ID_1, NAME_1, DISPLAY_NAME_1);
+        TerminationPoint tp2 = new TerminationPointFactory().create(PORT_ID_2, NAME_2, DISPLAY_NAME_2);
+        List<TerminationPoint> tpoints = Arrays.asList(tp1, tp2);
+
+        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortId(tpoints, "");
+        assertNull(selectedPort);
+
+    }
+
+    @Test
+    public void testSelectByPortIdNullListArg() {
+
+        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortId(null, PORT_ID_1);
+        assertNull(selectedPort);
     }
 
 }
