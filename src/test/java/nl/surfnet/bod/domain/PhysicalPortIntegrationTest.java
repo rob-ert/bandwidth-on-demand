@@ -12,6 +12,7 @@ import javax.validation.ConstraintViolationException;
 
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.service.PhysicalPortServiceImpl;
+import nl.surfnet.bod.support.PhysicalPortDataOnDemand;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 
 import org.junit.Test;

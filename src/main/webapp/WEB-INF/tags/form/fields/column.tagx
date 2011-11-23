@@ -5,15 +5,18 @@
   <jsp:directive.attribute name="property" type="java.lang.String" required="true" rtexprvalue="true" description="The property (field name) of the dataset to be displayed in a column (required)." />
   <jsp:directive.attribute name="maxLength" type="java.lang.Integer" required="false" rtexprvalue="true" description="Max displayed text length (default '10'). Unlimited if negative" />
   <jsp:directive.attribute name="label" type="java.lang.String" required="false" rtexprvalue="true" description="The column label to be used in the table (optional)." />
+  <jsp:directive.attribute name="labelCode" type="java.lang.String" required="false" rtexprvalue="true" description="Key for label message bundle if label is not supplied" />
   <jsp:directive.attribute name="date" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate that this field is of type java.util.Date" />
   <jsp:directive.attribute name="calendar" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate that this field is of type java.util.Calendar" />
   <jsp:directive.attribute name="dateTimePattern" type="java.lang.String" required="false" rtexprvalue="true" description="The date / time pattern to use if the field is a date or calendar type" />
   <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
-  <jsp:directive.attribute name="z" type="java.lang.String" required="false" description="Used for checking if element has been modified (to recalculate simply provide empty string value)" />
 
   <c:if test="${empty render or render}">
     <c:if test="${empty label}">
-      <spring:message code="label_${fn:toLowerCase(fn:substringAfter(id,'_'))}" var="label" htmlEscape="false" />
+        <c:if test="${empty labelCode}">
+            <c:set var="labelCode" value="${fn:substringAfter(id,'_')}" />
+        </c:if>
+        <spring:message code="label_${fn:toLowerCase(labelCode)}" var="label" htmlEscape="false" />
     </c:if>
 
     <c:if test="${empty dateTimePattern}">

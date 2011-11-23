@@ -24,7 +24,9 @@ public class PhysicalResourceGroup {
 	@NotEmpty
 	private String institutionName;
 
-	public Long getId() {
+	private String adminGroup;
+
+    public Long getId() {
 		return this.id;
 	}
 
@@ -56,13 +58,23 @@ public class PhysicalResourceGroup {
 		this.institutionName = institutionName;
 	}
 
+	public String getAdminGroup() {
+        return adminGroup;
+    }
+
+    public void setAdminGroup(String adminGroup) {
+        this.adminGroup = adminGroup;
+    }
+
 	@Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Id: ").append(getId()).append(", ");
-        sb.append("InstitutionName: ").append(getInstitutionName()).append(", ");
         sb.append("Name: ").append(getName()).append(", ");
+        sb.append("InstitutionName: ").append(getInstitutionName()).append(", ");
+        sb.append("Admin group: ").append(getAdminGroup()).append(", ");
         sb.append("Version: ").append(getVersion());
+
         return sb.toString();
     }
 }

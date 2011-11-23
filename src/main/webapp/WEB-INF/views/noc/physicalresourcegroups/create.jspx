@@ -6,15 +6,17 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <form:create id="fc_org_surfnet_bod_domain_PhysicalResourceGroup" modelAttribute="physicalResourceGroup"
+    <form:create id="fc_nl_surfnet_bod_domain_PhysicalResourceGroup" modelAttribute="physicalResourceGroup"
         path="/noc/physicalresourcegroups" render="${empty dependencies}">
 
-        <field:input field="name" id="c_org_surfnet_bod_domain_PhysicalResourceGroup_name" required="true" />
-        <field:input field="institutionName" id="c_org_surfnet_bod_domain_PhysicalResourceGroup_institutionName"
+        <field:input field="name" id="name" labelCode="physicalresourcegroup_name" required="true" />
+
+        <field:input field="institutionName" id="institutionName" labelCode="physicalresourcegroup_institutionName"
             required="true" />
 
-    </form:create>
+        <field:input field="adminGroup" id="adminGroup" labelCode="physicalresourcegroup_adminGroup"
+            helpMessageCode="physicalresourcegroup_adminGroup" />
 
-    <form:dependency dependencies="${dependencies}" id="d_org_surfnet_bod_domain_PhysicalResourceGroup"
-        render="${not empty dependencies}" />
+    </form:create>
+    
 </div>

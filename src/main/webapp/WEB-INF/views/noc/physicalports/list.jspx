@@ -5,10 +5,10 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
     
-    <page:list id="pl_org_surfnet_bod_domain_PhysicalPort" items="${physicalports}">
-        <table:table data="${physicalports}" id="l_org_surfnet_bod_domain_PhysicalPort" path="/noc/physicalports">
-            <table:column id="c_org_surfnet_bod_domain_PhysicalPort_name" property="name" />
-            <table:column id="c_org_surfnet_bod_domain_PhysicalPort_physicalResourceGroup"
+    <page:list id="pl_nl_surfnet_bod_domain_PhysicalPort" items="${physicalports}">
+        <table:table data="${physicalports}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/noc/physicalports">
+            <table:column id="c_nl_surfnet_bod_domain_PhysicalPort_name" property="name" />
+            <table:column id="c_nl_surfnet_bod_domain_PhysicalPort_physicalResourceGroup"
                 property="physicalResourceGroup" />
         </table:table>
     </page:list>

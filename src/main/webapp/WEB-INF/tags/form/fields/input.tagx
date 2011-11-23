@@ -10,8 +10,8 @@
     <jsp:directive.attribute name="labelCode" type="java.lang.String" required="false" rtexprvalue="true" description="Key for label message bundle if label is not supplied" />
     <jsp:directive.attribute name="required" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicates if this field is required (default false)" />
     <jsp:directive.attribute name="disabled" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Specify if this field should be enabled" />
-    <jsp:directive.attribute name="validationRegex" type="java.lang.String" required="false" rtexprvalue="true" description="Specify regular expression to be used for the validation of the input contents" />
     <jsp:directive.attribute name="validationMessageCode" type="java.lang.String" required="false" rtexprvalue="true" description="Specify the message (message property code) to be displayed if the regular expression validation fails" />
+    <jsp:directive.attribute name="helpMessageCode" type="java.lang.String" required="false" rtexprvalue="true" description="Displays a help message for an input" />
     <jsp:directive.attribute name="validationMessage" type="java.lang.String" required="false" rtexprvalue="true" description="Specify the message to be displayed if the regular expression validation fails" />
     <jsp:directive.attribute name="min" type="java.lang.String" required="false" rtexprvalue="true" description="Specify the minimum length of the input contents" />
     <jsp:directive.attribute name="max" type="java.lang.String" required="false" rtexprvalue="true" description="Specify the maximum length of the input contents" />
@@ -64,7 +64,7 @@
             <c:set var="error_css" value="error" />
         </c:if>
         
-        <div id="_${fn:escapeXml(id)}_id" class="clearfix ${error_css}">
+        <div class="clearfix ${error_css}">
             <label for="_${sec_field}_id"> <c:out value="${fn:escapeXml(label)}" /> </label>
 
             <div class="input">
@@ -84,6 +84,10 @@
                         <form:errors cssClass="help-inline" id="_${sec_field}_error_id" path="${sec_field}" />
                     </c:otherwise>
                 </c:choose>
+                <c:if test="${not empty helpMessageCode}">
+                    <spring:message code="help_${fn:toLowerCase(helpMessageCode)}" var="help_message" />
+                    <span class="help-block">${help_message}</span>
+                </c:if>
             </div>
 
             <c:choose>
@@ -106,10 +110,6 @@
             <c:set var="sec_field_required">
                 <spring:escapeBody javaScriptEscape="true">${field_required}</spring:escapeBody>
             </c:set>
-            <c:set var="sec_validation_regex" value="" />
-            <c:if test="${!empty validationRegex}">
-                <c:set var="sec_validation_regex" value="regExp : '${validationRegex}', " />
-            </c:if>
         </div>
     </c:if>
 </jsp:root>

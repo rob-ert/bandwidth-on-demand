@@ -5,11 +5,16 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <page:list id="pl_org_surfnet_bod_domain_PhysicalResourceGroup" items="${physicalresourcegroups}">
-        <table:table data="${physicalresourcegroups}" id="l_org_surfnet_bod_domain_PhysicalResourceGroup"
+    <page:list id="pl_nl_surfnet_bod_domain_PhysicalResourceGroup" items="${physicalresourcegroups}">
+        <table:table data="${physicalresourcegroups}" id="l_nl_surfnet_bod_domain_PhysicalResourceGroup"
             path="/noc/physicalresourcegroups">
-            <table:column id="c_org_surfnet_bod_domain_PhysicalResourceGroup_name" property="name" />
-            <table:column id="c_org_surfnet_bod_domain_PhysicalResourceGroup_institutionName" property="institutionName" />
+            
+            <table:column id="name" property="name" labelCode="physicalResourceGroup_name" />
+            
+            <table:column id="institutionName" property="institutionName" labelCode="physicalResourceGroup_institutionName" />
+            
+            <table:column id="adminGroup" property="adminGroup" labelCode="physicalResourceGroup_adminGroup" />
+            
         </table:table>
     </page:list>
 </div>
