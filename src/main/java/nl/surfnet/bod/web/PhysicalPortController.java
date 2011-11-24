@@ -91,7 +91,7 @@ public class PhysicalPortController {
         physicalPortServicImpl.update(physicalPort);
         uiModel.asMap().clear();
 
-        return "physicalports/list";
+        return "redirect:physicalports";
     }
 
     @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
