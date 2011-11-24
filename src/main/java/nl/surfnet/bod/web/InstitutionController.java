@@ -10,12 +10,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class InstitutionController {
 
     @Autowired
     private InstitutionStaticService institutionStaticService;
+
+    @RequestMapping(value = "/institutions", method = RequestMethod.GET, headers = "accept=application/json")
+    public @ResponseBody Collection<Institution> jsonList(@RequestParam(required = false) String q) {
+        return institutionStaticService.getInstitutions();
+    }
 
     @RequestMapping(value = "/institutions", method = RequestMethod.GET)
     public String list(final Model uiModel) {
@@ -25,5 +32,6 @@ public class InstitutionController {
 
         return "institutions/list";
     }
+
 
 }

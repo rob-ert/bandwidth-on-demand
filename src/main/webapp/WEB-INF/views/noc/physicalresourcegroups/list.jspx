@@ -6,8 +6,7 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <page:list id="pl_nl_surfnet_bod_domain_PhysicalResourceGroup" items="${physicalresourcegroups}">
-        <table:table data="${physicalresourcegroups}" id="l_nl_surfnet_bod_domain_PhysicalResourceGroup"
-            path="/noc/physicalresourcegroups">
+        <table:table data="${physicalresourcegroups}" id="l_nl_surfnet_bod_domain_PhysicalResourceGroup" path="/noc/physicalresourcegroups">
             
             <table:column id="name" property="name" labelCode="physicalResourceGroup_name" />
             
