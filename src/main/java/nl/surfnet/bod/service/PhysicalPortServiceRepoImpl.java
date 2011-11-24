@@ -56,6 +56,11 @@ public class PhysicalPortServiceRepoImpl implements PhysicalPortService {
         return physicalPortRepo.findOne(id);
     }
 
+    @Override
+    public PhysicalPort findByPortId(final String portId) {
+        return physicalPortRepo.findByPortId(portId);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -70,11 +75,6 @@ public class PhysicalPortServiceRepoImpl implements PhysicalPortService {
     @Override
     public PhysicalPort update(final PhysicalPort physicalPort) {
         return physicalPortRepo.save(physicalPort);
-    }
-
-    @Override
-    public PhysicalPort find(final String portId) {
-        throw new UnsupportedOperationException("Not implemented");
     }
 
 }
