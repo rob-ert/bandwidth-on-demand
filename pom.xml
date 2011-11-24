@@ -283,6 +283,32 @@
             <version>1.8</version>
         </dependency>
 
+        <!-- axis1 (needed for rpc style encoding of IDD) -->
+        <dependency>
+            <groupId>org.apache.axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>1.4</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis</groupId>
+            <artifactId>axis-jaxrpc</artifactId>
+            <version>1.4</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-discovery</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>0.4</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>1.6.2</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- tests -->
         <dependency>
             <groupId>org.hamcrest</groupId>
@@ -358,11 +384,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.1.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
@@ -416,14 +437,33 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <schemaDirectory>${basedir}/src/main/resources/schemas
-                            </schemaDirectory>
+                            <schemaDirectory>${basedir}/src/main/resources/schemas</schemaDirectory>
                             <schemaIncludes>
                                 <include>*.xsd</include>
                             </schemaIncludes>
                             <generatePackage>nl.surfnet.bod.nbi.client.generated</generatePackage>
                             <removeOldOutput>true</removeOldOutput>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>axistools-maven-plugin</artifactId>
+                <version>1.4</version>
+                <configuration>
+                    <packageSpace>nl.surfnet.bod.idd</packageSpace>
+                    <sourceDirectory>src/main/resources/wsdl</sourceDirectory>
+                    <outputDirectory>target/generated-sources/wsdl2java</outputDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>add-wsdl2java-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>wsdl2java</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
