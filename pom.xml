@@ -459,6 +459,8 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>add-wsdl2java-source</id>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>wsdl2java</goal>
                         </goals>
