@@ -10,7 +10,7 @@ import nl.surfnet.bod.idd.Klanten;
 
 import org.junit.Test;
 
-public class IddLiveClientTest {
+public class IddLiveClientTestIntegration {
 
     private IddLiveClient subject = new IddLiveClient();
 
