@@ -65,7 +65,7 @@ public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
     public PhysicalPort findByName(final String portName) {
 
 
-        return selectByPortName(nbiClient.getAllPorts(), portName);
+        return selectByPortName(nbiClient.findAllPorts(), portName);
     }
 
     @Override
