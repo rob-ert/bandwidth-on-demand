@@ -30,7 +30,7 @@ public class NbiClientMock implements NbiClient {
     }
 
     @Override
-    public List<TerminationPoint> getAllPorts() {
+    public List<TerminationPoint> findAllPorts() {
         ArrayList<TerminationPoint> terminationPoints = new ArrayList<TerminationPoint>();
         TerminationPoint tp = null;
         for (int index = 1; index < 10; index++) {
@@ -54,6 +54,11 @@ public class NbiClientMock implements NbiClient {
     }
 
     public void setUrl(final String url) {
+    }
+
+		@Override
+    public TerminationPoint findPortsByName(String name) {
+	    return findAllPorts().get(1);
     }
 
 }

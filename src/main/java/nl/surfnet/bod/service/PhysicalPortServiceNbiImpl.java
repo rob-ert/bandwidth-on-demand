@@ -24,14 +24,14 @@ import com.google.common.collect.Collections2;
  * @version $Revision$ $Date$
  */
 @Service("physicalPortServiceNbiImpl")
-class PhysicalPortServiceNbiImpl implements PhysicalPortService {
+public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
 
     @Autowired
     private NbiClient nbiClient;
 
     @Override
     public List<PhysicalPort> findAll() {
-        return transform(nbiClient.getAllPorts());
+        return transform(nbiClient.findAllPorts());
     }
 
     @Override
@@ -43,7 +43,7 @@ class PhysicalPortServiceNbiImpl implements PhysicalPortService {
     public long count() {
         long size = 0;
 
-        List<TerminationPoint> ports = nbiClient.getAllPorts();
+        List<TerminationPoint> ports = nbiClient.findAllPorts();
         if (!CollectionUtils.isEmpty(ports)) {
             size = ports.size();
         }
@@ -63,6 +63,7 @@ class PhysicalPortServiceNbiImpl implements PhysicalPortService {
 
     @Override
     public PhysicalPort findByName(final String portName) {
+
 
         return selectByPortName(nbiClient.getAllPorts(), portName);
     }

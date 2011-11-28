@@ -42,13 +42,6 @@
     <!-- store preferred language configuration in a cookie -->
     <bean class="org.springframework.web.servlet.i18n.CookieLocaleResolver" id="localeResolver" p:cookieName="locale" />
 
-    <!-- resolves localized <theme_name>.properties files in the classpath to allow for theme support -->
-    <bean class="org.springframework.ui.context.support.ResourceBundleThemeSource" id="themeSource" />
-
-    <!-- store preferred theme configuration in a cookie -->
-    <bean class="org.springframework.web.servlet.theme.CookieThemeResolver" id="themeResolver" p:cookieName="theme"
-        p:defaultThemeName="standard" />
-
     <!-- This bean resolves specific types of exceptions to corresponding logical - view names for error views. The default 
         behaviour of DispatcherServlet - is to propagate all exceptions to the servlet container: this will happen - here with all 
         other types of exceptions. -->

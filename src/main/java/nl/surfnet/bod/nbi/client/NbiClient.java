@@ -6,6 +6,8 @@ import nl.surfnet.bod.nbi.client.generated.TerminationPoint;
 
 public interface NbiClient {
 
-	public List<TerminationPoint> getAllPorts();
+	public List<TerminationPoint> findAllPorts();
+	
+	public TerminationPoint findPortsByName(final String name);
 
 }
