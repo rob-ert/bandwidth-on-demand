@@ -50,11 +50,10 @@
         <!--property name="password"> <value>??</value> </property -->
       </bean>
     </constructor-arg>
-    <property name="ignoreResourceNotFound" value="true" />
+    <property name="ignoreResourceNotFound" value="false" />
     <property name="locations">
         <list>
-          <value>classpath:env/bod-nbi-client-test.xml</value>
-          <value>classpath:env/bod-nbi-client-dev.xml</value>
+          <value>classpath:env/bod-nbi-client-${BOD_ENV}.xml</value>          
           <value>classpath:env/database.xml</value>          
       </list>
     </property>     
