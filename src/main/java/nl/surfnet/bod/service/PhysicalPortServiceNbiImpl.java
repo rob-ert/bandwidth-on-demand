@@ -31,7 +31,7 @@ public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
 
     @Override
     public List<PhysicalPort> findAll() {
-        return transform(nbiClient.getAllPorts());
+        return transform(nbiClient.findAllPorts());
     }
 
     @Override
@@ -43,7 +43,7 @@ public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
     public long count() {
         long size = 0;
 
-        List<TerminationPoint> ports = nbiClient.getAllPorts();
+        List<TerminationPoint> ports = nbiClient.findAllPorts();
         if (!CollectionUtils.isEmpty(ports)) {
             size = ports.size();
         }
@@ -64,7 +64,7 @@ public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
     @Override
     public PhysicalPort findByPortId(final String portId) {
 
-        return selectByPortId(nbiClient.getAllPorts(), portId);
+        return selectByPortId(nbiClient.findAllPorts(), portId);
     }
 
     @Override

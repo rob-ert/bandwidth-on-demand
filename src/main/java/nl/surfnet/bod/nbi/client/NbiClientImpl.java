@@ -40,7 +40,7 @@ public class NbiClientImpl implements NbiClient {
 	private OSSHandle ossHandle = null;
 
 	@SuppressWarnings("unused")
-  @PostConstruct
+	@PostConstruct
 	private void init() throws RemoteException, RMIAccessException,
 	    MalformedURLException, NotBoundException, JAXBException {
 		log.info("Connecting with username {} to: {}", username, url);
@@ -57,11 +57,10 @@ public class NbiClientImpl implements NbiClient {
 
 	}
 
-	@Override
-	public List<TerminationPoint> getAllPorts() {
+	private List<TerminationPoint> findByFilter(final String filter) {
 		try {
 			final String allPortsXml = ossHandle.getInventory(username, password,
-			    "getResourcesWithAttributes", "type=Port", null);
+			    "getResourcesWithAttributes", filter, null);
 			log.debug("Retrieved all ports: {}", allPortsXml);
 			return ((InventoryResponse) unMarshaller.unmarshal(new StringReader(
 			    allPortsXml))).getTerminationPoint();
@@ -71,7 +70,28 @@ public class NbiClientImpl implements NbiClient {
 			return null;
 		}
 	}
-	
+
+	@Override
+	public List<TerminationPoint> findAllPorts() {
+		return findByFilter("type=Port");
+	}
+
+	@Override
+	public TerminationPoint findPortsByName(final String name) {
+		final List<TerminationPoint> terminationPoints = findByFilter("name="
+		    + name);
+		if (terminationPoints == null) {
+			return null;
+		}
+		if (terminationPoints.size() != 1) {
+			throw new IllegalStateException(String.format(
+			    "Termination point using name: %s, expected 1 actual %s", name,
+			    terminationPoints.size()));
+		}
+		return terminationPoints.get(0);
+
+	}
+
 	public void setUsername(final String username) {
 		this.username = username;
 	}
