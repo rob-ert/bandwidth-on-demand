@@ -9,8 +9,7 @@
     versionField="Version">
     <field:input field="name" id="c_nl_surfnet_bod_domain_PhysicalPort_name" />
     <field:input field="displayName" id="c_nl_surfnet_bod_domain_PhysicalPort_displayname" />
-    <field:input field="portId" id="c_nl_surfnet_bod_domain_PhysicalPort_portid"  />
-
+    
     <field:select field="physicalResourceGroup" id="c_nl_surfnet_bod_domain_PhysicalPort_physicalResourceGroup" itemValue="id"
       items="${physicalresourcegroups}" path="/noc/physicalresourcegroups" />
   </form:update>

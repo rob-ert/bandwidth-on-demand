@@ -24,7 +24,7 @@ import com.google.common.collect.Collections2;
  * @version $Revision$ $Date$
  */
 @Service("physicalPortServiceNbiImpl")
-public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
+class PhysicalPortServiceNbiImpl implements PhysicalPortService {
 
     @Autowired
     private NbiClient nbiClient;
@@ -62,9 +62,9 @@ public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
     }
 
     @Override
-    public PhysicalPort findByPortId(final String portId) {
+    public PhysicalPort findByName(final String portName) {
 
-        return selectByPortId(nbiClient.getAllPorts(), portId);
+        return selectByPortName(nbiClient.getAllPorts(), portName);
     }
 
     @Override
@@ -112,23 +112,23 @@ public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
      * 
      * @param terminationPoints
      *            Collection to search
-     * @param portId
+     * @param name
      *            PortId to select on
      * @return Matched instance or null when no match or multiple matches were
      *         found.
      */
-    PhysicalPort selectByPortId(final Collection<TerminationPoint> terminationPoints, final String portId) {
+    PhysicalPort selectByPortName(final Collection<TerminationPoint> terminationPoints, final String name) {
         PhysicalPort result = null;
         Collection<TerminationPoint> filteredPorts = null;
 
-        if (!CollectionUtils.isEmpty(terminationPoints) && (StringUtils.hasText(portId))) {
+        if (!CollectionUtils.isEmpty(terminationPoints) && (StringUtils.hasText(name))) {
             filteredPorts = Collections2.filter(terminationPoints, new Predicate<TerminationPoint>() {
 
                 @Override
                 public boolean apply(final TerminationPoint port) {
                     boolean found = false;
 
-                    if (port.getPortDetail() != null && portId.equals(port.getPortDetail().getPortId())) {
+                    if (port.getPortDetail() != null && name.equals(port.getPortDetail().getName())) {
                         found = true;
                     }
                     return found;
@@ -160,8 +160,7 @@ public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
 
             if (terminationPoint.getPortDetail() != null) {
                 physicalPort.setName(terminationPoint.getPortDetail().getName());
-                physicalPort.setDisplayName(terminationPoint.getPortDetail().getDisplayName());
-                physicalPort.setPortId(terminationPoint.getPortDetail().getPortId());
+                physicalPort.setDisplayName(terminationPoint.getPortDetail().getDisplayName());                
             }
         }
 

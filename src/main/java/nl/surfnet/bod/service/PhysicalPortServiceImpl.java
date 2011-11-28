@@ -83,10 +83,10 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     }
 
     @Override
-    public PhysicalPort findByPortId(final String portId) {
-        PhysicalPort nbiPort = physicalPortServiceNbiImpl.findByPortId(portId);
+    public PhysicalPort findByName(final String portName) {
+        PhysicalPort nbiPort = physicalPortServiceNbiImpl.findByName(portName);
 
-        PhysicalPort repoPort = physicalPortServiceRepoImpl.findByPortId(portId);
+        PhysicalPort repoPort = physicalPortServiceRepoImpl.findByName(portName);
 
         enrichPortWithPort(nbiPort, repoPort);
 
@@ -131,8 +131,8 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
                     @Override
                     public boolean apply(final PhysicalPort port) {
                         boolean found = false;
-                        if ((StringUtils.hasText(portToEnrich.getPortId()))
-                                && (portToEnrich.getPortId().equals(port.getPortId()))) {
+                        if ((StringUtils.hasText(portToEnrich.getName()))
+                                && (portToEnrich.getName().equals(port.getName()))) {
                             found = true;
                         }
 
@@ -145,8 +145,8 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
                         // Enrich nbiports with data from repoPort
                         enrichPortWithPort(portToEnrich, filteredPorts.iterator().next());
                     } else {
-                        throw new IllegalStateException("PortId is not unique. Found [" + filteredPorts.size()
-                                + "] ports with portId: " + portToEnrich.getPortId());
+                        throw new IllegalStateException("Name is not unique. Found [" + filteredPorts.size()
+                                + "] ports with name: " + portToEnrich.getName());
                     }
                 }
             } else {

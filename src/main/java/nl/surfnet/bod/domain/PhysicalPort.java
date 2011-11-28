@@ -24,9 +24,6 @@ public class PhysicalPort {
     private String name;
 
     @Nullable
-    private String portId;
-
-    @Nullable
     private String displayName;
 
     @ManyToOne
@@ -74,14 +71,7 @@ public class PhysicalPort {
         return sb.toString();
     }
 
-    public void setPortId(final String portId) {
-        this.portId = portId;
-    }
-
-    public String getPortId() {
-        return portId;
-    }
-
+    
     public void setDisplayName(final String displayName) {
         this.displayName = displayName;
     }

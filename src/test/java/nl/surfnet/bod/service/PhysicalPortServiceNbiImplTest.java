@@ -23,8 +23,6 @@ import org.springframework.util.CollectionUtils;
 @ContextConfiguration(locations = "classpath:/spring/appCtx*.xml")
 public class PhysicalPortServiceNbiImplTest {
 
-    private static final String PORT_ID_1 = "PortIdOne";
-    private static final String PORT_ID_2 = "PortIdTwo";
     private static final String NAME_1 = "NameOne";
     private static final String NAME_2 = "NameTwo";
     private static final String DISPLAY_NAME_1 = "TestDisplayNameOne";
@@ -36,13 +34,12 @@ public class PhysicalPortServiceNbiImplTest {
     @Test
     public void testMapTerminationPointToPhysicalPort() {
         // Setup
-        TerminationPoint tp1 = new TerminationPointFactory().create(PORT_ID_1, NAME_1, DISPLAY_NAME_1);
+        TerminationPoint tp1 = new TerminationPointFactory().create(NAME_1, DISPLAY_NAME_1);
 
         // Execute
         PhysicalPort physicalPort = physicalPortServiceNbiImpl.mapTerminationPointToPhysicalPort(tp1);
 
         // Verify
-        assertEquals(PORT_ID_1, physicalPort.getPortId());
         assertEquals(NAME_1, physicalPort.getName());
         assertEquals(DISPLAY_NAME_1, physicalPort.getDisplayName());
 
@@ -55,7 +52,6 @@ public class PhysicalPortServiceNbiImplTest {
         PhysicalPort physicalPort = physicalPortServiceNbiImpl.mapTerminationPointToPhysicalPort(null);
 
         // Verify
-        assertEquals(null, physicalPort.getPortId());
         assertEquals(null, physicalPort.getName());
         assertEquals(null, physicalPort.getDisplayName());
 
@@ -64,12 +60,11 @@ public class PhysicalPortServiceNbiImplTest {
     @Test
     public void testMapTerminationPointToPhysicalPortEmptyArg() {
         // Setup
-        TerminationPoint tp = new TerminationPointFactory().create(null, null, null);
+        TerminationPoint tp = new TerminationPointFactory().create(null, null);
         // Execute
         PhysicalPort physicalPort = physicalPortServiceNbiImpl.mapTerminationPointToPhysicalPort(tp);
 
         // Verify
-        assertEquals(null, physicalPort.getPortId());
         assertEquals(null, physicalPort.getName());
         assertEquals(null, physicalPort.getDisplayName());
 
@@ -78,8 +73,8 @@ public class PhysicalPortServiceNbiImplTest {
     @Test
     public void testTransform() {
         // Setup
-        TerminationPoint tp1 = new TerminationPointFactory().create(PORT_ID_1, NAME_1, DISPLAY_NAME_1);
-        TerminationPoint tp2 = new TerminationPointFactory().create(PORT_ID_2, NAME_2, DISPLAY_NAME_2);
+        TerminationPoint tp1 = new TerminationPointFactory().create(NAME_1, DISPLAY_NAME_1);
+        TerminationPoint tp2 = new TerminationPointFactory().create(NAME_2, DISPLAY_NAME_2);
         List<TerminationPoint> tpoints = Arrays.asList(tp1, tp2);
 
         // Execute
@@ -90,12 +85,10 @@ public class PhysicalPortServiceNbiImplTest {
         Iterator<PhysicalPort> iterator = transformedPorts.iterator();
 
         PhysicalPort physicalPort = iterator.next();
-        assertEquals("one", PORT_ID_1, physicalPort.getPortId());
         assertEquals("one", NAME_1, physicalPort.getName());
         assertEquals("one", DISPLAY_NAME_1, physicalPort.getDisplayName());
 
         physicalPort = iterator.next();
-        assertEquals("two", PORT_ID_2, physicalPort.getPortId());
         assertEquals("two", NAME_2, physicalPort.getName());
         assertEquals("two", DISPLAY_NAME_2, physicalPort.getDisplayName());
     }
@@ -104,7 +97,7 @@ public class PhysicalPortServiceNbiImplTest {
     public void testTransformEmptyArg() {
 
         // Setup
-        TerminationPoint tp1 = new TerminationPointFactory().create(null, null, null);
+        TerminationPoint tp1 = new TerminationPointFactory().create( null, null);
         List<TerminationPoint> tpoints = Arrays.asList(tp1);
 
         // Execute
@@ -114,7 +107,6 @@ public class PhysicalPortServiceNbiImplTest {
         assertEquals("size", 1, transformedPorts.size());
 
         PhysicalPort physicalPort = transformedPorts.iterator().next();
-        assertEquals("portId", null, physicalPort.getId());
         assertEquals("name", null, physicalPort.getName());
     }
 
@@ -129,14 +121,13 @@ public class PhysicalPortServiceNbiImplTest {
     }
 
     @Test
-    public void testSelectByPortId() {
+    public void testSelectByPortName() {
 
-        TerminationPoint tp1 = new TerminationPointFactory().create(PORT_ID_1, NAME_1, DISPLAY_NAME_1);
-        TerminationPoint tp2 = new TerminationPointFactory().create(PORT_ID_2, NAME_2, DISPLAY_NAME_2);
+        TerminationPoint tp1 = new TerminationPointFactory().create( NAME_1, DISPLAY_NAME_1);
+        TerminationPoint tp2 = new TerminationPointFactory().create( NAME_2, DISPLAY_NAME_2);
         List<TerminationPoint> tpoints = Arrays.asList(tp1, tp2);
 
-        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortId(tpoints, PORT_ID_1);
-        assertEquals(PORT_ID_1, selectedPort.getPortId());
+        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortName(tpoints, NAME_1);        
         assertEquals(NAME_1, selectedPort.getName());
         assertEquals(DISPLAY_NAME_1, selectedPort.getDisplayName());
 
@@ -145,10 +136,10 @@ public class PhysicalPortServiceNbiImplTest {
     @Test
     public void testSelectByPortIdNotFound() {
 
-        TerminationPoint tp1 = new TerminationPointFactory().create(PORT_ID_1, NAME_1, DISPLAY_NAME_1);
+        TerminationPoint tp1 = new TerminationPointFactory().create( NAME_1, DISPLAY_NAME_1);
         List<TerminationPoint> tpoints = Arrays.asList(tp1);
 
-        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortId(tpoints, PORT_ID_2);
+        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortName(tpoints, NAME_2);
         assertNull(selectedPort);
 
     }
@@ -156,11 +147,11 @@ public class PhysicalPortServiceNbiImplTest {
     @Test
     public void testSelectByPortIdSearchNullArg() {
 
-        TerminationPoint tp1 = new TerminationPointFactory().create(PORT_ID_1, NAME_1, DISPLAY_NAME_1);
-        TerminationPoint tp2 = new TerminationPointFactory().create(PORT_ID_2, NAME_2, DISPLAY_NAME_2);
+        TerminationPoint tp1 = new TerminationPointFactory().create(NAME_1, DISPLAY_NAME_1);
+        TerminationPoint tp2 = new TerminationPointFactory().create(NAME_2, DISPLAY_NAME_2);
         List<TerminationPoint> tpoints = Arrays.asList(tp1, tp2);
 
-        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortId(tpoints, null);
+        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortName(tpoints, null);
         assertNull(selectedPort);
 
     }
@@ -168,11 +159,11 @@ public class PhysicalPortServiceNbiImplTest {
     @Test
     public void testSelectByPortIdSearchEmptyArg() {
 
-        TerminationPoint tp1 = new TerminationPointFactory().create(PORT_ID_1, NAME_1, DISPLAY_NAME_1);
-        TerminationPoint tp2 = new TerminationPointFactory().create(PORT_ID_2, NAME_2, DISPLAY_NAME_2);
+        TerminationPoint tp1 = new TerminationPointFactory().create( NAME_1, DISPLAY_NAME_1);
+        TerminationPoint tp2 = new TerminationPointFactory().create(NAME_2, DISPLAY_NAME_2);
         List<TerminationPoint> tpoints = Arrays.asList(tp1, tp2);
 
-        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortId(tpoints, "");
+        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortName(tpoints, "");
         assertNull(selectedPort);
 
     }
@@ -180,7 +171,7 @@ public class PhysicalPortServiceNbiImplTest {
     @Test
     public void testSelectByPortIdNullListArg() {
 
-        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortId(null, PORT_ID_1);
+        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortName(null, NAME_1);
         assertNull(selectedPort);
     }
 

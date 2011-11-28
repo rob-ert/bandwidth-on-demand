@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service("physicalPortServiceRepoImpl")
 @Transactional
-public class PhysicalPortServiceRepoImpl implements PhysicalPortService {
+class PhysicalPortServiceRepoImpl implements PhysicalPortService {
 
     @Autowired
     private PhysicalPortRepo physicalPortRepo;
@@ -57,8 +57,8 @@ public class PhysicalPortServiceRepoImpl implements PhysicalPortService {
     }
 
     @Override
-    public PhysicalPort findByPortId(final String portId) {
-        return physicalPortRepo.findByPortId(portId);
+    public PhysicalPort findByName(final String name) {
+        return physicalPortRepo.findByName(name);
     }
 
     /**

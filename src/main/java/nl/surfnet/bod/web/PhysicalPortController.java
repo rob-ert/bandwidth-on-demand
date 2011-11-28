@@ -96,7 +96,7 @@ public class PhysicalPortController {
 
     @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
     public String updateForm(@PathVariable("id") final String portId, final Model uiModel) {
-        uiModel.addAttribute("physicalPort", physicalPortServicImpl.findByPortId(portId));
+        uiModel.addAttribute("physicalPort", physicalPortServicImpl.findByName(portId));
         return "physicalports/update";
     }
 
