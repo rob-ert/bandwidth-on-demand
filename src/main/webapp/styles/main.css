@@ -43,3 +43,6 @@ div.topbar h1 {
   line-height: 1;
   letter-spacing: -1px;
 }
+div.input ul.as-selections {
+	width: 400px;
+}

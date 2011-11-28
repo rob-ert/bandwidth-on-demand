@@ -12,47 +12,8 @@
 
         <field:input field="name" id="name" labelCode="physicalresourcegroup_name" required="true" />
 
-        <!--  begin institute name -->
-        
-        <script>
-          $(function() {
-        	 $("#_institutionName_id").autoSuggest("http://localhost:8080/bod/institutions", {
-        		 selectedValuesProp: 'name',
-        		 searchObjProps: 'name',
-        		 selectedItemProp: 'name',
-        		 startText: '',
-        		 selectionLimit: 1,
-        		 selectionAdded: function(elem) {
-        			 $("input[name='institutionName']").hide();
-        		 },
-        		 selectionRemoved: function(elem) {
-        			 elem.remove();
-        			 $("input[name='institutionName']").show();
-        		 }
-    		 }); 
-          });
-        </script>
-        
-        <c:set var="errors">
-            <forms:errors path="institutionName" />
-        </c:set>
-        <c:if test="${not empty errors}">
-            <c:set var="error_css" value="error" />
-        </c:if>
-
-        <div class="clearfix ${error_css}">
-            <spring:message code="label_physicalresourcegroup_institutionname" var="label" htmlEscape="false" />
-            <label for="_institutionName_id"> <c:out value="${fn:escapeXml(label)}" /></label>
-
-            <div class="input">
-                <input id="_institutionName_id" name="institutionName" type="text" />
-                <forms:errors cssClass="help-inline" id="_institutionName_error_id" path="institutionName" />
-            </div>
-        </div>
-        <!--  end institute name -->
-
-        <!-- <field:input field="institutionName" id="institutionName" labelCode="physicalresourcegroup_institutionName"
-            required="true" /> -->
+        <field:suggestion-input field="institutionName" labelCode="physicalresourcegroup_institutionName"
+            suggestionUrl="/institutions" />
 
         <field:input field="adminGroup" id="adminGroup" labelCode="physicalresourcegroup_adminGroup"
             helpMessageCode="physicalresourcegroup_adminGroup" />

@@ -79,8 +79,7 @@ public class PhysicalResourceGroupController {
         uiModel.asMap().clear();
         physicalResourceGroupService.update(physicalResourceGroup);
 
-        return "redirect:physicalresourcegroups/"
-                + HttpRequestUtils.encodeUrlPathSegment(physicalResourceGroup.getId().toString(), httpServletRequest);
+        return "redirect:physicalresourcegroups";
     }
 
     @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)

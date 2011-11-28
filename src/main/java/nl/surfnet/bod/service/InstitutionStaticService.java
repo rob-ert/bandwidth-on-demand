@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-@Service("institionStaticService")
+@Service("institutionStaticService")
 public class InstitutionStaticService implements InstitutionService {
 
     private final Logger logger = LoggerFactory.getLogger(InstitutionStaticService.class);

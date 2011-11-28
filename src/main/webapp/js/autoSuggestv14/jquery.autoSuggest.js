@@ -40,7 +40,9 @@
 			neverSubmit: false,
 			selectionLimit: false,
 			showResultList: true,
+			inputName: false,
 		  	start: function(){},
+		  	end: function(){},
 		  	selectionClick: function(elem){},
 		  	selectionAdded: function(elem){},
 		  	selectionRemoved: function(elem){ elem.remove(); },
@@ -81,7 +83,8 @@
 				var org_li = $("#as-original-"+x);				
 				var results_holder = $('<div class="as-results" id="as-results-'+x+'"></div>').hide();
 				var results_ul =  $('<ul class="as-list"></ul>');
-				var values_input = $('<input type="hidden" class="as-values" name="institutionName" id="as-values-'+x+'" />');
+				var input_name = opts.inputName ? opts.inputName : "as_values_"+x;
+				var values_input = $('<input type="hidden" class="as-values" name="'+input_name+'" id="as-values-'+x+'" />');
 				var prefill_value = "";
 				if(typeof opts.preFill == "string"){
 					var vals = opts.preFill.split(",");					
@@ -110,12 +113,17 @@
 				}
 				if(prefill_value != ""){
 					input.val("");
-					var lastChar = prefill_value.substring(prefill_value.length-1);
-					if(lastChar != ","){ prefill_value = prefill_value+","; }
-					values_input.val(","+prefill_value);
+					if (opts.selectionLimit && opts.selectionLimit == 1) {
+						values_input.val(prefill_value);
+					} else {
+						var lastChar = prefill_value.substring(prefill_value.length-1);
+						if(lastChar != ","){ prefill_value = prefill_value+","; }
+						values_input.val(","+prefill_value);
+					}
 					$("li.as-selection-item", selections_holder).addClass("blur").removeClass("selected");
 				}
 				input.after(values_input);
+				
 				selections_holder.click(function(){
 					input_focus = true;
 					input.focus();
@@ -160,7 +168,7 @@
 							moveSelection("down");
 							break;
 						case 8:  // delete
-							if(input.val() == ""){							
+							if(input.val() == ""){				
 								var last = values_input.val().split(",");
 								last = last[last.length - 2];
 								selections_holder.children().not(org_li.prev()).removeClass("selected");
@@ -182,6 +190,13 @@
 							}
 							break;
 						case 9: case 188:  // tab or comma
+							if (opts.selectionLimit && opts.selectionLimit == 1) {
+								if(e.keyCode == 9) {
+									moveSelection("down");
+									e.preventDefault();
+								}
+								break;
+							}
 							tab_press = true;
 							var i_input = input.val().replace(/(,)/g, "");
 							if(i_input != "" && values_input.val().search(","+i_input+",") < 0 && i_input.length >= opts.minChars){	
@@ -217,6 +232,8 @@
 							break;
 					}
 				});
+				
+				opts.end.call(this);
 				
 				function keyChange() {
 					// ignore if the following keys are pressed: [del] [shift] [capslock]
@@ -324,7 +341,11 @@
 				}
 				
 				function add_selected_item(data, num){
-					values_input.val(values_input.val()+data[opts.selectedValuesProp]+",");
+					if (opts.selectionLimit && opts.selectionLimit == 1) {
+						values_input.val(data[opts.selectedValuesProp]);
+					} else {
+						values_input.val(values_input.val()+data[opts.selectedValuesProp]+",");
+					}
 					var item = $('<li class="as-selection-item" id="as-selection-'+num+'"></li>').click(function(){
 							opts.selectionClick.call(this, $(this));
 							selections_holder.children().removeClass("selected");

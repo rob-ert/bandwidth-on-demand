@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-@Service("institionIddService")
+@Service("institutionIddService")
 public class InstitutionIddService implements InstitutionService {
 
     @Override
