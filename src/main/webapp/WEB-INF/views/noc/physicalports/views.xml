@@ -7,10 +7,10 @@
     <definition extends="default" name="physicalports/show">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/show.jspx" />
     </definition>
-    <definition extends="default" name="physicalports/create">
-        <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/create.jspx" />
-    </definition>
-    <definition extends="default" name="physicalports/update">
+	<!--
+		No need for create view, ports are managed by NMS and retreived using the nbiClient 
+	 -->
+     <definition extends="default" name="physicalports/update">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/update.jspx" />
     </definition>
 </tiles-definitions>
