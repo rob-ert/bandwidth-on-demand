@@ -4,43 +4,43 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.Institution;
-import nl.surfnet.bod.idd.InvoerKlant;
+import nl.surfnet.bod.extern.IddClient;
 import nl.surfnet.bod.idd.Klanten;
-import nl.surfnet.bod.idd.KsrBindingStub;
-import nl.surfnet.bod.idd.KsrLocator;
-import nl.surfnet.bod.idd.KsrPortType;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-@Service("institutionIddService")
+@Service
 public class InstitutionIddService implements InstitutionService {
+
+    private IddClient iddClient;
+
+    @Autowired
+    public InstitutionIddService(@Qualifier("iddStaticClient") IddClient iddClient) {
+        this.iddClient = iddClient;
+    }
 
     @Override
     public Collection<Institution> getInstitutions() {
+        Collection<Klanten> klanten = iddClient.getKlanten();
 
-        try {
-            KsrPortType port = new KsrLocator().getksrPort();
+        return toInstitutions(klanten);
+    }
 
-            ((KsrBindingStub) port).setUsername("extern");
-            ((KsrBindingStub) port).setPassword("mattheus");
-
-            Klanten[] klantnamen = port.getKlantList(new InvoerKlant("list", "", "1.09")).getKlantnamen();
-
-            List<Institution> institutions = Lists.newArrayList();
-            for (int i = 0; i < klantnamen.length; i++) {
-                String name = klantnamen[i].getKlantnaam().trim();
-                if (Strings.isNullOrEmpty(name)) {
-                    continue;
-                }
-                institutions.add(new Institution(name));
+    private Collection<Institution> toInstitutions(Collection<Klanten> klantnamen) {
+        List<Institution> institutions = Lists.newArrayList();
+        for (Klanten klant : klantnamen) {
+            String klantnaam = klant.getKlantnaam().trim();
+            if (Strings.isNullOrEmpty(klantnaam)) {
+                continue;
             }
-
-            return institutions;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            institutions.add(new Institution(klantnaam));
         }
+
+        return institutions;
     }
 }
