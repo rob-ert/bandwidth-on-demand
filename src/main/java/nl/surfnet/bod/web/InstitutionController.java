@@ -1,8 +1,15 @@
 package nl.surfnet.bod.web;
 
+import static com.google.common.collect.Collections2.filter;
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
+
 import java.util.Collection;
+import java.util.List;
 
 import nl.surfnet.bod.domain.Institution;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.service.InstitutionService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,31 +20,46 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 
 @Controller
 public class InstitutionController {
 
     private InstitutionService institutionService;
 
+    private PhysicalResourceGroupRepo physicalResourceGroupRepo;
+
     @Autowired
-    public InstitutionController(InstitutionService institutionService) {
+    public InstitutionController(InstitutionService institutionService, PhysicalResourceGroupRepo physicalResourceGroupRepo) {
         this.institutionService = institutionService;
+        this.physicalResourceGroupRepo = physicalResourceGroupRepo;
     }
 
     @RequestMapping(value = "/institutions", method = RequestMethod.GET, headers = "accept=application/json")
-    public @ResponseBody
-    Collection<Institution> jsonList(@RequestParam(required = false) String q) {
-        Collection<Institution> institutions = institutionService.getInstitutions();
-
+    public @ResponseBody Collection<Institution> jsonList(@RequestParam(required = false) String q) {
+        final Collection<String> existingInstitutions = existingInstitutionNames();
         final String query = q.toLowerCase();
-        return Collections2.filter(institutions, new Predicate<Institution>() {
+
+        return filter(institutionService.getInstitutions(), new Predicate<Institution>() {
             @Override
             public boolean apply(Institution input) {
-                return input.getName().toLowerCase().contains(query);
+                String institutionName = input.getName().toLowerCase();
+
+                return !existingInstitutions.contains(institutionName) && institutionName.contains(query);
             }
         });
+    }
+
+    private Collection<String> existingInstitutionNames() {
+        List<PhysicalResourceGroup> groups = physicalResourceGroupRepo.findAll();
+
+        return newArrayList(transform(groups, new Function<PhysicalResourceGroup, String>() {
+            @Override
+            public String apply(PhysicalResourceGroup input) {
+                return input.getInstitutionName().toLowerCase();
+            }
+        }));
     }
 
     @RequestMapping(value = "/institutions", method = RequestMethod.GET)
