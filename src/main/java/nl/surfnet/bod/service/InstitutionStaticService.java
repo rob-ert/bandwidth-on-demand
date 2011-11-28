@@ -20,6 +20,8 @@ public class InstitutionStaticService implements InstitutionService {
 
     private final Logger logger = LoggerFactory.getLogger(InstitutionStaticService.class);
 
+    private String staticResponseFile = "/idd_response.xml";
+
     @Override
     public Collection<Institution> getInstitutions() {
         Message message = getStaticMessage();
@@ -32,7 +34,7 @@ public class InstitutionStaticService implements InstitutionService {
     private Collection<Institution> toInstitutions(Klanten[] klantnamen) {
         List<Institution> institutions = Lists.newArrayList();
         for (int i = 0; i < klantnamen.length; i++) {
-            String klantnaam = klantnamen[i].getKlantnaam();
+            String klantnaam = klantnamen[i].getKlantnaam().trim();
             if (Strings.isNullOrEmpty(klantnaam)) {
                 continue;
             }
@@ -54,7 +56,11 @@ public class InstitutionStaticService implements InstitutionService {
     }
 
     private Message getStaticMessage() {
-        return new Message(InstitutionStaticService.class.getResourceAsStream("/idd_response.xml"));
+        return new Message(InstitutionStaticService.class.getResourceAsStream(staticResponseFile));
+    }
+
+    public void setStaticResponseFile(String responseFile) {
+        this.staticResponseFile = responseFile;
     }
 
 }

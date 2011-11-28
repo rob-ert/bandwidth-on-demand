@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+    xmlns:tns="urn:ksr">
+    <SOAP-ENV:Body>
+        <ns1:getKlantListResponse xmlns:ns1="urn:ksr">
+            <klantnamen xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="tns:Klanten[1]">
+                <item xsi:type="tns:Klanten">
+                    <klant_id xsi:type="xsd:int">548</klant_id>
+                    <klantnaam xsi:type="xsd:string">Unitversiteit Utrecht
+                    </klantnaam>
+                    <klantafkorting xsi:type="xsd:string">INTECH-UNU</klantafkorting>
+                    <naw_ref xsi:type="xsd:string">INTECH-UNU</naw_ref>
+                    <klassenaam xsi:type="xsd:string">Overig Hoger Onderwijs</klassenaam>
+                    <instellingsbevoegden xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="tns:Groeps[0]"></instellingsbevoegden>
+                </item>
+            </klantnamen>
+        </ns1:getKlantListResponse>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

@@ -31,7 +31,7 @@ public class InstitutionIddService implements InstitutionService {
 
             List<Institution> institutions = Lists.newArrayList();
             for (int i = 0; i < klantnamen.length; i++) {
-                String name = klantnamen[i].getKlantnaam();
+                String name = klantnamen[i].getKlantnaam().trim();
                 if (Strings.isNullOrEmpty(name)) {
                     continue;
                 }
