@@ -9,14 +9,14 @@ import org.junit.Test;
 public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
 
     @Test
-    public void createPhysicalGroup() {
+    public void createPhysicalGroup() throws Exception {
         getWebDriver().createNewPhysicalGroup("My first group");
 
         getWebDriver().verifyGroupWasCreated("My first group");
     }
 
     @Test
-    public void deletePhysicalGroup() {
+    public void deletePhysicalGroup() throws Exception {
         PhysicalResourceGroup group = givenAPhysicalResourceGroup("Delete this group");
 
         getWebDriver().deletePhysicalGroup(group);
@@ -24,7 +24,7 @@ public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
         getWebDriver().verifyGroupWasDeleted(group);
     }
 
-    private PhysicalResourceGroup givenAPhysicalResourceGroup(String groupName) {
+    private PhysicalResourceGroup givenAPhysicalResourceGroup(String groupName) throws Exception {
         PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName(groupName).create();
 
         getWebDriver().createNewPhysicalGroup(group.getName());
