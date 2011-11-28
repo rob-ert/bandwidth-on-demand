@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.googlecode.ehcache.annotations.Cacheable;
 
 @Service
 public class InstitutionIddService implements InstitutionService {
@@ -25,6 +26,7 @@ public class InstitutionIddService implements InstitutionService {
     }
 
     @Override
+    @Cacheable(cacheName = "institutionsCache")
     public Collection<Institution> getInstitutions() {
         Collection<Klanten> klanten = iddClient.getKlanten();
 
