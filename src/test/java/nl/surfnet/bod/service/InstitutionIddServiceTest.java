@@ -9,8 +9,8 @@ import static org.mockito.Mockito.when;
 import java.util.Collection;
 
 import nl.surfnet.bod.domain.Institution;
-import nl.surfnet.bod.extern.IddClient;
 import nl.surfnet.bod.idd.Klanten;
+import nl.surfnet.bod.idd.client.IddClient;
 
 import org.junit.Before;
 import org.junit.Test;

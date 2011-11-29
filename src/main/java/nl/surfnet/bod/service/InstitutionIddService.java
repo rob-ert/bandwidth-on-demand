@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.Institution;
-import nl.surfnet.bod.extern.IddClient;
 import nl.surfnet.bod.idd.Klanten;
+import nl.surfnet.bod.idd.client.IddClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

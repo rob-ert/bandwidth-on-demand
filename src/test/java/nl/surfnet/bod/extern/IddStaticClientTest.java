@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.hasSize;
 import java.util.Collection;
 
 import nl.surfnet.bod.idd.Klanten;
+import nl.surfnet.bod.idd.client.IddClientMock;
 
 import org.junit.Test;
 

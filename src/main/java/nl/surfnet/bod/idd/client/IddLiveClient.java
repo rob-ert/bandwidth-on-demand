@@ -1,4 +1,4 @@
-package nl.surfnet.bod.extern;
+package nl.surfnet.bod.idd.client;
 
 import java.util.Arrays;
 import java.util.Collection;

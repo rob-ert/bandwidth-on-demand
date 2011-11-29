@@ -7,6 +7,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Collection;
 
 import nl.surfnet.bod.idd.Klanten;
+import nl.surfnet.bod.idd.client.IddLiveClient;
 
 import org.junit.Test;
 
