@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.googlecode.ehcache.annotations.Cacheable;
 
 /**
  * Service implementation which combines {@link PhysicalPort} services using the
@@ -53,6 +54,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
      * with data found in our own database.
      */
     @Override
+    @Cacheable(cacheName = "endpointsCache")
     public List<PhysicalPort> findAll() {
         // retrieve from nbi
         List<PhysicalPort> nbiPorts = physicalPortServiceNbiImpl.findAll();

@@ -3,7 +3,7 @@
     xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd" updateCheck="false">
     <!--
      | Please see http://ehcache.sourceforge.net/documentation/configuration.html for
-     | detailed information on how to configurigure caches in this file
+     | detailed information on how to configure caches in this file
      +-->
     <!-- Location of persistent caches on disk -->
     <diskStore path="java.io.tmpdir/EhCacheSpringAnnotationsExampleApp" />
@@ -15,6 +15,12 @@
     <cache name="institutionsCache" eternal="false"
         maxElementsInMemory="1000" overflowToDisk="false" diskPersistent="false"
         timeToIdleSeconds="0" timeToLiveSeconds="86400"
+        memoryStoreEvictionPolicy="LRU" />
+
+
+    <cache name="endpointsCache" eternal="false"
+        maxElementsInMemory="10000" overflowToDisk="true"
+        diskPersistent="false" timeToIdleSeconds="0" timeToLiveSeconds="86400"
         memoryStoreEvictionPolicy="LRU" />
 
 </ehcache>
