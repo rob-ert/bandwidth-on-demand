@@ -1,6 +1,8 @@
 package nl.surfnet.bod.web;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,20 +34,31 @@ public class PhysicalPortController {
 
   @Autowired
   private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
-
+    
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid final PhysicalPort physicalPort, final BindingResult bindingResult, final Model uiModel,
-      final HttpServletRequest httpServletRequest) {
+  public String create(@Valid PhysicalPort physicalPort, final BindingResult bindingResult,
+      final Model uiModel, final HttpServletRequest httpServletRequest) {
+
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute("physicalPort", physicalPort);
-      return "physicalports/create";
+      return "physicalresourcegroups/create";
     }
 
+    //Keep ref
+    PhysicalResourceGroup physicalResourceGroup = physicalPort.getPhysicalResourceGroup();
+    
+    //Ignore changes made by user, fetch again
+    physicalPort = physicalPortServicImpl.findByName(physicalPort.getName());
+    //Set ref back
+    physicalPort.setPhysicalResourceGroup(physicalResourceGroup);
+        
     uiModel.asMap().clear();
     physicalPortServicImpl.save(physicalPort);
 
+    // Do not return to the create instance, but to the list view
     return "redirect:physicalports";
   }
+  
 
   @RequestMapping(params = "form", method = RequestMethod.GET)
   public String createForm(final Model uiModel) {
@@ -74,7 +88,8 @@ public class PhysicalPortController {
 
     return "physicalports/list";
   }
-
+  
+  
   @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid final PhysicalPort physicalPort, final BindingResult bindingResult,
       @ModelAttribute("physicalResourceGroup") final PhysicalResourceGroup physicalResourceGroup,

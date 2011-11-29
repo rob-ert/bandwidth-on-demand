@@ -161,6 +161,9 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   /**
    * Enriches the port with additional data.
    * 
+   * Clones JPA attributes, so a find will return these preventing a additional
+   * save instead of an update.
+   * 
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort
@@ -169,6 +172,9 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   void enrichPortWithPort(final PhysicalPort portToEnrich, final PhysicalPort dataPort) {
     if ((portToEnrich != null) && (dataPort != null)) {
       portToEnrich.setPhysicalResourceGroup(dataPort.getPhysicalResourceGroup());
+
+      portToEnrich.setId(dataPort.getId());
+      portToEnrich.setVersion(dataPort.getVersion());
     }
   }
 

@@ -30,7 +30,7 @@ public interface PhysicalPortService {
 
   PhysicalPort find(final Long id);
 
-  PhysicalPort findByName(final String portId);
+  PhysicalPort findByName(final String name);
 
   void save(final PhysicalPort physicalPort);
 
