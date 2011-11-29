@@ -8,7 +8,6 @@ import nl.surfnet.bod.extern.IddClient;
 import nl.surfnet.bod.idd.Klanten;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Strings;
