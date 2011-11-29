@@ -11,7 +11,8 @@
   <entry key="jdbc.user">sa</entry>
   <entry key="jdbc.password"></entry>
   <entry key="jdbc.driverClass">org.h2.Driver</entry>
-  <entry key="jdbc.jdbcUrl">jdbc:h2:mem:opendrac;DB_CLOSE_DELAY=-1;TRACE_LEVEL_SYSTEM_OUT=0;TRACE_LEVEL_FILE=2</entry>
+  <!-- ${java.io.tmpdir} points to a really weird location on OSX, nobody is using windows so /tmp is save  -->
+  <entry key="jdbc.jdbcUrl">jdbc:h2:file:/tmp/bod-tmp-db;DB_CLOSE_DELAY=-1;TRACE_LEVEL_SYSTEM_OUT=0;TRACE_LEVEL_FILE=2</entry>
   <entry key="jdbc.initialPoolSize">1</entry>
   <entry key="jdbc.maxPoolSize">20</entry>
   <entry key="jdbc.minPoolSize">1</entry>
