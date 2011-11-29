@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.googlecode.ehcache.annotations.Cacheable;
+import com.googlecode.ehcache.annotations.KeyGenerator;
 
 /**
  * Service implementation which combines {@link PhysicalPort} services using the
@@ -54,7 +55,6 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    * with data found in our own database.
    */
   @Override
-  @Cacheable(cacheName = "endpointsCache")
   public List<PhysicalPort> findAll() {
     // retrieve from nbi
     List<PhysicalPort> nbiPorts = physicalPortServiceNbiImpl.findAll();
@@ -67,7 +67,9 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     return nbiPorts;
   }
 
+  // FIXME: It doesn't cache
   @Override
+  @Cacheable(cacheName = "endpointsCache")
   public List<PhysicalPort> findEntries(final int firstResult, final int sizeNo) {
     List<PhysicalPort> nbiPorts = physicalPortServiceNbiImpl.findEntries(firstResult, sizeNo);
     // Find all repo ports, since the number of ports in both services may
