@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/appCtx*.xml")
 @Transactional
-public class PhysicalPortIntegrationRepoImplTest {
+public class PhysicalPortRepoImplIntegrationTest {
 
   @Autowired
   private PhysicalPortDataOnDemand dod;

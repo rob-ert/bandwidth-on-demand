@@ -7,7 +7,7 @@ import java.util.Collection;
 
 import org.junit.Test;
 
-public class IddStaticClientTest {
+public class IddClientImplTest {
 
   private IddClientMock subject = new IddClientMock();
 

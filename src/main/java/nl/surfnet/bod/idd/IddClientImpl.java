@@ -3,7 +3,7 @@ package nl.surfnet.bod.idd;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class IddLiveClient implements IddClient {
+public class IddClientImpl implements IddClient {
 
   private String username;
 

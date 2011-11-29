@@ -16,6 +16,6 @@
 	<comment> IDD client configuration for Test </comment>
 	<entry key="iddUsername">extern</entry>
 	<entry key="iddPassword">mattheus</entry>
-	<entry key="iddClientClass">nl.surfnet.bod.idd.IddLiveClient</entry>
+	<entry key="iddClientClass">nl.surfnet.bod.idd.IddClientImpl</entry>
 </properties>
  -->

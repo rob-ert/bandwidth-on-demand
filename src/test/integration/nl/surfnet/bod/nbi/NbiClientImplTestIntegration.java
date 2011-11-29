@@ -21,7 +21,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx-nbi-client.xml" })
-public class NbiClientTestIntegration {
+public class NbiClientImplTestIntegration {
 
   @SuppressWarnings("unused")
   private final Logger log = LoggerFactory.getLogger(getClass());
