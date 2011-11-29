@@ -163,7 +163,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   /**
    * Enriches the port with additional data.
    * 
-   * Clones JPA attributes, so a find will return these preventing a additional
+   * Clones JPA attributes (id and version), so a find will return these preventing a additional
    * save instead of an update.
    * 
    * @param portToEnrich
