@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.googlecode.ehcache.annotations.Cacheable;
 
 /**
  * Ciena NorthBoundInterface implementation of the {@link PhysicalPortService}
@@ -29,12 +30,14 @@ class PhysicalPortServiceNbiImpl implements PhysicalPortService {
   @Autowired
   private NbiClient nbiClient;
 
-  @Override
+ @Override
+ @Cacheable(cacheName = "endpointsCache")
   public List<PhysicalPort> findAll() {
     return transform(nbiClient.findAllPorts());
   }
 
   @Override
+  @Cacheable(cacheName = "endpointsCache")
   public List<PhysicalPort> findEntries(final int firstResult, final int sizeNo) {
     return findAll();
   }
