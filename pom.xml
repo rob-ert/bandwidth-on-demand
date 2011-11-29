@@ -424,6 +424,7 @@
                 <configuration>
                     <webAppConfig>
                         <contextPath>/${project.name}</contextPath>
+                        <extraClasspath>src/test/resources</extraClasspath>                        
                     </webAppConfig>
                 </configuration>
             </plugin>

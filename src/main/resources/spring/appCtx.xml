@@ -12,13 +12,6 @@
         http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd">
 
 
-    <!-- <import resource="classpath:spring/bod-nbi-client.xml" /> -->
-
-    <!-- This will automatically locate any and all property files you have within your classpath, provided they fall under 
-        the META-INF/spring directory. The located property files are parsed and their values can then be used within application 
-        context files in the form of ${propertyKey}. -->
-    <context:property-placeholder location="classpath*:env/*.xml" />
-
     <context:component-scan base-package="nl.surfnet.bod">
         <context:exclude-filter expression="org.springframework.stereotype.Controller" type="annotation" />
     </context:component-scan>

@@ -51,15 +51,11 @@
       </bean>
     </constructor-arg>
     <property name="ignoreResourceNotFound" value="false" />
-    <property name="locations">
+    <property name="locations">    	
         <list>
-          <value>classpath:env/bod-nbi-client-${BOD_ENV}.xml</value>          
-          <value>classpath:env/database.xml</value>          
+          <value>classpath*:env/bod-*.xml</value>
       </list>
-    </property>     
+    </property>          
     <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
   </bean>
-
-
 </beans>
-
