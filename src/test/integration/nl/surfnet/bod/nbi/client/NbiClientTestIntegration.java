@@ -23,53 +23,51 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = { "/spring/appCtx-nbi-client.xml" })
 public class NbiClientTestIntegration {
 
-	@SuppressWarnings("unused")
-	private final Logger log = LoggerFactory.getLogger(getClass());
+  @SuppressWarnings("unused")
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private boolean isSkiped = false;
+  private boolean isSkiped = false;
 
-	@Autowired
-	@Qualifier("nbiClient")
-	private NbiClient nbiClient;
+  @Autowired
+  @Qualifier("nbiClient")
+  private NbiClient nbiClient;
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
+  @BeforeClass
+  public static void setUpBeforeClass() throws Exception {
+  }
 
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
+  @AfterClass
+  public static void tearDownAfterClass() throws Exception {
+  }
 
-	@Before
-	public void setUp() throws Exception {
-		if (nbiClient.getClass().isAssignableFrom(NbiClientMock.class)) {
-			isSkiped = true;
-		}
-	}
+  @Before
+  public void setUp() throws Exception {
+    if (nbiClient.getClass().isAssignableFrom(NbiClientMock.class)) {
+      isSkiped = true;
+    }
+  }
 
-	@After
-	public void tearDown() throws Exception {
-	}
+  @After
+  public void tearDown() throws Exception {
+  }
 
-	@Test
-	public void testFindAllPortsWithDetails() {
-		if (isSkiped) {
-			return;
-		}
-		final List<TerminationPoint> allTerminationPoints = nbiClient
-		    .findAllPorts();
-		assertEquals(260, allTerminationPoints.size());
-	}
+  @Test
+  public void testFindAllPortsWithDetails() {
+    if (isSkiped) {
+      return;
+    }
+    final List<TerminationPoint> allTerminationPoints = nbiClient.findAllPorts();
+    assertEquals(260, allTerminationPoints.size());
+  }
 
-	@Test
-	public void testFindPortByNameWithDetails() {
-		if (isSkiped) {
-			return;
-		}
-		final String portName = "00:03:18:bb:5a:00_Port1/30";
-		final TerminationPoint terminationPoints = nbiClient
-		    .findPortsByName(portName);
-		assertEquals(portName, terminationPoints.getPortDetail().getName());
-	}
+  @Test
+  public void testFindPortByNameWithDetails() {
+    if (isSkiped) {
+      return;
+    }
+    final String portName = "00:03:18:bb:5a:00_Port1/30";
+    final TerminationPoint terminationPoints = nbiClient.findPortsByName(portName);
+    assertEquals(portName, terminationPoints.getPortDetail().getName());
+  }
 
 }

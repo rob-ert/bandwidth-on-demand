@@ -8,27 +8,27 @@ import org.junit.Test;
 
 public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
 
-    @Test
-    public void createPhysicalGroup() throws Exception {
-        getWebDriver().createNewPhysicalGroup("My first group");
+  @Test
+  public void createPhysicalGroup() throws Exception {
+    getWebDriver().createNewPhysicalGroup("My first group");
 
-        getWebDriver().verifyGroupWasCreated("My first group");
-    }
+    getWebDriver().verifyGroupWasCreated("My first group");
+  }
 
-    @Test
-    public void deletePhysicalGroup() throws Exception {
-        PhysicalResourceGroup group = givenAPhysicalResourceGroup("Delete this group");
+  @Test
+  public void deletePhysicalGroup() throws Exception {
+    PhysicalResourceGroup group = givenAPhysicalResourceGroup("Delete this group");
 
-        getWebDriver().deletePhysicalGroup(group);
+    getWebDriver().deletePhysicalGroup(group);
 
-        getWebDriver().verifyGroupWasDeleted(group);
-    }
+    getWebDriver().verifyGroupWasDeleted(group);
+  }
 
-    private PhysicalResourceGroup givenAPhysicalResourceGroup(String groupName) throws Exception {
-        PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName(groupName).create();
+  private PhysicalResourceGroup givenAPhysicalResourceGroup(String groupName) throws Exception {
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName(groupName).create();
 
-        getWebDriver().createNewPhysicalGroup(group.getName());
+    getWebDriver().createNewPhysicalGroup(group.getName());
 
-        return group;
-    }
+    return group;
+  }
 }

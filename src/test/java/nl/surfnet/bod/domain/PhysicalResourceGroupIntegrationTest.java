@@ -28,108 +28,105 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PhysicalResourceGroupIntegrationTest {
 
-    @Autowired
-    private PhysicalResourceGroupDataOnDemand dod;
+  @Autowired
+  private PhysicalResourceGroupDataOnDemand dod;
 
-    @Autowired
-    private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
+  @Autowired
+  private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
 
-    @Autowired
-    private PhysicalResourceGroupRepo physicalResourceGroupRepo;
+  @Autowired
+  private PhysicalResourceGroupRepo physicalResourceGroupRepo;
 
-    @Test
-    public void countAllPhysicalResourceGroups() {
-        assertNotNull(dod.getRandomPhysicalResourceGroup());
+  @Test
+  public void countAllPhysicalResourceGroups() {
+    assertNotNull(dod.getRandomPhysicalResourceGroup());
 
-        long count = physicalResourceGroupService.count();
+    long count = physicalResourceGroupService.count();
 
-        assertThat(count, greaterThan(0L));
-    }
+    assertThat(count, greaterThan(0L));
+  }
 
-    @Test
-    public void findPhysicalResourceGroup() {
-        PhysicalResourceGroup randomGroup = dod.getRandomPhysicalResourceGroup();
+  @Test
+  public void findPhysicalResourceGroup() {
+    PhysicalResourceGroup randomGroup = dod.getRandomPhysicalResourceGroup();
 
-        PhysicalResourceGroup freshLoadedGroup = physicalResourceGroupService.find(randomGroup
-                .getId());
+    PhysicalResourceGroup freshLoadedGroup = physicalResourceGroupService.find(randomGroup.getId());
 
-        assertThat(randomGroup, is(freshLoadedGroup));
-    }
+    assertThat(randomGroup, is(freshLoadedGroup));
+  }
 
-    @Test
-    public void findAllPhysicalResourceGroups() {
-        dod.getRandomPhysicalResourceGroup();
+  @Test
+  public void findAllPhysicalResourceGroups() {
+    dod.getRandomPhysicalResourceGroup();
 
-        List<PhysicalResourceGroup> result = physicalResourceGroupService.findAll();
+    List<PhysicalResourceGroup> result = physicalResourceGroupService.findAll();
 
-        assertThat(result, hasSize(greaterThan(0)));
-    }
+    assertThat(result, hasSize(greaterThan(0)));
+  }
 
-    @Test
-    public void findPhysicalResourceGroupEntries() {
-        dod.getRandomPhysicalResourceGroup();
+  @Test
+  public void findPhysicalResourceGroupEntries() {
+    dod.getRandomPhysicalResourceGroup();
 
-        long count = physicalResourceGroupService.count();
+    long count = physicalResourceGroupService.count();
 
-        int maxResults = count > 20 ? 20 : (int) count;
+    int maxResults = count > 20 ? 20 : (int) count;
 
-        List<PhysicalResourceGroup> result = physicalResourceGroupService.findEntries(0,
-                maxResults);
+    List<PhysicalResourceGroup> result = physicalResourceGroupService.findEntries(0, maxResults);
 
-        assertThat(result, hasSize((int) count));
-    }
+    assertThat(result, hasSize((int) count));
+  }
 
-    @Test
-    public void testUpdatePhysicalResourceGroupUpdate() {
-        PhysicalResourceGroup obj = dod.getRandomPhysicalResourceGroup();
+  @Test
+  public void testUpdatePhysicalResourceGroupUpdate() {
+    PhysicalResourceGroup obj = dod.getRandomPhysicalResourceGroup();
 
-        Integer initialVersion = obj.getVersion();
+    Integer initialVersion = obj.getVersion();
 
-        obj.setName("New name");
+    obj.setName("New name");
 
-        PhysicalResourceGroup merged = physicalResourceGroupService.update(obj);
+    PhysicalResourceGroup merged = physicalResourceGroupService.update(obj);
 
-        physicalResourceGroupRepo.flush();
+    physicalResourceGroupRepo.flush();
 
-        assertThat(merged.getId(), is(obj.getId()));
-        assertThat(merged.getVersion(), greaterThan(initialVersion));
-    }
+    assertThat(merged.getId(), is(obj.getId()));
+    assertThat(merged.getVersion(), greaterThan(initialVersion));
+  }
 
-    @Test
-    public void savePhysicalResourceGroup() {
-        PhysicalResourceGroup obj = dod.getNewTransientPhysicalResourceGroup(Integer.MAX_VALUE);
+  @Test
+  public void savePhysicalResourceGroup() {
+    PhysicalResourceGroup obj = dod.getNewTransientPhysicalResourceGroup(Integer.MAX_VALUE);
 
-        physicalResourceGroupService.save(obj);
+    physicalResourceGroupService.save(obj);
 
-        physicalResourceGroupRepo.flush();
+    physicalResourceGroupRepo.flush();
 
-        assertThat(obj.getId(), greaterThan(0L));
-    }
+    assertThat(obj.getId(), greaterThan(0L));
+  }
 
-    @Test
-    public void deletePhysicalResourceGroup() {
-        PhysicalResourceGroup obj = dod.getRandomPhysicalResourceGroup();
+  @Test
+  public void deletePhysicalResourceGroup() {
+    PhysicalResourceGroup obj = dod.getRandomPhysicalResourceGroup();
 
-        physicalResourceGroupService.delete(obj);
+    physicalResourceGroupService.delete(obj);
 
-        physicalResourceGroupRepo.flush();
+    physicalResourceGroupRepo.flush();
 
-        assertThat(physicalResourceGroupService.find(obj.getId()), nullValue());
-    }
+    assertThat(physicalResourceGroupService.find(obj.getId()), nullValue());
+  }
 
-    @Test(expected = ConstraintViolationException.class)
-    public void physicalResourceGroupWithoutANameShouldNotSave() {
-        PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName(null).create();
+  @Test(expected = ConstraintViolationException.class)
+  public void physicalResourceGroupWithoutANameShouldNotSave() {
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName(null).create();
 
-        physicalResourceGroupService.save(group);
-    }
+    physicalResourceGroupService.save(group);
+  }
 
-    @Test(expected = ConstraintViolationException.class)
-    public void physicalResourceGroupWithAnEmptyNameShouldNotSave() {
-        PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName("").create();
+  @Test(expected = ConstraintViolationException.class)
+  public void physicalResourceGroupWithAnEmptyNameShouldNotSave() {
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName("").create();
 
-        physicalResourceGroupService.save(group);
-    }
-
+    physicalResourceGroupService.save(group);
+  }
 
 }

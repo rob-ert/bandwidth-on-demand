@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PhysicalPortRepo extends JpaSpecificationExecutor<PhysicalPort>, JpaRepository<PhysicalPort, Long> {
 
-    PhysicalPort findByName(String name);
+  PhysicalPort findByName(String name);
 }

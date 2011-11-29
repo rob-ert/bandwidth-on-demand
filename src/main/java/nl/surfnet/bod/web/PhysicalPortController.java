@@ -25,104 +25,104 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class PhysicalPortController {
 
-    @Autowired
-    @Qualifier("physicalPortServiceImpl")
-    private PhysicalPortService physicalPortServicImpl;
+  @Autowired
+  @Qualifier("physicalPortServiceImpl")
+  private PhysicalPortService physicalPortServicImpl;
 
-    @Autowired
-    private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
+  @Autowired
+  private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
 
-    @RequestMapping(method = RequestMethod.POST)
-    public String create(@Valid final PhysicalPort physicalPort, final BindingResult bindingResult,
-            final Model uiModel, final HttpServletRequest httpServletRequest) {
-        if (bindingResult.hasErrors()) {
-            uiModel.addAttribute("physicalPort", physicalPort);
-            return "physicalports/create";
-        }
-
-        uiModel.asMap().clear();
-        physicalPortServicImpl.save(physicalPort);
-
-        return "redirect:physicalports";
+  @RequestMapping(method = RequestMethod.POST)
+  public String create(@Valid final PhysicalPort physicalPort, final BindingResult bindingResult, final Model uiModel,
+      final HttpServletRequest httpServletRequest) {
+    if (bindingResult.hasErrors()) {
+      uiModel.addAttribute("physicalPort", physicalPort);
+      return "physicalports/create";
     }
 
-    @RequestMapping(params = "form", method = RequestMethod.GET)
-    public String createForm(final Model uiModel) {
-        uiModel.addAttribute("physicalPort", new PhysicalPort());
-        return "physicalports/create";
-    }
+    uiModel.asMap().clear();
+    physicalPortServicImpl.save(physicalPort);
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public String show(@PathVariable("id") final Long id, final Model uiModel) {
-        uiModel.addAttribute("physicalPort", physicalPortServicImpl.find(id));
-        uiModel.addAttribute("itemId", id);
-        return "physicalports/show";
-    }
+    return "redirect:physicalports";
+  }
 
-    @RequestMapping(method = RequestMethod.GET)
-    public String list(@RequestParam(value = "page", required = false) final Integer page,
-            @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
+  @RequestMapping(params = "form", method = RequestMethod.GET)
+  public String createForm(final Model uiModel) {
+    uiModel.addAttribute("physicalPort", new PhysicalPort());
+    return "physicalports/create";
+  }
 
-        int sizeNo = size == null ? 10 : size.intValue();
-        final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
+  @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+  public String show(@PathVariable("id") final Long id, final Model uiModel) {
+    uiModel.addAttribute("physicalPort", physicalPortServicImpl.find(id));
+    uiModel.addAttribute("itemId", id);
+    return "physicalports/show";
+  }
 
-        uiModel.addAttribute("physicalports", physicalPortServicImpl.findEntries(firstResult, sizeNo));
+  @RequestMapping(method = RequestMethod.GET)
+  public String list(@RequestParam(value = "page", required = false) final Integer page,
+      @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
 
-        float nrOfPages = (float) physicalPortServicImpl.count() / sizeNo;
-        uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
-                : nrOfPages));
+    int sizeNo = size == null ? 10 : size.intValue();
+    final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
 
-        return "physicalports/list";
-    }
+    uiModel.addAttribute("physicalports", physicalPortServicImpl.findEntries(firstResult, sizeNo));
 
-    @RequestMapping(method = RequestMethod.PUT)
-    public String update(@Valid final PhysicalPort physicalPort, final BindingResult bindingResult,
-            @ModelAttribute("physicalResourceGroup") final PhysicalResourceGroup physicalResourceGroup,
-            final BindingResult physicalResourceGroupBindingResult, final Model uiModel,
-            final HttpServletRequest httpServletRequest) {
+    float nrOfPages = (float) physicalPortServicImpl.count() / sizeNo;
+    uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
+        : nrOfPages));
 
-        // if (bindingResult.hasErrors()) {
-        // uiModel.addAttribute("physicalPort", physicalPort);
-        // return "physicalports/update";
-        // }
+    return "physicalports/list";
+  }
 
-        // uiModel.asMap().clear();
+  @RequestMapping(method = RequestMethod.PUT)
+  public String update(@Valid final PhysicalPort physicalPort, final BindingResult bindingResult,
+      @ModelAttribute("physicalResourceGroup") final PhysicalResourceGroup physicalResourceGroup,
+      final BindingResult physicalResourceGroupBindingResult, final Model uiModel,
+      final HttpServletRequest httpServletRequest) {
 
-        physicalPortServicImpl.update(physicalPort);
-        uiModel.asMap().clear();
+    // if (bindingResult.hasErrors()) {
+    // uiModel.addAttribute("physicalPort", physicalPort);
+    // return "physicalports/update";
+    // }
 
-        return "redirect:physicalports";
-    }
+    // uiModel.asMap().clear();
 
-    @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
-    public String updateForm(@PathVariable("id") final String portId, final Model uiModel) {
-        uiModel.addAttribute("physicalPort", physicalPortServicImpl.findByName(portId));
-        return "physicalports/update";
-    }
+    physicalPortServicImpl.update(physicalPort);
+    uiModel.asMap().clear();
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public String delete(@PathVariable("id") final Long id,
-            @RequestParam(value = "page", required = false) final Integer page,
-            @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
+    return "redirect:physicalports";
+  }
 
-        PhysicalPort physicalPort = physicalPortServicImpl.find(id);
-        physicalPortServicImpl.delete(physicalPort);
+  @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
+  public String updateForm(@PathVariable("id") final String portId, final Model uiModel) {
+    uiModel.addAttribute("physicalPort", physicalPortServicImpl.findByName(portId));
+    return "physicalports/update";
+  }
 
-        uiModel.asMap().clear();
-        uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
-        uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
+  @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+  public String delete(@PathVariable("id") final Long id,
+      @RequestParam(value = "page", required = false) final Integer page,
+      @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
 
-        return "redirect:";
-    }
+    PhysicalPort physicalPort = physicalPortServicImpl.find(id);
+    physicalPortServicImpl.delete(physicalPort);
 
-    /**
-     * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
-     * group to a {@link PhysicalPort}.
-     * 
-     * @return Collection<PhysicalResourceGroup>
-     */
-    @ModelAttribute("physicalresourcegroups")
-    public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
-        return physicalResourceGroupService.findAll();
-    }
+    uiModel.asMap().clear();
+    uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
+    uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
+
+    return "redirect:";
+  }
+
+  /**
+   * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
+   * group to a {@link PhysicalPort}.
+   * 
+   * @return Collection<PhysicalResourceGroup>
+   */
+  @ModelAttribute("physicalresourcegroups")
+  public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
+    return physicalResourceGroupService.findAll();
+  }
 }

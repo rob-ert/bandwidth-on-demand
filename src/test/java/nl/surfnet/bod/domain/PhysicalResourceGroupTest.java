@@ -8,10 +8,10 @@ import org.junit.Test;
 
 public class PhysicalResourceGroupTest {
 
-    @Test
-    public void physicalResourceGroupToStringShouldContainName() {
-        PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName("My first group").create();
+  @Test
+  public void physicalResourceGroupToStringShouldContainName() {
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName("My first group").create();
 
-        assertThat(group.toString(), containsString("My first group"));
-    }
+    assertThat(group.toString(), containsString("My first group"));
+  }
 }

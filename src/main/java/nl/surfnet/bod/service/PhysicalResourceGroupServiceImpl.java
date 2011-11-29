@@ -14,34 +14,34 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PhysicalResourceGroupServiceImpl {
 
-	@Autowired
-	private PhysicalResourceGroupRepo physicalResourceGroupRepo;
+  @Autowired
+  private PhysicalResourceGroupRepo physicalResourceGroupRepo;
 
-	public long count() {
-		return physicalResourceGroupRepo.count();
-	}
+  public long count() {
+    return physicalResourceGroupRepo.count();
+  }
 
-	public void delete(final PhysicalResourceGroup physicalResourceGroup) {
-		physicalResourceGroupRepo.delete(physicalResourceGroup);
-	}
+  public void delete(final PhysicalResourceGroup physicalResourceGroup) {
+    physicalResourceGroupRepo.delete(physicalResourceGroup);
+  }
 
-	public PhysicalResourceGroup find(final Long id) {
-		return physicalResourceGroupRepo.findOne(id);
-	}
+  public PhysicalResourceGroup find(final Long id) {
+    return physicalResourceGroupRepo.findOne(id);
+  }
 
-	public List<PhysicalResourceGroup> findAll() {
-		return physicalResourceGroupRepo.findAll();
-	}
+  public List<PhysicalResourceGroup> findAll() {
+    return physicalResourceGroupRepo.findAll();
+  }
 
-	public List<PhysicalResourceGroup> findEntries(final int firstResult, final int maxResults) {
-		return physicalResourceGroupRepo.findAll(new PageRequest(firstResult / maxResults, maxResults)).getContent();
-	}
+  public List<PhysicalResourceGroup> findEntries(final int firstResult, final int maxResults) {
+    return physicalResourceGroupRepo.findAll(new PageRequest(firstResult / maxResults, maxResults)).getContent();
+  }
 
-    public void save(final PhysicalResourceGroup physicalResourceGroup) {
-		physicalResourceGroupRepo.save(physicalResourceGroup);
-	}
+  public void save(final PhysicalResourceGroup physicalResourceGroup) {
+    physicalResourceGroupRepo.save(physicalResourceGroup);
+  }
 
-	public PhysicalResourceGroup update(final PhysicalResourceGroup physicalResourceGroup) {
-		return physicalResourceGroupRepo.save(physicalResourceGroup);
-	}
+  public PhysicalResourceGroup update(final PhysicalResourceGroup physicalResourceGroup) {
+    return physicalResourceGroupRepo.save(physicalResourceGroup);
+  }
 }

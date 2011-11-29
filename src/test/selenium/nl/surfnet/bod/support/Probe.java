@@ -2,9 +2,9 @@ package nl.surfnet.bod.support;
 
 public interface Probe {
 
-    void sample();
+  void sample();
 
-    boolean isSatisfied();
+  boolean isSatisfied();
 
-    String message();
+  String message();
 }

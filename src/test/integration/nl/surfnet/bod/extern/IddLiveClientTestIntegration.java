@@ -12,13 +12,13 @@ import org.junit.Test;
 
 public class IddLiveClientTestIntegration {
 
-    private IddLiveClient subject = new IddLiveClient();
+  private IddLiveClient subject = new IddLiveClient();
 
-    @Test
-    public void callIddService() {
-        Collection<Klanten> klanten = subject.getKlanten();
+  @Test
+  public void callIddService() {
+    Collection<Klanten> klanten = subject.getKlanten();
 
-        assertThat(klanten, hasSize(greaterThan(0)));
-    }
+    assertThat(klanten, hasSize(greaterThan(0)));
+  }
 
 }

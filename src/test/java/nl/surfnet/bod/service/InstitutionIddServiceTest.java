@@ -19,41 +19,41 @@ import com.google.common.collect.Lists;
 
 public class InstitutionIddServiceTest {
 
-    private IddClient iddClientMock = mock(IddClient.class);
+  private IddClient iddClientMock = mock(IddClient.class);
 
-    private InstitutionIddService subject = new InstitutionIddService();
+  private InstitutionIddService subject = new InstitutionIddService();
 
-    @Before
-    public void setUp(){
-        subject.setIddClient(iddClientMock);
-    }
-    
-    @Test
-    public void shouldIgnoreEmptyNames() {
-        Klanten klant = newKlantWithName("");
+  @Before
+  public void setUp() {
+    subject.setIddClient(iddClientMock);
+  }
 
-        when(iddClientMock.getKlanten()).thenReturn(Lists.newArrayList(klant));
+  @Test
+  public void shouldIgnoreEmptyNames() {
+    Klanten klant = newKlantWithName("");
 
-        Collection<Institution> institutions = subject.getInstitutions();
+    when(iddClientMock.getKlanten()).thenReturn(Lists.newArrayList(klant));
 
-        assertThat(institutions, hasSize(0));
-    }
+    Collection<Institution> institutions = subject.getInstitutions();
 
-    @Test
-    public void shouldRemoveTrailingWhitespaceFromName() {
-        Klanten klant = newKlantWithName("SURFnet\n");
+    assertThat(institutions, hasSize(0));
+  }
 
-        when(iddClientMock.getKlanten()).thenReturn(Lists.newArrayList(klant));
+  @Test
+  public void shouldRemoveTrailingWhitespaceFromName() {
+    Klanten klant = newKlantWithName("SURFnet\n");
 
-        Collection<Institution> institutions = subject.getInstitutions();
+    when(iddClientMock.getKlanten()).thenReturn(Lists.newArrayList(klant));
 
-        assertThat(institutions, hasSize(1));
-        assertThat(institutions.iterator().next().getName(), is("SURFnet"));
-    }
+    Collection<Institution> institutions = subject.getInstitutions();
 
-    private Klanten newKlantWithName(String naam) {
-        Klanten klanten = new Klanten();
-        klanten.setKlantnaam(naam);
-        return klanten;
-    }
+    assertThat(institutions, hasSize(1));
+    assertThat(institutions.iterator().next().getName(), is("SURFnet"));
+  }
+
+  private Klanten newKlantWithName(String naam) {
+    Klanten klanten = new Klanten();
+    klanten.setKlantnaam(naam);
+    return klanten;
+  }
 }

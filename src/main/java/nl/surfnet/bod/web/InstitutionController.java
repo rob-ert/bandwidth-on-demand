@@ -26,49 +26,51 @@ import com.google.common.base.Predicate;
 @Controller
 public class InstitutionController {
 
-    private InstitutionService institutionService;
+  private InstitutionService institutionService;
 
-    private PhysicalResourceGroupRepo physicalResourceGroupRepo;
+  private PhysicalResourceGroupRepo physicalResourceGroupRepo;
 
-    @Autowired
-    public InstitutionController(InstitutionService institutionService, PhysicalResourceGroupRepo physicalResourceGroupRepo) {
-        this.institutionService = institutionService;
-        this.physicalResourceGroupRepo = physicalResourceGroupRepo;
-    }
+  @Autowired
+  public InstitutionController(InstitutionService institutionService,
+      PhysicalResourceGroupRepo physicalResourceGroupRepo) {
+    this.institutionService = institutionService;
+    this.physicalResourceGroupRepo = physicalResourceGroupRepo;
+  }
 
-    @RequestMapping(value = "/institutions", method = RequestMethod.GET, headers = "accept=application/json")
-    public @ResponseBody Collection<Institution> jsonList(@RequestParam(required = false) String q) {
-        final Collection<String> existingInstitutions = existingInstitutionNames();
-        final String query = q.toLowerCase();
+  @RequestMapping(value = "/institutions", method = RequestMethod.GET, headers = "accept=application/json")
+  public @ResponseBody
+  Collection<Institution> jsonList(@RequestParam(required = false) String q) {
+    final Collection<String> existingInstitutions = existingInstitutionNames();
+    final String query = q.toLowerCase();
 
-        return filter(institutionService.getInstitutions(), new Predicate<Institution>() {
-            @Override
-            public boolean apply(Institution input) {
-                String institutionName = input.getName().toLowerCase();
+    return filter(institutionService.getInstitutions(), new Predicate<Institution>() {
+      @Override
+      public boolean apply(Institution input) {
+        String institutionName = input.getName().toLowerCase();
 
-                return !existingInstitutions.contains(institutionName) && institutionName.contains(query);
-            }
-        });
-    }
+        return !existingInstitutions.contains(institutionName) && institutionName.contains(query);
+      }
+    });
+  }
 
-    private Collection<String> existingInstitutionNames() {
-        List<PhysicalResourceGroup> groups = physicalResourceGroupRepo.findAll();
+  private Collection<String> existingInstitutionNames() {
+    List<PhysicalResourceGroup> groups = physicalResourceGroupRepo.findAll();
 
-        return newArrayList(transform(groups, new Function<PhysicalResourceGroup, String>() {
-            @Override
-            public String apply(PhysicalResourceGroup input) {
-                return input.getInstitutionName().toLowerCase();
-            }
-        }));
-    }
+    return newArrayList(transform(groups, new Function<PhysicalResourceGroup, String>() {
+      @Override
+      public String apply(PhysicalResourceGroup input) {
+        return input.getInstitutionName().toLowerCase();
+      }
+    }));
+  }
 
-    @RequestMapping(value = "/institutions", method = RequestMethod.GET)
-    public String list(final Model uiModel) {
-        Collection<Institution> institutions = institutionService.getInstitutions();
+  @RequestMapping(value = "/institutions", method = RequestMethod.GET)
+  public String list(final Model uiModel) {
+    Collection<Institution> institutions = institutionService.getInstitutions();
 
-        uiModel.addAttribute("institutions", institutions);
+    uiModel.addAttribute("institutions", institutions);
 
-        return "institutions/list";
-    }
+    return "institutions/list";
+  }
 
 }

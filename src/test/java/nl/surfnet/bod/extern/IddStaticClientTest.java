@@ -12,13 +12,13 @@ import org.junit.Test;
 
 public class IddStaticClientTest {
 
-    private IddClientMock subject = new IddClientMock();
+  private IddClientMock subject = new IddClientMock();
 
-    @Test
-    public void fetchAllKlanten() {
-        Collection<Klanten> institutions = subject.getKlanten();
+  @Test
+  public void fetchAllKlanten() {
+    Collection<Klanten> institutions = subject.getKlanten();
 
-        assertThat(institutions, hasSize(greaterThan(0)));
-    }
+    assertThat(institutions, hasSize(greaterThan(0)));
+  }
 
 }

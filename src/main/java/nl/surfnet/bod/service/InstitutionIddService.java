@@ -16,32 +16,32 @@ import com.googlecode.ehcache.annotations.Cacheable;
 
 @Service
 public class InstitutionIddService implements InstitutionService {
-    
-    private IddClient iddClient;
-    
-    @Override
-    @Cacheable(cacheName = "institutionsCache")
-    public Collection<Institution> getInstitutions() {
-        Collection<Klanten> klanten = iddClient.getKlanten();
 
-        return toInstitutions(klanten);
+  private IddClient iddClient;
+
+  @Override
+  @Cacheable(cacheName = "institutionsCache")
+  public Collection<Institution> getInstitutions() {
+    Collection<Klanten> klanten = iddClient.getKlanten();
+
+    return toInstitutions(klanten);
+  }
+
+  private Collection<Institution> toInstitutions(Collection<Klanten> klantnamen) {
+    List<Institution> institutions = Lists.newArrayList();
+    for (Klanten klant : klantnamen) {
+      String klantnaam = klant.getKlantnaam().trim();
+      if (Strings.isNullOrEmpty(klantnaam)) {
+        continue;
+      }
+      institutions.add(new Institution(klantnaam));
     }
 
-    private Collection<Institution> toInstitutions(Collection<Klanten> klantnamen) {
-        List<Institution> institutions = Lists.newArrayList();
-        for (Klanten klant : klantnamen) {
-            String klantnaam = klant.getKlantnaam().trim();
-            if (Strings.isNullOrEmpty(klantnaam)) {
-                continue;
-            }
-            institutions.add(new Institution(klantnaam));
-        }
+    return institutions;
+  }
 
-        return institutions;
-    }
-    
-    @Autowired
-    public void setIddClient(IddClient iddClient) {
-        this.iddClient = iddClient;
-    }
+  @Autowired
+  public void setIddClient(IddClient iddClient) {
+    this.iddClient = iddClient;
+  }
 }

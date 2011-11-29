@@ -13,32 +13,33 @@ import org.springframework.stereotype.Component;
 
 public class IddLiveClient implements IddClient {
 
-    private String username;
+  private String username;
 
-    private String password;
+  private String password;
 
-    @Override
-    public Collection<Klanten> getKlanten() {
-        try {
-            KsrPortType port = new KsrLocator().getksrPort();
-           
-            ((KsrBindingStub) port).setUsername(username);
-            ((KsrBindingStub) port).setPassword(password);
+  @Override
+  public Collection<Klanten> getKlanten() {
+    try {
+      KsrPortType port = new KsrLocator().getksrPort();
 
-            Klanten[] klantnamen = port.getKlantList(new InvoerKlant("list", "", "1.09")).getKlantnamen();
+      ((KsrBindingStub) port).setUsername(username);
+      ((KsrBindingStub) port).setPassword(password);
 
-            return Arrays.asList(klantnamen);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+      Klanten[] klantnamen = port.getKlantList(new InvoerKlant("list", "", "1.09")).getKlantnamen();
+
+      return Arrays.asList(klantnamen);
     }
-
-    public void setUsername(String username) {
-        this.username = username;
+    catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
 
 }

@@ -28,84 +28,84 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PhysicalPortIntegrationRepoImplTest {
 
-    @Autowired
-    private PhysicalPortDataOnDemand dod;
+  @Autowired
+  private PhysicalPortDataOnDemand dod;
 
-    @Autowired
-    @Qualifier("physicalPortServiceRepoImpl")
-    private PhysicalPortService physicalPortServiceRepoImpl;
+  @Autowired
+  @Qualifier("physicalPortServiceRepoImpl")
+  private PhysicalPortService physicalPortServiceRepoImpl;
 
-    @Autowired
-    private PhysicalPortRepo physicalPortRepo;
+  @Autowired
+  private PhysicalPortRepo physicalPortRepo;
 
-    @Test
-    public void countAllPhysicalPorts() {
-        dod.getRandomPhysicalPort();
+  @Test
+  public void countAllPhysicalPorts() {
+    dod.getRandomPhysicalPort();
 
-        long count = physicalPortServiceRepoImpl.count();
+    long count = physicalPortServiceRepoImpl.count();
 
-        assertThat(count, greaterThan(0L));
-    }
+    assertThat(count, greaterThan(0L));
+  }
 
-    @Test
-    public void findPhysicalPort() {
-        PhysicalPort obj = dod.getRandomPhysicalPort();
+  @Test
+  public void findPhysicalPort() {
+    PhysicalPort obj = dod.getRandomPhysicalPort();
 
-        PhysicalPort freshObj = physicalPortServiceRepoImpl.find(obj.getId());
+    PhysicalPort freshObj = physicalPortServiceRepoImpl.find(obj.getId());
 
-        assertThat(obj, is(freshObj));
-    }
+    assertThat(obj, is(freshObj));
+  }
 
-    @Test
-    public void testFindPhysicalPortEntries() {
-        dod.getRandomPhysicalPort();
-        int count = (int) physicalPortServiceRepoImpl.count();
+  @Test
+  public void testFindPhysicalPortEntries() {
+    dod.getRandomPhysicalPort();
+    int count = (int) physicalPortServiceRepoImpl.count();
 
-        int maxResults = count > 20 ? 20 : count;
+    int maxResults = count > 20 ? 20 : count;
 
-        List<PhysicalPort> result = physicalPortServiceRepoImpl.findEntries(0, maxResults);
+    List<PhysicalPort> result = physicalPortServiceRepoImpl.findEntries(0, maxResults);
 
-        assertThat(result, hasSize(count));
-    }
+    assertThat(result, hasSize(count));
+  }
 
-    @Test
-    public void updatePhysicalPortUpdate() {
-        PhysicalPort obj = dod.getRandomPhysicalPort();
+  @Test
+  public void updatePhysicalPortUpdate() {
+    PhysicalPort obj = dod.getRandomPhysicalPort();
 
-        Integer initialVersion = obj.getVersion();
-        obj.setName("New name");
+    Integer initialVersion = obj.getVersion();
+    obj.setName("New name");
 
-        PhysicalPort merged = physicalPortServiceRepoImpl.update(obj);
+    PhysicalPort merged = physicalPortServiceRepoImpl.update(obj);
 
-        physicalPortRepo.flush();
+    physicalPortRepo.flush();
 
-        assertThat(merged.getId(), is(obj.getId()));
-        assertThat(merged.getVersion(), greaterThan(initialVersion));
-    }
+    assertThat(merged.getId(), is(obj.getId()));
+    assertThat(merged.getVersion(), greaterThan(initialVersion));
+  }
 
-    @Test
-    public void savePhysicalPort() {
-        PhysicalPort obj = dod.getNewTransientPhysicalPort(Integer.MAX_VALUE);
-        physicalPortServiceRepoImpl.save(obj);
-        physicalPortRepo.flush();
+  @Test
+  public void savePhysicalPort() {
+    PhysicalPort obj = dod.getNewTransientPhysicalPort(Integer.MAX_VALUE);
+    physicalPortServiceRepoImpl.save(obj);
+    physicalPortRepo.flush();
 
-        assertThat(obj.getId(), greaterThan(0L));
-    }
+    assertThat(obj.getId(), greaterThan(0L));
+  }
 
-    @Test
-    public void deletePhysicalPort() {
-        PhysicalPort obj = dod.getRandomPhysicalPort();
+  @Test
+  public void deletePhysicalPort() {
+    PhysicalPort obj = dod.getRandomPhysicalPort();
 
-        physicalPortServiceRepoImpl.delete(obj);
-        physicalPortRepo.flush();
+    physicalPortServiceRepoImpl.delete(obj);
+    physicalPortRepo.flush();
 
-        assertThat(physicalPortServiceRepoImpl.find(obj.getId()), nullValue());
-    }
+    assertThat(physicalPortServiceRepoImpl.find(obj.getId()), nullValue());
+  }
 
-    @Test(expected = ConstraintViolationException.class)
-    public void aPortShouldNotSaveWithoutAName() {
-        PhysicalPort port = new PhysicalPortFactory().setName("").create();
+  @Test(expected = ConstraintViolationException.class)
+  public void aPortShouldNotSaveWithoutAName() {
+    PhysicalPort port = new PhysicalPortFactory().setName("").create();
 
-        physicalPortServiceRepoImpl.save(port);
-    }
+    physicalPortServiceRepoImpl.save(port);
+  }
 }

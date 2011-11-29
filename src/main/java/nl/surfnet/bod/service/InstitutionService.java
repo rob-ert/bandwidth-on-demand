@@ -6,6 +6,6 @@ import nl.surfnet.bod.domain.Institution;
 
 public interface InstitutionService {
 
-    Collection<Institution> getInstitutions();
+  Collection<Institution> getInstitutions();
 
 }

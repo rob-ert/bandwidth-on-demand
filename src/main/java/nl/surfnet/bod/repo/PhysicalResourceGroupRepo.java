@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PhysicalResourceGroupRepo extends JpaSpecificationExecutor<PhysicalResourceGroup>,
-        JpaRepository<PhysicalResourceGroup, Long> {
+    JpaRepository<PhysicalResourceGroup, Long> {
 }

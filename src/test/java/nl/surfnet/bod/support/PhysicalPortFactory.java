@@ -5,19 +5,19 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
 public class PhysicalPortFactory {
 
-    private String name;
-    private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
+  private String name;
+  private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
 
-    public PhysicalPort create() {
-        PhysicalPort port = new PhysicalPort();
-        port.setName(name);
-        port.setPhysicalResourceGroup(physicalResourceGroup);
+  public PhysicalPort create() {
+    PhysicalPort port = new PhysicalPort();
+    port.setName(name);
+    port.setPhysicalResourceGroup(physicalResourceGroup);
 
-        return port;
-    }
+    return port;
+  }
 
-    public PhysicalPortFactory setName(String name) {
-        this.name = name;
-        return this;
-    }
+  public PhysicalPortFactory setName(String name) {
+    this.name = name;
+    return this;
+  }
 }

@@ -5,13 +5,13 @@ import nl.surfnet.bod.nbi.client.generated.TerminationPoint;
 
 public class TerminationPointFactory {
 
-    public TerminationPoint create(final String name, final String displayName) {
-        TerminationPoint tpoint = new TerminationPoint();
+  public TerminationPoint create(final String name, final String displayName) {
+    TerminationPoint tpoint = new TerminationPoint();
 
-        tpoint.setPortDetail(new PortDetail());
-        tpoint.getPortDetail().setName(name);
-        tpoint.getPortDetail().setDisplayName(displayName);
-        
-        return tpoint;
-    }
+    tpoint.setPortDetail(new PortDetail());
+    tpoint.getPortDetail().setName(name);
+    tpoint.getPortDetail().setDisplayName(displayName);
+
+    return tpoint;
+  }
 }

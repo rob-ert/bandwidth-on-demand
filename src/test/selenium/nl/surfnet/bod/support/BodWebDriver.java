@@ -19,62 +19,62 @@ import com.google.common.io.Files;
 
 public class BodWebDriver {
 
-    private static final String URL_UNDER_TEST = withEndingSlash(System.getProperty("selenium.test.url"));
+  private static final String URL_UNDER_TEST = withEndingSlash(System.getProperty("selenium.test.url"));
 
-    private FirefoxDriver driver;
+  private FirefoxDriver driver;
 
-    public synchronized void initializeOnce() {
-        if (driver == null) {
-            this.driver = new FirefoxDriver();
-            this.driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    if (driver != null) {
-                        driver.quit();
-                    }
-                }
-            });
+  public synchronized void initializeOnce() {
+    if (driver == null) {
+      this.driver = new FirefoxDriver();
+      this.driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+      Runtime.getRuntime().addShutdownHook(new Thread() {
+        @Override
+        public void run() {
+          if (driver != null) {
+            driver.quit();
+          }
         }
+      });
     }
+  }
 
-    public void takeScreenshot(File screenshot) throws Exception {
-        if (driver != null) {
-            File temp = driver.getScreenshotAs(OutputType.FILE);
-            Files.copy(temp, screenshot);
-        }
+  public void takeScreenshot(File screenshot) throws Exception {
+    if (driver != null) {
+      File temp = driver.getScreenshotAs(OutputType.FILE);
+      Files.copy(temp, screenshot);
     }
+  }
 
-    public void createNewPhysicalGroup(String name) throws Exception {
-        NewPhysicalResourceGroupPage page = NewPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
-        page.sendName(name);
-        page.sendInstitution("Utrecht");
+  public void createNewPhysicalGroup(String name) throws Exception {
+    NewPhysicalResourceGroupPage page = NewPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
+    page.sendName(name);
+    page.sendInstitution("Utrecht");
 
-        page.save();
-    }
+    page.save();
+  }
 
-    private static String withEndingSlash(String path) {
-        return path.endsWith("/") ? path : path + "/";
-    }
+  private static String withEndingSlash(String path) {
+    return path.endsWith("/") ? path : path + "/";
+  }
 
-    public void deletePhysicalGroup(PhysicalResourceGroup group) {
-        ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
+  public void deletePhysicalGroup(PhysicalResourceGroup group) {
+    ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
 
-        page.deleteByName(group.getName());
-    }
+    page.deleteByName(group.getName());
+  }
 
-    public void verifyGroupWasCreated(String name) {
-        assertListTable(containsString(name));
-    }
+  public void verifyGroupWasCreated(String name) {
+    assertListTable(containsString(name));
+  }
 
-    public void verifyGroupWasDeleted(PhysicalResourceGroup group) {
-        assertListTable(not(containsString(group.getName())));
-    }
+  public void verifyGroupWasDeleted(PhysicalResourceGroup group) {
+    assertListTable(not(containsString(group.getName())));
+  }
 
-    private void assertListTable(Matcher<String> tableMatcher) {
-        ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver);
-        String row = page.getTable();
+  private void assertListTable(Matcher<String> tableMatcher) {
+    ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver);
+    String row = page.getTable();
 
-        assertThat(row, tableMatcher);
-    }
+    assertThat(row, tableMatcher);
+  }
 }

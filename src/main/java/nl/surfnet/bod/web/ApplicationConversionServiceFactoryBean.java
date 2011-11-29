@@ -16,86 +16,86 @@ import org.springframework.format.support.FormattingConversionServiceFactoryBean
  */
 public class ApplicationConversionServiceFactoryBean extends FormattingConversionServiceFactoryBean {
 
-    @Autowired
-    @Qualifier("physicalPortServiceRepoImpl")
-    private PhysicalPortService physicalPortServiceRepoImpl;
+  @Autowired
+  @Qualifier("physicalPortServiceRepoImpl")
+  private PhysicalPortService physicalPortServiceRepoImpl;
 
-    @Autowired
-    private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
+  @Autowired
+  private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
 
-    @Override
-    protected void installFormatters(final FormatterRegistry registry) {
-        super.installFormatters(registry);
-        // Register application converters and formatters
-    }
+  @Override
+  protected void installFormatters(final FormatterRegistry registry) {
+    super.installFormatters(registry);
+    // Register application converters and formatters
+  }
 
-    public Converter<PhysicalPort, String> getPhysicalPortToStringConverter() {
-        return new Converter<PhysicalPort, String>() {
-            @Override
-            public String convert(final PhysicalPort physicalPort) {
-                return new StringBuilder().append(physicalPort.getName()).toString();
-            }
-        };
-    }
+  public Converter<PhysicalPort, String> getPhysicalPortToStringConverter() {
+    return new Converter<PhysicalPort, String>() {
+      @Override
+      public String convert(final PhysicalPort physicalPort) {
+        return new StringBuilder().append(physicalPort.getName()).toString();
+      }
+    };
+  }
 
-    public Converter<Long, PhysicalPort> getIdToPhysicalPortConverter() {
-        return new Converter<Long, PhysicalPort>() {
-            @Override
-            public PhysicalPort convert(final java.lang.Long id) {
-                return physicalPortServiceRepoImpl.find(id);
-            }
-        };
-    }
+  public Converter<Long, PhysicalPort> getIdToPhysicalPortConverter() {
+    return new Converter<Long, PhysicalPort>() {
+      @Override
+      public PhysicalPort convert(final java.lang.Long id) {
+        return physicalPortServiceRepoImpl.find(id);
+      }
+    };
+  }
 
-    public Converter<String, PhysicalPort> getStringToPhysicalPortConverter() {
-        return new Converter<java.lang.String, nl.surfnet.bod.domain.PhysicalPort>() {
-            @Override
-            public PhysicalPort convert(final String id) {
-                return getObject().convert(getObject().convert(id, Long.class), PhysicalPort.class);
-            }
-        };
-    }
+  public Converter<String, PhysicalPort> getStringToPhysicalPortConverter() {
+    return new Converter<java.lang.String, nl.surfnet.bod.domain.PhysicalPort>() {
+      @Override
+      public PhysicalPort convert(final String id) {
+        return getObject().convert(getObject().convert(id, Long.class), PhysicalPort.class);
+      }
+    };
+  }
 
-    public Converter<PhysicalResourceGroup, String> getPhysicalResourceGroupToStringConverter() {
-        return new Converter<PhysicalResourceGroup, String>() {
-            @Override
-            public String convert(final PhysicalResourceGroup physicalResourceGroup) {
-                return new StringBuilder().append(physicalResourceGroup.getName()).append(" - ")
-                        .append(physicalResourceGroup.getInstitutionName()).toString();
-            }
-        };
-    }
+  public Converter<PhysicalResourceGroup, String> getPhysicalResourceGroupToStringConverter() {
+    return new Converter<PhysicalResourceGroup, String>() {
+      @Override
+      public String convert(final PhysicalResourceGroup physicalResourceGroup) {
+        return new StringBuilder().append(physicalResourceGroup.getName()).append(" - ")
+            .append(physicalResourceGroup.getInstitutionName()).toString();
+      }
+    };
+  }
 
-    public Converter<Long, PhysicalResourceGroup> getIdToPhysicalResourceGroupConverter() {
-        return new Converter<Long, PhysicalResourceGroup>() {
-            @Override
-            public nl.surfnet.bod.domain.PhysicalResourceGroup convert(final java.lang.Long id) {
-                return physicalResourceGroupService.find(id);
-            }
-        };
-    }
+  public Converter<Long, PhysicalResourceGroup> getIdToPhysicalResourceGroupConverter() {
+    return new Converter<Long, PhysicalResourceGroup>() {
+      @Override
+      public nl.surfnet.bod.domain.PhysicalResourceGroup convert(final java.lang.Long id) {
+        return physicalResourceGroupService.find(id);
+      }
+    };
+  }
 
-    public Converter<String, PhysicalResourceGroup> getStringToPhysicalResourceGroupConverter() {
-        return new Converter<java.lang.String, PhysicalResourceGroup>() {
-            @Override
-            public PhysicalResourceGroup convert(final String id) {
-                return getObject().convert(getObject().convert(id, Long.class), PhysicalResourceGroup.class);
-            }
-        };
-    }
+  public Converter<String, PhysicalResourceGroup> getStringToPhysicalResourceGroupConverter() {
+    return new Converter<java.lang.String, PhysicalResourceGroup>() {
+      @Override
+      public PhysicalResourceGroup convert(final String id) {
+        return getObject().convert(getObject().convert(id, Long.class), PhysicalResourceGroup.class);
+      }
+    };
+  }
 
-    public void installLabelConverters(final FormatterRegistry registry) {
-        registry.addConverter(getPhysicalPortToStringConverter());
-        registry.addConverter(getIdToPhysicalPortConverter());
-        registry.addConverter(getStringToPhysicalPortConverter());
-        registry.addConverter(getPhysicalResourceGroupToStringConverter());
-        registry.addConverter(getIdToPhysicalResourceGroupConverter());
-        registry.addConverter(getStringToPhysicalResourceGroupConverter());
-    }
+  public void installLabelConverters(final FormatterRegistry registry) {
+    registry.addConverter(getPhysicalPortToStringConverter());
+    registry.addConverter(getIdToPhysicalPortConverter());
+    registry.addConverter(getStringToPhysicalPortConverter());
+    registry.addConverter(getPhysicalResourceGroupToStringConverter());
+    registry.addConverter(getIdToPhysicalResourceGroupConverter());
+    registry.addConverter(getStringToPhysicalResourceGroupConverter());
+  }
 
-    @Override
-    public void afterPropertiesSet() {
-        super.afterPropertiesSet();
-        installLabelConverters(getObject());
-    }
+  @Override
+  public void afterPropertiesSet() {
+    super.afterPropertiesSet();
+    installLabelConverters(getObject());
+  }
 }

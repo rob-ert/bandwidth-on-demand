@@ -6,6 +6,6 @@ import nl.surfnet.bod.idd.Klanten;
 
 public interface IddClient {
 
-    Collection<Klanten> getKlanten();
+  Collection<Klanten> getKlanten();
 
 }
