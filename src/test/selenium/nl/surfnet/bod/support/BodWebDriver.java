@@ -45,10 +45,10 @@ public class BodWebDriver {
         }
     }
 
-    public void createNewPhysicalGroup(String name) {
+    public void createNewPhysicalGroup(String name) throws Exception {
         NewPhysicalResourceGroupPage page = NewPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
         page.sendName(name);
-        page.sendInstitution("SURFnet B.V.");
+        page.sendInstitution("Utrecht");
 
         page.save();
     }

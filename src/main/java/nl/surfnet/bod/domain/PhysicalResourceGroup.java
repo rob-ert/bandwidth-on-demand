@@ -1,5 +1,6 @@
 package nl.surfnet.bod.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,9 +20,11 @@ public class PhysicalResourceGroup {
 	private Integer version;
 
 	@NotEmpty
+	@Column(nullable = false)
 	private String name;
 
 	@NotEmpty
+	@Column(unique = true, nullable = false)
 	private String institutionName;
 
 	private String adminGroup;

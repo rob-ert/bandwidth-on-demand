@@ -11,7 +11,7 @@
     <properties>
         <spring.version>3.0.6.RELEASE</spring.version>
         <slf4j.version>1.6.3</slf4j.version>
-        <jetty.version>7.4.2.v20110526</jetty.version>
+        <jetty.version>8.0.4.v20111024</jetty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-security.version>3.0.7.RELEASE</spring-security.version>
         <ems.version>5.6</ems.version>
@@ -422,6 +422,7 @@
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>${jetty.version}</version>
                 <configuration>
+                    <reload>manual</reload>
                     <webAppConfig>
                         <contextPath>/${project.name}</contextPath>
                         <extraClasspath>src/test/resources</extraClasspath>                        
@@ -497,6 +498,7 @@
                         </ignores>
                         <excludes>
                             <exclude>nl/surfnet/bod/nbi/client/**/*.class</exclude>
+                            <exclude>nl/surfnet/bod/idd/*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>

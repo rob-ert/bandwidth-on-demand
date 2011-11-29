@@ -41,9 +41,4 @@ public class IddStaticClient implements IddClient {
     private Message getStaticMessage() {
         return new Message(IddStaticClient.class.getResourceAsStream(staticResponseFile));
     }
-
-    protected void setStaticResponseFile(String responseFile) {
-        this.staticResponseFile = responseFile;
-    }
-
 }
