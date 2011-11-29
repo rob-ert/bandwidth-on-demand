@@ -29,6 +29,23 @@ public class NbiClientMock implements NbiClient {
 
   }
 
+  /**
+   * 
+   * @param name
+   *          The name of the port
+   * @return A {@link TerminationPoint} or <code>null</code> if nothing was
+   *         found.
+   */
+  @Override
+  public TerminationPoint findPortsByName(String name) {
+    return findAllPorts().get(1);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see nl.surfnet.bod.nbi.client.NbiClient#findAllPorts()
+   */
   @Override
   public List<TerminationPoint> findAllPorts() {
     ArrayList<TerminationPoint> terminationPoints = new ArrayList<TerminationPoint>();
@@ -54,11 +71,6 @@ public class NbiClientMock implements NbiClient {
   }
 
   public void setUrl(final String url) {
-  }
-
-  @Override
-  public TerminationPoint findPortsByName(String name) {
-    return findAllPorts().get(1);
   }
 
 }

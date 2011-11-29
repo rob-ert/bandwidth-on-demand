@@ -69,11 +69,21 @@ public class NbiClientImpl implements NbiClient {
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see nl.surfnet.bod.nbi.client.NbiClient#findAllPorts()
+   */
   @Override
   public List<TerminationPoint> findAllPorts() {
     return findByFilter("type=Port");
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see nl.surfnet.bod.nbi.client.NbiClient#findPortsByName(java.lang.String)
+   */
   @Override
   public TerminationPoint findPortsByName(final String name) {
     final List<TerminationPoint> terminationPoints = findByFilter("name=" + name);
