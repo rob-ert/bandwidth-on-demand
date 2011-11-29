@@ -1,8 +1,6 @@
-package nl.surfnet.bod.idd.client;
+package nl.surfnet.bod.idd;
 
 import java.util.Collection;
-
-import nl.surfnet.bod.idd.Klanten;
 
 public interface IddClient {
 

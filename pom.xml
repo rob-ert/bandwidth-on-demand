@@ -460,7 +460,7 @@
                             <schemaIncludes>
                                 <include>*.xsd</include>
                             </schemaIncludes>
-                            <generatePackage>nl.surfnet.bod.nbi.client.generated</generatePackage>
+                            <generatePackage>nl.surfnet.bod.nbi.generated</generatePackage>
                             <removeOldOutput>true</removeOldOutput>
                         </configuration>
                     </execution>
@@ -494,7 +494,7 @@
                 <configuration>
                     <instrumentation>
                         <ignores>
-                            <ignore>nl.surfnet.bod.nbi.client.*</ignore>
+                            <ignore>nl.surfnet.bod.nbi.*</ignore>
                         </ignores>
                         <excludes>
                             <exclude>nl/surfnet/bod/nbi/client/**/*.class</exclude>

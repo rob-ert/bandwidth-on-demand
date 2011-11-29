@@ -1,10 +1,10 @@
-package nl.surfnet.bod.nbi.client;
+package nl.surfnet.bod.nbi;
 
 import static org.junit.Assert.*;
 
 import java.util.List;
 
-import nl.surfnet.bod.nbi.client.generated.TerminationPoint;
+import nl.surfnet.bod.nbi.generated.TerminationPoint;
 
 import org.junit.After;
 import org.junit.AfterClass;

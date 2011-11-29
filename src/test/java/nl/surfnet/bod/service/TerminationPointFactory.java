@@ -1,7 +1,7 @@
 package nl.surfnet.bod.service;
 
-import nl.surfnet.bod.nbi.client.generated.PortDetail;
-import nl.surfnet.bod.nbi.client.generated.TerminationPoint;
+import nl.surfnet.bod.nbi.generated.PortDetail;
+import nl.surfnet.bod.nbi.generated.TerminationPoint;
 
 public class TerminationPointFactory {
 

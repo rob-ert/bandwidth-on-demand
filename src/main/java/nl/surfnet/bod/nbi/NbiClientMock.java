@@ -1,4 +1,4 @@
-package nl.surfnet.bod.nbi.client;
+package nl.surfnet.bod.nbi;
 
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
@@ -9,8 +9,8 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBException;
 
-import nl.surfnet.bod.nbi.client.generated.PortDetail;
-import nl.surfnet.bod.nbi.client.generated.TerminationPoint;
+import nl.surfnet.bod.nbi.generated.PortDetail;
+import nl.surfnet.bod.nbi.generated.TerminationPoint;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ public class NbiClientMock implements NbiClient {
   /*
    * (non-Javadoc)
    * 
-   * @see nl.surfnet.bod.nbi.client.NbiClient#findAllPorts()
+   * @see nl.surfnet.bod.nbi.NbiClient#findAllPorts()
    */
   @Override
   public List<TerminationPoint> findAllPorts() {

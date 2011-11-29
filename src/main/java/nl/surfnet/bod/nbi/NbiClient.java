@@ -1,8 +1,8 @@
-package nl.surfnet.bod.nbi.client;
+package nl.surfnet.bod.nbi;
 
 import java.util.List;
 
-import nl.surfnet.bod.nbi.client.generated.TerminationPoint;
+import nl.surfnet.bod.nbi.generated.TerminationPoint;
 
 public interface NbiClient {
 

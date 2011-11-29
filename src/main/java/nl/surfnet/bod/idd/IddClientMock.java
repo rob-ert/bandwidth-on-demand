@@ -1,17 +1,13 @@
-package nl.surfnet.bod.idd.client;
+package nl.surfnet.bod.idd;
 
 import java.util.Arrays;
 import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 
-import nl.surfnet.bod.idd.Klanten;
-import nl.surfnet.bod.idd.Klantnamen;
-
 import org.apache.axis.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 public class IddClientMock implements IddClient {
 

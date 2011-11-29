@@ -1,15 +1,7 @@
-package nl.surfnet.bod.idd.client;
+package nl.surfnet.bod.idd;
 
 import java.util.Arrays;
 import java.util.Collection;
-
-import nl.surfnet.bod.idd.InvoerKlant;
-import nl.surfnet.bod.idd.Klanten;
-import nl.surfnet.bod.idd.KsrBindingStub;
-import nl.surfnet.bod.idd.KsrLocator;
-import nl.surfnet.bod.idd.KsrPortType;
-
-import org.springframework.stereotype.Component;
 
 public class IddLiveClient implements IddClient {
 

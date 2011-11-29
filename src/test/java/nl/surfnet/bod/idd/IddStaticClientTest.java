@@ -1,13 +1,9 @@
-package nl.surfnet.bod.extern;
+package nl.surfnet.bod.idd;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import java.util.Collection;
-
-import nl.surfnet.bod.idd.Klanten;
-import nl.surfnet.bod.idd.client.IddClientMock;
 
 import org.junit.Test;
 

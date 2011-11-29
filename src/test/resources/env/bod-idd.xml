@@ -8,7 +8,7 @@
 	</comment>
 	<entry key="iddUsername" />
 	<entry key="iddPassword" />
-	<entry key="iddClientClass">nl.surfnet.bod.idd.client.IddClientMock</entry>
+	<entry key="iddClientClass">nl.surfnet.bod.idd.IddClientMock</entry>
 </properties>
 
 <!-- 
@@ -16,6 +16,6 @@
 	<comment> IDD client configuration for Test </comment>
 	<entry key="iddUsername">extern</entry>
 	<entry key="iddPassword">mattheus</entry>
-	<entry key="iddClientClass">nl.surfnet.bod.idd.client.IddLiveClient</entry>
+	<entry key="iddClientClass">nl.surfnet.bod.idd.IddLiveClient</entry>
 </properties>
  -->

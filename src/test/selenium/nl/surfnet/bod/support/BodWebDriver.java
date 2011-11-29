@@ -1,8 +1,7 @@
 package nl.surfnet.bod.support;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;

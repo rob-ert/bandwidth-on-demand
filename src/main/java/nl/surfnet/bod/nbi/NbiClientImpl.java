@@ -1,4 +1,4 @@
-package nl.surfnet.bod.nbi.client;
+package nl.surfnet.bod.nbi;
 
 import java.io.StringReader;
 import java.net.MalformedURLException;
@@ -12,8 +12,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import nl.surfnet.bod.nbi.client.generated.InventoryResponse;
-import nl.surfnet.bod.nbi.client.generated.TerminationPoint;
+import nl.surfnet.bod.nbi.generated.InventoryResponse;
+import nl.surfnet.bod.nbi.generated.TerminationPoint;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import com.adventnet.security.authentication.RMIAccessAPI;
 import com.adventnet.security.authentication.RMIAccessException;
 import com.esm.server.api.oss.OSSHandle;
-import com.googlecode.ehcache.annotations.Cacheable;
 
 public class NbiClientImpl implements NbiClient {
 
@@ -51,7 +50,7 @@ public class NbiClientImpl implements NbiClient {
     ossHandle = (OSSHandle) rmiAccessApi.getAPI(username, password, "OSSHandle");
     log.info("Looked up OSS handle: {}", ossHandle);
 
-    jaxbContext = JAXBContext.newInstance("nl.surfnet.bod.nbi.client.generated");
+    jaxbContext = JAXBContext.newInstance("nl.surfnet.bod.nbi.generated");
     unMarshaller = jaxbContext.createUnmarshaller();
 
   }
@@ -72,7 +71,7 @@ public class NbiClientImpl implements NbiClient {
   /*
    * (non-Javadoc)
    * 
-   * @see nl.surfnet.bod.nbi.client.NbiClient#findAllPorts()
+   * @see nl.surfnet.bod.nbi.NbiClient#findAllPorts()
    */
   @Override
   public List<TerminationPoint> findAllPorts() {
@@ -82,7 +81,7 @@ public class NbiClientImpl implements NbiClient {
   /*
    * (non-Javadoc)
    * 
-   * @see nl.surfnet.bod.nbi.client.NbiClient#findPortsByName(java.lang.String)
+   * @see nl.surfnet.bod.nbi.NbiClient#findPortsByName(java.lang.String)
    */
   @Override
   public TerminationPoint findPortsByName(final String name) {
