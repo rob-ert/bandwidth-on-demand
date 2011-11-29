@@ -83,10 +83,10 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     }
 
     @Override
-    public PhysicalPort findByName(final String portName) {
-        PhysicalPort nbiPort = physicalPortServiceNbiImpl.findByName(portName);
+    public PhysicalPort findByName(final String name) {
+        PhysicalPort nbiPort = physicalPortServiceNbiImpl.findByName(name);
 
-        PhysicalPort repoPort = physicalPortServiceRepoImpl.findByName(portName);
+        PhysicalPort repoPort = physicalPortServiceRepoImpl.findByName(name);
 
         enrichPortWithPort(nbiPort, repoPort);
 

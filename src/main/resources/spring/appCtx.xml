@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:aop="http://www.springframework.org/schema/aop"
-    xmlns:context="http://www.springframework.org/schema/context" xmlns:jee="http://www.springframework.org/schema/jee"
-    xmlns:tx="http://www.springframework.org/schema/tx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:task="http://www.springframework.org/schema/task" xmlns:ehcache="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring"
-    xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:ehcache="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
         http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
@@ -12,42 +13,88 @@
         http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd">
 
 
-    <context:component-scan base-package="nl.surfnet.bod">
-        <context:exclude-filter expression="org.springframework.stereotype.Controller" type="annotation" />
-    </context:component-scan>
+	<context:component-scan base-package="nl.surfnet.bod">
+		<context:exclude-filter expression="org.springframework.stereotype.Controller"
+			type="annotation" />
+	</context:component-scan>
 
-    <task:annotation-driven />
+	<task:annotation-driven />
 
-    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-        <property name="user" value="${jdbc.user}" />
-        <property name="password" value="${jdbc.password}" />
-        <property name="driverClass" value="${jdbc.driverClass}" />
-        <property name="jdbcUrl" value="${jdbc.jdbcUrl}" />
-        <property name="initialPoolSize" value="${jdbc.initialPoolSize}" />
-        <property name="maxPoolSize" value="${jdbc.maxPoolSize}" />
-        <property name="minPoolSize" value="${jdbc.minPoolSize}" />
-        <property name="acquireIncrement" value="${jdbc.acquireIncrement}" />
-        <property name="acquireRetryAttempts" value="${jdbc.acquireRetryAttempts}" />
-        <property name="idleConnectionTestPeriod" value="${jdbc.idleConnectionTestPeriod}" />
-    </bean>
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="user" value="${jdbc.user}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="driverClass" value="${jdbc.driverClass}" />
+		<property name="jdbcUrl" value="${jdbc.jdbcUrl}" />
+		<property name="initialPoolSize" value="${jdbc.initialPoolSize}" />
+		<property name="maxPoolSize" value="${jdbc.maxPoolSize}" />
+		<property name="minPoolSize" value="${jdbc.minPoolSize}" />
+		<property name="acquireIncrement" value="${jdbc.acquireIncrement}" />
+		<property name="acquireRetryAttempts" value="${jdbc.acquireRetryAttempts}" />
+		<property name="idleConnectionTestPeriod" value="${jdbc.idleConnectionTestPeriod}" />
+	</bean>
 
-    <bean class="org.springframework.orm.jpa.JpaTransactionManager" id="transactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory" />
-    </bean>
+	<bean class="org.springframework.orm.jpa.JpaTransactionManager"
+		id="transactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
 
-    <tx:annotation-driven mode="aspectj" transaction-manager="transactionManager" />
+	<tx:annotation-driven mode="aspectj"
+		transaction-manager="transactionManager" />
 
-    <bean class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean" id="entityManagerFactory">
-        <property name="persistenceUnitName" value="persistenceUnit" />
-        <property name="dataSource" ref="dataSource" />
-    </bean>
+	<bean
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+		id="entityManagerFactory">
+		<property name="persistenceUnitName" value="persistenceUnit" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
 
-    <ehcache:annotation-driven />
+	<!-- -->
+	<!-- (Encrypted) PropertyPlaceholderConfigurer -->
+	<!-- -->
+	<bean
+		class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer"
+		id="encryptablePropertyPlaceholderConfigurer">
+		<constructor-arg>
+			<bean class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+				<property name="config">
+					<bean class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
 
-    <ehcache:config cache-manager="cacheManager">
-        <ehcache:evict-expired-elements interval="60" />
-    </ehcache:config>
+						<!-- TODO: Get BC provider working by putting Security.addProvider(new 
+							BouncyCastleProvider()); somewhere in the code before the spring context 
+							is loaded... -->
 
-    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" />
+						<!-- <property name="providerName" value="BC" /> <property name="algorithm" 
+							value="PBEWITHSHA256AND128BITAES-CBC-BC" /> -->
+
+						<property name="algorithm">
+							<value>PBEWithMD5AndTripleDES</value>
+						</property>
+						<property name="passwordEnvName" value="BOD_ENCRYPTION_PASSWORD" />
+					</bean>
+				</property>
+				<!-- <property name="algorithm"> <value>PBEWithMD5AndTripleDES</value> 
+					</property> -->
+				<!--property name="password"> <value>??</value> </property -->
+			</bean>
+		</constructor-arg>
+		<property name="ignoreResourceNotFound" value="false" />
+		<property name="locations">
+			<list>
+				<value>classpath*:env/bod-*.xml</value>
+			</list>
+		</property>
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+	</bean>
+
+	<ehcache:annotation-driven />
+
+	<ehcache:config cache-manager="cacheManager">
+		<ehcache:evict-expired-elements
+			interval="60" />
+	</ehcache:config>
+
+	<bean id="cacheManager"
+		class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" />
 
 </beans>

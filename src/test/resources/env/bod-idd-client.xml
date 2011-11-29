@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+
+
+<properties>
+	<comment>
+		IDD client configuration for Dev
+	</comment>
+	<entry key="iddUsername" />
+	<entry key="iddPassword" />
+	<entry key="iddClientClass">nl.surfnet.bod.extern.IddClientMock</entry>
+</properties>
+
+<!-- 
+<properties>
+	<comment> IDD client configuration for Test </comment>
+	<entry key="iddUsername">extern</entry>
+	<entry key="iddPassword">mattheus</entry>
+	<entry key="iddClientClass">nl.surfnet.bod.extern.IddLiveClient</entry>
+</properties>
+ -->

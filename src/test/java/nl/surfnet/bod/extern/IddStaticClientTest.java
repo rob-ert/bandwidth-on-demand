@@ -12,7 +12,7 @@ import org.junit.Test;
 
 public class IddStaticClientTest {
 
-    private IddStaticClient subject = new IddStaticClient();
+    private IddClientMock subject = new IddClientMock();
 
     @Test
     public void fetchAllKlanten() {

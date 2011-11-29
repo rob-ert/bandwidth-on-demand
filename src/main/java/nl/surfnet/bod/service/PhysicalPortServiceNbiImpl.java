@@ -24,7 +24,7 @@ import com.google.common.collect.Collections2;
  * @version $Revision$ $Date$
  */
 @Service("physicalPortServiceNbiImpl")
-public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
+class PhysicalPortServiceNbiImpl implements PhysicalPortService {
 
     @Autowired
     private NbiClient nbiClient;
@@ -62,10 +62,10 @@ public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
     }
 
     @Override
-    public PhysicalPort findByName(final String portName) {
+    public PhysicalPort findByName(final String name) {
 
 
-        return selectByPortName(nbiClient.findAllPorts(), portName);
+        return selectByName(nbiClient.findAllPorts(), name);
     }
 
     @Override
@@ -118,7 +118,7 @@ public class PhysicalPortServiceNbiImpl implements PhysicalPortService {
      * @return Matched instance or null when no match or multiple matches were
      *         found.
      */
-    PhysicalPort selectByPortName(final Collection<TerminationPoint> terminationPoints, final String name) {
+    PhysicalPort selectByName(final Collection<TerminationPoint> terminationPoints, final String name) {
         PhysicalPort result = null;
         Collection<TerminationPoint> filteredPorts = null;
 

@@ -127,7 +127,7 @@ public class PhysicalPortServiceNbiImplTest {
         TerminationPoint tp2 = new TerminationPointFactory().create( NAME_2, DISPLAY_NAME_2);
         List<TerminationPoint> tpoints = Arrays.asList(tp1, tp2);
 
-        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortName(tpoints, NAME_1);        
+        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByName(tpoints, NAME_1);        
         assertEquals(NAME_1, selectedPort.getName());
         assertEquals(DISPLAY_NAME_1, selectedPort.getDisplayName());
 
@@ -139,7 +139,7 @@ public class PhysicalPortServiceNbiImplTest {
         TerminationPoint tp1 = new TerminationPointFactory().create( NAME_1, DISPLAY_NAME_1);
         List<TerminationPoint> tpoints = Arrays.asList(tp1);
 
-        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortName(tpoints, NAME_2);
+        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByName(tpoints, NAME_2);
         assertNull(selectedPort);
 
     }
@@ -151,7 +151,7 @@ public class PhysicalPortServiceNbiImplTest {
         TerminationPoint tp2 = new TerminationPointFactory().create(NAME_2, DISPLAY_NAME_2);
         List<TerminationPoint> tpoints = Arrays.asList(tp1, tp2);
 
-        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortName(tpoints, null);
+        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByName(tpoints, null);
         assertNull(selectedPort);
 
     }
@@ -163,7 +163,7 @@ public class PhysicalPortServiceNbiImplTest {
         TerminationPoint tp2 = new TerminationPointFactory().create(NAME_2, DISPLAY_NAME_2);
         List<TerminationPoint> tpoints = Arrays.asList(tp1, tp2);
 
-        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortName(tpoints, "");
+        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByName(tpoints, "");
         assertNull(selectedPort);
 
     }
@@ -171,7 +171,7 @@ public class PhysicalPortServiceNbiImplTest {
     @Test
     public void testSelectByPortIdNullListArg() {
 
-        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByPortName(null, NAME_1);
+        PhysicalPort selectedPort = physicalPortServiceNbiImpl.selectByName(null, NAME_1);
         assertNull(selectedPort);
     }
 
