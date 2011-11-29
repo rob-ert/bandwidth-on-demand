@@ -18,6 +18,11 @@
   <logger name="nl.surfnet">
     <level value="DEBUG" />
   </logger>
+  
+  <logger name="com.googlecode.ehcache" additivity="false">
+    <level value="DEBUG" />
+    <appender-ref ref="CONSOLE" />
+  </logger>
 
   <!-- ======================= -->
   <!-- Setup the Root category -->

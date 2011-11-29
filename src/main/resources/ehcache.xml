@@ -19,8 +19,8 @@
 
 
     <cache name="endpointsCache" eternal="false"
-        maxElementsInMemory="10000" overflowToDisk="true"
-        diskPersistent="false" timeToIdleSeconds="0" timeToLiveSeconds="86400"
+        maxElementsInMemory="1" overflowToDisk="false"
+        diskPersistent="false" timeToIdleSeconds="100" timeToLiveSeconds="86400"
         memoryStoreEvictionPolicy="LRU" />
 
 </ehcache>

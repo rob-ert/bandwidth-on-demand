@@ -57,6 +57,7 @@ public class NbiClientImpl implements NbiClient {
 
   private List<TerminationPoint> findByFilter(final String filter) {
     try {
+      log.debug("Retrieving by filter: {}", filter);
       final String allPortsXml = ossHandle.getInventory(username, password, "getResourcesWithAttributes", filter, null);
       log.debug("Retrieved all ports: {}", allPortsXml);
       return ((InventoryResponse) unMarshaller.unmarshal(new StringReader(allPortsXml))).getTerminationPoint();
