@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.adventnet.security.authentication.RMIAccessAPI;
 import com.adventnet.security.authentication.RMIAccessException;
 import com.esm.server.api.oss.OSSHandle;
+import com.googlecode.ehcache.annotations.Cacheable;
 
 public class NbiClientImpl implements NbiClient {
 
