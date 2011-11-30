@@ -1,14 +1,16 @@
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 
 import nl.surfnet.bod.domain.Institution;
 import nl.surfnet.bod.idd.IddClient;
-import nl.surfnet.bod.idd.Klanten;
+import nl.surfnet.bod.idd.generated.Klanten;
 
 import org.junit.Before;
 import org.junit.Test;

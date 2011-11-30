@@ -5,7 +5,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.Institution;
 import nl.surfnet.bod.idd.IddClient;
-import nl.surfnet.bod.idd.Klanten;
+import nl.surfnet.bod.idd.generated.Klanten;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

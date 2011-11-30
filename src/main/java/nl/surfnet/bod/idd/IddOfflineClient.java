@@ -5,6 +5,9 @@ import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 
+import nl.surfnet.bod.idd.generated.Klanten;
+import nl.surfnet.bod.idd.generated.Klantnamen;
+
 import org.apache.axis.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
