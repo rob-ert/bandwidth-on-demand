@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/appCtx*.xml")
 @Transactional
-public class PhysicalResourceGroupIntegrationTest {
+public class PhysicalResourceGroupDbTest {
 
   @Autowired
   private PhysicalResourceGroupDataOnDemand dod;
