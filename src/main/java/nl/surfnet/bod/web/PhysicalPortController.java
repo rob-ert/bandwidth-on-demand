@@ -64,9 +64,9 @@ public class PhysicalPortController {
   }
 
   @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-  public String show(@PathVariable("id") final Long id, final Model uiModel) {
-    uiModel.addAttribute("physicalPort", physicalPortServicImpl.find(id));
-    uiModel.addAttribute("itemId", id);
+  public String show(@PathVariable("id") final String name, final Model uiModel) {
+    uiModel.addAttribute("physicalPort", physicalPortServicImpl.findByName((name)));
+    uiModel.addAttribute("itemId",name);
     return "physicalports/show";
   }
 
