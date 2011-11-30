@@ -30,11 +30,11 @@
         <c:set var="sec_object" value="${fn:escapeXml(object)}" />
         <c:set var="sec_field" value="${fn:escapeXml(field)}" />
 
-        <div id="_${fn:escapeXml(id)}_id" class="row">
-            <div class="span6">
+        <tr>
+            <td>
                 <c:out value="${label}" />
-            </div>
-            <div class="span10">
+            </td>
+            <td>
                 <c:choose>
                     <c:when test="${date}">
                         <spring:escapeBody>
@@ -50,8 +50,8 @@
                         <spring:eval expression="object[field]" />
                     </c:otherwise>
                 </c:choose>
-            </div>
-        </div>
+            </td>
+        </tr>
 
     </c:if>
 </jsp:root>
