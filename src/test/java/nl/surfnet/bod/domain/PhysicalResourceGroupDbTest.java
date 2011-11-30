@@ -1,8 +1,11 @@
 package nl.surfnet.bod.domain;
 
-import static junit.framework.Assert.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static junit.framework.Assert.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.util.List;
 
@@ -16,6 +19,7 @@ import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,6 +128,15 @@ public class PhysicalResourceGroupDbTest {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName("").create();
 
     physicalResourceGroupService.save(group);
+  }
+
+  @Test(expected = JpaSystemException.class)
+  public void physicalResourceGroupInstituteNameShouldBeUnique() {
+    PhysicalResourceGroup group1 = new PhysicalResourceGroupFactory().setInstitution("SURFnet").create();
+    PhysicalResourceGroup group2 = new PhysicalResourceGroupFactory().setInstitution("SURFnet").create();
+
+    physicalResourceGroupService.save(group1);
+    physicalResourceGroupService.save(group2);
   }
 
 }
