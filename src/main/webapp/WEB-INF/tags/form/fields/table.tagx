@@ -147,7 +147,7 @@
                             <form:form action="${icon_form_url}" method="${icon_method}">                                
                                 <c:set var="icon_confirm_msg">
                                     <spring:escapeBody javaScriptEscape="true">
-                                        <spring:message code="entity_icon_confirm" />
+                                        <spring:message text="${fn:escapeXml(icon_label)}?" />
                                     </spring:escapeBody>
                                 </c:set>
                                 <input alt="${fn:escapeXml(icon_label)}" class="image" src="${icon_image_url}"
