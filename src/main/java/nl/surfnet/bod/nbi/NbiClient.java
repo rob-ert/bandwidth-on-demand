@@ -7,19 +7,19 @@ import nl.surfnet.bod.nbi.generated.TerminationPoint;
 public interface NbiClient {
 
   /**
-   * 
+   *
    * @return A {@link List} of {@link TerminationPoint}'s or null if no ports
    *         were found.
    */
-  public List<TerminationPoint> findAllPorts();
+  List<TerminationPoint> findAllPorts();
 
   /**
-   * 
+   *
    * @param name
    *          The name of the port
    * @return A {@link TerminationPoint} or <code>null</code> if nothing was
    *         found.
    */
-  public TerminationPoint findPortsByName(final String name);
+  TerminationPoint findPortsByName(final String name);
 
 }
