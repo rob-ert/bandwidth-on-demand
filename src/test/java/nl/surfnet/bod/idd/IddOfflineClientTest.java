@@ -7,9 +7,9 @@ import java.util.Collection;
 
 import org.junit.Test;
 
-public class IddClientImplTest {
+public class IddOfflineClientTest {
 
-  private IddClientMock subject = new IddClientMock();
+  private IddOfflineClient subject = new IddOfflineClient();
 
   @Test
   public void fetchAllKlanten() {

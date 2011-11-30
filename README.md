@@ -1,4 +1,14 @@
 # Bandwidth on Demand (BoD)
-To build this project succesfully the following environment variables need to be defined:
-export BOD_ENCRYPTION_PASSWORD=[password] - username/passwords will be stored encrypted in the config files, this password is needed to decrypt them
-export BOD_ENV=[dev or test] - determines which spring applicationContextfiles to load based on the name of the file
+
+## Getting the project to work
+* The whole application is configured in a properties file called `bod.properties`
+* The properties can be overridden in a `env/bod.properties` file
+* Some properties are encrypted to be able to decrypt a `BOD_ENCRYPTION_PASSWORD` environment variable should be set
+
+        export BOD_ENCRYPTION_PASSWORD=[password]
+
+* To get the application working outside SURFnet you need to set the following properties
+
+        idd.client.class = nl.surfnet.bod.idd.IddOfflineClient
+        nbi.client.class = nl.surfnet.bod.nbi.NbiOfflineClient
+

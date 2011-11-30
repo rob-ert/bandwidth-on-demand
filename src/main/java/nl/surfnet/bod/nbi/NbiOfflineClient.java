@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adventnet.security.authentication.RMIAccessException;
 
-public class NbiClientMock implements NbiClient {
+public class NbiOfflineClient implements NbiClient {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -25,12 +25,12 @@ public class NbiClientMock implements NbiClient {
   @PostConstruct
   private void init() throws RemoteException, RMIAccessException, MalformedURLException, NotBoundException,
       JAXBException {
-    log.warn("U S I N G  M O C K  N B I  C L I E N T!");
+    log.info("USING OFFLINE NBI CLIENT!");
 
   }
 
   /**
-   * 
+   *
    * @param name
    *          The name of the port
    * @return A {@link TerminationPoint} or <code>null</code> if nothing was
@@ -41,11 +41,6 @@ public class NbiClientMock implements NbiClient {
     return findAllPorts().get(1);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see nl.surfnet.bod.nbi.NbiClient#findAllPorts()
-   */
   @Override
   public List<TerminationPoint> findAllPorts() {
     ArrayList<TerminationPoint> terminationPoints = new ArrayList<TerminationPoint>();

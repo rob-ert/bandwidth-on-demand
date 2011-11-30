@@ -16,41 +16,26 @@ class PhysicalPortServiceRepoImpl implements PhysicalPortService {
   @Autowired
   private PhysicalPortRepo physicalPortRepo;
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public List<PhysicalPort> findAll() {
     return physicalPortRepo.findAll();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public List<PhysicalPort> findEntries(final int firstResult, final int sizeNo) {
     return findAll();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public long count() {
     return physicalPortRepo.count();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void delete(final PhysicalPort physicalPort) {
     physicalPortRepo.delete(physicalPort);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public PhysicalPort find(final Long id) {
     return physicalPortRepo.findOne(id);
@@ -61,17 +46,11 @@ class PhysicalPortServiceRepoImpl implements PhysicalPortService {
     return physicalPortRepo.findByName(name);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void save(final PhysicalPort physicalPort) {
     physicalPortRepo.save(physicalPort);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public PhysicalPort update(final PhysicalPort physicalPort) {
     return physicalPortRepo.save(physicalPort);

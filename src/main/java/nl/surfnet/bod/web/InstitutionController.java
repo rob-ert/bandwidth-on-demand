@@ -38,8 +38,7 @@ public class InstitutionController {
   }
 
   @RequestMapping(value = "/institutions", method = RequestMethod.GET, headers = "accept=application/json")
-  public @ResponseBody
-  Collection<Institution> jsonList(@RequestParam(required = false) String q) {
+  public @ResponseBody Collection<Institution> jsonList(@RequestParam(required = false) String q) {
     final Collection<String> existingInstitutions = existingInstitutionNames();
     final String query = q.toLowerCase();
 

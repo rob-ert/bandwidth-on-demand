@@ -22,17 +22,12 @@ import com.adventnet.security.authentication.RMIAccessAPI;
 import com.adventnet.security.authentication.RMIAccessException;
 import com.esm.server.api.oss.OSSHandle;
 
-public class NbiClientImpl implements NbiClient {
+public class NbiLiveClient implements NbiClient {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  // @Value("#{nbiProperties.nbiUsername}")
   private String username;
-
-  // @Value("#{nbiProperties.nbiPassword}")
   private String password;
-
-  // @Value("#{nbiProperties.nbiUrl}")
   private String url;
 
   private JAXBContext jaxbContext;
@@ -68,21 +63,11 @@ public class NbiClientImpl implements NbiClient {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see nl.surfnet.bod.nbi.NbiClient#findAllPorts()
-   */
   @Override
   public List<TerminationPoint> findAllPorts() {
     return findByFilter("type=Port");
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see nl.surfnet.bod.nbi.NbiClient#findPortsByName(java.lang.String)
-   */
   @Override
   public TerminationPoint findPortsByName(final String name) {
     final List<TerminationPoint> terminationPoints = findByFilter("name=" + name);
