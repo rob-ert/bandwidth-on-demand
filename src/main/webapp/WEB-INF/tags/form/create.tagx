@@ -55,7 +55,7 @@
                 <spring:message code="button_cancel" var="cancel_button" htmlEscape="false" />
                 <input type="submit" value="${fn:escapeXml(save_button)}" class="btn primary" />
                 <c:out value=" " />
-                <input type="button" value="${fn:escapeXml(cancel_button)}" class="btn" onClick="location.replace('${form_url}')" />                
+                <a href="${form_url}" class="btn">${fn:escapeXml(cancel_button)}</a>
             </div>
         </form:form>
 
