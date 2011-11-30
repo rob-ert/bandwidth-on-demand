@@ -113,11 +113,11 @@ public class PhysicalPortController {
   }
 
   @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-  public String delete(@PathVariable("id") final Long id,
+  public String delete(@PathVariable("id") final String name,
       @RequestParam(value = "page", required = false) final Integer page,
       @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
 
-    PhysicalPort physicalPort = physicalPortServicImpl.find(id);
+    PhysicalPort physicalPort = physicalPortServicImpl.findByName(name);
     physicalPortServicImpl.delete(physicalPort);
 
     uiModel.asMap().clear();

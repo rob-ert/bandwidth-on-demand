@@ -7,11 +7,11 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <form:create id="fc_nl_surfnet_bod_domain_PhysicalPort" modelAttribute="physicalPort" path="/noc/physicalports" render="${empty dependencies}">
-        <field:input field="name" id="c_nl_surfnet_bod_domain_PhysicalPort_name" />
+        <field:input field="name" id="c_nl_surfnet_bod_domain_PhysicalPort_name" disabled="false" />
         <field:input field="displayName" id="c_nl_surfnet_bod_domain_PhysicalPort_displayname" disabled="true" />
         
         <field:select field="physicalResourceGroup" id="c_nl_surfnet_bod_domain_PhysicalPort_physicalResourceGroup"
-            itemValue="id" items="${physicalresourcegroups}" path="/noc/physicalresourcegroups" />
+            itemValue="id" items="${physicalresourcegroups}" path="/noc/physicalresourcegroups" required="false" />
             
     </form:create>
 
