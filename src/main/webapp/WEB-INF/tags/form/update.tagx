@@ -53,7 +53,7 @@
                 <spring:message code="button_cancel" var="cancel_button" htmlEscape="false" />
                 <input id="proceed" type="submit" value="${fn:escapeXml(save_button)}" class="btn primary" />
                 <c:out value=" " />
-                <button type="reset" class="btn">${cancel_button}</button>
+                <a href="${form_url}" class="btn">${cancel_button}</a>
             </div>
 
             <form:hidden id="_${fn:escapeXml(idField)}_id" path="${fn:escapeXml(idField)}" />
