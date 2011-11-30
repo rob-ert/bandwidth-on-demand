@@ -493,11 +493,8 @@
                 <version>2.5.1</version>
                 <configuration>
                     <instrumentation>
-                        <ignores>
-                            <ignore>nl.surfnet.bod.nbi.*</ignore>
-                        </ignores>
                         <excludes>
-                            <exclude>nl/surfnet/bod/nbi/client/**/*.class</exclude>
+                            <exclude>nl/surfnet/bod/nbi/generated/*.class</exclude>
                             <exclude>nl/surfnet/bod/idd/*.class</exclude>
                         </excludes>
                     </instrumentation>
