@@ -9,16 +9,16 @@ import org.apache.axis.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IddClientMock implements IddClient {
+public class IddOfflineClient implements IddClient {
 
-  private final Logger logger = LoggerFactory.getLogger(IddClientMock.class);
+  private final Logger logger = LoggerFactory.getLogger(IddOfflineClient.class);
 
   private String staticResponseFile = "/idd_response.xml";
 
   @SuppressWarnings("unused")
   @PostConstruct
   private void init() {
-    logger.warn("U S I N G  M O C K  I D D  C L I E N T!");
+    logger.info("USING OFFLINE IDD CLIENT!");
   }
 
   @Override
@@ -43,7 +43,7 @@ public class IddClientMock implements IddClient {
   }
 
   private Message getStaticMessage() {
-    return new Message(IddClientMock.class.getResourceAsStream(staticResponseFile));
+    return new Message(IddOfflineClient.class.getResourceAsStream(staticResponseFile));
   }
 
   public void setUsername(final String username) {
