@@ -52,3 +52,9 @@ div.topbar h1 {
   line-height: 1;
   letter-spacing: -1px;
 }
+table ul li {
+    color: #404040;	
+}
+table ul {
+	margin: 0 0 0 15px;
+}
