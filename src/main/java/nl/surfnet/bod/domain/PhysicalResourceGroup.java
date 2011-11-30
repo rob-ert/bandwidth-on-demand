@@ -1,10 +1,14 @@
 package nl.surfnet.bod.domain;
 
+import java.util.Collection;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Version;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -28,6 +32,9 @@ public class PhysicalResourceGroup {
   private String institutionName;
 
   private String adminGroup;
+
+  @OneToMany(mappedBy = "physicalResourceGroup")
+  private Collection<PhysicalPort> physicalPorts;
 
   public Long getId() {
     return this.id;
@@ -67,6 +74,18 @@ public class PhysicalResourceGroup {
 
   public void setAdminGroup(String adminGroup) {
     this.adminGroup = adminGroup;
+  }
+
+  public Collection<PhysicalPort> getPhysicalPorts() {
+    return physicalPorts;
+  }
+
+  public void setPhysicalPorts(List<PhysicalPort> physicalPorts) {
+    this.physicalPorts = physicalPorts;
+  }
+
+  public int getPhysicalPortCount() {
+    return physicalPorts.size();
   }
 
   @Override
