@@ -31,7 +31,7 @@ public class PhysicalPortController {
 
   @Autowired
   private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
-    
+
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid PhysicalPort physicalPort, final BindingResult bindingResult,
       final Model uiModel, final HttpServletRequest httpServletRequest) {
@@ -43,19 +43,19 @@ public class PhysicalPortController {
 
     //Keep ref
     PhysicalResourceGroup physicalResourceGroup = physicalPort.getPhysicalResourceGroup();
-    
+
     //Ignore changes made by user, fetch again
     physicalPort = physicalPortServicImpl.findByName(physicalPort.getName());
     //Set ref back
     physicalPort.setPhysicalResourceGroup(physicalResourceGroup);
-        
+
     uiModel.asMap().clear();
     physicalPortServicImpl.save(physicalPort);
 
     // Do not return to the create instance, but to the list view
     return "redirect:physicalports";
   }
-  
+
 
   @RequestMapping(params = "form", method = RequestMethod.GET)
   public String createForm(final Model uiModel) {
@@ -66,7 +66,7 @@ public class PhysicalPortController {
   @RequestMapping(value = "/{id}", method = RequestMethod.GET)
   public String show(@PathVariable("id") final String name, final Model uiModel) {
     uiModel.addAttribute("physicalPort", physicalPortServicImpl.findByName((name)));
-    uiModel.addAttribute("itemId",name);
+    uiModel.addAttribute("itemId", name);
     return "physicalports/show";
   }
 
@@ -85,8 +85,7 @@ public class PhysicalPortController {
 
     return "physicalports/list";
   }
-  
-  
+
   @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid final PhysicalPort physicalPort, final BindingResult bindingResult,
       @ModelAttribute("physicalResourceGroup") final PhysicalResourceGroup physicalResourceGroup,
@@ -130,7 +129,7 @@ public class PhysicalPortController {
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   * 
+   *
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute("physicalresourcegroups")
