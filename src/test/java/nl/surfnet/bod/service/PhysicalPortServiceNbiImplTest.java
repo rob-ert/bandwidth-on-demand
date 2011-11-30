@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.nbi.NbiOfflineClient;
 import nl.surfnet.bod.nbi.generated.TerminationPoint;
 
 import org.junit.Test;
@@ -28,6 +29,120 @@ public class PhysicalPortServiceNbiImplTest {
 
   @Autowired
   private PhysicalPortServiceNbiImpl physicalPortServiceNbiImpl;
+
+  @Test
+  public void testFindAll() {
+    // Execute
+    List<PhysicalPort> ports = physicalPortServiceNbiImpl.findAll();
+
+    // Verify
+    assertEquals(10, ports.size());
+
+    validatePhysicalPortList(ports);
+  }
+
+  @Test
+  public void testFindEntires() {
+    // Execute
+    List<PhysicalPort> ports = physicalPortServiceNbiImpl.findEntries(0, 10);
+
+    // Verify
+    assertEquals(10, ports.size());
+
+    validatePhysicalPortList(ports);
+  }
+
+  @Test
+  public void testCount() {
+    // Execute
+    List<PhysicalPort> ports = physicalPortServiceNbiImpl.findEntries(0, 10);
+
+    // Verify
+    assertEquals(10, physicalPortServiceNbiImpl.count());
+    assertEquals(ports.size(), physicalPortServiceNbiImpl.count());
+  }
+
+  @Test
+  public void testDelete() {
+
+    PhysicalPort port = new PhysicalPort();
+
+    try {
+      physicalPortServiceNbiImpl.delete(port);
+
+      // verify
+      fail("Exception expected");
+    }
+    catch (UnsupportedOperationException exc) {
+      // expected
+    }
+  }
+
+  @Test
+  public void testFind() {
+
+    try {
+      physicalPortServiceNbiImpl.find(1L);
+
+      // verify
+      fail("Exception expected");
+    }
+    catch (UnsupportedOperationException exc) {
+      // expected
+    }
+  }
+
+  @Test
+  public void testFindByName() {
+    PhysicalPort port = physicalPortServiceNbiImpl.findByName(NbiOfflineClient.NAME_PREFIX + 1);
+
+    // verify
+    assertEquals(NbiOfflineClient.NAME_PREFIX + 1, port.getName());
+  }
+
+  @Test
+  public void testFindByNameNotExisting() {
+    PhysicalPort port = physicalPortServiceNbiImpl.findByName(NbiOfflineClient.NAME_PREFIX + 99);
+
+    // verify
+    assertNull(port);
+  }
+
+  @Test
+  public void testFindByNameNull() {
+    PhysicalPort port = physicalPortServiceNbiImpl.findByName(null);
+
+    // verify
+    assertNull(port);
+  }
+
+  @Test
+  public void testSave() {
+    try {
+      PhysicalPort port = new PhysicalPort();
+      physicalPortServiceNbiImpl.save(port);
+
+      // verify
+      fail("Exception expected");
+    }
+    catch (UnsupportedOperationException exc) {
+      // expected
+    }
+  }
+
+  @Test
+  public void testUpdate() {
+    try {
+      PhysicalPort port = new PhysicalPort();
+      physicalPortServiceNbiImpl.update(port);
+
+      // verify
+      fail("Exception expected");
+    }
+    catch (UnsupportedOperationException exc) {
+      // expected
+    }
+  }
 
   @Test
   public void testMapTerminationPointToPhysicalPort() {
@@ -173,4 +288,12 @@ public class PhysicalPortServiceNbiImplTest {
     assertNull(selectedPort);
   }
 
+  private void validatePhysicalPortList(List<PhysicalPort> ports) {
+    PhysicalPort port = null;
+    for (int i = 0; i < ports.size(); i++) {
+      port = ports.get(i);
+      assertEquals(NbiOfflineClient.NAME_PREFIX + i, port.getName());
+      assertEquals(NbiOfflineClient.DISPLAY_NAME_PREFIX + i, port.getDisplayName());
+    }
+  }
 }

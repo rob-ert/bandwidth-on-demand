@@ -21,6 +21,11 @@ public class NbiOfflineClient implements NbiClient {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
+  public static final String NAME_PREFIX="Name_";
+  public static final String DISPLAY_NAME_PREFIX = "DisplayName_";
+  public static final String PORTID_PREFIX = "PortId_";
+  
+  
   @SuppressWarnings("unused")
   @PostConstruct
   private void init() throws RemoteException, RMIAccessException, MalformedURLException, NotBoundException,
@@ -45,13 +50,13 @@ public class NbiOfflineClient implements NbiClient {
   public List<TerminationPoint> findAllPorts() {
     ArrayList<TerminationPoint> terminationPoints = new ArrayList<TerminationPoint>();
     TerminationPoint tp = null;
-    for (int index = 1; index < 10; index++) {
+    for (int index = 0; index < 10; index++) {
       tp = new TerminationPoint();
       tp.setPortDetail(new PortDetail());
 
-      tp.getPortDetail().setName("name_" + index);
-      tp.getPortDetail().setDisplayName("displayName_" + index);
-      tp.getPortDetail().setPortId("portId_" + index);
+      tp.getPortDetail().setName(NAME_PREFIX+ index);
+      tp.getPortDetail().setDisplayName(DISPLAY_NAME_PREFIX + index);
+      tp.getPortDetail().setPortId(PORTID_PREFIX + index);
 
       terminationPoints.add(tp);
     }
