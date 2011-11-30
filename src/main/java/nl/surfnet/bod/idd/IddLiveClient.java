@@ -3,6 +3,12 @@ package nl.surfnet.bod.idd;
 import java.util.Arrays;
 import java.util.Collection;
 
+import nl.surfnet.bod.idd.generated.InvoerKlant;
+import nl.surfnet.bod.idd.generated.Klanten;
+import nl.surfnet.bod.idd.generated.KsrBindingStub;
+import nl.surfnet.bod.idd.generated.KsrLocator;
+import nl.surfnet.bod.idd.generated.KsrPortType;
+
 public class IddLiveClient implements IddClient {
 
   private String username;

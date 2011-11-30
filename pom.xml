@@ -472,7 +472,7 @@
                 <artifactId>axistools-maven-plugin</artifactId>
                 <version>1.4</version>
                 <configuration>
-                    <packageSpace>nl.surfnet.bod.idd</packageSpace>
+                    <packageSpace>nl.surfnet.bod.idd.generated</packageSpace>
                     <sourceDirectory>src/main/resources/wsdl</sourceDirectory>
                     <outputDirectory>target/generated-sources/wsdl2java</outputDirectory>
                 </configuration>
@@ -495,7 +495,7 @@
                     <instrumentation>
                         <excludes>
                             <exclude>nl/surfnet/bod/nbi/generated/*.class</exclude>
-                            <exclude>nl/surfnet/bod/idd/*.class</exclude>
+                            <exclude>nl/surfnet/bod/idd/generated/*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
