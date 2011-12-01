@@ -1,5 +1,9 @@
 package nl.surfnet.bod.service;
 
+import static junit.framework.Assert.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -36,11 +40,9 @@ public class PhysicalPortServiceNbiImplTest {
 
   @Test
   public void testFindAll() {
-    // Execute
     List<PhysicalPort> ports = physicalPortServiceNbiImpl.findAll();
 
-    // Verify
-    assertEquals(10, ports.size());
+    assertThat(ports, hasSize(greaterThan(0)));
 
     validatePhysicalPortList(ports);
   }
@@ -58,10 +60,8 @@ public class PhysicalPortServiceNbiImplTest {
 
   @Test
   public void testCount() {
-    // Execute
     List<PhysicalPort> ports = physicalPortServiceNbiImpl.findEntries(0, 10);
 
-    // Verify
     assertEquals(10, physicalPortServiceNbiImpl.count());
     assertEquals(ports.size(), physicalPortServiceNbiImpl.count());
   }
@@ -98,17 +98,15 @@ public class PhysicalPortServiceNbiImplTest {
 
   @Test
   public void testFindByName() {
-    PhysicalPort port = physicalPortServiceNbiImpl.findByName(NbiOfflineClient.NAME_PREFIX + 1);
+    PhysicalPort port = physicalPortServiceNbiImpl.findByName("00:03:18:bc:76:00_Port5/1_dummy");
 
-    // verify
-    assertEquals(NbiOfflineClient.NAME_PREFIX + 1, port.getName());
+    assertNotNull(port);
   }
 
   @Test
   public void testFindByNameNotExisting() {
-    PhysicalPort port = physicalPortServiceNbiImpl.findByName(NbiOfflineClient.NAME_PREFIX + 99);
+    PhysicalPort port = physicalPortServiceNbiImpl.findByName("fakename");
 
-    // verify
     assertNull(port);
   }
 
