@@ -1,134 +1,154 @@
 package nl.surfnet.bod.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.support.PhysicalPortDataOnDemand;
+import nl.surfnet.bod.support.PhysicalPortFactory;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:/spring/appCtx*.xml")
-@Transactional
+import com.google.common.collect.Lists;
+
+@RunWith(MockitoJUnitRunner.class)
 public class PhysicalPortServiceImplTest {
 
-  @Autowired
-  private PhysicalPortServiceImpl physicalPortServiceImpl;
+  private PhysicalPortServiceImpl subject = new PhysicalPortServiceImpl();
 
-  @Autowired
-  private PhysicalPortDataOnDemand physicalPortDataOnDemand;
+  @Mock
+  private PhysicalPortServiceNbiImpl nbiServiceMock;
+  @Mock
+  private PhysicalPortServiceRepoImpl repoServiceMock;
 
   @Before
-  public void setUp() {
-    physicalPortDataOnDemand.init();
+  public void init() {
+    subject.setNbiService(nbiServiceMock);
+    subject.setRepoService(repoServiceMock);
   }
 
   @Test
-  public void testFindAll() {
+  public void findAllShouldMergePorts() {
+    List<PhysicalPort> nbiPorts = Lists.newArrayList(
+        new PhysicalPortFactory().setName("first").create(),
+        new PhysicalPortFactory().setName("second").create());
+    List<PhysicalPort> repoPorts = Lists.newArrayList(
+        new PhysicalPortFactory().setName("first").setId(1L).setVersion(2).create());
 
-    // Execute
-    List<PhysicalPort> ports = physicalPortServiceImpl.findAll();
+    when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
+    when(repoServiceMock.findAll()).thenReturn(repoPorts);
 
-    // Verify
-    assertEquals(260, ports.size());
+    List<PhysicalPort> allPorts = subject.findAll();
+
+    assertThat(allPorts, hasSize(2));
+    assertThat(allPorts.get(0).getName(), is("first"));
+    assertThat(allPorts.get(0).getId(), is(1L));
+    assertThat(allPorts.get(0).getVersion(), is(2));
+    assertThat(allPorts.get(1).getName(), is("second"));
   }
 
   @Test
-  public void testFindEntriesById() {
+  public void allUnallocatedPortsShouldNotContainOnesWithId() {
+    List<PhysicalPort> nbiPorts = Lists.newArrayList(new PhysicalPortFactory().setName("first").create(),
+        new PhysicalPortFactory().setName("second").create());
+    List<PhysicalPort> repoPorts = Lists.newArrayList(new PhysicalPortFactory().setName("first").setId(1L).create());
 
-    PhysicalPort port = physicalPortDataOnDemand.getRandomPhysicalPort();
+    when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
+    when(repoServiceMock.findAll()).thenReturn(repoPorts);
 
-    PhysicalPort foundPort = physicalPortServiceImpl.find(port.getId());
+    Collection<PhysicalPort> unallocatedPorts = subject.findUnallocated();
 
-    assertEquals(port.getId(), foundPort.getId());
-    assertEquals(port.getName(), foundPort.getName());
+    assertThat(unallocatedPorts, hasSize(1));
+    assertThat(unallocatedPorts.iterator().next().getName(), is("second"));
+  }
 
+  @Test(expected = IllegalStateException.class)
+  public void findAllPortsWithSameNameShouldGiveAnException() {
+    List<PhysicalPort> nbiPorts = Lists.newArrayList(new PhysicalPortFactory().setName("first").create());
+    List<PhysicalPort> repoPorts = Lists.newArrayList(
+        new PhysicalPortFactory().setName("first").create(),
+        new PhysicalPortFactory().setName("first").create());
+
+    when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
+    when(repoServiceMock.findAll()).thenReturn(repoPorts);
+
+    subject.findAll();
   }
 
   @Test
-  public void testFindEntriesByName() {
+  public void findByNameShouldGiveNullIfNotFound() {
+    when(nbiServiceMock.findByName("first")).thenReturn(null);
+    when(repoServiceMock.findByName("first")).thenReturn(null);
 
-    PhysicalPort port = physicalPortServiceImpl.findAll().get(0);
+    PhysicalPort port = subject.findByName("first");
 
-    PhysicalPort foundPort = physicalPortServiceImpl.findByName(port.getName());
-
-    assertNull(foundPort.getId());
-    assertEquals(port.getName(), foundPort.getName());
-
+    assertThat(port, nullValue());
   }
 
   @Test
-  public void testCount() {
-    long count = physicalPortServiceImpl.findAll().size();
+  public void findByNameShouldGiveAMergedPortIfFound() {
+    PhysicalPort nbiPort = new PhysicalPortFactory().setName("first").create();
+    PhysicalPort repoPort = new PhysicalPortFactory().setId(1L).setName("first").create();
 
-    assertEquals(count, physicalPortServiceImpl.count());
-  }
+    when(nbiServiceMock.findByName("first")).thenReturn(nbiPort);
+    when(repoServiceMock.findByName("first")).thenReturn(repoPort);
 
-  /**
-   * Even after a delete, which only deletes the port (e.g. unlink from the
-   * PhysicalResourceGroup) in our repository, the amount of ports coming back
-   * from the NbiClient should still be the same.
-   */
-  @Test
-  public void testDelete() {
-    PhysicalPort port = physicalPortServiceImpl.findAll().get(0);
-    
-    PhysicalPort foundPort = physicalPortServiceImpl.findByName(port.getName());
-    long count = physicalPortServiceImpl.count();
+    PhysicalPort port = subject.findByName("first");
 
-    physicalPortServiceImpl.delete(foundPort);
-
-    assertEquals(count, physicalPortServiceImpl.count());
-
-  }
-
-  /**
-   * Even after a save, which only saves the port (e.g. link to a
-   * PhysicalResourceGroup) in our repository, the amount of ports coming back
-   * from the NbiClient should still be the same
-   */
-  @Test
-  public void testSave() {
-    PhysicalPort port = physicalPortDataOnDemand.getNewTransientPhysicalPort(99);
-    long count = physicalPortServiceImpl.count();
-
-    physicalPortServiceImpl.save(port);
-
-    assertEquals(count, physicalPortServiceImpl.count());
+    assertThat(port.getName(), is("first"));
+    assertThat(port.getId(), is(1L));
   }
 
   @Test
-  public void testUpdate() {
-    PhysicalPort port = physicalPortDataOnDemand.getNewTransientPhysicalPort(99);
-    long count = physicalPortServiceImpl.count();
+  public void updateShouldCallUpdateOnRepo() {
+    PhysicalPort port = new PhysicalPortFactory().create();
 
-    port.setName("JustTesting");
-    PhysicalPort updatedPort = physicalPortServiceImpl.update(port);
+    subject.update(port);
 
-    assertEquals(port.getId(), updatedPort.getId());
-    assertEquals("JustTesting", updatedPort.getName());
-
-    assertEquals(count, physicalPortServiceImpl.count());
+    verify(repoServiceMock, only()).update(port);
   }
 
   @Test
-  public void testUpdateExisting() {
-    PhysicalPort port = physicalPortDataOnDemand.getRandomPhysicalPort();
+  public void deleteShouldCallDeleteOnRepo() {
+    PhysicalPort port = new PhysicalPortFactory().create();
 
-    port.setName("JustTesting");
-    PhysicalPort updatedPort = physicalPortServiceImpl.update(port);
+    subject.delete(port);
 
-    assertEquals(port.getId(), updatedPort.getId());
-    assertEquals("JustTesting", updatedPort.getName());
+    verify(repoServiceMock, only()).delete(port);
+  }
+
+  @Test
+  public void saveShouldCallSaveOnRepo() {
+    PhysicalPort port = new PhysicalPortFactory().create();
+
+    subject.save(port);
+
+    verify(repoServiceMock, only()).save(port);
+  }
+
+  @Test
+  public void findShouldCallFindOnRepo() {
+    subject.find(1L);
+
+    verify(repoServiceMock, only()).find(1L);
+  }
+
+  @Test
+  public void countShouldCallCountOnNbi() {
+    subject.count();
+
+    verify(nbiServiceMock, only()).count();
   }
 
 }

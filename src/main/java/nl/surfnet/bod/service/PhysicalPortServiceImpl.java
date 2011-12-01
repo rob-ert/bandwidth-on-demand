@@ -1,16 +1,16 @@
 package nl.surfnet.bod.service;
 
+import static java.lang.String.format;
+
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.google.common.base.Predicate;
@@ -37,8 +37,6 @@ import com.google.common.collect.Collections2;
 @Service("physicalPortServiceImpl")
 public class PhysicalPortServiceImpl implements PhysicalPortService {
 
-  private final Logger log = LoggerFactory.getLogger(getClass());
-
   @Autowired
   @Qualifier("physicalPortServiceRepoImpl")
   private PhysicalPortService physicalPortServiceRepoImpl;
@@ -48,7 +46,6 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   private PhysicalPortService physicalPortServiceNbiImpl;
 
   /**
-   *
    * Finds all ports using the North Bound Interface and enhances these ports
    * with data found in our own database.
    */
@@ -76,14 +73,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public List<PhysicalPort> findEntries(final int firstResult, final int sizeNo) {
-    List<PhysicalPort> nbiPorts = physicalPortServiceNbiImpl.findEntries(firstResult, sizeNo);
-    // Find all repo ports, since the number of ports in both services may
-    // not be equal
-    List<PhysicalPort> repoPorts = physicalPortServiceRepoImpl.findAll();
-
-    enrichPorts(nbiPorts, repoPorts);
-
-    return nbiPorts;
+    return Collections.emptyList();
   }
 
   @Override
@@ -94,7 +84,6 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   @Override
   public PhysicalPort findByName(final String name) {
     PhysicalPort nbiPort = physicalPortServiceNbiImpl.findByName(name);
-
     PhysicalPort repoPort = physicalPortServiceRepoImpl.findByName(name);
 
     enrichPortWithPort(nbiPort, repoPort);
@@ -131,36 +120,25 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    * @param dataPorts
    *          {@link PhysicalPort}s containing additional data
    */
-  void enrichPorts(final List<PhysicalPort> portsToEnrich, final List<PhysicalPort> dataPorts) {
+  private void enrichPorts(final List<PhysicalPort> portsToEnrich, final List<PhysicalPort> dataPorts) {
     // Iterate of the nbiPorts and find matching repoPort
     for (final PhysicalPort portToEnrich : portsToEnrich) {
 
-      if (!CollectionUtils.isEmpty(dataPorts)) {
-        Collection<PhysicalPort> filteredPorts = Collections2.filter(dataPorts, new Predicate<PhysicalPort>() {
-          @Override
-          public boolean apply(final PhysicalPort port) {
-            boolean found = false;
-            if ((StringUtils.hasText(portToEnrich.getName())) && (portToEnrich.getName().equals(port.getName()))) {
-              found = true;
-            }
+      Collection<PhysicalPort> matchingPorts = Collections2.filter(dataPorts, new Predicate<PhysicalPort>() {
+        @Override
+        public boolean apply(final PhysicalPort port) {
+          return StringUtils.hasText(portToEnrich.getName()) && portToEnrich.getName().equals(port.getName());
+        };
+      });
 
-            return found;
-          };
-        });
-
-        if (!CollectionUtils.isEmpty(filteredPorts)) {
-          if (filteredPorts.size() == 1) {
-            // Enrich nbiports with data from repoPort
-            enrichPortWithPort(portToEnrich, filteredPorts.iterator().next());
-          }
-          else {
-            throw new IllegalStateException("Name is not unique. Found [" + filteredPorts.size()
-                + "] ports with name: " + portToEnrich.getName());
-          }
+      if (!matchingPorts.isEmpty()) {
+        if (matchingPorts.size() == 1) {
+          enrichPortWithPort(portToEnrich, matchingPorts.iterator().next());
         }
-      }
-      else {
-        log.debug("No ports found in repository");
+        else {
+          throw new IllegalStateException(format("Name is not unique. Found [%s] ports with name: %s",
+              matchingPorts.size(), portToEnrich.getName()));
+        }
       }
     }
   }
@@ -176,13 +154,22 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    * @param dataPort
    *          The data to enrich with.
    */
-  void enrichPortWithPort(final PhysicalPort portToEnrich, final PhysicalPort dataPort) {
-    if ((portToEnrich != null) && (dataPort != null)) {
-      portToEnrich.setPhysicalResourceGroup(dataPort.getPhysicalResourceGroup());
-
-      portToEnrich.setId(dataPort.getId());
-      portToEnrich.setVersion(dataPort.getVersion());
+  private void enrichPortWithPort(final PhysicalPort portToEnrich, final PhysicalPort dataPort) {
+    if (portToEnrich == null || dataPort == null) {
+      return;
     }
+    portToEnrich.setPhysicalResourceGroup(dataPort.getPhysicalResourceGroup());
+
+    portToEnrich.setId(dataPort.getId());
+    portToEnrich.setVersion(dataPort.getVersion());
+  }
+
+  protected void setNbiService(PhysicalPortService nbiService) {
+    this.physicalPortServiceNbiImpl = nbiService;
+  }
+
+  protected void setRepoService(PhysicalPortService repoService) {
+    this.physicalPortServiceRepoImpl = repoService;
   }
 
 }
