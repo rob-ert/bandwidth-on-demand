@@ -31,11 +31,6 @@ public class NbiOfflineClient implements NbiClient {
   }
 
   @Override
-  public TerminationPoint findPortsByName(String name) {
-    return findAllPorts().get(1);
-  }
-
-  @Override
   public List<TerminationPoint> findAllPorts() {
     try {
       InputStream stream = getOfflineResponseFile();
