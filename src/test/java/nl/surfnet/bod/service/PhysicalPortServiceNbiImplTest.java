@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.nbi.NbiOfflineClient;
 import nl.surfnet.bod.nbi.TerminationPointFactory;
 import nl.surfnet.bod.nbi.generated.TerminationPoint;
 
