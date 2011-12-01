@@ -1,7 +1,7 @@
 package nl.surfnet.bod.nbi;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 
@@ -29,8 +29,15 @@ public class NbiOfflineClientTest {
     List<TerminationPoint> allPorts = subject.findAllPorts();
 
     assertThat(allPorts, hasSize(greaterThan(0)));
+  }
 
-    assertThat(allPorts.get(0).getPortDetail().getName(), endsWith("_dummy"));
+  @Test
+  public void allPortsShouldHaveAName() {
+    List<TerminationPoint> allPorts = subject.findAllPorts();
+
+    for (TerminationPoint terminationPoint : allPorts) {
+      assertThat(terminationPoint.getPortDetail().getName(), containsString("_dummy"));
+    }
   }
 
 }
