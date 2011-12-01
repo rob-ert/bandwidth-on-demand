@@ -100,67 +100,70 @@
                         <spring:eval expression="item[typeIdFieldName]" />
                     </c:set>
                     <td class="utilbox">
-                        <spring:url value="${path}/${itemId}" var="show_form_url" />
-                        <spring:url value="/resources/images/show.png" var="show_image_url" /> <spring:message
-                            arguments="${typeName}" code="entity_show" var="show_label" htmlEscape="false" /> <a
-                        href="${show_form_url}" alt="${fn:escapeXml(show_label)}" title="${fn:escapeXml(show_label)}">
-                            <img alt="${fn:escapeXml(show_label)}" class="image" src="${show_image_url}"
-                            title="${fn:escapeXml(show_label)}" />
-                    </a>
+                        <spring:url value="${path}" var="show_form_url">
+                            <spring:param name="id" value="${itemId}" />
+                        </spring:url>
+                        <spring:url value="/resources/images/show.png" var="show_image_url" />
+                        <spring:message arguments="${typeName}" code="entity_show" var="show_label" htmlEscape="false" />
+                        <a href="${show_form_url}" alt="${fn:escapeXml(show_label)}" title="${fn:escapeXml(show_label)}">
+                            <img alt="${fn:escapeXml(show_label)}" class="image" src="${show_image_url}" title="${fn:escapeXml(show_label)}" />
+                        </a>
                     <c:if test="${update}">
-                        <spring:url value="${path}/${itemId}" var="update_form_url">
-                                <spring:param name="form" />
-                            </spring:url> <spring:url value="/resources/images/update.png" var="update_image_url" /> <spring:message
-                                arguments="${typeName}" code="entity_update" var="update_label" htmlEscape="false" /> <a
-                            href="${update_form_url}" alt="${fn:escapeXml(update_label)}"
-                            title="${fn:escapeXml(update_label)}"> <img alt="${fn:escapeXml(update_label)}"
-                                class="image" src="${update_image_url}" title="${fn:escapeXml(update_label)}" />
+                        <spring:url value="${path}/edit" var="update_form_url">
+                            <spring:param name="id" value="${itemId}"/>
+                        </spring:url>
+                        <spring:url value="/resources/images/update.png" var="update_image_url" />
+                        <spring:message arguments="${typeName}" code="entity_update" var="update_label" htmlEscape="false" />
+                        <a href="${update_form_url}" alt="${fn:escapeXml(update_label)}" title="${fn:escapeXml(update_label)}">
+                            <img alt="${fn:escapeXml(update_label)}" class="image" src="${update_image_url}" title="${fn:escapeXml(update_label)}" />
                         </a>
                     </c:if>
                     <c:if test="${delete}">
-                        
-                            <spring:url value="${path}/${itemId}" var="delete_form_url" />
-                            <spring:url value="/resources/images/delete.png" var="delete_image_url" />
-                            <form:form action="${delete_form_url}" method="DELETE">
-                                <spring:message arguments="${typeName}" code="entity_delete" var="delete_label" htmlEscape="false" />
-                                <c:set var="delete_confirm_msg">
-                                    <spring:escapeBody javaScriptEscape="true">
-                                        <spring:message code="entity_delete_confirm" />
-                                    </spring:escapeBody>
-                                </c:set>
-                                <input alt="${fn:escapeXml(delete_label)}" class="image" src="${delete_image_url}"
-                                    title="${fn:escapeXml(delete_label)}" type="image"
-                                    value="${fn:escapeXml(delete_label)}"
-                                    onclick="return confirm('${delete_confirm_msg}');" />
-                                <c:if test="${not empty param.page}">
-                                    <input name="page" type="hidden" value="1" />
-                                </c:if>
-                                <c:if test="${not empty param.size}">
-                                    <input name="size" type="hidden" value="${fn:escapeXml(param.size)}" />
-                                </c:if>
-                            </form:form>
-                        
+                        <spring:url value="${path}/delete" var="delete_form_url">
+                            <spring:param name="id" value="${itemId}" />
+                        </spring:url>
+                        <spring:url value="/resources/images/delete.png" var="delete_image_url" />
+                        <form:form action="${delete_form_url}" method="DELETE">
+                            <spring:message arguments="${typeName}" code="entity_delete" var="delete_label" htmlEscape="false" />
+                            <c:set var="delete_confirm_msg">
+                                <spring:escapeBody javaScriptEscape="true">
+                                    <spring:message code="entity_delete_confirm" />
+                                </spring:escapeBody>
+                            </c:set>
+                            <input alt="${fn:escapeXml(delete_label)}" class="image" src="${delete_image_url}"
+                                title="${fn:escapeXml(delete_label)}" type="image"
+                                value="${fn:escapeXml(delete_label)}"
+                                onclick="return confirm('${delete_confirm_msg}');" />
+                            <c:if test="${not empty param.page}">
+                                <input name="page" type="hidden" value="1" />
+                            </c:if>
+                            <c:if test="${not empty param.size}">
+                                <input name="size" type="hidden" value="${fn:escapeXml(param.size)}" />
+                            </c:if>
+                        </form:form>
                     </c:if>
                     <c:if test="${icon}">
-                            <spring:url value="${path}/${itemId}" var="icon_form_url" />
-                            <spring:url value="${icon_url}" var="icon_image_url" />
-                            <form:form action="${icon_form_url}" method="${icon_method}">                                
-                                <c:set var="icon_confirm_msg">
-                                    <spring:escapeBody javaScriptEscape="true">
-                                        <spring:message text="${fn:escapeXml(icon_label)}?" />
-                                    </spring:escapeBody>
-                                </c:set>
-                                <input alt="${fn:escapeXml(icon_label)}" class="image" src="${icon_image_url}"
-                                    title="${fn:escapeXml(icon_label)}" type="image"
-                                    value="${fn:escapeXml(icon_label)}"
-                                    onclick="return confirm('${icon_confirm_msg}');" />
-                                <c:if test="${not empty param.page}">
-                                    <input name="page" type="hidden" value="1" />
-                                </c:if>
-                                <c:if test="${not empty param.size}">
-                                    <input name="size" type="hidden" value="${fn:escapeXml(param.size)}" />
-                                </c:if>
-                            </form:form>
+                        <spring:url value="${path}/delete" var="icon_form_url">
+                            <spring:param name="id" value="${itemId}"/>
+                        </spring:url>
+                        <spring:url value="${icon_url}" var="icon_image_url" />
+                        <form:form action="${icon_form_url}" method="${icon_method}">                                
+                            <c:set var="icon_confirm_msg">
+                                <spring:escapeBody javaScriptEscape="true">
+                                    <spring:message text="${fn:escapeXml(icon_label)}?" />
+                                </spring:escapeBody>
+                            </c:set>
+                            <input alt="${fn:escapeXml(icon_label)}" class="image" src="${icon_image_url}"
+                                title="${fn:escapeXml(icon_label)}" type="image"
+                                value="${fn:escapeXml(icon_label)}"
+                                onclick="return confirm('${icon_confirm_msg}');" />
+                            <c:if test="${not empty param.page}">
+                                <input name="page" type="hidden" value="1" />
+                            </c:if>
+                            <c:if test="${not empty param.size}">
+                                <input name="size" type="hidden" value="${fn:escapeXml(param.size)}" />
+                            </c:if>
+                        </form:form>
                     </c:if>
                     </td>
                 </tr>
@@ -169,13 +172,10 @@
         
         <c:if test="${empty create or create}">
             <span class="new">
-            <spring:url value="${path}" var="create_url">
-                    <spring:param name="form" />
-                </spring:url> <a href="${create_url}"> <spring:url value="/resources/images/add.png"
-                        var="create_img_url" /> <spring:message arguments="${typeName}"
-                        code="global_menu_new" var="add_message" htmlEscape="false" /> <img
-                    alt="${fn:escapeXml(add_message)}" src="${create_img_url}"
-                    title="${fn:escapeXml(add_message)}" />
+            <spring:url value="${path}/create" var="create_url"/>
+            <a href="${create_url}"> <spring:url value="/resources/images/add.png" var="create_img_url" />
+                <spring:message arguments="${typeName}" code="global_menu_new" var="add_message" htmlEscape="false" />
+                <img alt="${fn:escapeXml(add_message)}" src="${create_img_url}" title="${fn:escapeXml(add_message)}" />
             </a>
             </span>
             <c:out value=" " />

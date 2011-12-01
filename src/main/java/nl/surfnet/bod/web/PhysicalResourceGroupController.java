@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,15 +37,15 @@ public class PhysicalResourceGroupController {
     return "redirect:physicalresourcegroups";
   }
 
-  @RequestMapping(params = "form", method = RequestMethod.GET)
+  @RequestMapping(value = "/create", method = RequestMethod.GET)
   public String createForm(final Model uiModel) {
     uiModel.addAttribute("physicalResourceGroup", new PhysicalResourceGroup());
 
     return "physicalresourcegroups/create";
   }
 
-  @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-  public String show(@PathVariable("id") final Long id, final Model uiModel) {
+  @RequestMapping(params = "id", method = RequestMethod.GET)
+  public String show(@RequestParam("id") final Long id, final Model uiModel) {
     uiModel.addAttribute("physicalresourcegroup", physicalResourceGroupService.find(id));
     uiModel.addAttribute("itemId", id);
 
@@ -81,15 +80,15 @@ public class PhysicalResourceGroupController {
     return "redirect:physicalresourcegroups";
   }
 
-  @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
-  public String updateForm(@PathVariable("id") final Long id, final Model uiModel) {
+  @RequestMapping(value = "/edit", params = "id", method = RequestMethod.GET)
+  public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
     uiModel.addAttribute("physicalResourceGroup", physicalResourceGroupService.find(id));
 
     return "physicalresourcegroups/update";
   }
 
-  @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-  public String delete(@PathVariable("id") final Long id,
+  @RequestMapping(value = "/delete", params = "id", method = RequestMethod.DELETE)
+  public String delete(@RequestParam("id") final Long id,
       @RequestParam(value = "page", required = false) final Integer page,
       @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
 

@@ -11,7 +11,7 @@ import org.openqa.selenium.support.PageFactory;
 
 public class NewPhysicalResourceGroupPage {
 
-  private static final String PAGE = "noc/physicalresourcegroups?form";
+  private static final String PAGE = "noc/physicalresourcegroups/create";
 
   private final Probes probes;
 

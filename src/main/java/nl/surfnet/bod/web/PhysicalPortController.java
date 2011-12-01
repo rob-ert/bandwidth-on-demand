@@ -16,7 +16,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,20 +32,20 @@ public class PhysicalPortController {
   private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid PhysicalPort physicalPort, final BindingResult bindingResult,
-      final Model uiModel, final HttpServletRequest httpServletRequest) {
+  public String create(@Valid PhysicalPort physicalPort, final BindingResult bindingResult, final Model uiModel,
+      final HttpServletRequest httpServletRequest) {
 
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute("physicalPort", physicalPort);
       return "physicalresourcegroups/create";
     }
 
-    //Keep ref
+    // Keep ref
     PhysicalResourceGroup physicalResourceGroup = physicalPort.getPhysicalResourceGroup();
 
-    //Ignore changes made by user, fetch again
+    // Ignore changes made by user, fetch again
     physicalPort = physicalPortServicImpl.findByName(physicalPort.getName());
-    //Set ref back
+    // Set ref back
     physicalPort.setPhysicalResourceGroup(physicalResourceGroup);
 
     uiModel.asMap().clear();
@@ -56,16 +55,9 @@ public class PhysicalPortController {
     return "redirect:physicalports";
   }
 
-
-  @RequestMapping(params = "form", method = RequestMethod.GET)
-  public String createForm(final Model uiModel) {
-    uiModel.addAttribute("physicalPort", new PhysicalPort());
-    return "physicalports/create";
-  }
-
-  @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-  public String show(@PathVariable("id") final String name, final Model uiModel) {
-    uiModel.addAttribute("physicalPort", physicalPortServicImpl.findByName((name)));
+  @RequestMapping(params = "id", method = RequestMethod.GET)
+  public String show(@RequestParam("id") final String name, final Model uiModel) {
+    uiModel.addAttribute("physicalPort", physicalPortServicImpl.findByName(name));
     uiModel.addAttribute("itemId", name);
     return "physicalports/show";
   }
@@ -92,27 +84,20 @@ public class PhysicalPortController {
       final BindingResult physicalResourceGroupBindingResult, final Model uiModel,
       final HttpServletRequest httpServletRequest) {
 
-    // if (bindingResult.hasErrors()) {
-    // uiModel.addAttribute("physicalPort", physicalPort);
-    // return "physicalports/update";
-    // }
-
-    // uiModel.asMap().clear();
-
     physicalPortServicImpl.update(physicalPort);
     uiModel.asMap().clear();
 
     return "redirect:physicalports";
   }
 
-  @RequestMapping(value = "/{id}", params = "form", method = RequestMethod.GET)
-  public String updateForm(@PathVariable("id") final String portId, final Model uiModel) {
+  @RequestMapping(value = "/edit", params = "id", method = RequestMethod.GET)
+  public String updateForm(@RequestParam("id") final String portId, final Model uiModel) {
     uiModel.addAttribute("physicalPort", physicalPortServicImpl.findByName(portId));
     return "physicalports/update";
   }
 
-  @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-  public String delete(@PathVariable("id") final String name,
+  @RequestMapping(value = "/delete", params = "id", method = RequestMethod.DELETE)
+  public String delete(@RequestParam("id") final String name,
       @RequestParam(value = "page", required = false) final Integer page,
       @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
 
