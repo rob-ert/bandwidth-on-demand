@@ -14,6 +14,7 @@
         <menu:category id="c_physicalport">
             <menu:item id="i_pp_list" messageCode="global_menu_list"
                 url="/noc/physicalports?page=1&amp;size=${empty param.size ? 10 : param.size}" />
+            <menu:item id="i_pp_free" messageCode="menu_item_physicalport_list_free_label" url="/noc/physicalports/free" />
         </menu:category>
     </menu:menu>
     <ul class="nav secondary-nav">

@@ -1,5 +1,6 @@
 package nl.surfnet.bod.service;
 
+import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
@@ -54,6 +55,12 @@ class PhysicalPortServiceRepoImpl implements PhysicalPortService {
   @Override
   public PhysicalPort update(final PhysicalPort physicalPort) {
     return physicalPortRepo.save(physicalPort);
+  }
+
+  @Override
+  public Collection<PhysicalPort> findUnallocated() {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

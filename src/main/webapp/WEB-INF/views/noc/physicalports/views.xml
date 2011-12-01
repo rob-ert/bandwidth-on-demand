@@ -4,6 +4,9 @@
     <definition extends="noc" name="physicalports/list">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/list.jspx" />
     </definition>
+    <definition extends="noc" name="physicalports/listfree">
+        <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/listfree.jspx" />
+    </definition>
     <definition extends="noc" name="physicalports/show">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/show.jspx" />
     </definition>

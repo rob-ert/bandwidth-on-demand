@@ -63,19 +63,17 @@ public class PhysicalPortController {
   }
 
   @RequestMapping(method = RequestMethod.GET)
-  public String list(@RequestParam(value = "page", required = false) final Integer page,
-      @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
-
-    int sizeNo = size == null ? 10 : size.intValue();
-    final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
-
-    uiModel.addAttribute("physicalports", physicalPortServicImpl.findEntries(firstResult, sizeNo));
-
-    float nrOfPages = (float) physicalPortServicImpl.count() / sizeNo;
-    uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
-        : nrOfPages));
+  public String list(final Model uiModel) {
+    uiModel.addAttribute("physicalports", physicalPortServicImpl.findAll());
 
     return "physicalports/list";
+  }
+
+  @RequestMapping(value = "/free", method = RequestMethod.GET)
+  public String listUnallocated(final Model uiModel) {
+    uiModel.addAttribute("physicalports", physicalPortServicImpl.findUnallocated());
+
+    return "physicalports/listfree";
   }
 
   @RequestMapping(method = RequestMethod.PUT)

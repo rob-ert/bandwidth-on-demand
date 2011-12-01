@@ -20,16 +20,16 @@ import com.google.common.collect.Collections2;
  * Service implementation which combines {@link PhysicalPort} services using the
  * {@link PhysicalPortServiceNbiImpl} and the
  * {@link PhysicalPortServiceRepoImpl}.
- * 
+ *
  * The {@link PhysicalPort}s found in the {@link PhysicalPortServiceNbiImpl} are
  * leading and when more data is available in our repository they will be
  * enriched using this data.
- * 
+ *
  * Since {@link PhysicalPort}s from the {@link PhysicalPortServiceNbiImpl} are
  * considered readonly, the methods that change data are performed using the
  * {@link PhysicalPortServiceRepoImpl}.
- * 
- * 
+ *
+ *
  * @author Frank Mölder ($Author$)
  * @version $Revision$ $Date$
  */
@@ -48,21 +48,30 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   private PhysicalPortService physicalPortServiceNbiImpl;
 
   /**
-   * 
+   *
    * Finds all ports using the North Bound Interface and enhances these ports
    * with data found in our own database.
    */
   @Override
   public List<PhysicalPort> findAll() {
-    // retrieve from nbi
     List<PhysicalPort> nbiPorts = physicalPortServiceNbiImpl.findAll();
-
-    // retrieve from repo
     List<PhysicalPort> repoPorts = physicalPortServiceRepoImpl.findAll();
 
     enrichPorts(nbiPorts, repoPorts);
 
     return nbiPorts;
+  }
+
+  @Override
+  public Collection<PhysicalPort> findUnallocated() {
+    List<PhysicalPort> allPorts = findAll();
+
+    return Collections2.filter(allPorts, new Predicate<PhysicalPort>() {
+      @Override
+      public boolean apply(PhysicalPort input) {
+        return input.getId() == null;
+      }
+    });
   }
 
   @Override
@@ -116,7 +125,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Adds data found in given ports to the specified ports, enriches them.
-   * 
+   *
    * @param portsToEnrich
    *          {@link PhysicalPort}s to add the data to
    * @param dataPorts
@@ -158,10 +167,10 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Enriches the port with additional data.
-   * 
-   * Clones JPA attributes (id and version), so a find will return these preventing a additional
-   * save instead of an update.
-   * 
+   *
+   * Clones JPA attributes (id and version), so a find will return these
+   * preventing a additional save instead of an update.
+   *
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort
