@@ -1,4 +1,4 @@
-package nl.surfnet.bod.service;
+package nl.surfnet.bod.nbi;
 
 import nl.surfnet.bod.nbi.generated.PortDetail;
 import nl.surfnet.bod.nbi.generated.TerminationPoint;

@@ -1,6 +1,9 @@
 package nl.surfnet.bod.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,6 +12,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.nbi.NbiOfflineClient;
+import nl.surfnet.bod.nbi.TerminationPointFactory;
 import nl.surfnet.bod.nbi.generated.TerminationPoint;
 
 import org.junit.Test;
