@@ -75,18 +75,6 @@ public class NbiLiveClient implements NbiClient {
     return findByFilter("type=Port");
   }
 
-  @Override
-  public TerminationPoint findPortsByName(final String name) {
-    final List<TerminationPoint> terminationPoints = findByFilter("name=" + name);
-
-    if (terminationPoints.size() != 1) {
-      throw new IllegalStateException(String.format("Termination point using name: %s, expected 1 actual %s", name,
-          terminationPoints.size()));
-    }
-
-    return terminationPoints.get(0);
-  }
-
   public void setUsername(final String username) {
     this.username = username;
   }
