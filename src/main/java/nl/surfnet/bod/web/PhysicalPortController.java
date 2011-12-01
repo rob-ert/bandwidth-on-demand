@@ -38,18 +38,15 @@ public class PhysicalPortController {
       return "physicalresourcegroups/create";
     }
 
-    // Keep ref
-    PhysicalResourceGroup physicalResourceGroup = physicalPort.getPhysicalResourceGroup();
+    PhysicalResourceGroup newPhysicalResourceGroup = physicalPort.getPhysicalResourceGroup();
 
-    // Ignore changes made by user, fetch again
+    // Ignore changes made by user, fetch again and set group
     physicalPort = physicalPortServicImpl.findByName(physicalPort.getName());
-    // Set ref back
-    physicalPort.setPhysicalResourceGroup(physicalResourceGroup);
+    physicalPort.setPhysicalResourceGroup(newPhysicalResourceGroup);
 
     uiModel.asMap().clear();
     physicalPortServicImpl.save(physicalPort);
 
-    // Do not return to the create instance, but to the list view
     return "redirect:physicalports";
   }
 
