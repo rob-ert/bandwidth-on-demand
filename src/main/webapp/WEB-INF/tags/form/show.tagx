@@ -136,7 +136,7 @@
                                 </a>
                             </span>
                         </c:if>
-                        <c:if test="${icon}">
+                        <c:if test="${icon and not empty object.id}">
 								<spring:url value="${path}/delete" var="icon_form_url">
 									<spring:param name="id" value="${itemId}" />
 								</spring:url>
