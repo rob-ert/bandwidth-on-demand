@@ -13,13 +13,4 @@ public interface NbiClient {
    */
   List<TerminationPoint> findAllPorts();
 
-  /**
-   *
-   * @param name
-   *          The name of the port
-   * @return A {@link TerminationPoint} or <code>null</code> if nothing was
-   *         found.
-   */
-  TerminationPoint findPortsByName(final String name);
-
 }

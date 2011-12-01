@@ -30,11 +30,4 @@ public class NbiLiveClientTestIntegration {
     assertEquals(260, allTerminationPoints.size());
   }
 
-  @Test
-  public void testFindPortByNameWithDetails() {
-    final String portName = "00:03:18:bb:5a:00_Port1/30";
-    final TerminationPoint terminationPoints = nbiClient.findPortsByName(portName);
-    assertEquals(portName, terminationPoints.getPortDetail().getName());
-  }
-
 }
