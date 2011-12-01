@@ -7,18 +7,33 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:directive.page pageEncoding="UTF-8" />
     
+    <spring:message code="application_name" var="app_name" htmlEscape="false" />
+    <spring:url var="banner" value="/images/surfnet_logo.gif" />
+    <spring:url var="home" value="/" />
+    
+    <spring:message code="button_home" var="home_label" htmlEscape="false" />
+    <spring:message var="app_name" code="application_name" htmlEscape="false" />
+    
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=8" />
-        
+
         <util:load-scripts />
-        
-        <spring:message code="application_name" var="app_name" htmlEscape="false" />
+
         <title><spring:message code="welcome_h3" arguments="${app_name}" /></title>
     </head>
-        
+
     <body>
-        <tiles:insertAttribute name="toolbar" ignore="true" />
+        <div class="topbar" data-dropdown="dropdown">
+            <a href="${home}"><img src="${banner}" class="logo" /></a>
+    
+            <h1>${app_name}</h1>
+            <div class="topbar-inner">
+                <div class="container">
+                    <tiles:insertAttribute name="menubar" ignore="true" />
+                </div>
+            </div>
+        </div>
     
         <div class="container">
             <tiles:insertAttribute name="body" />

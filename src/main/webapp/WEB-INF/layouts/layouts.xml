@@ -6,11 +6,11 @@
 <tiles-definitions>
 
   <definition name="default" template="/WEB-INF/layouts/default.jspx">
-    <put-attribute name="toolbar" value="/WEB-INF/views/toolbar.jspx" />
+    <put-attribute name="menubar" value="/WEB-INF/views/menubar.jspx" />
   </definition>
 
-  <definition name="public" template="/WEB-INF/layouts/default.jspx">
-    <put-attribute name="toolbar" value="/WEB-INF/views/toolbar.jspx" />
+  <definition name="noc" template="/WEB-INF/layouts/default.jspx">
+    <put-attribute name="menubar" value="/WEB-INF/views/noc/menubar.jspx" />
   </definition>
 
 </tiles-definitions>

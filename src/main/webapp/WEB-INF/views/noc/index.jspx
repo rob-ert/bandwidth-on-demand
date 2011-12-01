@@ -4,10 +4,8 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <spring:message var="app_name" code="application_name" htmlEscape="false" />
-
     <div class="hero-unit">
-        <h1>Welcome to ${app_name}</h1>
+        <h1>Welcome NOC user</h1>
         <p>Vestibulum id ligula porta felis euismod semper. Integer posuere erat a ante venenatis dapibus posuere
             velit aliquet. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec
             elit.</p>

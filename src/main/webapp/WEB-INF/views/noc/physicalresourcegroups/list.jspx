@@ -14,6 +14,8 @@
             
             <table:column id="adminGroup" property="adminGroup" labelCode="physicalResourceGroup_adminGroup" />
             
+            <table:column id="count" property="physicalPortCount" labelCode="physicalResourceGroup_physicalPortCount" />
+
         </table:table>
     </page:list>
 </div>

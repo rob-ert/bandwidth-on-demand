@@ -11,6 +11,7 @@
         <field:display field="name" id="name" object="${physicalresourcegroup}" labelCode="physicalresourcegroup_name" />
         <field:display field="institutionName" id="institutionName" object="${physicalresourcegroup}" labelCode="physicalresourcegroup_institutionName" />
         <field:display field="adminGroup" id="adminGroup" object="${physicalresourcegroup}" labelCode="physicalresourcegroup_adminGroup" />
+        <field:display field="physicalPorts" id="adminGroup" object="${physicalresourcegroup}" labelCode="physicalresourcegroup_physicalPorts" list="true" />
         
     </page:show>
 

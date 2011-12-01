@@ -9,6 +9,7 @@
     <jsp:directive.attribute name="label" type="java.lang.String" required="false" rtexprvalue="true" description="The label used for this field, will default to a message bundle if not supplied" />
     <jsp:directive.attribute name="labelCode" type="java.lang.String" required="false" rtexprvalue="true" description="Key for label message bundle if label is not supplied" />
     <jsp:directive.attribute name="date" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate that this field is of type java.util.Date" />
+    <jsp:directive.attribute name="list" type="java.lang.Boolean" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="calendar" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate that this field is of type java.util.Calendar" />
     <jsp:directive.attribute name="dateTimePattern" type="java.lang.String" required="false" rtexprvalue="true" description="The date / time pattern to use if the field is a date or calendar type" />
     <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true"
@@ -30,11 +31,11 @@
         <c:set var="sec_object" value="${fn:escapeXml(object)}" />
         <c:set var="sec_field" value="${fn:escapeXml(field)}" />
 
-        <div id="_${fn:escapeXml(id)}_id" class="row">
-            <div class="span6">
+        <tr>
+            <td>
                 <c:out value="${label}" />
-            </div>
-            <div class="span10">
+            </td>
+            <td>
                 <c:choose>
                     <c:when test="${date}">
                         <spring:escapeBody>
@@ -46,12 +47,19 @@
                             <fmt:formatDate value="${object[field].time}" pattern="${fn:escapeXml(dateTimePattern)}" />
                         </spring:escapeBody>
                     </c:when>
+                    <c:when test="${list and not empty object[field]}">
+                        <ul>
+                            <c:forEach var="item" items="${object[field]}">
+                                <li><spring:eval expression="item" /></li>
+                            </c:forEach>
+                        </ul>
+                    </c:when>
                     <c:otherwise>
                         <spring:eval expression="object[field]" />
                     </c:otherwise>
                 </c:choose>
-            </div>
-        </div>
+            </td>
+        </tr>
 
     </c:if>
 </jsp:root>

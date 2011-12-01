@@ -69,7 +69,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   public Converter<Long, PhysicalResourceGroup> getIdToPhysicalResourceGroupConverter() {
     return new Converter<Long, PhysicalResourceGroup>() {
       @Override
-      public nl.surfnet.bod.domain.PhysicalResourceGroup convert(final java.lang.Long id) {
+      public PhysicalResourceGroup convert(final java.lang.Long id) {
         return physicalResourceGroupService.find(id);
       }
     };
