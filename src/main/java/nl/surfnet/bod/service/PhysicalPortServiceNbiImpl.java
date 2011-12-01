@@ -2,6 +2,8 @@ package nl.surfnet.bod.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
@@ -16,10 +18,12 @@ import org.springframework.util.StringUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 /**
  * Ciena NorthBoundInterface implementation of the {@link PhysicalPortService}
- *
+ * 
  * @author Frank Mölder ($Author$)
  * @version $Revision$ $Date$
  */
@@ -80,7 +84,7 @@ class PhysicalPortServiceNbiImpl implements PhysicalPortService {
   /**
    * Transforms a List of {@link TerminationPoint} to a List of
    * {@link PhysicalPort}
-   *
+   * 
    * @param nbiPorts
    *          List of {@link TerminationPoint}
    * @return List of {@link PhysicalPort} which were transformed from the given
@@ -109,7 +113,7 @@ class PhysicalPortServiceNbiImpl implements PhysicalPortService {
 
   /**
    * Selects a port with the specified portId from the given Collection.
-   *
+   * 
    * @param terminationPoints
    *          Collection to search
    * @param name
@@ -122,22 +126,21 @@ class PhysicalPortServiceNbiImpl implements PhysicalPortService {
     Collection<TerminationPoint> filteredPorts = null;
 
     if (!CollectionUtils.isEmpty(terminationPoints) && (StringUtils.hasText(name))) {
-      filteredPorts = Collections2.filter(terminationPoints, new Predicate<TerminationPoint>() {
+      filteredPorts = Lists.newArrayList(Collections2.filter(terminationPoints, new Predicate<TerminationPoint>() {
 
         @Override
         public boolean apply(final TerminationPoint port) {
-          boolean found = false;
-
-          if (port.getPortDetail() != null && name.equals(port.getPortDetail().getName())) {
-            found = true;
-          }
-          return found;
+          return (port.getPortDetail() != null && name.equals(port.getPortDetail().getName()));
         };
-      });
-    }
+      }));
 
-    if ((!CollectionUtils.isEmpty(filteredPorts)) && (filteredPorts.size() == 1)) {
-      result = mapTerminationPointToPhysicalPort(filteredPorts.iterator().next());
+      if (filteredPorts.size() > 1) {
+        throw new IllegalStateException("Multiple ports found for name: " + name);
+      }
+
+      if (!filteredPorts.isEmpty()) {
+        result = mapTerminationPointToPhysicalPort(filteredPorts.iterator().next());
+      }
     }
 
     return result;
@@ -145,7 +148,7 @@ class PhysicalPortServiceNbiImpl implements PhysicalPortService {
 
   /**
    * Transforms a {@link TerminationPoint} into a {@link PhysicalPort}
-   *
+   * 
    * @param terminationPoint
    *          Object to transform
    * @return {@link PhysicalPort} transformed object

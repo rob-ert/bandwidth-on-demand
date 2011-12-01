@@ -1,12 +1,11 @@
 package nl.surfnet.bod.service;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.nbi.NbiOfflineClient;
 import nl.surfnet.bod.support.PhysicalPortDataOnDemand;
 
 import org.junit.Before;
@@ -40,7 +39,7 @@ public class PhysicalPortServiceImplTest {
     List<PhysicalPort> ports = physicalPortServiceImpl.findAll();
 
     // Verify
-    assertEquals(10, ports.size());
+    assertEquals(260, ports.size());
   }
 
   @Test
@@ -58,16 +57,20 @@ public class PhysicalPortServiceImplTest {
   @Test
   public void testFindEntriesByName() {
 
-    PhysicalPort foundPort = physicalPortServiceImpl.findByName(NbiOfflineClient.NAME_PREFIX + 1);
+    PhysicalPort port = physicalPortServiceImpl.findAll().get(0);
+
+    PhysicalPort foundPort = physicalPortServiceImpl.findByName(port.getName());
 
     assertNull(foundPort.getId());
-    assertEquals(NbiOfflineClient.NAME_PREFIX + 1, foundPort.getName());
+    assertEquals(port.getName(), foundPort.getName());
 
   }
 
   @Test
   public void testCount() {
-    assertEquals(10, physicalPortServiceImpl.count());
+    long count = physicalPortServiceImpl.findAll().size();
+
+    assertEquals(count, physicalPortServiceImpl.count());
   }
 
   /**
@@ -77,10 +80,12 @@ public class PhysicalPortServiceImplTest {
    */
   @Test
   public void testDelete() {
-    PhysicalPort port = physicalPortServiceImpl.findByName(NbiOfflineClient.NAME_PREFIX + 1);
+    PhysicalPort port = physicalPortServiceImpl.findAll().get(0);
+    
+    PhysicalPort foundPort = physicalPortServiceImpl.findByName(port.getName());
     long count = physicalPortServiceImpl.count();
 
-    physicalPortServiceImpl.delete(port);
+    physicalPortServiceImpl.delete(foundPort);
 
     assertEquals(count, physicalPortServiceImpl.count());
 
