@@ -18,6 +18,7 @@ import nl.surfnet.bod.nbi.generated.TerminationPoint;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.adventnet.security.authentication.RMIAccessAPI;
 import com.adventnet.security.authentication.RMIAccessException;
@@ -27,13 +28,18 @@ public class NbiLiveClient implements NbiClient {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
+  @Value("${nbi.user}")
   private String username;
+
+  @Value("${nbi.password}")
   private String password;
+
+  @Value("${nbi.url}")
   private String url;
 
   private JAXBContext jaxbContext;
   private Unmarshaller unMarshaller;
-  private OSSHandle ossHandle = null;
+  private OSSHandle ossHandle;
 
   @SuppressWarnings("unused")
   @PostConstruct
@@ -48,15 +54,14 @@ public class NbiLiveClient implements NbiClient {
 
     jaxbContext = JAXBContext.newInstance("nl.surfnet.bod.nbi.generated");
     unMarshaller = jaxbContext.createUnmarshaller();
-
   }
 
   private List<TerminationPoint> findByFilter(final String filter) {
     try {
       log.debug("Retrieving by filter: {}", filter);
       final String allPortsXml = ossHandle.getInventory(username, password, "getResourcesWithAttributes", filter, null);
-      log.debug("Retrieved all ports: {}", allPortsXml);
 
+      log.debug("Retrieved all ports: {}", allPortsXml);
       return ((InventoryResponse) unMarshaller.unmarshal(new StringReader(allPortsXml))).getTerminationPoint();
     }
     catch (Exception e) {

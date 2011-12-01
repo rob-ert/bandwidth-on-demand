@@ -1,46 +1,35 @@
 package nl.surfnet.bod.nbi;
 
-import java.net.MalformedURLException;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
-import nl.surfnet.bod.nbi.generated.PortDetail;
+import nl.surfnet.bod.nbi.generated.InventoryResponse;
 import nl.surfnet.bod.nbi.generated.TerminationPoint;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adventnet.security.authentication.RMIAccessException;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 public class NbiOfflineClient implements NbiClient {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  public static final String NAME_PREFIX="Name_";
-  public static final String DISPLAY_NAME_PREFIX = "DisplayName_";
-  public static final String PORTID_PREFIX = "PortId_";
-  
-  
-  @SuppressWarnings("unused")
-  @PostConstruct
-  private void init() throws RemoteException, RMIAccessException, MalformedURLException, NotBoundException,
-      JAXBException {
-    log.info("USING OFFLINE NBI CLIENT!");
+  private Unmarshaller unmarshaller;
 
+  @PostConstruct
+  protected void init() throws JAXBException {
+    unmarshaller = JAXBContext.newInstance("nl.surfnet.bod.nbi.generated").createUnmarshaller();
+    log.info("USING OFFLINE NBI CLIENT!");
   }
 
-  /**
-   *
-   * @param name
-   *          The name of the port
-   * @return A {@link TerminationPoint} or <code>null</code> if nothing was
-   *         found.
-   */
   @Override
   public TerminationPoint findPortsByName(String name) {
     return findAllPorts().get(1);
@@ -48,29 +37,27 @@ public class NbiOfflineClient implements NbiClient {
 
   @Override
   public List<TerminationPoint> findAllPorts() {
-    ArrayList<TerminationPoint> terminationPoints = new ArrayList<TerminationPoint>();
-    TerminationPoint tp = null;
-    for (int index = 0; index < 10; index++) {
-      tp = new TerminationPoint();
-      tp.setPortDetail(new PortDetail());
+    try {
+      InputStream stream = getOfflineResponseFile();
+      InventoryResponse inventoryResponse = (InventoryResponse) unmarshaller.unmarshal(stream);
 
-      tp.getPortDetail().setName(NAME_PREFIX+ index);
-      tp.getPortDetail().setDisplayName(DISPLAY_NAME_PREFIX + index);
-      tp.getPortDetail().setPortId(PORTID_PREFIX + index);
-
-      terminationPoints.add(tp);
+      return Lists.transform(inventoryResponse.getTerminationPoint(), new Function<TerminationPoint, TerminationPoint>() {
+        @Override
+        public TerminationPoint apply(TerminationPoint input) {
+          String oldName = input.getPortDetail().getName();
+          input.getPortDetail().setName(oldName + "_dummy");
+          return input;
+        }
+      });
     }
-
-    return terminationPoints;
+    catch (JAXBException e) {
+      log.error("Could not load termination points from file", e);
+      return Collections.emptyList();
+    }
   }
 
-  public void setUsername(final String username) {
-  }
-
-  public void setPassword(final String password) {
-  }
-
-  public void setUrl(final String url) {
+  private InputStream getOfflineResponseFile() {
+    return NbiOfflineClient.class.getResourceAsStream("/nbi_response.xml");
   }
 
 }

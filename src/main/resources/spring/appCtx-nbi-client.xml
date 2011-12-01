@@ -15,10 +15,6 @@
        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd
        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
 
-  <bean id="nbiClient" class="${nbi.client.class}" lazy-init="true">
-    <property name="username" value="${nbi.user}" />
-    <property name="password" value="${nbi.password}" />
-    <property name="url" value="${nbi.url}" />
-  </bean>
+  <bean id="nbiClient" class="${nbi.client.class}" lazy-init="true" />
   
 </beans>
