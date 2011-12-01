@@ -15,9 +15,6 @@
        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd
        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
 
-  <bean id="iddClient" class="${idd.client.class}">
-    <property name="username" value="${idd.user}" />
-    <property name="password" value="${idd.password}" />
-  </bean>
+  <bean id="iddClient" class="${idd.client.class}" />
   
 </beans>

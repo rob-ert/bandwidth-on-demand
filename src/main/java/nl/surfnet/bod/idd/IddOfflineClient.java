@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 
 public class IddOfflineClient implements IddClient {
 
-  private final Logger logger = LoggerFactory.getLogger(IddOfflineClient.class);
+  private static final String STATIC_RESPONSE_FILE = "/idd_response.xml";
 
-  private String staticResponseFile = "/idd_response.xml";
+  private final Logger logger = LoggerFactory.getLogger(IddOfflineClient.class);
 
   @SuppressWarnings("unused")
   @PostConstruct
@@ -46,12 +46,6 @@ public class IddOfflineClient implements IddClient {
   }
 
   private Message getStaticMessage() {
-    return new Message(IddOfflineClient.class.getResourceAsStream(staticResponseFile));
-  }
-
-  public void setUsername(final String username) {
-  }
-
-  public void setPassword(final String password) {
+    return new Message(IddOfflineClient.class.getResourceAsStream(STATIC_RESPONSE_FILE));
   }
 }

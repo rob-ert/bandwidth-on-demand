@@ -9,10 +9,14 @@ import nl.surfnet.bod.idd.generated.KsrBindingStub;
 import nl.surfnet.bod.idd.generated.KsrLocator;
 import nl.surfnet.bod.idd.generated.KsrPortType;
 
+import org.springframework.beans.factory.annotation.Value;
+
 public class IddLiveClient implements IddClient {
 
+  @Value("${idd.user}")
   private String username;
 
+  @Value("${idd.password}")
   private String password;
 
   @Override
@@ -32,11 +36,11 @@ public class IddLiveClient implements IddClient {
     }
   }
 
-  public void setUsername(String username) {
+  protected void setUsername(String username) {
     this.username = username;
   }
 
-  public void setPassword(String password) {
+  protected void setPassword(String password) {
     this.password = password;
   }
 
