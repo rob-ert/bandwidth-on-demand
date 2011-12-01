@@ -29,9 +29,6 @@
           <form:checkbox id="_${sec_field}_id" path="${sec_field}"/>
         </c:otherwise>
       </c:choose>
-      <script type="text/javascript">
-      	Spring.addDecoration(new Spring.ElementDecoration({elementId : '_${sec_field}_id', widgetType : 'dijit.form.CheckBox', widgetAttrs : {}}));
-      </script>
     </div>
     <br />
   </c:if>
