@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,7 +18,6 @@ import nl.surfnet.bod.nbi.TerminationPointFactory;
 import nl.surfnet.bod.nbi.generated.TerminationPoint;
 
 import org.hamcrest.Matchers;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +35,7 @@ public class PhysicalPortServiceNbiImplTest {
   private static final String DISPLAY_NAME_2 = "TestDisplayNameTwo";
 
   @Autowired
-  private PhysicalPortServiceNbiImpl physicalPortServiceNbiImpl;
+  private NbiPortServiceImpl physicalPortServiceNbiImpl;
 
   @Test
   public void testFindAll() {
@@ -46,52 +44,12 @@ public class PhysicalPortServiceNbiImplTest {
     assertThat(ports, hasSize(greaterThan(0)));
   }
 
-  @Ignore("Paging does not work yet")
-  @Test
-  public void testFindEntires() {
-    // Execute
-    List<PhysicalPort> ports = physicalPortServiceNbiImpl.findEntries(0, 10);
-
-    // Verify
-    assertEquals(10, ports.size());
-  }
-
   @Test
   public void testCount() {
     List<PhysicalPort> ports = physicalPortServiceNbiImpl.findAll();
 
     assertEquals(260, ports.size());
     assertEquals(ports.size(), physicalPortServiceNbiImpl.count());
-  }
-
-  @Test
-  public void testDelete() {
-
-    PhysicalPort port = new PhysicalPort();
-
-    try {
-      physicalPortServiceNbiImpl.delete(port);
-
-      // verify
-      fail("Exception expected");
-    }
-    catch (UnsupportedOperationException exc) {
-      // expected
-    }
-  }
-
-  @Test
-  public void testFind() {
-
-    try {
-      physicalPortServiceNbiImpl.find(1L);
-
-      // verify
-      fail("Exception expected");
-    }
-    catch (UnsupportedOperationException exc) {
-      // expected
-    }
   }
 
   @Test
@@ -114,34 +72,6 @@ public class PhysicalPortServiceNbiImplTest {
 
     // verify
     assertNull(port);
-  }
-
-  @Test
-  public void testSave() {
-    try {
-      PhysicalPort port = new PhysicalPort();
-      physicalPortServiceNbiImpl.save(port);
-
-      // verify
-      fail("Exception expected");
-    }
-    catch (UnsupportedOperationException exc) {
-      // expected
-    }
-  }
-
-  @Test
-  public void testUpdate() {
-    try {
-      PhysicalPort port = new PhysicalPort();
-      physicalPortServiceNbiImpl.update(port);
-
-      // verify
-      fail("Exception expected");
-    }
-    catch (UnsupportedOperationException exc) {
-      // expected
-    }
   }
 
   @Test

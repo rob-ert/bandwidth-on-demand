@@ -3,13 +3,12 @@ package nl.surfnet.bod.service;
 import static java.lang.String.format;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -18,14 +17,14 @@ import com.google.common.collect.Collections2;
 
 /**
  * Service implementation which combines {@link PhysicalPort} services using the
- * {@link PhysicalPortServiceNbiImpl} and the
+ * {@link NbiPortServiceImpl} and the
  * {@link PhysicalPortServiceRepoImpl}.
  *
- * The {@link PhysicalPort}s found in the {@link PhysicalPortServiceNbiImpl} are
+ * The {@link PhysicalPort}s found in the {@link NbiPortServiceImpl} are
  * leading and when more data is available in our repository they will be
  * enriched using this data.
  *
- * Since {@link PhysicalPort}s from the {@link PhysicalPortServiceNbiImpl} are
+ * Since {@link PhysicalPort}s from the {@link NbiPortServiceImpl} are
  * considered readonly, the methods that change data are performed using the
  * {@link PhysicalPortServiceRepoImpl}.
  *
@@ -33,17 +32,14 @@ import com.google.common.collect.Collections2;
  * @author Frank Mölder ($Author$)
  * @version $Revision$ $Date$
  */
-
-@Service("physicalPortServiceImpl")
+@Service
 public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Autowired
-  @Qualifier("physicalPortServiceRepoImpl")
-  private PhysicalPortService physicalPortServiceRepoImpl;
+  private PhysicalPortRepo physicalPortRepo;
 
   @Autowired
-  @Qualifier("physicalPortServiceNbiImpl")
-  private PhysicalPortService physicalPortServiceNbiImpl;
+  private NbiPortService nbiPortService;
 
   /**
    * Finds all ports using the North Bound Interface and enhances these ports
@@ -51,12 +47,19 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    */
   @Override
   public List<PhysicalPort> findAll() {
-    List<PhysicalPort> nbiPorts = physicalPortServiceNbiImpl.findAll();
-    List<PhysicalPort> repoPorts = physicalPortServiceRepoImpl.findAll();
+    List<PhysicalPort> nbiPorts = nbiPortService.findAll();
+    List<PhysicalPort> repoPorts = physicalPortRepo.findAll();
 
     enrichPorts(nbiPorts, repoPorts);
 
     return nbiPorts;
+  }
+
+  @Override
+  public List<PhysicalPort> findEntries(int firstResult, int sizeNo) {
+    // FIXME [AvD]: What to do should nbi be leading for paging or repo ports
+    // what about paging for unallocated ports? etc...
+    return findAll();
   }
 
   @Override
@@ -72,19 +75,14 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   }
 
   @Override
-  public List<PhysicalPort> findEntries(final int firstResult, final int sizeNo) {
-    return Collections.emptyList();
-  }
-
-  @Override
   public long count() {
-    return physicalPortServiceNbiImpl.count();
+    return nbiPortService.count();
   }
 
   @Override
   public PhysicalPort findByName(final String name) {
-    PhysicalPort nbiPort = physicalPortServiceNbiImpl.findByName(name);
-    PhysicalPort repoPort = physicalPortServiceRepoImpl.findByName(name);
+    PhysicalPort nbiPort = nbiPortService.findByName(name);
+    PhysicalPort repoPort = physicalPortRepo.findByName(name);
 
     enrichPortWithPort(nbiPort, repoPort);
 
@@ -93,23 +91,23 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public void delete(final PhysicalPort physicalPort) {
-    physicalPortServiceRepoImpl.delete(physicalPort);
+    physicalPortRepo.delete(physicalPort);
   }
 
   @Override
   public PhysicalPort find(final Long id) {
-    return physicalPortServiceRepoImpl.find(id);
+    return physicalPortRepo.findOne(id);
   }
 
   @Override
   public void save(final PhysicalPort physicalPort) {
-    physicalPortServiceRepoImpl.save(physicalPort);
+    physicalPortRepo.save(physicalPort);
 
   }
 
   @Override
   public PhysicalPort update(final PhysicalPort physicalPort) {
-    return physicalPortServiceRepoImpl.update(physicalPort);
+    return physicalPortRepo.save(physicalPort);
   }
 
   /**
@@ -164,12 +162,12 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     portToEnrich.setVersion(dataPort.getVersion());
   }
 
-  protected void setNbiService(PhysicalPortService nbiService) {
-    this.physicalPortServiceNbiImpl = nbiService;
+  protected void setNbiService(NbiPortService nbiService) {
+    this.nbiPortService = nbiService;
   }
 
-  protected void setRepoService(PhysicalPortService repoService) {
-    this.physicalPortServiceRepoImpl = repoService;
+  protected void setRepoService(PhysicalPortRepo physicalPortRepo) {
+    this.physicalPortRepo = physicalPortRepo;
   }
 
 }

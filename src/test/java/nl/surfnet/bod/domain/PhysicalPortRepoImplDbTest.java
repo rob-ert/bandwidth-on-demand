@@ -18,7 +18,6 @@ import nl.surfnet.bod.support.PhysicalPortFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,8 +31,7 @@ public class PhysicalPortRepoImplDbTest {
   private PhysicalPortDataOnDemand dod;
 
   @Autowired
-  @Qualifier("physicalPortServiceRepoImpl")
-  private PhysicalPortService physicalPortServiceRepoImpl;
+  private PhysicalPortService physicalPortService;
 
   @Autowired
   private PhysicalPortRepo physicalPortRepo;
@@ -42,7 +40,7 @@ public class PhysicalPortRepoImplDbTest {
   public void countAllPhysicalPorts() {
     dod.getRandomPhysicalPort();
 
-    long count = physicalPortServiceRepoImpl.count();
+    long count = physicalPortService.count();
 
     assertThat(count, greaterThan(0L));
   }
@@ -51,7 +49,7 @@ public class PhysicalPortRepoImplDbTest {
   public void findPhysicalPort() {
     PhysicalPort obj = dod.getRandomPhysicalPort();
 
-    PhysicalPort freshObj = physicalPortServiceRepoImpl.find(obj.getId());
+    PhysicalPort freshObj = physicalPortService.find(obj.getId());
 
     assertThat(obj, is(freshObj));
   }
@@ -59,11 +57,11 @@ public class PhysicalPortRepoImplDbTest {
   @Test
   public void testFindPhysicalPortEntries() {
     dod.getRandomPhysicalPort();
-    int count = (int) physicalPortServiceRepoImpl.count();
+    int count = (int) physicalPortService.count();
 
     int maxResults = count > 20 ? 20 : count;
 
-    List<PhysicalPort> result = physicalPortServiceRepoImpl.findEntries(0, maxResults);
+    List<PhysicalPort> result = physicalPortService.findEntries(0, maxResults);
 
     assertThat(result, hasSize(count));
   }
@@ -75,7 +73,7 @@ public class PhysicalPortRepoImplDbTest {
     Integer initialVersion = obj.getVersion();
     obj.setName("New name");
 
-    PhysicalPort merged = physicalPortServiceRepoImpl.update(obj);
+    PhysicalPort merged = physicalPortService.update(obj);
 
     physicalPortRepo.flush();
 
@@ -86,7 +84,7 @@ public class PhysicalPortRepoImplDbTest {
   @Test
   public void savePhysicalPort() {
     PhysicalPort obj = dod.getNewTransientPhysicalPort(Integer.MAX_VALUE);
-    physicalPortServiceRepoImpl.save(obj);
+    physicalPortService.save(obj);
     physicalPortRepo.flush();
 
     assertThat(obj.getId(), greaterThan(0L));
@@ -96,16 +94,16 @@ public class PhysicalPortRepoImplDbTest {
   public void deletePhysicalPort() {
     PhysicalPort obj = dod.getRandomPhysicalPort();
 
-    physicalPortServiceRepoImpl.delete(obj);
+    physicalPortService.delete(obj);
     physicalPortRepo.flush();
 
-    assertThat(physicalPortServiceRepoImpl.find(obj.getId()), nullValue());
+    assertThat(physicalPortService.find(obj.getId()), nullValue());
   }
 
   @Test(expected = ConstraintViolationException.class)
   public void aPortShouldNotSaveWithoutAName() {
     PhysicalPort port = new PhysicalPortFactory().setName("").create();
 
-    physicalPortServiceRepoImpl.save(port);
+    physicalPortService.save(port);
   }
 }

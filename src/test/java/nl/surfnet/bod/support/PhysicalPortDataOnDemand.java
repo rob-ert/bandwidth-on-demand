@@ -15,7 +15,6 @@ import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.service.PhysicalPortService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,8 +28,7 @@ public class PhysicalPortDataOnDemand {
   private PhysicalResourceGroupDataOnDemand physicalResourceGroupDataOnDemand;
 
   @Autowired
-  @Qualifier("physicalPortServiceRepoImpl")
-  private PhysicalPortService physicalPortServiceRepoImpl;
+  private PhysicalPortService physicalPortService;
 
   @Autowired
   private PhysicalPortRepo physicalPortRepo;
@@ -60,14 +58,14 @@ public class PhysicalPortDataOnDemand {
       index = data.size() - 1;
     PhysicalPort obj = data.get(index);
     java.lang.Long id = obj.getId();
-    return physicalPortServiceRepoImpl.find(id);
+    return physicalPortService.find(id);
   }
 
   public PhysicalPort getRandomPhysicalPort() {
     init();
     PhysicalPort obj = data.get(rnd.nextInt(data.size()));
     java.lang.Long id = obj.getId();
-    return physicalPortServiceRepoImpl.find(id);
+    return physicalPortService.find(id);
   }
 
   public boolean modifyPhysicalPort(final PhysicalPort obj) {
@@ -75,9 +73,7 @@ public class PhysicalPortDataOnDemand {
   }
 
   public void init() {
-    int from = 0;
-    int to = 10;
-    data = physicalPortServiceRepoImpl.findEntries(from, to);
+    data = physicalPortRepo.findAll();
     if (data == null)
       throw new IllegalStateException("Find entries implementation for 'PhysicalPort' illegally returned null");
     if (!data.isEmpty()) {
@@ -88,7 +84,7 @@ public class PhysicalPortDataOnDemand {
     for (int i = 0; i < 10; i++) {
       PhysicalPort obj = getNewTransientPhysicalPort(i);
       try {
-        physicalPortServiceRepoImpl.save(obj);
+        physicalPortService.save(obj);
       }
       catch (ConstraintViolationException e) {
         StringBuilder msg = new StringBuilder();

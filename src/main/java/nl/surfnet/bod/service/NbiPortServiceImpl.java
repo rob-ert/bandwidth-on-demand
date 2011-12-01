@@ -24,8 +24,8 @@ import com.google.common.collect.Lists;
  * @author Frank Mölder ($Author$)
  * @version $Revision$ $Date$
  */
-@Service("physicalPortServiceNbiImpl")
-class PhysicalPortServiceNbiImpl implements PhysicalPortService {
+@Service
+class NbiPortServiceImpl implements NbiPortService {
 
   @Autowired
   private NbiClient nbiClient;
@@ -33,11 +33,6 @@ class PhysicalPortServiceNbiImpl implements PhysicalPortService {
   @Override
   public List<PhysicalPort> findAll() {
     return transform(nbiClient.findAllPorts());
-  }
-
-  @Override
-  public List<PhysicalPort> findEntries(final int firstResult, final int sizeNo) {
-    return findAll();
   }
 
   @Override
@@ -53,29 +48,8 @@ class PhysicalPortServiceNbiImpl implements PhysicalPortService {
   }
 
   @Override
-  public void delete(final PhysicalPort physicalPort) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
-  @Override
-  public PhysicalPort find(final Long id) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
-  @Override
   public PhysicalPort findByName(final String name) {
-
     return selectByName(nbiClient.findAllPorts(), name);
-  }
-
-  @Override
-  public void save(final PhysicalPort physicalPort) {
-    throw new UnsupportedOperationException("Not implemented");
-  }
-
-  @Override
-  public PhysicalPort update(final PhysicalPort physicalPort) {
-    throw new UnsupportedOperationException("Not implemented");
   }
 
   /**
@@ -165,12 +139,6 @@ class PhysicalPortServiceNbiImpl implements PhysicalPortService {
     }
 
     return physicalPort;
-  }
-
-  @Override
-  public Collection<PhysicalPort> findUnallocated() {
-    // TODO Auto-generated method stub
-    return null;
   }
 
 }

@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 
 import org.junit.Before;
@@ -28,14 +29,14 @@ public class PhysicalPortServiceImplTest {
   private PhysicalPortServiceImpl subject = new PhysicalPortServiceImpl();
 
   @Mock
-  private PhysicalPortServiceNbiImpl nbiServiceMock;
+  private NbiPortServiceImpl nbiServiceMock;
   @Mock
-  private PhysicalPortServiceRepoImpl repoServiceMock;
+  private PhysicalPortRepo physicalPortRepoMock;
 
   @Before
   public void init() {
     subject.setNbiService(nbiServiceMock);
-    subject.setRepoService(repoServiceMock);
+    subject.setRepoService(physicalPortRepoMock);
   }
 
   @Test
@@ -47,7 +48,7 @@ public class PhysicalPortServiceImplTest {
         new PhysicalPortFactory().setName("first").setId(1L).setVersion(2).create());
 
     when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
-    when(repoServiceMock.findAll()).thenReturn(repoPorts);
+    when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
 
     List<PhysicalPort> allPorts = subject.findAll();
 
@@ -65,7 +66,7 @@ public class PhysicalPortServiceImplTest {
     List<PhysicalPort> repoPorts = Lists.newArrayList(new PhysicalPortFactory().setName("first").setId(1L).create());
 
     when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
-    when(repoServiceMock.findAll()).thenReturn(repoPorts);
+    when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
 
     Collection<PhysicalPort> unallocatedPorts = subject.findUnallocated();
 
@@ -81,7 +82,7 @@ public class PhysicalPortServiceImplTest {
         new PhysicalPortFactory().setName("first").create());
 
     when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
-    when(repoServiceMock.findAll()).thenReturn(repoPorts);
+    when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
 
     subject.findAll();
   }
@@ -89,7 +90,7 @@ public class PhysicalPortServiceImplTest {
   @Test
   public void findByNameShouldGiveNullIfNotFound() {
     when(nbiServiceMock.findByName("first")).thenReturn(null);
-    when(repoServiceMock.findByName("first")).thenReturn(null);
+    when(physicalPortRepoMock.findByName("first")).thenReturn(null);
 
     PhysicalPort port = subject.findByName("first");
 
@@ -102,7 +103,7 @@ public class PhysicalPortServiceImplTest {
     PhysicalPort repoPort = new PhysicalPortFactory().setId(1L).setName("first").create();
 
     when(nbiServiceMock.findByName("first")).thenReturn(nbiPort);
-    when(repoServiceMock.findByName("first")).thenReturn(repoPort);
+    when(physicalPortRepoMock.findByName("first")).thenReturn(repoPort);
 
     PhysicalPort port = subject.findByName("first");
 
@@ -111,12 +112,12 @@ public class PhysicalPortServiceImplTest {
   }
 
   @Test
-  public void updateShouldCallUpdateOnRepo() {
+  public void updateShouldCallSaveOnRepo() {
     PhysicalPort port = new PhysicalPortFactory().create();
 
     subject.update(port);
 
-    verify(repoServiceMock, only()).update(port);
+    verify(physicalPortRepoMock, only()).save(port);
   }
 
   @Test
@@ -125,7 +126,7 @@ public class PhysicalPortServiceImplTest {
 
     subject.delete(port);
 
-    verify(repoServiceMock, only()).delete(port);
+    verify(physicalPortRepoMock, only()).delete(port);
   }
 
   @Test
@@ -134,14 +135,14 @@ public class PhysicalPortServiceImplTest {
 
     subject.save(port);
 
-    verify(repoServiceMock, only()).save(port);
+    verify(physicalPortRepoMock, only()).save(port);
   }
 
   @Test
   public void findShouldCallFindOnRepo() {
     subject.find(1L);
 
-    verify(repoServiceMock, only()).find(1L);
+    verify(physicalPortRepoMock, only()).findOne(1L);
   }
 
   @Test
