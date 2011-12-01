@@ -16,7 +16,11 @@
     <jsp:directive.attribute name="update" type="java.lang.Boolean" required="false" rtexprvalue="true"
         description="Include 'update' link into table (default true)" />
     <jsp:directive.attribute name="delete" type="java.lang.Boolean" required="false" rtexprvalue="true"
-        description="Include 'delete' link into table (default true)" />
+        description="Include 'delete' link into table (default true)" />     
+    <jsp:directive.attribute name="icon_url" type="java.lang.String" required="false" rtexprvalue="true" 
+    		description="The url for the icon to display" />  
+    <jsp:directive.attribute name="icon_label" type="java.lang.String" required="false" rtexprvalue="true" 
+    		description="The label for the icon to display" />
     <jsp:directive.attribute name="label" type="java.lang.String" required="false" rtexprvalue="true"
         description="The label used for this object, will default to a message bundle if not supplied" />
     <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true"
@@ -45,6 +49,10 @@
 
         <c:if test="${empty delete}">
             <c:set var="delete" value="true" />
+        </c:if>
+        
+        <c:if test="${not empty icon_url}">
+            <c:set var="icon" value="true" />
         </c:if>
 
         <spring:message var="typeName"
@@ -128,6 +136,30 @@
                                 </a>
                             </span>
                         </c:if>
+                        <c:if test="${icon}">
+								<spring:url value="${path}/delete" var="icon_form_url">
+									<spring:param name="id" value="${itemId}" />
+								</spring:url>
+								<spring:url value="${icon_url}" var="icon_image_url" />
+								<form:form action="${icon_form_url}" method="DELETE">
+									<c:set var="icon_confirm_msg">
+										<spring:escapeBody javaScriptEscape="true">
+											<spring:message text="${fn:escapeXml(icon_label)}?" />
+										</spring:escapeBody>
+									</c:set>
+									<input alt="${fn:escapeXml(icon_label)}" class="image"
+										src="${icon_image_url}" title="${fn:escapeXml(icon_label)}"
+										type="image" value="${fn:escapeXml(icon_label)}"
+										onclick="return confirm('${icon_confirm_msg}');" />
+									<c:if test="${not empty param.page}">
+										<input name="page" type="hidden" value="1" />
+									</c:if>
+									<c:if test="${not empty param.size}">
+										<input name="size" type="hidden"
+											value="${fn:escapeXml(param.size)}" />
+									</c:if>
+								</form:form>
+							</c:if>
                     </div>
                 </div>
                 </div>

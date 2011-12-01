@@ -6,7 +6,7 @@
     <jsp:output omit-xml-declaration="yes" />
     
     <page:list id="pl_nl_surfnet_bod_domain_PhysicalPort" items="${physicalports}">
-        <table:table data="${physicalports}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/noc/physicalports" typeIdFieldName="name" delete="false" create="false" icon="true" icon_url="/resources/images/link_break.png" icon_label="Unlink Physical Resource Group" icon_method="DELETE">
+        <table:table data="${physicalports}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/noc/physicalports" typeIdFieldName="name" delete="false" create="false"  icon_url="/resources/images/link_break.png" icon_label="Unlink Physical Resource Group">
             <table:column id="c_nl_surfnet_bod_domain_PhysicalPort_name" property="name" />
             <table:column id="c_nl_surfnet_bod_domain_PhysicalPort_displayname" property="displayName" />            
             <table:column id="c_nl_surfnet_bod_domain_PhysicalPort_physicalResourceGroup"

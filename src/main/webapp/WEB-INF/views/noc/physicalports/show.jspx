@@ -5,7 +5,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
     
-    <page:show id="ps_nl_surfnet_bod_domain_PhysicalPort" object="${physicalPort}" path="/noc/physicalports" create="false">
+    <page:show id="ps_nl_surfnet_bod_domain_PhysicalPort" object="${physicalPort}" path="/noc/physicalports"  create="false"  delete="false" icon_url="/resources/images/link_break.png" icon_label="Unlink Physical Resource Group">
         <field:display field="name" id="s_nl_surfnet_bod_domain_PhysicalPort_name" object="${physicalPort}" />
         <field:display field="physicalResourceGroup" id="s_nl_surfnet_bod_domain_PhysicalPort_physicalResourceGroup"
             object="${physicalPort}" />
