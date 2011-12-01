@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -55,11 +56,12 @@ public class NbiLiveClient implements NbiClient {
       log.debug("Retrieving by filter: {}", filter);
       final String allPortsXml = ossHandle.getInventory(username, password, "getResourcesWithAttributes", filter, null);
       log.debug("Retrieved all ports: {}", allPortsXml);
+
       return ((InventoryResponse) unMarshaller.unmarshal(new StringReader(allPortsXml))).getTerminationPoint();
     }
     catch (Exception e) {
       log.error("Error: ", e);
-      return null;
+      return Collections.emptyList();
     }
   }
 
@@ -71,15 +73,13 @@ public class NbiLiveClient implements NbiClient {
   @Override
   public TerminationPoint findPortsByName(final String name) {
     final List<TerminationPoint> terminationPoints = findByFilter("name=" + name);
-    if (terminationPoints == null) {
-      return null;
-    }
+
     if (terminationPoints.size() != 1) {
       throw new IllegalStateException(String.format("Termination point using name: %s, expected 1 actual %s", name,
           terminationPoints.size()));
     }
-    return terminationPoints.get(0);
 
+    return terminationPoints.get(0);
   }
 
   public void setUsername(final String username) {
