@@ -27,7 +27,7 @@ import org.springframework.util.CollectionUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/appCtx*.xml")
-public class PhysicalPortServiceNbiImplTest {
+public class NbiPortServiceImplTest {
 
   private static final String NAME_1 = "NameOne";
   private static final String NAME_2 = "NameTwo";
