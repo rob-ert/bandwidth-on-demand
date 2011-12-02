@@ -1,5 +1,8 @@
 package nl.surfnet.bod.service;
 
+import static com.google.common.collect.Iterables.limit;
+import static com.google.common.collect.Iterables.skip;
+import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 
 import java.util.Collection;
@@ -57,9 +60,9 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public List<PhysicalPort> findEntries(int firstResult, int sizeNo) {
-    // FIXME [AvD]: What to do should nbi be leading for paging or repo ports
-    // what about paging for unallocated ports? etc...
-    return findAll();
+    List<PhysicalPort> findAll = findAll();
+
+    return newArrayList(limit(skip(findAll, firstResult), sizeNo));
   }
 
   @Override

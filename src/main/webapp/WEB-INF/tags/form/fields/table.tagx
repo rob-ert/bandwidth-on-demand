@@ -10,8 +10,6 @@
     <jsp:directive.attribute name="data" type="java.util.Collection" required="true" rtexprvalue="true" description="The collection to be displayed in the table" />
     <jsp:directive.attribute name="path" type="java.lang.String" required="true" rtexprvalue="true" description="Specify the URL path" />
     <jsp:directive.attribute name="typeIdFieldName" type="java.lang.String" required="false" rtexprvalue="true" description="The identifier field name for the type (defaults to 'id')" />
-    <jsp:directive.attribute name="create" type="java.lang.Boolean" required="false" rtexprvalue="true"
-        description="Include 'create' link into table (default true)" />
     <jsp:directive.attribute name="update" type="java.lang.Boolean" required="false" rtexprvalue="true"
         description="Include 'update' link into table (default true)" />
     <jsp:directive.attribute name="delete" type="java.lang.Boolean" required="false" rtexprvalue="true"
@@ -168,20 +166,8 @@
             </c:forEach>
         </table>
         
-        <c:if test="${empty create or create}">
-            <span class="new">
-            <spring:url value="${path}/create" var="create_url"/>
-            <a href="${create_url}"> <spring:url value="/resources/images/add.png" var="create_img_url" />
-                <spring:message arguments="${typeName}" code="global_menu_new" var="add_message" htmlEscape="false" />
-                <img alt="${fn:escapeXml(add_message)}" src="${create_img_url}" title="${fn:escapeXml(add_message)}" />
-            </a>
-            </span>
-            <c:out value=" " />
-        </c:if>
-                    
-        
         <c:if test="${not empty maxPages}">
-            <util:pagination maxPages="${maxPages}" page="${param.page}" size="${param.size}" />
+            <util:pagination maxPages="${maxPages}" page="${param.page}" />
         </c:if>
 
     </c:if>

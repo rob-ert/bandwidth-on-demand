@@ -58,8 +58,15 @@ public class PhysicalPortController {
   }
 
   @RequestMapping(method = RequestMethod.GET)
-  public String list(final Model uiModel) {
-    uiModel.addAttribute("physicalports", physicalPortServicImpl.findAll());
+  public String list(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
+    int itemsPerPage = 15;
+
+    final int firstResult = page == null ? 0 : (page.intValue() - 1) * itemsPerPage;
+    uiModel.addAttribute("physicalports", physicalPortServicImpl.findEntries(firstResult, itemsPerPage));
+    float nrOfPages = (float) physicalPortServicImpl.count() / itemsPerPage;
+
+    uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
+        : nrOfPages));
 
     return "physicalports/list";
   }

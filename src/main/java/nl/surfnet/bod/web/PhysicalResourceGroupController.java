@@ -53,13 +53,13 @@ public class PhysicalResourceGroupController {
   }
 
   @RequestMapping(method = RequestMethod.GET)
-  public String list(@RequestParam(value = "page", required = false) final Integer page,
-      @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
+  public String list(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
+    int itemsPerPage = 10;
 
-    int sizeNo = size == null ? 10 : size.intValue();
-    final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
-    uiModel.addAttribute("physicalresourcegroups", physicalResourceGroupService.findEntries(firstResult, sizeNo));
-    float nrOfPages = (float) physicalResourceGroupService.count() / sizeNo;
+    final int firstResult = page == null ? 0 : (page.intValue() - 1) * itemsPerPage;
+    uiModel.addAttribute("physicalresourcegroups", physicalResourceGroupService.findEntries(firstResult, itemsPerPage));
+    float nrOfPages = (float) physicalResourceGroupService.count() / itemsPerPage;
+
     uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
         : nrOfPages));
 
