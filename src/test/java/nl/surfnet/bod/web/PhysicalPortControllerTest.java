@@ -7,6 +7,8 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -101,6 +103,19 @@ public class PhysicalPortControllerTest {
     subject.updateForm("00:00/port2", model);
 
     assertThat(model.asMap(), hasEntry("physicalPort", Object.class.cast(port)));
+  }
+
+  @Test
+  public void deleteShouldStayOnSamePage() {
+    Model model = new ModelStub();
+    PhysicalPort port = new PhysicalPortFactory().create();
+    when(physicalPortServiceMock.findByName("port_name")).thenReturn(port);
+
+    subject.delete("port_name", 3, model);
+
+    assertThat(model.asMap(), hasEntry("page", Object.class.cast("3")));
+
+    verify(physicalPortServiceMock, times(1)).delete(port);
   }
 
 }

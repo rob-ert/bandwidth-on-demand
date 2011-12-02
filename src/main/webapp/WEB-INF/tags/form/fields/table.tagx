@@ -131,7 +131,7 @@
                                 value="${fn:escapeXml(delete_label)}"
                                 onclick="return confirm('${delete_confirm_msg}');" />
                             <c:if test="${not empty param.page}">
-                                <input name="page" type="hidden" value="1" />
+                                <input name="page" type="hidden" value="${param.page}" />
                             </c:if>
                         </form:form>
                     </c:if>
@@ -151,7 +151,7 @@
                                 value="${fn:escapeXml(icon_label)}"
                                 onclick="return confirm('${icon_confirm_msg}');" />
                             <c:if test="${not empty param.page}">
-                                <input name="page" type="hidden" value="1" />
+                                <input name="page" type="hidden" value="${param.page}" />
                             </c:if>
                         </form:form>
                     </c:if>
