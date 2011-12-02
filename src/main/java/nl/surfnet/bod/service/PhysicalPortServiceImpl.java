@@ -19,17 +19,15 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 
 /**
- * Service implementation which combines {@link PhysicalPort} services using the
- * {@link NbiPortServiceImpl} and the
- * {@link PhysicalPortServiceRepoImpl}.
+ * Service implementation which combines {@link PhysicalPort}s.
  *
- * The {@link PhysicalPort}s found in the {@link NbiPortServiceImpl} are
+ * The {@link PhysicalPort}s found in the {@link NbiPortService} are
  * leading and when more data is available in our repository they will be
- * enriched using this data.
+ * enriched.
  *
- * Since {@link PhysicalPort}s from the {@link NbiPortServiceImpl} are
+ * Since {@link PhysicalPort}s from the {@link NbiPortService} are
  * considered readonly, the methods that change data are performed using the
- * {@link PhysicalPortServiceRepoImpl}.
+ * {@link PhysicalPortRepo}.
  *
  *
  * @author Frank Mölder ($Author$)
@@ -60,9 +58,16 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public List<PhysicalPort> findEntries(int firstResult, int sizeNo) {
-    List<PhysicalPort> findAll = findAll();
+    return limitPorts(findAll(), firstResult, sizeNo);
+  }
 
-    return newArrayList(limit(skip(findAll, firstResult), sizeNo));
+  @Override
+  public Collection<PhysicalPort> findUnallocatedEntries(int firstResult, int sizeNo) {
+    return limitPorts(findUnallocated(), firstResult, sizeNo);
+  }
+
+  private List<PhysicalPort> limitPorts(Collection<PhysicalPort> ports, int firstResult, int sizeNo) {
+    return newArrayList(limit(skip(ports, firstResult), sizeNo));
   }
 
   @Override
@@ -80,6 +85,11 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   @Override
   public long count() {
     return nbiPortService.count();
+  }
+
+  @Override
+  public long countUnallocated() {
+    return nbiPortService.count() - physicalPortRepo.count();
   }
 
   @Override

@@ -18,16 +18,29 @@ public interface PhysicalPortService {
   Collection<PhysicalPort> findUnallocated();
 
   /**
-   * Finds {@link PhysicalPort}s in case paging is used. Delegates to
-   * {@link #findAll()} which will ignore the paging mechanism for now.
+   * Finds {@link PhysicalPort}s in case paging is used.
    *
    * @param firstResult
    * @param sizeNo
+   *          max result size
    * @return List of PhysicalPorts
    */
   List<PhysicalPort> findEntries(final int firstResult, final int sizeNo);
 
+  /**
+   * Finds unallocated {@link PhysicalPort}s with a start index and a max number
+   * of results.
+   *
+   * @param firstResult
+   * @param sizeNo
+   *          max result size
+   * @return Collection of unallocated ports
+   */
+  Collection<PhysicalPort> findUnallocatedEntries(final int firstResult, final int sizeNo);
+
   long count();
+
+  long countUnallocated();
 
   void delete(final PhysicalPort physicalPort);
 
@@ -38,6 +51,5 @@ public interface PhysicalPortService {
   void save(final PhysicalPort physicalPort);
 
   PhysicalPort update(final PhysicalPort physicalPort);
-
 
 }

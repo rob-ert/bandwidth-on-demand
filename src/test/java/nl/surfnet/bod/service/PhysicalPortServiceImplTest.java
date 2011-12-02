@@ -206,4 +206,14 @@ public class PhysicalPortServiceImplTest {
     verify(nbiServiceMock, only()).count();
   }
 
+  @Test
+  public void countUnallocatedShouldCalculateDifferenceBetweenNbiAndRepoPorts() {
+    when(nbiServiceMock.count()).thenReturn(15L);
+    when(physicalPortRepoMock.count()).thenReturn(10L);
+
+    long countUnallocated = subject.countUnallocated();
+
+    assertThat(countUnallocated, is(5L));
+  }
+
 }
