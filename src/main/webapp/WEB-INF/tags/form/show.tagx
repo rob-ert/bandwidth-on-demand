@@ -154,10 +154,6 @@
 									<c:if test="${not empty param.page}">
 										<input name="page" type="hidden" value="1" />
 									</c:if>
-									<c:if test="${not empty param.size}">
-										<input name="size" type="hidden"
-											value="${fn:escapeXml(param.size)}" />
-									</c:if>
 								</form:form>
 							</c:if>
                     </div>
