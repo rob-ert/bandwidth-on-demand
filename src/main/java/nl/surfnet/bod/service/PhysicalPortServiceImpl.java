@@ -175,11 +175,11 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     portToEnrich.setVersion(dataPort.getVersion());
   }
 
-  protected void setNbiService(NbiPortService nbiService) {
+  protected void setNbiPortService(NbiPortService nbiService) {
     this.nbiPortService = nbiService;
   }
 
-  protected void setRepoService(PhysicalPortRepo physicalPortRepo) {
+  protected void setPhysicalPortRepo(PhysicalPortRepo physicalPortRepo) {
     this.physicalPortRepo = physicalPortRepo;
   }
 

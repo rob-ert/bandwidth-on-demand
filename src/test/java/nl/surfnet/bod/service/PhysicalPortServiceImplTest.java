@@ -36,8 +36,8 @@ public class PhysicalPortServiceImplTest {
 
   @Before
   public void init() {
-    subject.setNbiService(nbiServiceMock);
-    subject.setRepoService(physicalPortRepoMock);
+    subject.setNbiPortService(nbiServiceMock);
+    subject.setPhysicalPortRepo(physicalPortRepoMock);
   }
 
   @Test
