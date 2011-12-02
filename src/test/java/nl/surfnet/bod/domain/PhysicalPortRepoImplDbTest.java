@@ -63,7 +63,7 @@ public class PhysicalPortRepoImplDbTest {
 
     List<PhysicalPort> result = physicalPortService.findEntries(0, maxResults);
 
-    assertThat(result, hasSize(count));
+    assertThat(result, hasSize(maxResults));
   }
 
   @Test
