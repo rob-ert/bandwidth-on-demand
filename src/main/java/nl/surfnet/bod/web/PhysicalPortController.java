@@ -1,5 +1,9 @@
 package nl.surfnet.bod.web;
 
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,7 +12,7 @@ import javax.validation.Valid;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.PhysicalResourceGroupServiceImpl;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,13 +27,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class PhysicalPortController {
 
-  private static final int MAX_ITEMS_PER_PAGE = 15;
-
   @Autowired
   private PhysicalPortService physicalPortService;
 
   @Autowired
-  private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
+  private PhysicalResourceGroupService physicalResourceGroupService;
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid PhysicalPort physicalPort, final BindingResult bindingResult, final Model uiModel,
@@ -70,22 +72,12 @@ public class PhysicalPortController {
 
   @RequestMapping(value = "/free", method = RequestMethod.GET)
   public String listUnallocated(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
-
     uiModel.addAttribute("physicalports",
         physicalPortService.findUnallocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
     uiModel.addAttribute("maxPages", calculateMaxPages(physicalPortService.countUnallocated()));
 
     return "physicalports/listunallocated";
-  }
-
-  private int calculateFirstPage(Integer page) {
-    return page == null ? 0 : (page.intValue() - 1) * MAX_ITEMS_PER_PAGE;
-  }
-
-  private int calculateMaxPages(long totalEntries) {
-    float nrOfPages = (float) totalEntries / MAX_ITEMS_PER_PAGE;
-    return (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1 : nrOfPages);
   }
 
   @RequestMapping(method = RequestMethod.PUT)
@@ -109,14 +101,13 @@ public class PhysicalPortController {
   @RequestMapping(value = "/delete", params = "id", method = RequestMethod.DELETE)
   public String delete(@RequestParam("id") final String name,
       @RequestParam(value = "page", required = false) final Integer page,
-      @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
+      final Model uiModel) {
 
     PhysicalPort physicalPort = physicalPortService.findByName(name);
     physicalPortService.delete(physicalPort);
 
     uiModel.asMap().clear();
     uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
-    uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
 
     return "redirect:";
   }
@@ -130,5 +121,9 @@ public class PhysicalPortController {
   @ModelAttribute("physicalresourcegroups")
   public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
     return physicalResourceGroupService.findAll();
+  }
+
+  protected void setPhysicalPortService(PhysicalPortService physicalPortService) {
+    this.physicalPortService = physicalPortService;
   }
 }

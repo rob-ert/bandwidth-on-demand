@@ -1,9 +1,12 @@
 package nl.surfnet.bod.web;
 
-import static com.google.common.collect.Lists.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,7 +28,8 @@ public class InstitutionControllerTest {
 
   @Test
   public void instutionsShouldBeFilteredBySearchParamIgnoringCase() {
-    Collection<Institution> unfilteredInstitutions = newArrayList(new Institution("Universiteit Utrecht"),
+    Collection<Institution> unfilteredInstitutions = newArrayList(
+        new Institution("Universiteit Utrecht"),
         new Institution("Universiteit Amsterdam"));
 
     when(institutionServiceMock.getInstitutions()).thenReturn(unfilteredInstitutions);
@@ -38,10 +42,11 @@ public class InstitutionControllerTest {
 
   @Test
   public void existingInstitutionNamesShouldBeFiltered() {
-    Collection<Institution> unfilteredInstitutions = newArrayList(new Institution("Utrecht"), new Institution(
-        "Amsterdam"));
-    List<PhysicalResourceGroup> existingGroups = newArrayList(new PhysicalResourceGroupFactory().setInstitution(
-        "Amsterdam").create());
+    Collection<Institution> unfilteredInstitutions = newArrayList(
+        new Institution("Utrecht"),
+        new Institution("Amsterdam"));
+    List<PhysicalResourceGroup> existingGroups = newArrayList(
+        new PhysicalResourceGroupFactory().setInstitution("Amsterdam").create());
 
     when(institutionServiceMock.getInstitutions()).thenReturn(unfilteredInstitutions);
     when(prgRepoMock.findAll()).thenReturn(existingGroups);

@@ -11,7 +11,7 @@ import javax.validation.ConstraintViolationException;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
-import nl.surfnet.bod.service.PhysicalResourceGroupServiceImpl;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ public class PhysicalResourceGroupDataOnDemand {
   private List<PhysicalResourceGroup> data;
 
   @Autowired
-  private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
+  private PhysicalResourceGroupService physicalResourceGroupService;
 
   @Autowired
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;

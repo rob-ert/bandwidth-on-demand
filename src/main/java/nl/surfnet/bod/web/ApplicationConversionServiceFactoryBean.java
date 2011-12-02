@@ -3,7 +3,7 @@ package nl.surfnet.bod.web;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.PhysicalResourceGroupServiceImpl;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
@@ -19,7 +19,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   private PhysicalPortService physicalPortService;
 
   @Autowired
-  private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
+  private PhysicalResourceGroupService physicalResourceGroupService;
 
   @Override
   protected void installFormatters(final FormatterRegistry registry) {

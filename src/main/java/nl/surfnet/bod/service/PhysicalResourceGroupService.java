@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class PhysicalResourceGroupServiceImpl {
+public class PhysicalResourceGroupService {
 
   @Autowired
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;

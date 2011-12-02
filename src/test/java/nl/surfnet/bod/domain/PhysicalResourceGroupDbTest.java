@@ -12,7 +12,7 @@ import java.util.List;
 import javax.validation.ConstraintViolationException;
 
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
-import nl.surfnet.bod.service.PhysicalResourceGroupServiceImpl;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.PhysicalResourceGroupDataOnDemand;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
@@ -33,7 +33,7 @@ public class PhysicalResourceGroupDbTest {
   private PhysicalResourceGroupDataOnDemand dod;
 
   @Autowired
-  private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
+  private PhysicalResourceGroupService physicalResourceGroupService;
 
   @Autowired
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;

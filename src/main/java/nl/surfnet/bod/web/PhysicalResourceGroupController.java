@@ -1,10 +1,14 @@
 package nl.surfnet.bod.web;
 
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.service.PhysicalResourceGroupServiceImpl;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class PhysicalResourceGroupController {
 
   @Autowired
-  private PhysicalResourceGroupServiceImpl physicalResourceGroupService;
+  private PhysicalResourceGroupService physicalResourceGroupService;
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid final PhysicalResourceGroup physicalResourceGroup, final BindingResult bindingResult,
@@ -54,14 +58,10 @@ public class PhysicalResourceGroupController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
-    int itemsPerPage = 10;
+    uiModel.addAttribute("physicalresourcegroups",
+        physicalResourceGroupService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
-    final int firstResult = page == null ? 0 : (page.intValue() - 1) * itemsPerPage;
-    uiModel.addAttribute("physicalresourcegroups", physicalResourceGroupService.findEntries(firstResult, itemsPerPage));
-    float nrOfPages = (float) physicalResourceGroupService.count() / itemsPerPage;
-
-    uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
-        : nrOfPages));
+    uiModel.addAttribute("maxPages", calculateMaxPages(physicalResourceGroupService.count()));
 
     return "physicalresourcegroups/list";
   }
@@ -90,7 +90,7 @@ public class PhysicalResourceGroupController {
   @RequestMapping(value = "/delete", params = "id", method = RequestMethod.DELETE)
   public String delete(@RequestParam("id") final Long id,
       @RequestParam(value = "page", required = false) final Integer page,
-      @RequestParam(value = "size", required = false) final Integer size, final Model uiModel) {
+      final Model uiModel) {
 
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(id);
     physicalResourceGroupService.delete(physicalResourceGroup);
@@ -98,8 +98,11 @@ public class PhysicalResourceGroupController {
     uiModel.asMap().clear();
 
     uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
-    uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
 
     return "redirect:";
+  }
+
+  protected void setPhysicalResourceGroupService(PhysicalResourceGroupService physicalResourceGroupService) {
+    this.physicalResourceGroupService = physicalResourceGroupService;
   }
 }
