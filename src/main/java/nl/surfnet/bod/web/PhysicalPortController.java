@@ -76,7 +76,7 @@ public class PhysicalPortController {
 
     uiModel.addAttribute("maxPages", calculateMaxPages(physicalPortService.countUnallocated()));
 
-    return "physicalports/listfree";
+    return "physicalports/listunallocated";
   }
 
   private int calculateFirstPage(Integer page) {

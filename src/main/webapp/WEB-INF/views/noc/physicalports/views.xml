@@ -3,16 +3,16 @@
 <tiles-definitions>
     <definition extends="noc" name="physicalports/list">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/list.jspx" />
+        <put-attribute name="unallocated" value="false" cascade="true"/>
     </definition>
-    <definition extends="noc" name="physicalports/listfree">
-        <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/listfree.jspx" />
+    <definition extends="noc" name="physicalports/listunallocated">
+        <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/list.jspx"/>
+        <put-attribute name="unallocated" value="true" cascade="true"/>
     </definition>
+    
     <definition extends="noc" name="physicalports/show">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/show.jspx" />
     </definition>
-	<!--
-		No need for create view, ports are managed by NMS and retreived using the nbiClient 
-	 -->
      <definition extends="noc" name="physicalports/update">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/update.jspx" />
     </definition>
