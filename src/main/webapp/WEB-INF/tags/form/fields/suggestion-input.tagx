@@ -23,18 +23,18 @@
 
     <div class="clearfix ${error_css}">
         <spring:message code="label_${fn:toLowerCase(labelCode)}" var="label" htmlEscape="false" />
-        <label for="_institutionName_id"> <c:out value="${fn:escapeXml(label)}" /></label>
+        <label for="_${sec_field}_id"> <c:out value="${fn:escapeXml(label)}" /></label>
 
         <div class="input">
             <input id="_${sec_field}_id" name="${input_search_name}" type="text" />
-            <form:errors cssClass="help-inline" id="_institutionName_error_id" path="institutionName" />
+            <form:errors cssClass="help-inline" id="_${sec_field}_error_id" path="institutionName" />
         </div>
     </div>
     <spring:url value="${suggestionUrl}" var="json_suggest_url" />
     <script type="text/javascript">
           $(function() {
              var setup_done = false;
-             $("#_institutionName_id").autoSuggest('${json_suggest_url}', {
+             $("#_${sec_field}_id").autoSuggest('${json_suggest_url}', {
                selectedValuesProp: 'name',
                searchObjProps: 'name',
                selectedItemProp: 'name',
