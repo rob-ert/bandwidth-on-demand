@@ -7,8 +7,7 @@
     <h1>Attributes</h1>
     <ul>
         <c:forEach var="name" items="${pageContext.request.attributeNames}">
-            <li><b><c:out value="${name}" /></b>:</li>
-            <c:out value="${requestScope[value]}" />
+            <li><b><c:out value="${name}" /></b>: <c:out value="${requestScope[name]}" /></li>
         </c:forEach>
     </ul>
 </div>
