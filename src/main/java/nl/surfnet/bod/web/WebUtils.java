@@ -2,6 +2,12 @@ package nl.surfnet.bod.web;
 
 public final class WebUtils {
 
+  public static final String CREATE = "create";
+  public static final String SHOW = "show";
+  public static final String EDIT = "edit";
+  public static final String DELETE = "delete";
+  public static final String LIST="list";
+
   public static final int MAX_ITEMS_PER_PAGE = 15;
 
   private WebUtils() {

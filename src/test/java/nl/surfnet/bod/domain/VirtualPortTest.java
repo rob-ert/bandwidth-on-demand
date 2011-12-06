@@ -21,7 +21,7 @@ public class VirtualPortTest {
   }
 
   @Test
-  public void test() {
+  public void testSetters() {
     VirtualPort vPort = new VirtualPortFactory().setPhysicalPort(physicalPort).setVirtualResourceGroup(virtualResourceGroup). create();
 
     assertEquals(vPort.getPhysicalPort(), physicalPort);

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields" xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:page="urn:jsptagdir:/WEB-INF/tags/form">
+    
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+    
+    <page:show id="ps_nl_surfnet_bod_domain_VirtualResourceGroup" object="${virtualResourceGroup}" path="/manager/virtualresourcegroups"  create="false"  >
+        <field:display field="id" id="s_nl_surfnet_bod_domain_VirtualResourceGroup_id" object="${virtualResourceGroup}" />        
+    </page:show>
+</div>

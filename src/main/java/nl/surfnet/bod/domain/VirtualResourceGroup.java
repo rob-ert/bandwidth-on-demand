@@ -26,6 +26,8 @@ public class VirtualResourceGroup {
   @Version
   private Integer version;
 
+  private String surfConnextGroupName;
+
   @OneToMany(mappedBy = "virtualResourceGroup")
   private Collection<VirtualPort> virtualPorts;
 
@@ -46,6 +48,14 @@ public class VirtualResourceGroup {
 
   public void setVersion(Integer version) {
     this.version = version;
+  }
+
+  public String getSurfConnextGroupName() {
+    return surfConnextGroupName;
+  }
+
+  public void setSurfConnextGroupName(String surfConnextGroupName) {
+    this.surfConnextGroupName = surfConnextGroupName;
   }
 
   public Collection<VirtualPort> getVirtualPorts() {

@@ -37,9 +37,10 @@
             </div>
             <div class="actions">
                 <spring:message code="button_submit" var="submit_label" htmlEscape="false" />
-                <spring:url value="/noc" var="noc_user_url" />
+                <spring:url value="manager" var="user_url" />
                 <!-- <input id="proceed" type="submit" value="${fn:escapeXml(submit_label)}" class="btn primary" />-->
-                <a href="${noc_user_url}" class="btn primary">${fn:escapeXml(submit_label)}</a>
+                <a href="noc" title="noc" class="btn primary">${fn:escapeXml(submit_label)}</a>
+                <a href="manager"  title="manager" class="btn primary">${fn:escapeXml(submit_label)}</a>
                 <c:out value=" " />
                 <spring:message code="button_reset" var="reset_label" htmlEscape="false" />
                 <input id="reset" type="reset" value="${fn:escapeXml(reset_label)}" class="btn" />

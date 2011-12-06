@@ -12,5 +12,9 @@
   <definition name="noc" template="/WEB-INF/layouts/default.jspx">
     <put-attribute name="menubar" value="/WEB-INF/views/noc/menubar.jspx" />
   </definition>
+  
+  <definition name="manager" template="/WEB-INF/layouts/default.jspx">
+    <put-attribute name="menubar" value="/WEB-INF/views/manager/menubar.jspx" />
+  </definition>
 
 </tiles-definitions>

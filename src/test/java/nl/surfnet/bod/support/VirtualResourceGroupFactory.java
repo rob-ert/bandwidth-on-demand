@@ -12,16 +12,17 @@ public class VirtualResourceGroupFactory {
 
   private Long id;
   private Integer version;
+  private String surfConnextGroupName;
 
   private Collection<VirtualPort> virtualPorts = new ArrayList<VirtualPort>();
   private Collection<Reservation> reservations = new ArrayList<Reservation>();
-  private VirtualResourceGroup vRGroup;
 
   public VirtualResourceGroup create() {
-    vRGroup = new VirtualResourceGroup();
+    VirtualResourceGroup vRGroup = new VirtualResourceGroup();
 
     vRGroup.setId(id);
     vRGroup.setVersion(version);
+    vRGroup.setSurfConnextGroupName(surfConnextGroupName);
     vRGroup.setVirtualPorts(virtualPorts);
     vRGroup.setReservations(reservations);
 
@@ -35,6 +36,11 @@ public class VirtualResourceGroupFactory {
 
   public VirtualResourceGroupFactory setVersion(Integer version) {
     this.version = version;
+    return this;
+  }
+
+  public VirtualResourceGroupFactory setSurfConnextGroupName(String surfConnextGroupName) {
+    this.surfConnextGroupName = surfConnextGroupName;
     return this;
   }
 

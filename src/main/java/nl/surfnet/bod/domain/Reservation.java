@@ -1,6 +1,7 @@
 package nl.surfnet.bod.domain;
 
-import javax.persistence.Basic;
+import java.util.Date;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -10,6 +11,13 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Version;
 
+/**
+ * Entity which represents a Reserveration for a specific connection between a
+ * source and a destination point on a specific moment in time.
+ * 
+ * @author Franky
+ * 
+ */
 @Entity
 public class Reservation {
 
@@ -19,8 +27,7 @@ public class Reservation {
 
   @Version
   private Integer version;
-  
-  @Basic
+
   private String surfConnextGroupId;
 
   @ManyToOne
@@ -28,6 +35,18 @@ public class Reservation {
 
   @Enumerated(EnumType.STRING)
   private ReservationStatus reservationStatus;
+
+  @ManyToOne
+  private VirtualPort sourcePort;
+
+  @ManyToOne
+  private VirtualPort endPort;
+
+  private Date startTimeStamp;
+
+  private Date endTimeStamp;
+
+  private String user;
 
   public Long getId() {
     return id;
@@ -69,6 +88,44 @@ public class Reservation {
     this.reservationStatus = reservationStatus;
   }
 
+  public VirtualPort getSourcePort() {
+    return sourcePort;
+  }
 
+  public void setSourcePort(VirtualPort sourcePort) {
+    this.sourcePort = sourcePort;
+  }
+
+  public VirtualPort getEndPort() {
+    return endPort;
+  }
+
+  public void setEndPort(VirtualPort endPort) {
+    this.endPort = endPort;
+  }
+
+  public Date getStartTimeStamp() {
+    return startTimeStamp;
+  }
+
+  public void setStartTimeStamp(Date startTimeStamp) {
+    this.startTimeStamp = startTimeStamp;
+  }
+
+  public Date getEndTimeStamp() {
+    return endTimeStamp;
+  }
+
+  public void setEndTimeStamp(Date endTimeStamp) {
+    this.endTimeStamp = endTimeStamp;
+  }
+
+  public String getUser() {
+    return user;
+  }
+
+  public void setUser(String user) {
+    this.user = user;
+  }
 
 }

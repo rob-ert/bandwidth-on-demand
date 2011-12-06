@@ -1,6 +1,5 @@
 package nl.surfnet.bod.domain;
 
-import javax.persistence.Entity;
 
 /**
  * Enum representing the status of a {@link Reservation}
