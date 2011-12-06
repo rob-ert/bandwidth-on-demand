@@ -6,6 +6,10 @@
 
     <h1>Attributes</h1>
     <ul>
+        <li><b>Shib-Application-ID</b>: <c:out value="${requestScope['Shib-Application-ID']}" /></li>
+        <li><b>persistent-id</b>: <c:out value="${requestScope['persistent-id']}" /></li>
+    </ul>
+    <ul>
         <c:forEach var="name" items="${pageContext.request.attributeNames}">
             <li><b><c:out value="${name}" /></b>: <c:out value="${requestScope[name]}" /></li>
         </c:forEach>
