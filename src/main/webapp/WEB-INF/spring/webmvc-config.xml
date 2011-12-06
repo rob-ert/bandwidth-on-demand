@@ -12,17 +12,14 @@
         for use across all @Controllers -->
     <mvc:annotation-driven conversion-service="applicationConversionService" />
 
-
     <!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources -->
     <mvc:resources location="/, classpath:/META-INF/web-resources/" mapping="/resources/**" />
 
-    <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default 
-        Servlet -->
+    <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default  Servlet -->
     <mvc:default-servlet-handler />
 
     <!-- register "global" interceptor beans to apply to all registered HandlerMappings -->
     <mvc:interceptors>
-        <bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor" />
         <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" p:paramName="lang" />
     </mvc:interceptors>
 
