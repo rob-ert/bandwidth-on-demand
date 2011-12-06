@@ -31,6 +31,7 @@
     <mvc:view-controller path="/" view-name="index" />
     <mvc:view-controller path="/noc" view-name="noc/index" />
     <mvc:view-controller path="/manager" view-name="manager/index" />
+    <mvc:view-controller path="/shibboleth" />
     <mvc:view-controller path="/uncaughtException" />
     <mvc:view-controller path="/resourceNotFound" />
     <mvc:view-controller path="/dataAccessFailure" />

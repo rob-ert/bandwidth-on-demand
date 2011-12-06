@@ -1,0 +1,14 @@
+<div xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
+    xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+
+    <h1>Attributes</h1>
+    <ul>
+        <c:forEach var="name" items="${pageContext.request.attributeNames}">
+            <li><b><c:out value="${name}" /></b>:</li>
+            <c:out value="${requestScope[value]}" />
+        </c:forEach>
+    </ul>
+</div>
