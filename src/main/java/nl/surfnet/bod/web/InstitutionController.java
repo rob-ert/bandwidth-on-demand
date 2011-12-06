@@ -15,6 +15,7 @@ import nl.surfnet.bod.service.InstitutionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,7 +41,7 @@ public class InstitutionController {
   @RequestMapping(value = "/institutions", method = RequestMethod.GET, headers = "accept=application/json")
   public @ResponseBody Collection<Institution> jsonList(@RequestParam(required = false) String q) {
     final Collection<String> existingInstitutions = existingInstitutionNames();
-    final String query = q.toLowerCase();
+    final String query = StringUtils.hasText(q) ? q.toLowerCase() : "";
 
     return filter(institutionService.getInstitutions(), new Predicate<Institution>() {
       @Override

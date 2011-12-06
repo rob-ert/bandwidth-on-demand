@@ -56,4 +56,14 @@ public class InstitutionControllerTest {
     assertThat(institutions, hasSize(1));
     assertThat(institutions.iterator().next().getName(), is("Utrecht"));
   }
+
+  @Test
+  public void institutionsJsonListShouldAcceptNullAsQueryParam() {
+    Collection<Institution> institutions = newArrayList(new Institution("Utrecht"));
+    when(institutionServiceMock.getInstitutions()).thenReturn(institutions);
+
+    Collection<Institution> result = subject.jsonList(null);
+
+    assertThat(result, hasSize(1));
+  }
 }
