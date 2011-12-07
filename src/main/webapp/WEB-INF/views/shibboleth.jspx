@@ -1,0 +1,32 @@
+<div xmlns:spring="http://www.springframework.org/tags" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+
+    <h1>Headers</h1>
+    <ul>
+        <c:forEach var="name" items="${pageContext.request.headerNames}">
+            <li><b><c:out value="${name}" /></b>: <c:out value="${header[name]}" /></li>
+        </c:forEach>
+    </ul>
+    <h1>Shibboleth Attributes</h1>
+    <ul>
+        <li><b>name-id</b>: <c:out value="${requestScope['name-id']}" /></li>
+        <li><b>persistent-id</b>: <c:out value="${requestScope['persistent-id']}" /></li>
+        <c:forEach var="name" items="${pageContext.request.attributeNames}">
+            <c:if test="${fn:startsWith(name, 'Shib')}">
+                <li><b><c:out value="${name}" /></b>: <c:out value="${requestScope[name]}" /></li>
+            </c:if>
+        </c:forEach>
+    </ul>
+    
+    <h1>Other Attributes</h1>
+    <ul>
+        <c:forEach var="name" items="${pageContext.request.attributeNames}">
+            <c:if test="${not fn:startsWith(name, 'Shib')}">
+                <li><b><c:out value="${name}" /></b>: <c:out value="${requestScope[name]}" /></li>
+            </c:if>
+        </c:forEach>
+    </ul>
+</div>
