@@ -4,11 +4,20 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <h1>Attributes</h1>
+    <h1>Shibboleth Attributes</h1>
     <ul>
         <li><b>persistent-id</b>: <c:out value="${requestScope['persistent-id']}" /></li>
         <c:forEach var="name" items="${pageContext.request.attributeNames}">
             <c:if test="${fn:startsWith(name, 'Shib')}">
+                <li><b><c:out value="${name}" /></b>: <c:out value="${requestScope[name]}" /></li>
+            </c:if>
+        </c:forEach>
+    </ul>
+    
+    <h1>Other Attributes</h1>
+    <ul>
+        <c:forEach var="name" items="${pageContext.request.attributeNames}">
+            <c:if test="${not fn:startsWith(name, 'Shib')}">
                 <li><b><c:out value="${name}" /></b>: <c:out value="${requestScope[name]}" /></li>
             </c:if>
         </c:forEach>
