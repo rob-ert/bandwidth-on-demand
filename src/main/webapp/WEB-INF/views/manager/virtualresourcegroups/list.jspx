@@ -7,7 +7,7 @@
         
     <page:list id="pl_nl_surfnet_bod_domain_VirtualResourceGroup" items="${virtualresourcegroups}">
         <table:table data="${virtualresourcegroups}" id="l_nl_surfnet_bod_domain_VirtualResourceGroup" path="/manager/virtualresourcegroups" typeIdFieldName="id">
-            <table:column id="label_virtualresourcegroup_surfconnextgroupname" property="surfConnextGroupName" />            
+            <table:column id="label_nl_surfnet_bod_domain_virtualresourcegroup_surfconnextgroupname" property="surfConnextGroupName" />            
         </table:table>
     </page:list>
 </div>
