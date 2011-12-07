@@ -1,9 +1,5 @@
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
-
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import static nl.surfnet.bod.web.WebUtils.*;
+
 @RequestMapping("/noc/physicalports")
 @Controller
 public class PhysicalPortController {
@@ -39,7 +37,7 @@ public class PhysicalPortController {
 
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute("physicalPort", physicalPort);
-      return "physicalresourcegroups/create";
+      return "physicalresourcegroups/"+CREATE;
     }
 
     PhysicalResourceGroup newPhysicalResourceGroup = physicalPort.getPhysicalResourceGroup();
@@ -58,7 +56,7 @@ public class PhysicalPortController {
   public String show(@RequestParam("id") final String name, final Model uiModel) {
     uiModel.addAttribute("physicalPort", physicalPortService.findByName(name));
     uiModel.addAttribute("itemId", name);
-    return "physicalports/show";
+    return "physicalports/"+SHOW;
   }
 
   @RequestMapping(method = RequestMethod.GET)
@@ -67,7 +65,7 @@ public class PhysicalPortController {
 
     uiModel.addAttribute("maxPages", calculateMaxPages(physicalPortService.count()));
 
-    return "physicalports/list";
+    return "physicalports/"+LIST;
   }
 
   @RequestMapping(value = "/free", method = RequestMethod.GET)
@@ -92,13 +90,13 @@ public class PhysicalPortController {
     return "redirect:physicalports";
   }
 
-  @RequestMapping(value = "/edit", params = "id", method = RequestMethod.GET)
+  @RequestMapping(value = EDIT, params = "id", method = RequestMethod.GET)
   public String updateForm(@RequestParam("id") final String portId, final Model uiModel) {
     uiModel.addAttribute("physicalPort", physicalPortService.findByName(portId));
-    return "physicalports/update";
+    return "physicalports/" + UPDATE;
   }
 
-  @RequestMapping(value = "/delete", params = "id", method = RequestMethod.DELETE)
+  @RequestMapping(value = DELETE, params = "id", method = RequestMethod.DELETE)
   public String delete(@RequestParam("id") final String name,
       @RequestParam(value = "page", required = false) final Integer page,
       final Model uiModel) {

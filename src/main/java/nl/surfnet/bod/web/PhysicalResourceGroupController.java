@@ -1,9 +1,5 @@
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -18,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import static nl.surfnet.bod.web.WebUtils.*;
+
 @RequestMapping("/noc/physicalresourcegroups")
 @Controller
 public class PhysicalResourceGroupController {
@@ -31,7 +29,7 @@ public class PhysicalResourceGroupController {
 
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute("physicalResourceGroup", physicalResourceGroup);
-      return "physicalresourcegroups/create";
+      return "physicalresourcegroups/"+ CREATE;
     }
 
     uiModel.asMap().clear();
@@ -41,19 +39,18 @@ public class PhysicalResourceGroupController {
     return "redirect:physicalresourcegroups";
   }
 
-  @RequestMapping(value = "/create", method = RequestMethod.GET)
+  @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(final Model uiModel) {
     uiModel.addAttribute("physicalResourceGroup", new PhysicalResourceGroup());
 
-    return "physicalresourcegroups/create";
+    return "physicalresourcegroups/"+CREATE;
   }
 
   @RequestMapping(params = "id", method = RequestMethod.GET)
   public String show(@RequestParam("id") final Long id, final Model uiModel) {
     uiModel.addAttribute("physicalresourcegroup", physicalResourceGroupService.find(id));
-    uiModel.addAttribute("itemId", id);
-
-    return "physicalresourcegroups/show";
+    
+    return "physicalresourcegroups/"+SHOW;
   }
 
   @RequestMapping(method = RequestMethod.GET)
@@ -63,7 +60,7 @@ public class PhysicalResourceGroupController {
 
     uiModel.addAttribute("maxPages", calculateMaxPages(physicalResourceGroupService.count()));
 
-    return "physicalresourcegroups/list";
+    return "physicalresourcegroups/"+LIST;
   }
 
   @RequestMapping(method = RequestMethod.PUT)
@@ -72,7 +69,7 @@ public class PhysicalResourceGroupController {
 
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute("physicalResourceGroup", physicalResourceGroup);
-      return "physicalresourcegroups/update";
+      return "physicalresourcegroups/"+UPDATE;
     }
     uiModel.asMap().clear();
     physicalResourceGroupService.update(physicalResourceGroup);
@@ -80,14 +77,14 @@ public class PhysicalResourceGroupController {
     return "redirect:physicalresourcegroups";
   }
 
-  @RequestMapping(value = "/edit", params = "id", method = RequestMethod.GET)
+  @RequestMapping(value = EDIT, params = "id", method = RequestMethod.GET)
   public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
     uiModel.addAttribute("physicalResourceGroup", physicalResourceGroupService.find(id));
 
-    return "physicalresourcegroups/update";
+    return "physicalresourcegroups/"+UPDATE;
   }
 
-  @RequestMapping(value = "/delete", params = "id", method = RequestMethod.DELETE)
+  @RequestMapping(value = DELETE, params = "id", method = RequestMethod.DELETE)
   public String delete(@RequestParam("id") final Long id,
       @RequestParam(value = "page", required = false) final Integer page,
       final Model uiModel) {

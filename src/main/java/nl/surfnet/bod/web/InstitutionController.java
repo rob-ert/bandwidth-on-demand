@@ -3,6 +3,7 @@ package nl.surfnet.bod.web;
 import static com.google.common.collect.Collections2.filter;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
+import static nl.surfnet.bod.web.WebUtils.LIST;
 
 import java.util.Collection;
 import java.util.List;
@@ -70,7 +71,7 @@ public class InstitutionController {
 
     uiModel.addAttribute("institutions", institutions);
 
-    return "institutions/list";
+    return "institutions/"+LIST;
   }
 
 }
