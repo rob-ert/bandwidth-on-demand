@@ -59,8 +59,10 @@ public class VirtualResourceGroupController {
 
   @RequestMapping(params = "id", method = RequestMethod.GET)
   public String show(@RequestParam("id") final Long id, final Model uiModel) {
-    uiModel.addAttribute("virtualresourcegroup", virtualResourceGroupService.find(id));    
-    
+    uiModel.addAttribute("virtualresourcegroup", virtualResourceGroupService.find(id));
+    // Needed for the default icons
+    uiModel.addAttribute("itemId", id);
+
     return "virtualresourcegroups/" + SHOW;
   }
 

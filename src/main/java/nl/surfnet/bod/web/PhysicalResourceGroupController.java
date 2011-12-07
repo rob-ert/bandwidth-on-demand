@@ -29,7 +29,7 @@ public class PhysicalResourceGroupController {
 
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute("physicalResourceGroup", physicalResourceGroup);
-      return "physicalresourcegroups/"+ CREATE;
+      return "physicalresourcegroups/" + CREATE;
     }
 
     uiModel.asMap().clear();
@@ -43,14 +43,15 @@ public class PhysicalResourceGroupController {
   public String createForm(final Model uiModel) {
     uiModel.addAttribute("physicalResourceGroup", new PhysicalResourceGroup());
 
-    return "physicalresourcegroups/"+CREATE;
+    return "physicalresourcegroups/" + CREATE;
   }
 
   @RequestMapping(params = "id", method = RequestMethod.GET)
   public String show(@RequestParam("id") final Long id, final Model uiModel) {
     uiModel.addAttribute("physicalresourcegroup", physicalResourceGroupService.find(id));
-    
-    return "physicalresourcegroups/"+SHOW;
+    // Needed for the default icons
+    uiModel.addAttribute("itemId", id);
+    return "physicalresourcegroups/" + SHOW;
   }
 
   @RequestMapping(method = RequestMethod.GET)
@@ -60,7 +61,7 @@ public class PhysicalResourceGroupController {
 
     uiModel.addAttribute("maxPages", calculateMaxPages(physicalResourceGroupService.count()));
 
-    return "physicalresourcegroups/"+LIST;
+    return "physicalresourcegroups/" + LIST;
   }
 
   @RequestMapping(method = RequestMethod.PUT)
@@ -69,7 +70,7 @@ public class PhysicalResourceGroupController {
 
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute("physicalResourceGroup", physicalResourceGroup);
-      return "physicalresourcegroups/"+UPDATE;
+      return "physicalresourcegroups/" + UPDATE;
     }
     uiModel.asMap().clear();
     physicalResourceGroupService.update(physicalResourceGroup);
@@ -81,13 +82,12 @@ public class PhysicalResourceGroupController {
   public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
     uiModel.addAttribute("physicalResourceGroup", physicalResourceGroupService.find(id));
 
-    return "physicalresourcegroups/"+UPDATE;
+    return "physicalresourcegroups/" + UPDATE;
   }
 
   @RequestMapping(value = DELETE, params = "id", method = RequestMethod.DELETE)
   public String delete(@RequestParam("id") final Long id,
-      @RequestParam(value = "page", required = false) final Integer page,
-      final Model uiModel) {
+      @RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
 
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(id);
     physicalResourceGroupService.delete(physicalResourceGroup);
