@@ -25,6 +25,10 @@ import static nl.surfnet.bod.web.WebUtils.*;
 @Controller
 public class PhysicalPortController {
 
+  private static final String MODEL_KEY = "physicalPort";
+
+  private static final String PAGE_URL = "physicalports";
+
   @Autowired
   private PhysicalPortService physicalPortService;
 
@@ -36,8 +40,8 @@ public class PhysicalPortController {
       final HttpServletRequest httpServletRequest) {
 
     if (bindingResult.hasErrors()) {
-      uiModel.addAttribute("physicalPort", physicalPort);
-      return "physicalresourcegroups/"+CREATE;
+      uiModel.addAttribute(MODEL_KEY, physicalPort);
+      return "physicalresourcegroups" + CREATE;
     }
 
     PhysicalResourceGroup newPhysicalResourceGroup = physicalPort.getPhysicalResourceGroup();
@@ -54,28 +58,28 @@ public class PhysicalPortController {
 
   @RequestMapping(params = "id", method = RequestMethod.GET)
   public String show(@RequestParam("id") final String name, final Model uiModel) {
-    uiModel.addAttribute("physicalPort", physicalPortService.findByName(name));
-    uiModel.addAttribute("itemId", name);
-    return "physicalports/"+SHOW;
+    uiModel.addAttribute(MODEL_KEY, physicalPortService.findByName(name));
+    uiModel.addAttribute(ICON_ITEM_ID, name);
+    return PAGE_URL + SHOW;
   }
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute("physicalports", physicalPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
+    uiModel.addAttribute(PAGE_URL, physicalPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
     uiModel.addAttribute("maxPages", calculateMaxPages(physicalPortService.count()));
 
-    return "physicalports/"+LIST;
+    return PAGE_URL + LIST;
   }
 
   @RequestMapping(value = "/free", method = RequestMethod.GET)
   public String listUnallocated(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute("physicalports",
+    uiModel.addAttribute(PAGE_URL,
         physicalPortService.findUnallocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
     uiModel.addAttribute("maxPages", calculateMaxPages(physicalPortService.countUnallocated()));
 
-    return "physicalports/listunallocated";
+    return PAGE_URL + "/listunallocated";
   }
 
   @RequestMapping(method = RequestMethod.PUT)
@@ -87,19 +91,18 @@ public class PhysicalPortController {
     physicalPortService.update(physicalPort);
     uiModel.asMap().clear();
 
-    return "redirect:physicalports";
+    return "redirect:" + PAGE_URL;
   }
 
   @RequestMapping(value = EDIT, params = "id", method = RequestMethod.GET)
   public String updateForm(@RequestParam("id") final String portId, final Model uiModel) {
-    uiModel.addAttribute("physicalPort", physicalPortService.findByName(portId));
-    return "physicalports/" + UPDATE;
+    uiModel.addAttribute(MODEL_KEY, physicalPortService.findByName(portId));
+    return PAGE_URL + UPDATE;
   }
 
   @RequestMapping(value = DELETE, params = "id", method = RequestMethod.DELETE)
   public String delete(@RequestParam("id") final String name,
-      @RequestParam(value = "page", required = false) final Integer page,
-      final Model uiModel) {
+      @RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
 
     PhysicalPort physicalPort = physicalPortService.findByName(name);
     physicalPortService.delete(physicalPort);
@@ -113,7 +116,7 @@ public class PhysicalPortController {
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   *
+   * 
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute("physicalresourcegroups")

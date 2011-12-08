@@ -20,6 +20,11 @@ import static nl.surfnet.bod.web.WebUtils.*;
 @Controller
 public class PhysicalResourceGroupController {
 
+  private static final String MODEL_KEY = "physicalResourceGroup";
+  private static final String MODEL_KEY_LIST = MODEL_KEY + "List";
+
+  private static final String PAGE_URL = "physicalresourcegroups";
+
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
 
@@ -28,40 +33,40 @@ public class PhysicalResourceGroupController {
       final Model uiModel, final HttpServletRequest httpServletRequest) {
 
     if (bindingResult.hasErrors()) {
-      uiModel.addAttribute("physicalResourceGroup", physicalResourceGroup);
-      return "physicalresourcegroups/" + CREATE;
+      uiModel.addAttribute(MODEL_KEY, physicalResourceGroup);
+      return PAGE_URL + CREATE;
     }
 
     uiModel.asMap().clear();
     physicalResourceGroupService.save(physicalResourceGroup);
 
     // Do not return to the create instance, but to the list view
-    return "redirect:physicalresourcegroups";
+    return "redirect:" + PAGE_URL;
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(final Model uiModel) {
-    uiModel.addAttribute("physicalResourceGroup", new PhysicalResourceGroup());
+    uiModel.addAttribute(MODEL_KEY, new PhysicalResourceGroup());
 
-    return "physicalresourcegroups/" + CREATE;
+    return PAGE_URL + CREATE;
   }
 
   @RequestMapping(params = "id", method = RequestMethod.GET)
   public String show(@RequestParam("id") final Long id, final Model uiModel) {
-    uiModel.addAttribute("physicalresourcegroup", physicalResourceGroupService.find(id));
+    uiModel.addAttribute(MODEL_KEY, physicalResourceGroupService.find(id));
     // Needed for the default icons
-    uiModel.addAttribute("itemId", id);
-    return "physicalresourcegroups/" + SHOW;
+    uiModel.addAttribute(ICON_ITEM_ID, id);
+    return PAGE_URL + SHOW;
   }
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute("physicalresourcegroups",
+    uiModel.addAttribute(MODEL_KEY_LIST,
         physicalResourceGroupService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
     uiModel.addAttribute("maxPages", calculateMaxPages(physicalResourceGroupService.count()));
 
-    return "physicalresourcegroups/" + LIST;
+    return PAGE_URL + LIST;
   }
 
   @RequestMapping(method = RequestMethod.PUT)
@@ -69,20 +74,20 @@ public class PhysicalResourceGroupController {
       final Model uiModel, final HttpServletRequest httpServletRequest) {
 
     if (bindingResult.hasErrors()) {
-      uiModel.addAttribute("physicalResourceGroup", physicalResourceGroup);
-      return "physicalresourcegroups/" + UPDATE;
+      uiModel.addAttribute(MODEL_KEY, physicalResourceGroup);
+      return PAGE_URL + UPDATE;
     }
     uiModel.asMap().clear();
     physicalResourceGroupService.update(physicalResourceGroup);
 
-    return "redirect:physicalresourcegroups";
+    return "redirect:" + PAGE_URL;
   }
 
   @RequestMapping(value = EDIT, params = "id", method = RequestMethod.GET)
   public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
-    uiModel.addAttribute("physicalResourceGroup", physicalResourceGroupService.find(id));
+    uiModel.addAttribute(MODEL_KEY, physicalResourceGroupService.find(id));
 
-    return "physicalresourcegroups/" + UPDATE;
+    return PAGE_URL + UPDATE;
   }
 
   @RequestMapping(value = DELETE, params = "id", method = RequestMethod.DELETE)

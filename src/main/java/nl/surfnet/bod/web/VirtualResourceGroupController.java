@@ -31,6 +31,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/manager/virtualresourcegroups")
 @Controller
 public class VirtualResourceGroupController {
+  private static final String PAGE_URL = "virtualresourcegroups";
+  private static final String MODEL_KEY = "virtualResourceGroup";
 
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
@@ -40,40 +42,40 @@ public class VirtualResourceGroupController {
       final Model uiModel, final HttpServletRequest httpServletRequest) {
 
     if (bindingResult.hasErrors()) {
-      uiModel.addAttribute("virtualResourceGroup", virtualResourceGroup);
-      return "virtualresourcegroups/" + CREATE;
+      uiModel.addAttribute(MODEL_KEY, virtualResourceGroup);
+      return PAGE_URL + CREATE;
     }
 
     uiModel.asMap().clear();
     virtualResourceGroupService.save(virtualResourceGroup);
 
-    return "redirect:virtualresourcegroups";
+    return "redirect:"+PAGE_URL;
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(final Model uiModel) {
-    uiModel.addAttribute("virtualResourceGroup", new VirtualResourceGroup());
+    uiModel.addAttribute(MODEL_KEY, new VirtualResourceGroup());
 
-    return "virtualresourcegroups/create";
+    return PAGE_URL + CREATE;
   }
 
   @RequestMapping(params = "id", method = RequestMethod.GET)
   public String show(@RequestParam("id") final Long id, final Model uiModel) {
-    uiModel.addAttribute("virtualresourcegroup", virtualResourceGroupService.find(id));
+    uiModel.addAttribute(MODEL_KEY, virtualResourceGroupService.find(id));
     // Needed for the default icons
     uiModel.addAttribute("itemId", id);
 
-    return "virtualresourcegroups/" + SHOW;
+    return PAGE_URL + SHOW;
   }
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute("virtualresourcegroups",
+    uiModel.addAttribute(PAGE_URL,
         virtualResourceGroupService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
     uiModel.addAttribute("maxPages", calculateMaxPages(virtualResourceGroupService.count()));
 
-    return "virtualresourcegroups/" + LIST;
+    return PAGE_URL + LIST;
   }
 
   @RequestMapping(method = RequestMethod.PUT)
@@ -81,20 +83,20 @@ public class VirtualResourceGroupController {
       final Model uiModel, final HttpServletRequest httpServletRequest) {
 
     if (bindingResult.hasErrors()) {
-      uiModel.addAttribute("virtualResourceGroup", virtualResourceGroup);
-      return "virtualresourcegroups/" + UPDATE;
+      uiModel.addAttribute(MODEL_KEY, virtualResourceGroup);
+      return PAGE_URL + UPDATE;
     }
 
     uiModel.asMap().clear();
     virtualResourceGroupService.update(virtualResourceGroup);
 
-    return "redirect:virtualresourcegroups";
+    return "redirect:"+PAGE_URL;
   }
 
   @RequestMapping(value = EDIT, params = "id", method = RequestMethod.GET)
   public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
-    uiModel.addAttribute("virtualResourceGroup", virtualResourceGroupService.find(id));
-    return "virtualresourcegroups/" + UPDATE;
+    uiModel.addAttribute(MODEL_KEY, virtualResourceGroupService.find(id));
+    return PAGE_URL + UPDATE;
   }
 
   @RequestMapping(value = DELETE, params = "id", method = RequestMethod.DELETE)
@@ -116,7 +118,7 @@ public class VirtualResourceGroupController {
    * 
    * @return Collection<PhysicalResourceGroup>
    */
-  @ModelAttribute("virtualresourcegroups")
+  @ModelAttribute(PAGE_URL)
   public Collection<VirtualResourceGroup> populatevirtualResourceGroups() {
     return virtualResourceGroupService.findAll();
   }
