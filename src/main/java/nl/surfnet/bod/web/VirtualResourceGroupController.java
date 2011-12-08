@@ -1,14 +1,6 @@
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.SHOW;
-import static nl.surfnet.bod.web.WebUtils.UPDATE;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 
@@ -113,15 +105,15 @@ public class VirtualResourceGroupController {
   /**
    * Puts all {@link VirtualResourceGroup}s on the model, needed to relate a
    * group to a {@link VirtualPort}.
-   * 
+   *
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute("virtualresourcegroups")
-  public Collection<VirtualResourceGroup> populatevirtualResourceGroups() {
+  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {
     return virtualResourceGroupService.findAll();
   }
 
-  protected void setPhysicalPortService(VirtualResourceGroupService virtualResourceGroupService) {
+  protected void setVirtualResourceGroupService(VirtualResourceGroupService virtualResourceGroupService) {
     this.virtualResourceGroupService = virtualResourceGroupService;
   }
 }

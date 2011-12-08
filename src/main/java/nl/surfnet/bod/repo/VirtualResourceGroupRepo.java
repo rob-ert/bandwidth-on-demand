@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface VirtualResourceGroupRepo extends JpaSpecificationExecutor<VirtualResourceGroup>, JpaRepository<VirtualResourceGroup, Long> {
-  
+public interface VirtualResourceGroupRepo extends JpaSpecificationExecutor<VirtualResourceGroup>,
+    JpaRepository<VirtualResourceGroup, Long> {
+
 }

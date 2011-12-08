@@ -1,5 +1,7 @@
 package nl.surfnet.bod.web;
 
+import static nl.surfnet.bod.web.WebUtils.*;
+
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,8 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import static nl.surfnet.bod.web.WebUtils.*;
-
 @RequestMapping("/noc/physicalports")
 @Controller
 public class PhysicalPortController {
@@ -37,7 +37,7 @@ public class PhysicalPortController {
 
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute("physicalPort", physicalPort);
-      return "physicalresourcegroups/"+CREATE;
+      return "physicalresourcegroups/" + CREATE;
     }
 
     PhysicalResourceGroup newPhysicalResourceGroup = physicalPort.getPhysicalResourceGroup();
@@ -56,16 +56,17 @@ public class PhysicalPortController {
   public String show(@RequestParam("id") final String name, final Model uiModel) {
     uiModel.addAttribute("physicalPort", physicalPortService.findByName(name));
     uiModel.addAttribute("itemId", name);
-    return "physicalports/"+SHOW;
+    return "physicalports/" + SHOW;
   }
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute("physicalports", physicalPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
+    uiModel
+        .addAttribute("physicalports", physicalPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
     uiModel.addAttribute("maxPages", calculateMaxPages(physicalPortService.count()));
 
-    return "physicalports/"+LIST;
+    return "physicalports/" + LIST;
   }
 
   @RequestMapping(value = "/free", method = RequestMethod.GET)
@@ -98,8 +99,7 @@ public class PhysicalPortController {
 
   @RequestMapping(value = DELETE, params = "id", method = RequestMethod.DELETE)
   public String delete(@RequestParam("id") final String name,
-      @RequestParam(value = "page", required = false) final Integer page,
-      final Model uiModel) {
+      @RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
 
     PhysicalPort physicalPort = physicalPortService.findByName(name);
     physicalPortService.delete(physicalPort);
