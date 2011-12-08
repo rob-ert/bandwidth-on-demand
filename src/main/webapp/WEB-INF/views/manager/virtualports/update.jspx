@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields"
+	xmlns:form="urn:jsptagdir:/WEB-INF/tags/form"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:spring="http://www.springframework.org/tags">
+
+	<jsp:directive.page contentType="text/html;charset=UTF-8" />
+	<jsp:output omit-xml-declaration="yes" />
+
+	<form:update id="fc_nl_surfnet_bod_domain_VirtualPort" modelAttribute="virtualPort" path="/manager/virtualports" render="${empty dependencies}">
+		<input id="id" name="id" type="hidden" value="${virtualport.id}" />
+		<field:input field="name" id="c_nl_surfnet_bod_domain_VirtualPort_name" />
+	</form:update>
+
+</div>

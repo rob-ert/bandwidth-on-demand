@@ -8,6 +8,7 @@ public final class WebUtils {
   public static final String UPDATE = "update";
   public static final String DELETE = "delete";
   public static final String LIST="list";
+  public static final String ICON_ITEM_ID = "itemId";
 
   public static final int MAX_ITEMS_PER_PAGE = 15;
 

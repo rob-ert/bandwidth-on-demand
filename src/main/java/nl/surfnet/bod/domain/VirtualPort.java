@@ -24,6 +24,8 @@ public class VirtualPort {
   @Version
   private Integer version;
 
+  private String name;
+
   @ManyToOne
   private VirtualResourceGroup virtualResourceGroup;
 
@@ -44,6 +46,14 @@ public class VirtualPort {
 
   public void setVersion(Integer version) {
     this.version = version;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
   public VirtualResourceGroup getVirtualResourceGroup() {

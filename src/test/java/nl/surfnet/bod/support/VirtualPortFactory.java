@@ -17,6 +17,7 @@ public class VirtualPortFactory {
   private Integer version;
   private VirtualPort virtualPort;
 
+  private String name;
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
   private PhysicalPort physicalPort = new PhysicalPortFactory().create();
 
@@ -32,6 +33,12 @@ public class VirtualPortFactory {
     return virtualPort;
   }
 
+  public VirtualPortFactory setName(String name){
+    this.name = name;
+    return this;
+  }
+    
+  
   public VirtualPortFactory setVirtualResourceGroup(VirtualResourceGroup virtualResourceGroup) {
     this.virtualResourceGroup = virtualResourceGroup;
     return this;
