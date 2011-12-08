@@ -8,6 +8,6 @@
     <spring:url value="/login" var="login_url" />
 
     <ul class="nav secondary-nav">
-        <li><a href="${login_url}">Login</a></li>
+        <li><a href="#">${userContext.userName}</a></li>
     </ul>
 </div>

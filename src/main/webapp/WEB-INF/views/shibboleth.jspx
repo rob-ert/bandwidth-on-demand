@@ -10,7 +10,8 @@
             <li><b><c:out value="${name}" /></b>: <c:out value="${header[name]}" /></li>
         </c:forEach>
     </ul>
-    <h1>Shibboleth Attributes</h1>
+    
+    <h1>Shibboleth Request Attributes</h1>
     <ul>
         <li><b>name-id</b>: <c:out value="${requestScope['name-id']}" /></li>
         <li><b>persistent-id</b>: <c:out value="${requestScope['persistent-id']}" /></li>
@@ -21,12 +22,20 @@
         </c:forEach>
     </ul>
     
-    <h1>Other Attributes</h1>
+    <h1>Other Request Attributes</h1>
     <ul>
         <c:forEach var="name" items="${pageContext.request.attributeNames}">
             <c:if test="${not fn:startsWith(name, 'Shib')}">
                 <li><b><c:out value="${name}" /></b>: <c:out value="${requestScope[name]}" /></li>
             </c:if>
+        </c:forEach>
+    </ul>
+    
+    <h1>Session Attributes</h1>
+    <ul>
+        <c:forEach items="${sessionScope}" var="name">
+            <li>Parameter Name: <c:out value="${name.key}" /></li>
+            <li>Parameter Value: <c:out value="${name.value}" /></li>
         </c:forEach>
     </ul>
 </div>
