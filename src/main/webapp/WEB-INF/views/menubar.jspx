@@ -5,9 +5,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
     
-    <spring:url value="/login" var="login_url" />
-
     <ul class="nav secondary-nav">
-        <li><a href="${login_url}">Login</a></li>
+        <li><a href="#" title="${userContext.nameId}">${userContext.userName}</a></li>
     </ul>
 </div>

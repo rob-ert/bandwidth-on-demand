@@ -16,6 +16,6 @@
         </menu:category>
     </menu:menu>
     <ul class="nav secondary-nav">
-        <li><a href="#">Manager</a></li>
+        <li><a href="#" title="${userContext.nameId}">${userContext.userName}</a></li>
     </ul>
 </div>
