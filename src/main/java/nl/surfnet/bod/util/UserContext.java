@@ -1,13 +1,15 @@
 package nl.surfnet.bod.util;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class UserContext {
 
   private final String userName;
   private final String nameId;
 
   public UserContext(String nameId, String userName) {
-    this.userName = userName;
-    this.nameId = nameId;
+    this.userName = checkNotNull(userName);
+    this.nameId = checkNotNull(nameId);
   }
 
   public String getUserName() {

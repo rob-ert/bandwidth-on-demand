@@ -3,6 +3,7 @@ package nl.surfnet.bod.web;
 import java.util.Collection;
 
 import nl.surfnet.bod.service.GroupService;
+import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.UserContext;
 
 import org.opensocial.models.Group;
@@ -22,6 +23,9 @@ public class ShibbolethController {
   @Autowired
   private GroupService groupService;
 
+  @Autowired
+  private Environment env;
+
   @RequestMapping(value = "/groups", method = RequestMethod.GET)
   public String list(@ModelAttribute("userContext") UserContext userContext, final Model uiModel) {
     Collection<Group> groups = groupService.getGroups(userContext.getNameId());
@@ -38,6 +42,6 @@ public class ShibbolethController {
 
   @RequestMapping("/login")
   public String login() {
-    return "shibboleth/login";
+    return env.getImitateShibboleth() ? "shibboleth/login" : "shibboleth/info";
   }
 }

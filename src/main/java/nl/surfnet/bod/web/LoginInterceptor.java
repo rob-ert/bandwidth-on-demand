@@ -1,5 +1,6 @@
 package nl.surfnet.bod.web;
 
+import static com.google.common.base.Strings.nullToEmpty;
 import static nl.surfnet.bod.util.ShibbolethConstants.COMMON_NAME;
 import static nl.surfnet.bod.util.ShibbolethConstants.NAME_ID;
 
@@ -25,8 +26,12 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
   }
 
   private UserContext createUserContext(HttpServletRequest request) {
-    String nameId = (String) request.getAttribute(NAME_ID);
-    String userName = (String) request.getAttribute(COMMON_NAME);
+    String nameId = nullToEmpty((String) request.getAttribute(NAME_ID));
+    String userName = nullToEmpty((String) request.getAttribute(COMMON_NAME));
+
+    if (userName.isEmpty() || nameId.isEmpty()) {
+      return null;
+    }
 
     return new UserContext(nameId, userName);
   }
