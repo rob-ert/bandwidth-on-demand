@@ -4,6 +4,7 @@ import static com.google.common.collect.Collections2.filter;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,8 +26,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
+@RequestMapping(InstitutionController.PAGE_URL)
 @Controller
 public class InstitutionController {
+                                                  
+  static final String PAGE_URL = "institutions";
+  
+  private static final String MODEL_KEY = "institution";
+  private static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
 
   private InstitutionService institutionService;
 
@@ -39,7 +46,7 @@ public class InstitutionController {
     this.physicalResourceGroupRepo = physicalResourceGroupRepo;
   }
 
-  @RequestMapping(value = "/institutions", method = RequestMethod.GET, headers = "accept=application/json")
+  @RequestMapping(method = RequestMethod.GET, headers = "accept=application/json")
   public @ResponseBody
   Collection<Institution> jsonList(@RequestParam(required = false) String q) {
     final Collection<String> existingInstitutions = existingInstitutionNames();
@@ -66,13 +73,13 @@ public class InstitutionController {
     }));
   }
 
-  @RequestMapping(value = "/institutions", method = RequestMethod.GET)
+  @RequestMapping(method = RequestMethod.GET)
   public String list(final Model uiModel) {
     Collection<Institution> institutions = institutionService.getInstitutions();
 
-    uiModel.addAttribute("institutions", institutions);
+    uiModel.addAttribute(MODEL_KEY_LIST, institutions);
 
-    return "institutions" + LIST;
+    return PAGE_URL + LIST;
   }
 
 }

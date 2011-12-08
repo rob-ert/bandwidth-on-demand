@@ -16,14 +16,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
-@RequestMapping("/noc/physicalresourcegroups")
+@RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
 @Controller
 public class PhysicalResourceGroupController {
-
   private static final String MODEL_KEY = "physicalResourceGroup";
-  private static final String MODEL_KEY_LIST = MODEL_KEY + "List";
 
-  private static final String PAGE_URL = "physicalresourcegroups";
+  static final String PAGE_URL = "physicalresourcegroups";
+  static final String MODEL_KEY_LIST = MODEL_KEY + "List";
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;

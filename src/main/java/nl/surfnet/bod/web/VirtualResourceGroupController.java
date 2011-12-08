@@ -4,6 +4,7 @@ import static nl.surfnet.bod.web.WebUtils.CREATE;
 import static nl.surfnet.bod.web.WebUtils.DELETE;
 import static nl.surfnet.bod.web.WebUtils.EDIT;
 import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
 import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
 import static nl.surfnet.bod.web.WebUtils.SHOW;
 import static nl.surfnet.bod.web.WebUtils.UPDATE;
@@ -28,11 +29,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@RequestMapping("/manager/virtualresourcegroups")
+@RequestMapping("/manager/"+VirtualResourceGroupController.PAGE_URL)
 @Controller
 public class VirtualResourceGroupController {
-  private static final String PAGE_URL = "virtualresourcegroups";
+
+  static final String PAGE_URL = "virtualresourcegroups";
+  
   private static final String MODEL_KEY = "virtualResourceGroup";
+  private static final String MODEL_KEY_LIST = MODEL_KEY+LIST_POSTFIX;
+
 
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
@@ -70,7 +75,7 @@ public class VirtualResourceGroupController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute(PAGE_URL,
+    uiModel.addAttribute(MODEL_KEY_LIST,
         virtualResourceGroupService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
     uiModel.addAttribute("maxPages", calculateMaxPages(virtualResourceGroupService.count()));
@@ -118,7 +123,7 @@ public class VirtualResourceGroupController {
    * 
    * @return Collection<PhysicalResourceGroup>
    */
-  @ModelAttribute(PAGE_URL)
+  @ModelAttribute(MODEL_KEY_LIST)
   public Collection<VirtualResourceGroup> populatevirtualResourceGroups() {
     return virtualResourceGroupService.findAll();
   }

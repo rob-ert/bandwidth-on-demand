@@ -13,7 +13,7 @@
         <field:input field="name" id="name" labelCode="physicalresourcegroup_name" required="true" />
 
         <field:suggestion-input field="institutionName" labelCode="physicalresourcegroup_institutionName"
-            suggestionUrl="/institutions" />
+            suggestionUrl="/institutions"  />
 
         <field:input field="adminGroup" id="adminGroup" labelCode="physicalresourcegroup_adminGroup"
             helpMessageCode="physicalresourcegroup_adminGroup" />

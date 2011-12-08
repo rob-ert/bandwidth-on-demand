@@ -5,6 +5,7 @@ import static nl.surfnet.bod.web.WebUtils.DELETE;
 import static nl.surfnet.bod.web.WebUtils.EDIT;
 import static nl.surfnet.bod.web.WebUtils.ICON_ITEM_ID;
 import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
 import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
 import static nl.surfnet.bod.web.WebUtils.SHOW;
 import static nl.surfnet.bod.web.WebUtils.UPDATE;
@@ -34,9 +35,9 @@ public class VirtualPortController {
 
   static final String PAGE_URL = "virtualports";
 
-  private static final String MODEL_KEY = "virtualport";
+  private static final String MODEL_KEY = "virtualPort";
+  private static final String MODEL_KEY_LIST = MODEL_KEY+LIST_POSTFIX;
 
-  private static final String MODEL_KEY_LIST = MODEL_KEY + "list";
 
   @Autowired
   private VirtualPortService virtualPortService;

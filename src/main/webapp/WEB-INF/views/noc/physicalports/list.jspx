@@ -6,8 +6,8 @@
     <jsp:output omit-xml-declaration="yes" />
     <tiles:useAttribute id="show_unallocated" name="unallocated" classname="java.lang.Boolean" />
     
-    <page:list id="pl_nl_surfnet_bod_domain_PhysicalPort" items="${physicalports}">
-        <table:table data="${physicalports}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/noc/physicalports" typeIdFieldName="name" delete="false" icon_url="/resources/images/link_break.png" icon_label="Unlink Physical Resource Group">
+    <page:list id="pl_nl_surfnet_bod_domain_PhysicalPort" items="${physicalPortList}">
+        <table:table data="${physicalPortList}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/noc/physicalports" typeIdFieldName="name" delete="false" icon_url="/resources/images/link_break.png" icon_label="Unlink Physical Resource Group">
             <table:column id="c_nl_surfnet_bod_domain_PhysicalPort_name" property="name" />
             <table:column id="c_nl_surfnet_bod_domain_PhysicalPort_displayname" property="displayName" />            
             <table:column id="c_nl_surfnet_bod_domain_PhysicalPort_physicalResourceGroup" property="physicalResourceGroup" render="${not show_unallocated}"/>

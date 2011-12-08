@@ -21,13 +21,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
-@RequestMapping("/noc/physicalports")
+@RequestMapping("/noc/"+PhysicalPortController.PAGE_URL)
 @Controller
 public class PhysicalPortController {
 
+  static final String PAGE_URL = "physicalports";
+  
   private static final String MODEL_KEY = "physicalPort";
-
-  private static final String PAGE_URL = "physicalports";
+  private static final String MODEL_KEY_LIST = MODEL_KEY+LIST_POSTFIX;
 
   @Autowired
   private PhysicalPortService physicalPortService;
@@ -53,7 +54,7 @@ public class PhysicalPortController {
     uiModel.asMap().clear();
     physicalPortService.save(physicalPort);
 
-    return "redirect:physicalports";
+    return "redirect:"+PAGE_URL;
   }
 
   @RequestMapping(params = "id", method = RequestMethod.GET)
@@ -65,7 +66,7 @@ public class PhysicalPortController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute(PAGE_URL, physicalPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
+    uiModel.addAttribute(MODEL_KEY_LIST, physicalPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
     uiModel.addAttribute("maxPages", calculateMaxPages(physicalPortService.count()));
 
@@ -119,7 +120,7 @@ public class PhysicalPortController {
    * 
    * @return Collection<PhysicalResourceGroup>
    */
-  @ModelAttribute("physicalresourcegroups")
+  @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
   public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
     return physicalResourceGroupService.findAll();
   }

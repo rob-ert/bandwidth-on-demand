@@ -5,7 +5,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
     
-    <page:show id="ps_nl_surfnet_bod_domain_VirtualResourceGroup" object="${virtualresourcegroup}" path="/manager/virtualresourcegroups"  >
-        <field:display field="surfConnextGroupName" id="s_nl_surfnet_bod_domain_VirtualResourceGroup_surfConnextGroupName" object="${virtualresourcegroup}" />        
+    <page:show id="ps_nl_surfnet_bod_domain_VirtualResourceGroup" object="${virtualResourceGroup}" path="/manager/virtualresourcegroups"  >
+        <field:display field="surfConnextGroupName" id="s_nl_surfnet_bod_domain_VirtualResourceGroup_surfConnextGroupName" object="${virtualResourceGroup}" />        
     </page:show>
 </div>
