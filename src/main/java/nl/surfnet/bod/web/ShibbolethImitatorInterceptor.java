@@ -18,7 +18,7 @@ public class ShibbolethImitatorInterceptor extends HandlerInterceptorAdapter {
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-    if (env.isImitateShibboleth()) {
+    if (env.getImitateShibboleth()) {
       imitateShibboleth(request);
     }
 
@@ -26,8 +26,8 @@ public class ShibbolethImitatorInterceptor extends HandlerInterceptorAdapter {
   }
 
   private void imitateShibboleth(HttpServletRequest request) {
-    request.setAttribute(COMMON_NAME, "Donald Duck");
-    request.setAttribute(NAME_ID, "urn:collab:person:surfguest.nl:donaldduck");
+    request.setAttribute(COMMON_NAME, env.getMockShibbolethUserName());
+    request.setAttribute(NAME_ID, env.getMockShibbolethNameId());
   }
 
 }

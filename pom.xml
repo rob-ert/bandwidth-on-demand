@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.surfnet.bod</groupId>
     <artifactId>bod</artifactId>
@@ -290,6 +291,11 @@
             <artifactId>jasypt</artifactId>
             <version>1.8</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.code</groupId>
+            <artifactId>opensocial-java-client</artifactId>
+            <version>1.16.0-coin</version>
+        </dependency>
 
         <!-- axis1 (needed for rpc style encoding of IDD) -->
         <dependency>
@@ -424,7 +430,7 @@
                     <reload>manual</reload>
                     <webAppConfig>
                         <contextPath>/${project.name}</contextPath>
-                        <extraClasspath>src/test/resources</extraClasspath>                        
+                        <extraClasspath>src/test/resources</extraClasspath>
                     </webAppConfig>
                 </configuration>
             </plugin>
@@ -632,6 +638,11 @@
             <id>JBoss Repo</id>
             <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
             <name>JBoss Repo</name>
+        </repository>
+        <repository>
+            <id>coin-repo</id>
+            <name>COIN Repository</name>
+            <url>http://bamboo-dev.coin.surfnetlabs.nl</url>
         </repository>
     </repositories>
 
