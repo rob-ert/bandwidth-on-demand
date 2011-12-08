@@ -5,8 +5,8 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
         
-    <page:list id="pl_nl_surfnet_bod_domain_VirtualPorts" items="${virtualports}">
-        <table:table data="${virtualports}" id="l_nl_surfnet_bod_domain_VirtualPort" path="/manager/virtualports" typeIdFieldName="id">
+     <page:list id="pl_nl_surfnet_bod_domain_virtualports" items="${virtualportlist}">
+        <table:table data="${virtualportlist}" id="l_nl_surfnet_bod_domain_VirtualPort" path="/manager/virtualports" typeIdFieldName="id">
             <table:column id="label_nl_surfnet_bod_domain_virtualport_name" property="name" />            
         </table:table>
     </page:list>

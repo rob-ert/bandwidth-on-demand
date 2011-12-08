@@ -5,7 +5,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
     
-    <page:show id="ps_nl_surfnet_bod_domain_VirtualResourceGroup" object="${virtualport}" path="/manager/virtualport"  >
-        <field:display field="name" id="s_nl_surfnet_bod_domain_VirtualResourceGroup_name" object="${virtualport}" />        
+    <page:show id="ps_nl_surfnet_bod_domain_virtualports" object="${virtualport}" path="/manager/virtualports"  >
+        <field:display field="name" id="s_nl_surfnet_bod_domain_VirtualPort_name" object="${virtualport}" />        
     </page:show>
 </div>

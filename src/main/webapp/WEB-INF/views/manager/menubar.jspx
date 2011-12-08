@@ -8,11 +8,11 @@
     <menu:menu id="_menu">
         <menu:category id="c_virtualresourcegroup">
             <menu:item id="i_vrg_new" url="/manager/virtualresourcegroups/create" messageCode="global_menu_new" />
-            <menu:item id="i_vrg_list" messageCode="global_menu_list" url="/manager/virtualresourcegroups?page=1" />
+            <menu:item id="i_vrg_list" url="/manager/virtualresourcegroups?page=1"  messageCode="global_menu_list" />
         </menu:category>
         <menu:category id="c_virtualport">
             <menu:item id="i_vp_new" url="/manager/virtualports/create" messageCode="global_menu_new" />
-            <menu:item id="i_vp_list" messageCode="global_menu_list" url="/manager/virtualports?page=1" />
+            <menu:item id="i_vp_list" url="/manager/virtualports?page=1" messageCode="global_menu_list" />
         </menu:category>
     </menu:menu>
     <ul class="nav secondary-nav">

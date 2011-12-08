@@ -8,7 +8,7 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <form:create id="fc_nl_surfnet_bod_domain_virtualport" modelAttribute="virtualport"
-        path="/manager/virtualPorts" render="${empty dependencies}">
+        path="/manager/virtualports" render="${empty dependencies}">
 
         <field:input field="name" id="name" labelCode="nl_surfnet_bod_domain_virtualport_name" required="true" />
         

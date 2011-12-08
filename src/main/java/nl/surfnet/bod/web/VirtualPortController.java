@@ -3,11 +3,11 @@ package nl.surfnet.bod.web;
 import static nl.surfnet.bod.web.WebUtils.CREATE;
 import static nl.surfnet.bod.web.WebUtils.DELETE;
 import static nl.surfnet.bod.web.WebUtils.EDIT;
+import static nl.surfnet.bod.web.WebUtils.ICON_ITEM_ID;
 import static nl.surfnet.bod.web.WebUtils.LIST;
 import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
 import static nl.surfnet.bod.web.WebUtils.SHOW;
 import static nl.surfnet.bod.web.WebUtils.UPDATE;
-import static nl.surfnet.bod.web.WebUtils.ICON_ITEM_ID;
 import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
 import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.VirtualPortService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +32,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class VirtualPortController {
 
-  static final String PAGE_URL_PART = "virtualports/";
+  static final String PAGE_URL_PART = "virtualports";
   
   private static final String VIRTUAL_PORT_ATTRIB = "virtualport";
   
-  private static final String VIRTUAL_PORT_LIST_ATTRIB = VIRTUAL_PORT_ATTRIB+"List";
+  private static final String VIRTUAL_PORT_LIST_ATTRIB = VIRTUAL_PORT_ATTRIB+"list";
 
   @Autowired
   private VirtualPortService virtualPortService;
@@ -48,7 +47,7 @@ public class VirtualPortController {
 
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(VIRTUAL_PORT_ATTRIB, virtualPort);
-      return PAGE_URL_PART + CREATE;
+      return PAGE_URL_PART + "/"+ CREATE;
     }
 
     uiModel.asMap().clear();
@@ -61,7 +60,7 @@ public class VirtualPortController {
   public String createForm(final Model uiModel) {
     uiModel.addAttribute(VIRTUAL_PORT_ATTRIB, new VirtualPort());
 
-    return PAGE_URL_PART + CREATE;
+    return PAGE_URL_PART + "/" + CREATE;
   }
 
   @RequestMapping(params = "id", method = RequestMethod.GET)
@@ -70,7 +69,7 @@ public class VirtualPortController {
     // Needed for the default icons
     uiModel.addAttribute(ICON_ITEM_ID, id);
 
-    return PAGE_URL_PART + SHOW;
+    return PAGE_URL_PART + "/" + SHOW;
   }
 
   @RequestMapping(method = RequestMethod.GET)
@@ -80,7 +79,7 @@ public class VirtualPortController {
 
     uiModel.addAttribute("maxPages", calculateMaxPages(virtualPortService.count()));
 
-    return PAGE_URL_PART + LIST;
+    return PAGE_URL_PART + "/" + LIST;
   }
 
   @RequestMapping(method = RequestMethod.PUT)
@@ -89,7 +88,7 @@ public class VirtualPortController {
 
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(VIRTUAL_PORT_ATTRIB, virtualPort);
-      return PAGE_URL_PART + UPDATE;
+      return PAGE_URL_PART + "/" + UPDATE;
     }
 
     uiModel.asMap().clear();
@@ -101,7 +100,7 @@ public class VirtualPortController {
   @RequestMapping(value = EDIT, params = "id", method = RequestMethod.GET)
   public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
     uiModel.addAttribute(VIRTUAL_PORT_ATTRIB, virtualPortService.find(id));
-    return PAGE_URL_PART + UPDATE;
+    return PAGE_URL_PART + "/" + UPDATE;
   }
 
   @RequestMapping(value = DELETE, params = "id", method = RequestMethod.DELETE)
