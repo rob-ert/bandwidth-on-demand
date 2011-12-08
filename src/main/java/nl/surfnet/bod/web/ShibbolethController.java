@@ -35,4 +35,9 @@ public class ShibbolethController {
   public String info() {
     return "shibboleth/info";
   }
+
+  @RequestMapping("/login")
+  public String login() {
+    return "shibboleth/login";
+  }
 }

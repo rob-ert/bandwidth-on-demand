@@ -6,10 +6,8 @@
 
     <h1>Shibboleth Request Attributes</h1>
     <ul>
-        <li><b>name-id</b>: <c:out value="${requestScope['name-id']}" /></li>
-        <li><b>persistent-id</b>: <c:out value="${requestScope['persistent-id']}" /></li>
         <c:forEach var="name" items="${pageContext.request.attributeNames}">
-            <c:if test="${fn:startsWith(name, 'Shib')}">
+            <c:if test="${fn:startsWith(name, 'Shib') or fn:endsWith(name, '-id')}">
                 <li><b><c:out value="${name}" /></b>: <c:out value="${requestScope[name]}" /></li>
             </c:if>
         </c:forEach>

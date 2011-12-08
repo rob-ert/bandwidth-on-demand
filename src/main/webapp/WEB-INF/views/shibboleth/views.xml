@@ -9,4 +9,8 @@
         <put-attribute name="body" value="/WEB-INF/views/shibboleth/info.jspx" />
     </definition>
     
+    <definition extends="default" name="shibboleth/login">
+        <put-attribute name="body" value="/WEB-INF/views/shibboleth/login.jspx" />
+    </definition>
+    
 </tiles-definitions>

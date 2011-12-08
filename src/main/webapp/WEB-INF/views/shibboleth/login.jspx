@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+    xmlns:spring="http://www.springframework.org/tags" xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
+
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+
+    <spring:url var="alan_login" value="/">
+        <spring:param name="user-name" value="Alan van Dam"/>
+        <spring:param name="name-id" value="urn:collab:person:surfguest.nl:alanvdam"/>
+    </spring:url>
+    
+    <spring:url var="okke_login" value="/">
+        <spring:param name="user-name" value="Okke Harsta"/>
+        <spring:param name="name-id" value="urn:collab:person:surfguest.nl:okkeharsta"/>
+    </spring:url>
+
+    <h1>Login as...</h1>
+    <ul>
+        <li><a href="${alan_login}">Alan</a></li>
+        <li><a href="${okke_login}">Okke</a></li>
+    </ul>
+
+</div>

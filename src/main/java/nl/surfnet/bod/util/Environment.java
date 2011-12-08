@@ -18,20 +18,6 @@ public class Environment {
   @Value("${os.oauth-secret}")
   private String openSocialOAuthSecret;
 
-  @Value("${shibboleth.imitate.nameid}")
-  private String mockShibbolethNameId;
-
-  @Value("${shibboleth.imitate.username}")
-  private String mockShibbolethUserName;
-
-  public String getMockShibbolethNameId() {
-    return mockShibbolethNameId;
-  }
-
-  public String getMockShibbolethUserName() {
-    return mockShibbolethUserName;
-  }
-
   public String getOpenSocialUrl() {
     return openSocialUrl;
   }
