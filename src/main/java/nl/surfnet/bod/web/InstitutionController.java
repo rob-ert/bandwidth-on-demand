@@ -71,7 +71,7 @@ public class InstitutionController {
 
     uiModel.addAttribute("institutions", institutions);
 
-    return "institutions/"+LIST;
+    return "institutions/" + LIST;
   }
 
 }
