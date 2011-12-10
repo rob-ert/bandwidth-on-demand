@@ -87,9 +87,8 @@ public class MockHttpServer extends AbstractHandler {
   public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
 
-    ServletOutputStream outputStream = response.getOutputStream();
-
     if (responseResource.containsKey(target)) {
+      ServletOutputStream outputStream = response.getOutputStream();
       response.setStatus(HttpServletResponse.SC_OK);
       ByteStreams.copy(responseResource.get(target).getInputStream(), outputStream);
       Closeables.close(outputStream, false);

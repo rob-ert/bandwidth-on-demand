@@ -14,11 +14,15 @@ import org.opensocial.models.Group;
 import org.opensocial.providers.Provider;
 import org.opensocial.providers.ShindigProvider;
 import org.opensocial.services.GroupsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GroupOpenSocialService implements GroupService {
+
+  private Logger logger = LoggerFactory.getLogger(GroupOpenSocialService.class);
 
   @Autowired
   private Environment env;
@@ -29,16 +33,20 @@ public class GroupOpenSocialService implements GroupService {
       return getClient(nameId).send(GroupsService.getGroups()).getEntries();
     }
     catch (RequestException e) {
-      e.printStackTrace();
+      logger.error("Could not retreive groups from open social server", e);
       return Collections.emptyList();
     }
     catch (IOException e) {
-      e.printStackTrace();
+      logger.error("Could not retreive groups from open social server", e);
+      return Collections.emptyList();
+    }
+    catch (NullPointerException e) {
+      // aaggghh... client gives null pointer when response is not 200...
       return Collections.emptyList();
     }
   }
 
-  protected Client getClient(String loggedInUser) {
+  private Client getClient(String loggedInUser) {
     Provider provider = new ShindigProvider(true);
 
     provider.setRestEndpoint(env.getOpenSocialUrl() + "/rest/");
@@ -49,5 +57,9 @@ public class GroupOpenSocialService implements GroupService {
         loggedInUser);
 
     return new Client(provider, scheme);
+  }
+
+  protected void setEnvironment(Environment environment) {
+    this.env = environment;
   }
 }
