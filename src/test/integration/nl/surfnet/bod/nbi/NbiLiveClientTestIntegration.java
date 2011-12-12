@@ -8,6 +8,7 @@ import java.util.List;
 
 import nl.surfnet.bod.nbi.generated.TerminationPoint;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ public class NbiLiveClientTestIntegration {
   private NbiClient nbiClient;
 
   @Test
+  @Ignore
   public void testFindAllPortsWithDetails() {
     final List<TerminationPoint> allTerminationPoints = nbiClient.findAllPorts();
 
