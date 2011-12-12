@@ -10,4 +10,13 @@ import org.springframework.stereotype.Repository;
 public interface VirtualResourceGroupRepo extends JpaSpecificationExecutor<VirtualResourceGroup>,
     JpaRepository<VirtualResourceGroup, Long> {
 
+  /**
+   * Finds a {@link VirtualResourceGroup} by
+   * {@link VirtualResourceGroup#getSurfConnextGroupName()}
+   * 
+   * @param surfConnextGroupName The name to search for
+   * @return {@link VirtualResourceGroup} or null when no match was found.
+   */
+  VirtualResourceGroup findBySurfConnextGroupName(String surfConnextGroupName);
+
 }

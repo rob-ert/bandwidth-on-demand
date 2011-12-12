@@ -7,6 +7,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
 /**
@@ -17,6 +19,7 @@ import javax.persistence.Version;
  * 
  */
 @Entity
+@Table(name = "VirtualResourceGroup", uniqueConstraints = @UniqueConstraint(columnNames = "surfConnextGroupName"))
 public class VirtualResourceGroup {
 
   @Id
@@ -26,6 +29,9 @@ public class VirtualResourceGroup {
   @Version
   private Integer version;
 
+  /**
+   * Must be unique, see constraint @Table
+   */
   private String surfConnextGroupName;
 
   @OneToMany(mappedBy = "virtualResourceGroup")

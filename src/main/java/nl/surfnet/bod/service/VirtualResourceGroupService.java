@@ -44,4 +44,8 @@ public class VirtualResourceGroupService {
   public VirtualResourceGroup update(final VirtualResourceGroup virtualResourceGroup) {
     return virtualResourceGroupRepo.save(virtualResourceGroup);
   }
+
+  public VirtualResourceGroup findBySurfConnextGroupName(String surfConnextGroupName) {
+    return virtualResourceGroupRepo.findBySurfConnextGroupName(surfConnextGroupName);
+  }
 }

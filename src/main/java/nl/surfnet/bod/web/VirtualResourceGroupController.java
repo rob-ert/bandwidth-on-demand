@@ -1,6 +1,20 @@
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.CREATE;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.EDIT;
+import static nl.surfnet.bod.web.WebUtils.ICON_ITEM_KEY;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.SHOW;
+import static nl.surfnet.bod.web.WebUtils.UPDATE;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,6 +22,7 @@ import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.validator.VirtualResourceGroupValidator;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,23 +34,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@RequestMapping("/manager/"+VirtualResourceGroupController.PAGE_URL)
+@RequestMapping("/manager/" + VirtualResourceGroupController.PAGE_URL)
 @Controller
 public class VirtualResourceGroupController {
 
   static final String PAGE_URL = "virtualresourcegroups";
-  
-  private static final String MODEL_KEY = "virtualResourceGroup";
-  private static final String MODEL_KEY_LIST = MODEL_KEY+LIST_POSTFIX;
 
+  static final String MODEL_KEY = "virtualResourceGroup";
+  static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
 
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
 
+  @Autowired
+  private VirtualResourceGroupValidator virtualResourceGroupValidator;
+
+  /**
+   * Creates a {@link VirtualResourceGroup},  validates according to {@link VirtualResourceGroupValidator}
+   * 
+   * @param virtualResourceGroup {@link VirtualResourceGroup}
+   * @param bindingResult {@link BindingResult}
+   * @param uiModel model
+   * @param httpServletRequest Request
+   * @return String viewName
+   */
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid VirtualResourceGroup virtualResourceGroup, final BindingResult bindingResult,
       final Model uiModel, final HttpServletRequest httpServletRequest) {
 
+    virtualResourceGroupValidator.validate(virtualResourceGroup, bindingResult);
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, virtualResourceGroup);
       return PAGE_URL + CREATE;
@@ -44,7 +71,7 @@ public class VirtualResourceGroupController {
     uiModel.asMap().clear();
     virtualResourceGroupService.save(virtualResourceGroup);
 
-    return "redirect:"+PAGE_URL;
+    return "redirect:" + PAGE_URL;
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
@@ -73,10 +100,19 @@ public class VirtualResourceGroupController {
     return PAGE_URL + LIST;
   }
 
+  /**
+   * Updates an existing {@link VirtualResourceGroup}, validates according to {@link VirtualResourceGroupValidator}
+   * @param virtualResourceGroup {@link VirtualResourceGroup}
+   * @param bindingResult {@link BindingResult}
+   * @param uiModel Model
+   * @param httpServletRequest Request
+   * @return String viewName
+   */
   @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid final VirtualResourceGroup virtualResourceGroup, final BindingResult bindingResult,
       final Model uiModel, final HttpServletRequest httpServletRequest) {
 
+    virtualResourceGroupValidator.validate(virtualResourceGroup, bindingResult);
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, virtualResourceGroup);
       return PAGE_URL + UPDATE;
@@ -85,10 +121,10 @@ public class VirtualResourceGroupController {
     uiModel.asMap().clear();
     virtualResourceGroupService.update(virtualResourceGroup);
 
-    return "redirect:"+PAGE_URL;
+    return "redirect:" + PAGE_URL;
   }
 
-  @RequestMapping(value = EDIT, params =ID_KEY, method = RequestMethod.GET)
+  @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY, virtualResourceGroupService.find(id));
     return PAGE_URL + UPDATE;
