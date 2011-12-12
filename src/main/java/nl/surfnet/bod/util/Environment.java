@@ -18,6 +18,15 @@ public class Environment {
   @Value("${os.oauth-secret}")
   private String openSocialOAuthSecret;
 
+  public Environment() {
+  }
+
+  public Environment(String openSocialUrl, String openSocialOAuthKey, String openSocialOAuthSecret) {
+    this.openSocialUrl = openSocialUrl;
+    this.openSocialOAuthKey = openSocialOAuthKey;
+    this.openSocialOAuthSecret = openSocialOAuthSecret;
+  }
+
   public String getOpenSocialUrl() {
     return openSocialUrl;
   }
