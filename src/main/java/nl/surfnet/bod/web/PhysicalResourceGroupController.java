@@ -22,7 +22,7 @@ public class PhysicalResourceGroupController {
 
   static final String PAGE_URL = "physicalresourcegroups";
   static final String MODEL_KEY = "physicalResourceGroup";
-  static final String MODEL_KEY_LIST = MODEL_KEY + "List";
+  static final String MODEL_KEY_LIST = MODEL_KEY + WebUtils.LIST_POSTFIX;
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
@@ -50,20 +50,20 @@ public class PhysicalResourceGroupController {
     return PAGE_URL + CREATE;
   }
 
-  @RequestMapping(params = "id", method = RequestMethod.GET)
-  public String show(@RequestParam("id") final Long id, final Model uiModel) {
+  @RequestMapping(params =ID_KEY, method = RequestMethod.GET)
+  public String show(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY, physicalResourceGroupService.find(id));
     // Needed for the default icons
-    uiModel.addAttribute(ICON_ITEM_ID, id);
+    uiModel.addAttribute(ICON_ITEM_KEY, id);
     return PAGE_URL + SHOW;
   }
 
   @RequestMapping(method = RequestMethod.GET)
-  public String list(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
+  public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY_LIST,
         physicalResourceGroupService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
-    uiModel.addAttribute("maxPages", calculateMaxPages(physicalResourceGroupService.count()));
+    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalResourceGroupService.count()));
 
     return PAGE_URL + LIST;
   }
@@ -82,23 +82,23 @@ public class PhysicalResourceGroupController {
     return "redirect:" + PAGE_URL;
   }
 
-  @RequestMapping(value = EDIT, params = "id", method = RequestMethod.GET)
-  public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
+  @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
+  public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY, physicalResourceGroupService.find(id));
 
     return PAGE_URL + UPDATE;
   }
 
-  @RequestMapping(value = DELETE, params = "id", method = RequestMethod.DELETE)
-  public String delete(@RequestParam("id") final Long id,
-      @RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
+  @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
+  public String delete(@RequestParam(ID_KEY) final Long id,
+      @RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(id);
     physicalResourceGroupService.delete(physicalResourceGroup);
 
     uiModel.asMap().clear();
 
-    uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
+    uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());
 
     return "redirect:";
   }

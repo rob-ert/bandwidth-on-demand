@@ -3,8 +3,7 @@ package nl.surfnet.bod.web;
 import static com.google.common.collect.Collections2.filter;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -32,8 +31,8 @@ public class InstitutionController {
                                                   
   static final String PAGE_URL = "institutions";
   
-  private static final String MODEL_KEY = "institution";
-  private static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
+  static final String MODEL_KEY = "institution";
+  static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
 
   private InstitutionService institutionService;
 

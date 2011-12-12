@@ -1,16 +1,8 @@
 package nl.surfnet.bod.web;
 
 import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.ICON_ITEM_ID;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.SHOW;
-import static nl.surfnet.bod.web.WebUtils.UPDATE;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 
@@ -35,9 +27,9 @@ public class VirtualPortController {
 
   static final String PAGE_URL = "virtualports";
 
-  private static final String MODEL_KEY = "virtualPort";
-  private static final String MODEL_KEY_LIST = MODEL_KEY+LIST_POSTFIX;
-
+  static final String MODEL_KEY = "virtualPort";
+  static final String MODEL_KEY_LIST = MODEL_KEY+LIST_POSTFIX;
+  
 
   @Autowired
   private VirtualPortService virtualPortService;
@@ -64,21 +56,21 @@ public class VirtualPortController {
     return PAGE_URL + CREATE;
   }
 
-  @RequestMapping(params = "id", method = RequestMethod.GET)
-  public String show(@RequestParam("id") final Long id, final Model uiModel) {
+  @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
+  public String show(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY, virtualPortService.find(id));
     // Needed for the default icons
-    uiModel.addAttribute(ICON_ITEM_ID, id);
+    uiModel.addAttribute(ICON_ITEM_KEY, id);
 
     return PAGE_URL + SHOW;
   }
 
   @RequestMapping(method = RequestMethod.GET)
-  public String list(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
+  public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY_LIST,
         virtualPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
-    uiModel.addAttribute("maxPages", calculateMaxPages(virtualPortService.count()));
+    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(virtualPortService.count()));
 
     return PAGE_URL + LIST;
   }
@@ -98,21 +90,21 @@ public class VirtualPortController {
     return "redirect:" + PAGE_URL;
   }
 
-  @RequestMapping(value = EDIT, params = "id", method = RequestMethod.GET)
-  public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
+  @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
+  public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY, virtualPortService.find(id));
     return PAGE_URL + UPDATE;
   }
 
-  @RequestMapping(value = DELETE, params = "id", method = RequestMethod.DELETE)
-  public String delete(@RequestParam("id") final Long id,
-      @RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
+  @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
+  public String delete(@RequestParam(ID_KEY) final Long id,
+      @RequestParam(value =PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
     VirtualPort virtualPort = virtualPortService.find(id);
     virtualPortService.delete(virtualPort);
 
     uiModel.asMap().clear();
-    uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
+    uiModel.addAttribute(PAGE_KEY,(page == null) ? "1" : page.toString());
 
     return "redirect:";
   }

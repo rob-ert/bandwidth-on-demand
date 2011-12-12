@@ -13,8 +13,10 @@ public final class WebUtils {
    * Used to distinguish between the model and a listmodel.
    */
   public static final String LIST_POSTFIX = "List";
-
-  public static final String ICON_ITEM_ID = "itemId";
+  public static final String MAX_PAGES_KEY = "maxPages";
+  public static final String PAGE_KEY = "page";
+  public static final String ID_KEY = "id";
+  public static final String ICON_ITEM_KEY = "itemId";
 
   public static final int MAX_ITEMS_PER_PAGE = 15;
 

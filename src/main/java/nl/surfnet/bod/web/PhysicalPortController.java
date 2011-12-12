@@ -57,35 +57,35 @@ public class PhysicalPortController {
     return "redirect:" + PAGE_URL;
   }
 
-  @RequestMapping(params = "id", method = RequestMethod.GET)
-  public String show(@RequestParam("id") final String name, final Model uiModel) {
+  @RequestMapping(params =ID_KEY, method = RequestMethod.GET)
+  public String show(@RequestParam(ID_KEY) final String name, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY, physicalPortService.findByName(name));
-    uiModel.addAttribute(ICON_ITEM_ID, name);
+    uiModel.addAttribute(ICON_ITEM_KEY, name);
     return PAGE_URL + SHOW;
   }
 
   @RequestMapping(method = RequestMethod.GET)
-  public String list(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
+  public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY_LIST, physicalPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
-    uiModel.addAttribute("maxPages", calculateMaxPages(physicalPortService.count()));
+    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.count()));
 
     return PAGE_URL + LIST;
   }
 
   @RequestMapping(value = "/free", method = RequestMethod.GET)
-  public String listUnallocated(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
+  public String listUnallocated(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY_LIST,
         physicalPortService.findUnallocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
-    uiModel.addAttribute("maxPages", calculateMaxPages(physicalPortService.countUnallocated()));
+    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocated()));
 
     return PAGE_URL + "/listunallocated";
   }
 
   @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid final PhysicalPort physicalPort, final BindingResult bindingResult,
-      @ModelAttribute("physicalResourceGroup") final PhysicalResourceGroup physicalResourceGroup,
+      @ModelAttribute(MODEL_KEY) final PhysicalResourceGroup physicalResourceGroup,
       final BindingResult physicalResourceGroupBindingResult, final Model uiModel,
       final HttpServletRequest httpServletRequest) {
 
@@ -95,21 +95,21 @@ public class PhysicalPortController {
     return "redirect:" + PAGE_URL;
   }
 
-  @RequestMapping(value = EDIT, params = "id", method = RequestMethod.GET)
-  public String updateForm(@RequestParam("id") final String portId, final Model uiModel) {
+  @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
+  public String updateForm(@RequestParam(ID_KEY) final String portId, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY, physicalPortService.findByName(portId));
     return PAGE_URL + UPDATE;
   }
 
-  @RequestMapping(value = DELETE, params = "id", method = RequestMethod.DELETE)
-  public String delete(@RequestParam("id") final String name,
-      @RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
+  @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
+  public String delete(@RequestParam(ID_KEY) final String name,
+      @RequestParam(value =PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
     PhysicalPort physicalPort = physicalPortService.findByName(name);
     physicalPortService.delete(physicalPort);
 
     uiModel.asMap().clear();
-    uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
+    uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());
 
     return "redirect:";
   }

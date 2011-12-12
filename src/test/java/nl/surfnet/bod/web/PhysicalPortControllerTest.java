@@ -1,5 +1,8 @@
 package nl.surfnet.bod.web;
 
+import static nl.surfnet.bod.web.PhysicalPortController.MODEL_KEY;
+import static nl.surfnet.bod.web.PhysicalPortController.MODEL_KEY_LIST;
+import static nl.surfnet.bod.web.WebUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
@@ -10,8 +13,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static nl.surfnet.bod.web.PhysicalPortController.MODEL_KEY;
-import static nl.surfnet.bod.web.PhysicalPortController.MODEL_KEY_LIST;
 
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class PhysicalPortControllerTest {
     subject.list(1, model);
 
     assertThat(model.asMap(), hasEntry(MODEL_KEY_LIST, Object.class.cast(ports)));
-    assertThat(model.asMap(), hasEntry("maxPages", Object.class.cast(1)));
+    assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
   }
 
   @Test
@@ -60,7 +61,7 @@ public class PhysicalPortControllerTest {
     subject.list(null, model);
 
     assertThat(model.asMap(), hasEntry(MODEL_KEY_LIST, Object.class.cast(ports)));
-    assertThat(model.asMap(), hasEntry("maxPages", Object.class.cast(1)));
+    assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
   }
 
   @Test
@@ -72,7 +73,7 @@ public class PhysicalPortControllerTest {
     subject.listUnallocated(1, model);
 
     assertThat(model.asMap(), hasEntry(MODEL_KEY_LIST, Object.class.cast(ports)));
-    assertThat(model.asMap(), hasEntry("maxPages", Object.class.cast(1)));
+    assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
   }
 
   @Test
@@ -115,7 +116,7 @@ public class PhysicalPortControllerTest {
 
     subject.delete("port_name", 3, model);
 
-    assertThat(model.asMap(), hasEntry("page", Object.class.cast("3")));
+    assertThat(model.asMap(), hasEntry(PAGE_KEY, Object.class.cast("3")));
 
     verify(physicalPortServiceMock, times(1)).delete(port);
   }

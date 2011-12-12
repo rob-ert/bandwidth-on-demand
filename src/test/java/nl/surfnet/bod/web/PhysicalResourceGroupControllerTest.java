@@ -8,6 +8,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static nl.surfnet.bod.web.PhysicalResourceGroupController.MODEL_KEY_LIST;
+import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
 
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class PhysicalResourceGroupControllerTest {
     subject.list(1, model);
 
     assertThat(model.asMap(), hasEntry(MODEL_KEY_LIST, Object.class.cast(groups)));
-    assertThat(model.asMap(), hasEntry("maxPages", Object.class.cast(1)));
+    assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
   }
 
 }
