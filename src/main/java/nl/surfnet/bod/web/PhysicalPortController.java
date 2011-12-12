@@ -21,14 +21,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
-@RequestMapping("/noc/"+PhysicalPortController.PAGE_URL)
+@RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
 @Controller
 public class PhysicalPortController {
 
   static final String PAGE_URL = "physicalports";
-  
-  private static final String MODEL_KEY = "physicalPort";
-  private static final String MODEL_KEY_LIST = MODEL_KEY+LIST_POSTFIX;
+
+  static final String MODEL_KEY = "physicalPort";
+  static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
 
   @Autowired
   private PhysicalPortService physicalPortService;
@@ -54,7 +54,7 @@ public class PhysicalPortController {
     uiModel.asMap().clear();
     physicalPortService.save(physicalPort);
 
-    return "redirect:"+PAGE_URL;
+    return "redirect:" + PAGE_URL;
   }
 
   @RequestMapping(params = "id", method = RequestMethod.GET)
@@ -75,7 +75,7 @@ public class PhysicalPortController {
 
   @RequestMapping(value = "/free", method = RequestMethod.GET)
   public String listUnallocated(@RequestParam(value = "page", required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute(PAGE_URL,
+    uiModel.addAttribute(MODEL_KEY_LIST,
         physicalPortService.findUnallocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
     uiModel.addAttribute("maxPages", calculateMaxPages(physicalPortService.countUnallocated()));

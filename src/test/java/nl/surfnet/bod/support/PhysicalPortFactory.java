@@ -34,4 +34,9 @@ public class PhysicalPortFactory {
     this.name = name;
     return this;
   }
+
+  public PhysicalPortFactory setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
+    this.physicalResourceGroup = physicalResourceGroup;
+    return this;
+  }
 }

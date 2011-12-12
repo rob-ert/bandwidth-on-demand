@@ -19,9 +19,9 @@ import static nl.surfnet.bod.web.WebUtils.*;
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
 @Controller
 public class PhysicalResourceGroupController {
-  private static final String MODEL_KEY = "physicalResourceGroup";
 
   static final String PAGE_URL = "physicalresourcegroups";
+  static final String MODEL_KEY = "physicalResourceGroup";
   static final String MODEL_KEY_LIST = MODEL_KEY + "List";
 
   @Autowired

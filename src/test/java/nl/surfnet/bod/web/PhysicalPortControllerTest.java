@@ -10,6 +10,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static nl.surfnet.bod.web.PhysicalPortController.MODEL_KEY;
+import static nl.surfnet.bod.web.PhysicalPortController.MODEL_KEY_LIST;
 
 import java.util.List;
 
@@ -45,7 +47,7 @@ public class PhysicalPortControllerTest {
 
     subject.list(1, model);
 
-    assertThat(model.asMap(), hasEntry("physicalports", Object.class.cast(ports)));
+    assertThat(model.asMap(), hasEntry(MODEL_KEY_LIST, Object.class.cast(ports)));
     assertThat(model.asMap(), hasEntry("maxPages", Object.class.cast(1)));
   }
 
@@ -57,7 +59,7 @@ public class PhysicalPortControllerTest {
 
     subject.list(null, model);
 
-    assertThat(model.asMap(), hasEntry("physicalports", Object.class.cast(ports)));
+    assertThat(model.asMap(), hasEntry(MODEL_KEY_LIST, Object.class.cast(ports)));
     assertThat(model.asMap(), hasEntry("maxPages", Object.class.cast(1)));
   }
 
@@ -69,7 +71,7 @@ public class PhysicalPortControllerTest {
 
     subject.listUnallocated(1, model);
 
-    assertThat(model.asMap(), hasEntry("physicalports", Object.class.cast(ports)));
+    assertThat(model.asMap(), hasEntry(MODEL_KEY_LIST, Object.class.cast(ports)));
     assertThat(model.asMap(), hasEntry("maxPages", Object.class.cast(1)));
   }
 
@@ -80,7 +82,7 @@ public class PhysicalPortControllerTest {
 
     subject.show("12:00/port1", model);
 
-    assertThat(model.asMap(), hasEntry(is("physicalPort"), nullValue()));
+    assertThat(model.asMap(), hasEntry(is(MODEL_KEY), nullValue()));
   }
 
   @Test
@@ -91,7 +93,7 @@ public class PhysicalPortControllerTest {
 
     subject.show("12:00/port1", model);
 
-    assertThat(model.asMap(), hasEntry("physicalPort", Object.class.cast(port)));
+    assertThat(model.asMap(), hasEntry(MODEL_KEY, Object.class.cast(port)));
   }
 
   @Test
@@ -102,7 +104,7 @@ public class PhysicalPortControllerTest {
 
     subject.updateForm("00:00/port2", model);
 
-    assertThat(model.asMap(), hasEntry("physicalPort", Object.class.cast(port)));
+    assertThat(model.asMap(), hasEntry(MODEL_KEY, Object.class.cast(port)));
   }
 
   @Test

@@ -1,11 +1,13 @@
 package nl.surfnet.bod.web;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+
 import static org.hamcrest.Matchers.hasEntry;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static nl.surfnet.bod.web.PhysicalResourceGroupController.MODEL_KEY_LIST;
 
 import java.util.List;
 
@@ -41,7 +43,7 @@ public class PhysicalResourceGroupControllerTest {
 
     subject.list(1, model);
 
-    assertThat(model.asMap(), hasEntry("physicalresourcegroups", Object.class.cast(groups)));
+    assertThat(model.asMap(), hasEntry(MODEL_KEY_LIST, Object.class.cast(groups)));
     assertThat(model.asMap(), hasEntry("maxPages", Object.class.cast(1)));
   }
 
