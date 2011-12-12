@@ -34,11 +34,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@RequestMapping("/manager/" + VirtualResourceGroupController.PAGE_URL)
+@RequestMapping( VirtualResourceGroupController.PAGE_URL_PREFIX  + VirtualResourceGroupController.PAGE_URL )
 @Controller
 public class VirtualResourceGroupController {
-
-  static final String PAGE_URL = "virtualresourcegroups";
+  public static final String PAGE_URL_PREFIX = "/manager/";
+  public static final String PAGE_URL = "virtualresourcegroups";
 
   static final String MODEL_KEY = "virtualResourceGroup";
   static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
