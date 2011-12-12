@@ -1,4 +1,4 @@
-package nl.surfnet.bod.pages;
+package nl.surfnet.bod.pages.physicalresourcegroup;
 
 import java.util.List;
 
