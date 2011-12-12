@@ -294,7 +294,7 @@
         <dependency>
             <groupId>com.google.code</groupId>
             <artifactId>opensocial-java-client</artifactId>
-            <version>1.16.0-coin</version>
+            <version>1.16.1-coin</version>
         </dependency>
 
         <!-- axis1 (needed for rpc style encoding of IDD) -->
