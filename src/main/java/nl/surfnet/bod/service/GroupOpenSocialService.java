@@ -40,10 +40,6 @@ public class GroupOpenSocialService implements GroupService {
       logger.error("Could not retreive groups from open social server", e);
       return Collections.emptyList();
     }
-    catch (NullPointerException e) {
-      // aaggghh... client gives null pointer when response is not 200...
-      return Collections.emptyList();
-    }
   }
 
   private Client getClient(String loggedInUser) {
