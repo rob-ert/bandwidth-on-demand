@@ -4,9 +4,15 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.TestExternalSupport;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
+
+  @Before
+  public void setUp() {
+    getWebDriver().performLogin("TestUser");
+  }
 
   @Test
   public void createPhysicalGroup() throws Exception {
