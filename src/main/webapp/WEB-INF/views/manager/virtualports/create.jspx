@@ -12,6 +12,10 @@
 
         <field:input field="name" id="name" labelCode="nl_surfnet_bod_domain_virtualport_name" required="true" />
         
+        <field:display labelCode="nl_surfnet_bod_domain_physicalport_physicalresourcegroup"  id="c_nl_surfnet_bod_domain_PhysicalResourceGroup" object="${physicalResourceGroup}" field="name"/>
+        
+        <field:select field="physicalPort" id="c_nl_surfnet_bod_domain_PhysicalPort"
+            itemValue="name" items="${physicalResourceGroup.physicalPorts}" path="/manager/virtualports" required="true" />        
     </form:create>
 
 </div>

@@ -6,6 +6,7 @@
     <jsp:output omit-xml-declaration="yes" />
     
     <page:show id="ps_nl_surfnet_bod_domain_virtualports" object="${virtualPort}" path="/manager/virtualports"  >
-        <field:display field="name" id="s_nl_surfnet_bod_domain_VirtualPort_name" object="${virtualPort}" />        
+        <field:display field="name" id="s_nl_surfnet_bod_domain_VirtualPort" object="${virtualPort}" />    
+         <field:display field="physicalPortName" id="s_nl_surfnet_bod_domain_PhysicalPort" object="${virtualPort}" />
     </page:show>
 </div>

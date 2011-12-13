@@ -7,7 +7,8 @@
         
      <page:list id="pl_nl_surfnet_bod_domain_virtualport" items="${virtualPortList}">
         <table:table data="${virtualPortList}" id="l_nl_surfnet_bod_domain_VirtualPort" path="/manager/virtualports" typeIdFieldName="id">
-            <table:column id="label_nl_surfnet_bod_domain_virtualport_name" property="name" />            
+            <table:column id="label_nl_surfnet_bod_domain_virtualport" property="name" />            
+            <table:column id="label_nl_surfnet_bod_domain_physicalport" property="physicalPortName" />
         </table:table>
-    </page:list>
+    </page:list>    
 </div>

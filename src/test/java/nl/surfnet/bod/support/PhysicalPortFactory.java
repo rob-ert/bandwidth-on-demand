@@ -6,7 +6,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 public class PhysicalPortFactory {
 
   private Long id;
-  private String name;
+  private String name = "nameDefault";
   private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
   private Integer version;
 

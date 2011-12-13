@@ -17,6 +17,7 @@
 
         <field:input field="adminGroup" id="adminGroup" labelCode="physicalresourcegroup_adminGroup"
             helpMessageCode="physicalresourcegroup_adminGroup" />
+            
     </form:create>
 
 </div>

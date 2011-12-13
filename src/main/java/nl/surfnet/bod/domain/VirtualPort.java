@@ -72,4 +72,15 @@ public class VirtualPort {
     this.physicalPort = physicalPort;
   }
 
+  /**
+   * Convenience getter, since nesting bean properties is not support in the
+   * view.
+   * 
+   * @return String name of the {@link PhysicalPort}, empty string if
+   *         physicalPort is null
+   */
+  public String getPhysicalPortName() {
+    return physicalPort == null ? "" : physicalPort.getName();
+  }
+
 }

@@ -48,8 +48,8 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   public Converter<String, PhysicalPort> getStringToPhysicalPortConverter() {
     return new Converter<java.lang.String, nl.surfnet.bod.domain.PhysicalPort>() {
       @Override
-      public PhysicalPort convert(final String id) {
-        return getObject().convert(getObject().convert(id, Long.class), PhysicalPort.class);
+      public PhysicalPort convert(final String name) {
+        return physicalPortService.findByName(name);
       }
     };
   }

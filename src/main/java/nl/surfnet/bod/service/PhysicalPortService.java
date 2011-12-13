@@ -4,13 +4,14 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
 public interface PhysicalPortService {
 
   /**
    * Basic implementation, just serves as a placeholder for the integration with
    * the NMS to retrieve physicalPorts
-   *
+   * 
    * @return List<{@link PhysicalPort}>
    */
   List<PhysicalPort> findAll();
@@ -19,7 +20,7 @@ public interface PhysicalPortService {
 
   /**
    * Finds {@link PhysicalPort}s in case paging is used.
-   *
+   * 
    * @param firstResult
    * @param sizeNo
    *          max result size
@@ -30,7 +31,7 @@ public interface PhysicalPortService {
   /**
    * Finds unallocated {@link PhysicalPort}s with a start index and a max number
    * of results.
-   *
+   * 
    * @param firstResult
    * @param sizeNo
    *          max result size
@@ -51,5 +52,16 @@ public interface PhysicalPortService {
   void save(final PhysicalPort physicalPort);
 
   PhysicalPort update(final PhysicalPort physicalPort);
+
+  /**
+   * Finds all {@link PhysicalPort}s related to the given
+   * {@link PhysicalResourceGroup}
+   * 
+   * @param physicalResourceGroup
+   *          {@link PhysicalResourceGroup} to match on
+   * @return {@link Collection<PhysicalPort>} or empty Collection when not
+   *         found.
+   */
+  Collection<PhysicalPort> findAllForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup);
 
 }

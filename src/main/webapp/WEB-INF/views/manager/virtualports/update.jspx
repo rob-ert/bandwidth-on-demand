@@ -10,7 +10,13 @@
 
 	<form:update id="fc_nl_surfnet_bod_domain_VirtualPort" modelAttribute="virtualPort" path="/manager/virtualports" render="${empty dependencies}">
 		<input id="id" name="id" type="hidden" value="${virtualPort.id}" />
-		<field:input field="name" id="c_nl_surfnet_bod_domain_VirtualPort_name" />
+		
+		<field:input field="name" id="name" labelCode="nl_surfnet_bod_domain_virtualport_name" required="true" />
+        
+        <field:display labelCode="nl_surfnet_bod_domain_physicalport_physicalresourcegroup"  id="c_nl_surfnet_bod_domain_PhysicalResourceGroup" object="${physicalResourceGroup}" field="name"/>
+        
+        <field:select field="physicalPort" id="c_nl_surfnet_bod_domain_PhysicalPort"
+            itemValue="name" items="${physicalResourceGroup.physicalPorts}" path="/manager/virtualports" required="true" />		
 	</form:update>
 
 </div>

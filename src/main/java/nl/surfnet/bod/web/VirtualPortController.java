@@ -20,8 +20,13 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.util.UserContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,11 +36,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
 
-@RequestMapping("/manager/" + VirtualPortController.PAGE_URL)
+@SessionAttributes({ "userContext" })
+@RequestMapping(VirtualPortController.PAGE_URL_PREFIX + VirtualPortController.PAGE_URL)
 @Controller
 public class VirtualPortController {
-
+  public static final String PAGE_URL_PREFIX = "/manager/";
   static final String PAGE_URL = "virtualports";
 
   static final String MODEL_KEY = "virtualPort";
@@ -44,13 +51,16 @@ public class VirtualPortController {
   @Autowired
   private VirtualPortService virtualPortService;
 
-    
-  
+  @Autowired
+  private PhysicalPortService physicalPortService;
+
+  @Autowired
+  private PhysicalResourceGroupService physicalResourceGroupService;
+
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid VirtualPort virtualPort, final BindingResult bindingResult, final Model uiModel,
       final HttpServletRequest httpServletRequest) {
 
-  
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, virtualPort);
       return PAGE_URL + CREATE;
@@ -122,16 +132,47 @@ public class VirtualPortController {
   }
 
   /**
-   * Puts all {@link VirtualPort}s on the model, needed to relate a group to a
-   * {@link VirtualPort}.
+   * Puts all {@link PhysicalResourceGroup}s related to the user on the model.
+   * NOW just selects the first.
    * 
-   * @return Collection<PhysicalResourceGroup>
+   * @param userContext
+   *          {@link UserContext}
+   * 
+   * @return {@link PhysicalResourceGroup}
+   * 
+   * @throws {@link IllegalStateException} in case multiple groups are found.
    */
-  @ModelAttribute(MODEL_KEY_LIST)
-  public Collection<VirtualPort> populatevirtualPorts() {
-    return virtualPortService.findAll();
+  @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY)
+  public PhysicalResourceGroup populatePhysicalResourceGroups(@ModelAttribute UserContext userContext) {
+
+    Collection<PhysicalResourceGroup> findAllForUser = physicalResourceGroupService.findAllForUser(userContext
+        .getNameId());
+
+    //TODO View should be able to handle list
+    if (findAllForUser.size() > 1) {
+      throw new IllegalStateException("User [" + userContext + "] has more then one PhysicalResourceGroups: "
+          + findAllForUser);
+    }
+
+    return findAllForUser.iterator().next();
   }
 
+  /**
+   * Setter to enable dependency injection from testcases.
+   * 
+   * @param physicalPortService
+   *          {@link PhysicalPortService}
+   */
+  protected void setPhysicalPortService(PhysicalPortService physicalPortService) {
+    this.physicalPortService = physicalPortService;
+  }
+
+  /**
+   * Setter to enable depedency injection from testcases.
+   * 
+   * @param virtualPortService
+   *          {@link VirtualPortService}
+   */
   protected void setVirtualPortService(VirtualPortService virtualPortService) {
     this.virtualPortService = virtualPortService;
   }

@@ -2,6 +2,7 @@ package nl.surfnet.bod.domain;
 
 import java.util.Collection;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,7 +20,6 @@ import javax.persistence.Version;
  * 
  */
 @Entity
-@Table(name = "VirtualResourceGroup", uniqueConstraints = @UniqueConstraint(columnNames = "surfConnextGroupName"))
 public class VirtualResourceGroup {
 
   @Id
@@ -32,6 +32,7 @@ public class VirtualResourceGroup {
   /**
    * Must be unique, see constraint @Table
    */
+  @Column(unique = true, nullable = false)
   private String surfConnextGroupName;
 
   @OneToMany(mappedBy = "virtualResourceGroup")
