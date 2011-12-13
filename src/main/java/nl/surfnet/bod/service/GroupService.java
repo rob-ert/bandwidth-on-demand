@@ -2,9 +2,9 @@ package nl.surfnet.bod.service;
 
 import java.util.Collection;
 
-import org.opensocial.models.Group;
+import nl.surfnet.bod.domain.UserGroup;
 
 public interface GroupService {
 
-  Collection<Group> getGroups(String nameId);
+  Collection<UserGroup> getGroups(String nameId);
 }

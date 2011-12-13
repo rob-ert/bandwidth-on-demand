@@ -3,7 +3,9 @@ package nl.surfnet.bod.service;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
+import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.util.Environment;
 
 import org.opensocial.Client;
@@ -19,6 +21,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
 @Service
 public class GroupOpenSocialService implements GroupService {
 
@@ -28,9 +33,15 @@ public class GroupOpenSocialService implements GroupService {
   private Environment env;
 
   @Override
-  public Collection<Group> getGroups(String nameId) {
+  public Collection<UserGroup> getGroups(String nameId) {
     try {
-      return getClient(nameId).send(GroupsService.getGroups()).getEntries();
+      List<Group> osGroups = getClient(nameId).send(GroupsService.getGroups()).getEntries();
+      
+      return Lists.newArrayList(Lists.transform(osGroups, new Function<Group, UserGroup>() {
+        @Override
+        public UserGroup apply(Group input) {
+          return new UserGroup(input.getId(), input.getTitle(), input.getDescription());
+        }}));
     }
     catch (RequestException e) {
       logger.error("Could not retreive groups from open social server", e);

@@ -2,6 +2,7 @@ package nl.surfnet.bod.support;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -10,8 +11,9 @@ import com.google.common.collect.Lists;
 
 public class PhysicalResourceGroupFactory {
 
+  private static final AtomicInteger count = new AtomicInteger();
   private String name = "First group";
-  private String institution = "SURFnet B.V.";
+  private String institution = "SURFnet B.V." + count.getAndIncrement();
   private String adminGroup = null;
 
   private List<PhysicalPort> physicalPorts = Lists.newArrayList();

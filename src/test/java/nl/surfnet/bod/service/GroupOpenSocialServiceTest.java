@@ -6,13 +6,13 @@ import static org.hamcrest.Matchers.is;
 
 import java.util.Collection;
 
+import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.support.MockHttpServer;
 import nl.surfnet.bod.util.Environment;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opensocial.models.Group;
 import org.springframework.core.io.ByteArrayResource;
 
 public class GroupOpenSocialServiceTest {
@@ -41,9 +41,12 @@ public class GroupOpenSocialServiceTest {
         + "\"title\":\"bandwidth-on-demand\",\"description\":\"The BoD development team\"}]"
         + ",\"itemsPerPage\":1}").getBytes()));
 
-    Collection<Group> groups = subject.getGroups("urn:collab:person:surfguest.nl:alanvdam");
-
+    Collection<UserGroup> groups = subject.getGroups("urn:collab:person:surfguest.nl:alanvdam");
+        
     assertThat(groups, hasSize(1));
-    assertThat(groups.iterator().next().getTitle(), is("bandwidth-on-demand"));
+    
+    UserGroup group = groups.iterator().next();
+    assertThat(group.getTitle(), is("bandwidth-on-demand"));
+    assertThat(group.getId(), is("urn:collab:group:surfteams.nl:nl:surfnet:diensten:bandwidth-on-demand"));
   }
 }
