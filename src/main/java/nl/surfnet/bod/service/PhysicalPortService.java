@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
 public interface PhysicalPortService {
 
@@ -52,16 +51,5 @@ public interface PhysicalPortService {
   void save(final PhysicalPort physicalPort);
 
   PhysicalPort update(final PhysicalPort physicalPort);
-
-  /**
-   * Finds all {@link PhysicalPort}s related to the given
-   * {@link PhysicalResourceGroup}
-   * 
-   * @param physicalResourceGroup
-   *          {@link PhysicalResourceGroup} to match on
-   * @return {@link Collection<PhysicalPort>} or empty Collection when not
-   *         found.
-   */
-  Collection<PhysicalPort> findAllForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup);
 
 }

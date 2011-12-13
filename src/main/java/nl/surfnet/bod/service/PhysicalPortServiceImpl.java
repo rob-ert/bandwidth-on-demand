@@ -5,12 +5,10 @@ import static com.google.common.collect.Iterables.skip;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,6 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
@@ -82,13 +79,6 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
         return input.getId() == null;
       }
     });
-  }
-
-  @Override
-  public java.util.Collection<PhysicalPort> findAllForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
-
-    return physicalPortRepo.findByPhysicalResourceGroup(physicalResourceGroup);
-
   }
 
   @Override

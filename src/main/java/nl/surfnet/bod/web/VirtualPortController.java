@@ -20,10 +20,8 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.UserContext;
@@ -50,10 +48,7 @@ public class VirtualPortController {
 
   @Autowired
   private VirtualPortService virtualPortService;
-
-  @Autowired
-  private PhysicalPortService physicalPortService;
-
+  
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
 
@@ -157,16 +152,7 @@ public class VirtualPortController {
     return findAllForUser.iterator().next();
   }
 
-  /**
-   * Setter to enable dependency injection from testcases.
-   * 
-   * @param physicalPortService
-   *          {@link PhysicalPortService}
-   */
-  protected void setPhysicalPortService(PhysicalPortService physicalPortService) {
-    this.physicalPortService = physicalPortService;
-  }
-
+ 
   /**
    * Setter to enable depedency injection from testcases.
    * 
