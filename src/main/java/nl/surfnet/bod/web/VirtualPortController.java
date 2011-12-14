@@ -22,9 +22,11 @@ import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.util.UserContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,10 +51,13 @@ public class VirtualPortController {
 
   @Autowired
   private VirtualPortService virtualPortService;
-  
+
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
-  
+
+  @Autowired
+  private VirtualResourceGroupService virtualResourceGroupService;
+
   @Autowired
   private VirtualPortValidator virtualPortValidator;
 
@@ -149,16 +154,21 @@ public class VirtualPortController {
     Collection<PhysicalResourceGroup> findAllForUser = physicalResourceGroupService.findAllForUser(userContext
         .getNameId());
 
-    //TODO View should be able to handle list
+    // TODO View should be able to handle list
     if (findAllForUser.size() > 1) {
       throw new IllegalStateException("User [" + userContext + "] has more then one PhysicalResourceGroups: "
           + findAllForUser);
     }
 
-    return findAllForUser.iterator().next();
+    return findAllForUser.iterator().hasNext() ? findAllForUser.iterator().next() : new PhysicalResourceGroup();
   }
 
- 
+  public Collection<VirtualResourceGroup> populateVirtualResourceGroups(@ModelAttribute UserContext userContext) {
+
+    return virtualResourceGroupService.findAllForUser(userContext.getNameId());
+
+  }
+
   /**
    * Setter to enable depedency injection from testcases.
    * 

@@ -1,5 +1,8 @@
 package nl.surfnet.bod.repo;
 
+import java.util.Collection;
+import java.util.List;
+
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +33,14 @@ public interface VirtualResourceGroupRepo extends JpaSpecificationExecutor<Virtu
    */
   VirtualResourceGroup findByName(String name);
 
+  /**
+   * Finds {@link VirtualResourceGroup}s by a Collection of adminGroups
+   * {@link VirtualResourceGroup#getSurfConnextGroupName())}
+   * 
+   * @param Collection
+   *          <String> adminGroups to search for
+   * 
+   * @return List<VirtualResourceGroup> or empty list when no match was found.
+   */
+  List<VirtualResourceGroup> findBySurfConnextGroupNameIn(Collection<String> adminGroups);
 }

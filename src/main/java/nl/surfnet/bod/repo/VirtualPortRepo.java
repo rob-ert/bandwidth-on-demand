@@ -17,5 +17,5 @@ public interface VirtualPortRepo extends JpaSpecificationExecutor<VirtualPort>, 
    * @return {@link VirtualPort} or null when no match was found.
    */
   VirtualPort findByName(String name);
-  
+
 }

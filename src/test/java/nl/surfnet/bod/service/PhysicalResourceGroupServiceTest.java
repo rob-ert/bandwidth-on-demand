@@ -2,7 +2,7 @@ package nl.surfnet.bod.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Matchers.argThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -14,7 +14,6 @@ import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.UserGroupFactory;
 
-import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,16 +39,18 @@ public class PhysicalResourceGroupServiceTest {
 
   @Test
   public void test() {
-    String loggedInUser="urn:truus";
+    String loggedInUser = "urn:truus";
     String groupOfLoggedInUser = "urn:myfirstgroup";
     UserGroup group = new UserGroupFactory().setId(groupOfLoggedInUser).create();
     PhysicalResourceGroup prGroup = new PhysicalResourceGroupFactory().create();
-    
+
     when(groupServiceMock.getGroups(loggedInUser)).thenReturn(ImmutableList.of(group));
-    when(groupRepoMock.findByAdminGroupIn(Lists.newArrayList(groupOfLoggedInUser))).thenReturn(ImmutableList.of(prGroup));
-    
+    when(groupRepoMock.findByAdminGroupIn(Lists.newArrayList(groupOfLoggedInUser))).thenReturn(
+        ImmutableList.of(prGroup));
+
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllForUser(loggedInUser);
-  
+
+    assertThat(groups, hasSize(1));
     assertThat(groups, hasItem(prGroup));
   }
 }

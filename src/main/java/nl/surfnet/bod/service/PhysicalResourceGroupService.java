@@ -1,5 +1,6 @@
 package nl.surfnet.bod.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
@@ -55,6 +57,7 @@ public class PhysicalResourceGroupService {
   }
 
   public Collection<PhysicalResourceGroup> findAllForUser(String nameId) {
+    List<PhysicalResourceGroup> physicalResourceGroups = new ArrayList<PhysicalResourceGroup>();
     Collection<UserGroup> groups = groupService.getGroups(nameId);
 
     Collection<String> adminGroups = Lists.newArrayList(Collections2.transform(groups,
@@ -65,7 +68,11 @@ public class PhysicalResourceGroupService {
           }
         }));
 
-    return physicalResourceGroupRepo.findByAdminGroupIn(adminGroups);
+    if (!CollectionUtils.isEmpty(adminGroups)) {
+      physicalResourceGroups = physicalResourceGroupRepo.findByAdminGroupIn(adminGroups);
+    }
+
+    return physicalResourceGroups;
   }
 
   public PhysicalResourceGroup findByName(String name) {

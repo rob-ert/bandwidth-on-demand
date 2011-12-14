@@ -17,9 +17,11 @@ public interface PhysicalResourceGroupRepo extends JpaSpecificationExecutor<Phys
    * Finds {@link PhysicalResourceGroup}s by a Collection of adminGroups
    * {@link PhysicalResourceGroup#getAdminGroup()}
    * 
-   * @param Collection<String> adminGroups to search for
+   * @param Collection
+   *          <String> adminGroups to search for
    * 
-   * @return {@link PhysicalResourceGroup} or null when no match was found.
+   * @return List<PhysicalResourceGroup> or empty collection when no match was
+   *         found.
    */
   List<PhysicalResourceGroup> findByAdminGroupIn(Collection<String> adminGroups);
 

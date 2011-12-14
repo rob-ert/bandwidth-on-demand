@@ -8,8 +8,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -32,12 +30,9 @@ public class VirtualResourceGroup {
   private Integer version;
 
   @NotEmpty
-  @Column(unique=true, nullable = false)
+  @Column(unique = true, nullable = false)
   private String name;
-  
-  /**
-   * Must be unique, see constraint @Table
-   */
+
   @Column(unique = true, nullable = false)
   private String surfConnextGroupName;
 
@@ -93,5 +88,11 @@ public class VirtualResourceGroup {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  @Override
+  public String toString() {
+
+    return name;
   }
 }

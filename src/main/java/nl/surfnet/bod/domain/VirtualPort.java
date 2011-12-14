@@ -28,7 +28,7 @@ public class VirtualPort {
   private Integer version;
 
   @NotEmpty
-  @Column(unique=true, nullable = false)
+  @Column(unique = true, nullable = false)
   private String name;
 
   @ManyToOne
@@ -78,6 +78,8 @@ public class VirtualPort {
   }
 
   /**
+   * TODO remove
+   * 
    * Convenience getter, since nesting bean properties is not support in the
    * view.
    * 
@@ -86,6 +88,20 @@ public class VirtualPort {
    */
   public String getPhysicalPortName() {
     return physicalPort == null ? "" : physicalPort.getName();
+  }
+
+  /**
+   * TODO remove
+   * 
+   * Convenience getter, since nesting bean properties is not support in the
+   * view.
+   * 
+   * @return String name of the {@link PhysicalPort}, empty string if
+   *         physicalPort is null
+   */
+  public String getPhysicalResourceGroupName() {
+    return physicalPort == null ? "" : physicalPort.getPhysicalResourceGroup() == null ? "" : physicalPort
+        .getPhysicalResourceGroup().getName();
   }
 
 }
