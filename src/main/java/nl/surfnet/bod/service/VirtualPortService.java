@@ -37,6 +37,11 @@ public class VirtualPortService {
     return virtualPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults)).getContent();
   }
 
+  public VirtualPort findByName(String name) {
+
+    return virtualPortRepo.findByName(name);
+  }
+
   public void save(final VirtualPort virtualPort) {
     virtualPortRepo.save(virtualPort);
   }

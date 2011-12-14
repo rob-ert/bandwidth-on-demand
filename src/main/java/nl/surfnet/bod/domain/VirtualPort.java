@@ -1,11 +1,14 @@
 package nl.surfnet.bod.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Version;
+
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Entity which represents a VirtualPort which is mapped to a
@@ -24,6 +27,8 @@ public class VirtualPort {
   @Version
   private Integer version;
 
+  @NotEmpty
+  @Column(unique=true, nullable = false)
   private String name;
 
   @ManyToOne

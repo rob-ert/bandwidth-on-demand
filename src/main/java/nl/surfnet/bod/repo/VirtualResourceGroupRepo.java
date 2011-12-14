@@ -14,9 +14,20 @@ public interface VirtualResourceGroupRepo extends JpaSpecificationExecutor<Virtu
    * Finds a {@link VirtualResourceGroup} by
    * {@link VirtualResourceGroup#getSurfConnextGroupName()}
    * 
-   * @param surfConnextGroupName The name to search for
+   * @param surfConnextGroupName
+   *          The name to search for
    * @return {@link VirtualResourceGroup} or null when no match was found.
    */
   VirtualResourceGroup findBySurfConnextGroupName(String surfConnextGroupName);
+
+  /**
+   * Finds a {@link VirtualResourceGroup} by
+   * {@link VirtualResourceGroup#getName()}
+   * 
+   * @param Name
+   *          The name to search for
+   * @return {@link VirtualResourceGroup} or null when no match was found.
+   */
+  VirtualResourceGroup findByName(String name);
 
 }

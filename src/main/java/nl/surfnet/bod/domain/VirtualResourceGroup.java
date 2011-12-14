@@ -12,6 +12,8 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 /**
  * Entity which represents a List of {@link VirtualPort}s which belong together
  * and to the {@link Reservation}s which are related to this group.
@@ -29,6 +31,10 @@ public class VirtualResourceGroup {
   @Version
   private Integer version;
 
+  @NotEmpty
+  @Column(unique=true, nullable = false)
+  private String name;
+  
   /**
    * Must be unique, see constraint @Table
    */
@@ -79,5 +85,13 @@ public class VirtualResourceGroup {
 
   public void setReservations(Collection<Reservation> reservations) {
     this.reservations = reservations;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 }

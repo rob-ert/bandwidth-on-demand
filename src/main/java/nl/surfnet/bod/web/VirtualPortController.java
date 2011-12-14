@@ -22,6 +22,7 @@ import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.UserContext;
@@ -51,11 +52,15 @@ public class VirtualPortController {
   
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
+  
+  @Autowired
+  private VirtualPortValidator virtualPortValidator;
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid VirtualPort virtualPort, final BindingResult bindingResult, final Model uiModel,
       final HttpServletRequest httpServletRequest) {
 
+    virtualPortValidator.validate(virtualPort, bindingResult);
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, virtualPort);
       return PAGE_URL + CREATE;
@@ -96,6 +101,7 @@ public class VirtualPortController {
   public String update(@Valid final VirtualPort virtualPort, final BindingResult bindingResult, final Model uiModel,
       final HttpServletRequest httpServletRequest) {
 
+    virtualPortValidator.validate(virtualPort, bindingResult);
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, virtualPort);
       return PAGE_URL + UPDATE;

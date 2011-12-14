@@ -10,6 +10,7 @@
 
 	<form:update id="fc_nl_surfnet_bod_domain_VirtualResourceGroup" modelAttribute="virtualResourceGroup" path="/manager/virtualresourcegroups" render="${empty dependencies}">
 		<input id="id" name="id" type="hidden" value="${virtualResourceGroup.id}" />
+		<field:input field="name" id="c_nl_surfnet_bod_domain_VirtualResourceGroup_name" />
 		<field:input field="surfConnextGroupName" id="c_nl_surfnet_bod_domain_VirtualResourceGroup_surfConnextGroupName" />
 	</form:update>
 

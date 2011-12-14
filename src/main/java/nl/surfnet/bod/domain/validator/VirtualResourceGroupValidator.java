@@ -10,7 +10,8 @@ import org.springframework.validation.Validator;
 
 /**
  * Validator for the {@link VirtualResourceGroup}. Validates that the
- * {@link VirtualResourceGroup#getSurfConnextGroupName()} is unique.
+ * {@link VirtualResourceGroup#getSurfConnextGroupName()} is unique and exists
+ * in SurfConext.
  * 
  * @author Franky
  * 
@@ -30,13 +31,22 @@ public class VirtualResourceGroupValidator implements Validator {
   public void validate(Object objToValidate, Errors errors) {
     VirtualResourceGroup virtualResourceGroup = (VirtualResourceGroup) objToValidate;
 
+    // Check the surfConnextGroupName
     if (virtualResourceGroupService.findBySurfConnextGroupName(virtualResourceGroup.getSurfConnextGroupName()) != null) {
       // An instance already exists
       errors.rejectValue("surfConnextGroupName", "validation.not.unique");
     }
 
+    // TODO Check if the surfConextGroupName exists in SurfConext
+
+    // Check the name
+    if (virtualResourceGroupService.findByName(virtualResourceGroup.getName()) != null) {
+      // An instance already exists
+      errors.rejectValue("name", "validation.not.unique");
+    }
+
   }
-  
+
   void setVirtualResourceGroupService(VirtualResourceGroupService virtualResourceGroupService) {
     this.virtualResourceGroupService = virtualResourceGroupService;
   }

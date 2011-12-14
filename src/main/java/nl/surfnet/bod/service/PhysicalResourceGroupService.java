@@ -57,13 +57,19 @@ public class PhysicalResourceGroupService {
   public Collection<PhysicalResourceGroup> findAllForUser(String nameId) {
     Collection<UserGroup> groups = groupService.getGroups(nameId);
 
-    Collection<String> adminGroups = Lists.newArrayList(Collections2.transform(groups, new Function<UserGroup, String>() {
-      @Override
-      public String apply(UserGroup group) {
-        return group.getId();
-      }}));
-    
+    Collection<String> adminGroups = Lists.newArrayList(Collections2.transform(groups,
+        new Function<UserGroup, String>() {
+          @Override
+          public String apply(UserGroup group) {
+            return group.getId();
+          }
+        }));
+
     return physicalResourceGroupRepo.findByAdminGroupIn(adminGroups);
+  }
+
+  public PhysicalResourceGroup findByName(String name) {
+    return physicalResourceGroupRepo.findByName(name);
   }
 
   protected void setPhysicalResourceGroupRepo(PhysicalResourceGroupRepo physicalResourceGroupRepo) {
@@ -73,4 +79,5 @@ public class PhysicalResourceGroupService {
   protected void setGroupService(GroupService groupService) {
     this.groupService = groupService;
   }
+
 }

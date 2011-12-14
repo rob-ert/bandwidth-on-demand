@@ -28,7 +28,7 @@ public class PhysicalResourceGroupRepoTest {
   public void testFindByAdminGroup() {
     String firstAdminGroup = "urn:firstGroup";
     Collection<String> adminGroups = Lists.newArrayList(firstAdminGroup, "urn:secondGroup");
-    PhysicalResourceGroup firstPhysicalResourceGroup =new PhysicalResourceGroupFactory().setAdminGroupName(firstAdminGroup).create(); 
+    PhysicalResourceGroup firstPhysicalResourceGroup =new PhysicalResourceGroupFactory().setName("testName").setAdminGroupName(firstAdminGroup).create(); 
     
     Collection<PhysicalResourceGroup> physicalResourceGroups = Lists.newArrayList(firstPhysicalResourceGroup, new PhysicalResourceGroupFactory().setAdminGroupName("urn:noMatch").create());    
     subject.save(physicalResourceGroups);

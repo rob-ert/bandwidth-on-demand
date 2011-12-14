@@ -23,7 +23,7 @@ public class VirtualResourceGroupRepoTest {
   @Test
   public void testFindBySurfConnextGroupName() {
     String nameOne = "groupOne";
-    VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().setSurfConnextGroupName(nameOne).create();
+    VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().setName("one").setSurfConnextGroupName(nameOne).create();
 
     subject.save(vrGroup);
   }
@@ -31,7 +31,7 @@ public class VirtualResourceGroupRepoTest {
   @Test(expected = JpaSystemException.class)
   public void testSaveNameNotUnique() {
     String nameOne = "groupOne";
-    VirtualResourceGroup vrGroupOne = new VirtualResourceGroupFactory().setSurfConnextGroupName(nameOne).create();
+    VirtualResourceGroup vrGroupOne = new VirtualResourceGroupFactory().setName("one").setSurfConnextGroupName(nameOne).create();
 
     subject.save(vrGroupOne);
 

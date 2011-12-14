@@ -25,7 +25,7 @@ public class PhysicalResourceGroup {
   private Integer version;
 
   @NotEmpty
-  @Column(nullable = false)
+  @Column(unique=true, nullable = false)
   private String name;
 
   @NotEmpty

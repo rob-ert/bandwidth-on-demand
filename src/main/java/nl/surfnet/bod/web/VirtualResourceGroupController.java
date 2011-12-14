@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@RequestMapping( VirtualResourceGroupController.PAGE_URL_PREFIX  + VirtualResourceGroupController.PAGE_URL )
+@RequestMapping(VirtualResourceGroupController.PAGE_URL_PREFIX + VirtualResourceGroupController.PAGE_URL)
 @Controller
 public class VirtualResourceGroupController {
   public static final String PAGE_URL_PREFIX = "/manager/";
@@ -50,12 +50,17 @@ public class VirtualResourceGroupController {
   private VirtualResourceGroupValidator virtualResourceGroupValidator;
 
   /**
-   * Creates a {@link VirtualResourceGroup},  validates according to {@link VirtualResourceGroupValidator}
+   * Creates a {@link VirtualResourceGroup}, validates according to
+   * {@link VirtualResourceGroupValidator}
    * 
-   * @param virtualResourceGroup {@link VirtualResourceGroup}
-   * @param bindingResult {@link BindingResult}
-   * @param uiModel model
-   * @param httpServletRequest Request
+   * @param virtualResourceGroup
+   *          {@link VirtualResourceGroup}
+   * @param bindingResult
+   *          {@link BindingResult}
+   * @param uiModel
+   *          model
+   * @param httpServletRequest
+   *          Request
    * @return String viewName
    */
   @RequestMapping(method = RequestMethod.POST)
@@ -101,11 +106,17 @@ public class VirtualResourceGroupController {
   }
 
   /**
-   * Updates an existing {@link VirtualResourceGroup}, validates according to {@link VirtualResourceGroupValidator}
-   * @param virtualResourceGroup {@link VirtualResourceGroup}
-   * @param bindingResult {@link BindingResult}
-   * @param uiModel Model
-   * @param httpServletRequest Request
+   * Updates an existing {@link VirtualResourceGroup}, validates according to
+   * {@link VirtualResourceGroupValidator}
+   * 
+   * @param virtualResourceGroup
+   *          {@link VirtualResourceGroup}
+   * @param bindingResult
+   *          {@link BindingResult}
+   * @param uiModel
+   *          Model
+   * @param httpServletRequest
+   *          Request
    * @return String viewName
    */
   @RequestMapping(method = RequestMethod.PUT)

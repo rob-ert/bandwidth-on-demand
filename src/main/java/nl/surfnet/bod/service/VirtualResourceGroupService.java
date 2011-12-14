@@ -48,4 +48,8 @@ public class VirtualResourceGroupService {
   public VirtualResourceGroup findBySurfConnextGroupName(String surfConnextGroupName) {
     return virtualResourceGroupRepo.findBySurfConnextGroupName(surfConnextGroupName);
   }
+
+  public VirtualResourceGroup findByName(String name) {
+  return virtualResourceGroupRepo.findByName(name);
+  }
 }

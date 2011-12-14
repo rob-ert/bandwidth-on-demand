@@ -26,6 +26,7 @@ public class VirtualPortFactory {
 
     virtualPort.setId(id);
     virtualPort.setVersion(version);
+    virtualPort.setName(name);
 
     virtualPort.setVirtualResourceGroup(virtualResourceGroup);
     virtualPort.setPhysicalPort(physicalPort);

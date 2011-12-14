@@ -1,5 +1,6 @@
 package nl.surfnet.bod.domain;
 
+import javax.persistence.Column;
 import javax.annotation.Nullable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -21,6 +22,7 @@ public class PhysicalPort {
   private Integer version;
 
   @NotEmpty
+  @Column(unique = true, nullable = false)
   private String name;
 
   @Nullable

@@ -36,39 +36,78 @@ public class VirtualResourceGroupValidatorTest {
   }
 
   @Test
-  public void testValidateExistingInstance() {
+  public void testValidateExistingSurfConnextGroupName() {
     VirtualResourceGroup virtualResourceGroupOne = new VirtualResourceGroupFactory().setSurfConnextGroupName("one")
         .create();
 
     when(virtualResourceGroupServiceMock.findBySurfConnextGroupName("one")).thenReturn(virtualResourceGroupOne);
     Errors errors = new BeanPropertyBindingResult(virtualResourceGroupOne, "virtualResourceGroup");
     assertFalse(errors.hasErrors());
-    assertFalse(errors.hasFieldErrors());
-    assertFalse(errors.hasGlobalErrors());
 
     subject.validate(virtualResourceGroupOne, errors);
 
     assertTrue(errors.hasFieldErrors("surfConnextGroupName"));
     assertFalse(errors.hasGlobalErrors());
   }
-  
-  
+
   @Test
-  public void testValidateNonExistingInstance() {
+  public void testValidateNonExistingSurfConnextGroupName() {
     VirtualResourceGroup virtualResourceGroupOne = new VirtualResourceGroupFactory().setSurfConnextGroupName("one")
         .create();
 
     when(virtualResourceGroupServiceMock.findBySurfConnextGroupName("one")).thenReturn(null);
     Errors errors = new BeanPropertyBindingResult(virtualResourceGroupOne, "virtualResourceGroup");
     assertFalse(errors.hasErrors());
-    assertFalse(errors.hasFieldErrors());
-    assertFalse(errors.hasGlobalErrors());
 
     subject.validate(virtualResourceGroupOne, errors);
 
+    assertFalse(errors.hasErrors());
+  }
+
+  @Test
+  public void testValidateExistingName() {
+    VirtualResourceGroup virtualResourceGroupOne = new VirtualResourceGroupFactory().setName("one").create();
+
+    when(virtualResourceGroupServiceMock.findByName("one")).thenReturn(virtualResourceGroupOne);
+
+    Errors errors = new BeanPropertyBindingResult(virtualResourceGroupOne, "virtualResourceGroup");
+    assertFalse(errors.hasErrors());
+   
+    subject.validate(virtualResourceGroupOne, errors);
+
+    assertTrue(errors.hasFieldErrors("name"));
+    assertFalse(errors.hasGlobalErrors());
+
+  }
+  
+  @Test
+  public void testValidateNonExistingName() {
+    VirtualResourceGroup virtualResourceGroupOne = new VirtualResourceGroupFactory().setName("one").create();
+
+    when(virtualResourceGroupServiceMock.findByName("one")).thenReturn(null);
+
+    Errors errors = new BeanPropertyBindingResult(virtualResourceGroupOne, "virtualResourceGroup");
+    assertFalse(errors.hasErrors());
+    
+    subject.validate(virtualResourceGroupOne, errors);
+
+    assertFalse(errors.hasErrors());
+  }
+  
+  @Test
+  public void testValidateExistingNameAndSurfConnextGroup() {
+    VirtualResourceGroup virtualResourceGroupOne = new VirtualResourceGroupFactory().setName("one").setSurfConnextGroupName("surfOne").create();
+
+    when(virtualResourceGroupServiceMock.findBySurfConnextGroupName("one")).thenReturn(virtualResourceGroupOne);
+
+    Errors errors = new BeanPropertyBindingResult(virtualResourceGroupOne, "virtualResourceGroup");
+    assertFalse(errors.hasErrors());
+  
+    subject.validate(virtualResourceGroupOne, errors);
+
+    assertFalse(errors.hasFieldErrors("name"));
     assertFalse(errors.hasFieldErrors("surfConnextGroupName"));
     assertFalse(errors.hasGlobalErrors());
   }
-
 
 }

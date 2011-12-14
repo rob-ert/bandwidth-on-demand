@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.validator.PhysicalResourceGroupValidator;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +28,15 @@ public class PhysicalResourceGroupController {
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
 
+  @Autowired
+  private PhysicalResourceGroupValidator physicalResourceGroupValidator;
+  
+  
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid final PhysicalResourceGroup physicalResourceGroup, final BindingResult bindingResult,
       final Model uiModel, final HttpServletRequest httpServletRequest) {
 
+    physicalResourceGroupValidator.validate(physicalResourceGroup, bindingResult);
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, physicalResourceGroup);
       return PAGE_URL + CREATE;
@@ -72,6 +78,7 @@ public class PhysicalResourceGroupController {
   public String update(@Valid final PhysicalResourceGroup physicalResourceGroup, final BindingResult bindingResult,
       final Model uiModel, final HttpServletRequest httpServletRequest) {
 
+    physicalResourceGroupValidator.validate(physicalResourceGroup, bindingResult);
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, physicalResourceGroup);
       return PAGE_URL + UPDATE;
