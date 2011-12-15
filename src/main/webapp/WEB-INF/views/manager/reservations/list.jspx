@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+    xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
+    
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+        
+     <page:list id="pl_nl_surfnet_bod_domain_reservation" items="${reservationList}">
+        <table:table data="${reservationList}" id="l_nl_surfnet_bod_domain_reservation" path="/manager/reservations" typeIdFieldName="id">
+            <table:column id="label_nl_surfnet_bod_domain_reservation" property="name" />            
+            <table:column id="label_nl_surfnet_bod_domain_virtualresourcegroup" property="virtualResourceGroup" />
+            <table:column id="label_nl_surfnet_bod_domain_virtualport" property="virtualPortName" />
+        </table:table>
+    </page:list>    
+</div>

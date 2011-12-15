@@ -9,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
 /**
@@ -42,8 +44,10 @@ public class Reservation {
   @ManyToOne
   private VirtualPort endPort;
 
+  @Temporal(TemporalType.TIMESTAMP)
   private Date startTimeStamp;
 
+  @Temporal(TemporalType.TIMESTAMP)
   private Date endTimeStamp;
 
   private String user;
@@ -128,4 +132,11 @@ public class Reservation {
     this.user = user;
   }
 
+  /**
+   * TODO Convenience method since bean notation is not allowed in view
+   * 
+   */
+  public String getVirtualResourceGroupName() {
+    return this.virtualResourceGroup == null ? "" : this.virtualResourceGroup.getName();
+  }
 }
