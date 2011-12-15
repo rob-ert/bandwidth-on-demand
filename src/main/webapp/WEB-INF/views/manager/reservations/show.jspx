@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <div xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields" xmlns:jsp="http://java.sun.com/JSP/Page"
     xmlns:page="urn:jsptagdir:/WEB-INF/tags/form">
-    
+
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-    
-    <page:show id="ps_nl_surfnet_bod_domain_reservations" object="${reservation}" path="/manager/reservations"  >
-        <field:display field="name" id="s_nl_surfnet_bod_domain_reservation" object="${reservation}" />    
-         <field:display field="virtualResourceGroupName" id="s_nl_surfnet_bod_domain_virtualResourceGroup" object="${reservation}" />
+
+    <page:show id="fc_nl_surfnet_bod_domain_reservation"   path="/manager/reservations" render="${empty dependencies}" object="${reservation}">
+	
+		<field:display field="sourcePort" id="c_nl_surfnet_bod_domain_sourceport"  object="${reservation}" />
+            
+        <field:display field="destinationPort" id="c_nl_surfnet_bod_domain_destinationPort"   object="${reservation}" />
+        
+        <field:display  field="virtualResourceGroupName" id="c_nl_surfnet_bod_domain_virtualresourcegroup" object="${reservation}" />
+	
+        <field:display field="startDate" id="startDate" label="startDate"  object="${reservation}"/>
+        <field:display field="startTime" id="startTime" label="startTime" object="${reservation}"/>
+        
+        <field:display  field="endDate" id="endDate" label="endDate" object="${reservation}"/>
+        <field:display  field="endTime" id="endTime" label="endTime" object="${reservation}"/>
+                
     </page:show>
 </div>

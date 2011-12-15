@@ -27,6 +27,10 @@ form#command {
 .container {
 	margin-top: 80px;
 }
+.errors {
+	color: red;
+	font-weight: bold;
+}
 div.topbar {
 	background: url(../images/body_theme_bck.gif) no-repeat;
 	background-color: white;

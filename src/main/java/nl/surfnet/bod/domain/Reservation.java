@@ -2,7 +2,6 @@ package nl.surfnet.bod.domain;
 
 import java.util.Date;
 
-import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -47,7 +46,7 @@ public class Reservation {
   private VirtualPort sourcePort;
 
   @ManyToOne
-  private VirtualPort endPort;
+  private VirtualPort destinationPort;
 
   @DateTimeFormat(style = "S-")
   @Temporal(TemporalType.DATE)
@@ -72,6 +71,7 @@ public class Reservation {
   @Column(nullable=false)
   private String user;
 
+  
   public Long getId() {
     return id;
   }
@@ -120,12 +120,12 @@ public class Reservation {
     this.sourcePort = sourcePort;
   }
 
-  public VirtualPort getEndPort() {
-    return endPort;
+  public VirtualPort getDestinationPort() {
+    return destinationPort;
   }
 
-  public void setEndPort(VirtualPort endPort) {
-    this.endPort = endPort;
+  public void setDestinationPort(VirtualPort endPort) {
+    this.destinationPort = endPort;
   }
 
   public Date getStartDate() {
@@ -167,7 +167,7 @@ public class Reservation {
   public void setUser(String user) {
     this.user = user;
   }
-
+  
   /**
    * TODO Convenience method since bean notation is not allowed in view
    * 

@@ -60,7 +60,7 @@ public class ReservationTest {
         .setStartTimeStamp(startTimeStamp.getTime()).setSurfConnextGroupId(surfConnextGroupId).setVersion(version)
         .setVirtualResourceGroup(virtualResourceGroup).setUser(user).create();
 
-    assertThat(reservation.getEndPort(), is(endPort));
+    assertThat(reservation.getDestinationPort(), is(endPort));
     assertThat(reservation.getEndDate(), is(endTimeStamp.getTime()));
     assertThat(reservation.getId(), is(id));
     assertThat(reservation.getReservationStatus(), is(reservationStatus));

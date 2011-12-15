@@ -36,11 +36,11 @@ public class ReservationValidator implements Validator {
         }
 
         if (reservation.getStartTime().after(reservation.getEndTime())) {
-          errors.rejectValue("startTime", "validation.end.before.start");
+          errors.rejectValue("startTime", "validation.start.after.end");
         }
 
         Duration timeDuration = new Duration(reservation.getStartTime().getTime(), reservation.getEndTime().getTime());
-        if (timeDuration.toStandardSeconds().isLessThan(Seconds.ONE)) {
+        if (timeDuration.toStandardSeconds().isLessThan(Seconds.TWO)) {
           errors.reject("validation.reservation.tooshort");
         }
       }

@@ -7,9 +7,14 @@
         
      <page:list id="pl_nl_surfnet_bod_domain_reservation" items="${reservationList}">
         <table:table data="${reservationList}" id="l_nl_surfnet_bod_domain_reservation" path="/manager/reservations" typeIdFieldName="id">
-            <table:column id="label_nl_surfnet_bod_domain_reservation" property="name" />            
-            <table:column id="label_nl_surfnet_bod_domain_virtualresourcegroup" property="virtualResourceGroup" />
-            <table:column id="label_nl_surfnet_bod_domain_virtualport" property="virtualPortName" />
+            <table:column id="label_nl_surfnet_bod_domain_virtualresourcegroup" property="virtualResourceGroupName"/>
+            <table:column id="label_nl_surfnet_bod_domain_sourceport" property="sourcePort"/>
+            <table:column id="label_nl_surfnet_bod_domain_destinationport" property="destinationPort"/>
+            <table:column id="label_nl_surfnet_bod_domain_reservationstatus" property="reservationStatus"/>            
+            <table:column id="label_nl_surfnet_bod_domain_startdate" property="startDate" />            
+            <table:column id="label_nl_surfnet_bod_domain_starttime" property="startTime" />
+            <table:column id="label_nl_surfnet_bod_domain_enddate" property="endDate" />
+            <table:column id="label_nl_surfnet_bod_domain_endtime" property="endTime" />
         </table:table>
     </page:list>    
 </div>

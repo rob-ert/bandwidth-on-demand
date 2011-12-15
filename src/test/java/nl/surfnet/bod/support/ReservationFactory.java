@@ -38,7 +38,7 @@ public class ReservationFactory {
     reservation.setSurfConnextGroupId(surfConnextGroupId);
     reservation.setReservationStatus(reservationStatus);
     reservation.setSourcePort(sourcePort);
-    reservation.setEndPort(endPort);
+    reservation.setDestinationPort(endPort);
     reservation.setVirtualResourceGroup(vRGroup);
     reservation.setStartDate(startTimeStamp);
     reservation.setStartTime(startTimeStamp);

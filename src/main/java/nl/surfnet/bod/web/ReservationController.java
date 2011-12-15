@@ -1,7 +1,22 @@
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.CREATE;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.EDIT;
+import static nl.surfnet.bod.web.WebUtils.ICON_ITEM_KEY;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.SHOW;
+import static nl.surfnet.bod.web.WebUtils.UPDATE;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+
 import java.util.Collection;
+import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -14,6 +29,7 @@ import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.util.UserContext;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,17 +59,18 @@ public class ReservationController {
   private ReservationValidator reservationValidator = new ReservationValidator();
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid Reservation reservation, @ModelAttribute UserContext userContext,
+  public String create(@ModelAttribute UserContext userContext, @Valid Reservation reservation,
       final BindingResult bindingResult, final Model uiModel, final HttpServletRequest httpServletRequest) {
+
+    // First add meta information, then validate
+    reservation.setUser(userContext.getUserName());
+    reservation.setSurfConnextGroupId(userContext.getNameId());
 
     reservationValidator.validate(reservation, bindingResult);
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, reservation);
       return PAGE_URL + CREATE;
     }
-
-    reservation.setUser(userContext.getUserName());
-    reservation.setSurfConnextGroupId(userContext.getNameId());
 
     uiModel.asMap().clear();
     reservationService.save(reservation);
@@ -63,7 +80,11 @@ public class ReservationController {
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY, new Reservation());
+
+    // Set defaults
+    Reservation reservation = createDefaultReservation();
+
+    uiModel.addAttribute(MODEL_KEY, reservation);
 
     return PAGE_URL + CREATE;
   }
@@ -87,8 +108,12 @@ public class ReservationController {
   }
 
   @RequestMapping(method = RequestMethod.PUT)
-  public String update(@Valid final Reservation reservation, final BindingResult bindingResult, final Model uiModel,
-      final HttpServletRequest httpServletRequest) {
+  public String update(@ModelAttribute UserContext userContext, @Valid final Reservation reservation,
+      final BindingResult bindingResult, final Model uiModel, final HttpServletRequest httpServletRequest) {
+
+    // First add meta information, then validate
+    reservation.setUser(userContext.getUserName());
+    reservation.setSurfConnextGroupId(userContext.getNameId());
 
     reservationValidator.validate(reservation, bindingResult);
     if (bindingResult.hasErrors()) {
@@ -145,4 +170,19 @@ public class ReservationController {
   protected void setVirtualResourceGroupService(VirtualResourceGroupService virtualResourceGroupService) {
     this.virtualResourceGroupService = virtualResourceGroupService;
   }
+
+  /**
+   * Create {@link Reservation} with intelligent default values
+   * 
+   * @return {@link Reservation} new instance
+   */
+  private Reservation createDefaultReservation() {
+    Reservation reservation = new Reservation();
+    reservation.setStartDate(new Date());
+    reservation.setStartTime(new Date());
+    reservation.setEndDate(reservation.getStartDate());
+    reservation.setEndTime(new DateTime(reservation.getEndDate()).plusHours(4).toDate());
+    return reservation;
+  }
+
 }
