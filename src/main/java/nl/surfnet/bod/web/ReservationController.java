@@ -41,7 +41,8 @@ public class ReservationController {
   private VirtualResourceGroupService virtualResourceGroupService;
   
   private ReservationValidator reservationValidator = new ReservationValidator();
-
+  
+    
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid Reservation reservation, final BindingResult bindingResult, final Model uiModel,
       final HttpServletRequest httpServletRequest) {

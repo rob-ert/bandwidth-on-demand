@@ -40,8 +40,10 @@ public class ReservationFactory {
     reservation.setSourcePort(sourcePort);
     reservation.setEndPort(endPort);
     reservation.setVirtualResourceGroup(vRGroup);
-    reservation.setStartTimeStamp(startTimeStamp);
-    reservation.setEndTimeStamp(endTimeStamp);
+    reservation.setStartDate(startTimeStamp);
+    reservation.setStartTime(startTimeStamp);
+    reservation.setEndDate(endTimeStamp);
+    reservation.setEndTime(endTimeStamp);
     reservation.setUser(user);
 
     return reservation;
@@ -92,8 +94,8 @@ public class ReservationFactory {
     return this;
   }
 
-  public ReservationFactory setUser(String user){
-    this.user=user;
+  public ReservationFactory setUser(String user) {
+    this.user = user;
     return this;
   }
 }

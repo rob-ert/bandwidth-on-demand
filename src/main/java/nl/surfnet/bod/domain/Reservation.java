@@ -13,6 +13,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 /**
  * Entity which represents a Reserveration for a specific connection between a
  * source and a destination point on a specific moment in time.
@@ -44,11 +46,21 @@ public class Reservation {
   @ManyToOne
   private VirtualPort endPort;
 
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date startTimeStamp;
+  @DateTimeFormat(pattern = "dd-MM-yyyy")
+  @Temporal(TemporalType.DATE)
+  private Date startDate;
 
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date endTimeStamp;
+  @DateTimeFormat(pattern = "hh:mm")
+  @Temporal(TemporalType.TIME)
+  private Date startTime;
+
+  @DateTimeFormat(pattern = "dd-MM-yyyy")
+  @Temporal(TemporalType.DATE)
+  private Date endDate;
+
+  @DateTimeFormat(pattern = "hh:mm")
+  @Temporal(TemporalType.TIME)
+  private Date endTime;
 
   private String user;
 
@@ -108,20 +120,36 @@ public class Reservation {
     this.endPort = endPort;
   }
 
-  public Date getStartTimeStamp() {
-    return startTimeStamp;
+  public Date getStartDate() {
+    return startDate;
   }
 
-  public void setStartTimeStamp(Date startTimeStamp) {
-    this.startTimeStamp = startTimeStamp;
+  public void setStartDate(Date startDate) {
+    this.startDate = startDate;
   }
 
-  public Date getEndTimeStamp() {
-    return endTimeStamp;
+  public Date getStartTime() {
+    return startTime;
   }
 
-  public void setEndTimeStamp(Date endTimeStamp) {
-    this.endTimeStamp = endTimeStamp;
+  public void setStartTime(Date startTime) {
+    this.startTime = startTime;
+  }
+
+  public Date getEndDate() {
+    return endDate;
+  }
+
+  public void setEndDate(Date endDate) {
+    this.endDate = endDate;
+  }
+
+  public Date getEndTime() {
+    return endTime;
+  }
+
+  public void setEndTime(Date endTime) {
+    this.endTime = endTime;
   }
 
   public String getUser() {

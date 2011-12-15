@@ -16,12 +16,14 @@ public class ReservationValidator implements Validator {
   public void validate(Object objectToValidate, Errors errors) {
     Reservation reservation = (Reservation) objectToValidate;
 
-    if (reservation.getEndTimeStamp() != null && reservation.getStartTimeStamp() != null) {
-      if (reservation.getEndTimeStamp().before(reservation.getStartTimeStamp())) {
-        errors.rejectValue("endTime", "validation.end.after.start");
+    if (reservation.getEndDate() != null && reservation.getStartDate() != null) {
+      
+      if (reservation.getEndDate().before(reservation.getStartDate())) {
+        errors.rejectValue("endDate", "validation.end.before.start");
       }
-      else {
-        errors.rejectValue("startTime", "validation.start.before.end");
+
+      if (reservation.getStartDate().after(reservation.getEndDate())) {
+        errors.rejectValue("startDate", "validation.start.after.end");
       }
     }
   }

@@ -10,10 +10,13 @@
     <form:create id="fc_nl_surfnet_bod_domain_reservation" modelAttribute="reservation"
         path="/manager/reservations" render="${empty dependencies}">
 	
-        <field:datetime field="startTimeStamp" id="startTimeStamp" label="startTime" required="true"  dateTimePattern="dd mm yyyy"/>
+        <field:input field="startDate" id="startDate" label="startDate" required="true" />
+        <field:input field="startTime" id="startTime" label="startTime" required="true" />
         
-        <field:datetime field="endTimeStamp" id="endTimeStamp" label="endTime" required="true"  dateTimePattern="dd mm yyyy"/>
+        <field:input  field="endDate" id="endDate" label="endDate" required="true" />
+        <field:input  field="endTime" id="endTime" label="endTime" required="true" />
         
+
         <field:select  field="name" id="c_nl_surfnet_bod_domain_virtualresourcegroup" itemValue="name" items="${virtualResourceGroupList}" path="/manager/reservations" required="true" disableFormBinding="true"/>
                 
         <field:select field="virtualPort" id="c_nl_surfnet_bod_domain_VirtualPort"
