@@ -39,19 +39,21 @@ public class ReservationController {
 
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
-  
+
   private ReservationValidator reservationValidator = new ReservationValidator();
-  
-    
+
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid Reservation reservation, final BindingResult bindingResult, final Model uiModel,
-      final HttpServletRequest httpServletRequest) {
+  public String create(@Valid Reservation reservation, @ModelAttribute UserContext userContext,
+      final BindingResult bindingResult, final Model uiModel, final HttpServletRequest httpServletRequest) {
 
     reservationValidator.validate(reservation, bindingResult);
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, reservation);
       return PAGE_URL + CREATE;
     }
+
+    reservation.setUser(userContext.getUserName());
+    reservation.setSurfConnextGroupId(userContext.getNameId());
 
     uiModel.asMap().clear();
     reservationService.save(reservation);

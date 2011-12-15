@@ -2,6 +2,8 @@ package nl.surfnet.bod.domain;
 
 import java.util.Date;
 
+import javax.annotation.Nonnull;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -32,6 +34,7 @@ public class Reservation {
   @Version
   private Integer version;
 
+  @Column(nullable=false)
   private String surfConnextGroupId;
 
   @ManyToOne
@@ -46,22 +49,27 @@ public class Reservation {
   @ManyToOne
   private VirtualPort endPort;
 
-  @DateTimeFormat(pattern = "dd-MM-yyyy")
+  @DateTimeFormat(style = "S-")
   @Temporal(TemporalType.DATE)
+  @Column(nullable=false)
   private Date startDate;
 
-  @DateTimeFormat(pattern = "hh:mm")
+  @DateTimeFormat(style = "-S")
   @Temporal(TemporalType.TIME)
+  @Column(nullable=false)
   private Date startTime;
 
-  @DateTimeFormat(pattern = "dd-MM-yyyy")
+  @DateTimeFormat(style = "S-")
   @Temporal(TemporalType.DATE)
+  @Column(nullable=false)
   private Date endDate;
 
-  @DateTimeFormat(pattern = "hh:mm")
+  @DateTimeFormat(style = "-S")
   @Temporal(TemporalType.TIME)
+  @Column(nullable=false)
   private Date endTime;
 
+  @Column(nullable=false)
   private String user;
 
   public Long getId() {
