@@ -14,8 +14,12 @@
             <menu:item id="i_vp_new" url="/manager/virtualports/create" messageCode="global_menu_new" />
             <menu:item id="i_vp_list" url="/manager/virtualports?page=1" messageCode="global_menu_list" />
         </menu:category>
+        <menu:category id="c_reservation">
+            <menu:item id="i_vp_new" url="/manager/reservations/create" messageCode="global_menu_new" />
+            <menu:item id="i_vp_list" url="/manager/reservations?page=1" messageCode="global_menu_list" />
+        </menu:category>
     </menu:menu>
     <ul class="nav secondary-nav">
-        <li><a href="#" title="${userContext.nameId}">${userContext.userName}</a></li>
+        <li><a href="/bod/shibboleth/groups" title="${userContext.nameId}">${userContext.userName}</a></li>
     </ul>
 </div>
