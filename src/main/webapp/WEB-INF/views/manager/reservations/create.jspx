@@ -23,4 +23,19 @@
         <field:input  field="endTime" id="endTime" label="endTime" required="true" />        
                 
     </form:create>
+    
+    <script type="text/javascript">
+          $(function() {
+        	    $('#_virtualResourceGroupName_id').change(function() {
+        	    		console.log('changed...');
+        	    		$.ajax({
+        	    			  url: "",
+        	    			  context: document.body,
+        	    			  success: function(){
+        	    			    $(this).addClass("done");
+        	    			  }
+        	    		})
+      	    	})
+          })
+    </script>
 </div>
