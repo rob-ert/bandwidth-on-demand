@@ -40,8 +40,6 @@ public class ReservationTest {
 
   private Integer version;
 
-  private String surfConnextGroupId;
-
   private VirtualResourceGroup virtualResourceGroup;
 
   private ReservationStatus reservationStatus;
@@ -53,7 +51,7 @@ public class ReservationTest {
   private Calendar startTimeStamp;
 
   private Calendar endTimeStamp;
-  
+
   private String user;
 
   @Before
@@ -61,7 +59,6 @@ public class ReservationTest {
 
     id = 1l;
     version = 1;
-    surfConnextGroupId = "smurfId";
     reservationStatus = ReservationStatus.PENDING;
     sourcePort = new VirtualPortFactory().setPhysicalPort(new PhysicalPortFactory().setName("startPort").create())
         .create();
@@ -69,7 +66,7 @@ public class ReservationTest {
     startTimeStamp = Calendar.getInstance();
     endTimeStamp = Calendar.getInstance();
     endTimeStamp.add(Calendar.DAY_OF_MONTH, 1);
-    user= "SurfUser";
+    user = "SurfUser";
 
     virtualResourceGroup = new VirtualResourceGroupFactory().addVirtualPorts(sourcePort, endPort).create();
   }
@@ -78,8 +75,8 @@ public class ReservationTest {
   public void testSetters() {
     Reservation reservation = new ReservationFactory().setEndPort(endPort).setEndTimeStamp(endTimeStamp.getTime())
         .setId(id).setReservationStatus(reservationStatus).setSourcePort(sourcePort)
-        .setStartTimeStamp(startTimeStamp.getTime()).setSurfConnextGroupId(surfConnextGroupId).setVersion(version)
-        .setVirtualResourceGroup(virtualResourceGroup).setUser(user).create();
+        .setStartTimeStamp(startTimeStamp.getTime()).setVersion(version).setVirtualResourceGroup(virtualResourceGroup)
+        .setUser(user).create();
 
     assertThat(reservation.getDestinationPort(), is(endPort));
     assertThat(reservation.getEndDate(), is(endTimeStamp.getTime()));
@@ -87,10 +84,9 @@ public class ReservationTest {
     assertThat(reservation.getReservationStatus(), is(reservationStatus));
     assertThat(reservation.getSourcePort(), is(sourcePort));
     assertThat(reservation.getStartDate(), is(startTimeStamp.getTime()));
-    assertThat(reservation.getSurfConnextGroupId(), is(surfConnextGroupId));
     assertThat(reservation.getVersion(), is(version));
     assertThat(reservation.getVirtualResourceGroup(), is(virtualResourceGroup));
     assertThat(reservation.getUser(), is(user));
   }
-  
+
 }

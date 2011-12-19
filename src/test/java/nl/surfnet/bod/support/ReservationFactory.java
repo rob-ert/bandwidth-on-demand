@@ -33,9 +33,7 @@ public class ReservationFactory {
   private Long id;
 
   private Integer version;
-
-  private String surfConnextGroupId;
-
+  
   private VirtualResourceGroup vRGroup = new VirtualResourceGroupFactory().create();
 
   private ReservationStatus reservationStatus = ReservationStatus.PENDING;
@@ -55,8 +53,7 @@ public class ReservationFactory {
     Reservation reservation = new Reservation();
 
     reservation.setId(id);
-    reservation.setVersion(version);
-    reservation.setSurfConnextGroupId(surfConnextGroupId);
+    reservation.setVersion(version);    
     reservation.setReservationStatus(reservationStatus);
     reservation.setSourcePort(sourcePort);
     reservation.setDestinationPort(endPort);
@@ -89,12 +86,7 @@ public class ReservationFactory {
     this.reservationStatus = status;
     return this;
   }
-
-  public ReservationFactory setSurfConnextGroupId(String surfConnextGroupId) {
-    this.surfConnextGroupId = surfConnextGroupId;
-    return this;
-  }
-
+  
   public ReservationFactory setSourcePort(VirtualPort sourcePort) {
     this.sourcePort = sourcePort;
     return this;

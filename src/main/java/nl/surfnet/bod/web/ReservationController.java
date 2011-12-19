@@ -85,8 +85,7 @@ public class ReservationController {
 
     // First add meta information, then validate
     reservation.setUser(userContext.getUserName());
-    reservation.setSurfConnextGroupId(userContext.getNameId());
-
+    
     reservationValidator.validate(reservation, bindingResult);
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, reservation);
@@ -134,8 +133,7 @@ public class ReservationController {
 
     // First add meta information, then validate
     reservation.setUser(userContext.getUserName());
-    reservation.setSurfConnextGroupId(userContext.getNameId());
-
+    
     reservationValidator.validate(reservation, bindingResult);
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, reservation);

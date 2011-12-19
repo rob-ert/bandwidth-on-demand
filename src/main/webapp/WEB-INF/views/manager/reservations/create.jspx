@@ -9,12 +9,12 @@
 
     <form:create id="fc_nl_surfnet_bod_domain_reservation" modelAttribute="reservation"
         path="/manager/reservations" render="${empty dependencies}">
+
+        <field:select  field="virtualResourceGroupName" id="c_nl_surfnet_bod_domain_virtualresourcegroup" itemValue="name" items="${virtualResourceGroupList}" path="/manager/reservations" required="true" />
 	
 		<field:select field="sourcePort" id="c_nl_surfnet_bod_domain_sourcePort" itemValue="name" items="${virtualResourceGroup.virtualPorts}" path="/manager/reservations" required="true" />
             
         <field:select field="destinationPort" id="c_nl_surfnet_bod_domain_destinationPort"  itemValue="name" items="${virtualResourceGroup.virtualPorts}" path="/manager/reservations" required="true" />
-        
-        <field:select  field="virtualResourceGroupName" id="c_nl_surfnet_bod_domain_virtualresourcegroup" itemValue="name" items="${virtualResourceGroupList}" path="/manager/reservations" required="true" />
 		
         <field:input field="startDate" id="startDate" label="startDate"  required="true"/>
         <field:input field="startTime" id="startTime" label="startTime" required="true" />

@@ -54,9 +54,6 @@ public class Reservation {
   @Version
   private Integer version;
 
-  @Column(nullable=false)
-  private String surfConnextGroupId;
-
   @ManyToOne
   private VirtualResourceGroup virtualResourceGroup;
 
@@ -71,28 +68,27 @@ public class Reservation {
 
   @DateTimeFormat(style = "S-")
   @Temporal(TemporalType.DATE)
-  @Column(nullable=false)
+  @Column(nullable = false)
   private Date startDate;
 
   @DateTimeFormat(style = "-S")
   @Temporal(TemporalType.TIME)
-  @Column(nullable=false)
+  @Column(nullable = false)
   private Date startTime;
 
   @DateTimeFormat(style = "S-")
   @Temporal(TemporalType.DATE)
-  @Column(nullable=false)
+  @Column(nullable = false)
   private Date endDate;
 
   @DateTimeFormat(style = "-S")
   @Temporal(TemporalType.TIME)
-  @Column(nullable=false)
+  @Column(nullable = false)
   private Date endTime;
 
-  @Column(nullable=false)
+  @Column(nullable = false)
   private String user;
 
-  
   public Long getId() {
     return id;
   }
@@ -107,14 +103,6 @@ public class Reservation {
 
   public void setVersion(Integer version) {
     this.version = version;
-  }
-
-  public String getSurfConnextGroupId() {
-    return surfConnextGroupId;
-  }
-
-  public void setSurfConnextGroupId(String surfConnextGroupId) {
-    this.surfConnextGroupId = surfConnextGroupId;
   }
 
   public VirtualResourceGroup getVirtualResourceGroup() {
@@ -188,12 +176,20 @@ public class Reservation {
   public void setUser(String user) {
     this.user = user;
   }
-  
+
   /**
    * TODO Convenience method since bean notation is not allowed in view
    * 
    */
   public String getVirtualResourceGroupName() {
     return this.virtualResourceGroup == null ? "" : this.virtualResourceGroup.getName();
+  }
+
+  public String getSourcePortName() {
+    return this.getSourcePort() == null ? "" : this.sourcePort.getName();
+  }
+
+  public String getDestinationPortName() {
+    return this.getDestinationPort() == null ? "" : this.getDestinationPort().getName();
   }
 }
