@@ -38,7 +38,7 @@ public class ReservationFactory {
 
   private VirtualResourceGroup vRGroup = new VirtualResourceGroupFactory().create();
 
-  private ReservationStatus reservationStatus = ReservationStatus.NEW;
+  private ReservationStatus reservationStatus = ReservationStatus.PENDING;
 
   private VirtualPort sourcePort;
 

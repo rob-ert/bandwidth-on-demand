@@ -62,7 +62,7 @@ public class ReservationTest {
     id = 1l;
     version = 1;
     surfConnextGroupId = "smurfId";
-    reservationStatus = ReservationStatus.NEW;
+    reservationStatus = ReservationStatus.PENDING;
     sourcePort = new VirtualPortFactory().setPhysicalPort(new PhysicalPortFactory().setName("startPort").create())
         .create();
     endPort = new VirtualPortFactory().setPhysicalPort(new PhysicalPortFactory().setName("endPort").create()).create();

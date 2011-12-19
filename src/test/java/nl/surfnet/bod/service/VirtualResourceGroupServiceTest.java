@@ -24,19 +24,17 @@ package nl.surfnet.bod.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 
-import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.support.UserGroupFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
-import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -184,6 +184,7 @@ public class VirtualPortController {
     return findAllForUser.iterator().hasNext() ? findAllForUser.iterator().next() : new PhysicalResourceGroup();
   }
 
+  @ModelAttribute(VirtualResourceGroupController.MODEL_KEY_LIST)
   public Collection<VirtualResourceGroup> populateVirtualResourceGroups(@ModelAttribute UserContext userContext) {
 
     return virtualResourceGroupService.findAllForUser(userContext.getNameId());

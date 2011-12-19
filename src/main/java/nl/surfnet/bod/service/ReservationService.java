@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.repo.ReservationRepo;
 
 @Service
@@ -60,6 +61,16 @@ public class ReservationService {
 
   public void delete(Reservation reservation) {
     reservationRepo.delete(reservation);
+  }
+  
+  public ReservationStatus makeReservation(Reservation reservation) {
+    ReservationStatus reservationStatus = ReservationStatus.PENDING;
+
+    //Check 
+    
+    
+    
+    return reservationStatus;    
   }
 
 }

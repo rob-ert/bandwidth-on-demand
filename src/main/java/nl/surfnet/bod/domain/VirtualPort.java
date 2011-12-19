@@ -40,10 +40,10 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 @Entity
 public class VirtualPort {
-
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
+  
 
   @Version
   private Integer version;
@@ -123,6 +123,14 @@ public class VirtualPort {
   public String getPhysicalResourceGroupName() {
     return physicalPort == null ? "" : physicalPort.getPhysicalResourceGroup() == null ? "" : physicalPort
         .getPhysicalResourceGroup().getName();
+  }
+  
+  
+  /**
+   * TODO remove
+   */
+  public String getVirtualResourceGroupName() {
+    return virtualResourceGroup == null ? "" : virtualResourceGroup.getName();
   }
 
 }

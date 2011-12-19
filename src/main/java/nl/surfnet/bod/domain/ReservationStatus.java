@@ -21,15 +21,24 @@
  */
 package nl.surfnet.bod.domain;
 
-
 /**
- * Enum representing the status of a {@link Reservation}
+ * Enum representing the status of a {@link Reservation}.
  * 
  * @author Franky
  * 
  */
 public enum ReservationStatus {
 
-  NEW, FINISHED, CANCELLED_BY_USER;
+  PENDING, IN_PROGRESS, REJECTED, CANCELLED_BY_USER, CANCELLED_BY_NMS, SUCCEEDED;
+
+  private String reason;
+
+  public String getReason() {
+    return reason;
+  }
+
+  public void setReason(String reason) {
+    this.reason = reason;
+  }
 
 }

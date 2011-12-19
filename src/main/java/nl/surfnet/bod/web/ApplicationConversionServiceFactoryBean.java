@@ -23,8 +23,10 @@ package nl.surfnet.bod.web;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
@@ -42,6 +44,10 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
 
+  @Autowired
+  private VirtualResourceGroupService virtualResourceGroupService;
+  
+  
   @Override
   protected void installFormatters(final FormatterRegistry registry) {
     super.installFormatters(registry);
@@ -102,6 +108,33 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
       }
     };
   }
+  
+  public Converter<String, VirtualResourceGroup> getStringToVirtualResourceGroupConverter() {
+    return new Converter<java.lang.String, VirtualResourceGroup>() {
+      @Override
+      public VirtualResourceGroup convert(final String id) {
+        return getObject().convert(getObject().convert(id, Long.class), VirtualResourceGroup.class);
+      }
+    };
+  }
+
+  public Converter<VirtualResourceGroup, String> getVirtualResourceGroupToStringConverter() {
+    return new Converter<VirtualResourceGroup, String>() {
+      @Override
+      public String convert(final VirtualResourceGroup virtualResourceGroup) {
+        return new StringBuilder().append(virtualResourceGroup.getName()).toString();
+      }
+    };
+  }
+
+  public Converter<Long, VirtualResourceGroup> getIdToVirtualResourceGroupConverter() {
+    return new Converter<Long, VirtualResourceGroup>() {
+      @Override
+      public VirtualResourceGroup convert(final java.lang.Long id) {
+        return virtualResourceGroupService.find(id);
+      }
+    };
+  }
 
   public void installLabelConverters(final FormatterRegistry registry) {
     registry.addConverter(getPhysicalPortToStringConverter());
@@ -110,6 +143,10 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     registry.addConverter(getPhysicalResourceGroupToStringConverter());
     registry.addConverter(getIdToPhysicalResourceGroupConverter());
     registry.addConverter(getStringToPhysicalResourceGroupConverter());
+    
+    registry.addConverter(getStringToVirtualResourceGroupConverter());
+    registry.addConverter(getVirtualResourceGroupToStringConverter());
+    registry.addConverter(getIdToVirtualResourceGroupConverter());
   }
 
   @Override
