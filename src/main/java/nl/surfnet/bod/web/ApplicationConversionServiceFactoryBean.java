@@ -23,9 +23,11 @@ package nl.surfnet.bod.web;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,9 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
 
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
+
+  @Autowired
+  private VirtualPortService virtualPortService;
 
   @Override
   protected void installFormatters(final FormatterRegistry registry) {
@@ -121,16 +126,26 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     return new Converter<VirtualResourceGroup, String>() {
       @Override
       public String convert(final VirtualResourceGroup virtualResourceGroup) {
-        return new StringBuilder().append(virtualResourceGroup.getName()).toString();
+        return virtualResourceGroup.getName();
       }
     };
   }
 
-  public Converter<Long, VirtualResourceGroup> getIdToVirtualResourceGroupConverter() {
-    return new Converter<Long, VirtualResourceGroup>() {
+  public Converter<String, VirtualPort> getStringToVirtualPortConverter() {
+    return new Converter<String, VirtualPort>() {
+
       @Override
-      public VirtualResourceGroup convert(final java.lang.Long id) {
-        return virtualResourceGroupService.find(id);
+      public VirtualPort convert(final String id) {
+        return virtualPortService.find(Long.valueOf(id));
+      }
+    };
+  }
+
+  public Converter<VirtualPort, String> getVirtualPortToStringConverter() {
+    return new Converter<VirtualPort, String>() {
+      @Override
+      public String convert(VirtualPort virtualPort) {
+        return String.valueOf(virtualPort.getId());
       }
     };
   }
@@ -138,6 +153,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   public void installLabelConverters(final FormatterRegistry registry) {
     registry.addConverter(getPhysicalPortToStringConverter());
     registry.addConverter(getIdToPhysicalPortConverter());
+    
     registry.addConverter(getStringToPhysicalPortConverter());
     registry.addConverter(getPhysicalResourceGroupToStringConverter());
     registry.addConverter(getIdToPhysicalResourceGroupConverter());
@@ -145,7 +161,9 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
 
     registry.addConverter(getStringToVirtualResourceGroupConverter());
     registry.addConverter(getVirtualResourceGroupToStringConverter());
-    registry.addConverter(getIdToVirtualResourceGroupConverter());
+    
+    registry.addConverter(getStringToVirtualPortConverter());
+    registry.addConverter(getVirtualPortToStringConverter());
   }
 
   @Override

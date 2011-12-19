@@ -44,6 +44,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+
 @SessionAttributes({ "userContext" })
 @RequestMapping(VirtualPortController.PAGE_URL_PREFIX + VirtualPortController.PAGE_URL)
 @Controller
@@ -98,6 +101,24 @@ public class VirtualPortController {
     return PAGE_URL + SHOW;
   }
 
+  @RequestMapping(value = "/{name}", method = RequestMethod.GET)
+  /* , headers = "accept=application/json") */
+  public @ResponseBody
+  Collection<VirtualPort> listForVirtualResourceGroup(@PathVariable String name) {
+    Collection<VirtualPort> ports = virtualResourceGroupService.findByName(name).getVirtualPorts();
+
+    //Prevent loop in json output
+    return Collections2.transform(ports, new Function<VirtualPort, VirtualPort>() {
+      @Override
+      public VirtualPort apply(VirtualPort port) {
+        VirtualPort vp = new VirtualPort();
+        vp.setId(port.getId());
+        vp.setName(port.getName());
+        return vp;
+      }
+    });
+  }
+
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY_LIST, virtualPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
@@ -145,12 +166,12 @@ public class VirtualPortController {
   /**
    * Puts all {@link PhysicalResourceGroup}s related to the user on the model.
    * NOW just selects the first.
-   *
+   * 
    * @param userContext
    *          {@link UserContext}
-   *
+   * 
    * @return {@link PhysicalResourceGroup}
-   *
+   * 
    * @throws {@link IllegalStateException} in case multiple groups are found.
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY)
@@ -161,8 +182,7 @@ public class VirtualPortController {
 
     // TODO View should be able to handle list
     if (findAllForUser.size() > 1) {
-      throw new IllegalStateException("User [" + user + "] has more then one PhysicalResourceGroups: "
-          + findAllForUser);
+      throw new IllegalStateException("User [" + user + "] has more then one PhysicalResourceGroups: " + findAllForUser);
     }
 
     return findAllForUser.iterator().hasNext() ? findAllForUser.iterator().next() : new PhysicalResourceGroup();
@@ -177,7 +197,7 @@ public class VirtualPortController {
 
   /**
    * Setter to enable depedency injection from testcases.
-   *
+   * 
    * @param virtualPortService
    *          {@link VirtualPortService}
    */

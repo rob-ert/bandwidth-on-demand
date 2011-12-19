@@ -6,11 +6,13 @@
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
+    
+    <spring:url value="/manager/virtualports" var="vpUrl"/>
 
     <form:create id="fc_nl_surfnet_bod_domain_reservation" modelAttribute="reservation"
-        path="/manager/reservations" render="${empty dependencies}">
+        path="/reservations" render="${empty dependencies}">
 
-        <field:select  field="virtualResourceGroupName" id="c_nl_surfnet_bod_domain_virtualresourcegroup" itemValue="name" items="${virtualResourceGroupList}" path="/manager/reservations" required="true" />
+        <field:select  field="virtualResourceGroupName" id="c_nl_surfnet_bod_domain_virtualresourcegroup"  itemLabel="name" items="${virtualResourceGroupList}" path="/manager/reservations" required="true" />
 	
 		<field:select field="sourcePort" id="c_nl_surfnet_bod_domain_sourcePort" itemValue="name" items="${virtualResourceGroup.virtualPorts}" path="/manager/reservations" required="true" />
             
@@ -27,15 +29,19 @@
     <script type="text/javascript">
           $(function() {
         	    $('#_virtualResourceGroupName_id').change(function() {
-        	    		console.log('changed...');
-        	    		$.ajax({
-        	    			  url: "",
-        	    			  context: document.body,
-        	    			  success: function(){
-        	    			    $(this).addClass("done");
+        	    		$.get(
+        	    			  "${vpUrl}/"+$("#_virtualResourceGroupName_id").val(),        	    			  
+        	    			  function(data) {
+        	    			    var items = [];
+        	    			    $.each(data, function(key, object) {
+        	    			    	  items.push('<option value="'+object.id+'">'+object.name+'</option>');
+        	    			    })
+        	    			    $("#_c_nl_surfnet_bod_domain_sourcePort_id div").html($('<select/>', {name: 'sourcePort', html: items.join("")}));
+        	    			    $("#_c_nl_surfnet_bod_domain_destinationPort_id div").html($('<select/>', {name: 'destinationPort', html: items.join("")}));
         	    			  }
-        	    		})
+        	    		)
       	    	})
           })
+          
     </script>
 </div>
