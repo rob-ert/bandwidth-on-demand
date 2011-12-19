@@ -23,26 +23,16 @@ package nl.surfnet.bod.domain;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Version;
+import javax.persistence.*;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * Entity which represents a Reserveration for a specific connection between a
  * source and a destination point on a specific moment in time.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 @Entity
 public class Reservation {
@@ -54,7 +44,7 @@ public class Reservation {
   @Version
   private Integer version;
 
-  @Column(nullable=false)
+  @Column(nullable = false)
   private String surfConnextGroupId;
 
   @ManyToOne
@@ -71,28 +61,27 @@ public class Reservation {
 
   @DateTimeFormat(style = "S-")
   @Temporal(TemporalType.DATE)
-  @Column(nullable=false)
+  @Column(nullable = false)
   private Date startDate;
 
   @DateTimeFormat(style = "-S")
   @Temporal(TemporalType.TIME)
-  @Column(nullable=false)
+  @Column(nullable = false)
   private Date startTime;
 
   @DateTimeFormat(style = "S-")
   @Temporal(TemporalType.DATE)
-  @Column(nullable=false)
+  @Column(nullable = false)
   private Date endDate;
 
   @DateTimeFormat(style = "-S")
   @Temporal(TemporalType.TIME)
-  @Column(nullable=false)
+  @Column(nullable = false)
   private Date endTime;
 
-  @Column(nullable=false)
+  @Column(nullable = false)
   private String user;
 
-  
   public Long getId() {
     return id;
   }
@@ -188,10 +177,10 @@ public class Reservation {
   public void setUser(String user) {
     this.user = user;
   }
-  
+
   /**
    * TODO Convenience method since bean notation is not allowed in view
-   * 
+   *
    */
   public String getVirtualResourceGroupName() {
     return this.virtualResourceGroup == null ? "" : this.virtualResourceGroup.getName();

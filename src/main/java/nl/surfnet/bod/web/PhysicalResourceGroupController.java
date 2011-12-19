@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.web;
 
+import static nl.surfnet.bod.web.WebUtils.*;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -36,8 +38,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import static nl.surfnet.bod.web.WebUtils.*;
-
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
 @Controller
 public class PhysicalResourceGroupController {
@@ -51,8 +51,8 @@ public class PhysicalResourceGroupController {
 
   @Autowired
   private PhysicalResourceGroupValidator physicalResourceGroupValidator;
-  
-  
+
+
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid final PhysicalResourceGroup physicalResourceGroup, final BindingResult bindingResult,
       final Model uiModel, final HttpServletRequest httpServletRequest) {
@@ -77,7 +77,7 @@ public class PhysicalResourceGroupController {
     return PAGE_URL + CREATE;
   }
 
-  @RequestMapping(params =ID_KEY, method = RequestMethod.GET)
+  @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
   public String show(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY, physicalResourceGroupService.find(id));
     // Needed for the default icons

@@ -32,9 +32,9 @@ import org.springframework.validation.Validator;
 /**
  * Validator for the {@link VirtualPort}. Validates that the
  * {@link VirtualPort#getName()} is unique.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 @Component
 public class VirtualPortValidator implements Validator {
@@ -49,7 +49,7 @@ public class VirtualPortValidator implements Validator {
 
   @Override
   public void validate(Object objToValidate, Errors errors) {
-    VirtualPort virtualPort= (VirtualPort) objToValidate;
+    VirtualPort virtualPort = (VirtualPort) objToValidate;
 
     if (virtualPortService.findByName(virtualPort.getName()) != null) {
       // An instance already exists

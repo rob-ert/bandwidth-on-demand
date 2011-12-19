@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.web;
 
+import static nl.surfnet.bod.web.WebUtils.*;
+
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,8 +42,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import static nl.surfnet.bod.web.WebUtils.*;
-
 @RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
 @Controller
 public class PhysicalPortController {
@@ -56,8 +56,8 @@ public class PhysicalPortController {
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
-  
-  
+
+
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid PhysicalPort physicalPort, final BindingResult bindingResult, final Model uiModel,
       final HttpServletRequest httpServletRequest) {
@@ -79,7 +79,7 @@ public class PhysicalPortController {
     return "redirect:" + PAGE_URL;
   }
 
-  @RequestMapping(params =ID_KEY, method = RequestMethod.GET)
+  @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
   public String show(@RequestParam(ID_KEY) final String name, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY, physicalPortService.findByName(name));
     uiModel.addAttribute(ICON_ITEM_KEY, name);
@@ -125,7 +125,7 @@ public class PhysicalPortController {
 
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
   public String delete(@RequestParam(ID_KEY) final String name,
-      @RequestParam(value =PAGE_KEY, required = false) final Integer page, final Model uiModel) {
+      @RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
     PhysicalPort physicalPort = physicalPortService.findByName(name);
     physicalPortService.delete(physicalPort);
@@ -139,7 +139,7 @@ public class PhysicalPortController {
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   * 
+   *
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
