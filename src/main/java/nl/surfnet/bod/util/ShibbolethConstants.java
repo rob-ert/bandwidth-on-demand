@@ -23,8 +23,12 @@ package nl.surfnet.bod.util;
 
 public final class ShibbolethConstants {
 
-  public static final String COMMON_NAME = "Shib-commonName";
   public static final String NAME_ID = "name-id";
+  public static final String DISPLAY_NAME = "Shib-displayName";
+  public static final String COMMON_NAME = "Shib-commonName";
+  public static final String USER_STATUS = "Shib-userStatus";
+  public static final String UID = "Shib-uid";
+  public static final String EMAIL = "Shib-email";
 
   private ShibbolethConstants() {
   }

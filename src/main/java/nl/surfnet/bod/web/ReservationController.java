@@ -21,20 +21,7 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.ICON_ITEM_KEY;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.SHOW;
-import static nl.surfnet.bod.web.WebUtils.UPDATE;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.Date;
@@ -48,10 +35,11 @@ import nl.surfnet.bod.domain.validator.ReservationValidator;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.util.UserContext;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -59,9 +47,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
 
-@SessionAttributes({ "userContext" })
 @RequestMapping(ReservationController.PAGE_URL_PREFIX + ReservationController.PAGE_URL)
 @Controller
 public class ReservationController {
@@ -80,12 +66,13 @@ public class ReservationController {
   private ReservationValidator reservationValidator = new ReservationValidator();
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@ModelAttribute UserContext userContext, @Valid Reservation reservation,
+  public String create(@Valid Reservation reservation,
       final BindingResult bindingResult, final Model uiModel, final HttpServletRequest httpServletRequest) {
 
     // First add meta information, then validate
-    reservation.setUser(userContext.getUserName());
-    reservation.setSurfConnextGroupId(userContext.getNameId());
+    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    reservation.setUser(user.getDisplayName());
+    reservation.setSurfConnextGroupId(user.getNameId());
 
     reservationValidator.validate(reservation, bindingResult);
     if (bindingResult.hasErrors()) {
@@ -129,12 +116,13 @@ public class ReservationController {
   }
 
   @RequestMapping(method = RequestMethod.PUT)
-  public String update(@ModelAttribute UserContext userContext, @Valid final Reservation reservation,
+  public String update(@Valid final Reservation reservation,
       final BindingResult bindingResult, final Model uiModel, final HttpServletRequest httpServletRequest) {
 
     // First add meta information, then validate
-    reservation.setUser(userContext.getUserName());
-    reservation.setSurfConnextGroupId(userContext.getNameId());
+    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    reservation.setUser(user.getDisplayName());
+    reservation.setSurfConnextGroupId(user.getNameId());
 
     reservationValidator.validate(reservation, bindingResult);
     if (bindingResult.hasErrors()) {
@@ -169,22 +157,22 @@ public class ReservationController {
 
   /**
    * Puts all {@link VirtualResourceGroup}s related to the user on the model
-   * 
+   *
    * @param userContext
    *          UserContext
    * @return Collection<VirtualResourceGroup> or empty Collection when no match
    *         found.
    */
   @ModelAttribute(VirtualResourceGroupController.MODEL_KEY_LIST)
-  public Collection<VirtualResourceGroup> populateVirtualResourceGroups(@ModelAttribute UserContext userContext) {
+  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {
+    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-    return virtualResourceGroupService.findAllForUser(userContext.getNameId());
-
+    return virtualResourceGroupService.findAllForUser(user.getNameId());
   }
 
   /**
    * Setter to enable depedency injection from testcases.
-   * 
+   *
    * @param virtualPortService
    *          {@link VirtualPortService}
    */
@@ -194,7 +182,7 @@ public class ReservationController {
 
   /**
    * Create {@link Reservation} with intelligent default values
-   * 
+   *
    * @return {@link Reservation} new instance
    */
   private Reservation createDefaultReservation() {

@@ -1,6 +1,6 @@
 <div class="topbar-wrapper" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:spring="http://www.springframework.org/tags"
-    xmlns:menu="urn:jsptagdir:/WEB-INF/tags/menu">
+    xmlns:sec="http://www.springframework.org/security/tags" xmlns:menu="urn:jsptagdir:/WEB-INF/tags/menu">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
@@ -16,6 +16,13 @@
         </menu:category>
     </menu:menu>
     <ul class="nav secondary-nav">
-        <li><a href="/bod/shibboleth/groups" title="${userContext.nameId}">${userContext.userName}</a></li>
+        <c:set var="nameId">
+            <sec:authentication property="principal.username" />
+        </c:set>
+        <li>
+            <a href="/bod/shibboleth/groups" title="${nameId}">
+                <sec:authentication property="principal.displayName" />
+            </a>
+        </li>
     </ul>
 </div>
