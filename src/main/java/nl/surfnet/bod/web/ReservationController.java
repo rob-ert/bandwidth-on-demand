@@ -48,10 +48,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@RequestMapping(ReservationController.PAGE_URL_PREFIX + ReservationController.PAGE_URL)
+@RequestMapping(ReservationController.PAGE_URL)
 @Controller
 public class ReservationController {
-  public static final String PAGE_URL_PREFIX = "/manager/";
   static final String PAGE_URL = "reservations";
 
   static final String MODEL_KEY = "reservation";
