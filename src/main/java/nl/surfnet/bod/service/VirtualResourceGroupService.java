@@ -86,33 +86,33 @@ public class VirtualResourceGroupService {
   }
 
   
-  /**
-   * TODO only for quick testing
-   * @param nameId
-   * @return
-   */
-  public Collection<VirtualResourceGroup> findAllForUser(String nameId) {
-    return findAll();
-  }
-  
+//  /**
+//   * TODO only for quick testing
+//   * @param nameId
+//   * @return
+//   */
 //  public Collection<VirtualResourceGroup> findAllForUser(String nameId) {
-//    Collection<VirtualResourceGroup> virtualResourceGroups = new ArrayList<VirtualResourceGroup>();
-//    Collection<UserGroup> groups = groupService.getGroups(nameId);
-//
-//    Collection<String> adminGroups = Lists.newArrayList(Collections2.transform(groups,
-//        new Function<UserGroup, String>() {
-//          @Override
-//          public String apply(UserGroup group) {
-//            return group.getId();
-//          }
-//        }));
-//
-//    if (!CollectionUtils.isEmpty(adminGroups)) {
-//      virtualResourceGroups = virtualResourceGroupRepo.findBySurfConnextGroupNameIn(adminGroups);
-//    }
-//
-//    return virtualResourceGroups;
+//    return findAll();
 //  }
+//  
+  public Collection<VirtualResourceGroup> findAllForUser(String nameId) {
+    Collection<VirtualResourceGroup> virtualResourceGroups = new ArrayList<VirtualResourceGroup>();
+    Collection<UserGroup> groups = groupService.getGroups(nameId);
+
+    Collection<String> adminGroups = Lists.newArrayList(Collections2.transform(groups,
+        new Function<UserGroup, String>() {
+          @Override
+          public String apply(UserGroup group) {
+            return group.getId();
+          }
+        }));
+
+    if (!CollectionUtils.isEmpty(adminGroups)) {
+      virtualResourceGroups = virtualResourceGroupRepo.findBySurfConnextGroupNameIn(adminGroups);
+    }
+
+    return virtualResourceGroups;
+  }
 
   void setGroupService(GroupService groupService) {
     this.groupService = groupService;
