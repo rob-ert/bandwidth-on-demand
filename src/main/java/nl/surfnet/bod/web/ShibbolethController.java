@@ -25,7 +25,6 @@ import java.util.Collection;
 
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.service.GroupService;
-import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,14 +41,10 @@ public class ShibbolethController {
   @Autowired
   private GroupService groupService;
 
-  @Autowired
-  private Environment env;
-
   @RequestMapping(value = "/groups", method = RequestMethod.GET)
   public String list(final Model uiModel) {
     RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-    System.err.println(user);
     Collection<UserGroup> groups = groupService.getGroups(user.getNameId());
 
     uiModel.addAttribute("groups", groups);
@@ -60,10 +55,5 @@ public class ShibbolethController {
   @RequestMapping("/info")
   public String info() {
     return "shibboleth/info";
-  }
-
-  @RequestMapping("/login")
-  public String login() {
-    return env.getImitateShibboleth() ? "shibboleth/login" : "shibboleth/info";
   }
 }
