@@ -42,8 +42,9 @@ public class RequestAttributeAuthenticationFilter extends AbstractPreAuthenticat
 
   @Override
   protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
-    String nameId = getRequestAttributeOrImitate(request, ShibbolethConstants.NAME_ID, "urn:surfguest:donaldduck");
-    String displayName = getRequestAttributeOrImitate(request, ShibbolethConstants.DISPLAY_NAME, "Donald Duck");
+    String nameId = getRequestAttributeOrImitate(request, ShibbolethConstants.NAME_ID, env.getImitateShibbolethUserId());
+    String displayName = getRequestAttributeOrImitate(request, ShibbolethConstants.DISPLAY_NAME,
+        env.getImitateShibbolethDisplayName());
 
     logger.debug("Found Shibboleth name-id: {}, displayName: {}", nameId, displayName);
 
