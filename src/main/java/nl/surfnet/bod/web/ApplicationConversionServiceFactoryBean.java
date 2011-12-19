@@ -46,8 +46,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
 
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
-  
-  
+
   @Override
   protected void installFormatters(final FormatterRegistry registry) {
     super.installFormatters(registry);
@@ -108,12 +107,12 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
       }
     };
   }
-  
+
   public Converter<String, VirtualResourceGroup> getStringToVirtualResourceGroupConverter() {
     return new Converter<java.lang.String, VirtualResourceGroup>() {
       @Override
-      public VirtualResourceGroup convert(final String id) {
-        return getObject().convert(getObject().convert(id, Long.class), VirtualResourceGroup.class);
+      public VirtualResourceGroup convert(final String name) {
+        return virtualResourceGroupService.findByName(name);
       }
     };
   }
@@ -143,7 +142,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     registry.addConverter(getPhysicalResourceGroupToStringConverter());
     registry.addConverter(getIdToPhysicalResourceGroupConverter());
     registry.addConverter(getStringToPhysicalResourceGroupConverter());
-    
+
     registry.addConverter(getStringToVirtualResourceGroupConverter());
     registry.addConverter(getVirtualResourceGroupToStringConverter());
     registry.addConverter(getIdToVirtualResourceGroupConverter());

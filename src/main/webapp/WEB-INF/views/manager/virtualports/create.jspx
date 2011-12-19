@@ -12,7 +12,7 @@
 
         <field:input field="name" id="name" labelCode="nl_surfnet_bod_domain_virtualport_name" required="true" />
         
-        <field:select  field="name" id="c_nl_surfnet_bod_domain_virtualresourcegroup" itemValue="name" items="${virtualResourceGroupList}" path="/manager/virtualports" required="true" />
+        <field:select  field="virtualResourceGroup" id="c_nl_surfnet_bod_domain_virtualresourcegroup" itemValue="name" items="${virtualResourceGroupList}" path="/manager/virtualports" required="true" />
         
         <field:display labelCode="nl_surfnet_bod_domain_physicalport_physicalresourcegroup"  id="c_nl_surfnet_bod_domain_PhysicalResourceGroup" object="${physicalResourceGroup}" field="name"/>
         
