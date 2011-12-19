@@ -57,12 +57,13 @@ public class GroupOpenSocialService implements GroupService {
   public Collection<UserGroup> getGroups(String nameId) {
     try {
       List<Group> osGroups = getClient(nameId).send(GroupsService.getGroups()).getEntries();
-      
+
       return Lists.newArrayList(Lists.transform(osGroups, new Function<Group, UserGroup>() {
         @Override
         public UserGroup apply(Group input) {
           return new UserGroup(input.getId(), input.getTitle(), input.getDescription());
-        }}));
+        }
+      }));
     }
     catch (RequestException e) {
       logger.error("Could not retreive groups from open social server", e);

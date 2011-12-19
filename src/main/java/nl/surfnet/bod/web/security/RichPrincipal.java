@@ -19,25 +19,23 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.util;
+package nl.surfnet.bod.web.security;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+public class RichPrincipal {
 
-public class UserContext {
-
-  private final String userName;
   private final String nameId;
+  private final String displayName;
 
-  public UserContext(String nameId, String userName) {
-    this.userName = checkNotNull(userName);
-    this.nameId = checkNotNull(nameId);
-  }
-
-  public String getUserName() {
-    return userName;
+  public RichPrincipal(String nameId, String displayName) {
+    this.nameId = nameId;
+    this.displayName = displayName;
   }
 
   public String getNameId() {
     return nameId;
   }
+  public String getDisplayName() {
+    return displayName;
+  }
+
 }

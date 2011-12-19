@@ -34,7 +34,6 @@ import nl.surfnet.bod.pages.physicalresourcegroup.ListPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.physicalresourcegroup.NewPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.virtualresourcegroup.ListVirtualResourceGroupPage;
 import nl.surfnet.bod.pages.virtualresourcegroup.NewVirtualResourceGroupPage;
-import nl.surfnet.bod.web.ShibbolethImitatorInterceptor;
 
 import org.hamcrest.Matcher;
 import org.openqa.selenium.OutputType;
@@ -86,7 +85,7 @@ public class BodWebDriver {
   public void performLogin(String userName) {
     driver.get(URL_UNDER_TEST + "?user-name=" + userName + "&name-id=urn:collab:person:surfguest.nl:" + userName);
   }
-  
+
   private static String withEndingSlash(String path) {
     return path.endsWith("/") ? path : path + "/";
   }
@@ -116,7 +115,7 @@ public class BodWebDriver {
     NewVirtualResourceGroupPage page = NewVirtualResourceGroupPage.get(driver, URL_UNDER_TEST);
     page.sendSurfConnextGroupName(name);
     page.save();
-    
+
     return page;
   }
 
@@ -133,9 +132,9 @@ public class BodWebDriver {
   public void verifyVirtualResourceGroupWasDeleted(VirtualResourceGroup vrg) {
     assertVirtualResourceGroupListTable(not(containsString(vrg.getSurfConnextGroupName())));
   }
-  
+
   public void verifyVirtualResourceGroupSurfConnextGroupNameHasError(){
-    
+
   }
 
   private void assertVirtualResourceGroupListTable(Matcher<String> tableMatcher) {
@@ -144,5 +143,5 @@ public class BodWebDriver {
 
     assertThat(row, tableMatcher);
   }
-  
+
 }

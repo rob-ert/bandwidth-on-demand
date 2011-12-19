@@ -21,20 +21,7 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.ICON_ITEM_KEY;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.SHOW;
-import static nl.surfnet.bod.web.WebUtils.UPDATE;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 
@@ -48,17 +35,14 @@ import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.util.UserContext;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.*;
 
 @SessionAttributes({ "userContext" })
 @RequestMapping(VirtualPortController.PAGE_URL_PREFIX + VirtualPortController.PAGE_URL)
@@ -161,23 +145,23 @@ public class VirtualPortController {
   /**
    * Puts all {@link PhysicalResourceGroup}s related to the user on the model.
    * NOW just selects the first.
-   * 
+   *
    * @param userContext
    *          {@link UserContext}
-   * 
+   *
    * @return {@link PhysicalResourceGroup}
-   * 
+   *
    * @throws {@link IllegalStateException} in case multiple groups are found.
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY)
-  public PhysicalResourceGroup populatePhysicalResourceGroups(@ModelAttribute UserContext userContext) {
+  public PhysicalResourceGroup populatePhysicalResourceGroups() {
 
-    Collection<PhysicalResourceGroup> findAllForUser = physicalResourceGroupService.findAllForUser(userContext
-        .getNameId());
+    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    Collection<PhysicalResourceGroup> findAllForUser = physicalResourceGroupService.findAllForUser(user.getNameId());
 
     // TODO View should be able to handle list
     if (findAllForUser.size() > 1) {
-      throw new IllegalStateException("User [" + userContext + "] has more then one PhysicalResourceGroups: "
+      throw new IllegalStateException("User [" + user + "] has more then one PhysicalResourceGroups: "
           + findAllForUser);
     }
 
@@ -185,15 +169,15 @@ public class VirtualPortController {
   }
 
   @ModelAttribute(VirtualResourceGroupController.MODEL_KEY_LIST)
-  public Collection<VirtualResourceGroup> populateVirtualResourceGroups(@ModelAttribute UserContext userContext) {
-
-    return virtualResourceGroupService.findAllForUser(userContext.getNameId());
+  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {
+    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    return virtualResourceGroupService.findAllForUser(user.getNameId());
 
   }
 
   /**
    * Setter to enable depedency injection from testcases.
-   * 
+   *
    * @param virtualPortService
    *          {@link VirtualPortService}
    */

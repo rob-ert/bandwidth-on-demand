@@ -30,6 +30,12 @@ public class Environment {
   @Value("${shibboleth.imitate}")
   private boolean imitateShibboleth;
 
+  @Value("${shibboleth.imitate.displayName}")
+  private String imitateShibbolethDisplayName;
+
+  @Value("${shibboleth.imitate.userId}")
+  private String imitateShibbolethUserId;
+
   @Value("${os.url}")
   private String openSocialUrl;
 
@@ -62,6 +68,14 @@ public class Environment {
 
   public boolean getImitateShibboleth() {
     return imitateShibboleth;
+  }
+
+  public String getImitateShibbolethDisplayName() {
+    return imitateShibbolethDisplayName;
+  }
+
+  public String getImitateShibbolethUserId() {
+    return imitateShibbolethUserId;
   }
 
 }

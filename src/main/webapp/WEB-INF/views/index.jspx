@@ -13,8 +13,15 @@
             elit.</p>
             
             
-            <p><a href="/bod/noc">Proceed as a Noc Engineer</a></p>
-            <p><a href="/bod/manager">Proceed as a ICT Manager</a></p>
+        <spring:url var="noc_url" value="/noc" />
+        <spring:url var="manager_url" value="/manager" />
+        <spring:url var="reservation_url" value="/reservations/create" />
+        
+        <a class="btn primary large" href="${reservation_url}">Create a reservation »</a>
+        <span style="padding: 10px">or</span>
+        <a class="btn large" href="${noc_url}">NOC Engineer work »</a>
+        <span style="padding: 10px">or</span>
+        <a class="btn large" href="${manager_url}">ICT manager work »</a>
     </div>
 
 </div>
