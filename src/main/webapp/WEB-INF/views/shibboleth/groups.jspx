@@ -8,7 +8,10 @@
     <page:list id="groups" items="${groups}" label="Group">
         <ul>
             <c:forEach var="group" items="${groups}">
-                <li>${group.title} - ${group.id} - ${group.description}</li>
+                <li>
+                    <strong>${group.title}</strong>, <code>${group.id}</code><br/>
+                    ${group.description}
+                </li>
             </c:forEach>
         </ul>
     </page:list>
