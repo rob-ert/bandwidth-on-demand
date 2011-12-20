@@ -189,10 +189,8 @@ public class VirtualPortController {
   }
 
   @ModelAttribute(VirtualResourceGroupController.MODEL_KEY_LIST)
-  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {
-    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    return virtualResourceGroupService.findAllForUser(user.getNameId());
-
+  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {    
+    return virtualResourceGroupService.findAll();
   }
 
   /**
