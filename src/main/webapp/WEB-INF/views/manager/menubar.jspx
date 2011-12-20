@@ -1,9 +1,9 @@
 <menu id="_menu" xmlns="urn:jsptagdir:/WEB-INF/tags/menu">
-    <category id="c_virtualresourcegroup">
+    <category id="c_virtualresourcegroup" menu="virtualresourcegroup">
         <item id="i_vrg_new" url="/manager/virtualresourcegroups/create" messageCode="global_menu_new" />
         <item id="i_vrg_list" url="/manager/virtualresourcegroups?page=1" messageCode="global_menu_list" />
     </category>
-    <category id="c_virtualport">
+    <category id="c_virtualport" menu="virtualport">
         <item id="i_vp_new" url="/manager/virtualports/create" messageCode="global_menu_new" />
         <item id="i_vp_list" url="/manager/virtualports?page=1" messageCode="global_menu_list" />
     </category>

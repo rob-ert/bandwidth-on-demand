@@ -1,9 +1,9 @@
 <menu id="_menu" xmlns="urn:jsptagdir:/WEB-INF/tags/menu">
-    <category id="c_physicalresourcegroup">
+    <category id="c_physicalresourcegroup" menu="physicalresourcegroup">
         <item id="i_prg_new" url="/noc/physicalresourcegroups/create" messageCode="global_menu_new" />
         <item id="i_prg_list" messageCode="global_menu_list" url="/noc/physicalresourcegroups?page=1" />
     </category>
-    <category id="c_physicalport">
+    <category id="c_physicalport" menu="physicalport">
         <item id="i_pp_list" messageCode="global_menu_list" url="/noc/physicalports?page=1" />
         <item id="i_pp_free" messageCode="menu_item_physicalport_list_free_label" url="/noc/physicalports/free" />
     </category>

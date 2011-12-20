@@ -8,7 +8,8 @@
     <page:list id="pl_nl_surfnet_bod_domain_VirtualResourceGroup" items="${virtualResourceGroupList}">
         <table:table data="${virtualResourceGroupList}" id="l_nl_surfnet_bod_domain_VirtualResourceGroup" path="/manager/virtualresourcegroups" typeIdFieldName="id">
             <table:column id="label_nl_surfnet_bod_domain_virtualresourcegroup_name" property="name" />
-            <table:column id="label_nl_surfnet_bod_domain_virtualresourcegroup_surfconnextgroupname" property="surfConnextGroupName" />            
+            <table:column id="label_nl_surfnet_bod_domain_virtualresourcegroup_surfconnextgroupname" property="surfConnextGroupName" />
+            <table:column id="count" property="virtualPortCount" labelCode="virtualResourceGroup_virtualPortCount" />
         </table:table>
     </page:list>
 </div>

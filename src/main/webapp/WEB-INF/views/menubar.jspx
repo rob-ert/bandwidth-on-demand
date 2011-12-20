@@ -1,5 +1,5 @@
 <menu id="_menu" xmlns="urn:jsptagdir:/WEB-INF/tags/menu">
-    <category id="c_reservation">
+    <category id="c_reservation" menu="reservation">
         <item id="i_vp_new" url="/reservations/create" messageCode="global_menu_new" />
         <item id="i_vp_list" url="/reservations?page=1" messageCode="global_menu_list" />
     </category>

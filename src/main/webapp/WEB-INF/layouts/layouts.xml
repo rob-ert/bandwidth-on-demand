@@ -7,14 +7,17 @@
 
   <definition name="default" template="/WEB-INF/layouts/default.jspx">
     <put-attribute name="menubar" value="/WEB-INF/views/menubar.jspx" />
+    <put-attribute name="active_menu" value="none" cascade="true" />
   </definition>
 
   <definition name="noc" template="/WEB-INF/layouts/default.jspx">
     <put-attribute name="menubar" value="/WEB-INF/views/noc/menubar.jspx" />
+    <put-attribute name="active_menu" value="none" cascade="true" />
   </definition>
   
   <definition name="manager" template="/WEB-INF/layouts/default.jspx">
     <put-attribute name="menubar" value="/WEB-INF/views/manager/menubar.jspx" />
+    <put-attribute name="active_menu" value="none" cascade="true" />
   </definition>
 
 </tiles-definitions>

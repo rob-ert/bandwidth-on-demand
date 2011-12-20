@@ -69,3 +69,12 @@ table ul {
 	float: none;
 	display: inline-block;
 }
+label {
+	width: 150px;
+}
+form .input {
+	margin-left: 170px;
+}
+.actions {
+	padding-left: 170px;
+}

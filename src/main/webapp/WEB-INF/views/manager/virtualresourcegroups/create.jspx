@@ -10,9 +10,12 @@
     <form:create id="fc_nl_surfnet_bod_domain_VirtualResourceGroup" modelAttribute="virtualResourceGroup"
         path="/manager/virtualresourcegroups" render="${empty dependencies}">
 
-		<field:input field="name" id="name" labelCode="nl_surfnet_bod_domain_virtualresourcegroup_name" required="true" />
-        <field:input field="surfConnextGroupName" id="surfConnextGroupName" labelCode="nl_surfnet_bod_domain_virtualresourcegroup_surfconnextgroupname" required="true" />
-        
+        <field:input field="name" id="name" labelCode="nl_surfnet_bod_domain_virtualresourcegroup_name" required="true" />
+
+        <field:input field="surfConnextGroupName" id="surfConnextGroupName"
+            helpMessageCode="nl_surfnet_bod_domain_virtualresourcegroup_surfconnextgroupname"
+            labelCode="nl_surfnet_bod_domain_virtualresourcegroup_surfconnextgroupname" required="true" />
+
     </form:create>
 
 </div>

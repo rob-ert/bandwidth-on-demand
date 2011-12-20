@@ -2,15 +2,19 @@
 <!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN" "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
 <tiles-definitions>
     <definition extends="manager" name="virtualresourcegroups/list">
-        <put-attribute name="body" value="/WEB-INF/views//manager/virtualresourcegroups/list.jspx" />        
+        <put-attribute name="body" value="/WEB-INF/views//manager/virtualresourcegroups/list.jspx" />
+        <put-attribute name="active_menu" value="virtualresourcegroup" cascade="true" />
     </definition>
-        <definition extends="manager" name="virtualresourcegroups/create">
+    <definition extends="manager" name="virtualresourcegroups/create">
         <put-attribute name="body" value="/WEB-INF/views/manager/virtualresourcegroups/create.jspx" />
+        <put-attribute name="active_menu" value="virtualresourcegroup" cascade="true" />
     </definition>    
     <definition extends="manager" name="virtualresourcegroups/show">
         <put-attribute name="body" value="/WEB-INF/views/manager/virtualresourcegroups/show.jspx" />
+        <put-attribute name="active_menu" value="virtualresourcegroup" cascade="true" />
     </definition>
-     <definition extends="manager" name="virtualresourcegroups/update">
+    <definition extends="manager" name="virtualresourcegroups/update">
         <put-attribute name="body" value="/WEB-INF/views/manager/virtualresourcegroups/update.jspx" />
+        <put-attribute name="active_menu" value="virtualresourcegroup" cascade="true" />
     </definition>
 </tiles-definitions>
