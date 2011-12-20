@@ -32,15 +32,17 @@ import org.springframework.validation.Validator;
 /**
  * Validator for the {@link VirtualPort}. Validates that the
  * {@link VirtualPort#getName()} is unique.
- *
+ * 
  * @author Franky
- *
+ * 
  */
 @Component
 public class VirtualPortValidator implements Validator {
 
   @Autowired
   private VirtualPortService virtualPortService;
+
+  private ValidatorHelper validatorHelper = new ValidatorHelper();
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -51,9 +53,13 @@ public class VirtualPortValidator implements Validator {
   public void validate(Object objToValidate, Errors errors) {
     VirtualPort virtualPort = (VirtualPort) objToValidate;
 
-    if (virtualPortService.findByName(virtualPort.getName()) != null) {
-      // An instance already exists
-      errors.rejectValue("name", "validation.not.unique");
+    VirtualPort existingVirtualPort = virtualPortService.findByName(virtualPort.getName());
+
+    if (existingVirtualPort != null) {
+      if (!validatorHelper.validateNameUniqueness(virtualPort.getId() == existingVirtualPort.getId(), virtualPort
+          .getName().equalsIgnoreCase(existingVirtualPort.getName()), virtualPort.getId() != null)) {
+        errors.rejectValue("name", "validation.not.unique");
+      }
     }
 
   }
