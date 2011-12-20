@@ -1,5 +1,5 @@
 <div xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
-    xmlns:jsp="http://java.sun.com/JSP/Page">
+    xmlns:sec="http://www.springframework.org/security/tags" xmlns:jsp="http://java.sun.com/JSP/Page">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
@@ -19,9 +19,11 @@
         
         <a class="btn primary large" href="${reservation_url}">Create a reservation »</a>
         <span style="padding: 10px">or</span>
-        <a class="btn large" href="${noc_url}">NOC Engineer work »</a>
-        <span style="padding: 10px">or</span>
         <a class="btn large" href="${manager_url}">ICT manager work »</a>
+        <sec:authorize access="hasRole('NOC_ENGINEER')">
+            <span style="padding: 10px">or</span>
+            <a class="btn large" href="${noc_url}">NOC Engineer work »</a>
+        </sec:authorize>
     </div>
 
 </div>

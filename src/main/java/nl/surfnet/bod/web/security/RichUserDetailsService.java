@@ -30,6 +30,7 @@ import nl.surfnet.bod.service.GroupService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
@@ -41,9 +42,10 @@ import com.google.common.collect.Lists;
 
 public class RichUserDetailsService implements AuthenticationUserDetailsService {
 
-  protected static final String NOC_ENGINEER_GROUP_ID = "urn:collab:group:surfteams.nl:nl:surfnet:diensten:noc-engineer";
-
   private final Logger logger = LoggerFactory.getLogger(RichUserDetailsService.class);
+
+  @Value("${os.group.noc}")
+  private String nocEngineerGroupId;
 
   @Autowired
   private GroupService groupService;
@@ -72,12 +74,16 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
     return Iterables.any(groups, new Predicate<UserGroup>() {
       @Override
       public boolean apply(UserGroup group) {
-        return NOC_ENGINEER_GROUP_ID.equals(group.getId());
+        return nocEngineerGroupId.equals(group.getId());
       }
     });
   }
 
   protected void setGroupService(GroupService groupService) {
     this.groupService = groupService;
+  }
+
+  protected void setNocEngineerGroupId(String groupId) {
+    this.nocEngineerGroupId = groupId;
   }
 }

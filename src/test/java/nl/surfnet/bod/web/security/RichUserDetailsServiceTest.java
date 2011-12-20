@@ -62,7 +62,9 @@ public class RichUserDetailsServiceTest {
   @Test
   public void aNocEngineer() {
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(
-        Lists.newArrayList(new UserGroupFactory().setId(RichUserDetailsService.NOC_ENGINEER_GROUP_ID).create()));
+        Lists.newArrayList(new UserGroupFactory().setId("urn:noc-engineer").create()));
+
+    subject.setNocEngineerGroupId("urn:noc-engineer");
 
     RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
         "urn:alanvdam", "Alan van Dam"), "N/A"));
