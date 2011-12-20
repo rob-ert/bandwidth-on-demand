@@ -30,6 +30,7 @@ import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
@@ -56,20 +57,6 @@ public class VirtualResourceGroupValidatorTest {
     assertFalse(subject.supports(Object.class));
   }
 
-  @Test
-  public void testValidateExistingSurfConnextGroupName() {
-    VirtualResourceGroup virtualResourceGroupOne = new VirtualResourceGroupFactory().setSurfConnextGroupName("one")
-        .create();
-
-    when(virtualResourceGroupServiceMock.findBySurfConnextGroupName("one")).thenReturn(virtualResourceGroupOne);
-    Errors errors = new BeanPropertyBindingResult(virtualResourceGroupOne, "virtualResourceGroup");
-    assertFalse(errors.hasErrors());
-
-    subject.validate(virtualResourceGroupOne, errors);
-
-    assertTrue(errors.hasFieldErrors("surfConnextGroupName"));
-    assertFalse(errors.hasGlobalErrors());
-  }
 
   @Test
   public void testValidateNonExistingSurfConnextGroupName() {
