@@ -43,6 +43,8 @@ public class VirtualResourceGroupValidator implements Validator {
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
 
+  private ValidatorHelper validatorHelper = new ValidatorHelper();
+
   @Override
   public boolean supports(Class<?> clazz) {
     return VirtualResourceGroup.class.isAssignableFrom(clazz);
@@ -52,20 +54,18 @@ public class VirtualResourceGroupValidator implements Validator {
   public void validate(Object objToValidate, Errors errors) {
     VirtualResourceGroup virtualResourceGroup = (VirtualResourceGroup) objToValidate;
 
-    // Check the surfConnextGroupName
-    if (virtualResourceGroupService.findBySurfConnextGroupName(virtualResourceGroup.getSurfConnextGroupName()) != null) {
-      // An instance already exists
-      errors.rejectValue("surfConnextGroupName", "validation.not.unique");
+    VirtualResourceGroup existingVirtualResourceGroup = virtualResourceGroupService.findByName(virtualResourceGroup
+        .getName());
+
+    if (existingVirtualResourceGroup != null) {
+      if (!validatorHelper.validateNameUniqueness(virtualResourceGroup.getId() == existingVirtualResourceGroup.getId(),
+          virtualResourceGroup.getName().equalsIgnoreCase(existingVirtualResourceGroup.getName()),
+          virtualResourceGroup.getId() != null)) {
+        errors.rejectValue("name", "validation.not.unique");
+      }
     }
 
     // TODO Check if the surfConextGroupName exists in SurfConext
-
-    // Check the name
-    if (virtualResourceGroupService.findByName(virtualResourceGroup.getName()) != null) {
-      // An instance already exists
-      errors.rejectValue("name", "validation.not.unique");
-    }
-
   }
 
   void setVirtualResourceGroupService(VirtualResourceGroupService virtualResourceGroupService) {

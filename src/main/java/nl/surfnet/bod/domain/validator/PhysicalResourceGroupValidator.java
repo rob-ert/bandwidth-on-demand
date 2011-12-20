@@ -42,6 +42,8 @@ public class PhysicalResourceGroupValidator implements Validator {
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
 
+  private ValidatorHelper validatorHelper = new ValidatorHelper();
+
   @Override
   public boolean supports(Class<?> clazz) {
     return PhysicalResourceGroup.class.isAssignableFrom(clazz);
@@ -51,11 +53,16 @@ public class PhysicalResourceGroupValidator implements Validator {
   public void validate(Object objToValidate, Errors errors) {
     PhysicalResourceGroup physicalResourceGroup = (PhysicalResourceGroup) objToValidate;
 
-    if (physicalResourceGroupService.findByName(physicalResourceGroup.getName()) != null) {
-      // An instance already exists
-      errors.rejectValue("name", "validation.not.unique");
-    }
+    PhysicalResourceGroup existingResourceGroup = physicalResourceGroupService.findByName(physicalResourceGroup
+        .getName());
 
+    if (existingResourceGroup != null) {
+      if (!validatorHelper.validateNameUniqueness(physicalResourceGroup.getId() == existingResourceGroup.getId(),
+          physicalResourceGroup.getName().equalsIgnoreCase(existingResourceGroup.getName()),
+          physicalResourceGroup.getId() != null)) {
+        errors.rejectValue("name", "validation.not.unique");
+      }
+    }
   }
 
   public void setPhysicalResourceGroupService(PhysicalResourceGroupService physicalResourceGroupService) {
