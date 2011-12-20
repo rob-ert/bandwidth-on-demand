@@ -5,7 +5,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <page:list id="groups" items="${groups}" label="Group">
+    <page:list id="groups" items="${groups}" label="Group" labelPlural="Groups">
         <ul>
             <c:forEach var="group" items="${groups}">
                 <li>
