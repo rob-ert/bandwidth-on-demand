@@ -21,6 +21,9 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Strings.emptyToNull;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -76,10 +79,12 @@ public class GroupOpenSocialService implements GroupService {
   }
 
   private Client getClient(String loggedInUser) {
-    Provider provider = new ShindigProvider(true);
+    checkNotNull(emptyToNull(env.getOpenSocialOAuthKey()));
+    checkNotNull(emptyToNull(env.getOpenSocialOAuthSecret()));
+    checkNotNull(emptyToNull(env.getOpenSocialUrl()));
 
+    Provider provider = new ShindigProvider(true);
     provider.setRestEndpoint(env.getOpenSocialUrl() + "/rest/");
-    provider.setRpcEndpoint(null);
     provider.setVersion("0.9");
 
     AuthScheme scheme = new OAuth2LeggedScheme(env.getOpenSocialOAuthKey(), env.getOpenSocialOAuthSecret(),
