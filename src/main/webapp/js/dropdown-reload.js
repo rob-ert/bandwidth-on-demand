@@ -1,9 +1,5 @@
 (function($){
-	$.fn.dropdownReload = function(dataUrl, otherSelect, options) {
-		var defaults = {
-		}
-		var opts = $.extend(defaults, options);
-		
+	$.fn.dropdownReload = function(dataUrl, otherSelect) {
 		var inputSelect = this;
 		
 		inputSelect.change(function() {

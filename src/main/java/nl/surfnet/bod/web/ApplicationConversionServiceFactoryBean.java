@@ -70,17 +70,17 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   public Converter<Long, PhysicalPort> getIdToPhysicalPortConverter() {
     return new Converter<Long, PhysicalPort>() {
       @Override
-      public PhysicalPort convert(final java.lang.Long id) {
+      public PhysicalPort convert(final Long id) {
         return physicalPortService.find(id);
       }
     };
   }
 
   public Converter<String, PhysicalPort> getStringToPhysicalPortConverter() {
-    return new Converter<java.lang.String, nl.surfnet.bod.domain.PhysicalPort>() {
+    return new Converter<String, PhysicalPort>() {
       @Override
-      public PhysicalPort convert(final String name) {
-        return physicalPortService.findByName(name);
+      public PhysicalPort convert(final String id) {
+        return getObject().convert(getObject().convert(id, Long.class), PhysicalPort.class);
       }
     };
   }
@@ -98,14 +98,14 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   public Converter<Long, PhysicalResourceGroup> getIdToPhysicalResourceGroupConverter() {
     return new Converter<Long, PhysicalResourceGroup>() {
       @Override
-      public PhysicalResourceGroup convert(final java.lang.Long id) {
+      public PhysicalResourceGroup convert(final Long id) {
         return physicalResourceGroupService.find(id);
       }
     };
   }
 
   public Converter<String, PhysicalResourceGroup> getStringToPhysicalResourceGroupConverter() {
-    return new Converter<java.lang.String, PhysicalResourceGroup>() {
+    return new Converter<String, PhysicalResourceGroup>() {
       @Override
       public PhysicalResourceGroup convert(final String id) {
         return getObject().convert(getObject().convert(id, Long.class), PhysicalResourceGroup.class);
@@ -114,10 +114,19 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   }
 
   public Converter<String, VirtualResourceGroup> getStringToVirtualResourceGroupConverter() {
-    return new Converter<java.lang.String, VirtualResourceGroup>() {
+    return new Converter<String, VirtualResourceGroup>() {
       @Override
-      public VirtualResourceGroup convert(final String name) {
-        return virtualResourceGroupService.findByName(name);
+      public VirtualResourceGroup convert(final String id) {
+        return getObject().convert(getObject().convert(id, Long.class), VirtualResourceGroup.class);
+      }
+    };
+  }
+
+  public Converter<Long, VirtualResourceGroup> getIdToVirtualResourceGroupConverter() {
+    return new Converter<Long, VirtualResourceGroup>() {
+      @Override
+      public VirtualResourceGroup convert(Long id) {
+        return virtualResourceGroupService.find(id);
       }
     };
   }
@@ -133,9 +142,17 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
 
   public Converter<String, VirtualPort> getStringToVirtualPortConverter() {
     return new Converter<String, VirtualPort>() {
-
       @Override
       public VirtualPort convert(final String id) {
+        return getObject().convert(getObject().convert(id, Long.class), VirtualPort.class);
+      }
+    };
+  }
+
+  public Converter<Long, VirtualPort> getIdToVirtualPortConverter() {
+    return new Converter<Long, VirtualPort>() {
+      @Override
+      public VirtualPort convert(Long id) {
         return virtualPortService.find(Long.valueOf(id));
       }
     };
@@ -151,19 +168,25 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   }
 
   public void installLabelConverters(final FormatterRegistry registry) {
+    // physical ports
     registry.addConverter(getPhysicalPortToStringConverter());
+    registry.addConverter(getStringToPhysicalPortConverter());
     registry.addConverter(getIdToPhysicalPortConverter());
 
-    registry.addConverter(getStringToPhysicalPortConverter());
+    // physical resource groups
     registry.addConverter(getPhysicalResourceGroupToStringConverter());
-    registry.addConverter(getIdToPhysicalResourceGroupConverter());
     registry.addConverter(getStringToPhysicalResourceGroupConverter());
+    registry.addConverter(getIdToPhysicalResourceGroupConverter());
 
-    registry.addConverter(getStringToVirtualResourceGroupConverter());
+    // virtual resource groups
     registry.addConverter(getVirtualResourceGroupToStringConverter());
+    registry.addConverter(getStringToVirtualResourceGroupConverter());
+    registry.addConverter(getIdToVirtualResourceGroupConverter());
 
-    registry.addConverter(getStringToVirtualPortConverter());
+    // virtual ports
     registry.addConverter(getVirtualPortToStringConverter());
+    registry.addConverter(getStringToVirtualPortConverter());
+    registry.addConverter(getIdToVirtualPortConverter());
   }
 
   @Override
