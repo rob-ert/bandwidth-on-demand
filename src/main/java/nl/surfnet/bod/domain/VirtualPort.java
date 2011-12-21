@@ -21,29 +21,25 @@
  */
 package nl.surfnet.bod.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Version;
+import javax.persistence.*;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Entity which represents a VirtualPort which is mapped to a
  * {@link PhysicalPort} and is related to a {@link VirtualResourceGroup}
- * 
+ *
  * @author Franky
- * 
+ *
  */
 @Entity
+@JsonIgnoreProperties({ "virtualResourceGroup" })
 public class VirtualPort {
+
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
-  
 
   @Version
   private Integer version;
@@ -100,10 +96,10 @@ public class VirtualPort {
 
   /**
    * TODO remove
-   * 
+   *
    * Convenience getter, since nesting bean properties is not support in the
    * view.
-   * 
+   *
    * @return String name of the {@link PhysicalPort}, empty string if
    *         physicalPort is null
    */
@@ -113,10 +109,10 @@ public class VirtualPort {
 
   /**
    * TODO remove
-   * 
+   *
    * Convenience getter, since nesting bean properties is not support in the
    * view.
-   * 
+   *
    * @return String name of the {@link PhysicalPort}, empty string if
    *         physicalPort is null
    */
@@ -124,8 +120,8 @@ public class VirtualPort {
     return physicalPort == null ? "" : physicalPort.getPhysicalResourceGroup() == null ? "" : physicalPort
         .getPhysicalResourceGroup().getName();
   }
-  
-  
+
+
   /**
    * TODO remove
    */

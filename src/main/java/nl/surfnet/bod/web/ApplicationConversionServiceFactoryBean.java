@@ -145,7 +145,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     return new Converter<VirtualPort, String>() {
       @Override
       public String convert(VirtualPort virtualPort) {
-        return String.valueOf(virtualPort.getId());
+        return virtualPort.getName();
       }
     };
   }
@@ -153,7 +153,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   public void installLabelConverters(final FormatterRegistry registry) {
     registry.addConverter(getPhysicalPortToStringConverter());
     registry.addConverter(getIdToPhysicalPortConverter());
-    
+
     registry.addConverter(getStringToPhysicalPortConverter());
     registry.addConverter(getPhysicalResourceGroupToStringConverter());
     registry.addConverter(getIdToPhysicalResourceGroupConverter());
@@ -161,7 +161,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
 
     registry.addConverter(getStringToVirtualResourceGroupConverter());
     registry.addConverter(getVirtualResourceGroupToStringConverter());
-    
+
     registry.addConverter(getStringToVirtualPortConverter());
     registry.addConverter(getVirtualPortToStringConverter());
   }

@@ -23,8 +23,8 @@ package nl.surfnet.bod.pages.virtualresourcegroup;
 
 import java.util.List;
 
-import nl.surfnet.bod.web.VirtualResourceGroupController;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -34,7 +34,7 @@ import org.openqa.selenium.support.PageFactory;
 
 public class ListVirtualResourceGroupPage {
 
-  private static final String PAGE =  VirtualResourceGroupController.PAGE_URL_PREFIX  + VirtualResourceGroupController.PAGE_URL;
+  private static final String PAGE =  "/manager/"  + VirtualResourceGroupController.PAGE_URL;
   private final RemoteWebDriver driver;
 
   @FindBy(css = "table.zebra-striped tbody")

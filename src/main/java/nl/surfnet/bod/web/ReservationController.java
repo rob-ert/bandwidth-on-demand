@@ -24,6 +24,7 @@ package nl.surfnet.bod.web;
 import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,7 +44,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -65,13 +65,13 @@ public class ReservationController {
   private ReservationValidator reservationValidator = new ReservationValidator();
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid Reservation reservation,
-      final BindingResult bindingResult, final Model uiModel, final HttpServletRequest httpServletRequest) {
+  public String create(@Valid Reservation reservation, final BindingResult bindingResult, final Model uiModel,
+      final HttpServletRequest httpServletRequest) {
 
     // First add meta information, then validate
     RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     reservation.setUser(user.getDisplayName());
-    
+
     reservationValidator.validate(reservation, bindingResult);
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, reservation);
@@ -86,11 +86,21 @@ public class ReservationController {
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(final Model uiModel) {
+    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-    // Set defaults
     Reservation reservation = createDefaultReservation();
-
     uiModel.addAttribute(MODEL_KEY, reservation);
+
+    Collection<VirtualResourceGroup> virtualResourceGroups = virtualResourceGroupService.findAllForUser(user
+        .getNameId());
+    uiModel.addAttribute("virtualResourceGroups", virtualResourceGroups);
+
+    if (virtualResourceGroups.isEmpty()) {
+      uiModel.addAttribute("virtualPorts", Collections.emptyList());
+    }
+    else {
+      uiModel.addAttribute("virtualPorts", virtualResourceGroups.iterator().next().getVirtualPorts());
+    }
 
     return PAGE_URL + CREATE;
   }
@@ -114,13 +124,13 @@ public class ReservationController {
   }
 
   @RequestMapping(method = RequestMethod.PUT)
-  public String update(@Valid final Reservation reservation,
-      final BindingResult bindingResult, final Model uiModel, final HttpServletRequest httpServletRequest) {
+  public String update(@Valid final Reservation reservation, final BindingResult bindingResult, final Model uiModel,
+      final HttpServletRequest httpServletRequest) {
 
     // First add meta information, then validate
     RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     reservation.setUser(user.getDisplayName());
-    
+
     reservationValidator.validate(reservation, bindingResult);
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, reservation);
@@ -150,21 +160,6 @@ public class ReservationController {
     uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());
 
     return "redirect:";
-  }
-
-  /**
-   * Puts all {@link VirtualResourceGroup}s related to the user on the model
-   *
-   * @param userContext
-   *          UserContext
-   * @return Collection<VirtualResourceGroup> or empty Collection when no match
-   *         found.
-   */
-  @ModelAttribute(VirtualResourceGroupController.MODEL_KEY_LIST)
-  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {
-    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-    return virtualResourceGroupService.findAllForUser(user.getNameId());
   }
 
   /**

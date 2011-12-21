@@ -22,8 +22,8 @@
 package nl.surfnet.bod.pages.virtualresourcegroup;
 
 import nl.surfnet.bod.support.Probes;
-import nl.surfnet.bod.web.VirtualResourceGroupController;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -33,7 +33,7 @@ import org.openqa.selenium.support.PageFactory;
 
 public class NewVirtualResourceGroupPage {
 
-  private static final String PAGE = VirtualResourceGroupController.PAGE_URL_PREFIX
+  private static final String PAGE = "/manager/"
       + VirtualResourceGroupController.PAGE_URL + WebUtils.CREATE;
 
   private final Probes probes;

@@ -19,18 +19,18 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.web;
+package nl.surfnet.bod.web.manager;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -42,16 +42,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
-
-@SessionAttributes({ "userContext" })
-@RequestMapping(VirtualPortController.PAGE_URL_PREFIX + VirtualPortController.PAGE_URL)
 @Controller
+@RequestMapping("/manager/" + VirtualPortController.PAGE_URL)
 public class VirtualPortController {
-  public static final String PAGE_URL_PREFIX = "/manager/";
   static final String PAGE_URL = "virtualports";
 
   static final String MODEL_KEY = "virtualPort";
@@ -87,7 +84,22 @@ public class VirtualPortController {
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(final Model uiModel) {
+    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
     uiModel.addAttribute(MODEL_KEY, new VirtualPort());
+    uiModel.addAttribute("virtualResourceGroups", virtualResourceGroupService.findAll());
+
+    Collection<PhysicalResourceGroup> physicalResourcesGroups = physicalResourceGroupService.findAllForUser(user
+        .getNameId());
+
+    uiModel.addAttribute("physicalResourceGroups", physicalResourcesGroups);
+
+    if (physicalResourcesGroups.isEmpty()) {
+      uiModel.addAttribute("physicalPorts", Collections.emptyList());
+    }
+    else {
+      uiModel.addAttribute("physicalPorts", physicalResourcesGroups.iterator().next().getPhysicalPorts());
+    }
 
     return PAGE_URL + CREATE;
   }
@@ -99,24 +111,6 @@ public class VirtualPortController {
     uiModel.addAttribute(ICON_ITEM_KEY, id);
 
     return PAGE_URL + SHOW;
-  }
-
-  @RequestMapping(value = "/{name}", method = RequestMethod.GET)
-  /* , headers = "accept=application/json") */
-  public @ResponseBody
-  Collection<VirtualPort> listForVirtualResourceGroup(@PathVariable String name) {
-    Collection<VirtualPort> ports = virtualResourceGroupService.findByName(name).getVirtualPorts();
-
-    //Prevent loop in json output
-    return Collections2.transform(ports, new Function<VirtualPort, VirtualPort>() {
-      @Override
-      public VirtualPort apply(VirtualPort port) {
-        VirtualPort vp = new VirtualPort();
-        vp.setId(port.getId());
-        vp.setName(port.getName());
-        return vp;
-      }
-    });
   }
 
   @RequestMapping(method = RequestMethod.GET)
@@ -164,38 +158,8 @@ public class VirtualPortController {
   }
 
   /**
-   * Puts all {@link PhysicalResourceGroup}s related to the user on the model.
-   * NOW just selects the first.
-   * 
-   * @param userContext
-   *          {@link UserContext}
-   * 
-   * @return {@link PhysicalResourceGroup}
-   * 
-   * @throws {@link IllegalStateException} in case multiple groups are found.
-   */
-  @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY)
-  public PhysicalResourceGroup populatePhysicalResourceGroups() {
-
-    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Collection<PhysicalResourceGroup> findAllForUser = physicalResourceGroupService.findAllForUser(user.getNameId());
-
-    // TODO View should be able to handle list
-    if (findAllForUser.size() > 1) {
-      throw new IllegalStateException("User [" + user + "] has more then one PhysicalResourceGroups: " + findAllForUser);
-    }
-
-    return findAllForUser.iterator().hasNext() ? findAllForUser.iterator().next() : new PhysicalResourceGroup();
-  }
-
-  @ModelAttribute(VirtualResourceGroupController.MODEL_KEY_LIST)
-  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {    
-    return virtualResourceGroupService.findAll();
-  }
-
-  /**
    * Setter to enable depedency injection from testcases.
-   * 
+   *
    * @param virtualPortService
    *          {@link VirtualPortService}
    */

@@ -78,3 +78,11 @@ form .input {
 .actions {
 	padding-left: 170px;
 }
+.input span.ref-block {
+	padding-top: 6px;
+	font-size: 13px;
+	line-height: 18px;
+	float: left;
+	text-align: right;
+	color: #B94A48;
+}

@@ -7,17 +7,30 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <form:create id="fc_nl_surfnet_bod_domain_virtualport" modelAttribute="virtualPort"
-        path="/manager/virtualports" render="${empty dependencies}">
+    <spring:url value="/physicalresourcegroups/{}/ports" var="ppUrl"/>
+
+    <form:create id="fc_nl_surfnet_bod_domain_virtualport" modelAttribute="virtualPort" path="/manager/virtualports"
+        render="${empty dependencies}">
 
         <field:input field="name" id="name" labelCode="nl_surfnet_bod_domain_virtualport_name" required="true" />
-        
-        <field:select  field="virtualResourceGroup" id="c_nl_surfnet_bod_domain_virtualresourcegroup" itemValue="name" items="${virtualResourceGroupList}" path="/manager/virtualports" required="true" />
-        
-        <field:display labelCode="nl_surfnet_bod_domain_physicalport_physicalresourcegroup"  id="c_nl_surfnet_bod_domain_PhysicalResourceGroup" object="${physicalResourceGroup}" field="name"/>
-        
-        <field:select field="physicalPort" id="c_nl_surfnet_bod_domain_PhysicalPort"
-            itemValue="name" items="${physicalResourceGroup.physicalPorts}" path="/manager/virtualports" required="true" />        
+
+        <field:select items="${virtualResourceGroups}" field="virtualResourceGroup"
+            id="c_nl_surfnet_bod_domain_virtualresourcegroup" itemValue="name" path="/manager/virtualports"
+            required="true" />
+
+        <fieldset>
+            <legend>Specify the physical port</legend>
+            <field:select items="${physicalResourceGroups}" id="physicalResourceGroup" labelCode="nl_surfnet_bod_domain_physicalresourcegroup"
+                itemValue="id" field="name" path="/noc/physicalresourcegroups" create="false" />
+            
+            <field:select items="${physicalPorts}" id="physicalPort" labelCode="nl_surfnet_bod_domain_physicalport"
+                itemValue="id" field="physicalPort" path="/manager/virtualports" create="false"/>
+        </fieldset>
     </form:create>
-    
+
+    <script type="text/javascript">
+      $(function() {
+        $("#_physicalResourceGroup_name_id").dropdownReload("${ppUrl}", "#_physicalPort_physicalPort_id");
+      })
+    </script>
 </div>

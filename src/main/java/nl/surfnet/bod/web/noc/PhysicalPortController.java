@@ -19,7 +19,7 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.web;
+package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
@@ -42,12 +42,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
 @Controller
+@RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
 public class PhysicalPortController {
 
   static final String PAGE_URL = "physicalports";
-
   static final String MODEL_KEY = "physicalPort";
   static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
 
@@ -56,7 +55,6 @@ public class PhysicalPortController {
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
-
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid PhysicalPort physicalPort, final BindingResult bindingResult, final Model uiModel,
@@ -83,13 +81,13 @@ public class PhysicalPortController {
   public String show(@RequestParam(ID_KEY) final String name, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY, physicalPortService.findByName(name));
     uiModel.addAttribute(ICON_ITEM_KEY, name);
+
     return PAGE_URL + SHOW;
   }
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY_LIST, physicalPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
-
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.count()));
 
     return PAGE_URL + LIST;

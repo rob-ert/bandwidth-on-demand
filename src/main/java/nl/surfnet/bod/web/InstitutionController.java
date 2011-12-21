@@ -24,7 +24,7 @@ package nl.surfnet.bod.web;
 import static com.google.common.collect.Collections2.filter;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
 
 import java.util.Collection;
 import java.util.List;
@@ -46,12 +46,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
-@RequestMapping(InstitutionController.PAGE_URL)
+@RequestMapping("/institutions")
 @Controller
 public class InstitutionController {
-                                                  
-  static final String PAGE_URL = "institutions";
-  
+
   static final String MODEL_KEY = "institution";
   static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
 
@@ -67,8 +65,7 @@ public class InstitutionController {
   }
 
   @RequestMapping(method = RequestMethod.GET, headers = "accept=application/json")
-  public @ResponseBody
-  Collection<Institution> jsonList(@RequestParam(required = false) String q) {
+  public @ResponseBody Collection<Institution> jsonList(@RequestParam(required = false) String q) {
     final Collection<String> existingInstitutions = existingInstitutionNames();
     final String query = StringUtils.hasText(q) ? q.toLowerCase() : "";
 
@@ -99,7 +96,7 @@ public class InstitutionController {
 
     uiModel.addAttribute(MODEL_KEY_LIST, institutions);
 
-    return PAGE_URL + LIST;
+    return "institutions/list";
   }
 
 }

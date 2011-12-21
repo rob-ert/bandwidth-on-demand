@@ -6,42 +6,34 @@
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-    
-    <spring:url value="/manager/virtualports" var="vpUrl"/>
 
-    <form:create id="fc_nl_surfnet_bod_domain_reservation" modelAttribute="reservation"
-        path="/reservations" render="${empty dependencies}">
+    <spring:url value="/virtualresourcegroup/{}/ports" var="vpUrl" />
 
-        <field:select  field="virtualResourceGroupName" id="c_nl_surfnet_bod_domain_virtualresourcegroup"  itemLabel="name" items="${virtualResourceGroupList}" path="/manager/reservations" required="true" />
-	
-		<field:select field="sourcePort" id="c_nl_surfnet_bod_domain_sourcePort" itemValue="name" items="${virtualResourceGroup.virtualPorts}" path="/manager/reservations" required="true" />
-            
-        <field:select field="destinationPort" id="c_nl_surfnet_bod_domain_destinationPort"  itemValue="name" items="${virtualResourceGroup.virtualPorts}" path="/manager/reservations" required="true" />
-		
-        <field:input field="startDate" id="startDate" label="startDate"  required="true"/>
-        <field:input field="startTime" id="startTime" label="startTime" required="true" />
-        
-        <field:input  field="endDate" id="endDate" label="endDate" required="true" />
-        <field:input  field="endTime" id="endTime" label="endTime" required="true" />        
-                
+    <form:create id="fc_nl_surfnet_bod_domain_reservation" modelAttribute="reservation" path="/reservations"
+        render="${empty dependencies}">
+
+        <field:select field="virtualResourceGroupName" id="virtualresourcegroup" labelCode="nl_surfnet_bod_domain_virtualresourcegroup"
+            itemLabel="name" items="${virtualResourceGroups}" path="/manager/reservations" required="true" />
+
+        <field:select field="sourcePort" id="sourcePort" itemValue="name" labelCode="nl_surfnet_bod_domain_sourcePort"
+            items="${virtualPorts}" path="/manager/reservations" required="true" create="false" />
+
+        <field:select field="destinationPort" id="destinationPort" itemValue="name" labelCode="nl_surfnet_bod_domain_destinationPort"
+            items="${virtualPorts}" path="/manager/reservations" required="true" create="false" />
+
+        <field:input field="startDate" id="startDate" label="Start Date" required="true" />
+        <field:input field="startTime" id="startTime" label="Start Time" required="true" />
+
+        <field:input field="endDate" id="endDate" label="End Date" required="true" />
+        <field:input field="endTime" id="endTime" label="End Time" required="true" />
+
     </form:create>
-    
+
     <script type="text/javascript">
-          $(function() {
-        	    $('#_virtualResourceGroupName_id').change(function() {
-        	    		$.get(
-        	    			  "${vpUrl}/"+$("#_virtualResourceGroupName_id").val(),        	    			  
-        	    			  function(data) {
-        	    			    var items = [];
-        	    			    $.each(data, function(key, object) {
-        	    			    	  items.push('<option value="'+object.id+'">'+object.name+'</option>');
-        	    			    })
-        	    			    $("#_c_nl_surfnet_bod_domain_sourcePort_id div").html($('<select/>', {name: 'sourcePort', html: items.join("")}));
-        	    			    $("#_c_nl_surfnet_bod_domain_destinationPort_id div").html($('<select/>', {name: 'destinationPort', html: items.join("")}));
-        	    			  }
-        	    		)
-      	    	})
-          })
-          
-    </script>
+      $(function() {
+	    $("#_virtualresourcegroup_virtualResourceGroupName_id").dropdownReload(
+		  "${vpUrl}",
+		  ["#_sourcePort_sourcePort_id", "#_destinationPort_destinationPort_id"]);
+		})
+	</script>
 </div>
