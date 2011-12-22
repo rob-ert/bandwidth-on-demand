@@ -19,11 +19,10 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.pages.virtualresourcegroup;
+package nl.surfnet.bod.pages.virtual;
 
 import java.util.List;
 
-import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 
 import org.openqa.selenium.By;

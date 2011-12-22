@@ -30,10 +30,12 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.pages.physicalresourcegroup.ListPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.physicalresourcegroup.NewPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.virtualresourcegroup.ListVirtualResourceGroupPage;
-import nl.surfnet.bod.pages.virtualresourcegroup.NewVirtualResourceGroupPage;
+import nl.surfnet.bod.pages.physical.ListPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.physical.NewPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.virtual.ListVirtualPortPage;
+import nl.surfnet.bod.pages.virtual.ListVirtualResourceGroupPage;
+import nl.surfnet.bod.pages.virtual.NewVirtualPortPage;
+import nl.surfnet.bod.pages.virtual.NewVirtualResourceGroupPage;
 
 import org.hamcrest.Matcher;
 import org.openqa.selenium.OutputType;
@@ -137,6 +139,21 @@ public class BodWebDriver {
     NewVirtualResourceGroupPage page = NewVirtualResourceGroupPage.get(driver);
 
     assertTrue(page.hasNameValidationError());
+  }
+
+  public void createNewVirtualPort(String name) {
+    NewVirtualPortPage page = NewVirtualPortPage.get(driver, URL_UNDER_TEST);
+
+    page.sendName(name);
+    page.save();
+  }
+
+  public void verifyVirtualPortWasCreated(String name) {
+    ListVirtualPortPage page = ListVirtualPortPage.get(driver);
+
+    String table = page.getTable();
+
+    assertThat(table, containsString(name));
   }
 
 }

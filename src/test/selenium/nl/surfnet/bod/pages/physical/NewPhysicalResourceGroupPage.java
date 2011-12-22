@@ -19,55 +19,42 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.pages.virtualresourcegroup;
+package nl.surfnet.bod.pages.physical;
 
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
+import nl.surfnet.bod.support.Probes;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class NewVirtualResourceGroupPage {
+public class NewPhysicalResourceGroupPage {
 
-  private static final String PAGE = "/manager/"
-      + VirtualResourceGroupController.PAGE_URL + WebUtils.CREATE;
+  private static final String PAGE = "noc/physicalresourcegroups/create";
 
-  @FindBy(id = "_surfConnextGroupName_id")
-  private WebElement surfConnextGroupNameInput;
+  private final Probes probes;
 
   @FindBy(id = "_name_id")
   private WebElement nameInput;
 
+  @FindBy(css = "input[name='institutionName_search']")
+  private WebElement institutionInput;
+
   @FindBy(css = "input[type='submit']")
   private WebElement saveButton;
 
-  @FindBy(id = "_name_error_id")
-  private WebElement nameError;
-
-  public NewVirtualResourceGroupPage(WebDriver driver) {
+  public NewPhysicalResourceGroupPage(WebDriver driver) {
+    this.probes = new Probes(driver);
   }
 
-  public static NewVirtualResourceGroupPage get(RemoteWebDriver driver, String baseUrl) {
-    driver.get(baseUrl + PAGE);
-    NewVirtualResourceGroupPage page = new NewVirtualResourceGroupPage(driver);
+  public static NewPhysicalResourceGroupPage get(RemoteWebDriver driver, String host) {
+    driver.get(host + PAGE);
+    NewPhysicalResourceGroupPage page = new NewPhysicalResourceGroupPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;
-  }
-
-  public static NewVirtualResourceGroupPage get(RemoteWebDriver driver) {
-    NewVirtualResourceGroupPage page = new NewVirtualResourceGroupPage(driver);
-    PageFactory.initElements(driver, page);
-
-    return page;
-  }
-
-  public void sendSurfConnextGroupName(String name) {
-    surfConnextGroupNameInput.clear();
-    surfConnextGroupNameInput.sendKeys(name);
   }
 
   public void sendName(String name) {
@@ -75,12 +62,18 @@ public class NewVirtualResourceGroupPage {
     nameInput.sendKeys(name);
   }
 
-  public void save() {
-    saveButton.click();
+  public void sendInstitution(String institution) throws Exception {
+    institutionInput.clear();
+    institutionInput.sendKeys(institution);
+
+    probes.assertTextPresent(By.className("as-results"), institution);
+
+    institutionInput.sendKeys("\t");
+    institutionInput.sendKeys("\n");
   }
 
-  public boolean hasNameValidationError() {
-    return nameError.isDisplayed();
+  public void save() {
+    saveButton.click();
   }
 
 }
