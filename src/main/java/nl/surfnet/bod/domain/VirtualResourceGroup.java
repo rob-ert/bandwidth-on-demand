@@ -48,6 +48,7 @@ public class VirtualResourceGroup {
   @Column(unique = true, nullable = false)
   private String name;
 
+  @NotEmpty
   @Column(unique = true, nullable = false)
   private String surfConnextGroupName;
 
