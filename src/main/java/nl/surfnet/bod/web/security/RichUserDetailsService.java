@@ -67,7 +67,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
       });
     }
 
-    return new RichUserDetails(principal.getNameId(), principal.getDisplayName(), authorities);
+    return new RichUserDetails(principal.getNameId(), principal.getDisplayName(), authorities, groups);
   }
 
   private boolean containsNocEngineerGroup(Collection<UserGroup> groups) {

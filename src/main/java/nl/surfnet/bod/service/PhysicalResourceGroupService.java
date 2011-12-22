@@ -21,23 +21,18 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 
 @Service
 @Transactional
@@ -45,9 +40,6 @@ public class PhysicalResourceGroupService {
 
   @Autowired
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
-
-  @Autowired
-  private GroupService groupService;
 
   public long count() {
     return physicalResourceGroupRepo.count();
@@ -77,23 +69,14 @@ public class PhysicalResourceGroupService {
     return physicalResourceGroupRepo.save(physicalResourceGroup);
   }
 
-  public Collection<PhysicalResourceGroup> findAllForUser(String nameId) {
-    List<PhysicalResourceGroup> physicalResourceGroups = new ArrayList<PhysicalResourceGroup>();
-    Collection<UserGroup> groups = groupService.getGroups(nameId);
+  public Collection<PhysicalResourceGroup> findAllForUser(RichUserDetails user) {
+    Collection<String> groups = user.getUserGroupIds();
 
-    Collection<String> adminGroups = Lists.newArrayList(Collections2.transform(groups,
-        new Function<UserGroup, String>() {
-          @Override
-          public String apply(UserGroup group) {
-            return group.getId();
-          }
-        }));
-
-    if (!CollectionUtils.isEmpty(adminGroups)) {
-      physicalResourceGroups = physicalResourceGroupRepo.findByAdminGroupIn(adminGroups);
+    if (groups.isEmpty()) {
+      return Collections.emptyList();
     }
 
-    return physicalResourceGroups;
+    return physicalResourceGroupRepo.findByAdminGroupIn(groups);
   }
 
   public PhysicalResourceGroup findByName(String name) {
@@ -103,9 +86,4 @@ public class PhysicalResourceGroupService {
   protected void setPhysicalResourceGroupRepo(PhysicalResourceGroupRepo physicalResourceGroupRepo) {
     this.physicalResourceGroupRepo = physicalResourceGroupRepo;
   }
-
-  protected void setGroupService(GroupService groupService) {
-    this.groupService = groupService;
-  }
-
 }

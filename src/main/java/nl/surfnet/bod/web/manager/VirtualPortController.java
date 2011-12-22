@@ -78,7 +78,7 @@ public class VirtualPortController {
   @ModelAttribute("physicalResourceGroups")
   public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
     RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    return physicalResourceGroupService.findAllForUser(user.getNameId());
+    return physicalResourceGroupService.findAllForUser(user);
   }
 
   @ModelAttribute("physicalPorts")
@@ -86,8 +86,9 @@ public class VirtualPortController {
     String physicalResourceGroup = Strings.nullToEmpty(request.getParameter("physicalResourceGroup"));
     if (physicalResourceGroup.isEmpty()) {
       RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-      return physicalResourceGroupService.findAllForUser(user.getNameId()).iterator().next().getPhysicalPorts();
-    } else {
+      return physicalResourceGroupService.findAllForUser(user).iterator().next().getPhysicalPorts();
+    }
+    else {
       return physicalResourceGroupService.find(Long.valueOf(physicalResourceGroup)).getPhysicalPorts();
     }
   }

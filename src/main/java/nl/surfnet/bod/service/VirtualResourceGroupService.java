@@ -21,23 +21,18 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 
 @Service
 @Transactional
@@ -45,9 +40,6 @@ public class VirtualResourceGroupService {
 
   @Autowired
   private VirtualResourceGroupRepo virtualResourceGroupRepo;
-
-  @Autowired
-  private GroupService groupService;
 
   public long count() {
     return virtualResourceGroupRepo.count();
@@ -85,37 +77,14 @@ public class VirtualResourceGroupService {
     return virtualResourceGroupRepo.findBySurfConnextGroupName(surfConnextGroupName);
   }
 
-  
-//  /**
-//   * TODO only for quick testing
-//   * @param nameId
-//   * @return
-//   */
-//  public Collection<VirtualResourceGroup> findAllForUser(String nameId) {
-//    return findAll();
-//  }
-//  
-  public Collection<VirtualResourceGroup> findAllForUser(String nameId) {
-    Collection<VirtualResourceGroup> virtualResourceGroups = new ArrayList<VirtualResourceGroup>();
-    Collection<UserGroup> groups = groupService.getGroups(nameId);
+  public Collection<VirtualResourceGroup> findAllForUser(RichUserDetails user) {
+    Collection<String> groups = user.getUserGroupIds();
 
-    Collection<String> adminGroups = Lists.newArrayList(Collections2.transform(groups,
-        new Function<UserGroup, String>() {
-          @Override
-          public String apply(UserGroup group) {
-            return group.getId();
-          }
-        }));
-
-    if (!CollectionUtils.isEmpty(adminGroups)) {
-      virtualResourceGroups = virtualResourceGroupRepo.findBySurfConnextGroupNameIn(adminGroups);
+    if (groups.isEmpty()) {
+      return Collections.emptyList();
     }
 
-    return virtualResourceGroups;
-  }
-
-  void setGroupService(GroupService groupService) {
-    this.groupService = groupService;
+    return virtualResourceGroupRepo.findBySurfConnextGroupNameIn(groups);
   }
 
   void setVirtualResourceGroupRepo(VirtualResourceGroupRepo virtualResourceGroupRepo) {

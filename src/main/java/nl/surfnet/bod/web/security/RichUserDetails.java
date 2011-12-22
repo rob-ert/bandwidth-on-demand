@@ -21,11 +21,17 @@
  */
 package nl.surfnet.bod.web.security;
 
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
+
 import java.util.Collection;
+
+import nl.surfnet.bod.domain.UserGroup;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.google.common.base.Function;
 import com.google.common.base.Objects;
 
 @SuppressWarnings("serial")
@@ -34,11 +40,14 @@ public class RichUserDetails implements UserDetails {
   private final String username;
   private final String displayName;
   private final Collection<GrantedAuthority> authorities;
+  private final Collection<UserGroup> userGroups;
 
-  public RichUserDetails(String username, String displayName, Collection<GrantedAuthority> authorities) {
+  public RichUserDetails(String username, String displayName, Collection<GrantedAuthority> authorities,
+      Collection<UserGroup> userGroups) {
     this.username = username;
     this.displayName = displayName;
     this.authorities = authorities;
+    this.userGroups = userGroups;
   }
 
   @Override
@@ -64,6 +73,19 @@ public class RichUserDetails implements UserDetails {
     return getUsername();
   }
 
+  public Collection<UserGroup> getUserGroups() {
+    return userGroups;
+  }
+
+  public Collection<String> getUserGroupIds() {
+    return newArrayList(transform(getUserGroups(), new Function<UserGroup, String>() {
+      @Override
+      public String apply(UserGroup group) {
+        return group.getId();
+      }
+    }));
+  }
+
   @Override
   public boolean isAccountNonExpired() {
     return true;
@@ -86,7 +108,8 @@ public class RichUserDetails implements UserDetails {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(RichUserDetails.class).add("nameId", getNameId())
+    return Objects.toStringHelper(this)
+        .add("nameId", getNameId())
         .add("displayName", getDisplayName()).toString();
   }
 

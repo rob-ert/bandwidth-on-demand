@@ -90,8 +90,7 @@ public class ReservationController {
     Reservation reservation = createDefaultReservation();
     uiModel.addAttribute(MODEL_KEY, reservation);
 
-    Collection<VirtualResourceGroup> virtualResourceGroups = virtualResourceGroupService.findAllForUser(user
-        .getNameId());
+    Collection<VirtualResourceGroup> virtualResourceGroups = virtualResourceGroupService.findAllForUser(user);
     uiModel.addAttribute("virtualResourceGroups", virtualResourceGroups);
 
     if (virtualResourceGroups.isEmpty()) {

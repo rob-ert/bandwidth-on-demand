@@ -23,21 +23,21 @@ package nl.surfnet.bod.service;
 
 import java.util.Collection;
 
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.repo.ReservationRepo;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.repo.ReservationRepo;
 
 @Service
 @Transactional
 public class ReservationService {
 
   @Autowired
-  ReservationRepo reservationRepo;
+  private ReservationRepo reservationRepo;
 
   public void save(Reservation reservation) {
     reservationRepo.save(reservation);
@@ -62,15 +62,13 @@ public class ReservationService {
   public void delete(Reservation reservation) {
     reservationRepo.delete(reservation);
   }
-  
+
   public ReservationStatus makeReservation(Reservation reservation) {
     ReservationStatus reservationStatus = ReservationStatus.PENDING;
 
-    //Check 
-    
-    
-    
-    return reservationStatus;    
+    //Check
+
+    return reservationStatus;
   }
 
 }
