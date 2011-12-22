@@ -7,19 +7,25 @@
     <spring:url value="/resources/styles/main.css" var="main_css_url" />
     <spring:url value="/resources/js/bootstrap-dropdown.js" var="bootstrap_dropdown_url" />
     <spring:url value="/resources/js/jquery.min.js" var="jquery_url" />
+
     <spring:url value="/resources/js/autoSuggestv14/autoSuggest.css" var="autosuggest_css_url" />
     <spring:url value="/resources/js/autoSuggestv14/jquery.autoSuggest.js" var="autosuggest_js_url" />
+
     <spring:url value="/resources/js/dropdown-reload.js" var="dropdownreload_js_url" />
     
+    <spring:url value="/resources/js/datepicker/datepicker.js" var="datepicker_js_url" />
+    <spring:url value="/resources/js/datepicker/datepicker.css" var="datepicker_css_url" />
+
     <link rel="stylesheet" type="text/css" media="screen" href="${bootstrap_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${main_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${autosuggest_css_url}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${datepicker_css_url}" />
     
     <script src="${jquery_url}" type="text/javascript"><!-- needed --></script>
     <script src="${bootstrap_dropdown_url}" type="text/javascript"><!-- needed --></script>
     <script src="${autosuggest_js_url}" type="text/javascript"><!-- needed --></script>
     <script src="${dropdownreload_js_url}" type="text/javascript"><!-- needed --></script>
-    
+    <script src="${datepicker_js_url}" type="text/javascript"><!-- needed --></script>
     
     <c:set var="userLocale">
         <c:set var="plocale">${pageContext.response.locale}</c:set>
