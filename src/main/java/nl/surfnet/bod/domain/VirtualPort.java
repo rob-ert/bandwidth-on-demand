@@ -26,6 +26,8 @@ import javax.persistence.*;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.google.common.base.Objects;
+
 /**
  * Entity which represents a VirtualPort which is mapped to a
  * {@link PhysicalPort} and is related to a {@link VirtualResourceGroup}
@@ -94,39 +96,16 @@ public class VirtualPort {
     this.physicalPort = physicalPort;
   }
 
-  /**
-   * TODO remove
-   *
-   * Convenience getter, since nesting bean properties is not support in the
-   * view.
-   *
-   * @return String name of the {@link PhysicalPort}, empty string if
-   *         physicalPort is null
-   */
-  public String getPhysicalPortName() {
-    return physicalPort == null ? "" : physicalPort.getName();
+  public PhysicalResourceGroup getPhysicalResourceGroup() {
+    return physicalPort == null ? null : physicalPort.getPhysicalResourceGroup();
   }
 
-  /**
-   * TODO remove
-   *
-   * Convenience getter, since nesting bean properties is not support in the
-   * view.
-   *
-   * @return String name of the {@link PhysicalPort}, empty string if
-   *         physicalPort is null
-   */
-  public String getPhysicalResourceGroupName() {
-    return physicalPort == null ? "" : physicalPort.getPhysicalResourceGroup() == null ? "" : physicalPort
-        .getPhysicalResourceGroup().getName();
-  }
-
-
-  /**
-   * TODO remove
-   */
-  public String getVirtualResourceGroupName() {
-    return virtualResourceGroup == null ? "" : virtualResourceGroup.getName();
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+        .add("id", getId())
+        .add("name", getName())
+        .add("physicalPort", physicalPort).toString();
   }
 
 }

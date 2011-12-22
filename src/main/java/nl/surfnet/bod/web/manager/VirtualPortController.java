@@ -24,13 +24,14 @@ package nl.surfnet.bod.web.manager;
 import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -42,9 +43,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.google.common.base.Strings;
 
 @Controller
 @RequestMapping("/manager/" + VirtualPortController.PAGE_URL)
@@ -66,13 +70,37 @@ public class VirtualPortController {
   @Autowired
   private VirtualPortValidator virtualPortValidator;
 
+  @ModelAttribute("virtualResourceGroups")
+  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {
+    return virtualResourceGroupService.findAll();
+  }
+
+  @ModelAttribute("physicalResourceGroups")
+  public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
+    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    return physicalResourceGroupService.findAllForUser(user.getNameId());
+  }
+
+  @ModelAttribute("physicalPorts")
+  public Collection<PhysicalPort> populatePhysicalPorts(HttpServletRequest request) {
+    String physicalResourceGroup = Strings.nullToEmpty(request.getParameter("physicalResourceGroup"));
+    if (physicalResourceGroup.isEmpty()) {
+      RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+      return physicalResourceGroupService.findAllForUser(user.getNameId()).iterator().next().getPhysicalPorts();
+    } else {
+      return physicalResourceGroupService.find(Long.valueOf(physicalResourceGroup)).getPhysicalPorts();
+    }
+  }
+
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid VirtualPort virtualPort, final BindingResult bindingResult, final Model uiModel,
       final HttpServletRequest httpServletRequest) {
 
     virtualPortValidator.validate(virtualPort, bindingResult);
+
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, virtualPort);
+
       return PAGE_URL + CREATE;
     }
 
@@ -84,22 +112,7 @@ public class VirtualPortController {
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(final Model uiModel) {
-    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
     uiModel.addAttribute(MODEL_KEY, new VirtualPort());
-    uiModel.addAttribute("virtualResourceGroups", virtualResourceGroupService.findAll());
-
-    Collection<PhysicalResourceGroup> physicalResourcesGroups = physicalResourceGroupService.findAllForUser(user
-        .getNameId());
-
-    uiModel.addAttribute("physicalResourceGroups", physicalResourcesGroups);
-
-    if (physicalResourcesGroups.isEmpty()) {
-      uiModel.addAttribute("physicalPorts", Collections.emptyList());
-    }
-    else {
-      uiModel.addAttribute("physicalPorts", physicalResourcesGroups.iterator().next().getPhysicalPorts());
-    }
 
     return PAGE_URL + CREATE;
   }
@@ -140,7 +153,11 @@ public class VirtualPortController {
 
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY, virtualPortService.find(id));
+    VirtualPort virtualPort = virtualPortService.find(id);
+
+    uiModel.addAttribute(MODEL_KEY, virtualPort);
+    uiModel.addAttribute("physicalPorts", virtualPort.getPhysicalResourceGroup().getPhysicalPorts());
+
     return PAGE_URL + UPDATE;
   }
 

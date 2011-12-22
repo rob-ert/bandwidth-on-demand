@@ -46,7 +46,7 @@
     </c:set>
     
     <c:set var="component_id">
-        _${fn:escapeXml(id)}_${sec_field}_id
+        _${fn:escapeXml(id)}
     </c:set>
 
     <div class="clearfix" id="_${fn:escapeXml(id)}_id">

@@ -14,14 +14,14 @@
 
         <field:input field="name" id="name" labelCode="nl_surfnet_bod_domain_virtualport_name" required="true" />
 
-        <field:select items="${virtualResourceGroups}" field="virtualResourceGroup"
-            id="c_nl_surfnet_bod_domain_virtualresourcegroup" itemValue="id" path="/manager/virtualports"
+        <field:select items="${virtualResourceGroups}" field="virtualResourceGroup" labelCode="nl_surfnet_bod_domain_virtualresourcegroup"
+            id="virtualresourcegroup" itemValue="id" path="/manager/virtualports"
             required="true" />
 
         <fieldset>
             <legend>Specify the physical port</legend>
             <field:select items="${physicalResourceGroups}" id="physicalResourceGroup" labelCode="nl_surfnet_bod_domain_physicalresourcegroup"
-                itemValue="id" field="physicalResourceGroup" disableFormBinding="true" path="/noc/physicalresourcegroups" create="false" />
+                itemValue="id" field="physicalResourceGroup" path="/noc/physicalresourcegroups" create="false" />
             
             <field:select items="${physicalPorts}" id="physicalPort" labelCode="nl_surfnet_bod_domain_physicalport"
                 itemValue="id" field="physicalPort" path="/manager/virtualports" create="false"/>
@@ -30,7 +30,7 @@
 
     <script type="text/javascript">
       $(function() {
-        $("#_physicalResourceGroup_physicalResourceGroup_id").dropdownReload("${ppUrl}", "#_physicalPort_physicalPort_id");
+        $("#_physicalResourceGroup").dropdownReload("${ppUrl}", "#_physicalPort");
       })
     </script>
 </div>

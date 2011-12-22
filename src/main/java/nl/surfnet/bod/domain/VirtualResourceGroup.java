@@ -51,10 +51,10 @@ public class VirtualResourceGroup {
   @Column(unique = true, nullable = false)
   private String surfConnextGroupName;
 
-  @OneToMany(mappedBy = "virtualResourceGroup")
+  @OneToMany(mappedBy = "virtualResourceGroup", cascade = CascadeType.REMOVE)
   private Collection<VirtualPort> virtualPorts;
 
-  @OneToMany(mappedBy = "virtualResourceGroup")
+  @OneToMany(mappedBy = "virtualResourceGroup", cascade = CascadeType.REMOVE)
   private Collection<Reservation> reservations;
 
   public Long getId() {
