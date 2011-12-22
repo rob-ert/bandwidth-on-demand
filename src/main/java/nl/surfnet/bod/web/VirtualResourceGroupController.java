@@ -40,8 +40,8 @@ public class VirtualResourceGroupController {
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
 
-  @RequestMapping(value = "/{name}/ports", method = RequestMethod.GET)
-  public @ResponseBody Collection<VirtualPort> listForVirtualResourceGroup(@PathVariable String name) {
-    return virtualResourceGroupService.findByName(name).getVirtualPorts();
+  @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET)
+  public @ResponseBody Collection<VirtualPort> listForVirtualResourceGroup(@PathVariable Long id) {
+    return virtualResourceGroupService.find(id).getVirtualPorts();
   }
 }

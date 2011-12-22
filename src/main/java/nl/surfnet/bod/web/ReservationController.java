@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.web;
 
+import static com.google.common.collect.Iterables.getFirst;
+import static com.google.common.collect.Iterables.transform;
 import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
@@ -31,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.ReservationValidator;
 import nl.surfnet.bod.service.ReservationService;
@@ -43,9 +46,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.google.common.base.Function;
 
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller
@@ -67,10 +73,6 @@ public class ReservationController {
   public String create(@Valid Reservation reservation, final BindingResult bindingResult, final Model uiModel,
       final HttpServletRequest httpServletRequest) {
 
-    // First add meta information, then validate
-    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    reservation.setUser(user.getDisplayName());
-
     reservationValidator.validate(reservation, bindingResult);
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, reservation);
@@ -85,22 +87,28 @@ public class ReservationController {
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(final Model uiModel) {
-    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-    Reservation reservation = createDefaultReservation();
-    uiModel.addAttribute(MODEL_KEY, reservation);
-
-    Collection<VirtualResourceGroup> virtualResourceGroups = virtualResourceGroupService.findAllForUser(user);
-    uiModel.addAttribute("virtualResourceGroups", virtualResourceGroups);
-
-    if (virtualResourceGroups.isEmpty()) {
-      uiModel.addAttribute("virtualPorts", Collections.emptyList());
-    }
-    else {
-      uiModel.addAttribute("virtualPorts", virtualResourceGroups.iterator().next().getVirtualPorts());
-    }
+    uiModel.addAttribute(MODEL_KEY, createDefaultReservation());
 
     return PAGE_URL + CREATE;
+  }
+
+  @ModelAttribute("virtualPorts")
+  public Collection<VirtualPort> populateVirtualPorts() {
+    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    Collection<VirtualResourceGroup> groups = virtualResourceGroupService.findAllForUser(user);
+
+    return getFirst(transform(groups, new Function<VirtualResourceGroup, Collection<VirtualPort>>() {
+      @Override
+      public Collection<VirtualPort> apply(VirtualResourceGroup group) {
+        return group.getVirtualPorts();
+      }
+    }), Collections.<VirtualPort> emptyList());
+  }
+
+  @ModelAttribute("virtualResourceGroups")
+  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {
+    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    return virtualResourceGroupService.findAllForUser(user);
   }
 
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
@@ -164,17 +172,16 @@ public class ReservationController {
     this.virtualResourceGroupService = virtualResourceGroupService;
   }
 
-  /**
-   * Create {@link Reservation} with intelligent default values
-   *
-   * @return {@link Reservation} new instance
-   */
   private Reservation createDefaultReservation() {
+    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
     Reservation reservation = new Reservation();
     reservation.setStartDate(new Date());
     reservation.setStartTime(new Date());
     reservation.setEndDate(reservation.getStartDate());
     reservation.setEndTime(new DateTime(reservation.getEndDate()).plusHours(4).toDate());
+    reservation.setUser(user.getNameId());
+
     return reservation;
   }
 

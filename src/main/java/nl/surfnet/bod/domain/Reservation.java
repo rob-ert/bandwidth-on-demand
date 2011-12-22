@@ -166,20 +166,4 @@ public class Reservation {
   public void setUser(String user) {
     this.user = user;
   }
-
-  /**
-   * TODO Convenience method since bean notation is not allowed in view
-   *
-   */
-  public String getVirtualResourceGroupName() {
-    return this.virtualResourceGroup == null ? "" : this.virtualResourceGroup.getName();
-  }
-
-  public String getSourcePortName() {
-    return this.getSourcePort() == null ? "" : this.sourcePort.getName();
-  }
-
-  public String getDestinationPortName() {
-    return this.getDestinationPort() == null ? "" : this.getDestinationPort().getName();
-  }
 }

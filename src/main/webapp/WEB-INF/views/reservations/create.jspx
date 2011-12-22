@@ -12,14 +12,14 @@
     <form:create id="fc_nl_surfnet_bod_domain_reservation" modelAttribute="reservation" path="/reservations"
         render="${empty dependencies}">
 
-        <field:select field="virtualResourceGroupName" id="virtualresourcegroup" labelCode="nl_surfnet_bod_domain_virtualresourcegroup"
-            itemLabel="name" items="${virtualResourceGroups}" path="/manager/reservations" required="true" />
+        <field:select field="virtualResourceGroup" id="virtualresourcegroup" labelCode="nl_surfnet_bod_domain_virtualresourcegroup"
+            itemLabel="name" itemValue="id" items="${virtualResourceGroups}" path="/manager/reservations" required="true" />
 
-        <field:select field="sourcePort" id="sourcePort" itemValue="name" labelCode="nl_surfnet_bod_domain_sourcePort"
-            items="${virtualPorts}" path="/manager/reservations" required="true" create="false" />
+        <field:select field="sourcePort" id="sourcePort" labelCode="nl_surfnet_bod_domain_sourcePort"
+            items="${virtualPorts}" itemValue="id" path="/manager/reservations" required="true" create="false" />
 
-        <field:select field="destinationPort" id="destinationPort" itemValue="name" labelCode="nl_surfnet_bod_domain_destinationPort"
-            items="${virtualPorts}" path="/manager/reservations" required="true" create="false" />
+        <field:select field="destinationPort" id="destinationPort" labelCode="nl_surfnet_bod_domain_destinationPort"
+            items="${virtualPorts}" itemValue="id" path="/manager/reservations" required="true" create="false" />
 
         <field:input field="startDate" id="startDate" label="Start Date" required="true" />
         <field:input field="startTime" id="startTime" label="Start Time" required="true" />
@@ -35,7 +35,6 @@
 	    $("#_startDate_id").DatePicker({
 	        format:'m/d/Y',
 	        date: $('#_startDate_id').val(),
-	        current: $('#_startDate_id').val(),
 	        onBeforeShow: function(){
 	            $('#_startDate_id').DatePickerSetDate($('#_startDate_id').val(), true);
 	        },
@@ -47,7 +46,6 @@
 	    $("#_endDate_id").DatePicker({
             format:'m/d/Y',
             date: $('#_endDate_id').val(),
-            current: $('#_endDate_id').val(),
             onBeforeShow: function(){
                 $('#_endDate_id').DatePickerSetDate($('#_endDate_id').val(), true);
             },

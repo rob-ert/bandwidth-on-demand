@@ -21,9 +21,12 @@
  */
 package nl.surfnet.bod.web.manager;
 
+import static com.google.common.collect.Iterables.getFirst;
+import static com.google.common.collect.Iterables.transform;
 import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -48,6 +51,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.google.common.base.Function;
 import com.google.common.base.Strings;
 
 @Controller
@@ -86,7 +90,14 @@ public class VirtualPortController {
     String physicalResourceGroup = Strings.nullToEmpty(request.getParameter("physicalResourceGroup"));
     if (physicalResourceGroup.isEmpty()) {
       RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-      return physicalResourceGroupService.findAllForUser(user).iterator().next().getPhysicalPorts();
+      Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllForUser(user);
+
+      return getFirst(transform(groups, new Function<PhysicalResourceGroup, Collection<PhysicalPort>>() {
+        @Override
+        public Collection<PhysicalPort> apply(PhysicalResourceGroup port) {
+          return port.getPhysicalPorts();
+        }
+      }), Collections.<PhysicalPort> emptyList());
     }
     else {
       return physicalResourceGroupService.find(Long.valueOf(physicalResourceGroup)).getPhysicalPorts();
