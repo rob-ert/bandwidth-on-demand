@@ -34,7 +34,6 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.ReservationValidator;
 import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
@@ -162,12 +161,6 @@ public class ReservationController {
     return "redirect:";
   }
 
-  /**
-   * Setter to enable depedency injection from testcases.
-   *
-   * @param virtualPortService
-   *          {@link VirtualPortService}
-   */
   protected void setVirtualResourceGroupService(VirtualResourceGroupService virtualResourceGroupService) {
     this.virtualResourceGroupService = virtualResourceGroupService;
   }
