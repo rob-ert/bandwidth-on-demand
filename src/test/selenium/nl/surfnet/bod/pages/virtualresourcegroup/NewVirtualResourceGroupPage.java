@@ -21,7 +21,6 @@
  */
 package nl.surfnet.bod.pages.virtualresourcegroup;
 
-import nl.surfnet.bod.support.Probes;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 
@@ -36,19 +35,19 @@ public class NewVirtualResourceGroupPage {
   private static final String PAGE = "/manager/"
       + VirtualResourceGroupController.PAGE_URL + WebUtils.CREATE;
 
-  private final Probes probes;
-
   @FindBy(id = "_surfConnextGroupName_id")
   private WebElement surfConnextGroupNameInput;
+
+  @FindBy(id = "_name_id")
+  private WebElement nameInput;
 
   @FindBy(css = "input[type='submit']")
   private WebElement saveButton;
 
-  @FindBy(id = "_surfConnextGroupName_error_id")
-  private WebElement surfConnextGroupNameError;
+  @FindBy(id = "_name_error_id")
+  private WebElement nameError;
 
   public NewVirtualResourceGroupPage(WebDriver driver) {
-    this.probes = new Probes(driver);
   }
 
   public static NewVirtualResourceGroupPage get(RemoteWebDriver driver, String baseUrl) {
@@ -71,12 +70,17 @@ public class NewVirtualResourceGroupPage {
     surfConnextGroupNameInput.sendKeys(name);
   }
 
+  public void sendName(String name) {
+    nameInput.clear();
+    nameInput.sendKeys(name);
+  }
+
   public void save() {
     saveButton.click();
   }
 
-  public boolean hasErrorSurfConnextGroupName() {
-    return surfConnextGroupNameError.isDisplayed();
+  public boolean hasNameValidationError() {
+    return nameError.isDisplayed();
   }
 
 }

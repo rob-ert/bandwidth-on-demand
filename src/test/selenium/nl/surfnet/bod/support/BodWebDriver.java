@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.support;
 
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
@@ -29,7 +30,6 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.pages.physicalresourcegroup.ListPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.physicalresourcegroup.NewPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.virtualresourcegroup.ListVirtualResourceGroupPage;
@@ -78,14 +78,6 @@ public class BodWebDriver {
     page.save();
   }
 
-  /**
-   * Shortcut, to login the given user. Heavily depends on the
-   * {@link ShibbolethImitatorInterceptor} being active!
-   */
-  public void performLogin(String userName) {
-    driver.get(URL_UNDER_TEST + "?user-name=" + userName + "&name-id=urn:collab:person:surfguest.nl:" + userName);
-  }
-
   private static String withEndingSlash(String path) {
     return path.endsWith("/") ? path : path + "/";
   }
@@ -113,28 +105,25 @@ public class BodWebDriver {
 
   public NewVirtualResourceGroupPage createNewVirtualResourceGroup(String name) throws Exception {
     NewVirtualResourceGroupPage page = NewVirtualResourceGroupPage.get(driver, URL_UNDER_TEST);
+    page.sendName(name);
     page.sendSurfConnextGroupName(name);
     page.save();
 
     return page;
   }
 
-  public void deleteVirtualResourceGroup(VirtualResourceGroup vrg) {
+  public void deleteVirtualResourceGroup(String vrgName) {
     ListVirtualResourceGroupPage page = ListVirtualResourceGroupPage.get(driver, URL_UNDER_TEST);
 
-    page.deleteByName(vrg.getSurfConnextGroupName());
+    page.deleteByName(vrgName);
   }
 
   public void verifyVirtualResourceGroupWasCreated(String name) {
     assertVirtualResourceGroupListTable(containsString(name));
   }
 
-  public void verifyVirtualResourceGroupWasDeleted(VirtualResourceGroup vrg) {
-    assertVirtualResourceGroupListTable(not(containsString(vrg.getSurfConnextGroupName())));
-  }
-
-  public void verifyVirtualResourceGroupSurfConnextGroupNameHasError(){
-
+  public void verifyVirtualResourceGroupWasDeleted(String vrgName) {
+    assertVirtualResourceGroupListTable(not(containsString(vrgName)));
   }
 
   private void assertVirtualResourceGroupListTable(Matcher<String> tableMatcher) {
@@ -142,6 +131,12 @@ public class BodWebDriver {
     String row = page.getTable();
 
     assertThat(row, tableMatcher);
+  }
+
+  public void verifyHasValidationError() {
+    NewVirtualResourceGroupPage page = NewVirtualResourceGroupPage.get(driver);
+
+    assertTrue(page.hasNameValidationError());
   }
 
 }
