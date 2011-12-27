@@ -28,7 +28,6 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.VirtualResourceGroupValidator;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
@@ -96,8 +95,6 @@ public class VirtualResourceGroupController {
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
   public String show(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY, virtualResourceGroupService.find(id));
-    // Needed for the default icons
-    uiModel.addAttribute(ICON_ITEM_KEY, id);
 
     return PAGE_URL + SHOW;
   }
@@ -162,8 +159,7 @@ public class VirtualResourceGroupController {
   }
 
   /**
-   * Puts all {@link VirtualResourceGroup}s on the model, needed to relate a
-   * group to a {@link VirtualPort}.
+   * Puts all {@link VirtualResourceGroup}s on the model
    *
    * @return Collection<PhysicalResourceGroup>
    */

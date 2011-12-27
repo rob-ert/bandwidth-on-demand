@@ -33,9 +33,9 @@ import org.springframework.validation.Validator;
  * Validator for the {@link VirtualResourceGroup}. Validates that the
  * {@link VirtualResourceGroup#getSurfConnextGroupName()} is unique and exists
  * in SurfConext.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 @Component
 public class VirtualResourceGroupValidator implements Validator {
@@ -54,18 +54,17 @@ public class VirtualResourceGroupValidator implements Validator {
   public void validate(Object objToValidate, Errors errors) {
     VirtualResourceGroup virtualResourceGroup = (VirtualResourceGroup) objToValidate;
 
-    VirtualResourceGroup existingVirtualResourceGroup = virtualResourceGroupService.findByName(virtualResourceGroup
-        .getName());
+    VirtualResourceGroup existingVirtualResourceGroup = virtualResourceGroupService.findByName(virtualResourceGroup.getName());
 
-    if (existingVirtualResourceGroup != null) {
-      if (!validatorHelper.validateNameUniqueness(virtualResourceGroup.getId() == existingVirtualResourceGroup.getId(),
-          virtualResourceGroup.getName().equalsIgnoreCase(existingVirtualResourceGroup.getName()),
-          virtualResourceGroup.getId() != null)) {
-        errors.rejectValue("name", "validation.not.unique");
-      }
+    if (existingVirtualResourceGroup == null) {
+      return;
     }
 
-    // TODO Check if the surfConextGroupName exists in SurfConext
+    if (!validatorHelper.validateNameUniqueness(virtualResourceGroup.getId().equals(existingVirtualResourceGroup.getId()),
+        virtualResourceGroup.getName().equalsIgnoreCase(existingVirtualResourceGroup.getName()),
+        virtualResourceGroup.getId() != null)) {
+      errors.rejectValue("name", "validation.not.unique");
+    }
   }
 
   void setVirtualResourceGroupService(VirtualResourceGroupService virtualResourceGroupService) {

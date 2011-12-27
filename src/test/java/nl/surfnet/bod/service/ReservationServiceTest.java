@@ -45,7 +45,7 @@ public class ReservationServiceTest {
 
     ReservationStatus reservationStatus = subject.makeReservation(reservation);
 
-    assertThat(reservation.getReservationStatus(), is(reservationStatus.PENDING));
+    assertThat(reservation.getStatus(), is(reservationStatus.PENDING));
   }
 
 }

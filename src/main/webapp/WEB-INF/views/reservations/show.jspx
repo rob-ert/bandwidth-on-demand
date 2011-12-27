@@ -5,19 +5,16 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <page:show id="fc_nl_surfnet_bod_domain_reservation"   path="/manager/reservations" render="${empty dependencies}" object="${reservation}">
+    <page:show id="fc_nl_surfnet_bod_domain_reservation" path="/reservations" render="${empty dependencies}" object="${reservation}">
 	
-		<field:display field="sourcePort" id="c_nl_surfnet_bod_domain_sourceport"  object="${reservation}" />
-            
-        <field:display field="destinationPort" id="c_nl_surfnet_bod_domain_destinationPort"   object="${reservation}" />
-        
-        <field:display  field="virtualResourceGroupName" id="c_nl_surfnet_bod_domain_virtualresourcegroup" object="${reservation}" />
-	
-        <field:display field="startDate" id="startDate" label="startDate"  object="${reservation}"/>
-        <field:display field="startTime" id="startTime" label="startTime" object="${reservation}"/>
-        
-        <field:display  field="endDate" id="endDate" label="endDate" object="${reservation}"/>
-        <field:display  field="endTime" id="endTime" label="endTime" object="${reservation}"/>
+		<field:display field="sourcePort" labelCode="reservation_sourcePort" id="c_nl_surfnet_bod_domain_sourceport" object="${reservation}" />
+        <field:display field="destinationPort" labelCode="reservation_destinationPort" id="c_nl_surfnet_bod_domain_destinationPort" object="${reservation}" />
+        <field:display field="virtualResourceGroup" labelCode="reservation_virtualResourceGroup" id="c_nl_surfnet_bod_domain_virtualresourcegroup" object="${reservation}" />
+        <field:display field="status" labelCode="reservation_status" id="label_nl_surfnet_bod_domain_reservation_status" object="${reservation}" />
+        <field:display field="startDate" labelCode="reservation_startDate" id="startDate" object="${reservation}"/>
+        <field:display field="startTime" labelCode="reservation_startTime" id="startTime" object="${reservation}"/>
+        <field:display field="endDate" labelCode="reservation_endDate" id="endDate" object="${reservation}"/>
+        <field:display field="endTime" labelCode="reservation_endTime" id="endTime" object="${reservation}"/>
                 
     </page:show>
 </div>

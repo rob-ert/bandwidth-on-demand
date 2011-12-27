@@ -23,13 +23,13 @@ package nl.surfnet.bod.domain;
 
 /**
  * Enum representing the status of a {@link Reservation}.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 public enum ReservationStatus {
 
-  PENDING, IN_PROGRESS, REJECTED, CANCELLED_BY_USER, CANCELLED_BY_NMS, SUCCEEDED;
+  PENDING, IN_PROGRESS, REJECTED, CANCELLED_BY_USER, CANCELLED_BY_NMS;
 
   private String reason;
 

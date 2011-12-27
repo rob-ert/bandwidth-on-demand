@@ -80,7 +80,6 @@ public class PhysicalPortController {
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
   public String show(@RequestParam(ID_KEY) final String name, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY, physicalPortService.findByName(name));
-    uiModel.addAttribute(ICON_ITEM_KEY, name);
 
     return PAGE_URL + SHOW;
   }

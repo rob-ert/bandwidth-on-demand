@@ -21,7 +21,8 @@
  */
 package nl.surfnet.bod.domain.validator;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import nl.surfnet.bod.domain.Reservation;
 
 import org.joda.time.DateTime;
@@ -66,6 +67,7 @@ public class ReservationValidatorTest {
 
     initReservation(reservation, startDate, endDate);
     subject.validate(reservation, errors);
+
     assertFalse(errors.hasErrors());
   }
 
@@ -75,6 +77,7 @@ public class ReservationValidatorTest {
 
     initReservation(reservation, startDate, endDate);
     subject.validate(reservation, errors);
+
     assertTrue(errors.hasFieldErrors("endDate"));
     assertFalse(errors.hasGlobalErrors());
   }

@@ -81,7 +81,7 @@ public class ReservationTest {
     assertThat(reservation.getDestinationPort(), is(endPort));
     assertThat(reservation.getEndDate(), is(endTimeStamp.getTime()));
     assertThat(reservation.getId(), is(id));
-    assertThat(reservation.getReservationStatus(), is(reservationStatus));
+    assertThat(reservation.getStatus(), is(reservationStatus));
     assertThat(reservation.getSourcePort(), is(sourcePort));
     assertThat(reservation.getStartDate(), is(startTimeStamp.getTime()));
     assertThat(reservation.getVersion(), is(version));

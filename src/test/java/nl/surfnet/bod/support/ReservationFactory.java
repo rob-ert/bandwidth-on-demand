@@ -54,7 +54,7 @@ public class ReservationFactory {
 
     reservation.setId(id);
     reservation.setVersion(version);    
-    reservation.setReservationStatus(reservationStatus);
+    reservation.setStatus(reservationStatus);
     reservation.setSourcePort(sourcePort);
     reservation.setDestinationPort(endPort);
     reservation.setVirtualResourceGroup(vRGroup);

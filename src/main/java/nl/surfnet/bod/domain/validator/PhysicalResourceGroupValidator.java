@@ -32,9 +32,9 @@ import org.springframework.validation.Validator;
 /**
  * Validator for the {@link PhysicalResourceGroup}. Validates that the
  * {@link PhysicalResourceGroup#getName()} is unique.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 @Component
 public class PhysicalResourceGroupValidator implements Validator {
@@ -57,7 +57,7 @@ public class PhysicalResourceGroupValidator implements Validator {
         .getName());
 
     if (existingResourceGroup != null) {
-      if (!validatorHelper.validateNameUniqueness(physicalResourceGroup.getId() == existingResourceGroup.getId(),
+      if (!validatorHelper.validateNameUniqueness(physicalResourceGroup.getId().equals(existingResourceGroup.getId()),
           physicalResourceGroup.getName().equalsIgnoreCase(existingResourceGroup.getName()),
           physicalResourceGroup.getId() != null)) {
         errors.rejectValue("name", "validation.not.unique");

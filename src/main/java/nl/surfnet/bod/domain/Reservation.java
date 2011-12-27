@@ -48,7 +48,7 @@ public class Reservation {
   private VirtualResourceGroup virtualResourceGroup;
 
   @Enumerated(EnumType.STRING)
-  private ReservationStatus reservationStatus;
+  private ReservationStatus status = ReservationStatus.PENDING;
 
   @ManyToOne
   private VirtualPort sourcePort;
@@ -103,12 +103,12 @@ public class Reservation {
     this.virtualResourceGroup = virtualResourceGroup;
   }
 
-  public ReservationStatus getReservationStatus() {
-    return reservationStatus;
+  public ReservationStatus getStatus() {
+    return status;
   }
 
-  public void setReservationStatus(ReservationStatus reservationStatus) {
-    this.reservationStatus = reservationStatus;
+  public void setStatus(ReservationStatus reservationStatus) {
+    this.status = reservationStatus;
   }
 
   public VirtualPort getSourcePort() {

@@ -27,8 +27,6 @@
         description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
     <jsp:directive.attribute name="openPane" type="java.lang.Boolean" required="false" rtexprvalue="true"
         description="Control if the title pane is opened or closed by default (default: true)" />
-    <jsp:directive.attribute name="z" type="java.lang.String" required="false"
-        description="Used for checking if element has been modified (to recalculate simply provide empty string value)" />
 
     <c:if test="${empty render or render}">
         <c:if test="${empty label}">
@@ -79,7 +77,7 @@
                         <c:if test="${delete}">
                             <span> 
                                 <spring:url value="${path}/delete" var="delete_form_url" >
-                                    <spring:param name="id" value="${itemId}" />
+                                    <spring:param name="id" value="${object.id}" />
                                 </spring:url>
                                 <spring:url value="/resources/images/delete.png" var="delete_image_url" />
                                 <form:form action="${delete_form_url}" method="DELETE">
@@ -100,7 +98,7 @@
                         <c:if test="${update}">
                             <span> 
                                 <spring:url value="${path}/edit" var="update_form_url">
-                                    <spring:param name="id" value="${itemId}" />
+                                    <spring:param name="id" value="${object.id}" />
                                 </spring:url>
                                 <spring:url value="/resources/images/update.png" var="update_image_url" />
                                 <spring:message arguments="${typeName}" code="entity_update" var="update_label"
@@ -138,7 +136,7 @@
                         </c:if>
                         <c:if test="${icon and not empty object.id}">
 								<spring:url value="${path}/delete" var="icon_form_url">
-									<spring:param name="id" value="${itemId}" />
+									<spring:param name="id" value="${object.id}" />
 								</spring:url>
 								<spring:url value="${icon_url}" var="icon_image_url" />
 								<form:form action="${icon_form_url}" method="DELETE">

@@ -132,8 +132,6 @@ public class VirtualPortController {
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
   public String show(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY, virtualPortService.find(id));
-    // Needed for the default icons
-    uiModel.addAttribute(ICON_ITEM_KEY, id);
 
     return PAGE_URL + SHOW;
   }

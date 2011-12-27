@@ -73,7 +73,11 @@ public class ReservationController {
   public String create(@Valid Reservation reservation, final BindingResult bindingResult, final Model uiModel,
       final HttpServletRequest httpServletRequest) {
 
+    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    reservation.setUser(user.getNameId());
+
     reservationValidator.validate(reservation, bindingResult);
+
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, reservation);
       return PAGE_URL + CREATE;
@@ -113,9 +117,8 @@ public class ReservationController {
 
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
   public String show(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
+
     uiModel.addAttribute(MODEL_KEY, reservationService.find(id));
-    // Needed for the default icons
-    uiModel.addAttribute(ICON_ITEM_KEY, id);
 
     return PAGE_URL + SHOW;
   }
@@ -173,14 +176,11 @@ public class ReservationController {
   }
 
   private Reservation createDefaultReservation() {
-    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
     Reservation reservation = new Reservation();
     reservation.setStartDate(new Date());
     reservation.setStartTime(new Date());
     reservation.setEndDate(reservation.getStartDate());
     reservation.setEndTime(new DateTime(reservation.getEndDate()).plusHours(4).toDate());
-    reservation.setUser(user.getNameId());
 
     return reservation;
   }
