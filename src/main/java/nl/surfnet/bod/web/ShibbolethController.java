@@ -32,7 +32,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 @RequestMapping("/shibboleth")
@@ -41,7 +40,7 @@ public class ShibbolethController {
   @Autowired
   private GroupService groupService;
 
-  @RequestMapping(value = "/groups", method = RequestMethod.GET)
+  @RequestMapping("/groups")
   public String list(final Model uiModel) {
     RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -50,6 +49,13 @@ public class ShibbolethController {
     uiModel.addAttribute("groups", groups);
 
     return "shibboleth/groups";
+  }
+
+  @RequestMapping("/refresh")
+  public String refreshGroups() {
+    SecurityContextHolder.clearContext();
+
+    return "redirect:groups";
   }
 
   @RequestMapping("/info")
