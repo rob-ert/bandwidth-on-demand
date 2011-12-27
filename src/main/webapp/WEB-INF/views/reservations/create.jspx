@@ -13,7 +13,7 @@
         render="${empty dependencies}">
 
         <field:select field="virtualResourceGroup" id="virtualresourcegroup" labelCode="nl_surfnet_bod_domain_virtualresourcegroup"
-            itemLabel="name" itemValue="id" items="${virtualResourceGroups}" path="/manager/reservations" required="true" />
+            itemLabel="name" itemValue="id" items="${virtualResourceGroups}" path="/manager/reservations" required="true" create="false" />
 
         <field:select field="sourcePort" id="sourcePort" labelCode="nl_surfnet_bod_domain_sourcePort"
             items="${virtualPorts}" itemValue="id" path="/manager/reservations" required="true" create="false" />

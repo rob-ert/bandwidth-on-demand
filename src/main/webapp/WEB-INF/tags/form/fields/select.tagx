@@ -192,7 +192,7 @@
           </div>
         </c:when>
         <c:otherwise>
-            <field:reference field="${label}" id="${id}" path="${path}" required="${required}" create="${empty create or create}" />
+          <field:reference label="${label}" field="${label}" id="${id}" path="${path}" required="${required}" create="${empty create or create}" />
         </c:otherwise>
       </c:choose>
     </div>
