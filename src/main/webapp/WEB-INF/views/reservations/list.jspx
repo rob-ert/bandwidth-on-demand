@@ -5,7 +5,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
         
-     <page:list id="pl_nl_surfnet_bod_domain_reservation" items="${reservationList}">
+     <page:list id="pl_reservation" items="${reservationList}">
         <table:table data="${reservationList}" id="l_nl_surfnet_bod_domain_reservation" path="/reservations" typeIdFieldName="id">
             <table:column labelCode="nl_surfnet_bod_domain_virtualresourcegroup" id="virtualresourcegroup" property="virtualResourceGroup"/>
             <table:column labelCode="reservation_sourcePort" id="sourceport" property="sourcePort"/>

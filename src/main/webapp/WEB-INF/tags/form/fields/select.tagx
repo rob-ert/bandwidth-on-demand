@@ -49,7 +49,13 @@
         _${fn:escapeXml(id)}
     </c:set>
 
-    <div class="clearfix" id="_${fn:escapeXml(id)}_id">
+
+    <c:set var="errors"><form:errors path="${sec_field}" /></c:set>
+    <c:if test="${not empty errors}">
+        <c:set var="error_css" value="error" />
+    </c:if>
+        
+    <div class="clearfix ${error_css}" id="_${fn:escapeXml(id)}_id">
       <c:choose>
         <c:when test="${not empty items}">
           <label for="${component_id}">
@@ -118,7 +124,7 @@
                       </c:choose>
                     </c:otherwise>
                   </c:choose>
-                  <form:errors cssClass="errors" id="${component_id}_error_id" path="${sec_field}" />
+                  <form:errors cssClass="help-inline" id="${component_id}_error_id" path="${sec_field}" />
                 </c:otherwise>
               </c:choose>
             </c:when>
@@ -183,8 +189,7 @@
                       </c:choose>
                     </c:otherwise>
                   </c:choose>
-                  <br />
-                  <form:errors cssClass="errors" id="_${sec_field}_error_id" path="${sec_field}" />
+                  <form:errors cssClass="help-inline" id="${component_id}_error_id" path="${sec_field}" />
                 </c:otherwise>
               </c:choose>
             </c:otherwise>
