@@ -78,7 +78,7 @@
                                 <form:password id="_${sec_field}_id" path="${sec_field}" disabled="${disabled}" />
                             </c:when>
                             <c:otherwise>
-                                <form:input id="_${sec_field}_id" path="${sec_field}" disabled="${disabled}" />
+                                <form:input id="_${sec_field}_id" path="${sec_field}" disabled="${disabled}" type="${fn:escapeXml(type)}" />
                             </c:otherwise>
                         </c:choose>
                         <form:errors cssClass="help-inline" id="_${sec_field}_error_id" path="${sec_field}" />

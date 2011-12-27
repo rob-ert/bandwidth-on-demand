@@ -21,11 +21,11 @@
         <field:select field="destinationPort" id="destinationPort" labelCode="reservation_destinationPort"
             items="${virtualPorts}" itemValue="id" path="/manager/reservations" required="true" create="false" />
 
-        <field:input field="startDate" id="startDate" labelCode="reservation_startDate" required="true" />
-        <field:input field="startTime" id="startTime" labelCode="reservation_startTime" required="true" />
+        <field:input type="date" field="startDate" id="startDate" labelCode="reservation_startDate" required="true" />
+        <field:input type="time" field="startTime" id="startTime" labelCode="reservation_startTime" required="true" />
 
-        <field:input field="endDate" id="endDate" labelCode="reservation_endDate" required="true" />
-        <field:input field="endTime" id="endTime" labelCode="reservation_endTime" required="true" />
+        <field:input type="date" field="endDate" id="endDate" labelCode="reservation_endDate" required="true" />
+        <field:input type="time" field="endTime" id="endTime" labelCode="reservation_endTime" required="true" />
                 
     </form:update>
     
@@ -33,7 +33,7 @@
       $(function() {
         $("#_virtualresourcegroup").dropdownReload("${vpUrl}", ["#_sourcePort", "#_destinationPort"]);
         $("#_startDate_id").DatePicker({
-            format:'m/d/Y',
+        	format:'Y-m-d',
             date: $('#_startDate_id').val(),
             onBeforeShow: function(){
                 $('#_startDate_id').DatePickerSetDate($('#_startDate_id').val(), true);
@@ -44,7 +44,7 @@
             }
         });
         $("#_endDate_id").DatePicker({
-            format:'m/d/Y',
+        	format:'Y-m-d',
             date: $('#_endDate_id').val(),
             onBeforeShow: function(){
                 $('#_endDate_id').DatePickerSetDate($('#_endDate_id').val(), true);

@@ -24,11 +24,12 @@ package nl.surfnet.bod.domain;
 import java.util.Date;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
- * Entity which represents a Reserveration for a specific connection between a
+ * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
  *
  * @author Franky
@@ -50,28 +51,34 @@ public class Reservation {
   @Enumerated(EnumType.STRING)
   private ReservationStatus status = ReservationStatus.PENDING;
 
-  @ManyToOne
+  @NotNull
+  @ManyToOne(optional = false)
   private VirtualPort sourcePort;
 
-  @ManyToOne
+  @NotNull
+  @ManyToOne(optional = false)
   private VirtualPort destinationPort;
 
-  @DateTimeFormat(style = "S-")
+  @NotNull
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
   @Temporal(TemporalType.DATE)
   @Column(nullable = false)
   private Date startDate;
 
-  @DateTimeFormat(style = "-S")
+  @NotNull
+  @DateTimeFormat(pattern = "H:mm")
   @Temporal(TemporalType.TIME)
   @Column(nullable = false)
   private Date startTime;
 
-  @DateTimeFormat(style = "S-")
+  @NotNull
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
   @Temporal(TemporalType.DATE)
   @Column(nullable = false)
   private Date endDate;
 
-  @DateTimeFormat(style = "-S")
+  @NotNull
+  @DateTimeFormat(pattern = "H:mm")
   @Temporal(TemporalType.TIME)
   @Column(nullable = false)
   private Date endTime;

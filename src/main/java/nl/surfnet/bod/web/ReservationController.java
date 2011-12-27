@@ -96,25 +96,6 @@ public class ReservationController {
     return PAGE_URL + CREATE;
   }
 
-  @ModelAttribute("virtualPorts")
-  public Collection<VirtualPort> populateVirtualPorts() {
-    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Collection<VirtualResourceGroup> groups = virtualResourceGroupService.findAllForUser(user);
-
-    return getFirst(transform(groups, new Function<VirtualResourceGroup, Collection<VirtualPort>>() {
-      @Override
-      public Collection<VirtualPort> apply(VirtualResourceGroup group) {
-        return group.getVirtualPorts();
-      }
-    }), Collections.<VirtualPort> emptyList());
-  }
-
-  @ModelAttribute("virtualResourceGroups")
-  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {
-    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    return virtualResourceGroupService.findAllForUser(user);
-  }
-
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
   public String show(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
 
@@ -154,7 +135,11 @@ public class ReservationController {
 
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY, reservationService.find(id));
+    Reservation reservation = reservationService.find(id);
+
+    uiModel.addAttribute(MODEL_KEY, reservation);
+    uiModel.addAttribute("virtualPorts", reservation.getVirtualResourceGroup().getVirtualPorts());
+
     return PAGE_URL + UPDATE;
   }
 
@@ -169,6 +154,25 @@ public class ReservationController {
     uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());
 
     return "redirect:";
+  }
+
+  @ModelAttribute("virtualPorts")
+  public Collection<VirtualPort> populateVirtualPorts() {
+    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    Collection<VirtualResourceGroup> groups = virtualResourceGroupService.findAllForUser(user);
+
+    return getFirst(transform(groups, new Function<VirtualResourceGroup, Collection<VirtualPort>>() {
+      @Override
+      public Collection<VirtualPort> apply(VirtualResourceGroup group) {
+        return group.getVirtualPorts();
+      }
+    }), Collections.<VirtualPort> emptyList());
+  }
+
+  @ModelAttribute("virtualResourceGroups")
+  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {
+    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    return virtualResourceGroupService.findAllForUser(user);
   }
 
   protected void setVirtualResourceGroupService(VirtualResourceGroupService virtualResourceGroupService) {
