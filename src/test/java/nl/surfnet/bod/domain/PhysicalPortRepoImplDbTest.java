@@ -113,12 +113,14 @@ public class PhysicalPortRepoImplDbTest {
 
   @Test
   public void deletePhysicalPort() {
-    PhysicalPort obj = dod.getRandomPhysicalPort();
-
-    physicalPortService.delete(obj);
+    PhysicalPort port = new PhysicalPortFactory().setId(null).setPhysicalResourceGroup(null).create();
+    physicalPortRepo.save(port);
     physicalPortRepo.flush();
 
-    assertThat(physicalPortService.find(obj.getId()), nullValue());
+    physicalPortService.delete(port);
+    physicalPortRepo.flush();
+
+    assertThat(physicalPortService.find(port.getId()), nullValue());
   }
 
   @Test(expected = ConstraintViolationException.class)
