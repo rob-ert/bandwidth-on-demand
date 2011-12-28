@@ -1,6 +1,6 @@
 <html xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:spring="http://www.springframework.org/tags"
-    xmlns:sec="http://www.springframework.org/security/tags"
+    xmlns:sec="http://www.springframework.org/security/tags" xmlns:menu="urn:jsptagdir:/WEB-INF/tags/menu"
     xmlns:util="urn:jsptagdir:/WEB-INF/tags/util">
 
     <jsp:output doctype-root-element="HTML" doctype-system="about:legacy-compat" />
@@ -34,15 +34,14 @@
                     <div class="topbar-wrapper"> 
                         <tiles:insertAttribute name="menubar" ignore="true" />
                         <ul class="nav secondary-nav">
-                            <c:set var="nameId">
-                                <sec:authentication property="principal.username" />
+                            <c:set var="displayName" >
+                                <sec:authentication property="principal.displayName" htmlEscape="false"/>
                             </c:set>
-                            <li>
-                                <spring:url var="shibboleth_groups_url" value="/shibboleth/groups" />
-                                <a href="${shibboleth_groups_url}" title="${nameId}">
-                                    <sec:authentication property="principal.displayName" />
-                                </a>
-                            </li>
+                            <menu:menu id="user_menu">
+                                <menu:category id="c_user" label="${displayName}">
+                                    <menu:item id="i_logout" url="/Shibboleth.sso/Logout?target=/" messageCode="global_menu_logout" />
+                                </menu:category>
+                            </menu:menu>
                         </ul>
                     </div>
                 </div>
