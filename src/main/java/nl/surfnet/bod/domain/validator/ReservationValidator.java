@@ -24,6 +24,7 @@ package nl.surfnet.bod.domain.validator;
 import nl.surfnet.bod.domain.Reservation;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.joda.time.Minutes;
 import org.joda.time.Period;
 import org.springframework.validation.Errors;
@@ -62,13 +63,24 @@ public class ReservationValidator implements Validator {
       return;
     }
 
-    if (reservation.getEndDate().isBefore(reservation.getStartDate())) {
-      errors.rejectValue("sourcePort", "validation.end.before.start");
+    LocalDate startDate = reservation.getStartDate();
+    LocalTime startTime = reservation.getStartTime();
+    LocalDate endDate = reservation.getEndDate();
+    LocalTime endTime = reservation.getEndTime();
+
+    LocalDate today = LocalDate.now();
+    if (startDate.isBefore(today)) {
+      errors.rejectValue("startDate", "validation.date.past");
+    }
+    if (endDate.isBefore(today)) {
+      errors.rejectValue("endDate", "validation.date.past");
+    }
+    if (endDate.isBefore(startDate)) {
+      errors.rejectValue("endDate", "validation.end.before.start");
     }
 
-    if (datesAreOnSameDay(reservation.getStartDate(), reservation.getEndDate())) {
-
-      if (reservation.getEndTime().isBefore(reservation.getStartTime())) {
+    if (datesAreOnSameDay(startDate, endDate)) {
+      if (endTime.isBefore(startTime)) {
         errors.rejectValue("endTime", "validation.end.before.start");
       }
 

@@ -128,6 +128,19 @@ public class ReservationValidatorTest {
      assertTrue(errors.hasErrors());
    }
 
+   @Test
+   public void aReservationShouldNotBeInThePast() {
+     LocalDate yesterday = LocalDate.now().minusDays(1);
+
+     Reservation reservation = new ReservationFactory().setStartDate(yesterday).create();
+     Errors errors = createErrorObject(reservation);
+
+     subject.validate(reservation, errors);
+
+     assertTrue(errors.hasErrors());
+
+   }
+
   private Errors createErrorObject(Reservation reservation) {
     return new BeanPropertyBindingResult(reservation, "reservation");
   }

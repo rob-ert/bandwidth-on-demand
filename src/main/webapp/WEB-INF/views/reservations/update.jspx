@@ -13,13 +13,13 @@
         path="/reservations" render="${empty dependencies}">
 	
          <field:select field="virtualResourceGroup" id="virtualresourcegroup" labelCode="nl_surfnet_bod_domain_virtualresourcegroup"
-            itemLabel="name" itemValue="id" items="${virtualResourceGroups}" path="/manager/reservations" required="true" />
+            itemLabel="name" itemValue="id" items="${virtualResourceGroups}" path="/reservations" required="true" />
 
         <field:select field="sourcePort" id="sourcePort" labelCode="reservation_sourcePort"
-            items="${virtualPorts}" itemValue="id" path="/manager/reservations" required="true" create="false" />
+            items="${virtualPorts}" itemValue="id" path="/reservations" required="true" create="false" />
 
         <field:select field="destinationPort" id="destinationPort" labelCode="reservation_destinationPort"
-            items="${virtualPorts}" itemValue="id" path="/manager/reservations" required="true" create="false" />
+            items="${virtualPorts}" itemValue="id" path="/reservations" required="true" create="false" />
 
         <field:input type="date" field="startDate" id="startDate" labelCode="reservation_startDate" required="true" />
         <field:input type="time" field="startTime" id="startTime" labelCode="reservation_startTime" required="true" />
@@ -54,6 +54,6 @@
                 $('#_endDate_id').DatePickerHide();
             }
         });
-      })
+      });
     </script>
 </div>

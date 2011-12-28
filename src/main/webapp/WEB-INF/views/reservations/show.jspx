@@ -9,12 +9,12 @@
 	
 		<field:display field="sourcePort" labelCode="reservation_sourcePort" id="c_nl_surfnet_bod_domain_sourceport" object="${reservation}" />
         <field:display field="destinationPort" labelCode="reservation_destinationPort" id="c_nl_surfnet_bod_domain_destinationPort" object="${reservation}" />
-        <field:display field="virtualResourceGroup" labelCode="reservation_virtualResourceGroup" id="c_nl_surfnet_bod_domain_virtualresourcegroup" object="${reservation}" />
+        <field:display field="virtualResourceGroup" labelCode="nl_surfnet_bod_domain_virtualresourcegroup" id="c_nl_surfnet_bod_domain_virtualresourcegroup" object="${reservation}" />
         <field:display field="status" labelCode="reservation_status" id="label_nl_surfnet_bod_domain_reservation_status" object="${reservation}" />
         <field:display field="startDate" labelCode="reservation_startDate" id="startDate" object="${reservation}"/>
         <field:display field="startTime" labelCode="reservation_startTime" id="startTime" object="${reservation}"/>
         <field:display field="endDate" labelCode="reservation_endDate" id="endDate" object="${reservation}"/>
         <field:display field="endTime" labelCode="reservation_endTime" id="endTime" object="${reservation}"/>
-                
+        <field:display field="user" labelCode="reservation_user" id="user" object="${reservation}" />
     </page:show>
 </div>
