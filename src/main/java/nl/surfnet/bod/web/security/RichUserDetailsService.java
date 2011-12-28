@@ -26,6 +26,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.service.GroupService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -50,6 +52,9 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
   @Autowired
   private GroupService groupService;
 
+  @Autowired
+  private PhysicalResourceGroupService physicalResourceGroupService;
+
   @Override
   public RichUserDetails loadUserDetails(Authentication token) throws UsernameNotFoundException {
     RichPrincipal principal = (RichPrincipal) token.getPrincipal();
@@ -58,29 +63,31 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
     logger.debug("Found groups: '{}' for name-id: '{}'", groups, principal.getNameId());
 
     List<GrantedAuthority> authorities = Lists.newArrayList();
-    if (containsNocEngineerGroup(groups)) {
-      authorities.add(new GrantedAuthority() {
-        @Override
-        public String getAuthority() {
-          return "NOC_ENGINEER";
-        }
-      });
+    if (isNocEngineerGroup(groups)) {
+      authorities.add(createAuthority("NOC_ENGINEER"));
+    }
+    if (isIctManager(groups)) {
+      authorities.add(createAuthority("ICT_MANAGER"));
     }
 
     return new RichUserDetails(principal.getNameId(), principal.getDisplayName(), authorities, groups);
   }
 
-  private boolean containsNocEngineerGroup(Collection<UserGroup> groups) {
+  private boolean isIctManager(Collection<UserGroup> groups) {
+    return !physicalResourceGroupService.findAllForAdminGroups(groups).isEmpty();
+  }
+
+  private GrantedAuthority createAuthority(String role) {
+    return new GrantedAuthorityImpl(role);
+  }
+
+  private boolean isNocEngineerGroup(Collection<UserGroup> groups) {
     return Iterables.any(groups, new Predicate<UserGroup>() {
       @Override
       public boolean apply(UserGroup group) {
         return nocEngineerGroupId.equals(group.getId());
       }
     });
-  }
-
-  protected void setGroupService(GroupService groupService) {
-    this.groupService = groupService;
   }
 
   protected void setNocEngineerGroupId(String groupId) {

@@ -26,6 +26,7 @@
     <mvc:view-controller path="/manager" view-name="manager/index" />
     <mvc:view-controller path="/uncaughtException" />
     <mvc:view-controller path="/resourceNotFound" />
+    <mvc:view-controller path="/accessDenied" />
     <mvc:view-controller path="/dataAccessFailure" />
 
     <!-- Resolves localized messages*.properties and application.properties files in the application to allow for internationalization. 

@@ -18,8 +18,10 @@
         <spring:url var="reservation_url" value="/reservations/create" />
         
         <a class="btn primary large" href="${reservation_url}">Create a reservation »</a>
-        <span style="padding: 10px">or</span>
-        <a class="btn large" href="${manager_url}">ICT manager work »</a>
+        <sec:authorize access="hasRole('ICT_MANAGER')">
+            <span style="padding: 10px">or</span>
+            <a class="btn large" href="${manager_url}">ICT manager work »</a>
+        </sec:authorize>
         <sec:authorize access="hasRole('NOC_ENGINEER')">
             <span style="padding: 10px">or</span>
             <a class="btn large" href="${noc_url}">NOC Engineer work »</a>

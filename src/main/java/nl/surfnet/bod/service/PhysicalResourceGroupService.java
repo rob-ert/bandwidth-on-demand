@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
@@ -33,6 +34,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 
 @Service
 @Transactional
@@ -69,14 +73,24 @@ public class PhysicalResourceGroupService {
     return physicalResourceGroupRepo.save(physicalResourceGroup);
   }
 
-  public Collection<PhysicalResourceGroup> findAllForUser(RichUserDetails user) {
-    Collection<String> groups = user.getUserGroupIds();
-
+  public Collection<PhysicalResourceGroup> findAllForAdminGroups(Collection<UserGroup> groups) {
     if (groups.isEmpty()) {
       return Collections.emptyList();
     }
 
-    return physicalResourceGroupRepo.findByAdminGroupIn(groups);
+    Collection<String> groupIds = Collections2.transform(groups, new Function<UserGroup, String>() {
+      @Override
+      public String apply(UserGroup group) {
+        return group.getId();
+      }
+    });
+
+    return physicalResourceGroupRepo.findByAdminGroupIn(groupIds);
+  }
+
+  public Collection<PhysicalResourceGroup> findAllForUser(RichUserDetails user) {
+    Collection<UserGroup> groups = user.getUserGroups();
+    return findAllForAdminGroups(groups);
   }
 
   public PhysicalResourceGroup findByName(String name) {

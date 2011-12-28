@@ -31,7 +31,8 @@
         <custom-filter position="PRE_AUTH_FILTER" ref="preAuthenticatedProcessingFilter" />
         
         <intercept-url pattern="/noc/**" access="hasRole('NOC_ENGINEER')" />
-        <intercept-url pattern="/**" access="permitAll" />
+        <intercept-url pattern="/manager/**" access="hasRole('ICT_MANAGER')" />
+        <intercept-url pattern="/**" access="isAuthenticated()" />
     </http>
 
     <beans:bean id="preAuthEntryPoint" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />

@@ -24,29 +24,37 @@ package nl.surfnet.bod.web.security;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.service.GroupService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.UserGroupFactory;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 
+@RunWith(MockitoJUnitRunner.class)
 public class RichUserDetailsServiceTest {
 
+  @InjectMocks
   private RichUserDetailsService subject;
-
+  @Mock
   private GroupService groupServiceMock;
+  @Mock
+  private PhysicalResourceGroupService prgServiceMock;
 
   @Before
   public void init() {
-    groupServiceMock = mock(GroupService.class);
-
-    subject = new RichUserDetailsService();
-    subject.setGroupService(groupServiceMock);
+    subject.setNocEngineerGroupId("urn:noc-engineer");
   }
 
   @Test
@@ -62,12 +70,9 @@ public class RichUserDetailsServiceTest {
   @Test
   public void aNocEngineer() {
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(
-        Lists.newArrayList(new UserGroupFactory().setId("urn:noc-engineer").create()));
+        listOf(new UserGroupFactory().setId("urn:noc-engineer").create()));
 
-    subject.setNocEngineerGroupId("urn:noc-engineer");
-
-    RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
-        "urn:alanvdam", "Alan van Dam"), "N/A"));
+    RichUserDetails userDetails = subject.loadUserDetails(createToken("urn:alanvdam"));
 
     assertThat(userDetails.getNameId(), is("urn:alanvdam"));
     assertThat(userDetails.getDisplayName(), is("Alan van Dam"));
@@ -75,4 +80,24 @@ public class RichUserDetailsServiceTest {
     assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is("NOC_ENGINEER"));
   }
 
+  @Test
+  public void aIctManager() {
+    ImmutableList<UserGroup> adminGroups = listOf(new UserGroupFactory().setId("urn:ict-manager").create());
+    when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(adminGroups);
+    when(prgServiceMock.findAllForAdminGroups(adminGroups)).thenReturn(
+        listOf(new PhysicalResourceGroupFactory().create()));
+
+    RichUserDetails userDetails = subject.loadUserDetails(createToken("urn:alanvdam"));
+
+    assertThat(userDetails.getAuthorities(), hasSize(1));
+    assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is("ICT_MANAGER"));
+  }
+
+  private static <E> ImmutableList<E> listOf(E element) {
+    return ImmutableList.of(element);
+  }
+
+  private static Authentication createToken(String nameId) {
+    return new PreAuthenticatedAuthenticationToken(new RichPrincipal(nameId, "Alan van Dam"), "N/A");
+  }
 }

@@ -168,7 +168,4 @@ public class VirtualResourceGroupController {
     return virtualResourceGroupService.findAll();
   }
 
-  protected void setPhysicalPortService(VirtualResourceGroupService virtualResourceGroupService) {
-    this.virtualResourceGroupService = virtualResourceGroupService;
-  }
 }
