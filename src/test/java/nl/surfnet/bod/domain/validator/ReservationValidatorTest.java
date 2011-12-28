@@ -68,8 +68,11 @@ public class ReservationValidatorTest {
 
   @Test
   public void endDateMayBeOnStartDate() {
-    LocalDate now = LocalDate.now();
-    Reservation reservation = new ReservationFactory().setStartDate(now).setEndDate(now).create();
+    LocalDate tomorrow = LocalDate.now().plusDays(1);
+    LocalTime noon = new LocalTime(12, 0);
+
+    Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
+        .setEndTime(noon.plusMinutes(10)).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -90,56 +93,67 @@ public class ReservationValidatorTest {
     assertTrue(errors.hasErrors());
   }
 
+  @Test
+  public void whenEndAndStartDateAreTheSameStartTimeShouldBeBeforeEndTime2() {
+    LocalDate tomorrow = LocalDate.now().plusDays(1);
+    LocalTime noon = new LocalTime(12, 0);
+    Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
+        .setEndTime(noon.plusHours(1)).create();
+    Errors errors = createErrorObject(reservation);
 
-   @Test
-   public void whenEndAndStartDateAreTheSameStartTimeShouldBeBeforeEndTime2() {
-     LocalDate tomorrow = LocalDate.now().plusDays(1);
-     LocalTime noon = new LocalTime(12, 0);
-     Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
-         .setEndTime(noon.plusHours(1)).create();
-     Errors errors = createErrorObject(reservation);
+    subject.validate(reservation, errors);
 
-     subject.validate(reservation, errors);
+    assertFalse(errors.hasErrors());
+  }
 
-     assertFalse(errors.hasErrors());
-   }
+  @Test
+  public void reservationShouldBeLongerThan5Minutes() {
+    LocalDate tomorrow = LocalDate.now().plusDays(1);
+    LocalTime noon = new LocalTime(12, 0);
+    Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
+        .setEndTime(noon.plusMinutes(3)).create();
+    Errors errors = createErrorObject(reservation);
 
-   @Test
-   public void reservationShouldBeLongerThan5Minutes() {
-     LocalDate tomorrow = LocalDate.now().plusDays(1);
-     LocalTime noon = new LocalTime(12, 0);
-     Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
-         .setEndTime(noon.plusMinutes(3)).create();
-     Errors errors = createErrorObject(reservation);
+    subject.validate(reservation, errors);
 
-     subject.validate(reservation, errors);
+    assertTrue(errors.hasErrors());
+  }
 
-     assertTrue(errors.hasErrors());
-   }
+  @Test
+  public void reservationShouldHaveDifferentPorts() {
+    VirtualPort port = new VirtualPortFactory().create();
+    Reservation reservation = new ReservationFactory().setSourcePort(port).setDestinationPort(port).create();
+    Errors errors = createErrorObject(reservation);
 
-   @Test
-   public void reservationShouldHaveDifferentPorts() {
-     VirtualPort port = new VirtualPortFactory().create();
-     Reservation reservation = new ReservationFactory().setSourcePort(port).setDestinationPort(port).create();
-     Errors errors = createErrorObject(reservation);
+    subject.validate(reservation, errors);
 
-     subject.validate(reservation, errors);
+    assertTrue(errors.hasErrors());
+  }
 
-     assertTrue(errors.hasErrors());
-   }
+  @Test
+  public void aReservationShouldNotBeInThePast() {
+    LocalDate yesterday = LocalDate.now().minusDays(1);
 
-   @Test
-   public void aReservationShouldNotBeInThePast() {
-     LocalDate yesterday = LocalDate.now().minusDays(1);
+    Reservation reservation = new ReservationFactory().setStartDate(yesterday).create();
+    Errors errors = createErrorObject(reservation);
 
-     Reservation reservation = new ReservationFactory().setStartDate(yesterday).create();
-     Errors errors = createErrorObject(reservation);
+    subject.validate(reservation, errors);
 
-     subject.validate(reservation, errors);
+    assertTrue(errors.hasErrors());
+  }
 
-     assertTrue(errors.hasErrors());
+  @Test
+  public void aReservationShouldNotBeInThePast2() {
+    LocalDate today = LocalDate.now();
+    LocalTime fewHoursAgo = LocalTime.now().minusHours(2);
 
-   }
+    Reservation reservation = new ReservationFactory().setStartDate(today).setStartTime(fewHoursAgo).create();
+    Errors errors = createErrorObject(reservation);
+
+    subject.validate(reservation, errors);
+
+    assertTrue(errors.hasErrors());
+  }
 
   private Errors createErrorObject(Reservation reservation) {
     return new BeanPropertyBindingResult(reservation, "reservation");

@@ -69,12 +69,21 @@ public class ReservationValidator implements Validator {
     LocalTime endTime = reservation.getEndTime();
 
     LocalDate today = LocalDate.now();
+    LocalTime now = LocalTime.now();
+
     if (startDate.isBefore(today)) {
       errors.rejectValue("startDate", "validation.date.past");
     }
     if (endDate.isBefore(today)) {
       errors.rejectValue("endDate", "validation.date.past");
     }
+    if (startDate.isEqual(today) && startTime.isBefore(now)) {
+      errors.rejectValue("startTime", "validation.date.past");
+    }
+    if (endDate.isEqual(today) && endTime.isBefore(now)) {
+      errors.rejectValue("endTime", "validation.date.past");
+    }
+
     if (endDate.isBefore(startDate)) {
       errors.rejectValue("endDate", "validation.end.before.start");
     }
