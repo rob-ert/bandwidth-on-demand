@@ -21,6 +21,9 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +39,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 
 @Service
 @Transactional
@@ -78,12 +80,12 @@ public class PhysicalResourceGroupService {
       return Collections.emptyList();
     }
 
-    Collection<String> groupIds = Collections2.transform(groups, new Function<UserGroup, String>() {
+    Collection<String> groupIds = newArrayList(transform(groups, new Function<UserGroup, String>() {
       @Override
       public String apply(UserGroup group) {
         return group.getId();
       }
-    });
+    }));
 
     return physicalResourceGroupRepo.findByAdminGroupIn(groupIds);
   }

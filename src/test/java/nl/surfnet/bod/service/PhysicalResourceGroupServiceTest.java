@@ -39,7 +39,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 public class PhysicalResourceGroupServiceTest {
 
@@ -62,12 +61,15 @@ public class PhysicalResourceGroupServiceTest {
 
     PhysicalResourceGroup prGroup = new PhysicalResourceGroupFactory().create();
 
-    when(groupRepoMock.findByAdminGroupIn(Lists.newArrayList(groupOfLoggedInUser))).thenReturn(
-        ImmutableList.of(prGroup));
+    when(groupRepoMock.findByAdminGroupIn(listOf(groupOfLoggedInUser))).thenReturn(listOf(prGroup));
 
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllForUser(loggedInUser);
 
     assertThat(groups, hasSize(1));
     assertThat(groups, contains(prGroup));
+  }
+
+  private static <E> ImmutableList<E> listOf(E element) {
+    return ImmutableList.of(element);
   }
 }
