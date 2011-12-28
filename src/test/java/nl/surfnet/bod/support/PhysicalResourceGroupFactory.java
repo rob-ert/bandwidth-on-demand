@@ -23,7 +23,7 @@ package nl.surfnet.bod.support;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -32,15 +32,17 @@ import com.google.common.collect.Lists;
 
 public class PhysicalResourceGroupFactory {
 
-  private static final AtomicInteger count = new AtomicInteger();
-  private String name = "First group";
-  private String institution = "SURFnet B.V." + count.getAndIncrement();
-  private String adminGroup = null;
+  private static final AtomicLong ID_COUNTER = new AtomicLong();
 
+  private Long id = ID_COUNTER.getAndIncrement();
+  private String name = "First group";
+  private String institution = "SURFnet B.V." + id;
+  private String adminGroup = null;
   private List<PhysicalPort> physicalPorts = Lists.newArrayList();
 
   public PhysicalResourceGroup create() {
     PhysicalResourceGroup group = new PhysicalResourceGroup();
+    group.setId(id);
     group.setName(name);
     group.setInstitutionName(institution);
     group.setAdminGroup(adminGroup);
@@ -66,6 +68,11 @@ public class PhysicalResourceGroupFactory {
 
   public PhysicalResourceGroupFactory setAdminGroupName(String adminGroup) {
     this.adminGroup = adminGroup;
+    return this;
+  }
+
+  public PhysicalResourceGroupFactory setId(Long id) {
+    this.id = id;
     return this;
   }
 

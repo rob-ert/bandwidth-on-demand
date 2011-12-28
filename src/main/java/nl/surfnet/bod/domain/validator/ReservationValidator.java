@@ -21,12 +21,11 @@
  */
 package nl.surfnet.bod.domain.validator;
 
-import java.util.Date;
-
 import nl.surfnet.bod.domain.Reservation;
 
-import org.joda.time.Duration;
-import org.joda.time.Seconds;
+import org.joda.time.LocalDate;
+import org.joda.time.Minutes;
+import org.joda.time.Period;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
@@ -43,7 +42,6 @@ public class ReservationValidator implements Validator {
 
     validatePorts(errors, reservation);
     validateStartAndEndDate(errors, reservation);
-
   }
 
   private void validatePorts(Errors errors, Reservation reservation) {
@@ -64,33 +62,25 @@ public class ReservationValidator implements Validator {
       return;
     }
 
-    if (reservation.getEndDate().before(reservation.getStartDate())) {
-      errors.rejectValue("endDate", "validation.end.before.start");
+    if (reservation.getEndDate().isBefore(reservation.getStartDate())) {
+      errors.rejectValue("sourcePort", "validation.end.before.start");
     }
-
-    if (reservation.getStartDate().after(reservation.getEndDate())) {
-      errors.rejectValue("startDate", "validation.start.after.end");
-    }
-
 
     if (datesAreOnSameDay(reservation.getStartDate(), reservation.getEndDate())) {
-      if (reservation.getEndTime().before(reservation.getStartTime())) {
+
+      if (reservation.getEndTime().isBefore(reservation.getStartTime())) {
         errors.rejectValue("endTime", "validation.end.before.start");
       }
 
-      if (reservation.getStartTime().after(reservation.getEndTime())) {
-        errors.rejectValue("startTime", "validation.start.after.end");
-      }
-
-      Duration timeDuration = new Duration(reservation.getStartTime().getTime(), reservation.getEndTime().getTime());
-      if (timeDuration.toStandardSeconds().isLessThan(Seconds.TWO)) {
+      Period period = new Period(reservation.getStartTime(), reservation.getEndTime());
+      if (period.toStandardMinutes().isLessThan(Minutes.minutes(5))) {
         errors.reject("validation.reservation.tooshort");
       }
     }
   }
 
-  private boolean datesAreOnSameDay(Date startDate, Date endDate) {
-    return new Duration(startDate.getTime(), endDate.getTime()).getStandardDays() == 0;
+  private boolean datesAreOnSameDay(LocalDate startDate, LocalDate endDate) {
+    return startDate.isEqual(endDate);
   }
 
 }

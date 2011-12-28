@@ -83,7 +83,7 @@ public class PhysicalResourceGroupDataOnDemand {
   public PhysicalResourceGroup getRandomPhysicalResourceGroup() {
     init();
     PhysicalResourceGroup obj = data.get(rnd.nextInt(data.size()));
-    java.lang.Long id = obj.getId();
+    Long id = obj.getId();
     return physicalResourceGroupService.find(id);
   }
 

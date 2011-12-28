@@ -29,7 +29,7 @@
         </c:if>
         <spring:message arguments="${labelPlural}" code="entity_list_all" var="title_msg" htmlEscape="false" />
         <div class="page-header">
-            <h3>${title_msg}</h3>
+            <h2>${title_msg}</h2>
         </div>
         <c:choose>
             <c:when test="${not empty items}">

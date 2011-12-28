@@ -27,7 +27,6 @@ import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -40,7 +39,8 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
-import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -180,11 +180,14 @@ public class ReservationController {
   }
 
   private Reservation createDefaultReservation() {
+    LocalDate tomorrow = LocalDate.now().plusDays(1);
+    LocalTime noon = new LocalTime(12, 00);
+
     Reservation reservation = new Reservation();
-    reservation.setStartDate(new Date());
-    reservation.setStartTime(new Date());
-    reservation.setEndDate(reservation.getStartDate());
-    reservation.setEndTime(new DateTime(reservation.getEndDate()).plusHours(4).toDate());
+    reservation.setStartDate(tomorrow);
+    reservation.setStartTime(noon);
+    reservation.setEndDate(tomorrow);
+    reservation.setEndTime(noon.plusHours(4));
 
     return reservation;
   }

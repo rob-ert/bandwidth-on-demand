@@ -47,7 +47,7 @@ public class ValidatorHelper {
 
     if (isUpdate) {
       // Update
-      valid = (!(matchingNames && !matchingIds));
+      valid = !(matchingNames && !matchingIds);
     }
     else {
       // Create

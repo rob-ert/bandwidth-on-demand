@@ -24,8 +24,12 @@ package nl.surfnet.bod.domain.validator;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
 
-import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -34,106 +38,97 @@ import org.springframework.validation.Errors;
 public class ReservationValidatorTest {
 
   private ReservationValidator subject;
-  private DateTime startDate;
-  private DateTime startTime;
-  private DateTime endDate;
-  private DateTime endTime;
-  private Errors errors;
-  private Reservation reservation;
 
   @Before
   public void setUp() {
     subject = new ReservationValidator();
-    reservation = new Reservation();
-    errors = new BeanPropertyBindingResult(reservation, "reservation");
-
-    startDate = DateTime.now();
-    endDate = startDate;
   }
 
   @Test
-  public void testSupports() {
+  public void shouldSupportReservationClass() {
     assertTrue(subject.supports(Reservation.class));
   }
 
   @Test
-  public void testSupportsNot() {
+  public void shouldNotSupportObjectClass() {
     assertFalse(subject.supports(Object.class));
   }
 
   @Test
-  public void testEndDateAfterStartDate() {
-    endDate = startDate.plusDays(1);
+  public void endDateShouldNotBeBeforeStartDate() {
+    LocalDate now = LocalDate.now();
+    Reservation reservation = new ReservationFactory().setStartDate(now).setEndDate(now.minusDays(1)).create();
+    Errors errors = createErrorObject(reservation);
 
-    initReservation(reservation, startDate, endDate);
+    subject.validate(reservation, errors);
+
+    assertTrue(errors.hasErrors());
+    assertTrue(errors.hasFieldErrors());
+  }
+
+  @Test
+  public void endDateMayBeOnStartDate() {
+    LocalDate now = LocalDate.now();
+    Reservation reservation = new ReservationFactory().setStartDate(now).setEndDate(now).create();
+    Errors errors = createErrorObject(reservation);
+
     subject.validate(reservation, errors);
 
     assertFalse(errors.hasErrors());
   }
 
   @Test
-  public void testEndDateBeforeStartDate() {
-    endDate = startDate.minusDays(1);
+  public void whenEndAndStartDateAreTheSameStartTimeShouldBeBeforeEndTime() {
+    LocalDate today = LocalDate.now();
+    LocalTime now = LocalTime.now();
+    Reservation reservation = new ReservationFactory().setStartDate(today).setEndDate(today).setStartTime(now)
+        .setEndTime(now.minusMinutes(1)).create();
+    Errors errors = createErrorObject(reservation);
 
-    initReservation(reservation, startDate, endDate);
     subject.validate(reservation, errors);
 
-    assertTrue(errors.hasFieldErrors("endDate"));
-    assertFalse(errors.hasGlobalErrors());
+    assertTrue(errors.hasErrors());
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testEndDateOnStartDate() {
 
-    initReservation(reservation, startDate, endDate);
-    subject.validate(reservation, errors);
+   @Test
+   public void whenEndAndStartDateAreTheSameStartTimeShouldBeBeforeEndTime2() {
+     LocalDate tomorrow = LocalDate.now().plusDays(1);
+     LocalTime noon = new LocalTime(12, 0);
+     Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
+         .setEndTime(noon.plusHours(1)).create();
+     Errors errors = createErrorObject(reservation);
 
-    // When days are equal, times are evaluated. Are required in domain.
+     subject.validate(reservation, errors);
+
+     assertFalse(errors.hasErrors());
+   }
+
+   @Test
+   public void reservationShouldBeLongerThan5Minutes() {
+     LocalDate tomorrow = LocalDate.now().plusDays(1);
+     LocalTime noon = new LocalTime(12, 0);
+     Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
+         .setEndTime(noon.plusMinutes(3)).create();
+     Errors errors = createErrorObject(reservation);
+
+     subject.validate(reservation, errors);
+
+     assertTrue(errors.hasErrors());
+   }
+
+   @Test
+   public void reservationShouldHaveDifferentPorts() {
+     VirtualPort port = new VirtualPortFactory().create();
+     Reservation reservation = new ReservationFactory().setSourcePort(port).setDestinationPort(port).create();
+     Errors errors = createErrorObject(reservation);
+
+     subject.validate(reservation, errors);
+
+     assertTrue(errors.hasErrors());
+   }
+
+  private Errors createErrorObject(Reservation reservation) {
+    return new BeanPropertyBindingResult(reservation, "reservation");
   }
-
-  @Test
-  public void testEndDateOnSameDayStartTimeBeforeEndTime() {
-    startTime = DateTime.now().withTime(11, 0, 0, 0);
-    endTime = startTime.plusHours(1);
-
-    initReservation(reservation, startDate, endDate, startTime, endTime);
-    subject.validate(reservation, errors);
-    assertFalse(errors.hasErrors());
-  }
-
-  @Test
-  public void testEndDateOnSameDayStartTimeAfterEndTime() {
-    endTime = DateTime.now().withTime(11, 0, 0, 0);
-    startTime = endTime.plusHours(1);
-
-    initReservation(reservation, startDate, endDate, startTime, endTime);
-    subject.validate(reservation, errors);
-    assertTrue(errors.hasFieldErrors("startTime"));
-    assertTrue(errors.hasGlobalErrors());
-  }
-
-  @Test
-  public void testEndDateOnSameDaySameStartTimeAndEndTime() {
-    endDate = startDate;
-    startTime = DateTime.now().withTime(11, 0, 0, 0);
-    endTime = startTime;
-
-    initReservation(reservation, startDate, endDate, startTime, endTime);
-    subject.validate(reservation, errors);
-    assertFalse(errors.hasFieldErrors());
-    assertTrue(errors.hasGlobalErrors());
-  }
-
-  private void initReservation(Reservation reservation, DateTime startDate, DateTime endDate) {
-    reservation.setStartDate(startDate.toDate());
-    reservation.setEndDate(endDate.toDate());
-  }
-
-  private void initReservation(Reservation reservation, DateTime startDate, DateTime endDate, DateTime startTime,
-      DateTime endTime) {
-    initReservation(reservation, startDate, endDate);
-    reservation.setStartTime(startTime.toDate());
-    reservation.setEndTime(endTime.toDate());
-  }
-
 }

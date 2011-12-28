@@ -21,11 +21,11 @@
  */
 package nl.surfnet.bod.domain;
 
-import java.util.Date;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
@@ -61,27 +61,23 @@ public class Reservation {
 
   @NotNull
   @DateTimeFormat(pattern = "yyyy-MM-dd")
-  @Temporal(TemporalType.DATE)
   @Column(nullable = false)
-  private Date startDate;
+  private LocalDate startDate;
 
   @NotNull
   @DateTimeFormat(pattern = "H:mm")
-  @Temporal(TemporalType.TIME)
   @Column(nullable = false)
-  private Date startTime;
+  private LocalTime startTime;
 
   @NotNull
   @DateTimeFormat(pattern = "yyyy-MM-dd")
-  @Temporal(TemporalType.DATE)
   @Column(nullable = false)
-  private Date endDate;
+  private LocalDate endDate;
 
   @NotNull
   @DateTimeFormat(pattern = "H:mm")
-  @Temporal(TemporalType.TIME)
   @Column(nullable = false)
-  private Date endTime;
+  private LocalTime endTime;
 
   @Column(nullable = false)
   private String user;
@@ -134,36 +130,12 @@ public class Reservation {
     this.destinationPort = endPort;
   }
 
-  public Date getStartDate() {
-    return startDate;
-  }
-
-  public void setStartDate(Date startDate) {
-    this.startDate = startDate;
-  }
-
-  public Date getStartTime() {
+  public LocalTime getStartTime() {
     return startTime;
   }
 
-  public void setStartTime(Date startTime) {
+  public void setStartTime(LocalTime startTime) {
     this.startTime = startTime;
-  }
-
-  public Date getEndDate() {
-    return endDate;
-  }
-
-  public void setEndDate(Date endDate) {
-    this.endDate = endDate;
-  }
-
-  public Date getEndTime() {
-    return endTime;
-  }
-
-  public void setEndTime(Date endTime) {
-    this.endTime = endTime;
   }
 
   public String getUser() {
@@ -172,5 +144,29 @@ public class Reservation {
 
   public void setUser(String user) {
     this.user = user;
+  }
+
+  public LocalDate getStartDate() {
+    return startDate;
+  }
+
+  public void setStartDate(LocalDate startDate) {
+    this.startDate = startDate;
+  }
+
+  public LocalDate getEndDate() {
+    return endDate;
+  }
+
+  public void setEndDate(LocalDate endDate) {
+    this.endDate = endDate;
+  }
+
+  public LocalTime getEndTime() {
+    return endTime;
+  }
+
+  public void setEndTime(LocalTime endTime) {
+    this.endTime = endTime;
   }
 }

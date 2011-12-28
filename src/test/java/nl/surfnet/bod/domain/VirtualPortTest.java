@@ -43,7 +43,7 @@ public class VirtualPortTest {
 
   @Test
   public void testSetters() {
-    VirtualPort vPort = new VirtualPortFactory().setName("vPortName").setPhysicalPort(physicalPort).setVirtualResourceGroup(virtualResourceGroup). create();
+    VirtualPort vPort = new VirtualPortFactory().setName("vPortName").setPhysicalPort(physicalPort).setVirtualResourceGroup(virtualResourceGroup).create();
 
     assertEquals(vPort.getPhysicalPort(), physicalPort);
     assertEquals(vPort.getVirtualResourceGroup(), virtualResourceGroup);

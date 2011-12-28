@@ -46,7 +46,7 @@ public class PhysicalResourceGroupValidatorTest {
     subject.setPhysicalResourceGroupService(physicalResourceGroupServiceMock);
   }
 
-  
+
   @Test
   public void testSupportsValidClass() {
     assertTrue(subject.supports(PhysicalResourceGroup.class));
@@ -56,8 +56,8 @@ public class PhysicalResourceGroupValidatorTest {
   public void testSupportsInValidClass() {
     assertFalse(subject.supports(Object.class));
   }
-  
-  
+
+
   @Test
   public void testValidateExistingName() {
     PhysicalResourceGroup physicalResourceGroupOne = new PhysicalResourceGroupFactory().setName("one").create();
@@ -71,11 +71,11 @@ public class PhysicalResourceGroupValidatorTest {
 
     subject.validate(physicalResourceGroupOne, errors);
 
-    assertTrue(errors.hasFieldErrors("name"));
+    assertFalse(errors.hasErrors());
     assertFalse(errors.hasGlobalErrors());
   }
-  
-  
+
+
   @Test
   public void testValidateNonExistingName() {
     PhysicalResourceGroup physicalResourceGroupOne = new PhysicalResourceGroupFactory().setName("one").create();

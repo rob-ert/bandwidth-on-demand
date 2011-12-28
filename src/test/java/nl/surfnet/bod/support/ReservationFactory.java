@@ -21,47 +21,41 @@
  */
 package nl.surfnet.bod.support;
 
-import java.util.Date;
-
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
+
 public class ReservationFactory {
 
   private Long id;
-
   private Integer version;
-  
   private VirtualResourceGroup vRGroup = new VirtualResourceGroupFactory().create();
-
   private ReservationStatus reservationStatus = ReservationStatus.PENDING;
-
-  private VirtualPort sourcePort;
-
-  private VirtualPort endPort;
-
-  private Date startTimeStamp;
-
-  private Date endTimeStamp;
-
+  private VirtualPort sourcePort = new VirtualPortFactory().create();
+  private VirtualPort destinationPort = new VirtualPortFactory().create();
+  private LocalDate startDate = LocalDate.now();
+  private LocalDate endDate = LocalDate.now().plusDays(1);
+  private LocalTime startTime = new LocalTime(12, 0);
+  private LocalTime endTime = new LocalTime(16, 0);
   private String user;
 
   public Reservation create() {
 
     Reservation reservation = new Reservation();
-
     reservation.setId(id);
-    reservation.setVersion(version);    
+    reservation.setVersion(version);
     reservation.setStatus(reservationStatus);
     reservation.setSourcePort(sourcePort);
-    reservation.setDestinationPort(endPort);
+    reservation.setDestinationPort(destinationPort);
     reservation.setVirtualResourceGroup(vRGroup);
-    reservation.setStartDate(startTimeStamp);
-    reservation.setStartTime(startTimeStamp);
-    reservation.setEndDate(endTimeStamp);
-    reservation.setEndTime(endTimeStamp);
+    reservation.setStartDate(startDate);
+    reservation.setStartTime(startTime);
+    reservation.setEndDate(endDate);
+    reservation.setEndTime(endTime);
     reservation.setUser(user);
 
     return reservation;
@@ -86,29 +80,39 @@ public class ReservationFactory {
     this.reservationStatus = status;
     return this;
   }
-  
+
   public ReservationFactory setSourcePort(VirtualPort sourcePort) {
     this.sourcePort = sourcePort;
     return this;
   }
 
-  public ReservationFactory setEndPort(VirtualPort endPort) {
-    this.endPort = endPort;
-    return this;
-  }
-
-  public ReservationFactory setStartTimeStamp(Date startTimeStamp) {
-    this.startTimeStamp = startTimeStamp;
-    return this;
-  }
-
-  public ReservationFactory setEndTimeStamp(Date endTimeStamp) {
-    this.endTimeStamp = endTimeStamp;
+  public ReservationFactory setDestinationPort(VirtualPort endPort) {
+    this.destinationPort = endPort;
     return this;
   }
 
   public ReservationFactory setUser(String user) {
     this.user = user;
+    return this;
+  }
+
+  public ReservationFactory setEndDate(LocalDate endDate) {
+    this.endDate = endDate;
+    return this;
+  }
+
+  public ReservationFactory setStartDate(LocalDate startDate) {
+    this.startDate = startDate;
+    return this;
+  }
+
+  public ReservationFactory setStartTime(LocalTime startTime) {
+    this.startTime = startTime;
+    return this;
+  }
+
+  public ReservationFactory setEndTime(LocalTime endTime) {
+    this.endTime = endTime;
     return this;
   }
 }

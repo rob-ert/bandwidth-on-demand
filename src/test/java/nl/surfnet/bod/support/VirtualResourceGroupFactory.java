@@ -24,6 +24,7 @@ package nl.surfnet.bod.support;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicLong;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -31,7 +32,9 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 
 public class VirtualResourceGroupFactory {
 
-  private Long id;
+  private static final AtomicLong COUNTER = new AtomicLong();
+
+  private Long id = COUNTER.getAndIncrement();
   private Integer version;
   private String name;
   private String surfConnextGroupName;

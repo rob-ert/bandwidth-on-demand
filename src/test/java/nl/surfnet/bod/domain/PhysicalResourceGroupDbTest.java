@@ -128,13 +128,14 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void deletePhysicalResourceGroup() {
-    PhysicalResourceGroup obj = dod.getRandomPhysicalResourceGroup();
-
-    physicalResourceGroupService.delete(obj);
-
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(null).create();
+    physicalResourceGroupService.save(group);
     physicalResourceGroupRepo.flush();
 
-    assertThat(physicalResourceGroupService.find(obj.getId()), nullValue());
+    physicalResourceGroupService.delete(group);
+    physicalResourceGroupRepo.flush();
+
+    assertThat(physicalResourceGroupService.find(group.getId()), nullValue());
   }
 
   @Test(expected = ConstraintViolationException.class)
