@@ -39,10 +39,9 @@ import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -81,16 +80,14 @@ public class VirtualPortController {
 
   @ModelAttribute("physicalResourceGroups")
   public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
-    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    return physicalResourceGroupService.findAllForUser(user);
+    return physicalResourceGroupService.findAllForUser(Security.getUserDetails());
   }
 
   @ModelAttribute("physicalPorts")
   public Collection<PhysicalPort> populatePhysicalPorts(HttpServletRequest request) {
     String physicalResourceGroup = Strings.nullToEmpty(request.getParameter("physicalResourceGroup"));
     if (physicalResourceGroup.isEmpty()) {
-      RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-      Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllForUser(user);
+      Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllForUser(Security.getUserDetails());
 
       return getFirst(transform(groups, new Function<PhysicalResourceGroup, Collection<PhysicalPort>>() {
         @Override
@@ -182,15 +179,5 @@ public class VirtualPortController {
     uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());
 
     return "redirect:";
-  }
-
-  /**
-   * Setter to enable depedency injection from testcases.
-   *
-   * @param virtualPortService
-   *          {@link VirtualPortService}
-   */
-  protected void setVirtualPortService(VirtualPortService virtualPortService) {
-    this.virtualPortService = virtualPortService;
   }
 }

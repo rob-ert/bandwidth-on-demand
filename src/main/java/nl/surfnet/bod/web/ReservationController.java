@@ -38,6 +38,7 @@ import nl.surfnet.bod.domain.validator.ReservationValidator;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -73,8 +74,7 @@ public class ReservationController {
   public String create(@Valid Reservation reservation, final BindingResult bindingResult, final Model uiModel,
       final HttpServletRequest httpServletRequest) {
 
-    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    reservation.setUser(user.getNameId());
+    reservation.setUser(Security.getUserDetails().getNameId());
 
     reservationValidator.validate(reservation, bindingResult);
 
@@ -117,9 +117,7 @@ public class ReservationController {
   public String update(@Valid final Reservation reservation, final BindingResult bindingResult, final Model uiModel,
       final HttpServletRequest httpServletRequest) {
 
-    // First add meta information, then validate
-    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    reservation.setUser(user.getDisplayName());
+    reservation.setUser(Security.getUserDetails().getDisplayName());
 
     reservationValidator.validate(reservation, bindingResult);
     if (bindingResult.hasErrors()) {

@@ -26,7 +26,9 @@ import static org.junit.Assert.assertTrue;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -42,6 +44,7 @@ public class ReservationValidatorTest {
   @Before
   public void setUp() {
     subject = new ReservationValidator();
+    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:bandwidth-on-demand").create());
   }
 
   @Test

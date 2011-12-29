@@ -21,7 +21,6 @@
  */
 package nl.surfnet.bod.support;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
@@ -30,6 +29,8 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 
+import com.google.common.collect.Lists;
+
 public class VirtualResourceGroupFactory {
 
   private static final AtomicLong COUNTER = new AtomicLong();
@@ -37,10 +38,10 @@ public class VirtualResourceGroupFactory {
   private Long id = COUNTER.getAndIncrement();
   private Integer version;
   private String name;
-  private String surfConnextGroupName;
+  private String surfConnextGroupName = "urn:bandwidth-on-demand";
 
-  private Collection<VirtualPort> virtualPorts = new ArrayList<VirtualPort>();
-  private Collection<Reservation> reservations = new ArrayList<Reservation>();
+  private Collection<VirtualPort> virtualPorts = Lists.newArrayList();
+  private Collection<Reservation> reservations = Lists.newArrayList();
 
   public VirtualResourceGroup create() {
     VirtualResourceGroup vRGroup = new VirtualResourceGroup();

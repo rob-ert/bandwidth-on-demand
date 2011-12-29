@@ -24,21 +24,19 @@ package nl.surfnet.bod.support;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.support.PhysicalPortFactory;
 
 /**
  * Factory for creation of {@link VirtualPort}
- * 
+ *
  * @author Franky
- * 
+ *
  */
 public class VirtualPortFactory {
 
   private Long id;
   private Integer version;
-  private VirtualPort virtualPort;
-
   private String name;
+  private VirtualPort virtualPort;
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
   private PhysicalPort physicalPort = new PhysicalPortFactory().create();
 
@@ -59,8 +57,8 @@ public class VirtualPortFactory {
     this.name = name;
     return this;
   }
-    
-  
+
+
   public VirtualPortFactory setVirtualResourceGroup(VirtualResourceGroup virtualResourceGroup) {
     this.virtualResourceGroup = virtualResourceGroup;
     return this;
@@ -70,8 +68,8 @@ public class VirtualPortFactory {
     this.physicalPort = physicalPort;
     return this;
   }
-  
-  
-  
+
+
+
 
 }

@@ -22,6 +22,8 @@
 package nl.surfnet.bod.domain.validator;
 
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -46,14 +48,28 @@ public class ReservationValidator implements Validator {
   }
 
   private void validatePorts(Errors errors, Reservation reservation) {
-    if (reservation.getSourcePort() == null || reservation.getDestinationPort() == null) {
+    VirtualPort sourcePort = reservation.getSourcePort();
+    VirtualPort destinationPort = reservation.getDestinationPort();
+
+    if (sourcePort == null || destinationPort == null) {
       return;
     }
 
-    if (reservation.getSourcePort().equals(reservation.getDestinationPort())) {
+    if (sourcePort.equals(destinationPort)) {
       errors.reject("validation.reservation.sameports", "Source and Destination port should be different");
       errors.rejectValue("sourcePort", "", "");
       errors.rejectValue("destinationPort", "", "");
+    }
+
+    String groupNameOfSource = sourcePort.getVirtualResourceGroup().getSurfConnextGroupName();
+    String groupNameOfDestination = destinationPort.getVirtualResourceGroup().getSurfConnextGroupName();
+
+    if (!groupNameOfSource.equals(groupNameOfDestination)) {
+      errors.reject("validation.reservation.security", "Ports are not in the same virtualResourceGroup");
+    }
+
+    if (!Security.getUserDetails().getUserGroupIds().contains(groupNameOfSource)) {
+      errors.reject("validation.reservation.security", "You can not select this port");
     }
   }
 
