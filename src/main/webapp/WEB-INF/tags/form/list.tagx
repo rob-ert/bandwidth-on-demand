@@ -4,20 +4,12 @@
     
     <jsp:output omit-xml-declaration="yes" />
 
-    <jsp:directive.attribute name="id" type="java.lang.String" required="true" rtexprvalue="true"
-        description="The identifier for this tag (do not change!)" />
-    <jsp:directive.attribute name="items" type="java.util.Collection" required="true" rtexprvalue="true"
-        description="The form backing object name" />
-    <jsp:directive.attribute name="label" type="java.lang.String" required="false" rtexprvalue="true"
-        description="The label used for this object, will default to a message bundle if not supplied" />
-    <jsp:directive.attribute name="labelPlural" type="java.lang.String" required="false" rtexprvalue="true"
-        description="The label used for this object, will default to a message bundle if not supplied" />
-    <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true"
-        description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
-    <jsp:directive.attribute name="openPane" type="java.lang.Boolean" required="false" rtexprvalue="true"
-        description="Control if the title pane is opened or closed by default (default: true)" />
-    <jsp:directive.attribute name="z" type="java.lang.String" required="false"
-        description="Used for checking if element has been modified (to recalculate simply provide empty string value)" />
+    <jsp:directive.attribute name="id" type="java.lang.String" required="true" rtexprvalue="true" description="The identifier for this tag (do not change!)" />
+    <jsp:directive.attribute name="items" type="java.util.Collection" required="true" rtexprvalue="true" description="The form backing object name" />
+    <jsp:directive.attribute name="label" type="java.lang.String" required="false" rtexprvalue="true" description="The label used for this object, will default to a message bundle if not supplied" />
+    <jsp:directive.attribute name="labelPlural" type="java.lang.String" required="false" rtexprvalue="true" description="The label used for this object, will default to a message bundle if not supplied" />
+    <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
+    <jsp:directive.attribute name="openPane" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Control if the title pane is opened or closed by default (default: true)" />
 
     <c:if test="${empty render or render}">
         <c:if test="${empty label}">

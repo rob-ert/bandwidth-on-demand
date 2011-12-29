@@ -6,14 +6,14 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <form:create id="fc_nl_surfnet_bod_domain_PhysicalPort" modelAttribute="physicalPort" path="/noc/physicalports" render="${empty dependencies}">
-		<input id="name" name="name" type="hidden" value="${physicalPort.name}"/>
-        <field:input field="name" id="c_nl_surfnet_bod_domain_PhysicalPort_name" disabled="true" />        
-        <field:input field="displayName" id="c_nl_surfnet_bod_domain_PhysicalPort_displayname" disabled="true" />
-        
-        <field:select field="physicalResourceGroup" id="c_nl_surfnet_bod_domain_PhysicalPort_physicalResourceGroup"
-            itemValue="id" items="${physicalResourceGroupList}" path="/noc/physicalresourcegroups" required="false" />
-            
+    <form:create id="fc_PhysicalPort" modelAttribute="physicalPort" path="/noc/physicalports"
+        render="${empty dependencies}">
+        <input id="name" name="name" type="hidden" value="${physicalPort.name}" />
+        <field:input field="name" id="c_PhysicalPort_name" disabled="true" />
+        <field:input field="displayName" id="c_PhysicalPort_displayname" disabled="true" />
+        <field:select field="physicalResourceGroup" id="c_PhysicalPort_physicalResourceGroup" itemValue="id"
+            items="${physicalResourceGroupList}" path="/noc/physicalresourcegroups" required="false" />
+
     </form:create>
 
 </div>

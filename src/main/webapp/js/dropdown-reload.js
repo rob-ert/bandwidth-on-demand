@@ -14,7 +14,7 @@
 				} else {
 					$(otherSelect).html(options);
 				}
-			})
+			});
 		});
-	}
+	};
 })(jQuery);

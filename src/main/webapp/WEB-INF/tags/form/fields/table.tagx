@@ -10,14 +10,11 @@
     <jsp:directive.attribute name="data" type="java.util.Collection" required="true" rtexprvalue="true" description="The collection to be displayed in the table" />
     <jsp:directive.attribute name="path" type="java.lang.String" required="true" rtexprvalue="true" description="Specify the URL path" />
     <jsp:directive.attribute name="typeIdFieldName" type="java.lang.String" required="false" rtexprvalue="true" description="The identifier field name for the type (defaults to 'id')" />
-    <jsp:directive.attribute name="update" type="java.lang.Boolean" required="false" rtexprvalue="true"
-        description="Include 'update' link into table (default true)" />
-    <jsp:directive.attribute name="delete" type="java.lang.Boolean" required="false" rtexprvalue="true"
-        description="Include 'delete' link into table (default true)" />    
+    <jsp:directive.attribute name="update" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Include 'update' link into table (default true)" />
+    <jsp:directive.attribute name="delete" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Include 'delete' link into table (default true)" />    
     <jsp:directive.attribute name="icon_url" type="java.lang.String" required="false" rtexprvalue="true" description="The url for the icon to display" />  
     <jsp:directive.attribute name="icon_label" type="java.lang.String" required="false" rtexprvalue="true" description="The label for the icon to display" />    
-    <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true"
-        description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
+    <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
 	
     <c:if test="${empty render or render}">
 
@@ -46,7 +43,7 @@
         </c:if>
 
         <spring:message var="typeName"
-            code="menu_item_${fn:toLowerCase(fn:split(id,'_')[fn:length(fn:split(id,'_')) - 1])}_new_label"
+            code="label_${fn:toLowerCase(fn:split(id,'_')[fn:length(fn:split(id,'_')) - 1])}"
             htmlEscape="false" />
         <c:set var="lengths" value="${fn:split(columnMaxLengths, ',')}" scope="request" />
         <c:set var="types" value="${fn:split(columnTypes, ',')}" scope="request" />
@@ -115,9 +112,7 @@
                         </a>
                     </c:if>
                     <c:if test="${delete}">
-                        <spring:url value="${path}/delete" var="delete_form_url">
-                            <spring:param name="id" value="${itemId}" />
-                        </spring:url>
+                        <spring:url value="${path}/delete" var="delete_form_url" />
                         <spring:url value="/resources/images/delete.png" var="delete_image_url" />
                         <form:form action="${delete_form_url}" method="DELETE">
                             <spring:message arguments="${typeName}" code="entity_delete" var="delete_label" htmlEscape="false" />
@@ -126,6 +121,7 @@
                                     <spring:message code="entity_delete_confirm" />
                                 </spring:escapeBody>
                             </c:set>
+                            <input type="hidden" name="id" value="${itemId}" />
                             <input alt="${fn:escapeXml(delete_label)}" class="image" src="${delete_image_url}"
                                 title="${fn:escapeXml(delete_label)}" type="image"
                                 value="${fn:escapeXml(delete_label)}"
@@ -136,9 +132,7 @@
                         </form:form>
                     </c:if>
                     <c:if test="${icon and not empty item.id}">
-                        <spring:url value="${path}/delete" var="icon_form_url">
-                            <spring:param name="id" value="${itemId}"/>
-                        </spring:url>
+                        <spring:url value="${path}/delete" var="icon_form_url" />
                         <spring:url value="${icon_url}" var="icon_image_url" />
                         <form:form action="${icon_form_url}" method="DELETE">                                
                             <c:set var="icon_confirm_msg">
@@ -146,6 +140,7 @@
                                     <spring:message text="${fn:escapeXml(icon_label)}?" />
                                 </spring:escapeBody>
                             </c:set>
+                            <input type="hidden" name="id" value="${itemId}" />
                             <input alt="${fn:escapeXml(icon_label)}" class="image" src="${icon_image_url}"
                                 title="${fn:escapeXml(icon_label)}" type="image"
                                 value="${fn:escapeXml(icon_label)}"

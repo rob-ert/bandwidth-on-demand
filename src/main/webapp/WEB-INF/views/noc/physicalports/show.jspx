@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <div xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields" xmlns:jsp="http://java.sun.com/JSP/Page"
     xmlns:page="urn:jsptagdir:/WEB-INF/tags/form">
-    
+
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-    
-    <page:show id="ps_nl_surfnet_bod_domain_PhysicalPort" object="${physicalPort}" path="/noc/physicalports"  create="false"  delete="false" icon_url="/resources/images/link_break.png" icon_label="Unlink Physical Resource Group">
-        <field:display field="name" id="s_nl_surfnet_bod_domain_PhysicalPort_name" object="${physicalPort}" />
-        <field:display field="physicalResourceGroup" id="s_nl_surfnet_bod_domain_PhysicalPort_physicalResourceGroup"
-            object="${physicalPort}" />
+
+    <page:show id="ps_PhysicalPort" object="${physicalPort}" path="/noc/physicalports" create="false" delete="false"
+        icon_url="${empty physicalPort.id ? '' : '/resources/images/link_break.png'}"
+        icon_label="Unlink Physical Resource Group" typeIdFieldName="${empty physicalPort.id ? 'name' : 'id'}">
+        <field:display field="name" id="s_PhysicalPort_name" object="${physicalPort}" />
+        <field:display field="physicalResourceGroup" id="s_PhysicalPort_physicalResourceGroup" object="${physicalPort}" />
     </page:show>
 </div>

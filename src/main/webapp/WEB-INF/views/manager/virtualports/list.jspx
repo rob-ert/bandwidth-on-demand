@@ -5,12 +5,12 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
         
-     <page:list id="pl_nl_surfnet_bod_domain_virtualport" items="${virtualPortList}">
-        <table:table data="${virtualPortList}" id="l_nl_surfnet_bod_domain_VirtualPort" path="/manager/virtualports" typeIdFieldName="id">
-            <table:column id="label_nl_surfnet_bod_domain_virtualport" property="name" />            
-            <table:column id="label_nl_surfnet_bod_domain_virtualresourcegroup" property="virtualResourceGroup" />
-            <table:column id="label_nl_surfnet_bod_domain_physicalresourcegroup" property="physicalResourceGroup" />
-            <table:column id="label_nl_surfnet_bod_domain_physicalport" property="physicalPort" />
+     <page:list id="pl_virtualport" items="${virtualPortList}">
+        <table:table data="${virtualPortList}" id="l_VirtualPort" path="/manager/virtualports" typeIdFieldName="id">
+            <table:column labelCode="virtualPort" id="virtualport" property="name" />
+            <table:column labelCode="virtualResourceGroup" id="virtualresourcegroup" property="virtualResourceGroup" />
+            <table:column labelCode="physicalResourceGroup" id="physicalresourcegroup" property="physicalResourceGroup" />
+            <table:column labelCode="physicalPort" id="physicalport" property="physicalPort" />
         </table:table>
     </page:list>    
 </div>

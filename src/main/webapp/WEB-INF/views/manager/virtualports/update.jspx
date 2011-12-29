@@ -10,21 +10,21 @@
     
     <spring:url value="/physicalresourcegroups/{}/ports" var="ppUrl"/>
 
-	<form:update id="fc_nl_surfnet_bod_domain_VirtualPort" modelAttribute="virtualPort" path="/manager/virtualports" render="${empty dependencies}">
-    
-        <field:input field="name" id="name" labelCode="nl_surfnet_bod_domain_virtualport_name" required="true" />
+    <form:update id="fc_VirtualPort" modelAttribute="virtualPort" path="/manager/virtualports"
+        render="${empty dependencies}">
 
-        <field:select items="${virtualResourceGroups}" field="virtualResourceGroup" labelCode="nl_surfnet_bod_domain_virtualresourcegroup"
-            id="virtualresourcegroup" itemValue="id" path="/manager/virtualports"
-            required="true" />
+        <field:input field="name" id="name" labelCode="virtualport_name" required="true" />
+
+        <field:select items="${virtualResourceGroups}" field="virtualResourceGroup" labelCode="virtualresourcegroup"
+            id="virtualresourcegroup" itemValue="id" path="/manager/virtualports" required="true" />
 
         <fieldset>
             <legend>Specify the physical port</legend>
-            <field:select items="${physicalResourceGroups}" id="physicalResourceGroup" labelCode="nl_surfnet_bod_domain_physicalresourcegroup"
+            <field:select items="${physicalResourceGroups}" id="physicalResourceGroup" labelCode="physicalresourcegroup"
                 itemValue="id" field="physicalResourceGroup" path="/noc/physicalresourcegroups" create="false" />
-            
-            <field:select items="${physicalPorts}" id="physicalPort" labelCode="nl_surfnet_bod_domain_physicalport"
-                itemValue="id" field="physicalPort" path="/manager/virtualports" create="false"/>
+
+            <field:select items="${physicalPorts}" id="physicalPort" labelCode="physicalport" itemValue="id"
+                field="physicalPort" path="/manager/virtualports" create="false" />
         </fieldset>
     </form:update>
 

@@ -5,10 +5,10 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
     
-    <page:show id="ps_nl_surfnet_bod_domain_virtualports" object="${virtualPort}" path="/manager/virtualports"  >
-        <field:display field="name" id="s_nl_surfnet_bod_domain_VirtualPort" object="${virtualPort}" />
-        <field:display field="virtualResourceGroup" id="s_nl_surfnet_bod_domain_VirtualResourceGroup" object="${virtualPort}" />
-        <field:display field="physicalResourceGroup" id="s_nl_surfnet_bod_domain_PhysicalResourceGroup" object="${virtualPort}" />
-        <field:display field="physicalPort" id="s_nl_surfnet_bod_domain_PhysicalPort" object="${virtualPort}" />
+    <page:show id="ps_virtualport" object="${virtualPort}" path="/manager/virtualports"  >
+        <field:display field="name" id="s_VirtualPort" object="${virtualPort}" />
+        <field:display field="virtualResourceGroup" id="s_VirtualResourceGroup" object="${virtualPort}" />
+        <field:display field="physicalResourceGroup" id="s_PhysicalResourceGroup" object="${virtualPort}" />
+        <field:display field="physicalPort" id="s_PhysicalPort" object="${virtualPort}" />
     </page:show>
 </div>

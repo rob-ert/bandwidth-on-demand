@@ -7,17 +7,17 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <form:create id="fc_nl_surfnet_bod_domain_PhysicalResourceGroup" modelAttribute="physicalResourceGroup"
-        path="/noc/physicalresourcegroups" render="${empty dependencies}">
+    <form:create id="fc_PhysicalResourceGroup" modelAttribute="physicalResourceGroup" path="/noc/physicalresourcegroups"
+        render="${empty dependencies}">
 
         <field:input field="name" id="name" labelCode="physicalresourcegroup_name" required="true" />
 
         <field:suggestion-input field="institutionName" labelCode="physicalresourcegroup_institutionName"
-            suggestionUrl="/institutions"  />
+            suggestionUrl="/institutions" />
 
         <field:input field="adminGroup" id="adminGroup" labelCode="physicalresourcegroup_adminGroup"
             helpMessageCode="physicalresourcegroup_adminGroup" />
-            
+
     </form:create>
 
 </div>
