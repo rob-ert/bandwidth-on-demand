@@ -55,7 +55,6 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   @Override
   protected void installFormatters(final FormatterRegistry registry) {
     super.installFormatters(registry);
-    // Register application converters and formatters
   }
 
   public Converter<PhysicalPort, String> getPhysicalPortToStringConverter() {
