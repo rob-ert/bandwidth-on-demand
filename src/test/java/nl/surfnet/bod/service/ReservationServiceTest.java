@@ -30,10 +30,13 @@ import static org.mockito.Mockito.when;
 import java.util.Collection;
 
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -56,15 +59,6 @@ public class ReservationServiceTest {
 
   @Mock
   private ReservationRepo reservationRepoMock;
-
-  @Test
-  public void aNewReservationShoulBePending() {
-    Reservation reservation = new ReservationFactory().create();
-
-    subject.makeReservation(reservation);
-
-    assertThat(reservation.getStatus(), is(ReservationStatus.PENDING));
-  }
 
   @Test
   public void whenTheUserHasNoGroupsTheReservationsShouldBeEmpty() {
@@ -97,6 +91,19 @@ public class ReservationServiceTest {
     long count = subject.count();
 
     assertThat(count, is(0L));
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void differentVirtualResrouceGroupsShouldGiveAnIllegalStateException() {
+    VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().create();
+    VirtualResourceGroup vrg2 = new VirtualResourceGroupFactory().create();
+    VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg1).create();
+    VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg2).create();
+
+    Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg1).setSourcePort(source)
+        .setDestinationPort(destination).create();
+
+    subject.save(reservation);
   }
 
 }

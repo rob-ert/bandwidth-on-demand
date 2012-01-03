@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import java.util.Collection;
 import java.util.Collections;
 
@@ -30,7 +32,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -49,6 +50,9 @@ public class ReservationService {
   private ReservationRepo reservationRepo;
 
   public void save(Reservation reservation) {
+    checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
+    checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
+
     reservationRepo.save(reservation);
   }
 
@@ -86,19 +90,14 @@ public class ReservationService {
   }
 
   public Reservation update(Reservation reservation) {
+    checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
+    checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
+
     return reservationRepo.save(reservation);
   }
 
   public void delete(Reservation reservation) {
     reservationRepo.delete(reservation);
-  }
-
-  public ReservationStatus makeReservation(Reservation reservation) {
-    ReservationStatus reservationStatus = ReservationStatus.PENDING;
-
-    // TODO Should go to the 'real' thing
-
-    return reservationStatus;
   }
 
 }

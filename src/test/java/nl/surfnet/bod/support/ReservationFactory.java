@@ -33,10 +33,10 @@ public class ReservationFactory {
 
   private Long id;
   private Integer version;
-  private VirtualResourceGroup vRGroup = new VirtualResourceGroupFactory().create();
+  private VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().create();
   private ReservationStatus reservationStatus = ReservationStatus.PENDING;
-  private VirtualPort sourcePort = new VirtualPortFactory().create();
-  private VirtualPort destinationPort = new VirtualPortFactory().create();
+  private VirtualPort sourcePort;
+  private VirtualPort destinationPort;
   private LocalDate startDate = LocalDate.now();
   private LocalDate endDate = LocalDate.now().plusDays(1);
   private LocalTime startTime = new LocalTime(12, 0);
@@ -44,6 +44,11 @@ public class ReservationFactory {
   private String user = "urn:truusvisscher";
 
   public Reservation create() {
+    if (vrGroup != null) {
+      sourcePort = sourcePort == null ? new VirtualPortFactory().setVirtualResourceGroup(vrGroup).create() : sourcePort;
+      destinationPort = destinationPort == null ? new VirtualPortFactory().setVirtualResourceGroup(vrGroup).create()
+          : destinationPort;
+    }
 
     Reservation reservation = new Reservation();
     reservation.setId(id);
@@ -51,7 +56,7 @@ public class ReservationFactory {
     reservation.setStatus(reservationStatus);
     reservation.setSourcePort(sourcePort);
     reservation.setDestinationPort(destinationPort);
-    reservation.setVirtualResourceGroup(vRGroup);
+    reservation.setVirtualResourceGroup(vrGroup);
     reservation.setStartDate(startDate);
     reservation.setStartTime(startTime);
     reservation.setEndDate(endDate);
@@ -72,7 +77,7 @@ public class ReservationFactory {
   }
 
   public ReservationFactory setVirtualResourceGroup(VirtualResourceGroup vRGroup) {
-    this.vRGroup = vRGroup;
+    this.vrGroup = vRGroup;
     return this;
   }
 
