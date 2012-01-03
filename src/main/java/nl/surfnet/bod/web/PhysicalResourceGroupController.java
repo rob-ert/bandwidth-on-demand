@@ -22,9 +22,12 @@
 package nl.surfnet.bod.web;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -42,6 +45,12 @@ public class PhysicalResourceGroupController {
 
   @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET)
   public @ResponseBody Collection<PhysicalPort> listForPhysicalResourceGroup(@PathVariable Long id) {
-    return physicalResourceGroupService.find(id).getPhysicalPorts();
+    PhysicalResourceGroup group = physicalResourceGroupService.find(id);
+
+    if (group == null || Security.isUserNotMemberOf(group.getAdminGroup())) {
+      return Collections.emptyList();
+    }
+
+    return group.getPhysicalPorts();
   }
 }

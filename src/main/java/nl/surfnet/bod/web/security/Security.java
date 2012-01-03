@@ -37,6 +37,14 @@ public final class Security {
     return (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
   }
 
+  public static boolean isUserMemberOf(String groupId) {
+    return getUserDetails().getUserGroupIds().contains(groupId);
+  }
+
+  public static boolean isUserNotMemberOf(String groupId) {
+    return !isUserMemberOf(groupId);
+  }
+
   /**
    * Set the current logged in user. (Should only be used from tests).
    *
