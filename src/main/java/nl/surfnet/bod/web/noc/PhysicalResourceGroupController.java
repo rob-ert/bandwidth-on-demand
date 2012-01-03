@@ -130,8 +130,4 @@ public class PhysicalResourceGroupController {
 
     return "redirect:";
   }
-
-  protected void setPhysicalResourceGroupService(PhysicalResourceGroupService physicalResourceGroupService) {
-    this.physicalResourceGroupService = physicalResourceGroupService;
-  }
 }

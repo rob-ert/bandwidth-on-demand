@@ -27,7 +27,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -37,24 +36,23 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 
 import com.google.common.collect.Lists;
 
+@RunWith(MockitoJUnitRunner.class)
 public class PhysicalResourceGroupControllerTest {
 
+  @InjectMocks
   private PhysicalResourceGroupController subject;
 
+  @Mock
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
-
-  @Before
-  public void initController() {
-    subject = new PhysicalResourceGroupController();
-    physicalResourceGroupServiceMock = mock(PhysicalResourceGroupService.class);
-    subject.setPhysicalResourceGroupService(physicalResourceGroupServiceMock);
-  }
 
   @Test
   public void listShouldSetGroupsAndMaxPages() {
