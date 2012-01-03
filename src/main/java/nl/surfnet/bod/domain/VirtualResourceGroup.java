@@ -27,6 +27,8 @@ import javax.persistence.*;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.google.common.base.Objects;
+
 /**
  * Entity which represents a List of {@link VirtualPort}s which belong together
  * and to the {@link Reservation}s which are related to this group.
@@ -112,7 +114,8 @@ public class VirtualResourceGroup {
 
   @Override
   public String toString() {
-
-    return name;
+    return Objects.toStringHelper(this)
+        .add("id", getId())
+        .add("name", getName()).toString();
   }
 }
