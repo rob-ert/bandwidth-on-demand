@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping("/virtualresourcegroup")
+@RequestMapping("/virtualresourcegroups")
 public class VirtualResourceGroupController {
 
   @Autowired

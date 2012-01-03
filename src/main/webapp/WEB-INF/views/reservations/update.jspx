@@ -7,7 +7,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
     
-    <spring:url value="/virtualresourcegroup/{}/ports" var="vpUrl" />
+    <spring:url value="/virtualresourcegroups/{}/ports" var="vpUrl" />
 
     <form:update id="fc_reservation" modelAttribute="reservation"
         path="/reservations" render="${empty dependencies}">
