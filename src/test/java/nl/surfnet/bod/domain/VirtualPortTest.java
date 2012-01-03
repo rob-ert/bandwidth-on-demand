@@ -21,31 +21,43 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import nl.surfnet.bod.support.PhysicalPortFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class VirtualPortTest {
 
-  private static final String PHYSICAL_PORT_NAME = "portName";
-  private PhysicalPort physicalPort;
-  private VirtualResourceGroup virtualResourceGroup;
+  @Test
+  public void getPhysicalResourceGroup() {
+    PhysicalResourceGroup physicalGroup = new PhysicalResourceGroupFactory().create();
+    PhysicalPort physicalPort = new PhysicalPortFactory().setPhysicalResourceGroup(physicalGroup).create();
+    VirtualPort port = new VirtualPortFactory().setPhysicalPort(physicalPort).create();
 
-  @Before
-  public void setUp() {
-    physicalPort = new PhysicalPortFactory().setName(PHYSICAL_PORT_NAME).create();
-    virtualResourceGroup = new VirtualResourceGroupFactory().create();
+    PhysicalResourceGroup group = port.getPhysicalResourceGroup();
+
+    assertThat(group, is(physicalGroup));
   }
 
   @Test
-  public void testSetters() {
-    VirtualPort vPort = new VirtualPortFactory().setName("vPortName").setPhysicalPort(physicalPort).setVirtualResourceGroup(virtualResourceGroup).create();
+  public void getPhysicalResourceGroup2() {
+    VirtualPort port = new VirtualPortFactory().setPhysicalPort(null).create();
 
-    assertEquals(vPort.getPhysicalPort(), physicalPort);
-    assertEquals(vPort.getVirtualResourceGroup(), virtualResourceGroup);
+    PhysicalResourceGroup group = port.getPhysicalResourceGroup();
+
+    assertThat(group, nullValue());
   }
+
+  @Test
+  public void toStringShouldContainName() {
+    VirtualPort port = new VirtualPortFactory().setName("great port").create();
+
+    assertThat(port.toString(), containsString("great port"));
+  }
+
 }
