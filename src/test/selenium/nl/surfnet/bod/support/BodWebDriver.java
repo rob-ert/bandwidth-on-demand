@@ -108,7 +108,7 @@ public class BodWebDriver {
   public NewVirtualResourceGroupPage createNewVirtualResourceGroup(String name) throws Exception {
     NewVirtualResourceGroupPage page = NewVirtualResourceGroupPage.get(driver, URL_UNDER_TEST);
     page.sendName(name);
-    page.sendSurfConnextGroupName(name);
+    page.sendSurfConextGroupName(name);
     page.save();
 
     return page;

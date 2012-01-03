@@ -7,7 +7,7 @@
     
     <page:show id="ps_VirtualResourceGroup" object="${virtualResourceGroup}" path="/manager/virtualresourcegroups"  >
         <field:display field="name" id="s_VirtualResourceGroup_name" object="${virtualResourceGroup}" />
-        <field:display field="surfConnextGroupName" id="s_VirtualResourceGroup_surfConnextGroupName" object="${virtualResourceGroup}" />
+        <field:display field="surfConextGroupName" id="s_VirtualResourceGroup_surfConextGroupName" object="${virtualResourceGroup}" />
         <field:display field="virtualPorts" id="ports" object="${virtualResourceGroup}" labelCode="virtualResourceGroup_virtualPorts" list="true" />
     </page:show>
 </div>

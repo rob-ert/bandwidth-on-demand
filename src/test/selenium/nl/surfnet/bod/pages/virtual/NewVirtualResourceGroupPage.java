@@ -35,8 +35,8 @@ public class NewVirtualResourceGroupPage {
   private static final String PAGE = "/manager/"
       + VirtualResourceGroupController.PAGE_URL + WebUtils.CREATE;
 
-  @FindBy(id = "_surfConnextGroupName_id")
-  private WebElement surfConnextGroupNameInput;
+  @FindBy(id = "_surfConextGroupName_id")
+  private WebElement surfConextGroupNameInput;
 
   @FindBy(id = "_name_id")
   private WebElement nameInput;
@@ -65,9 +65,9 @@ public class NewVirtualResourceGroupPage {
     return page;
   }
 
-  public void sendSurfConnextGroupName(String name) {
-    surfConnextGroupNameInput.clear();
-    surfConnextGroupNameInput.sendKeys(name);
+  public void sendSurfConextGroupName(String name) {
+    surfConextGroupNameInput.clear();
+    surfConextGroupNameInput.sendKeys(name);
   }
 
   public void sendName(String name) {

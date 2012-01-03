@@ -85,7 +85,7 @@ public class ReservationService {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(root.get("virtualResourceGroup").get("surfConnextGroupName").in(user.getUserGroupIds()));
+        return cb.and(root.get("virtualResourceGroup").get("surfConextGroupName").in(user.getUserGroupIds()));
       }
     };
   }

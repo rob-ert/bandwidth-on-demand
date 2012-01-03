@@ -31,8 +31,8 @@ insert into physical_port (id, display_name, name, physical_resource_group, vers
 insert into physical_port (id, display_name, name, physical_resource_group, version) values (5, 'mgmt.3960-02t.asd001a.dcn.surf.net_Port1', '00:03:18:80:7c:e0_Port1_dummy', 2, 0);
 insert into physical_port (id, display_name, name, physical_resource_group, version) values (6, '3960-01.asd001a.dcn.surf.net_Port2049', '00:03:18:87:06:40_Port2049_dummy', 2, 0);
 
-insert into virtual_resource_group (id, name, surf_connext_group_name, version) values (1, 'vrg1', 'urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:institution-users', 0);
-insert into virtual_resource_group (id, name, surf_connext_group_name, version) values (2, 'vrg2', 'urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:institution-users2', 0);
+insert into virtual_resource_group (id, name, surf_conext_group_name, version) values (1, 'vrg1', 'urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:institution-users', 0);
+insert into virtual_resource_group (id, name, surf_conext_group_name, version) values (2, 'vrg2', 'urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:institution-users2', 0);
 
 insert into virtual_port (id, name, physical_port, version, virtual_resource_group) values (1, 'vp1-1', 1, 0, 1);
 insert into virtual_port (id, name, physical_port, version, virtual_resource_group) values (2, 'vp2-1', 2, 0, 1);

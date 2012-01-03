@@ -12,9 +12,9 @@
 
         <field:input field="name" id="name" labelCode="virtualresourcegroup_name" required="true" />
 
-        <field:input field="surfConnextGroupName" id="surfConnextGroupName"
-            helpMessageCode="virtualresourcegroup_surfconnextgroupname"
-            labelCode="virtualresourcegroup_surfconnextgroupname" required="true" />
+        <field:input field="surfConextGroupName" id="surfConextGroupName"
+            helpMessageCode="virtualresourcegroup_surfconextgroupname"
+            labelCode="virtualresourcegroup_surfconextgroupname" required="true" />
 
     </form:create>
 

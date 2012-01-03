@@ -73,8 +73,8 @@ public class VirtualResourceGroupService {
     return virtualResourceGroupRepo.findByName(name);
   }
 
-  public VirtualResourceGroup findBySurfConnextGroupName(String surfConnextGroupName) {
-    return virtualResourceGroupRepo.findBySurfConnextGroupName(surfConnextGroupName);
+  public VirtualResourceGroup findBySurfConextGroupName(String surfConextGroupName) {
+    return virtualResourceGroupRepo.findBySurfConextGroupName(surfConextGroupName);
   }
 
   public Collection<VirtualResourceGroup> findAllForUser(RichUserDetails user) {
@@ -84,7 +84,7 @@ public class VirtualResourceGroupService {
       return Collections.emptyList();
     }
 
-    return virtualResourceGroupRepo.findBySurfConnextGroupNameIn(groups);
+    return virtualResourceGroupRepo.findBySurfConextGroupNameIn(groups);
   }
 
   void setVirtualResourceGroupRepo(VirtualResourceGroupRepo virtualResourceGroupRepo) {

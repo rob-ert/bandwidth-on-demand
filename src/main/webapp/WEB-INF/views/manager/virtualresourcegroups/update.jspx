@@ -11,7 +11,7 @@
 	<form:update id="fc_VirtualResourceGroup" modelAttribute="virtualResourceGroup" path="/manager/virtualresourcegroups" render="${empty dependencies}">
 		<input id="id" name="id" type="hidden" value="${virtualResourceGroup.id}" />
 		<field:input field="name" id="c_VirtualResourceGroup_name" />
-		<field:input field="surfConnextGroupName" id="c_VirtualResourceGroup_surfConnextGroupName" />
+		<field:input field="surfConextGroupName" id="c_VirtualResourceGroup_surfConextGroupName" />
 	</form:update>
 
 </div>

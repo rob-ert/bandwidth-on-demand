@@ -47,7 +47,7 @@ public class VirtualResourceGroupController {
   public @ResponseBody Collection<VirtualPort> listForVirtualResourceGroup(@PathVariable Long id) {
     VirtualResourceGroup group = virtualResourceGroupService.find(id);
 
-    if (group == null || Security.isUserNotMemberOf(group.getSurfConnextGroupName())) {
+    if (group == null || Security.isUserNotMemberOf(group.getSurfConextGroupName())) {
       return Collections.emptyList();
     }
 

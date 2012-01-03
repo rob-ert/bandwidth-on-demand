@@ -54,7 +54,7 @@ public class VirtualResourceGroupControllerTest {
   public void shouldFindPortsForVirtualResourceGroupId() {
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:group").create());
 
-    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfConnextGroupName("urn:group")
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:group")
         .addVirtualPorts(new VirtualPortFactory().create()).create();
 
     when(vrgServiceMock.find(2L)).thenReturn(vrg);
@@ -76,7 +76,7 @@ public class VirtualResourceGroupControllerTest {
   @Test
   public void whenUserIsNotAMemberOfGroupPortShouldBeEmpty() {
     Security.setUserDetails(new RichUserDetailsFactory().create());
-    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfConnextGroupName("urn:group")
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:group")
         .addVirtualPorts(new VirtualPortFactory().create()).create();
 
     when(vrgServiceMock.find(2L)).thenReturn(vrg);

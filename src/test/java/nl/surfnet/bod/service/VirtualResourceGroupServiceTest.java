@@ -61,7 +61,7 @@ public class VirtualResourceGroupServiceTest {
 
     RichUserDetails loggedInUser = new RichUserDetailsFactory().addUserGroup(groupOfLoggedInUser).create();
 
-    when(groupRepoMock.findBySurfConnextGroupNameIn(Lists.newArrayList(groupOfLoggedInUser))).thenReturn(
+    when(groupRepoMock.findBySurfConextGroupNameIn(Lists.newArrayList(groupOfLoggedInUser))).thenReturn(
         ImmutableList.of(vGroup));
 
     Collection<VirtualResourceGroup> groups = virtualResourceGroupService.findAllForUser(loggedInUser);

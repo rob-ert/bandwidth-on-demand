@@ -31,7 +31,7 @@ import org.springframework.validation.Validator;
 
 /**
  * Validator for the {@link VirtualResourceGroup}. Validates that the
- * {@link VirtualResourceGroup#getSurfConnextGroupName()} is unique and exists
+ * {@link VirtualResourceGroup#getSurfConextGroupName()} is unique and exists
  * in SurfConext.
  *
  * @author Franky

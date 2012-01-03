@@ -57,11 +57,11 @@ public class VirtualResourceGroupValidatorTest {
   }
 
   @Test
-  public void noValidateOnSurfConnextGroupName() {
-    VirtualResourceGroup virtualResourceGroupOne = new VirtualResourceGroupFactory().setSurfConnextGroupName("one")
+  public void noValidateOnSurfConextGroupName() {
+    VirtualResourceGroup virtualResourceGroupOne = new VirtualResourceGroupFactory().setSurfConextGroupName("one")
         .create();
 
-    when(virtualResourceGroupServiceMock.findBySurfConnextGroupName("one")).thenReturn(null);
+    when(virtualResourceGroupServiceMock.findBySurfConextGroupName("one")).thenReturn(null);
     Errors errors = new BeanPropertyBindingResult(virtualResourceGroupOne, "virtualResourceGroup");
 
     subject.validate(virtualResourceGroupOne, errors);
@@ -102,11 +102,11 @@ public class VirtualResourceGroupValidatorTest {
   }
 
   @Test
-  public void testValidateExistingNameAndSurfConnextGroup() {
+  public void testValidateExistingNameAndSurfConextGroup() {
     VirtualResourceGroup virtualResourceGroupOne = new VirtualResourceGroupFactory().setName("one")
-        .setSurfConnextGroupName("surfOne").create();
+        .setSurfConextGroupName("surfOne").create();
 
-    when(virtualResourceGroupServiceMock.findBySurfConnextGroupName("one")).thenReturn(virtualResourceGroupOne);
+    when(virtualResourceGroupServiceMock.findBySurfConextGroupName("one")).thenReturn(virtualResourceGroupOne);
 
     Errors errors = new BeanPropertyBindingResult(virtualResourceGroupOne, "virtualResourceGroup");
     assertFalse(errors.hasErrors());
@@ -114,7 +114,7 @@ public class VirtualResourceGroupValidatorTest {
     subject.validate(virtualResourceGroupOne, errors);
 
     assertFalse(errors.hasFieldErrors("name"));
-    assertFalse(errors.hasFieldErrors("surfConnextGroupName"));
+    assertFalse(errors.hasFieldErrors("surfConextGroupName"));
     assertFalse(errors.hasGlobalErrors());
   }
 
