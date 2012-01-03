@@ -21,7 +21,8 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static nl.surfnet.bod.web.noc.PhysicalPortController.MODEL_KEY;
 import static nl.surfnet.bod.web.noc.PhysicalPortController.MODEL_KEY_LIST;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -41,7 +42,6 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalPortFactory;
-import nl.surfnet.bod.web.noc.PhysicalPortController;
 
 import org.junit.Before;
 import org.junit.Test;

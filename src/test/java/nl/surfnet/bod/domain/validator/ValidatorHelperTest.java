@@ -21,7 +21,7 @@
  */
 package nl.surfnet.bod.domain.validator;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;

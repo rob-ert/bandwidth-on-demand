@@ -56,7 +56,6 @@ public class VirtualResourceGroupValidatorTest {
     assertFalse(subject.supports(Object.class));
   }
 
-
   @Test
   public void noValidateOnSurfConnextGroupName() {
     VirtualResourceGroup virtualResourceGroupOne = new VirtualResourceGroupFactory().setSurfConnextGroupName("one")
@@ -104,7 +103,8 @@ public class VirtualResourceGroupValidatorTest {
 
   @Test
   public void testValidateExistingNameAndSurfConnextGroup() {
-    VirtualResourceGroup virtualResourceGroupOne = new VirtualResourceGroupFactory().setName("one").setSurfConnextGroupName("surfOne").create();
+    VirtualResourceGroup virtualResourceGroupOne = new VirtualResourceGroupFactory().setName("one")
+        .setSurfConnextGroupName("surfOne").create();
 
     when(virtualResourceGroupServiceMock.findBySurfConnextGroupName("one")).thenReturn(virtualResourceGroupOne);
 

@@ -21,15 +21,14 @@
  */
 package nl.surfnet.bod.web.noc;
 
+import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
+import static nl.surfnet.bod.web.noc.PhysicalResourceGroupController.MODEL_KEY_LIST;
 import static org.hamcrest.MatcherAssert.assertThat;
-
 import static org.hamcrest.Matchers.hasEntry;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
-import static nl.surfnet.bod.web.noc.PhysicalResourceGroupController.MODEL_KEY_LIST;
 
 import java.util.List;
 
@@ -37,7 +36,6 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.web.noc.PhysicalResourceGroupController;
 
 import org.junit.Before;
 import org.junit.Test;
