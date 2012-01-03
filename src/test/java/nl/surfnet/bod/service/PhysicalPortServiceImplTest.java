@@ -83,9 +83,12 @@ public class PhysicalPortServiceImplTest {
 
   @Test
   public void allUnallocatedPortsShouldNotContainOnesWithId() {
-    List<PhysicalPort> nbiPorts = Lists.newArrayList(new PhysicalPortFactory().setName("first").create(),
-        new PhysicalPortFactory().setName("second").create());
-    List<PhysicalPort> repoPorts = Lists.newArrayList(new PhysicalPortFactory().setName("first").setId(1L).create());
+    List<PhysicalPort> nbiPorts = Lists.newArrayList(
+        new PhysicalPortFactory().setName("first").setId(null).create(),
+        new PhysicalPortFactory().setId(null).setName("second").create());
+
+    List<PhysicalPort> repoPorts = Lists.newArrayList(
+        new PhysicalPortFactory().setName("first").setId(1L).create());
 
     when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
@@ -98,7 +101,8 @@ public class PhysicalPortServiceImplTest {
 
   @Test(expected = IllegalStateException.class)
   public void findAllPortsWithSameNameShouldGiveAnException() {
-    List<PhysicalPort> nbiPorts = Lists.newArrayList(new PhysicalPortFactory().setName("first").create());
+    List<PhysicalPort> nbiPorts = Lists.newArrayList(
+        new PhysicalPortFactory().setName("first").create());
     List<PhysicalPort> repoPorts = Lists.newArrayList(
         new PhysicalPortFactory().setName("first").create(),
         new PhysicalPortFactory().setName("first").create());

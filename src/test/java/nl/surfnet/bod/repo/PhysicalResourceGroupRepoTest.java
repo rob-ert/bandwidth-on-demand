@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -36,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/appCtx*.xml")
@@ -48,12 +49,8 @@ public class PhysicalResourceGroupRepoTest {
   @Test
   public void testFindByName() {
     String name = "tester";
-
     PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setName(name).create();
-    Collection<PhysicalResourceGroup> physicalResourceGroups = Lists.newArrayList(physicalResourceGroup,
-        new PhysicalResourceGroupFactory().setName("notToBeFound").create());
-
-    subject.save(physicalResourceGroups);
+    given(physicalResourceGroup, new PhysicalResourceGroupFactory().setName("notToBeFound").create());
 
     PhysicalResourceGroup foundPhysicalResourceGroup = subject.findByName(name);
 
@@ -64,18 +61,20 @@ public class PhysicalResourceGroupRepoTest {
   @Test
   public void testFindByAdminGroups() {
     String firstAdminGroup = "urn:firstGroup";
-    Collection<String> adminGroups = Lists.newArrayList(firstAdminGroup, "urn:secondGroup");
+    Collection<String> adminGroups = ImmutableList.of(firstAdminGroup, "urn:secondGroup");
     PhysicalResourceGroup firstPhysicalResourceGroup = new PhysicalResourceGroupFactory().setName("testName")
         .setAdminGroupName(firstAdminGroup).create();
 
-    Collection<PhysicalResourceGroup> physicalResourceGroups = Lists.newArrayList(firstPhysicalResourceGroup,
-        new PhysicalResourceGroupFactory().setAdminGroupName("urn:noMatch").create());
-    subject.save(physicalResourceGroups);
+    given(firstPhysicalResourceGroup, new PhysicalResourceGroupFactory().setAdminGroupName("urn:noMatch").create());
 
     Collection<PhysicalResourceGroup> foundAdminGroups = subject.findByAdminGroupIn(adminGroups);
 
     assertThat(foundAdminGroups, hasSize(1));
     assertThat(foundAdminGroups.iterator().next().getAdminGroup(), is(firstAdminGroup));
+  }
+
+  private void given(PhysicalResourceGroup... groups) {
+    subject.save(Arrays.asList(groups));
   }
 
 }

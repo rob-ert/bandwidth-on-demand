@@ -21,21 +21,32 @@
  */
 package nl.surfnet.bod.web.security;
 
+import java.util.Collections;
+
+import org.springframework.security.access.intercept.RunAsUserToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 public final class Security {
-
-  private static RichUserDetails userDetails;
 
   private Security() {
   }
 
   public static RichUserDetails getUserDetails() {
-    return userDetails == null ? (RichUserDetails) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal() : userDetails;
+    return (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
   }
 
+  /**
+   * Set the current logged in user. (Should only be used from tests).
+   *
+   * @param richUserDetails
+   *          the user details
+   */
   public static void setUserDetails(RichUserDetails richUserDetails) {
-    userDetails = richUserDetails;
+    RunAsUserToken authentication = new RunAsUserToken("A Run As User", richUserDetails, "N/A",
+        Collections.<GrantedAuthority> emptyList(), PreAuthenticatedAuthenticationToken.class);
+
+    SecurityContextHolder.getContext().setAuthentication(authentication);
   }
 }

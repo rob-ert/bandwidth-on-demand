@@ -22,30 +22,81 @@
 package nl.surfnet.bod.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
+import java.util.Collection;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
+import com.google.common.collect.Lists;
+
+@RunWith(MockitoJUnitRunner.class)
 public class ReservationServiceTest {
 
+  @InjectMocks
   private ReservationService subject;
-  
-  @Before
-  public void onSetUp() {
-    subject = new ReservationService();
+
+  @Mock
+  private ReservationRepo reservationRepoMock;
+
+  @Test
+  public void aNewReservationShoulBePending() {
+    Reservation reservation = new ReservationFactory().create();
+
+    subject.makeReservation(reservation);
+
+    assertThat(reservation.getStatus(), is(ReservationStatus.PENDING));
   }
 
   @Test
-  public void testMakeReservation() {
-    Reservation reservation = new ReservationFactory().create();
+  public void whenTheUserHasNoGroupsTheReservationsShouldBeEmpty() {
+    RichUserDetails richUserDetailsWithoutGroups = new RichUserDetailsFactory().create();
+    Security.setUserDetails(richUserDetailsWithoutGroups);
 
-    ReservationStatus reservationStatus = subject.makeReservation(reservation);
+    Collection<Reservation> reservations = subject.findEntries(0, 20);
 
-    assertThat(reservation.getStatus(), is(reservationStatus.PENDING));
+    assertThat(reservations, hasSize(0));
+  }
+
+  @Test
+  public void findEntriesShouldFilterOnUserGroups() {
+    RichUserDetails richUserDetailsWithoutGroups = new RichUserDetailsFactory().addUserGroup("urn:mygroup").create();
+    Security.setUserDetails(richUserDetailsWithoutGroups);
+
+    PageImpl<Reservation> pageResult = new PageImpl<Reservation>(Lists.newArrayList(new ReservationFactory().create()));
+    when(reservationRepoMock.findAll(any(Specification.class), any(Pageable.class))).thenReturn(pageResult);
+
+    Collection<Reservation> reservations = subject.findEntries(0, 20);
+
+    assertThat(reservations, hasSize(1));
+  }
+
+  @Test
+  public void whenTheUserHasNoGroupsCountShouldBeZero() {
+    RichUserDetails richUserDetailsWithoutGroups = new RichUserDetailsFactory().create();
+    Security.setUserDetails(richUserDetailsWithoutGroups);
+
+    long count = subject.count();
+
+    assertThat(count, is(0L));
   }
 
 }

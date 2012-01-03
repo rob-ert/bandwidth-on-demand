@@ -41,7 +41,7 @@ public class ReservationFactory {
   private LocalDate endDate = LocalDate.now().plusDays(1);
   private LocalTime startTime = new LocalTime(12, 0);
   private LocalTime endTime = new LocalTime(16, 0);
-  private String user;
+  private String user = "urn:truusvisscher";
 
   public Reservation create() {
 

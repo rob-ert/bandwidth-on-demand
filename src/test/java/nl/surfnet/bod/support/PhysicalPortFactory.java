@@ -21,13 +21,17 @@
  */
 package nl.surfnet.bod.support;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
 public class PhysicalPortFactory {
 
-  private Long id;
-  private String name = "nameDefault";
+  private static final AtomicLong COUNTER = new AtomicLong();
+
+  private Long id = COUNTER.getAndIncrement();
+  private String name = "nameDefault " + id;
   private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
   private Integer version;
 

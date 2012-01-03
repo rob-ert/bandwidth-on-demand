@@ -22,13 +22,22 @@
 package nl.surfnet.bod.service;
 
 import java.util.Collection;
+import java.util.Collections;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,11 +57,32 @@ public class ReservationService {
   }
 
   public Collection<Reservation> findEntries(int firstResult, int maxResults) {
-    return reservationRepo.findAll(new PageRequest(firstResult / maxResults, maxResults)).getContent();
+    final RichUserDetails user = Security.getUserDetails();
+
+    if (user.getUserGroups().isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    return reservationRepo.findAll(forCurrentUser(user), new PageRequest(firstResult / maxResults, maxResults)).getContent();
   }
 
   public long count() {
-    return reservationRepo.count();
+    final RichUserDetails user = Security.getUserDetails();
+
+    if (user.getUserGroups().isEmpty()) {
+      return 0;
+    }
+
+    return reservationRepo.count(forCurrentUser(user));
+  }
+
+  private Specification<Reservation> forCurrentUser(final RichUserDetails user) {
+    return new Specification<Reservation>() {
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.and(root.get("virtualResourceGroup").get("surfConnextGroupName").in(user.getUserGroupIds()));
+      }
+    };
   }
 
   public Reservation update(Reservation reservation) {
@@ -66,7 +96,7 @@ public class ReservationService {
   public ReservationStatus makeReservation(Reservation reservation) {
     ReservationStatus reservationStatus = ReservationStatus.PENDING;
 
-    //Check
+    // TODO Should go to the 'real' thing
 
     return reservationStatus;
   }

@@ -58,19 +58,17 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void testExistingName() {
-    VirtualPort virtualPortOne = new VirtualPortFactory().setName("one").create();
+    VirtualPort existingPort = new VirtualPortFactory().setName("one").create();
+    VirtualPort newPort = new VirtualPortFactory().setId(null).setName("one").create();
 
-    when(virtualPortServiceMock.findByName("one")).thenReturn(virtualPortOne);
+    when(virtualPortServiceMock.findByName("one")).thenReturn(existingPort);
 
-    Errors errors = new BeanPropertyBindingResult(virtualPortOne, "virtualPort");
+    Errors errors = new BeanPropertyBindingResult(newPort, "virtualPort");
 
-    assertFalse(errors.hasErrors());
-
-    subject.validate(virtualPortOne, errors);
+    subject.validate(newPort, errors);
 
     assertFalse(errors.hasGlobalErrors());
     assertTrue(errors.hasFieldErrors("name"));
-
   }
 
   @Test
@@ -86,7 +84,6 @@ public class VirtualPortValidatorTest {
     subject.validate(virtualPortOne, errors);
 
     assertFalse(errors.hasErrors());
-
   }
 
 }

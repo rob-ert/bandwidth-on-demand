@@ -42,7 +42,7 @@ import com.google.common.collect.Lists;
 public class VirtualPortRepoTest {
 
   @Autowired
-  VirtualPortRepo subject;
+  private VirtualPortRepo subject;
 
   @Test
   public void testSave() {

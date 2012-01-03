@@ -35,7 +35,7 @@ public class PhysicalResourceGroupFactory {
   private static final AtomicLong ID_COUNTER = new AtomicLong();
 
   private Long id = ID_COUNTER.getAndIncrement();
-  private String name = "First group";
+  private String name = "First group" + id;
   private String institution = "SURFnet B.V." + id;
   private String adminGroup = null;
   private List<PhysicalPort> physicalPorts = Lists.newArrayList();

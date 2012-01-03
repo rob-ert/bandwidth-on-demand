@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.support;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -33,15 +35,16 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
  */
 public class VirtualPortFactory {
 
-  private Long id;
+  private static final AtomicLong COUNTER = new AtomicLong();
+
+  private Long id = COUNTER.getAndIncrement();
   private Integer version;
-  private String name;
-  private VirtualPort virtualPort;
+  private String name = "A virtual port " + id;
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
   private PhysicalPort physicalPort = new PhysicalPortFactory().create();
 
   public VirtualPort create() {
-    virtualPort = new VirtualPort();
+    VirtualPort virtualPort = new VirtualPort();
 
     virtualPort.setId(id);
     virtualPort.setVersion(version);
@@ -58,6 +61,10 @@ public class VirtualPortFactory {
     return this;
   }
 
+  public VirtualPortFactory setId(Long id) {
+    this.id = id;
+    return this;
+  }
 
   public VirtualPortFactory setVirtualResourceGroup(VirtualResourceGroup virtualResourceGroup) {
     this.virtualResourceGroup = virtualResourceGroup;
