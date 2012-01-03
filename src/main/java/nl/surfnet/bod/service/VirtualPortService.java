@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.util.List;
 
 import nl.surfnet.bod.domain.VirtualPort;
@@ -55,11 +57,12 @@ public class VirtualPortService {
   }
 
   public List<VirtualPort> findEntries(final int firstResult, final int maxResults) {
+    checkArgument(maxResults > 0);
+
     return virtualPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults)).getContent();
   }
 
   public VirtualPort findByName(String name) {
-
     return virtualPortRepo.findByName(name);
   }
 
