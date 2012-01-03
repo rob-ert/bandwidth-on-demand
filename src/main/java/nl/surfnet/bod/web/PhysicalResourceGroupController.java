@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @RequestMapping("/physicalresourcegroups")
 @Controller
-public class PhyscialResourceGroupController {
+public class PhysicalResourceGroupController {
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
