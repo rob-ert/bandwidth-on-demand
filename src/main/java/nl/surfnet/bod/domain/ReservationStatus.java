@@ -31,14 +31,4 @@ public enum ReservationStatus {
 
   PENDING, IN_PROGRESS, REJECTED, CANCELLED_BY_USER, CANCELLED_BY_NMS;
 
-  private String reason;
-
-  public String getReason() {
-    return reason;
-  }
-
-  public void setReason(String reason) {
-    this.reason = reason;
-  }
-
 }
