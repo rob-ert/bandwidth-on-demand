@@ -21,13 +21,8 @@
  */
 package nl.surfnet.bod.web;
 
-import java.util.Collection;
+import nl.surfnet.bod.web.security.Security;
 
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.service.GroupService;
-import nl.surfnet.bod.web.security.RichUserDetails;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,16 +32,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/shibboleth")
 public class ShibbolethController {
 
-  @Autowired
-  private GroupService groupService;
-
   @RequestMapping("/groups")
   public String list(final Model uiModel) {
-    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-    Collection<UserGroup> groups = groupService.getGroups(user.getNameId());
-
-    uiModel.addAttribute("groups", groups);
+    uiModel.addAttribute("groups", Security.getUserDetails().getUserGroups());
 
     return "shibboleth/groups";
   }
