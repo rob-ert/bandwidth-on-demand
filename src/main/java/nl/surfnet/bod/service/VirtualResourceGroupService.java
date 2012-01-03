@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -58,6 +60,8 @@ public class VirtualResourceGroupService {
   }
 
   public List<VirtualResourceGroup> findEntries(final int firstResult, final int maxResults) {
+    checkArgument(maxResults > 0);
+
     return virtualResourceGroupRepo.findAll(new PageRequest(firstResult / maxResults, maxResults)).getContent();
   }
 
@@ -85,10 +89,6 @@ public class VirtualResourceGroupService {
     }
 
     return virtualResourceGroupRepo.findBySurfConextGroupNameIn(groups);
-  }
-
-  void setVirtualResourceGroupRepo(VirtualResourceGroupRepo virtualResourceGroupRepo) {
-    this.virtualResourceGroupRepo = virtualResourceGroupRepo;
   }
 
 }

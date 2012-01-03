@@ -24,10 +24,13 @@ package nl.surfnet.bod.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Mockito.mock;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+import java.util.List;
 
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
@@ -35,24 +38,25 @@ import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+@RunWith(MockitoJUnitRunner.class)
 public class VirtualResourceGroupServiceTest {
 
-  private VirtualResourceGroupService virtualResourceGroupService;
+  @InjectMocks
+  private VirtualResourceGroupService subject;
 
+  @Mock
   private VirtualResourceGroupRepo groupRepoMock;
-
-  @Before
-  public void init() {
-    groupRepoMock = mock(VirtualResourceGroupRepo.class);
-    virtualResourceGroupService = new VirtualResourceGroupService();
-    virtualResourceGroupService.setVirtualResourceGroupRepo(groupRepoMock);
-  }
 
   @Test
   public void findVirtualResourceGroupsForUser() {
@@ -64,9 +68,61 @@ public class VirtualResourceGroupServiceTest {
     when(groupRepoMock.findBySurfConextGroupNameIn(Lists.newArrayList(groupOfLoggedInUser))).thenReturn(
         ImmutableList.of(vGroup));
 
-    Collection<VirtualResourceGroup> groups = virtualResourceGroupService.findAllForUser(loggedInUser);
+    Collection<VirtualResourceGroup> groups = subject.findAllForUser(loggedInUser);
 
     assertThat(groups, hasSize(1));
     assertThat(groups, contains(vGroup));
+  }
+
+  @Test
+  public void findVirtualResourceGroupsWhenUserHasNoGroups() {
+    RichUserDetails loggedInUser = new RichUserDetailsFactory().create();
+
+    Collection<VirtualResourceGroup> groups = subject.findAllForUser(loggedInUser);
+
+    assertThat(groups, hasSize(0));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void findEntriesWithMaxResultZeroShouldGiveAnException() {
+    subject.findEntries(1, 0);
+  }
+
+  @Test
+  public void findEntries() {
+    VirtualResourceGroup group = new VirtualResourceGroupFactory().create();
+
+    when(groupRepoMock.findAll(any(PageRequest.class))).thenReturn(new PageImpl<VirtualResourceGroup>(Lists.newArrayList(group)));
+
+    List<VirtualResourceGroup> groups = subject.findEntries(5, 10);
+
+    assertThat(groups, contains(group));
+  }
+
+  @Test
+  public void countShouldCount() {
+    when(groupRepoMock.count()).thenReturn(2L);
+
+    long count = subject.count();
+
+    assertThat(count, is(2L));
+  }
+
+  @Test
+  public void delete() {
+    VirtualResourceGroup group = new VirtualResourceGroupFactory().create();
+
+    subject.delete(group);
+
+    verify(groupRepoMock).delete(group);
+  }
+
+  @Test
+  public void update() {
+    VirtualResourceGroup group = new VirtualResourceGroupFactory().create();
+
+    subject.update(group);
+
+    verify(groupRepoMock).save(group);
   }
 }
