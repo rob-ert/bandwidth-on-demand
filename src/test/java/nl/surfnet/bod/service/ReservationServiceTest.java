@@ -25,11 +25,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -94,7 +96,7 @@ public class ReservationServiceTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void differentVirtualResrouceGroupsShouldGiveAnIllegalStateException() {
+  public void savingDifferentVirtualResrouceGroupsShouldGiveAnIllegalStateException() {
     VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().create();
     VirtualResourceGroup vrg2 = new VirtualResourceGroupFactory().create();
     VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg1).create();
@@ -104,6 +106,43 @@ public class ReservationServiceTest {
         .setDestinationPort(destination).create();
 
     subject.save(reservation);
+  }
+
+  @Test
+  public void savingSameVirtualResrouceGroupsShouldBeFine() {
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
+    VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
+    VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
+
+    Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg).setSourcePort(source)
+        .setDestinationPort(destination).create();
+
+    subject.save(reservation);
+
+    verify(reservationRepoMock).save(reservation);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void updatingDifferentVirtualResrouceGroupsShouldGiveAnIllegalStateException() {
+    VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().create();
+    VirtualResourceGroup vrg2 = new VirtualResourceGroupFactory().create();
+    VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg1).create();
+    VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg2).create();
+
+    Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg1).setSourcePort(source)
+        .setDestinationPort(destination).create();
+
+    subject.update(reservation);
+  }
+
+  @Test
+  public void cancelAReservationShouldChangeItsStatus() {
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.PENDING).create();
+
+    subject.cancel(reservation);
+
+    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED_BY_USER));
+    verify(reservationRepoMock).save(reservation);
   }
 
 }

@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.ReservationValidator;
@@ -147,9 +146,8 @@ public class ReservationController {
       @RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
     Reservation reservation = reservationService.find(id);
-    reservation.setStatus(ReservationStatus.CANCELLED_BY_USER);
 
-    reservationService.save(reservation);
+    reservationService.cancel(reservation);
 
     uiModel.asMap().clear();
     uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());

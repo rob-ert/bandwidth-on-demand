@@ -32,6 +32,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -96,8 +97,10 @@ public class ReservationService {
     return reservationRepo.save(reservation);
   }
 
-  public void delete(Reservation reservation) {
-    reservationRepo.delete(reservation);
+  public void cancel(Reservation reservation) {
+    reservation.setStatus(ReservationStatus.CANCELLED_BY_USER);
+
+    reservationRepo.save(reservation);
   }
 
 }

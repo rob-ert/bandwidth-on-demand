@@ -34,7 +34,7 @@ public class ReservationFactory {
   private Long id;
   private Integer version;
   private VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().create();
-  private ReservationStatus reservationStatus = ReservationStatus.PENDING;
+  private ReservationStatus status = ReservationStatus.PENDING;
   private VirtualPort sourcePort;
   private VirtualPort destinationPort;
   private LocalDate startDate = LocalDate.now();
@@ -53,7 +53,7 @@ public class ReservationFactory {
     Reservation reservation = new Reservation();
     reservation.setId(id);
     reservation.setVersion(version);
-    reservation.setStatus(reservationStatus);
+    reservation.setStatus(status);
     reservation.setSourcePort(sourcePort);
     reservation.setDestinationPort(destinationPort);
     reservation.setVirtualResourceGroup(vrGroup);
@@ -81,8 +81,8 @@ public class ReservationFactory {
     return this;
   }
 
-  public ReservationFactory setReservationStatus(ReservationStatus status) {
-    this.reservationStatus = status;
+  public ReservationFactory setStatus(ReservationStatus status) {
+    this.status = status;
     return this;
   }
 
