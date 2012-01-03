@@ -30,8 +30,10 @@ import java.util.Collection;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.web.security.Security;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,17 +46,44 @@ public class VirtualResourceGroupControllerTest {
 
   @InjectMocks
   private VirtualResourceGroupController subject;
+
   @Mock
   private VirtualResourceGroupService vrgServiceMock;
 
   @Test
   public void shouldFindPortsForVirtualResourceGroupId() {
-    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().addVirtualPorts(new VirtualPortFactory().create()).create();
+    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:group").create());
+
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfConnextGroupName("urn:group")
+        .addVirtualPorts(new VirtualPortFactory().create()).create();
+
     when(vrgServiceMock.find(2L)).thenReturn(vrg);
 
     Collection<VirtualPort> ports = subject.listForVirtualResourceGroup(2L);
 
     assertThat(ports, hasSize(1));
+  }
+
+  @Test
+  public void whenGroupDoesNotExistPortShouldBeEmpty() {
+    when(vrgServiceMock.find(1L)).thenReturn(null);
+
+    Collection<VirtualPort> ports = subject.listForVirtualResourceGroup(1L);
+
+    assertThat(ports, hasSize(0));
+  }
+
+  @Test
+  public void whenUserIsNotAMemberOfGroupPortShouldBeEmpty() {
+    Security.setUserDetails(new RichUserDetailsFactory().create());
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfConnextGroupName("urn:group")
+        .addVirtualPorts(new VirtualPortFactory().create()).create();
+
+    when(vrgServiceMock.find(2L)).thenReturn(vrg);
+
+    Collection<VirtualPort> ports = subject.listForVirtualResourceGroup(2L);
+
+    assertThat(ports, hasSize(0));
   }
 
 }

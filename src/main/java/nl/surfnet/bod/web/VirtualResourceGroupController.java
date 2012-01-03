@@ -22,9 +22,12 @@
 package nl.surfnet.bod.web;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -42,6 +45,12 @@ public class VirtualResourceGroupController {
 
   @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET)
   public @ResponseBody Collection<VirtualPort> listForVirtualResourceGroup(@PathVariable Long id) {
-    return virtualResourceGroupService.find(id).getVirtualPorts();
+    VirtualResourceGroup group = virtualResourceGroupService.find(id);
+
+    if (group == null || Security.isUserNotMemberOf(group.getSurfConnextGroupName())) {
+      return Collections.emptyList();
+    }
+
+    return group.getVirtualPorts();
   }
 }
