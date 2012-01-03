@@ -24,7 +24,6 @@ package nl.surfnet.bod.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
@@ -35,38 +34,43 @@ import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.ImmutableList;
 
+@RunWith(MockitoJUnitRunner.class)
 public class PhysicalResourceGroupServiceTest {
 
+  @InjectMocks
   private PhysicalResourceGroupService physicalResourceGroupService;
 
+  @Mock
   private PhysicalResourceGroupRepo groupRepoMock;
 
-  @Before
-  public void init() {
-    groupRepoMock = mock(PhysicalResourceGroupRepo.class);
-
-    physicalResourceGroupService = new PhysicalResourceGroupService();
-    physicalResourceGroupService.setPhysicalResourceGroupRepo(groupRepoMock);
-  }
-
   @Test
-  public void test() {
-    String groupOfLoggedInUser = "urn:myfirstgroup";
-    RichUserDetails loggedInUser = new RichUserDetailsFactory().addUserGroup(groupOfLoggedInUser).create();
-
+  public void findGroupsForUser() {
+    RichUserDetails loggedInUser = new RichUserDetailsFactory().addUserGroup("urn:myfirstgroup").create();
     PhysicalResourceGroup prGroup = new PhysicalResourceGroupFactory().create();
 
-    when(groupRepoMock.findByAdminGroupIn(listOf(groupOfLoggedInUser))).thenReturn(listOf(prGroup));
+    when(groupRepoMock.findByAdminGroupIn(listOf("urn:myfirstgroup"))).thenReturn(listOf(prGroup));
 
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllForUser(loggedInUser);
 
     assertThat(groups, hasSize(1));
     assertThat(groups, contains(prGroup));
+  }
+
+  @Test
+  public void findGroupsForUserWithoutUserGroups() {
+    RichUserDetails loggedInUser = new RichUserDetailsFactory().create();
+
+    Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllForUser(loggedInUser);
+
+    assertThat(groups, hasSize(0));
   }
 
   private static <E> ImmutableList<E> listOf(E element) {

@@ -98,8 +98,4 @@ public class PhysicalResourceGroupService {
   public PhysicalResourceGroup findByName(String name) {
     return physicalResourceGroupRepo.findByName(name);
   }
-
-  protected void setPhysicalResourceGroupRepo(PhysicalResourceGroupRepo physicalResourceGroupRepo) {
-    this.physicalResourceGroupRepo = physicalResourceGroupRepo;
-  }
 }
