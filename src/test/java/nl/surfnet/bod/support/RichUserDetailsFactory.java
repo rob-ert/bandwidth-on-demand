@@ -46,4 +46,9 @@ public class RichUserDetailsFactory {
     return this;
   }
 
+  public RichUserDetailsFactory setNameId(String username) {
+    this.username = username;
+    return this;
+  }
+
 }

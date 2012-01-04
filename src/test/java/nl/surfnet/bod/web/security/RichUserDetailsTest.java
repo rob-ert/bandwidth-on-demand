@@ -22,6 +22,8 @@
 package nl.surfnet.bod.web.security;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 
@@ -44,4 +46,21 @@ public class RichUserDetailsTest {
     assertThat(userDetails.getUserGroupIds(), contains("urn:first", "urn:second"));
   }
 
+  @Test
+  public void defaultMethods() {
+    RichUserDetails user = new RichUserDetailsFactory().create();
+
+    assertThat(user.isAccountNonExpired(), is(true));
+    assertThat(user.isAccountNonLocked(), is(true));
+    assertThat(user.isCredentialsNonExpired(), is(true));
+    assertThat(user.isEnabled(), is(true));
+    assertThat(user.getPassword(), is("N/A"));
+  }
+
+  @Test
+  public void toStringContainsNameId() {
+    RichUserDetails user = new RichUserDetailsFactory().setNameId("urn:truus").create();
+
+    assertThat(user.toString(), containsString("urn:truus"));
+  }
 }
