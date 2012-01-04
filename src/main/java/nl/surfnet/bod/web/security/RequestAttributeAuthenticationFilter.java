@@ -66,8 +66,8 @@ public class RequestAttributeAuthenticationFilter extends AbstractPreAuthenticat
     return "N/A";
   }
 
-  public void setEnvironment(Environment env) {
-    this.env = env;
+  protected void setEnvironment(Environment environment) {
+    this.env = environment;
   }
 
 }
