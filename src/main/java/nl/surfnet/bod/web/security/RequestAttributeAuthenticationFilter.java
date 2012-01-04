@@ -46,7 +46,11 @@ public class RequestAttributeAuthenticationFilter extends AbstractPreAuthenticat
     String displayName = getRequestAttributeOrImitate(request, ShibbolethConstants.DISPLAY_NAME,
         env.getImitateShibbolethDisplayName());
 
-    logger.debug("Found Shibboleth name-id: {}, displayName: {}", nameId, displayName);
+    logger.debug("Found Shibboleth name-id: '{}', displayName: '{}'", nameId, displayName);
+
+    if (nameId.isEmpty() || displayName.isEmpty()) {
+      return null;
+    }
 
     return new RichPrincipal(nameId, displayName);
   }
@@ -54,12 +58,16 @@ public class RequestAttributeAuthenticationFilter extends AbstractPreAuthenticat
   private String getRequestAttributeOrImitate(HttpServletRequest request, String attribute, String imitateValue) {
     String value = nullToEmpty((String) request.getAttribute(attribute));
 
-    return env.getImitateShibboleth() && value.isEmpty() ? imitateValue : value;
+    return value.isEmpty() && env.getImitateShibboleth() ? imitateValue : value;
   }
 
   @Override
   protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
     return "N/A";
+  }
+
+  public void setEnvironment(Environment env) {
+    this.env = env;
   }
 
 }

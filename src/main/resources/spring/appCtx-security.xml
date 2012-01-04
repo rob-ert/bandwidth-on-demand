@@ -32,6 +32,7 @@
         
         <intercept-url pattern="/noc/**" access="hasRole('NOC_ENGINEER')" />
         <intercept-url pattern="/manager/**" access="hasRole('ICT_MANAGER')" />
+        <intercept-url pattern="/resources/**" filters="none" />
         <intercept-url pattern="/**" access="isAuthenticated()" />
     </http>
 

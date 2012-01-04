@@ -9,7 +9,7 @@
     <jsp:directive.page pageEncoding="UTF-8" />
     
     <spring:message code="application_name" var="app_name" htmlEscape="false" />
-    <spring:url var="banner" value="/images/surfnet_logo.gif" />
+    <spring:url var="banner" value="/resources/images/surfnet_logo.gif" />
     <spring:url var="home" value="/" />
     
     <spring:message code="button_home" var="home_label" htmlEscape="false" />
@@ -37,11 +37,20 @@
                             <c:set var="displayName" >
                                 <sec:authentication property="principal.displayName" htmlEscape="false"/>
                             </c:set>
-                            <menu:menu id="user_menu">
-                                <menu:category id="c_user" label="${displayName}">
-                                    <menu:item id="i_logout" url="/Shibboleth.sso/Logout?target=/" messageCode="global_menu_logout" />
-                                </menu:category>
-                            </menu:menu>
+                            <c:choose>
+                                <c:when test="${not empty displayName}">
+                                    <menu:menu id="user_menu">
+                                        <menu:category id="c_user" label="${displayName}">
+                                            <menu:item id="i_logout" url="/Shibboleth.sso/Logout?target=/" messageCode="global_menu_logout" />
+                                        </menu:category>
+                                    </menu:menu>
+                                </c:when>
+                                <c:otherwise>
+                                    <menu:menu id="user_menu">
+                                        <menu:item url="#" id="no_auth" messageCode="security_not_authenticated" />
+                                    </menu:menu>
+                                </c:otherwise>
+                            </c:choose>
                         </ul>
                     </div>
                 </div>

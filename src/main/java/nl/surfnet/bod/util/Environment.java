@@ -54,6 +54,12 @@ public class Environment {
     this.openSocialOAuthSecret = openSocialOAuthSecret;
   }
 
+  public Environment(boolean imitateShibboleth, String imitateShibbolethUserId, String imitateShibbolethDisplayName) {
+    this.imitateShibboleth = imitateShibboleth;
+    this.imitateShibbolethUserId = imitateShibbolethUserId;
+    this.imitateShibbolethDisplayName = imitateShibbolethDisplayName;
+  }
+
   public String getOpenSocialUrl() {
     return openSocialUrl;
   }
