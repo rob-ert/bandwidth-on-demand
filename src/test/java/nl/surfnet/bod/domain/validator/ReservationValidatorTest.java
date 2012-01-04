@@ -212,7 +212,9 @@ public class ReservationValidatorTest {
   @Test
   public void vritualGroupNameShouldBeSameAsOfThePorts() {
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:wronggroup").create();
-    Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg).create();
+    VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
+
+    Reservation reservation = new ReservationFactory().setSourcePort(source).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
