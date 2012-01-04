@@ -42,6 +42,7 @@ import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
+import org.joda.time.LocalDate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -96,7 +97,7 @@ public class ReservationServiceTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void savingDifferentVirtualResrouceGroupsShouldGiveAnIllegalStateException() {
+  public void reserveDifferentVirtualResrouceGroupsShouldGiveAnIllegalStateException() {
     VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().create();
     VirtualResourceGroup vrg2 = new VirtualResourceGroupFactory().create();
     VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg1).create();
@@ -105,11 +106,11 @@ public class ReservationServiceTest {
     Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg1).setSourcePort(source)
         .setDestinationPort(destination).create();
 
-    subject.save(reservation);
+    subject.reserve(reservation);
   }
 
   @Test
-  public void savingSameVirtualResrouceGroupsShouldBeFine() {
+  public void reserveSameVirtualResrouceGroupsShouldBeFine() {
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
     VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
     VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
@@ -117,9 +118,16 @@ public class ReservationServiceTest {
     Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg).setSourcePort(source)
         .setDestinationPort(destination).create();
 
-    subject.save(reservation);
+    subject.reserve(reservation);
 
     verify(reservationRepoMock).save(reservation);
+  }
+
+  @Test(expected = ReservationFailedException.class)
+  public void reservationOnAprilOneIsNotAllowed() {
+    Reservation reservation = new ReservationFactory().setStartDate(new LocalDate(2012, 4, 1)).create();
+
+    subject.reserve(reservation);
   }
 
   @Test(expected = IllegalStateException.class)

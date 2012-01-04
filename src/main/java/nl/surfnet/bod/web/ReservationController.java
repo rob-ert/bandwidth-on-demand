@@ -35,6 +35,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.ReservationValidator;
+import nl.surfnet.bod.service.ReservationFailedException;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -83,10 +84,17 @@ public class ReservationController {
       return PAGE_URL + CREATE;
     }
 
-    uiModel.asMap().clear();
-    reservationService.save(reservation);
+    try {
+      reservationService.reserve(reservation);
+      uiModel.asMap().clear();
+      return "redirect:" + PAGE_URL;
+    }
+    catch (ReservationFailedException e) {
+      uiModel.addAttribute(MODEL_KEY, reservation);
+      bindingResult.reject("", e.getMessage());
+      return PAGE_URL + CREATE;
+    }
 
-    return "redirect:" + PAGE_URL;
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
