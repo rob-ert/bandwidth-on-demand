@@ -33,6 +33,7 @@ import nl.surfnet.bod.service.VirtualResourceGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.format.number.NumberFormatAnnotationFormatterFactory;
 import org.springframework.format.support.FormattingConversionServiceFactoryBean;
 
 /**
@@ -53,8 +54,11 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   private VirtualPortService virtualPortService;
 
   @Override
-  protected void installFormatters(final FormatterRegistry registry) {
-    super.installFormatters(registry);
+  protected void installFormatters(FormatterRegistry registry) {
+    registry.addFormatterForFieldAnnotation(new NumberFormatAnnotationFormatterFactory());
+    new JodaTimeFormattingPatternConfigurer()
+      .setDateTimePattern("yyyy-MM-dd H:mm").setTimePattern("H:mm").setDatePattern("yyyy-MM-dd")
+      .installJodaTimeFormatting(registry);
   }
 
   public Converter<PhysicalPort, String> getPhysicalPortToStringConverter() {

@@ -20,7 +20,7 @@
     </c:if>
 
     <c:if test="${empty dateTimePattern}">
-      <c:set value="MM/dd/yyyy" var="dateTimePattern" />
+      <c:set value="yyyy-MM-dd H:mm" var="dateTimePattern" />
     </c:if>
       
     <c:choose>

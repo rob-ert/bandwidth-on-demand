@@ -25,8 +25,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
-import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * Entity which represents a Reservation for a specific connection between a
@@ -60,22 +60,18 @@ public class Reservation {
   private VirtualPort destinationPort;
 
   @NotNull
-  @DateTimeFormat(pattern = "yyyy-MM-dd")
   @Column(nullable = false)
   private LocalDate startDate;
 
   @NotNull
-  @DateTimeFormat(pattern = "H:mm")
   @Column(nullable = false)
   private LocalTime startTime;
 
   @NotNull
-  @DateTimeFormat(pattern = "yyyy-MM-dd")
   @Column(nullable = false)
   private LocalDate endDate;
 
   @NotNull
-  @DateTimeFormat(pattern = "H:mm")
   @Column(nullable = false)
   private LocalTime endTime;
 
@@ -168,5 +164,13 @@ public class Reservation {
 
   public void setEndTime(LocalTime endTime) {
     this.endTime = endTime;
+  }
+
+  public LocalDateTime getEndDateTime() {
+    return endDate.toLocalDateTime(endTime);
+  }
+
+  public LocalDateTime getStartDateTime() {
+    return startDate.toLocalDateTime(startTime);
   }
 }

@@ -11,10 +11,8 @@
             <table:column labelCode="reservation_sourcePort" id="sourceport" property="sourcePort"/>
             <table:column labelCode="reservation_destinationPort" id="destinationport" property="destinationPort"/>
             <table:column labelCode="reservation_status" id="status" property="status"/>
-            <table:column labelCode="reservation_startDate" id="startdate" property="startDate" />
-            <table:column labelCode="reservation_startTime" id="starttime" property="startTime" />
-            <table:column labelCode="reservation_endDate" id="enddate" property="endDate" />
-            <table:column labelCode="reservation_endTime" id="endtime" property="endTime" />
+            <table:column labelCode="reservation_startTime" id="starttime" property="startDateTime" />
+            <table:column labelCode="reservation_endTime" id="endtime" property="endDateTime" />
         </table:table>
     </page:list>    
 </div>
