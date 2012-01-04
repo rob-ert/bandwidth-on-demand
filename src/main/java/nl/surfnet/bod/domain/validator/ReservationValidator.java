@@ -25,14 +25,17 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.web.security.Security;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
-import org.joda.time.Minutes;
-import org.joda.time.Period;
+import org.joda.time.*;
+import org.joda.time.format.PeriodFormat;
+import org.joda.time.format.PeriodFormatter;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 public class ReservationValidator implements Validator {
+
+  private static final Period MIN_PERIOD = new Period().withMinutes(5);
+  private static final Period MAX_PERIOD = new Period().withYears(1);
+  private static final PeriodFormatter PERIOD_FORMATTER = PeriodFormat.getDefault();
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -50,7 +53,6 @@ public class ReservationValidator implements Validator {
   private void validatePorts(Errors errors, Reservation reservation) {
     VirtualPort sourcePort = reservation.getSourcePort();
     VirtualPort destinationPort = reservation.getDestinationPort();
-
 
     if (sourcePort == null || destinationPort == null) {
       return;
@@ -87,34 +89,37 @@ public class ReservationValidator implements Validator {
     LocalTime endTime = reservation.getEndTime();
 
     LocalDate today = LocalDate.now();
+    LocalDate oneYearLater = today.plusYears(1);
     LocalTime now = LocalTime.now();
 
     if (startDate.isBefore(today)) {
       errors.rejectValue("startDate", "validation.date.past");
     }
-    if (endDate.isBefore(today)) {
-      errors.rejectValue("endDate", "validation.date.past");
-    }
     if (startDate.isEqual(today) && startTime.isBefore(now)) {
       errors.rejectValue("startTime", "validation.date.past");
     }
-    if (endDate.isEqual(today) && endTime.isBefore(now)) {
-      errors.rejectValue("endTime", "validation.date.past");
+    if (startDate.isAfter(oneYearLater)) {
+      errors.rejectValue("startDate", "validation.date.maxFuture");
     }
 
     if (endDate.isBefore(startDate)) {
       errors.rejectValue("endDate", "validation.end.before.start");
     }
+    if (datesAreOnSameDay(startDate, endDate) && endTime.isBefore(startTime)) {
+      errors.rejectValue("endTime", "validation.end.before.start");
+    }
 
-    if (datesAreOnSameDay(startDate, endDate)) {
-      if (endTime.isBefore(startTime)) {
-        errors.rejectValue("endTime", "validation.end.before.start");
-      }
+    DateTime startDateTime = startDate.toDateTime(startTime);
+    DateTime endDateTime = endDate.toDateTime(endTime);
+    Duration duration = new Duration(startDateTime, endDateTime);
 
-      Period period = new Period(reservation.getStartTime(), reservation.getEndTime());
-      if (period.toStandardMinutes().isLessThan(Minutes.minutes(5))) {
-        errors.reject("validation.reservation.tooshort");
-      }
+    if (duration.isLongerThan(MAX_PERIOD.toDurationFrom(startDateTime))) {
+      errors.reject("validation.reservation.duration.tooLong", new Object[] { MAX_PERIOD.toString(PERIOD_FORMATTER) },
+          "Reservation is too long");
+    }
+    if (duration.isShorterThan(MIN_PERIOD.toDurationFrom(startDateTime))) {
+      errors.reject("validation.reservation.duration.tooShort", new Object[] { MIN_PERIOD.toString(PERIOD_FORMATTER) },
+          "Reservation is too short");
     }
   }
 

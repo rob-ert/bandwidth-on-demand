@@ -21,6 +21,9 @@
  */
 package nl.surfnet.bod.domain.validator;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import nl.surfnet.bod.domain.Reservation;
@@ -66,7 +69,7 @@ public class ReservationValidatorTest {
     subject.validate(reservation, errors);
 
     assertTrue(errors.hasErrors());
-    assertTrue(errors.hasFieldErrors());
+    assertTrue(errors.hasFieldErrors("endDate"));
   }
 
   @Test
@@ -84,7 +87,7 @@ public class ReservationValidatorTest {
   }
 
   @Test
-  public void whenEndAndStartDateAreTheSameStartTimeShouldBeBeforeEndTime() {
+  public void whenEndAndStartDateAreOnTheSameDayStartTimeShouldBeBeforeEndTime() {
     LocalDate today = LocalDate.now();
     LocalTime now = LocalTime.now();
     Reservation reservation = new ReservationFactory().setStartDate(today).setEndDate(today).setStartTime(now)
@@ -94,10 +97,11 @@ public class ReservationValidatorTest {
     subject.validate(reservation, errors);
 
     assertTrue(errors.hasErrors());
+    assertTrue(errors.hasFieldErrors("endTime"));
   }
 
   @Test
-  public void whenEndAndStartDateAreTheSameStartTimeShouldBeBeforeEndTime2() {
+  public void whenEndAndStartDateAreOnTheSameDayStartTimeShouldBeBeforeEndTime2() {
     LocalDate tomorrow = LocalDate.now().plusDays(1);
     LocalTime noon = new LocalTime(12, 0);
     Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
@@ -110,19 +114,6 @@ public class ReservationValidatorTest {
   }
 
   @Test
-  public void reservationShouldBeLongerThan5Minutes() {
-    LocalDate tomorrow = LocalDate.now().plusDays(1);
-    LocalTime noon = new LocalTime(12, 0);
-    Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
-        .setEndTime(noon.plusMinutes(3)).create();
-    Errors errors = createErrorObject(reservation);
-
-    subject.validate(reservation, errors);
-
-    assertTrue(errors.hasErrors());
-  }
-
-  @Test
   public void reservationShouldHaveDifferentPorts() {
     VirtualPort port = new VirtualPortFactory().create();
     Reservation reservation = new ReservationFactory().setSourcePort(port).setDestinationPort(port).create();
@@ -131,6 +122,7 @@ public class ReservationValidatorTest {
     subject.validate(reservation, errors);
 
     assertTrue(errors.hasErrors());
+    assertThat(errors.getGlobalError().getCode(), containsString("validation.reservation.sameports"));
   }
 
   @Test
@@ -143,6 +135,7 @@ public class ReservationValidatorTest {
     subject.validate(reservation, errors);
 
     assertTrue(errors.hasErrors());
+    assertTrue(errors.hasFieldErrors("startDate"));
   }
 
   @Test
@@ -155,7 +148,63 @@ public class ReservationValidatorTest {
 
     subject.validate(reservation, errors);
 
-    assertTrue(errors.hasErrors());
+    assertTrue(errors.hasFieldErrors("startTime"));
+  }
+
+  @Test
+  public void aReservationShouldNotBeFurtherInTheFuterThanOneYear() {
+    Reservation reservation = new ReservationFactory().setStartDate(LocalDate.now().plusYears(1).plusDays(1))
+        .setEndDate(LocalDate.now().plusYears(1).plusDays(10)).create();
+    Errors errors = createErrorObject(reservation);
+
+    subject.validate(reservation, errors);
+
+    assertTrue(errors.hasFieldErrors("startDate"));
+  }
+
+  @Test
+  public void reservationShouldBeLongerThan5Minutes() {
+    LocalDate tomorrow = LocalDate.now().plusDays(1);
+    LocalTime noon = new LocalTime(12, 0);
+    Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
+        .setEndTime(noon.plusMinutes(3)).create();
+    Errors errors = createErrorObject(reservation);
+
+    subject.validate(reservation, errors);
+
+    assertThat(errors.getGlobalErrors(), hasSize(1));
+    assertThat(errors.getGlobalError().getCode(), containsString("validation.reservation.duration.tooShort"));
+  }
+
+  @Test
+  public void reservationShouldBeLongerThan5Minutes2() {
+    LocalDate startDate = LocalDate.now().withMonthOfYear(12).withDayOfMonth(31);
+    LocalDate endDate = startDate.plusDays(1);
+    LocalTime startTime = new LocalTime().withHourOfDay(23).withMinuteOfHour(58);
+    LocalTime endTime = new LocalTime().withHourOfDay(0).withMinuteOfHour(1);
+
+    Reservation reservation = new ReservationFactory().setStartDate(startDate).setEndDate(endDate).setStartTime(startTime)
+        .setEndTime(endTime).create();
+    Errors errors = createErrorObject(reservation);
+
+    subject.validate(reservation, errors);
+
+    assertThat(errors.getGlobalErrors(), hasSize(1));
+    assertThat(errors.getGlobalError().getCode(), containsString("validation.reservation.duration.tooShort"));
+  }
+
+  @Test
+  public void aReservationShouldNotBeLongerThanOneYear() {
+    LocalDate startDate = LocalDate.now().plusDays(5);
+    LocalDate endDate = startDate.plusYears(1).plusDays(1);
+
+    Reservation reservation = new ReservationFactory().setStartDate(startDate).setEndDate(endDate).create();
+    Errors errors = createErrorObject(reservation);
+
+    subject.validate(reservation, errors);
+
+    assertThat(errors.getGlobalErrors(), hasSize(1));
+    assertThat(errors.getGlobalError().getCode(), containsString("validation.reservation.duration.tooLong"));
   }
 
   private Errors createErrorObject(Reservation reservation) {
