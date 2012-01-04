@@ -75,8 +75,8 @@ public class ReservationServiceTest {
 
   @Test
   public void findEntriesShouldFilterOnUserGroups() {
-    RichUserDetails richUserDetailsWithoutGroups = new RichUserDetailsFactory().addUserGroup("urn:mygroup").create();
-    Security.setUserDetails(richUserDetailsWithoutGroups);
+    RichUserDetails richUserDetailsWithGroups = new RichUserDetailsFactory().addUserGroup("urn:mygroup").create();
+    Security.setUserDetails(richUserDetailsWithGroups);
 
     PageImpl<Reservation> pageResult = new PageImpl<Reservation>(Lists.newArrayList(new ReservationFactory().create()));
     when(reservationRepoMock.findAll(any(Specification.class), any(Pageable.class))).thenReturn(pageResult);
@@ -94,6 +94,18 @@ public class ReservationServiceTest {
     long count = subject.count();
 
     assertThat(count, is(0L));
+  }
+
+  @Test
+  public void countShouldFilterOnUserGroups() {
+    RichUserDetails richUserDetailsWithGroups = new RichUserDetailsFactory().addUserGroup("urn:mygroup").create();
+    Security.setUserDetails(richUserDetailsWithGroups);
+
+    when(reservationRepoMock.count(any(Specification.class))).thenReturn(5L);
+
+    long count = subject.count();
+
+    assertThat(count, is(5L));
   }
 
   @Test(expected = IllegalStateException.class)
@@ -141,6 +153,15 @@ public class ReservationServiceTest {
         .setDestinationPort(destination).create();
 
     subject.update(reservation);
+  }
+
+  @Test
+  public void udpateShouldSave() {
+    Reservation reservation = new ReservationFactory().create();
+
+    subject.update(reservation);
+
+    verify(reservationRepoMock).save(reservation);
   }
 
   @Test

@@ -55,7 +55,7 @@ public class ReservationService {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
 
-    if (isAprilOne(reservation.getStartDate()) || isAprilOne(reservation.getEndDate())) {
+    if (isAprilOne(reservation.getStartDate())) {
       throw new ReservationFailedException("It is April 1, reservation not allowed by NMS.");
     }
 
