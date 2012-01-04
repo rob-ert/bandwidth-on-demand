@@ -19,9 +19,22 @@ public class RequestAttributeAuthenticationFilterTest {
   private RequestAttributeAuthenticationFilter subject = new RequestAttributeAuthenticationFilter();
 
   @Test
-  public void noShibbolethHeadersSetAndNotImitateShouldGiveNull() {
+  public void noShibbolethHeadersSetAndNotImitatingShouldGiveNull() {
     HttpServletRequest requestMock = mock(HttpServletRequest.class);
     subject.setEnvironment(new Environment(false, "urn:dummy", "Dummy"));
+
+    Object principal = subject.getPreAuthenticatedPrincipal(requestMock);
+
+    assertThat(principal, is(nullValue()));
+  }
+
+  @Test
+  public void emptyShibbolethHeaderAndNotImitatingShouldGiveNull() {
+    HttpServletRequest requestMock = mock(HttpServletRequest.class);
+    subject.setEnvironment(new Environment(false, "urn:dummy", "Dummy"));
+
+    when(requestMock.getAttribute(ShibbolethConstants.NAME_ID)).thenReturn("fake");
+    when(requestMock.getAttribute(ShibbolethConstants.DISPLAY_NAME)).thenReturn("");
 
     Object principal = subject.getPreAuthenticatedPrincipal(requestMock);
 
@@ -51,6 +64,14 @@ public class RequestAttributeAuthenticationFilterTest {
 
     assertThat(principal, is(instanceOf(RichPrincipal.class)));
     assertThat(((RichPrincipal) principal).getNameId(), is("urn:dummy"));
+  }
+
+  @Test
+  public void credentialsShouldNotBeAvailable() {
+    Object credentials = subject.getPreAuthenticatedCredentials(mock(HttpServletRequest.class));
+
+    assertThat(credentials, is(instanceOf(String.class)));
+    assertThat(((String) credentials), is("N/A"));
   }
 
 }
