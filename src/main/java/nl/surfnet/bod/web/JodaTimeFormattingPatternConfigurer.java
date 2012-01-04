@@ -84,18 +84,18 @@ public class JodaTimeFormattingPatternConfigurer extends JodaTimeFormattingConfi
     return DateTimeFormat.forPattern(dateTimePattern);
   }
 
-  public JodaTimeFormattingPatternConfigurer setDateTimePattern(String dateTimePattern) {
-    this.dateTimePattern = dateTimePattern;
+  public JodaTimeFormattingPatternConfigurer setDateTimePattern(String pattern) {
+    this.dateTimePattern = pattern;
     return this;
   }
 
-  public JodaTimeFormattingPatternConfigurer setTimePattern(String timePattern) {
-    this.timePattern = timePattern;
+  public JodaTimeFormattingPatternConfigurer setTimePattern(String pattern) {
+    this.timePattern = pattern;
     return this;
   }
 
-  public JodaTimeFormattingPatternConfigurer setDatePattern(String datePattern) {
-    this.datePattern = datePattern;
+  public JodaTimeFormattingPatternConfigurer setDatePattern(String pattern) {
+    this.datePattern = pattern;
     return this;
   }
 
