@@ -43,7 +43,7 @@ public class ShibbolethController {
   public String refreshGroups() {
     SecurityContextHolder.clearContext();
 
-    return "redirect:groups";
+    return "redirect:/";
   }
 
   @RequestMapping("/info")
