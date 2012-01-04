@@ -41,6 +41,7 @@
                                 <c:when test="${not empty displayName}">
                                     <menu:menu id="user_menu">
                                         <menu:category id="c_user" label="${displayName}">
+                                            <menu:item id="i_refresh" url="/shibboleth/refresh" messageCode="security_refresh" />
                                             <menu:item id="i_logout" url="/Shibboleth.sso/Logout?target=/" messageCode="global_menu_logout" />
                                         </menu:category>
                                     </menu:menu>
