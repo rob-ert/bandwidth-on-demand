@@ -28,9 +28,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.LocalDate;
@@ -183,8 +185,8 @@ public class ReservationValidatorTest {
     LocalTime startTime = new LocalTime().withHourOfDay(23).withMinuteOfHour(58);
     LocalTime endTime = new LocalTime().withHourOfDay(0).withMinuteOfHour(1);
 
-    Reservation reservation = new ReservationFactory().setStartDate(startDate).setEndDate(endDate).setStartTime(startTime)
-        .setEndTime(endTime).create();
+    Reservation reservation = new ReservationFactory().setStartDate(startDate).setEndDate(endDate)
+        .setStartTime(startTime).setEndTime(endTime).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -205,6 +207,32 @@ public class ReservationValidatorTest {
 
     assertThat(errors.getGlobalErrors(), hasSize(1));
     assertThat(errors.getGlobalError().getCode(), containsString("validation.reservation.duration.tooLong"));
+  }
+
+  @Test
+  public void vritualGroupNameShouldBeSameAsOfThePorts() {
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:wronggroup").create();
+    Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg).create();
+    Errors errors = createErrorObject(reservation);
+
+    subject.validate(reservation, errors);
+
+    assertThat(errors.getGlobalError().getCode(), containsString("validation.reservation.security"));
+  }
+
+  @Test
+  public void userIsNotAMemberOfTheSurfConextGroup() {
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:wronggroup").create();
+    VirtualPort sourcePort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
+    VirtualPort destPort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
+
+    Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg).setSourcePort(sourcePort)
+        .setDestinationPort(destPort).create();
+    Errors errors = createErrorObject(reservation);
+
+    subject.validate(reservation, errors);
+
+    assertThat(errors.getGlobalError().getCode(), containsString("validation.reservation.security"));
   }
 
   private Errors createErrorObject(Reservation reservation) {
