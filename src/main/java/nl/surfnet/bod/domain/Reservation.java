@@ -122,8 +122,8 @@ public class Reservation {
     return destinationPort;
   }
 
-  public void setDestinationPort(VirtualPort endPort) {
-    this.destinationPort = endPort;
+  public void setDestinationPort(VirtualPort destinationPort) {
+    this.destinationPort = destinationPort;
   }
 
   public LocalTime getStartTime() {

@@ -54,6 +54,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller
@@ -164,8 +165,12 @@ public class ReservationController {
   }
 
   @ModelAttribute("virtualPorts")
-  public Collection<VirtualPort> populateVirtualPorts() {
-    RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+  public Collection<VirtualPort> populateVirtualPorts(Reservation reservation) {
+    if (reservation != null && reservation.getVirtualResourceGroup() != null) {
+      return reservation.getVirtualResourceGroup().getVirtualPorts();
+    }
+
+    RichUserDetails user = Security.getUserDetails();
     Collection<VirtualResourceGroup> groups = virtualResourceGroupService.findAllForUser(user);
 
     return getFirst(transform(groups, new Function<VirtualResourceGroup, Collection<VirtualPort>>() {
@@ -195,6 +200,10 @@ public class ReservationController {
     reservation.setStartTime(noon);
     reservation.setEndDate(tomorrow);
     reservation.setEndTime(noon.plusHours(4));
+
+    Collection<VirtualPort> ports = populateVirtualPorts(reservation);
+    reservation.setSourcePort(Iterables.get(ports, 0, null));
+    reservation.setDestinationPort(Iterables.get(ports, 1, null));
 
     return reservation;
   }

@@ -4,12 +4,14 @@
 		
 		inputSelect.change(function() {
 			$.get(dataUrl.replace("{}", inputSelect.val()), function(responseData) {
-				var options = $.map(responseData, function(object) {
+				var options = $.map(responseData, function(object, i) {
 					return '<option value="'+object.id+'">'+object.name+'</option>';
-				}).join("");
+				});
 				if ($.isArray(otherSelect)) {
 					$.each(otherSelect, function(i, select) {
-						$(select).html(options);
+						$(select).html(options.join(""));
+						selectedIndex = options.length >= i ? i :options.length;
+						$(select).prop('selectedIndex', selectedIndex);
 					});
 				} else {
 					$(otherSelect).html(options);
