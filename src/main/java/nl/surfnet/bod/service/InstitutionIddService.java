@@ -38,10 +38,11 @@ import com.googlecode.ehcache.annotations.Cacheable;
 @Service
 public class InstitutionIddService implements InstitutionService {
 
+  @Autowired
   private IddClient iddClient;
 
   @Override
-  @Cacheable(cacheName = "institutionsCache")
+  @Cacheable(cacheName = InstitutionCacheRefresher.CACHE_NAME)
   public Collection<Institution> getInstitutions() {
     Collection<Klanten> klanten = iddClient.getKlanten();
 
@@ -59,10 +60,5 @@ public class InstitutionIddService implements InstitutionService {
     }
 
     return institutions;
-  }
-
-  @Autowired
-  public void setIddClient(IddClient iddClient) {
-    this.iddClient = iddClient;
   }
 }

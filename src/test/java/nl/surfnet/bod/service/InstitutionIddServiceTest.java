@@ -24,7 +24,6 @@ package nl.surfnet.bod.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
@@ -33,21 +32,22 @@ import nl.surfnet.bod.domain.Institution;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.idd.generated.Klanten;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.Lists;
 
+@RunWith(MockitoJUnitRunner.class)
 public class InstitutionIddServiceTest {
 
-  private IddClient iddClientMock = mock(IddClient.class);
+  @InjectMocks
+  private InstitutionIddService subject;
 
-  private InstitutionIddService subject = new InstitutionIddService();
-
-  @Before
-  public void setUp() {
-    subject.setIddClient(iddClientMock);
-  }
+  @Mock
+  private IddClient iddClientMock;
 
   @Test
   public void shouldIgnoreEmptyNames() {
