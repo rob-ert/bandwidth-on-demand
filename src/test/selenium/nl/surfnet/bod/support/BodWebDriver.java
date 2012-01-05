@@ -23,6 +23,7 @@ package nl.surfnet.bod.support;
 
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 
@@ -30,6 +31,9 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.pages.ListReservationPage;
+import nl.surfnet.bod.pages.NewReservationPage;
 import nl.surfnet.bod.pages.physical.ListPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.physical.NewPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.virtual.ListVirtualPortPage;
@@ -38,6 +42,8 @@ import nl.surfnet.bod.pages.virtual.NewVirtualPortPage;
 import nl.surfnet.bod.pages.virtual.NewVirtualResourceGroupPage;
 
 import org.hamcrest.Matcher;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
@@ -154,6 +160,48 @@ public class BodWebDriver {
     String table = page.getTable();
 
     assertThat(table, containsString(name));
+  }
+
+  public void createNewReservation(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+    NewReservationPage page = NewReservationPage.get(driver, URL_UNDER_TEST);
+
+    page.sendStartDate(startDate);
+    page.sendStartTime(startTime);
+    page.sendEndDate(endDate);
+    page.sendEndTime(endTime);
+
+    page.save();
+  }
+
+  public void verifyReservationWasCreated(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+    ListReservationPage page = ListReservationPage.get(driver);
+
+    String start = ListReservationPage.DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
+    String end = ListReservationPage.DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
+
+    String table = page.getTable();
+
+    assertThat(table, allOf(containsString("PENDING"), containsString(start), containsString(end)));
+  }
+
+  public void verifyReservationStartDateHasError(String string) {
+    NewReservationPage page = NewReservationPage.get(driver);
+    String error = page.getStartDateError();
+
+    assertThat(error, containsString(string));
+  }
+
+  public void cancelReservation(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+    ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
+
+    page.deleteByDates(startDate, endDate, startTime, endTime);
+  }
+
+  public void verifyReservationWasCanceled(LocalDate startDate, LocalDate endDate, LocalTime startTime,
+      LocalTime endTime) {
+    ListReservationPage page = ListReservationPage.get(driver);
+
+    page.reservationShouldBe(startDate, endDate, startTime, endTime, ReservationStatus.CANCELLED_BY_USER);
   }
 
 }
