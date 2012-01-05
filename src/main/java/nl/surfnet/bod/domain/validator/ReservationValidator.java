@@ -35,6 +35,7 @@ public class ReservationValidator implements Validator {
 
   private static final Period MIN_PERIOD = new Period().withMinutes(5);
   private static final Period MAX_PERIOD = new Period().withYears(1);
+  private static final Period MAX_PERIOD_AWAY = new Period().withYears(1);
   private static final PeriodFormatter PERIOD_FORMATTER = PeriodFormat.getDefault();
 
   @Override
@@ -89,24 +90,25 @@ public class ReservationValidator implements Validator {
     LocalTime endTime = reservation.getEndTime();
 
     LocalDate today = LocalDate.now();
-    LocalDate oneYearLater = today.plusYears(1);
+    LocalDate maxFutureDate = today.plus(MAX_PERIOD_AWAY);
     LocalTime now = LocalTime.now();
 
     if (startDate.isBefore(today)) {
-      errors.rejectValue("startDate", "validation.date.past");
+      errors.rejectValue("startDate", "validation.reservation.startdate.past");
     }
     if (startDate.isEqual(today) && startTime.isBefore(now)) {
-      errors.rejectValue("startTime", "validation.date.past");
+      errors.rejectValue("startTime", "validation.reservation.startdate.past");
     }
-    if (startDate.isAfter(oneYearLater)) {
-      errors.rejectValue("startDate", "validation.date.maxFuture");
+    if (startDate.isAfter(maxFutureDate)) {
+      errors.rejectValue("startDate", "validation.reservation.startdate.maxFuture",
+          new Object[] { MAX_PERIOD_AWAY.toString(PERIOD_FORMATTER) }, "Start date too far away");
     }
 
     if (endDate.isBefore(startDate)) {
-      errors.rejectValue("endDate", "validation.end.before.start");
+      errors.rejectValue("endDate", "validation.reservation.enddate.before.start");
     }
     if (datesAreOnSameDay(startDate, endDate) && endTime.isBefore(startTime)) {
-      errors.rejectValue("endTime", "validation.end.before.start");
+      errors.rejectValue("endTime", "validation.reservation.endtime.before.start");
     }
 
     DateTime startDateTime = startDate.toDateTime(startTime);

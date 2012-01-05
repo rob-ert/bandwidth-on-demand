@@ -23,47 +23,51 @@ package nl.surfnet.bod.domain.validator;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.web.security.Security;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
+@RunWith(MockitoJUnitRunner.class)
 public class VirtualPortValidatorTest {
 
-  private VirtualPortService virtualPortServiceMock;
+  @InjectMocks
   private VirtualPortValidator subject;
 
+  @Mock
+  private VirtualPortService virtualPortServiceMock;
+
   @Before
-  public void initController() {
-    subject = new VirtualPortValidator();
-    virtualPortServiceMock = mock(VirtualPortService.class);
-    subject.setVirtualPortService(virtualPortServiceMock);
+  public void initSecurity() {
+    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:mygroup").create());
   }
 
   @Test
   public void testSupportsValidClass() {
     assertTrue(subject.supports(VirtualPort.class));
-  }
-
-  @Test
-  public void testSupportsInValidClass() {
     assertFalse(subject.supports(Object.class));
   }
 
   @Test
   public void testExistingName() {
-    VirtualPort existingPort = new VirtualPortFactory().setName("one").create();
-    VirtualPort newPort = new VirtualPortFactory().setId(null).setName("one").create();
+    VirtualPort existingPort = new VirtualPortFactory().setName("one").setPhysicalPortAdminGroup("urn:mygroup")
+        .create();
+    VirtualPort newPort = new VirtualPortFactory().setId(null).setName("one").setPhysicalPortAdminGroup("urn:mygroup")
+        .create();
 
     when(virtualPortServiceMock.findByName("one")).thenReturn(existingPort);
-
-    Errors errors = new BeanPropertyBindingResult(newPort, "virtualPort");
+    Errors errors = createErrorObject(newPort);
 
     subject.validate(newPort, errors);
 
@@ -73,17 +77,31 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void testNonExistingName() {
-    VirtualPort virtualPortOne = new VirtualPortFactory().setName("one").create();
+    VirtualPort virtualPortOne = new VirtualPortFactory().setName("one").setPhysicalPortAdminGroup("urn:mygroup")
+        .create();
 
     when(virtualPortServiceMock.findByName("one")).thenReturn(null);
-
-    Errors errors = new BeanPropertyBindingResult(virtualPortOne, "virtualPort");
-
-    assertFalse(errors.hasErrors());
+    Errors errors = createErrorObject(virtualPortOne);
 
     subject.validate(virtualPortOne, errors);
 
     assertFalse(errors.hasErrors());
+  }
+
+  @Test
+  public void whenUserIsNotMemberOfAdminGroupShouldGiveAnError() {
+    VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:notmygroup").create();
+
+    Errors errors = createErrorObject(port);
+
+    subject.validate(port, errors);
+
+    assertTrue(errors.hasErrors());
+    assertTrue(errors.hasFieldErrors("physicalPort"));
+  }
+
+  private Errors createErrorObject(VirtualPort port) {
+    return new BeanPropertyBindingResult(port, "virtualPort");
   }
 
 }

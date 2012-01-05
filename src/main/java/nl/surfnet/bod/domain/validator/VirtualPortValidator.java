@@ -23,6 +23,7 @@ package nl.surfnet.bod.domain.validator;
 
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,9 +33,9 @@ import org.springframework.validation.Validator;
 /**
  * Validator for the {@link VirtualPort}. Validates that the
  * {@link VirtualPort#getName()} is unique.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 @Component
 public class VirtualPortValidator implements Validator {
@@ -53,6 +54,19 @@ public class VirtualPortValidator implements Validator {
   public void validate(Object objToValidate, Errors errors) {
     VirtualPort virtualPort = (VirtualPort) objToValidate;
 
+    validateUniquenessOfName(virtualPort, errors);
+    validatePhysicalPort(virtualPort, errors);
+  }
+
+  private void validatePhysicalPort(VirtualPort virtualPort, Errors errors) {
+    String adminGroup = virtualPort.getPhysicalResourceGroup().getAdminGroup();
+    if (Security.isUserNotMemberOf(adminGroup)) {
+      errors.rejectValue("physicalPort", "validation.virtualport.physicalport.security",
+          "You do not have the right permissions for this port");
+    }
+  }
+
+  private void validateUniquenessOfName(VirtualPort virtualPort, Errors errors) {
     VirtualPort existingVirtualPort = virtualPortService.findByName(virtualPort.getName());
 
     if (existingVirtualPort != null) {
@@ -61,10 +75,5 @@ public class VirtualPortValidator implements Validator {
         errors.rejectValue("name", "validation.not.unique");
       }
     }
-
-  }
-
-  public void setVirtualPortService(VirtualPortService virtualPortService) {
-    this.virtualPortService = virtualPortService;
   }
 }

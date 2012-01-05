@@ -27,6 +27,8 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 
+import org.springframework.util.StringUtils;
+
 /**
  * Factory for creation of {@link VirtualPort}
  *
@@ -42,6 +44,7 @@ public class VirtualPortFactory {
   private String name = "A virtual port " + id;
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
   private PhysicalPort physicalPort = new PhysicalPortFactory().create();
+  private String physicalPortAdminGroup;
 
   public VirtualPort create() {
     VirtualPort virtualPort = new VirtualPort();
@@ -51,6 +54,10 @@ public class VirtualPortFactory {
     virtualPort.setName(name);
 
     virtualPort.setVirtualResourceGroup(virtualResourceGroup);
+
+    if (StringUtils.hasText(physicalPortAdminGroup)) {
+      physicalPort.getPhysicalResourceGroup().setAdminGroup(physicalPortAdminGroup);
+    }
     virtualPort.setPhysicalPort(physicalPort);
 
     return virtualPort;
@@ -76,7 +83,9 @@ public class VirtualPortFactory {
     return this;
   }
 
-
-
+  public VirtualPortFactory setPhysicalPortAdminGroup(String group) {
+    this.physicalPortAdminGroup = group;
+    return this;
+  }
 
 }
