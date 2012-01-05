@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.domain.validator;
 
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -120,21 +122,23 @@ public class VirtualResourceGroupValidatorTest {
   
   @Test
   public void testValidateNonExistingNameAndExistingSurfConextGroup() {
+    final String surfConextGroupName = "surfGroupTest";
     VirtualResourceGroup virtualResourceGroupOne = new VirtualResourceGroupFactory().setName("one")
-        .setSurfConextGroupName("surfOne").create();
+        .setSurfConextGroupName(surfConextGroupName).create();
     
     VirtualResourceGroup virtualResourceGroupTwo = new VirtualResourceGroupFactory().setName("two")
-        .setSurfConextGroupName("surfOne").create();
+        .setSurfConextGroupName(surfConextGroupName).create();
 
-    when(virtualResourceGroupServiceMock.findBySurfConextGroupName("surfOne")).thenReturn(virtualResourceGroupTwo);
+    when(virtualResourceGroupServiceMock.findBySurfConextGroupName(surfConextGroupName)).thenReturn(virtualResourceGroupTwo);
     when(virtualResourceGroupServiceMock.findByName("one")).thenReturn(virtualResourceGroupOne);
 
     Errors errors = new BeanPropertyBindingResult(virtualResourceGroupOne, "virtualResourceGroup");
-    assertFalse(errors.hasErrors());
+    assertThat(errors.hasErrors(), is(false));
 
     subject.validate(virtualResourceGroupOne, errors);
-    assertTrue(errors.hasFieldErrors("surfConextGroupName"));
-    assertFalse(errors.hasFieldErrors("name"));
+    
+    assertThat(errors.getAllErrors(), hasSize(1));
+    assertThat(errors.hasFieldErrors("surfConextGroupName"), is(true));
   }
 
 }
