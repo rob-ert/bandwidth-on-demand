@@ -116,6 +116,7 @@ public class VirtualResourceGroup {
   public String toString() {
     return Objects.toStringHelper(this)
         .add("id", getId())
-        .add("name", getName()).add("surfConextGroupName",surfConextGroupName).toString();
+        .add("name", getName())
+        .add("surfConextGroupName", surfConextGroupName).toString();
   }
 }
