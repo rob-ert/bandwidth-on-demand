@@ -117,5 +117,24 @@ public class VirtualResourceGroupValidatorTest {
     assertFalse(errors.hasFieldErrors("surfConextGroupName"));
     assertFalse(errors.hasGlobalErrors());
   }
+  
+  @Test
+  public void testValidateNonExistingNameAndExistingSurfConextGroup() {
+    VirtualResourceGroup virtualResourceGroupOne = new VirtualResourceGroupFactory().setName("one")
+        .setSurfConextGroupName("surfOne").create();
+    
+    VirtualResourceGroup virtualResourceGroupTwo = new VirtualResourceGroupFactory().setName("two")
+        .setSurfConextGroupName("surfOne").create();
+
+    when(virtualResourceGroupServiceMock.findBySurfConextGroupName("surfOne")).thenReturn(virtualResourceGroupTwo);
+    when(virtualResourceGroupServiceMock.findByName("one")).thenReturn(virtualResourceGroupOne);
+
+    Errors errors = new BeanPropertyBindingResult(virtualResourceGroupOne, "virtualResourceGroup");
+    assertFalse(errors.hasErrors());
+
+    subject.validate(virtualResourceGroupOne, errors);
+    assertTrue(errors.hasFieldErrors("surfConextGroupName"));
+    assertFalse(errors.hasFieldErrors("name"));
+  }
 
 }
