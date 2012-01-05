@@ -28,10 +28,10 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.junit.Test;
@@ -43,27 +43,26 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
-public class VirtualPortControllerTest {
+public class VirtualResourceGroupControllerTest {
 
   @InjectMocks
-  private VirtualPortController subject;
+  private VirtualResourceGroupController subject;
 
   @Mock
-  private VirtualPortService virtualPortServiceMock;
+  private VirtualResourceGroupService virtualResourceGroupServiceMock;
 
   @Test
   public void listShouldFindEntries() {
     ModelStub model = new ModelStub();
 
-    when(virtualPortServiceMock.findEntries(0, WebUtils.MAX_ITEMS_PER_PAGE)).thenReturn(
-        Lists.newArrayList(new VirtualPortFactory().create()));
+    when(virtualResourceGroupServiceMock.findEntries(0, WebUtils.MAX_ITEMS_PER_PAGE)).thenReturn(
+        Lists.newArrayList(new VirtualResourceGroupFactory().create()));
 
     subject.list(1, model);
 
-    assertThat(model.asMap(), hasKey("virtualPortList"));
+    assertThat(model.asMap(), hasKey("virtualResourceGroupList"));
     assertThat(model.asMap(), hasKey("maxPages"));
 
-    assertThat((Collection<VirtualPort>) model.asMap().get("virtualPortList"), hasSize(1));
+    assertThat((Collection<VirtualResourceGroup>) model.asMap().get("virtualResourceGroupList"), hasSize(1));
   }
-
 }
