@@ -60,11 +60,12 @@ public class VirtualResourceGroupValidator implements Validator {
       return;
     }
 
-    if (!validatorHelper.validateNameUniqueness(virtualResourceGroup.getId().equals(existingVirtualResourceGroup.getId()),
-        virtualResourceGroup.getName().equalsIgnoreCase(existingVirtualResourceGroup.getName()),
-        virtualResourceGroup.getId() != null)) {
+    if (!validatorHelper.validateNameUniqueness(
+        existingVirtualResourceGroup.getId().equals(virtualResourceGroup.getId()), virtualResourceGroup.getName()
+            .equalsIgnoreCase(existingVirtualResourceGroup.getName()), virtualResourceGroup.getId() != null)) {
       errors.rejectValue("name", "validation.not.unique");
     }
+   
   }
 
   void setVirtualResourceGroupService(VirtualResourceGroupService virtualResourceGroupService) {
