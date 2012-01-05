@@ -39,23 +39,23 @@ import org.springframework.validation.Errors;
 public class VirtualResourceGroupValidatorTest {
 
   private VirtualResourceGroupService virtualResourceGroupServiceMock;
-  private VirtualResourceGroupValidator subject;
+  private VirtualResourceGroupValidator virtualResourceGroupValidator;
 
   @Before
   public void initController() {
-    subject = new VirtualResourceGroupValidator();
+    virtualResourceGroupValidator = new VirtualResourceGroupValidator();
     virtualResourceGroupServiceMock = mock(VirtualResourceGroupService.class);
-    subject.setVirtualResourceGroupService(virtualResourceGroupServiceMock);
+    virtualResourceGroupValidator.setVirtualResourceGroupService(virtualResourceGroupServiceMock);
   }
 
   @Test
   public void testSupportsValidClass() {
-    assertTrue(subject.supports(VirtualResourceGroup.class));
+    assertTrue(virtualResourceGroupValidator.supports(VirtualResourceGroup.class));
   }
 
   @Test
   public void testSupportsInValidClass() {
-    assertFalse(subject.supports(Object.class));
+    assertFalse(virtualResourceGroupValidator.supports(Object.class));
   }
 
   @Test
@@ -66,7 +66,7 @@ public class VirtualResourceGroupValidatorTest {
     when(virtualResourceGroupServiceMock.findBySurfConextGroupName("one")).thenReturn(null);
     Errors errors = new BeanPropertyBindingResult(virtualResourceGroupOne, "virtualResourceGroup");
 
-    subject.validate(virtualResourceGroupOne, errors);
+    virtualResourceGroupValidator.validate(virtualResourceGroupOne, errors);
 
     assertFalse(errors.hasErrors());
   }
@@ -83,7 +83,7 @@ public class VirtualResourceGroupValidatorTest {
     Errors errors = new BeanPropertyBindingResult(virtualResourceGroupOne, "virtualResourceGroup");
     assertFalse(errors.hasErrors());
 
-    subject.validate(virtualResourceGroupOne, errors);
+    virtualResourceGroupValidator.validate(virtualResourceGroupOne, errors);
 
     assertTrue(errors.hasFieldErrors("name"));
     assertFalse(errors.hasGlobalErrors());
@@ -98,7 +98,7 @@ public class VirtualResourceGroupValidatorTest {
     Errors errors = new BeanPropertyBindingResult(virtualResourceGroupOne, "virtualResourceGroup");
     assertFalse(errors.hasErrors());
 
-    subject.validate(virtualResourceGroupOne, errors);
+    virtualResourceGroupValidator.validate(virtualResourceGroupOne, errors);
 
     assertFalse(errors.hasErrors());
   }
@@ -113,7 +113,7 @@ public class VirtualResourceGroupValidatorTest {
     Errors errors = new BeanPropertyBindingResult(virtualResourceGroupOne, "virtualResourceGroup");
     assertFalse(errors.hasErrors());
 
-    subject.validate(virtualResourceGroupOne, errors);
+    virtualResourceGroupValidator.validate(virtualResourceGroupOne, errors);
 
     assertFalse(errors.hasFieldErrors("name"));
     assertFalse(errors.hasFieldErrors("surfConextGroupName"));
@@ -125,17 +125,14 @@ public class VirtualResourceGroupValidatorTest {
     final String surfConextGroupName = "surfGroupTest";
     VirtualResourceGroup virtualResourceGroupOne = new VirtualResourceGroupFactory().setName("one")
         .setSurfConextGroupName(surfConextGroupName).create();
-    
-    VirtualResourceGroup virtualResourceGroupTwo = new VirtualResourceGroupFactory().setName("two")
-        .setSurfConextGroupName(surfConextGroupName).create();
 
-    when(virtualResourceGroupServiceMock.findBySurfConextGroupName(surfConextGroupName)).thenReturn(virtualResourceGroupTwo);
-    when(virtualResourceGroupServiceMock.findByName("one")).thenReturn(virtualResourceGroupOne);
+    when(virtualResourceGroupServiceMock.findBySurfConextGroupName(surfConextGroupName)).thenReturn(virtualResourceGroupOne);
+    when(virtualResourceGroupServiceMock.findByName("one")).thenReturn(null);
 
     Errors errors = new BeanPropertyBindingResult(virtualResourceGroupOne, "virtualResourceGroup");
     assertThat(errors.hasErrors(), is(false));
 
-    subject.validate(virtualResourceGroupOne, errors);
+    virtualResourceGroupValidator.validate(virtualResourceGroupOne, errors);
     
     assertThat(errors.getAllErrors(), hasSize(1));
     assertThat(errors.hasFieldErrors("surfConextGroupName"), is(true));
