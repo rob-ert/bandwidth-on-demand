@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.web.manager;
 
+import static nl.surfnet.bod.web.manager.VirtualPortController.MODEL_KEY_LIST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
@@ -51,6 +52,7 @@ public class VirtualPortControllerTest {
   @Mock
   private VirtualPortService virtualPortServiceMock;
 
+  @SuppressWarnings("unchecked")
   @Test
   public void listShouldFindEntries() {
     ModelStub model = new ModelStub();
@@ -59,11 +61,11 @@ public class VirtualPortControllerTest {
         Lists.newArrayList(new VirtualPortFactory().create()));
 
     subject.list(1, model);
+    
+    assertThat(model.asMap(), hasKey(MODEL_KEY_LIST));
+    assertThat(model.asMap(), hasKey(WebUtils.MAX_PAGES_KEY));
 
-    assertThat(model.asMap(), hasKey("virtualPortList"));
-    assertThat(model.asMap(), hasKey("maxPages"));
-
-    assertThat((Collection<VirtualPort>) model.asMap().get("virtualPortList"), hasSize(1));
+    assertThat((Collection<VirtualPort>) model.asMap().get(MODEL_KEY_LIST), hasSize(1));
   }
 
 }

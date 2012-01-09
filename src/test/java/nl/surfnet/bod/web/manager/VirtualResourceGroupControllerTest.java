@@ -22,9 +22,12 @@
 package nl.surfnet.bod.web.manager;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
+
+import static nl.surfnet.bod.web.manager.VirtualResourceGroupController.MODEL_KEY_LIST;
 
 import java.util.Collection;
 
@@ -60,9 +63,9 @@ public class VirtualResourceGroupControllerTest {
 
     subject.list(1, model);
 
-    assertThat(model.asMap(), hasKey("virtualResourceGroupList"));
-    assertThat(model.asMap(), hasKey("maxPages"));
+    assertThat(model.asMap(), hasKey(MODEL_KEY_LIST));
+    assertThat(model.asMap(), hasKey(WebUtils.MAX_PAGES_KEY));
 
-    assertThat((Collection<VirtualResourceGroup>) model.asMap().get("virtualResourceGroupList"), hasSize(1));
+    assertThat((Collection<VirtualResourceGroup>) model.asMap().get(MODEL_KEY_LIST), hasSize(1));
   }
 }
