@@ -26,7 +26,8 @@
 
         <field:input type="date" field="endDate" id="endDate" labelCode="reservation_endDate" required="true" />
         <field:input type="time" field="endTime" id="endTime" labelCode="reservation_endTime" required="true" />
-                
+
+        <field:input type="number" field="bandwidth" id="bandwidth" labelCode="reservation_bandwidth" required="true" />
     </form:update>
     
     <script type="text/javascript">
