@@ -54,6 +54,7 @@ public class VirtualResourceGroupControllerTest {
   @Mock
   private VirtualResourceGroupService virtualResourceGroupServiceMock;
 
+  @SuppressWarnings("unchecked")
   @Test
   public void listShouldFindEntries() {
     ModelStub model = new ModelStub();
