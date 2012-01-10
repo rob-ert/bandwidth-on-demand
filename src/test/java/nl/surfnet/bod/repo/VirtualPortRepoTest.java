@@ -47,8 +47,8 @@ public class VirtualPortRepoTest {
   @Test
   public void testSave() {
     String name = "vpOne";
-    VirtualPort virtualPortOne = new VirtualPortFactory().setName(name).setPhysicalPort(null)
-        .setVirtualResourceGroup(null).create();
+    VirtualPort virtualPortOne = new VirtualPortFactory().setName(name).setPhysicalPortAdminGroup(null)
+        .setPhysicalPort(null).setVirtualResourceGroup(null).create();
 
     subject.save(virtualPortOne);
   }
@@ -58,9 +58,10 @@ public class VirtualPortRepoTest {
     String name = "tester";
 
     VirtualPort virtualPort = new VirtualPortFactory().setName(name).setVirtualResourceGroup(null)
-        .setPhysicalPort(null).create();
+        .setPhysicalPortAdminGroup(null).setPhysicalPort(null).create();
     Collection<VirtualPort> virtualPorts = Lists.newArrayList(virtualPort,
-        new VirtualPortFactory().setName("notToBeFound").setVirtualResourceGroup(null).setPhysicalPort(null).create());
+        new VirtualPortFactory().setName("notToBeFound").setVirtualResourceGroup(null).setPhysicalPortAdminGroup(null)
+            .setPhysicalPort(null).create());
 
     subject.save(virtualPorts);
 
@@ -69,5 +70,4 @@ public class VirtualPortRepoTest {
     assertThat(foundPhysicalResourceGroup.getName(), is(name));
 
   }
-
 }

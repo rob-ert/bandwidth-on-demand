@@ -29,8 +29,8 @@ public class VirtualPortTestSelenium extends TestExternalSupport {
 
   @Test
   public void createAVirtualPort() {
-    getWebDriver().createNewVirtualPort("My first virtual port");
+    getWebDriver().createNewVirtualPort("My first virtual port", "100");
 
-    getWebDriver().verifyVirtualPortWasCreated("My first virtual port");
+    getWebDriver().verifyVirtualPortWasCreated("My first virtual port", "100");
   }
 }

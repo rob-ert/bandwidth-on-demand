@@ -61,10 +61,8 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void testExistingName() {
-    VirtualPort existingPort = new VirtualPortFactory().setName("one").setPhysicalPortAdminGroup("urn:mygroup")
-        .create();
-    VirtualPort newPort = new VirtualPortFactory().setId(null).setName("one").setPhysicalPortAdminGroup("urn:mygroup")
-        .create();
+    VirtualPort existingPort = new VirtualPortFactory().setName("one").create();
+    VirtualPort newPort = new VirtualPortFactory().setId(null).setName("one").create();
 
     when(virtualPortServiceMock.findByName("one")).thenReturn(existingPort);
     Errors errors = createErrorObject(newPort);
@@ -77,8 +75,7 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void testNonExistingName() {
-    VirtualPort virtualPortOne = new VirtualPortFactory().setName("one").setPhysicalPortAdminGroup("urn:mygroup")
-        .create();
+    VirtualPort virtualPortOne = new VirtualPortFactory().setName("one").create();
 
     when(virtualPortServiceMock.findByName("one")).thenReturn(null);
     Errors errors = createErrorObject(virtualPortOne);
@@ -96,12 +93,47 @@ public class VirtualPortValidatorTest {
 
     subject.validate(port, errors);
 
-    assertTrue(errors.hasErrors());
+    assertFalse(errors.hasGlobalErrors());
     assertTrue(errors.hasFieldErrors("physicalPort"));
   }
 
   private Errors createErrorObject(VirtualPort port) {
     return new BeanPropertyBindingResult(port, "virtualPort");
+  }
+
+  @Test
+  public void negativeBandwidth() {
+    VirtualPort port = new VirtualPortFactory().setMaxBandwidth(-1).create();
+
+    Errors errors = createErrorObject(port);
+
+    subject.validate(port, errors);
+
+    assertFalse(errors.hasGlobalErrors());
+    assertTrue(errors.hasFieldErrors("maxBandwidth"));
+  }
+
+  @Test
+  public void zeroBandwidth() {
+    VirtualPort port = new VirtualPortFactory().setMaxBandwidth(0).create();
+
+    Errors errors = createErrorObject(port);
+
+    subject.validate(port, errors);
+
+    assertFalse(errors.hasGlobalErrors());
+    assertTrue(errors.hasFieldErrors("maxBandwidth"));
+  }
+
+  @Test
+  public void minimalBandwidth() {
+    VirtualPort port = new VirtualPortFactory().setMaxBandwidth(1).create();
+
+    Errors errors = createErrorObject(port);
+
+    subject.validate(port, errors);
+
+    assertFalse(errors.hasErrors());
   }
 
 }

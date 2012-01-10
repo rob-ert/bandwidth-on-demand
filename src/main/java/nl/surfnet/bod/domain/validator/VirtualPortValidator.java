@@ -33,9 +33,9 @@ import org.springframework.validation.Validator;
 /**
  * Validator for the {@link VirtualPort}. Validates that the
  * {@link VirtualPort#getName()} is unique.
- *
+ * 
  * @author Franky
- *
+ * 
  */
 @Component
 public class VirtualPortValidator implements Validator {
@@ -56,6 +56,7 @@ public class VirtualPortValidator implements Validator {
 
     validateUniquenessOfName(virtualPort, errors);
     validatePhysicalPort(virtualPort, errors);
+    validateBandwidth(virtualPort, errors);
   }
 
   private void validatePhysicalPort(VirtualPort virtualPort, Errors errors) {
@@ -76,4 +77,11 @@ public class VirtualPortValidator implements Validator {
       }
     }
   }
+
+  private void validateBandwidth(VirtualPort virtualPort, Errors errors) {
+    if (virtualPort.getMaxBandwidth() < 1) {
+      errors.rejectValue("maxBandwidth", "validation.low");
+    }
+  }
+
 }

@@ -147,19 +147,21 @@ public class BodWebDriver {
     assertTrue(page.hasNameValidationError());
   }
 
-  public void createNewVirtualPort(String name) {
+  public void createNewVirtualPort(String name, String maxBandwidth) {
     NewVirtualPortPage page = NewVirtualPortPage.get(driver, URL_UNDER_TEST);
 
     page.sendName(name);
+    page.sendMaxBandwidth(maxBandwidth);
     page.save();
   }
 
-  public void verifyVirtualPortWasCreated(String name) {
+  public void verifyVirtualPortWasCreated(String name, String maxBandwidth) {
     ListVirtualPortPage page = ListVirtualPortPage.get(driver);
 
     String table = page.getTable();
 
     assertThat(table, containsString(name));
+    assertThat(table, containsString(maxBandwidth));
   }
 
   public void createNewReservation(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {

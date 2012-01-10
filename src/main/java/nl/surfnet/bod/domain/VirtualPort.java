@@ -31,9 +31,9 @@ import com.google.common.base.Objects;
 /**
  * Entity which represents a VirtualPort which is mapped to a
  * {@link PhysicalPort} and is related to a {@link VirtualResourceGroup}
- *
+ * 
  * @author Franky
- *
+ * 
  */
 @Entity
 @JsonIgnoreProperties({ "virtualResourceGroup" })
@@ -55,6 +55,8 @@ public class VirtualPort {
 
   @ManyToOne
   private PhysicalPort physicalPort;
+
+  private Integer maxBandwidth;
 
   public Long getId() {
     return id;
@@ -100,12 +102,20 @@ public class VirtualPort {
     return physicalPort == null ? null : physicalPort.getPhysicalResourceGroup();
   }
 
+  public Integer getMaxBandwidth() {
+    return maxBandwidth;
+  }
+
+  public void setMaxBandwidth(Integer maxBandwidth) {
+    this.maxBandwidth = maxBandwidth;
+  }
+
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
         .add("id", getId())
         .add("name", getName())
+        .add("MaxBandwidth: ", getMaxBandwidth())
         .add("physicalPort", physicalPort).toString();
   }
-
 }

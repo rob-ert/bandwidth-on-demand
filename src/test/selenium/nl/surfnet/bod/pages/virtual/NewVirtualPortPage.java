@@ -27,6 +27,8 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 public class NewVirtualPortPage {
+  
+  public static final String DEFAULT_BANDWIDTH="100";
 
   private static final String PAGE =  "/manager/virtualports/create";
 
@@ -34,6 +36,9 @@ public class NewVirtualPortPage {
 
   @FindBy(id = "_name_id")
   private WebElement nameInput;
+  
+  @FindBy(id="_maxBandwidth_id")
+  private WebElement maxBandwidthInput;
 
   @FindBy(id = "_name_id")
   private WebElement virtualResourceGroupSelect;
@@ -66,6 +71,11 @@ public class NewVirtualPortPage {
   public void sendName(String name) {
     nameInput.clear();
     nameInput.sendKeys(name);
+  }
+  
+  public void sendMaxBandwidth(String maxBandwidth) {
+    maxBandwidthInput.clear();
+    maxBandwidthInput.sendKeys(maxBandwidth);
   }
 
   public void save() {
