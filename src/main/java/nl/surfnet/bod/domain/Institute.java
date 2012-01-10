@@ -21,15 +21,34 @@
  */
 package nl.surfnet.bod.domain;
 
-public class Institution {
+/**
+ * Represents a customer of SURFnet.
+ * 
+ * @author Franky
+ * 
+ */
+public class Institute {
 
+  private final int id;
   private final String name;
+  private final String shortName;
 
-  public Institution(String name) {
+  public Institute(int id, String name, String shortName) {
+    this.id = id;
     this.name = name;
+    this.shortName = shortName;
+  }
+
+  public int getId() {
+    return id;
   }
 
   public String getName() {
     return name;
   }
+
+  public String getShortName() {
+    return shortName;
+  }
+
 }

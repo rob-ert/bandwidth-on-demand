@@ -154,8 +154,8 @@ public class PhysicalResourceGroupDbTest {
 
   @Test(expected = JpaSystemException.class)
   public void physicalResourceGroupInstituteNameShouldBeUnique() {
-    PhysicalResourceGroup group1 = new PhysicalResourceGroupFactory().setInstitution("SURFnet").create();
-    PhysicalResourceGroup group2 = new PhysicalResourceGroupFactory().setInstitution("SURFnet").create();
+    PhysicalResourceGroup group1 = new PhysicalResourceGroupFactory().create();
+    PhysicalResourceGroup group2 = new PhysicalResourceGroupFactory().create();
 
     physicalResourceGroupService.save(group1);
     physicalResourceGroupService.save(group2);

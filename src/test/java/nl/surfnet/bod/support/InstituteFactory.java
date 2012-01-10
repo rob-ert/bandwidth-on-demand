@@ -19,14 +19,42 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.service;
-
-import java.util.Collection;
+package nl.surfnet.bod.support;
 
 import nl.surfnet.bod.domain.Institute;
 
-public interface InstitutionService {
+/**
+ * Factory for the {@link Institute} class. Enables custom values by using the
+ * supplied setters, otherwise a anonymous instance will be created.
+ * 
+ * @author Franky
+ * 
+ */
+public class InstituteFactory {
 
-  Collection<Institute> getInstitutions();
+  private int id = 1;
+  private String name = "Customer One";
+  private String shortName = "One";
+
+  public Institute create() {
+    Institute institute = new Institute(id, name, shortName);
+
+    return institute;
+  }
+
+  public InstituteFactory setId(int id) {
+    this.id = id;
+    return this;
+  }
+
+  public InstituteFactory setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public InstituteFactory setShortName(String shortName) {
+    this.shortName = shortName;
+    return this;
+  }
 
 }

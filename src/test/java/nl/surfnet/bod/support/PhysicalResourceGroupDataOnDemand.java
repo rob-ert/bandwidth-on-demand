@@ -33,6 +33,7 @@ import javax.validation.ConstraintViolationException;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.support.InstituteFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -59,7 +60,7 @@ public class PhysicalResourceGroupDataOnDemand {
 
   public void setInstitutionName(final PhysicalResourceGroup obj, final int index) {
     String institutionName = "institutionName_" + index;
-    obj.setInstitutionName(institutionName);
+    obj.setInstitute(new InstituteFactory().setId(index).setName(institutionName).create());
   }
 
   public void setName(final PhysicalResourceGroup obj, final int index) {

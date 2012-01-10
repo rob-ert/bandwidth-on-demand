@@ -42,9 +42,8 @@ public class PhysicalResourceGroup {
   @Column(unique = true, nullable = false)
   private String name;
 
-  @NotEmpty
-  @Column(unique = true, nullable = false)
-  private String institutionName;
+  @OneToOne
+  private Institute institute;
 
   private String adminGroup;
 
@@ -75,12 +74,12 @@ public class PhysicalResourceGroup {
     this.name = name;
   }
 
-  public String getInstitutionName() {
-    return this.institutionName;
+  public Institute getInstitute() {
+    return institute;
   }
 
-  public void setInstitutionName(final String institutionName) {
-    this.institutionName = institutionName;
+  public void setInstitute(Institute institute) {
+    this.institute = institute;
   }
 
   public String getAdminGroup() {
@@ -108,7 +107,7 @@ public class PhysicalResourceGroup {
     StringBuilder sb = new StringBuilder();
     sb.append("Id: ").append(getId()).append(", ");
     sb.append("Name: ").append(getName()).append(", ");
-    sb.append("InstitutionName: ").append(getInstitutionName()).append(", ");
+    sb.append("InstitutionName: ").append(getInstitute()).append(", ");
     sb.append("Admin group: ").append(getAdminGroup()).append(", ");
     sb.append("Version: ").append(getVersion());
 

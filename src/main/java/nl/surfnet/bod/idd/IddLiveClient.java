@@ -31,6 +31,10 @@ import nl.surfnet.bod.idd.generated.KsrLocator;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
+
 public class IddLiveClient implements IddClient {
 
   private static final String IDD_VERSION = "1.09";
@@ -55,11 +59,30 @@ public class IddLiveClient implements IddClient {
       port.setPassword(password);
 
       Klanten[] klantnamen = port.getKlantList(new InvoerKlant("list", "", IDD_VERSION)).getKlantnamen();
+
       return Arrays.asList(klantnamen);
     }
     catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Klanten getKlantById(final int klantId) {
+    Klanten matchedKlant = null;
+
+    Collection<Klanten> klanten = getKlanten();
+
+    for (Klanten foundKlant : klanten) {
+      if (klantId == foundKlant.getKlant_id()) {
+        matchedKlant = foundKlant;
+        break;
+      }
+    }
+    return matchedKlant;
   }
 
   protected void setUsername(String username) {

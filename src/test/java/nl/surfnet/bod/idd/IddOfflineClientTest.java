@@ -29,6 +29,7 @@ import java.util.Collection;
 
 import nl.surfnet.bod.idd.generated.Klanten;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 public class IddOfflineClientTest {
@@ -40,6 +41,22 @@ public class IddOfflineClientTest {
     Collection<Klanten> institutions = subject.getKlanten();
 
     assertThat(institutions, hasSize(greaterThan(0)));
+  }
+
+  @Test
+  public void getKlantByExistingId() {
+
+    Klanten result = subject.getKlantById(564);
+
+    Assert.assertTrue(result.getKlant_id() == 564);
+  }
+
+  @Test
+  public void getKlantByNonExistingId() {
+
+    Klanten result = subject.getKlantById(-9999);
+
+    Assert.assertNull(result);
   }
 
 }

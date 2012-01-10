@@ -29,7 +29,7 @@ import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
 import java.util.Collection;
 import java.util.List;
 
-import nl.surfnet.bod.domain.Institution;
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.service.InstitutionService;
@@ -65,13 +65,13 @@ public class InstitutionController {
   }
 
   @RequestMapping(method = RequestMethod.GET, headers = "accept=application/json")
-  public @ResponseBody Collection<Institution> jsonList(@RequestParam(required = false) String q) {
+  public @ResponseBody Collection<Institute> jsonList(@RequestParam(required = false) String q) {
     final Collection<String> existingInstitutions = existingInstitutionNames();
     final String query = StringUtils.hasText(q) ? q.toLowerCase() : "";
 
-    return filter(institutionService.getInstitutions(), new Predicate<Institution>() {
+    return filter(institutionService.getInstitutions(), new Predicate<Institute>() {
       @Override
-      public boolean apply(Institution input) {
+      public boolean apply(Institute input) {
         String institutionName = input.getName().toLowerCase();
 
         return !existingInstitutions.contains(institutionName) && institutionName.contains(query);
@@ -85,14 +85,14 @@ public class InstitutionController {
     return newArrayList(transform(groups, new Function<PhysicalResourceGroup, String>() {
       @Override
       public String apply(PhysicalResourceGroup input) {
-        return input.getInstitutionName().toLowerCase();
+        return input.getInstitute().getName().toLowerCase();
       }
     }));
   }
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(final Model uiModel) {
-    Collection<Institution> institutions = institutionService.getInstitutions();
+    Collection<Institute> institutions = institutionService.getInstitutions();
 
     uiModel.addAttribute(MODEL_KEY_LIST, institutions);
 

@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 
-import nl.surfnet.bod.domain.Institution;
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.idd.generated.Klanten;
 
@@ -55,7 +55,7 @@ public class InstitutionIddServiceTest {
 
     when(iddClientMock.getKlanten()).thenReturn(Lists.newArrayList(klant));
 
-    Collection<Institution> institutions = subject.getInstitutions();
+    Collection<Institute> institutions = subject.getInstitutions();
 
     assertThat(institutions, hasSize(0));
   }
@@ -66,7 +66,7 @@ public class InstitutionIddServiceTest {
 
     when(iddClientMock.getKlanten()).thenReturn(Lists.newArrayList(klant));
 
-    Collection<Institution> institutions = subject.getInstitutions();
+    Collection<Institute> institutions = subject.getInstitutions();
 
     assertThat(institutions, hasSize(1));
     assertThat(institutions.iterator().next().getName(), is("SURFnet"));
