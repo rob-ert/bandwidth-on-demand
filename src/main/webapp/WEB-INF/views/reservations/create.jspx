@@ -8,6 +8,9 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <spring:url value="/virtualresourcegroups/{}/ports" var="vpUrl" />
+    <spring:url value="/resources/images/full.png" var="imgFull" />
+    <spring:url value="/resources/images/half.png" var="imgHalf" />
+    <spring:url value="/resources/images/quater.png" var="imgQuater" />
 
     <form:create id="fc_reservation" modelAttribute="reservation" path="/reservations"
         render="${empty dependencies}">
@@ -27,12 +30,25 @@
         <field:input type="date" field="endDate" id="endDate" labelCode="reservation_endDate" required="true" />
         <field:input type="time" field="endTime" id="endTime" labelCode="reservation_endTime" required="true" />
 
-        <field:input type="number" field="bandwidth" id="bandwidth" labelCode="reservation_bandwidth" required="true" />
+        <div class="clearfix">
+            <label for="_bandwidth_id"><spring:message code="label_reservation_bandwidth"/></label>
+            <div class="input">
+                <div class="inline-inputs">
+                    <input id="_bandwidth_id" name="bandwidth" type="number" />
+                    <a href="#" id="bandwidthQuater" title="Bandwidth to a quater"><img src="${imgQuater}" height="28" style="margin-right: 5px; vertical-align: middle; -webkit-box-shadow:1px 3px 5px #404040; -moz-box-shadow:1px 3px 5px #404040; box-shadow:1px 3px 5px #404040;"/></a>
+                    <a href="#" id="bandwidthHalf" title="Bandwidth to a half"><img src="${imgHalf}" height="28" style="margin-right: 5px; vertical-align: middle; -webkit-box-shadow:1px 3px 5px #404040; -moz-box-shadow:1px 3px 5px #404040; box-shadow:1px 3px 5px #404040;"/></a>
+                    <a href="#" id="bandwidthFull" title="Bandwidth to full"><img src="${imgFull}" height="28" style="vertical-align: middle; -webkit-box-shadow:1px 3px 5px #404040; -moz-box-shadow:1px 3px 5px #404040; box-shadow:1px 3px 5px #404040;"/></a>
+                </div>
+            </div>
+        </div>
     </form:create>
 
     <script type="text/javascript">
       $(function() {
 	    $("#_virtualresourcegroup").dropdownReload("${vpUrl}", ["#_sourcePort", "#_destinationPort"]);
+	    $("#bandwidthQuater").click(function() {setBandwidth(4);});
+	    $("#bandwidthHalf").click(function() {setBandwidth(2);});
+	    $("#bandwidthFull").click(function() {setBandwidth(1);});
 	    $("#_startDate_id").DatePicker({
 	        format:'Y-m-d',
 	        date: $('#_startDate_id').val(),
@@ -55,6 +71,10 @@
                 $('#_endDate_id').DatePickerHide();
             }
         });
+	    function setBandwidth(divider) {
+	    	var max = Math.min(${reservation.sourcePort.maxBandwidth}, ${reservation.destinationPort.maxBandwidth});
+	        $("#_bandwidth_id").val(max / divider);
+	    };
 	  });
 	</script>
 </div>
