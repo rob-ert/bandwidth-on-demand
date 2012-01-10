@@ -14,7 +14,7 @@
 						$(select).prop('selectedIndex', selectedIndex);
 					});
 				} else {
-					$(otherSelect).html(options);
+					$(otherSelect).html(options.join(""));
 				}
 			});
 		});
