@@ -399,11 +399,11 @@
         </dependency>
         
         <!-- OpenDRAC Jars -->
-        <!-- <dependency>
+        <dependency>
             <groupId>org.opendrac</groupId>
             <artifactId>Nrb</artifactId>
             <version>4.3.0-SNAPSHOT</version>
-        </dependency> -->
+        </dependency>
 
     </dependencies>
 
