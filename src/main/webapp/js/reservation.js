@@ -1,6 +1,6 @@
 $(function() {
   var groupInJson;
-  $("#_virtualresourcegroup").dropdownReload("../virtualresourcegroups/{}/ports", ["#_sourcePort", "#_destinationPort"], {
+  $("#_virtualresourcegroup").dropdownReload(dataUrl, ["#_sourcePort", "#_destinationPort"], {
     afterReload: function(data) {
       groupInJson = data;
       setHalfBandwidth();
@@ -58,7 +58,7 @@ $(function() {
     }
   }
   function initBandwidthSelection() {
-	$.getJSON("../virtualresourcegroups/{}/ports".replace("{}", $("#_virtualresourcegroup").val()), function(data) {
+	$.getJSON(dataUrl.replace("{}", $("#_virtualresourcegroup").val()), function(data) {
 	    groupInJson = data;
 	    bandwidthChanged();
 	});

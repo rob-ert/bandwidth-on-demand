@@ -7,6 +7,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
     
+    <spring:url value="/virtualresourcegroups/{}/ports" var="vpUrl" />
     <spring:url value="/resources/images/full.png" var="imgFull" />
     <spring:url value="/resources/images/half.png" var="imgHalf" />
     <spring:url value="/resources/images/quater.png" var="imgQuater" />
@@ -30,7 +31,11 @@
         <field:input type="date" field="endDate" id="endDate" labelCode="reservation_endDate" required="true" />
         <field:input type="time" field="endTime" id="endTime" labelCode="reservation_endTime" required="true" />
 
-        <div class="clearfix">
+        <c:set var="errors"><sform:errors path="bandwidth" /></c:set>
+        <c:if test="${not empty errors}">
+            <c:set var="error_css" value="error" />
+        </c:if>
+        <div class="clearfix ${error_css}">
             <label for="_bandwidth_id"><spring:message code="label_reservation_bandwidth"/></label>
             <div class="input">
                 <div class="inline-inputs">
@@ -39,10 +44,14 @@
                         <a href="#" id="bandwidthQuater" title="Bandwidth to a quater"><img src="${imgQuater}" height="28" /></a>
                         <a href="#" id="bandwidthHalf" title="Bandwidth to a half"><img src="${imgHalf}" height="28" /></a>
                         <a href="#" id="bandwidthFull" title="Bandwidth to full"><img src="${imgFull}" height="28" /></a>
+                        <sform:errors cssClass="help-inline" id="_bandwidth_error_id" path="bandwidth" delimiter=", " />
                     </span>
                 </div>
             </div>
         </div>
     </form:update>
+    <script type="text/javascript">
+      var dataUrl = "${vpUrl}";
+    </script>
     <script src="${reservation_js}" type="text/javascript"><!-- needed --></script>
 </div>
