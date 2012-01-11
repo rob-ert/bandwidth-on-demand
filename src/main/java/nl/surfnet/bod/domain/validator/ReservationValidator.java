@@ -60,8 +60,12 @@ public class ReservationValidator implements Validator {
       return;
     }
 
-    Integer maxBandwidth = Math.min(sourcePort.getMaxBandwidth(), destinationPort.getMaxBandwidth());
+    if (reservation.getBandwidth() <= 0) {
+      errors.rejectValue("bandwidth", "validation.reservation.bandwidthZero");
+      return;
+    }
 
+    Integer maxBandwidth = Math.min(sourcePort.getMaxBandwidth(), destinationPort.getMaxBandwidth());
     if (reservation.getBandwidth() > maxBandwidth) {
       errors.rejectValue("bandwidth", "validation.reservation.maxBandwidth", new Object[] { maxBandwidth },
           "bandwidth exceeded max");

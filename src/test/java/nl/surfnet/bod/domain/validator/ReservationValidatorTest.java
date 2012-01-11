@@ -252,6 +252,20 @@ public class ReservationValidatorTest {
     assertThat(errors.hasFieldErrors("bandwidth"), is(true));
   }
 
+  @Test
+  public void bandwidthShouldBeGreaterThanZero() {
+    VirtualPort sourcePort = new VirtualPortFactory().setMaxBandwidth(2000).create();
+    VirtualPort destPort = new VirtualPortFactory().setMaxBandwidth(3000).create();
+
+    Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort)
+        .setBandwidth(0).create();
+    Errors errors = createErrorObject(reservation);
+
+    subject.validate(reservation, errors);
+
+    assertThat(errors.hasFieldErrors("bandwidth"), is(true));
+  }
+
   private Errors createErrorObject(Reservation reservation) {
     return new BeanPropertyBindingResult(reservation, "reservation");
   }
