@@ -41,6 +41,7 @@
                         <a href="#" id="bandwidthFull" title="Bandwidth to full"><img src="${imgFull}" height="28" /></a>
                     </span>
                 </div>
+                <span class="help-block">Specified in Mbit/s</span>
             </div>
         </div>
     </form:create>

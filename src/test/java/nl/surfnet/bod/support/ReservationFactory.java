@@ -122,4 +122,9 @@ public class ReservationFactory {
     this.endTime = endTime;
     return this;
   }
+
+  public ReservationFactory setBandwidth(Integer bandwidth) {
+    this.bandwidth = bandwidth;
+    return this;
+  }
 }

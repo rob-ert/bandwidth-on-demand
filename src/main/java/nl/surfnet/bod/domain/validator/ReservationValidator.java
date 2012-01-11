@@ -49,6 +49,23 @@ public class ReservationValidator implements Validator {
 
     validatePorts(errors, reservation);
     validateStartAndEndDate(errors, reservation);
+    validateBandwidth(errors, reservation);
+  }
+
+  private void validateBandwidth(Errors errors, Reservation reservation) {
+    VirtualPort sourcePort = reservation.getSourcePort();
+    VirtualPort destinationPort = reservation.getDestinationPort();
+
+    if (sourcePort == null || destinationPort == null || reservation.getBandwidth() == null) {
+      return;
+    }
+
+    Integer maxBandwidth = Math.min(sourcePort.getMaxBandwidth(), destinationPort.getMaxBandwidth());
+
+    if (reservation.getBandwidth() > maxBandwidth) {
+      errors.rejectValue("bandwidth", "validation.reservation.maxBandwidth", new Object[] { maxBandwidth },
+          "bandwidth exceeded max");
+    }
   }
 
   private void validatePorts(Errors errors, Reservation reservation) {
