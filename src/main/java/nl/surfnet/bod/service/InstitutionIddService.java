@@ -46,17 +46,27 @@ public class InstitutionIddService implements InstitutionService {
   public Collection<Institute> getInstitutions() {
     Collection<Klanten> klanten = iddClient.getKlanten();
 
-    return toInstitutions(klanten);
+    return toInstitutions(klanten.toArray(new Klanten[0]));
   }
 
-  private Collection<Institute> toInstitutions(Collection<Klanten> klantnamen) {
+  private Collection<Institute> toInstitutions(Klanten... klanten) {
     List<Institute> institutes = Lists.newArrayList();
-    for (Klanten klant : klantnamen) {
+    for (Klanten klant : klanten) {
       trimAttributes(klant);
-      institutes.add(new Institute(klant.getKlant_id(), klant.getKlantnaam(), klant.getKlantafkorting()));
+
+      if (!(Strings.isNullOrEmpty(klant.getKlantnaam()) && (Strings.isNullOrEmpty(klant.getKlantafkorting())))) {
+        institutes.add(new Institute(new Long(klant.getKlant_id()), klant.getKlantnaam(), klant.getKlantafkorting()));
+      }
     }
 
     return institutes;
+  }
+
+  @Override
+  public Institute findInstitute(Long id) {
+
+    return toInstitutions(iddClient.getKlantById(id)).iterator().next();
+
   }
 
   private void trimAttributes(Klanten klant) {

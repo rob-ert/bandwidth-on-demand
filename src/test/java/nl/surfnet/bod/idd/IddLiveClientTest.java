@@ -81,15 +81,15 @@ public class IddLiveClientTest {
   @Test
   public void getKlantByExistingId() {
 
-    Klanten result = subject.getKlantById(564);
+    Klanten result = subject.getKlantById(564L);
 
-    Assert.assertTrue(result.getKlant_id() == 564);
+    Assert.assertTrue(result.getKlant_id() == 564L);
   }
 
   @Test
   public void getKlantByNonExistingId() {
 
-    Klanten result = subject.getKlantById(-9999);
+    Klanten result = subject.getKlantById(-9999L);
 
     Assert.assertNull(result);
   }

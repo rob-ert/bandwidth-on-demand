@@ -60,7 +60,7 @@ public class PhysicalResourceGroupValidatorTest {
 
   @Test
   public void testValidateExistingName() {
-    PhysicalResourceGroup physicalResourceGroupOne = new PhysicalResourceGroupFactory().setName("one").create();
+    PhysicalResourceGroup physicalResourceGroupOne = new PhysicalResourceGroupFactory().setId(1L).setName("one").create();
 
     when(physicalResourceGroupServiceMock.findByName("one")).thenReturn(physicalResourceGroupOne);
 

@@ -42,8 +42,10 @@ public class PhysicalResourceGroup {
   @Column(unique = true, nullable = false)
   private String name;
 
-  @OneToOne
-  private Institute institute;
+  /**
+   * Institute is managed by IDD, we only persist the id of an {@link Institute}
+   */
+  private Long instituteId;
 
   private String adminGroup;
 
@@ -74,12 +76,12 @@ public class PhysicalResourceGroup {
     this.name = name;
   }
 
-  public Institute getInstitute() {
-    return institute;
+  public Long getInstituteId() {
+    return instituteId;
   }
 
-  public void setInstitute(Institute institute) {
-    this.institute = institute;
+  public void setInstituteId(Long instituteId) {
+    this.instituteId = instituteId;
   }
 
   public String getAdminGroup() {
@@ -107,7 +109,7 @@ public class PhysicalResourceGroup {
     StringBuilder sb = new StringBuilder();
     sb.append("Id: ").append(getId()).append(", ");
     sb.append("Name: ").append(getName()).append(", ");
-    sb.append("InstitutionName: ").append(getInstitute()).append(", ");
+    sb.append("InstitutionId: ").append(getInstituteId()).append(", ");
     sb.append("Admin group: ").append(getAdminGroup()).append(", ");
     sb.append("Version: ").append(getVersion());
 

@@ -71,7 +71,7 @@ public class IddLiveClient implements IddClient {
    * {@inheritDoc}
    */
   @Override
-  public Klanten getKlantById(final int klantId) {
+  public Klanten getKlantById(final Long klantId) {
     Klanten matchedKlant = null;
 
     Collection<Klanten> klanten = getKlanten();

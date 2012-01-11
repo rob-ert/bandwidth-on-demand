@@ -26,6 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,8 +35,8 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.service.InstitutionService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
@@ -44,15 +45,15 @@ import org.junit.Test;
 public class InstitutionControllerTest {
 
   private InstitutionService institutionServiceMock = mock(InstitutionService.class);
-  private PhysicalResourceGroupRepo prgRepoMock = mock(PhysicalResourceGroupRepo.class);
+  private PhysicalResourceGroupService prgServiceMock = mock(PhysicalResourceGroupService.class);
 
-  private InstitutionController subject = new InstitutionController(institutionServiceMock, prgRepoMock);
+  private InstitutionController subject = new InstitutionController(institutionServiceMock, prgServiceMock);
 
   @Test
   public void instutionsShouldBeFilteredBySearchParamIgnoringCase() {
     Collection<Institute> unfilteredInstitutions = newArrayList(
-        new InstituteFactory().setId(1).setName("Universiteit Utrecht").setShortName("UU").create(),
-        new InstituteFactory().setId(1).setName("Universiteit Amsterdam").setShortName("UA").create());
+        new InstituteFactory().setId(1l).setName("Universiteit Utrecht").setShortName("UU").create(),
+        new InstituteFactory().setId(2l).setName("Universiteit Amsterdam").setShortName("UA").create());
 
     when(institutionServiceMock.getInstitutions()).thenReturn(unfilteredInstitutions);
 
@@ -64,20 +65,25 @@ public class InstitutionControllerTest {
 
   @Test
   public void existingInstitutionNamesShouldBeFiltered() {
-    Collection<Institute> unfilteredInstitutions = newArrayList(
-        new InstituteFactory().setId(1).setName("Universiteit Utrecht").setShortName("UU").create(),
-        new InstituteFactory().setId(2).setName("Universiteit Amsterdam").setShortName("UA").create());
+    Institute instituteAmsterdam = new InstituteFactory().setId(2L).setName("Universiteit Amsterdam")
+        .setShortName("UA").create();
 
-    List<PhysicalResourceGroup> existingGroups = newArrayList(new PhysicalResourceGroupFactory().setInstitute(
-        new InstituteFactory().setName("Amsterdam").create()).create());
+    Collection<Institute> unfilteredInstitutions = newArrayList(
+        new InstituteFactory().setId(1L).setName("Universiteit Utrecht").setShortName("UU").create(),
+        instituteAmsterdam);
+
+    List<PhysicalResourceGroup> existingGroups = newArrayList(new PhysicalResourceGroupFactory().setInstituteId(2L)
+        .create());
 
     when(institutionServiceMock.getInstitutions()).thenReturn(unfilteredInstitutions);
-    when(prgRepoMock.findAll()).thenReturn(existingGroups);
+    when(prgServiceMock.findAll()).thenReturn(existingGroups);
+    when(prgServiceMock.findInstituteByPhysicalResourceGroup(any(PhysicalResourceGroup.class))).thenReturn(
+        instituteAmsterdam);
 
     Collection<Institute> institutions = subject.jsonList("");
 
     assertThat(institutions, hasSize(1));
-    assertThat(institutions.iterator().next().getName(), is("Utrecht"));
+    assertThat(institutions.iterator().next().getName(), is("Universiteit Utrecht"));
   }
 
   @Test

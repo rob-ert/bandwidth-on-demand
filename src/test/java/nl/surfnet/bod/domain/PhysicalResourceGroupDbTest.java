@@ -34,7 +34,6 @@ import javax.validation.ConstraintViolationException;
 
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.support.PhysicalResourceGroupDataOnDemand;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
 import org.junit.Test;
@@ -50,8 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PhysicalResourceGroupDbTest {
 
-  @Autowired
-  private PhysicalResourceGroupDataOnDemand dod;
+  private final PhysicalResourceGroupFactory physicalResourceGroupFactory = new PhysicalResourceGroupFactory();
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
@@ -61,7 +59,7 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void countAllPhysicalResourceGroups() {
-    assertNotNull(dod.getRandomPhysicalResourceGroup());
+    assertNotNull(physicalResourceGroupFactory.create());
 
     long count = physicalResourceGroupService.count();
 
@@ -70,16 +68,17 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void findPhysicalResourceGroup() {
-    PhysicalResourceGroup randomGroup = dod.getRandomPhysicalResourceGroup();
+    PhysicalResourceGroup prGroup = physicalResourceGroupFactory.create();
+    physicalResourceGroupService.save(prGroup);
 
-    PhysicalResourceGroup freshLoadedGroup = physicalResourceGroupService.find(randomGroup.getId());
+    PhysicalResourceGroup freshLoadedGroup = physicalResourceGroupService.find(prGroup.getId());
 
-    assertThat(randomGroup, is(freshLoadedGroup));
+    assertThat(prGroup, is(freshLoadedGroup));
   }
 
   @Test
   public void findAllPhysicalResourceGroups() {
-    dod.getRandomPhysicalResourceGroup();
+    physicalResourceGroupFactory.create();
 
     List<PhysicalResourceGroup> result = physicalResourceGroupService.findAll();
 
@@ -88,7 +87,7 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void findPhysicalResourceGroupEntries() {
-    dod.getRandomPhysicalResourceGroup();
+    physicalResourceGroupFactory.create();
 
     long count = physicalResourceGroupService.count();
 
@@ -101,7 +100,8 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void testUpdatePhysicalResourceGroupUpdate() {
-    PhysicalResourceGroup obj = dod.getRandomPhysicalResourceGroup();
+    PhysicalResourceGroup obj = physicalResourceGroupFactory.create();
+    physicalResourceGroupService.save(obj);
 
     Integer initialVersion = obj.getVersion();
 
@@ -117,7 +117,7 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void savePhysicalResourceGroup() {
-    PhysicalResourceGroup obj = dod.getNewTransientPhysicalResourceGroup(Integer.MAX_VALUE);
+    PhysicalResourceGroup obj = physicalResourceGroupFactory.setInstituteId(Long.MAX_VALUE).create();
 
     physicalResourceGroupService.save(obj);
 
@@ -154,8 +154,8 @@ public class PhysicalResourceGroupDbTest {
 
   @Test(expected = JpaSystemException.class)
   public void physicalResourceGroupInstituteNameShouldBeUnique() {
-    PhysicalResourceGroup group1 = new PhysicalResourceGroupFactory().create();
-    PhysicalResourceGroup group2 = new PhysicalResourceGroupFactory().create();
+    PhysicalResourceGroup group1 = new PhysicalResourceGroupFactory().setName("One").create();
+    PhysicalResourceGroup group2 = new PhysicalResourceGroupFactory().setName("One").create();
 
     physicalResourceGroupService.save(group1);
     physicalResourceGroupService.save(group2);

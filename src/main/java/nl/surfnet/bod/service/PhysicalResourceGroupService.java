@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
@@ -43,6 +44,9 @@ import com.google.common.base.Function;
 @Service
 @Transactional
 public class PhysicalResourceGroupService {
+
+  @Autowired
+  private InstitutionService institutionService;
 
   @Autowired
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
@@ -97,5 +101,15 @@ public class PhysicalResourceGroupService {
 
   public PhysicalResourceGroup findByName(String name) {
     return physicalResourceGroupRepo.findByName(name);
+  }
+
+  public Institute findInstituteByPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
+    Institute institute = new Institute();
+
+    if ((physicalResourceGroup != null) && (physicalResourceGroup.getInstituteId() != null)) {
+      institute = institutionService.findInstitute(physicalResourceGroup.getInstituteId());
+    }
+
+    return institute;
   }
 }

@@ -64,8 +64,9 @@ public class PhysicalPortServiceImplTest {
   @Test
   public void findAllShouldMergePorts() {
     List<PhysicalPort> nbiPorts = Lists.newArrayList(
-        new PhysicalPortFactory().setName("first").create(),
-        new PhysicalPortFactory().setName("second").create());
+        new PhysicalPortFactory().setName("first").setId(1L).create(),
+        new PhysicalPortFactory().setName("second").setId(1L).create());
+    
     List<PhysicalPort> repoPorts = Lists.newArrayList(
         new PhysicalPortFactory().setName("first").setId(1L).setVersion(2).create());
 

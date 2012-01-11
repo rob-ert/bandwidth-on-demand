@@ -32,7 +32,7 @@ import nl.surfnet.bod.domain.Institute;
  */
 public class InstituteFactory {
 
-  private int id = 1;
+  private Long id = 1l;
   private String name = "Customer One";
   private String shortName = "One";
 
@@ -42,7 +42,7 @@ public class InstituteFactory {
     return institute;
   }
 
-  public InstituteFactory setId(int id) {
+  public InstituteFactory setId(Long id) {
     this.id = id;
     return this;
   }

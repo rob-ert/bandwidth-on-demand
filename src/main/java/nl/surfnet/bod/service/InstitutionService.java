@@ -29,4 +29,5 @@ public interface InstitutionService {
 
   Collection<Institute> getInstitutions();
 
+  Institute findInstitute(Long id);
 }

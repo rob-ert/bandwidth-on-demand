@@ -33,6 +33,7 @@ import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.service.InstitutionService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -45,6 +46,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 
 @RequestMapping("/institutions")
 @Controller
@@ -55,37 +57,48 @@ public class InstitutionController {
 
   private InstitutionService institutionService;
 
-  private PhysicalResourceGroupRepo physicalResourceGroupRepo;
+  private PhysicalResourceGroupService physicalResourceGroupService;
 
   @Autowired
   public InstitutionController(InstitutionService institutionService,
-      PhysicalResourceGroupRepo physicalResourceGroupRepo) {
+      PhysicalResourceGroupService physicalResourceGroupService) {
     this.institutionService = institutionService;
-    this.physicalResourceGroupRepo = physicalResourceGroupRepo;
+    this.physicalResourceGroupService = physicalResourceGroupService;
   }
 
   @RequestMapping(method = RequestMethod.GET, headers = "accept=application/json")
-  public @ResponseBody Collection<Institute> jsonList(@RequestParam(required = false) String q) {
-    final Collection<String> existingInstitutions = existingInstitutionNames();
+  public @ResponseBody
+  Collection<Institute> jsonList(@RequestParam(required = false) String q) {
+    final Collection<String> existingInstitutions = getExistingInstitutionNames();
     final String query = StringUtils.hasText(q) ? q.toLowerCase() : "";
 
     return filter(institutionService.getInstitutions(), new Predicate<Institute>() {
       @Override
       public boolean apply(Institute input) {
-        String institutionName = input.getName().toLowerCase();
+        String institutionName = (input == null ? null : input.getName());
+        if (!Strings.isNullOrEmpty(institutionName)) {
+          institutionName = institutionName.toLowerCase();
+        }
 
         return !existingInstitutions.contains(institutionName) && institutionName.contains(query);
       }
     });
   }
 
-  private Collection<String> existingInstitutionNames() {
-    List<PhysicalResourceGroup> groups = physicalResourceGroupRepo.findAll();
+  private Collection<String> getExistingInstitutionNames() {
+    List<PhysicalResourceGroup> groups = physicalResourceGroupService.findAll();
 
     return newArrayList(transform(groups, new Function<PhysicalResourceGroup, String>() {
       @Override
       public String apply(PhysicalResourceGroup input) {
-        return input.getInstitute().getName().toLowerCase();
+        Institute institute = physicalResourceGroupService.findInstituteByPhysicalResourceGroup(input);
+        String instituteName = (institute == null ? null : institute.getName());
+
+        if (!Strings.isNullOrEmpty(instituteName)) {
+          instituteName = instituteName.toLowerCase();
+        }
+
+        return instituteName;
       }
     }));
   }

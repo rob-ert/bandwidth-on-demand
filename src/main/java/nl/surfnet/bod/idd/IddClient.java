@@ -46,5 +46,5 @@ public interface IddClient {
    *          
    * @return {@link Klanten} or null when not machted.
    */
-  Klanten getKlantById(final int klantId);
+  Klanten getKlantById(final Long klantId);
 }
