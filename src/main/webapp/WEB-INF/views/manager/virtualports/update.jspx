@@ -10,9 +10,7 @@
     
     <spring:url value="/physicalresourcegroups/{}/ports" var="ppUrl"/>
 
-    <form:update id="fc_VirtualPort" modelAttribute="virtualPort" path="/manager/virtualports"
-        render="${empty dependencies}">
-
+    <form:update id="fc_VirtualPort" modelAttribute="virtualPort" path="/manager/virtualports">
         <field:input field="name" id="name" labelCode="virtualport_name" required="true" />
         
         <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_max_bandwidth" required="true" decimalMin="1" />

@@ -20,7 +20,7 @@
     
     <div id="_title_${sec_id}_id">
       <div class="page-header">
-        <h1>${fn:escapeXml(title)}</h1>
+        <h2>${fn:escapeXml(title)}</h2>
       </div>
       <jsp:doBody />
     </div>
