@@ -7,9 +7,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <form:create id="fc_PhysicalResourceGroup" modelAttribute="physicalResourceGroup" path="/noc/physicalresourcegroups"
-        render="${empty dependencies}">
-
+    <form:create id="fc_PhysicalResourceGroup" modelAttribute="physicalResourceGroup" path="/noc/physicalresourcegroups">
         <field:input field="name" id="name" labelCode="physicalresourcegroup_name" required="true" />
 
         <field:suggestion-input field="institutionName" labelCode="physicalresourcegroup_institutionName"

@@ -13,8 +13,7 @@
     <spring:url value="/resources/images/quater.png" var="imgQuater" />
     <spring:url var="reservation_js" value="/resources/js/reservation.js" />
 
-    <form:update id="fc_reservation" modelAttribute="reservation"
-        path="/reservations" render="${empty dependencies}">
+    <form:update id="fc_reservation" modelAttribute="reservation" path="/reservations">
 	
          <field:select field="virtualResourceGroup" id="virtualresourcegroup" labelCode="virtualresourcegroup"
             itemLabel="name" itemValue="id" items="${virtualResourceGroups}" path="/reservations" required="true" />
