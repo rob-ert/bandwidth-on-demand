@@ -57,6 +57,7 @@ public class VirtualResourceGroupValidator implements Validator {
 
     final VirtualResourceGroup existingVirtualResourceGroup = virtualResourceGroupService
         .findByName(virtualResourceGroup.getName());
+    
     final VirtualResourceGroup existingVirtualResourceGroupByGroupName = virtualResourceGroupService
         .findBySurfConextGroupName(virtualResourceGroup.getSurfConextGroupName());
 
@@ -71,7 +72,7 @@ public class VirtualResourceGroupValidator implements Validator {
       errors.rejectValue("name", "validation.not.unique");
     }
 
-    if (existingVirtualResourceGroupByGroupName != null) {
+    if (existingVirtualResourceGroupByGroupName != null &&  virtualResourceGroup.getId() == null) {
       errors.rejectValue("surfConextGroupName", "validation.not.unique");
     }
 
