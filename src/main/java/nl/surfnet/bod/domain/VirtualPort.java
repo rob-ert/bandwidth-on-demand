@@ -22,6 +22,7 @@
 package nl.surfnet.bod.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -31,9 +32,9 @@ import com.google.common.base.Objects;
 /**
  * Entity which represents a VirtualPort which is mapped to a
  * {@link PhysicalPort} and is related to a {@link VirtualResourceGroup}
- * 
+ *
  * @author Franky
- * 
+ *
  */
 @Entity
 @JsonIgnoreProperties({ "virtualResourceGroup" })
@@ -56,6 +57,8 @@ public class VirtualPort {
   @ManyToOne
   private PhysicalPort physicalPort;
 
+  @NotNull
+  @Column(nullable = false)
   private Integer maxBandwidth;
 
   public Long getId() {

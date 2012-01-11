@@ -31,9 +31,9 @@ import org.springframework.util.StringUtils;
 
 /**
  * Factory for creation of {@link VirtualPort}
- * 
+ *
  * @author Franky
- * 
+ *
  */
 public class VirtualPortFactory {
 
@@ -45,7 +45,7 @@ public class VirtualPortFactory {
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
   private PhysicalPort physicalPort = new PhysicalPortFactory().create();
   private String physicalPortAdminGroup = "urn:mygroup";
-  private Integer maxBandwidth = 1;
+  private Integer maxBandwidth = 10000;
 
   public VirtualPort create() {
     VirtualPort virtualPort = new VirtualPort();
@@ -58,7 +58,7 @@ public class VirtualPortFactory {
     virtualPort.setVirtualResourceGroup(virtualResourceGroup);
 
     virtualPort.setPhysicalPort(physicalPort);
-    
+
     if (StringUtils.hasText(physicalPortAdminGroup)) {
       physicalPort.getPhysicalResourceGroup().setAdminGroup(physicalPortAdminGroup);
     }

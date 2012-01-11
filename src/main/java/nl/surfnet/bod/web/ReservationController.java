@@ -202,8 +202,15 @@ public class ReservationController {
     reservation.setEndTime(noon.plusHours(4));
 
     Collection<VirtualPort> ports = populateVirtualPorts(reservation);
-    reservation.setSourcePort(Iterables.get(ports, 0, null));
-    reservation.setDestinationPort(Iterables.get(ports, 1, null));
+    VirtualPort sourcePort = Iterables.get(ports, 0, null);
+    VirtualPort destPort = Iterables.get(ports, 1, null);
+
+    reservation.setSourcePort(sourcePort);
+    reservation.setDestinationPort(destPort);
+
+    if (destPort != null && sourcePort != null) {
+      reservation.setBandwidth(Math.min(sourcePort.getMaxBandwidth(), destPort.getMaxBandwidth()) / 2);
+    }
 
     return reservation;
   }
