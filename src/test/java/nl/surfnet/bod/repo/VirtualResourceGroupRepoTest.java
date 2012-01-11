@@ -43,7 +43,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.google.common.collect.Lists;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:/spring/appCtx*.xml")
+@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa.xml", "/spring/appCtx-nbi-client.xml",
+    "/spring/appCtx-idd-client.xml" })
 public class VirtualResourceGroupRepoTest {
 
   @Autowired
