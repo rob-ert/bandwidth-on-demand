@@ -7,9 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.nortel.appcore.app.drac.common.types.DracService;
 import com.nortel.appcore.app.drac.common.types.Facility;
 import com.nortel.appcore.app.drac.common.types.NetworkElementHolder;
 import com.nortel.appcore.app.drac.common.types.Schedule;
+import com.nortel.appcore.app.drac.common.types.TaskType;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper.CryptedString;
 import com.nortel.appcore.app.drac.security.ClientLoginType;
@@ -80,7 +82,6 @@ public class NrbService {
       log.error("Error: ", e);
       return null;
     }
-
   }
 
   /**
@@ -120,6 +121,54 @@ public class NrbService {
     catch (Exception e) {
       log.error("Error: ", e);
       return null;
+    }
+  }
+
+  /**
+   * 
+   * @param loginToken
+   *          a valid {@link LoginToken}
+   * @param scheduleId
+   *          the id of the schedule of interest
+   * @return
+   */
+  public TaskType getScheduleStatus(final LoginToken loginToken, final String scheduleId) {
+    try {
+      return getNrbInterface().getTaskInfo(loginToken, scheduleId);
+    }
+    catch (Exception e) {
+      log.error("Error: ", e);
+      return null;
+    }
+  }
+
+  /**
+   * 
+   * @param loginToken
+   * @param scheduleId
+   */
+  public void cancelSchedule(final LoginToken loginToken, final String scheduleId) {
+    try {
+      getNrbInterface().cancelSchedule(loginToken, scheduleId);
+    }
+    catch (Exception e) {
+      log.error("Error: ", e);
+    }
+  }
+
+  /**
+   * 
+   * @param loginToken
+   * @param scheduleId
+   * @param minutes
+   */
+  public void extendSchedule(final LoginToken loginToken, final String scheduleId, int minutes) {
+    try {
+      final DracService dracService = getNrbInterface().getCurrentlyActiveServiceByScheduleId(loginToken, scheduleId);
+      getNrbInterface().extendServiceTime(loginToken, dracService, minutes);
+    }
+    catch (Exception e) {
+      log.error("Error: ", e);
     }
   }
 
