@@ -303,19 +303,6 @@
             <version>1.9.1</version>
         </dependency>
 
-        <!-- EMS JARS -->
-        <dependency>
-            <groupId>com.esm.nbi</groupId>
-            <artifactId>ESMOSS</artifactId>
-            <version>${ems.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.esm.nbi</groupId>
-            <artifactId>clientAPI</artifactId>
-            <version>${ems.version}</version>
-        </dependency>
-
         <!-- ENCRYPTION JARS -->
         <dependency>
             <groupId>org.jasypt</groupId>
