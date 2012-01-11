@@ -97,14 +97,9 @@ public class VirtualPortValidatorTest {
     assertTrue(errors.hasFieldErrors("physicalPort"));
   }
 
-  private Errors createErrorObject(VirtualPort port) {
-    return new BeanPropertyBindingResult(port, "virtualPort");
-  }
-
   @Test
   public void negativeBandwidth() {
     VirtualPort port = new VirtualPortFactory().setMaxBandwidth(-1).create();
-
     Errors errors = createErrorObject(port);
 
     subject.validate(port, errors);
@@ -116,7 +111,6 @@ public class VirtualPortValidatorTest {
   @Test
   public void zeroBandwidth() {
     VirtualPort port = new VirtualPortFactory().setMaxBandwidth(0).create();
-
     Errors errors = createErrorObject(port);
 
     subject.validate(port, errors);
@@ -128,12 +122,26 @@ public class VirtualPortValidatorTest {
   @Test
   public void minimalBandwidth() {
     VirtualPort port = new VirtualPortFactory().setMaxBandwidth(1).create();
-
     Errors errors = createErrorObject(port);
 
     subject.validate(port, errors);
 
     assertFalse(errors.hasErrors());
+  }
+
+  @Test
+  public void nullBandwidth() {
+    VirtualPort port = new VirtualPortFactory().setMaxBandwidth(null).create();
+    Errors errors = createErrorObject(port);
+
+    subject.validate(port, errors);
+
+    // validation error is added by hibernat validator...
+    assertFalse(errors.hasErrors());
+  }
+
+  private Errors createErrorObject(VirtualPort port) {
+    return new BeanPropertyBindingResult(port, "virtualPort");
   }
 
 }
