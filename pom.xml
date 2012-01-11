@@ -17,6 +17,7 @@
         <selenium.version>2.13.0</selenium.version>
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:8888/bod</selenium.test.url>
+        <opendrac.version>4.3.0-SNAPSHOT</opendrac.version>
     </properties>
 
     <scm>
@@ -303,19 +304,6 @@
             <version>1.9.1</version>
         </dependency>
 
-        <!-- EMS JARS -->
-        <dependency>
-            <groupId>com.esm.nbi</groupId>
-            <artifactId>ESMOSS</artifactId>
-            <version>${ems.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.esm.nbi</groupId>
-            <artifactId>clientAPI</artifactId>
-            <version>${ems.version}</version>
-        </dependency>
-
         <!-- ENCRYPTION JARS -->
         <dependency>
             <groupId>org.jasypt</groupId>
@@ -409,6 +397,19 @@
             <artifactId>selenium-support</artifactId>
             <version>${selenium.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <!-- OpenDRAC Jars -->
+        <dependency>
+            <groupId>org.opendrac</groupId>
+            <artifactId>Nrb</artifactId>
+            <version>${opendrac.version}</version>
+        </dependency>
+    
+        <dependency>
+            <groupId>org.opendrac</groupId>
+            <artifactId>RequestHandler</artifactId>
+            <version>${opendrac.version}</version>
         </dependency>
 
     </dependencies>
@@ -706,6 +707,11 @@
             <id>coin-repo</id>
             <name>COIN Repository</name>
             <url>http://bamboo-dev.coin.surfnetlabs.nl</url>
+        </repository>
+        <repository>
+            <id>opendrac-artifactory</id>
+            <name>OpenDRAC Repository</name>
+            <url>http://dev.dlp.surfnet.nl/artifactory/libs-snapshot-local</url>
         </repository>
     </repositories>
 

@@ -76,6 +76,9 @@ public class NewReservationPage {
   @FindBy(id = "_endTime_id")
   private WebElement endTimeInput;
 
+  @FindBy(id = "_bandwidth_id")
+  private WebElement bandwidhtInput;
+
   @FindBy(id = "_startDate_error_id")
   private WebElement startDateError;
 
@@ -117,6 +120,11 @@ public class NewReservationPage {
   public void sendEndTime(LocalTime endTime) {
     endTimeInput.clear();
     endTimeInput.sendKeys(TIME_FORMATTER.print(endTime));
+  }
+
+  public void sendBandwidth(String bandwidth) {
+    bandwidhtInput.clear();
+    bandwidhtInput.sendKeys(bandwidth);
   }
 
   public String getStartDateError() {

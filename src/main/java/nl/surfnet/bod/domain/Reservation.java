@@ -78,6 +78,10 @@ public class Reservation {
   @Column(nullable = false)
   private String user;
 
+  @NotNull
+  @Column(nullable = false)
+  private Integer bandwidth;
+
   public Long getId() {
     return id;
   }
@@ -172,5 +176,13 @@ public class Reservation {
 
   public LocalDateTime getStartDateTime() {
     return startDate.toLocalDateTime(startTime);
+  }
+
+  public Integer getBandwidth() {
+    return bandwidth;
+  }
+
+  public void setBandwidth(Integer bandwidth) {
+    this.bandwidth = bandwidth;
   }
 }

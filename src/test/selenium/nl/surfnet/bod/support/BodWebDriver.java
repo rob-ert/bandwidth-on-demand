@@ -171,6 +171,7 @@ public class BodWebDriver {
     page.sendStartTime(startTime);
     page.sendEndDate(endDate);
     page.sendEndTime(endTime);
+    page.sendBandwidth("10000");
 
     page.save();
   }

@@ -24,6 +24,7 @@ package nl.surfnet.bod.domain.validator;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import nl.surfnet.bod.domain.Reservation;
@@ -235,6 +236,34 @@ public class ReservationValidatorTest {
     subject.validate(reservation, errors);
 
     assertThat(errors.getGlobalError().getCode(), containsString("validation.reservation.security"));
+  }
+
+  @Test
+  public void bandwidthShouldNotExceedMax() {
+    VirtualPort sourcePort = new VirtualPortFactory().setMaxBandwidth(2000).create();
+    VirtualPort destPort = new VirtualPortFactory().setMaxBandwidth(3000).create();
+
+    Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort)
+        .setBandwidth(2500).create();
+    Errors errors = createErrorObject(reservation);
+
+    subject.validate(reservation, errors);
+
+    assertThat(errors.hasFieldErrors("bandwidth"), is(true));
+  }
+
+  @Test
+  public void bandwidthShouldBeGreaterThanZero() {
+    VirtualPort sourcePort = new VirtualPortFactory().setMaxBandwidth(2000).create();
+    VirtualPort destPort = new VirtualPortFactory().setMaxBandwidth(3000).create();
+
+    Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort)
+        .setBandwidth(0).create();
+    Errors errors = createErrorObject(reservation);
+
+    subject.validate(reservation, errors);
+
+    assertThat(errors.hasFieldErrors("bandwidth"), is(true));
   }
 
   private Errors createErrorObject(Reservation reservation) {

@@ -9,8 +9,7 @@
 
     <spring:url value="/physicalresourcegroups/{}/ports" var="ppUrl"/>
 
-    <form:create id="fc_virtualport" modelAttribute="virtualPort" path="/manager/virtualports"
-        render="${empty dependencies}">
+    <form:create id="fc_virtualport" modelAttribute="virtualPort" path="/manager/virtualports">
 
         <field:input field="name" id="name" labelCode="virtualport_name" required="true" />
         

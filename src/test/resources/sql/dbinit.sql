@@ -34,7 +34,7 @@ insert into physical_port (id, display_name, name, physical_resource_group, vers
 insert into virtual_resource_group (id, name, surf_conext_group_name, version) values (1, 'vrg1', 'urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:institution-users', 0);
 insert into virtual_resource_group (id, name, surf_conext_group_name, version) values (2, 'vrg2', 'urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:institution-users2', 0);
 
-insert into virtual_port (id, name, physical_port, version, virtual_resource_group) values (1, 'vp1-1', 1, 0, 1);
-insert into virtual_port (id, name, physical_port, version, virtual_resource_group) values (2, 'vp2-1', 2, 0, 1);
-insert into virtual_port (id, name, physical_port, version, virtual_resource_group) values (3, 'vp3-2', 3, 0, 2);
-insert into virtual_port (id, name, physical_port, version, virtual_resource_group) values (4, 'vp4-2', 4, 0, 2);
+insert into virtual_port (id, name, max_bandwidth, physical_port, version, virtual_resource_group) values (1, 'vp1-1', 10000, 1, 0, 1);
+insert into virtual_port (id, name, max_bandwidth, physical_port, version, virtual_resource_group) values (2, 'vp2-1', 8000, 2, 0, 1);
+insert into virtual_port (id, name, max_bandwidth, physical_port, version, virtual_resource_group) values (3, 'vp3-2', 3000, 3, 0, 2);
+insert into virtual_port (id, name, max_bandwidth, physical_port, version, virtual_resource_group) values (4, 'vp4-2', 1000, 4, 0, 2);

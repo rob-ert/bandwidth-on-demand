@@ -13,6 +13,7 @@
             <table:column labelCode="reservation_status" id="status" property="status"/>
             <table:column labelCode="reservation_startTime" id="starttime" property="startDateTime" />
             <table:column labelCode="reservation_endTime" id="endtime" property="endDateTime" />
+            <table:column labelCode="reservation_bandwidth" id="bandwidth" property="bandwidth" />
         </table:table>
     </page:list>    
 </div>

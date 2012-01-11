@@ -42,6 +42,7 @@ public class ReservationFactory {
   private LocalTime startTime = new LocalTime(12, 0);
   private LocalTime endTime = new LocalTime(16, 0);
   private String user = "urn:truusvisscher";
+  private Integer bandwidth = 10000;
 
   public Reservation create() {
     if (vrGroup != null) {
@@ -62,6 +63,7 @@ public class ReservationFactory {
     reservation.setEndDate(endDate);
     reservation.setEndTime(endTime);
     reservation.setUser(user);
+    reservation.setBandwidth(bandwidth);
 
     return reservation;
   }
@@ -118,6 +120,11 @@ public class ReservationFactory {
 
   public ReservationFactory setEndTime(LocalTime endTime) {
     this.endTime = endTime;
+    return this;
+  }
+
+  public ReservationFactory setBandwidth(Integer bandwidth) {
+    this.bandwidth = bandwidth;
     return this;
   }
 }

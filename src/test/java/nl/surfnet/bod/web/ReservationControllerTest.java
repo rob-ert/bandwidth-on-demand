@@ -27,6 +27,9 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -63,8 +66,8 @@ public class ReservationControllerTest {
     Security.setUserDetails(user);
     Model model = new ModelStub();
 
-    VirtualPort sourcePort = new VirtualPortFactory().create();
-    VirtualPort destPort = new VirtualPortFactory().create();
+    VirtualPort sourcePort = new VirtualPortFactory().setMaxBandwidth(8000).create();
+    VirtualPort destPort = new VirtualPortFactory().setMaxBandwidth(4000).create();
     VirtualResourceGroup group = new VirtualResourceGroupFactory().addVirtualPorts(sourcePort, destPort).create();
 
     when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(Lists.newArrayList(group));
@@ -78,6 +81,27 @@ public class ReservationControllerTest {
     assertThat(reservation.getEndDate(), not(nullValue()));
     assertThat(reservation.getSourcePort(), is(sourcePort));
     assertThat(reservation.getDestinationPort(), is(destPort));
+    assertThat(reservation.getBandwidth(), is(2000));
+  }
+
+  @Test
+  public void reservationEmptyPorts() {
+    RichUserDetails user = new RichUserDetailsFactory().create();
+    Security.setUserDetails(user);
+    Model model = new ModelStub();
+
+    when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(Collections.<VirtualResourceGroup>emptyList());
+
+    subject.createForm(model);
+
+    assertThat(model.asMap(), hasKey("reservation"));
+
+    Reservation reservation = (Reservation) model.asMap().get("reservation");
+    assertThat(reservation.getStartDate(), not(nullValue()));
+    assertThat(reservation.getEndDate(), not(nullValue()));
+    assertThat(reservation.getSourcePort(), nullValue());
+    assertThat(reservation.getDestinationPort(), nullValue());
+    assertThat(reservation.getBandwidth(), nullValue());
   }
 
 }
