@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.web.manager;
 
+import static nl.surfnet.bod.web.WebUtils.*;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.web.security.Security;
 
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller("managerPhysicalPortController")
 @RequestMapping("/manager/physicalports")
@@ -38,10 +40,13 @@ public class PhysicalPortController {
   private PhysicalPortService physicalPortService;
 
   @RequestMapping(method = RequestMethod.GET)
-  public String list(final Model uiModel) {
-    uiModel.addAttribute("physicalPorts", physicalPortService.findAllocatedForUser(Security.getUserDetails()));
+  public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
+
+    uiModel.addAttribute("physicalPorts", physicalPortService.findAllocatedForUserEntries(Security.getUserDetails(),
+        calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
+    uiModel.addAttribute(MAX_PAGES_KEY,
+        calculateMaxPages(physicalPortService.countAllocatedForUser(Security.getUserDetails())));
 
     return "manager/physicalports/list";
   }
-
 }

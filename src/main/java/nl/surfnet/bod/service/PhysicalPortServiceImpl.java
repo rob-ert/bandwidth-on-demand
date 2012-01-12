@@ -40,6 +40,7 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -54,7 +55,7 @@ import com.google.common.collect.Collections2;
  * when more data is available in our repository they will be enriched.
  *
  * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
- * readonly, the methods that change data are performed using the
+ * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
  *
  *
@@ -189,15 +190,37 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
       return Collections.emptyList();
     }
 
-    Specification<PhysicalPort> forUserSpecification = new Specification<PhysicalPort>() {
+    return physicalPortRepo.findAll(specificationForUser(user));
+  }
+
+  @Override
+  public Collection<PhysicalPort> findAllocatedForUserEntries(final RichUserDetails user, int firstResult,
+      int maxResults) {
+    if (user.getUserGroups().isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    return physicalPortRepo.findAll(specificationForUser(user), new PageRequest(firstResult / maxResults, maxResults))
+        .getContent();
+  }
+
+  @Override
+  public long countAllocatedForUser(final RichUserDetails user) {
+    if (user.getUserGroups().isEmpty()) {
+      return 0L;
+    }
+
+    return physicalPortRepo.count(specificationForUser(user));
+  }
+
+  private Specification<PhysicalPort> specificationForUser(final RichUserDetails user) {
+    return new Specification<PhysicalPort>() {
       @Override
-      public javax.persistence.criteria.Predicate toPredicate(
-          Root<PhysicalPort> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+      public javax.persistence.criteria.Predicate toPredicate(Root<PhysicalPort> root, CriteriaQuery<?> query,
+          CriteriaBuilder cb) {
         return cb.and(root.get("physicalResourceGroup").get("adminGroup").in(user.getUserGroupIds()));
       }
     };
-
-    return physicalPortRepo.findAll(forUserSpecification);
   }
 
   /**

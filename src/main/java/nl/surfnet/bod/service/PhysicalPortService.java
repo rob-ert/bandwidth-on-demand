@@ -65,11 +65,29 @@ public interface PhysicalPortService {
    */
   Collection<PhysicalPort> findUnallocatedEntries(final int firstResult, final int sizeNo);
 
+  /**
+   * Finds all physical ports that are visible for a user.
+   *
+   * @param user
+   *          the user
+   * @return list of user visible physical ports
+   */
   Collection<PhysicalPort> findAllocatedForUser(RichUserDetails user);
+
+  /**
+   * Finds all physical ports that are visible for a user.
+   *
+   * @param user
+   *          the user
+   * @return list of user visible physical ports
+   */
+  Collection<PhysicalPort> findAllocatedForUserEntries(RichUserDetails user, final int firstResult, final int sizeNo);
 
   long count();
 
   long countUnallocated();
+
+  long countAllocatedForUser(RichUserDetails user);
 
   void delete(final PhysicalPort physicalPort);
 
