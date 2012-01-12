@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.NbiPortService;
 
@@ -32,12 +33,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.nortel.appcore.app.drac.common.security.policy.types.UserGroupName;
 import com.nortel.appcore.app.drac.common.types.DracService;
+import com.nortel.appcore.app.drac.common.types.EndPointType;
 import com.nortel.appcore.app.drac.common.types.Facility;
 import com.nortel.appcore.app.drac.common.types.NetworkElementHolder;
 import com.nortel.appcore.app.drac.common.types.PathType;
 import com.nortel.appcore.app.drac.common.types.Schedule;
-import com.nortel.appcore.app.drac.common.types.TaskType;
+import com.nortel.appcore.app.drac.common.types.TaskType.State;
 import com.nortel.appcore.app.drac.common.types.UserType;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper.CryptedString;
@@ -48,15 +51,14 @@ import com.nortel.appcore.app.drac.server.requesthandler.RemoteConnectionProxy;
 import com.nortel.appcore.app.drac.server.requesthandler.RequestHandlerException;
 
 /**
- * A wrapper 'service' around OpenDRAC's {@link NrbInterface}. The main
- * difference is that the methods in this class use a {@link LoginToken} instead
- * of a clear text password.
+ * A wrapper 'service' around OpenDRAC's {@link NrbInterface}.
  * 
  * @author robert
  * 
  */
-// @Service("nbiClient")
 public class NbiService implements NbiPortService {
+
+  private static final String DEFAULT_VLANID = "0";
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -68,12 +70,24 @@ public class NbiService implements NbiPortService {
   @Value("${nbi.password}")
   private String encryptedPassword;
 
-  private NrbInterface getNrbInterface() {
+  @Value("${nbi.url.primary}")
+  private String primaryController;
 
+  @Value("${nbi.url.secondary}")
+  private String secondaryController;
+
+  @Value("${nbi.group.name}")
+  private String groupName;
+
+  @Value("${nbi.resource.group.name}")
+  private String resourceGroupName;
+
+  private NrbInterface getNrbInterface() {
     if (nrbProxy == null) {
+      System.setProperty("org.opendrac.controller.primary", primaryController);
+      System.setProperty("org.opendrac.controller.secondary", secondaryController);
       nrbProxy = new RemoteConnectionProxy();
     }
-
     try {
       return nrbProxy.getNrbInterface();
     }
@@ -83,40 +97,15 @@ public class NbiService implements NbiPortService {
     }
   }
 
-  /**
-   * 
-   * @param loginToken
-   *          a valid {@link LoginToken}
-   * @return a list of all currently available network elements or
-   *         <code>null</code> whenever an exception occurs
-   */
-  public List<NetworkElementHolder> getAllNetworkElements() {
-    try {
-      return getNrbInterface().getAllNetworkElements(getLoginToken());
-    }
-    catch (Exception e) {
-      log.error("Error: ", e);
-      return null;
-    }
-
-  }
-
-  /**
-   * 
-   * @param loginToken
-   *          a valid {@link LoginToken}
-   * @return a list of all currently available UNI network facilities or
-   *         <code>null</code> whenever an exception occurs
-   */
-  public List<Facility> getAllUniFacilities() {
-
+  private List<Facility> getAllUniFacilities() {
     try {
       final List<Facility> facilities = new ArrayList<Facility>();
-      for (NetworkElementHolder holder : getAllNetworkElements()) {
+      for (NetworkElementHolder holder : getNrbInterface().getAllNetworkElements(getLoginToken())) {
         final List<Facility> facilitiesPerNetworkElement = getNrbInterface().getFacilities(getLoginToken(),
             holder.getId());
         for (final Facility facility : facilitiesPerNetworkElement) {
-          if ("UNI".equals(facility.get("interfaceType"))) {
+          // System.out.println(facility);
+          if ("UNI".equals(facility.getSigType())) {
             facilities.add(facility);
           }
         }
@@ -130,19 +119,6 @@ public class NbiService implements NbiPortService {
   }
 
   private LoginToken getLoginToken() {
-    return getLoginToken(username, encryptedPassword);
-  }
-
-  /**
-   * 
-   * @param username
-   * @param encryptedPassword
-   *          an an encrypted username
-   * @return a valid {@link LoginToken} or <code>null</code> whenever an
-   *         exception occurs
-   */
-  public LoginToken getLoginToken(final String username, final String encryptedPassword) {
-
     final String password = CryptoWrapper.INSTANCE.decrypt(new CryptedString(encryptedPassword));
     try {
       return getNrbInterface()
@@ -156,34 +132,16 @@ public class NbiService implements NbiPortService {
 
   /**
    * 
-   * @param loginToken
-   *          a valid {@link LoginToken}
-   * @param schedule
-   *          the {@link Schedule} to be executed
-   * @return the id of the created schedule or <code>null</code> whenever an
-   *         exception occurs
-   */
-  public String createSchedule(final Schedule schedule) {
-    try {
-      return getNrbInterface().asyncCreateSchedule(getLoginToken(), schedule);
-    }
-    catch (Exception e) {
-      log.error("Error: ", e);
-      return null;
-    }
-  }
-
-  /**
-   * 
-   * @param loginToken
-   *          a valid {@link LoginToken}
    * @param scheduleId
    *          the id of the schedule of interest
-   * @return
+   * @return {@link String} representation of an OpenDRAC schedule {@link State}
+   *         . Possible values are {@link State#ABORTED}, {@link State#DONE},
+   *         {@link State#IN_PROGRESS}, {@link State#SUBMITTED} (minus the
+   *         "State." prefix) or <code>null</code> in case of an error.
    */
-  public TaskType getScheduleStatus(final String scheduleId) {
+  public String getScheduleStatus(final String scheduleId) {
     try {
-      return getNrbInterface().getTaskInfo(getLoginToken(), scheduleId);
+      return getNrbInterface().getTaskInfo(getLoginToken(), scheduleId).getState().name();
     }
     catch (Exception e) {
       log.error("Error: ", e);
@@ -193,7 +151,6 @@ public class NbiService implements NbiPortService {
 
   /**
    * 
-   * @param loginToken
    * @param scheduleId
    */
   public void cancelSchedule(final String scheduleId) {
@@ -207,7 +164,6 @@ public class NbiService implements NbiPortService {
 
   /**
    * 
-   * @param loginToken
    * @param scheduleId
    * @param minutes
    */
@@ -224,16 +180,18 @@ public class NbiService implements NbiPortService {
 
   @Override
   public List<PhysicalPort> findAll() {
-    final List<Facility> allUniFacilities = getAllUniFacilities();
     final List<PhysicalPort> ports = new ArrayList<PhysicalPort>();
-    for (final Facility facility : allUniFacilities) {
-      PhysicalPort pp = new PhysicalPort();
-      pp.setDisplayName(facility.getAid());
-      pp.setName(facility.get("pk"));
-      ports.add(pp);
+    for (final Facility facility : getAllUniFacilities()) {
+      final PhysicalPort port = new PhysicalPort();
+      port.setDisplayName(facility.getAid());
+      port.setName(facility.getTna());
+      PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroup();
+      physicalResourceGroup.setAdminGroup(groupName);
+      port.setPhysicalResourceGroup(physicalResourceGroup);
+      port.setPhysicalResourceGroup(physicalResourceGroup);
+      ports.add(port);
     }
     return ports;
-
   }
 
   @Override
@@ -249,7 +207,6 @@ public class NbiService implements NbiPortService {
       if (port.getName().equals(name)) {
         return port;
       }
-
     }
     return null;
   }
@@ -260,26 +217,48 @@ public class NbiService implements NbiPortService {
     final PathType pathType = new PathType();
     final UserType userType = new UserType();
 
-    // Schedule info
-    schedule.setStartTime(reservation.getStartDate().toDate().getTime());
-    schedule.setEndTime(reservation.getEndDate().toDate().getTime());
-
     // User info
     userType.setUserId(reservation.getUser());
+    userType.setBillingGroup(new UserGroupName(groupName));
+    userType.setSourceEndpointUserGroup(groupName);
+    userType.setTargetEndpointUserGroup(groupName);
+    userType.setSourceEndpointResourceGroup(resourceGroupName);
+    userType.setTargetEndpointResourceGroup(resourceGroupName);
 
+    // End point information.
+    final EndPointType sourceEndpoint = new EndPointType();
+    final EndPointType destEndpoint = new EndPointType();
+    sourceEndpoint.setName(reservation.getSourcePort().getName());
+    destEndpoint.setName(reservation.getDestinationPort().getName());
+    
     // Path info
-    pathType.setSource(reservation.getSourcePort().getPhysicalPort().getDisplayName());
-    pathType.setTarget(reservation.getDestinationPort().getPhysicalPort().getDisplayName());
     pathType.setRate(reservation.getBandwidth());
+    // TODO 1+1 or no protection, vcat or ccat?
+    pathType.setProtectionType(PathType.PROTECTION_TYPE.PATH1PLUS1);
+    pathType.setVcatRoutingOption(true);
+    pathType.setSourceEndPoint(sourceEndpoint);
+    pathType.setTargetEndPoint(destEndpoint);
 
-    // pathType.setSourceVlanId(srcVlanID);
-    // pathType.setTargetVlanId(destVlanID);
-    // pathType.setRoutingAlgorithm(routingAlgorithm);
-    // pathType.setProtectionType(pType);
-
+    // Schedule Info
+    schedule.setActivationType(Schedule.ACTIVATION_TYPE.RESERVATION_AUTOMATIC);
+    schedule.setName(reservation.getUser() + "-" + System.currentTimeMillis());
+    final long start = reservation.getStartDateTime().toDate().getTime();
+    final long end = reservation.getEndDateTime().toDate().getTime();
+    schedule.setStartTime(start);
+    schedule.setEndTime(end);
+    schedule.setRecurring(false);
+    schedule.setRate(reservation.getBandwidth());
+    schedule.setDuration(end - start);
     schedule.setUserInfo(userType);
     schedule.setPath(pathType);
-    return createSchedule(schedule);
+
+    try {
+      return getNrbInterface().asyncCreateSchedule(getLoginToken(), schedule);
+    }
+    catch (Exception e) {
+      log.error("Error: ", e);
+      return null;
+    }
   }
 
 }

@@ -23,6 +23,16 @@ package nl.surfnet.bod.opendrac;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -31,11 +41,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.nortel.appcore.app.drac.security.LoginToken;
+import com.nortel.appcore.app.drac.common.types.TaskType;
+import com.nortel.appcore.app.drac.common.types.TaskType.State;
 
 /**
  * This test only works against a default OpenDRAC (with standard admin pwd)
@@ -49,7 +59,7 @@ import com.nortel.appcore.app.drac.security.LoginToken;
 public class NrbServiceTestIntegration {
 
   @Autowired
-  @Qualifier("nrbService")
+  @Qualifier("nbiClient")
   private NbiService nrbService;
 
   @BeforeClass
@@ -69,13 +79,27 @@ public class NrbServiceTestIntegration {
   }
 
   @Test
-  public void testGetAllNetworkElements() throws Exception {
-    assertEquals(6, nrbService.getAllNetworkElements().size());
+  public void testGetAllUniFacilities() throws Exception {
+    final List<PhysicalPort> facilities = nrbService.findAll();
+    assertEquals(15, facilities.size());
   }
 
   @Test
-  public void testGetAllUniFacilities() throws Exception {
-    assertEquals(12, nrbService.getAllUniFacilities().size());
+  public void testCreateReservation() throws Exception {
+    final LocalTime nowTime = new LocalTime(System.currentTimeMillis());
+    final LocalDate nowDate = new LocalDate(System.currentTimeMillis());
+
+    final Reservation reservation = new ReservationFactory().setStartTime(nowTime.plusMinutes(1))
+        .setEndTime(nowTime.plusMinutes(20)).setStartDate(nowDate).setEndDate(nowDate.plusYears(0)).create();
+    final VirtualPort source = new VirtualPortFactory().setName("Asd001A_OME1T_ETH-1-1-2").create();
+    final VirtualPort destination = new VirtualPortFactory().setName("Asd001A_OME3T_ETH-1-12-1").create();
+    reservation.setSourcePort(source);
+    reservation.setDestinationPort(destination);
+    reservation.setBandwidth(100);
+
+    final String reservationId = nrbService.createReservation(reservation);
+    final String status = nrbService.getScheduleStatus(reservationId);
+    assertEquals(State.IN_PROGRESS.name(), status);
   }
 
 }
