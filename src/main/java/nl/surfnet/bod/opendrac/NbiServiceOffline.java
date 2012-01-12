@@ -39,9 +39,9 @@ import com.nortel.appcore.app.drac.server.nrb.NrbInterface;
  * A wrapper 'service' around OpenDRAC's {@link NrbInterface}. The main
  * difference is that the methods in this class use a {@link LoginToken} instead
  * of a clear text password.
- * 
+ *
  * @author robert
- * 
+ *
  */
 // @Service("nbiClient")
 public class NbiServiceOffline implements NbiPortService {
@@ -50,6 +50,7 @@ public class NbiServiceOffline implements NbiPortService {
 
   private final List<PhysicalPort> ports = new ArrayList<PhysicalPort>();
 
+  @SuppressWarnings("unused")
   @PostConstruct
   private void init() {
     log.info("USING OFFLINE NBI CLIENT!");

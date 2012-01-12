@@ -31,10 +31,6 @@ import nl.surfnet.bod.idd.generated.KsrLocator;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-
 public class IddLiveClient implements IddClient {
 
   private static final String IDD_VERSION = "1.09";
