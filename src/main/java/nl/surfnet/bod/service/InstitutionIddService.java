@@ -52,10 +52,12 @@ public class InstitutionIddService implements InstitutionService {
   private Collection<Institute> toInstitutions(Klanten... klanten) {
     List<Institute> institutes = Lists.newArrayList();
     for (Klanten klant : klanten) {
-      trimAttributes(klant);
+      if (klant != null) {
+        trimAttributes(klant);
 
-      if (!(Strings.isNullOrEmpty(klant.getKlantnaam()) && (Strings.isNullOrEmpty(klant.getKlantafkorting())))) {
-        institutes.add(new Institute(new Long(klant.getKlant_id()), klant.getKlantnaam(), klant.getKlantafkorting()));
+        if (!(Strings.isNullOrEmpty(klant.getKlantnaam()) && (Strings.isNullOrEmpty(klant.getKlantafkorting())))) {
+          institutes.add(new Institute(new Long(klant.getKlant_id()), klant.getKlantnaam(), klant.getKlantafkorting()));
+        }
       }
     }
 

@@ -31,7 +31,6 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.service.InstitutionService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 
@@ -91,8 +90,7 @@ public class InstitutionController {
     return newArrayList(transform(groups, new Function<PhysicalResourceGroup, String>() {
       @Override
       public String apply(PhysicalResourceGroup input) {
-        Institute institute = physicalResourceGroupService.findInstituteByPhysicalResourceGroup(input);
-        String instituteName = (institute == null ? null : institute.getName());
+        String instituteName = (input == null || (input.getInstitute() == null) ? null : input.getInstitute().getName());
 
         if (!Strings.isNullOrEmpty(instituteName)) {
           instituteName = instituteName.toLowerCase();

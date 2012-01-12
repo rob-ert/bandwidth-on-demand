@@ -73,6 +73,7 @@ public class ReservationServiceTest {
     assertThat(reservations, hasSize(0));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void findEntriesShouldFilterOnUserGroups() {
     RichUserDetails richUserDetailsWithGroups = new RichUserDetailsFactory().addUserGroup("urn:mygroup").create();

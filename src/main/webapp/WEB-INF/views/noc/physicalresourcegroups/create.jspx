@@ -10,7 +10,8 @@
     <form:create id="fc_PhysicalResourceGroup" modelAttribute="physicalResourceGroup" path="/noc/physicalresourcegroups">
         <field:input field="name" id="name" labelCode="physicalresourcegroup_name" required="true" />
 
-        <field:suggestion-input field="institutionName" labelCode="physicalresourcegroup_institutionName"
+ 
+        <field:suggestion-input field="instituteId" labelCode="physicalresourcegroup_institutionName"
             suggestionUrl="/institutions" />
 
         <field:input field="adminGroup" id="adminGroup" labelCode="physicalresourcegroup_adminGroup"

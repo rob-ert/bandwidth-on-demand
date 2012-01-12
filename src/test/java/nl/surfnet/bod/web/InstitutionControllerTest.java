@@ -26,7 +26,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -72,13 +71,11 @@ public class InstitutionControllerTest {
         new InstituteFactory().setId(1L).setName("Universiteit Utrecht").setShortName("UU").create(),
         instituteAmsterdam);
 
-    List<PhysicalResourceGroup> existingGroups = newArrayList(new PhysicalResourceGroupFactory().setInstituteId(2L)
-        .create());
+    List<PhysicalResourceGroup> existingGroups = newArrayList(new PhysicalResourceGroupFactory().setInstitute(
+        instituteAmsterdam).create());
 
     when(institutionServiceMock.getInstitutions()).thenReturn(unfilteredInstitutions);
     when(prgServiceMock.findAll()).thenReturn(existingGroups);
-    when(prgServiceMock.findInstituteByPhysicalResourceGroup(any(PhysicalResourceGroup.class))).thenReturn(
-        instituteAmsterdam);
 
     Collection<Institute> institutions = subject.jsonList("");
 

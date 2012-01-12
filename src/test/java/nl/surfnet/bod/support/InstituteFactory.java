@@ -32,7 +32,7 @@ import nl.surfnet.bod.domain.Institute;
  */
 public class InstituteFactory {
 
-  private Long id = 1l;
+  private Long id = null;
   private String name = "Customer One";
   private String shortName = "One";
 

@@ -24,7 +24,16 @@ package nl.surfnet.bod.domain;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+import javax.persistence.Version;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -45,7 +54,12 @@ public class PhysicalResourceGroup {
   /**
    * Institute is managed by IDD, we only persist the id of an {@link Institute}
    */
+  @NotNull
+  @Column(nullable=false)
   private Long instituteId;
+  
+  @Transient
+  private Institute institute;
 
   private String adminGroup;
 
@@ -81,6 +95,7 @@ public class PhysicalResourceGroup {
   }
 
   public void setInstituteId(Long instituteId) {
+    this.institute=null;
     this.instituteId = instituteId;
   }
 
@@ -114,5 +129,14 @@ public class PhysicalResourceGroup {
     sb.append("Version: ").append(getVersion());
 
     return sb.toString();
+  }
+
+  public Institute getInstitute() {
+    return institute;
+  }
+
+  public void setInstitute(Institute institute) {
+    this.instituteId = institute == null ? null : institute.getId();
+    this.institute = institute;    
   }
 }

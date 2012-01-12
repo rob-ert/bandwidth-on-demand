@@ -56,9 +56,8 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   @Override
   protected void installFormatters(FormatterRegistry registry) {
     registry.addFormatterForFieldAnnotation(new NumberFormatAnnotationFormatterFactory());
-    new JodaTimeFormattingPatternConfigurer()
-      .setDateTimePattern("yyyy-MM-dd H:mm").setTimePattern("H:mm").setDatePattern("yyyy-MM-dd")
-      .installJodaTimeFormatting(registry);
+    new JodaTimeFormattingPatternConfigurer().setDateTimePattern("yyyy-MM-dd H:mm").setTimePattern("H:mm")
+        .setDatePattern("yyyy-MM-dd").installJodaTimeFormatting(registry);
   }
 
   public Converter<PhysicalPort, String> getPhysicalPortToStringConverter() {
@@ -92,8 +91,12 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     return new Converter<PhysicalResourceGroup, String>() {
       @Override
       public String convert(final PhysicalResourceGroup physicalResourceGroup) {
-        return new StringBuilder().append(physicalResourceGroup.getName()).append(" - ")
-            .append(physicalResourceGroupService.findInstituteByPhysicalResourceGroup(physicalResourceGroup)).toString();
+        return new StringBuilder()
+            .append(physicalResourceGroup.getName())
+            .append(" - ")
+            .append(
+                physicalResourceGroup.getInstitute() == null ? null : physicalResourceGroup.getInstitute().getName())
+            .toString();
       }
     };
   }
