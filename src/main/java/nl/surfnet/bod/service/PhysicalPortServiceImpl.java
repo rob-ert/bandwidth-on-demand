@@ -39,6 +39,8 @@ import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -189,7 +191,8 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
     Specification<PhysicalPort> forUserSpecification = new Specification<PhysicalPort>() {
       @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<PhysicalPort> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+      public javax.persistence.criteria.Predicate toPredicate(
+          Root<PhysicalPort> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         return cb.and(root.get("physicalResourceGroup").get("adminGroup").in(user.getUserGroupIds()));
       }
     };
