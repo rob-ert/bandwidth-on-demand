@@ -22,7 +22,10 @@
 package nl.surfnet.bod.opendrac;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 
@@ -40,9 +43,9 @@ import com.nortel.appcore.app.drac.server.nrb.NrbInterface;
  * A wrapper 'service' around OpenDRAC's {@link NrbInterface}. The main
  * difference is that the methods in this class use a {@link LoginToken} instead
  * of a clear text password.
- *
+ * 
  * @author robert
- *
+ * 
  */
 // @Service("nbiClient")
 public class NbiServiceOffline implements NbiPortService {
@@ -56,35 +59,32 @@ public class NbiServiceOffline implements NbiPortService {
   private void init() {
     log.info("USING OFFLINE NBI CLIENT!");
 
-    final PhysicalPort physicalPort1 = new PhysicalPort();
-    physicalPort1.setDisplayName("ETH-1-13-4");
-    physicalPort1.setName("00-21-E1-D6-D6-70_ETH-1-13-4");
-    ports.add(physicalPort1);
+    final Map<String, String> names = new HashMap<String, String>();
+    names.put("ETH-1-13-4", "00-21-E1-D6-D6-70_ETH-1-13-4");
+    names.put("ETH10G-1-13-1", "00-21-E1-D6-D6-70_ETH10G-1-13-1");
+    names.put("ETH10G-1-13-2", "00-21-E1-D6-D6-70_ETH10G-1-13-2");
+    names.put("ETH-1-13-4", "00-21-E1-D6-D5-DC_ETH-1-13-4");
+    names.put("ETH10G-1-13-1", "00-21-E1-D6-D5-DC_ETH10G-1-13-1");
+    names.put("ETH10G-1-13-2", "00-21-E1-D6-D5-DC_ETH10G-1-13-2");
+    names.put("ETH10G-1-5-1", "00-20-D8-DF-33-8B_ETH10G-1-5-1");
+    names.put("OME0039_OC12-1-12-1", "00-21-E1-D6-D6-70_OC12-1-12-1");
+    names.put("WAN-1-4-102", "00-20-D8-DF-33-86_WAN-1-4-102");
+    names.put("ETH-1-3-1", "00-21-E1-D6-D6-70_ETH-1-3-1");
+    names.put("ETH-1-1-1", "00-21-E1-D6-D5-DC_ETH-1-1-1");
+    names.put("ETH-1-2-3", "00-20-D8-DF-33-8B_ETH-1-2-3");
+    names.put("WAN-1-4-101", "00-20-D8-DF-33-86_WAN-1-4-101");
+    names.put("ETH-1-1-2", "00-21-E1-D6-D5-DC_ETH-1-1-2");
+    names.put("OME0039_OC12-1-12-2", "00-21-E1-D6-D6-70_OC12-1-12-2");
+    names.put("ETH-1-13-5", "00-21-E1-D6-D5-DC_ETH-1-13-5");
+    names.put("ETH10G-1-13-3", "00-21-E1-D6-D5-DC_ETH10G-1-13-3");
 
-    final PhysicalPort physicalPort2 = new PhysicalPort();
-    physicalPort2.setDisplayName("ETH10G-1-13-1");
-    physicalPort2.setName("00-21-E1-D6-D6-70_ETH10G-1-13-1");
-    ports.add(physicalPort2);
+    for (final Entry<String, String> entry : names.entrySet()) {
+      final PhysicalPort physicalPort = new PhysicalPort();
+      physicalPort.setDisplayName(entry.getKey());
+      physicalPort.setName(entry.getValue());
+      ports.add(physicalPort);
+    }
 
-    final PhysicalPort physicalPort3 = new PhysicalPort();
-    physicalPort3.setDisplayName("ETH10G-1-13-2");
-    physicalPort3.setName("00-21-E1-D6-D6-70_ETH10G-1-13-2");
-    ports.add(physicalPort3);
-
-    final PhysicalPort physicalPort4 = new PhysicalPort();
-    physicalPort4.setDisplayName("ETH-1-13-4");
-    physicalPort4.setName("00-21-E1-D6-D5-DC_ETH-1-13-4");
-    ports.add(physicalPort4);
-
-    final PhysicalPort physicalPort5 = new PhysicalPort();
-    physicalPort5.setDisplayName("ETH10G-1-13-1");
-    physicalPort5.setName("00-21-E1-D6-D5-DC_ETH10G-1-13-1");
-    ports.add(physicalPort5);
-
-    final PhysicalPort physicalPort6 = new PhysicalPort();
-    physicalPort6.setDisplayName("ETH10G-1-13-2");
-    physicalPort6.setName("00-21-E1-D6-D5-DC_ETH10G-1-13-2");
-    ports.add(physicalPort6);
   }
 
   @Override
@@ -110,6 +110,6 @@ public class NbiServiceOffline implements NbiPortService {
 
   @Override
   public String createReservation(Reservation reservation) {
-    return "SCHEDULE-"+System.currentTimeMillis();
+    return "SCHEDULE-" + System.currentTimeMillis();
   }
 }
