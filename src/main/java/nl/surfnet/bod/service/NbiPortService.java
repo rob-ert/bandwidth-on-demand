@@ -24,6 +24,7 @@ package nl.surfnet.bod.service;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
 
 public interface NbiPortService {
 
@@ -32,5 +33,7 @@ public interface NbiPortService {
   long count();
 
   PhysicalPort findByName(String name);
+  
+  String createReservation(Reservation reservation);
 
 }

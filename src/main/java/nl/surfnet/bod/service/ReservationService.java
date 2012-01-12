@@ -39,6 +39,7 @@ import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -50,20 +51,21 @@ public class ReservationService {
 
   @Autowired
   private ReservationRepo reservationRepo;
+  
+  @Autowired
+  @Qualifier("nbiClient")
+  private NbiPortService nbiPortService;
 
   public void reserve(Reservation reservation) throws ReservationFailedException {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
-
-    if (isAprilOne(reservation.getStartDate())) {
-      throw new ReservationFailedException("It is April 1, reservation not allowed by NMS.");
+    final String reservationId = nbiPortService.createReservation(reservation);
+    
+    if (reservationId == null) {
+      throw new ReservationFailedException("Unable to create reservation: "+reservation);
     }
-
+    reservation.setReservationId(reservationId);
     reservationRepo.save(reservation);
-  }
-
-  private boolean isAprilOne(LocalDate date) {
-    return date.getMonthOfYear() == 4 && date.getDayOfMonth() == 1;
   }
 
   public Reservation find(Long id) {

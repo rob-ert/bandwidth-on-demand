@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.NbiPortService;
 
 import org.slf4j.Logger;
@@ -83,5 +84,10 @@ public class NbiServiceOffline implements NbiPortService {
       }
     }
     return null;
+  }
+
+  @Override
+  public String createReservation(Reservation reservation) {
+    return "SCHEDULE-"+System.currentTimeMillis();
   }
 }

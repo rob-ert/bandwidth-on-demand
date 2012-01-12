@@ -81,6 +81,9 @@ public class Reservation {
   @NotNull
   @Column(nullable = false)
   private Integer bandwidth;
+  
+  @Column(nullable = false)
+  private String reservationId;
 
   public Long getId() {
     return id;
@@ -184,5 +187,25 @@ public class Reservation {
 
   public void setBandwidth(Integer bandwidth) {
     this.bandwidth = bandwidth;
+  }
+
+  public String getReservationId() {
+    return reservationId;
+  }
+
+  public void setReservationId(String reservationId) {
+    this.reservationId = reservationId;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("Reservation [id=").append(id).append(", version=").append(version)
+        .append(", virtualResourceGroup=").append(virtualResourceGroup).append(", status=").append(status)
+        .append(", sourcePort=").append(sourcePort).append(", destinationPort=").append(destinationPort)
+        .append(", startDate=").append(startDate).append(", startTime=").append(startTime).append(", endDate=")
+        .append(endDate).append(", endTime=").append(endTime).append(", user=").append(user).append(", bandwidth=")
+        .append(bandwidth).append(", reservationId=").append(reservationId).append("]");
+    return builder.toString();
   }
 }

@@ -62,6 +62,10 @@ public class ReservationServiceTest {
 
   @Mock
   private ReservationRepo reservationRepoMock;
+  
+  
+  @Mock
+  private NbiPortService nbiPortService;
 
   @Test
   public void whenTheUserHasNoGroupsTheReservationsShouldBeEmpty() {
@@ -130,16 +134,11 @@ public class ReservationServiceTest {
     Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg).setSourcePort(source)
         .setDestinationPort(destination).create();
 
+    when(nbiPortService.createReservation((any(Reservation.class)))).thenReturn("SCHEDULE-"+System.currentTimeMillis());
+    
     subject.reserve(reservation);
 
     verify(reservationRepoMock).save(reservation);
-  }
-
-  @Test(expected = ReservationFailedException.class)
-  public void reservationOnAprilOneIsNotAllowed() {
-    Reservation reservation = new ReservationFactory().setStartDate(new LocalDate(2012, 4, 1)).create();
-
-    subject.reserve(reservation);
   }
 
   @Test(expected = IllegalStateException.class)

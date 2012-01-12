@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.NbiPortService;
 
 import org.slf4j.Logger;
@@ -13,8 +14,10 @@ import org.springframework.beans.factory.annotation.Value;
 import com.nortel.appcore.app.drac.common.types.DracService;
 import com.nortel.appcore.app.drac.common.types.Facility;
 import com.nortel.appcore.app.drac.common.types.NetworkElementHolder;
+import com.nortel.appcore.app.drac.common.types.PathType;
 import com.nortel.appcore.app.drac.common.types.Schedule;
 import com.nortel.appcore.app.drac.common.types.TaskType;
+import com.nortel.appcore.app.drac.common.types.UserType;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper.CryptedString;
 import com.nortel.appcore.app.drac.security.ClientLoginType;
@@ -31,7 +34,7 @@ import com.nortel.appcore.app.drac.server.requesthandler.RequestHandlerException
  * @author robert
  * 
  */
-//@Service("nbiClient")
+// @Service("nbiClient")
 public class NbiService implements NbiPortService {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -228,6 +231,34 @@ public class NbiService implements NbiPortService {
 
     }
     return null;
+  }
+
+  @Override
+  public String createReservation(final Reservation reservation) {
+    final Schedule schedule = new Schedule();
+    final PathType pathType = new PathType();
+    final UserType userType = new UserType();
+
+    // Schedule info
+    schedule.setStartTime(reservation.getStartDate().toDate().getTime());
+    schedule.setEndTime(reservation.getEndDate().toDate().getTime());
+
+    // User info
+    userType.setUserId(reservation.getUser());
+
+    // Path info
+    pathType.setSource(reservation.getSourcePort().getPhysicalPort().getDisplayName());
+    pathType.setTarget(reservation.getDestinationPort().getPhysicalPort().getDisplayName());
+    pathType.setRate(reservation.getBandwidth());
+
+    // pathType.setSourceVlanId(srcVlanID);
+    // pathType.setTargetVlanId(destVlanID);
+    // pathType.setRoutingAlgorithm(routingAlgorithm);
+    // pathType.setProtectionType(pType);
+
+    schedule.setUserInfo(userType);
+    schedule.setPath(pathType);
+    return createSchedule(schedule);
   }
 
 }
