@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.web;
 
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -172,6 +173,15 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
       }
     };
   }
+  
+  public Converter<Institute, String> getInstituteToStringConverter(){
+    return new Converter<Institute, String>() {
+      @Override
+      public String convert(Institute institute) {
+        return institute.getName();
+      }
+    };
+  }
 
   public void installLabelConverters(final FormatterRegistry registry) {
     // physical ports
@@ -193,6 +203,9 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     registry.addConverter(getVirtualPortToStringConverter());
     registry.addConverter(getStringToVirtualPortConverter());
     registry.addConverter(getIdToVirtualPortConverter());
+    
+    //Institute
+    registry.addConverter(getInstituteToStringConverter());
   }
 
   @Override
