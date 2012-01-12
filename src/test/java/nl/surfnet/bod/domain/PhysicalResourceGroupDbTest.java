@@ -21,13 +21,11 @@
  */
 package nl.surfnet.bod.domain;
 
-import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.isNull;
 
 import java.util.List;
 
@@ -64,7 +62,10 @@ public class PhysicalResourceGroupDbTest {
   public void countAllPhysicalResourceGroups() {    
     long count = physicalResourceGroupService.count();
 
-    assertThat(count, greaterThan(0L));
+    physicalResourceGroupService.save(physicalResourceGroup);
+    physicalResourceGroupRepo.flush();
+        
+    assertThat(count+1, is(physicalResourceGroupService.count()));
   }
 
   @Test
@@ -78,15 +79,20 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void findAllPhysicalResourceGroups() {
-    
-    List<PhysicalResourceGroup> result = physicalResourceGroupService.findAll();
+    PhysicalResourceGroup groupTwo = new PhysicalResourceGroupFactory().setId(null)
+    .setName("TwoGroup").create();
 
-    assertThat(result, hasSize(greaterThan(0)));
+    physicalResourceGroupService.save(physicalResourceGroup);
+    physicalResourceGroupService.save(groupTwo);
+
+    List<PhysicalResourceGroup> prgs = physicalResourceGroupService.findAll();
+
+    assertThat(2, is(prgs.size()));
   }
 
   @Test
   public void findPhysicalResourceGroupEntries() {
-    
+    physicalResourceGroupService.save(physicalResourceGroup);
     long count = physicalResourceGroupService.count();
 
     int maxResults = count > 20 ? 20 : (int) count;
