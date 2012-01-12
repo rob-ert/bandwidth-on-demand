@@ -67,14 +67,21 @@ public class NrbService {
    * 
    * @param loginToken
    *          a valid {@link LoginToken}
-   * @return a list of all currently available network facilities or
+   * @return a list of all currently available UNI network facilities or
    *         <code>null</code> whenever an exception occurs
    */
-  public List<Facility> getAllFacilities(final LoginToken loginToken) {
+  public List<Facility> getAllUniFacilities(final LoginToken loginToken) {
+
     try {
       final List<Facility> facilities = new ArrayList<Facility>();
       for (NetworkElementHolder holder : getAllNetworkElements(loginToken)) {
-        facilities.addAll(getNrbInterface().getFacilities(loginToken, holder.getId()));
+        final List<Facility> facilitiesPerNetworkElementHolder = getNrbInterface().getFacilities(loginToken,
+            holder.getId());
+        for (final Facility facility : facilitiesPerNetworkElementHolder) {
+          if ("UNI".equals(facility.get("interfaceType"))) {
+            facilities.add(facility);
+          }
+        }
       }
       return facilities;
     }

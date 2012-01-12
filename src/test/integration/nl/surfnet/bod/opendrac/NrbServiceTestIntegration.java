@@ -35,7 +35,6 @@ public class NrbServiceTestIntegration {
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    new AnnotationConfigApplicationContext().scan("nl.surfnet.bod.opendrac");
   }
 
   @AfterClass
@@ -57,8 +56,8 @@ public class NrbServiceTestIntegration {
   }
 
   @Test
-  public void testGetAllFacilities() throws Exception {
-    assertEquals(82, nrbService.getAllFacilities(loginToken).size());
+  public void testGetAllUniFacilities() throws Exception {
+    assertEquals(12, nrbService.getAllUniFacilities(loginToken).size());
   }
 
 }
