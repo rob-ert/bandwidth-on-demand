@@ -21,11 +21,7 @@
  */
 package nl.surfnet.bod.web;
 
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -96,7 +92,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
             .append(physicalResourceGroup.getName())
             .append(" - ")
             .append(
-                physicalResourceGroup.getInstitute() == null ? null : physicalResourceGroup.getInstitute().getName())
+                physicalResourceGroup.getInstitute() == null ? "N/A" : physicalResourceGroup.getInstitute().getName())
             .toString();
       }
     };
@@ -173,8 +169,8 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
       }
     };
   }
-  
-  public Converter<Institute, String> getInstituteToStringConverter(){
+
+  public Converter<Institute, String> getInstituteToStringConverter() {
     return new Converter<Institute, String>() {
       @Override
       public String convert(Institute institute) {
@@ -203,8 +199,8 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     registry.addConverter(getVirtualPortToStringConverter());
     registry.addConverter(getStringToVirtualPortConverter());
     registry.addConverter(getIdToVirtualPortConverter());
-    
-    //Institute
+
+    // Institute
     registry.addConverter(getInstituteToStringConverter());
   }
 

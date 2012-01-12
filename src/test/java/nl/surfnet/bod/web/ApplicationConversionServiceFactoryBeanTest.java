@@ -24,9 +24,13 @@ package nl.surfnet.bod.web;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalPortFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +56,25 @@ public class ApplicationConversionServiceFactoryBeanTest {
     PhysicalPort convertedPort = subject.getIdToPhysicalPortConverter().convert(1L);
 
     assertThat(convertedPort, is(port));
+  }
+
+  @Test
+  public void convertPhysicalResourceGroupToStringWithInstitute() {
+    Institute institute = new InstituteFactory().setName("INST").create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName("GROUP").setInstitute(institute).create();
+
+    String output = subject.getPhysicalResourceGroupToStringConverter().convert(group);
+
+    assertThat(output, is("GROUP - INST"));
+  }
+
+  @Test
+  public void convertPhysicalResourceGroupToStringWithoutInstitute() {
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName("GROUP").setInstitute(null).create();
+
+    String output = subject.getPhysicalResourceGroupToStringConverter().convert(group);
+
+    assertThat(output, is("GROUP - N/A"));
   }
 
 }
