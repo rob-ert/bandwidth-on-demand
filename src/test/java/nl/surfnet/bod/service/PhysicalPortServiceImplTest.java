@@ -25,8 +25,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
@@ -37,36 +39,36 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.opendrac.NbiService;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.support.PhysicalPortFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.jpa.domain.Specification;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PhysicalPortServiceImplTest {
 
-  private PhysicalPortServiceImpl subject = new PhysicalPortServiceImpl();
+  @InjectMocks
+  private PhysicalPortServiceImpl subject;
 
   @Mock
   private NbiService nbiServiceMock;
   @Mock
   private PhysicalPortRepo physicalPortRepoMock;
 
-  @Before
-  public void init() {
-    subject.setNbiPortService(nbiServiceMock);
-    subject.setPhysicalPortRepo(physicalPortRepoMock);
-  }
-
   @Test
   public void findAllShouldMergePorts() {
     List<PhysicalPort> nbiPorts = Lists.newArrayList(
-        new PhysicalPortFactory().setName("first").create(),
-        new PhysicalPortFactory().setName("second").create());
+        new PhysicalPortFactory().setName("first").setId(1L).create(),
+        new PhysicalPortFactory().setName("second").setId(1L).create());
+    
     List<PhysicalPort> repoPorts = Lists.newArrayList(
         new PhysicalPortFactory().setName("first").setId(1L).setVersion(2).create());
 
@@ -88,8 +90,7 @@ public class PhysicalPortServiceImplTest {
         new PhysicalPortFactory().setName("first").setId(null).create(),
         new PhysicalPortFactory().setId(null).setName("second").create());
 
-    List<PhysicalPort> repoPorts = Lists.newArrayList(
-        new PhysicalPortFactory().setName("first").setId(1L).create());
+    List<PhysicalPort> repoPorts = Lists.newArrayList(new PhysicalPortFactory().setName("first").setId(1L).create());
 
     when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
@@ -102,8 +103,7 @@ public class PhysicalPortServiceImplTest {
 
   @Test(expected = IllegalStateException.class)
   public void findAllPortsWithSameNameShouldGiveAnException() {
-    List<PhysicalPort> nbiPorts = Lists.newArrayList(
-        new PhysicalPortFactory().setName("first").create());
+    List<PhysicalPort> nbiPorts = Lists.newArrayList(new PhysicalPortFactory().setName("first").create());
     List<PhysicalPort> repoPorts = Lists.newArrayList(
         new PhysicalPortFactory().setName("first").create(),
         new PhysicalPortFactory().setName("first").create());
@@ -145,11 +145,10 @@ public class PhysicalPortServiceImplTest {
         firstPort,
         new PhysicalPortFactory().setName("second").create(),
         new PhysicalPortFactory().setName("third").create(),
-        new PhysicalPortFactory().setName("fourth").create()
-        );
+        new PhysicalPortFactory().setName("fourth").create());
 
     when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
-    when(physicalPortRepoMock.findAll()).thenReturn(Collections.<PhysicalPort>emptyList());
+    when(physicalPortRepoMock.findAll()).thenReturn(Collections.<PhysicalPort> emptyList());
 
     List<PhysicalPort> entries = subject.findEntries(0, 2);
 
@@ -164,11 +163,10 @@ public class PhysicalPortServiceImplTest {
         new PhysicalPortFactory().setName("first").create(),
         secondPort,
         new PhysicalPortFactory().setName("third").create(),
-        new PhysicalPortFactory().setName("fourth").create()
-        );
+        new PhysicalPortFactory().setName("fourth").create());
 
     when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
-    when(physicalPortRepoMock.findAll()).thenReturn(Collections.<PhysicalPort>emptyList());
+    when(physicalPortRepoMock.findAll()).thenReturn(Collections.<PhysicalPort> emptyList());
 
     List<PhysicalPort> entries = subject.findEntries(1, 2);
 
@@ -180,11 +178,10 @@ public class PhysicalPortServiceImplTest {
   public void findEntriesShouldReturnMaxAvailablePorts() {
     List<PhysicalPort> nbiPorts = Lists.newArrayList(
         new PhysicalPortFactory().setName("first").create(),
-        new PhysicalPortFactory().setName("second").create()
-        );
+        new PhysicalPortFactory().setName("second").create());
 
     when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
-    when(physicalPortRepoMock.findAll()).thenReturn(Collections.<PhysicalPort>emptyList());
+    when(physicalPortRepoMock.findAll()).thenReturn(Collections.<PhysicalPort> emptyList());
 
     List<PhysicalPort> entries = subject.findEntries(0, 20);
 
@@ -240,6 +237,31 @@ public class PhysicalPortServiceImplTest {
     long countUnallocated = subject.countUnallocated();
 
     assertThat(countUnallocated, is(5L));
+  }
+
+  @Test
+  public void findAllForUserWithoutUserGroups() {
+    RichUserDetails user = new RichUserDetailsFactory().create();
+
+    Collection<PhysicalPort> ports = subject.findAllocatedForUser(user);
+
+    assertThat(ports, hasSize(0));
+
+    verifyZeroInteractions(physicalPortRepoMock, nbiServiceMock);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void findAllForUserWithUserGroup() {
+    RichUserDetails user = new RichUserDetailsFactory().addUserGroup("urn:mygroup").create();
+
+    when(physicalPortRepoMock.findAll(any(Specification.class))).thenReturn(ImmutableList.of(
+        new PhysicalPortFactory().create(),
+        new PhysicalPortFactory().create()));
+
+    Collection<PhysicalPort> ports = subject.findAllocatedForUser(user);
+
+    assertThat(ports, hasSize(2));
   }
 
 }

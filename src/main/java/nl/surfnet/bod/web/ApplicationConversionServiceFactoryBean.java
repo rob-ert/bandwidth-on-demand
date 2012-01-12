@@ -21,10 +21,7 @@
  */
 package nl.surfnet.bod.web;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -56,9 +53,8 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   @Override
   protected void installFormatters(FormatterRegistry registry) {
     registry.addFormatterForFieldAnnotation(new NumberFormatAnnotationFormatterFactory());
-    new JodaTimeFormattingPatternConfigurer()
-      .setDateTimePattern("yyyy-MM-dd H:mm").setTimePattern("H:mm").setDatePattern("yyyy-MM-dd")
-      .installJodaTimeFormatting(registry);
+    new JodaTimeFormattingPatternConfigurer().setDateTimePattern("yyyy-MM-dd H:mm").setTimePattern("H:mm")
+        .setDatePattern("yyyy-MM-dd").installJodaTimeFormatting(registry);
   }
 
   public Converter<PhysicalPort, String> getPhysicalPortToStringConverter() {
@@ -92,8 +88,12 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     return new Converter<PhysicalResourceGroup, String>() {
       @Override
       public String convert(final PhysicalResourceGroup physicalResourceGroup) {
-        return new StringBuilder().append(physicalResourceGroup.getName()).append(" - ")
-            .append(physicalResourceGroup.getInstitutionName()).toString();
+        return new StringBuilder()
+            .append(physicalResourceGroup.getName())
+            .append(" - ")
+            .append(
+                physicalResourceGroup.getInstitute() == null ? "N/A" : physicalResourceGroup.getInstitute().getName())
+            .toString();
       }
     };
   }
@@ -170,6 +170,15 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     };
   }
 
+  public Converter<Institute, String> getInstituteToStringConverter() {
+    return new Converter<Institute, String>() {
+      @Override
+      public String convert(Institute institute) {
+        return institute.getName();
+      }
+    };
+  }
+
   public void installLabelConverters(final FormatterRegistry registry) {
     // physical ports
     registry.addConverter(getPhysicalPortToStringConverter());
@@ -190,6 +199,9 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     registry.addConverter(getVirtualPortToStringConverter());
     registry.addConverter(getStringToVirtualPortConverter());
     registry.addConverter(getIdToVirtualPortConverter());
+
+    // Institute
+    registry.addConverter(getInstituteToStringConverter());
   }
 
   @Override

@@ -7,4 +7,7 @@
         <item id="i_vp_new" url="/manager/virtualports/create" messageCode="global_menu_new" />
         <item id="i_vp_list" url="/manager/virtualports?page=1" messageCode="global_menu_list" />
     </category>
+    <category id="c_physicalport" menu="physicalport">
+        <item id="i_pp_list" url="/manager/physicalports" messageCode="global_menu_list" />
+    </category>
 </menu>

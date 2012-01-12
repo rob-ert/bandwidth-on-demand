@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
@@ -45,6 +46,9 @@ import com.google.common.base.Function;
 public class PhysicalResourceGroupService {
 
   @Autowired
+  private InstitutionService institutionService;
+
+  @Autowired
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
 
   public long count() {
@@ -56,15 +60,27 @@ public class PhysicalResourceGroupService {
   }
 
   public PhysicalResourceGroup find(final Long id) {
-    return physicalResourceGroupRepo.findOne(id);
+    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupRepo.findOne(id);
+    fillInstituteForPhysicalResourceGroup(physicalResourceGroup);
+
+    return physicalResourceGroup;
   }
 
   public List<PhysicalResourceGroup> findAll() {
-    return physicalResourceGroupRepo.findAll();
+    List<PhysicalResourceGroup> prgs = physicalResourceGroupRepo.findAll();
+
+    fillInstituteForPhysicalResourceGroups(prgs);
+
+    return prgs;
   }
 
   public List<PhysicalResourceGroup> findEntries(final int firstResult, final int maxResults) {
-    return physicalResourceGroupRepo.findAll(new PageRequest(firstResult / maxResults, maxResults)).getContent();
+    List<PhysicalResourceGroup> prgs = physicalResourceGroupRepo.findAll(
+        new PageRequest(firstResult / maxResults, maxResults)).getContent();
+
+    fillInstituteForPhysicalResourceGroups(prgs);
+
+    return prgs;
   }
 
   public void save(final PhysicalResourceGroup physicalResourceGroup) {
@@ -87,7 +103,10 @@ public class PhysicalResourceGroupService {
       }
     }));
 
-    return physicalResourceGroupRepo.findByAdminGroupIn(groupIds);
+    List<PhysicalResourceGroup> prgs = physicalResourceGroupRepo.findByAdminGroupIn(groupIds);
+    fillInstituteForPhysicalResourceGroups(prgs);
+
+    return prgs;
   }
 
   public Collection<PhysicalResourceGroup> findAllForUser(RichUserDetails user) {
@@ -96,6 +115,30 @@ public class PhysicalResourceGroupService {
   }
 
   public PhysicalResourceGroup findByName(String name) {
-    return physicalResourceGroupRepo.findByName(name);
+    PhysicalResourceGroup prg = physicalResourceGroupRepo.findByName(name);
+
+    fillInstituteForPhysicalResourceGroup(prg);
+
+    return prg;
   }
+
+  private void fillInstituteForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
+    Institute institute = new Institute();
+
+    if (physicalResourceGroup != null) {
+
+      if (physicalResourceGroup.getInstituteId() != null) {
+        institute = institutionService.findInstitute(physicalResourceGroup.getInstituteId());
+      }
+
+      physicalResourceGroup.setInstitute(institute);
+    }
+  }
+
+  private void fillInstituteForPhysicalResourceGroups(List<PhysicalResourceGroup> prgs) {
+    for (PhysicalResourceGroup prg : prgs) {
+      fillInstituteForPhysicalResourceGroup(prg);
+    }
+  }
+
 }

@@ -25,9 +25,6 @@
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
-  <!-- ============================== -->
-  <!-- Append messages to the console -->
-  <!-- ============================== -->
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d %p [%c] [%M] [Thread:%t] - [%m]%n" />
@@ -39,17 +36,13 @@
   </logger>
   
   <logger name="nl.surfnet">
-    <level value="INFO" />
+    <level value="WARN" />
   </logger>
   
   <logger name="com.googlecode.ehcache" additivity="false">
     <level value="WARN" />
-    <appender-ref ref="CONSOLE" />
   </logger>
 
-  <!-- ======================= -->
-  <!-- Setup the Root category -->
-  <!-- ======================= -->
   <root>
     <level value="WARN" />
     <appender-ref ref="CONSOLE" />

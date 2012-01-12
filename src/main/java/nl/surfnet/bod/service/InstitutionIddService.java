@@ -24,7 +24,7 @@ package nl.surfnet.bod.service;
 import java.util.Collection;
 import java.util.List;
 
-import nl.surfnet.bod.domain.Institution;
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.idd.generated.Klanten;
 
@@ -43,22 +43,43 @@ public class InstitutionIddService implements InstitutionService {
 
   @Override
   @Cacheable(cacheName = InstitutionCacheRefresher.CACHE_NAME)
-  public Collection<Institution> getInstitutions() {
+  public Collection<Institute> getInstitutions() {
     Collection<Klanten> klanten = iddClient.getKlanten();
 
-    return toInstitutions(klanten);
+    return toInstitutions(klanten.toArray(new Klanten[0]));
   }
 
-  private Collection<Institution> toInstitutions(Collection<Klanten> klantnamen) {
-    List<Institution> institutions = Lists.newArrayList();
-    for (Klanten klant : klantnamen) {
-      String klantnaam = klant.getKlantnaam().trim();
-      if (Strings.isNullOrEmpty(klantnaam)) {
-        continue;
+  private Collection<Institute> toInstitutions(Klanten... klanten) {
+    List<Institute> institutes = Lists.newArrayList();
+    for (Klanten klant : klanten) {
+      if (klant != null) {
+        trimAttributes(klant);
+
+        if (!(Strings.isNullOrEmpty(klant.getKlantnaam()) && (Strings.isNullOrEmpty(klant.getKlantafkorting())))) {
+          institutes.add(new Institute(new Long(klant.getKlant_id()), klant.getKlantnaam(), klant.getKlantafkorting()));
+        }
       }
-      institutions.add(new Institution(klantnaam));
     }
 
-    return institutions;
+    return institutes;
+  }
+
+  @Override
+  public Institute findInstitute(Long id) {
+
+    return toInstitutions(iddClient.getKlantById(id)).iterator().next();
+
+  }
+
+  private void trimAttributes(Klanten klant) {
+
+    if (!Strings.isNullOrEmpty(klant.getKlantnaam())) {
+      klant.setKlantnaam(klant.getKlantnaam().trim());
+    }
+
+    if (!Strings.isNullOrEmpty(klant.getKlantafkorting())) {
+      klant.setKlantafkorting(klant.getKlantafkorting().trim());
+    }
+
   }
 }

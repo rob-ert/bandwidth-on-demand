@@ -19,15 +19,40 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.service;
+package nl.surfnet.bod.domain;
 
-import java.util.Collection;
+/**
+ * Represents a customer of SURFnet.
+ * 
+ * @author Franky
+ * 
+ */
+public class Institute {
 
-import nl.surfnet.bod.domain.Institute;
+  private final Long id;
+  private final String name;
+  private final String shortName;
 
-public interface InstitutionService {
+  public Institute() {
+    this(null, null, null);
+  }
 
-  Collection<Institute> getInstitutions();
+  public Institute(Long id, String name, String shortName) {
+    this.id = id;
+    this.name = name;
+    this.shortName = shortName;
+  }
 
-  Institute findInstitute(Long id);
+  public Long getId() {
+    return id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getShortName() {
+    return shortName;
+  }
+
 }

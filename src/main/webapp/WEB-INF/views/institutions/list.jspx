@@ -7,7 +7,7 @@
 
     <ul>
         <c:forEach var="institution" items="${institutionList}">
-            <li>${institution.name}</li>
+            <li>${institution.name}-${institution.id}</li>            
         </c:forEach>
     </ul>
 </div>

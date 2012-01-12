@@ -31,6 +31,8 @@ import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.support.MockHttpServer;
 
 import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,13 +60,18 @@ public class IddLiveClientTest {
     server.stopServer();
   }
 
-  @Test
-  public void shouldGet5Klanten() {
+  @Before
+  public void setUp() {
     subject.setEndPoint("http://localhost:8088/getKlant.php");
     subject.setUsername("Donald");
     subject.setPassword("secret");
 
     server.addResponse("/getKlant.php", new ClassPathResource("idd_response_with_5_klanten.xml"));
+
+  }
+
+  @Test
+  public void shouldGet5Klanten() {
 
     Collection<Klanten> result = subject.getKlanten();
 
@@ -72,11 +79,24 @@ public class IddLiveClientTest {
   }
 
   @Test
-  public void wrongPasswordShouldGiveException() {
-    subject.setEndPoint("http://localhost:8088/getKlant.php");
-    subject.setUsername("Donald");
-    subject.setPassword("wrong");
+  public void getKlantByExistingId() {
 
+    Klanten result = subject.getKlantById(564L);
+
+    Assert.assertTrue(result.getKlant_id() == 564L);
+  }
+
+  @Test
+  public void getKlantByNonExistingId() {
+
+    Klanten result = subject.getKlantById(-9999L);
+
+    Assert.assertNull(result);
+  }
+
+  @Test
+  public void wrongPasswordShouldGiveException() {
+    subject.setUsername("wrong");
     thrown.expect(RuntimeException.class);
     thrown.expectMessage(containsString("401"));
 

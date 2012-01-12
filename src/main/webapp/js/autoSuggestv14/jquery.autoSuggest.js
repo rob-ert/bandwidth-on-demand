@@ -257,8 +257,9 @@
 							}
 							if(opts.beforeRetrieve){
 								string = opts.beforeRetrieve.call(this, string);
-							}
+							}							
 							$.getJSON(req_string+"?"+opts.queryParam+"="+encodeURIComponent(string)+limit+opts.extraParams, function(data){ 
+								console.log(data);
 								d_count = 0;
 								var new_data = opts.retrieveComplete.call(this, data);
 								for (k in new_data) if (new_data.hasOwnProperty(k)) d_count++;

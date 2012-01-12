@@ -55,11 +55,30 @@ public class IddLiveClient implements IddClient {
       port.setPassword(password);
 
       Klanten[] klantnamen = port.getKlantList(new InvoerKlant("list", "", IDD_VERSION)).getKlantnamen();
+
       return Arrays.asList(klantnamen);
     }
     catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Klanten getKlantById(final Long klantId) {
+    Klanten matchedKlant = null;
+
+    Collection<Klanten> klanten = getKlanten();
+
+    for (Klanten foundKlant : klanten) {
+      if (klantId == foundKlant.getKlant_id()) {
+        matchedKlant = foundKlant;
+        break;
+      }
+    }
+    return matchedKlant;
   }
 
   protected void setUsername(String username) {

@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -42,9 +43,15 @@ public class PhysicalResourceGroup {
   @Column(unique = true, nullable = false)
   private String name;
 
-  @NotEmpty
-  @Column(unique = true, nullable = false)
-  private String institutionName;
+  /**
+   * Institute is managed by IDD, we only persist the id of an {@link Institute}
+   */
+  @NotNull
+  @Column(nullable = false)
+  private Long instituteId;
+
+  @Transient
+  private Institute institute;
 
   private String adminGroup;
 
@@ -75,12 +82,13 @@ public class PhysicalResourceGroup {
     this.name = name;
   }
 
-  public String getInstitutionName() {
-    return this.institutionName;
+  public Long getInstituteId() {
+    return instituteId;
   }
 
-  public void setInstitutionName(final String institutionName) {
-    this.institutionName = institutionName;
+  public void setInstituteId(Long instituteId) {
+    this.institute = null;
+    this.instituteId = instituteId;
   }
 
   public String getAdminGroup() {
@@ -108,10 +116,19 @@ public class PhysicalResourceGroup {
     StringBuilder sb = new StringBuilder();
     sb.append("Id: ").append(getId()).append(", ");
     sb.append("Name: ").append(getName()).append(", ");
-    sb.append("InstitutionName: ").append(getInstitutionName()).append(", ");
+    sb.append("InstitutionId: ").append(getInstituteId()).append(", ");
     sb.append("Admin group: ").append(getAdminGroup()).append(", ");
     sb.append("Version: ").append(getVersion());
 
     return sb.toString();
+  }
+
+  public Institute getInstitute() {
+    return institute;
+  }
+
+  public void setInstitute(Institute institute) {
+    this.instituteId = institute == null ? null : institute.getId();
+    this.institute = institute;
   }
 }
