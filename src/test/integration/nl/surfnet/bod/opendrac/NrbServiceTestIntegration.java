@@ -29,13 +29,10 @@ public class NrbServiceTestIntegration {
 
   @Autowired
   @Qualifier("nrbService")
-  private NrbService nrbService;
-
-  private LoginToken loginToken;
+  private NbiService nrbService;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    new AnnotationConfigApplicationContext().scan("nl.surfnet.bod.opendrac");
   }
 
   @AfterClass
@@ -44,7 +41,6 @@ public class NrbServiceTestIntegration {
 
   @Before
   public void setUp() throws Exception {
-    loginToken = nrbService.getLoginToken("admin", "292c2cdcb5f669a8");
   }
 
   @After
@@ -53,12 +49,12 @@ public class NrbServiceTestIntegration {
 
   @Test
   public void testGetAllNetworkElements() throws Exception {
-    assertEquals(6, nrbService.getAllNetworkElements(loginToken).size());
+    assertEquals(6, nrbService.getAllNetworkElements().size());
   }
 
   @Test
-  public void testGetAllFacilities() throws Exception {
-    assertEquals(82, nrbService.getAllFacilities(loginToken).size());
+  public void testGetAllUniFacilities() throws Exception {
+    assertEquals(12, nrbService.getAllUniFacilities().size());
   }
 
 }
