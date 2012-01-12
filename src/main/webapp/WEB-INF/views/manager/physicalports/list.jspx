@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+    xmlns:spring="http://www.springframework.org/tags" xmlns:tiles="http://tiles.apache.org/tags-tiles"
+    xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
+
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+
+    <page:list id="pl_PhysicalPort" items="${physicalPorts}">
+        <table:table data="${physicalPorts}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/manager/physicalports"
+            typeIdFieldName="name" delete="false" update="false" show="false">
+            <table:column id="c_PhysicalPort_name" property="name" />
+            <table:column id="c_PhysicalPort_displayname" property="displayName" />
+            <table:column id="c_PhysicalPort_physicalResourceGroup" property="physicalResourceGroup" />
+        </table:table>
+    </page:list>
+</div>
