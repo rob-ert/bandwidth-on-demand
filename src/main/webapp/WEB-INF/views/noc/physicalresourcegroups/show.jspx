@@ -9,7 +9,7 @@
         path="/noc/physicalresourcegroups">
 
         <field:display field="name" id="name" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_name" />
-        <field:display field="instituteId" id="instituteId" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_institutionName" />
+        <field:display field="institute" id="instituteName" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_institutionName" />
         <field:display field="adminGroup" id="adminGroup" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_adminGroup" />
         <field:display field="physicalPorts" id="ports" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_physicalPorts" list="true" />
         
