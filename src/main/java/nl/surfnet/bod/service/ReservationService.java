@@ -21,7 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -37,7 +37,6 @@ import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
-import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
@@ -54,7 +53,7 @@ public class ReservationService {
   
   @Autowired
   @Qualifier("nbiClient")
-  private NbiPortService nbiPortService;
+  private NbiService nbiPortService;
 
   public void reserve(Reservation reservation) throws ReservationFailedException {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));

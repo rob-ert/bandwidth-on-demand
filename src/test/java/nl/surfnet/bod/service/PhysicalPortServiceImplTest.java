@@ -36,7 +36,6 @@ import java.util.Collections;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.opendrac.NbiService;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -59,7 +58,7 @@ public class PhysicalPortServiceImplTest {
   private PhysicalPortServiceImpl subject;
 
   @Mock
-  private NbiService nbiServiceMock;
+  private NbiServiceOpenDrac nbiServiceMock;
   @Mock
   private PhysicalPortRepo physicalPortRepoMock;
 

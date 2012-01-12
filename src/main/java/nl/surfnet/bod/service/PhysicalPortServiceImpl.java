@@ -21,10 +21,9 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.collect.Iterables.limit;
-import static com.google.common.collect.Iterables.skip;
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
+import static com.google.common.collect.Iterables.*;
+import static com.google.common.collect.Lists.*;
+import static java.lang.String.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -70,7 +69,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Autowired
   @Qualifier("nbiClient")
-  private NbiPortService nbiPortService;
+  private NbiService nbiPortService;
 
   /**
    * Finds all ports using the North Bound Interface and enhances these ports

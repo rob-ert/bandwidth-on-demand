@@ -19,7 +19,7 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.opendrac;
+package nl.surfnet.bod.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,24 +31,11 @@ import javax.annotation.PostConstruct;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.service.NbiPortService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nortel.appcore.app.drac.security.LoginToken;
-import com.nortel.appcore.app.drac.server.nrb.NrbInterface;
-
-/**
- * A wrapper 'service' around OpenDRAC's {@link NrbInterface}. The main
- * difference is that the methods in this class use a {@link LoginToken} instead
- * of a clear text password.
- * 
- * @author robert
- * 
- */
-// @Service("nbiClient")
-public class NbiServiceOffline implements NbiPortService {
+class NbiServiceOffline implements NbiService {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -90,7 +77,6 @@ public class NbiServiceOffline implements NbiPortService {
   @Override
   public List<PhysicalPort> findAll() {
     return ports;
-
   }
 
   @Override
@@ -111,5 +97,22 @@ public class NbiServiceOffline implements NbiPortService {
   @Override
   public String createReservation(Reservation reservation) {
     return "SCHEDULE-" + System.currentTimeMillis();
+  }
+
+  @Override
+  public String getScheduleStatus(String scheduleId) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void cancelSchedule(String scheduleId) {
+    // TODO Auto-generated method stub
+  }
+
+  @Override
+  public void extendSchedule(String scheduleId, int minutes) {
+    // TODO Auto-generated method stub
+
   }
 }

@@ -42,7 +42,6 @@ import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
-import org.joda.time.LocalDate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -65,7 +64,7 @@ public class ReservationServiceTest {
   
   
   @Mock
-  private NbiPortService nbiPortService;
+  private NbiService nbiPortService;
 
   @Test
   public void whenTheUserHasNoGroupsTheReservationsShouldBeEmpty() {

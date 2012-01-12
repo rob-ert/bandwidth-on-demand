@@ -19,7 +19,7 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.opendrac;
+package nl.surfnet.bod.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,6 @@ import java.util.List;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.service.NbiPortService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,6 @@ import com.nortel.appcore.app.drac.common.types.Facility;
 import com.nortel.appcore.app.drac.common.types.NetworkElementHolder;
 import com.nortel.appcore.app.drac.common.types.PathType;
 import com.nortel.appcore.app.drac.common.types.Schedule;
-import com.nortel.appcore.app.drac.common.types.TaskType.State;
 import com.nortel.appcore.app.drac.common.types.UserType;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper.CryptedString;
@@ -56,9 +54,7 @@ import com.nortel.appcore.app.drac.server.requesthandler.RequestHandlerException
  * @author robert
  * 
  */
-public class NbiService implements NbiPortService {
-
-  private static final String DEFAULT_VLANID = "0";
+class NbiServiceOpenDrac implements NbiService {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -104,7 +100,6 @@ public class NbiService implements NbiPortService {
         final List<Facility> facilitiesPerNetworkElement = getNrbInterface().getFacilities(getLoginToken(),
             holder.getId());
         for (final Facility facility : facilitiesPerNetworkElement) {
-          // System.out.println(facility);
           if ("UNI".equals(facility.getSigType())) {
             facilities.add(facility);
           }
@@ -130,15 +125,12 @@ public class NbiService implements NbiPortService {
     }
   }
 
-  /**
+  /*
+   * (non-Javadoc)
    * 
-   * @param scheduleId
-   *          the id of the schedule of interest
-   * @return {@link String} representation of an OpenDRAC schedule {@link State}
-   *         . Possible values are {@link State#ABORTED}, {@link State#DONE},
-   *         {@link State#IN_PROGRESS}, {@link State#SUBMITTED} (minus the
-   *         "State." prefix) or <code>null</code> in case of an error.
+   * @see nl.surfnet.bod.nbi.NbiService#getScheduleStatus(java.lang.String)
    */
+  @Override
   public String getScheduleStatus(final String scheduleId) {
     try {
       return getNrbInterface().getTaskInfo(getLoginToken(), scheduleId).getState().name();
@@ -149,10 +141,12 @@ public class NbiService implements NbiPortService {
     }
   }
 
-  /**
+  /*
+   * (non-Javadoc)
    * 
-   * @param scheduleId
+   * @see nl.surfnet.bod.nbi.NbiService#cancelSchedule(java.lang.String)
    */
+  @Override
   public void cancelSchedule(final String scheduleId) {
     try {
       getNrbInterface().cancelSchedule(getLoginToken(), scheduleId);
@@ -162,11 +156,12 @@ public class NbiService implements NbiPortService {
     }
   }
 
-  /**
+  /*
+   * (non-Javadoc)
    * 
-   * @param scheduleId
-   * @param minutes
+   * @see nl.surfnet.bod.nbi.NbiService#extendSchedule(java.lang.String, int)
    */
+  @Override
   public void extendSchedule(final String scheduleId, int minutes) {
     try {
       final DracService dracService = getNrbInterface().getCurrentlyActiveServiceByScheduleId(getLoginToken(),
@@ -211,34 +206,29 @@ public class NbiService implements NbiPortService {
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see nl.surfnet.bod.nbi.NbiService#createReservation(nl.surfnet.bod.domain.
+   * Reservation)
+   */
   @Override
   public String createReservation(final Reservation reservation) {
+    final Schedule schedule = getSchedule(reservation);
+
+    try {
+      return getNrbInterface().asyncCreateSchedule(getLoginToken(), schedule);
+    }
+    catch (Exception e) {
+      log.error("Error: ", e);
+      return null;
+    }
+  }
+
+  private Schedule getSchedule(final Reservation reservation) {
+    final PathType pathType = getPath(reservation);
+    final UserType userType = getUser(reservation);
     final Schedule schedule = new Schedule();
-    final PathType pathType = new PathType();
-    final UserType userType = new UserType();
-
-    // User info
-    userType.setUserId(reservation.getUser());
-    userType.setBillingGroup(new UserGroupName(groupName));
-    userType.setSourceEndpointUserGroup(groupName);
-    userType.setTargetEndpointUserGroup(groupName);
-    userType.setSourceEndpointResourceGroup(resourceGroupName);
-    userType.setTargetEndpointResourceGroup(resourceGroupName);
-
-    // End point information.
-    final EndPointType sourceEndpoint = new EndPointType();
-    final EndPointType destEndpoint = new EndPointType();
-    sourceEndpoint.setName(reservation.getSourcePort().getName());
-    destEndpoint.setName(reservation.getDestinationPort().getName());
-    
-    // Path info
-    pathType.setRate(reservation.getBandwidth());
-    // TODO 1+1 or no protection, vcat or ccat?
-    pathType.setProtectionType(PathType.PROTECTION_TYPE.PATH1PLUS1);
-    pathType.setVcatRoutingOption(true);
-    pathType.setSourceEndPoint(sourceEndpoint);
-    pathType.setTargetEndPoint(destEndpoint);
-
     // Schedule Info
     schedule.setActivationType(Schedule.ACTIVATION_TYPE.RESERVATION_AUTOMATIC);
     schedule.setName(reservation.getUser() + "-" + System.currentTimeMillis());
@@ -251,14 +241,37 @@ public class NbiService implements NbiPortService {
     schedule.setDuration(end - start);
     schedule.setUserInfo(userType);
     schedule.setPath(pathType);
+    return schedule;
+  }
 
-    try {
-      return getNrbInterface().asyncCreateSchedule(getLoginToken(), schedule);
-    }
-    catch (Exception e) {
-      log.error("Error: ", e);
-      return null;
-    }
+  private PathType getPath(final Reservation reservation) {
+    // End point information.
+    final EndPointType sourceEndpoint = new EndPointType();
+    final EndPointType destEndpoint = new EndPointType();
+    sourceEndpoint.setName(reservation.getSourcePort().getName());
+    destEndpoint.setName(reservation.getDestinationPort().getName());
+
+    // Path info
+    final PathType pathType = new PathType();
+    pathType.setRate(reservation.getBandwidth());
+    // TODO 1+1 or no protection, vcat or ccat?
+    pathType.setProtectionType(PathType.PROTECTION_TYPE.PATH1PLUS1);
+    pathType.setVcatRoutingOption(true);
+    pathType.setSourceEndPoint(sourceEndpoint);
+    pathType.setTargetEndPoint(destEndpoint);
+    return pathType;
+  }
+
+  private UserType getUser(final Reservation reservation) {
+    // User info
+    final UserType userType = new UserType();
+    userType.setUserId(reservation.getUser());
+    userType.setBillingGroup(new UserGroupName(groupName));
+    userType.setSourceEndpointUserGroup(groupName);
+    userType.setTargetEndpointUserGroup(groupName);
+    userType.setSourceEndpointResourceGroup(resourceGroupName);
+    userType.setTargetEndpointResourceGroup(resourceGroupName);
+    return userType;
   }
 
 }
