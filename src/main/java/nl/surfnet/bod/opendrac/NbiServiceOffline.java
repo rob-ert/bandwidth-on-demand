@@ -26,58 +26,43 @@ import com.nortel.appcore.app.drac.server.nrb.NrbInterface;
 public class NbiServiceOffline implements NbiPortService {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
-  
-  
+
+  private final List<PhysicalPort> ports = new ArrayList<PhysicalPort>();
+
   @PostConstruct
-  private void init(){
+  private void init() {
     log.info("USING OFFLINE NBI CLIENT!");
+
+    final PhysicalPort physicalPort1 = new PhysicalPort();
+    physicalPort1.setDisplayName("ETH-1-13-4");
+    physicalPort1.setName("00-21-E1-D6-D6-70_ETH-1-13-4");
+    ports.add(physicalPort1);
+
+    final PhysicalPort physicalPort2 = new PhysicalPort();
+    physicalPort2.setDisplayName("ETH10G-1-13-1");
+    physicalPort2.setName("00-21-E1-D6-D6-70_ETH10G-1-13-1");
+    ports.add(physicalPort2);
+
+    final PhysicalPort physicalPort3 = new PhysicalPort();
+    physicalPort3.setDisplayName("ETH10G-1-13-2");
+    physicalPort3.setName("00-21-E1-D6-D6-70_ETH10G-1-13-2");
+    ports.add(physicalPort3);
+
+    final PhysicalPort physicalPort4 = new PhysicalPort();
+    physicalPort4.setDisplayName("ETH-1-13-4");
+    physicalPort4.setName("00-21-E1-D6-D5-DC_ETH-1-13-4");
+    ports.add(physicalPort4);
+
+    final PhysicalPort physicalPort5 = new PhysicalPort();
+    physicalPort5.setDisplayName("ETH10G-1-13-1");
+    physicalPort5.setName("00-21-E1-D6-D5-DC_ETH10G-1-13-1");
+    ports.add(physicalPort5);
+
+    final PhysicalPort physicalPort6 = new PhysicalPort();
+    physicalPort6.setDisplayName("ETH10G-1-13-2");
+    physicalPort6.setName("00-21-E1-D6-D5-DC_ETH10G-1-13-2");
+    ports.add(physicalPort6);
   }
-
-  private final List<PhysicalPort> ports = new ArrayList<PhysicalPort>() {
-    {
-      add(new PhysicalPort() {
-        {
-          setDisplayName("ETH-1-13-4");
-          setName("00-21-E1-D6-D6-70_ETH-1-13-4");
-        }
-      });
-
-      add(new PhysicalPort() {
-        {
-          setDisplayName("00-21-E1-D6-D6-70_ETH10G-1-13-1");
-          setName("ETH10G-1-13-1");
-        }
-      });
-
-      add(new PhysicalPort() {
-        {
-          setDisplayName("00-21-E1-D6-D6-70_ETH10G-1-13-2");
-          setName("ETH10G-1-13-2");
-        }
-      });
-
-      add(new PhysicalPort() {
-        {
-          setDisplayName("ETH-1-13-4");
-          setName("00-21-E1-D6-D5-DC_ETH-1-13-4");
-        }
-      });
-
-      add(new PhysicalPort() {
-        {
-          setDisplayName("ETH10G-1-13-1");
-          setName("00-21-E1-D6-D5-DC_ETH10G-1-13-1");
-        }
-      });
-
-      add(new PhysicalPort() {
-        {
-          setDisplayName("ETH10G-1-13-2");
-          setName("00-21-E1-D6-D5-DC_ETH10G-1-13-2");
-        }
-      });
-    }
-  };
 
   @Override
   public List<PhysicalPort> findAll() {
