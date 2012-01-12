@@ -29,7 +29,7 @@ public class NrbServiceTestIntegration {
 
   @Autowired
   @Qualifier("nrbService")
-  private NrbService nrbService;
+  private NbiService nrbService;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {

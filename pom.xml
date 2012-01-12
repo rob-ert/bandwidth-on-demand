@@ -486,11 +486,11 @@
                         <extraClasspath>src/test/resources</extraClasspath>
                     </webAppConfig>
                     <connectors>
-                                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                                    <port>8082</port>
-                                    <maxIdleTime>60000</maxIdleTime>
-                                </connector>
-                            </connectors>
+                      <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                        <port>8082</port>
+                        <maxIdleTime>60000</maxIdleTime>
+                        </connector>
+                    </connectors>
                 </configuration>
             </plugin>
 
@@ -508,27 +508,6 @@
                         <version>0.1.2</version>
                     </dependency>
                 </dependencies>
-            </plugin>
-
-            <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb22-plugin</artifactId>
-                <version>0.8.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <schemaDirectory>${basedir}/src/main/resources/schemas</schemaDirectory>
-                            <schemaIncludes>
-                                <include>*.xsd</include>
-                            </schemaIncludes>
-                            <generatePackage>nl.surfnet.bod.nbi.generated</generatePackage>
-                            <removeOldOutput>true</removeOldOutput>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>

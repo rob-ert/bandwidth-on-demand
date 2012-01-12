@@ -9,7 +9,6 @@ import nl.surfnet.bod.service.NbiPortService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import com.nortel.appcore.app.drac.common.types.DracService;
 import com.nortel.appcore.app.drac.common.types.Facility;
@@ -33,7 +32,7 @@ import com.nortel.appcore.app.drac.server.requesthandler.RequestHandlerException
  * 
  */
 //@Service("nbiClient")
-public class NrbService implements NbiPortService {
+public class NbiService implements NbiPortService {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
