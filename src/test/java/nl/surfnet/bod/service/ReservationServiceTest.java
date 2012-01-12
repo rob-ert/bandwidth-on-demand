@@ -135,10 +135,12 @@ public class ReservationServiceTest {
     Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg).setSourcePort(source)
         .setDestinationPort(destination).create();
 
-    when(nbiPortService.createReservation((any(Reservation.class)))).thenReturn("SCHEDULE-"+System.currentTimeMillis());
+    final String reservationId = "SCHEDULE-"+System.currentTimeMillis();
+    when(nbiPortService.createReservation((any(Reservation.class)))).thenReturn(reservationId);
     
     subject.reserve(reservation);
 
+    assertThat(reservation.getReservationId(), is(reservationId));
     verify(reservationRepoMock).save(reservation);
   }
 
