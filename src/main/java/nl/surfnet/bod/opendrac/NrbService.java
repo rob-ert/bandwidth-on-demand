@@ -8,6 +8,7 @@ import nl.surfnet.bod.service.NbiPortService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.nortel.appcore.app.drac.common.types.DracService;
@@ -31,17 +32,25 @@ import com.nortel.appcore.app.drac.server.requesthandler.RequestHandlerException
  * @author robert
  * 
  */
-@Service("nrbService")
+//@Service("nbiClient")
 public class NrbService implements NbiPortService {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private final RemoteConnectionProxy nrbProxy = new RemoteConnectionProxy();
+  private RemoteConnectionProxy nrbProxy;
 
-  private String username = "admin";
-  private String encryptedPassword = "292c2cdcb5f669a8";
+  @Value("${nbi.user}")
+  private String username;
+
+  @Value("${nbi.password}")
+  private String encryptedPassword;
 
   private NrbInterface getNrbInterface() {
+
+    if (nrbProxy == null) {
+      nrbProxy = new RemoteConnectionProxy();
+    }
+
     try {
       return nrbProxy.getNrbInterface();
     }

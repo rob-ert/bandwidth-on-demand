@@ -61,7 +61,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   private PhysicalPortRepo physicalPortRepo;
 
   @Autowired
-  @Qualifier("nrbService")
+  @Qualifier("nbiClient")
   private NbiPortService nbiPortService;
 
   /**
