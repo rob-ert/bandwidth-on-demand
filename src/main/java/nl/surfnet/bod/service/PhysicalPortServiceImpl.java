@@ -33,6 +33,7 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -60,6 +61,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   private PhysicalPortRepo physicalPortRepo;
 
   @Autowired
+  @Qualifier("nrbService")
   private NbiPortService nbiPortService;
 
   /**

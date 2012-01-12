@@ -3,6 +3,9 @@ package nl.surfnet.bod.opendrac;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.service.NbiPortService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -29,11 +32,14 @@ import com.nortel.appcore.app.drac.server.requesthandler.RequestHandlerException
  * 
  */
 @Service("nrbService")
-public class NrbService {
+public class NrbService implements NbiPortService {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   private final RemoteConnectionProxy nrbProxy = new RemoteConnectionProxy();
+
+  private String username = "admin";
+  private String encryptedPassword = "292c2cdcb5f669a8";
 
   private NrbInterface getNrbInterface() {
     try {
@@ -52,9 +58,9 @@ public class NrbService {
    * @return a list of all currently available network elements or
    *         <code>null</code> whenever an exception occurs
    */
-  public List<NetworkElementHolder> getAllNetworkElements(final LoginToken loginToken) {
+  public List<NetworkElementHolder> getAllNetworkElements() {
     try {
-      return getNrbInterface().getAllNetworkElements(loginToken);
+      return getNrbInterface().getAllNetworkElements(getLoginToken());
     }
     catch (Exception e) {
       log.error("Error: ", e);
@@ -70,14 +76,14 @@ public class NrbService {
    * @return a list of all currently available UNI network facilities or
    *         <code>null</code> whenever an exception occurs
    */
-  public List<Facility> getAllUniFacilities(final LoginToken loginToken) {
+  public List<Facility> getAllUniFacilities() {
 
     try {
       final List<Facility> facilities = new ArrayList<Facility>();
-      for (NetworkElementHolder holder : getAllNetworkElements(loginToken)) {
-        final List<Facility> facilitiesPerNetworkElementHolder = getNrbInterface().getFacilities(loginToken,
+      for (NetworkElementHolder holder : getAllNetworkElements()) {
+        final List<Facility> facilitiesPerNetworkElement = getNrbInterface().getFacilities(getLoginToken(),
             holder.getId());
-        for (final Facility facility : facilitiesPerNetworkElementHolder) {
+        for (final Facility facility : facilitiesPerNetworkElement) {
           if ("UNI".equals(facility.get("interfaceType"))) {
             facilities.add(facility);
           }
@@ -89,6 +95,10 @@ public class NrbService {
       log.error("Error: ", e);
       return null;
     }
+  }
+
+  private LoginToken getLoginToken() {
+    return getLoginToken(username, encryptedPassword);
   }
 
   /**
@@ -121,9 +131,9 @@ public class NrbService {
    * @return the id of the created schedule or <code>null</code> whenever an
    *         exception occurs
    */
-  public String createSchedule(final LoginToken loginToken, final Schedule schedule) {
+  public String createSchedule(final Schedule schedule) {
     try {
-      return getNrbInterface().asyncCreateSchedule(loginToken, schedule);
+      return getNrbInterface().asyncCreateSchedule(getLoginToken(), schedule);
     }
     catch (Exception e) {
       log.error("Error: ", e);
@@ -139,9 +149,9 @@ public class NrbService {
    *          the id of the schedule of interest
    * @return
    */
-  public TaskType getScheduleStatus(final LoginToken loginToken, final String scheduleId) {
+  public TaskType getScheduleStatus(final String scheduleId) {
     try {
-      return getNrbInterface().getTaskInfo(loginToken, scheduleId);
+      return getNrbInterface().getTaskInfo(getLoginToken(), scheduleId);
     }
     catch (Exception e) {
       log.error("Error: ", e);
@@ -154,9 +164,9 @@ public class NrbService {
    * @param loginToken
    * @param scheduleId
    */
-  public void cancelSchedule(final LoginToken loginToken, final String scheduleId) {
+  public void cancelSchedule(final String scheduleId) {
     try {
-      getNrbInterface().cancelSchedule(loginToken, scheduleId);
+      getNrbInterface().cancelSchedule(getLoginToken(), scheduleId);
     }
     catch (Exception e) {
       log.error("Error: ", e);
@@ -169,14 +179,47 @@ public class NrbService {
    * @param scheduleId
    * @param minutes
    */
-  public void extendSchedule(final LoginToken loginToken, final String scheduleId, int minutes) {
+  public void extendSchedule(final String scheduleId, int minutes) {
     try {
-      final DracService dracService = getNrbInterface().getCurrentlyActiveServiceByScheduleId(loginToken, scheduleId);
-      getNrbInterface().extendServiceTime(loginToken, dracService, minutes);
+      final DracService dracService = getNrbInterface().getCurrentlyActiveServiceByScheduleId(getLoginToken(),
+          scheduleId);
+      getNrbInterface().extendServiceTime(getLoginToken(), dracService, minutes);
     }
     catch (Exception e) {
       log.error("Error: ", e);
     }
+  }
+
+  @Override
+  public List<PhysicalPort> findAll() {
+    final List<Facility> allUniFacilities = getAllUniFacilities();
+    final List<PhysicalPort> ports = new ArrayList<PhysicalPort>();
+    for (final Facility facility : allUniFacilities) {
+      PhysicalPort pp = new PhysicalPort();
+      pp.setDisplayName(facility.getAid());
+      pp.setName(facility.get("pk"));
+      ports.add(pp);
+    }
+    return ports;
+
+  }
+
+  @Override
+  public long count() {
+    return findAll().size();
+  }
+
+  @Override
+  public PhysicalPort findByName(String name) {
+    // TODO: There must be a better way
+    final List<PhysicalPort> allPhysicalPorts = findAll();
+    for (final PhysicalPort port : allPhysicalPorts) {
+      if (port.getName().equals(name)) {
+        return port;
+      }
+
+    }
+    return null;
   }
 
 }

@@ -29,7 +29,7 @@ public interface NbiClient {
 
   /**
    *
-   * @return A {@link List} of {@link TerminationPoint}'s or null if no ports
+   * @return A {@link List} of {@link Facility}'s or null if no ports
    *         were found.
    */
   List<TerminationPoint> findAllPorts();

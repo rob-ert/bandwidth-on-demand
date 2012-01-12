@@ -485,6 +485,12 @@
                         <contextPath>/${project.name}</contextPath>
                         <extraClasspath>src/test/resources</extraClasspath>
                     </webAppConfig>
+                    <connectors>
+                                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                                    <port>8082</port>
+                                    <maxIdleTime>60000</maxIdleTime>
+                                </connector>
+                            </connectors>
                 </configuration>
             </plugin>
 
