@@ -25,7 +25,7 @@ import com.nortel.appcore.app.drac.security.LoginToken;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/bod-opendrac-test.xml")
-public class NrbServiceTest {
+public class NrbServiceTestIntegration {
 
   @Autowired
   @Qualifier("nrbService")
