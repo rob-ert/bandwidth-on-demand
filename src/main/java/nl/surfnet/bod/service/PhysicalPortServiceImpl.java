@@ -68,7 +68,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   private PhysicalPortRepo physicalPortRepo;
 
   @Autowired
-  @Qualifier("nbiClient")
+  @Qualifier("nbiService")
   private NbiService nbiPortService;
 
   /**
@@ -77,7 +77,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    */
   @Override
   public List<PhysicalPort> findAll() {
-    List<PhysicalPort> nbiPorts = nbiPortService.findAll();
+    List<PhysicalPort> nbiPorts = nbiPortService.findAllPhysicalPorts();
     List<PhysicalPort> repoPorts = physicalPortRepo.findAll();
 
     enrichPorts(nbiPorts, repoPorts);
@@ -113,17 +113,17 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public long count() {
-    return nbiPortService.count();
+    return nbiPortService.getPhysicalPortsCount();
   }
 
   @Override
   public long countUnallocated() {
-    return nbiPortService.count() - physicalPortRepo.count();
+    return nbiPortService.getPhysicalPortsCount() - physicalPortRepo.count();
   }
 
   @Override
   public PhysicalPort findByName(final String name) {
-    PhysicalPort nbiPort = nbiPortService.findByName(name);
+    PhysicalPort nbiPort = nbiPortService.findPhysicalPortByName(name);
     PhysicalPort repoPort = physicalPortRepo.findByName(name);
 
     enrichPortWithPort(nbiPort, repoPort);

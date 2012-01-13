@@ -52,13 +52,13 @@ public class ReservationService {
   private ReservationRepo reservationRepo;
   
   @Autowired
-  @Qualifier("nbiClient")
+  @Qualifier("nbiService")
   private NbiService nbiPortService;
 
   public void reserve(Reservation reservation) throws ReservationFailedException {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
-    final String reservationId = nbiPortService.createReservation(reservation);
+    final String reservationId = nbiPortService.scheduleReservation(reservation);
     
     if (reservationId == null) {
       throw new ReservationFailedException("Unable to create reservation: "+reservation);

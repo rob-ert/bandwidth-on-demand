@@ -19,14 +19,14 @@ public interface NbiService {
    * 
    * @return the amount of all available {@link PhysicalPort}'s
    */
-  long count();
+  long getPhysicalPortsCount();
 
   /**
    * 
    * @param reservation
    * @return the reservation id returned from the underlying NMS
    */
-  String createReservation(Reservation reservation);
+  String scheduleReservation(Reservation reservation);
 
   /**
    * Extends the schedule identified by the schedule id with an certain amount
@@ -41,14 +41,14 @@ public interface NbiService {
    * 
    * @return all available {@link PhysicalPort}'s
    */
-  List<PhysicalPort> findAll();
+  List<PhysicalPort> findAllPhysicalPorts();
 
   /**
    * 
    * @param name
    * @return a {@link PhysicalPort} identified by a certain name
    */
-  PhysicalPort findByName(String name);
+  PhysicalPort findPhysicalPortByName(String name);
 
   /**
    * 

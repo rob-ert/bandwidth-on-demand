@@ -75,17 +75,17 @@ class NbiServiceOffline implements NbiService {
   }
 
   @Override
-  public List<PhysicalPort> findAll() {
+  public List<PhysicalPort> findAllPhysicalPorts() {
     return ports;
   }
 
   @Override
-  public long count() {
+  public long getPhysicalPortsCount() {
     return ports.size();
   }
 
   @Override
-  public PhysicalPort findByName(String name) {
+  public PhysicalPort findPhysicalPortByName(String name) {
     for (final PhysicalPort port : ports) {
       if (port.getName().equals(name)) {
         return port;
@@ -95,7 +95,7 @@ class NbiServiceOffline implements NbiService {
   }
 
   @Override
-  public String createReservation(Reservation reservation) {
+  public String scheduleReservation(Reservation reservation) {
     return "SCHEDULE-" + System.currentTimeMillis();
   }
 

@@ -144,9 +144,9 @@ public class ReservationValidatorTest {
   @Test
   public void aReservationShouldNotBeInThePast2() {
     LocalDate today = LocalDate.now();
-    LocalTime fewHoursAgo = LocalTime.now().minusHours(2);
+    LocalTime fewMinutesAgo = LocalTime.now().minusMinutes(20);
 
-    Reservation reservation = new ReservationFactory().setStartDate(today).setStartTime(fewHoursAgo).create();
+    Reservation reservation = new ReservationFactory().setStartDate(today).setStartTime(fewMinutesAgo).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);

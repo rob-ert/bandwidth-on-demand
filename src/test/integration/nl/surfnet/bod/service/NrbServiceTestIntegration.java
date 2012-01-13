@@ -60,7 +60,7 @@ import com.nortel.appcore.app.drac.common.types.TaskType.State;
 public class NrbServiceTestIntegration {
 
   @Autowired
-  @Qualifier("nbiClient")
+  @Qualifier("nbiService")
   private NbiServiceOpenDrac nrbService;
 
   @BeforeClass
@@ -81,7 +81,7 @@ public class NrbServiceTestIntegration {
 
   @Test
   public void testGetAllUniFacilities() throws Exception {
-    final List<PhysicalPort> facilities = nrbService.findAll();
+    final List<PhysicalPort> facilities = nrbService.findAllPhysicalPorts();
     assertEquals(15, facilities.size());
   }
 
@@ -98,7 +98,7 @@ public class NrbServiceTestIntegration {
     reservation.setDestinationPort(destination);
     reservation.setBandwidth(100);
 
-    final String reservationId = nrbService.createReservation(reservation);
+    final String reservationId = nrbService.scheduleReservation(reservation);
     final String status = nrbService.getScheduleStatus(reservationId);
     assertEquals(State.IN_PROGRESS.name(), status);
   }

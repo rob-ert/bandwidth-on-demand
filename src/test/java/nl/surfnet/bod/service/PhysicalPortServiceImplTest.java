@@ -71,7 +71,7 @@ public class PhysicalPortServiceImplTest {
     List<PhysicalPort> repoPorts = Lists.newArrayList(
         new PhysicalPortFactory().setName("first").setId(1L).setVersion(2).create());
 
-    when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
+    when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
 
     List<PhysicalPort> allPorts = subject.findAll();
@@ -91,7 +91,7 @@ public class PhysicalPortServiceImplTest {
 
     List<PhysicalPort> repoPorts = Lists.newArrayList(new PhysicalPortFactory().setName("first").setId(1L).create());
 
-    when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
+    when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
 
     Collection<PhysicalPort> unallocatedPorts = subject.findUnallocated();
@@ -107,7 +107,7 @@ public class PhysicalPortServiceImplTest {
         new PhysicalPortFactory().setName("first").create(),
         new PhysicalPortFactory().setName("first").create());
 
-    when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
+    when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
 
     subject.findAll();
@@ -115,7 +115,7 @@ public class PhysicalPortServiceImplTest {
 
   @Test
   public void findByNameShouldGiveNullIfNotFound() {
-    when(nbiServiceMock.findByName("first")).thenReturn(null);
+    when(nbiServiceMock.findPhysicalPortByName("first")).thenReturn(null);
     when(physicalPortRepoMock.findByName("first")).thenReturn(null);
 
     PhysicalPort port = subject.findByName("first");
@@ -128,7 +128,7 @@ public class PhysicalPortServiceImplTest {
     PhysicalPort nbiPort = new PhysicalPortFactory().setName("first").create();
     PhysicalPort repoPort = new PhysicalPortFactory().setId(1L).setName("first").create();
 
-    when(nbiServiceMock.findByName("first")).thenReturn(nbiPort);
+    when(nbiServiceMock.findPhysicalPortByName("first")).thenReturn(nbiPort);
     when(physicalPortRepoMock.findByName("first")).thenReturn(repoPort);
 
     PhysicalPort port = subject.findByName("first");
@@ -146,7 +146,7 @@ public class PhysicalPortServiceImplTest {
         new PhysicalPortFactory().setName("third").create(),
         new PhysicalPortFactory().setName("fourth").create());
 
-    when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
+    when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(Collections.<PhysicalPort> emptyList());
 
     List<PhysicalPort> entries = subject.findEntries(0, 2);
@@ -164,7 +164,7 @@ public class PhysicalPortServiceImplTest {
         new PhysicalPortFactory().setName("third").create(),
         new PhysicalPortFactory().setName("fourth").create());
 
-    when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
+    when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(Collections.<PhysicalPort> emptyList());
 
     List<PhysicalPort> entries = subject.findEntries(1, 2);
@@ -179,7 +179,7 @@ public class PhysicalPortServiceImplTest {
         new PhysicalPortFactory().setName("first").create(),
         new PhysicalPortFactory().setName("second").create());
 
-    when(nbiServiceMock.findAll()).thenReturn(nbiPorts);
+    when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(Collections.<PhysicalPort> emptyList());
 
     List<PhysicalPort> entries = subject.findEntries(0, 20);
@@ -225,12 +225,12 @@ public class PhysicalPortServiceImplTest {
   public void countShouldCallCountOnNbi() {
     subject.count();
 
-    verify(nbiServiceMock, only()).count();
+    verify(nbiServiceMock, only()).getPhysicalPortsCount();
   }
 
   @Test
   public void countUnallocatedShouldCalculateDifferenceBetweenNbiAndRepoPorts() {
-    when(nbiServiceMock.count()).thenReturn(15L);
+    when(nbiServiceMock.getPhysicalPortsCount()).thenReturn(15L);
     when(physicalPortRepoMock.count()).thenReturn(10L);
 
     long countUnallocated = subject.countUnallocated();
