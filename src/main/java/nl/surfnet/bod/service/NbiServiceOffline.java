@@ -39,7 +39,7 @@ class NbiServiceOffline implements NbiService {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private final List<PhysicalPort> ports = new ArrayList<PhysicalPort>();
+  private final Map<String, PhysicalPort> ports = new HashMap<String, PhysicalPort>();
 
   @SuppressWarnings("unused")
   @PostConstruct
@@ -69,14 +69,14 @@ class NbiServiceOffline implements NbiService {
       final PhysicalPort physicalPort = new PhysicalPort();
       physicalPort.setDisplayName(entry.getKey());
       physicalPort.setName(entry.getValue());
-      ports.add(physicalPort);
+      ports.put(entry.getValue(), physicalPort);
     }
 
   }
 
   @Override
   public List<PhysicalPort> findAllPhysicalPorts() {
-    return ports;
+    return new ArrayList<PhysicalPort>(ports.values());
   }
 
   @Override
@@ -86,12 +86,7 @@ class NbiServiceOffline implements NbiService {
 
   @Override
   public PhysicalPort findPhysicalPortByName(String name) {
-    for (final PhysicalPort port : ports) {
-      if (port.getName().equals(name)) {
-        return port;
-      }
-    }
-    return null;
+    return ports.get(name);
   }
 
   @Override

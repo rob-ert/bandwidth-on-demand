@@ -115,7 +115,7 @@ class NbiServiceOpenDrac implements NbiService {
    * @see nl.surfnet.bod.nbi.NbiService#extendSchedule(java.lang.String, int)
    */
   @Override
-  public void extendReservation(final String reservationId, int minutes) {
+  public void extendReservation(final String reservationId, final int minutes) {
     try {
       final DracService dracService = getNrbInterface().getCurrentlyActiveServiceByScheduleId(getLoginToken(),
           reservationId);
@@ -170,7 +170,7 @@ class NbiServiceOpenDrac implements NbiService {
   }
 
   @Override
-  public PhysicalPort findPhysicalPortByName(String name) {
+  public PhysicalPort findPhysicalPortByName(final String name) {
     // TODO: There must be a better way...
     final List<PhysicalPort> allPhysicalPorts = findAllPhysicalPorts();
     for (final PhysicalPort port : allPhysicalPorts) {
