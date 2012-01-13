@@ -95,23 +95,23 @@ class NbiServiceOffline implements NbiService {
   }
 
   @Override
-  public String scheduleReservation(Reservation reservation) {
+  public String createReservation(Reservation reservation) {
     return "SCHEDULE-" + System.currentTimeMillis();
   }
 
   @Override
-  public String getScheduleStatus(String scheduleId) {
+  public String getReservationStatus(String scheduleId) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public void cancelSchedule(String scheduleId) {
+  public void cancelReservation(String scheduleId) {
     // TODO Auto-generated method stub
   }
 
   @Override
-  public void extendSchedule(String scheduleId, int minutes) {
+  public void extendReservation(String scheduleId, int minutes) {
     // TODO Auto-generated method stub
 
   }

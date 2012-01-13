@@ -135,7 +135,7 @@ public class ReservationServiceTest {
         .setDestinationPort(destination).create();
 
     final String reservationId = "SCHEDULE-"+System.currentTimeMillis();
-    when(nbiPortService.scheduleReservation((any(Reservation.class)))).thenReturn(reservationId);
+    when(nbiPortService.createReservation((any(Reservation.class)))).thenReturn(reservationId);
     
     subject.reserve(reservation);
 

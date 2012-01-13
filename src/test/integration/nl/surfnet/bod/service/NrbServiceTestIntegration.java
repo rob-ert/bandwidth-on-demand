@@ -98,8 +98,8 @@ public class NrbServiceTestIntegration {
     reservation.setDestinationPort(destination);
     reservation.setBandwidth(100);
 
-    final String reservationId = nrbService.scheduleReservation(reservation);
-    final String status = nrbService.getScheduleStatus(reservationId);
+    final String reservationId = nrbService.createReservation(reservation);
+    final String status = nrbService.getReservationStatus(reservationId);
     assertEquals(State.IN_PROGRESS.name(), status);
   }
 

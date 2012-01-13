@@ -49,7 +49,7 @@ import com.nortel.appcore.app.drac.server.requesthandler.RemoteConnectionProxy;
 import com.nortel.appcore.app.drac.server.requesthandler.RequestHandlerException;
 
 /**
- * A wrapper 'service' around OpenDRAC's {@link NrbInterface}.
+ * A wrapper around OpenDRAC's {@link NrbInterface}.
  * 
  * @author robert
  * 
@@ -84,9 +84,9 @@ class NbiServiceOpenDrac implements NbiService {
    * @see nl.surfnet.bod.nbi.NbiService#getScheduleStatus(java.lang.String)
    */
   @Override
-  public String getScheduleStatus(final String scheduleId) {
+  public String getReservationStatus(final String reservationId) {
     try {
-      return getNrbInterface().getTaskInfo(getLoginToken(), scheduleId).getState().name();
+      return getNrbInterface().getTaskInfo(getLoginToken(), reservationId).getState().name();
     }
     catch (Exception e) {
       log.error("Error: ", e);
@@ -100,9 +100,9 @@ class NbiServiceOpenDrac implements NbiService {
    * @see nl.surfnet.bod.nbi.NbiService#cancelSchedule(java.lang.String)
    */
   @Override
-  public void cancelSchedule(final String scheduleId) {
+  public void cancelReservation(final String reservationId) {
     try {
-      getNrbInterface().cancelSchedule(getLoginToken(), scheduleId);
+      getNrbInterface().cancelSchedule(getLoginToken(), reservationId);
     }
     catch (Exception e) {
       log.error("Error: ", e);
@@ -115,17 +115,39 @@ class NbiServiceOpenDrac implements NbiService {
    * @see nl.surfnet.bod.nbi.NbiService#extendSchedule(java.lang.String, int)
    */
   @Override
-  public void extendSchedule(final String scheduleId, int minutes) {
+  public void extendReservation(final String reservationId, int minutes) {
     try {
       final DracService dracService = getNrbInterface().getCurrentlyActiveServiceByScheduleId(getLoginToken(),
-          scheduleId);
+          reservationId);
       getNrbInterface().extendServiceTime(getLoginToken(), dracService, minutes);
     }
     catch (Exception e) {
       log.error("Error: ", e);
     }
   }
+  
+  /*
+   * (non-Javadoc)
+   * 
+   * @see nl.surfnet.bod.nbi.NbiService#createReservation(nl.surfnet.bod.domain.
+   * Reservation)
+   */
+  @Override
+  public String createReservation(final Reservation reservation) {
+    try {
+      return getNrbInterface().asyncCreateSchedule(getLoginToken(), createSchedule(reservation));
+    }
+    catch (Exception e) {
+      log.error("Error: ", e);
+      return null;
+    }
+  }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see nl.surfnet.bod.nbi.NbiService#findAllPhysicalPorts()
+   */
   @Override
   public List<PhysicalPort> findAllPhysicalPorts() {
     final List<PhysicalPort> ports = new ArrayList<PhysicalPort>();
@@ -159,23 +181,6 @@ class NbiServiceOpenDrac implements NbiService {
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see nl.surfnet.bod.nbi.NbiService#createReservation(nl.surfnet.bod.domain.
-   * Reservation)
-   */
-  @Override
-  public String scheduleReservation(final Reservation reservation) {
-    try {
-      return getNrbInterface().asyncCreateSchedule(getLoginToken(), createSchedule(reservation));
-    }
-    catch (Exception e) {
-      log.error("Error: ", e);
-      return null;
-    }
-  }
-
   private NrbInterface getNrbInterface() {
     if (nrbProxy == null) {
       System.setProperty("org.opendrac.controller.primary", primaryController);
@@ -194,7 +199,7 @@ class NbiServiceOpenDrac implements NbiService {
   private List<Facility> getAllUniFacilities() {
     try {
       final List<Facility> facilities = new ArrayList<Facility>();
-      for (NetworkElementHolder networkElement : getNrbInterface().getAllNetworkElements(getLoginToken())) {
+      for (final NetworkElementHolder networkElement : getNrbInterface().getAllNetworkElements(getLoginToken())) {
         for (final Facility facility : getNrbInterface().getFacilities(getLoginToken(), networkElement.getId())) {
           if ("UNI".equals(facility.getSigType())) {
             facilities.add(facility);

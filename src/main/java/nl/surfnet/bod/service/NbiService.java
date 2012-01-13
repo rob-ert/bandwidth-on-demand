@@ -13,7 +13,7 @@ public interface NbiService {
    * 
    * @param scheduleId
    */
-  void cancelSchedule(String scheduleId);
+  void cancelReservation(String scheduleId);
 
   /**
    * 
@@ -26,7 +26,7 @@ public interface NbiService {
    * @param reservation
    * @return the reservation id returned from the underlying NMS
    */
-  String scheduleReservation(Reservation reservation);
+  String createReservation(Reservation reservation);
 
   /**
    * Extends the schedule identified by the schedule id with an certain amount
@@ -35,7 +35,7 @@ public interface NbiService {
    * @param scheduleId
    * @param minutes
    */
-  void extendSchedule(String scheduleId, int minutes);
+  void extendReservation(String scheduleId, int minutes);
 
   /**
    * 
@@ -59,6 +59,6 @@ public interface NbiService {
    *         {@link State#IN_PROGRESS}, {@link State#SUBMITTED} (minus the
    *         "State." prefix) or <code>null</code> in case of an error.
    */
-  String getScheduleStatus(String scheduleId);
+  String getReservationStatus(String scheduleId);
 
 }
