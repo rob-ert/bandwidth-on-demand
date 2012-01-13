@@ -63,7 +63,7 @@ public class PhysicalResourceGroupServiceTest {
   private PhysicalResourceGroupRepo groupRepoMock;
 
   @Mock
-  private InstitutionService institutionServiceMock;
+  private InstituteService instituteServiceMock;
 
   private Institute instituteOne = new InstituteFactory().setId(1L).setName("oneInst").create();
   private Institute instituteTwo = new InstituteFactory().setId(2L).setName("twoInst").create();
@@ -102,7 +102,7 @@ public class PhysicalResourceGroupServiceTest {
   @Test
   public void shouldFillInstitute() {
     when(groupRepoMock.findOne(1L)).thenReturn(physicalResourceGroupOne);
-    when(institutionServiceMock.findInstitute(1L)).thenReturn(instituteOne);
+    when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
 
     PhysicalResourceGroup foundResourceGroup = subject.find(1L);
 
@@ -114,8 +114,8 @@ public class PhysicalResourceGroupServiceTest {
   @Test
   public void shoudFillInstitutesFindAll() {
     when(groupRepoMock.findAll()).thenReturn(physicalResourceGroups);
-    when(institutionServiceMock.findInstitute(1L)).thenReturn(instituteOne);
-    when(institutionServiceMock.findInstitute(2L)).thenReturn(instituteTwo);
+    when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
+    when(instituteServiceMock.findInstitute(2L)).thenReturn(instituteTwo);
 
     List<PhysicalResourceGroup> prgs = subject.findAll();
 
@@ -129,8 +129,8 @@ public class PhysicalResourceGroupServiceTest {
     Page<PhysicalResourceGroup> pageResult = new PageImpl<PhysicalResourceGroup>(physicalResourceGroups);
     when(groupRepoMock.findAll(new PageRequest(1, 1))).thenReturn(pageResult);
 
-    when(institutionServiceMock.findInstitute(1L)).thenReturn(instituteOne);
-    when(institutionServiceMock.findInstitute(2L)).thenReturn(instituteTwo);
+    when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
+    when(instituteServiceMock.findInstitute(2L)).thenReturn(instituteTwo);
 
     List<PhysicalResourceGroup> prgs = subject.findEntries(1, 1);
 
@@ -148,8 +148,8 @@ public class PhysicalResourceGroupServiceTest {
     Collection<UserGroup> groups = ImmutableList.of(userGroupOne, userGroupTwo);
 
     when(groupRepoMock.findByAdminGroupIn(anyCollection())).thenReturn(physicalResourceGroups);
-    when(institutionServiceMock.findInstitute(1L)).thenReturn(instituteOne);
-    when(institutionServiceMock.findInstitute(2L)).thenReturn(instituteTwo);
+    when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
+    when(instituteServiceMock.findInstitute(2L)).thenReturn(instituteTwo);
 
     Collection<PhysicalResourceGroup> prgs = subject.findAllForAdminGroups(groups);
 
@@ -163,8 +163,8 @@ public class PhysicalResourceGroupServiceTest {
     RichUserDetails user = new RichUserDetailsFactory().addUserGroup("urn:myfirstgroup").create();
 
     when(groupRepoMock.findByAdminGroupIn(ImmutableList.of("urn:myfirstgroup"))).thenReturn(physicalResourceGroups);
-    when(institutionServiceMock.findInstitute(1L)).thenReturn(instituteOne);
-    when(institutionServiceMock.findInstitute(2L)).thenReturn(instituteTwo);
+    when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
+    when(instituteServiceMock.findInstitute(2L)).thenReturn(instituteTwo);
 
     Collection<PhysicalResourceGroup> prgs = subject.findAllForUser(user);
 
@@ -177,7 +177,7 @@ public class PhysicalResourceGroupServiceTest {
   public void testFillInstitutesFindByName() {
 
     when(groupRepoMock.findByName("onePrg")).thenReturn(physicalResourceGroupOne);
-    when(institutionServiceMock.findInstitute(1L)).thenReturn(instituteOne);
+    when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
 
     PhysicalResourceGroup prg = subject.findByName("onePrg");
     assertThat(prg.getInstitute(), is(instituteOne));

@@ -41,10 +41,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
-public class InstitutionIddServiceTest {
+public class InstituteIddServiceTest {
 
   @InjectMocks
-  private InstitutionIddService subject;
+  private InstituteIddService subject;
 
   @Mock
   private IddClient iddClientMock;
@@ -55,9 +55,9 @@ public class InstitutionIddServiceTest {
 
     when(iddClientMock.getKlanten()).thenReturn(Lists.newArrayList(klant));
 
-    Collection<Institute> institutions = subject.getInstitutions();
+    Collection<Institute> institutes = subject.getInstitutes();
 
-    assertThat(institutions, hasSize(0));
+    assertThat(institutes, hasSize(0));
   }
 
   @Test
@@ -66,10 +66,10 @@ public class InstitutionIddServiceTest {
 
     when(iddClientMock.getKlanten()).thenReturn(Lists.newArrayList(klant));
 
-    Collection<Institute> institutions = subject.getInstitutions();
+    Collection<Institute> institutes = subject.getInstitutes();
 
-    assertThat(institutions, hasSize(1));
-    assertThat(institutions.iterator().next().getName(), is("SURFnet"));
+    assertThat(institutes, hasSize(1));
+    assertThat(institutes.iterator().next().getName(), is("SURFnet"));
   }
 
   private Klanten newKlantWithName(String naam) {

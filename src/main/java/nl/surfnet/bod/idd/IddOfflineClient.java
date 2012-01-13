@@ -53,7 +53,7 @@ public class IddOfflineClient implements IddClient {
 
     return Arrays.asList(klantnamen);
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -80,7 +80,7 @@ public class IddOfflineClient implements IddClient {
       return result.getKlantnamen();
     }
     catch (Exception e) {
-      logger.error("Could not load the institutions", e);
+      logger.error("Could not load the institutes", e);
       return new Klanten[] {};
     }
   }

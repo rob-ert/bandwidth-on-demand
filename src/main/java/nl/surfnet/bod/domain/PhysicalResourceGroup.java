@@ -116,7 +116,7 @@ public class PhysicalResourceGroup {
     StringBuilder sb = new StringBuilder();
     sb.append("Id: ").append(getId()).append(", ");
     sb.append("Name: ").append(getName()).append(", ");
-    sb.append("InstitutionId: ").append(getInstituteId()).append(", ");
+    sb.append("InstituteId: ").append(getInstituteId()).append(", ");
     sb.append("Admin group: ").append(getAdminGroup()).append(", ");
     sb.append("Version: ").append(getVersion());
 

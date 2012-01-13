@@ -9,7 +9,7 @@
         <table:table data="${physicalResourceGroupList}" id="l_PhysicalResourceGroup" path="/noc/physicalresourcegroups">
             
             <table:column id="name" property="name" labelCode="physicalResourceGroup_name" />
-            <table:column id="instituteName" property="institute" labelCode="physicalResourceGroup_institutionName" />
+            <table:column id="instituteName" property="institute" labelCode="physicalResourceGroup_instituteName" />
             <table:column id="adminGroup" property="adminGroup" labelCode="physicalResourceGroup_adminGroup" />
             <table:column id="count" property="physicalPortCount" labelCode="physicalResourceGroup_physicalPortCount" />
 

@@ -21,13 +21,32 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.Collection;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 
-import nl.surfnet.bod.domain.Institute;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 
-public interface InstitutionService {
+@Service
+public class InstituteCacheRefresher {
 
-  Collection<Institute> getInstitutions();
+  static final String CACHE_NAME = "institutesCache";
 
-  Institute findInstitute(Long id);
+  @Autowired
+  private CacheManager cacheManager;
+
+  @Autowired
+  private InstituteService instituteService;
+
+  /**
+   * Clears the cache of the institutes every 8 hours.
+   * Also makes sure that the cache is loaded on startup.
+   */
+  @Scheduled(fixedRate = 1000 * 60 * 60 * 8)
+  public void refreshCache() {
+    Cache cache = cacheManager.getCache(CACHE_NAME);
+    cache.removeAll();
+    instituteService.getInstitutes();
+  }
 }

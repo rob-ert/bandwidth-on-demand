@@ -36,20 +36,20 @@ import com.google.common.collect.Lists;
 import com.googlecode.ehcache.annotations.Cacheable;
 
 @Service
-public class InstitutionIddService implements InstitutionService {
+public class InstituteIddService implements InstituteService {
 
   @Autowired
   private IddClient iddClient;
 
   @Override
-  @Cacheable(cacheName = InstitutionCacheRefresher.CACHE_NAME)
-  public Collection<Institute> getInstitutions() {
+  @Cacheable(cacheName = InstituteCacheRefresher.CACHE_NAME)
+  public Collection<Institute> getInstitutes() {
     Collection<Klanten> klanten = iddClient.getKlanten();
 
-    return toInstitutions(klanten.toArray(new Klanten[0]));
+    return toInstitutes(klanten.toArray(new Klanten[0]));
   }
 
-  private Collection<Institute> toInstitutions(Klanten... klanten) {
+  private Collection<Institute> toInstitutes(Klanten... klanten) {
     List<Institute> institutes = Lists.newArrayList();
     for (Klanten klant : klanten) {
       if (klant != null) {
@@ -66,13 +66,10 @@ public class InstitutionIddService implements InstitutionService {
 
   @Override
   public Institute findInstitute(Long id) {
-
-    return toInstitutions(iddClient.getKlantById(id)).iterator().next();
-
+    return toInstitutes(iddClient.getKlantById(id)).iterator().next();
   }
 
   private void trimAttributes(Klanten klant) {
-
     if (!Strings.isNullOrEmpty(klant.getKlantnaam())) {
       klant.setKlantnaam(klant.getKlantnaam().trim());
     }

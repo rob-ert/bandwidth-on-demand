@@ -12,8 +12,8 @@
 
         <field:input field="name" id="name" labelCode="physicalresourcegroup_name" required="true" />
 
-        <field:suggestion-input field="instituteId" labelCode="physicalresourcegroup_institutionName"
-            suggestionUrl="/institutions" />
+        <field:suggestion-input field="instituteId" labelCode="physicalresourcegroup_instituteName"
+            suggestionUrl="/institutes" />
 
         <field:input field="adminGroup" id="adminGroup" labelCode="physicalresourcegroup_adminGroup"
             helpMessageCode="physicalresourcegroup_adminGroup" />
