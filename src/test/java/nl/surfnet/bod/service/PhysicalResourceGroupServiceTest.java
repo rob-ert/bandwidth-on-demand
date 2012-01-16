@@ -63,7 +63,7 @@ public class PhysicalResourceGroupServiceTest {
   private PhysicalResourceGroupRepo groupRepoMock;
 
   @Mock
-  private InstituteService instituteServiceMock;
+  private InstituteIddService instituteServiceMock;
 
   private Institute instituteOne = new InstituteFactory().setId(1L).setName("oneInst").create();
   private Institute instituteTwo = new InstituteFactory().setId(2L).setName("twoInst").create();

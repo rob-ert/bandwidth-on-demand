@@ -59,13 +59,13 @@ public class PhysicalResourceGroupDbTest {
       .setName("OneGroup").create();
 
   @Test
-  public void countAllPhysicalResourceGroups() {    
+  public void countAllPhysicalResourceGroups() {
     long count = physicalResourceGroupService.count();
 
     physicalResourceGroupService.save(physicalResourceGroup);
     physicalResourceGroupRepo.flush();
-        
-    assertThat(count+1, is(physicalResourceGroupService.count()));
+
+    assertThat(count + 1, is(physicalResourceGroupService.count()));
   }
 
   @Test
@@ -79,15 +79,17 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void findAllPhysicalResourceGroups() {
-    PhysicalResourceGroup groupTwo = new PhysicalResourceGroupFactory().setId(null)
-    .setName("TwoGroup").create();
+
+    int size = physicalResourceGroupService.findAll().size();
+
+    PhysicalResourceGroup groupTwo = new PhysicalResourceGroupFactory().setId(null).setName("TwoGroup").create();
 
     physicalResourceGroupService.save(physicalResourceGroup);
     physicalResourceGroupService.save(groupTwo);
 
     List<PhysicalResourceGroup> prgs = physicalResourceGroupService.findAll();
 
-    assertThat(2, is(prgs.size()));
+    assertThat(2, is(prgs.size() - size));
   }
 
   @Test
@@ -120,7 +122,7 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void savePhysicalResourceGroup() {
-    
+
     assertThat(physicalResourceGroup.getId(), nullValue());
     physicalResourceGroupService.save(physicalResourceGroup);
 

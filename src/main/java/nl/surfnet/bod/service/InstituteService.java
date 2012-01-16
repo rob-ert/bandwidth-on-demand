@@ -22,12 +22,19 @@
 package nl.surfnet.bod.service;
 
 import java.util.Collection;
+import java.util.List;
 
 import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
 public interface InstituteService {
 
   Collection<Institute> getInstitutes();
 
-  Institute findInstitute(Long id);
+  void fillInstituteForPhysicalPorts(List<PhysicalPort> ports);
+
+  void fillInstituteForPhysicalResourceGroup(PhysicalResourceGroup group);
+
+  void fillInstituteForPhysicalResourceGroups(List<PhysicalResourceGroup> groups);
 }
