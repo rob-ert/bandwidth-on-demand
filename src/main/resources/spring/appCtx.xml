@@ -65,6 +65,11 @@
 		id="entityManagerFactory">
 		<property name="persistenceUnitName" value="persistenceUnit" />
 		<property name="dataSource" ref="dataSource" />
+        <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.dialect">${jdbc.hibernate.dialect}</prop>
+            </props>
+        </property>
 	</bean>
 
 	<!-- (Encrypted) PropertyPlaceholderConfigurer -->
