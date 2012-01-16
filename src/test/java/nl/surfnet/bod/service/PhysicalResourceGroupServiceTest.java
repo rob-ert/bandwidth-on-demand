@@ -68,9 +68,9 @@ public class PhysicalResourceGroupServiceTest {
   private Institute instituteOne = new InstituteFactory().setId(1L).setName("oneInst").create();
   private Institute instituteTwo = new InstituteFactory().setId(2L).setName("twoInst").create();
   private PhysicalResourceGroup physicalResourceGroupOne = new PhysicalResourceGroupFactory()
-      .setInstitute(instituteOne).setName("onePrg").create();
+      .setInstitute(instituteOne).create();
   private PhysicalResourceGroup physicalResourceGroupTwo = new PhysicalResourceGroupFactory()
-      .setInstitute(instituteTwo).setName("twoPrg").create();
+      .setInstitute(instituteTwo).create();
   private List<PhysicalResourceGroup> physicalResourceGroups = ImmutableList.of(physicalResourceGroupOne,
       physicalResourceGroupTwo);
 
@@ -174,12 +174,12 @@ public class PhysicalResourceGroupServiceTest {
   }
 
   @Test
-  public void testFillInstitutesFindByName() {
+  public void testFillInstitutesFindByInstituteId() {
 
-    when(groupRepoMock.findByName("onePrg")).thenReturn(physicalResourceGroupOne);
+    when(groupRepoMock.findByInstituteId(1L)).thenReturn(physicalResourceGroupOne);
     when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
 
-    PhysicalResourceGroup prg = subject.findByName("onePrg");
+    PhysicalResourceGroup prg = subject.findByInstituteId(1L);
     assertThat(prg.getInstitute(), is(instituteOne));
   }
 

@@ -8,8 +8,7 @@
     <page:show id="ps_nl_surfnet_bod_domain_PhysicalResourceGroup" object="${physicalResourceGroup}"
         path="/noc/physicalresourcegroups">
 
-        <field:display field="name" id="name" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_name" />
-        <field:display field="institute" id="instituteName" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_instituteName" />
+        <field:display field="name" id="name" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_name" />        
         <field:display field="adminGroup" id="adminGroup" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_adminGroup" />
         <field:display field="physicalPorts" id="ports" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_physicalPorts" list="true" />
         

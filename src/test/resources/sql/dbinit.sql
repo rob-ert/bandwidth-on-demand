@@ -20,8 +20,8 @@
 -- at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
 --
 
-insert into physical_resource_group (id, admin_group, institute_id, name, version) values (1, 'urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:bandwidth-on-demand', 1, 'prg1', 0);
-insert into physical_resource_group (id, admin_group, institute_id, name, version) values (2, 'urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:ict-managers', 564, 'prg Delft', 0);
+insert into physical_resource_group (id, admin_group, institute_id, version) values (1, 'urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:bandwidth-on-demand',564, 0);
+insert into physical_resource_group (id, admin_group, institute_id, version) values (2, 'urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:ict-managers', 691,  0);
 
 insert into physical_port (id, display_name, name, physical_resource_group, version) values (1, 'ETH-1-13-4', '00-21-E1-D6-D6-70_ETH-1-13-4', 1, 0);
 insert into physical_port (id, display_name, name, physical_resource_group, version) values (2, 'ETH10G-1-13-1', '00-21-E1-D6-D6-70_ETH10G-1-13-1', 1, 0);

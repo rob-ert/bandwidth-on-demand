@@ -1,4 +1,5 @@
 /**
+
  * The owner of the original code is SURFnet BV.
  *
  * Portions created by the original owner are Copyright (C) 2011-2012 the
@@ -53,8 +54,8 @@ public class PhysicalResourceGroupValidator implements Validator {
   public void validate(Object objToValidate, Errors errors) {
     PhysicalResourceGroup physicalResourceGroup = (PhysicalResourceGroup) objToValidate;
 
-    PhysicalResourceGroup existingResourceGroup = physicalResourceGroupService.findByName(physicalResourceGroup
-        .getName());
+    PhysicalResourceGroup existingResourceGroup = physicalResourceGroupService.findByInstituteId(physicalResourceGroup
+        .getInstituteId());
 
     if (existingResourceGroup != null) {
       if (!validatorHelper.validateNameUniqueness(existingResourceGroup.getId().equals(physicalResourceGroup.getId()),

@@ -34,16 +34,25 @@ import com.google.common.collect.Lists;
 public class PhysicalResourceGroupFactory {
 
   private Long id = new AtomicLong().incrementAndGet();
-  private String name = "First group" + id;
   private String adminGroup = null;
   private List<PhysicalPort> physicalPorts = Lists.newArrayList();
-  private Institute institute = new InstituteFactory().setId(id).setName("Institute "+id).create();
+  private Institute institute = new InstituteFactory().setId(id).setName("Institute " + id).create();
+  private Long instituteId = id;
+
+  private boolean setInstituteIdFirst = false;
 
   public PhysicalResourceGroup create() {
     PhysicalResourceGroup group = new PhysicalResourceGroup();
     group.setId(id);
-    group.setName(name);
-    group.setInstitute(institute);
+
+    // To prevent sequence issues, since the setter has some logic.
+    if (setInstituteIdFirst) {
+      group.setInstituteId(instituteId);
+    }
+    else {
+      group.setInstitute(institute);
+    }
+
     group.setAdminGroup(adminGroup);
     group.setPhysicalPorts(physicalPorts);
 
@@ -52,11 +61,6 @@ public class PhysicalResourceGroupFactory {
 
   public PhysicalResourceGroupFactory addPhysicalPort(PhysicalPort... ports) {
     this.physicalPorts.addAll(Arrays.asList(ports));
-    return this;
-  }
-
-  public PhysicalResourceGroupFactory setName(String name) {
-    this.name = name;
     return this;
   }
 
@@ -71,7 +75,15 @@ public class PhysicalResourceGroupFactory {
   }
 
   public PhysicalResourceGroupFactory setInstitute(Institute institute) {
+    this.setInstituteIdFirst = false;
     this.institute = institute;
     return this;
   }
+
+  public PhysicalResourceGroupFactory setInstituteId(Long instituteId) {
+    this.setInstituteIdFirst = true;
+    this.instituteId = instituteId;
+    return this;
+  }
+
 }

@@ -46,7 +46,7 @@ public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
   }
 
   private PhysicalResourceGroup givenAPhysicalResourceGroup(String groupName) throws Exception {
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName(groupName).create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
 
     getWebDriver().createNewPhysicalGroup(group.getName());
 

@@ -22,6 +22,7 @@
 package nl.surfnet.bod.service;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import nl.surfnet.bod.domain.Institute;
@@ -67,7 +68,14 @@ public class InstituteIddService implements InstituteService {
   }
 
   Institute findInstitute(Long id) {
-    return toInstitutes(iddClient.getKlantById(id)).iterator().next();
+    Institute institute = null;
+
+    Iterator<Institute> it = toInstitutes(iddClient.getKlantById(id)).iterator();
+    if (it.hasNext()) {
+      institute = (Institute) it.next();
+    }
+
+    return institute;
   }
 
   private void trimAttributes(Klanten klant) {
