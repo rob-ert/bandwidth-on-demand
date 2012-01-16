@@ -31,6 +31,7 @@
         </div>
     </div>
     <spring:url value="${suggestionUrl}" var="json_suggest_url" />
+        
     <script type="text/javascript">
           $(function() {
              var setup_done = false;
@@ -39,7 +40,7 @@
                searchObjProps: 'name',
                selectedItemProp: 'name',
                startText: '',
-               preFill: '${physicalResourceGroup.instituteId}',
+               preFill: [{id:'${physicalResourceGroup.institute.id}', name:'${physicalResourceGroup.institute.name}'}],
                selectionLimit: 1,
                inputName: 'instituteId',
                selectionAdded: function(elem) {

@@ -111,7 +111,12 @@
 						for(var i=0; i < prefill_count; i++){
 							var new_v = opts.preFill[i][opts.selectedValuesProp];
 							if(new_v == undefined){ new_v = ""; }
-							prefill_value = prefill_value+new_v+",";
+							prefill_value = prefill_value+new_v
+							
+							if (!opts.selectionLimit || opts.selectionLimit > 1){
+								prefill_value = prefill_value +",";
+							}
+							
 							if(new_v != ""){
 								add_selected_item(opts.preFill[i], "000"+i);	
 							}		
