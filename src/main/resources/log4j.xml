@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+    The owner of the original code is SURFnet BV.
+
+    Portions created by the original owner are Copyright (C) 2011-2012 the
+    original owner. All Rights Reserved.
+
+    Portions created by other contributors are Copyright (C) the contributor.
+    All Rights Reserved.
+
+    Contributor(s):
+      (Contributors insert name & email here)
+
+    This file is part of the SURFnet7 Bandwidth on Demand software.
+
+    The SURFnet7 Bandwidth on Demand software is free software: you can
+    redistribute it and/or modify it under the terms of the BSD license
+    included with this distribution.
+
+    If the BSD license cannot be found with this distribution, it is available
+    at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
+
+-->
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+  <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d %p [%c] [%M] [Thread:%t] - [%m]%n" />
+    </layout>
+  </appender>
+
+  <logger name="nl.surfnet">
+    <level value="INFO" />
+  </logger>
+  
+  <!-- ======================= -->
+  <!-- Setup the Root category -->
+  <!-- ======================= -->
+  <root>
+    <level value="WARN" />
+    <appender-ref ref="CONSOLE" />
+  </root>
+</log4j:configuration>
