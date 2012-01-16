@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
@@ -179,7 +179,7 @@ public class ReservationServiceTest {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).create();
     subject.cancel(reservation);
     assertThat(reservation.getStatus(), is(ReservationStatus.FAILED));
-    verifyNoMoreInteractions(reservationRepoMock);
+    verifyZeroInteractions(reservationRepoMock);
   }
 
 }
