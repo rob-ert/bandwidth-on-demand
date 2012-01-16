@@ -55,7 +55,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/bod-opendrac-test.xml")
-public class NrbServiceTestIntegration {
+public class NbiServiceOpenDracTestIntegration {
 
   @Autowired
   @Qualifier("nbiService")
