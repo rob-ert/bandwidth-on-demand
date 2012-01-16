@@ -168,7 +168,7 @@ public class ReservationServiceTest {
 
   @Test
   public void cancelAReservationShouldChangeItsStatus() {
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.PENDING).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
     subject.cancel(reservation);
     assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
     verify(reservationRepoMock).save(reservation);

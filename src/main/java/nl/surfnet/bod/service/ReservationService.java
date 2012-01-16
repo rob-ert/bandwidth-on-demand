@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.domain.ReservationStatus.*;
 import static com.google.common.base.Preconditions.checkState;
 
 import java.util.Collection;
@@ -110,9 +111,8 @@ public class ReservationService {
   }
 
   public void cancel(Reservation reservation) {
-    if (reservation.getStatus() == ReservationStatus.RUNNING
-        || reservation.getStatus() == ReservationStatus.PENDING) {
-      reservation.setStatus(ReservationStatus.CANCELLED);
+    if (reservation.getStatus() == RUNNING || reservation.getStatus() == SCHEDULED) {
+      reservation.setStatus(CANCELLED);
       nbiService.cancelReservation(reservation.getReservationId());
       reservationRepo.save(reservation);
     }

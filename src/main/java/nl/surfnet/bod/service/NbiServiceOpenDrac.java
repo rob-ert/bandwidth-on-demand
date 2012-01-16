@@ -55,7 +55,7 @@ import com.nortel.appcore.app.drac.server.requesthandler.RequestHandlerException
 
 /**
  * A wrapper around OpenDRAC's {@link NrbInterface}. Everything is in one class
- * so that only this class is poisent with OpenDRAC related classes.
+ * so that only this class is 'poisoned' with OpenDRAC related classes.
  * 
  * @author robert
  * 
@@ -84,6 +84,8 @@ class NbiServiceOpenDrac implements NbiService {
   @Value("${nbi.resource.group.name}")
   private String resourceGroupName;
 
+  private static final String USER_PORT_TYPE = "UNI";
+
   /*
    * (non-Javadoc)
    * 
@@ -97,7 +99,7 @@ class NbiServiceOpenDrac implements NbiService {
         status = getNrbInterface().getSchedule(getLoginToken(), reservationId).getStatus();
       }
       catch (Exception e) {
-        log.info("No Schedule found for {} trying to retrieve state", reservationId);
+        log.debug("No Schedule creation state found for {}", reservationId);
       }
 
       // Translate OpenDRAC schedule status or state to BoD's reservation status
@@ -105,17 +107,17 @@ class NbiServiceOpenDrac implements NbiService {
         final State state = getNrbInterface().getTaskInfo(getLoginToken(), reservationId).getState();
         switch (state) {
         case SUBMITTED:
-          return PENDING;
+          return SUBMITTED;
 
         case IN_PROGRESS:
-          return ReservationStatus.RUNNING;
+          return PREPARING;
 
         case ABORTED:
           return CANCELLED;
 
         case DONE:
-          // Creation of schedule is done, so the Reservation is pending
-          return PENDING;
+          // Creation of schedule is done, so the Reservation is scheduled
+          return SCHEDULED;
 
         default:
           log.warn("Unknow status: " + status);
@@ -124,7 +126,7 @@ class NbiServiceOpenDrac implements NbiService {
       else {
         switch (status) {
         case CONFIRMATION_PENDING:
-          return PENDING;
+          return PREPARING;
 
         case CONFIRMATION_TIMED_OUT:
           return FAILED;
@@ -133,10 +135,10 @@ class NbiServiceOpenDrac implements NbiService {
           return CANCELLED;
 
         case EXECUTION_PENDING:
-          return PENDING;
+          return SCHEDULED;
 
         case EXECUTION_INPROGRESS:
-          return ReservationStatus.RUNNING;
+          return RUNNING;
 
         case EXECUTION_SUCCEEDED:
           return SUCCEEDED;
@@ -147,7 +149,7 @@ class NbiServiceOpenDrac implements NbiService {
           return FAILED;
 
         case EXECUTION_TIME_OUT:
-          return TIMED_OUT;
+          return FAILED;
 
         case EXECUTION_FAILED:
           return FAILED;
@@ -229,11 +231,11 @@ class NbiServiceOpenDrac implements NbiService {
   @Override
   public List<PhysicalPort> findAllPhysicalPorts() {
     final List<PhysicalPort> ports = new ArrayList<PhysicalPort>();
-    for (final Facility facility : getAllUniFacilities()) {
+    for (final Facility facility : findAllUniFacilities()) {
       final PhysicalPort port = new PhysicalPort();
+      final PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroup();
       port.setDisplayName(facility.getAid());
       port.setName(facility.getTna());
-      PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroup();
       physicalResourceGroup.setAdminGroup(groupName);
       port.setPhysicalResourceGroup(physicalResourceGroup);
       port.setPhysicalResourceGroup(physicalResourceGroup);
@@ -250,8 +252,7 @@ class NbiServiceOpenDrac implements NbiService {
   @Override
   public PhysicalPort findPhysicalPortByName(final String name) {
     // TODO: There must be a better way...
-    final List<PhysicalPort> allPhysicalPorts = findAllPhysicalPorts();
-    for (final PhysicalPort port : allPhysicalPorts) {
+    for (final PhysicalPort port : findAllPhysicalPorts()) {
       if (port.getName().equals(name)) {
         return port;
       }
@@ -274,19 +275,19 @@ class NbiServiceOpenDrac implements NbiService {
     }
   }
 
-  private List<Facility> getAllUniFacilities() {
+  private List<Facility> findAllUniFacilities() {
     try {
       final List<Facility> facilities = new ArrayList<Facility>();
       for (final NetworkElementHolder networkElement : getNrbInterface().getAllNetworkElements(getLoginToken())) {
         try {
           for (final Facility facility : getNrbInterface().getFacilities(getLoginToken(), networkElement.getId())) {
-            if ("UNI".equals(facility.getSigType())) {
+            if (USER_PORT_TYPE.equals(facility.getSigType())) {
               facilities.add(facility);
             }
           }
         }
         catch (Exception e) {
-          log.warn("Error retrieving failities for networkElement at: {}. {}", networkElement.getIp(), e.getMessage());
+          log.warn("Error retrieving facilities for NE at: {} - {}", networkElement.getIp(), e.getMessage());
         }
       }
       return facilities;
@@ -313,10 +314,11 @@ class NbiServiceOpenDrac implements NbiService {
     final PathType pathType = createPath(reservation);
     final UserType userType = createUser(reservation);
     final Schedule schedule = new Schedule();
-    schedule.setActivationType(Schedule.ACTIVATION_TYPE.RESERVATION_AUTOMATIC);
-    schedule.setName(reservation.getUserCreated() + "-" + System.currentTimeMillis());
     final long start = reservation.getStartDateTime().toDate().getTime();
     final long end = reservation.getEndDateTime().toDate().getTime();
+
+    schedule.setActivationType(Schedule.ACTIVATION_TYPE.RESERVATION_AUTOMATIC);
+    schedule.setName(reservation.getUserCreated() + "-" + System.currentTimeMillis());
     schedule.setStartTime(start);
     schedule.setEndTime(end);
     schedule.setRecurring(false);
@@ -339,7 +341,6 @@ class NbiServiceOpenDrac implements NbiService {
     // TODO 1+1 or no protection, vcat or ccat?
     pathType.setProtectionType(PathType.PROTECTION_TYPE.PATH1PLUS1);
     pathType.setVcatRoutingOption(true);
-
     pathType.setSourceEndPoint(sourceEndpoint);
     pathType.setTargetEndPoint(destEndpoint);
     return pathType;

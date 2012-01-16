@@ -105,7 +105,7 @@ public class NbiServiceOpenDracTestIntegration {
 
     final String reservationId = nrbService.createReservation(reservation);
     final ReservationStatus status = nrbService.getReservationStatus(reservationId);
-    assertEquals("PENDING", status.name());
+    assertEquals("SCHEDULED", status.name());
   }
 
 }

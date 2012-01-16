@@ -184,7 +184,7 @@ public class BodWebDriver {
 
     String table = page.getTable();
 
-    assertThat(table, allOf(containsString("PENDING"), containsString(start), containsString(end)));
+    assertThat(table, allOf(containsString("SCHEDULED"), containsString(start), containsString(end)));
   }
 
   public void verifyReservationStartDateHasError(String string) {
