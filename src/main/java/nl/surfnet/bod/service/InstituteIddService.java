@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.idd.generated.Klanten;
 
@@ -64,8 +66,7 @@ public class InstituteIddService implements InstituteService {
     return institutes;
   }
 
-  @Override
-  public Institute findInstitute(Long id) {
+  Institute findInstitute(Long id) {
     return toInstitutes(iddClient.getKlantById(id)).iterator().next();
   }
 
@@ -79,4 +80,34 @@ public class InstituteIddService implements InstituteService {
     }
 
   }
+
+  @Override
+  public void fillInstituteForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
+    Institute institute = new Institute();
+
+    if (physicalResourceGroup != null) {
+
+      if (physicalResourceGroup.getInstituteId() != null) {
+        institute = findInstitute(physicalResourceGroup.getInstituteId());
+      }
+
+      physicalResourceGroup.setInstitute(institute);
+    }
+  }
+
+  @Override
+  public void fillInstituteForPhysicalResourceGroups(List<PhysicalResourceGroup> prgs) {
+    for (PhysicalResourceGroup prg : prgs) {
+      fillInstituteForPhysicalResourceGroup(prg);
+    }
+  }
+
+  @Override
+  public void fillInstituteForPhysicalPorts(List<PhysicalPort> ports) {
+
+    for (PhysicalPort port : ports) {
+      fillInstituteForPhysicalResourceGroup(port.getPhysicalResourceGroup());
+    }
+  }
+
 }
