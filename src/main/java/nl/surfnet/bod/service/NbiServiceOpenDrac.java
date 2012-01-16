@@ -26,6 +26,8 @@ import static nl.surfnet.bod.domain.ReservationStatus.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
@@ -54,8 +56,8 @@ import com.nortel.appcore.app.drac.server.requesthandler.RemoteConnectionProxy;
 import com.nortel.appcore.app.drac.server.requesthandler.RequestHandlerException;
 
 /**
- * A wrapper around OpenDRAC's {@link NrbInterface}. Everything is in one class
- * so that only this class is 'poisoned' with OpenDRAC related classes.
+ * A bridge to OpenDRAC's {@link NrbInterface}. Everything is contained in this
+ * one class so that only this class is linked to OpenDRAC related classes.
  * 
  * @author robert
  * 
@@ -64,7 +66,7 @@ class NbiServiceOpenDrac implements NbiService {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private RemoteConnectionProxy nrbProxy;
+  private RemoteConnectionProxy remoteConnectionProxy;
 
   @Value("${nbi.user}")
   private String username;
@@ -86,6 +88,13 @@ class NbiServiceOpenDrac implements NbiService {
 
   private static final String USER_PORT_TYPE = "UNI";
 
+  @SuppressWarnings("unused")
+  @PostConstruct
+  private void init() {
+    System.setProperty("org.opendrac.controller.primary", primaryController);
+    System.setProperty("org.opendrac.controller.secondary", secondaryController);
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -99,7 +108,7 @@ class NbiServiceOpenDrac implements NbiService {
         status = getNrbInterface().getSchedule(getLoginToken(), reservationId).getStatus();
       }
       catch (Exception e) {
-        log.debug("No Schedule creation state found for {}", reservationId);
+        log.debug("No Schedule state found for {}", reservationId);
       }
 
       // Translate OpenDRAC schedule status or state to BoD's reservation status
@@ -238,7 +247,6 @@ class NbiServiceOpenDrac implements NbiService {
       port.setName(facility.getTna());
       physicalResourceGroup.setAdminGroup(groupName);
       port.setPhysicalResourceGroup(physicalResourceGroup);
-      port.setPhysicalResourceGroup(physicalResourceGroup);
       ports.add(port);
     }
     return ports;
@@ -261,13 +269,8 @@ class NbiServiceOpenDrac implements NbiService {
   }
 
   private NrbInterface getNrbInterface() {
-    if (nrbProxy == null) {
-      System.setProperty("org.opendrac.controller.primary", primaryController);
-      System.setProperty("org.opendrac.controller.secondary", secondaryController);
-      nrbProxy = new RemoteConnectionProxy();
-    }
     try {
-      return nrbProxy.getNrbInterface();
+      return (remoteConnectionProxy == null ? new RemoteConnectionProxy() : remoteConnectionProxy).getNrbInterface();
     }
     catch (RequestHandlerException e) {
       log.error("Error: ", e);
@@ -299,10 +302,9 @@ class NbiServiceOpenDrac implements NbiService {
   }
 
   private LoginToken getLoginToken() {
-    final String password = CryptoWrapper.INSTANCE.decrypt(new CryptedString(encryptedPassword));
     try {
-      return getNrbInterface()
-          .login(ClientLoginType.INTERNAL_LOGIN, username, password.toCharArray(), null, null, null);
+      return getNrbInterface().login(ClientLoginType.INTERNAL_LOGIN, username,
+          CryptoWrapper.INSTANCE.decrypt(new CryptedString(encryptedPassword)).toCharArray(), null, null, null);
     }
     catch (Exception e) {
       log.error("Error: ", e);
@@ -311,8 +313,6 @@ class NbiServiceOpenDrac implements NbiService {
   }
 
   private Schedule createSchedule(final Reservation reservation) {
-    final PathType pathType = createPath(reservation);
-    final UserType userType = createUser(reservation);
     final Schedule schedule = new Schedule();
     final long start = reservation.getStartDateTime().toDate().getTime();
     final long end = reservation.getEndDateTime().toDate().getTime();
@@ -324,21 +324,20 @@ class NbiServiceOpenDrac implements NbiService {
     schedule.setRecurring(false);
     schedule.setRate(reservation.getBandwidth());
     schedule.setDuration(end - start);
-    schedule.setUserInfo(userType);
-    schedule.setPath(pathType);
+    schedule.setUserInfo(createUser(reservation));
+    schedule.setPath(createPath(reservation));
     return schedule;
   }
 
   private PathType createPath(final Reservation reservation) {
+    final PathType pathType = new PathType();
     final EndPointType sourceEndpoint = new EndPointType();
     final EndPointType destEndpoint = new EndPointType();
+
     sourceEndpoint.setName(reservation.getSourcePort().getPhysicalPort().getName());
     destEndpoint.setName(reservation.getDestinationPort().getPhysicalPort().getName());
-
-    final PathType pathType = new PathType();
+    // TODO 1+1 path or no protection, vcat or ccat?
     pathType.setRate(reservation.getBandwidth());
-
-    // TODO 1+1 or no protection, vcat or ccat?
     pathType.setProtectionType(PathType.PROTECTION_TYPE.PATH1PLUS1);
     pathType.setVcatRoutingOption(true);
     pathType.setSourceEndPoint(sourceEndpoint);
@@ -348,6 +347,7 @@ class NbiServiceOpenDrac implements NbiService {
 
   private UserType createUser(final Reservation reservation) {
     final UserType userType = new UserType();
+
     userType.setUserId(reservation.getUserCreated());
     userType.setBillingGroup(new UserGroupName(groupName));
     userType.setSourceEndpointUserGroup(groupName);
