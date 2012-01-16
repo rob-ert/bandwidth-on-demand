@@ -39,8 +39,8 @@ public class NewPhysicalResourceGroupPage {
   @FindBy(id = "_name_id")
   private WebElement nameInput;
 
-  @FindBy(css = "input[name='institutionName_search']")
-  private WebElement institutionInput;
+  @FindBy(css = "input[name='instituteName_search']")
+  private WebElement instituteInput;
 
   @FindBy(css = "input[type='submit']")
   private WebElement saveButton;
@@ -62,14 +62,14 @@ public class NewPhysicalResourceGroupPage {
     nameInput.sendKeys(name);
   }
 
-  public void sendInstitution(String institution) throws Exception {
-    institutionInput.clear();
-    institutionInput.sendKeys(institution);
+  public void sendInstitute(String institute) throws Exception {
+    instituteInput.clear();
+    instituteInput.sendKeys(institute);
 
-    probes.assertTextPresent(By.className("as-results"), institution);
+    probes.assertTextPresent(By.className("as-results"), institute);
 
-    institutionInput.sendKeys("\t");
-    institutionInput.sendKeys("\n");
+    instituteInput.sendKeys("\t");
+    instituteInput.sendKeys("\n");
   }
 
   public void save() {

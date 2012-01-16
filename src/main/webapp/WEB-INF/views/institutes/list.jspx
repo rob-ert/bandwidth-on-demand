@@ -6,8 +6,8 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <ul>
-        <c:forEach var="institution" items="${institutionList}">
-            <li>${institution.name}-${institution.id}</li>            
+        <c:forEach var="institute" items="${instituteList}">
+            <li>${institute.name}-${institute.id}</li>
         </c:forEach>
     </ul>
 </div>

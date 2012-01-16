@@ -46,7 +46,7 @@ import com.google.common.base.Function;
 public class PhysicalResourceGroupService {
 
   @Autowired
-  private InstitutionService institutionService;
+  private InstituteService instituteService;
 
   @Autowired
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
@@ -128,7 +128,7 @@ public class PhysicalResourceGroupService {
     if (physicalResourceGroup != null) {
 
       if (physicalResourceGroup.getInstituteId() != null) {
-        institute = institutionService.findInstitute(physicalResourceGroup.getInstituteId());
+        institute = instituteService.findInstitute(physicalResourceGroup.getInstituteId());
       }
 
       physicalResourceGroup.setInstitute(institute);

@@ -81,7 +81,7 @@ public class BodWebDriver {
   public void createNewPhysicalGroup(String name) throws Exception {
     NewPhysicalResourceGroupPage page = NewPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
     page.sendName(name);
-    page.sendInstitution("Utrecht");
+    page.sendInstitute("Utrecht");
 
     page.save();
   }

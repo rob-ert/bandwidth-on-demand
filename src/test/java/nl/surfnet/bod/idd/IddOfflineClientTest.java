@@ -38,9 +38,9 @@ public class IddOfflineClientTest {
 
   @Test
   public void fetchAllKlanten() {
-    Collection<Klanten> institutions = subject.getKlanten();
+    Collection<Klanten> institutes = subject.getKlanten();
 
-    assertThat(institutions, hasSize(greaterThan(0)));
+    assertThat(institutes, hasSize(greaterThan(0)));
   }
 
   @Test

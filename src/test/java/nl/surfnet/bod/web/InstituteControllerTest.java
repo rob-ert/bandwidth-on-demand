@@ -34,59 +34,59 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.service.InstitutionService;
+import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
 import org.junit.Test;
 
-public class InstitutionControllerTest {
+public class InstituteControllerTest {
 
-  private InstitutionService institutionServiceMock = mock(InstitutionService.class);
+  private InstituteService instituteServiceMock = mock(InstituteService.class);
   private PhysicalResourceGroupService prgServiceMock = mock(PhysicalResourceGroupService.class);
 
-  private InstitutionController subject = new InstitutionController(institutionServiceMock, prgServiceMock);
+  private InstituteController subject = new InstituteController(instituteServiceMock, prgServiceMock);
 
   @Test
   public void instutionsShouldBeFilteredBySearchParamIgnoringCase() {
-    Collection<Institute> unfilteredInstitutions = newArrayList(
-        new InstituteFactory().setId(1l).setName("Universiteit Utrecht").setShortName("UU").create(),
-        new InstituteFactory().setId(2l).setName("Universiteit Amsterdam").setShortName("UA").create());
+    Collection<Institute> unfilteredInstitutes = newArrayList(
+        new InstituteFactory().setId(1L).setName("Universiteit Utrecht").setShortName("UU").create(),
+        new InstituteFactory().setId(2L).setName("Universiteit Amsterdam").setShortName("UA").create());
 
-    when(institutionServiceMock.getInstitutions()).thenReturn(unfilteredInstitutions);
+    when(instituteServiceMock.getInstitutes()).thenReturn(unfilteredInstitutes);
 
-    Collection<Institute> institutionsInAmsterdam = subject.jsonList("amsterdam");
+    Collection<Institute> institutesInAmsterdam = subject.jsonList("amsterdam");
 
-    assertThat(institutionsInAmsterdam, hasSize(1));
-    assertThat(institutionsInAmsterdam.iterator().next().getName(), containsString("Amsterdam"));
+    assertThat(institutesInAmsterdam, hasSize(1));
+    assertThat(institutesInAmsterdam.iterator().next().getName(), containsString("Amsterdam"));
   }
 
   @Test
-  public void existingInstitutionNamesShouldBeFiltered() {
+  public void existingInstituteNamesShouldBeFiltered() {
     Institute instituteAmsterdam = new InstituteFactory().setId(2L).setName("Universiteit Amsterdam")
         .setShortName("UA").create();
 
-    Collection<Institute> unfilteredInstitutions = newArrayList(
+    Collection<Institute> unfilteredInstitutes = newArrayList(
         new InstituteFactory().setId(1L).setName("Universiteit Utrecht").setShortName("UU").create(),
         instituteAmsterdam);
 
     List<PhysicalResourceGroup> existingGroups = newArrayList(new PhysicalResourceGroupFactory().setInstitute(
         instituteAmsterdam).create());
 
-    when(institutionServiceMock.getInstitutions()).thenReturn(unfilteredInstitutions);
+    when(instituteServiceMock.getInstitutes()).thenReturn(unfilteredInstitutes);
     when(prgServiceMock.findAll()).thenReturn(existingGroups);
 
-    Collection<Institute> institutions = subject.jsonList("");
+    Collection<Institute> institutes = subject.jsonList("");
 
-    assertThat(institutions, hasSize(1));
-    assertThat(institutions.iterator().next().getName(), is("Universiteit Utrecht"));
+    assertThat(institutes, hasSize(1));
+    assertThat(institutes.iterator().next().getName(), is("Universiteit Utrecht"));
   }
 
   @Test
-  public void institutionsJsonListShouldAcceptNullAsQueryParam() {
-    Collection<Institute> institutions = newArrayList(new InstituteFactory().create());
-    when(institutionServiceMock.getInstitutions()).thenReturn(institutions);
+  public void institutesJsonListShouldAcceptNullAsQueryParam() {
+    Collection<Institute> institutes = newArrayList(new InstituteFactory().create());
+    when(instituteServiceMock.getInstitutes()).thenReturn(institutes);
 
     Collection<Institute> result = subject.jsonList(null);
 

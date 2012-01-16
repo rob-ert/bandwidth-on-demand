@@ -31,7 +31,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.service.InstitutionService;
+import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,44 +47,44 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 
-@RequestMapping("/institutions")
+@RequestMapping("/institutes")
 @Controller
-public class InstitutionController {
+public class InstituteController {
 
-  static final String MODEL_KEY = "institution";
+  static final String MODEL_KEY = "institute";
   static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
 
-  private InstitutionService institutionService;
+  private InstituteService instituteService;
 
   private PhysicalResourceGroupService physicalResourceGroupService;
 
   @Autowired
-  public InstitutionController(InstitutionService institutionService,
+  public InstituteController(InstituteService instituteService,
       PhysicalResourceGroupService physicalResourceGroupService) {
-    this.institutionService = institutionService;
+    this.instituteService = instituteService;
     this.physicalResourceGroupService = physicalResourceGroupService;
   }
 
   @RequestMapping(method = RequestMethod.GET, headers = "accept=application/json")
   public @ResponseBody Collection<Institute> jsonList(
       @RequestParam(required = false) String q) {
-    final Collection<String> existingInstitutions = getExistingInstitutionNames();
+    final Collection<String> existingInstitutes = getExistingInstituteNames();
     final String query = StringUtils.hasText(q) ? q.toLowerCase() : "";
 
-    return filter(institutionService.getInstitutions(), new Predicate<Institute>() {
+    return filter(instituteService.getInstitutes(), new Predicate<Institute>() {
       @Override
       public boolean apply(Institute input) {
-        String institutionName = (input == null ? null : input.getName());
-        if (!Strings.isNullOrEmpty(institutionName)) {
-          institutionName = institutionName.toLowerCase();
+        String instituteName = (input == null ? null : input.getName());
+        if (!Strings.isNullOrEmpty(instituteName)) {
+          instituteName = instituteName.toLowerCase();
         }
 
-        return !existingInstitutions.contains(institutionName) && institutionName.contains(query);
+        return !existingInstitutes.contains(instituteName) && instituteName.contains(query);
       }
     });
   }
 
-  private Collection<String> getExistingInstitutionNames() {
+  private Collection<String> getExistingInstituteNames() {
     List<PhysicalResourceGroup> groups = physicalResourceGroupService.findAll();
 
     return newArrayList(transform(groups, new Function<PhysicalResourceGroup, String>() {
@@ -103,11 +103,11 @@ public class InstitutionController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(final Model uiModel) {
-    Collection<Institute> institutions = institutionService.getInstitutions();
+    Collection<Institute> institutes = instituteService.getInstitutes();
 
-    uiModel.addAttribute(MODEL_KEY_LIST, institutions);
+    uiModel.addAttribute(MODEL_KEY_LIST, institutes);
 
-    return "institutions/list";
+    return "institutes/list";
   }
 
 }
