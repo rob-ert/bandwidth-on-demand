@@ -29,6 +29,6 @@ package nl.surfnet.bod.domain;
  */
 public enum ReservationStatus {
 
-  PENDING, IN_PROGRESS, SUCCEEDED, REJECTED, CANCELLED, FAILED, TIMED_OUT;
+  PENDING, RUNNING, SUCCEEDED, CANCELLED, FAILED, TIMED_OUT;
 
 }

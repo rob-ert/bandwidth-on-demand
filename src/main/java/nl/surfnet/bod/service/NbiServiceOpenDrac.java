@@ -108,7 +108,7 @@ class NbiServiceOpenDrac implements NbiService {
           return PENDING;
 
         case IN_PROGRESS:
-          return ReservationStatus.IN_PROGRESS;
+          return ReservationStatus.RUNNING;
 
         case ABORTED:
           return CANCELLED;
@@ -136,7 +136,7 @@ class NbiServiceOpenDrac implements NbiService {
           return PENDING;
 
         case EXECUTION_INPROGRESS:
-          return ReservationStatus.IN_PROGRESS;
+          return ReservationStatus.RUNNING;
 
         case EXECUTION_SUCCEEDED:
           return SUCCEEDED;
