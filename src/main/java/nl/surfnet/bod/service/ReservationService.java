@@ -21,7 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkState;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -50,7 +50,7 @@ public class ReservationService {
 
   @Autowired
   private ReservationRepo reservationRepo;
-  
+
   @Autowired
   @Qualifier("nbiService")
   private NbiService nbiPortService;
@@ -58,10 +58,10 @@ public class ReservationService {
   public void reserve(Reservation reservation) throws ReservationFailedException {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
-    
+
     final String reservationId = nbiPortService.createReservation(reservation);
     if (reservationId == null) {
-      throw new ReservationFailedException("Unable to create reservation: "+reservation);
+      throw new ReservationFailedException("Unable to create reservation: " + reservation);
     }
     reservation.setReservationId(reservationId);
     reservation.setStatus(nbiPortService.getReservationStatus(reservationId));
