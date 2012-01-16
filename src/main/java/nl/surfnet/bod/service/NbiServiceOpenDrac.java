@@ -312,7 +312,7 @@ class NbiServiceOpenDrac implements NbiService {
     final UserType userType = createUser(reservation);
     final Schedule schedule = new Schedule();
     schedule.setActivationType(Schedule.ACTIVATION_TYPE.RESERVATION_AUTOMATIC);
-    schedule.setName(reservation.getUser() + "-" + System.currentTimeMillis());
+    schedule.setName(reservation.getUserCreated() + "-" + System.currentTimeMillis());
     final long start = reservation.getStartDateTime().toDate().getTime();
     final long end = reservation.getEndDateTime().toDate().getTime();
     schedule.setStartTime(start);
@@ -345,7 +345,7 @@ class NbiServiceOpenDrac implements NbiService {
 
   private UserType createUser(final Reservation reservation) {
     final UserType userType = new UserType();
-    userType.setUserId(reservation.getUser());
+    userType.setUserId(reservation.getUserCreated());
     userType.setBillingGroup(new UserGroupName(groupName));
     userType.setSourceEndpointUserGroup(groupName);
     userType.setTargetEndpointUserGroup(groupName);
