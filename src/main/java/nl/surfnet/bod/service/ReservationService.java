@@ -21,7 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkState;
 
 import java.util.Collection;
 import java.util.Collections;
