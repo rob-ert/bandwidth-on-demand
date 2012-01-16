@@ -87,19 +87,19 @@ form .clearfix.error select {
     border-color: #EE5F5B;
 }
 .bandwidth-tool img.active {
-	border: 3px solid #46A546;
-	-webkit-box-shadow: 2px 3px 5px #46A546;
-    -moz-box-shadow: 2px 3px 5px #46A546;
-	box-shadow: 2px 3px 5px #A9DBA9;
+	border: 3px solid #0064CD;
+	-webkit-box-shadow: 2px 3px 5px #0064CD;
+    -moz-box-shadow: 2px 3px 5px #0064CD;
+	box-shadow: 2px 3px 5px #0064CD;
 }
 .bandwidth-tool img:hover {
-	box-shadow: 0 0 0 #46A546;
+	box-shadow: 0 0 0 #0064CD;
 }
 .bandwidth-tool img {
 	border: 1px solid white;
 	margin-right: 5px;
 	vertical-align: middle;
-	-webkit-box-shadow: 2px 3px 5px #404040;
-	-moz-box-shadow: 2px 3px 5px #404040;
-	box-shadow: 2px 3px 5px #404040;
+	-webkit-box-shadow: 2px 3px 5px #0064CD;
+	-moz-box-shadow: 2px 3px 5px #0064CD;
+	box-shadow: 2px 3px 5px #0064CD;
 }
