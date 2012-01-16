@@ -4,6 +4,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 
 import com.nortel.appcore.app.drac.common.types.TaskType.State;
 
@@ -59,6 +60,6 @@ public interface NbiService {
    *         {@link State#IN_PROGRESS}, {@link State#SUBMITTED} (minus the
    *         "State." prefix) or <code>null</code> in case of an error.
    */
-  String getReservationStatus(String scheduleId);
+  ReservationStatus getReservationStatus(String scheduleId);
 
 }

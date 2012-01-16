@@ -27,8 +27,9 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.service.NbiServiceOpenDrac;
+import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 
@@ -44,9 +45,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.nortel.appcore.app.drac.common.types.TaskType;
-import com.nortel.appcore.app.drac.common.types.TaskType.State;
 
 /**
  * This test only works against a default OpenDRAC (with standard admin pwd)
@@ -92,15 +90,28 @@ public class NrbServiceTestIntegration {
 
     final Reservation reservation = new ReservationFactory().setStartTime(nowTime.plusMinutes(1))
         .setEndTime(nowTime.plusMinutes(20)).setStartDate(nowDate).setEndDate(nowDate.plusYears(0)).create();
-    final VirtualPort source = new VirtualPortFactory().setName("Asd001A_OME1T_ETH-1-1-2").create();
-    final VirtualPort destination = new VirtualPortFactory().setName("Asd001A_OME3T_ETH-1-12-1").create();
+
+    final PhysicalPort pp1 = new PhysicalPortFactory().setName("Asd001A_OME1T_ETH-1-1-2").create();
+    final VirtualPort source = new VirtualPortFactory().setName("vp1").create();
+    source.setPhysicalPort(pp1);
+
+    final PhysicalPort pp2 = new PhysicalPortFactory().setName("Asd001A_OME3T_ETH-1-12-1").create();
+    final VirtualPort destination = new VirtualPortFactory().setName("vp2").create();
+    destination.setPhysicalPort(pp2);
+
     reservation.setSourcePort(source);
     reservation.setDestinationPort(destination);
     reservation.setBandwidth(100);
 
     final String reservationId = nrbService.createReservation(reservation);
-    final String status = nrbService.getReservationStatus(reservationId);
-    assertEquals(State.IN_PROGRESS.name(), status);
+    final ReservationStatus status = nrbService.getReservationStatus(reservationId);
+    assertEquals("PENDING", status.name());
   }
+
+//  @Test
+//  public void testGetReservationStatus() throws Exception {
+//    final ReservationStatus status = nrbService.getReservationStatus("SCHEDULE-1326414294778");
+//    assertEquals("", status);
+//  }
 
 }
