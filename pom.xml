@@ -13,7 +13,6 @@
         <jetty.version>8.0.4.v20111024</jetty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-security.version>3.0.7.RELEASE</spring-security.version>
-        <ems.version>5.6</ems.version>
         <selenium.version>2.13.0</selenium.version>
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:8888/bod</selenium.test.url>

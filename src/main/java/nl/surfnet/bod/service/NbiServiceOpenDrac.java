@@ -21,12 +21,15 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.domain.ReservationStatus.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +42,8 @@ import com.nortel.appcore.app.drac.common.types.Facility;
 import com.nortel.appcore.app.drac.common.types.NetworkElementHolder;
 import com.nortel.appcore.app.drac.common.types.PathType;
 import com.nortel.appcore.app.drac.common.types.Schedule;
+import com.nortel.appcore.app.drac.common.types.State.SCHEDULE;
+import com.nortel.appcore.app.drac.common.types.TaskType.State;
 import com.nortel.appcore.app.drac.common.types.UserType;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper.CryptedString;
@@ -84,9 +89,79 @@ class NbiServiceOpenDrac implements NbiService {
    * @see nl.surfnet.bod.nbi.NbiService#getScheduleStatus(java.lang.String)
    */
   @Override
-  public String getReservationStatus(final String reservationId) {
+  public ReservationStatus getReservationStatus(final String reservationId) {
     try {
-      return getNrbInterface().getTaskInfo(getLoginToken(), reservationId).getState().name();
+      SCHEDULE status = null;
+      try {
+        status = getNrbInterface().getSchedule(getLoginToken(), reservationId).getStatus();
+      }
+      catch (Exception e) {
+        log.info("No Schedule found for {} trying to retrieve state", reservationId);
+      }
+      if (status == null) {
+        final State state = getNrbInterface().getTaskInfo(getLoginToken(), reservationId).getState();
+        switch (state) {
+        case SUBMITTED:
+          return PENDING;
+
+        case IN_PROGRESS:
+          return ReservationStatus.IN_PROGRESS;
+
+        case ABORTED:
+          return CANCELLED_BY_USER;
+
+        case DONE:
+          // Creation of schedule is done, so the Reservation is pending
+          return PENDING;
+
+        default:
+          log.warn("Unknow status: " + status);
+        }
+      }
+      else {
+        switch (status) {
+        case CONFIRMATION_PENDING:
+          return PENDING;
+
+        case CONFIRMATION_TIMED_OUT:
+          return FAILED;
+
+        case CONFIRMATION_CANCELLED:
+          return CANCELLED_BY_USER;
+
+        case EXECUTION_PENDING:
+          return PENDING;
+
+        case EXECUTION_INPROGRESS:
+          return ReservationStatus.IN_PROGRESS;
+
+        case EXECUTION_SUCCEEDED:
+          return SUCCEEDED;
+
+          // An OpenDRAC service can be partially successful, a single schedule
+          // not (thats a reservation in BoD context).
+        case EXECUTION_PARTIALLY_SUCCEEDED:
+          return FAILED;
+
+        case EXECUTION_TIME_OUT:
+          return TIMED_OUT;
+
+        case EXECUTION_FAILED:
+          return FAILED;
+
+        case EXECUTION_PARTIALLY_CANCELLED:
+          return CANCELLED_BY_USER;
+
+        case EXECUTION_CANCELLED:
+          return CANCELLED_BY_USER;
+
+        default:
+          log.warn("Unknow status: " + status);
+          break;
+        }
+      }
+      return null;
+
     }
     catch (Exception e) {
       log.error("Error: ", e);
@@ -125,7 +200,7 @@ class NbiServiceOpenDrac implements NbiService {
       log.error("Error: ", e);
     }
   }
-  
+
   /*
    * (non-Javadoc)
    * 
@@ -200,10 +275,15 @@ class NbiServiceOpenDrac implements NbiService {
     try {
       final List<Facility> facilities = new ArrayList<Facility>();
       for (final NetworkElementHolder networkElement : getNrbInterface().getAllNetworkElements(getLoginToken())) {
-        for (final Facility facility : getNrbInterface().getFacilities(getLoginToken(), networkElement.getId())) {
-          if ("UNI".equals(facility.getSigType())) {
-            facilities.add(facility);
+        try {
+          for (final Facility facility : getNrbInterface().getFacilities(getLoginToken(), networkElement.getId())) {
+            if ("UNI".equals(facility.getSigType())) {
+              facilities.add(facility);
+            }
           }
+        }
+        catch (Exception e) {
+          log.warn("Error retrieving failities for networkElement: " + networkElement.getId() + ". " + e.getMessage());
         }
       }
       return facilities;
@@ -249,13 +329,14 @@ class NbiServiceOpenDrac implements NbiService {
     final EndPointType destEndpoint = new EndPointType();
     sourceEndpoint.setName(reservation.getSourcePort().getPhysicalPort().getName());
     destEndpoint.setName(reservation.getDestinationPort().getPhysicalPort().getName());
+
     final PathType pathType = new PathType();
     pathType.setRate(reservation.getBandwidth());
-    
+
     // TODO 1+1 or no protection, vcat or ccat?
     pathType.setProtectionType(PathType.PROTECTION_TYPE.PATH1PLUS1);
     pathType.setVcatRoutingOption(true);
-    
+
     pathType.setSourceEndPoint(sourceEndpoint);
     pathType.setTargetEndPoint(destEndpoint);
     return pathType;

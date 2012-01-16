@@ -22,15 +22,19 @@
 package nl.surfnet.bod.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import javax.annotation.PostConstruct;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +44,11 @@ class NbiServiceOffline implements NbiService {
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   private final Map<String, PhysicalPort> ports = new HashMap<String, PhysicalPort>();
+
+  private static final List<ReservationStatus> VALUES = Collections.unmodifiableList(Arrays.asList(ReservationStatus
+      .values()));
+  private static final int SIZE = VALUES.size();
+  private static final Random RANDOM = new Random();
 
   @SuppressWarnings("unused")
   @PostConstruct
@@ -95,9 +104,8 @@ class NbiServiceOffline implements NbiService {
   }
 
   @Override
-  public String getReservationStatus(String scheduleId) {
-    // TODO Auto-generated method stub
-    return null;
+  public ReservationStatus getReservationStatus(String scheduleId) {
+    return VALUES.get(RANDOM.nextInt(SIZE));
   }
 
   @Override

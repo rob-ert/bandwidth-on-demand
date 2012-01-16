@@ -58,12 +58,13 @@ public class ReservationService {
   public void reserve(Reservation reservation) throws ReservationFailedException {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
-    final String reservationId = nbiPortService.createReservation(reservation);
     
+    final String reservationId = nbiPortService.createReservation(reservation);
     if (reservationId == null) {
       throw new ReservationFailedException("Unable to create reservation: "+reservation);
     }
     reservation.setReservationId(reservationId);
+    reservation.setStatus(nbiPortService.getReservationStatus(reservationId));
     reservationRepo.save(reservation);
   }
 
