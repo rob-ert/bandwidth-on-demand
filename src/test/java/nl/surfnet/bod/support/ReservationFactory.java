@@ -41,7 +41,7 @@ public class ReservationFactory {
   private LocalDate endDate = LocalDate.now().plusDays(1);
   private LocalTime startTime = new LocalTime(12, 0);
   private LocalTime endTime = new LocalTime(16, 0);
-  private String user = "urn:truusvisscher";
+  private String userCreated = "urn:truusvisscher";
 
   public Reservation create() {
     if (vrGroup != null) {
@@ -61,7 +61,7 @@ public class ReservationFactory {
     reservation.setStartTime(startTime);
     reservation.setEndDate(endDate);
     reservation.setEndTime(endTime);
-    reservation.setUser(user);
+    reservation.setUserCreated(userCreated);
 
     return reservation;
   }
@@ -96,8 +96,8 @@ public class ReservationFactory {
     return this;
   }
 
-  public ReservationFactory setUser(String user) {
-    this.user = user;
+  public ReservationFactory setUserCreated(String user) {
+    this.userCreated = user;
     return this;
   }
 

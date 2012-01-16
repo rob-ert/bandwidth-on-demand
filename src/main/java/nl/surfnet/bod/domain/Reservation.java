@@ -76,7 +76,7 @@ public class Reservation {
   private LocalTime endTime;
 
   @Column(nullable = false)
-  private String user;
+  private String userCreated;
 
   public Long getId() {
     return id;
@@ -134,12 +134,12 @@ public class Reservation {
     this.startTime = startTime;
   }
 
-  public String getUser() {
-    return user;
+  public String getUserCreated() {
+    return userCreated;
   }
 
-  public void setUser(String user) {
-    this.user = user;
+  public void setUserCreated(String user) {
+    this.userCreated = user;
   }
 
   public LocalDate getStartDate() {

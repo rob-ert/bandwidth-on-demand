@@ -76,7 +76,7 @@ public class ReservationController {
   public String create(@Valid Reservation reservation, final BindingResult bindingResult, final Model uiModel,
       final HttpServletRequest httpServletRequest) {
 
-    reservation.setUser(Security.getUserDetails().getNameId());
+    reservation.setUserCreated(Security.getUserDetails().getNameId());
 
     reservationValidator.validate(reservation, bindingResult);
 
@@ -126,7 +126,7 @@ public class ReservationController {
   public String update(@Valid final Reservation reservation, final BindingResult bindingResult, final Model uiModel,
       final HttpServletRequest httpServletRequest) {
 
-    reservation.setUser(Security.getUserDetails().getDisplayName());
+    reservation.setUserCreated(Security.getUserDetails().getDisplayName());
 
     reservationValidator.validate(reservation, bindingResult);
     if (bindingResult.hasErrors()) {
