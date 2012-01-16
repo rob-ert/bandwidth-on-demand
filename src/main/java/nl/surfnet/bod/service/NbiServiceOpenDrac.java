@@ -99,6 +99,8 @@ class NbiServiceOpenDrac implements NbiService {
       catch (Exception e) {
         log.info("No Schedule found for {} trying to retrieve state", reservationId);
       }
+
+      // Translate OpenDRAC schedule status or state to BoD's reservation status
       if (status == null) {
         final State state = getNrbInterface().getTaskInfo(getLoginToken(), reservationId).getState();
         switch (state) {
@@ -157,7 +159,7 @@ class NbiServiceOpenDrac implements NbiService {
           return CANCELLED_BY_USER;
 
         default:
-          log.warn("Unknow status: " + status);
+          log.warn("Unknow status: {}", status);
           break;
         }
       }
@@ -284,7 +286,7 @@ class NbiServiceOpenDrac implements NbiService {
           }
         }
         catch (Exception e) {
-          log.warn("Error retrieving failities for networkElement: " + networkElement.getId() + ". " + e.getMessage());
+          log.warn("Error retrieving failities for networkElement at: {}. {}", networkElement.getIp(), e.getMessage());
         }
       }
       return facilities;
