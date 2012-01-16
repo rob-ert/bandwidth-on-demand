@@ -54,7 +54,8 @@ import com.nortel.appcore.app.drac.server.requesthandler.RemoteConnectionProxy;
 import com.nortel.appcore.app.drac.server.requesthandler.RequestHandlerException;
 
 /**
- * A wrapper around OpenDRAC's {@link NrbInterface}.
+ * A wrapper around OpenDRAC's {@link NrbInterface}. Everything is in one class
+ * so that only this class is poisent with OpenDRAC related classes.
  * 
  * @author robert
  * 
