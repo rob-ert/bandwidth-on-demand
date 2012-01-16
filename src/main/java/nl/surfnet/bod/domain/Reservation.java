@@ -76,12 +76,12 @@ public class Reservation {
   private LocalTime endTime;
 
   @Column(nullable = false)
-  private String user;
+  private String userCreated;
 
   @NotNull
   @Column(nullable = false)
   private Integer bandwidth;
-  
+
   @Column(nullable = false)
   private String reservationId;
 
@@ -141,12 +141,12 @@ public class Reservation {
     this.startTime = startTime;
   }
 
-  public String getUser() {
-    return user;
+  public String getUserCreated() {
+    return userCreated;
   }
 
-  public void setUser(String user) {
-    this.user = user;
+  public void setUserCreated(String user) {
+    this.userCreated = user;
   }
 
   public LocalDate getStartDate() {
@@ -204,7 +204,7 @@ public class Reservation {
         .append(", virtualResourceGroup=").append(virtualResourceGroup).append(", status=").append(status)
         .append(", sourcePort=").append(sourcePort).append(", destinationPort=").append(destinationPort)
         .append(", startDate=").append(startDate).append(", startTime=").append(startTime).append(", endDate=")
-        .append(endDate).append(", endTime=").append(endTime).append(", user=").append(user).append(", bandwidth=")
+        .append(endDate).append(", endTime=").append(endTime).append(", userCreated=").append(userCreated).append(", bandwidth=")
         .append(bandwidth).append(", reservationId=").append(reservationId).append("]");
     return builder.toString();
   }
