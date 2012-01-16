@@ -112,7 +112,7 @@ public class ReservationService {
   public void cancel(Reservation reservation) {
     if (reservation.getStatus() == ReservationStatus.IN_PROGRESS
         || reservation.getStatus() == ReservationStatus.PENDING) {
-      reservation.setStatus(ReservationStatus.CANCELLED_BY_USER);
+      reservation.setStatus(ReservationStatus.CANCELLED);
       nbiPortService.cancelReservation(reservation.getReservationId());
       reservationRepo.save(reservation);
     }

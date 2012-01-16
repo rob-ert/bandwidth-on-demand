@@ -111,7 +111,7 @@ class NbiServiceOpenDrac implements NbiService {
           return ReservationStatus.IN_PROGRESS;
 
         case ABORTED:
-          return CANCELLED_BY_USER;
+          return CANCELLED;
 
         case DONE:
           // Creation of schedule is done, so the Reservation is pending
@@ -130,7 +130,7 @@ class NbiServiceOpenDrac implements NbiService {
           return FAILED;
 
         case CONFIRMATION_CANCELLED:
-          return CANCELLED_BY_USER;
+          return CANCELLED;
 
         case EXECUTION_PENDING:
           return PENDING;
@@ -153,10 +153,10 @@ class NbiServiceOpenDrac implements NbiService {
           return FAILED;
 
         case EXECUTION_PARTIALLY_CANCELLED:
-          return CANCELLED_BY_USER;
+          return CANCELLED;
 
         case EXECUTION_CANCELLED:
-          return CANCELLED_BY_USER;
+          return CANCELLED;
 
         default:
           log.warn("Unknow status: {}", status);

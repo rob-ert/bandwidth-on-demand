@@ -204,7 +204,7 @@ public class BodWebDriver {
       LocalTime endTime) {
     ListReservationPage page = ListReservationPage.get(driver);
 
-    page.reservationShouldBe(startDate, endDate, startTime, endTime, ReservationStatus.CANCELLED_BY_USER);
+    page.reservationShouldBe(startDate, endDate, startTime, endTime, ReservationStatus.CANCELLED);
   }
 
 }
