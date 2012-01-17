@@ -24,6 +24,7 @@ package nl.surfnet.bod.service;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -111,6 +113,12 @@ public class VirtualPortService {
 
   public VirtualPort update(final VirtualPort virtualPort) {
     return virtualPortRepo.save(virtualPort);
+  }
+
+  public Collection<VirtualPort> findAllForPhysicalPort(PhysicalPort port) {
+    checkNotNull(port);
+
+    return virtualPortRepo.findByPhysicalPort(port);
   }
 
 }

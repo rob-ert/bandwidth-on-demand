@@ -109,8 +109,8 @@
                         <td class="utilbox">
                             <c:forTokens items="${imageUrls}" delims="," var="image" varStatus="num">
                                 <td>
-                                    <a href="${fn:replace(actions[num.count-1], '{}', item.id)}">
-                                        <img src="${image}" title="${titles[num.count-1]}" />
+                                    <a href="${fn:replace(actions[num.count-1], '{}', item.id)}" rel="twipsy" title="${titles[num.count-1]}">
+                                        <img src="${image}" />
                                     </a>
                                 </td>
                             </c:forTokens>
@@ -120,7 +120,7 @@
                                 </spring:url>
                                 <spring:url value="/resources/images/show.png" var="show_image_url" />
                                 <spring:message arguments="${typeName}" code="entity_show" var="show_label" htmlEscape="false" />
-                                <a href="${show_form_url}" alt="${fn:escapeXml(show_label)}" title="${fn:escapeXml(show_label)}">
+                                <a href="${show_form_url}" alt="${fn:escapeXml(show_label)}" title="${fn:escapeXml(show_label)}" rel="twipsy">
                                     <img alt="${fn:escapeXml(show_label)}" class="image" src="${show_image_url}" title="${fn:escapeXml(show_label)}" />
                                 </a>
                             </c:if>
@@ -130,7 +130,7 @@
                                 </spring:url>
                                 <spring:url value="/resources/images/update.png" var="update_image_url" />
                                 <spring:message arguments="${typeName}" code="entity_update" var="update_label" htmlEscape="false" />
-                                <a href="${update_form_url}" alt="${fn:escapeXml(update_label)}" title="${fn:escapeXml(update_label)}">
+                                <a href="${update_form_url}" alt="${fn:escapeXml(update_label)}" title="${fn:escapeXml(update_label)}" rel="twipsy">
                                     <img alt="${fn:escapeXml(update_label)}" class="image" src="${update_image_url}" title="${fn:escapeXml(update_label)}" />
                                 </a>
                             </c:if>
@@ -148,7 +148,7 @@
                                     <input alt="${fn:escapeXml(delete_label)}" class="image" src="${delete_image_url}"
                                         title="${fn:escapeXml(delete_label)}" type="image"
                                         value="${fn:escapeXml(delete_label)}"
-                                        onclick="return confirm('${delete_confirm_msg}');" />
+                                        onclick="return confirm('${delete_confirm_msg}');" rel="twipsy" />
                                     <c:if test="${not empty param.page}">
                                         <input name="page" type="hidden" value="${param.page}" />
                                     </c:if>
@@ -166,7 +166,7 @@
                                     <input type="hidden" name="id" value="${itemId}" />
                                     <input alt="${fn:escapeXml(icon_label)}" class="image" src="${icon_image_url}"
                                         title="${fn:escapeXml(icon_label)}" type="image"
-                                        value="${fn:escapeXml(icon_label)}"
+                                        value="${fn:escapeXml(icon_label)}" rel="twipsy"
                                         onclick="return confirm('${icon_confirm_msg}');" />
                                     <c:if test="${not empty param.page}">
                                         <input name="page" type="hidden" value="${param.page}" />
