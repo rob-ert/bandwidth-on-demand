@@ -22,14 +22,22 @@
 package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Collections;
 import java.util.List;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.repo.VirtualPortRepo;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,6 +62,24 @@ public class VirtualPortService {
 
   public List<VirtualPort> findAll() {
     return virtualPortRepo.findAll();
+  }
+
+  public List<VirtualPort> findAllForUser(final RichUserDetails user) {
+    checkNotNull(user);
+
+    if (user.getUserGroups().isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    Specification<VirtualPort> spec = new Specification<VirtualPort>() {
+      @Override
+      public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
+          CriteriaBuilder cb) {
+        return cb.and(root.get("virtualResourceGroup").get("surfConextGroupName").in(user.getUserGroupIds()));
+      }
+    };
+
+    return virtualPortRepo.findAll(spec);
   }
 
   public List<VirtualPort> findEntries(final int firstResult, final int maxResults) {

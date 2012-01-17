@@ -54,7 +54,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 
-@Controller
+@Controller("managerVirtualPortController")
 @RequestMapping("/manager/" + VirtualPortController.PAGE_URL)
 public class VirtualPortController {
   static final String PAGE_URL = "virtualports";
@@ -151,7 +151,7 @@ public class VirtualPortController {
 
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(virtualPortService.count()));
 
-    return PAGE_URL + LIST;
+    return "manager/virtualports/list";
   }
 
   @RequestMapping(method = RequestMethod.PUT)
