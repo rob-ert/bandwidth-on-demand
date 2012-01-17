@@ -36,6 +36,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
+import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
@@ -69,6 +70,9 @@ public class VirtualPortController {
 
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
+
+  @Autowired
+  private PhysicalPortService physicalPortService;
 
   @Autowired
   private VirtualPortValidator virtualPortValidator;
@@ -120,8 +124,16 @@ public class VirtualPortController {
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
-  public String createForm(final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY, new VirtualPort());
+  public String createForm(@RequestParam(value = "port", required = false) final Long physicalPortId,
+      final Model uiModel) {
+
+    VirtualPort virtualPort = new VirtualPort();
+    if (physicalPortId != null) {
+      PhysicalPort port = physicalPortService.find(physicalPortId);
+      virtualPort.setPhysicalPort(port);
+    }
+
+    uiModel.addAttribute(MODEL_KEY, virtualPort);
 
     return PAGE_URL + CREATE;
   }
