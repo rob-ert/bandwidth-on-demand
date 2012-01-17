@@ -21,6 +21,9 @@
  */
 package nl.surfnet.bod.repo;
 
+import java.util.List;
+
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.VirtualPort;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,10 +36,12 @@ public interface VirtualPortRepo extends JpaSpecificationExecutor<VirtualPort>, 
   /**
    * Finds a {@link VirtualPort} by
    * {@link VirtualPort#getName()}
-   * 
+   *
    * @param name The name to search for
    * @return {@link VirtualPort} or null when no match was found.
    */
   VirtualPort findByName(String name);
+
+  List<VirtualPort> findByPhysicalPort(PhysicalPort port);
 
 }
