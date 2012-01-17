@@ -80,7 +80,8 @@ public class PhysicalResourceGroup {
    * This class will not have a name, instead it has a one-one relation to an
    * {@link Institute} and we will use the name of an Institute instead.
    * Whenever an instittute is not availabled (e.g. it was deleted in the IDD
-   * system, the id of institute will be shown.
+   * system) the id of institute will be shown. This will trigger a NOC engineer
+   * to investigate and correct this.
    * 
    * @return Name of the related institute when available, the
    *         {@link #instituteId} otherwise.

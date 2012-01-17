@@ -58,8 +58,8 @@ import com.google.common.base.Strings;
 public class VirtualPortController {
   static final String PAGE_URL = "virtualports";
 
-  static final String MODEL_KEY = "virtualPort";
-  static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
+  public static final String MODEL_KEY = "virtualPort";
+  public static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
 
   @Autowired
   private VirtualPortService virtualPortService;

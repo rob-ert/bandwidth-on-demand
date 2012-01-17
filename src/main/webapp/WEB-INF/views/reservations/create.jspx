@@ -13,21 +13,21 @@
     <spring:url value="/resources/images/quater.png" var="imgQuater" />
     <spring:url var="reservation_js" value="/resources/js/reservation.js" />
 
-    <util:panel id="title" title="Create Virtual Port" render="${empty virtualPorts}">
+    <util:panel id="title" title="Create Virtual Port" render="${empty virtualPortList}">
       No Virtual Ports found for you....
     </util:panel>
 
     <form:create id="fc_reservation" modelAttribute="reservation" path="/reservations"
-        render="${not empty virtualPorts}">
+        render="${not empty virtualPortList}">
 
         <field:select field="virtualResourceGroup" id="virtualresourcegroup" labelCode="virtualresourcegroup"
-            itemLabel="name" itemValue="id" items="${virtualResourceGroups}" path="/reservations" required="true" create="false" />
+            itemLabel="name" itemValue="id" items="${virtualResourceGroupList}" path="/reservations" required="true" create="false" />
 
         <field:select field="sourcePort" id="sourcePort" labelCode="reservation_sourcePort"
-            items="${virtualPorts}" itemValue="id" path="/reservations" required="true" create="false" />
+            items="${virtualPortList}" itemValue="id" path="/reservations" required="true" create="false" />
 
         <field:select field="destinationPort" id="destinationPort" labelCode="reservation_destinationPort"
-            items="${virtualPorts}" itemValue="id" path="/reservations" required="true" create="false" />
+            items="${virtualPortList}" itemValue="id" path="/reservations" required="true" create="false" />
 
         <field:input type="date" field="startDate" id="startDate" labelCode="reservation_startDate" required="true" />
         <field:input type="time" field="startTime" id="startTime" labelCode="reservation_startTime" required="true" />

@@ -38,6 +38,8 @@ import nl.surfnet.bod.domain.validator.ReservationValidator;
 import nl.surfnet.bod.service.ReservationFailedException;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.web.manager.VirtualPortController;
+import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -164,7 +166,7 @@ public class ReservationController {
     return "redirect:";
   }
 
-  @ModelAttribute("virtualPorts")
+  @ModelAttribute(VirtualPortController.MODEL_KEY_LIST)
   public Collection<VirtualPort> populateVirtualPorts(Reservation reservation) {
     if (reservation != null && reservation.getVirtualResourceGroup() != null) {
       return reservation.getVirtualResourceGroup().getVirtualPorts();
@@ -181,7 +183,7 @@ public class ReservationController {
     }), Collections.<VirtualPort> emptyList());
   }
 
-  @ModelAttribute("virtualResourceGroups")
+  @ModelAttribute(VirtualResourceGroupController.MODEL_KEY_LIST)
   public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {
     RichUserDetails user = (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     return virtualResourceGroupService.findAllForUser(user);
