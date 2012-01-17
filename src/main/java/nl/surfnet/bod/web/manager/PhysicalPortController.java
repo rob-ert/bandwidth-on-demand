@@ -21,14 +21,9 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
-import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.service.InstituteService;
@@ -58,10 +53,10 @@ public class PhysicalPortController {
     Collection<PhysicalPort> ports = physicalPortService.findAllocatedEntriesForUser(Security.getUserDetails(),
         calculateFirstPage(page), MAX_ITEMS_PER_PAGE);
 
-    //Find the related institutes...
-    instituteService.fillInstituteForPhysicalPorts((List<PhysicalPort>) ports);
+    // Find the related institutes...
+    instituteService.fillInstituteForPhysicalPorts(ports);
     uiModel.addAttribute("physicalPorts", ports);
-    
+
     uiModel.addAttribute(MAX_PAGES_KEY,
         calculateMaxPages(physicalPortService.countAllocatedForUser(Security.getUserDetails())));
 
