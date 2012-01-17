@@ -24,7 +24,6 @@ package nl.surfnet.bod.repo;
 import java.util.Collection;
 import java.util.List;
 
-import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -38,21 +37,21 @@ public interface PhysicalResourceGroupRepo extends JpaSpecificationExecutor<Phys
   /**
    * Finds {@link PhysicalResourceGroup}s by a Collection of adminGroups
    * {@link PhysicalResourceGroup#getAdminGroup()}
-   * 
+   *
    * @param Collection
    *          <String> adminGroups to search for
-   * 
+   *
    * @return List<PhysicalResourceGroup> or empty collection when no match was
    *         found.
    */
   List<PhysicalResourceGroup> findByAdminGroupIn(Collection<String> adminGroups);
 
   /**
-   * Finds a {@link PhysicalResourceGroup} by the id of the {@link Institute} to
+   * Finds a {@link PhysicalResourceGroup} by the id of the {@link nl.surfnet.bod.domain.Institute} to
    * which this group is related.
-   * 
+   *
    * @param instituteId Id to search for
-   * @return 
+   * @return
    */
   PhysicalResourceGroup findByInstituteId(Long instituteId);
 }

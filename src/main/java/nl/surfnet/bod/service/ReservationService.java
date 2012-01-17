@@ -21,8 +21,10 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.domain.ReservationStatus.*;
 import static com.google.common.base.Preconditions.checkState;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -33,7 +35,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;

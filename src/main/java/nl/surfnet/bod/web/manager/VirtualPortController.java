@@ -57,10 +57,11 @@ import com.google.common.base.Strings;
 @Controller("managerVirtualPortController")
 @RequestMapping("/manager/" + VirtualPortController.PAGE_URL)
 public class VirtualPortController {
-  static final String PAGE_URL = "virtualports";
 
   public static final String MODEL_KEY = "virtualPort";
   public static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
+
+  static final String PAGE_URL = "virtualports";
 
   @Autowired
   private VirtualPortService virtualPortService;
