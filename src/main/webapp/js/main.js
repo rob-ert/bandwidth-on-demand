@@ -1,3 +1,3 @@
 $(function() {
-	$('[rel="twipsy"]').twipsy();
+	$('[rel="twipsy"]').twipsy({delayIn: 500});
 });

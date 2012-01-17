@@ -40,9 +40,9 @@
                 <div class="inline-inputs">
                     <sform:input id="_bandwidth_id" path="bandwidth" type="number" />
                     <span class="bandwidth-tool">
-                        <a href="#" id="bandwidthQuater" title="Bandwidth to a quater"><img src="${imgQuater}" height="28" /></a>
-                        <a href="#" id="bandwidthHalf" title="Bandwidth to a half"><img src="${imgHalf}" height="28" /></a>
-                        <a href="#" id="bandwidthFull" title="Bandwidth to full"><img src="${imgFull}" height="28" /></a>
+                        <a href="#" id="bandwidthQuater" title="Bandwidth to a quater" rel="twipsy" data-placement="left"><img src="${imgQuater}" height="28" /></a>
+                        <a href="#" id="bandwidthHalf" title="Bandwidth to a half" rel="twipsy"><img src="${imgHalf}" height="28" /></a>
+                        <a href="#" id="bandwidthFull" title="Bandwidth to full" rel="twipsy" data-placement="right"><img src="${imgFull}" height="28" /></a>
                         <sform:errors cssClass="help-inline" id="_bandwidth_error_id" path="bandwidth" delimiter=", " />
                     </span>
                 </div>
