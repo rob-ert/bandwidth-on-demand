@@ -26,6 +26,7 @@ import javax.validation.constraints.NotNull;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.Range;
 
 import com.google.common.base.Objects;
 
@@ -60,6 +61,9 @@ public class VirtualPort {
   @NotNull
   @Column(nullable = false)
   private Integer maxBandwidth;
+
+  @Range(min = 0, max = 4092)
+  private Integer vlanId;
 
   public Long getId() {
     return id;
@@ -113,6 +117,14 @@ public class VirtualPort {
     this.maxBandwidth = maxBandwidth;
   }
 
+  public Integer getVlanId() {
+    return vlanId;
+  }
+
+  public void setVlanId(Integer vlanId) {
+    this.vlanId = vlanId;
+  }
+
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
@@ -121,4 +133,5 @@ public class VirtualPort {
         .add("MaxBandwidth: ", getMaxBandwidth())
         .add("physicalPort", physicalPort).toString();
   }
+
 }
