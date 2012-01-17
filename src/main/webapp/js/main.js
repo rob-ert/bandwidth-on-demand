@@ -1,0 +1,3 @@
+$(function() {
+	$('[rel="twipsy"]').twipsy();
+});
