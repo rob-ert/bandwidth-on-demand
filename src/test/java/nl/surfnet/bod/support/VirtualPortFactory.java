@@ -46,6 +46,7 @@ public class VirtualPortFactory {
   private PhysicalPort physicalPort = new PhysicalPortFactory().create();
   private String physicalPortAdminGroup = "urn:mygroup";
   private Integer maxBandwidth = 10000;
+  private Integer vlanId = null;
 
   public VirtualPort create() {
     VirtualPort virtualPort = new VirtualPort();
@@ -54,6 +55,7 @@ public class VirtualPortFactory {
     virtualPort.setVersion(version);
     virtualPort.setName(name);
     virtualPort.setMaxBandwidth(maxBandwidth);
+    virtualPort.setVlanId(vlanId);
 
     virtualPort.setVirtualResourceGroup(virtualResourceGroup);
 
@@ -88,6 +90,11 @@ public class VirtualPortFactory {
 
   public VirtualPortFactory setPhysicalPort(PhysicalPort physicalPort) {
     this.physicalPort = physicalPort;
+    return this;
+  }
+
+  public VirtualPortFactory setVlanId(Integer vid) {
+    this.vlanId = vid;
     return this;
   }
 

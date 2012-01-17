@@ -19,15 +19,10 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.web.manager;
+package nl.surfnet.bod.web;
 
 import static nl.surfnet.bod.web.WebUtils.*;
-
-import java.util.Collection;
-
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.service.InstituteService;
-import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,30 +32,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Controller("managerPhysicalPortController")
-@RequestMapping("/manager/physicalports")
-public class PhysicalPortController {
+@Controller
+@RequestMapping("/virtualports")
+public class VirtualPortController {
 
   @Autowired
-  private PhysicalPortService physicalPortService;
-
-  @Autowired
-  private InstituteService instituteService;
+  private VirtualPortService virtualPortService;
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
-    Collection<PhysicalPort> ports = physicalPortService.findAllocatedEntriesForUser(Security.getUserDetails(),
-        calculateFirstPage(page), MAX_ITEMS_PER_PAGE);
+    uiModel.addAttribute(
+        "virtualPorts",
+        virtualPortService.findAllEntriesForUser(Security.getUserDetails(), calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
+    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(virtualPortService.count()));
 
-    // Find the related institutes...
-    instituteService.fillInstituteForPhysicalPorts(ports);
-    uiModel.addAttribute("physicalPorts", ports);
-
-    uiModel.addAttribute(MAX_PAGES_KEY,
-        calculateMaxPages(physicalPortService.countAllocatedForUser(Security.getUserDetails())));
-
-    return "manager/physicalports/list";
+    return "virtualports/list";
   }
 
 }

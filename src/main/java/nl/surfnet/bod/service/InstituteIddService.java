@@ -72,7 +72,7 @@ public class InstituteIddService implements InstituteService {
 
     Iterator<Institute> it = toInstitutes(iddClient.getKlantById(id)).iterator();
     if (it.hasNext()) {
-      institute = (Institute) it.next();
+      institute = it.next();
     }
 
     return institute;
@@ -104,15 +104,14 @@ public class InstituteIddService implements InstituteService {
   }
 
   @Override
-  public void fillInstituteForPhysicalResourceGroups(List<PhysicalResourceGroup> prgs) {
+  public void fillInstituteForPhysicalResourceGroups(Collection<PhysicalResourceGroup> prgs) {
     for (PhysicalResourceGroup prg : prgs) {
       fillInstituteForPhysicalResourceGroup(prg);
     }
   }
 
   @Override
-  public void fillInstituteForPhysicalPorts(List<PhysicalPort> ports) {
-
+  public void fillInstituteForPhysicalPorts(Collection<PhysicalPort> ports) {
     for (PhysicalPort port : ports) {
       fillInstituteForPhysicalResourceGroup(port.getPhysicalResourceGroup());
     }

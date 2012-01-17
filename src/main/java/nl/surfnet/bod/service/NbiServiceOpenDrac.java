@@ -38,15 +38,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.nortel.appcore.app.drac.common.security.policy.types.UserGroupName;
-import com.nortel.appcore.app.drac.common.types.DracService;
-import com.nortel.appcore.app.drac.common.types.EndPointType;
-import com.nortel.appcore.app.drac.common.types.Facility;
-import com.nortel.appcore.app.drac.common.types.NetworkElementHolder;
-import com.nortel.appcore.app.drac.common.types.PathType;
-import com.nortel.appcore.app.drac.common.types.Schedule;
+import com.nortel.appcore.app.drac.common.types.*;
 import com.nortel.appcore.app.drac.common.types.State.SCHEDULE;
 import com.nortel.appcore.app.drac.common.types.TaskType.State;
-import com.nortel.appcore.app.drac.common.types.UserType;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper.CryptedString;
 import com.nortel.appcore.app.drac.security.ClientLoginType;
@@ -58,11 +52,13 @@ import com.nortel.appcore.app.drac.server.requesthandler.RequestHandlerException
 /**
  * A bridge to OpenDRAC's {@link NrbInterface}. Everything is contained in this
  * one class so that only this class is linked to OpenDRAC related classes.
- * 
+ *
  * @author robert
- * 
+ *
  */
 class NbiServiceOpenDrac implements NbiService {
+
+  private static final String USER_PORT_TYPE = "UNI";
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -86,8 +82,6 @@ class NbiServiceOpenDrac implements NbiService {
   @Value("${nbi.resource.group.name}")
   private String resourceGroupName;
 
-  private static final String USER_PORT_TYPE = "UNI";
-
   @SuppressWarnings("unused")
   @PostConstruct
   private void init() {
@@ -97,7 +91,7 @@ class NbiServiceOpenDrac implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#getScheduleStatus(java.lang.String)
    */
   @Override
@@ -185,7 +179,7 @@ class NbiServiceOpenDrac implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#cancelSchedule(java.lang.String)
    */
   @Override
@@ -200,7 +194,7 @@ class NbiServiceOpenDrac implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#extendSchedule(java.lang.String, int)
    */
   @Override
@@ -217,7 +211,7 @@ class NbiServiceOpenDrac implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#createReservation(nl.surfnet.bod.domain.
    * Reservation)
    */
@@ -234,7 +228,7 @@ class NbiServiceOpenDrac implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#findAllPhysicalPorts()
    */
   @Override

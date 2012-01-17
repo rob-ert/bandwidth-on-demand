@@ -193,7 +193,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   }
 
   @Override
-  public Collection<PhysicalPort> findAllocatedForUserEntries(final RichUserDetails user, int firstResult,
+  public Collection<PhysicalPort> findAllocatedEntriesForUser(final RichUserDetails user, int firstResult,
       int maxResults) {
     if (user.getUserGroups().isEmpty()) {
       return Collections.emptyList();
