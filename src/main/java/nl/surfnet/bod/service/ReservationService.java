@@ -21,8 +21,10 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.domain.ReservationStatus.*;
 import static com.google.common.base.Preconditions.checkState;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -65,7 +67,7 @@ public class ReservationService {
       throw new ReservationFailedException("Unable to create reservation: " + reservation);
     }
     reservation.setReservationId(reservationId);
-    reservation.setStatus(nbiService.getReservationStatus(reservationId));
+    reservation.setStatus(getStatus(null));
     reservationRepo.save(reservation);
   }
 
@@ -116,6 +118,10 @@ public class ReservationService {
       nbiService.cancelReservation(reservation.getReservationId());
       reservationRepo.save(reservation);
     }
+  }
+
+  public ReservationStatus getStatus(Reservation reservation) {
+    return nbiService.getReservationStatus(reservation.getReservationId());
   }
 
 }
