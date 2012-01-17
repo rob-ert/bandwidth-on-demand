@@ -1,8 +1,6 @@
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+import static nl.surfnet.bod.web.WebUtils.*;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.security.Security;
 
@@ -22,8 +20,10 @@ public class VirtualPortController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute("virtualPorts", virtualPortService.findAllForUser(Security.getUserDetails()));
 
+    uiModel.addAttribute(
+        "virtualPorts",
+        virtualPortService.findAllEntriesForUser(Security.getUserDetails(), calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(virtualPortService.count()));
 
     return "virtualports/list";

@@ -64,6 +64,17 @@ public class VirtualPortService {
     return virtualPortRepo.findAll();
   }
 
+  public List<VirtualPort> findAllEntriesForUser(final RichUserDetails user, final int firstResult, final int maxResults) {
+    checkNotNull(user);
+
+    if (user.getUserGroups().isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    return virtualPortRepo.findAll(specificationForUser(user), new PageRequest(firstResult / maxResults, maxResults))
+        .getContent();
+  }
+
   public List<VirtualPort> findAllForUser(final RichUserDetails user) {
     checkNotNull(user);
 
@@ -71,15 +82,17 @@ public class VirtualPortService {
       return Collections.emptyList();
     }
 
-    Specification<VirtualPort> spec = new Specification<VirtualPort>() {
+    return virtualPortRepo.findAll(specificationForUser(user));
+  }
+
+  private Specification<VirtualPort> specificationForUser(final RichUserDetails user) {
+    return new Specification<VirtualPort>() {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
           CriteriaBuilder cb) {
         return cb.and(root.get("virtualResourceGroup").get("surfConextGroupName").in(user.getUserGroupIds()));
       }
     };
-
-    return virtualPortRepo.findAll(spec);
   }
 
   public List<VirtualPort> findEntries(final int firstResult, final int maxResults) {
@@ -99,6 +112,5 @@ public class VirtualPortService {
   public VirtualPort update(final VirtualPort virtualPort) {
     return virtualPortRepo.save(virtualPort);
   }
-
 
 }

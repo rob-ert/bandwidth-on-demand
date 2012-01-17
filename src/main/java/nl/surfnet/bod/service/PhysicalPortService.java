@@ -81,7 +81,7 @@ public interface PhysicalPortService {
    *          the user
    * @return list of user visible physical ports
    */
-  Collection<PhysicalPort> findAllocatedForUserEntries(RichUserDetails user, final int firstResult, final int sizeNo);
+  Collection<PhysicalPort> findAllocatedEntriesForUser(RichUserDetails user, final int firstResult, final int sizeNo);
 
   long count();
 
