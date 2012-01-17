@@ -67,7 +67,7 @@ public class ReservationService {
       throw new ReservationFailedException("Unable to create reservation: " + reservation);
     }
     reservation.setReservationId(reservationId);
-    reservation.setStatus(getStatus(null));
+    reservation.setStatus(getStatus(reservation));
     reservationRepo.save(reservation);
   }
 
