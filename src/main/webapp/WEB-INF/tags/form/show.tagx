@@ -83,9 +83,9 @@
                                         </spring:escapeBody>
                                     </c:set>
                                     <input type="hidden" name="id" value="${objectId}" />
-                                    <input alt="${fn:escapeXml(delete_label)}" class="image" src="${delete_image_url}"
+                                    <input class="image" src="${delete_image_url}"
                                         title="${fn:escapeXml(delete_label)}" type="image"
-                                        value="${fn:escapeXml(delete_label)}"
+                                        value="${fn:escapeXml(delete_label)}" rel="twipsy" data-placement="below"
                                         onclick="return confirm('${fn:escapeXml(delete_confirm_msg)}');" />
                                 </form:form>
                             </span>
@@ -98,9 +98,9 @@
                                 <spring:url value="/resources/images/update.png" var="update_image_url" />
                                 <spring:message arguments="${typeName}" code="entity_update" var="update_label"
                                     htmlEscape="false" />
-                                <a href="${update_form_url}" alt="${fn:escapeXml(update_label)}"
-                                    title="${fn:escapeXml(update_label)}"> <img alt="${fn:escapeXml(update_label)}"
-                                    class="image" src="${update_image_url}" title="${fn:escapeXml(update_label)}" />
+                                <a href="${update_form_url}" rel="twipsy" 
+                                    data-placement="below" title="${fn:escapeXml(update_label)}">
+                                    <img alt="${fn:escapeXml(update_label)}" class="image" src="${update_image_url}" />
                                 </a>
                             </span>
                         </c:if>
@@ -110,11 +110,9 @@
                                 <spring:url value="/resources/images/create.png" var="create_image_url" />
                                 <spring:message arguments="${typeName}" code="entity_create" var="create_label"
                                     htmlEscape="false" />
-                                <a href="${create_form_url}" alt="${fn:escapeXml(create_label)}"
-                                    title="${fn:escapeXml(create_label)}"> <img alt="${fn:escapeXml(create_label)}"
-                                    class="image" src="${create_image_url}" title="${fn:escapeXml(create_label)}" />
+                                <a href="${create_form_url}" rel="twipsy" data-placement="below" title="${fn:escapeXml(create_label)}">
+                                    <img alt="${fn:escapeXml(create_label)}" class="image" src="${create_image_url}" />
                                 </a>
-                            
                             </span>
                         </c:if>
                         <c:if test="${list}">
@@ -123,9 +121,8 @@
                                 <spring:url value="/resources/images/list.png" var="list_image_url" />
                                 <spring:message arguments="${typeNamePlural}" code="entity_list_all" var="list_label"
                                     htmlEscape="false" />
-                                <a href="${list_form_url}" alt="${fn:escapeXml(list_label)}"
-                                    title="${fn:escapeXml(list_label)}"> <img alt="${fn:escapeXml(list_label)}"
-                                    class="image" src="${list_image_url}" title="${fn:escapeXml(list_label)}" />
+                                <a href="${list_form_url}" rel="twipsy" data-placement="below" title="${fn:escapeXml(list_label)}">
+                                    <img alt="${fn:escapeXml(list_label)}" class="image" src="${list_image_url}" />
                                 </a>
                             </span>
                         </c:if>
@@ -139,7 +136,7 @@
 									</spring:escapeBody>
 								</c:set>
                                 <input type="hidden" name="id" value="${objectId}" />
-								<input alt="${fn:escapeXml(icon_label)}" class="image"
+								<input class="image" rel="twipsy" data-placement="below"
 									src="${icon_image_url}" title="${fn:escapeXml(icon_label)}"
 									type="image" value="${fn:escapeXml(icon_label)}"
 									onclick="return confirm('${icon_confirm_msg}');" />
