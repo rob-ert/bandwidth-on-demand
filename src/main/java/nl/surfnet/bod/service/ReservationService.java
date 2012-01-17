@@ -21,7 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.*;
+import static nl.surfnet.bod.domain.ReservationStatus.*;
+import static com.google.common.base.Preconditions.checkState;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -50,21 +51,21 @@ public class ReservationService {
 
   @Autowired
   private ReservationRepo reservationRepo;
-  
+
   @Autowired
   @Qualifier("nbiService")
-  private NbiService nbiPortService;
+  private NbiService nbiService;
 
   public void reserve(Reservation reservation) throws ReservationFailedException {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
-    
-    final String reservationId = nbiPortService.createReservation(reservation);
+
+    final String reservationId = nbiService.createReservation(reservation);
     if (reservationId == null) {
-      throw new ReservationFailedException("Unable to create reservation: "+reservation);
+      throw new ReservationFailedException("Unable to create reservation: " + reservation);
     }
     reservation.setReservationId(reservationId);
-    reservation.setStatus(nbiPortService.getReservationStatus(reservationId));
+    reservation.setStatus(nbiService.getReservationStatus(reservationId));
     reservationRepo.save(reservation);
   }
 
@@ -79,7 +80,8 @@ public class ReservationService {
       return Collections.emptyList();
     }
 
-    return reservationRepo.findAll(forCurrentUser(user), new PageRequest(firstResult / maxResults, maxResults)).getContent();
+    return reservationRepo.findAll(forCurrentUser(user), new PageRequest(firstResult / maxResults, maxResults))
+        .getContent();
   }
 
   public long count() {
@@ -109,9 +111,11 @@ public class ReservationService {
   }
 
   public void cancel(Reservation reservation) {
-    reservation.setStatus(ReservationStatus.CANCELLED_BY_USER);
-
-    reservationRepo.save(reservation);
+    if (reservation.getStatus() == RUNNING || reservation.getStatus() == SCHEDULED) {
+      reservation.setStatus(CANCELLED);
+      nbiService.cancelReservation(reservation.getReservationId());
+      reservationRepo.save(reservation);
+    }
   }
 
 }

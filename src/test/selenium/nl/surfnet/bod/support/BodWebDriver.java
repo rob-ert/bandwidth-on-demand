@@ -184,7 +184,7 @@ public class BodWebDriver {
 
     String table = page.getTable();
 
-    assertThat(table, allOf(containsString("PENDING"), containsString(start), containsString(end)));
+    assertThat(table, allOf(containsString("SCHEDULED"), containsString(start), containsString(end)));
   }
 
   public void verifyReservationStartDateHasError(String string) {
@@ -204,7 +204,7 @@ public class BodWebDriver {
       LocalTime endTime) {
     ListReservationPage page = ListReservationPage.get(driver);
 
-    page.reservationShouldBe(startDate, endDate, startTime, endTime, ReservationStatus.CANCELLED_BY_USER);
+    page.reservationShouldBe(startDate, endDate, startTime, endTime, ReservationStatus.CANCELLED);
   }
 
 }

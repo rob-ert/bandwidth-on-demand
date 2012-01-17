@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
@@ -167,12 +168,18 @@ public class ReservationServiceTest {
 
   @Test
   public void cancelAReservationShouldChangeItsStatus() {
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.PENDING).create();
-
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
     subject.cancel(reservation);
-
-    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED_BY_USER));
+    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
     verify(reservationRepoMock).save(reservation);
+  }
+  
+  @Test
+  public void cancelAFailedReservationShouldNotChangeItsStatus() {
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).create();
+    subject.cancel(reservation);
+    assertThat(reservation.getStatus(), is(ReservationStatus.FAILED));
+    verifyZeroInteractions(reservationRepoMock);
   }
 
 }

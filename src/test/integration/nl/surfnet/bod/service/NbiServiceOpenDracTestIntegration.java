@@ -55,7 +55,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/bod-opendrac-test.xml")
-public class NrbServiceTestIntegration {
+public class NbiServiceOpenDracTestIntegration {
 
   @Autowired
   @Qualifier("nbiService")
@@ -79,39 +79,29 @@ public class NrbServiceTestIntegration {
 
   @Test
   public void testGetAllUniFacilities() throws Exception {
-    final List<PhysicalPort> facilities = nrbService.findAllPhysicalPorts();
-    assertEquals(15, facilities.size());
+    assertEquals(15, nrbService.findAllPhysicalPorts().size());
   }
 
   @Test
   public void testCreateReservation() throws Exception {
     final LocalTime nowTime = new LocalTime(System.currentTimeMillis());
     final LocalDate nowDate = new LocalDate(System.currentTimeMillis());
-
+    final PhysicalPort physicalPort1 = new PhysicalPortFactory().setName("Asd001A_OME1T_ETH-1-1-2").create();
+    final VirtualPort source = new VirtualPortFactory().setName("virtualPort1").create();
+    final PhysicalPort physicalPort2 = new PhysicalPortFactory().setName("Asd001A_OME3T_ETH-1-12-1").create();
+    final VirtualPort destination = new VirtualPortFactory().setName("virtualPort1").create();
     final Reservation reservation = new ReservationFactory().setStartTime(nowTime.plusMinutes(1))
         .setEndTime(nowTime.plusMinutes(20)).setStartDate(nowDate).setEndDate(nowDate.plusYears(0)).create();
 
-    final PhysicalPort pp1 = new PhysicalPortFactory().setName("Asd001A_OME1T_ETH-1-1-2").create();
-    final VirtualPort source = new VirtualPortFactory().setName("vp1").create();
-    source.setPhysicalPort(pp1);
-
-    final PhysicalPort pp2 = new PhysicalPortFactory().setName("Asd001A_OME3T_ETH-1-12-1").create();
-    final VirtualPort destination = new VirtualPortFactory().setName("vp2").create();
-    destination.setPhysicalPort(pp2);
-
+    source.setPhysicalPort(physicalPort1);
+    destination.setPhysicalPort(physicalPort2);
     reservation.setSourcePort(source);
     reservation.setDestinationPort(destination);
-    reservation.setBandwidth(100);
+    reservation.setBandwidth(300);
 
     final String reservationId = nrbService.createReservation(reservation);
     final ReservationStatus status = nrbService.getReservationStatus(reservationId);
-    assertEquals("PENDING", status.name());
+    assertEquals("SCHEDULED", status.name());
   }
-
-//  @Test
-//  public void testGetReservationStatus() throws Exception {
-//    final ReservationStatus status = nrbService.getReservationStatus("SCHEDULE-1326414294778");
-//    assertEquals("", status);
-//  }
 
 }

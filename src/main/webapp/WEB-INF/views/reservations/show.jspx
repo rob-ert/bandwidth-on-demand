@@ -16,6 +16,6 @@
         <field:display field="endDate" labelCode="reservation_endDate" id="endDate" object="${reservation}"/>
         <field:display field="endTime" labelCode="reservation_endTime" id="endTime" object="${reservation}"/>
         <field:display field="bandwidth" labelCode="reservation_bandwidth" id="bandwidth" object="${reservation}"/>
-        <field:display field="user" labelCode="reservation_user" id="user" object="${reservation}" />
+        <field:display field="userCreated" labelCode="reservation_userCreated" id="userCreated" object="${reservation}" />
     </page:show>
 </div>

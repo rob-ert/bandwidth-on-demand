@@ -43,12 +43,11 @@ class NbiServiceOffline implements NbiService {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
+  private final List<ReservationStatus> values = Collections
+      .unmodifiableList(Arrays.asList(ReservationStatus.values()));
+  private final int size = values.size();
+  private final Random random = new Random();
   private final Map<String, PhysicalPort> ports = new HashMap<String, PhysicalPort>();
-
-  private static final List<ReservationStatus> VALUES = Collections.unmodifiableList(Arrays.asList(ReservationStatus
-      .values()));
-  private static final int SIZE = VALUES.size();
-  private static final Random RANDOM = new Random();
 
   @SuppressWarnings("unused")
   @PostConstruct
@@ -105,7 +104,7 @@ class NbiServiceOffline implements NbiService {
 
   @Override
   public ReservationStatus getReservationStatus(String scheduleId) {
-    return VALUES.get(RANDOM.nextInt(SIZE));
+    return values.get(random.nextInt(size));
   }
 
   @Override

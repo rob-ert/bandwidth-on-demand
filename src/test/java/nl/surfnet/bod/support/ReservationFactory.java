@@ -34,7 +34,7 @@ public class ReservationFactory {
   private Long id;
   private Integer version;
   private VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().create();
-  private ReservationStatus status = ReservationStatus.PENDING;
+  private ReservationStatus status = ReservationStatus.SCHEDULED;
   private VirtualPort sourcePort;
   private VirtualPort destinationPort;
   private LocalDate startDate = LocalDate.now();

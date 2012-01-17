@@ -49,7 +49,7 @@ public class Reservation {
   private VirtualResourceGroup virtualResourceGroup;
 
   @Enumerated(EnumType.STRING)
-  private ReservationStatus status = ReservationStatus.PENDING;
+  private ReservationStatus status = ReservationStatus.SCHEDULED;
 
   @NotNull
   @ManyToOne(optional = false)
