@@ -8,6 +8,7 @@
     <page:show id="ps_virtualport" object="${virtualPort}" path="/manager/virtualports"  >
         <field:display field="name" id="s_VirtualPort" object="${virtualPort}" />
         <field:display field="maxBandwidth" id="max_bandwidth" object="${virtualPort}" labelCode="virtualport_max_bandwidth"  />
+        <field:display field="vlanId" id="vlan_id" object="${virtualPort}" labelCode="virtualport_vlan_id"  />
         <field:display field="virtualResourceGroup" id="s_VirtualResourceGroup" object="${virtualPort}" />
         <field:display field="physicalResourceGroup" id="s_PhysicalResourceGroup" object="${virtualPort}" />
         <field:display field="physicalPort" id="s_PhysicalPort" object="${virtualPort}" />
