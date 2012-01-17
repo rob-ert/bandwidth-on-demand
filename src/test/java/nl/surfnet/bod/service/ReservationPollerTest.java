@@ -10,6 +10,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.support.ReservationFactory;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -25,6 +26,11 @@ public class ReservationPollerTest {
   @Mock
   private ReservationService reservationService;
 
+  @Before
+  public void setUp() {
+    reservationPoller.init("* * * * * *", 2);
+  }
+
   @Test
   public void shouldUpdateState() throws InterruptedException {
     when(reservationService.getStatus(any(Reservation.class))).thenReturn(ReservationStatus.PREPARING,
@@ -33,10 +39,11 @@ public class ReservationPollerTest {
     Reservation reservationOne = new ReservationFactory().setStatus(ReservationStatus.PREPARING)
         .setReservationId("123").create();
 
-    reservationPoller.getStatus(reservationOne);
+    reservationPoller.monitorStatus(reservationOne);
 
-    while (reservationPoller.isBusy());
-      
+    while (reservationPoller.isBusy())
+      ;
+
     assertThat(reservationPoller.isBusy(), is(false));
     verify(reservationService).update(reservationOne);
   }
@@ -49,10 +56,11 @@ public class ReservationPollerTest {
     Reservation reservationOne = new ReservationFactory().setStatus(ReservationStatus.PREPARING)
         .setReservationId("123").create();
 
-    reservationPoller.getStatus(reservationOne);
+    reservationPoller.monitorStatus(reservationOne);
 
-    while (reservationPoller.isBusy());
-    
+    while (reservationPoller.isBusy())
+      ;
+
     assertThat(reservationPoller.isBusy(), is(false));
     verify(reservationService, times(0)).update(any(Reservation.class));
 

@@ -58,6 +58,9 @@ public class ReservationService {
   @Qualifier("nbiService")
   private NbiService nbiService;
 
+  @Autowired
+  private ReservationPoller reservationPoller;
+
   public void reserve(Reservation reservation) throws ReservationFailedException {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
@@ -69,6 +72,8 @@ public class ReservationService {
     reservation.setReservationId(reservationId);
     reservation.setStatus(getStatus(reservation));
     reservationRepo.save(reservation);
+
+    monitorReservationStatus(reservation);
   }
 
   public Reservation find(Long id) {
@@ -117,6 +122,8 @@ public class ReservationService {
       reservation.setStatus(CANCELLED);
       nbiService.cancelReservation(reservation.getReservationId());
       reservationRepo.save(reservation);
+
+      monitorReservationStatus(reservation);
     }
   }
 
@@ -124,4 +131,14 @@ public class ReservationService {
     return nbiService.getReservationStatus(reservation.getReservationId());
   }
 
+  /**
+   * Starts the {@link ReservationPoller#monitorStatus(Reservation)}, updates
+   * the given {@link Reservation} when a status change occurs.
+   * 
+   * @param reservation
+   *          The {@link Reservation} to monitor
+   */
+  public void monitorReservationStatus(Reservation reservation) {
+    reservationPoller.monitorStatus(reservation);
+  }
 }

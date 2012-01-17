@@ -62,8 +62,10 @@ public class ReservationServiceTest {
 
   @Mock
   private ReservationRepo reservationRepoMock;
-  
-  
+
+  @Mock
+  private ReservationPoller reservationPoller;
+
   @Mock
   private NbiService nbiPortService;
 
@@ -135,9 +137,9 @@ public class ReservationServiceTest {
     Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg).setSourcePort(source)
         .setDestinationPort(destination).create();
 
-    final String reservationId = "SCHEDULE-"+System.currentTimeMillis();
+    final String reservationId = "SCHEDULE-" + System.currentTimeMillis();
     when(nbiPortService.createReservation((any(Reservation.class)))).thenReturn(reservationId);
-    
+
     subject.reserve(reservation);
 
     assertThat(reservation.getReservationId(), is(reservationId));
@@ -173,7 +175,7 @@ public class ReservationServiceTest {
     assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
     verify(reservationRepoMock).save(reservation);
   }
-  
+
   @Test
   public void cancelAFailedReservationShouldNotChangeItsStatus() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).create();
