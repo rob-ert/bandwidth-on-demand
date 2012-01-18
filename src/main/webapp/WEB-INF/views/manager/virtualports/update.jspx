@@ -12,7 +12,7 @@
         <field:input field="name" id="name" labelCode="virtualport_name" required="true" />
 
         <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_max_bandwidth" required="true"
-            decimalMin="1" type="number" />
+            type="number" />
 
         <field:input field="vlanId" id="vlanId" labelCode="virtualport_vlan_id" type="number" />
 
