@@ -36,9 +36,7 @@ import nl.surfnet.bod.web.security.Security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
@@ -68,6 +66,19 @@ public class PhysicalPortController {
     return "manager/physicalports/list";
   }
 
+  @RequestMapping(value = "/{id}/virtualports", method = RequestMethod.GET)
+  public @ResponseBody Collection<VirtualPortJsonView> listVirtualPorts(@PathVariable Long id) {
+    PhysicalPort physicalPort = physicalPortService.find(id);
+
+    return Collections2.transform(virtualPortService.findAllForPhysicalPort(physicalPort),
+        new Function<VirtualPort, VirtualPortJsonView>() {
+          @Override
+          public VirtualPortJsonView apply(VirtualPort port) {
+            return new VirtualPortJsonView(port);
+          }
+        });
+  }
+
   private Collection<PhysicalPortView> findPortsForUser(Integer page) {
     Collection<PhysicalPort> ports = physicalPortService.findAllocatedEntriesForUser(Security.getUserDetails(),
         calculateFirstPage(page), MAX_ITEMS_PER_PAGE);
@@ -80,6 +91,36 @@ public class PhysicalPortController {
         return new PhysicalPortView(port, virtualPorts);
       }
     });
+  }
+
+
+  /// *** View objects *** ///
+  public class VirtualPortJsonView {
+
+    private final String name;
+    private final Integer maxBandwidth;
+    private final Integer vlanId;
+    private final String virtualResourceGroupName;
+
+    public VirtualPortJsonView(VirtualPort port) {
+      this.name = port.getName();
+      this.maxBandwidth = port.getMaxBandwidth();
+      this.vlanId = port.getVlanId();
+      this.virtualResourceGroupName = port.getVirtualResourceGroup().getName();
+    }
+
+    public String getName() {
+      return name;
+    }
+    public Integer getMaxBandwidth() {
+      return maxBandwidth;
+    }
+    public Integer getVlanId() {
+      return vlanId;
+    }
+    public String getVirtualResourceGroupName() {
+      return virtualResourceGroupName;
+    }
   }
 
   public class PhysicalPortView {
@@ -100,19 +141,15 @@ public class PhysicalPortController {
     public Integer getNumberOfVirtualPorts() {
       return virtualPorts.size();
     }
-
     public String getName() {
       return name;
     }
-
     public String getDisplayName() {
       return displayName;
     }
-
     public PhysicalResourceGroup getPhysicalResourceGroup() {
       return physicalResourceGroup;
     }
-
     public Long getId() {
       return id;
     }

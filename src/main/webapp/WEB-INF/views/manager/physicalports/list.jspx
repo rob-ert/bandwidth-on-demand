@@ -14,9 +14,82 @@
             <table:column id="c_PhysicalPort_displayname" property="displayName" />
             <table:column id="c_PhysicalPort_physicalResourceGroup" property="physicalResourceGroup" />
             <table:column id="c_PhysicalPort_virtualPortCount" property="numberOfVirtualPorts" />
+            
 
+            <table:actionColumn image="/resources/images/application_put.png"
+                action="/showvirtualports" title="Show Virtual Ports" />
+                
             <table:actionColumn image="/resources/images/application_form_add.png"
                 action="/manager/virtualports/create?port={}" title="Create new virtual port" />
         </table:table>
     </page:list>
+    
+    <spring:url value="/manager/physicalports/{}/virtualports" var="portsUrl" />
+    <spring:url value="/resources/images/application_get.png" var="closePaneImageUrl" />
+    <script type="text/javascript">
+      $(function() {
+    	  $.fn.detailView = function(url, fields, headers) {
+    		  $(this).click(function() {
+	             var self = $(this);
+	             var sourceRow = self.closest("tr");
+	             var nextRow = sourceRow.next();
+	             
+	             if (nextRow.hasClass("ports")) {
+	                 closeRow(nextRow.find("a"));
+	                 return false;
+	             }
+
+	             var nrOfColumns = sourceRow.find("td").length;
+	             var elementId = self.next().attr('href').split('=').pop();
+	             
+	             $.getJSON("${portsUrl}".replace("{}", elementId), function(data) {
+	                 var portsTable = $("<table/>").append(createHeaders());
+	                 
+	                 $.each(data, function(i, port) { portsTable.append(createRow(port)); });
+	                 
+	                 var closeLink = $("<a/>", {href: "#", title: "Hide Virtual Ports", onclick: "closeRow(this); return false;"})
+	                     .append($("<img/>", {src : "${closePaneImageUrl}"})).twipsy();
+	                 
+	                 var newRow = $("<tr/>", {class: "ports"})
+	                    .append($("<td/>", {colspan : nrOfColumns - 1}).append(portsTable))
+	                    .append($("<td/>").append(closeLink));
+	                    
+	                 newRow.fadeIn();
+	                 sourceRow.after(newRow);
+	             });
+	             
+	             return false;
+	          });
+    		  
+    		  function createHeaders() {
+                  var head = $("<thead/>");
+                  $.each(headers, function(i, header) { head.append($("<th/>", {text: header})); });
+                  return head;
+              }
+              
+              function createRow(port) {
+                  var row = $("<tr/>");
+                  $.each(fields, function(i, field) {
+                      value = port[field];
+                      value = value == null ? "-" : value;
+                      row.append("<td>"+value+"</td>");
+                  });
+                  
+                  return row;
+              }
+    	  };
+          
+          var fields = ["name", "maxBandwidth", "vlanId", "virtualResourceGroupName"];
+          var headers = ["Name", "Max Bandwidth", "VID", "Virtual Resource Group"];
+          $("a[href$='showvirtualports']").detailView("${portsUrl}", fields, headers);
+      });
+      
+      function closeRow(link) {
+    	  row = $(link).closest("tr");
+    	  row.fadeOut(function() {
+    		  $(link).twipsy('hide');
+              $(this).remove();
+          });
+      }
+    </script>
 </div>
