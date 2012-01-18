@@ -21,14 +21,19 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class ReservationPollerTest {
 
   @InjectMocks
-  private ReservationPoller reservationPoller;
+  private ReservationPoller subject;
 
   @Mock
   private ReservationService reservationService;
 
+  private final Reservation reservationOne = new ReservationFactory().setStatus(ReservationStatus.PREPARING)
+      .setReservationId("123").create();
+
+  private final int maxTries = 2;
+
   @Before
   public void setUp() {
-    reservationPoller.init("* * * * * *", 2);
+    subject.init("* * * * * *", maxTries);
   }
 
   @Test
@@ -36,15 +41,12 @@ public class ReservationPollerTest {
     when(reservationService.getStatus(any(Reservation.class))).thenReturn(ReservationStatus.PREPARING,
         ReservationStatus.SCHEDULED);
 
-    Reservation reservationOne = new ReservationFactory().setStatus(ReservationStatus.PREPARING)
-        .setReservationId("123").create();
+    subject.monitorStatus(reservationOne);
 
-    reservationPoller.monitorStatus(reservationOne);
-
-    while (reservationPoller.isBusy())
+    while (subject.isBusy())
       ;
 
-    assertThat(reservationPoller.isBusy(), is(false));
+    assertThat(subject.isBusy(), is(false));
     verify(reservationService).update(reservationOne);
   }
 
@@ -53,17 +55,38 @@ public class ReservationPollerTest {
     // Same state as initial state, no change
     when(reservationService.getStatus(any(Reservation.class))).thenReturn(ReservationStatus.PREPARING);
 
-    Reservation reservationOne = new ReservationFactory().setStatus(ReservationStatus.PREPARING)
-        .setReservationId("123").create();
+    subject.monitorStatus(reservationOne);
 
-    reservationPoller.monitorStatus(reservationOne);
-
-    while (reservationPoller.isBusy())
+    while (subject.isBusy())
       ;
 
-    assertThat(reservationPoller.isBusy(), is(false));
     verify(reservationService, times(0)).update(any(Reservation.class));
+  }
 
+  @Test
+  public void shouldStopWhenMaxTriesIsReached() {
+    // Same state as initial state, no change
+    when(reservationService.getStatus(any(Reservation.class))).thenReturn(ReservationStatus.PREPARING);
+
+    subject.monitorStatus(reservationOne);
+
+    while (subject.isBusy())
+      ;
+
+    verify(reservationService, times(maxTries)).getStatus(any(Reservation.class));
+  }
+  
+  @Test
+  public void shouldStopWhenEndStateIsReached() {
+    when(reservationService.getStatus(any(Reservation.class))).thenReturn(ReservationStatus.SUCCEEDED);
+    when(reservationService.isEndState(any(ReservationStatus.class))).thenReturn(true);
+    
+    subject.monitorStatus(reservationOne);
+    
+    while (subject.isBusy());
+    
+    verify(reservationService).update(reservationOne);
+    verify(reservationService).getStatus(any(Reservation.class));
   }
 
 }

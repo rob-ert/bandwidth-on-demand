@@ -141,4 +141,17 @@ public class ReservationService {
   public void monitorReservationStatus(Reservation reservation) {
     reservationPoller.monitorStatus(reservation);
   }
+
+  /**
+   * 
+   * @param reservationStatus {@link ReservationStatus} to evaluate
+   * @return
+   */
+  public boolean isEndState(ReservationStatus reservationStatus) {
+    return ((reservationStatus == ReservationStatus.CANCELLED) || (reservationStatus == ReservationStatus.FAILED) || (reservationStatus == ReservationStatus.SUCCEEDED));
+  }
+
+  public boolean isTransitionState(ReservationStatus reservationStatus) {
+    return !isEndState(reservationStatus);
+  }
 }

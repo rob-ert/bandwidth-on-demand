@@ -43,38 +43,52 @@ public class ReservationPoller {
 
   private class ReservationStatusCheckTask implements Runnable {
 
-    private final Reservation reservation;
     private long tries = 0;
+    private final Reservation reservation;
 
     public ReservationStatusCheckTask(final Reservation reservation) {
       this.reservation = reservation;
     }
 
+    /**
+     * Retrieves the actual {@link ReservationStatus} for the
+     * {@link #reservation} and when it has changes, the new status will be
+     * updated and persisted.
+     * 
+     * If the new reservationStatus is an
+     * {@link ReservationService#isEndState(ReservationStatus)} the poller will
+     * cancel itself and stops.
+     * 
+     * The number of times these logic is performed is limited by
+     * {@link #maxTries}. Whenever this limit is reached the poller will also
+     * cancel itself and stop polling.
+     */
     public void run() {
       tries++;
 
-      final ReservationStatus currentReservationStatus = reservationService.getStatus(reservation);
+      final ReservationStatus actualReservationStatus = reservationService.getStatus(reservation);
 
       log.debug(reservation.getReservationId() + " was [" + reservation.getStatus() + "] is now: "
-          + currentReservationStatus);
+          + actualReservationStatus);
 
-      if (reservation.getStatus() != currentReservationStatus) {
-
-        reservation.setStatus(currentReservationStatus);
+      if (reservation.getStatus() != actualReservationStatus) {
+        reservation.setStatus(actualReservationStatus);
         reservationService.update(reservation);
-
+      }
+      
+      if (reservationService.isEndState(actualReservationStatus)) {
         schedule.cancel(false);
         log.info("Monitoring stops for reservation [" + reservation.getReservationId() + "] status is updated to: "
             + reservation.getStatus());
       }
+      
       else {
         if (tries >= maxTries) {
           schedule.cancel(false);
-          log.warn("Monitoring of reservation [" + reservation.getReservationId() + "] cancelled. MaxTries ["
-              + maxTries + " is reached");
+          log.warn("Monitoring cancelled for reservation [" + reservation.getReservationId() + "]. MaxTries ["
+              + maxTries + "] is reached");
         }
       }
-
     }
   }
 
