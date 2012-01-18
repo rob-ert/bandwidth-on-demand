@@ -109,7 +109,7 @@
                         <td class="utilbox">
                             <c:forTokens items="${imageUrls}" delims="," var="image" varStatus="num">
                                 <td>
-                                    <a href="${fn:replace(actions[num.count-1], '{}', item.id)}" rel="twipsy" title="${titles[num.count-1]}">
+                                    <a href="${fn:replace(actions[num.count-1], '{}', itemId)}" rel="twipsy" title="${titles[num.count-1]}">
                                         <img src="${image}" />
                                     </a>
                                 </td>
