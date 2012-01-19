@@ -270,7 +270,11 @@ class NbiServiceOpenDrac implements NbiService {
 
   private NrbInterface getNrbInterface() {
     try {
-      return (remoteConnectionProxy == null ? new RemoteConnectionProxy() : remoteConnectionProxy).getNrbInterface();
+      if (remoteConnectionProxy == null) {
+        remoteConnectionProxy = new RemoteConnectionProxy();
+      }
+      return remoteConnectionProxy.getNrbInterface();
+
     }
     catch (RequestHandlerException e) {
       log.error("Error: ", e);
@@ -336,10 +340,14 @@ class NbiServiceOpenDrac implements NbiService {
 
     sourceEndpoint.setName(reservation.getSourcePort().getPhysicalPort().getName());
     destEndpoint.setName(reservation.getDestinationPort().getPhysicalPort().getName());
-    // TODO 1+1 path or no protection, vcat or ccat?
-    pathType.setRate(reservation.getBandwidth());
+    
+    // TODO 1+1 path or no protection, vcat or ccat, vlan ids?
+    // pathType.setSrcVlanId(vlanId);
+    // pathType.setDstVlanId(vlanId)
     pathType.setProtectionType(PathType.PROTECTION_TYPE.PATH1PLUS1);
     pathType.setVcatRoutingOption(true);
+    
+    pathType.setRate(reservation.getBandwidth());
     pathType.setSourceEndPoint(sourceEndpoint);
     pathType.setTargetEndPoint(destEndpoint);
     return pathType;
