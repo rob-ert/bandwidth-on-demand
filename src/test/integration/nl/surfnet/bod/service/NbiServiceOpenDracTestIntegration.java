@@ -79,16 +79,17 @@ public class NbiServiceOpenDracTestIntegration {
 
   @Test
   public void testGetAllUniFacilities() throws Exception {
-    assertEquals(15, nrbService.findAllPhysicalPorts().size());
+    final List<PhysicalPort> allPorts = nrbService.findAllPhysicalPorts();
+    assertEquals(3, allPorts.size());
   }
 
   @Test
   public void testCreateReservation() throws Exception {
     final LocalTime nowTime = new LocalTime(System.currentTimeMillis());
     final LocalDate nowDate = new LocalDate(System.currentTimeMillis());
-    final PhysicalPort physicalPort1 = new PhysicalPortFactory().setName("Asd001A_OME1T_ETH-1-1-2").create();
+    final PhysicalPort physicalPort1 = new PhysicalPortFactory().setName("Asd001A_OME12_ETH-1-36-4").create();
     final VirtualPort source = new VirtualPortFactory().setName("virtualPort1").create();
-    final PhysicalPort physicalPort2 = new PhysicalPortFactory().setName("Asd001A_OME3T_ETH-1-12-1").create();
+    final PhysicalPort physicalPort2 = new PhysicalPortFactory().setName("Ut002A_OME01_ETH-1-1-4").create();
     final VirtualPort destination = new VirtualPortFactory().setName("virtualPort1").create();
     final Reservation reservation = new ReservationFactory().setStartTime(nowTime.plusMinutes(1))
         .setEndTime(nowTime.plusMinutes(20)).setStartDate(nowDate).setEndDate(nowDate.plusYears(0)).create();

@@ -24,7 +24,9 @@ package nl.surfnet.bod.service;
 import static nl.surfnet.bod.domain.ReservationStatus.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -37,13 +39,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.nortel.appcore.app.drac.common.db.DbKeys;
 import com.nortel.appcore.app.drac.common.security.ClientLoginType;
 import com.nortel.appcore.app.drac.common.security.LoginToken;
 import com.nortel.appcore.app.drac.common.security.policy.types.UserGroupName;
 import com.nortel.appcore.app.drac.common.types.DracService;
 import com.nortel.appcore.app.drac.common.types.EndPointType;
-import com.nortel.appcore.app.drac.common.types.Facility;
-import com.nortel.appcore.app.drac.common.types.NetworkElementHolder;
+import com.nortel.appcore.app.drac.common.types.Layer;
 import com.nortel.appcore.app.drac.common.types.PathType;
 import com.nortel.appcore.app.drac.common.types.Schedule;
 import com.nortel.appcore.app.drac.common.types.State.SCHEDULE;
@@ -241,11 +243,11 @@ class NbiServiceOpenDrac implements NbiService {
   @Override
   public List<PhysicalPort> findAllPhysicalPorts() {
     final List<PhysicalPort> ports = new ArrayList<PhysicalPort>();
-    for (final Facility facility : findAllUniFacilities()) {
+    for (final EndPointType facility : findAllEndPointTypes()) {
       final PhysicalPort port = new PhysicalPort();
       final PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroup();
-      port.setDisplayName(facility.getAid());
-      port.setName(facility.getTna());
+      port.setDisplayName(facility.getAttributes().get("userLabel"));
+      port.setName(facility.getName());
       physicalResourceGroup.setAdminGroup(groupName);
       port.setPhysicalResourceGroup(physicalResourceGroup);
       ports.add(port);
@@ -283,27 +285,20 @@ class NbiServiceOpenDrac implements NbiService {
     }
   }
 
-  private List<Facility> findAllUniFacilities() {
+  private List<EndPointType> findAllEndPointTypes() {
     try {
-      final List<Facility> facilities = new ArrayList<Facility>();
-      for (final NetworkElementHolder networkElement : getNrbInterface().getAllNetworkElements(getLoginToken())) {
-        try {
-          for (final Facility facility : getNrbInterface().getFacilities(getLoginToken(), networkElement.getId())) {
-            if (USER_PORT_TYPE.equals(facility.getSigType())) {
-              facilities.add(facility);
-            }
-          }
-        }
-        catch (Exception e) {
-          log.warn("Error retrieving facilities for NE at: {} - {}", networkElement.getIp(), e.getMessage());
-        }
-      }
-      return facilities;
+      Map<String, String> facilityFilter = new HashMap<String, String>();
+      facilityFilter.put(DbKeys.NetworkElementFacilityCols.LAYER, Layer.toEnum("layer2").toString());
+      final List<UserGroupName> userGroupNames = new ArrayList<UserGroupName>();
+      userGroupNames.add(new UserGroupName(groupName));
+      return getNrbInterface().getUserEndpoints(getLoginToken(), userGroupNames, facilityFilter);
     }
     catch (Exception e) {
       log.error("Error: ", e);
-      return null;
     }
+
+    return null;
+
   }
 
   private LoginToken getLoginToken() {
