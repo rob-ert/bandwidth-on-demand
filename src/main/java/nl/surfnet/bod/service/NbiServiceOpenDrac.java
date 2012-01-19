@@ -37,24 +37,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.nortel.appcore.app.drac.common.security.ClientLoginType;
+import com.nortel.appcore.app.drac.common.security.LoginToken;
 import com.nortel.appcore.app.drac.common.security.policy.types.UserGroupName;
-import com.nortel.appcore.app.drac.common.types.*;
+import com.nortel.appcore.app.drac.common.types.DracService;
+import com.nortel.appcore.app.drac.common.types.EndPointType;
+import com.nortel.appcore.app.drac.common.types.Facility;
+import com.nortel.appcore.app.drac.common.types.NetworkElementHolder;
+import com.nortel.appcore.app.drac.common.types.PathType;
+import com.nortel.appcore.app.drac.common.types.Schedule;
 import com.nortel.appcore.app.drac.common.types.State.SCHEDULE;
-import com.nortel.appcore.app.drac.common.types.TaskType.State;
+import com.nortel.appcore.app.drac.common.types.UserInfo;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper.CryptedString;
-import com.nortel.appcore.app.drac.security.ClientLoginType;
-import com.nortel.appcore.app.drac.security.LoginToken;
-import com.nortel.appcore.app.drac.server.nrb.NrbInterface;
+import com.nortel.appcore.app.drac.server.nrb.interfaces.NRBInterface;
 import com.nortel.appcore.app.drac.server.requesthandler.RemoteConnectionProxy;
 import com.nortel.appcore.app.drac.server.requesthandler.RequestHandlerException;
 
 /**
  * A bridge to OpenDRAC's {@link NrbInterface}. Everything is contained in this
  * one class so that only this class is linked to OpenDRAC related classes.
- *
+ * 
  * @author robert
- *
+ * 
  */
 class NbiServiceOpenDrac implements NbiService {
 
@@ -85,13 +90,14 @@ class NbiServiceOpenDrac implements NbiService {
   @SuppressWarnings("unused")
   @PostConstruct
   private void init() {
+    // for 4.3
     System.setProperty("org.opendrac.controller.primary", primaryController);
     System.setProperty("org.opendrac.controller.secondary", secondaryController);
   }
 
   /*
    * (non-Javadoc)
-   *
+   * 
    * @see nl.surfnet.bod.nbi.NbiService#getScheduleStatus(java.lang.String)
    */
   @Override
@@ -107,7 +113,8 @@ class NbiServiceOpenDrac implements NbiService {
 
       // Translate OpenDRAC schedule status or state to BoD's reservation status
       if (status == null) {
-        final State state = getNrbInterface().getTaskInfo(getLoginToken(), reservationId).getState();
+        final com.nortel.appcore.app.drac.common.types.TaskInfo.State state = getNrbInterface().getTaskInfo(
+            getLoginToken(), reservationId).getState();
         switch (state) {
         case SUBMITTED:
           return SUBMITTED;
@@ -179,7 +186,7 @@ class NbiServiceOpenDrac implements NbiService {
 
   /*
    * (non-Javadoc)
-   *
+   * 
    * @see nl.surfnet.bod.nbi.NbiService#cancelSchedule(java.lang.String)
    */
   @Override
@@ -194,7 +201,7 @@ class NbiServiceOpenDrac implements NbiService {
 
   /*
    * (non-Javadoc)
-   *
+   * 
    * @see nl.surfnet.bod.nbi.NbiService#extendSchedule(java.lang.String, int)
    */
   @Override
@@ -211,7 +218,7 @@ class NbiServiceOpenDrac implements NbiService {
 
   /*
    * (non-Javadoc)
-   *
+   * 
    * @see nl.surfnet.bod.nbi.NbiService#createReservation(nl.surfnet.bod.domain.
    * Reservation)
    */
@@ -228,7 +235,7 @@ class NbiServiceOpenDrac implements NbiService {
 
   /*
    * (non-Javadoc)
-   *
+   * 
    * @see nl.surfnet.bod.nbi.NbiService#findAllPhysicalPorts()
    */
   @Override
@@ -262,12 +269,12 @@ class NbiServiceOpenDrac implements NbiService {
     return null;
   }
 
-  private NrbInterface getNrbInterface() {
+  private NRBInterface getNrbInterface() {
     try {
       if (remoteConnectionProxy == null) {
-        remoteConnectionProxy = new RemoteConnectionProxy();
+        remoteConnectionProxy = new RemoteConnectionProxy(primaryController, secondaryController);
       }
-      return remoteConnectionProxy.getNrbInterface();
+      return (NRBInterface) remoteConnectionProxy.getRemoteRef();
 
     }
     catch (RequestHandlerException e) {
@@ -302,7 +309,7 @@ class NbiServiceOpenDrac implements NbiService {
   private LoginToken getLoginToken() {
     try {
       return getNrbInterface().login(ClientLoginType.INTERNAL_LOGIN, username,
-          CryptoWrapper.INSTANCE.decrypt(new CryptedString(encryptedPassword)).toCharArray(), null, null, null);
+          CryptoWrapper.getInstance().decrypt(new CryptedString(encryptedPassword)).toCharArray(), null, null);
     }
     catch (Exception e) {
       log.error("Error: ", e);
@@ -334,21 +341,17 @@ class NbiServiceOpenDrac implements NbiService {
 
     sourceEndpoint.setName(reservation.getSourcePort().getPhysicalPort().getName());
     destEndpoint.setName(reservation.getDestinationPort().getPhysicalPort().getName());
-    
-    // TODO 1+1 path or no protection, vcat or ccat, vlan ids?
-    // pathType.setSrcVlanId(vlanId);
-    // pathType.setDstVlanId(vlanId)
     pathType.setProtectionType(PathType.PROTECTION_TYPE.PATH1PLUS1);
     pathType.setVcatRoutingOption(true);
-    
+
     pathType.setRate(reservation.getBandwidth());
     pathType.setSourceEndPoint(sourceEndpoint);
     pathType.setTargetEndPoint(destEndpoint);
     return pathType;
   }
 
-  private UserType createUser(final Reservation reservation) {
-    final UserType userType = new UserType();
+  private UserInfo createUser(final Reservation reservation) {
+    final UserInfo userType = new UserInfo();
 
     userType.setUserId(reservation.getUserCreated());
     userType.setBillingGroup(new UserGroupName(groupName));
