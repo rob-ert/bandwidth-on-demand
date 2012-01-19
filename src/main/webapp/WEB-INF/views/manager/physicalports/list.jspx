@@ -8,15 +8,29 @@
 
     <page:list id="pl_PhysicalPort" items="${physicalPorts}">
         <table:table data="${physicalPorts}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/manager/physicalports"
-            typeIdFieldName="name" delete="false" update="false" show="false">
+            typeIdFieldName="id" delete="false" update="false" show="false">
 
             <table:column id="c_PhysicalPort_name" property="name" />
             <table:column id="c_PhysicalPort_displayname" property="displayName" />
             <table:column id="c_PhysicalPort_physicalResourceGroup" property="physicalResourceGroup" />
             <table:column id="c_PhysicalPort_virtualPortCount" property="numberOfVirtualPorts" />
+            
 
+            <table:actionColumn image="/resources/images/application_put.png"
+                action="/showvirtualports" title="Show Virtual Ports" />
+                
             <table:actionColumn image="/resources/images/application_form_add.png"
                 action="/manager/virtualports/create?port={}" title="Create new virtual port" />
         </table:table>
     </page:list>
+    
+    <spring:url value="/manager/physicalports/{}/virtualports" var="portsUrl" />
+    <spring:url value="/resources/images/application_get.png" var="closePaneImageUrl" />
+    <script type="text/javascript">
+      $(function() {
+          var fields = ["name", "maxBandwidth", "vlanId", "virtualResourceGroupName"];
+          var headers = ["Name", "Max Bandwidth", "VID", "Virtual Resource Group"];
+          $("a[href$='showvirtualports']").detailView("${portsUrl}", fields, headers, "${closePaneImageUrl}");
+      });
+    </script>
 </div>
