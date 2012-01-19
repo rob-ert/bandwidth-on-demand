@@ -38,6 +38,9 @@ public class ReservationPollerTest {
 
   @Test
   public void shouldUpdateState() throws InterruptedException {
+    // Prevent NPE, since the update method must return the saved entity
+    when(reservationService.update(any(Reservation.class))).thenReturn(reservationOne);
+
     when(reservationService.getStatus(any(Reservation.class))).thenReturn(ReservationStatus.PREPARING,
         ReservationStatus.SCHEDULED);
 
@@ -50,8 +53,11 @@ public class ReservationPollerTest {
     verify(reservationService).update(reservationOne);
   }
 
-  @Test
+   @Test
   public void shouldNotUpdateStateNoStateChange() throws InterruptedException {
+    // Prevent NPE, since the update method must return the saved entity
+    when(reservationService.update(any(Reservation.class))).thenReturn(reservationOne);
+
     // Same state as initial state, no change
     when(reservationService.getStatus(any(Reservation.class))).thenReturn(ReservationStatus.PREPARING);
 
@@ -63,8 +69,11 @@ public class ReservationPollerTest {
     verify(reservationService, times(0)).update(any(Reservation.class));
   }
 
-  @Test
+   @Test
   public void shouldStopWhenMaxTriesIsReached() {
+    // Prevent NPE, since the update method must return the saved entity
+    when(reservationService.update(any(Reservation.class))).thenReturn(reservationOne);
+
     // Same state as initial state, no change
     when(reservationService.getStatus(any(Reservation.class))).thenReturn(ReservationStatus.PREPARING);
 
@@ -75,16 +84,20 @@ public class ReservationPollerTest {
 
     verify(reservationService, times(maxTries)).getStatus(any(Reservation.class));
   }
-  
-  @Test
+
+   @Test
   public void shouldStopWhenEndStateIsReached() {
+    // Prevent NPE, since the update method must return the saved entity
+    when(reservationService.update(any(Reservation.class))).thenReturn(reservationOne);
+
     when(reservationService.getStatus(any(Reservation.class))).thenReturn(ReservationStatus.SUCCEEDED);
     when(reservationService.isEndState(any(ReservationStatus.class))).thenReturn(true);
-    
+
     subject.monitorStatus(reservationOne);
-    
-    while (subject.isBusy());
-    
+
+    while (subject.isBusy())
+      ;
+
     verify(reservationService).update(reservationOne);
     verify(reservationService).getStatus(any(Reservation.class));
   }

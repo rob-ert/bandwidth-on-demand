@@ -16,6 +16,7 @@ import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This class is responisble for monitoring changes of a
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Component;
  * 
  */
 @Component
+@Transactional
 public class ReservationPoller {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -44,7 +46,7 @@ public class ReservationPoller {
   private class ReservationStatusCheckTask implements Runnable {
 
     private long tries = 0;
-    private final Reservation reservation;
+    private Reservation reservation;
 
     public ReservationStatusCheckTask(final Reservation reservation) {
       this.reservation = reservation;
@@ -73,7 +75,7 @@ public class ReservationPoller {
 
       if (reservation.getStatus() != actualReservationStatus) {
         reservation.setStatus(actualReservationStatus);
-        reservationService.update(reservation);
+        reservation = reservationService.update(reservation);
       }
       
       if (reservationService.isEndState(actualReservationStatus)) {
