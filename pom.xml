@@ -708,10 +708,15 @@
             <name>COIN Repository</name>
             <url>http://bamboo-dev.coin.surfnetlabs.nl</url>
         </repository>
-        <repository>
+        <!-- <repository>
             <id>opendrac-artifactory</id>
             <name>OpenDRAC Repository</name>
             <url>http://dev.dlp.surfnet.nl/artifactory/libs-snapshot-local</url>
+        </repository> -->
+        <repository>
+            <id>opendrac-artifactory</id>
+            <name>OpenDRAC Repository</name>
+            <url>http://dev.dlp.surfnet.nl/artifactory/libs-release-local</url>
         </repository>
     </repositories>
 
