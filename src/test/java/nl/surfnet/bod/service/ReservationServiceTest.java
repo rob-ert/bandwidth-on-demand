@@ -53,6 +53,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -175,6 +176,25 @@ public class ReservationServiceTest {
     subject.cancel(reservation);
     assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
     verify(reservationRepoMock).save(reservation);
+  }
+
+  @Test
+  public void shouldCheckAllTransitionStateReservations() {
+    Reservation reservationWithTransitionStateOne = new ReservationFactory().setStatus(ReservationStatus.PREPARING)
+        .create();
+    Reservation reservationWithTransitionStateTwo = new ReservationFactory().setStatus(ReservationStatus.PREPARING)
+        .create();
+
+    // Always return endState
+    when(nbiPortService.getReservationStatus(any(String.class))).thenReturn(ReservationStatus.SUCCEEDED);
+
+    when(reservationRepoMock.findByStatusIn(ReservationStatus.TRANSITION_STATES)).thenReturn(
+        ImmutableList.of(reservationWithTransitionStateOne, reservationWithTransitionStateTwo));
+
+    subject.checkAllReservationsForStatusUpdate();
+
+    assertThat(reservationWithTransitionStateOne.getStatus(), is(ReservationStatus.SUCCEEDED));
+    assertThat(reservationWithTransitionStateTwo.getStatus(), is(ReservationStatus.SUCCEEDED));
   }
 
   @Test

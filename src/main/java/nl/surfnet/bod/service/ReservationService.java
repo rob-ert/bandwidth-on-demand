@@ -28,7 +28,9 @@ import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -40,6 +42,8 @@ import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
@@ -51,6 +55,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ReservationService {
 
+  private final Logger log = LoggerFactory.getLogger(getClass());
+
   @Autowired
   private ReservationRepo reservationRepo;
 
@@ -60,6 +66,27 @@ public class ReservationService {
 
   @Autowired
   private ReservationPoller reservationPoller;
+
+  @PostConstruct
+  public void checkAllReservationsForStatusUpdate() {
+    long updatedItems = 0;
+
+    List<Reservation> reservations = reservationRepo.findByStatusIn(ReservationStatus.TRANSITION_STATES);
+
+    for (Reservation reservation : reservations) {
+      ReservationStatus actualStatus = getStatus(reservation);
+      if (reservation.getStatus() != actualStatus) {
+        log.debug("About to update reservation [" + reservation.getReservationId() + "] status changed from ["
+            + reservation.getStatus() + "] to: " + actualStatus);
+
+        reservation.setStatus(actualStatus);
+        update(reservation);
+        updatedItems++;
+      }
+    }
+    log.info("Amount of reservations checked [" + reservations.size() + "] from which [" + updatedItems
+        + "] needed a status update");
+  }
 
   public void reserve(Reservation reservation) throws ReservationFailedException {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
@@ -144,13 +171,25 @@ public class ReservationService {
 
   /**
    * 
-   * @param reservationStatus {@link ReservationStatus} to evaluate
-   * @return
+   * @param reservationStatus
+   *          {@link ReservationStatus} to evaluate
+   * @return true when the reservationStatus is an endState, false otherwise
+   * @see ReservationStatus
+   * 
    */
   public boolean isEndState(ReservationStatus reservationStatus) {
-    return ((reservationStatus == ReservationStatus.CANCELLED) || (reservationStatus == ReservationStatus.FAILED) || (reservationStatus == ReservationStatus.SUCCEEDED));
+    return reservationStatus != null && reservationStatus.isEndState(reservationStatus);
   }
 
+  /**
+   * 
+   * @param reservationStatus
+   *          {@link ReservationStatus} to evaluate
+   * @return true when the reservationStatus is a transitionState, false
+   *         otherwise
+   * @see ReservationStatus
+   * 
+   */
   public boolean isTransitionState(ReservationStatus reservationStatus) {
     return !isEndState(reservationStatus);
   }

@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.support;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -31,7 +33,7 @@ import org.joda.time.LocalTime;
 
 public class ReservationFactory {
 
-  private Long id;
+  private static Long id = new AtomicLong().incrementAndGet();
   private Integer version;
   private VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().create();
   private ReservationStatus status = ReservationStatus.SCHEDULED;

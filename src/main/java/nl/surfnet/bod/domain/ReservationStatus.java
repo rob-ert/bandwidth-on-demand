@@ -21,6 +21,9 @@
  */
 package nl.surfnet.bod.domain;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Enum representing the status of a {@link Reservation}.
  * 
@@ -30,5 +33,34 @@ package nl.surfnet.bod.domain;
 public enum ReservationStatus {
 
   SCHEDULED, RUNNING, SUCCEEDED, SUBMITTED, PREPARING, CANCELLED, FAILED;
+
+  /**
+   * All states which are allowed to transition to an other state. All other
+   * states will automatically be regarded as endStates.
+   */
+  public static final List<ReservationStatus> TRANSITION_STATES = Arrays.asList(SCHEDULED, RUNNING, SUBMITTED,
+      PREPARING);
+
+  /**
+   * 
+   * @param reservationStatus
+   *          {@link ReservationStatus} to check
+   * @return true if the reservationStatus is an endState, meaning no further
+   *         state transitions are allowed. Returns false otherwise.
+   */
+  public boolean isEndState(ReservationStatus reservationStatus) {
+    return !isTransitionState(reservationStatus);
+  }
+
+  /**
+   * 
+   * @param reservationStatus
+   *          {@link ReservationStatus} to check
+   * @return true if the reservationStatus is an transitionState, meaning
+   *         further state transitions are allowed. Returns false otherwise.
+   */
+  public boolean isTransitionState(ReservationStatus reservationStatus) {
+    return TRANSITION_STATES.contains(reservationStatus);
+  }
 
 }
