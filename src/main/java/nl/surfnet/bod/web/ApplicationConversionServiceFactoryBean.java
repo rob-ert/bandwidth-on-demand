@@ -88,12 +88,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     return new Converter<PhysicalResourceGroup, String>() {
       @Override
       public String convert(final PhysicalResourceGroup physicalResourceGroup) {
-        return new StringBuilder()
-            .append(physicalResourceGroup.getName())
-            .append(" - ")
-            .append(
-                physicalResourceGroup.getInstitute() == null ? "N/A" : physicalResourceGroup.getInstitute().getName())
-            .toString();
+        return physicalResourceGroup.getName();
       }
     };
   }

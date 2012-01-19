@@ -9,9 +9,14 @@
     <page:list id="pl_PhysicalPort" items="${physicalPorts}">
         <table:table data="${physicalPorts}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/manager/physicalports"
             typeIdFieldName="name" delete="false" update="false" show="false">
+
             <table:column id="c_PhysicalPort_name" property="name" />
             <table:column id="c_PhysicalPort_displayname" property="displayName" />
             <table:column id="c_PhysicalPort_physicalResourceGroup" property="physicalResourceGroup" />
+            <table:column id="c_PhysicalPort_virtualPortCount" property="numberOfVirtualPorts" />
+
+            <table:actionColumn image="/resources/images/application_form_add.png"
+                action="/manager/virtualports/create?port={}" title="Create new virtual port" />
         </table:table>
     </page:list>
 </div>

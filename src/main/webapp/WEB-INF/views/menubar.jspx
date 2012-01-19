@@ -1,7 +1,11 @@
 <sec:authorize access="isAuthenticated()" xmlns:sec="http://www.springframework.org/security/tags">
     <menu id="_menu" xmlns="urn:jsptagdir:/WEB-INF/tags/menu">
-        <category id="c_reservation" menu="reservation"> <item id="i_vp_new" url="/reservations/create"
-            messageCode="global_menu_new" /> <item id="i_vp_list" url="/reservations?page=1"
-            messageCode="global_menu_list" /> </category>
+        <category id="c_reservation" menu="reservation">
+            <item id="i_res_new" url="/reservations/create" messageCode="global_menu_new" />
+            <item id="i_res_list" url="/reservations" messageCode="global_menu_list" />
+        </category>
+        <category id="c_virtualport" menu="virtualport">
+            <item id="i_vp_list" url="/virtualports" messageCode="global_menu_list" />
+        </category>
     </menu>
 </sec:authorize>

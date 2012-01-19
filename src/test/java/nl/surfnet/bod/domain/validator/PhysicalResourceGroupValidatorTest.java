@@ -46,7 +46,6 @@ public class PhysicalResourceGroupValidatorTest {
     subject.setPhysicalResourceGroupService(physicalResourceGroupServiceMock);
   }
 
-
   @Test
   public void testSupportsValidClass() {
     assertTrue(subject.supports(PhysicalResourceGroup.class));
@@ -57,40 +56,49 @@ public class PhysicalResourceGroupValidatorTest {
     assertFalse(subject.supports(Object.class));
   }
 
-
   @Test
-  public void testValidateExistingName() {
-    PhysicalResourceGroup physicalResourceGroupOne = new PhysicalResourceGroupFactory().setId(1L).setName("one").create();
+  public void testValidateExistingNameUpdate() {
+    PhysicalResourceGroup physicalResourceGroupOne = new PhysicalResourceGroupFactory().setInstituteId(1L).create();
 
-    when(physicalResourceGroupServiceMock.findByName("one")).thenReturn(physicalResourceGroupOne);
+    when(physicalResourceGroupServiceMock.findByInstituteId(1L)).thenReturn(physicalResourceGroupOne);
 
     Errors errors = new BeanPropertyBindingResult(physicalResourceGroupOne, "physicalResourceGroup");
     assertFalse(errors.hasErrors());
-    assertFalse(errors.hasFieldErrors());
-    assertFalse(errors.hasGlobalErrors());
 
     subject.validate(physicalResourceGroupOne, errors);
 
     assertFalse(errors.hasErrors());
-    assertFalse(errors.hasGlobalErrors());
   }
 
+  @Test
+  public void testValidateExistingNameInsert() {
+    PhysicalResourceGroup physicalResourceGroupOne = new PhysicalResourceGroupFactory().setId(1l).setInstituteId(1L)
+        .create();
+    PhysicalResourceGroup physicalResourceGroupTwo = new PhysicalResourceGroupFactory().setId(2L).setInstituteId(1L)
+        .create();
+
+    when(physicalResourceGroupServiceMock.findByInstituteId(1L)).thenReturn(physicalResourceGroupTwo);
+
+    Errors errors = new BeanPropertyBindingResult(physicalResourceGroupOne, "physicalResourceGroup");
+    assertFalse(errors.hasErrors());
+
+    subject.validate(physicalResourceGroupOne, errors);
+
+    assertTrue(errors.hasFieldErrors("name"));
+  }
 
   @Test
   public void testValidateNonExistingName() {
-    PhysicalResourceGroup physicalResourceGroupOne = new PhysicalResourceGroupFactory().setName("one").create();
+    PhysicalResourceGroup physicalResourceGroupOne = new PhysicalResourceGroupFactory().setInstituteId(1L).create();
 
-    when(physicalResourceGroupServiceMock.findByName("one")).thenReturn(null);
+    when(physicalResourceGroupServiceMock.findByInstituteId(1L)).thenReturn(null);
 
     Errors errors = new BeanPropertyBindingResult(physicalResourceGroupOne, "physicalResourceGroup");
     assertFalse(errors.hasErrors());
-    assertFalse(errors.hasFieldErrors());
-    assertFalse(errors.hasGlobalErrors());
 
     subject.validate(physicalResourceGroupOne, errors);
 
-    assertFalse(errors.hasFieldErrors());
-    assertFalse(errors.hasGlobalErrors());
+    assertFalse(errors.hasErrors());
   }
 
 }

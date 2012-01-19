@@ -21,8 +21,10 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.domain.ReservationStatus.*;
 import static com.google.common.base.Preconditions.checkState;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -56,6 +58,9 @@ public class ReservationService {
   @Qualifier("nbiService")
   private NbiService nbiService;
 
+  @Autowired
+  private ReservationPoller reservationPoller;
+
   public void reserve(Reservation reservation) throws ReservationFailedException {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
@@ -65,8 +70,10 @@ public class ReservationService {
       throw new ReservationFailedException("Unable to create reservation: " + reservation);
     }
     reservation.setReservationId(reservationId);
-    reservation.setStatus(nbiService.getReservationStatus(reservationId));
+    reservation.setStatus(getStatus(reservation));
     reservationRepo.save(reservation);
+
+    monitorReservationStatus(reservation);
   }
 
   public Reservation find(Long id) {
@@ -115,7 +122,36 @@ public class ReservationService {
       reservation.setStatus(CANCELLED);
       nbiService.cancelReservation(reservation.getReservationId());
       reservationRepo.save(reservation);
+
+      monitorReservationStatus(reservation);
     }
   }
 
+  public ReservationStatus getStatus(Reservation reservation) {
+    return nbiService.getReservationStatus(reservation.getReservationId());
+  }
+
+  /**
+   * Starts the {@link ReservationPoller#monitorStatus(Reservation)}, updates
+   * the given {@link Reservation} when a status change occurs.
+   * 
+   * @param reservation
+   *          The {@link Reservation} to monitor
+   */
+  public void monitorReservationStatus(Reservation reservation) {
+    reservationPoller.monitorStatus(reservation);
+  }
+
+  /**
+   * 
+   * @param reservationStatus {@link ReservationStatus} to evaluate
+   * @return
+   */
+  public boolean isEndState(ReservationStatus reservationStatus) {
+    return ((reservationStatus == ReservationStatus.CANCELLED) || (reservationStatus == ReservationStatus.FAILED) || (reservationStatus == ReservationStatus.SUCCEEDED));
+  }
+
+  public boolean isTransitionState(ReservationStatus reservationStatus) {
+    return !isEndState(reservationStatus);
+  }
 }

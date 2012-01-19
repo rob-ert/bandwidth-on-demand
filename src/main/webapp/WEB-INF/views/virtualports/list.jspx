@@ -5,14 +5,11 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
         
-     <page:list id="pl_virtualport" items="${virtualPortList}">
-        <table:table data="${virtualPortList}" id="l_VirtualPort" path="/manager/virtualports" typeIdFieldName="id">
+     <page:list id="pl_virtualport" items="${virtualPorts}">
+        <table:table data="${virtualPorts}" id="l_VirtualPort" path="/virtualports" typeIdFieldName="id" update="false" delete="false" show="false" >
             <table:column labelCode="virtualPort" id="virtualport" property="name" />
             <table:column labelCode="virtualport_max_bandwidth" id="maxBandwidth" property="maxBandwidth"/>
-            <table:column labelCode="virtualport_vlan_id" id="vlanId" property="vlanId"/>
             <table:column labelCode="virtualResourceGroup" id="virtualresourcegroup" property="virtualResourceGroup" />
-            <table:column labelCode="physicalResourceGroup" id="physicalresourcegroup" property="physicalResourceGroup" />
-            <table:column labelCode="physicalPort" id="physicalport" property="physicalPort" />
         </table:table>
     </page:list>    
 </div>

@@ -38,7 +38,6 @@ import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,8 +54,7 @@ public class PhysicalResourceGroupDbTest {
   @Autowired
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
 
-  private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setId(null)
-      .setName("OneGroup").create();
+  private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setId(null).create();
 
   @Test
   public void countAllPhysicalResourceGroups() {
@@ -82,7 +80,8 @@ public class PhysicalResourceGroupDbTest {
 
     int size = physicalResourceGroupService.findAll().size();
 
-    PhysicalResourceGroup groupTwo = new PhysicalResourceGroupFactory().setId(null).setName("TwoGroup").create();
+    PhysicalResourceGroup groupTwo = new PhysicalResourceGroupFactory().setId(null).create();
+    groupTwo.setInstituteId(2L);
 
     physicalResourceGroupService.save(physicalResourceGroup);
     physicalResourceGroupService.save(groupTwo);
@@ -110,7 +109,7 @@ public class PhysicalResourceGroupDbTest {
 
     Integer initialVersion = physicalResourceGroup.getVersion();
 
-    physicalResourceGroup.setName("New name");
+    physicalResourceGroup.setAdminGroup("New group");
 
     PhysicalResourceGroup merged = physicalResourceGroupService.update(physicalResourceGroup);
 
@@ -145,25 +144,10 @@ public class PhysicalResourceGroupDbTest {
 
   @Test(expected = ConstraintViolationException.class)
   public void physicalResourceGroupWithoutANameShouldNotSave() {
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName(null).create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
+    group.setInstituteId(null);
 
     physicalResourceGroupService.save(group);
   }
-
-  @Test(expected = ConstraintViolationException.class)
-  public void physicalResourceGroupWithAnEmptyNameShouldNotSave() {
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName("").create();
-
-    physicalResourceGroupService.save(group);
-  }
-
-  @Test(expected = JpaSystemException.class)
-  public void physicalResourceGroupInstituteNameShouldBeUnique() {
-    PhysicalResourceGroup group1 = new PhysicalResourceGroupFactory().setId(null).setName("One").create();
-    PhysicalResourceGroup group2 = new PhysicalResourceGroupFactory().setId(null).setName("One").create();
-
-    physicalResourceGroupService.save(group1);
-    physicalResourceGroupService.save(group2);
-  }
-
+  
 }

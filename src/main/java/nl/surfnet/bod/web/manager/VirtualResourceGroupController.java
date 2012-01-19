@@ -46,8 +46,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class VirtualResourceGroupController {
   public static final String PAGE_URL = "virtualresourcegroups";
 
-  static final String MODEL_KEY = "virtualResourceGroup";
-  static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
+  public static final String MODEL_KEY = "virtualResourceGroup";
+  public static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
 
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;

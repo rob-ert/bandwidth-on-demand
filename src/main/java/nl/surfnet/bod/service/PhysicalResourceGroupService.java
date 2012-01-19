@@ -113,8 +113,8 @@ public class PhysicalResourceGroupService {
     return findAllForAdminGroups(groups);
   }
 
-  public PhysicalResourceGroup findByName(String name) {
-    PhysicalResourceGroup prg = physicalResourceGroupRepo.findByName(name);
+  public PhysicalResourceGroup findByInstituteId(Long instituteId) {
+    PhysicalResourceGroup prg = physicalResourceGroupRepo.findByInstituteId(instituteId);
 
     instituteService.fillInstituteForPhysicalResourceGroup(prg);
 

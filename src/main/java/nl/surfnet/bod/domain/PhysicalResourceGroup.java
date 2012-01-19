@@ -24,10 +24,16 @@ package nl.surfnet.bod.domain;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 public class PhysicalResourceGroup {
@@ -39,15 +45,11 @@ public class PhysicalResourceGroup {
   @Version
   private Integer version;
 
-  @NotEmpty
-  @Column(unique = true, nullable = false)
-  private String name;
-
   /**
    * Institute is managed by IDD, we only persist the id of an {@link Institute}
    */
   @NotNull
-  @Column(nullable = false)
+  @Column(nullable = false, unique = true)
   private Long instituteId;
 
   @Transient
@@ -74,12 +76,18 @@ public class PhysicalResourceGroup {
     this.version = version;
   }
 
+  /**
+   * This class will not have a name, instead it has a one-one relation to an
+   * {@link Institute} and we will use the name of an Institute instead.
+   * Whenever an instittute is not availabled (e.g. it was deleted in the IDD
+   * system) the id of institute will be shown. This will trigger a NOC engineer
+   * to investigate and correct this.
+   * 
+   * @return Name of the related institute when available, the
+   *         {@link #instituteId} otherwise.
+   */
   public String getName() {
-    return this.name;
-  }
-
-  public void setName(final String name) {
-    this.name = name;
+    return institute != null ? institute.getName() : String.valueOf(instituteId);
   }
 
   public Long getInstituteId() {
@@ -115,7 +123,6 @@ public class PhysicalResourceGroup {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("Id: ").append(getId()).append(", ");
-    sb.append("Name: ").append(getName()).append(", ");
     sb.append("InstituteId: ").append(getInstituteId()).append(", ");
     sb.append("Admin group: ").append(getAdminGroup()).append(", ");
     sb.append("Version: ").append(getVersion());

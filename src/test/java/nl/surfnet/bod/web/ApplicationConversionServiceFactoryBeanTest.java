@@ -61,20 +61,20 @@ public class ApplicationConversionServiceFactoryBeanTest {
   @Test
   public void convertPhysicalResourceGroupToStringWithInstitute() {
     Institute institute = new InstituteFactory().setName("INST").create();
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName("GROUP").setInstitute(institute).create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setInstitute(institute).create();
 
     String output = subject.getPhysicalResourceGroupToStringConverter().convert(group);
 
-    assertThat(output, is("GROUP - INST"));
+    assertThat(output, is("INST"));
   }
 
   @Test
   public void convertPhysicalResourceGroupToStringWithoutInstitute() {
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setName("GROUP").setInstitute(null).create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setInstitute(null).setInstituteId(1L).create();
 
     String output = subject.getPhysicalResourceGroupToStringConverter().convert(group);
 
-    assertThat(output, is("GROUP - N/A"));
+    assertThat(output, is("1"));
   }
 
 }

@@ -36,37 +36,46 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa.xml", "/spring/appCtx-nbi-client.xml",
-"/spring/appCtx-idd-client.xml" })
+    "/spring/appCtx-idd-client.xml" })
+@Transactional
 public class PhysicalResourceGroupRepoTest {
 
   @Autowired
   private PhysicalResourceGroupRepo subject;
 
   @Test
-  public void testFindByName() {
-    String name = "tester";
-    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setName(name).create();
-    given(physicalResourceGroup, new PhysicalResourceGroupFactory().setName("notToBeFound").create());
+  public void testFindByInstituteId() {
+    PhysicalResourceGroupFactory physicalResourceGroupFactory = new PhysicalResourceGroupFactory();
 
-    PhysicalResourceGroup foundPhysicalResourceGroup = subject.findByName(name);
+    PhysicalResourceGroup physicalResourceGroupOne = physicalResourceGroupFactory.setId(null).setInstituteId(1L).create();
 
-    assertThat(foundPhysicalResourceGroup.getName(), is(name));
+    PhysicalResourceGroup physicalResourceGroupTwo = physicalResourceGroupFactory.setId(null).setInstituteId(2L).create();
+    
+    given(physicalResourceGroupOne, physicalResourceGroupTwo);
 
+    PhysicalResourceGroup foundPhysicalResourceGroup = subject.findByInstituteId(1L);
+
+    assertThat(foundPhysicalResourceGroup.getName(), is("1"));
   }
 
   @Test
   public void testFindByAdminGroups() {
+    PhysicalResourceGroupFactory physicalResourceGroupFactory = new PhysicalResourceGroupFactory();
+
     String firstAdminGroup = "urn:firstGroup";
     Collection<String> adminGroups = ImmutableList.of(firstAdminGroup, "urn:secondGroup");
-    PhysicalResourceGroup firstPhysicalResourceGroup = new PhysicalResourceGroupFactory().setName("testName")
-        .setAdminGroupName(firstAdminGroup).create();
 
-    given(firstPhysicalResourceGroup, new PhysicalResourceGroupFactory().setAdminGroupName("urn:noMatch").create());
+    PhysicalResourceGroup firstPhysicalResourceGroup = physicalResourceGroupFactory.setId(null)
+        .setAdminGroupName(firstAdminGroup).setInstituteId(1L).create();
+    
+    given(firstPhysicalResourceGroup,
+        physicalResourceGroupFactory.setId(null).setInstituteId(2L).setAdminGroupName("urn:noMatch").create());
 
     Collection<PhysicalResourceGroup> foundAdminGroups = subject.findByAdminGroupIn(adminGroups);
 

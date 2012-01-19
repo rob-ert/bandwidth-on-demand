@@ -37,22 +37,21 @@ public interface PhysicalResourceGroupRepo extends JpaSpecificationExecutor<Phys
   /**
    * Finds {@link PhysicalResourceGroup}s by a Collection of adminGroups
    * {@link PhysicalResourceGroup#getAdminGroup()}
-   * 
+   *
    * @param Collection
    *          <String> adminGroups to search for
-   * 
+   *
    * @return List<PhysicalResourceGroup> or empty collection when no match was
    *         found.
    */
   List<PhysicalResourceGroup> findByAdminGroupIn(Collection<String> adminGroups);
 
   /**
-   * Finds a {@link PhysicalResourceGroup} by
-   * {@link PhysicalResourceGroup#getName()}
-   * 
-   * @param name
-   *          The name to search for
-   * @return {@link PhysicalResourceGroup} or null when no match was found.
+   * Finds a {@link PhysicalResourceGroup} by the id of the {@link nl.surfnet.bod.domain.Institute} to
+   * which this group is related.
+   *
+   * @param instituteId Id to search for
+   * @return
    */
-  PhysicalResourceGroup findByName(String name);
+  PhysicalResourceGroup findByInstituteId(Long instituteId);
 }
