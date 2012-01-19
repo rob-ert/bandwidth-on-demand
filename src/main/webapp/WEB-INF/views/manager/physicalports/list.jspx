@@ -47,17 +47,22 @@
 	                 
 	                 $.each(data, function(i, port) { portsTable.append(createRow(port)); });
 	                 
-	                 var closeLink = $("<a/>", {href: "#", title: "Hide Virtual Ports", onclick: "closeRow(this); return false;"})
+	                 var closeLink = $("<a/>", {href: "#", title: "Hide Virtual Ports"})
 	                     .append($("<img/>", {src : "${closePaneImageUrl}"})).twipsy();
 	                 
+	                 closeLink.click(function() {
+	                	 closeRow(this);
+	                	 return false;
+	                 });
+
 	                 var newRow = $("<tr/>", {class: "ports"})
 	                    .append($("<td/>", {colspan : nrOfColumns - 1}).append(portsTable))
 	                    .append($("<td/>").append(closeLink));
-	                    
+
 	                 newRow.fadeIn();
 	                 sourceRow.after(newRow);
 	             });
-	             
+
 	             return false;
 	          });
     		  
@@ -77,19 +82,18 @@
                   
                   return row;
               }
+              function closeRow(link) {
+                  row = $(link).closest("tr");
+                  row.fadeOut(function() {
+                      $(link).twipsy('hide');
+                      $(this).remove();
+                  });
+              }
     	  };
           
           var fields = ["name", "maxBandwidth", "vlanId", "virtualResourceGroupName"];
           var headers = ["Name", "Max Bandwidth", "VID", "Virtual Resource Group"];
           $("a[href$='showvirtualports']").detailView("${portsUrl}", fields, headers);
       });
-      
-      function closeRow(link) {
-    	  row = $(link).closest("tr");
-    	  row.fadeOut(function() {
-    		  $(link).twipsy('hide');
-              $(this).remove();
-          });
-      }
     </script>
 </div>
