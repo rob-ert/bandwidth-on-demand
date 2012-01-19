@@ -5,7 +5,7 @@ $(function() {
             var sourceRow = self.closest("tr");
             var nextRow = sourceRow.next();
 
-            if (nextRow.hasClass("ports")) {
+            if (nextRow.hasClass("detailview")) {
                 closeRow(nextRow.find("a"));
                 return false;
             }
@@ -14,7 +14,7 @@ $(function() {
             var elementId = self.next().attr('href').split('=').pop();
 
             $.getJSON(detailsUrl.replace("{}", elementId), function(data) {
-                var portsTable = $("<table/>").append(createHeaders());
+                var portsTable = $("<table/>", {class : "zebra-striped"}).append($("<thead/>").append(createHeaders()));
 
                 $.each(data, function(i, port) {
                     portsTable.append(createRow(port));
@@ -33,7 +33,7 @@ $(function() {
                 });
 
                 var newRow = $("<tr/>", {
-                    class : "ports"
+                    class : "detailview"
                 }).append($("<td/>", {
                     colspan : nrOfColumns - 1
                 }).append(portsTable)).append($("<td/>").append(closeLink));
@@ -46,13 +46,13 @@ $(function() {
         });
 
         function createHeaders() {
-            var head = $("<thead/>");
+            var row = $("<tr/>");
             $.each(headers, function(i, header) {
-                head.append($("<th/>", {
+                row.append($("<th/>", {
                     text : header
                 }));
             });
-            return head;
+            return row;
         }
 
         function createRow(port) {
