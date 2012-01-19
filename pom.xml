@@ -16,7 +16,7 @@
         <selenium.version>2.13.0</selenium.version>
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:8888/bod</selenium.test.url>
-        <opendrac.version>4.3.0-SNAPSHOT</opendrac.version>
+        <opendrac.version>4.2.0</opendrac.version>
     </properties>
 
     <scm>
@@ -741,3 +741,4 @@
         </snapshotRepository>
     </distributionManagement>
 </project>
+
