@@ -501,6 +501,7 @@
                 </dependencies>
             </plugin>
 
+            <!-- Generates the classes for IDD based on the wsdl -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>axistools-maven-plugin</artifactId>
@@ -528,7 +529,6 @@
                 <configuration>
                     <instrumentation>
                         <excludes>
-                            <exclude>nl/surfnet/bod/nbi/generated/*.class</exclude>
                             <exclude>nl/surfnet/bod/idd/generated/*.class</exclude>
                         </excludes>
                     </instrumentation>
