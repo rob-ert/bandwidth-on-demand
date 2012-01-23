@@ -76,7 +76,16 @@
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
+    <servlet>
+        <servlet-name>pushServlet</servlet-name>
+        <servlet-class>nl.surfnet.bod.web.push.PushServlet</servlet-class>
+    </servlet>
     
+    <servlet-mapping>
+        <servlet-name>pushServlet</servlet-name>
+        <url-pattern>/push</url-pattern>
+    </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>bod</servlet-name>
         <url-pattern>/</url-pattern>

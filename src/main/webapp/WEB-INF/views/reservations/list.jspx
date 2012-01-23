@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
-    xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
+    xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields"
+     xmlns:spring="http://www.springframework.org/tags">
     
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-        
-     <page:list id="pl_reservation" items="${reservationList}">
+
+    <div id="messages"><!-- --></div>
+
+    <page:list id="pl_reservation" items="${reservationList}">
         <table:table data="${reservationList}" id="l_reservation" path="/reservations" typeIdFieldName="id">
             <table:column labelCode="virtualresourcegroup" id="virtualresourcegroup" property="virtualResourceGroup"/>
             <table:column labelCode="reservation_sourcePort" id="sourceport" property="sourcePort"/>
@@ -15,5 +18,45 @@
             <table:column labelCode="reservation_endTime" id="endtime" property="endDateTime" />
             <table:column labelCode="reservation_bandwidth" id="bandwidth" property="bandwidth" />
         </table:table>
-    </page:list>    
+    </page:list>
+
+    <spring:url value="/push" var="pushUrl" />
+
+    <script type="text/javascript">
+    $(function() {
+        var location = "ws://${pageContext.request.serverName}:${pageContext.request.serverPort}${pushUrl}";
+        var ws;
+        if ('WebSocket' in window) {
+            ws = new WebSocket(location);
+        } else if ('MozWebSocket' in window) {
+            ws = new MozWebSocket(location);
+        } else {
+            console.log('Sorry your browser does not support web sockets');
+        }
+
+        ws.onopen = function() {
+            console.log("ws open");
+        }
+        ws.onerror = function() {
+            console.log("ws error");
+        }
+        ws.onclose = function() {
+            console.log("ws close");
+        }
+        ws.onmessage = function(evt) {
+            var message = evt.data;
+            console.log(message);
+            showMessage(message);
+        }
+
+        function showMessage(message) {
+            var record = $("<div/>", {text: message, class: "alert-message"}).append($("<a/>", {class: "close", href: "#", text: "×"})).alert();
+            setTimeout(function() {
+                console.log(record.alert('close'));
+                record.hide();
+            }, 2000);
+            $("#messages").append(record);
+        }
+    })
+    </script>
 </div>
