@@ -67,6 +67,7 @@ public class ReservationPoller {
      */
     public void run() {
       tries++;
+      log.info("Start monitoring reservation [" + reservation.getReservationId() + "] for status change");
 
       final ReservationStatus actualReservationStatus = reservationService.getStatus(reservation);
 
@@ -77,13 +78,13 @@ public class ReservationPoller {
         reservation.setStatus(actualReservationStatus);
         reservation = reservationService.update(reservation);
       }
-      
+
       if (reservationService.isEndState(actualReservationStatus)) {
         schedule.cancel(false);
         log.info("Monitoring stops for reservation [" + reservation.getReservationId() + "] status is updated to: "
             + reservation.getStatus());
       }
-      
+
       else {
         if (tries >= maxTries) {
           schedule.cancel(false);
@@ -114,15 +115,17 @@ public class ReservationPoller {
   }
 
   /**
-   * Starts a scheduler and updates the given {@link Reservation} when a change
+   * Starts a scheduler and updates the given {@link Reservation}s when a change
    * in state is detected.
    * 
    * @param reservation
    *          The {@link Reservation} to monitor
    */
-  public void monitorStatus(Reservation reservation) {
-    schedule = taskScheduler.schedule(new ReservationStatusCheckTask(reservation), trigger);
-    log.info("Start monitoring reservation [" + reservation.getReservationId() + "] for status change");
+  public void monitorStatus(Reservation... reservations) {
+
+    for (Reservation reservation : reservations) {
+      schedule = taskScheduler.schedule(new ReservationStatusCheckTask(reservation), trigger);
+    }
   }
 
   /**

@@ -26,13 +26,16 @@ import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -42,14 +45,19 @@ import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.Lists;
 
 @Service
 @Transactional
@@ -153,6 +161,39 @@ public class ReservationService {
       monitorReservationStatus(reservation);
     }
   }
+  
+  public void checkReservationsWithPossibleStateChangeInMinutes(int minutes) {
+
+    List<Reservation> reservations = reservationRepo
+        .findAll(specificationForReservationWithPossibleStateChangeInMinutes(minutes));
+
+    monitorReservationStatus((Reservation[]) reservations.toArray());
+
+  }
+
+  private Specification<Reservation> specificationForReservationWithPossibleStateChangeInMinutes(final int minutes) {
+    return new Specification<Reservation>() {
+      @Override
+      public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
+          CriteriaBuilder cb) {
+        Expression<LocalDate> startDateExpr = reservation.get("startDate");
+        Expression<LocalTime> startTimeExpr = reservation.get("startTime");
+        Expression<LocalDate> endDateExpr = reservation.get("endDate");
+        Expression<LocalTime> endTimeExpr = reservation.get("endTime");
+        Expression<ReservationStatus> status = reservation.get("status");
+
+        LocalTime time = new LocalTime();
+        LocalDate date = new LocalDate();
+
+        Predicate predicate = cb.and(cb.between(startTimeExpr, time, time.plusMinutes(minutes)),
+            cb.equal(startDateExpr, date));
+        cb.or(cb.between(endTimeExpr, time, time.plusMinutes(minutes)), cb.equal(endDateExpr, date));
+        cb.and(status.in(ReservationStatus.TRANSITION_STATES));
+
+        return predicate;
+      }
+    };
+  }
 
   public ReservationStatus getStatus(Reservation reservation) {
     return nbiService.getReservationStatus(reservation.getReservationId());
@@ -162,11 +203,11 @@ public class ReservationService {
    * Starts the {@link ReservationPoller#monitorStatus(Reservation)}, updates
    * the given {@link Reservation} when a status change occurs.
    * 
-   * @param reservation
-   *          The {@link Reservation} to monitor
+   * @param reservations
+   *          The {@link Reservation}s to monitor
    */
-  public void monitorReservationStatus(Reservation reservation) {
-    reservationPoller.monitorStatus(reservation);
+  public void monitorReservationStatus(Reservation... reservations) {
+    reservationPoller.monitorStatus(reservations);
   }
 
   /**
