@@ -100,4 +100,13 @@ public class PhysicalPort {
     return displayName;
   }
 
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("PhysicalPort [id=").append(id).append(", version=").append(version).append(", name=").append(name)
+        .append(", displayName=").append(displayName).append(", networkElementPk=").append(networkElementPk)
+        .append(", physicalResourceGroup=").append(physicalResourceGroup).append("]");
+    return builder.toString();
+  }
+
 }

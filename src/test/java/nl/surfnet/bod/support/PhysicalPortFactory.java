@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.support;
 
+import java.util.UUID;
+
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
@@ -37,6 +39,7 @@ public class PhysicalPortFactory {
     port.setName(name);
     port.setVersion(version);
     port.setPhysicalResourceGroup(physicalResourceGroup);
+    port.setNetworkElementPk(UUID.randomUUID().toString());
 
     return port;
   }
