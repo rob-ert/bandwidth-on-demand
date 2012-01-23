@@ -1,0 +1,1 @@
+ALTER TABLE physical_port ADD COLUMN network_element_pk VARCHAR(255) NOT NULL UNIQUE;
