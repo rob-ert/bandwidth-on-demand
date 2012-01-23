@@ -87,18 +87,21 @@ public class NbiServiceOpenDracTestIntegration {
   public void testCreateReservation() throws Exception {
     final LocalTime nowTime = new LocalTime(System.currentTimeMillis());
     final LocalDate nowDate = new LocalDate(System.currentTimeMillis());
-    final PhysicalPort physicalPort1 = new PhysicalPortFactory().setName("Asd001A_OME12_ETH-1-36-4").create();
-    final VirtualPort source = new VirtualPortFactory().setName("virtualPort1").create();
-    final PhysicalPort physicalPort2 = new PhysicalPortFactory().setName("Ut002A_OME01_ETH-1-1-4").create();
-    final VirtualPort destination = new VirtualPortFactory().setName("virtualPort1").create();
+    
+    final PhysicalPort physicalPort1 = new PhysicalPortFactory().setName("Ut002A_OME01_ETH-1-1-4").create();
+    final VirtualPort source = new VirtualPortFactory().setName("vp1").create();
+    final PhysicalPort physicalPort2 = new PhysicalPortFactory().setName("Ut002A_OME01_ETH-1-2-4").create();
+    final VirtualPort destination = new VirtualPortFactory().setName("vp2").create();
     final Reservation reservation = new ReservationFactory().setStartTime(nowTime.plusMinutes(1))
         .setEndTime(nowTime.plusMinutes(20)).setStartDate(nowDate).setEndDate(nowDate.plusYears(0)).create();
+    
 
     source.setPhysicalPort(physicalPort1);
     destination.setPhysicalPort(physicalPort2);
     reservation.setSourcePort(source);
     reservation.setDestinationPort(destination);
     reservation.setBandwidth(300);
+    reservation.setUserCreated("SN7-BoD-NBI");
 
     final String reservationId = nrbService.createReservation(reservation);
     final ReservationStatus status = nrbService.getReservationStatus(reservationId);

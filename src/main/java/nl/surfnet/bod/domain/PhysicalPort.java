@@ -44,6 +44,10 @@ public class PhysicalPort {
 
   @Nullable
   private String displayName;
+  
+  @Nullable
+  @Column(unique = true, nullable = false)
+  private String networkElementPk;
 
   @ManyToOne
   private PhysicalResourceGroup physicalResourceGroup;
@@ -80,14 +84,12 @@ public class PhysicalPort {
     this.physicalResourceGroup = physicalResourceGroup;
   }
 
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("Id: ").append(getId()).append(", ");
-    sb.append("Name: ").append(getName()).append(", ");
-    sb.append("PhysicalResourceGroup: ").append(getPhysicalResourceGroup()).append(", ");
-    sb.append("Version: ").append(getVersion());
-    return sb.toString();
+  public String getNetworkElementPk() {
+    return networkElementPk;
+  }
+
+  public void setNetworkElementPk(String networkElementPk) {
+    this.networkElementPk = networkElementPk;
   }
 
   public void setDisplayName(final String displayName) {

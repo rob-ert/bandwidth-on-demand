@@ -65,8 +65,6 @@ import com.nortel.appcore.app.drac.server.requesthandler.RequestHandlerException
  */
 class NbiServiceOpenDrac implements NbiService {
 
-  private static final String USER_PORT_TYPE = "UNI";
-
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   private RemoteConnectionProxy remoteConnectionProxy;
@@ -88,6 +86,9 @@ class NbiServiceOpenDrac implements NbiService {
 
   @Value("${nbi.resource.group.name}")
   private String resourceGroupName;
+
+  @Value("${nbi.billing.group.name}")
+  private String billingGroupName;
 
   @SuppressWarnings("unused")
   @PostConstruct
@@ -248,6 +249,7 @@ class NbiServiceOpenDrac implements NbiService {
       final PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroup();
       port.setDisplayName(facility.getAttributes().get("userLabel"));
       port.setName(facility.getName());
+      port.setNetworkElementPk(facility.getId());
       physicalResourceGroup.setAdminGroup(groupName);
       port.setPhysicalResourceGroup(physicalResourceGroup);
       ports.add(port);
@@ -335,7 +337,12 @@ class NbiServiceOpenDrac implements NbiService {
     final EndPointType destEndpoint = new EndPointType();
 
     sourceEndpoint.setName(reservation.getSourcePort().getPhysicalPort().getName());
+    sourceEndpoint.setId(reservation.getSourcePort().getPhysicalPort().getNetworkElementPk());
+    
+    
     destEndpoint.setName(reservation.getDestinationPort().getPhysicalPort().getName());
+    sourceEndpoint.setId(reservation.getDestinationPort().getPhysicalPort().getNetworkElementPk());
+    
     pathType.setProtectionType(PathType.PROTECTION_TYPE.PATH1PLUS1);
     pathType.setVcatRoutingOption(true);
 
@@ -348,8 +355,8 @@ class NbiServiceOpenDrac implements NbiService {
   private UserInfo createUser(final Reservation reservation) {
     final UserInfo userType = new UserInfo();
 
-    userType.setUserId(reservation.getUserCreated());
-    userType.setBillingGroup(new UserGroupName(groupName));
+    userType.setUserId(username);
+    userType.setBillingGroup(new UserGroupName(billingGroupName));
     userType.setSourceEndpointUserGroup(groupName);
     userType.setTargetEndpointUserGroup(groupName);
     userType.setSourceEndpointResourceGroup(resourceGroupName);
