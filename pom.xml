@@ -576,7 +576,7 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>1.5</version>
                 <configuration>
-                    <user>${jdbc.user}</user>
+                    <user>bod_user</user>
                     <password></password>
                     <driver>org.postgresql.Driver</driver>
                     <url>jdbc:postgresql://localhost/bod</url>
