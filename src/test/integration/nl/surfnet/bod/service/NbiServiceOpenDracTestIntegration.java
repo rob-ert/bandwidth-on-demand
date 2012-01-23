@@ -42,7 +42,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -58,8 +57,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class NbiServiceOpenDracTestIntegration {
 
   @Autowired
-  @Qualifier("nbiService")
-  private NbiServiceOpenDrac nrbService;
+  private NbiService nrbService;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -78,32 +76,41 @@ public class NbiServiceOpenDracTestIntegration {
   }
 
   @Test
-  public void testGetAllUniFacilities() throws Exception {
+  public void testFindAllPhysicalPorts() throws Exception {
     final List<PhysicalPort> allPorts = nrbService.findAllPhysicalPorts();
-    assertEquals(3, allPorts.size());
+    assertEquals(14, allPorts.size());
   }
 
+  @Test
+  public void testFindPhysicalPortByName() throws Exception {
+    final PhysicalPort port = nrbService.findPhysicalPortByName("Asd001A_OME3T_ETH-1-1-1");
+    assertEquals("Asd001A_OME3T_ETH-1-1-1", port.getName());
+    System.out.println(port);
+    assertEquals("00-20-D8-DF-33-59_ETH-1-1-1", port.getNetworkElementPk());
+  }
+
+  // @Ignore
   @Test
   public void testCreateReservation() throws Exception {
     final LocalTime nowTime = new LocalTime(System.currentTimeMillis());
     final LocalDate nowDate = new LocalDate(System.currentTimeMillis());
-    
-    final PhysicalPort physicalPort1 = new PhysicalPortFactory().setName("Ut002A_OME01_ETH-1-1-4").create();
+
+    final PhysicalPort physicalPort1 = new PhysicalPortFactory().setName("Asd001A_OME1T_ETH-1-1-2").create();
     final VirtualPort source = new VirtualPortFactory().setName("vp1").create();
-    final PhysicalPort physicalPort2 = new PhysicalPortFactory().setName("Ut002A_OME01_ETH-1-2-4").create();
+    final PhysicalPort physicalPort2 = new PhysicalPortFactory().setName("Asd001A_OME3T_ETH-1-12-3").create();
     final VirtualPort destination = new VirtualPortFactory().setName("vp2").create();
     final Reservation reservation = new ReservationFactory().setStartTime(nowTime.plusMinutes(1))
         .setEndTime(nowTime.plusMinutes(20)).setStartDate(nowDate).setEndDate(nowDate.plusYears(0)).create();
-    
 
     source.setPhysicalPort(physicalPort1);
     destination.setPhysicalPort(physicalPort2);
     reservation.setSourcePort(source);
     reservation.setDestinationPort(destination);
-    reservation.setBandwidth(300);
-    reservation.setUserCreated("SN7-BoD-NBI");
+    reservation.setBandwidth(100);
 
     final String reservationId = nrbService.createReservation(reservation);
+    assertNotNull(reservationId);
+
     final ReservationStatus status = nrbService.getReservationStatus(reservationId);
     assertEquals("SCHEDULED", status.name());
   }

@@ -58,7 +58,7 @@ public class PhysicalPortServiceImplTest {
   private PhysicalPortServiceImpl subject;
 
   @Mock
-  private NbiServiceOpenDrac nbiServiceMock;
+  private NbiServiceOpenDracRmi nbiServiceMock;
   @Mock
   private PhysicalPortRepo physicalPortRepoMock;
 

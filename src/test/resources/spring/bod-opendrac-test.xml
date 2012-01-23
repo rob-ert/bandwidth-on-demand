@@ -21,7 +21,7 @@
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
         http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd">
 
-    <bean id="nbiService" class="nl.surfnet.bod.service.NbiServiceOpenDrac"
+    <bean id="nbiService" class="${nbi.client.class}"
         lazy-init="true" />
 
     <bean
@@ -44,7 +44,6 @@
         <property name="ignoreResourceNotFound" value="false" />
         <property name="locations">
             <list>
-                <value>classpath:bod.properties</value>
                 <value>classpath:env/bod.properties</value>
             </list>
         </property>

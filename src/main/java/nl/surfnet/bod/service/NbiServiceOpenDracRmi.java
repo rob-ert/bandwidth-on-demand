@@ -63,7 +63,7 @@ import com.nortel.appcore.app.drac.server.requesthandler.RequestHandlerException
  * @author robert
  * 
  */
-class NbiServiceOpenDrac implements NbiService {
+class NbiServiceOpenDracRmi implements NbiService {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
