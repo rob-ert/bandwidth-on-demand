@@ -31,32 +31,22 @@
 
     <jpa:repositories base-package="nl.surfnet.bod" />
 
-    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-        <property name="user" value="${jdbc.user}" />
-        <property name="password" value="${jdbc.password}" />
-        <property name="driverClass" value="${jdbc.driverClass}" />
-        <property name="jdbcUrl" value="${jdbc.jdbcUrl}" />
-        <property name="initialPoolSize" value="${jdbc.initialPoolSize}" />
-        <property name="maxPoolSize" value="${jdbc.maxPoolSize}" />
-        <property name="minPoolSize" value="${jdbc.minPoolSize}" />
-        <property name="acquireIncrement" value="${jdbc.acquireIncrement}" />
-        <property name="acquireRetryAttempts" value="${jdbc.acquireRetryAttempts}" />
-        <property name="idleConnectionTestPeriod" value="${jdbc.idleConnectionTestPeriod}" />
+    <bean id="test-dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="user" value="sa" />
+        <property name="password" value="" />
+        <property name="driverClass" value="org.h2.Driver" />
+        <property name="jdbcUrl" value="jdbc:h2:mem:bod-tmp-db;FILE_LOCK=NO;DB_CLOSE_DELAY=-1;TRACE_LEVEL_SYSTEM_OUT=0;TRACE_LEVEL_FILE=2" />
     </bean>
-
-    <bean id="flyway" class="com.googlecode.flyway.core.Flyway" init-method="migrate">
-        <property name="dataSource" ref="dataSource"/>
-    </bean>
-    
+        
     <bean class="org.springframework.orm.jpa.JpaTransactionManager" id="transactionManager">
         <property name="entityManagerFactory" ref="entityManagerFactory" />
     </bean>
 
     <bean
         class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
-        id="entityManagerFactory" depends-on="flyway">
-        <property name="persistenceUnitName" value="persistenceUnit" />
-        <property name="dataSource" ref="dataSource" />
+        id="entityManagerFactory">
+        <property name="persistenceUnitName" value="testDb" />
+        <property name="dataSource" ref="test-dataSource" />
     </bean>
     
 </beans>

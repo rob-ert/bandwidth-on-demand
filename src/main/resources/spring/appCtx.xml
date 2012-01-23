@@ -41,31 +41,7 @@
 
 	<task:annotation-driven />
 
-	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-		<property name="user" value="${jdbc.user}" />
-		<property name="password" value="${jdbc.password}" />
-		<property name="driverClass" value="${jdbc.driverClass}" />
-		<property name="jdbcUrl" value="${jdbc.jdbcUrl}" />
-		<property name="initialPoolSize" value="${jdbc.initialPoolSize}" />
-		<property name="maxPoolSize" value="${jdbc.maxPoolSize}" />
-		<property name="minPoolSize" value="${jdbc.minPoolSize}" />
-		<property name="acquireIncrement" value="${jdbc.acquireIncrement}" />
-		<property name="acquireRetryAttempts" value="${jdbc.acquireRetryAttempts}" />
-		<property name="idleConnectionTestPeriod" value="${jdbc.idleConnectionTestPeriod}" />
-	</bean>
-
-	<bean class="org.springframework.orm.jpa.JpaTransactionManager" id="transactionManager">
-		<property name="entityManagerFactory" ref="entityManagerFactory" />
-	</bean>
-
 	<tx:annotation-driven mode="aspectj" transaction-manager="transactionManager" />
-
-	<bean
-		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
-		id="entityManagerFactory">
-		<property name="persistenceUnitName" value="persistenceUnit" />
-		<property name="dataSource" ref="dataSource" />
-	</bean>
 
 	<!-- (Encrypted) PropertyPlaceholderConfigurer -->
 	<bean
@@ -86,8 +62,8 @@
 		<property name="ignoreResourceNotFound" value="false" />
 		<property name="locations">
 			<list>
-				<value>classpath:bod.properties</value>
-                <value>classpath:env/bod.properties</value>
+                <value>classpath:bod-default.properties</value>
+                <value>classpath:**/bod.properties</value>
 			</list>
 		</property>
 		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
