@@ -57,7 +57,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class NbiServiceOpenDracTestIntegration {
 
   @Autowired
-  private NbiService nrbService;
+  private NbiService nbiService;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -77,13 +77,13 @@ public class NbiServiceOpenDracTestIntegration {
 
   @Test
   public void testFindAllPhysicalPorts() throws Exception {
-    final List<PhysicalPort> allPorts = nrbService.findAllPhysicalPorts();
+    final List<PhysicalPort> allPorts = nbiService.findAllPhysicalPorts();
     assertEquals(14, allPorts.size());
   }
 
   @Test
   public void testFindPhysicalPortByName() throws Exception {
-    final PhysicalPort port = nrbService.findPhysicalPortByName("Asd001A_OME3T_ETH-1-1-1");
+    final PhysicalPort port = nbiService.findPhysicalPortByName("Asd001A_OME3T_ETH-1-1-1");
     assertEquals("Asd001A_OME3T_ETH-1-1-1", port.getName());
     System.out.println(port);
     assertEquals("00-20-D8-DF-33-59_ETH-1-1-1", port.getNetworkElementPk());
@@ -108,11 +108,14 @@ public class NbiServiceOpenDracTestIntegration {
     reservation.setDestinationPort(destination);
     reservation.setBandwidth(100);
 
-    final String reservationId = nrbService.createReservation(reservation);
+    final String reservationId = nbiService.createReservation(reservation);
     assertNotNull(reservationId);
 
-    final ReservationStatus status = nrbService.getReservationStatus(reservationId);
+    final ReservationStatus status = nbiService.getReservationStatus(reservationId);
     assertEquals("SCHEDULED", status.name());
+    
+    nbiService.cancelReservation(reservationId);
   }
+  
 
 }

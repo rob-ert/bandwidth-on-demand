@@ -21,8 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleStatusT.*;
 import static nl.surfnet.bod.domain.ReservationStatus.*;
+import static org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleStatusT.*;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -51,6 +51,8 @@ import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsRequ
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsResponseDocument;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.ValidEndpointsQueryTypeT;
 import org.opendrac.www.ws.resourceallocationandschedulingservice.v3_0.ResourceAllocationAndSchedulingService_v30Stub;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CancelReservationScheduleRequestDocument;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CancelReservationScheduleRequestDocument.CancelReservationScheduleRequest;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleResponseDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.PathRequestT;
@@ -68,11 +70,12 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper.CryptedString;
+import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.CompletionResponseDocument;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 
 /**
- * A bridge to OpenDRAC's {@link NrbInterface}. Everything is contained in this
- * one class so that only this class is linked to OpenDRAC related classes.
+ * A bridge to OpenDRAC's web services. Everything is contained in this one
+ * class so that only this class is linked to OpenDRAC related classes.
  * 
  * @author robert
  * 
@@ -114,11 +117,11 @@ class NbiServiceOpenDracWs implements NbiService {
     try {
       schedulingService = new ResourceAllocationAndSchedulingService_v30Stub(schedulingServiceUrl);
       networkingService = new NetworkMonitoringService_v30Stub(networkServiceUrl);
+      getSecurityDocument();
     }
     catch (IOException e) {
       log.error("Error: ", e);
     }
-
   }
 
   /*
@@ -128,8 +131,18 @@ class NbiServiceOpenDracWs implements NbiService {
    */
   @Override
   public void cancelReservation(final String reservationId) {
-    throw new UnsupportedOperationException();
-
+    final CancelReservationScheduleRequestDocument requestDocument = CancelReservationScheduleRequestDocument.Factory
+        .newInstance();
+    final CancelReservationScheduleRequest request = requestDocument.addNewCancelReservationScheduleRequest();
+    request.setReservationScheduleId(reservationId);
+    try {
+      final CompletionResponseDocument response = schedulingService.cancelReservationSchedule(requestDocument,
+          getSecurityDocument());
+      log.info("Status: {}", response.getCompletionResponse().getResult());
+    }
+    catch (Exception e) {
+      log.error("Error: ", e);
+    }
   }
 
   /*
@@ -141,10 +154,10 @@ class NbiServiceOpenDracWs implements NbiService {
   @Override
   public String createReservation(final Reservation reservation) {
     try {
-      final CreateReservationScheduleResponseDocument resSchedRespDoc = schedulingService.createReservationSchedule(
+      final CreateReservationScheduleResponseDocument responseDocument = schedulingService.createReservationSchedule(
           createSchedule(reservation), getSecurityDocument());
-      log.info("Response: " + resSchedRespDoc.getCreateReservationScheduleResponse());
-      return resSchedRespDoc.getCreateReservationScheduleResponse().getReservationScheduleId();
+      log.info("Response: {}", responseDocument.getCreateReservationScheduleResponse());
+      return responseDocument.getCreateReservationScheduleResponse().getReservationScheduleId();
     }
     catch (Exception e) {
       log.error("Error: ", e);
@@ -161,7 +174,6 @@ class NbiServiceOpenDracWs implements NbiService {
   @Override
   public void extendReservation(final String reservationId, final int minutes) {
     throw new UnsupportedOperationException();
-
   }
 
   /*
@@ -171,7 +183,6 @@ class NbiServiceOpenDracWs implements NbiService {
    */
   @Override
   public List<PhysicalPort> findAllPhysicalPorts() {
-
     final List<PhysicalPort> ports = new ArrayList<PhysicalPort>();
     for (final EndpointT endpoint : findAllEndPointTypes()) {
       final PhysicalPort port = getPhysicalPort(endpoint);
@@ -203,23 +214,23 @@ class NbiServiceOpenDracWs implements NbiService {
    */
   @Override
   public ReservationStatus getReservationStatus(final String reservationId) {
-
-    QueryReservationScheduleRequestDocument queryResSchedReqDoc = QueryReservationScheduleRequestDocument.Factory
+    final QueryReservationScheduleRequestDocument requestDocument = QueryReservationScheduleRequestDocument.Factory
         .newInstance();
-    queryResSchedReqDoc.addNewQueryReservationScheduleRequest();
-    queryResSchedReqDoc.getQueryReservationScheduleRequest().setReservationScheduleId(reservationId);
+    requestDocument.addNewQueryReservationScheduleRequest();
+    requestDocument.getQueryReservationScheduleRequest().setReservationScheduleId(reservationId);
 
-    QueryReservationScheduleResponseDocument queryRespDoc = null;
+    QueryReservationScheduleResponseDocument responseDocument = null;
     try {
-      queryRespDoc = schedulingService.queryReservationSchedule(queryResSchedReqDoc, getSecurityDocument());
+      responseDocument = schedulingService.queryReservationSchedule(requestDocument, getSecurityDocument());
     }
     catch (Exception e) {
       log.error("Error: ", e);
     }
 
-    boolean isFound = queryRespDoc.getQueryReservationScheduleResponse().getIsFound();
+    final boolean isFound = responseDocument.getQueryReservationScheduleResponse().getIsFound();
     if (isFound) {
-      ReservationScheduleT schedule = queryRespDoc.getQueryReservationScheduleResponse().getReservationSchedule();
+      final ReservationScheduleT schedule = responseDocument.getQueryReservationScheduleResponse()
+          .getReservationSchedule();
       final Enum status = schedule.getStatus();
 
       // Translate OpenDRAC schedule status or state to BoD's reservation status
@@ -267,71 +278,70 @@ class NbiServiceOpenDracWs implements NbiService {
   }
 
   private CreateReservationScheduleRequestDocument createSchedule(final Reservation reservation) {
-    final CreateReservationScheduleRequestDocument reservationScheduleRequestDocument = CreateReservationScheduleRequestDocument.Factory
+    final CreateReservationScheduleRequestDocument requestDocument = CreateReservationScheduleRequestDocument.Factory
         .newInstance();
-    final CreateReservationScheduleRequestDocument.CreateReservationScheduleRequest reservationScheduleRequest = reservationScheduleRequestDocument
+    final CreateReservationScheduleRequestDocument.CreateReservationScheduleRequest request = requestDocument
         .addNewCreateReservationScheduleRequest();
-    final ReservationScheduleRequestT reservationSched = reservationScheduleRequest.addNewReservationSchedule();
-    reservationSched.setName(reservation.getUserCreated() + "-" + System.currentTimeMillis());
-    reservationSched.setType(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC);
+    final ReservationScheduleRequestT schedule = request.addNewReservationSchedule();
+    schedule.setName(reservation.getUserCreated() + "-" + System.currentTimeMillis());
+    schedule.setType(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC);
     final Calendar calendar = Calendar.getInstance();
     calendar.setTime(reservation.getStartDateTime().toDate());
-    reservationSched.setStartTime(calendar);
-
+    schedule.setStartTime(calendar);
     final long start = reservation.getStartDateTime().toDate().getTime();
     final long end = reservation.getEndDateTime().toDate().getTime();
-    reservationSched.setReservationOccurrenceDuration((int) ((end - start) / 1000));
-    reservationSched.setIsRecurring(false);
-    PathRequestT pathReq = createPath(reservation);
-    reservationSched.setPath(pathReq);
-    UserInfoT userInfo = createUser(reservation);
-    reservationSched.setUserInfo(userInfo);
-
-    return reservationScheduleRequestDocument;
+    schedule.setReservationOccurrenceDuration((int) ((end - start) / 1000 / 60));
+    schedule.setIsRecurring(false);
+    final PathRequestT pathRequest = createPath(reservation);
+    schedule.setPath(pathRequest);
+    final UserInfoT userInfo = createUser(reservation);
+    schedule.setUserInfo(userInfo);
+    return requestDocument;
 
   }
 
   private UserInfoT createUser(final Reservation reservation) {
-    UserInfoT userInfo = UserInfoT.Factory.newInstance();
+    final UserInfoT userInfo = UserInfoT.Factory.newInstance();
     userInfo.setBillingGroup(billingGroupName);
     userInfo.setSourceEndpointResourceGroup(resourceGroupName);
     userInfo.setSourceEndpointUserGroup(groupName);
     userInfo.setTargetEndpointResourceGroup(resourceGroupName);
     userInfo.setTargetEndpointUserGroup(groupName);
     return userInfo;
-
   }
 
   private PathRequestT createPath(final Reservation reservation) {
-    PathRequestT pathReq = PathRequestT.Factory.newInstance();
-    pathReq.setSourceTna(reservation.getSourcePort().getPhysicalPort().getName());
-    pathReq.setTargetTna(reservation.getDestinationPort().getPhysicalPort().getName());
-    pathReq.setRate(reservation.getBandwidth());
-    pathReq.setSourceVlanId("Untagged");
-    pathReq.setTargetVlanId("Untagged");
-    pathReq.setRoutingAlgorithm("VCAT");
+    final PathRequestT pathRequest = PathRequestT.Factory.newInstance();
+    pathRequest.setSourceTna(reservation.getSourcePort().getPhysicalPort().getName());
+    pathRequest.setTargetTna(reservation.getDestinationPort().getPhysicalPort().getName());
+    pathRequest.setRate(reservation.getBandwidth());
+    // TODO: Set untagged as default in view and get the real value here from
+    // the reservation
+    pathRequest.setSourceVlanId("Untagged");
+    pathRequest.setTargetVlanId("Untagged");
+    pathRequest.setRoutingAlgorithm("VCAT");
     ValidProtectionTypeT.Enum pType = ValidProtectionTypeT.Enum.forString("1Plus1Path");
-    pathReq.setProtectionType(pType);
-    return pathReq;
+    pathRequest.setProtectionType(pType);
+    return pathRequest;
 
   }
 
   private List<EndpointT> findAllEndPointTypes() {
     try {
-      final QueryEndpointsRequestDocument queryEndpointsRequest31 = QueryEndpointsRequestDocument.Factory.newInstance();
-      final QueryEndpointsRequest queryEndpointsRequest = queryEndpointsRequest31.addNewQueryEndpointsRequest();
-      queryEndpointsRequest.setUserGroup(groupName);
-      queryEndpointsRequest.setLayer(ValidLayerT.LAYER_2);
-      queryEndpointsRequest.setType(ValidEndpointsQueryTypeT.QUERY_ENDPOINTS_BY_LAYER_AND_USER_GROUP_T);
-      final QueryEndpointsResponseDocument endpoints = networkingService.queryEndpoints(queryEndpointsRequest31,
+      final QueryEndpointsRequestDocument requestDocument = QueryEndpointsRequestDocument.Factory.newInstance();
+      final QueryEndpointsRequest request = requestDocument.addNewQueryEndpointsRequest();
+      request.setUserGroup(groupName);
+      request.setLayer(ValidLayerT.LAYER_2);
+      request.setType(ValidEndpointsQueryTypeT.QUERY_ENDPOINTS_BY_LAYER_AND_USER_GROUP_T);
+      final QueryEndpointsResponseDocument response = networkingService.queryEndpoints(requestDocument,
           getSecurityDocument());
 
-      final List<EndpointT> newPoints = new ArrayList<EndpointT>();
-      for (final String tna : endpoints.getQueryEndpointsResponse().getTnaArray()) {
+      final List<EndpointT> endPoints = new ArrayList<EndpointT>();
+      for (final String tna : response.getQueryEndpointsResponse().getTnaArray()) {
         log.info("networkingService: " + tna);
-        newPoints.add(findEndpointByTna(tna));
+        endPoints.add(findEndpointByTna(tna));
       }
-      return newPoints;
+      return endPoints;
     }
     catch (Exception e) {
       log.error("Error: ", e);
@@ -341,22 +351,21 @@ class NbiServiceOpenDracWs implements NbiService {
   }
 
   private EndpointT findEndpointByTna(final String tna) throws RemoteException, NetworkMonitoringServiceFault {
-    final QueryEndpointRequestDocument queryEndpointRequest31 = QueryEndpointRequestDocument.Factory.newInstance();
-    final QueryEndpointRequest queryEndpointRequest = queryEndpointRequest31.addNewQueryEndpointRequest();
-    queryEndpointRequest.setTna(tna);
-    final QueryEndpointResponseDocument endpoint = networkingService.queryEndpoint(queryEndpointRequest31,
+    final QueryEndpointRequestDocument requestDocument = QueryEndpointRequestDocument.Factory.newInstance();
+    final QueryEndpointRequest request = requestDocument.addNewQueryEndpointRequest();
+    request.setTna(tna);
+    final QueryEndpointResponseDocument response = networkingService.queryEndpoint(requestDocument,
         getSecurityDocument());
-    final EndpointT endpointFound = endpoint.getQueryEndpointResponse().getEndpoint();
+    final EndpointT endpointFound = response.getQueryEndpointResponse().getEndpoint();
     log.info("endpointFound: " + endpointFound);
     return endpointFound;
   }
 
-  private PhysicalPort getPhysicalPort(final EndpointT facility) {
+  private PhysicalPort getPhysicalPort(final EndpointT endpoint) {
     final PhysicalPort port = new PhysicalPort();
     final PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroup();
-    // port.setDisplayName(facility.getAttributes().get("userLabel"));
-    port.setName(facility.getTna());
-    port.setNetworkElementPk(facility.getId());
+    port.setName(endpoint.getTna());
+    port.setNetworkElementPk(endpoint.getId());
     physicalResourceGroup.setAdminGroup(groupName);
     port.setPhysicalResourceGroup(physicalResourceGroup);
     return port;
