@@ -411,6 +411,24 @@
             <version>${opendrac.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.1-901.jdbc4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.googlecode.flyway</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>1.5</version>
+             <exclusions>
+                <exclusion>
+                   <groupId>org.springframework</groupId>
+                   <artifactId>spring-jdbc</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -454,7 +472,6 @@
                     <source>1.6</source>
                     <target>1.6</target>
                     <encoding>UTF-8</encoding>
-                    <debug>true</debug>
                 </configuration>
             </plugin>
             <plugin>
@@ -474,13 +491,13 @@
                     <scanIntervalSeconds>0</scanIntervalSeconds>
                     <webAppConfig>
                         <contextPath>/${project.name}</contextPath>
-                        <extraClasspath>src/test/resources</extraClasspath>
+                        <extraClasspath>src/test/resources/env/</extraClasspath>
                     </webAppConfig>
                     <connectors>
                       <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                         <port>8082</port>
                         <maxIdleTime>60000</maxIdleTime>
-                        </connector>
+                      </connector>
                     </connectors>
                 </configuration>
             </plugin>
@@ -553,7 +570,20 @@
                     </excludes>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>com.googlecode.flyway</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>1.5</version>
+                <configuration>
+                    <user>bod_user</user>
+                    <password></password>
+                    <driver>org.postgresql.Driver</driver>
+                    <url>jdbc:postgresql://localhost/bod</url>
+                </configuration>
+            </plugin>
         </plugins>
+
     </build>
 
     <profiles>
@@ -708,13 +738,13 @@
             <name>COIN Repository</name>
             <url>http://bamboo-dev.coin.surfnetlabs.nl</url>
         </repository>
-        <!-- <repository>
-            <id>opendrac-artifactory</id>
+        <repository>
+            <id>opendrac-maven-snapshot</id>
             <name>OpenDRAC Repository</name>
             <url>http://dev.dlp.surfnet.nl/artifactory/libs-snapshot-local</url>
-        </repository> -->
+        </repository>
         <repository>
-            <id>opendrac-artifactory</id>
+            <id>opendrac-maven-release</id>
             <name>OpenDRAC Repository</name>
             <url>http://dev.dlp.surfnet.nl/artifactory/libs-release-local</url>
         </repository>

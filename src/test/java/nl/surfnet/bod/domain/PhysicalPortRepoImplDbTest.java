@@ -46,7 +46,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa.xml", "/spring/appCtx-nbi-client.xml",
+@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml", "/spring/appCtx-nbi-client.xml",
     "/spring/appCtx-idd-client.xml" })
 @Transactional
 public class PhysicalPortRepoImplDbTest {
@@ -65,7 +65,7 @@ public class PhysicalPortRepoImplDbTest {
   private PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(null).create();
   private PhysicalPort physicalPort = physicalPortFactory.setPhysicalResourceGroup(group).setId(null).create();
 
-  
+
   @Test
   public void findPhysicalPort() {
     PhysicalPort physicalPort = physicalPortFactory.create();

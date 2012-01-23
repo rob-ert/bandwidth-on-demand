@@ -41,7 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.ImmutableList;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa.xml", "/spring/appCtx-nbi-client.xml",
+@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml", "/spring/appCtx-nbi-client.xml",
     "/spring/appCtx-idd-client.xml" })
 @Transactional
 public class PhysicalResourceGroupRepoTest {
@@ -56,7 +56,7 @@ public class PhysicalResourceGroupRepoTest {
     PhysicalResourceGroup physicalResourceGroupOne = physicalResourceGroupFactory.setId(null).setInstituteId(1L).create();
 
     PhysicalResourceGroup physicalResourceGroupTwo = physicalResourceGroupFactory.setId(null).setInstituteId(2L).create();
-    
+
     given(physicalResourceGroupOne, physicalResourceGroupTwo);
 
     PhysicalResourceGroup foundPhysicalResourceGroup = subject.findByInstituteId(1L);
@@ -73,7 +73,7 @@ public class PhysicalResourceGroupRepoTest {
 
     PhysicalResourceGroup firstPhysicalResourceGroup = physicalResourceGroupFactory.setId(null)
         .setAdminGroupName(firstAdminGroup).setInstituteId(1L).create();
-    
+
     given(firstPhysicalResourceGroup,
         physicalResourceGroupFactory.setId(null).setInstituteId(2L).setAdminGroupName("urn:noMatch").create());
 
