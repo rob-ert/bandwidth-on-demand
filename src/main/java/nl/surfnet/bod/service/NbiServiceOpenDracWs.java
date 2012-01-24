@@ -38,6 +38,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 
+import org.joda.time.Minutes;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.Security;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.SecurityDocument;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.UsernameToken;
@@ -55,6 +56,7 @@ import org.opendrac.www.ws.resourceallocationandschedulingservice.v3_0.ResourceA
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CancelReservationScheduleRequestDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CancelReservationScheduleRequestDocument.CancelReservationScheduleRequest;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument.CreateReservationScheduleRequest;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleResponseDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.PathRequestT;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.QueryReservationScheduleRequestDocument;
@@ -274,23 +276,31 @@ class NbiServiceOpenDracWs implements NbiService {
         return null;
       }
     }
-    return null;
+    else {
+      log.info("No reservation found for reservation id: {}, returning null", reservationId);
+      return null;
+    }
+
   }
 
   private CreateReservationScheduleRequestDocument createSchedule(final Reservation reservation) {
     final CreateReservationScheduleRequestDocument requestDocument = CreateReservationScheduleRequestDocument.Factory
         .newInstance();
-    final CreateReservationScheduleRequestDocument.CreateReservationScheduleRequest request = requestDocument
-        .addNewCreateReservationScheduleRequest();
+    final CreateReservationScheduleRequest request = requestDocument.addNewCreateReservationScheduleRequest();
     final ReservationScheduleRequestT schedule = request.addNewReservationSchedule();
     schedule.setName(reservation.getUserCreated() + "-" + System.currentTimeMillis());
     schedule.setType(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC);
+
+    int duration = Minutes.minutesBetween(reservation.getStartDateTime(), reservation.getEndDateTime()).getMinutes();
     final Calendar calendar = Calendar.getInstance();
     calendar.setTime(reservation.getStartDateTime().toDate());
     schedule.setStartTime(calendar);
-    final long start = reservation.getStartDateTime().toDate().getTime();
-    final long end = reservation.getEndDateTime().toDate().getTime();
-    schedule.setReservationOccurrenceDuration((int) ((end - start) / 1000 / 60));
+    // final long start = reservation.getStartDateTime().toDate().getTime();
+    // final long end = reservation.getEndDateTime().toDate().getTime();
+    // schedule.setReservationOccurrenceDuration((int) ((end - start) / 1000 /
+    // 60));
+    schedule.setReservationOccurrenceDuration(duration);
+
     schedule.setIsRecurring(false);
     final PathRequestT pathRequest = createPath(reservation);
     schedule.setPath(pathRequest);
