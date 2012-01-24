@@ -68,7 +68,7 @@ import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.Rese
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ReservationScheduleT;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.UserInfoT;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidProtectionTypeT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleStatusT.Enum;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleStatusT;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleTypeT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,6 +95,10 @@ class NbiServiceOpenDracWs implements NbiService {
   private ResourceAllocationAndSchedulingService_v30Stub schedulingService;
 
   private SecurityDocument securityDocument;
+
+  public static final String ROUTING_ALGORITHM = "VCAT";
+  public static final String DEFAULT_VID = "Untagged";
+  public static final ValidProtectionTypeT.Enum DEFAULT_PROTECTIONTYPE = ValidProtectionTypeT.X_1_PLUS_1_PATH;
 
   @Value("${nbi.billing.group.name}")
   private String billingGroupName;
@@ -251,7 +255,7 @@ class NbiServiceOpenDracWs implements NbiService {
     if (isFound) {
       final ReservationScheduleT schedule = responseDocument.getQueryReservationScheduleResponse()
           .getReservationSchedule();
-      final Enum status = schedule.getStatus();
+      final ValidReservationScheduleStatusT.Enum status = schedule.getStatus();
 
       // Translate OpenDRAC schedule status or state to BoD's reservation status
       if (status == CONFIRMATION_PENDING) {
@@ -306,6 +310,9 @@ class NbiServiceOpenDracWs implements NbiService {
         .newInstance();
     final CreateReservationScheduleRequest request = requestDocument.addNewCreateReservationScheduleRequest();
     final ReservationScheduleRequestT schedule = request.addNewReservationSchedule();
+    final PathRequestT pathRequest = createPath(reservation);
+    final UserInfoT userInfo = createUser(reservation);
+
     schedule.setName(reservation.getUserCreated() + "-" + System.currentTimeMillis());
     schedule.setType(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC);
 
@@ -314,11 +321,8 @@ class NbiServiceOpenDracWs implements NbiService {
     schedule.setStartTime(calendar);
     schedule.setReservationOccurrenceDuration(Minutes.minutesBetween(reservation.getStartDateTime(),
         reservation.getEndDateTime()).getMinutes());
-
     schedule.setIsRecurring(false);
-    final PathRequestT pathRequest = createPath(reservation);
     schedule.setPath(pathRequest);
-    final UserInfoT userInfo = createUser(reservation);
     schedule.setUserInfo(userInfo);
     return requestDocument;
   }
@@ -341,19 +345,19 @@ class NbiServiceOpenDracWs implements NbiService {
     pathRequest.setTargetTna(virtualDestinationPort.getPhysicalPort().getName());
     pathRequest.setRate(reservation.getBandwidth());
     if (virtualSourcePort.getVlanId() == null) {
-      pathRequest.setSourceVlanId("Untagged");
+      pathRequest.setSourceVlanId(DEFAULT_VID);
     }
     else {
       pathRequest.setSourceVlanId(virtualSourcePort.getVlanId().toString());
     }
     if (virtualDestinationPort.getVlanId() == null) {
-      pathRequest.setTargetVlanId("Untagged");
+      pathRequest.setTargetVlanId(DEFAULT_VID);
     }
     else {
       pathRequest.setTargetVlanId(virtualDestinationPort.getVlanId().toString());
     }
-    pathRequest.setRoutingAlgorithm("VCAT");
-    pathRequest.setProtectionType(ValidProtectionTypeT.Enum.forString("1Plus1Path"));
+    pathRequest.setRoutingAlgorithm(ROUTING_ALGORITHM);
+    pathRequest.setProtectionType(DEFAULT_PROTECTIONTYPE);
     return pathRequest;
   }
 
@@ -408,7 +412,7 @@ class NbiServiceOpenDracWs implements NbiService {
       final UsernameToken token = security.addNewUsernameToken();
       token.setUsername(username);
       try {
-        token.setPassword(new String(CryptoWrapper.getInstance().decrypt(new CryptedString(encryptedPassword))));
+        token.setPassword(CryptoWrapper.getInstance().decrypt(new CryptedString(encryptedPassword)));
       }
       catch (Exception e) {
         log.error("Error: ", e);

@@ -47,7 +47,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * This test only works against a default OpenDRAC (with standard admin pwd)
- * with the simulator and the 6 simulated NE's
+ * with the simulator and the 6 simulated NE's or against production.
  * 
  * @author robert
  * 
@@ -111,11 +111,13 @@ public class NbiServiceOpenDracTestIntegration {
     final String reservationId = nbiService.createReservation(reservation);
     assertNotNull(reservationId);
 
-    final ReservationStatus status = nbiService.getReservationStatus(reservationId);
-    assertEquals("SCHEDULED", status.name());
-    
-//    nbiService.cancelReservation(reservationId);
+    ReservationStatus status = nbiService.getReservationStatus(reservationId);
+    assertEquals(ReservationStatus.SCHEDULED, status);
+
+    nbiService.cancelReservation(reservationId);
+
+    status = nbiService.getReservationStatus(reservationId);
+    assertEquals(ReservationStatus.CANCELLED, status);
   }
-  
 
 }
