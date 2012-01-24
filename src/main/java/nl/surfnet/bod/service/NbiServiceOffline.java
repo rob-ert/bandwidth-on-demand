@@ -21,13 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 
 import javax.annotation.PostConstruct;
@@ -39,52 +33,60 @@ import nl.surfnet.bod.domain.ReservationStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+
 class NbiServiceOffline implements NbiService {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private final List<ReservationStatus> values = Collections
-      .unmodifiableList(Arrays.asList(ReservationStatus.values()));
-  private final int size = values.size();
   private final Random random = new Random();
-  private final Map<String, PhysicalPort> ports = new HashMap<String, PhysicalPort>();
+
+  private final List<ReservationStatus> reservationStatuses = ImmutableList.copyOf(ReservationStatus.values());
+  private final List<PhysicalPort> ports = Lists.newArrayList();
+
+  public NbiServiceOffline() {
+    ports.add(createPhysicalPort("Ut002A_OME01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-1-1-4"));
+    ports.add(createPhysicalPort("Ut002A_OME01_ETH-1-2-4", "00-1B-25-2D-DA-65_ETH-1-2-4"));
+    ports.add(createPhysicalPort("ETH10G-1-13-1", "00-21-E1-D6-D6-70_ETH10G-1-13-1"));
+    ports.add(createPhysicalPort("ETH10G-1-13-2", "00-21-E1-D6-D6-70_ETH10G-1-13-2"));
+    ports.add(createPhysicalPort("ETH-1-13-4", "00-21-E1-D6-D5-DC_ETH-1-13-4"));
+    ports.add(createPhysicalPort("ETH10G-1-13-1", "00-21-E1-D6-D5-DC_ETH10G-1-13-1"));
+    ports.add(createPhysicalPort("ETH10G-1-13-2", "00-21-E1-D6-D5-DC_ETH10G-1-13-2"));
+    ports.add(createPhysicalPort("ETH10G-1-5-1", "00-20-D8-DF-33-8B_ETH10G-1-5-1"));
+    ports.add(createPhysicalPort("OME0039_OC12-1-12-1", "00-21-E1-D6-D6-70_OC12-1-12-1"));
+    ports.add(createPhysicalPort("WAN-1-4-102", "00-20-D8-DF-33-86_WAN-1-4-102"));
+    ports.add(createPhysicalPort("ETH-1-3-1", "00-21-E1-D6-D6-70_ETH-1-3-1"));
+    ports.add(createPhysicalPort("ETH-1-1-1", "00-21-E1-D6-D5-DC_ETH-1-1-1"));
+    ports.add(createPhysicalPort("ETH-1-2-3", "00-20-D8-DF-33-8B_ETH-1-2-3"));
+    ports.add(createPhysicalPort("WAN-1-4-101", "00-20-D8-DF-33-86_WAN-1-4-101"));
+    ports.add(createPhysicalPort("ETH-1-1-2", "00-21-E1-D6-D5-DC_ETH-1-1-2"));
+    ports.add(createPhysicalPort("OME0039_OC12-1-12-2", "00-21-E1-D6-D6-70_OC12-1-12-2"));
+    ports.add(createPhysicalPort("ETH-1-13-5", "00-21-E1-D6-D5-DC_ETH-1-13-5"));
+    ports.add(createPhysicalPort("ETH10G-1-13-3", "00-21-E1-D6-D5-DC_ETH10G-1-13-3"));
+  }
 
   @SuppressWarnings("unused")
   @PostConstruct
   private void init() {
     log.info("USING OFFLINE NBI CLIENT!");
+  }
 
-    final Map<String, String> names = new HashMap<String, String>();
-    names.put("ETH-1-13-4", "00-21-E1-D6-D6-70_ETH-1-13-4");
-    names.put("ETH10G-1-13-1", "00-21-E1-D6-D6-70_ETH10G-1-13-1");
-    names.put("ETH10G-1-13-2", "00-21-E1-D6-D6-70_ETH10G-1-13-2");
-    names.put("ETH-1-13-4", "00-21-E1-D6-D5-DC_ETH-1-13-4");
-    names.put("ETH10G-1-13-1", "00-21-E1-D6-D5-DC_ETH10G-1-13-1");
-    names.put("ETH10G-1-13-2", "00-21-E1-D6-D5-DC_ETH10G-1-13-2");
-    names.put("ETH10G-1-5-1", "00-20-D8-DF-33-8B_ETH10G-1-5-1");
-    names.put("OME0039_OC12-1-12-1", "00-21-E1-D6-D6-70_OC12-1-12-1");
-    names.put("WAN-1-4-102", "00-20-D8-DF-33-86_WAN-1-4-102");
-    names.put("ETH-1-3-1", "00-21-E1-D6-D6-70_ETH-1-3-1");
-    names.put("ETH-1-1-1", "00-21-E1-D6-D5-DC_ETH-1-1-1");
-    names.put("ETH-1-2-3", "00-20-D8-DF-33-8B_ETH-1-2-3");
-    names.put("WAN-1-4-101", "00-20-D8-DF-33-86_WAN-1-4-101");
-    names.put("ETH-1-1-2", "00-21-E1-D6-D5-DC_ETH-1-1-2");
-    names.put("OME0039_OC12-1-12-2", "00-21-E1-D6-D6-70_OC12-1-12-2");
-    names.put("ETH-1-13-5", "00-21-E1-D6-D5-DC_ETH-1-13-5");
-    names.put("ETH10G-1-13-3", "00-21-E1-D6-D5-DC_ETH10G-1-13-3");
+  private PhysicalPort createPhysicalPort(String name, String networkElementPk) {
+    PhysicalPort physicalPort = new PhysicalPort();
+    physicalPort.setName(name);
+    physicalPort.setNetworkElementPk(networkElementPk);
 
-    for (final Entry<String, String> entry : names.entrySet()) {
-      final PhysicalPort physicalPort = new PhysicalPort();
-      physicalPort.setDisplayName(entry.getKey());
-      physicalPort.setName(entry.getValue());
-      ports.put(entry.getValue(), physicalPort);
-    }
-
+    return physicalPort;
   }
 
   @Override
   public List<PhysicalPort> findAllPhysicalPorts() {
-    return new ArrayList<PhysicalPort>(ports.values());
+    return Lists.newArrayList(ports);
   }
 
   @Override
@@ -93,8 +95,15 @@ class NbiServiceOffline implements NbiService {
   }
 
   @Override
-  public PhysicalPort findPhysicalPortByName(String name) {
-    return ports.get(name);
+  public PhysicalPort findPhysicalPortByName(final String name) {
+    Preconditions.checkNotNull(Strings.emptyToNull(name));
+
+    return Iterables.find(ports, new Predicate<PhysicalPort>() {
+      @Override
+      public boolean apply(PhysicalPort port) {
+        return name.equals(port.getName());
+      }
+    });
   }
 
   @Override
@@ -104,17 +113,16 @@ class NbiServiceOffline implements NbiService {
 
   @Override
   public ReservationStatus getReservationStatus(String scheduleId) {
-    return values.get(random.nextInt(size));
+    return reservationStatuses.get(random.nextInt(reservationStatuses.size()));
   }
 
   @Override
   public void cancelReservation(String scheduleId) {
-    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void extendReservation(String scheduleId, int minutes) {
-    // TODO Auto-generated method stub
-
+    throw new UnsupportedOperationException();
   }
 }
