@@ -78,15 +78,15 @@ public class NbiServiceOpenDracTestIntegration {
   @Test
   public void testFindAllPhysicalPorts() throws Exception {
     final List<PhysicalPort> allPorts = nbiService.findAllPhysicalPorts();
-    assertEquals(14, allPorts.size());
+    assertEquals(3, allPorts.size());
   }
 
   @Test
   public void testFindPhysicalPortByName() throws Exception {
-    final PhysicalPort port = nbiService.findPhysicalPortByName("Asd001A_OME3T_ETH-1-1-1");
-    assertEquals("Asd001A_OME3T_ETH-1-1-1", port.getName());
+    final PhysicalPort port = nbiService.findPhysicalPortByName("Ut002A_OME01_ETH-1-1-4");
+    assertEquals("Ut002A_OME01_ETH-1-1-4", port.getName());
     System.out.println(port);
-    assertEquals("00-20-D8-DF-33-59_ETH-1-1-1", port.getNetworkElementPk());
+    assertEquals("00-1B-25-2D-DA-65_ETH-1-1-4", port.getNetworkElementPk());
   }
 
   // @Ignore
@@ -95,9 +95,9 @@ public class NbiServiceOpenDracTestIntegration {
     final LocalTime nowTime = new LocalTime(System.currentTimeMillis());
     final LocalDate nowDate = new LocalDate(System.currentTimeMillis());
 
-    final PhysicalPort physicalPort1 = new PhysicalPortFactory().setName("Asd001A_OME1T_ETH-1-1-2").create();
+    final PhysicalPort physicalPort1 = new PhysicalPortFactory().setName("Ut002A_OME01_ETH-1-1-4").create();
     final VirtualPort source = new VirtualPortFactory().setName("vp1").create();
-    final PhysicalPort physicalPort2 = new PhysicalPortFactory().setName("Asd001A_OME3T_ETH-1-12-3").create();
+    final PhysicalPort physicalPort2 = new PhysicalPortFactory().setName("Asd001A_OME12_ETH-1-36-4").create();
     final VirtualPort destination = new VirtualPortFactory().setName("vp2").create();
     final Reservation reservation = new ReservationFactory().setStartTime(nowTime.plusMinutes(1))
         .setEndTime(nowTime.plusMinutes(20)).setStartDate(nowDate).setEndDate(nowDate.plusYears(0)).create();

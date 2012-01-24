@@ -36,6 +36,7 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
 
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.Security;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.SecurityDocument;
@@ -105,8 +106,8 @@ class NbiServiceOpenDracWs implements NbiService {
   @Value("${nbi.user}")
   private String username;
 
-  @Value("${nbi.service.network}")
-  private String networkServiceUrl;
+  @Value("${nbi.service.inventory}")
+  private String inventoryServiceUrl;
 
   @Value("${nbi.service.scheduling}")
   private String schedulingServiceUrl;
@@ -116,7 +117,7 @@ class NbiServiceOpenDracWs implements NbiService {
   private void init() {
     try {
       schedulingService = new ResourceAllocationAndSchedulingService_v30Stub(schedulingServiceUrl);
-      networkingService = new NetworkMonitoringService_v30Stub(networkServiceUrl);
+      networkingService = new NetworkMonitoringService_v30Stub(inventoryServiceUrl);
       getSecurityDocument();
     }
     catch (IOException e) {
@@ -162,7 +163,6 @@ class NbiServiceOpenDracWs implements NbiService {
     catch (Exception e) {
       log.error("Error: ", e);
     }
-
     return null;
   }
 
@@ -297,7 +297,6 @@ class NbiServiceOpenDracWs implements NbiService {
     final UserInfoT userInfo = createUser(reservation);
     schedule.setUserInfo(userInfo);
     return requestDocument;
-
   }
 
   private UserInfoT createUser(final Reservation reservation) {
@@ -312,18 +311,26 @@ class NbiServiceOpenDracWs implements NbiService {
 
   private PathRequestT createPath(final Reservation reservation) {
     final PathRequestT pathRequest = PathRequestT.Factory.newInstance();
-    pathRequest.setSourceTna(reservation.getSourcePort().getPhysicalPort().getName());
-    pathRequest.setTargetTna(reservation.getDestinationPort().getPhysicalPort().getName());
+    final VirtualPort virtualSourcePort = reservation.getSourcePort();
+    pathRequest.setSourceTna(virtualSourcePort.getPhysicalPort().getName());
+    final VirtualPort virtualDestinationPort = reservation.getDestinationPort();
+    pathRequest.setTargetTna(virtualDestinationPort.getPhysicalPort().getName());
     pathRequest.setRate(reservation.getBandwidth());
-    // TODO: Set untagged as default in view and get the real value here from
-    // the reservation
-    pathRequest.setSourceVlanId("Untagged");
-    pathRequest.setTargetVlanId("Untagged");
+    if (virtualSourcePort.getVlanId() == null) {
+      pathRequest.setSourceVlanId("Untagged");
+    }
+    else {
+      pathRequest.setSourceVlanId(virtualSourcePort.getVlanId().toString());
+    }
+    if (virtualDestinationPort.getVlanId() == null) {
+      pathRequest.setTargetVlanId("Untagged");
+    }
+    else {
+      pathRequest.setTargetVlanId(virtualDestinationPort.getVlanId().toString());
+    }
     pathRequest.setRoutingAlgorithm("VCAT");
-    ValidProtectionTypeT.Enum pType = ValidProtectionTypeT.Enum.forString("1Plus1Path");
-    pathRequest.setProtectionType(pType);
+    pathRequest.setProtectionType(ValidProtectionTypeT.Enum.forString("1Plus1Path"));
     return pathRequest;
-
   }
 
   private List<EndpointT> findAllEndPointTypes() {
@@ -335,10 +342,9 @@ class NbiServiceOpenDracWs implements NbiService {
       request.setType(ValidEndpointsQueryTypeT.QUERY_ENDPOINTS_BY_LAYER_AND_USER_GROUP_T);
       final QueryEndpointsResponseDocument response = networkingService.queryEndpoints(requestDocument,
           getSecurityDocument());
-
       final List<EndpointT> endPoints = new ArrayList<EndpointT>();
       for (final String tna : response.getQueryEndpointsResponse().getTnaArray()) {
-        log.info("networkingService: " + tna);
+        log.info("networkingService: {}", tna);
         endPoints.add(findEndpointByTna(tna));
       }
       return endPoints;
@@ -357,7 +363,7 @@ class NbiServiceOpenDracWs implements NbiService {
     final QueryEndpointResponseDocument response = networkingService.queryEndpoint(requestDocument,
         getSecurityDocument());
     final EndpointT endpointFound = response.getQueryEndpointResponse().getEndpoint();
-    log.info("endpointFound: " + endpointFound);
+    log.info("endpointFound: {}", endpointFound);
     return endpointFound;
   }
 
