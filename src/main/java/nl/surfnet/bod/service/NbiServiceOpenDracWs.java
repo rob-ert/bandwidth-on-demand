@@ -215,6 +215,11 @@ class NbiServiceOpenDracWs implements NbiService {
     return ports;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see nl.surfnet.bod.nbi.NbiService#findPhysicalPortByName(java.lang.String)
+   */
   @Override
   public PhysicalPort findPhysicalPortByName(final String name) {
     try {
@@ -226,6 +231,11 @@ class NbiServiceOpenDracWs implements NbiService {
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see nl.surfnet.bod.nbi.NbiService#getPhysicalPortsCount
+   */
   @Override
   public long getPhysicalPortsCount() {
     return findAllPhysicalPorts().size();
@@ -251,8 +261,7 @@ class NbiServiceOpenDracWs implements NbiService {
       log.error("Error: ", e);
     }
 
-    final boolean isFound = responseDocument.getQueryReservationScheduleResponse().getIsFound();
-    if (isFound) {
+    if (responseDocument.getQueryReservationScheduleResponse().getIsFound()) {
       final ReservationScheduleT schedule = responseDocument.getQueryReservationScheduleResponse()
           .getReservationSchedule();
       final ValidReservationScheduleStatusT.Enum status = schedule.getStatus();
