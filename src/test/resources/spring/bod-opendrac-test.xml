@@ -22,6 +22,7 @@
         http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd">
 
     <bean id="nbiService" class="${nbi.client.class}" lazy-init="true" />
+    <task:annotation-driven/>
 
     <bean
         class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer"
