@@ -506,9 +506,9 @@
                 <version>${jetty.version}</version>
                 <configuration>
                     <scanIntervalSeconds>0</scanIntervalSeconds>
+                    <systemPropertiesFile>src/test/resources/bod.properties</systemPropertiesFile>
                     <webAppConfig>
                         <contextPath>/${project.name}</contextPath>
-                        <extraClasspath>src/test/resources/env/</extraClasspath>
                     </webAppConfig>
                     <connectors>
                       <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
