@@ -9,6 +9,8 @@
         icon_url="${empty physicalPort.id ? '' : '/resources/images/link_break.png'}"
         icon_label="Unlink Physical Resource Group" typeIdFieldName="${empty physicalPort.id ? 'name' : 'id'}">
         <field:display field="name" id="s_PhysicalPort_name" object="${physicalPort}" />
+        <field:display field="displayName" id="s_PhysicalPort_displayName" object="${physicalPort}" />
+        <field:display field="networkElementPk" id="s_PhysicalPort_networkElementPk" object="${physicalPort}" />
         <field:display field="physicalResourceGroup" id="s_PhysicalPort_physicalResourceGroup" object="${physicalPort}" />
     </page:show>
 </div>
