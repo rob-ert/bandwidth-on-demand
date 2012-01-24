@@ -26,7 +26,6 @@ import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -46,6 +45,7 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +56,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.collect.Lists;
 
 @Service
 @Transactional
@@ -108,7 +106,7 @@ public class ReservationService {
     reservation.setStatus(getStatus(reservation));
     reservationRepo.save(reservation);
 
-    monitorReservationStatus(reservation);
+    monitorReservationStatus(ReservationStatus.SCHEDULED, reservation);
   }
 
   public Reservation find(Long id) {
@@ -161,17 +159,52 @@ public class ReservationService {
       monitorReservationStatus(reservation);
     }
   }
-  
-  public void checkReservationsWithPossibleStateChangeInMinutes(int minutes) {
 
-    List<Reservation> reservations = reservationRepo
-        .findAll(specificationForReservationWithPossibleStateChangeInMinutes(minutes));
+  /**
+   * Starts monitoring all reservation which have an status in
+   * {@link ReservationStatus#TRANSITION_STATES} and which start or end in the
+   * future.
+   * 
+   * If the reservation starts in the future, the monitor is started on the
+   * start time. If the reservation ends in the future the monitor starts at the
+   * end time.
+   */
+  @Scheduled(cron = "* * " + "*/${reservation.poll.future.starthour}" + " * * *")
+  public void checkFutureReservationsForStatusChange() {
+    int scheduledMonitors = 0;
+    LocalDateTime now = new LocalDateTime();
 
-    monitorReservationStatus((Reservation[]) reservations.toArray());
+    log.info("Checking future reservations for status changes");
 
+    List<Reservation> reservations = reservationRepo.findAll(specFutureReservationsForStatusChange(now));
+
+    for (Reservation reservation : reservations) {
+      if (now.isBefore(reservation.getStartDateTime())) {
+        scheduledMonitors++;
+
+        log.debug(String.format("Scheduled reservation [%s] with state [%s] is based on startDateTime: %s",
+            reservation.getReservationId(), reservation.getStatus(), reservation.getStartDateTime()));
+
+        monitorReservationStatus(reservation.getStartDateTime().toDate(), reservation);
+      }
+      else if (now.isBefore(reservation.getEndDateTime())) {
+        scheduledMonitors++;
+
+        log.debug(String.format("Scheduled reservation [%s] with state [%s] is based on endDateTime: %s",
+            reservation.getReservationId(), reservation.getStatus(), reservation.getEndDateTime()));
+
+        monitorReservationStatus(reservation.getEndDateTime().toDate(), reservation);
+      }
+      else {
+        log.warn("Reservation [ " + reservation + "]  is not monitored, but it should be...");
+      }
+    }
+
+    log.info("Amount of future reservations checked [" + reservations.size() + "], amount of monitored reservations: "
+        + scheduledMonitors);
   }
 
-  private Specification<Reservation> specificationForReservationWithPossibleStateChangeInMinutes(final int minutes) {
+  private Specification<Reservation> specFutureReservationsForStatusChange(final LocalDateTime now) {
     return new Specification<Reservation>() {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
@@ -182,12 +215,10 @@ public class ReservationService {
         Expression<LocalTime> endTimeExpr = reservation.get("endTime");
         Expression<ReservationStatus> status = reservation.get("status");
 
-        LocalTime time = new LocalTime();
-        LocalDate date = new LocalDate();
-
-        Predicate predicate = cb.and(cb.between(startTimeExpr, time, time.plusMinutes(minutes)),
-            cb.equal(startDateExpr, date));
-        cb.or(cb.between(endTimeExpr, time, time.plusMinutes(minutes)), cb.equal(endDateExpr, date));
+        Predicate predicate = cb.and(cb.greaterThanOrEqualTo(startTimeExpr, now.toLocalTime()),
+            (cb.greaterThanOrEqualTo(startDateExpr, now.toLocalDate())));
+        cb.or(cb.and(cb.greaterThanOrEqualTo(endTimeExpr, now.toLocalDate()),
+            cb.greaterThanOrEqualTo(endDateExpr, now.toLocalDate())));
         cb.and(status.in(ReservationStatus.TRANSITION_STATES));
 
         return predicate;
@@ -207,7 +238,38 @@ public class ReservationService {
    *          The {@link Reservation}s to monitor
    */
   public void monitorReservationStatus(Reservation... reservations) {
-    reservationPoller.monitorStatus(reservations);
+    reservationPoller.monitorStatus(null, reservations);
+  }
+
+  /**
+   * Starts the {@link ReservationPoller#monitorStatus(Reservation)}, at the
+   * given time. Updates the given {@link Reservation} when a status change
+   * occurs.
+   * 
+   * @param start
+   *          specifies when to start monitoring
+   * 
+   * @param reservations
+   *          The {@link Reservation}s to monitor
+   * 
+   */
+  public void monitorReservationStatus(Date start, Reservation reservation) {
+    reservationPoller.monitorStatusWIthSpecificStart(start, reservation);
+  }
+
+  /**
+   * Starts the {@link ReservationPoller#monitorStatus(Reservation)}, updates
+   * the given {@link Reservation} when a status change occurs.
+   * 
+   * @param stopStatus
+   *          whenever this {@link ReservationStatus} is reached to monitoring
+   *          will stop.
+   * 
+   * @param reservations
+   *          The {@link Reservation}s to monitor
+   */
+  public void monitorReservationStatus(ReservationStatus stopStatus, Reservation... reservations) {
+    reservationPoller.monitorStatus(stopStatus, reservations);
   }
 
   /**

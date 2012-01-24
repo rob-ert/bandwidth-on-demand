@@ -1,11 +1,12 @@
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.concurrent.ScheduledFuture;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -29,11 +30,11 @@ public class ReservationPollerTest {
   private final Reservation reservationOne = new ReservationFactory().setStatus(ReservationStatus.PREPARING)
       .setReservationId("123").create();
 
-  private final int maxTries = 2;
+  private final int maxTries = 12;
 
   @Before
   public void setUp() {
-    subject.init("* * * * * *", maxTries);
+    subject.init(1, maxTries);
   }
 
   @Test
@@ -44,16 +45,14 @@ public class ReservationPollerTest {
     when(reservationService.getStatus(any(Reservation.class))).thenReturn(ReservationStatus.PREPARING,
         ReservationStatus.SCHEDULED);
 
-    subject.monitorStatus(reservationOne);
+    subject.monitorStatus(ReservationStatus.SCHEDULED, reservationOne);
 
-    while (subject.isBusy())
-      ;
+    waitWhilePollerIsDone();
 
-    assertThat(subject.isBusy(), is(false));
     verify(reservationService).update(reservationOne);
   }
 
-   @Test
+  @Test
   public void shouldNotUpdateStateNoStateChange() throws InterruptedException {
     // Prevent NPE, since the update method must return the saved entity
     when(reservationService.update(any(Reservation.class))).thenReturn(reservationOne);
@@ -63,14 +62,13 @@ public class ReservationPollerTest {
 
     subject.monitorStatus(reservationOne);
 
-    while (subject.isBusy())
-      ;
+    waitWhilePollerIsDone();
 
     verify(reservationService, times(0)).update(any(Reservation.class));
   }
 
-   @Test
-  public void shouldStopWhenMaxTriesIsReached() {
+  @Test
+  public void shouldStopWhenMaxTriesIsReached() throws InterruptedException {
     // Prevent NPE, since the update method must return the saved entity
     when(reservationService.update(any(Reservation.class))).thenReturn(reservationOne);
 
@@ -79,14 +77,13 @@ public class ReservationPollerTest {
 
     subject.monitorStatus(reservationOne);
 
-    while (subject.isBusy())
-      ;
+    waitWhilePollerIsDone();
 
     verify(reservationService, times(maxTries)).getStatus(any(Reservation.class));
   }
 
-   @Test
-  public void shouldStopWhenEndStateIsReached() {
+  @Test
+  public void shouldStopWhenEndStateIsReached() throws InterruptedException {
     // Prevent NPE, since the update method must return the saved entity
     when(reservationService.update(any(Reservation.class))).thenReturn(reservationOne);
 
@@ -94,12 +91,18 @@ public class ReservationPollerTest {
     when(reservationService.isEndState(any(ReservationStatus.class))).thenReturn(true);
 
     subject.monitorStatus(reservationOne);
-
-    while (subject.isBusy())
-      ;
+    
+    waitWhilePollerIsDone();
 
     verify(reservationService).update(reservationOne);
     verify(reservationService).getStatus(any(Reservation.class));
+  }
+
+  private void waitWhilePollerIsDone() {
+    for (ScheduledFuture<?> future : subject.getRunningReservations().values()) {
+      while (future.isDone())
+        ;
+    }
   }
 
 }
