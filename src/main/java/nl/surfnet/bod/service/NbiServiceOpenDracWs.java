@@ -32,11 +32,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.*;
 
 import org.joda.time.Minutes;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.Security;
@@ -44,32 +40,14 @@ import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.UsernameToken;
 import org.opendrac.www.ws.networkmonitoringservice.v3_0.NetworkMonitoringServiceFault;
 import org.opendrac.www.ws.networkmonitoringservice.v3_0.NetworkMonitoringService_v30Stub;
-import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.EndpointT;
-import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointRequestDocument;
+import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.*;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointRequestDocument.QueryEndpointRequest;
-import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointResponseDocument;
-import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsRequestDocument;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsRequestDocument.QueryEndpointsRequest;
-import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsResponseDocument;
-import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.ValidEndpointsQueryTypeT;
 import org.opendrac.www.ws.resourceallocationandschedulingservice.v3_0.ResourceAllocationAndSchedulingService_v30Stub;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CancelReservationScheduleRequestDocument;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.*;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CancelReservationScheduleRequestDocument.CancelReservationScheduleRequest;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument.CreateReservationScheduleRequest;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleResponseDocument;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ExtendCurrentServiceForScheduleRequestDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ExtendCurrentServiceForScheduleRequestDocument.ExtendCurrentServiceForScheduleRequest;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ExtendCurrentServiceForScheduleT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.PathRequestT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.QueryReservationScheduleRequestDocument;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.QueryReservationScheduleResponseDocument;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ReservationScheduleRequestT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ReservationScheduleT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.UserInfoT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidProtectionTypeT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleStatusT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleTypeT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,11 +60,15 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 /**
  * A bridge to OpenDRAC's web services. Everything is contained in this one
  * class so that only this class is linked to OpenDRAC related classes.
- * 
+ *
  * @author robert
- * 
+ *
  */
 class NbiServiceOpenDracWs implements NbiService {
+
+  public static final String ROUTING_ALGORITHM = "VCAT";
+  public static final String DEFAULT_VID = "Untagged";
+  public static final ValidProtectionTypeT.Enum DEFAULT_PROTECTIONTYPE = ValidProtectionTypeT.X_1_PLUS_1_PATH;
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -95,10 +77,6 @@ class NbiServiceOpenDracWs implements NbiService {
   private ResourceAllocationAndSchedulingService_v30Stub schedulingService;
 
   private SecurityDocument securityDocument;
-
-  public static final String ROUTING_ALGORITHM = "VCAT";
-  public static final String DEFAULT_VID = "Untagged";
-  public static final ValidProtectionTypeT.Enum DEFAULT_PROTECTIONTYPE = ValidProtectionTypeT.X_1_PLUS_1_PATH;
 
   @Value("${nbi.billing.group.name}")
   private String billingGroupName;
@@ -136,7 +114,7 @@ class NbiServiceOpenDracWs implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#cancelSchedule(java.lang.String)
    */
   @Override
@@ -157,7 +135,7 @@ class NbiServiceOpenDracWs implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#createReservation(nl.surfnet.bod.domain.
    * Reservation)
    */
@@ -177,7 +155,7 @@ class NbiServiceOpenDracWs implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#extendSchedule(java.lang.String, int)
    */
   @Override
@@ -202,7 +180,7 @@ class NbiServiceOpenDracWs implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#findAllPhysicalPorts()
    */
   @Override
@@ -243,7 +221,7 @@ class NbiServiceOpenDracWs implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#getScheduleStatus(java.lang.String)
    */
   @Override
@@ -381,7 +359,7 @@ class NbiServiceOpenDracWs implements NbiService {
           getSecurityDocument());
       final List<EndpointT> endPoints = new ArrayList<EndpointT>();
       for (final String tna : response.getQueryEndpointsResponse().getTnaArray()) {
-        log.info("networkingService: {}", tna);
+        log.debug("networkingService: {}", tna);
         endPoints.add(findEndpointByTna(tna));
       }
       return endPoints;
@@ -400,7 +378,7 @@ class NbiServiceOpenDracWs implements NbiService {
     final QueryEndpointResponseDocument response = networkingService.queryEndpoint(requestDocument,
         getSecurityDocument());
     final EndpointT endpointFound = response.getQueryEndpointResponse().getEndpoint();
-    log.info("endpointFound: {}", endpointFound);
+    log.debug("endpointFound: {}", endpointFound);
     return endpointFound;
   }
 
