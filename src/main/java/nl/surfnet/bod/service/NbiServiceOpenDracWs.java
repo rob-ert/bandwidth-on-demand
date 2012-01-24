@@ -58,6 +58,9 @@ import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.Canc
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument.CreateReservationScheduleRequest;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleResponseDocument;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ExtendCurrentServiceForScheduleRequestDocument;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ExtendCurrentServiceForScheduleRequestDocument.ExtendCurrentServiceForScheduleRequest;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ExtendCurrentServiceForScheduleT;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.PathRequestT;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.QueryReservationScheduleRequestDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.QueryReservationScheduleResponseDocument;
@@ -175,7 +178,22 @@ class NbiServiceOpenDracWs implements NbiService {
    */
   @Override
   public void extendReservation(final String reservationId, final int minutes) {
-    throw new UnsupportedOperationException();
+    final ExtendCurrentServiceForScheduleT extensionDefinition = ExtendCurrentServiceForScheduleT.Factory.newInstance();
+    extensionDefinition.setScheduleId(reservationId);
+    extensionDefinition.setMinutesToExtend(minutes);
+
+    final ExtendCurrentServiceForScheduleRequestDocument requestDocument = ExtendCurrentServiceForScheduleRequestDocument.Factory
+        .newInstance();
+
+    final ExtendCurrentServiceForScheduleRequest request = requestDocument
+        .addNewExtendCurrentServiceForScheduleRequest();
+    request.setExtensionDefinition(extensionDefinition);
+    try {
+      schedulingService.extendCurrentServiceForSchedule(requestDocument, getSecurityDocument());
+    }
+    catch (Exception e) {
+      log.error("Error: ", e);
+    }
   }
 
   /*
@@ -291,15 +309,11 @@ class NbiServiceOpenDracWs implements NbiService {
     schedule.setName(reservation.getUserCreated() + "-" + System.currentTimeMillis());
     schedule.setType(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC);
 
-    int duration = Minutes.minutesBetween(reservation.getStartDateTime(), reservation.getEndDateTime()).getMinutes();
     final Calendar calendar = Calendar.getInstance();
     calendar.setTime(reservation.getStartDateTime().toDate());
     schedule.setStartTime(calendar);
-    // final long start = reservation.getStartDateTime().toDate().getTime();
-    // final long end = reservation.getEndDateTime().toDate().getTime();
-    // schedule.setReservationOccurrenceDuration((int) ((end - start) / 1000 /
-    // 60));
-    schedule.setReservationOccurrenceDuration(duration);
+    schedule.setReservationOccurrenceDuration(Minutes.minutesBetween(reservation.getStartDateTime(),
+        reservation.getEndDateTime()).getMinutes());
 
     schedule.setIsRecurring(false);
     final PathRequestT pathRequest = createPath(reservation);

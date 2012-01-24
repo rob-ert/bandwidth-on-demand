@@ -114,7 +114,7 @@ public class NbiServiceOpenDracTestIntegration {
     final ReservationStatus status = nbiService.getReservationStatus(reservationId);
     assertEquals("SCHEDULED", status.name());
     
-    nbiService.cancelReservation(reservationId);
+//    nbiService.cancelReservation(reservationId);
   }
   
 
