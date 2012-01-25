@@ -169,7 +169,7 @@ public class ReservationService {
    * start time. If the reservation ends in the future the monitor starts at the
    * end time.
    */
-  @Scheduled(cron = "* * " + "*/${reservation.poll.future.starthour}" + " * * *")
+  @Scheduled(cron = "* * " + "${reservation.poll.future.starthour}" + " * * *")
   public void checkFutureReservationsForStatusChange() {
     int scheduledMonitors = 0;
     LocalDateTime now = new LocalDateTime();
