@@ -7,7 +7,7 @@
         
      <page:list id="pl_virtualport" items="${virtualPortList}">
         <table:table data="${virtualPortList}" id="l_VirtualPort" path="/manager/virtualports" typeIdFieldName="id">
-            <table:column labelCode="virtualPort" id="virtualport" property="name" />
+            <table:column labelCode="virtualPort" id="virtualport" property="managerLabel" />
             <table:column labelCode="virtualport_max_bandwidth_short" id="maxBandwidth" property="maxBandwidth"/>
             <table:column labelCode="virtualport_vlan_id_short" id="vlanId" property="vlanId"/>
             <table:column labelCode="virtualResourceGroup" id="virtualresourcegroup" property="virtualResourceGroup" />

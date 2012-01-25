@@ -55,13 +55,13 @@ import com.google.common.base.Function;
 import com.google.common.base.Strings;
 
 @Controller("managerVirtualPortController")
-@RequestMapping("/manager/" + VirtualPortController.PAGE_URL)
+@RequestMapping(VirtualPortController.PAGE_URL)
 public class VirtualPortController {
 
   public static final String MODEL_KEY = "virtualPort";
   public static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
 
-  static final String PAGE_URL = "virtualports";
+  static final String PAGE_URL = "/manager/virtualports";
 
   @Autowired
   private VirtualPortService virtualPortService;
@@ -119,6 +119,7 @@ public class VirtualPortController {
     }
 
     uiModel.asMap().clear();
+
     virtualPortService.save(virtualPort);
 
     return "redirect:" + PAGE_URL;
@@ -152,7 +153,7 @@ public class VirtualPortController {
 
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(virtualPortService.count()));
 
-    return "manager/virtualports/list";
+    return PAGE_URL + LIST;
   }
 
   @RequestMapping(method = RequestMethod.PUT)
@@ -160,6 +161,7 @@ public class VirtualPortController {
       final HttpServletRequest httpServletRequest) {
 
     virtualPortValidator.validate(virtualPort, bindingResult);
+
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, virtualPort);
       return PAGE_URL + UPDATE;

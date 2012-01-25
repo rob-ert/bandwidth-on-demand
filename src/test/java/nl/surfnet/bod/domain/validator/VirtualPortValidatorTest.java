@@ -61,23 +61,23 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void testExistingName() {
-    VirtualPort existingPort = new VirtualPortFactory().setName("one").create();
-    VirtualPort newPort = new VirtualPortFactory().setId(null).setName("one").create();
+    VirtualPort existingPort = new VirtualPortFactory().setManagerLabel("one").create();
+    VirtualPort newPort = new VirtualPortFactory().setId(null).setManagerLabel("one").create();
 
-    when(virtualPortServiceMock.findByName("one")).thenReturn(existingPort);
+    when(virtualPortServiceMock.findByManagerLabel("one")).thenReturn(existingPort);
     Errors errors = createErrorObject(newPort);
 
     subject.validate(newPort, errors);
 
     assertFalse(errors.hasGlobalErrors());
-    assertTrue(errors.hasFieldErrors("name"));
+    assertTrue(errors.hasFieldErrors("managerLabel"));
   }
 
   @Test
   public void testNonExistingName() {
-    VirtualPort virtualPortOne = new VirtualPortFactory().setName("one").create();
+    VirtualPort virtualPortOne = new VirtualPortFactory().setManagerLabel("one").create();
 
-    when(virtualPortServiceMock.findByName("one")).thenReturn(null);
+    when(virtualPortServiceMock.findByManagerLabel("one")).thenReturn(null);
     Errors errors = createErrorObject(virtualPortOne);
 
     subject.validate(virtualPortOne, errors);

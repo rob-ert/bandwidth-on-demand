@@ -41,19 +41,22 @@ public class VirtualPortFactory {
 
   private Long id = COUNTER.getAndIncrement();
   private Integer version;
-  private String name = "A virtual port " + id;
+  private String managerLabel = "A virtual port " + id;
+  private String userLabel = "A user virtual port " + id;;
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
   private PhysicalPort physicalPort = new PhysicalPortFactory().create();
   private String physicalPortAdminGroup = "urn:mygroup";
   private Integer maxBandwidth = 10000;
   private Integer vlanId = null;
 
+
   public VirtualPort create() {
     VirtualPort virtualPort = new VirtualPort();
 
     virtualPort.setId(id);
     virtualPort.setVersion(version);
-    virtualPort.setName(name);
+    virtualPort.setManagerLabel(managerLabel);
+    virtualPort.setUserLabel(userLabel);
     virtualPort.setMaxBandwidth(maxBandwidth);
     virtualPort.setVlanId(vlanId);
 
@@ -68,8 +71,13 @@ public class VirtualPortFactory {
     return virtualPort;
   }
 
-  public VirtualPortFactory setName(String name) {
-    this.name = name;
+  public VirtualPortFactory setManagerLabel(String label) {
+    this.managerLabel = label;
+    return this;
+  }
+
+  public VirtualPortFactory setUserLabel(String label) {
+    this.userLabel = label;
     return this;
   }
 

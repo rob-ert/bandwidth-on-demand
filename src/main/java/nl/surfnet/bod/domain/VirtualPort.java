@@ -29,6 +29,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 
 /**
  * Entity which represents a VirtualPort which is mapped to a
@@ -50,7 +51,10 @@ public class VirtualPort {
 
   @NotEmpty
   @Column(unique = true, nullable = false)
-  private String name;
+  private String managerLabel;
+
+  @Column(unique = true)
+  private String userLabel;
 
   @ManyToOne
   private VirtualResourceGroup virtualResourceGroup;
@@ -81,12 +85,12 @@ public class VirtualPort {
     this.version = version;
   }
 
-  public String getName() {
-    return name;
+  public String getManagerLabel() {
+    return managerLabel;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setManagerLabel(String name) {
+    this.managerLabel = name;
   }
 
   public VirtualResourceGroup getVirtualResourceGroup() {
@@ -125,12 +129,20 @@ public class VirtualPort {
     this.vlanId = vlanId;
   }
 
+  public String getUserLabel() {
+    return Strings.emptyToNull(userLabel) == null ? managerLabel : userLabel;
+  }
+
+  public void setUserLabel(String userLabel) {
+    this.userLabel = userLabel;
+  }
+
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
         .add("id", getId())
-        .add("name", getName())
-        .add("MaxBandwidth: ", getMaxBandwidth())
+        .add("managerLabel", getManagerLabel())
+        .add("maxBandwidth: ", getMaxBandwidth())
         .add("physicalPort", physicalPort).toString();
   }
 

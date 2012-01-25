@@ -160,7 +160,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     return new Converter<VirtualPort, String>() {
       @Override
       public String convert(VirtualPort virtualPort) {
-        return virtualPort.getName();
+        return virtualPort.getManagerLabel();
       }
     };
   }

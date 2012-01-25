@@ -21,7 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
@@ -35,11 +36,7 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -48,9 +45,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 /**
  * This test only works against a default OpenDRAC (with standard admin pwd)
  * with the simulator and the 6 simulated NE's or against production.
- * 
+ *
  * @author robert
- * 
+ *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/bod-opendrac-test.xml")
@@ -96,9 +93,9 @@ public class NbiServiceOpenDracTestIntegration {
 
     final PhysicalPort physicalPort1 = new PhysicalPortFactory().setName("Ut002A_OME01_ETH-1-1-4").create();
     final PhysicalPort physicalPort2 = new PhysicalPortFactory().setName("Asd001A_OME12_ETH-1-36-4").create();
-    
-    final VirtualPort source = new VirtualPortFactory().setName("vp1").setPhysicalPort(physicalPort1).create();
-    final VirtualPort destination = new VirtualPortFactory().setName("vp2").setPhysicalPort(physicalPort2).create();
+
+    final VirtualPort source = new VirtualPortFactory().setManagerLabel("vp1").setPhysicalPort(physicalPort1).create();
+    final VirtualPort destination = new VirtualPortFactory().setManagerLabel("vp2").setPhysicalPort(physicalPort2).create();
 
     final Reservation reservation = new ReservationFactory().setStartTime(nowTime.plusMinutes(1))
         .setEndTime(nowTime.plusMinutes(20)).setStartDate(nowDate).setEndDate(nowDate.plusYears(0))

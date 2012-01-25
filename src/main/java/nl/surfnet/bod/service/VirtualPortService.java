@@ -103,8 +103,8 @@ public class VirtualPortService {
     return virtualPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults)).getContent();
   }
 
-  public VirtualPort findByName(String name) {
-    return virtualPortRepo.findByName(name);
+  public VirtualPort findByManagerLabel(String label) {
+    return virtualPortRepo.findByManagerLabel(label);
   }
 
   public void save(final VirtualPort virtualPort) {

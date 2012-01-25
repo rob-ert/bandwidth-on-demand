@@ -32,7 +32,7 @@ import org.springframework.validation.Validator;
 
 /**
  * Validator for the {@link VirtualPort}. Validates that the
- * {@link VirtualPort#getName()} is unique.
+ * {@link VirtualPort#getManagerLabel()} is unique.
  *
  * @author Franky
  *
@@ -68,12 +68,12 @@ public class VirtualPortValidator implements Validator {
   }
 
   private void validateUniquenessOfName(VirtualPort virtualPort, Errors errors) {
-    VirtualPort existingVirtualPort = virtualPortService.findByName(virtualPort.getName());
+    VirtualPort existingVirtualPort = virtualPortService.findByManagerLabel(virtualPort.getManagerLabel());
 
     if (existingVirtualPort != null) {
       if (!validatorHelper.validateNameUniqueness(virtualPort.getId() == existingVirtualPort.getId(), virtualPort
-          .getName().equalsIgnoreCase(existingVirtualPort.getName()), virtualPort.getId() != null)) {
-        errors.rejectValue("name", "validation.not.unique");
+          .getManagerLabel().equalsIgnoreCase(existingVirtualPort.getManagerLabel()), virtualPort.getId() != null)) {
+        errors.rejectValue("managerLabel", "validation.not.unique");
       }
     }
   }
