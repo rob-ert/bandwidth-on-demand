@@ -1,9 +1,6 @@
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -20,13 +17,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
-import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * This class is responsible for monitoring changes of a
@@ -43,10 +36,10 @@ import com.google.common.collect.Maps;
 public class ReservationPoller {
 
   @Value("${reservation.poll.interval.seconds}")
-  private static int POLL_INTERVAL_IN_SECONDS;
+  private int pollIntervalInSeconds;
 
   @Value("${reservation.poll.max.tries}")
-  private static int MAX_TRIES;
+  private int maxTries;
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -56,16 +49,143 @@ public class ReservationPoller {
   @Autowired
   private ReservationService reservationService;
 
-  private ConcurrentHashMap<Reservation, ScheduledFuture<?>> runningReservations = new ConcurrentHashMap<Reservation, ScheduledFuture<?>>();
+  private volatile ConcurrentHashMap<Reservation, ScheduledFuture<?>> runningReservations = new ConcurrentHashMap<Reservation, ScheduledFuture<?>>();
+
+  @PostConstruct
+  public void init() {
+    init(pollIntervalInSeconds, maxTries);
+  }
+
+  void init(int pollerIntervalInSeconds, int maxAmountOfTries) {
+    maxTries = maxAmountOfTries;
+    pollIntervalInSeconds = pollerIntervalInSeconds;
+
+    this.trigger = new PeriodicTrigger(pollIntervalInSeconds, TimeUnit.SECONDS);
+    this.taskScheduler = new ConcurrentTaskScheduler();
+
+    log.info("Init ReservationPoller, polling every [" + pollIntervalInSeconds + "] seconds with maxTries: " + maxTries);
+
+    // Just force logging
+    isMonitoringDisabled();
+
+  }
+
+  /**
+   * Starts a scheduler and updates the given {@link Reservation}s when a change
+   * in state is detected.
+   * 
+   * @param reservation
+   *          The {@link Reservation} to monitor
+   * @return
+   */
+  public void monitorStatus(Reservation... reservations) {
+    monitorStatus(null, reservations);
+  }
+
+  /**
+   * Starts a scheduler and updates the given {@link Reservation}s when a change
+   * in state is detected. Will only schedule a new task if there is currently
+   * no task for the reservation running.
+   * 
+   * @param stopStatus
+   *          {@link ReservationStatus} The monitoring will stop when this state
+   *          is reached or when an
+   *          {@link ReservationStatus#isEndState(ReservationStatus)} is
+   *          reached.
+   * 
+   * @param reservation
+   *          The {@link Reservation} to monitor
+   * @return
+   */
+  public synchronized void monitorStatus(ReservationStatus stopStatus, Reservation... reservations) {
+
+    ScheduledFuture<?> future;
+    for (Reservation reservation : reservations) {
+      future = getRunningReservations().get((reservation));
+
+      if ((future == null) || (future.isDone())) {
+        ReservationStatusCheckTask checkTask = new ReservationStatusCheckTask(stopStatus, reservation);
+
+        ScheduledFuture<?> schedule = taskScheduler.schedule(checkTask, trigger);
+        checkTask.setSchedule(schedule);
+
+        getRunningReservations().put(reservation, schedule);
+      }
+      else {
+        log.debug("Skipping task, is already scheduled for reservation {}", reservation);
+      }
+    }
+
+    cleanRunningReservations();
+  }
+
+  /**
+   * Starts a scheduler at a specific time and updates the given
+   * {@link Reservation}s when a change in state is detected. Will only schedule
+   * a new task if there is currently no task for the reservation running.
+   * 
+   * @param startTime
+   *          The time the trigger should start
+   * 
+   * @param reservation
+   *          The {@link Reservation} to monitor
+   */
+  public synchronized void monitorStatusWIthSpecificStart(Date startTime, Reservation reservation) {
+
+    ScheduledFuture<?> future;
+    future = getRunningReservations().get((reservation));
+
+    if ((future == null) || (future.isDone())) {
+
+      ReservationStatusCheckTask checkTask = new ReservationStatusCheckTask(reservation);
+
+      ScheduledFuture<?> schedule = taskScheduler.scheduleAtFixedRate(checkTask, startTime,
+          (pollIntervalInSeconds * 1000L));
+
+      checkTask.setSchedule(schedule);
+    }
+
+    cleanRunningReservations();
+
+  }
+
+  private void cleanRunningReservations() {
+    for (Reservation reservation : getRunningReservations().keySet()) {
+      ScheduledFuture<?> future = getRunningReservations().get(reservation);
+      if (future.isDone()) {
+        getRunningReservations().remove(reservation);
+      }
+    }
+  }
+
+  /**
+   * Checks if monitoring is disabled.
+   * 
+   * @return true is no monitoring is allowed, false otherwise.
+   */
+  boolean isMonitoringDisabled() {
+    boolean disabled = maxTries < 0;
+
+    if (disabled) {
+      log.warn("Monitoring of reservations is disabled, because maxTries is negative");
+    }
+
+    return disabled;
+  }
+
+  public synchronized ConcurrentHashMap<Reservation, ScheduledFuture<?>> getRunningReservations() {
+    return runningReservations;
+  }
 
   private class ReservationStatusCheckTask implements Runnable {
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private long tries = 0;
     private Reservation reservation;
     private ReservationStatus stopStatus;
 
     @SuppressWarnings("rawtypes")
-    private ScheduledFuture schedule;
+    private volatile ScheduledFuture schedule;
 
     /**
      * Monitors the given {@link Reservation} until an endState is reached
@@ -91,7 +211,7 @@ public class ReservationPoller {
       this.reservation = reservation;
     }
 
-    public void setSchedule(ScheduledFuture schedule) {
+    public synchronized void setSchedule(ScheduledFuture<?> schedule) {
       this.schedule = schedule;
     }
 
@@ -109,10 +229,10 @@ public class ReservationPoller {
      * given state is reached, the poller will cancel itself and stops.
      * 
      * The number of times these logic is performed is limited by
-     * {@link #MAX_TRIES}. Whenever this limit is reached the poller will also
+     * {@link #maxTries}. Whenever this limit is reached the poller will also
      * cancel itself and stop polling.
      * 
-     * If {@link #MAX_TRIES} is negative, monitoring will be disabled.
+     * If {@link #maxTries} is negative, monitoring will be disabled.
      */
     public void run() {
       log.info("Start monitoring reservation [" + reservation.getReservationId() + "] for state change");
@@ -120,7 +240,6 @@ public class ReservationPoller {
       if (isMonitoringDisabled()) {
         return;
       }
-      
       tries++;
 
       final ReservationStatus actualReservationStatus = reservationService.getStatus(reservation);
@@ -134,134 +253,33 @@ public class ReservationPoller {
       }
 
       if ((actualReservationStatus == stopStatus) || reservationService.isEndState(actualReservationStatus)) {
-        schedule.cancel(false);
+        cancelSchedule();
         log.info("Monitoring stops for reservation [" + reservation.getReservationId() + "] status is updated to: "
             + reservation.getStatus());
       }
-
       else {
-        if (tries >= MAX_TRIES) {
-          schedule.cancel(false);
+        if (tries >= maxTries) {
+          cancelSchedule();
           log.warn("Monitoring cancelled for reservation [" + reservation.getReservationId() + "]. MaxTries ["
-              + MAX_TRIES + "] is reached");
+              + maxTries + "] is reached");
         }
       }
     }
-  }
 
-  @PostConstruct
-  public void init() {
-    init(POLL_INTERVAL_IN_SECONDS, MAX_TRIES);
-  }
-
-  void init(int pollerIntervalInSeconds, int maxAmountOfTries) {
-    MAX_TRIES = maxAmountOfTries;
-    POLL_INTERVAL_IN_SECONDS = pollerIntervalInSeconds;
-
-    this.trigger = new PeriodicTrigger(POLL_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
-    this.taskScheduler = new ConcurrentTaskScheduler();
-
-    log.info("Init ReservationPoller, polling every [" + POLL_INTERVAL_IN_SECONDS + "] seconds with maxTries: "
-        + MAX_TRIES);
-
-    // Force logging
-    isMonitoringDisabled();
-  }
-
-  /**
-   * Starts a scheduler and updates the given {@link Reservation}s when a change
-   * in state is detected.
-   * 
-   * @param reservation
-   *          The {@link Reservation} to monitor
-   * @return
-   */
-  public void monitorStatus(Reservation... reservations) {
-    monitorStatus(null, reservations);
-  }
-
-  /**
-   * Starts a scheduler and updates the given {@link Reservation}s when a change
-   * in state is detected.
-   * 
-   * @param stopStatus
-   *          {@link ReservationStatus} The monitoring will stop when this state
-   *          is reached or when an
-   *          {@link ReservationStatus#isEndState(ReservationStatus)} is
-   *          reached.
-   * 
-   * @param reservation
-   *          The {@link Reservation} to monitor
-   * @return
-   */
-  public void monitorStatus(ReservationStatus stopStatus, Reservation... reservations) {
-
-    ScheduledFuture<?> future;
-    for (Reservation reservation : reservations) {
-      future = runningReservations.get((reservation));
-
-      if ((future == null) || (future.isDone())) {
-        ReservationStatusCheckTask checkTask = new ReservationStatusCheckTask(stopStatus, reservation);
-
-        ScheduledFuture<?> schedule = taskScheduler.schedule(checkTask, trigger);
-        checkTask.setSchedule(schedule);
-
-        runningReservations.put(reservation, schedule);
+    /**
+     * Cancels the schedule, since this task runs in a separte thread it is not
+     * garanteed that the schedule is already set when we need it. Therefore
+     * wait until it is available.
+     * 
+     * This will only block this thread at the end of its flow.
+     */
+    private void cancelSchedule() {
+      while (schedule == null) {
+        log.debug("Waiting for schedule to be available");
       }
-      else {
-        log.debug("Skipping task, is already scheduled for reservation {}", reservation);
-      }
-    }
-    
-    cleanRunningReservations();
-  }
 
-  
-  private void cleanRunningReservations() {    
-    for (Reservation reservation : runningReservations.keySet()) {
-     ScheduledFuture<?> future = runningReservations.get(reservation);
-      if (future.isDone()) {
-        runningReservations.remove(reservation);
-      }
-    } 
-  }
-
-  /**
-   * Starts a scheduler at a specific time and updates the given
-   * {@link Reservation}s when a change in state is detected.
-   * 
-   * @param startTime
-   *          The time the trigger should start
-   * 
-   * @param reservation
-   *          The {@link Reservation} to monitor
-   */
-  public ScheduledFuture<?> monitorStatusWIthSpecificStart(Date startTime, Reservation reservation) {
-
-    ReservationStatusCheckTask checkTask = new ReservationStatusCheckTask(reservation);
-    ScheduledFuture<?> schedule = taskScheduler.scheduleAtFixedRate(checkTask, startTime,
-        (POLL_INTERVAL_IN_SECONDS * 1000L));
-    checkTask.setSchedule(schedule);
-
-    return schedule;
-  }
-
-  /**
-   * Checks if monitoring is disabled.
-   * 
-   * @return true is no monitoring is allowed, false otherwise.
-   */
-  private boolean isMonitoringDisabled() {
-    boolean disabled = MAX_TRIES < 0;
-
-    if (disabled) {
-      log.warn("Monitoring of reservations is disabled, because MAX_TRIES is negative");
+      schedule.cancel(false);
     }
 
-    return disabled;
-  }
-
-  public ConcurrentHashMap<Reservation, ScheduledFuture<?>> getRunningReservations() {
-    return runningReservations; 
   }
 }
