@@ -81,17 +81,18 @@ public class ReservationService {
 
     for (Reservation reservation : reservations) {
       ReservationStatus actualStatus = getStatus(reservation);
+
       if (reservation.getStatus() != actualStatus) {
-        log.debug("About to update reservation [" + reservation.getReservationId() + "] status changed from ["
-            + reservation.getStatus() + "] to: " + actualStatus);
+        log.debug("About to update reservation [{}] status changed from [{}] to: {} ",
+            new String[] { reservation.getReservationId(), reservation.getStatus().name(), actualStatus.name() });
 
         reservation.setStatus(actualStatus);
         update(reservation);
         updatedItems++;
       }
     }
-    log.info("Amount of reservations checked [" + reservations.size() + "] from which [" + updatedItems
-        + "] needed a status update");
+    log.info("Amount of reservations checked [{}] from which [{}] needed a status update", reservations.size(),
+        updatedItems);
   }
 
   public void reserve(Reservation reservation) throws ReservationFailedException {
@@ -182,26 +183,27 @@ public class ReservationService {
       if (now.isBefore(reservation.getStartDateTime())) {
         scheduledMonitors++;
 
-        log.debug(String.format("Scheduled reservation [%s] with state [%s] is based on startDateTime: %s",
-            reservation.getReservationId(), reservation.getStatus(), reservation.getStartDateTime()));
+        log.debug("Scheduled reservation [{}] with state [{}] is based on startDateTime: {}", new String[] {
+            reservation.getReservationId(), reservation.getStatus().name(), reservation.getStartDateTime().toString() });
 
         monitorReservationStatus(reservation.getStartDateTime().toDate(), reservation);
       }
       else if (now.isBefore(reservation.getEndDateTime())) {
         scheduledMonitors++;
 
-        log.debug(String.format("Scheduled reservation [%s] with state [%s] is based on endDateTime: %s",
-            reservation.getReservationId(), reservation.getStatus(), reservation.getEndDateTime()));
+        log.debug("Scheduled reservation [{}] with state [{}] is based on endDateTime: {}",
+            new String[] { reservation.getReservationId(), reservation.getStatus().name(),
+                reservation.getEndDateTime().toString() });
 
         monitorReservationStatus(reservation.getEndDateTime().toDate(), reservation);
       }
       else {
-        log.warn("Reservation [ " + reservation + "]  is not monitored, but it should be...");
+        log.warn("Reservation [{}]  is not monitored, but it should be...", reservation);
       }
     }
 
-    log.info("Amount of future reservations checked [" + reservations.size() + "], amount of monitored reservations: "
-        + scheduledMonitors);
+    log.info("Amount of future reservations checked [{}], amount of monitored reservations: {}", reservations.size(),
+        scheduledMonitors);
   }
 
   private Specification<Reservation> specFutureReservationsForStatusChange(final LocalDateTime now) {

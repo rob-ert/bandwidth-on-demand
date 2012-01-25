@@ -60,7 +60,7 @@ public class ReservationPoller {
     this.trigger = new PeriodicTrigger(pollIntervalInSeconds, TimeUnit.SECONDS);
     this.taskScheduler = new ConcurrentTaskScheduler();
 
-    log.info("Init ReservationPoller, polling every [" + pollIntervalInSeconds + "] seconds with maxTries: " + maxTries);
+    log.info("Init ReservationPoller, polling every [{}]  seconds with maxTries: {} ", pollIntervalInSeconds, maxTries);
 
     // Just force logging
     isMonitoringDisabled();
@@ -183,7 +183,7 @@ public class ReservationPoller {
     public ReservationStatusCheckTask(ReservationStatus stopStatus, final Reservation reservation) {
       this.stopStatus = stopStatus;
       this.reservation = reservation;
-      
+
       reservation.setCurrentlyProcessing(true);
     }
 
@@ -206,8 +206,8 @@ public class ReservationPoller {
      * 
      * If {@link #maxTries} is negative, monitoring will be disabled.
      */
-    public void run() {      
-      log.info("Start monitoring reservation [" + reservation.getReservationId() + "] for state change");
+    public void run() {
+      log.info("Start monitoring reservation [{}] for state change", reservation.getReservationId());
 
       if (isMonitoringDisabled()) {
         reservation.setCurrentlyProcessing(false);
@@ -217,8 +217,8 @@ public class ReservationPoller {
 
       final ReservationStatus actualReservationStatus = reservationService.getStatus(reservation);
 
-      log.debug(reservation.getReservationId() + " was [" + reservation.getStatus() + "] is now: "
-          + actualReservationStatus);
+      log.debug("Reservation [{}] was [{}] is now: {} ", new String[] { reservation.getReservationId(),
+          reservation.getStatus().name(), actualReservationStatus.name() });
 
       if (reservation.getStatus() != actualReservationStatus) {
         reservation.setStatus(actualReservationStatus);
@@ -227,24 +227,24 @@ public class ReservationPoller {
 
       if ((actualReservationStatus == stopStatus) || reservationService.isEndState(actualReservationStatus)) {
         cancelSchedule();
-        log.info("Monitoring stops for reservation [" + reservation.getReservationId() + "] status is updated to: "
-            + reservation.getStatus());
+        log.info("Monitoring stops for reservation [{}] status is updated to: {} ", reservation.getReservationId(),
+            reservation.getStatus());
       }
       else {
         if (tries >= maxTries) {
           cancelSchedule();
-          log.warn("Monitoring cancelled for reservation [" + reservation.getReservationId() + "]. MaxTries ["
-              + maxTries + "] is reached");
+          log.warn("Monitoring cancelled for reservation [{}]. MaxTries [{}] is reached",
+              reservation.getReservationId(), maxTries);
         }
       }
     }
 
     /**
-     * Cancels the schedule, since this task runs in a separte thread it is not
-     * garanteed that the schedule is already set when we need it. Therefore
-     * wait until it is available.
-     * 
-     * This will only block this thread at the end of its flow.
+     * Cancels the schedule, since this task runs in a separate thread it is not
+     * guaranteed that the schedule is already set when we need it. Therefore
+     * wait until it is available. This will only block this thread at the end
+     * of its flow. The flag on the {@link Reservation#isCurrentlyProcessing()}
+     * will be set to false, since we are done.
      */
     private void cancelSchedule() {
       while (schedule == null) {
