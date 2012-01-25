@@ -24,6 +24,7 @@ package nl.surfnet.bod.domain;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.Type;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -61,18 +62,22 @@ public class Reservation {
 
   @NotNull
   @Column(nullable = false)
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDate")
   private LocalDate startDate;
 
   @NotNull
   @Column(nullable = false)
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalTimeAsTime")
   private LocalTime startTime;
 
   @NotNull
   @Column(nullable = false)
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDate")
   private LocalDate endDate;
 
   @NotNull
   @Column(nullable = false)
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalTimeAsTime")
   private LocalTime endTime;
 
   @Column(nullable = false)

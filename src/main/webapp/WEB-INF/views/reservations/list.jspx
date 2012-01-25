@@ -50,10 +50,10 @@
         }
 
         function showMessage(message) {
-            var record = $("<div/>", {text: message, class: "alert-message"}).append($("<a/>", {class: "close", href: "#", text: "×"})).alert();
+            var closeLink = $("<a/>", {class: "close", href: "#", text: "×"});
+            var record = $("<div/>", {text: message, class: "alert-message"}).append(closeLink).alert();
             setTimeout(function() {
-                console.log(record.alert('close'));
-                record.hide();
+                closeLink.click();
             }, 2000);
             $("#messages").append(record);
         }
