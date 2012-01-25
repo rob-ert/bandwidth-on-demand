@@ -206,7 +206,7 @@ public class ReservationService {
         scheduledMonitors);
   }
 
-  private Specification<Reservation> specFutureReservationsForStatusChange(final LocalDateTime now) {
+   Specification<Reservation> specFutureReservationsForStatusChange(final LocalDateTime now) {
     return new Specification<Reservation>() {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
