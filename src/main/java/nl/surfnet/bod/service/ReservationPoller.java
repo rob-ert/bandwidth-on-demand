@@ -1,7 +1,6 @@
 package nl.surfnet.bod.service;
 
 import java.util.Date;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -48,8 +47,6 @@ public class ReservationPoller {
 
   @Autowired
   private ReservationService reservationService;
-
-  private volatile ConcurrentHashMap<Reservation, ScheduledFuture<?>> runningReservations = new ConcurrentHashMap<Reservation, ScheduledFuture<?>>();
 
   @PostConstruct
   public void init() {
@@ -99,24 +96,18 @@ public class ReservationPoller {
    */
   public synchronized void monitorStatus(ReservationStatus stopStatus, Reservation... reservations) {
 
-    ScheduledFuture<?> future;
     for (Reservation reservation : reservations) {
-      future = getRunningReservations().get((reservation));
-
-      if ((future == null) || (future.isDone())) {
+      if (!reservation.isCurrentlyProcessing()) {
         ReservationStatusCheckTask checkTask = new ReservationStatusCheckTask(stopStatus, reservation);
 
         ScheduledFuture<?> schedule = taskScheduler.schedule(checkTask, trigger);
-        checkTask.setSchedule(schedule);
 
-        getRunningReservations().put(reservation, schedule);
+        checkTask.setSchedule(schedule);
       }
       else {
         log.debug("Skipping task, is already scheduled for reservation {}", reservation);
       }
     }
-
-    cleanRunningReservations();
   }
 
   /**
@@ -132,11 +123,7 @@ public class ReservationPoller {
    */
   public synchronized void monitorStatusWIthSpecificStart(Date startTime, Reservation reservation) {
 
-    ScheduledFuture<?> future;
-    future = getRunningReservations().get((reservation));
-
-    if ((future == null) || (future.isDone())) {
-
+    if (!reservation.isCurrentlyProcessing()) {
       ReservationStatusCheckTask checkTask = new ReservationStatusCheckTask(reservation);
 
       ScheduledFuture<?> schedule = taskScheduler.scheduleAtFixedRate(checkTask, startTime,
@@ -144,17 +131,8 @@ public class ReservationPoller {
 
       checkTask.setSchedule(schedule);
     }
-
-    cleanRunningReservations();
-
-  }
-
-  private void cleanRunningReservations() {
-    for (Reservation reservation : getRunningReservations().keySet()) {
-      ScheduledFuture<?> future = getRunningReservations().get(reservation);
-      if (future.isDone()) {
-        getRunningReservations().remove(reservation);
-      }
+    else {
+      log.debug("Skipping task, is already scheduled for reservation {}", reservation);
     }
   }
 
@@ -171,10 +149,6 @@ public class ReservationPoller {
     }
 
     return disabled;
-  }
-
-  public synchronized ConcurrentHashMap<Reservation, ScheduledFuture<?>> getRunningReservations() {
-    return runningReservations;
   }
 
   private class ReservationStatusCheckTask implements Runnable {
@@ -209,14 +183,12 @@ public class ReservationPoller {
     public ReservationStatusCheckTask(ReservationStatus stopStatus, final Reservation reservation) {
       this.stopStatus = stopStatus;
       this.reservation = reservation;
+      
+      reservation.setCurrentlyProcessing(true);
     }
 
     public synchronized void setSchedule(ScheduledFuture<?> schedule) {
       this.schedule = schedule;
-    }
-
-    public boolean isBusy() {
-      return !schedule.isDone();
     }
 
     /**
@@ -234,10 +206,11 @@ public class ReservationPoller {
      * 
      * If {@link #maxTries} is negative, monitoring will be disabled.
      */
-    public void run() {
+    public void run() {      
       log.info("Start monitoring reservation [" + reservation.getReservationId() + "] for state change");
 
       if (isMonitoringDisabled()) {
+        reservation.setCurrentlyProcessing(false);
         return;
       }
       tries++;
@@ -279,6 +252,7 @@ public class ReservationPoller {
       }
 
       schedule.cancel(false);
+      reservation.setCurrentlyProcessing(false);
     }
 
   }

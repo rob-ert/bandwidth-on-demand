@@ -1,28 +1,27 @@
 package nl.surfnet.bod.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.concurrent.ScheduledFuture;
-
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationPollerTest {
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   @InjectMocks
   private ReservationPoller subject;
@@ -33,7 +32,7 @@ public class ReservationPollerTest {
   private final Reservation reservationOne = new ReservationFactory().setStatus(ReservationStatus.PREPARING)
       .setReservationId("123").create();
 
-  private final int maxTries = 5;
+  private final int maxTries = 2;
 
   @Before
   public void setUp() {
@@ -61,7 +60,7 @@ public class ReservationPollerTest {
 
     subject.monitorStatus(reservationOne);
 
-    waitWhilePollerIsDone();
+    waitWhilePollerIsDone(reservationOne);
 
     verify(reservationService).update(reservationOne);
   }
@@ -76,7 +75,7 @@ public class ReservationPollerTest {
 
     subject.monitorStatus(reservationOne);
 
-    waitWhilePollerIsDone();
+    waitWhilePollerIsDone(reservationOne);
 
     verify(reservationService, times(0)).update(any(Reservation.class));
   }
@@ -91,7 +90,7 @@ public class ReservationPollerTest {
 
     subject.monitorStatus(reservationOne);
 
-    waitWhilePollerIsDone();
+    waitWhilePollerIsDone(reservationOne);
 
     verify(reservationService, times(maxTries)).getStatus(any(Reservation.class));
   }
@@ -106,16 +105,15 @@ public class ReservationPollerTest {
 
     subject.monitorStatus(reservationOne);
 
-    waitWhilePollerIsDone();
+    waitWhilePollerIsDone(reservationOne);
 
     verify(reservationService).update(reservationOne);
     verify(reservationService).getStatus(any(Reservation.class));
   }
 
-  private void waitWhilePollerIsDone() {
-    for (ScheduledFuture<?> future : subject.getRunningReservations().values()) {
-      while (future.isDone())
-        ;
+  private void waitWhilePollerIsDone(Reservation reservation) {
+    while (reservation.isCurrentlyProcessing()) {
+      log.debug("Waiting while reservation {} is processed.", reservation);
     }
   }
 

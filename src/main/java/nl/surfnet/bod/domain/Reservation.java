@@ -90,6 +90,9 @@ public class Reservation {
   @Column(nullable = false)
   private String reservationId;
 
+  @Transient
+  private volatile boolean currentlyProcessing;
+    
   public Long getId() {
     return id;
   }
@@ -213,4 +216,13 @@ public class Reservation {
         .append(bandwidth).append(", reservationId=").append(reservationId).append("]");
     return builder.toString();
   }
+  
+  public synchronized boolean isCurrentlyProcessing() {
+    return currentlyProcessing;
+  }
+  
+  public synchronized void setCurrentlyProcessing(boolean flag) {
+    this.currentlyProcessing = flag;
+  }
+  
 }
