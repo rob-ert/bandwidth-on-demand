@@ -263,6 +263,9 @@ public class ReservationService {
    * Starts the {@link ReservationPoller#monitorStatus(Reservation)}, updates
    * the given {@link Reservation} when a status change occurs.
    * 
+   * Schedules monitoring for expected status changes by calling
+   * {@link #checkAllReservationsForStatusUpdate()}
+   * 
    * @param stopStatus
    *          whenever this {@link ReservationStatus} is reached to monitoring
    *          will stop.
@@ -272,6 +275,8 @@ public class ReservationService {
    */
   public void monitorReservationStatus(ReservationStatus stopStatus, Reservation... reservations) {
     reservationPoller.monitorStatus(stopStatus, reservations);
+
+    checkFutureReservationsForStatusChange();
   }
 
   /**
