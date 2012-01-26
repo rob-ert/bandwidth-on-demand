@@ -21,20 +21,17 @@
  */
 package nl.surfnet.bod.pages.virtual;
 
-import org.openqa.selenium.WebElement;
+import nl.surfnet.bod.pages.AbstractListPage;
+
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class ListVirtualPortPage {
+public class ListVirtualPortPage extends AbstractListPage {
 
-  private final RemoteWebDriver driver;
-
-  @FindBy(css = "table.zebra-striped tbody")
-  private WebElement table;
+  private static final String PAGE =  "/manager/virtualports";
 
   public ListVirtualPortPage(RemoteWebDriver driver) {
-    this.driver = driver;
+    super(driver);
   }
 
   public static ListVirtualPortPage get(RemoteWebDriver driver) {
@@ -44,7 +41,9 @@ public class ListVirtualPortPage {
     return page;
   }
 
-  public String getTable() {
-    return table.getText();
+  public static ListVirtualPortPage get(RemoteWebDriver driver, String baseUrl) {
+    driver.get(baseUrl + PAGE);
+    return get(driver);
   }
+
 }

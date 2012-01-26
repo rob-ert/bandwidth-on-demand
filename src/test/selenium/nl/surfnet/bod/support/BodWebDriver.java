@@ -30,7 +30,6 @@ import static org.hamcrest.Matchers.not;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.pages.ListReservationPage;
 import nl.surfnet.bod.pages.NewReservationPage;
@@ -78,10 +77,10 @@ public class BodWebDriver {
     }
   }
 
-  public void createNewPhysicalGroup(String name) throws Exception {
+  public void createNewPhysicalGroup(String institute, String adminGroup) throws Exception {
     NewPhysicalResourceGroupPage page = NewPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
-    page.sendName(name);
-    page.sendInstitute("Utrecht");
+    page.sendInstitute(institute);
+    page.sendAdminGroup(adminGroup);
 
     page.save();
   }
@@ -90,18 +89,22 @@ public class BodWebDriver {
     return path.endsWith("/") ? path : path + "/";
   }
 
-  public void deletePhysicalGroup(PhysicalResourceGroup group) {
+  public void deletePhysicalGroup(String institute, String adminGroup) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
 
-    page.deleteByName(group.getName());
+    page.delete(institute, adminGroup);
   }
 
-  public void verifyGroupWasCreated(String name) {
-    assertListTable(containsString(name));
+  public void verifyGroupWasCreated(String institute, String adminGroup) {
+    assertListTable(allOf(containsString(institute), containsString(adminGroup)));
   }
 
-  public void verifyGroupWasDeleted(PhysicalResourceGroup group) {
-    assertListTable(not(containsString(group.getName())));
+  public void verifyGroupWasDeleted(String institute, String adminGroup) {
+    ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver);
+
+    if (page.containsAnyItems()) {
+      assertListTable(not(allOf(containsString(institute), containsString(adminGroup))));
+    }
   }
 
   private void assertListTable(Matcher<String> tableMatcher) {
@@ -123,7 +126,7 @@ public class BodWebDriver {
   public void deleteVirtualResourceGroup(String vrgName) {
     ListVirtualResourceGroupPage page = ListVirtualResourceGroupPage.get(driver, URL_UNDER_TEST);
 
-    page.deleteByName(vrgName);
+    page.delete(vrgName);
   }
 
   public void verifyVirtualResourceGroupWasCreated(String name) {
@@ -171,7 +174,7 @@ public class BodWebDriver {
     page.sendStartTime(startTime);
     page.sendEndDate(endDate);
     page.sendEndTime(endTime);
-    page.sendBandwidth("10000");
+    page.sendBandwidth("5000");
 
     page.save();
   }
@@ -205,6 +208,20 @@ public class BodWebDriver {
     ListReservationPage page = ListReservationPage.get(driver);
 
     page.reservationShouldBe(startDate, endDate, startTime, endTime, ReservationStatus.CANCELLED);
+  }
+
+  public void deleteVirtualPort(String name) {
+    ListVirtualPortPage page = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
+
+    page.delete(name);
+  }
+
+  public void verifyVirtualPortWasDeleted(String name) {
+    ListVirtualPortPage page = ListVirtualPortPage.get(driver);
+
+    if (page.containsAnyItems()) {
+      assertListTable(not(containsString(name)));
+    }
   }
 
 }

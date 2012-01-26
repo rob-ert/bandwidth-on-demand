@@ -426,6 +426,12 @@
             <groupId>org.opendrac</groupId>
             <artifactId>ResourceAllocationAndSchedulingService</artifactId>
             <version>${opendrac.dev.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         
          <dependency>
@@ -662,6 +668,13 @@
                             <webAppConfig>
                                 <contextPath>/${project.name}</contextPath>
                             </webAppConfig>
+                            <systemProperties>
+                                <systemProperty>
+                                    <name>jdbc.jdbcUrl</name>
+                                    <value>jdbc:postgresql://localhost/bod-selenium</value>
+                                </systemProperty>
+                             </systemProperties>
+                            <systemPropertiesFile>src/test/resources/bod.properties</systemPropertiesFile>
                             <connectors>
                                 <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                                     <port>${jetty.port}</port>

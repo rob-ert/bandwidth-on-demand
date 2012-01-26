@@ -118,7 +118,7 @@ class NbiServiceOffline implements NbiService {
 
   @Override
   public void cancelReservation(String scheduleId) {
-    throw new UnsupportedOperationException();
+    // nothing todo..
   }
 
   @Override

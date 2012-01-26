@@ -21,24 +21,17 @@
  */
 package nl.surfnet.bod.pages.physical;
 
-import java.util.List;
+import nl.surfnet.bod.pages.AbstractListPage;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class ListPhysicalResourceGroupPage {
+public class ListPhysicalResourceGroupPage extends AbstractListPage {
 
   private static final String PAGE = "noc/physicalresourcegroups";
-  private final RemoteWebDriver driver;
-
-  @FindBy(css = "table.zebra-striped tbody")
-  private WebElement table;
 
   public ListPhysicalResourceGroupPage(RemoteWebDriver driver) {
-    this.driver = driver;
+    super(driver);
   }
 
   public static ListPhysicalResourceGroupPage get(RemoteWebDriver driver, String urlUnderTest) {
@@ -53,22 +46,4 @@ public class ListPhysicalResourceGroupPage {
     return page;
   }
 
-  public String getTable() {
-    return table.getText();
-  }
-
-  public void deleteByName(String name) {
-    List<WebElement> rows = table.findElements(By.tagName("tr"));
-
-    for (WebElement row : rows) {
-      if (row.getText().contains(name)) {
-        WebElement deleteButton = row.findElement(By.cssSelector("input[type=image]"));
-        deleteButton.click();
-        driver.switchTo().alert().accept();
-        return;
-      }
-    }
-
-    throw new AssertionError(String.format("Physical resource group with name '%s' not found", name));
-  }
 }

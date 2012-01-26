@@ -36,11 +36,11 @@ public class NewPhysicalResourceGroupPage {
 
   private final Probes probes;
 
-  @FindBy(id = "_name_id")
-  private WebElement nameInput;
-
-  @FindBy(css = "input[name='instituteName_search']")
+  @FindBy(css = "input[name='instituteId_search']")
   private WebElement instituteInput;
+
+  @FindBy(css = "input[name='adminGroup']")
+  private WebElement adminGroupInput;
 
   @FindBy(css = "input[type='submit']")
   private WebElement saveButton;
@@ -57,11 +57,6 @@ public class NewPhysicalResourceGroupPage {
     return page;
   }
 
-  public void sendName(String name) {
-    nameInput.clear();
-    nameInput.sendKeys(name);
-  }
-
   public void sendInstitute(String institute) throws Exception {
     instituteInput.clear();
     instituteInput.sendKeys(institute);
@@ -74,6 +69,11 @@ public class NewPhysicalResourceGroupPage {
 
   public void save() {
     saveButton.click();
+  }
+
+  public void sendAdminGroup(String adminGroup) {
+    adminGroupInput.clear();
+    adminGroupInput.sendKeys(adminGroup);
   }
 
 }
