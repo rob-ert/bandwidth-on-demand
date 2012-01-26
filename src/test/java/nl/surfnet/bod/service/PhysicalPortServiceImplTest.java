@@ -58,7 +58,8 @@ public class PhysicalPortServiceImplTest {
   private PhysicalPortServiceImpl subject;
 
   @Mock
-  private NbiServiceOpenDracRmi nbiServiceMock;
+  private NbiService nbiServiceMock;
+
   @Mock
   private PhysicalPortRepo physicalPortRepoMock;
 
@@ -67,7 +68,7 @@ public class PhysicalPortServiceImplTest {
     List<PhysicalPort> nbiPorts = Lists.newArrayList(
         new PhysicalPortFactory().setName("first").setId(1L).create(),
         new PhysicalPortFactory().setName("second").setId(1L).create());
-    
+
     List<PhysicalPort> repoPorts = Lists.newArrayList(
         new PhysicalPortFactory().setName("first").setId(1L).setVersion(2).create());
 

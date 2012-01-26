@@ -412,16 +412,20 @@
         <!-- OpenDRAC Jars -->
         <dependency>
             <groupId>org.opendrac</groupId>
-            <artifactId>Nrb</artifactId>
+            <artifactId>Common</artifactId>
             <version>${opendrac.prod.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jdom</groupId>
+                    <artifactId>jdom</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-lang</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     
-        <dependency>
-            <groupId>org.opendrac</groupId>
-            <artifactId>RequestHandler</artifactId>
-            <version>${opendrac.prod.version}</version>
-        </dependency>
-        
         <dependency>
             <groupId>org.opendrac</groupId>
             <artifactId>ResourceAllocationAndSchedulingService</artifactId>
@@ -457,7 +461,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
     </dependencies>
 
     <build>
