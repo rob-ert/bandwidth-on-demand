@@ -54,7 +54,7 @@
             var record = $("<div/>", {text: message, class: "alert-message"}).append(closeLink).alert();
             setTimeout(function() {
                 closeLink.click();
-            }, 2000);
+            }, 10000);
             $("#messages").append(record);
         }
     })
