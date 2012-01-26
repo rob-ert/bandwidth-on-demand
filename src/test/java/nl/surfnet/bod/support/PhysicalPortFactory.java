@@ -22,13 +22,16 @@
 package nl.surfnet.bod.support;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
 public class PhysicalPortFactory {
-  
-  private Long id = null;
+
+  private static final AtomicLong COUNTER = new AtomicLong();
+
+  private Long id = COUNTER.incrementAndGet();
   private String name = "nameDefault " + id;
   private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
   private Integer version;

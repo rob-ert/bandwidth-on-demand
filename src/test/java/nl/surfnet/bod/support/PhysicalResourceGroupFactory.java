@@ -32,8 +32,9 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import com.google.common.collect.Lists;
 
 public class PhysicalResourceGroupFactory {
-
-  private Long id = new AtomicLong().incrementAndGet();
+  private static final AtomicLong COUNTER = new AtomicLong();
+  
+  private Long id = COUNTER.incrementAndGet();
   private String adminGroup = null;
   private List<PhysicalPort> physicalPorts = Lists.newArrayList();
   private Institute institute = new InstituteFactory().setId(id).setName("Institute " + id).create();

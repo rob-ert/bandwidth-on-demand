@@ -33,7 +33,9 @@ import org.joda.time.LocalTime;
 
 public class ReservationFactory {
 
-  private static Long id = new AtomicLong().incrementAndGet();
+  private static final AtomicLong COUNTER = new AtomicLong();
+  
+  private static Long id = COUNTER.incrementAndGet();
   private Integer version;
   private VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().create();
   private ReservationStatus status = ReservationStatus.SCHEDULED;
