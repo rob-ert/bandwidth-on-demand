@@ -41,6 +41,7 @@ import nl.surfnet.bod.pages.virtual.NewVirtualPortPage;
 import nl.surfnet.bod.pages.virtual.NewVirtualResourceGroupPage;
 
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.openqa.selenium.OutputType;
@@ -96,14 +97,14 @@ public class BodWebDriver {
   }
 
   public void verifyGroupWasCreated(String institute, String adminGroup) {
-    assertListTable(allOf(containsString(institute), containsString(adminGroup)));
+    assertListTable(Matchers.<String>allOf(containsString(institute), containsString(adminGroup)));
   }
 
   public void verifyGroupWasDeleted(String institute, String adminGroup) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver);
 
     if (page.containsAnyItems()) {
-      assertListTable(not(allOf(containsString(institute), containsString(adminGroup))));
+      assertListTable(not(Matchers.<String>allOf(containsString(institute), containsString(adminGroup))));
     }
   }
 
