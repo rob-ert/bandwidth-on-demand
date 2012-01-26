@@ -4,7 +4,8 @@ $(function() {
     afterReload: function(data) {
       groupInJson = data;
       setHalfBandwidth();
-  	}	
+  	},
+  	displayProp: "userLabel"
   });
   $("#bandwidthQuater").click(function() {setQuaterBandwidth(); return false;});
   $("#bandwidthHalf").click(function() {setHalfBandwidth(); return false;});
