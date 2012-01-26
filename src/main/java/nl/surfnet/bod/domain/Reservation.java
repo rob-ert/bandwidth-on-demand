@@ -91,7 +91,7 @@ public class Reservation {
   private String reservationId;
 
   @Transient
-  private volatile boolean currentlyProcessing;
+  private volatile boolean monitored;
     
   public Long getId() {
     return id;
@@ -133,7 +133,7 @@ public class Reservation {
     this.sourcePort = sourcePort;
   }
 
-  public VirtualPort getDestinationPort() {
+   public VirtualPort getDestinationPort() {
     return destinationPort;
   }
 
@@ -217,12 +217,12 @@ public class Reservation {
     return builder.toString();
   }
   
-  public synchronized boolean isCurrentlyProcessing() {
-    return currentlyProcessing;
+  public synchronized boolean isMonitored() {
+    return monitored;
   }
   
-  public synchronized void setCurrentlyProcessing(boolean flag) {
-    this.currentlyProcessing = flag;
+  public synchronized void setMonitored(boolean flag) {
+    this.monitored = flag;
   }
   
 }

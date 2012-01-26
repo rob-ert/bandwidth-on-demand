@@ -8,6 +8,9 @@ import javax.annotation.PostConstruct;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.web.push.EndPoints;
+import nl.surfnet.bod.web.push.Event;
+import nl.surfnet.bod.web.push.Events;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +50,9 @@ public class ReservationPoller {
 
   @Autowired
   private ReservationService reservationService;
+
+  @Autowired
+  private EndPoints endPoints;
 
   @PostConstruct
   public void init() {
@@ -97,7 +103,7 @@ public class ReservationPoller {
   public synchronized void monitorStatus(ReservationStatus stopStatus, Reservation... reservations) {
 
     for (Reservation reservation : reservations) {
-      if (!reservation.isCurrentlyProcessing()) {
+      if (!reservation.isMonitored()) {
         ReservationStatusCheckTask checkTask = new ReservationStatusCheckTask(stopStatus, reservation);
 
         ScheduledFuture<?> schedule = taskScheduler.schedule(checkTask, trigger);
@@ -123,7 +129,7 @@ public class ReservationPoller {
    */
   public synchronized void monitorStatusWIthSpecificStart(Date startTime, Reservation reservation) {
 
-    if (!reservation.isCurrentlyProcessing()) {
+    if (!reservation.isMonitored()) {
       ReservationStatusCheckTask checkTask = new ReservationStatusCheckTask(reservation);
 
       ScheduledFuture<?> schedule = taskScheduler.scheduleAtFixedRate(checkTask, startTime,
@@ -184,7 +190,7 @@ public class ReservationPoller {
       this.stopStatus = stopStatus;
       this.reservation = reservation;
 
-      reservation.setCurrentlyProcessing(true);
+      reservation.setMonitored(true);
     }
 
     public synchronized void setSchedule(ScheduledFuture<?> schedule) {
@@ -210,11 +216,12 @@ public class ReservationPoller {
       log.info("Start monitoring reservation [{}] for state change", reservation.getReservationId());
 
       if (isMonitoringDisabled()) {
-        reservation.setCurrentlyProcessing(false);
+        reservation.setMonitored(false);
         return;
       }
       tries++;
 
+      final ReservationStatus oldReservationStatus = reservation.getStatus();
       final ReservationStatus actualReservationStatus = reservationService.getStatus(reservation);
 
       log.debug("Reservation [{}] was [{}] is now: {} ", new String[] { reservation.getReservationId(),
@@ -226,13 +233,13 @@ public class ReservationPoller {
       }
 
       if ((actualReservationStatus == stopStatus) || reservationService.isEndState(actualReservationStatus)) {
-        cancelSchedule();
+        stopPolling(oldReservationStatus);
         log.info("Monitoring stops for reservation [{}] status is updated to: {} ", reservation.getReservationId(),
             reservation.getStatus());
       }
       else {
         if (tries >= maxTries) {
-          cancelSchedule();
+          stopPolling(oldReservationStatus);
           log.warn("Monitoring cancelled for reservation [{}]. MaxTries [{}] is reached",
               reservation.getReservationId(), maxTries);
         }
@@ -243,17 +250,20 @@ public class ReservationPoller {
      * Cancels the schedule, since this task runs in a separate thread it is not
      * guaranteed that the schedule is already set when we need it. Therefore
      * wait until it is available. This will only block this thread at the end
-     * of its flow. The flag on the {@link Reservation#isCurrentlyProcessing()}
-     * will be set to false, since we are done.
+     * of its flow. The flag on the {@link Reservation#isMonitored()}
+     * will be set to false, since we are done. Raises an event
+     * {@link Events#createReservationStatusChangedEvent(Reservation, ReservationStatus)}
      */
-    private void cancelSchedule() {
+    private void stopPolling(ReservationStatus reservationStatus) {
       while (schedule == null) {
         log.debug("Waiting for schedule to be available");
       }
 
       schedule.cancel(false);
-      reservation.setCurrentlyProcessing(false);
-    }
+      reservation.setMonitored(false);
 
+      Event reservationStatusChangedEvent = Events.createReservationStatusChangedEvent(reservation, reservationStatus);
+      endPoints.broadcast(reservationStatusChangedEvent);
+    }
   }
 }
