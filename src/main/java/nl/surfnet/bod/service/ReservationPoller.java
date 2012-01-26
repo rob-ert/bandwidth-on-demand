@@ -75,18 +75,6 @@ public class ReservationPoller {
 
   /**
    * Starts a scheduler and updates the given {@link Reservation}s when a change
-   * in state is detected.
-   * 
-   * @param reservation
-   *          The {@link Reservation} to monitor
-   * @return
-   */
-  public void monitorStatus(Reservation... reservations) {
-    monitorStatus(null, reservations);
-  }
-
-  /**
-   * Starts a scheduler and updates the given {@link Reservation}s when a change
    * in state is detected. Will only schedule a new task if there is currently
    * no task for the reservation running.
    * 
@@ -111,35 +99,40 @@ public class ReservationPoller {
         checkTask.setSchedule(schedule);
       }
       else {
-        log.debug("Skipping task, is already scheduled for reservation {}", reservation);
+        log.debug("No new task is scheduled, since there is one already running for reservation {}",
+            reservation.getReservationId());
       }
     }
   }
 
   /**
    * Starts a scheduler at a specific time and updates the given
-   * {@link Reservation}s when a change in state is detected. Will only schedule
-   * a new task if there is currently no task for the reservation running.
+   * {@link Reservation}s when a change in state is detected.
+   * 
+   * Since a specific time is given, not check for running reservations will be
+   * done when scheduling. Of course this check will be performed during
+   * execution of the task.
    * 
    * @param startTime
    *          The time the trigger should start
    * 
    * @param reservation
    *          The {@link Reservation} to monitor
+   * 
+   * @param expectedStatus
+   *          The {@link ReservationStatus} which is expected, so the monitoring
+   *          can stop.
    */
-  public synchronized void monitorStatusWIthSpecificStart(Date startTime, Reservation reservation) {
+  public synchronized void monitorStatusWIthSpecificStart(Date startTime, Reservation reservation,
+      ReservationStatus expectedStatus) {
 
-    if (!reservation.isMonitored()) {
-      ReservationStatusCheckTask checkTask = new ReservationStatusCheckTask(reservation);
+    ReservationStatusCheckTask checkTask = new ReservationStatusCheckTask(expectedStatus, reservation);
 
-      ScheduledFuture<?> schedule = taskScheduler.scheduleAtFixedRate(checkTask, startTime,
-          (pollIntervalInSeconds * 1000L));
+    ScheduledFuture<?> schedule = taskScheduler.scheduleAtFixedRate(checkTask, startTime,
+        (pollIntervalInSeconds * 1000L));
 
-      checkTask.setSchedule(schedule);
-    }
-    else {
-      log.debug("Skipping task, is already scheduled for reservation {}", reservation);
-    }
+    checkTask.setSchedule(schedule);
+
   }
 
   /**
@@ -168,16 +161,6 @@ public class ReservationPoller {
     private volatile ScheduledFuture schedule;
 
     /**
-     * Monitors the given {@link Reservation} until an endState is reached
-     * 
-     * @param reservation
-     *          The Reservation to monitor
-     */
-    public ReservationStatusCheckTask(final Reservation reservation) {
-      this(null, reservation);
-    }
-
-    /**
      * Monitors the given {@link Reservation} until the specified stopStatus is
      * reached or an endState;
      * 
@@ -189,8 +172,6 @@ public class ReservationPoller {
     public ReservationStatusCheckTask(ReservationStatus stopStatus, final Reservation reservation) {
       this.stopStatus = stopStatus;
       this.reservation = reservation;
-
-      reservation.setMonitored(true);
     }
 
     public synchronized void setSchedule(ScheduledFuture<?> schedule) {
@@ -213,36 +194,57 @@ public class ReservationPoller {
      * If {@link #maxTries} is negative, monitoring will be disabled.
      */
     public void run() {
-      log.info("Start monitoring reservation [{}] for state change", reservation.getReservationId());
 
-      if (isMonitoringDisabled()) {
-        reservation.setMonitored(false);
-        return;
-      }
-      tries++;
-
-      final ReservationStatus oldReservationStatus = reservation.getStatus();
-      final ReservationStatus actualReservationStatus = reservationService.getStatus(reservation);
-
-      log.debug("Reservation [{}] was [{}] is now: {} ", new String[] { reservation.getReservationId(),
-          reservation.getStatus().name(), actualReservationStatus.name() });
-
-      if (reservation.getStatus() != actualReservationStatus) {
-        reservation.setStatus(actualReservationStatus);
-        reservation = reservationService.update(reservation);
-      }
-
-      if ((actualReservationStatus == stopStatus) || reservationService.isEndState(actualReservationStatus)) {
-        stopPolling(oldReservationStatus);
-        log.info("Monitoring stops for reservation [{}] status is updated to: {} ", reservation.getReservationId(),
-            reservation.getStatus());
-      }
-      else {
-        if (tries >= maxTries) {
-          stopPolling(oldReservationStatus);
-          log.warn("Monitoring cancelled for reservation [{}]. MaxTries [{}] is reached",
-              reservation.getReservationId(), maxTries);
+      try {
+        if (reservation.isMonitored()) {
+          log.debug("Skipping task, is already scheduled for reservation {}", reservation.getReservationId());
+          return;
         }
+        // Indicate we are busy
+        reservation.setMonitored(true);
+
+        if (isMonitoringDisabled()) {
+          reservation.setMonitored(false);
+          return;
+        }
+
+        log.info("Start checking reservation [{}] for state change", reservation.getReservationId());
+        tries++;
+        // Always start with an fresh instance from the db
+        reservation = reservationService.find(reservation.getId());
+        reservation.setMonitored(true);
+
+        final ReservationStatus actualReservationStatus = reservationService.getStatus(reservation);
+
+        ReservationStatus oldReservationStatus = null;
+        if (reservation.getStatus() != actualReservationStatus) {
+          oldReservationStatus = reservation.getStatus();
+          reservation.setStatus(actualReservationStatus);
+
+          reservation = reservationService.update(reservation);
+          reservation.setMonitored(true);
+
+          log.info("Status for reservation [{}] has changed from [{}] to: {}",
+              new String[] { reservation.getReservationId(), oldReservationStatus.name(),
+                  reservation.getStatus().name() });
+        }
+
+        if ((actualReservationStatus == stopStatus) || reservationService.isEndState(actualReservationStatus)) {
+          stopPolling(oldReservationStatus);
+          log.info("Expected status reached, monitoring stops for reservation [{}] status is: {} ",
+              reservation.getReservationId(), reservation.getStatus());
+        }
+        else {
+          if (tries >= maxTries) {
+            stopPolling(oldReservationStatus);
+            log.warn("Monitoring cancelled for reservation [{}] with status [{}] MaxTries [{}] is reached",
+                new Object[] { reservation.getReservationId(), reservation.getStatus(), maxTries });
+          }
+        }
+      }
+      finally {
+        // We are done
+        reservation.setMonitored(false);
       }
     }
 
@@ -250,20 +252,22 @@ public class ReservationPoller {
      * Cancels the schedule, since this task runs in a separate thread it is not
      * guaranteed that the schedule is already set when we need it. Therefore
      * wait until it is available. This will only block this thread at the end
-     * of its flow. The flag on the {@link Reservation#isMonitored()}
-     * will be set to false, since we are done. Raises an event
-     * {@link Events#createReservationStatusChangedEvent(Reservation, ReservationStatus)}
+     * of its flow. The flag on the {@link Reservation#isMonitored()} will be
+     * set to false, since we are done. Raises an event
+     * {@link Events#createReservationStatusChangedEvent(Reservation)}
      */
-    private void stopPolling(ReservationStatus reservationStatus) {
+    private void stopPolling(ReservationStatus oldStatus) {
       while (schedule == null) {
         log.debug("Waiting for schedule to be available");
       }
 
       schedule.cancel(false);
-      reservation.setMonitored(false);
 
-      Event reservationStatusChangedEvent = Events.createReservationStatusChangedEvent(reservation, reservationStatus);
-      endPoints.broadcast(reservationStatusChangedEvent);
+      if ((reservation.getStatus() != oldStatus)) {
+        Event event = Events.createReservationStatusChangedEvent(reservation, oldStatus);
+        endPoints.broadcast(event);
+      }
+
     }
   }
 }
