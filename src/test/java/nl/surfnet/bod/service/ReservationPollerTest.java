@@ -112,7 +112,7 @@ public class ReservationPollerTest {
   }
 
   private void waitWhilePollerIsDone(Reservation reservation) {
-    while (reservation.isCurrentlyProcessing()) {
+    while (reservation.isMonitored()) {
       log.debug("Waiting while reservation {} is processed.", reservation);
     }
   }
