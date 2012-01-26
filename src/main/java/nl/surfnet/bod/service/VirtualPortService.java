@@ -107,6 +107,10 @@ public class VirtualPortService {
     return virtualPortRepo.findByManagerLabel(label);
   }
 
+  public VirtualPort findByUserLabel(String label) {
+    return virtualPortRepo.findByUserLabel(label);
+  }
+
   public void save(final VirtualPort virtualPort) {
     virtualPortRepo.save(virtualPort);
   }
