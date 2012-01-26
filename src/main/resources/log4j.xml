@@ -31,8 +31,16 @@
     </layout>
   </appender>
 
+  <logger name="org.springframework">
+    <level value="WARN" />
+  </logger>
+  
+  <logger name="com.googlecode.ehcache" additivity="false">
+    <level value="DEBUG" />
+  </logger>
+   
   <logger name="nl.surfnet">
-    <level value="INFO" />
+    <level value="DEBUG" />
   </logger>
   
   <!-- ======================= -->
