@@ -23,6 +23,8 @@ package nl.surfnet.bod.web.security;
 
 import java.util.Collections;
 
+import nl.surfnet.bod.domain.VirtualPort;
+
 import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,6 +45,10 @@ public final class Security {
 
   public static boolean isUserNotMemberOf(String groupId) {
     return !isUserMemberOf(groupId);
+  }
+
+  public static boolean userMayEdit(VirtualPort virtualPort) {
+    return isUserMemberOf(virtualPort.getVirtualResourceGroup().getSurfConextGroupName());
   }
 
   /**

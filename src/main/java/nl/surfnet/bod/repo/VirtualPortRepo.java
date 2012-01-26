@@ -34,14 +34,14 @@ import org.springframework.stereotype.Repository;
 public interface VirtualPortRepo extends JpaSpecificationExecutor<VirtualPort>, JpaRepository<VirtualPort, Long> {
 
   /**
-   * Finds a {@link VirtualPort} by
-   * {@link VirtualPort#getName()}
+   * Finds a {@link VirtualPort} by its ict manager label.
    *
-   * @param name The name to search for
+   * @param label The label to search for
    * @return {@link VirtualPort} or null when no match was found.
    */
-  VirtualPort findByName(String name);
+  VirtualPort findByManagerLabel(String label);
+
+  VirtualPort findByUserLabel(String label);
 
   List<VirtualPort> findByPhysicalPort(PhysicalPort port);
-
 }

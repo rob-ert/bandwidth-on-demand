@@ -55,9 +55,30 @@ public class VirtualPortTest {
 
   @Test
   public void toStringShouldContainName() {
-    VirtualPort port = new VirtualPortFactory().setName("great port").create();
+    VirtualPort port = new VirtualPortFactory().setManagerLabel("great port").create();
 
     assertThat(port.toString(), containsString("great port"));
+  }
+
+  @Test
+  public void whenUserLabelIsNullShoulReturnMangerLabel() {
+    VirtualPort port = new VirtualPortFactory().setManagerLabel("manager label").setUserLabel(null).create();
+
+    assertThat(port.getUserLabel(), is("manager label"));
+  }
+
+  @Test
+  public void whenUserLabelIsEmptyShoulReturnMangerLabel() {
+    VirtualPort port = new VirtualPortFactory().setManagerLabel("manager label").setUserLabel("").create();
+
+    assertThat(port.getUserLabel(), is("manager label"));
+  }
+
+  @Test
+  public void whenUserLabelIsNotEmptyShoulReturnUserLabel() {
+    VirtualPort port = new VirtualPortFactory().setManagerLabel("manager label").setUserLabel("user label").create();
+
+    assertThat(port.getUserLabel(), is("user label"));
   }
 
 }

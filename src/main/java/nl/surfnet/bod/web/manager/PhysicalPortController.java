@@ -103,7 +103,7 @@ public class PhysicalPortController {
     private final String virtualResourceGroupName;
 
     public VirtualPortJsonView(VirtualPort port) {
-      this.name = port.getName();
+      this.name = port.getManagerLabel();
       this.maxBandwidth = port.getMaxBandwidth();
       this.vlanId = port.getVlanId();
       this.virtualResourceGroupName = port.getVirtualResourceGroup().getName();

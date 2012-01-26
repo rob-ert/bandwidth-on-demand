@@ -104,6 +104,12 @@ form .clearfix.error select {
 	box-shadow: 2px 3px 5px #0064CD;
 }
 
+.input-text {
+	padding-top: 6px;
+	font-size: 13px;
+	line-height: 18px;
+}
+
 .zebra-striped > thead > tr > th{background-color: white;}
 .zebra-striped > tbody > tr:nth-child(odd) > td,.zebra-striped > tbody > tr:nth-child(odd) > th{background-color:#f9f9f9;}
 .zebra-striped > tbody > tr > td,.zebra-striped > tbody > tr > th{background-color:white;}

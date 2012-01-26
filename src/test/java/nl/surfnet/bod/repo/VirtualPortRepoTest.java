@@ -23,9 +23,6 @@ package nl.surfnet.bod.repo;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-
-import java.util.Collection;
-
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.support.VirtualPortFactory;
 
@@ -34,8 +31,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.google.common.collect.Lists;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml", "/spring/appCtx-nbi-client.xml",
@@ -48,27 +43,24 @@ public class VirtualPortRepoTest {
   @Test
   public void testSave() {
     String name = "vpOne";
-    VirtualPort virtualPortOne = new VirtualPortFactory().setName(name).setPhysicalPortAdminGroup(null)
+    VirtualPort virtualPortOne = new VirtualPortFactory().setManagerLabel(name).setPhysicalPortAdminGroup(null)
         .setPhysicalPort(null).setVirtualResourceGroup(null).create();
 
     subject.save(virtualPortOne);
   }
 
   @Test
-  public void testFindByName() {
-    String name = "tester";
+  public void testFindByManagerLabel() {
+    String managerLabel = "tester";
 
-    VirtualPort virtualPort = new VirtualPortFactory().setName(name).setVirtualResourceGroup(null)
+    VirtualPort virtualPort = new VirtualPortFactory().setId(null).setManagerLabel(managerLabel).setVirtualResourceGroup(null)
         .setPhysicalPortAdminGroup(null).setPhysicalPort(null).create();
-    Collection<VirtualPort> virtualPorts = Lists.newArrayList(virtualPort,
-        new VirtualPortFactory().setName("notToBeFound").setVirtualResourceGroup(null).setPhysicalPortAdminGroup(null)
-            .setPhysicalPort(null).create());
 
-    subject.save(virtualPorts);
+    subject.save(virtualPort);
 
-    VirtualPort foundPhysicalResourceGroup = subject.findByName(name);
+    VirtualPort foundPhysicalResourceGroup = subject.findByManagerLabel(managerLabel);
 
-    assertThat(foundPhysicalResourceGroup.getName(), is(name));
+    assertThat(foundPhysicalResourceGroup.getManagerLabel(), is(managerLabel));
 
   }
 }
