@@ -27,7 +27,7 @@
 
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
     <layout class="org.apache.log4j.PatternLayout">
-      <param name="ConversionPattern" value="%d %p [%c] [%M] [Thread:%t] - [%m]%n" />
+      <param name="ConversionPattern" value="[%p] [%d] [%c#%M] [%t]%n       %m%n" />
     </layout>
   </appender>
 
@@ -35,8 +35,8 @@
     <level value="WARN" />
   </logger>
   
-  <logger name="com.googlecode.ehcache" additivity="false">
-    <level value="DEBUG" />
+  <logger name="com.googlecode.ehcache">
+    <level value="WARN" />
   </logger>
    
   <logger name="nl.surfnet">
