@@ -66,8 +66,9 @@ public class PhysicalPortController {
     return "manager/physicalports/list";
   }
 
-  @RequestMapping(value = "/{id}/virtualports", method = RequestMethod.GET)
-  public @ResponseBody Collection<VirtualPortJsonView> listVirtualPorts(@PathVariable Long id) {
+  @RequestMapping(value = "/{id}/virtualports", method = RequestMethod.GET, headers = "accept=application/json")
+  @ResponseBody
+  public Collection<VirtualPortJsonView> listVirtualPortsJson(@PathVariable Long id) {
     PhysicalPort physicalPort = physicalPortService.find(id);
 
     return Collections2.transform(virtualPortService.findAllForPhysicalPort(physicalPort),
