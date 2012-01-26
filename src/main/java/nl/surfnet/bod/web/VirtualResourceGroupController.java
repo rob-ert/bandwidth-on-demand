@@ -43,8 +43,9 @@ public class VirtualResourceGroupController {
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
 
-  @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET)
-  public @ResponseBody Collection<VirtualPort> listForVirtualResourceGroup(@PathVariable Long id) {
+  @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET, headers = "accept=application/json")
+  @ResponseBody
+  public Collection<VirtualPort> listForVirtualResourceGroup(@PathVariable Long id) {
     VirtualResourceGroup group = virtualResourceGroupService.find(id);
 
     if (group == null || Security.isUserNotMemberOf(group.getSurfConextGroupName())) {

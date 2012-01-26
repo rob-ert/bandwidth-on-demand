@@ -66,8 +66,8 @@ public class InstituteController {
   }
 
   @RequestMapping(method = RequestMethod.GET, headers = "accept=application/json")
-  public @ResponseBody Collection<Institute> jsonList(
-      @RequestParam(required = false) String q) {
+  @ResponseBody
+  public Collection<Institute> jsonList(@RequestParam(required = false) String q) {
     final Collection<String> existingInstitutes = getExistingInstituteNames();
     final String query = StringUtils.hasText(q) ? q.toLowerCase() : "";
 

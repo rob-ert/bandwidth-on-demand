@@ -43,8 +43,9 @@ public class PhysicalResourceGroupController {
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
 
-  @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET)
-  public @ResponseBody Collection<PhysicalPort> listForPhysicalResourceGroup(@PathVariable Long id) {
+  @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET, headers = "accept=application/json")
+  @ResponseBody
+  public Collection<PhysicalPort> listForPhysicalResourceGroup(@PathVariable Long id) {
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
 
     if (group == null || Security.isUserNotMemberOf(group.getAdminGroup())) {
