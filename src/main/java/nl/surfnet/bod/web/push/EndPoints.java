@@ -5,6 +5,8 @@ import java.util.Collection;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.eclipse.jetty.websocket.WebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Predicate;
@@ -14,6 +16,7 @@ import com.google.common.collect.Multimaps;
 
 @Component
 public class EndPoints {
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private final Multimap<RichUserDetails, EndPoint> endPoints = Multimaps.synchronizedMultimap(HashMultimap
       .<RichUserDetails, EndPoint> create());
@@ -45,6 +48,8 @@ public class EndPoints {
     for (EndPoint client : clients) {
       client.sendMessage(message);
     }
+
+    log.debug("Sent message [{}] to [{}] clients", message, clients.size());
   }
 
 }

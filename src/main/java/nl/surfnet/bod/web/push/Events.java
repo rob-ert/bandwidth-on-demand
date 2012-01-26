@@ -17,11 +17,18 @@ public final class Events {
   }
 
   public static Event createReservationStatusChangedEvent(Reservation reservation, ReservationStatus oldStatus) {
+    String message = null;
 
-    String message = String.format("The status of Reservation {} , was changed from {} to {}", new Object[] {
-        reservation.getReservationId(), oldStatus, reservation.getStatus() });
+    if (oldStatus != null) {
+      message = String.format("The status of Reservation %s was changed from %s to %s",
+          new Object[] { reservation.getReservationId(), oldStatus, reservation.getStatus() });
+    }
+    else {
+      message = String.format("The status of Reservation %s was changed to %s",
+          new Object[] { reservation.getReservationId(), reservation.getStatus() });
+    }
 
-    return new SimpleEvent(reservation.getVirtualResourceGroup().getName(), message);
+    return new SimpleEvent(reservation.getVirtualResourceGroup().getSurfConextGroupName(), message);
   }
 
   public static final class SimpleEvent implements Event {
@@ -34,7 +41,7 @@ public final class Events {
       this.groupId = groupId;
       this.message = message;
 
-      log.debug("Created event for groupId {} with message {}", groupId, message);
+      log.debug("Created event for groupId [{}] with message [{}]", groupId, message);
     }
 
     @Override
