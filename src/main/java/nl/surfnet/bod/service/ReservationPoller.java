@@ -95,7 +95,6 @@ public class ReservationPoller {
         ReservationStatusCheckTask checkTask = new ReservationStatusCheckTask(stopStatus, reservation);
 
         ScheduledFuture<?> schedule = taskScheduler.schedule(checkTask, trigger);
-
         checkTask.setSchedule(schedule);
       }
       else {
@@ -130,7 +129,6 @@ public class ReservationPoller {
 
     ScheduledFuture<?> schedule = taskScheduler.scheduleAtFixedRate(checkTask, startTime,
         (pollIntervalInSeconds * 1000L));
-
     checkTask.setSchedule(schedule);
 
   }
@@ -177,7 +175,7 @@ public class ReservationPoller {
     public synchronized void setSchedule(ScheduledFuture<?> schedule) {
       this.schedule = schedule;
     }
-
+    
     /**
      * Retrieves the actual {@link ReservationStatus} for the
      * {@link #reservation} and when it has changes, the new status will be
