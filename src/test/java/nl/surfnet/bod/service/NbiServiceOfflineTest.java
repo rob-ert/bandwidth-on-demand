@@ -31,12 +31,12 @@ public class NbiServiceOfflineTest {
   }
 
   @Test
-  public void findByName() {
+  public void findByNetworkElementId() {
     PhysicalPort port = subject.findAllPhysicalPorts().get(0);
 
-    PhysicalPort foundPort = subject.findPhysicalPortByName(port.getName());
+    PhysicalPort foundPort = subject.findPhysicalPortByNetworkElementId(port.getNetworkElementPk());
 
-    assertThat(foundPort, is(port));
+    assertThat(foundPort.getNetworkElementPk(), is(port.getNetworkElementPk()));
   }
 
 }

@@ -1,0 +1,1 @@
+ALTER TABLE physical_port DROP CONSTRAINT physical_port_name_key;

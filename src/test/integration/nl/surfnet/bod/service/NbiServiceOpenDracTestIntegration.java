@@ -36,7 +36,7 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
-import org.junit.*;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -56,22 +56,6 @@ public class NbiServiceOpenDracTestIntegration {
   @Autowired
   private NbiService nbiService;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
-  }
-
-  @AfterClass
-  public static void tearDownAfterClass() throws Exception {
-  }
-
-  @Before
-  public void setUp() throws Exception {
-  }
-
-  @After
-  public void tearDown() throws Exception {
-  }
-
   @Test
   public void testFindAllPhysicalPorts() throws Exception {
     final List<PhysicalPort> allPorts = nbiService.findAllPhysicalPorts();
@@ -80,11 +64,11 @@ public class NbiServiceOpenDracTestIntegration {
 
   @Test
   public void testFindPhysicalPortByName() throws Exception {
-    final PhysicalPort port = nbiService.findPhysicalPortByName("Ut002A_OME01_ETH-1-1-4");
-    assertEquals("Ut002A_OME01_ETH-1-1-4", port.getName());
+    final PhysicalPort port = nbiService.findPhysicalPortByNetworkElementId("Ut002A_OME01_ETH-1-1-4");
+    assertEquals("Ut002A_OME01_ETH-1-1-4", port.getNetworkElementPk());
     assertEquals("00-1B-25-2D-DA-65_ETH-1-1-4", port.getNetworkElementPk());
   }
-  
+
   @Test
   public void testFindPhysicalPortByNetworkElementId() throws Exception {
     final PhysicalPort port = nbiService.findPhysicalPortByNetworkElementId("00-20-D8-DF-33-59_ETH-1-1-1");

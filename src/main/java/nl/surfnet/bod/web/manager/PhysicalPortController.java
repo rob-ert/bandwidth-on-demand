@@ -94,8 +94,7 @@ public class PhysicalPortController {
     });
   }
 
-
-  /// *** View objects *** ///
+  // / *** View objects *** ///
   public class VirtualPortJsonView {
 
     private final String name;
@@ -113,12 +112,15 @@ public class PhysicalPortController {
     public String getName() {
       return name;
     }
+
     public Integer getMaxBandwidth() {
       return maxBandwidth;
     }
+
     public Integer getVlanId() {
       return vlanId;
     }
+
     public String getVirtualResourceGroupName() {
       return virtualResourceGroupName;
     }
@@ -142,15 +144,19 @@ public class PhysicalPortController {
     public Integer getNumberOfVirtualPorts() {
       return virtualPorts.size();
     }
+
     public String getName() {
       return name;
     }
+
     public String getDisplayName() {
       return displayName;
     }
+
     public PhysicalResourceGroup getPhysicalResourceGroup() {
       return physicalResourceGroup;
     }
+
     public Long getId() {
       return id;
     }

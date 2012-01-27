@@ -64,13 +64,6 @@ public interface NbiService {
   List<PhysicalPort> findAllPhysicalPorts();
 
   /**
-   *
-   * @param name
-   * @return a {@link PhysicalPort} identified by a certain name, in OpenDRAC's case the network elements TNA
-   */
-  PhysicalPort findPhysicalPortByName(String name);
-
-  /**
    * Retrieve the status of a reservation.
    *
    * @param scheduleId

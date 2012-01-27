@@ -21,9 +21,9 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.collect.Iterables.*;
-import static com.google.common.collect.Lists.*;
-import static java.lang.String.*;
+import static com.google.common.collect.Iterables.limit;
+import static com.google.common.collect.Iterables.skip;
+import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -37,15 +37,18 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
@@ -64,12 +67,14 @@ import com.google.common.collect.Collections2;
 @Service
 public class PhysicalPortServiceImpl implements PhysicalPortService {
 
+  private Logger logger = LoggerFactory.getLogger(PhysicalPortServiceImpl.class);
+
   @Autowired
   private PhysicalPortRepo physicalPortRepo;
 
   @Autowired
   @Qualifier("nbiService")
-  private NbiService nbiPortService;
+  private NbiService nbiService;
 
   /**
    * Finds all ports using the North Bound Interface and enhances these ports
@@ -77,8 +82,10 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    */
   @Override
   public List<PhysicalPort> findAll() {
-    List<PhysicalPort> nbiPorts = nbiPortService.findAllPhysicalPorts();
+    List<PhysicalPort> nbiPorts = nbiService.findAllPhysicalPorts();
     List<PhysicalPort> repoPorts = physicalPortRepo.findAll();
+
+    logger.debug("Got '{}' ports from nbi and '{}' ports from the repo", nbiPorts.size(), repoPorts.size());
 
     enrichPorts(nbiPorts, repoPorts);
 
@@ -113,20 +120,22 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public long count() {
-    return nbiPortService.getPhysicalPortsCount();
+    return nbiService.getPhysicalPortsCount();
   }
 
   @Override
   public long countUnallocated() {
-    return nbiPortService.getPhysicalPortsCount() - physicalPortRepo.count();
+    return nbiService.getPhysicalPortsCount() - physicalPortRepo.count();
   }
 
   @Override
-  public PhysicalPort findByName(final String name) {
-    PhysicalPort nbiPort = nbiPortService.findPhysicalPortByName(name);
-    PhysicalPort repoPort = physicalPortRepo.findByName(name);
+  public PhysicalPort findByNetworkElementPk(final String networkElementPk) {
+    PhysicalPort nbiPort = nbiService.findPhysicalPortByNetworkElementId(networkElementPk);
+    PhysicalPort repoPort = physicalPortRepo.findByNetworkElementPk(networkElementPk);
 
-    enrichPortWithPort(nbiPort, repoPort);
+    if (repoPort != null) {
+      enrichPortWithPort(nbiPort, repoPort);
+    }
 
     return nbiPort;
   }
@@ -144,7 +153,6 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   @Override
   public void save(final PhysicalPort physicalPort) {
     physicalPortRepo.save(physicalPort);
-
   }
 
   @Override
@@ -155,31 +163,26 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   /**
    * Adds data found in given ports to the specified ports, enriches them.
    *
-   * @param portsToEnrich
+   * @param nbiPorts
    *          {@link PhysicalPort}s to add the data to
-   * @param dataPorts
+   * @param repoPorts
    *          {@link PhysicalPort}s containing additional data
    */
-  private void enrichPorts(final List<PhysicalPort> portsToEnrich, final List<PhysicalPort> dataPorts) {
-    // Iterate of the nbiPorts and find matching repoPort
-    for (final PhysicalPort portToEnrich : portsToEnrich) {
-
-      Collection<PhysicalPort> matchingPorts = Collections2.filter(dataPorts, new Predicate<PhysicalPort>() {
+  private void enrichPorts(final List<PhysicalPort> nbiPorts, final List<PhysicalPort> repoPorts) {
+    for (final PhysicalPort nbiPort : nbiPorts) {
+      Collection<PhysicalPort> matchingPorts = Collections2.filter(repoPorts, new Predicate<PhysicalPort>() {
         @Override
         public boolean apply(final PhysicalPort port) {
-          return StringUtils.hasText(portToEnrich.getName()) && portToEnrich.getName().equals(port.getName());
+          return nbiPort.getNetworkElementPk().equals(port.getNetworkElementPk());
         };
       });
 
-      if (!matchingPorts.isEmpty()) {
-        if (matchingPorts.size() == 1) {
-          enrichPortWithPort(portToEnrich, matchingPorts.iterator().next());
-        }
-        else {
-          throw new IllegalStateException(format("Name is not unique. Found [%s] ports with name: %s",
-              matchingPorts.size(), portToEnrich.getName()));
-        }
+      if (matchingPorts.isEmpty()) {
+        continue;
       }
+
+      PhysicalPort matchingPort = Iterables.getOnlyElement(matchingPorts);
+      enrichPortWithPort(nbiPort, matchingPort);
     }
   }
 
@@ -234,11 +237,10 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    *          The data to enrich with.
    */
   private void enrichPortWithPort(final PhysicalPort portToEnrich, final PhysicalPort dataPort) {
-    if (portToEnrich == null || dataPort == null) {
-      return;
-    }
-    portToEnrich.setPhysicalResourceGroup(dataPort.getPhysicalResourceGroup());
+    Preconditions.checkNotNull(portToEnrich);
+    Preconditions.checkNotNull(dataPort);
 
+    portToEnrich.setPhysicalResourceGroup(dataPort.getPhysicalResourceGroup());
     portToEnrich.setId(dataPort.getId());
     portToEnrich.setVersion(dataPort.getVersion());
   }

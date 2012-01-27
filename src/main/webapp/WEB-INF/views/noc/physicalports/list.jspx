@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form" xmlns:spring="http://www.springframework.org/tags"
-    xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
-    
+<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+    xmlns:spring="http://www.springframework.org/tags" xmlns:tiles="http://tiles.apache.org/tags-tiles"
+    xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
+
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
     <tiles:useAttribute id="show_unallocated" name="unallocated" classname="java.lang.Boolean" />
-    
+
     <spring:message code="label_physicalport_unallocated_plural" var="unallocated_plural_label" />
 
-    <page:list id="pl_PhysicalPort" items="${physicalPortList}" labelPlural="${show_unallocated ? unallocated_plural_label : ''}">
-        <table:table data="${physicalPortList}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/noc/physicalports" typeIdFieldName="name" delete="false" icon_url="/resources/images/link_break.png" icon_label="Unlink Physical Resource Group">
+    <page:list id="pl_PhysicalPort" items="${physicalPortList}"
+        labelPlural="${show_unallocated ? unallocated_plural_label : ''}">
+
+        <table:table data="${physicalPortList}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/noc/physicalports"
+            typeIdFieldName="networkElementPk" delete="false" icon_url="/resources/images/link_break.png"
+            icon_label="Unlink Physical Resource Group">
+
             <table:column id="c_PhysicalPort_name" property="name" />
             <table:column id="c_PhysicalPort_displayname" property="displayName" />
-            <table:column id="c_PhysicalPort_physicalResourceGroup" property="physicalResourceGroup" render="${not show_unallocated}"/>
+            <table:column id="c_PhysicalPort_physicalResourceGroup" property="physicalResourceGroup"
+                render="${not show_unallocated}" />
         </table:table>
     </page:list>
 </div>

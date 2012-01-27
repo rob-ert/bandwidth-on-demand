@@ -62,9 +62,9 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 /**
  * A bridge to OpenDRAC's web services. Everything is contained in this one
  * class so that only this class is linked to OpenDRAC related classes.
- * 
+ *
  * @author robert
- * 
+ *
  */
 class NbiServiceOpenDracWs implements NbiService {
 
@@ -116,7 +116,7 @@ class NbiServiceOpenDracWs implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#cancelSchedule(java.lang.String)
    */
   @Override
@@ -137,7 +137,7 @@ class NbiServiceOpenDracWs implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#createReservation(nl.surfnet.bod.domain.
    * Reservation)
    */
@@ -157,7 +157,7 @@ class NbiServiceOpenDracWs implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#extendSchedule(java.lang.String, int)
    */
   @Override
@@ -182,7 +182,7 @@ class NbiServiceOpenDracWs implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#findAllPhysicalPorts()
    */
   @Override
@@ -197,12 +197,6 @@ class NbiServiceOpenDracWs implements NbiService {
     return ports;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see nl.surfnet.bod.nbi.NbiService#findPhysicalPortByName(java.lang.String)
-   */
-  @Override
   public PhysicalPort findPhysicalPortByName(final String name) {
     try {
       return getPhysicalPort(findEndpointByTna(name));
@@ -243,7 +237,7 @@ class NbiServiceOpenDracWs implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#getPhysicalPortsCount
    */
   @Override
@@ -253,7 +247,7 @@ class NbiServiceOpenDracWs implements NbiService {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see nl.surfnet.bod.nbi.NbiService#getScheduleStatus(java.lang.String)
    */
   @Override

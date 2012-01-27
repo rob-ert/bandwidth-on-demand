@@ -57,18 +57,18 @@ public class PhysicalPortController {
   private PhysicalResourceGroupService physicalResourceGroupService;
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid PhysicalPort physicalPort, final BindingResult bindingResult, final Model uiModel,
+  public String update(@Valid PhysicalPort physicalPort, final BindingResult bindingResult, final Model uiModel,
       final HttpServletRequest httpServletRequest) {
 
     if (bindingResult.hasErrors()) {
       uiModel.addAttribute(MODEL_KEY, physicalPort);
-      return "physicalresourcegroups" + CREATE;
+      return PAGE_URL + UPDATE;
     }
 
     PhysicalResourceGroup newPhysicalResourceGroup = physicalPort.getPhysicalResourceGroup();
 
     // Ignore changes made by user, fetch again and set group
-    physicalPort = physicalPortService.findByName(physicalPort.getName());
+    physicalPort = physicalPortService.findByNetworkElementPk(physicalPort.getNetworkElementPk());
     physicalPort.setPhysicalResourceGroup(newPhysicalResourceGroup);
 
     uiModel.asMap().clear();
@@ -78,8 +78,8 @@ public class PhysicalPortController {
   }
 
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
-  public String show(@RequestParam(ID_KEY) final String name, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY, physicalPortService.findByName(name));
+  public String show(@RequestParam(ID_KEY) final String networkElementPk, final Model uiModel) {
+    uiModel.addAttribute(MODEL_KEY, physicalPortService.findByNetworkElementPk(networkElementPk));
 
     return PAGE_URL + SHOW;
   }
@@ -102,29 +102,17 @@ public class PhysicalPortController {
     return PAGE_URL + "/listunallocated";
   }
 
-  @RequestMapping(method = RequestMethod.PUT)
-  public String update(@Valid final PhysicalPort physicalPort, final BindingResult bindingResult,
-      @ModelAttribute(MODEL_KEY) final PhysicalResourceGroup physicalResourceGroup,
-      final BindingResult physicalResourceGroupBindingResult, final Model uiModel,
-      final HttpServletRequest httpServletRequest) {
-
-    physicalPortService.update(physicalPort);
-    uiModel.asMap().clear();
-
-    return "redirect:" + PAGE_URL;
-  }
-
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
-  public String updateForm(@RequestParam(ID_KEY) final String portId, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY, physicalPortService.findByName(portId));
+  public String updateForm(@RequestParam(ID_KEY) final String networkElementPk, final Model uiModel) {
+    uiModel.addAttribute(MODEL_KEY, physicalPortService.findByNetworkElementPk(networkElementPk));
     return PAGE_URL + UPDATE;
   }
 
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
-  public String delete(@RequestParam(ID_KEY) final String name,
+  public String delete(@RequestParam(ID_KEY) final String networkElementPk,
       @RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
-    PhysicalPort physicalPort = physicalPortService.findByName(name);
+    PhysicalPort physicalPort = physicalPortService.findByNetworkElementPk(networkElementPk);
     physicalPortService.delete(physicalPort);
 
     uiModel.asMap().clear();
