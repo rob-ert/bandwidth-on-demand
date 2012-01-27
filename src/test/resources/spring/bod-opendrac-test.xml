@@ -44,6 +44,7 @@
         <property name="ignoreResourceNotFound" value="false" />
         <property name="locations">
             <list>
+                <value>classpath:opendrac-test.properties</value>
                 <value>classpath:bod.properties</value>
             </list>
         </property>

@@ -21,7 +21,12 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.domain.ReservationStatus.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.annotation.PostConstruct;
@@ -30,6 +35,7 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 
+import org.hibernate.mapping.Array;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +46,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.nortel.appcore.app.drac.common.types.State.SCHEDULE;
 
 class NbiServiceOffline implements NbiService {
 
@@ -60,7 +67,7 @@ class NbiServiceOffline implements NbiService {
 
   private final List<ReservationStatus> reservationStatuses = ImmutableList.copyOf(ReservationStatus.values());
   private final List<NbiPort> ports = Lists.newArrayList();
-
+  private final Map<String, ReservationStatus> scheduleIds = new HashMap<String, ReservationStatus>();
 
   public NbiServiceOffline() {
     ports.add(new NbiPort("Ut002A_OME01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-1-1-4"));
@@ -101,17 +108,25 @@ class NbiServiceOffline implements NbiService {
 
   @Override
   public String createReservation(Reservation reservation) {
-    return "SCHEDULE-" + System.currentTimeMillis();
+    final String scheduleId = "SCHEDULE-" + System.currentTimeMillis();
+    scheduleIds.put(scheduleId, SCHEDULED);
+    return scheduleId;
   }
 
   @Override
   public ReservationStatus getReservationStatus(String scheduleId) {
-    return reservationStatuses.get(random.nextInt(reservationStatuses.size()));
+    final ReservationStatus reservationStatus = scheduleIds.get(scheduleId);
+    if (reservationStatus == null) {
+      return reservationStatuses.get(random.nextInt(reservationStatuses.size()));
+    }
+    else {
+      return reservationStatus;
+    }
   }
 
   @Override
   public void cancelReservation(String scheduleId) {
-    // nothing todo..
+    scheduleIds.put(scheduleId, CANCELLED);
   }
 
   @Override
@@ -123,15 +138,12 @@ class NbiServiceOffline implements NbiService {
   public PhysicalPort findPhysicalPortByNetworkElementId(final String networkElementId) {
     Preconditions.checkNotNull(Strings.emptyToNull(networkElementId));
 
-    return Iterables.getOnlyElement(
-        Iterables.transform(
-            Iterables.filter(ports, new Predicate<NbiPort>() {
-              @Override
-              public boolean apply(NbiPort nbiPort) {
-                return nbiPort.getId().equals(networkElementId);
-              }
-            }),
-            TRANSFORM_FUNCTION));
+    return Iterables.getOnlyElement(Iterables.transform(Iterables.filter(ports, new Predicate<NbiPort>() {
+      @Override
+      public boolean apply(NbiPort nbiPort) {
+        return nbiPort.getId().equals(networkElementId);
+      }
+    }), TRANSFORM_FUNCTION));
   }
 
   private static final class NbiPort {
@@ -146,6 +158,7 @@ class NbiServiceOffline implements NbiService {
     public String getName() {
       return name;
     }
+
     public String getId() {
       return id;
     }
