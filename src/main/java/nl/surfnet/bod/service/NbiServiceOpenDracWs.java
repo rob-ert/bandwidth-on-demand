@@ -189,7 +189,7 @@ class NbiServiceOpenDracWs implements NbiService {
   public List<PhysicalPort> findAllPhysicalPorts() {
     final List<PhysicalPort> ports = new ArrayList<PhysicalPort>();
     physicalPortsByNePkAndTna.clear();
-    for (final EndpointT endpoint : findAllEndPointTypes()) {
+    for (final EndpointT endpoint : findAllEndPoints()) {
       final PhysicalPort port = getPhysicalPort(endpoint);
       ports.add(port);
       physicalPortsByNePkAndTna.put(port.getNetworkElementPk(), port.getName());
@@ -380,7 +380,7 @@ class NbiServiceOpenDracWs implements NbiService {
     return pathRequest;
   }
 
-  private List<EndpointT> findAllEndPointTypes() {
+  private List<EndpointT> findAllEndPoints() {
     try {
       final QueryEndpointsRequestDocument requestDocument = QueryEndpointsRequestDocument.Factory.newInstance();
       final QueryEndpointsRequest request = requestDocument.addNewQueryEndpointsRequest();
@@ -419,6 +419,7 @@ class NbiServiceOpenDracWs implements NbiService {
     final PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroup();
     port.setName(endpoint.getTna());
     port.setNetworkElementPk(endpoint.getId());
+    port.setDisplayName(endpoint.getUserLabel());
     physicalResourceGroup.setAdminGroup(groupName);
     port.setPhysicalResourceGroup(physicalResourceGroup);
     return port;
