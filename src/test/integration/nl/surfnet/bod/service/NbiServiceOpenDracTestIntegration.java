@@ -75,7 +75,7 @@ public class NbiServiceOpenDracTestIntegration {
       if (schedulingServiceUrl.startsWith("https://localhost")) {
         nbiType = NBI_TYPE.LOCAL;
       }
-      else {
+      else if (schedulingServiceUrl.startsWith("https://drac.surfnet.nl:8443")) {
         nbiType = NBI_TYPE.PROD;
       }
     }
@@ -89,6 +89,9 @@ public class NbiServiceOpenDracTestIntegration {
     }
     else if (nbiType == NBI_TYPE.LOCAL) {
       assertEquals(14, allPorts.size());
+    }
+    else if (nbiType == NBI_TYPE.PROD) {
+      assertEquals(3, allPorts.size());
     }
   }
 
@@ -104,6 +107,11 @@ public class NbiServiceOpenDracTestIntegration {
       assertEquals("00-20-D8-DF-33-59_ETH-1-1-1", port.getNetworkElementPk());
       assertEquals("Asd001A_OME3T_ETH-1-1-1", port.getName());
     }
+    else if (nbiType == NBI_TYPE.PROD) {
+      final PhysicalPort port = nbiService.findPhysicalPortByNetworkElementId("00-21-E1-D9-CC-70_ETH-1-36-4");
+      assertEquals("00-21-E1-D9-CC-70_ETH-1-36-4", port.getNetworkElementPk());
+      assertEquals("Asd001A_OME12_ETH-1-36-4", port.getName());
+    }
   }
 
   @Test
@@ -117,6 +125,11 @@ public class NbiServiceOpenDracTestIntegration {
       final PhysicalPort port = nbiService.findPhysicalPortByNetworkElementId("00-20-D8-DF-33-59_ETH-1-1-1");
       assertEquals("Asd001A_OME3T_ETH-1-1-1", port.getName());
       assertEquals("00-20-D8-DF-33-59_ETH-1-1-1", port.getNetworkElementPk());
+    }
+    else if (nbiType == NBI_TYPE.PROD) {
+      final PhysicalPort port = nbiService.findPhysicalPortByNetworkElementId("00-21-E1-D9-CC-70_ETH-1-36-4");
+      assertEquals("Asd001A_OME12_ETH-1-36-4", port.getName());
+      assertEquals("00-21-E1-D9-CC-70_ETH-1-36-4", port.getNetworkElementPk());
     }
   }
 
@@ -134,6 +147,10 @@ public class NbiServiceOpenDracTestIntegration {
     else if (nbiType == NBI_TYPE.LOCAL) {
       sourcePort = "Asd001A_OME3T_ETH-1-1-3";
       destinationPort = "Asd001A_OME1T_ETH-1-2-1";
+    }
+    else if (nbiType == NBI_TYPE.PROD) {
+      sourcePort = "Ut002A_OME01_ETH-1-1-4";
+      destinationPort = "Asd001A_OME12_ETH-1-36-4";
     }
 
     final PhysicalPort physicalPort1 = new PhysicalPortFactory().setName(sourcePort).create();
