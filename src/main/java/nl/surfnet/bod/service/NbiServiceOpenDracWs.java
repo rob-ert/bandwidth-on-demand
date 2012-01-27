@@ -34,7 +34,10 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
 
 import org.joda.time.Minutes;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.Security;
@@ -54,6 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.google.common.collect.Lists;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper.CryptedString;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.CompletionResponseDocument;
@@ -410,11 +414,9 @@ class NbiServiceOpenDracWs implements NbiService {
 
   private PhysicalPort getPhysicalPort(final EndpointT endpoint) {
     final PhysicalPort port = new PhysicalPort();
-    final PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroup();
     port.setName(endpoint.getTna());
     port.setNetworkElementPk(endpoint.getId());
-    physicalResourceGroup.setAdminGroup(groupName);
-    port.setPhysicalResourceGroup(physicalResourceGroup);
+
     return port;
   }
 
