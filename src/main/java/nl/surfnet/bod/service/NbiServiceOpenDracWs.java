@@ -188,6 +188,7 @@ class NbiServiceOpenDracWs implements NbiService {
   @Override
   public List<PhysicalPort> findAllPhysicalPorts() {
     final List<PhysicalPort> ports = new ArrayList<PhysicalPort>();
+    physicalPortsByNePkAndTna.clear();
     for (final EndpointT endpoint : findAllEndPointTypes()) {
       final PhysicalPort port = getPhysicalPort(endpoint);
       ports.add(port);
@@ -230,7 +231,6 @@ class NbiServiceOpenDracWs implements NbiService {
       final List<PhysicalPort> physicalPorts = findAllPhysicalPorts();
       for (final PhysicalPort port : physicalPorts) {
         if (port.getNetworkElementPk().equals(networkElementId)) {
-          physicalPortsByNePkAndTna.put(port.getNetworkElementPk(), port.getName());
           return port;
         }
       }
