@@ -82,8 +82,14 @@ public class NbiServiceOpenDracTestIntegration {
   public void testFindPhysicalPortByName() throws Exception {
     final PhysicalPort port = nbiService.findPhysicalPortByName("Ut002A_OME01_ETH-1-1-4");
     assertEquals("Ut002A_OME01_ETH-1-1-4", port.getName());
-    System.out.println(port);
     assertEquals("00-1B-25-2D-DA-65_ETH-1-1-4", port.getNetworkElementPk());
+  }
+  
+  @Test
+  public void testFindPhysicalPortByNetworkElementId() throws Exception {
+    final PhysicalPort port = nbiService.findPhysicalPortByNetworkElementId("00-20-D8-DF-33-59_ETH-1-1-1");
+    assertEquals("Asd001A_OME3T_ETH-1-1-1", port.getName());
+    assertEquals("00-20-D8-DF-33-59_ETH-1-1-1", port.getNetworkElementPk());
   }
 
   @Test

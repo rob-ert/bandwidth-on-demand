@@ -66,7 +66,7 @@ public interface NbiService {
   /**
    *
    * @param name
-   * @return a {@link PhysicalPort} identified by a certain name
+   * @return a {@link PhysicalPort} identified by a certain name, in OpenDRAC's case the network elements TNA
    */
   PhysicalPort findPhysicalPortByName(String name);
 
@@ -78,5 +78,12 @@ public interface NbiService {
    * @return status of the reservation
    */
   ReservationStatus getReservationStatus(String scheduleId);
+
+  /**
+  *
+  * @param name
+  * @return a {@link PhysicalPort} identified by a certain name, in OpenDRAC's case the network elements pk
+  */
+  PhysicalPort findPhysicalPortByNetworkElementId(String networkElementId);
 
 }

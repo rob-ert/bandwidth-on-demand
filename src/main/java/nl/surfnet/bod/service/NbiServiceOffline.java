@@ -68,6 +68,10 @@ class NbiServiceOffline implements NbiService {
     ports.add(createPhysicalPort("OME0039_OC12-1-12-2", "00-21-E1-D6-D6-70_OC12-1-12-2"));
     ports.add(createPhysicalPort("ETH-1-13-5", "00-21-E1-D6-D5-DC_ETH-1-13-5"));
     ports.add(createPhysicalPort("ETH10G-1-13-3", "00-21-E1-D6-D5-DC_ETH10G-1-13-3"));
+    
+    // OpenDRAC format
+    ports.add(createPhysicalPort("Asd001A_OME3T_ETH-1-1-1", "00-20-D8-DF-33-59_ETH-1-1-1"));
+    ports.add(createPhysicalPort("Ut002A_OME01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-1-1-4"));
   }
 
   @SuppressWarnings("unused")
@@ -124,5 +128,15 @@ class NbiServiceOffline implements NbiService {
   @Override
   public void extendReservation(String scheduleId, int minutes) {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PhysicalPort findPhysicalPortByNetworkElementId(String networkElementId) {
+    for (final PhysicalPort port : ports) {
+      if (port.getNetworkElementPk().equals(networkElementId)) {
+        return port;
+      }
+    }
+    return null;
   }
 }
