@@ -28,7 +28,9 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -75,6 +77,8 @@ class NbiServiceOpenDracWs implements NbiService {
   private NetworkMonitoringService_v30Stub networkingService;
   private ResourceAllocationAndSchedulingService_v30Stub schedulingService;
   private SecurityDocument securityDocument;
+
+  private final Map<String, String> physicalPortsByNePkAndTna = new HashMap<String, String>();
 
   @Value("${nbi.billing.group.name}")
   private String billingGroupName;
@@ -187,6 +191,7 @@ class NbiServiceOpenDracWs implements NbiService {
     for (final EndpointT endpoint : findAllEndPointTypes()) {
       final PhysicalPort port = getPhysicalPort(endpoint);
       ports.add(port);
+      physicalPortsByNePkAndTna.put(port.getNetworkElementPk(), port.getName());
     }
     return ports;
   }
@@ -210,15 +215,28 @@ class NbiServiceOpenDracWs implements NbiService {
   /*
    * (non-Javadoc)
    * 
-   * @see nl.surfnet.bod.nbi.NbiService#findPhysicalPortByNetworkElementId(java.lang.String)
+   * @see
+   * nl.surfnet.bod.nbi.NbiService#findPhysicalPortByNetworkElementId(java.lang
+   * .String)
    */
   @Override
   public PhysicalPort findPhysicalPortByNetworkElementId(final String networkElementId) {
-    final List<PhysicalPort> physicalPorts = findAllPhysicalPorts();
-    for (final PhysicalPort port : physicalPorts) {
-      if (port.getNetworkElementPk().equals(networkElementId)) {
-        return port;
+    final String name = physicalPortsByNePkAndTna.get(networkElementId);
+    PhysicalPort physicalPort = null;
+    if (name != null) {
+      physicalPort = findPhysicalPortByName(name);
+    }
+    if (physicalPort == null || !physicalPort.getNetworkElementPk().equals(networkElementId)) {
+      final List<PhysicalPort> physicalPorts = findAllPhysicalPorts();
+      for (final PhysicalPort port : physicalPorts) {
+        if (port.getNetworkElementPk().equals(networkElementId)) {
+          physicalPortsByNePkAndTna.put(port.getNetworkElementPk(), port.getName());
+          return port;
+        }
       }
+    }
+    else {
+      return physicalPort;
     }
     return null;
   }
