@@ -39,12 +39,12 @@ public class PhysicalPort {
   private Integer version;
 
   @NotEmpty
-  @Column(unique = true, nullable = false)
+  @Column(nullable = false)
   private String name;
 
   @Nullable
   private String displayName;
-  
+
   @Nullable
   @Column(unique = true, nullable = false)
   private String networkElementPk;

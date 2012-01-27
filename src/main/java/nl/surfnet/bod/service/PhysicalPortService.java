@@ -93,7 +93,7 @@ public interface PhysicalPortService {
 
   PhysicalPort find(final Long id);
 
-  PhysicalPort findByName(final String name);
+  PhysicalPort findByNetworkElementPk(final String networkElementPk);
 
   void save(final PhysicalPort physicalPort);
 

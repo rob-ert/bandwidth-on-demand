@@ -19,8 +19,8 @@ public class EndPoint implements WebSocket.OnTextMessage {
   }
 
   @Override
-  public void onOpen(Connection connection) {
-    this.connection = connection;
+  public void onOpen(Connection con) {
+    this.connection = con;
     endPoints.add(this);
   }
 

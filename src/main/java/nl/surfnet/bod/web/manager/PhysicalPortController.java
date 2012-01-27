@@ -66,8 +66,9 @@ public class PhysicalPortController {
     return "manager/physicalports/list";
   }
 
-  @RequestMapping(value = "/{id}/virtualports", method = RequestMethod.GET)
-  public @ResponseBody Collection<VirtualPortJsonView> listVirtualPorts(@PathVariable Long id) {
+  @RequestMapping(value = "/{id}/virtualports", method = RequestMethod.GET, headers = "accept=application/json")
+  @ResponseBody
+  public Collection<VirtualPortJsonView> listVirtualPortsJson(@PathVariable Long id) {
     PhysicalPort physicalPort = physicalPortService.find(id);
 
     return Collections2.transform(virtualPortService.findAllForPhysicalPort(physicalPort),
@@ -93,8 +94,7 @@ public class PhysicalPortController {
     });
   }
 
-
-  /// *** View objects *** ///
+  // / *** View objects *** ///
   public class VirtualPortJsonView {
 
     private final String name;
@@ -112,12 +112,15 @@ public class PhysicalPortController {
     public String getName() {
       return name;
     }
+
     public Integer getMaxBandwidth() {
       return maxBandwidth;
     }
+
     public Integer getVlanId() {
       return vlanId;
     }
+
     public String getVirtualResourceGroupName() {
       return virtualResourceGroupName;
     }
@@ -141,15 +144,19 @@ public class PhysicalPortController {
     public Integer getNumberOfVirtualPorts() {
       return virtualPorts.size();
     }
+
     public String getName() {
       return name;
     }
+
     public String getDisplayName() {
       return displayName;
     }
+
     public PhysicalResourceGroup getPhysicalResourceGroup() {
       return physicalResourceGroup;
     }
+
     public Long getId() {
       return id;
     }

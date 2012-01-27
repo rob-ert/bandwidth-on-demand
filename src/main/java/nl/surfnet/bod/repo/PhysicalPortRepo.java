@@ -32,11 +32,12 @@ public interface PhysicalPortRepo extends JpaSpecificationExecutor<PhysicalPort>
 
   /**
    * Finds a {@link PhysicalPort} by {@link PhysicalPort#getName()}
-   * 
+   *
    * @param name
    *          The name to search for
    * @return {@link PhysicalPort} or null when no match was found.
    */
   PhysicalPort findByName(String name);
 
+  PhysicalPort findByNetworkElementPk(String networkelementPk);
 }

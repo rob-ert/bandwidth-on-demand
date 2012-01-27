@@ -35,6 +35,7 @@ public class PhysicalPortFactory {
   private String name = "nameDefault " + id;
   private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
   private Integer version;
+  private String networkElementPk = UUID.randomUUID().toString();
 
   public PhysicalPort create() {
     PhysicalPort port = new PhysicalPort();
@@ -42,7 +43,7 @@ public class PhysicalPortFactory {
     port.setName(name);
     port.setVersion(version);
     port.setPhysicalResourceGroup(physicalResourceGroup);
-    port.setNetworkElementPk(UUID.randomUUID().toString());
+    port.setNetworkElementPk(networkElementPk);
 
     return port;
   }
@@ -64,6 +65,11 @@ public class PhysicalPortFactory {
 
   public PhysicalPortFactory setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
     this.physicalResourceGroup = physicalResourceGroup;
+    return this;
+  }
+
+  public PhysicalPortFactory setNetworkElementPk(String networkElementPk) {
+    this.networkElementPk = networkElementPk;
     return this;
   }
 }

@@ -101,7 +101,7 @@ public class PhysicalPortControllerTest {
   @Test
   public void showNonExistingPort() {
     Model model = new ModelStub();
-    when(physicalPortServiceMock.findByName("12:00/port1")).thenReturn(null);
+    when(physicalPortServiceMock.findByNetworkElementPk("12:00/port1")).thenReturn(null);
 
     subject.show("12:00/port1", model);
 
@@ -112,7 +112,7 @@ public class PhysicalPortControllerTest {
   public void showExistingPort() {
     Model model = new ModelStub();
     PhysicalPort port = new PhysicalPortFactory().create();
-    when(physicalPortServiceMock.findByName("12:00/port1")).thenReturn(port);
+    when(physicalPortServiceMock.findByNetworkElementPk("12:00/port1")).thenReturn(port);
 
     subject.show("12:00/port1", model);
 
@@ -123,7 +123,7 @@ public class PhysicalPortControllerTest {
   public void updateForm() {
     Model model = new ModelStub();
     PhysicalPort port = new PhysicalPortFactory().create();
-    when(physicalPortServiceMock.findByName("00:00/port2")).thenReturn(port);
+    when(physicalPortServiceMock.findByNetworkElementPk("00:00/port2")).thenReturn(port);
 
     subject.updateForm("00:00/port2", model);
 
@@ -134,7 +134,7 @@ public class PhysicalPortControllerTest {
   public void deleteShouldStayOnSamePage() {
     Model model = new ModelStub();
     PhysicalPort port = new PhysicalPortFactory().create();
-    when(physicalPortServiceMock.findByName("port_name")).thenReturn(port);
+    when(physicalPortServiceMock.findByNetworkElementPk("port_name")).thenReturn(port);
 
     subject.delete("port_name", 3, model);
 
