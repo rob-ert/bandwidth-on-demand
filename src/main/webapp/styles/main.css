@@ -29,11 +29,29 @@ form#command {
 }
 div.topbar {
 	background: url(../images/body_theme_bck.gif) no-repeat;
-	background-color: white;
-	width: 940px;
 	height: 120px;
-	margin-left: auto;
-	margin-right: auto;
+}
+.topbar, .messagebar {
+	background-color: white;
+    width: 940px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.messagebar {
+	margin-top: 121px;
+	position: fixed;
+	right: 0;
+	left: 0;
+	top: 0;
+	overflow: visible;
+	height: 1px;
+}
+#messages {
+	width: 650px;
+	float: right;
+}
+#messages .alert-message {
+	margin-bottom: 1px;
 }
 div.topbar img.logo {
 	float: left;
@@ -116,3 +134,6 @@ form .clearfix.error select {
 .zebra-striped > tbody > tr:hover > td,.zebra-striped > tbody > tr:hover > th{background-color:#f5f5f5;}
 .zebra-striped > tbody > tr.detailview > td,.zebra-striped > tbody > tr.detailview:nth-child(odd) > td{background-color: #E5F2FF;}
 .zebra-striped > tbody > tr.detailview:hover > td,.zebra-striped > thead > tr.detailview:hover > th{background-color: #E5F2FF;}
+
+tr.highlight { background-color: #E5F2FF !important}
+tr.highlight > td { background-color: #E5F2FF !important}

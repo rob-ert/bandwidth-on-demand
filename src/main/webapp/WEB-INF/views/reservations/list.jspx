@@ -6,8 +6,6 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <div id="messages"><!-- --></div>
-
     <page:list id="pl_reservation" items="${reservationList}">
         <table:table data="${reservationList}" id="l_reservation" path="/reservations" typeIdFieldName="id">
             <table:column labelCode="virtualresourcegroup" id="virtualresourcegroup" property="virtualResourceGroup"/>
@@ -34,28 +32,44 @@
             console.log('Sorry your browser does not support web sockets');
         }
 
-        ws.onopen = function() {
-            console.log("ws open");
-        }
-        ws.onerror = function() {
-            console.log("ws error");
-        }
-        ws.onclose = function() {
-            console.log("ws close");
-        }
         ws.onmessage = function(evt) {
             var message = evt.data;
-            console.log(message);
-            showMessage(message);
+            processMessage(message);
+        };
+
+        function processMessage(message) {
+            var dataObject = $.parseJSON(message);
+
+            showMessage(dataObject["message"]);
+            updateReservationRow(dataObject["id"], dataObject["status"]);
+        }
+
+        function updateReservationRow(id, newStatus) {
+            var statusIndex = 3;
+            var row = $('a[href$="id=' + id + '"]').closest("tr");
+            row.addClass("highlight");
+            $(row.children()[statusIndex]).animate(
+                {opacity: 0},
+                500,
+                function() {
+                    $(this).text(newStatus);
+                    $(this).animate({opacity: 1}, 500,
+                      function () {
+                        row.removeClass("highlight");
+                      }
+                    );
+                }
+            );
         }
 
         function showMessage(message) {
             var closeLink = $("<a/>", {class: "close", href: "#", text: "×"});
-            var record = $("<div/>", {text: message, class: "alert-message"}).append(closeLink).alert();
+            var record = $("<div/>", {text: message, class: "alert-message fade in"}).append(closeLink).alert();
             setTimeout(function() {
                 closeLink.click();
-            }, 10000);
-            $("#messages").append(record);
+            }, 5000);
+
+            $("#messages").prepend(record);
         }
     })
     </script>

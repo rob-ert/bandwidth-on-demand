@@ -58,6 +58,11 @@
             </div>
         </div>
     
+        <div class="messagebar">
+            <div id="messages">
+                <!-- -->
+            </div>
+        </div>
         <div class="container">
             <tiles:insertAttribute name="body" />
         </div>
