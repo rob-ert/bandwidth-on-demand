@@ -21,9 +21,9 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.domain.ReservationStatus.*;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,20 +34,21 @@ import javax.annotation.PostConstruct;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.repo.ReservationRepo;
 
-import org.hibernate.mapping.Array;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.nortel.appcore.app.drac.common.types.State.SCHEDULE;
 
+@Service
 class NbiServiceOffline implements NbiService {
 
   private static final Function<NbiPort, PhysicalPort> TRANSFORM_FUNCTION = new Function<NbiPort, PhysicalPort>() {
@@ -62,10 +63,11 @@ class NbiServiceOffline implements NbiService {
   };
 
   private final Logger log = LoggerFactory.getLogger(getClass());
-
   private final Random random = new Random();
 
-  private final List<ReservationStatus> reservationStatuses = ImmutableList.copyOf(ReservationStatus.values());
+  @Autowired
+  private ReservationRepo reservationRepo;
+
   private final List<NbiPort> ports = Lists.newArrayList();
   private final Map<String, ReservationStatus> scheduleIds = new HashMap<String, ReservationStatus>();
 
@@ -90,10 +92,15 @@ class NbiServiceOffline implements NbiService {
     ports.add(new NbiPort("Asd001A_OME3T_ETH-1-1-1", "00-20-D8-DF-33-59_ETH-1-1-1"));
   }
 
+
   @SuppressWarnings("unused")
   @PostConstruct
   private void init() {
     log.info("USING OFFLINE NBI CLIENT!");
+    List<Reservation> reservations = reservationRepo.findAll();
+    for (Reservation reservation: reservations) {
+      this.scheduleIds.put(reservation.getReservationId(), reservation.getStatus());
+    }
   }
 
   @Override
@@ -115,12 +122,34 @@ class NbiServiceOffline implements NbiService {
 
   @Override
   public ReservationStatus getReservationStatus(String scheduleId) {
-    final ReservationStatus reservationStatus = scheduleIds.get(scheduleId);
-    if (reservationStatus == null) {
-      return reservationStatuses.get(random.nextInt(reservationStatuses.size()));
+    ReservationStatus currentStatus = scheduleIds.get(scheduleId);
+    if (random.nextInt(20) < 2) {
+      ReservationStatus nextStatus = getNextStatus(currentStatus);
+      scheduleIds.put(scheduleId, nextStatus);
+      return nextStatus;
     }
-    else {
-      return reservationStatus;
+    return currentStatus;
+  }
+
+  private ReservationStatus getNextStatus(ReservationStatus status) {
+    switch (status) {
+    case SUBMITTED:
+      return ReservationStatus.SCHEDULED;
+    case SCHEDULED:
+      return ReservationStatus.PREPARING;
+    case PREPARING:
+      return ReservationStatus.RUNNING;
+    case RUNNING:
+      return ReservationStatus.SUCCEEDED;
+    case SUCCEEDED:
+      // go round...
+      return ReservationStatus.SUBMITTED;
+    case FAILED:
+      return ReservationStatus.FAILED;
+    case CANCELLED:
+      return ReservationStatus.CANCELLED;
+    default:
+      return status;
     }
   }
 
