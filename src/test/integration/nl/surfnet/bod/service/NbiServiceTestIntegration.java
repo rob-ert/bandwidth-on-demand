@@ -43,16 +43,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-/**
- * This test only works against a default OpenDRAC (with standard admin pwd)
- * with the simulator and the 6 simulated NE's or against production.
- * 
- * @author robert
- * 
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/bod-opendrac-test.xml")
-public class NbiServiceOpenDracTestIntegration {
+public class NbiServiceTestIntegration {
 
   @Autowired
   private NbiService nbiService;
@@ -67,7 +60,7 @@ public class NbiServiceOpenDracTestIntegration {
   private NBI_TYPE nbiType = NBI_TYPE.OFFLINE;
 
   @Before
-  public void setupBeforeClass() {
+  public void setup() {
     if (nbiService.getClass().isAssignableFrom(NbiServiceOffline.class)) {
       nbiType = NBI_TYPE.OFFLINE;
     }
