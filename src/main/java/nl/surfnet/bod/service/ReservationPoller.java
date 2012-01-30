@@ -1,6 +1,7 @@
 package nl.surfnet.bod.service;
 
 import java.util.Date;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -54,6 +55,8 @@ public class ReservationPoller {
   @Autowired
   private EndPoints endPoints;
 
+  private volatile CopyOnWriteArraySet<Long> activeReservations = new CopyOnWriteArraySet<Long>();
+
   @PostConstruct
   public void init() {
     init(pollIntervalInSeconds, maxTries);
@@ -90,18 +93,28 @@ public class ReservationPoller {
    */
   public synchronized void monitorStatus(ReservationStatus stopStatus, Reservation... reservations) {
 
-    for (Reservation reservation : reservations) {
-      if (!reservation.isMonitored()) {
-        ReservationStatusCheckTask checkTask = new ReservationStatusCheckTask(stopStatus, reservation);
+    for (Reservation reservation : reservations) {     
+      ReservationStatusCheckTask checkTask = new ReservationStatusCheckTask(stopStatus, reservation);
 
-        ScheduledFuture<?> schedule = taskScheduler.schedule(checkTask, trigger);
-        checkTask.setSchedule(schedule);
-      }
-      else {
-        log.debug("No new task is scheduled, since there is one already running for reservation {}",
-            reservation.getReservationId());
-      }
+      ScheduledFuture<?> schedule = taskScheduler.schedule(checkTask, trigger);
+      checkTask.setSchedule(schedule);
     }
+  }
+
+  synchronized boolean isActive(Reservation reservation) {
+    return activeReservations.contains(reservation.getId());
+  }
+
+  synchronized boolean isNotActive(Reservation reservation) {
+    return !isActive(reservation);
+  }
+
+  synchronized void markActive(Reservation reservation) {
+    activeReservations.add(reservation.getId());
+  }
+
+  synchronized void markNotActive(Reservation reservation) {
+    activeReservations.remove(reservation.getId());
   }
 
   /**
@@ -175,7 +188,7 @@ public class ReservationPoller {
     public synchronized void setSchedule(ScheduledFuture<?> schedule) {
       this.schedule = schedule;
     }
-    
+
     /**
      * Retrieves the actual {@link ReservationStatus} for the
      * {@link #reservation} and when it has changes, the new status will be
@@ -194,15 +207,15 @@ public class ReservationPoller {
     public void run() {
 
       try {
-        if (reservation.isMonitored()) {
+        if (isActive(reservation)) {
           log.debug("Skipping task, is already scheduled for reservation {}", reservation.getReservationId());
           return;
         }
         // Indicate we are busy
-        reservation.setMonitored(true);
+        markActive(reservation);
 
         if (isMonitoringDisabled()) {
-          reservation.setMonitored(false);
+          markNotActive(reservation);
           return;
         }
 
@@ -210,7 +223,6 @@ public class ReservationPoller {
         tries++;
         // Always start with an fresh instance from the db
         reservation = reservationService.find(reservation.getId());
-        reservation.setMonitored(true);
 
         final ReservationStatus actualReservationStatus = reservationService.getStatus(reservation);
 
@@ -220,7 +232,6 @@ public class ReservationPoller {
           reservation.setStatus(actualReservationStatus);
 
           reservation = reservationService.update(reservation);
-          reservation.setMonitored(true);
 
           log.info("Status for reservation [{}] has changed from [{}] to: {}",
               new String[] { reservation.getReservationId(), oldReservationStatus.name(),
@@ -242,7 +253,7 @@ public class ReservationPoller {
       }
       finally {
         // We are done
-        reservation.setMonitored(false);
+        markNotActive(reservation);
       }
     }
 
@@ -268,4 +279,5 @@ public class ReservationPoller {
 
     }
   }
+
 }

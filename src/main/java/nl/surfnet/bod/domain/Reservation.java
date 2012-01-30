@@ -89,9 +89,6 @@ public class Reservation {
 
   @Column(nullable = false)
   private String reservationId;
-
-  @Transient
-  private volatile boolean monitored;
     
   public Long getId() {
     return id;
@@ -215,14 +212,6 @@ public class Reservation {
         .append(endDate).append(", endTime=").append(endTime).append(", userCreated=").append(userCreated).append(", bandwidth=")
         .append(bandwidth).append(", reservationId=").append(reservationId).append("]");
     return builder.toString();
-  }
-  
-  public synchronized boolean isMonitored() {
-    return monitored;
-  }
-  
-  public synchronized void setMonitored(boolean flag) {
-    this.monitored = flag;
   }
   
 }
