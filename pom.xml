@@ -17,7 +17,7 @@
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:8888/bod</selenium.test.url>
         <opendrac.prod.version>4.2.0</opendrac.prod.version>
-        <opendrac.dev.version>4.3.0-SNAPSHOT</opendrac.dev.version>
+        <opendrac.dev.version>4.3.0-BoD</opendrac.dev.version>
     </properties>
 
     <scm>
