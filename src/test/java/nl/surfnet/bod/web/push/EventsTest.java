@@ -12,7 +12,7 @@ import org.junit.Test;
 public class EventsTest {
 
   @Test
-  public void test() {
+  public void aReservationStatusChangedEventShouldHaveAJsonMessage() {
     Reservation reservation = new ReservationFactory().setId(54L).setStatus(ReservationStatus.SCHEDULED).create();
 
     Event event = Events.createReservationStatusChangedEvent(reservation, ReservationStatus.PREPARING);
