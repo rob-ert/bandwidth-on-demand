@@ -40,7 +40,7 @@
   </logger>
    
   <logger name="nl.surfnet">
-    <level value="DEBUG" />
+    <level value="INFO" />
   </logger>
   
   <!-- ======================= -->
