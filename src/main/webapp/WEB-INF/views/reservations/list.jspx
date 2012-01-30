@@ -50,10 +50,10 @@
             row.addClass("highlight");
             $(row.children()[statusIndex]).animate(
                 {opacity: 0},
-                500,
+                1000,
                 function() {
                     $(this).text(newStatus);
-                    $(this).animate({opacity: 1}, 500,
+                    $(this).animate({opacity: 1}, 1000,
                       function () {
                         row.removeClass("highlight");
                       }
