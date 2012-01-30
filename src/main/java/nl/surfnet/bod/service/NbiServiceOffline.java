@@ -98,7 +98,7 @@ class NbiServiceOffline implements NbiService {
   private void init() {
     log.info("USING OFFLINE NBI CLIENT!");
     List<Reservation> reservations = reservationRepo.findAll();
-    for (Reservation reservation: reservations) {
+    for (Reservation reservation : reservations) {
       this.scheduleIds.put(reservation.getReservationId(), reservation.getStatus());
     }
   }

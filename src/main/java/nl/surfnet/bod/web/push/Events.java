@@ -49,7 +49,7 @@ public final class Events {
 
   private static final class JsonMessageEvent implements Event {
 
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
     private final String groupId;
     private final Object toJsonObject;
@@ -67,7 +67,7 @@ public final class Events {
     @Override
     public String getMessage() {
       try {
-        return mapper.writeValueAsString(toJsonObject);
+        return JSON_MAPPER.writeValueAsString(toJsonObject);
       }
       catch (Exception e) {
         return "{}";
