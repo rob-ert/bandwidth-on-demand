@@ -286,7 +286,7 @@ class NbiServiceOpenDracWs implements NbiService {
       log.error("Error: ", e);
     }
 
-    if (responseDocument.getQueryReservationScheduleResponse().getIsFound()) {
+    if (responseDocument != null && responseDocument.getQueryReservationScheduleResponse().getIsFound()) {
       final ReservationScheduleT schedule = responseDocument.getQueryReservationScheduleResponse()
           .getReservationSchedule();
       final ValidReservationScheduleStatusT.Enum status = schedule.getStatus();
@@ -333,8 +333,8 @@ class NbiServiceOpenDracWs implements NbiService {
       }
     }
     else {
-      log.info("No reservation found for reservation id: {}, returning null", reservationId);
-      return null;
+      log.info("No reservation found for reservation id: {}, returning FAILED", reservationId);
+      return FAILED;
     }
 
   }
