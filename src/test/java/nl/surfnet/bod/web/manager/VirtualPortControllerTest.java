@@ -23,17 +23,21 @@ package nl.surfnet.bod.web.manager;
 
 import static nl.surfnet.bod.web.manager.VirtualPortController.MODEL_KEY_LIST;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +56,9 @@ public class VirtualPortControllerTest {
   @Mock
   private VirtualPortService virtualPortServiceMock;
 
+  @Mock
+  private PhysicalResourceGroupService physicalResourceGroupServiceMock;
+
   @SuppressWarnings("unchecked")
   @Test
   public void listShouldFindEntries() {
@@ -61,11 +68,29 @@ public class VirtualPortControllerTest {
         Lists.newArrayList(new VirtualPortFactory().create()));
 
     subject.list(1, model);
-    
+
     assertThat(model.asMap(), hasKey(MODEL_KEY_LIST));
     assertThat(model.asMap(), hasKey(WebUtils.MAX_PAGES_KEY));
 
     assertThat((Collection<VirtualPort>) model.asMap().get(MODEL_KEY_LIST), hasSize(1));
+  }
+
+  @Test
+  public void populatePhysicalResourceGroupShouldFilterOutEmptyGroups() {
+    RichUserDetails user = new RichUserDetailsFactory().create();
+    Security.setUserDetails(user);
+
+    PhysicalResourceGroup groupWithPorts = new PhysicalResourceGroupFactory().addPhysicalPort(
+        new PhysicalPortFactory().create()).create();
+    PhysicalResourceGroup groupWithoutPorts = new PhysicalResourceGroupFactory().create();
+
+    when(physicalResourceGroupServiceMock.findAllForUser(user)).thenReturn(
+        Lists.newArrayList(groupWithPorts, groupWithoutPorts));
+
+    Collection<PhysicalResourceGroup> groups = subject.populatePhysicalResourceGroups();
+
+    assertThat(groups, hasSize(1));
+    assertThat(groups, contains(groupWithPorts));
   }
 
 }
