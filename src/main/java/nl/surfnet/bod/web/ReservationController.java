@@ -56,6 +56,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 
 @RequestMapping(ReservationController.PAGE_URL)
@@ -65,6 +66,14 @@ public class ReservationController {
 
   static final String MODEL_KEY = "reservation";
   static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
+
+  private static final Function<Reservation, ReservationView> TO_RESERVATION_VIEW =
+      new Function<Reservation, ReservationView>() {
+        @Override
+        public ReservationView apply(Reservation reservation) {
+          return new ReservationView(reservation);
+        }
+      };
 
   @Autowired
   private ReservationService reservationService;
@@ -110,14 +119,23 @@ public class ReservationController {
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
   public String show(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
 
-    uiModel.addAttribute(MODEL_KEY, reservationService.find(id));
+    uiModel.addAttribute(
+        MODEL_KEY,
+        new ReservationView(reservationService.find(id))
+    );
 
     return PAGE_URL + SHOW;
   }
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY_LIST, reservationService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
+    uiModel.addAttribute(
+        MODEL_KEY_LIST,
+        Collections2.transform(
+            reservationService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE),
+            TO_RESERVATION_VIEW
+        )
+    );
 
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(reservationService.count()));
 

@@ -24,10 +24,10 @@
             itemLabel="name" itemValue="id" items="${virtualResourceGroupList}" path="/reservations" required="true" create="false" />
 
         <field:select field="sourcePort" id="sourcePort" labelCode="reservation_sourcePort"
-            items="${virtualPortList}" itemValue="id" path="/reservations" required="true" create="false" />
+            items="${virtualPortList}" itemLabel="userLabel" itemValue="id" path="/reservations" required="true" create="false" />
 
         <field:select field="destinationPort" id="destinationPort" labelCode="reservation_destinationPort"
-            items="${virtualPortList}" itemValue="id" path="/reservations" required="true" create="false" />
+            items="${virtualPortList}" itemLabel="userLabel" itemValue="id" path="/reservations" required="true" create="false" />
 
         <field:input type="date" field="startDate" id="startDate" labelCode="reservation_startDate" required="true" />
         <field:input type="time" field="startTime" id="startTime" labelCode="reservation_startTime" required="true" />
