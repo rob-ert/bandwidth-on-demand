@@ -53,7 +53,7 @@ class NbiServiceOffline implements NbiService {
     @Override
     public PhysicalPort apply(NbiPort nbiPort) {
       PhysicalPort physicalPort = new PhysicalPort();
-      physicalPort.setName("Mock_" + nbiPort.getName());
+      physicalPort.setNocLabel("Mock_" + nbiPort.getName());
       physicalPort.setNetworkElementPk(nbiPort.getId());
 
       return physicalPort;

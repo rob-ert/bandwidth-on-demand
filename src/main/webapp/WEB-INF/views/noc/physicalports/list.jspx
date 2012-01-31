@@ -16,9 +16,8 @@
             typeIdFieldName="networkElementPk" delete="false" icon_url="/resources/images/link_break.png"
             icon_label="Unlink Physical Resource Group">
 
-            <table:column id="c_PhysicalPort_name" property="name" />
+            <table:column id="c_PhysicalPort_name" property="nocLabel" />
             <table:column id="c_PhysicalPort_networkElementPk" property="networkElementPk" />
-            <table:column id="c_PhysicalPort_displayname" property="displayName" />
             <table:column id="c_PhysicalPort_physicalResourceGroup" property="physicalResourceGroup"
                 render="${not show_unallocated}" />
         </table:table>

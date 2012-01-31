@@ -65,14 +65,13 @@ public class PhysicalPortController {
       return PAGE_URL + UPDATE;
     }
 
-    PhysicalResourceGroup newPhysicalResourceGroup = physicalPort.getPhysicalResourceGroup();
-
-    // Ignore changes made by user, fetch again and set group
-    physicalPort = physicalPortService.findByNetworkElementPk(physicalPort.getNetworkElementPk());
-    physicalPort.setPhysicalResourceGroup(newPhysicalResourceGroup);
+    PhysicalPort portToSave = physicalPortService.findByNetworkElementPk(physicalPort.getNetworkElementPk());
+    portToSave.setPhysicalResourceGroup(physicalPort.getPhysicalResourceGroup());
+    portToSave.setNocLabel(physicalPort.getNocLabel());
 
     uiModel.asMap().clear();
-    physicalPortService.save(physicalPort);
+
+    physicalPortService.save(portToSave);
 
     return "redirect:" + PAGE_URL;
   }

@@ -31,7 +31,7 @@ public class PhysicalPortTest {
 
   @Test
   public void toStringShouldContainName() {
-    PhysicalPort port = new PhysicalPortFactory().setName("pooooort").create();
+    PhysicalPort port = new PhysicalPortFactory().setNocLabel("pooooort").create();
 
     assertThat(port.toString(), containsString("pooooort"));
   }

@@ -128,15 +128,13 @@ public class PhysicalPortController {
 
   public class PhysicalPortView {
     private final Long id;
-    private final String name;
-    private final String displayName;
+    private final String managerLabel;
     private final PhysicalResourceGroup physicalResourceGroup;
     private final Collection<VirtualPort> virtualPorts;
 
     public PhysicalPortView(PhysicalPort port, Collection<VirtualPort> virtualPorts) {
       this.id = port.getId();
-      this.name = port.getName();
-      this.displayName = port.getDisplayName();
+      this.managerLabel = port.getManagerLabel();
       this.physicalResourceGroup = port.getPhysicalResourceGroup();
       this.virtualPorts = virtualPorts;
     }
@@ -145,12 +143,8 @@ public class PhysicalPortController {
       return virtualPorts.size();
     }
 
-    public String getName() {
-      return name;
-    }
-
-    public String getDisplayName() {
-      return displayName;
+    public String getManagerLabel() {
+      return managerLabel;
     }
 
     public PhysicalResourceGroup getPhysicalResourceGroup() {

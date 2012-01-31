@@ -66,11 +66,11 @@ public class PhysicalPortServiceImplTest {
   @Test
   public void findAllShouldMergePorts() {
     List<PhysicalPort> nbiPorts = Lists.newArrayList(
-        new PhysicalPortFactory().setNetworkElementPk("first").setId(1L).create(),
-        new PhysicalPortFactory().setNetworkElementPk("second").setId(1L).create());
+        new PhysicalPortFactory().setNocLabel("noc label").setNetworkElementPk("first").setId(null).create(),
+        new PhysicalPortFactory().setNocLabel("noc label").setNetworkElementPk("second").setId(null).create());
 
     List<PhysicalPort> repoPorts = Lists.newArrayList(
-        new PhysicalPortFactory().setNetworkElementPk("first").setId(1L).setVersion(2).create());
+        new PhysicalPortFactory().setNocLabel("overwrite").setNetworkElementPk("first").setId(1L).setVersion(2).create());
 
     when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
@@ -78,10 +78,14 @@ public class PhysicalPortServiceImplTest {
     List<PhysicalPort> allPorts = subject.findAll();
 
     assertThat(allPorts, hasSize(2));
-    assertThat(allPorts.get(0).getNetworkElementPk(), is("first"));
     assertThat(allPorts.get(0).getId(), is(1L));
     assertThat(allPorts.get(0).getVersion(), is(2));
+    assertThat(allPorts.get(0).getNetworkElementPk(), is("first"));
+    assertThat(allPorts.get(0).getNocLabel(), is("overwrite"));
+
+    assertThat(allPorts.get(1).getId(), nullValue());
     assertThat(allPorts.get(1).getNetworkElementPk(), is("second"));
+    assertThat(allPorts.get(1).getNocLabel(), is("noc label"));
   }
 
   @Test
@@ -141,12 +145,12 @@ public class PhysicalPortServiceImplTest {
 
   @Test
   public void findEntriesShouldReturnMaxTwoPorts() {
-    PhysicalPort firstPort = new PhysicalPortFactory().setName("first").create();
+    PhysicalPort firstPort = new PhysicalPortFactory().setNocLabel("first").create();
     List<PhysicalPort> nbiPorts = Lists.newArrayList(
         firstPort,
-        new PhysicalPortFactory().setName("second").create(),
-        new PhysicalPortFactory().setName("third").create(),
-        new PhysicalPortFactory().setName("fourth").create());
+        new PhysicalPortFactory().setNocLabel("second").create(),
+        new PhysicalPortFactory().setNocLabel("third").create(),
+        new PhysicalPortFactory().setNocLabel("fourth").create());
 
     when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(Collections.<PhysicalPort> emptyList());
@@ -159,12 +163,12 @@ public class PhysicalPortServiceImplTest {
 
   @Test
   public void findEntriesShouldReturnSecondPortAsFirstResult() {
-    PhysicalPort secondPort = new PhysicalPortFactory().setName("second").create();
+    PhysicalPort secondPort = new PhysicalPortFactory().setNocLabel("second").create();
     List<PhysicalPort> nbiPorts = Lists.newArrayList(
-        new PhysicalPortFactory().setName("first").create(),
+        new PhysicalPortFactory().setNocLabel("first").create(),
         secondPort,
-        new PhysicalPortFactory().setName("third").create(),
-        new PhysicalPortFactory().setName("fourth").create());
+        new PhysicalPortFactory().setNocLabel("third").create(),
+        new PhysicalPortFactory().setNocLabel("fourth").create());
 
     when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(Collections.<PhysicalPort> emptyList());
@@ -178,8 +182,8 @@ public class PhysicalPortServiceImplTest {
   @Test
   public void findEntriesShouldReturnMaxAvailablePorts() {
     List<PhysicalPort> nbiPorts = Lists.newArrayList(
-        new PhysicalPortFactory().setName("first").create(),
-        new PhysicalPortFactory().setName("second").create());
+        new PhysicalPortFactory().setNocLabel("first").create(),
+        new PhysicalPortFactory().setNocLabel("second").create());
 
     when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(Collections.<PhysicalPort> emptyList());

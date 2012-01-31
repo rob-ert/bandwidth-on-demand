@@ -32,7 +32,7 @@
 
     <script type="text/javascript">
       $(function() {
-	    $("#_physicalResourceGroup").dropdownReload("${ppUrl}", "#_physicalPort");
+	    $("#_physicalResourceGroup").dropdownReload("${ppUrl}", "#_physicalPort", {displayProp: "managerLabel"});
       });
 	</script>
 </div>
