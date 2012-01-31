@@ -17,6 +17,7 @@
             icon_label="Unlink Physical Resource Group">
 
             <table:column id="c_PhysicalPort_name" property="name" />
+            <table:column id="c_PhysicalPort_networkElementPk" property="networkElementPk" />
             <table:column id="c_PhysicalPort_displayname" property="displayName" />
             <table:column id="c_PhysicalPort_physicalResourceGroup" property="physicalResourceGroup"
                 render="${not show_unallocated}" />

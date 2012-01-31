@@ -23,9 +23,13 @@ package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.validator.PhysicalResourceGroupValidator;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
@@ -35,9 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
@@ -93,6 +95,18 @@ public class PhysicalResourceGroupController {
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalResourceGroupService.count()));
 
     return PAGE_URL + LIST;
+  }
+
+  @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET, headers = "accept=application/json")
+  @ResponseBody
+  public Collection<PhysicalPort> listPortsJson(@PathVariable Long id) {
+    PhysicalResourceGroup group = physicalResourceGroupService.find(id);
+
+    if (group == null) {
+      return Collections.emptyList();
+    }
+
+    return group.getPhysicalPorts();
   }
 
   @RequestMapping(method = RequestMethod.PUT)

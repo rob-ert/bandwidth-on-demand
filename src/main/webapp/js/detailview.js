@@ -22,7 +22,7 @@ $(function() {
 
                 var closeLink = $("<a/>", {
                     href : "#",
-                    title : "Hide Virtual Ports"
+                    title : self.attr("data-original-title").replace("Show", "Hide")
                 }).append($("<img/>", {
                     src : closeImageUrl
                 })).twipsy();
