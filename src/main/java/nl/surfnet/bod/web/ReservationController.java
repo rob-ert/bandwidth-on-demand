@@ -142,34 +142,6 @@ public class ReservationController {
     return PAGE_URL + LIST;
   }
 
-  @RequestMapping(method = RequestMethod.PUT)
-  public String update(@Valid final Reservation reservation, final BindingResult bindingResult, final Model uiModel,
-      final HttpServletRequest httpServletRequest) {
-
-    reservation.setUserCreated(Security.getUserDetails().getDisplayName());
-
-    reservationValidator.validate(reservation, bindingResult);
-    if (bindingResult.hasErrors()) {
-      uiModel.addAttribute(MODEL_KEY, reservation);
-      return PAGE_URL + UPDATE;
-    }
-
-    uiModel.asMap().clear();
-    reservationService.update(reservation);
-
-    return "redirect:" + PAGE_URL;
-  }
-
-  @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
-  public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
-    Reservation reservation = reservationService.find(id);
-
-    uiModel.addAttribute(MODEL_KEY, reservation);
-    uiModel.addAttribute("virtualPorts", reservation.getVirtualResourceGroup().getVirtualPorts());
-
-    return PAGE_URL + UPDATE;
-  }
-
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
   public String delete(@RequestParam(ID_KEY) final Long id,
       @RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
