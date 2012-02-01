@@ -70,9 +70,6 @@ public class ReservationService {
   @Qualifier("nbiService")
   private NbiService nbiService;
 
-  @Autowired
-  private ReservationPoller reservationPoller;
-
   @PostConstruct
   public void checkAllReservationsForStatusUpdate() {
     long updatedItems = 0;
@@ -107,7 +104,6 @@ public class ReservationService {
     reservation.setStatus(getStatus(reservation));
     reservationRepo.save(reservation);
 
-    monitorReservationStatus(ReservationStatus.SCHEDULED, reservation);
   }
 
   public Reservation find(Long id) {
@@ -158,123 +154,34 @@ public class ReservationService {
       nbiService.cancelReservation(reservation.getReservationId());
       reservationRepo.save(reservation);
 
-      monitorReservationStatus(ReservationStatus.CANCELLED, reservation);
     }
   }
 
-  /**
-   * Starts monitoring all reservation which have an status in
-   * {@link ReservationStatus#TRANSITION_STATES} and which start or end in the
-   * future.
-   * 
-   * If the reservation starts in the future, the monitor is started on the
-   * start time. If the reservation ends in the future the monitor starts at the
-   * end time.
-   */
-  @Scheduled(cron = "${reservation.poll.future.start.cron}")
-  public void checkFutureReservationsForStatusChange() {
-    int scheduledMonitors = 0;
-    final int delaySeconds = 10;
-    LocalDateTime now = new LocalDateTime();
-
-    log.debug("Checking future reservations for status changes");
-
-    List<Reservation> reservations = reservationRepo.findAll(specFutureReservationsForStatusChange(now));
-
-    for (Reservation reservation : reservations) {
-      if (now.isBefore(reservation.getStartDateTime())) {
-        scheduledMonitors++;
-
-        log.debug("Scheduled reservation [{}] with state [{}] is based on startDateTime: {}", new String[] {
-            reservation.getReservationId(), reservation.getStatus().name(), reservation.getStartDateTime().toString() });
-
-        monitorReservationStatus(reservation.getStartDateTime().plusSeconds(delaySeconds).toDate(), reservation,
-            ReservationStatus.RUNNING);
-      }
-
-      if (now.isBefore(reservation.getEndDateTime())) {
-        scheduledMonitors++;
-
-        log.debug("Scheduled reservation [{}] with state [{}] is based on endDateTime: {}",
-            new String[] { reservation.getReservationId(), reservation.getStatus().name(),
-                reservation.getEndDateTime().toString() });
-
-        monitorReservationStatus(reservation.getEndDateTime().plusSeconds(delaySeconds).toDate(), reservation,
-            ReservationStatus.SUCCEEDED);
-      }
-      else {
-        log.warn("Reservation [{}]  is not monitored, but it should be...", reservation);
-      }
-    }
-
-    log.info("Amount of future reservations checked [{}], amount of monitored reservations: {}", reservations.size(),
-        scheduledMonitors);
-  }
-
-  Specification<Reservation> specFutureReservationsForStatusChange(final LocalDateTime now) {
+  Specification<Reservation> specReservationsToPoll(final LocalDateTime startOrEndDateTime) {
     return new Specification<Reservation>() {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
           CriteriaBuilder cb) {
+
         Expression<LocalDate> startDateExpr = reservation.get("startDate");
         Expression<LocalTime> startTimeExpr = reservation.get("startTime");
         Expression<LocalDate> endDateExpr = reservation.get("endDate");
         Expression<LocalTime> endTimeExpr = reservation.get("endTime");
         Expression<ReservationStatus> status = reservation.get("status");
 
-        Predicate predicate = cb.and(cb.greaterThanOrEqualTo(startTimeExpr, now.toLocalTime()),
-            (cb.greaterThanOrEqualTo(startDateExpr, now.toLocalDate())));
-        cb.or(cb.and(cb.greaterThanOrEqualTo(endTimeExpr, now.toLocalDate()),
-            cb.greaterThanOrEqualTo(endDateExpr, now.toLocalDate())));
-        cb.and(status.in(ReservationStatus.TRANSITION_STATES));
-
-        return predicate;
+        return cb.and(
+            cb.or(
+                cb.and(cb.equal(startTimeExpr, startOrEndDateTime.toLocalTime()),
+                    cb.equal(startDateExpr, startOrEndDateTime.toLocalDate())),
+                cb.and(cb.equal(endTimeExpr, startOrEndDateTime.toLocalTime()),
+                    cb.equal(endDateExpr, startOrEndDateTime.toLocalDate()))),
+            cb.and(status.in(ReservationStatus.TRANSITION_STATES)));
       }
     };
   }
 
   public ReservationStatus getStatus(Reservation reservation) {
     return nbiService.getReservationStatus(reservation.getReservationId());
-  }
-
-  /**
-   * Starts the {@link ReservationPoller#monitorStatus(Reservation)}, at the
-   * given time. Updates the given {@link Reservation} when a status change
-   * occurs.
-   * 
-   * @param start
-   *          specifies when to start monitoring
-   * 
-   * @param reservations
-   *          The {@link Reservation}s to monitor
-   * 
-   * @param expectedStatus
-   *          The {@link ReservationStatus} which is expected, so the monitoring
-   *          can stop.
-   * 
-   */
-  public void monitorReservationStatus(Date start, Reservation reservation, ReservationStatus expectedStatus) {
-    reservationPoller.monitorStatusWIthSpecificStart(start, reservation, expectedStatus);
-  }
-
-  /**
-   * Starts the {@link ReservationPoller#monitorStatus(Reservation)}, updates
-   * the given {@link Reservation} when a status change occurs.
-   * 
-   * Schedules monitoring for expected status changes by calling
-   * {@link #checkAllReservationsForStatusUpdate()}
-   * 
-   * @param stopStatus
-   *          whenever this {@link ReservationStatus} is reached to monitoring
-   *          will stop.
-   * 
-   * @param reservations
-   *          The {@link Reservation}s to monitor
-   */
-  public void monitorReservationStatus(ReservationStatus stopStatus, Reservation... reservations) {
-    reservationPoller.monitorStatus(stopStatus, reservations);
-
-    checkFutureReservationsForStatusChange();
   }
 
   /**
@@ -300,5 +207,17 @@ public class ReservationService {
    */
   public boolean isTransitionState(ReservationStatus reservationStatus) {
     return !isEndState(reservationStatus);
+  }
+
+  /**
+   * Finds all reservations which start or ends on the given dateTime and have a
+   * status which can still change its status.
+   * 
+   * @param dateTime
+   *          {@link LocalDateTime} to search for
+   * @return list of found Reservations
+   */
+  public List<Reservation> findReservationsToPoll(LocalDateTime dateTime) {
+    return reservationRepo.findAll(specReservationsToPoll(dateTime));
   }
 }

@@ -1,7 +1,7 @@
 package nl.surfnet.bod.web.push;
 
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -14,13 +14,6 @@ public final class Events {
 
   public static Event createSimpleEvent(String groupId, String message) {
     return new SimpleEvent(groupId, message);
-  }
-
-  public static Event createReservationStatusChangedEvent(Reservation reservation, ReservationStatus oldStatus) {
-    String message = String.format("The status of a reservation was changed from %s to %s", oldStatus, reservation.getStatus());
-
-    return new JsonMessageEvent(reservation.getVirtualResourceGroup().getSurfConextGroupName(), new JsonEvent(message,
-        reservation.getId(), reservation.getStatus().name()));
   }
 
   private static class JsonEvent {
@@ -98,6 +91,17 @@ public final class Events {
     public String getMessage() {
       return message;
     }
+
+  }
+
+  public static Event createReservationStatusChangedEvent(ReservationStatusChangeEvent reservationStatusChangeEvent) {
+    Reservation reservation = reservationStatusChangeEvent.getReservation();
+
+    String message = String.format("The status of a reservation was changed from %s to %s",
+        reservationStatusChangeEvent.getOldStatus(), reservation.getStatus().name());
+
+    return new JsonMessageEvent(reservation.getVirtualResourceGroup().getSurfConextGroupName(), new JsonEvent(message,
+        reservation.getId(), reservation.getStatus().name()));
 
   }
 }

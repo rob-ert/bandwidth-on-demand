@@ -38,7 +38,7 @@ public class VirtualResourceGroupFactory {
   private Long id = COUNTER.getAndIncrement();
   private Integer version;
   private String name = "VRG " + id;
-  private String surfConextGroupName = "urn:bandwidth-on-demand";
+  private String surfConextGroupName = "urn:bandwidth-on-demand" + id;
 
   private Collection<VirtualPort> virtualPorts = Lists.newArrayList();
   private Collection<Reservation> reservations = Lists.newArrayList();

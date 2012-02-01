@@ -22,7 +22,8 @@
 package nl.surfnet.bod.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
 
 import java.util.List;
 
@@ -35,13 +36,15 @@ import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.support.ReservationFactory;
 
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTimeUtils;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,8 +53,9 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml",
     "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
 @Transactional
-@Ignore("Fix persisting reservation tree")
 public class ReservationServiceIntegrationTest {
+
+  private final static int INTERVAL_SECONDS = 10;
 
   @Autowired
   private ReservationService reservationService;
@@ -71,35 +75,54 @@ public class ReservationServiceIntegrationTest {
   @Autowired
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
 
-  private Reservation reservationOne;
-  private Reservation reservationTwo;
-  private Reservation reservationThree;
+  private LocalDateTime rightDateTime = LocalDateTime.now().withTime(0, 0, 0, 0);
+  private LocalDateTime beforeDateTime = rightDateTime.minusMinutes(1);
 
-  private LocalDateTime now = new LocalDateTime();
-  private LocalDateTime yesterday = now.minusDays(1);
-  private LocalDateTime tomorrow = now.plusDays(1);
-  private Specification<Reservation> reservationsForStatusChange;
+  private Reservation rightReservationOnStartTime;
+  private Reservation rightReservationOnEndTime;
 
   @Before
   public void setUp() {
-    reservationsForStatusChange = reservationService.specFutureReservationsForStatusChange(now);
+    rightReservationOnStartTime = createAndPersist(rightDateTime, beforeDateTime, ReservationStatus.SCHEDULED);
+    rightReservationOnEndTime = createAndPersist(beforeDateTime, rightDateTime, ReservationStatus.SCHEDULED);
+    createAndPersist(rightDateTime, beforeDateTime, ReservationStatus.CANCELLED);
+    createAndPersist(rightDateTime, rightDateTime, ReservationStatus.CANCELLED);
+    createAndPersist(beforeDateTime, beforeDateTime, ReservationStatus.SCHEDULED);
+  }
 
-    reservationOne = new ReservationFactory().setStartDate(yesterday.toLocalDate())
-        .setStartTime(yesterday.toLocalTime()).setStatus(ReservationStatus.PREPARING).create();
+  @Test
+  public void shouldFindAll() {
+    List<Reservation> allReservations = reservationRepo.findAll();
 
-    reservationTwo = new ReservationFactory().setStartDate(now.toLocalDate()).setStartTime(now.toLocalTime())
-        .setStatus(ReservationStatus.SCHEDULED).create();
+    assertThat(allReservations, hasSize(5));
+  }
 
-    reservationThree = new ReservationFactory().setStartDate(tomorrow.toLocalDate())
-        .setStartTime(tomorrow.toLocalTime()).setStatus(ReservationStatus.RUNNING).create();
+  @Test
+  public void shouldFindNoReservations() {
+    List<Reservation> reservations = reservationService.findReservationsToPoll(LocalDateTime.now().withHourOfDay(1));
 
-    persistReservation(reservationOne);
-    persistReservation(reservationTwo);
-    persistReservation(reservationThree);
+    assertThat(reservations, hasSize(0));
+  }
+
+  @Test
+  public void shouldFindReservationsAfterMidnight() {
+    DateTimeUtils.setCurrentMillisFixed(DateMidnight.now().getMillis());
+    List<Reservation> reservations = reservationService.findReservationsToPoll(rightDateTime);
+
+    assertThat(reservations, hasSize(2));
+    assertThat(reservations, hasItems(rightReservationOnEndTime, rightReservationOnStartTime));
+  }
+
+  private Reservation createAndPersist(LocalDateTime startDateTime, LocalDateTime endDateTime, ReservationStatus status) {
+    Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
+        .setStatus(status).create();
+
+    persistReservation(reservation);
+
+    return reservation;
   }
 
   private void persistReservation(Reservation reservation) {
-
     // Source port stuff
     reservation.getSourcePort().getPhysicalResourceGroup().setId(null);
     physicalResourceGroupRepo.save(reservation.getSourcePort().getPhysicalPort().getPhysicalResourceGroup());
@@ -122,18 +145,11 @@ public class ReservationServiceIntegrationTest {
 
     // Reservation stuff
     reservation.getVirtualResourceGroup().setId(null);
-    virtualResourceGroupRepo.save(reservation.getVirtualResourceGroup());
 
+    virtualResourceGroupRepo.save(reservation.getVirtualResourceGroup());
     reservation.setId(null);
     reservationRepo.save(reservation);
 
     reservationRepo.flush();
   }
-
-  @Test
-  public void shouldNotFindReservations() {
-    List<Reservation> reservations = reservationRepo.findAll(reservationsForStatusChange);
-    assertThat(reservations.size(), is((2)));
-  }
-
 }

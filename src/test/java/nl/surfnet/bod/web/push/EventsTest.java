@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.junit.Test;
@@ -15,7 +16,9 @@ public class EventsTest {
   public void aReservationStatusChangedEventShouldHaveAJsonMessage() {
     Reservation reservation = new ReservationFactory().setId(54L).setStatus(ReservationStatus.SCHEDULED).create();
 
-    Event event = Events.createReservationStatusChangedEvent(reservation, ReservationStatus.PREPARING);
+    ReservationStatusChangeEvent reservationStatusChangeEvent = new ReservationStatusChangeEvent(ReservationStatus.PREPARING, reservation);    
+    
+    Event event = Events.createReservationStatusChangedEvent(reservationStatusChangeEvent);
 
     assertThat(event.getMessage(), containsString("\"id\":54"));
     assertThat(event.getMessage(), containsString("from PREPARING to SCHEDULED"));

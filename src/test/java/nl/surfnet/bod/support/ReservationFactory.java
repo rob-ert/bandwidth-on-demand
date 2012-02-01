@@ -29,6 +29,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
 public class ReservationFactory {
@@ -111,6 +112,18 @@ public class ReservationFactory {
 
   public ReservationFactory setEndDate(LocalDate endDate) {
     this.endDate = endDate;
+    return this;
+  }
+  
+  public ReservationFactory setEndDateTime(LocalDateTime endDateTime) {
+    this.endDate = endDateTime.toLocalDate();
+    this.endTime = endDateTime.toLocalTime();
+    return this;
+  }
+  
+  public ReservationFactory setStartDateTime(LocalDateTime startDateTime) {
+    this.startDate = startDateTime.toLocalDate();
+    this.startTime = startDateTime.toLocalTime();
     return this;
   }
 
