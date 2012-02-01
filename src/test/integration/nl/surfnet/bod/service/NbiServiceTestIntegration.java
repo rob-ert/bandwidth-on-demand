@@ -93,17 +93,17 @@ public class NbiServiceTestIntegration {
     if (nbiType == NBI_TYPE.OFFLINE) {
       final PhysicalPort port = nbiService.findPhysicalPortByNetworkElementId("00-1B-25-2D-DA-65_ETH-1-1-4");
       assertEquals("00-1B-25-2D-DA-65_ETH-1-1-4", port.getNetworkElementPk());
-      assertEquals("Mock_Ut002A_OME01_ETH-1-1-4", port.getName());
+      assertEquals("Mock_Ut002A_OME01_ETH-1-1-4", port.getNocLabel());
     }
     else if (nbiType == NBI_TYPE.LOCAL) {
       final PhysicalPort port = nbiService.findPhysicalPortByNetworkElementId("00-20-D8-DF-33-59_ETH-1-1-1");
       assertEquals("00-20-D8-DF-33-59_ETH-1-1-1", port.getNetworkElementPk());
-      assertEquals("Asd001A_OME3T_ETH-1-1-1", port.getName());
+      assertEquals("Asd001A_OME3T_ETH-1-1-1", port.getNocLabel());
     }
     else if (nbiType == NBI_TYPE.PROD) {
       final PhysicalPort port = nbiService.findPhysicalPortByNetworkElementId("00-21-E1-D9-CC-70_ETH-1-36-4");
       assertEquals("00-21-E1-D9-CC-70_ETH-1-36-4", port.getNetworkElementPk());
-      assertEquals("Asd001A_OME12_ETH-1-36-4", port.getName());
+      assertEquals("Asd001A_OME12_ETH-1-36-4", port.getNocLabel());
     }
   }
 
@@ -111,17 +111,17 @@ public class NbiServiceTestIntegration {
   public void testFindPhysicalPortByNetworkElementId() throws Exception {
     if (nbiType == NBI_TYPE.OFFLINE) {
       final PhysicalPort port = nbiService.findPhysicalPortByNetworkElementId("00-20-D8-DF-33-59_ETH-1-1-1");
-      assertEquals("Mock_Asd001A_OME3T_ETH-1-1-1", port.getName());
+      assertEquals("Mock_Asd001A_OME3T_ETH-1-1-1", port.getNocLabel());
       assertEquals("00-20-D8-DF-33-59_ETH-1-1-1", port.getNetworkElementPk());
     }
     else if (nbiType == NBI_TYPE.LOCAL) {
       final PhysicalPort port = nbiService.findPhysicalPortByNetworkElementId("00-20-D8-DF-33-59_ETH-1-1-1");
-      assertEquals("Asd001A_OME3T_ETH-1-1-1", port.getName());
+      assertEquals("Asd001A_OME3T_ETH-1-1-1", port.getNocLabel());
       assertEquals("00-20-D8-DF-33-59_ETH-1-1-1", port.getNetworkElementPk());
     }
     else if (nbiType == NBI_TYPE.PROD) {
       final PhysicalPort port = nbiService.findPhysicalPortByNetworkElementId("00-21-E1-D9-CC-70_ETH-1-36-4");
-      assertEquals("Asd001A_OME12_ETH-1-36-4", port.getName());
+      assertEquals("Asd001A_OME12_ETH-1-36-4", port.getNocLabel());
       assertEquals("00-21-E1-D9-CC-70_ETH-1-36-4", port.getNetworkElementPk());
     }
   }
@@ -146,9 +146,9 @@ public class NbiServiceTestIntegration {
       destinationPort = "Asd001A_OME12_ETH-1-36-4";
     }
 
-    final PhysicalPort physicalPort1 = new PhysicalPortFactory().setName(sourcePort).create();
+    final PhysicalPort physicalPort1 = new PhysicalPortFactory().setNocLabel(sourcePort).create();
 
-    final PhysicalPort physicalPort2 = new PhysicalPortFactory().setName(destinationPort).create();
+    final PhysicalPort physicalPort2 = new PhysicalPortFactory().setNocLabel(destinationPort).create();
 
     final VirtualPort source = new VirtualPortFactory().setManagerLabel("vp1").setPhysicalPort(physicalPort1).create();
     final VirtualPort destination = new VirtualPortFactory().setManagerLabel("vp2").setPhysicalPort(physicalPort2)

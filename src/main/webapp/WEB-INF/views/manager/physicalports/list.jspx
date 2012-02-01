@@ -10,8 +10,7 @@
         <table:table data="${physicalPorts}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/manager/physicalports"
             typeIdFieldName="id" delete="false" update="false" show="false">
 
-            <table:column id="c_PhysicalPort_name" property="name" />
-            <table:column id="c_PhysicalPort_displayname" property="displayName" />
+            <table:column id="c_PhysicalPort_name" property="managerLabel" />
             <table:column id="c_PhysicalPort_physicalResourceGroup" property="physicalResourceGroup" />
             <table:column id="c_PhysicalPort_virtualPortCount" property="numberOfVirtualPorts" />
             

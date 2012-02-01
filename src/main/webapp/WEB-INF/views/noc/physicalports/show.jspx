@@ -7,9 +7,10 @@
 
     <page:show id="ps_PhysicalPort" object="${physicalPort}" path="/noc/physicalports" create="false" delete="false"
         icon_url="${empty physicalPort.id ? '' : '/resources/images/link_break.png'}"
-        icon_label="Unlink Physical Resource Group" typeIdFieldName="${empty physicalPort.id ? 'name' : 'id'}">
-        <field:display field="name" id="s_PhysicalPort_name" object="${physicalPort}" />
-        <field:display field="displayName" id="s_PhysicalPort_displayName" object="${physicalPort}" />
+        icon_label="Unlink Physical Resource Group" typeIdFieldName="networkElementPk">
+
+        <field:display field="nocLabel" id="s_PhysicalPort_name" object="${physicalPort}" />
+        <field:display field="managerLabel" id="s_PhysicalPort_managerLabel" object="${physicalPort}" />
         <field:display field="networkElementPk" id="s_PhysicalPort_networkElementPk" object="${physicalPort}" />
         <field:display field="physicalResourceGroup" id="s_PhysicalPort_physicalResourceGroup" object="${physicalPort}" />
     </page:show>

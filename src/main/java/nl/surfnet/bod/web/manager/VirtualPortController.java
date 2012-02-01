@@ -52,7 +52,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 
 @Controller("managerVirtualPortController")
 @RequestMapping(VirtualPortController.PAGE_URL)
@@ -85,7 +88,13 @@ public class VirtualPortController {
 
   @ModelAttribute("physicalResourceGroups")
   public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
-    return physicalResourceGroupService.findAllForUser(Security.getUserDetails());
+    return Lists.newArrayList(Collections2.filter(
+        physicalResourceGroupService.findAllForUser(Security.getUserDetails()), new Predicate<PhysicalResourceGroup>() {
+          @Override
+          public boolean apply(PhysicalResourceGroup group) {
+            return group.getPhysicalPortCount() > 0;
+          }
+        }));
   }
 
   @ModelAttribute("physicalPorts")

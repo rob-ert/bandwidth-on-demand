@@ -38,7 +38,7 @@ $(function() {
   }
   function setBandwidthDividedBy(divider) {
     $("#_bandwidth_id").val(getMaxBandwidth() / divider);
-  };
+  }
   function getMaxBandwidth() {
 	sourceBandwidth = groupInJson[$("#_sourcePort").prop('selectedIndex')].maxBandwidth;
     destinationBandwidth = groupInJson[$("#_destinationPort").prop('selectedIndex')].maxBandwidth;

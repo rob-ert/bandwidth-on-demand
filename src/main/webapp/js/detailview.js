@@ -14,7 +14,7 @@ $(function() {
             var elementId = self.next().attr('href').split('=').pop();
 
             $.getJSON(detailsUrl.replace("{}", elementId), function(data) {
-                var portsTable = $("<table/>", {class : "zebra-striped"}).append($("<thead/>").append(createHeaders()));
+                var portsTable = $("<table/>", {"class" : "zebra-striped"}).append($("<thead/>").append(createHeaders()));
 
                 $.each(data, function(i, port) {
                     portsTable.append(createRow(port));
@@ -22,7 +22,7 @@ $(function() {
 
                 var closeLink = $("<a/>", {
                     href : "#",
-                    title : "Hide Virtual Ports"
+                    title : self.attr("data-original-title").replace("Show", "Hide")
                 }).append($("<img/>", {
                     src : closeImageUrl
                 })).twipsy();
@@ -33,7 +33,7 @@ $(function() {
                 });
 
                 var newRow = $("<tr/>", {
-                    class : "detailview"
+                    "class" : "detailview"
                 }).append($("<td/>", {
                     colspan : nrOfColumns - 1
                 }).append(portsTable)).append($("<td/>").append(closeLink));
@@ -59,7 +59,7 @@ $(function() {
             var row = $("<tr/>");
             $.each(fields, function(i, field) {
                 value = port[field];
-                value = value == null ? "-" : value;
+                value = value === null ? "-" : value;
                 row.append("<td>" + value + "</td>");
             });
 

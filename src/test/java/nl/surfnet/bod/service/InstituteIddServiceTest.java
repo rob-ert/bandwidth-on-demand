@@ -56,9 +56,9 @@ public class InstituteIddServiceTest {
   @Mock
   private IddClient iddClientMock;
 
-  private PhysicalPort portOne = new PhysicalPortFactory().setName("onePort").create();
+  private PhysicalPort portOne = new PhysicalPortFactory().setNocLabel("onePort").create();
 
-  private PhysicalPort portTwo = new PhysicalPortFactory().setName("twoPort").create();
+  private PhysicalPort portTwo = new PhysicalPortFactory().setNocLabel("twoPort").create();
 
   private List<PhysicalPort> ports = ImmutableList.of(portOne, portTwo);
 

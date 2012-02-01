@@ -109,7 +109,7 @@
                         <td class="utilbox">
                             <c:forTokens items="${imageUrls}" delims="," var="image" varStatus="num">
                                 <a href="${fn:replace(actions[num.count-1], '{}', itemId)}" rel="twipsy" title="${titles[num.count-1]}">
-                                    <img src="${image}" />
+                                    <img src="${image}" alt="${titles[num.count-1]}" />
                                 </a>
                             </c:forTokens>
                             <c:if test="${show}">
@@ -119,7 +119,7 @@
                                 <spring:url value="/resources/images/show.png" var="show_image_url" />
                                 <spring:message arguments="${typeName}" code="entity_show" var="show_label" htmlEscape="false" />
                                 <a href="${show_form_url}" alt="${fn:escapeXml(show_label)}" title="${fn:escapeXml(show_label)}" rel="twipsy">
-                                    <img alt="${fn:escapeXml(show_label)}" class="image" src="${show_image_url}" title="${fn:escapeXml(show_label)}" />
+                                    <img alt="${fn:escapeXml(show_label)}" class="image" src="${show_image_url}" />
                                 </a>
                             </c:if>
                             <c:if test="${update}">
@@ -129,7 +129,7 @@
                                 <spring:url value="/resources/images/update.png" var="update_image_url" />
                                 <spring:message arguments="${typeName}" code="entity_update" var="update_label" htmlEscape="false" />
                                 <a href="${update_form_url}" alt="${fn:escapeXml(update_label)}" title="${fn:escapeXml(update_label)}" rel="twipsy">
-                                    <img alt="${fn:escapeXml(update_label)}" class="image" src="${update_image_url}" title="${fn:escapeXml(update_label)}" />
+                                    <img alt="${fn:escapeXml(update_label)}" class="image" src="${update_image_url}" />
                                 </a>
                             </c:if>
                             <c:if test="${delete}">

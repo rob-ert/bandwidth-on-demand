@@ -32,7 +32,8 @@ public class PhysicalPortFactory {
   private static final AtomicLong COUNTER = new AtomicLong();
 
   private Long id = COUNTER.incrementAndGet();
-  private String name = "nameDefault " + id;
+  private String nocLabel = "nameDefault " + id;
+  private String managerLabel = "";
   private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
   private Integer version;
   private String networkElementPk = UUID.randomUUID().toString();
@@ -40,10 +41,12 @@ public class PhysicalPortFactory {
   public PhysicalPort create() {
     PhysicalPort port = new PhysicalPort();
     port.setId(id);
-    port.setName(name);
     port.setVersion(version);
-    port.setPhysicalResourceGroup(physicalResourceGroup);
+
+    port.setNocLabel(nocLabel);
+    port.setManagerLabel(managerLabel);
     port.setNetworkElementPk(networkElementPk);
+    port.setPhysicalResourceGroup(physicalResourceGroup);
 
     return port;
   }
@@ -58,8 +61,13 @@ public class PhysicalPortFactory {
     return this;
   }
 
-  public PhysicalPortFactory setName(String name) {
-    this.name = name;
+  public PhysicalPortFactory setManagerLabel(String managerLabel) {
+    this.managerLabel = managerLabel;
+    return this;
+  }
+
+  public PhysicalPortFactory setNocLabel(String nocLabel) {
+    this.nocLabel = nocLabel;
     return this;
   }
 

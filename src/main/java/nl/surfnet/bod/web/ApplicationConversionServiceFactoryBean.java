@@ -61,7 +61,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     return new Converter<PhysicalPort, String>() {
       @Override
       public String convert(final PhysicalPort physicalPort) {
-        return new StringBuilder().append(physicalPort.getName()).toString();
+        return new StringBuilder().append(physicalPort.getNocLabel()).toString();
       }
     };
   }

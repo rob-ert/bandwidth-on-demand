@@ -4,7 +4,7 @@
     <groupId>nl.surfnet.bod</groupId>
     <artifactId>bod</artifactId>
     <packaging>war</packaging>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <name>bod</name>
 
     <properties>
@@ -17,7 +17,7 @@
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:8888/bod</selenium.test.url>
         <opendrac.prod.version>4.2.0</opendrac.prod.version>
-        <opendrac.dev.version>4.3.0-SNAPSHOT</opendrac.dev.version>
+        <opendrac.dev.version>4.3.0-BoD</opendrac.dev.version>
     </properties>
 
     <scm>
@@ -609,7 +609,7 @@
                 <version>1.5</version>
                 <configuration>
                     <user>bod_user</user>
-                    <password></password>
+                    <password />
                     <driver>org.postgresql.Driver</driver>
                     <url>jdbc:postgresql://localhost/bod</url>
                 </configuration>

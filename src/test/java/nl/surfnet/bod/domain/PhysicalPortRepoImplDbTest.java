@@ -65,7 +65,6 @@ public class PhysicalPortRepoImplDbTest {
   private PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(null).create();
   private PhysicalPort physicalPort = physicalPortFactory.setPhysicalResourceGroup(group).setId(null).create();
 
-
   @Test
   public void findPhysicalPort() {
     PhysicalPort physicalPort = physicalPortFactory.create();
@@ -98,7 +97,7 @@ public class PhysicalPortRepoImplDbTest {
     physicalResourceGroupService.save(physicalPort.getPhysicalResourceGroup());
     physicalPortService.save(physicalPort);
     Integer initialVersion = physicalPort.getVersion();
-    physicalPort.setName("New name");
+    physicalPort.setNocLabel("New name");
 
     PhysicalPort merged = physicalPortService.update(physicalPort);
 
@@ -143,7 +142,7 @@ public class PhysicalPortRepoImplDbTest {
 
   @Test(expected = ConstraintViolationException.class)
   public void aPortShouldNotSaveWithoutAName() {
-    PhysicalPort port = new PhysicalPortFactory().setName("").create();
+    PhysicalPort port = new PhysicalPortFactory().setNocLabel("").create();
 
     physicalPortService.save(port);
   }

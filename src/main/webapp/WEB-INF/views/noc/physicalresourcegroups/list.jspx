@@ -1,17 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
-    xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
+    xmlns:spring="http://www.springframework.org/tags" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
     <page:list id="pl_physicalResourceGroup" items="${physicalResourceGroupList}">
         <table:table data="${physicalResourceGroupList}" id="l_PhysicalResourceGroup" path="/noc/physicalresourcegroups">
-            
+
             <table:column id="name" property="name" labelCode="physicalResourceGroup_name" />
             <table:column id="adminGroup" property="adminGroup" labelCode="physicalResourceGroup_adminGroup" />
             <table:column id="count" property="physicalPortCount" labelCode="physicalResourceGroup_physicalPortCount" />
 
+            <table:actionColumn image="/resources/images/application_put.png" action="/showvirtualports"
+                title="Show Physical Ports" />
+
         </table:table>
     </page:list>
+
+    <spring:url value="/noc/physicalresourcegroups/{}/ports" var="portsUrl" />
+    <spring:url value="/resources/images/application_get.png" var="closePaneImageUrl" />
+    <script type="text/javascript">
+        $(function() {
+            var fields = [ "name", "networkElementPk", "displayName" ];
+            var headers = [ "Name", "Network Element", "Display Name" ];
+            $("a[href$='showvirtualports']").detailView("${portsUrl}", fields, headers,
+                    "${closePaneImageUrl}");
+        });
+    </script>
 </div>

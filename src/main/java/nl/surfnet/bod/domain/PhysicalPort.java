@@ -27,6 +27,9 @@ import javax.persistence.*;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+
 @Entity
 @JsonIgnoreProperties({ "physicalResourceGroup" })
 public class PhysicalPort {
@@ -39,11 +42,10 @@ public class PhysicalPort {
   private Integer version;
 
   @NotEmpty
-  @Column(nullable = false)
-  private String name;
+  @Column(name = "noc_label", nullable = false)
+  private String nocLabel;
 
-  @Nullable
-  private String displayName;
+  private String managerLabel;
 
   @Nullable
   @Column(unique = true, nullable = false)
@@ -68,12 +70,12 @@ public class PhysicalPort {
     this.version = version;
   }
 
-  public String getName() {
-    return this.name;
+  public String getNocLabel() {
+    return this.nocLabel;
   }
 
-  public void setName(final String name) {
-    this.name = name;
+  public void setNocLabel(final String name) {
+    this.nocLabel = name;
   }
 
   public PhysicalResourceGroup getPhysicalResourceGroup() {
@@ -92,21 +94,23 @@ public class PhysicalPort {
     this.networkElementPk = networkElementPk;
   }
 
-  public void setDisplayName(final String displayName) {
-    this.displayName = displayName;
-  }
-
-  public String getDisplayName() {
-    return displayName;
-  }
-
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("PhysicalPort [id=").append(id).append(", version=").append(version).append(", name=").append(name)
-        .append(", displayName=").append(displayName).append(", networkElementPk=").append(networkElementPk)
-        .append(", physicalResourceGroup=").append(physicalResourceGroup).append("]");
-    return builder.toString();
+    return Objects.toStringHelper(PhysicalPort.class)
+        .add("id", id)
+        .add("nocLabel", nocLabel)
+        .add("managerLabel", managerLabel)
+        .add("networkElementPk", networkElementPk)
+        .add("physicalResourceGroup", physicalResourceGroup)
+        .toString();
+  }
+
+  public String getManagerLabel() {
+    return Strings.emptyToNull(managerLabel) == null ? nocLabel : managerLabel;
+  }
+
+  public void setManagerLabel(String managerLabel) {
+    this.managerLabel = managerLabel;
   }
 
 }

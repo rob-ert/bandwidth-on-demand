@@ -5,8 +5,12 @@ import java.io.IOException;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.eclipse.jetty.websocket.WebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EndPoint implements WebSocket.OnTextMessage {
+
+  private final Logger logger = LoggerFactory.getLogger(EndPoint.class);
 
   private final EndPoints endPoints;
   private final RichUserDetails user;
@@ -42,8 +46,7 @@ public class EndPoint implements WebSocket.OnTextMessage {
       connection.sendMessage(message);
     }
     catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      logger.warn("Could not send a message over websocket to client", e);
     }
   }
 
