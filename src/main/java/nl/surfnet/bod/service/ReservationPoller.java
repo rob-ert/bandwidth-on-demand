@@ -1,6 +1,8 @@
 package nl.surfnet.bod.service;
 
 import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +25,8 @@ import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.sun.org.apache.bcel.internal.generic.NEW;
 
 /**
  * This class is responsible for monitoring changes of a
@@ -55,7 +59,7 @@ public class ReservationPoller {
   @Autowired
   private EndPoints endPoints;
 
-  private volatile CopyOnWriteArraySet<Long> activeReservations = new CopyOnWriteArraySet<Long>();
+  private volatile ConcurrentHashMap<Long, ScheduledFuture<?>> activeReservations = new ConcurrentHashMap<Long, ScheduledFuture<?>>();
 
   @PostConstruct
   public void init() {
@@ -93,24 +97,39 @@ public class ReservationPoller {
    */
   public synchronized void monitorStatus(ReservationStatus stopStatus, Reservation... reservations) {
 
-    for (Reservation reservation : reservations) {     
+    for (Reservation reservation : reservations) {      
       ReservationStatusCheckTask checkTask = new ReservationStatusCheckTask(stopStatus, reservation);
 
       ScheduledFuture<?> schedule = taskScheduler.schedule(checkTask, trigger);
       checkTask.setSchedule(schedule);
     }
-  }
 
-  synchronized boolean isActive(Reservation reservation) {
-    return activeReservations.contains(reservation.getId());
   }
-
+  
   synchronized boolean isNotActive(Reservation reservation) {
     return !isActive(reservation);
   }
+  
+  synchronized boolean isActive(Reservation reservation) {
+    boolean active = activeReservations.contains(reservation.getId());
+
+    ScheduledFuture<?> scheduledFuture = null;
+    if (active) {
+      while (scheduledFuture == null) {
+        scheduledFuture = activeReservations.get(reservation.getId());        
+      }
+      active = !scheduledFuture.isDone();
+    }
+
+    return active;
+  }
 
   synchronized void markActive(Reservation reservation) {
-    activeReservations.add(reservation.getId());
+    markActive(reservation,null);
+  }
+  
+  synchronized void markActive(Reservation reservation, ScheduledFuture<?> schedule) {
+    activeReservations.put(reservation.getId(), schedule);
   }
 
   synchronized void markNotActive(Reservation reservation) {
@@ -137,7 +156,7 @@ public class ReservationPoller {
    */
   public synchronized void monitorStatusWIthSpecificStart(Date startTime, Reservation reservation,
       ReservationStatus expectedStatus) {
-
+    
     ReservationStatusCheckTask checkTask = new ReservationStatusCheckTask(expectedStatus, reservation);
 
     ScheduledFuture<?> schedule = taskScheduler.scheduleAtFixedRate(checkTask, startTime,
@@ -181,6 +200,8 @@ public class ReservationPoller {
      *          The Reservation to monitor
      */
     public ReservationStatusCheckTask(ReservationStatus stopStatus, final Reservation reservation) {
+      markActive(reservation);
+      
       this.stopStatus = stopStatus;
       this.reservation = reservation;
     }
@@ -212,7 +233,7 @@ public class ReservationPoller {
           return;
         }
         // Indicate we are busy
-        markActive(reservation);
+        markActive(reservation, getSchedule());
 
         if (isMonitoringDisabled()) {
           markNotActive(reservation);
@@ -257,6 +278,14 @@ public class ReservationPoller {
       }
     }
 
+    private ScheduledFuture<?> getSchedule() {
+      while (schedule == null) {
+        log.debug("Waiting for schedule to be available");
+      }
+
+      return schedule;
+    }
+
     /**
      * Cancels the schedule, since this task runs in a separate thread it is not
      * guaranteed that the schedule is already set when we need it. Therefore
@@ -266,11 +295,7 @@ public class ReservationPoller {
      * {@link Events#createReservationStatusChangedEvent(Reservation)}
      */
     private void stopPolling(ReservationStatus oldStatus) {
-      while (schedule == null) {
-        log.debug("Waiting for schedule to be available");
-      }
-
-      schedule.cancel(false);
+      getSchedule().cancel(false);
 
       if ((reservation.getStatus() != oldStatus)) {
         Event event = Events.createReservationStatusChangedEvent(reservation, oldStatus);
