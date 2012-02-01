@@ -5,4 +5,10 @@
         <put-attribute name="body" value="/WEB-INF/views/manager/physicalports/list.jspx" />
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
+
+    <definition extends="manager" name="manager/physicalports/update">
+        <put-attribute name="body" value="/WEB-INF/views/manager/physicalports/update.jspx" />
+        <put-attribute name="active_menu" value="physicalport" cascade="true" />
+    </definition>
+
 </tiles-definitions>

@@ -25,7 +25,7 @@
             <field:select items="${physicalResourceGroups}" id="physicalResourceGroup" labelCode="physicalresourcegroup"
                 itemValue="id" field="physicalResourceGroup" path="/noc/physicalresourcegroups" create="false" />
 
-            <field:select items="${physicalPorts}" id="physicalPort" labelCode="physicalport" itemValue="id"
+            <field:select items="${physicalPorts}" id="physicalPort" labelCode="physicalport" itemValue="id" itemLabel="managerLabel"
                 field="physicalPort" path="/manager/virtualports" create="false" />
         </fieldset>
     </form:create>

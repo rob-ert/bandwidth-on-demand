@@ -23,6 +23,7 @@ package nl.surfnet.bod.web.security;
 
 import java.util.Collections;
 
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.VirtualPort;
 
 import org.springframework.security.access.intercept.RunAsUserToken;
@@ -51,6 +52,10 @@ public final class Security {
     return isUserMemberOf(virtualPort.getVirtualResourceGroup().getSurfConextGroupName());
   }
 
+  public static boolean managerMayEdit(PhysicalPort port) {
+    return isUserMemberOf(port.getPhysicalResourceGroup().getAdminGroup());
+  }
+
   /**
    * Set the current logged in user. (Should only be used from tests).
    *
@@ -63,4 +68,5 @@ public final class Security {
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
   }
+
 }
