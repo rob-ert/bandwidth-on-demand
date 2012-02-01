@@ -8,7 +8,7 @@
 
     <page:list id="pl_PhysicalPort" items="${physicalPorts}">
         <table:table data="${physicalPorts}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/manager/physicalports"
-            typeIdFieldName="id" delete="false" update="false" show="false">
+            typeIdFieldName="id" delete="false" show="false">
 
             <table:column id="c_PhysicalPort_name" property="managerLabel" />
             <table:column id="c_PhysicalPort_physicalResourceGroup" property="physicalResourceGroup" />

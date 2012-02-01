@@ -66,6 +66,14 @@ public class VirtualPortController {
 
   static final String PAGE_URL = "/manager/virtualports";
 
+  private static final Function<VirtualPort, VirtualPortView> TO_VIRTUAL_PORT_VIEW =
+      new Function<VirtualPort, VirtualPortView>() {
+        @Override
+        public VirtualPortView apply(VirtualPort port) {
+          return new VirtualPortView(port);
+        }
+    };
+
   @Autowired
   private VirtualPortService virtualPortService;
 
@@ -151,14 +159,19 @@ public class VirtualPortController {
 
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
   public String show(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY, virtualPortService.find(id));
+    uiModel.addAttribute(MODEL_KEY, TO_VIRTUAL_PORT_VIEW.apply(virtualPortService.find(id)));
 
     return PAGE_URL + SHOW;
   }
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY_LIST, virtualPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
+    uiModel.addAttribute(MODEL_KEY_LIST,
+        Lists.transform(
+            virtualPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE),
+            TO_VIRTUAL_PORT_VIEW
+        )
+    );
 
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(virtualPortService.count()));
 
@@ -204,4 +217,60 @@ public class VirtualPortController {
 
     return "redirect:";
   }
+
+  public static final class VirtualPortView {
+    private final Long id;
+    private final String managerLabel;
+    private final Integer maxBandwidth;
+    private final Integer vlanId;
+    private final String virtualResourceGroup;
+    private final String physicalResourceGroup;
+    private final String physicalPort;
+    private final String userLabel;
+
+    public VirtualPortView(VirtualPort port) {
+      id = port.getId();
+      managerLabel = port.getManagerLabel();
+      userLabel = port.getUserLabel();
+      maxBandwidth = port.getMaxBandwidth();
+      vlanId = port.getVlanId();
+      virtualResourceGroup = port.getVirtualResourceGroup().getName();
+      physicalResourceGroup = port.getPhysicalResourceGroup().getName();
+      physicalPort = port.getPhysicalPort().getManagerLabel();
+    }
+
+    public String getManagerLabel() {
+      return managerLabel;
+    }
+
+    public Integer getMaxBandwidth() {
+      return maxBandwidth;
+    }
+
+    public Integer getVlanId() {
+      return vlanId;
+    }
+
+    public String getVirtualResourceGroup() {
+      return virtualResourceGroup;
+    }
+
+    public String getPhysicalResourceGroup() {
+      return physicalResourceGroup;
+    }
+
+    public String getPhysicalPort() {
+      return physicalPort;
+    }
+
+    public Long getId() {
+      return id;
+    }
+
+    public String getUserLabel() {
+      return userLabel;
+    }
+
+  }
+
 }
