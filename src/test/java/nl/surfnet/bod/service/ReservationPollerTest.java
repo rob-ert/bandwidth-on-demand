@@ -21,7 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -30,8 +29,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import nl.surfnet.bod.domain.Reservation;
@@ -39,7 +36,7 @@ import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.LocalDateTime;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -49,7 +46,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.Lists;
 
-@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationPollerTest {
 
@@ -58,27 +54,35 @@ public class ReservationPollerTest {
 
   @Mock
   private ReservationEventPublisher reservationEventPublisherMock;
-  
+
   @Mock
   private ReservationService reservationServiceMock;
 
+  @Before
+  public void makeSureWeReallyPoll() {
+    subject.setMaxPollingTries(1);
+  }
+
   @Test
-  public void pollerShouldFindOneChangingReservation() throws InterruptedException {
+  public void pollerShouldRaiseOneChangingReservation() throws InterruptedException {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SUBMITTED).create();
 
     when(reservationServiceMock.findReservationsToPoll(any(LocalDateTime.class))).thenReturn(
         Lists.newArrayList(reservation));
     when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.SCHEDULED);
 
-    ReservationCountDownListener listener = new ReservationCountDownListener(1);
-    reservationEventPublisherMock.addListener(listener);
-    
     subject.pollReservations();
 
-    assertTrue(listener.getLatch().await(200, TimeUnit.MILLISECONDS));
-    assertThat(listener.getEvents(), hasSize(1));
-    assertThat(listener.getEvents().get(0).getOldStatus(), is(ReservationStatus.SUBMITTED));
-    assertThat(listener.getEvents().get(0).getReservation().getStatus(), is(ReservationStatus.SCHEDULED));
+    awaitPollerReady();
+
+    ArgumentCaptor<ReservationStatusChangeEvent> eventCaptor = ArgumentCaptor
+        .forClass(ReservationStatusChangeEvent.class);
+
+    verify(reservationEventPublisherMock).notifyListeners(eventCaptor.capture());
+
+    assertThat(eventCaptor.getAllValues(), hasSize(1));
+    assertThat(eventCaptor.getValue().getOldStatus(), is(ReservationStatus.SUBMITTED));
+    assertThat(eventCaptor.getValue().getReservation().getStatus(), is(ReservationStatus.SCHEDULED));
   }
 
   @Test
@@ -90,7 +94,11 @@ public class ReservationPollerTest {
         Lists.newArrayList(reservation));
     when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.SUBMITTED);
 
+    subject.setMaxPollingTries(3);
+    subject.setPollingInterval(1, TimeUnit.MILLISECONDS);
     subject.pollReservations();
+
+    awaitPollerReady();
 
     verify(reservationServiceMock, times(maxTries)).getStatus(reservation);
   }
@@ -107,27 +115,10 @@ public class ReservationPollerTest {
     assertThat(argument.getValue().getMillisOfSecond(), is(0));
   }
 
-  private static final class ReservationCountDownListener implements ReservationListener {
-    private final CountDownLatch latch;
-    private List<ReservationStatusChangeEvent> events = Lists.newArrayList();
-
-    public ReservationCountDownListener(int countDown) {
-      latch = new CountDownLatch(countDown);
-    }
-
-    @Override
-    public void onStatusChange(ReservationStatusChangeEvent event) {
-      events.add(event);
-      latch.countDown();
-    }
-
-    public CountDownLatch getLatch() {
-      return latch;
-    }
-
-    public List<ReservationStatusChangeEvent> getEvents() {
-      return events;
-    }
+  private void awaitPollerReady() throws InterruptedException {
+    subject.getExecutorService().shutdown();
+    boolean terminated = subject.getExecutorService().awaitTermination(200, TimeUnit.MILLISECONDS);
+    assertThat(terminated, is(true));
   }
 
 }

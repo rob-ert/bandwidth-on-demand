@@ -64,7 +64,8 @@ public class ReservationPoller {
   private ReservationEventPublisher reservationEventPublisher;
 
   @Value("${reservation.poll.max.tries}")
-  private Integer maxPollingTries;
+  private int maxPollingTries;
+  private long pollingIntervalInMillis;
 
   /**
    * The polling of reservations is scheduled every minute. This is because the
@@ -78,6 +79,18 @@ public class ReservationPoller {
     for (Reservation reservation : reservations) {
       executorService.submit(new ReservationStatusChecker(reservation));
     }
+  }
+
+  protected void setMaxPollingTries(int maxPollingTries) {
+    this.maxPollingTries = maxPollingTries;
+  }
+
+  protected void setPollingInterval(long sleepFor, TimeUnit timeUnit) {
+    this.pollingIntervalInMillis = timeUnit.toMillis(sleepFor);
+  }
+
+  ExecutorService getExecutorService() {
+    return executorService;
   }
 
   private class ReservationStatusChecker implements Runnable {
@@ -104,12 +117,12 @@ public class ReservationPoller {
           reservation.setStatus(currentStatus);
           reservationService.update(reservation);
 
-          reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(currentStatus, reservation));
+          reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservation));
 
           return;
         }
 
-        Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
+        Uninterruptibles.sleepUninterruptibly(pollingIntervalInMillis, TimeUnit.MILLISECONDS);
       }
     }
   }
