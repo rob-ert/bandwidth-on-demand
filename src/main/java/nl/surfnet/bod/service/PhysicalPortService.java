@@ -22,19 +22,11 @@
 package nl.surfnet.bod.service;
 
 import java.util.Collection;
-import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 public interface PhysicalPortService {
-
-  /**
-   * Finds all physical ports. Both allocated and unallocated.
-   *
-   * @return List of physical ports
-   */
-  List<PhysicalPort> findAll();
 
   /**
    * Finds all unallocated ports. Which means ports that are not connected to a
@@ -43,16 +35,6 @@ public interface PhysicalPortService {
    * @return List of unallocated physical ports
    */
   Collection<PhysicalPort> findUnallocated();
-
-  /**
-   * Finds {@link PhysicalPort}s in case paging is used.
-   *
-   * @param firstResult
-   * @param sizeNo
-   *          max result size
-   * @return List of PhysicalPorts
-   */
-  List<PhysicalPort> findEntries(final int firstResult, final int sizeNo);
 
   /**
    * Finds unallocated {@link PhysicalPort}s with a start index and a max number
@@ -64,6 +46,18 @@ public interface PhysicalPortService {
    * @return Collection of unallocated ports
    */
   Collection<PhysicalPort> findUnallocatedEntries(final int firstResult, final int sizeNo);
+
+  /**
+   * Finds all allocated physical ports.
+   *
+   * @param firstResult
+   *          index of first result
+   * @param sizeNo
+   *          max result size
+   *
+   * @return Collection of allocated ports
+   */
+  Collection<PhysicalPort> findAllocatedEntries(int firstResult, int sizeNo);
 
   /**
    * Finds all physical ports that are visible for a user.
@@ -83,9 +77,9 @@ public interface PhysicalPortService {
    */
   Collection<PhysicalPort> findAllocatedEntriesForUser(RichUserDetails user, final int firstResult, final int sizeNo);
 
-  long count();
-
   long countUnallocated();
+
+  long countAllocated();
 
   long countAllocatedForUser(RichUserDetails user);
 

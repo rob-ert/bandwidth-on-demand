@@ -66,9 +66,9 @@ public class PhysicalPortControllerTest {
   public void listAllPortsShouldSetPortsAndMaxPages() {
     Model model = new ModelStub();
     List<PhysicalPort> ports = Lists.newArrayList(new PhysicalPortFactory().create());
-    when(physicalPortServiceMock.findEntries(eq(0), anyInt())).thenReturn(ports);
+    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt())).thenReturn(ports);
 
-    subject.list(1, model);
+    subject.listAllocated(1, model);
 
     assertThat(model.asMap(), hasEntry(MODEL_KEY_LIST, Object.class.cast(ports)));
     assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
@@ -78,9 +78,9 @@ public class PhysicalPortControllerTest {
   public void listAllPortsWithoutAPageParam() {
     Model model = new ModelStub();
     List<PhysicalPort> ports = Lists.newArrayList(new PhysicalPortFactory().create());
-    when(physicalPortServiceMock.findEntries(eq(0), anyInt())).thenReturn(ports);
+    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt())).thenReturn(ports);
 
-    subject.list(null, model);
+    subject.listAllocated(null, model);
 
     assertThat(model.asMap(), hasEntry(MODEL_KEY_LIST, Object.class.cast(ports)));
     assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));

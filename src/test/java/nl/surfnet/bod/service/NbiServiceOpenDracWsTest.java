@@ -21,8 +21,23 @@
  */
 package nl.surfnet.bod.service;
 
-public interface ReservationListener {
-  
-  void onStatusChange(ReservationStatusChangeEvent reservationStatusChangeEvent);
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.runners.MockitoJUnitRunner;
+
+@RunWith(MockitoJUnitRunner.class)
+public class NbiServiceOpenDracWsTest {
+
+  @InjectMocks
+  private NbiServiceOpenDracWs subject;
+
+  @Test
+  @Ignore
+  public void test() {
+    // TODO
+    subject.findAllPhysicalPorts();
+  }
 
 }

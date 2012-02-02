@@ -76,7 +76,6 @@ public class PhysicalPortController {
 
   @RequestMapping(method = RequestMethod.PUT)
   public String update(final UpdateManagerLabelCommand command, final BindingResult bindingResult, final Model uiModel) {
-    System.err.println("Id: " + command.getId());
     PhysicalPort port = physicalPortService.find(command.getId());
 
     if (Security.managerMayEdit(port)) {
