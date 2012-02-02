@@ -47,7 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml",
     "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
 @Transactional
-public class ReservationServiceIntegrationTest {
+public class ReservationServiceDbTest {
 
   @Autowired
   private ReservationService reservationService;
