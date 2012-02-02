@@ -156,31 +156,6 @@ public class ReservationService {
   }
 
   /**
-   *
-   * @param reservationStatus
-   *          {@link ReservationStatus} to evaluate
-   * @return true when the reservationStatus is an endState, false otherwise
-   * @see ReservationStatus
-   *
-   */
-  public boolean isEndState(ReservationStatus reservationStatus) {
-    return reservationStatus != null && reservationStatus.isEndState(reservationStatus);
-  }
-
-  /**
-   *
-   * @param reservationStatus
-   *          {@link ReservationStatus} to evaluate
-   * @return true when the reservationStatus is a transitionState, false
-   *         otherwise
-   * @see ReservationStatus
-   *
-   */
-  public boolean isTransitionState(ReservationStatus reservationStatus) {
-    return !isEndState(reservationStatus);
-  }
-
-  /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
    *

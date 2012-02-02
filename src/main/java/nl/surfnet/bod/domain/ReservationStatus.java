@@ -21,14 +21,14 @@
  */
 package nl.surfnet.bod.domain;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * Enum representing the status of a {@link Reservation}.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 public enum ReservationStatus {
 
@@ -38,29 +38,22 @@ public enum ReservationStatus {
    * All states which are allowed to transition to an other state. All other
    * states will automatically be regarded as endStates.
    */
-  public static final List<ReservationStatus> TRANSITION_STATES = Arrays.asList(SCHEDULED, RUNNING, SUBMITTED,
-      PREPARING);
+  public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(SCHEDULED, RUNNING, SUBMITTED, PREPARING);
 
   /**
-   * 
-   * @param reservationStatus
-   *          {@link ReservationStatus} to check
    * @return true if the reservationStatus is an endState, meaning no further
    *         state transitions are allowed. Returns false otherwise.
    */
-  public boolean isEndState(ReservationStatus reservationStatus) {
-    return !isTransitionState(reservationStatus);
+  public boolean isEndState() {
+    return !isTransitionState();
   }
 
   /**
-   * 
-   * @param reservationStatus
-   *          {@link ReservationStatus} to check
    * @return true if the reservationStatus is an transitionState, meaning
    *         further state transitions are allowed. Returns false otherwise.
    */
-  public boolean isTransitionState(ReservationStatus reservationStatus) {
-    return TRANSITION_STATES.contains(reservationStatus);
+  public boolean isTransitionState() {
+    return TRANSITION_STATES.contains(this);
   }
 
 }

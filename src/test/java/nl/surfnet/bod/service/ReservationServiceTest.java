@@ -43,7 +43,6 @@ import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -53,7 +52,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -64,9 +62,6 @@ public class ReservationServiceTest {
 
   @Mock
   private ReservationRepo reservationRepoMock;
-
-  @Mock
-  private ReservationPoller reservationPoller;
 
   @Mock
   private NbiService nbiPortService;
@@ -179,61 +174,11 @@ public class ReservationServiceTest {
   }
 
   @Test
-  public void shouldCheckAllTransitionStateReservations() {
-    Reservation reservationWithTransitionStateOne = new ReservationFactory().setStatus(ReservationStatus.PREPARING)
-        .create();
-    Reservation reservationWithTransitionStateTwo = new ReservationFactory().setStatus(ReservationStatus.PREPARING)
-        .create();
-
-    // Always return endState
-    when(nbiPortService.getReservationStatus(any(String.class))).thenReturn(ReservationStatus.SUCCEEDED);
-
-    when(reservationRepoMock.findByStatusIn(ReservationStatus.TRANSITION_STATES)).thenReturn(
-        ImmutableList.of(reservationWithTransitionStateOne, reservationWithTransitionStateTwo));
-
-    subject.checkAllReservationsForStatusUpdate();
-
-    assertThat(reservationWithTransitionStateOne.getStatus(), is(ReservationStatus.SUCCEEDED));
-    assertThat(reservationWithTransitionStateTwo.getStatus(), is(ReservationStatus.SUCCEEDED));
-  }
-
-  @Test
   public void cancelAFailedReservationShouldNotChangeItsStatus() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).create();
     subject.cancel(reservation);
     assertThat(reservation.getStatus(), is(ReservationStatus.FAILED));
     verifyZeroInteractions(reservationRepoMock);
-  }
-
-  @Test
-  public void shouldBeEndstate() {
-    Assert.assertTrue(subject.isEndState(ReservationStatus.CANCELLED));
-    Assert.assertTrue(subject.isEndState(ReservationStatus.FAILED));
-    Assert.assertTrue(subject.isEndState(ReservationStatus.SUCCEEDED));
-  }
-
-  @Test
-  public void shouldNotBeTransitionState() {
-    Assert.assertFalse(subject.isTransitionState(ReservationStatus.CANCELLED));
-    Assert.assertFalse(subject.isTransitionState(ReservationStatus.FAILED));
-    Assert.assertFalse(subject.isTransitionState(ReservationStatus.SUCCEEDED));
-  }
-
-  @Test
-  public void shouldBeTransitionState() {
-
-    Assert.assertTrue(subject.isTransitionState(ReservationStatus.PREPARING));
-    Assert.assertTrue(subject.isTransitionState(ReservationStatus.RUNNING));
-    Assert.assertTrue(subject.isTransitionState(ReservationStatus.SCHEDULED));
-    Assert.assertTrue(subject.isTransitionState(ReservationStatus.SUBMITTED));
-  }
-
-  @Test
-  public void shouldNotBeEndState() {
-    Assert.assertFalse(subject.isEndState(ReservationStatus.PREPARING));
-    Assert.assertFalse(subject.isEndState(ReservationStatus.RUNNING));
-    Assert.assertFalse(subject.isEndState(ReservationStatus.SCHEDULED));
-    Assert.assertFalse(subject.isEndState(ReservationStatus.SUBMITTED));
   }
 
 }
