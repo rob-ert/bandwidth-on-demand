@@ -12,12 +12,12 @@ import com.google.common.collect.Lists;
 public class ReservationEventPublisher {
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-  private List<ReservationListener> listeners = Lists.newArrayList();
+  private final List<ReservationListener> listeners = Lists.newArrayList();
 
   public void addListener(ReservationListener reservationListener) {
     this.listeners.add(reservationListener);
   }
-  
+
   public void notifyListeners(ReservationStatusChangeEvent changeEvent) {
     for (ReservationListener listener : listeners) {
       log.info("notify listeners {}", changeEvent);

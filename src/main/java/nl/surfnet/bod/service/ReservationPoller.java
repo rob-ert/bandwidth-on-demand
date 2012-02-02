@@ -28,13 +28,11 @@ import java.util.concurrent.TimeUnit;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.repo.ReservationRepo;
 
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -48,30 +46,22 @@ import com.google.common.util.concurrent.Uninterruptibles;
  * {@link #monitorStatus(Reservation)}, whenever a state change is detected the
  * new state will be updated in the specific {@link Reservation} object and will
  * be persisted. The scheduler will be cancelled afterwards.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 @Component
 @Transactional
 public class ReservationPoller {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
+  private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
   @Autowired
   private ReservationService reservationService;
 
   @Autowired
-  private ReservationRepo reservationRepo;
-
-  @Autowired
-  @Qualifier("nbiService")
-  private NbiService nbiService;
-
-  @Autowired
   private ReservationEventPublisher reservationEventPublisher;
-
-  private ExecutorService executorService = Executors.newFixedThreadPool(10);
 
   @Value("${reservation.poll.max.tries}")
   private Integer maxPollingTries;
@@ -90,7 +80,6 @@ public class ReservationPoller {
     }
   }
 
-  
   private class ReservationStatusChecker implements Runnable {
     private final Reservation reservation;
     private final ReservationStatus startStatus;
@@ -105,25 +94,22 @@ public class ReservationPoller {
     public void run() {
       ReservationStatus currentStatus = null;
 
-      try {
-        while (numberOfTries < maxPollingTries) {
-          log.info("Checking status update for: '{}'", reservation.getReservationId());
+      while (numberOfTries < maxPollingTries) {
+        log.info("Checking status update for: '{}'", reservation.getReservationId());
 
-          currentStatus = reservationService.getStatus(reservation);
-          numberOfTries++;
+        currentStatus = reservationService.getStatus(reservation);
+        numberOfTries++;
 
-          if (startStatus != currentStatus) {
-            reservation.setStatus(currentStatus);
-            reservationService.update(reservation);
+        if (startStatus != currentStatus) {
+          reservation.setStatus(currentStatus);
+          reservationService.update(reservation);
 
-            return;
-          }
-          Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
+          reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(currentStatus, reservation));
+
+          return;
         }
-      }
-      finally {
-        ReservationStatusChangeEvent changeEvent = new ReservationStatusChangeEvent(currentStatus, reservation);
-        reservationEventPublisher.notifyListeners(changeEvent);
+
+        Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
       }
     }
   }
