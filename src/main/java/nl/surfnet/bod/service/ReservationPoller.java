@@ -15,12 +15,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
 
 /**
@@ -52,7 +50,7 @@ public class ReservationPoller {
   @Autowired
   private ReservationEventPublisher reservationEventPublisher;
 
-  private ExecutorService executor = Executors.newFixedThreadPool(10);
+  private ExecutorService executorService = Executors.newFixedThreadPool(10);
 
   @Value("${reservation.poll.max.tries}")
   private Integer maxPollingTries;
@@ -67,7 +65,7 @@ public class ReservationPoller {
     List<Reservation> reservations = reservationService.findReservationsToPoll(dateTime);
 
     for (Reservation reservation : reservations) {
-      executor.submit(new ReservationStatusChecker(reservation));
+      executorService.submit(new ReservationStatusChecker(reservation));
     }
   }
 

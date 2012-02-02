@@ -72,35 +72,14 @@ public class ReservationService {
   @Autowired
   private ReservationEventPublisher reservationEventPublisher;
 
-  @PostConstruct
-  public void checkAllReservationsForStatusUpdate() {
-    long updatedItems = 0;
-
-    List<Reservation> reservations = reservationRepo.findByStatusIn(ReservationStatus.TRANSITION_STATES);
-
-    for (Reservation reservation : reservations) {
-      ReservationStatus actualStatus = getStatus(reservation);
-
-      if (reservation.getStatus() != actualStatus) {
-        log.debug("About to update reservation [{}] status changed from [{}] to: {} ",
-            new String[] { reservation.getReservationId(), reservation.getStatus().name(), actualStatus.name() });
-
-        reservation.setStatus(actualStatus);
-        update(reservation);
-        updatedItems++;
-      }
-    }
-    log.info("Amount of reservations checked [{}] from which [{}] needed a status update", reservations.size(),
-        updatedItems);
-  }
-
+  
   /**
    * Reserves a reservation using the {@link NbiService} asynchronously.
    * 
    * @param reservation
    */
   @Async
-  public void reserve(Reservation reservation) {
+  public void reserve(Reservation reservation) throws ReservationFailedException {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
 
@@ -210,34 +189,9 @@ public class ReservationService {
   }
 
   /**
-   * 
-   * @param reservationStatus
-   *          {@link ReservationStatus} to evaluate
-   * @return true when the reservationStatus is an endState, false otherwise
-   * @see ReservationStatus
-   * 
-   */
-  public boolean isEndState(ReservationStatus reservationStatus) {
-    return reservationStatus != null && reservationStatus.isEndState(reservationStatus);
-  }
-
-  /**
-   * 
-   * @param reservationStatus
-   *          {@link ReservationStatus} to evaluate
-   * @return true when the reservationStatus is a transitionState, false
-   *         otherwise
-   * @see ReservationStatus
-   * 
-   */
-  public boolean isTransitionState(ReservationStatus reservationStatus) {
-    return !isEndState(reservationStatus);
-  }
-
-  /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   * 
+   *
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations

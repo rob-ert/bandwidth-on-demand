@@ -21,8 +21,7 @@
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
         http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd">
 
-    <bean id="nbiService" class="${nbi.client.class}" lazy-init="true" />
-    <task:annotation-driven/>
+    <bean id="nbiService" class="nl.surfnet.bod.service.NbiServiceOpenDracWs" lazy-init="true" />
 
     <bean
         class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer"
@@ -35,8 +34,7 @@
                         <property name="algorithm">
                             <value>PBEWithMD5AndTripleDES</value>
                         </property>
-                        <property name="passwordEnvName"
-                            value="BOD_ENCRYPTION_PASSWORD" />
+                        <property name="passwordEnvName" value="BOD_ENCRYPTION_PASSWORD" />
                     </bean>
                 </property>
             </bean>
@@ -45,7 +43,6 @@
         <property name="locations">
             <list>
                 <value>classpath:opendrac-test.properties</value>
-                <value>classpath:bod.properties</value>
             </list>
         </property>
         <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />

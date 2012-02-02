@@ -29,6 +29,8 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
+import com.google.common.base.Objects;
+
 /**
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
@@ -203,14 +205,15 @@ public class Reservation {
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("Reservation [id=").append(id).append(", version=").append(version)
-        .append(", virtualResourceGroup=").append(virtualResourceGroup).append(", status=").append(status)
-        .append(", sourcePort=").append(sourcePort).append(", destinationPort=").append(destinationPort)
-        .append(", startDate=").append(startDate).append(", startTime=").append(startTime).append(", endDate=")
-        .append(endDate).append(", endTime=").append(endTime).append(", userCreated=").append(userCreated)
-        .append(", bandwidth=").append(bandwidth).append(", reservationId=").append(reservationId).append("]");
-    return builder.toString();
+    return Objects.toStringHelper(Reservation.class)
+      .add("id", id)
+      .add("startDate", startDate)
+      .add("starTime", startTime)
+      .add("endDate", endDate)
+      .add("endTime", endTime)
+      .add("sourcePort", sourcePort)
+      .add("destinationPort", destinationPort)
+      .add("userCreated", userCreated).toString();
   }
 
 }
