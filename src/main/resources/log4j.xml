@@ -38,6 +38,10 @@
   <logger name="com.googlecode.ehcache">
     <level value="WARN" />
   </logger>
+  
+  <logger name="com.googlecode.flyway">
+    <level value="INFO" />
+  </logger>
    
   <logger name="nl.surfnet">
     <level value="INFO" />

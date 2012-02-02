@@ -25,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -66,7 +67,7 @@ public class ReservationServiceTest {
   private ReservationRepo reservationRepoMock;
 
   @Mock
-  private ReservationPoller reservationPoller;
+  private ReservationEventPublisher reservationEventPublisherMock;
 
   @Mock
   private NbiService nbiPortService;
@@ -140,12 +141,13 @@ public class ReservationServiceTest {
         .setDestinationPort(destination).create();
 
     final String reservationId = "SCHEDULE-" + System.currentTimeMillis();
+    when(reservationRepoMock.save(any(Reservation.class))).thenReturn(reservation);
     when(nbiPortService.createReservation((any(Reservation.class)))).thenReturn(reservationId);
 
     subject.reserve(reservation);
 
     assertThat(reservation.getReservationId(), is(reservationId));
-    verify(reservationRepoMock).save(reservation);
+    verify(reservationRepoMock, times(2)).save(reservation);
   }
 
   @Test(expected = IllegalStateException.class)

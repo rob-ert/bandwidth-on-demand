@@ -32,9 +32,9 @@ import org.joda.time.LocalTime;
 /**
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
- *
+ * 
  * @author Franky
- *
+ * 
  */
 @Entity
 public class Reservation {
@@ -50,7 +50,7 @@ public class Reservation {
   private VirtualResourceGroup virtualResourceGroup;
 
   @Enumerated(EnumType.STRING)
-  private ReservationStatus status = ReservationStatus.SCHEDULED;
+  private ReservationStatus status;
 
   @NotNull
   @ManyToOne(optional = false)
@@ -87,9 +87,8 @@ public class Reservation {
   @Column(nullable = false)
   private Integer bandwidth;
 
-  @Column(nullable = false)
   private String reservationId;
-    
+
   public Long getId() {
     return id;
   }
@@ -130,7 +129,7 @@ public class Reservation {
     this.sourcePort = sourcePort;
   }
 
-   public VirtualPort getDestinationPort() {
+  public VirtualPort getDestinationPort() {
     return destinationPort;
   }
 
@@ -209,9 +208,9 @@ public class Reservation {
         .append(", virtualResourceGroup=").append(virtualResourceGroup).append(", status=").append(status)
         .append(", sourcePort=").append(sourcePort).append(", destinationPort=").append(destinationPort)
         .append(", startDate=").append(startDate).append(", startTime=").append(startTime).append(", endDate=")
-        .append(endDate).append(", endTime=").append(endTime).append(", userCreated=").append(userCreated).append(", bandwidth=")
-        .append(bandwidth).append(", reservationId=").append(reservationId).append("]");
+        .append(endDate).append(", endTime=").append(endTime).append(", userCreated=").append(userCreated)
+        .append(", bandwidth=").append(bandwidth).append(", reservationId=").append(reservationId).append("]");
     return builder.toString();
   }
-  
+
 }

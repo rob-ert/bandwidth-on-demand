@@ -1,0 +1,1 @@
+alter table reservation alter COLUMN reservation_id DROP NOT NULL;

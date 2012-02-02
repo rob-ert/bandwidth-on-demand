@@ -1,21 +1,21 @@
 package nl.surfnet.bod.service;
 
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.repo.ReservationRepo;
 
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,12 +37,21 @@ import com.google.common.util.concurrent.Uninterruptibles;
 @Transactional
 public class ReservationPoller {
 
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
+  private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
   private ReservationService reservationService;
 
-  private List<ReservationListener> listeners = Lists.newArrayList();
+  @Autowired
+  private ReservationRepo reservationRepo;
+
+  @Autowired
+  @Qualifier("nbiService")
+  private NbiService nbiService;
+
+  @Autowired
+  private ReservationEventPublisher reservationEventPublisher;
+
   private ExecutorService executor = Executors.newFixedThreadPool(10);
 
   @Value("${reservation.poll.max.tries}")
@@ -62,10 +71,7 @@ public class ReservationPoller {
     }
   }
 
-  public void addListener(ReservationListener reservationListener) {
-    this.listeners.add(reservationListener);
-  }
-
+  
   private class ReservationStatusChecker implements Runnable {
     private final Reservation reservation;
     private final ReservationStatus startStatus;
@@ -78,31 +84,28 @@ public class ReservationPoller {
 
     @Override
     public void run() {
-      while (numberOfTries < maxPollingTries) {
-        logger.info("Checking status update for: '{}'", reservation.getReservationId());
+      ReservationStatus currentStatus = null;
 
-        ReservationStatus currentStatus = reservationService.getStatus(reservation);
-        numberOfTries++;
+      try {
+        while (numberOfTries < maxPollingTries) {
+          log.info("Checking status update for: '{}'", reservation.getReservationId());
 
-        if (startStatus != currentStatus) {
-          reservation.setStatus(currentStatus);
-          reservationService.update(reservation);
+          currentStatus = reservationService.getStatus(reservation);
+          numberOfTries++;
 
-          ReservationStatusChangeEvent changeEvent = new ReservationStatusChangeEvent(currentStatus, reservation);
-          notifyListeners(changeEvent);
+          if (startStatus != currentStatus) {
+            reservation.setStatus(currentStatus);
+            reservationService.update(reservation);
 
-          return;
+            return;
+          }
+          Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
         }
-        Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
       }
-    }
-
-    private void notifyListeners(ReservationStatusChangeEvent changeEvent) {
-      for (ReservationListener listener : listeners) {
-        logger.info("notify listeners {}", changeEvent);
-        listener.onStatusChange(changeEvent);
+      finally {
+        ReservationStatusChangeEvent changeEvent = new ReservationStatusChangeEvent(currentStatus, reservation);
+        reservationEventPublisher.notifyListeners(changeEvent);
       }
     }
   }
-
 }

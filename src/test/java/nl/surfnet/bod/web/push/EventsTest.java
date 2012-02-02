@@ -18,7 +18,7 @@ public class EventsTest {
 
     ReservationStatusChangeEvent reservationStatusChangeEvent = new ReservationStatusChangeEvent(ReservationStatus.PREPARING, reservation);    
     
-    Event event = Events.createReservationStatusChangedEvent(reservationStatusChangeEvent);
+    Event event = Events.createEvent(reservationStatusChangeEvent);
 
     assertThat(event.getMessage(), containsString("\"id\":54"));
     assertThat(event.getMessage(), containsString("from PREPARING to SCHEDULED"));

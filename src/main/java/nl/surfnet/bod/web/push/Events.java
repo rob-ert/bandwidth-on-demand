@@ -94,7 +94,7 @@ public final class Events {
 
   }
 
-  public static Event createReservationStatusChangedEvent(ReservationStatusChangeEvent reservationStatusChangeEvent) {
+  public static Event createEvent(ReservationStatusChangeEvent reservationStatusChangeEvent) {
     Reservation reservation = reservationStatusChangeEvent.getReservation();
 
     String message = String.format("The status of a reservation was changed from %s to %s",
