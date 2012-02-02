@@ -84,9 +84,9 @@ public class PhysicalPortController {
   }
 
   @RequestMapping(method = RequestMethod.GET)
-  public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY_LIST, physicalPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
-    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.count()));
+  public String listAllocated(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
+    uiModel.addAttribute(MODEL_KEY_LIST, physicalPortService.findAllocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
+    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countAllocated()));
 
     return PAGE_URL + LIST;
   }

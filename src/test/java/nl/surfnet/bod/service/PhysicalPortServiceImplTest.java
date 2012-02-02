@@ -32,7 +32,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
@@ -46,6 +45,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.collect.ImmutableList;
@@ -144,51 +145,14 @@ public class PhysicalPortServiceImplTest {
   }
 
   @Test
-  public void findEntriesShouldReturnMaxTwoPorts() {
-    PhysicalPort firstPort = new PhysicalPortFactory().setNocLabel("first").create();
-    List<PhysicalPort> nbiPorts = Lists.newArrayList(
-        firstPort,
-        new PhysicalPortFactory().setNocLabel("second").create(),
-        new PhysicalPortFactory().setNocLabel("third").create(),
-        new PhysicalPortFactory().setNocLabel("fourth").create());
-
-    when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
-    when(physicalPortRepoMock.findAll()).thenReturn(Collections.<PhysicalPort> emptyList());
-
-    List<PhysicalPort> entries = subject.findEntries(0, 2);
-
-    assertThat(entries, hasSize(2));
-    assertThat(entries.get(0), is(firstPort));
-  }
-
-  @Test
-  public void findEntriesShouldReturnSecondPortAsFirstResult() {
-    PhysicalPort secondPort = new PhysicalPortFactory().setNocLabel("second").create();
-    List<PhysicalPort> nbiPorts = Lists.newArrayList(
-        new PhysicalPortFactory().setNocLabel("first").create(),
-        secondPort,
-        new PhysicalPortFactory().setNocLabel("third").create(),
-        new PhysicalPortFactory().setNocLabel("fourth").create());
-
-    when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
-    when(physicalPortRepoMock.findAll()).thenReturn(Collections.<PhysicalPort> emptyList());
-
-    List<PhysicalPort> entries = subject.findEntries(1, 2);
-
-    assertThat(entries, hasSize(2));
-    assertThat(entries.get(0), is(secondPort));
-  }
-
-  @Test
-  public void findEntriesShouldReturnMaxAvailablePorts() {
-    List<PhysicalPort> nbiPorts = Lists.newArrayList(
+  public void findAllocatedEntriesShouldReturnMaxAvailablePorts() {
+    List<PhysicalPort> ports = Lists.newArrayList(
         new PhysicalPortFactory().setNocLabel("first").create(),
         new PhysicalPortFactory().setNocLabel("second").create());
 
-    when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
-    when(physicalPortRepoMock.findAll()).thenReturn(Collections.<PhysicalPort> emptyList());
+    when(physicalPortRepoMock.findAll(any(Pageable.class))).thenReturn(new PageImpl(ports));
 
-    List<PhysicalPort> entries = subject.findEntries(0, 20);
+    List<PhysicalPort> entries = subject.findAllocatedEntries(0, 20);
 
     assertThat(entries, hasSize(2));
   }
@@ -228,10 +192,10 @@ public class PhysicalPortServiceImplTest {
   }
 
   @Test
-  public void countShouldCallCountOnNbi() {
-    subject.count();
+  public void countAllocatedShouldCallCountOnRepo() {
+    subject.countAllocated();
 
-    verify(nbiServiceMock, only()).getPhysicalPortsCount();
+    verify(physicalPortRepoMock, only()).count();
   }
 
   @Test

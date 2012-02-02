@@ -80,8 +80,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    * Finds all ports using the North Bound Interface and enhances these ports
    * with data found in our own database.
    */
-  @Override
-  public List<PhysicalPort> findAll() {
+  protected List<PhysicalPort> findAll() {
     List<PhysicalPort> nbiPorts = nbiService.findAllPhysicalPorts();
     List<PhysicalPort> repoPorts = physicalPortRepo.findAll();
 
@@ -93,8 +92,8 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   }
 
   @Override
-  public List<PhysicalPort> findEntries(int firstResult, int sizeNo) {
-    return limitPorts(findAll(), firstResult, sizeNo);
+  public List<PhysicalPort> findAllocatedEntries(int firstResult, int maxResults) {
+    return physicalPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults)).getContent();
   }
 
   @Override
@@ -119,8 +118,8 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   }
 
   @Override
-  public long count() {
-    return nbiService.getPhysicalPortsCount();
+  public long countAllocated() {
+    return physicalPortRepo.count();
   }
 
   @Override
