@@ -1,12 +1,11 @@
 package nl.surfnet.bod.service;
 
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PreDestroy;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -18,35 +17,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
 
 /**
  * This class is responsible for monitoring changes of a
- * {@link Reservation#getStatus()}. A scheduler is started upon the call to
- * {@link #monitorStatus(Reservation)}, whenever a state change is detected the
- * new state will be updated in the specific {@link Reservation} object and will
- * be persisted. The scheduler will be cancelled afterwards.
- * 
+ * {@link Reservation#getStatus()}. Whenever a state change is detected the
+ * new state will be updated in the specific {@link Reservation} and listers will be notified.
+ *
  * @author Franky
- * 
+ *
  */
 @Component
-@Transactional
 public class ReservationPoller {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
+  private final List<ReservationListener> listeners = Lists.newArrayList();
+  private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
   @Autowired
   private ReservationService reservationService;
 
-  private List<ReservationListener> listeners = Lists.newArrayList();
-  private ExecutorService executor = Executors.newFixedThreadPool(10);
-
   @Value("${reservation.poll.max.tries}")
-  private Integer maxPollingTries;
+  private int maxPollingTries;
+
+  private long pollingIntervalInMillis = 10 * 1000;
+
+  @PreDestroy
+  public void shutdown() {
+    executorService.shutdownNow();
+  }
 
   /**
    * The polling of reservations is scheduled every minute. This is because the
@@ -58,12 +59,24 @@ public class ReservationPoller {
     List<Reservation> reservations = reservationService.findReservationsToPoll(dateTime);
 
     for (Reservation reservation : reservations) {
-      executor.submit(new ReservationStatusChecker(reservation));
+      executorService.submit(new ReservationStatusChecker(reservation));
     }
   }
 
   public void addListener(ReservationListener reservationListener) {
     this.listeners.add(reservationListener);
+  }
+
+  protected void setMaxPollingTries(int maxPollingTries) {
+    this.maxPollingTries = maxPollingTries;
+  }
+
+  protected void setPollingInterval(long sleepFor, TimeUnit timeUnit) {
+    this.pollingIntervalInMillis = timeUnit.toMillis(sleepFor);
+  }
+
+  ExecutorService getExecutorService() {
+    return this.executorService;
   }
 
   private class ReservationStatusChecker implements Runnable {
@@ -88,12 +101,12 @@ public class ReservationPoller {
           reservation.setStatus(currentStatus);
           reservationService.update(reservation);
 
-          ReservationStatusChangeEvent changeEvent = new ReservationStatusChangeEvent(currentStatus, reservation);
+          ReservationStatusChangeEvent changeEvent = new ReservationStatusChangeEvent(startStatus, reservation);
           notifyListeners(changeEvent);
 
           return;
         }
-        Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
+        Uninterruptibles.sleepUninterruptibly(pollingIntervalInMillis, TimeUnit.MILLISECONDS);
       }
     }
 
