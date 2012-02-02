@@ -23,21 +23,15 @@ package nl.surfnet.bod.domain;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-
-import java.util.List;
 
 import javax.validation.ConstraintViolationException;
 
 import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.support.PhysicalPortFactory;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,66 +45,47 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PhysicalPortRepoImplDbTest {
 
-  private PhysicalPortFactory physicalPortFactory = new PhysicalPortFactory();
-
-  @Autowired
-  private PhysicalPortService physicalPortService;
-
   @Autowired
   private PhysicalPortRepo physicalPortRepo;
 
   @Autowired
-  private PhysicalResourceGroupService physicalResourceGroupService;
-
-  private PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(null).create();
-  private PhysicalPort physicalPort = physicalPortFactory.setPhysicalResourceGroup(group).setId(null).create();
+  private PhysicalResourceGroupRepo physicalResourceGroupRepo;
 
   @Test
   public void findPhysicalPort() {
-    PhysicalPort physicalPort = physicalPortFactory.create();
-    physicalPortService.save(physicalPort);
+    PhysicalPort physicalPort = new PhysicalPortFactory().create();
+    save(physicalPort);
 
-    PhysicalPort freshObj = physicalPortService.find(physicalPort.getId());
+    PhysicalPort freshObj = physicalPortRepo.findOne(physicalPort.getId());
 
-    assertThat(physicalPort, is(freshObj));
-  }
-
-  @Test
-  @Ignore("Broken since change to nrb service")
-  public void testFindPhysicalPortEntries() {
-    physicalResourceGroupService.save(group);
-    physicalPortService.save(physicalPort);
-
-    physicalPortRepo.flush();
-
-    int count = (int) physicalPortService.count();
-
-    int maxResults = count > 20 ? 20 : count;
-
-    List<PhysicalPort> result = physicalPortService.findEntries(0, maxResults);
-
-    assertThat(result, hasSize(maxResults));
+    assertThat(freshObj, is(physicalPort));
   }
 
   @Test
   public void updatePhysicalPortUpdate() {
-    physicalResourceGroupService.save(physicalPort.getPhysicalResourceGroup());
-    physicalPortService.save(physicalPort);
+    PhysicalPort physicalPort = new PhysicalPortFactory().create();
+    save(physicalPort);
+
     Integer initialVersion = physicalPort.getVersion();
     physicalPort.setNocLabel("New name");
 
-    PhysicalPort merged = physicalPortService.update(physicalPort);
-
-    physicalPortRepo.flush();
+    PhysicalPort merged = physicalPortRepo.saveAndFlush(physicalPort);
 
     assertThat(merged.getId(), is(physicalPort.getId()));
     assertThat(merged.getVersion(), greaterThan(initialVersion));
   }
 
+  private void save(PhysicalPort port) {
+    port.setId(null);
+    port.getPhysicalResourceGroup().setId(null);
+    physicalResourceGroupRepo.save(port.getPhysicalResourceGroup());
+    physicalPortRepo.saveAndFlush(port);
+  }
+
   @Test
   public void savePhysicalPort() {
-    physicalResourceGroupService.save(physicalPort.getPhysicalResourceGroup());
-    physicalPortService.save(physicalPort);
+    PhysicalPort physicalPort = new PhysicalPortFactory().create();
+    save(physicalPort);
 
     physicalPortRepo.flush();
 
@@ -119,31 +94,29 @@ public class PhysicalPortRepoImplDbTest {
 
   @Test
   public void updatePhysicalPort() {
-    physicalResourceGroupService.save(physicalPort.getPhysicalResourceGroup());
-    physicalPortService.save(physicalPort);
-    physicalPortRepo.flush();
+    PhysicalPort physicalPort = new PhysicalPortFactory().create();
+    save(physicalPort);
 
-    physicalPortService.update(physicalPort);
+    physicalPortRepo.saveAndFlush(physicalPort);
 
     assertThat(physicalPort.getId(), greaterThan(0L));
   }
 
   @Test
   public void deletePhysicalPort() {
-    physicalResourceGroupService.save(physicalPort.getPhysicalResourceGroup());
-    physicalPortRepo.save(physicalPort);
+    PhysicalPort physicalPort = new PhysicalPortFactory().create();
+    save(physicalPort);
+
+    physicalPortRepo.delete(physicalPort);
     physicalPortRepo.flush();
 
-    physicalPortService.delete(physicalPort);
-    physicalPortRepo.flush();
-
-    assertThat(physicalPortService.find(physicalPort.getId()), nullValue());
+    assertThat(physicalPortRepo.findOne(physicalPort.getId()), nullValue());
   }
 
   @Test(expected = ConstraintViolationException.class)
   public void aPortShouldNotSaveWithoutAName() {
     PhysicalPort port = new PhysicalPortFactory().setNocLabel("").create();
 
-    physicalPortService.save(port);
+    physicalPortRepo.save(port);
   }
 }
