@@ -28,15 +28,9 @@ import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -53,7 +47,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,28 +62,6 @@ public class ReservationService {
   @Autowired
   @Qualifier("nbiService")
   private NbiService nbiService;
-
-  @PostConstruct
-  public void checkAllReservationsForStatusUpdate() {
-    long updatedItems = 0;
-
-    List<Reservation> reservations = reservationRepo.findByStatusIn(ReservationStatus.TRANSITION_STATES);
-
-    for (Reservation reservation : reservations) {
-      ReservationStatus actualStatus = getStatus(reservation);
-
-      if (reservation.getStatus() != actualStatus) {
-        log.debug("About to update reservation [{}] status changed from [{}] to: {} ",
-            new String[] { reservation.getReservationId(), reservation.getStatus().name(), actualStatus.name() });
-
-        reservation.setStatus(actualStatus);
-        update(reservation);
-        updatedItems++;
-      }
-    }
-    log.info("Amount of reservations checked [{}] from which [{}] needed a status update", reservations.size(),
-        updatedItems);
-  }
 
   public void reserve(Reservation reservation) throws ReservationFailedException {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
@@ -185,25 +156,25 @@ public class ReservationService {
   }
 
   /**
-   * 
+   *
    * @param reservationStatus
    *          {@link ReservationStatus} to evaluate
    * @return true when the reservationStatus is an endState, false otherwise
    * @see ReservationStatus
-   * 
+   *
    */
   public boolean isEndState(ReservationStatus reservationStatus) {
     return reservationStatus != null && reservationStatus.isEndState(reservationStatus);
   }
 
   /**
-   * 
+   *
    * @param reservationStatus
    *          {@link ReservationStatus} to evaluate
    * @return true when the reservationStatus is a transitionState, false
    *         otherwise
    * @see ReservationStatus
-   * 
+   *
    */
   public boolean isTransitionState(ReservationStatus reservationStatus) {
     return !isEndState(reservationStatus);
@@ -212,7 +183,7 @@ public class ReservationService {
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   * 
+   *
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
