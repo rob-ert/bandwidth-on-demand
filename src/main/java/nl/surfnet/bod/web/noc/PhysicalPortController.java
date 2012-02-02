@@ -24,14 +24,17 @@ package nl.surfnet.bod.web.noc;
 import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualPortService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -52,6 +55,9 @@ public class PhysicalPortController {
 
   @Autowired
   private PhysicalPortService physicalPortService;
+
+  @Autowired
+  private VirtualPortService virutalPortService;
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
@@ -78,7 +84,14 @@ public class PhysicalPortController {
 
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
   public String show(@RequestParam(ID_KEY) final String networkElementPk, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY, physicalPortService.findByNetworkElementPk(networkElementPk));
+    PhysicalPort physicalPort = physicalPortService.findByNetworkElementPk(networkElementPk);
+
+    Collection<VirtualPort> virutalPorts = physicalPort != null && physicalPort.isAllocated()
+        ? virutalPortService.findAllForPhysicalPort(physicalPort)
+        : Collections.<VirtualPort> emptyList();
+
+    uiModel.addAttribute(MODEL_KEY, physicalPort);
+    uiModel.addAttribute("virtualPorts", virutalPorts);
 
     return PAGE_URL + SHOW;
   }

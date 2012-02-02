@@ -113,4 +113,8 @@ public class PhysicalPort {
     this.managerLabel = managerLabel;
   }
 
+  public boolean isAllocated() {
+    return getPhysicalResourceGroup() != null;
+  }
+
 }

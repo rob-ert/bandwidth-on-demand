@@ -26,12 +26,9 @@ import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static nl.surfnet.bod.web.noc.PhysicalPortController.MODEL_KEY;
 import static nl.surfnet.bod.web.noc.PhysicalPortController.MODEL_KEY_LIST;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,28 +36,33 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalPortFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 
 import com.google.common.collect.Lists;
 
+@RunWith(MockitoJUnitRunner.class)
 public class PhysicalPortControllerTest {
 
+  @InjectMocks
   private PhysicalPortController subject;
 
+  @Mock
   private PhysicalPortService physicalPortServiceMock;
 
-  @Before
-  public void initController() {
-    subject = new PhysicalPortController();
-    physicalPortServiceMock = mock(PhysicalPortService.class);
-    subject.setPhysicalPortService(physicalPortServiceMock);
-  }
+  @Mock
+  private VirtualPortService virtualPortServiceMock;
 
   @Test
   public void listAllPortsShouldSetPortsAndMaxPages() {
@@ -108,15 +110,21 @@ public class PhysicalPortControllerTest {
     assertThat(model.asMap(), hasEntry(is(MODEL_KEY), nullValue()));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void showExistingPort() {
     Model model = new ModelStub();
     PhysicalPort port = new PhysicalPortFactory().create();
+    VirtualPort virtualPort = new VirtualPortFactory().create();
+
     when(physicalPortServiceMock.findByNetworkElementPk("12:00/port1")).thenReturn(port);
+    when(virtualPortServiceMock.findAllForPhysicalPort(port)).thenReturn(Lists.newArrayList(virtualPort));
 
     subject.show("12:00/port1", model);
 
     assertThat(model.asMap(), hasEntry(MODEL_KEY, Object.class.cast(port)));
+    assertThat(model.asMap(), hasKey("virtualPorts"));
+    assertThat(((List<VirtualPort>) model.asMap().get("virtualPorts")), hasSize(1));
   }
 
   @Test
