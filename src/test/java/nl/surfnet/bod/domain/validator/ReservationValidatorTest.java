@@ -39,20 +39,19 @@ import nl.surfnet.bod.web.security.Security;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
-@Ignore
 public class ReservationValidatorTest {
 
+  private static final String GROUP_NAME = "urn:bandwidth-on-demand";
   private ReservationValidator subject;
 
   @Before
   public void setUp() {
     subject = new ReservationValidator();
-    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:bandwidth-on-demand").create());
+    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(GROUP_NAME).create());
   }
 
   @Test
@@ -83,7 +82,7 @@ public class ReservationValidatorTest {
     LocalTime noon = new LocalTime(12, 0);
 
     Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
-        .setEndTime(noon.plusMinutes(10)).create();
+        .setEndTime(noon.plusMinutes(10)).setSurfConextGroupName(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -110,7 +109,7 @@ public class ReservationValidatorTest {
     LocalDate tomorrow = LocalDate.now().plusDays(1);
     LocalTime noon = new LocalTime(12, 0);
     Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
-        .setEndTime(noon.plusHours(1)).create();
+        .setEndTime(noon.plusHours(1)).setSurfConextGroupName(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -172,7 +171,7 @@ public class ReservationValidatorTest {
     LocalDate tomorrow = LocalDate.now().plusDays(1);
     LocalTime noon = new LocalTime(12, 0);
     Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
-        .setEndTime(noon.plusMinutes(3)).create();
+        .setEndTime(noon.plusMinutes(3)).setSurfConextGroupName(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -189,7 +188,7 @@ public class ReservationValidatorTest {
     LocalTime endTime = new LocalTime().withHourOfDay(0).withMinuteOfHour(1);
 
     Reservation reservation = new ReservationFactory().setStartDate(startDate).setEndDate(endDate)
-        .setStartTime(startTime).setEndTime(endTime).create();
+        .setStartTime(startTime).setEndTime(endTime).setSurfConextGroupName(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -203,7 +202,7 @@ public class ReservationValidatorTest {
     LocalDate startDate = LocalDate.now().plusDays(5);
     LocalDate endDate = startDate.plusYears(1).plusDays(1);
 
-    Reservation reservation = new ReservationFactory().setStartDate(startDate).setEndDate(endDate).create();
+    Reservation reservation = new ReservationFactory().setStartDate(startDate).setEndDate(endDate).setSurfConextGroupName(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);

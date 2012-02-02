@@ -32,10 +32,12 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
+import com.google.common.base.Strings;
+
 public class ReservationFactory {
 
   private static final AtomicLong COUNTER = new AtomicLong();
-  
+
   private static Long id = COUNTER.incrementAndGet();
   private Integer version;
   private VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().create();
@@ -49,6 +51,7 @@ public class ReservationFactory {
   private String userCreated = "urn:truusvisscher";
   private Integer bandwidth = 10000;
   private String reservationId = "9" + String.valueOf(id);
+  private String surfConextGroupName;
 
   public Reservation create() {
     if (vrGroup != null) {
@@ -72,6 +75,10 @@ public class ReservationFactory {
     reservation.setBandwidth(bandwidth);
     reservation.setReservationId(reservationId);
 
+    if (!Strings.isNullOrEmpty(surfConextGroupName)) {
+      reservation.getVirtualResourceGroup().setSurfConextGroupName(surfConextGroupName);
+    }
+    
     return reservation;
   }
 
@@ -114,13 +121,13 @@ public class ReservationFactory {
     this.endDate = endDate;
     return this;
   }
-  
+
   public ReservationFactory setEndDateTime(LocalDateTime endDateTime) {
     this.endDate = endDateTime.toLocalDate();
     this.endTime = endDateTime.toLocalTime();
     return this;
   }
-  
+
   public ReservationFactory setStartDateTime(LocalDateTime startDateTime) {
     this.startDate = startDateTime.toLocalDate();
     this.startTime = startDateTime.toLocalTime();
@@ -151,4 +158,10 @@ public class ReservationFactory {
     this.reservationId = reservationid;
     return this;
   }
+
+  public ReservationFactory setSurfConextGroupName(String surfConextGroupName) {
+    this.surfConextGroupName = surfConextGroupName;
+    return this;
+  }
+
 }
