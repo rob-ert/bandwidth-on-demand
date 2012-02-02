@@ -29,18 +29,12 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
-import nl.surfnet.bod.repo.ReservationRepo;
-import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.repo.*;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeUtils;
-import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,8 +48,6 @@ import org.springframework.transaction.annotation.Transactional;
     "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
 @Transactional
 public class ReservationServiceIntegrationTest {
-
-  private final static int INTERVAL_SECONDS = 10;
 
   @Autowired
   private ReservationService reservationService;
