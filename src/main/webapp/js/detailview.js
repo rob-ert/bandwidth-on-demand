@@ -1,76 +1,90 @@
-$(function() {
-    $.fn.detailView = function(detailsUrl, fields, headers, closeImageUrl) {
-        $(this).click(function() {
-            var self = $(this);
-            var sourceRow = self.closest("tr");
-            var nextRow = sourceRow.next();
+(function($) {
+    $.fn.detailView = function(detailsUrl, fields, headers, closeImageUrl, options) {
+        return this.each(function() {
+            var $self = $(this),
+                $sourceRow = $self.closest("tr"),
+                $hideSelf = $("<div/>").css({float: "left", width: "21px", height: "15px"}).hide(),
+                nrOfColumns = $sourceRow.find("td").length,
+                elementId = $self.next().attr('href').split('=').pop(),
+                settings = $.extend({}, $.fn.detailView.defaults, options),
 
-            if (nextRow.hasClass("detailview")) {
-                closeRow(nextRow.find("a"));
-                return false;
-            }
+                showDetails = function() {
+                    $.getJSON(detailsUrl.replace("{}", elementId), function(data) {
+                        var $detailTable = $("<table/>", {"class" : "zebra-striped"}).append($("<thead/>").append(createHeaders()));
 
-            var nrOfColumns = sourceRow.find("td").length;
-            var elementId = self.next().attr('href').split('=').pop();
+                        $.each(data, function(i, port) {
+                            $detailTable.append(createRow(port));
+                        });
 
-            $.getJSON(detailsUrl.replace("{}", elementId), function(data) {
-                var portsTable = $("<table/>", {"class" : "zebra-striped"}).append($("<thead/>").append(createHeaders()));
+                        var $closeLink = $("<a/>", {
+                            href : "#",
+                            title : $self.attr("data-original-title").replace("Show", "Hide")
+                        }).append($("<img/>", {
+                            src : closeImageUrl
+                        })).click(
+                            function(event) {
+                                event.preventDefault();
+                                hideDetails();
+                            }
+                        ).twipsy();
 
-                $.each(data, function(i, port) {
-                    portsTable.append(createRow(port));
-                });
+                        var $newRow = $("<tr/>", {
+                            "class" : "detailview"
+                        }).append($("<td/>", {
+                            colspan : nrOfColumns - 1
+                        }).append($detailTable)).append($("<td/>").append($closeLink));
 
-                var closeLink = $("<a/>", {
-                    href : "#",
-                    title : self.attr("data-original-title").replace("Show", "Hide")
-                }).append($("<img/>", {
-                    src : closeImageUrl
-                })).twipsy();
+                        $self.twipsy("hide");
+                        $self.hide();
+                        $hideSelf.show();
 
-                closeLink.click(function() {
-                    closeRow(this);
-                    return false;
-                });
+                        $newRow.css("opacity", "0");
+                        $sourceRow.after($newRow);
+                        $newRow.animate({opacity: "1"}, settings.animationDelay);
+                    });
+                },
 
-                var newRow = $("<tr/>", {
-                    "class" : "detailview"
-                }).append($("<td/>", {
-                    colspan : nrOfColumns - 1
-                }).append(portsTable)).append($("<td/>").append(closeLink));
+                hideDetails = function() {
+                    var $detailRow = $sourceRow.next(),
+                        $closeLink = $detailRow.find("a");
 
-                newRow.fadeIn();
-                sourceRow.after(newRow);
+                    $closeLink.twipsy("hide");
+                    $detailRow.fadeOut(settings.animationDelay, function() {
+                        // hide twipsy again, could be possible that it appared just after click
+                        $closeLink.twipsy("hide");
+                        $detailRow.remove();
+                        $hideSelf.hide();
+                        $self.show();
+                    });
+                };
+
+            $self.after($hideSelf);
+
+            $self.click(function(event) {
+                event.preventDefault();
+                showDetails();
             });
-
-            return false;
         });
 
         function createHeaders() {
-            var row = $("<tr/>");
+            var $row = $("<tr/>");
             $.each(headers, function(i, header) {
-                row.append($("<th/>", {
-                    text : header
-                }));
+                $row.append($("<th/>", {text : header}));
             });
-            return row;
+            return $row;
         }
 
-        function createRow(port) {
-            var row = $("<tr/>");
+        function createRow(jsonObject) {
+            var $row = $("<tr/>");
             $.each(fields, function(i, field) {
-                value = port[field];
-                value = value === null ? "-" : value;
-                row.append("<td>" + value + "</td>");
+                var value = jsonObject[field] || "-";
+                $row.append($("<td>", {text: value}));
             });
-
-            return row;
-        }
-        function closeRow(link) {
-            row = $(link).closest("tr");
-            row.fadeOut(function() {
-                $(link).twipsy('hide');
-                $(this).remove();
-            });
+            return $row;
         }
     };
-})
+
+    $.fn.detailView.defaults = {
+        animationDelay: 500
+    };
+})( jQuery );
