@@ -1,3 +1,5 @@
 $(function() {
-	$('[rel="twipsy"]').twipsy({delayIn: 500});
+	$.fn.twipsy.defaults.delayIn = 500;
+
+	$('[rel="twipsy"]').twipsy();
 });
