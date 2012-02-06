@@ -28,12 +28,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class Events {
+public final class PushMessages {
 
-  private Events() {
+  private PushMessages() {
   }
 
-  public static Event createSimpleEvent(String groupId, String message) {
+  public static PushMessage createSimpleEvent(String groupId, String message) {
     return new SimpleEvent(groupId, message);
   }
 
@@ -61,7 +61,7 @@ public final class Events {
     }
   }
 
-  private static final class JsonMessageEvent implements Event {
+  private static final class JsonMessageEvent implements PushMessage {
 
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
@@ -90,7 +90,7 @@ public final class Events {
 
   }
 
-  public static final class SimpleEvent implements Event {
+  public static final class SimpleEvent implements PushMessage {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private String groupId;
@@ -115,7 +115,7 @@ public final class Events {
 
   }
 
-  public static Event createEvent(ReservationStatusChangeEvent reservationStatusChangeEvent) {
+  public static PushMessage createMessage(ReservationStatusChangeEvent reservationStatusChangeEvent) {
     Reservation reservation = reservationStatusChangeEvent.getReservation();
 
     String message = String.format("The status of a reservation was changed from %s to %s",

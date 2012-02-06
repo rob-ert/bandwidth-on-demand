@@ -24,7 +24,7 @@ package nl.surfnet.bod.web.push;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.web.push.Events.SimpleEvent;
+import nl.surfnet.bod.web.push.PushMessages.SimpleEvent;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class EndPointsTest {
 
     subject.add(client);
 
-    subject.broadcast(Events.createSimpleEvent("urn:somegroup", "message"));
+    subject.broadcast(PushMessages.createSimpleEvent("urn:somegroup", "message"));
 
     assertThat(client.isMessageSend(), is(true));
   }
@@ -56,7 +56,7 @@ public class EndPointsTest {
 
     subject.add(client);
 
-    subject.broadcast(Events.createSimpleEvent("urn:somegroup", "message"));
+    subject.broadcast(PushMessages.createSimpleEvent("urn:somegroup", "message"));
 
     assertThat(client.isMessageSend(), is(false));
   }
@@ -71,7 +71,7 @@ public class EndPointsTest {
     subject.add(clientShouldGetMessage);
     subject.add(clientShouldNotGetMessage);
 
-    subject.broadcast(Events.createSimpleEvent("urn:somegroup", "message"));
+    subject.broadcast(PushMessages.createSimpleEvent("urn:somegroup", "message"));
 
     assertThat(clientShouldGetMessage.isMessageSend(), is(true));
     assertThat(clientShouldNotGetMessage.isMessageSend(), is(false));

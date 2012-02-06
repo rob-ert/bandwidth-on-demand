@@ -54,7 +54,7 @@ public class EndPoints {
     this.endPoints.remove(endPoint.getUser(), endPoint);
   }
 
-  public void broadcast(final Event event) {
+  public void broadcast(final PushMessage event) {
     Collection<EndPoint> clients = Multimaps.filterKeys(endPoints, new Predicate<RichUserDetails>() {
       @Override
       public boolean apply(RichUserDetails user) {
