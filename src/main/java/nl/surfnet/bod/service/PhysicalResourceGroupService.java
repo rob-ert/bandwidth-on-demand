@@ -28,13 +28,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -121,5 +128,18 @@ public class PhysicalResourceGroupService {
     return prg;
   }
 
- 
+  public Collection<PhysicalResourceGroup> findAllWithPorts() {
+    Specification<PhysicalResourceGroup> withPhysicalPorts = new Specification<PhysicalResourceGroup>() {
+      @Override
+      public Predicate toPredicate(Root<PhysicalResourceGroup> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.isNotEmpty(root.get(PhysicalResourceGroup_.physicalPorts));
+      }
+    };
+
+    List<PhysicalResourceGroup> groups = physicalResourceGroupRepo.findAll(withPhysicalPorts);
+    instituteService.fillInstituteForPhysicalResourceGroups(groups);
+
+    return groups;
+  }
+
 }

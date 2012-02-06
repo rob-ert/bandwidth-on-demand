@@ -137,3 +137,5 @@ form .clearfix.error select {
 
 tr.highlight { background-color: #E5F2FF !important}
 tr.highlight > td { background-color: #E5F2FF !important}
+
+.dropdown-menu li { white-space: nowrap; }

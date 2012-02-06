@@ -7,6 +7,7 @@
             </category>
             <category id="c_virtualport" menu="virtualport">
                 <item id="i_vp_list" url="/virtualports" messageCode="global_menu_list" />
+                <item id="i_vp_request" url="/virtualports/request" messageCode="menu_item_virtualport_request_label" />
             </category>
         </menu>
     </sec:authorize>

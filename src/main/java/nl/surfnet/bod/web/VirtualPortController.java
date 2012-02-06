@@ -22,7 +22,12 @@
 package nl.surfnet.bod.web;
 
 import static nl.surfnet.bod.web.WebUtils.*;
+
+import java.util.Collection;
+
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.security.Security;
 
@@ -42,6 +47,9 @@ public class VirtualPortController {
 
   @Autowired
   private VirtualPortService virtualPortService;
+
+  @Autowired
+  private PhysicalResourceGroupService physicalResourceGroupService;
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
@@ -85,6 +93,15 @@ public class VirtualPortController {
     virtualPortService.update(virtualPort);
 
     return "redirect:/virtualports";
+  }
+
+  @RequestMapping(value = "/request", method = RequestMethod.GET)
+  public String request(final Model uiModel) {
+    Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllWithPorts();
+
+    uiModel.addAttribute("physicalResourceGroups", groups);
+
+    return "virtualports/request";
   }
 
   private void validateUpdateUserLabelCommand(UpdateUserLabelCommand command, Errors errors) {
