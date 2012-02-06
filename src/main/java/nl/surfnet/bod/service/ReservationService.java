@@ -29,8 +29,15 @@ import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -46,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,43 +71,20 @@ public class ReservationService {
 
   @Autowired
   private ReservationEventPublisher reservationEventPublisher;
+  
+  private ExecutorService executorService = Executors.newCachedThreadPool();
 
   /**
    * Reserves a reservation using the {@link NbiService} asynchronously.
-   *
+   * 
    * @param reservation
+   * @return 
    */
-  // FIXME AvD
-//  @Async
-  public void reserve(Reservation reservation) throws ReservationFailedException {
+  public Future<?> reserve(Reservation reservation) throws ReservationFailedException {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
-
-    reservation.setStatus(ReservationStatus.SUBMITTED);
-    final ReservationStatus oldStatus = reservation.getStatus();
-    try {
-      // First persist in db
-      reservation = update(reservation);
-
-      final String reservationId = nbiService.createReservation(reservation);
-
-      // Was there an error?
-      if (reservationId == null) {
-        reservationRepo.save(reservation);
-
-        throw new ReservationFailedException("Unable to create reservation: " + reservation);
-      }
-
-      reservation.setReservationId(reservationId);
-      reservation.setStatus(getStatus(reservation));
-      reservation = reservationRepo.save(reservation);
-
-      log.info("Reservation created: {}", reservation);
-    }
-    finally {
-      ReservationStatusChangeEvent createEvent = new ReservationStatusChangeEvent(oldStatus, reservation);
-      reservationEventPublisher.notifyListeners(createEvent);
-    }
+    
+    return executorService.submit(new ReservationCreator(reservation));    
   }
 
   public Reservation find(Long id) {
@@ -183,13 +168,55 @@ public class ReservationService {
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   *
+   * 
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
    */
   public List<Reservation> findReservationsToPoll(LocalDateTime dateTime) {
     return reservationRepo.findAll(specReservationsToPoll(dateTime));
+  }
+
+  /**
+   * Asyncronous {@link Reservation} creator.   * 
+   *
+   */
+  private class ReservationCreator implements Runnable {
+
+    private Reservation reservation;
+
+    public ReservationCreator(Reservation reservation) {
+      this.reservation = reservation;
+    }
+
+    @Override
+    public void run() {
+      reservation.setStatus(ReservationStatus.SUBMITTED);
+      final ReservationStatus oldStatus = reservation.getStatus();
+      try {
+        // First persist in db
+        reservation = update(reservation);
+
+        final String reservationId = nbiService.createReservation(reservation);
+
+        // Was there an error?
+        if (reservationId == null) {
+          reservationRepo.save(reservation);
+
+          throw new ReservationFailedException("Unable to create reservation: " + reservation);
+        }
+
+        reservation.setReservationId(reservationId);
+        reservation.setStatus(getStatus(reservation));
+        reservation = reservationRepo.save(reservation);
+
+        log.info("Reservation created: {}", reservation);
+      }
+      finally {
+        ReservationStatusChangeEvent createEvent = new ReservationStatusChangeEvent(oldStatus, reservation);
+        reservationEventPublisher.notifyListeners(createEvent);
+      }
+    }
   }
 
 }

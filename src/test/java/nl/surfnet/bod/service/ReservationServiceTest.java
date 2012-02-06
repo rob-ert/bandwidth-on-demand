@@ -31,6 +31,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -69,6 +71,8 @@ public class ReservationServiceTest {
 
   @Mock
   private NbiService nbiPortService;
+
+  private Object object;
 
   @Test
   public void whenTheUserHasNoGroupsTheReservationsShouldBeEmpty() {
@@ -130,7 +134,7 @@ public class ReservationServiceTest {
   }
 
   @Test
-  public void reserveSameVirtualResrouceGroupsShouldBeFine() {
+  public void reserveSameVirtualResourceGroupsShouldBeFine() throws InterruptedException, ExecutionException {
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
     VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
     VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
@@ -142,7 +146,10 @@ public class ReservationServiceTest {
     when(reservationRepoMock.save(any(Reservation.class))).thenReturn(reservation);
     when(nbiPortService.createReservation((any(Reservation.class)))).thenReturn(reservationId);
 
-    subject.reserve(reservation);
+    Future<?> future = subject.reserve(reservation);
+    
+    //Wait while done
+    future.get();
 
     assertThat(reservation.getReservationId(), is(reservationId));
     verify(reservationRepoMock, times(2)).save(reservation);
