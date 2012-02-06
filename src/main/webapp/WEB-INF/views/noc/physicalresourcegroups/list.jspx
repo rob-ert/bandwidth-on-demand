@@ -20,12 +20,28 @@
 
     <spring:url value="/noc/physicalresourcegroups/{}/ports" var="portsUrl" />
     <spring:url value="/resources/images/application_get.png" var="closePaneImageUrl" />
+    <spring:url value="/resources/images/show.png" var="showImageUrl" />
+    <spring:url value="/noc/physicalports?id={}" var="showPhysicalPortUrl" />
+
     <script type="text/javascript">
         $(function() {
-            var fields = [ "name", "networkElementPk", "displayName" ];
+            var fields = [ "nocLabel", "networkElementPk", "displayName" ];
             var headers = [ "Name", "Network Element", "Display Name" ];
-            $("a[href$='showvirtualports']").detailView("${portsUrl}", fields, headers,
-                    "${closePaneImageUrl}");
+            var showPhysicalPortUrl = '${showPhysicalPortUrl}';
+
+            $("a[href$='showvirtualports']").detailView(
+                    "${portsUrl}",
+                    fields,
+                    headers,
+                    "${closePaneImageUrl}",
+                    {
+                        extraColumn: function(portId) {
+                            return $('<a/>', {href: showPhysicalPortUrl.replace('{}', portId), title: 'Show Physical Port'})
+                                .twipsy()
+                                .append($('<img/>', {src: "${showImageUrl}"}));
+                        },
+                        idProp: "networkElementPk"
+                    });
         });
     </script>
 </div>

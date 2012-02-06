@@ -1,12 +1,13 @@
 (function($) {
     $.fn.detailView = function(detailsUrl, fields, headers, closeImageUrl, options) {
+        var settings = $.extend({}, $.fn.detailView.defaults, options);
+
         return this.each(function() {
             var $self = $(this),
                 $sourceRow = $self.closest("tr"),
                 $hideSelf = $("<div/>").css({float: "left", width: "21px", height: "15px"}).hide(),
                 nrOfColumns = $sourceRow.find("td").length,
                 elementId = $self.next().attr('href').split('=').pop(),
-                settings = $.extend({}, $.fn.detailView.defaults, options),
 
                 showDetails = function() {
                     $.getJSON(detailsUrl.replace("{}", elementId), function(data) {
@@ -17,8 +18,9 @@
                         });
 
                         var $closeLink = $("<a/>", {
-                            href : "#",
-                            title : $self.attr("data-original-title").replace("Show", "Hide")
+                            id: "closeLink",
+                            href: "#",
+                            title: $self.attr("data-original-title").replace("Show", "Hide")
                         }).append($("<img/>", {
                             src : closeImageUrl
                         })).click(
@@ -46,11 +48,11 @@
 
                 hideDetails = function() {
                     var $detailRow = $sourceRow.next(),
-                        $closeLink = $detailRow.find("a");
+                        $closeLink = $detailRow.find("a#closeLink");
 
                     $closeLink.twipsy("hide");
                     $detailRow.fadeOut(settings.animationDelay, function() {
-                        // hide twipsy again, could be possible that it appared just after click
+                        // hide twipsy again, could be possible that it appeared just after click
                         $closeLink.twipsy("hide");
                         $detailRow.remove();
                         $hideSelf.hide();
@@ -71,6 +73,9 @@
             $.each(headers, function(i, header) {
                 $row.append($("<th/>", {text : header}));
             });
+            if (settings.extraColumn !== null) {
+                $row.append($("<th/>"));
+            }
             return $row;
         }
 
@@ -78,13 +83,18 @@
             var $row = $("<tr/>");
             $.each(fields, function(i, field) {
                 var value = jsonObject[field] || "-";
-                $row.append($("<td>", {text: value}));
+                $row.append($("<td/>", {text: value}));
             });
+            if (settings.extraColumn !== null) {
+                $row.append($("<td/>", {html: settings.extraColumn(jsonObject[settings.idProp])}));
+            }
             return $row;
         }
     };
 
     $.fn.detailView.defaults = {
-        animationDelay: 500
+        animationDelay: 500,
+        idProp: "id",
+        extraColumn: null
     };
 })( jQuery );
