@@ -25,16 +25,20 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
@@ -64,6 +68,9 @@ public class PhysicalResourceGroupServiceTest {
 
   @Mock
   private InstituteIddService instituteServiceMock;
+
+  @Mock
+  private ActivationEmailLinkRepo activationEmailLinkRepoMock;
 
   private Institute instituteOne = new InstituteFactory().setId(1L).setName("oneInst").create();
   private Institute instituteTwo = new InstituteFactory().setId(2L).setName("twoInst").create();
@@ -175,12 +182,24 @@ public class PhysicalResourceGroupServiceTest {
 
   @Test
   public void testFillInstitutesFindByInstituteId() {
-
     when(groupRepoMock.findByInstituteId(1L)).thenReturn(physicalResourceGroupOne);
     when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
 
     PhysicalResourceGroup prg = subject.findByInstituteId(1L);
     assertThat(prg.getInstitute(), is(instituteOne));
+  }
+
+  @Test
+  public void createActivationEmailLink() {
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
+
+    ActivationEmailLink link = subject.createActivationEmailLink(prg);
+
+    assertThat(link.getPhysicalResourceGroup(), is(prg));
+    assertThat(link.getUuid().length(), is(36));
+    assertThat(link.getCreationDateTime(), notNullValue());
+
+    verify(activationEmailLinkRepoMock).save(link);
   }
 
 }

@@ -27,18 +27,22 @@ import static com.google.common.collect.Lists.newArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -56,6 +60,9 @@ public class PhysicalResourceGroupService {
 
   @Autowired
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
+
+  @Autowired
+  private ActivationEmailLinkRepo activateEmailLinkRepo;
 
   public long count() {
     return physicalResourceGroupRepo.count();
@@ -128,6 +135,10 @@ public class PhysicalResourceGroupService {
     return prg;
   }
 
+  public ActivationEmailLink findActivationLink(String uuid) {
+    return activateEmailLinkRepo.findByUuid(uuid);
+  }
+
   public Collection<PhysicalResourceGroup> findAllWithPorts() {
     Specification<PhysicalResourceGroup> withPhysicalPorts = new Specification<PhysicalResourceGroup>() {
       @Override
@@ -140,6 +151,22 @@ public class PhysicalResourceGroupService {
     instituteService.fillInstituteForPhysicalResourceGroups(groups);
 
     return groups;
+  }
+
+  public ActivationEmailLink createActivationEmailLink(PhysicalResourceGroup physicalResourceGroup) {
+    ActivationEmailLink link = new ActivationEmailLink();
+    link.setPhysicalResourceGroup(physicalResourceGroup);
+    link.setCreationDateTime(LocalDateTime.now());
+    link.setUuid(UUID.randomUUID().toString());
+
+    activateEmailLinkRepo.save(link);
+
+    return link;
+  }
+
+  public void activate(PhysicalResourceGroup physicalResourceGroup) {
+    physicalResourceGroup.activate();
+    update(physicalResourceGroup);
   }
 
 }

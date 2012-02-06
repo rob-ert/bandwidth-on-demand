@@ -6,4 +6,8 @@
         <put-attribute name="body" value="/WEB-INF/views/manager/index.jspx" />
     </definition>
     
+    <definition extends="manager" name="manager/emailConfirmed">
+        <put-attribute name="body" value="/WEB-INF/views/manager/emailConfirmed.jspx" />
+    </definition>
+
 </tiles-definitions>

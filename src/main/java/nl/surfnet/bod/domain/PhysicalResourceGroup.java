@@ -24,26 +24,14 @@ package nl.surfnet.bod.domain;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Transient;
-import javax.persistence.Version;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Email;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-
-import com.nortel.appcore.app.drac.common.security.policy.types.Resource;
 
 @Entity
 public class PhysicalResourceGroup {
-  
+
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
@@ -63,13 +51,14 @@ public class PhysicalResourceGroup {
 
   private String adminGroup;
 
-  @Email(message="Not a valid email address") 
+  @Email(message = "Not a valid email address")
   private String managerEmail;
+
+  private Boolean active = false;
 
   @OneToMany(mappedBy = "physicalResourceGroup", cascade = CascadeType.REMOVE)
   private Collection<PhysicalPort> physicalPorts;
 
-  
   public Long getId() {
     return this.id;
   }
@@ -92,7 +81,7 @@ public class PhysicalResourceGroup {
    * Whenever an instittute is not availabled (e.g. it was deleted in the IDD
    * system) the id of institute will be shown. This will trigger a NOC engineer
    * to investigate and correct this.
-   * 
+   *
    * @return Name of the related institute when available, the
    *         {@link #instituteId} otherwise.
    */
@@ -137,6 +126,23 @@ public class PhysicalResourceGroup {
     this.managerEmail = managerEmail;
   }
 
+  public Institute getInstitute() {
+    return institute;
+  }
+
+  public void setInstitute(Institute institute) {
+    this.instituteId = institute == null ? null : institute.getId();
+    this.institute = institute;
+  }
+
+  public void activate() {
+    active = true;
+  }
+
+  public boolean isActive() {
+    return active;
+  }
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
@@ -147,14 +153,5 @@ public class PhysicalResourceGroup {
     sb.append("Version: ").append(getVersion());
 
     return sb.toString();
-  }
-
-  public Institute getInstitute() {
-    return institute;
-  }
-
-  public void setInstitute(Institute institute) {
-    this.instituteId = institute == null ? null : institute.getId();
-    this.institute = institute;
   }
 }
