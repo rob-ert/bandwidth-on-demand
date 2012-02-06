@@ -28,8 +28,10 @@ import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.service.GroupService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.UserGroupFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -51,6 +53,8 @@ public class RichUserDetailsServiceTest {
   private GroupService groupServiceMock;
   @Mock
   private PhysicalResourceGroupService prgServiceMock;
+  @Mock
+  private VirtualResourceGroupService vrgServiceMock;
 
   @Before
   public void init() {
@@ -58,13 +62,29 @@ public class RichUserDetailsServiceTest {
   }
 
   @Test
-  public void aNormalUser() {
+  public void aNobody() {
     RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
         "urn:alanvdam", "Alan van Dam"), "N/A"));
 
     assertThat(userDetails.getNameId(), is("urn:alanvdam"));
     assertThat(userDetails.getDisplayName(), is("Alan van Dam"));
     assertThat(userDetails.getAuthorities(), hasSize(0));
+  }
+
+  @Test
+  public void aNormalUser() {
+    ImmutableList<UserGroup> userGroups = listOf(new UserGroupFactory().setId("urn:klimaat-onderzoekers").create());
+    when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(userGroups);
+    when(vrgServiceMock.findByUserGroups(userGroups)).thenReturn(
+        listOf(new VirtualResourceGroupFactory().create()));
+
+    RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
+        "urn:alanvdam", "Alan van Dam"), "N/A"));
+
+    assertThat(userDetails.getNameId(), is("urn:alanvdam"));
+    assertThat(userDetails.getDisplayName(), is("Alan van Dam"));
+    assertThat(userDetails.getAuthorities(), hasSize(1));
+    assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is(Security.USER));
   }
 
   @Test
@@ -77,7 +97,7 @@ public class RichUserDetailsServiceTest {
     assertThat(userDetails.getNameId(), is("urn:alanvdam"));
     assertThat(userDetails.getDisplayName(), is("Alan van Dam"));
     assertThat(userDetails.getAuthorities(), hasSize(1));
-    assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is("NOC_ENGINEER"));
+    assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is(Security.NOC_ENGINEER));
   }
 
   @Test
@@ -90,7 +110,7 @@ public class RichUserDetailsServiceTest {
     RichUserDetails userDetails = subject.loadUserDetails(createToken("urn:alanvdam"));
 
     assertThat(userDetails.getAuthorities(), hasSize(1));
-    assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is("ICT_MANAGER"));
+    assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is(Security.ICT_MANAGER));
   }
 
   private static <E> ImmutableList<E> listOf(E element) {

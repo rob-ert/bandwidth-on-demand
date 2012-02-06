@@ -33,11 +33,36 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 
 public final class Security {
 
+  public static final String NOC_ENGINEER = "NOC_ENGINEER";
+  public static final String ICT_MANAGER = "ICT_MANAGER";
+  public static final String USER = "USER";
+
   private Security() {
   }
 
   public static RichUserDetails getUserDetails() {
     return (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+  }
+
+  public static boolean hasNocEngineerRole() {
+    return hasRole(NOC_ENGINEER);
+  }
+
+  public static boolean hasIctManagerRole() {
+    return hasRole(ICT_MANAGER);
+  }
+
+  public static boolean hasUserRole() {
+    return hasRole(USER);
+  }
+
+  private static boolean hasRole(String role) {
+    for (GrantedAuthority auth : getUserDetails().getAuthorities()) {
+      if (auth.getAuthority().equals(role)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public static boolean isUserMemberOf(String groupId) {

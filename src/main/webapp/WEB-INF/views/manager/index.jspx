@@ -13,9 +13,7 @@
         <spring:url var="noc_url" value="/noc" />
         <spring:url var="reservation_url" value="/reservations/create" />
 
-        <a class="btn primary large" href="${reservation_url}">Create a reservation »</a>
         <sec:authorize access="hasRole('NOC_ENGINEER')">
-            <span style="padding: 10px">or</span>
             <a class="btn large" href="${noc_url}">NOC Engineer work »</a>
         </sec:authorize>
     </div>

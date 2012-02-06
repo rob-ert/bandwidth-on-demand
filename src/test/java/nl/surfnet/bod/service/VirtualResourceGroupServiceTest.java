@@ -27,14 +27,18 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
+import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.UserGroupFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
@@ -92,7 +96,8 @@ public class VirtualResourceGroupServiceTest {
   public void findEntries() {
     VirtualResourceGroup group = new VirtualResourceGroupFactory().create();
 
-    when(groupRepoMock.findAll(any(PageRequest.class))).thenReturn(new PageImpl<VirtualResourceGroup>(Lists.newArrayList(group)));
+    when(groupRepoMock.findAll(any(PageRequest.class))).thenReturn(
+        new PageImpl<VirtualResourceGroup>(Lists.newArrayList(group)));
 
     List<VirtualResourceGroup> groups = subject.findEntries(5, 10);
 
@@ -124,5 +129,26 @@ public class VirtualResourceGroupServiceTest {
     subject.update(group);
 
     verify(groupRepoMock).save(group);
+  }
+
+  @Test
+  public void findByUserGroupsShouldBeEmptyListIfCalledWithNoGroups() {
+    Collection<VirtualResourceGroup> vrgs = subject.findByUserGroups(Collections.<UserGroup> emptyList());
+
+    assertThat(vrgs, hasSize(0));
+
+    verifyZeroInteractions(groupRepoMock);
+  }
+
+  @Test
+  public void findByUserGroupsShouldMatchingGroups() {
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
+    when(groupRepoMock.findBySurfConextGroupNameIn(Lists.newArrayList("urn:mygroup"))).thenReturn(
+        Lists.newArrayList(vrg));
+
+    Collection<VirtualResourceGroup> vrgs = subject.findByUserGroups(Lists.newArrayList(new UserGroupFactory().setId(
+        "urn:mygroup").create()));
+
+    assertThat(vrgs, contains(vrg));
   }
 }
