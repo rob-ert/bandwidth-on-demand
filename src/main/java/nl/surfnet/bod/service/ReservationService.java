@@ -71,20 +71,24 @@ public class ReservationService {
 
   @Autowired
   private ReservationEventPublisher reservationEventPublisher;
-  
+
   private ExecutorService executorService = Executors.newCachedThreadPool();
 
   /**
    * Reserves a reservation using the {@link NbiService} asynchronously.
    * 
    * @param reservation
-   * @return 
+   * @return
    */
   public Future<?> reserve(Reservation reservation) throws ReservationFailedException {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
-    
-    return executorService.submit(new ReservationCreator(reservation));    
+
+    // Make sure reservations occur on whole minutes only
+    reservation.setStartTime(reservation.getStartTime().withSecondOfMinute(0).withMillisOfSecond(0));
+    reservation.setEndTime(reservation.getEndTime().withSecondOfMinute(0).withMillisOfSecond(0));
+
+    return executorService.submit(new ReservationCreator(reservation));
   }
 
   public Reservation find(Long id) {
@@ -178,8 +182,8 @@ public class ReservationService {
   }
 
   /**
-   * Asyncronous {@link Reservation} creator.   * 
-   *
+   * Asyncronous {@link Reservation} creator. *
+   * 
    */
   private class ReservationCreator implements Runnable {
 
@@ -193,6 +197,7 @@ public class ReservationService {
     public void run() {
       reservation.setStatus(ReservationStatus.SUBMITTED);
       final ReservationStatus oldStatus = reservation.getStatus();
+
       try {
         // First persist in db
         reservation = update(reservation);

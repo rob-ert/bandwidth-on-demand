@@ -46,6 +46,7 @@ import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
+import org.joda.time.LocalTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -147,8 +148,8 @@ public class ReservationServiceTest {
     when(nbiPortService.createReservation((any(Reservation.class)))).thenReturn(reservationId);
 
     Future<?> future = subject.reserve(reservation);
-    
-    //Wait while done
+
+    // Wait while done
     future.get();
 
     assertThat(reservation.getReservationId(), is(reservationId));
@@ -191,6 +192,18 @@ public class ReservationServiceTest {
     subject.cancel(reservation);
     assertThat(reservation.getStatus(), is(ReservationStatus.FAILED));
     verifyZeroInteractions(reservationRepoMock);
+  }
+
+  @Test
+  public void startAndEndShouldBeInWholeMinutes() {
+    LocalTime startTime = LocalTime.now().withSecondOfMinute(1);
+    LocalTime endTime = LocalTime.now().withSecondOfMinute(1);
+
+    Reservation reservation = new ReservationFactory().setStartTime(startTime).setEndTime(endTime).create();
+    subject.reserve(reservation);
+    
+    assertThat(reservation.getStartTime(), is(startTime.withSecondOfMinute(0).withMillisOfSecond(0)));
+    assertThat(reservation.getEndTime(), is(endTime.withSecondOfMinute(0).withMillisOfSecond(0)));
   }
 
 }
