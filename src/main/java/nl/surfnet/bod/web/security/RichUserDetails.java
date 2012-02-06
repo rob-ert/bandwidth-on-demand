@@ -39,15 +39,22 @@ public class RichUserDetails implements UserDetails {
 
   private final String username;
   private final String displayName;
+  private final String email;
   private final Collection<GrantedAuthority> authorities;
   private final Collection<UserGroup> userGroups;
 
   public RichUserDetails(String username, String displayName, Collection<GrantedAuthority> authorities,
       Collection<UserGroup> userGroups) {
+    this(username, displayName, null, authorities, userGroups);
+  }
+
+  public RichUserDetails(String username, String displayName, String email, Collection<GrantedAuthority> authorities,
+      Collection<UserGroup> userGroups) {
     this.username = username;
     this.displayName = displayName;
     this.authorities = authorities;
     this.userGroups = userGroups;
+    this.email = email;
   }
 
   @Override
@@ -76,7 +83,11 @@ public class RichUserDetails implements UserDetails {
   public Collection<UserGroup> getUserGroups() {
     return userGroups;
   }
-
+  
+  public String getEmail() {
+    return email;
+  }
+  
   public Collection<String> getUserGroupIds() {
     return newArrayList(transform(getUserGroups(), new Function<UserGroup, String>() {
       @Override
@@ -108,9 +119,7 @@ public class RichUserDetails implements UserDetails {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
-        .add("nameId", getNameId())
-        .add("displayName", getDisplayName()).toString();
+    return Objects.toStringHelper(this).add("nameId", getNameId()).add("displayName", getDisplayName()).toString();
   }
 
 }

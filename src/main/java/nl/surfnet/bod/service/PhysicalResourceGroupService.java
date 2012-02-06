@@ -25,6 +25,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -36,25 +38,39 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
+import nl.surfnet.bod.domain.EmailActivationRequest;
+import nl.surfnet.bod.domain.ActivationRequestSource;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import antlr.StringUtils;
+
 import com.google.common.base.Function;
+import com.google.common.base.Strings;
+import com.sun.tools.internal.xjc.reader.xmlschema.bindinfo.BIConversion.User;
 
 @Service
 @Transactional
 public class PhysicalResourceGroupService {
+
+  private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
   private InstituteService instituteService;
@@ -64,6 +80,12 @@ public class PhysicalResourceGroupService {
 
   @Autowired
   private ActivationEmailLinkRepo activateEmailLinkRepo;
+
+  // TODO @Autowired
+  private MailSender mailSender;
+
+  @Value("${activation.email.from}")
+  private String fromAddress;
 
   public long count() {
     return physicalResourceGroupRepo.count();
@@ -208,4 +230,40 @@ public class PhysicalResourceGroupService {
     update(physicalResourceGroup);
   }
 
+  public void sendAndPersistActivationRequest(PhysicalResourceGroup physicalResourceGroup) {
+    EmailActivationRequest activationRequest = new EmailActivationRequest(
+        ActivationRequestSource.PHYSICAL_RESOURCE_GROUP, physicalResourceGroup.getId());
+
+    SimpleMailMessage activationMessage = createActivationMessage(physicalResourceGroup, Security.getUserDetails());
+
+    mailSender.send(activationMessage);
+  }
+
+  private SimpleMailMessage createActivationMessage(PhysicalResourceGroup physicalResourceGroup, RichUserDetails user) {
+    SimpleMailMessage activationMessage = new SimpleMailMessage();
+    activationMessage.setTo(physicalResourceGroup.getManagerEmail());
+    activationMessage.setFrom(fromAddress);
+    activationMessage.setReplyTo(user.getEmail());
+    activationMessage.setSubject("Activation mail for Physical Resource Group" + physicalResourceGroup.getName());
+
+    URL activationUrl = generateActivationUrl(physicalResourceGroup);
+
+    StringBuffer text = new StringBuffer(
+        "Please click the link below to activate this email adres for physical resource group: ");
+    text.append(activationUrl.toExternalForm());
+
+    activationMessage.setText(text.toString());
+
+    return activationMessage;
+  }
+
+  private URL generateActivationUrl(PhysicalResourceGroup physicalResourceGroup) {
+
+    try {
+      return new URL("http://localhost:8082/bod/activate/physicalresourcegroup/" + UUID.randomUUID().toString());
+    }
+    catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }
