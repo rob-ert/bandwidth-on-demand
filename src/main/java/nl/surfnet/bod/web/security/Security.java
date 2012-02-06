@@ -44,6 +44,27 @@ public final class Security {
     return (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
   }
 
+  public static boolean hasNocEngineerRole() {
+    return hasRole(NOC_ENGINEER);
+  }
+
+  public static boolean hasIctManagerRole() {
+    return hasRole(ICT_MANAGER);
+  }
+
+  public static boolean hasUserRole() {
+    return hasRole(USER);
+  }
+
+  private static boolean hasRole(String role) {
+    for (GrantedAuthority auth : getUserDetails().getAuthorities()) {
+      if (auth.getAuthority().equals(role)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public static boolean isUserMemberOf(String groupId) {
     return getUserDetails().getUserGroupIds().contains(groupId);
   }
