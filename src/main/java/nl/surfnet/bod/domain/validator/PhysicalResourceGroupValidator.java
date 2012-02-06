@@ -25,6 +25,7 @@ package nl.surfnet.bod.domain.validator;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 
+import org.hibernate.validator.constraints.impl.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -63,7 +64,7 @@ public class PhysicalResourceGroupValidator implements Validator {
           physicalResourceGroup.getId() != null)) {
         errors.rejectValue("name", "validation.not.unique");
       }
-    }
+    }   
   }
 
   public void setPhysicalResourceGroupService(PhysicalResourceGroupService physicalResourceGroupService) {

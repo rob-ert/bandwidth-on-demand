@@ -1,0 +1,1 @@
+alter table physical_resource_group add column manager_email varchar(255);

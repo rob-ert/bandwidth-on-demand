@@ -35,9 +35,15 @@ import javax.persistence.Transient;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.Email;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+
+import com.nortel.appcore.app.drac.common.security.policy.types.Resource;
+
 @Entity
 public class PhysicalResourceGroup {
-
+  
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
@@ -57,9 +63,13 @@ public class PhysicalResourceGroup {
 
   private String adminGroup;
 
+  @Email(message="Not a valid email address") 
+  private String managerEmail;
+
   @OneToMany(mappedBy = "physicalResourceGroup", cascade = CascadeType.REMOVE)
   private Collection<PhysicalPort> physicalPorts;
 
+  
   public Long getId() {
     return this.id;
   }
@@ -119,12 +129,21 @@ public class PhysicalResourceGroup {
     return physicalPorts.size();
   }
 
+  public String getManagerEmail() {
+    return managerEmail;
+  }
+
+  public void setManagerEmail(String managerEmail) {
+    this.managerEmail = managerEmail;
+  }
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("Id: ").append(getId()).append(", ");
     sb.append("InstituteId: ").append(getInstituteId()).append(", ");
     sb.append("Admin group: ").append(getAdminGroup()).append(", ");
+    sb.append("Manager email: ").append(getManagerEmail()).append(", ");
     sb.append("Version: ").append(getVersion());
 
     return sb.toString();
