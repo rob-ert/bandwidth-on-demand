@@ -33,6 +33,10 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 
 public final class Security {
 
+  public static final String NOC_ENGINEER = "NOC_ENGINEER";
+  public static final String ICT_MANAGER = "ICT_MANAGER";
+  public static final String USER = "USER";
+
   private Security() {
   }
 

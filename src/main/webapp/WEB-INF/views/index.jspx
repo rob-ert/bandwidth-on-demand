@@ -17,13 +17,19 @@
         <spring:url var="manager_url" value="/manager" />
         <spring:url var="reservation_url" value="/reservations/create" />
         
-        <a class="btn primary large" href="${reservation_url}">Create a reservation »</a>
-        <sec:authorize access="hasRole('ICT_MANAGER')">
+        <sec:authorize access="hasRole('USER')">
+            <a class="btn primary large" href="${reservation_url}">Create a reservation »</a>
+        </sec:authorize>
+        <sec:authorize access="hasRole('ICT_MANAGER') and hasRole('USER')">
             <span style="padding: 10px">or</span>
+        </sec:authorize>
+        <sec:authorize access="hasRole('ICT_MANAGER')">
             <a class="btn large" href="${manager_url}">ICT manager work »</a>
         </sec:authorize>
-        <sec:authorize access="hasRole('NOC_ENGINEER')">
+        <sec:authorize access="hasRole('NOC_ENGINEER') and (hasRole('ICT_MANAGER') or hasRole('USER'))">
             <span style="padding: 10px">or</span>
+        </sec:authorize>
+        <sec:authorize access="hasRole('NOC_ENGINEER')">
             <a class="btn large" href="${noc_url}">NOC Engineer work »</a>
         </sec:authorize>
     </div>

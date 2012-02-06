@@ -27,6 +27,7 @@ import java.util.List;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.service.GroupService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,9 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
 
+  @Autowired
+  private VirtualResourceGroupService virtualResourceGroupService;
+
   @Override
   public RichUserDetails loadUserDetails(Authentication token) throws UsernameNotFoundException {
     RichPrincipal principal = (RichPrincipal) token.getPrincipal();
@@ -64,10 +68,13 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
 
     List<GrantedAuthority> authorities = Lists.newArrayList();
     if (isNocEngineerGroup(groups)) {
-      authorities.add(createAuthority("NOC_ENGINEER"));
+      authorities.add(createAuthority(Security.NOC_ENGINEER));
     }
     if (isIctManager(groups)) {
-      authorities.add(createAuthority("ICT_MANAGER"));
+      authorities.add(createAuthority(Security.ICT_MANAGER));
+    }
+    if (isUser(groups)) {
+      authorities.add(createAuthority(Security.USER));
     }
 
     return new RichUserDetails(principal.getNameId(), principal.getDisplayName(), authorities, groups);
@@ -75,6 +82,10 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
 
   private boolean isIctManager(Collection<UserGroup> groups) {
     return !physicalResourceGroupService.findAllForAdminGroups(groups).isEmpty();
+  }
+
+  public boolean isUser(Collection<UserGroup> groups) {
+    return !virtualResourceGroupService.findByUserGroups(groups).isEmpty();
   }
 
   private GrantedAuthority createAuthority(String role) {

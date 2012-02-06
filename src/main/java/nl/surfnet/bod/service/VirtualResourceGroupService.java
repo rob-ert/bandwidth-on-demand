@@ -22,11 +22,14 @@
 package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -35,6 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.base.Function;
 
 @Service
 @Transactional
@@ -84,11 +89,24 @@ public class VirtualResourceGroupService {
   public Collection<VirtualResourceGroup> findAllForUser(RichUserDetails user) {
     Collection<String> groups = user.getUserGroupIds();
 
+    return findBySurfConextGroupName(groups);
+  }
+
+  public Collection<VirtualResourceGroup> findByUserGroups(Collection<UserGroup> groups) {
     if (groups.isEmpty()) {
       return Collections.emptyList();
     }
 
-    return virtualResourceGroupRepo.findBySurfConextGroupNameIn(groups);
+    return findBySurfConextGroupName(newArrayList(transform(groups, new Function<UserGroup, String>() {
+      @Override
+      public String apply(UserGroup group) {
+        return group.getId();
+      }
+    })));
+  }
+
+  private Collection<VirtualResourceGroup> findBySurfConextGroupName(Collection<String> groupIds) {
+    return virtualResourceGroupRepo.findBySurfConextGroupNameIn(groupIds);
   }
 
 }
