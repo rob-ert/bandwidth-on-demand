@@ -34,6 +34,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalPort_;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
@@ -219,7 +221,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<PhysicalPort> root, CriteriaQuery<?> query,
           CriteriaBuilder cb) {
-        return cb.and(root.get("physicalResourceGroup").get("adminGroup").in(user.getUserGroupIds()));
+        return cb.and(root.get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.adminGroup).in(user.getUserGroupIds()));
       }
     };
   }

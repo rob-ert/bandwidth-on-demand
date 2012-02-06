@@ -34,6 +34,8 @@ import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
@@ -92,7 +94,8 @@ public class VirtualPortService {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
           CriteriaBuilder cb) {
-        return cb.and(root.get("virtualResourceGroup").get("surfConextGroupName").in(user.getUserGroupIds()));
+        return cb.and(root.get(VirtualPort_.virtualResourceGroup).get(VirtualResourceGroup_.surfConextGroupName)
+            .in(user.getUserGroupIds()));
       }
     };
   }

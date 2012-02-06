@@ -20,7 +20,7 @@
             proident, sunt in culpa qui officia deserunt mollit anim id est laborum.   
         </div>
         <div class="span6">
-            <table>
+            <table class="zebra-striped">
                 <c:forEach var="group" items="${physicalResourceGroups}">
                     <tr>
                         <td>${group.institute.name} (${group.institute.shortName})</td>

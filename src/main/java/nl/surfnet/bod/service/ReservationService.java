@@ -33,17 +33,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.Reservation_;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
-import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,7 +118,8 @@ public class ReservationService {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(root.get("virtualResourceGroup").get("surfConextGroupName").in(user.getUserGroupIds()));
+        return cb.and(root.get(Reservation_.virtualResourceGroup).get(VirtualResourceGroup_.surfConextGroupName)
+            .in(user.getUserGroupIds()));
       }
     };
   }
@@ -143,19 +147,14 @@ public class ReservationService {
       public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
           CriteriaBuilder cb) {
 
-        Expression<LocalDate> startDateExpr = reservation.get("startDate");
-        Expression<LocalTime> startTimeExpr = reservation.get("startTime");
-        Expression<LocalDate> endDateExpr = reservation.get("endDate");
-        Expression<LocalTime> endTimeExpr = reservation.get("endTime");
-        Expression<ReservationStatus> status = reservation.get("status");
-
-        return cb.and(
-            cb.or(
-                cb.and(cb.equal(startTimeExpr, startOrEndDateTime.toLocalTime()),
-                    cb.equal(startDateExpr, startOrEndDateTime.toLocalDate())),
-                cb.and(cb.equal(endTimeExpr, startOrEndDateTime.toLocalTime()),
-                    cb.equal(endDateExpr, startOrEndDateTime.toLocalDate()))),
-            cb.and(status.in(ReservationStatus.TRANSITION_STATES)));
+        return
+            cb.and(
+              cb.or(
+                cb.and(cb.equal(reservation.get(Reservation_.startTime), startOrEndDateTime.toLocalTime()),
+                  cb.equal(reservation.get(Reservation_.startDate), startOrEndDateTime.toLocalDate())),
+                cb.and(cb.equal(reservation.get(Reservation_.endTime), startOrEndDateTime.toLocalTime()),
+                  cb.equal(reservation.get(Reservation_.endDate), startOrEndDateTime.toLocalDate()))),
+              cb.and(reservation.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES)));
       }
     };
   }
