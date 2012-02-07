@@ -36,6 +36,9 @@ public class Environment {
   @Value("${shibboleth.imitate.userId}")
   private String imitateShibbolethUserId;
 
+  @Value("${shibboleth.imitate.email}")
+  private String imitateShibbolethEmail;
+
   @Value("${os.url}")
   private String openSocialUrl;
 
@@ -54,10 +57,12 @@ public class Environment {
     this.openSocialOAuthSecret = openSocialOAuthSecret;
   }
 
-  public Environment(boolean imitateShibboleth, String imitateShibbolethUserId, String imitateShibbolethDisplayName) {
+  public Environment(boolean imitateShibboleth, String imitateShibbolethUserId, String imitateShibbolethDisplayName,
+      String imitateShibbolethEmail) {
     this.imitateShibboleth = imitateShibboleth;
     this.imitateShibbolethUserId = imitateShibbolethUserId;
     this.imitateShibbolethDisplayName = imitateShibbolethDisplayName;
+    this.imitateShibbolethEmail = imitateShibbolethEmail;
   }
 
   public String getOpenSocialUrl() {
@@ -82,6 +87,10 @@ public class Environment {
 
   public String getImitateShibbolethUserId() {
     return imitateShibbolethUserId;
+  }
+
+  public String getImitateShibbolethEmail() {
+    return imitateShibbolethEmail;
   }
 
 }
