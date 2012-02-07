@@ -10,7 +10,7 @@
         <put-attribute name="body" value="/WEB-INF/views/manager/emailConfirmed.jspx" />
     </definition>
 
-    <definition extends="manager" name="linkNotValid">
+    <definition extends="manager" name="manager/linkNotValid">
         <put-attribute name="body" value="/WEB-INF/views/manager/linkNotValid.jspx" />
     </definition>
 

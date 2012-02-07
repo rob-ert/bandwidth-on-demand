@@ -5,8 +5,9 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <div class="hero-unit">
-        <h1>Welcome Manager</h1>
-        Your email has been confirmed...
+        <h1>Email of Physical Resource Group confirmed.</h1>
+        <p>You have successfully confirmed the e-mail address (${physicalResourceGroup.managerEmail}) of your
+            Physical Resource Group (${physicalResourceGroup.institute.name})</p>
     </div>
 
 </div>

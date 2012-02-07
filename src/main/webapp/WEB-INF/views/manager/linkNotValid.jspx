@@ -5,9 +5,12 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <div class="hero-unit">
-        <h1>Welcome Manager</h1>
-        This activation link is not valid anymore.
-        You can request a new link on this page.
+        <h1>Link is not valid anymore</h1>
+        <p>The activation link is not valid anymore. The link is only valid for 5 days.</p>
+
+        <p>You can request a new link which will be sent by e-mail.</p>
+
+        <a class="btn large primary" href="#">Request new link »</a>
     </div>
 
 </div>
