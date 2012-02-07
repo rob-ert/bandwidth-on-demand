@@ -68,6 +68,10 @@ public class PhysicalPortController {
   public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
     PhysicalPort port = physicalPortService.find(id);
 
+    if (!Security.managerMayEdit(port)) {
+      return "manager/physicalports";
+    }
+
     uiModel.addAttribute("updateManagerLabelCommand", new UpdateManagerLabelCommand(port));
     uiModel.addAttribute("physicalPort", toView.apply(port));
 
