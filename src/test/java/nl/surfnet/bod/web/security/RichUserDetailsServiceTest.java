@@ -64,7 +64,7 @@ public class RichUserDetailsServiceTest {
   @Test
   public void aNobody() {
     RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
-        "urn:alanvdam", "Alan van Dam"), "N/A"));
+        "urn:alanvdam", "Alan van Dam", "alan@test.com"), "N/A"));
 
     assertThat(userDetails.getNameId(), is("urn:alanvdam"));
     assertThat(userDetails.getDisplayName(), is("Alan van Dam"));
@@ -75,11 +75,10 @@ public class RichUserDetailsServiceTest {
   public void aNormalUser() {
     ImmutableList<UserGroup> userGroups = listOf(new UserGroupFactory().setId("urn:klimaat-onderzoekers").create());
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(userGroups);
-    when(vrgServiceMock.findByUserGroups(userGroups)).thenReturn(
-        listOf(new VirtualResourceGroupFactory().create()));
+    when(vrgServiceMock.findByUserGroups(userGroups)).thenReturn(listOf(new VirtualResourceGroupFactory().create()));
 
     RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
-        "urn:alanvdam", "Alan van Dam"), "N/A"));
+        "urn:alanvdam", "Alan van Dam", "alan@test.com"), "N/A"));
 
     assertThat(userDetails.getNameId(), is("urn:alanvdam"));
     assertThat(userDetails.getDisplayName(), is("Alan van Dam"));
@@ -118,6 +117,6 @@ public class RichUserDetailsServiceTest {
   }
 
   private static Authentication createToken(String nameId) {
-    return new PreAuthenticatedAuthenticationToken(new RichPrincipal(nameId, "Alan van Dam"), "N/A");
+    return new PreAuthenticatedAuthenticationToken(new RichPrincipal(nameId, "Alan van Dam", "alan@test.com"), "N/A");
   }
 }
