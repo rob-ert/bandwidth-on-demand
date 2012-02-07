@@ -62,10 +62,15 @@
 
             $self.after($hideSelf);
 
-            $self.click(function(event) {
-                event.preventDefault();
-                showDetails();
-            });
+            if (settings.hide($sourceRow)) {
+                $hideSelf.show();
+                $self.hide();
+            } else {
+                $self.click(function(event) {
+                    event.preventDefault();
+                    showDetails();
+                });
+            }
         });
 
         function createHeaders() {
@@ -95,6 +100,7 @@
     $.fn.detailView.defaults = {
         animationDelay: 500,
         idProp: "id",
-        extraColumn: null
+        extraColumn: null,
+        hide: function($row) { return false; }
     };
 })( jQuery );

@@ -29,7 +29,18 @@
       $(function() {
           var fields = ["name", "maxBandwidth", "vlanId", "virtualResourceGroupName"];
           var headers = ["Name", "Max Bandwidth", "VID", "Virtual Resource Group"];
-          $("a[href$='showvirtualports']").detailView("${portsUrl}", fields, headers, "${closePaneImageUrl}");
+          $("a[href$='showvirtualports']").detailView(
+            "${portsUrl}",
+            fields,
+            headers,
+            "${closePaneImageUrl}",
+            {
+              hide: function($row) {
+                      var numberOfVirtualPorts = parseInt($($row.children("td")[2]).text());
+                      return !numberOfVirtualPorts;
+                    }
+            }
+          );
       });
     </script>
 </div>

@@ -41,7 +41,11 @@
                                 .twipsy()
                                 .append($('<img/>', {src: "${showImageUrl}"}));
                         },
-                        idProp: "networkElementPk"
+                        idProp: "networkElementPk",
+                        hide: function($row) {
+                            var numberOfPorts = parseInt($($row.children("td")[3]).text());
+                            return !numberOfPorts;
+                        }
                     });
         });
     </script>
