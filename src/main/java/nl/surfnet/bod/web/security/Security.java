@@ -24,6 +24,7 @@ package nl.surfnet.bod.web.security;
 import java.util.Collections;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 
 import org.springframework.security.access.intercept.RunAsUserToken;
@@ -79,6 +80,10 @@ public final class Security {
 
   public static boolean managerMayEdit(PhysicalPort port) {
     return isUserMemberOf(port.getPhysicalResourceGroup().getAdminGroup());
+  }
+
+  public static boolean managerMayEdit(PhysicalResourceGroup group) {
+    return isUserMemberOf(group.getAdminGroup());
   }
 
   /**
