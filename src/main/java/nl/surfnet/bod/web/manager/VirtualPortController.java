@@ -97,7 +97,7 @@ public class VirtualPortController {
   @ModelAttribute("physicalResourceGroups")
   public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
     return Lists.newArrayList(Collections2.filter(
-        physicalResourceGroupService.findAllForUser(Security.getUserDetails()), new Predicate<PhysicalResourceGroup>() {
+        physicalResourceGroupService.findAllForManager(Security.getUserDetails()), new Predicate<PhysicalResourceGroup>() {
           @Override
           public boolean apply(PhysicalResourceGroup group) {
             return group.getPhysicalPortCount() > 0;
@@ -109,7 +109,7 @@ public class VirtualPortController {
   public Collection<PhysicalPort> populatePhysicalPorts(HttpServletRequest request) {
     String physicalResourceGroup = Strings.nullToEmpty(request.getParameter("physicalResourceGroup"));
     if (physicalResourceGroup.isEmpty()) {
-      Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllForUser(Security.getUserDetails());
+      Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllForManager(Security.getUserDetails());
 
       return getFirst(transform(groups, new Function<PhysicalResourceGroup, Collection<PhysicalPort>>() {
         @Override

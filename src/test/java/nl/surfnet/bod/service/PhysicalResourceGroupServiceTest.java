@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,8 +55,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PhysicalResourceGroupServiceTest {
@@ -82,22 +85,23 @@ public class PhysicalResourceGroupServiceTest {
       physicalResourceGroupTwo);
 
   @Test
-  public void findGroupsForUser() {
+  public void findGroupsForManager() {
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
     RichUserDetails loggedInUser = new RichUserDetailsFactory().addUserGroup("urn:myfirstgroup").create();
 
-    when(groupRepoMock.findByAdminGroupIn(listOf("urn:myfirstgroup"))).thenReturn(listOf(physicalResourceGroupOne));
+    when(groupRepoMock.findAll(any(Specification.class))).thenReturn(Lists.newArrayList(prg));
 
-    Collection<PhysicalResourceGroup> groups = subject.findAllForUser(loggedInUser);
+    Collection<PhysicalResourceGroup> groups = subject.findAllForManager(loggedInUser);
 
     assertThat(groups, hasSize(1));
-    assertThat(groups, contains(physicalResourceGroupOne));
+    assertThat(groups, contains(prg));
   }
 
   @Test
   public void findGroupsForUserWithoutUserGroups() {
     RichUserDetails loggedInUser = new RichUserDetailsFactory().create();
 
-    Collection<PhysicalResourceGroup> groups = subject.findAllForUser(loggedInUser);
+    Collection<PhysicalResourceGroup> groups = subject.findAllForManager(loggedInUser);
 
     assertThat(groups, hasSize(0));
   }
@@ -166,18 +170,21 @@ public class PhysicalResourceGroupServiceTest {
   }
 
   @Test
-  public void shouldFillInstitutesFindAllForUser() {
+  public void shouldFillInstitutesFindAllForManager() {
     RichUserDetails user = new RichUserDetailsFactory().addUserGroup("urn:myfirstgroup").create();
 
-    when(groupRepoMock.findByAdminGroupIn(ImmutableList.of("urn:myfirstgroup"))).thenReturn(physicalResourceGroups);
-    when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
-    when(instituteServiceMock.findInstitute(2L)).thenReturn(instituteTwo);
+    Institute institute = new InstituteFactory().setId(1L).setName("oneInst").create();
+    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory()
+        .setInstitute(institute).create();
+    List<PhysicalResourceGroup> physicalResourceGroups = ImmutableList.of(physicalResourceGroup);
 
-    Collection<PhysicalResourceGroup> prgs = subject.findAllForUser(user);
+    when(groupRepoMock.findAll(any(Specification.class))).thenReturn(physicalResourceGroups);
+    when(instituteServiceMock.findInstitute(1L)).thenReturn(institute);
+
+    Collection<PhysicalResourceGroup> prgs = subject.findAllForManager(user);
 
     Iterator<PhysicalResourceGroup> it = prgs.iterator();
-    assertThat(it.next().getInstitute(), is(instituteOne));
-    assertThat(it.next().getInstitute(), is(instituteTwo));
+    assertThat(it.next().getInstitute(), is(institute));
   }
 
   @Test

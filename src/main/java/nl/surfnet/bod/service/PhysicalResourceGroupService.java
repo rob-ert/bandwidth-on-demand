@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -96,6 +97,35 @@ public class PhysicalResourceGroupService {
     return prgs;
   }
 
+  public List<PhysicalResourceGroup> findEntriesForManager(final RichUserDetails user, final int firstResult,
+      final int maxResults) {
+    checkNotNull(user);
+
+    if (user.getUserGroups().isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    List<PhysicalResourceGroup> prgs = physicalResourceGroupRepo.findAll(forCurrentManager(user),
+        new PageRequest(firstResult / maxResults, maxResults)).getContent();
+
+    instituteService.fillInstituteForPhysicalResourceGroups(prgs);
+
+    return prgs;
+  }
+
+  public long countForManager(RichUserDetails user) {
+    return physicalResourceGroupRepo.count(forCurrentManager(user));
+  }
+
+  private Specification<PhysicalResourceGroup> forCurrentManager(final RichUserDetails user) {
+    return new Specification<PhysicalResourceGroup>() {
+      @Override
+      public Predicate toPredicate(Root<PhysicalResourceGroup> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.and(root.get(PhysicalResourceGroup_.adminGroup).in(user.getUserGroupIds()));
+      }
+    };
+  }
+
   public void save(final PhysicalResourceGroup physicalResourceGroup) {
     physicalResourceGroupRepo.save(physicalResourceGroup);
   }
@@ -122,9 +152,18 @@ public class PhysicalResourceGroupService {
     return prgs;
   }
 
-  public Collection<PhysicalResourceGroup> findAllForUser(RichUserDetails user) {
-    Collection<UserGroup> groups = user.getUserGroups();
-    return findAllForAdminGroups(groups);
+  public Collection<PhysicalResourceGroup> findAllForManager(RichUserDetails user) {
+    checkNotNull(user);
+
+    if (user.getUserGroups().isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    List<PhysicalResourceGroup> groups = physicalResourceGroupRepo.findAll(forCurrentManager(user));
+
+    instituteService.fillInstituteForPhysicalResourceGroups(groups);
+
+    return groups;
   }
 
   public PhysicalResourceGroup findByInstituteId(Long instituteId) {

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+    xmlns:spring="http://www.springframework.org/tags" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
+
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+
+    <page:list id="pl_physicalResourceGroup" items="${physicalResourceGroups}">
+        <table:table data="${physicalResourceGroups}" id="l_PhysicalResourceGroup" path="/manager/physicalresourcegroups"
+            show="false" delete="false">
+
+            <table:column id="name" property="name" labelCode="physicalResourceGroup_name" />
+            <table:column id="adminGroup" property="adminGroup" labelCode="physicalResourceGroup_adminGroup" />
+            <table:column id="managerEmail" property="managerEmail" labelCode="physicalResourceGroup_managerEmail" />
+            <table:column id="count" property="physicalPortCount" labelCode="physicalResourceGroup_physicalPortCount" />
+
+        </table:table>
+    </page:list>
+
+</div>

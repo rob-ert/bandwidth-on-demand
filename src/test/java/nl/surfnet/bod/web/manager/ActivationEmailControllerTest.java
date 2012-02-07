@@ -42,7 +42,6 @@ public class ActivationEmailControllerTest {
     String page = subject.activateEmail("1234567890", model);
 
     assertThat(page, is("manager/emailConfirmed"));
-
     assertThat(model.asMap(), hasEntry("physicalResourceGroup", Object.class.cast(link.getPhysicalResourceGroup())));
 
     verify(physicalResourceGroupServiceMock).activate(link.getPhysicalResourceGroup());

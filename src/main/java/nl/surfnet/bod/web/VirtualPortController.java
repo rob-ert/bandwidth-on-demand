@@ -53,8 +53,10 @@ public class VirtualPortController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
+
     uiModel.addAttribute("virtualPorts", virtualPortService.findAllEntriesForUser(Security.getUserDetails(),
         calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
+
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(virtualPortService.count()));
 
     return "virtualports/list";

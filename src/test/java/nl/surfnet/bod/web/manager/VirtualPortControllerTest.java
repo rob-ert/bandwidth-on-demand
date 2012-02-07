@@ -84,7 +84,7 @@ public class VirtualPortControllerTest {
         new PhysicalPortFactory().create()).create();
     PhysicalResourceGroup groupWithoutPorts = new PhysicalResourceGroupFactory().create();
 
-    when(physicalResourceGroupServiceMock.findAllForUser(user)).thenReturn(
+    when(physicalResourceGroupServiceMock.findAllForManager(user)).thenReturn(
         Lists.newArrayList(groupWithPorts, groupWithoutPorts));
 
     Collection<PhysicalResourceGroup> groups = subject.populatePhysicalResourceGroups();
