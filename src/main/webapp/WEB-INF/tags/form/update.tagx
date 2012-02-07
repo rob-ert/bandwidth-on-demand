@@ -36,7 +36,7 @@
                 <div class="row">
                     <div class="span10">
                         <div class="alert-message error" data-alert="true">
-                            <a class="close" href="#">×</a>
+                            <a class="close" href="#">&amp;times;</a>
                             <form:errors cssClass="errors" delimiter="&lt;p/&gt;" element="p" />
                         </div>
                     </div>
