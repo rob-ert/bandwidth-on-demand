@@ -47,6 +47,8 @@ public class ActivationEmailLinkTest {
 
     assertThat(linkOne.isActivated(), is(true));
     Assert.assertEquals(new Long(linkOne.getActivationDateTime().toDate().getTime()), millis);
+    
+   DateTimeUtils.setCurrentMillisSystem();
   }
 
 }
