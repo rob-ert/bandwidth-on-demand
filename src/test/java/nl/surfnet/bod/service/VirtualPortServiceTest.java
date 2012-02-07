@@ -121,7 +121,7 @@ public class VirtualPortServiceTest {
 
   @Test
   public void findAllEntriesForUserWithoutGroupsShouldNotGoToRepo() {
-      List<VirtualPort> ports = subject.findAllEntriesForUser(new RichUserDetailsFactory().create(), 2, 5);
+      List<VirtualPort> ports = subject.findEntriesForUser(new RichUserDetailsFactory().create(), 2, 5);
 
       assertThat(ports, hasSize(0));
       verifyZeroInteractions(virtualPortRepoMock);

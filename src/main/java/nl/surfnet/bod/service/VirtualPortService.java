@@ -56,6 +56,10 @@ public class VirtualPortService {
     return virtualPortRepo.count();
   }
 
+  public long countForUser(RichUserDetails user) {
+    return virtualPortRepo.count(specificationForUser(user));
+  }
+
   public void delete(final VirtualPort virtualPort) {
     virtualPortRepo.delete(virtualPort);
   }
@@ -66,17 +70,6 @@ public class VirtualPortService {
 
   public List<VirtualPort> findAll() {
     return virtualPortRepo.findAll();
-  }
-
-  public List<VirtualPort> findAllEntriesForUser(final RichUserDetails user, final int firstResult, final int maxResults) {
-    checkNotNull(user);
-
-    if (user.getUserGroups().isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    return virtualPortRepo.findAll(specificationForUser(user), new PageRequest(firstResult / maxResults, maxResults))
-        .getContent();
   }
 
   public List<VirtualPort> findAllForUser(final RichUserDetails user) {
@@ -104,6 +97,17 @@ public class VirtualPortService {
     checkArgument(maxResults > 0);
 
     return virtualPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults)).getContent();
+  }
+
+  public List<VirtualPort> findEntriesForUser(final RichUserDetails user, final int firstResult, final int maxResults) {
+    checkNotNull(user);
+
+    if (user.getUserGroups().isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    return virtualPortRepo.findAll(specificationForUser(user), new PageRequest(firstResult / maxResults, maxResults))
+        .getContent();
   }
 
   public VirtualPort findByManagerLabel(String label) {
