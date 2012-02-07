@@ -6,13 +6,11 @@
     <jsp:output omit-xml-declaration="yes" />
     
     <!-- <spring:message var="title" code="error_accessdenied_title" htmlEscape="false" />-->
+
+    <div class="hero-unit">
+        <h1>Not a member of a Virtual User Group</h1>
+        <p>You are not a member of any virtual user group. Pleas request a membership first and come back later.</p>
+        <p>See you later!</p>
+    </div>
     
-    <util:panel id="title" title="Not a member of a Virtual User Group">
-        <p>
-            You are not a member of any virtual user group. Pleas request a membership first and come back later.
-        </p>
-        <p>
-            See you later!
-        </p>
-    </util:panel>
 </div>

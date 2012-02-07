@@ -12,7 +12,17 @@ public class DashboardController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String index() {
-    return Security.hasUserRole() ? "index" : "noUserRole";
+    if (Security.hasUserRole()) {
+      return "index";
+    }
+    if (Security.hasIctManagerRole()) {
+      return "redirect:manager";
+    }
+    if (Security.hasNocEngineerRole()) {
+      return "redirect:noc";
+    }
+
+    return "noUserRole";
   }
 
 }

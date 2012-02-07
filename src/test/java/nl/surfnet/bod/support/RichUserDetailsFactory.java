@@ -25,8 +25,10 @@ import java.util.Collection;
 
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 
 import com.google.common.collect.Lists;
 
@@ -39,6 +41,21 @@ public class RichUserDetailsFactory {
 
   public RichUserDetails create() {
     return new RichUserDetails(username, displayName, authorities, userGroups);
+  }
+
+  public RichUserDetailsFactory addUserAuthority() {
+    authorities.add(new GrantedAuthorityImpl(Security.USER));
+    return this;
+  }
+
+  public RichUserDetailsFactory addNocAuthority() {
+    authorities.add(new GrantedAuthorityImpl(Security.NOC_ENGINEER));
+    return this;
+  }
+
+  public RichUserDetailsFactory addManagerAuthority() {
+    authorities.add(new GrantedAuthorityImpl(Security.ICT_MANAGER));
+    return this;
   }
 
   public RichUserDetailsFactory addUserGroup(String groupId) {
