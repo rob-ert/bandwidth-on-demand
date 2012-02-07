@@ -567,6 +567,7 @@
                     <instrumentation>
                         <excludes>
                             <exclude>nl/surfnet/bod/idd/generated/*.class</exclude>
+                            <exclude>nl/surfnet/bod/domain/*_.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
