@@ -24,18 +24,18 @@ public class ActivationEmailController {
 
   @RequestMapping(value = "/{uuid}", method = RequestMethod.GET)
   public String activateEmail(@PathVariable String uuid, Model uiModel) {
-    ActivationEmailLink link = physicalResourceGroupService.findActivationLink(uuid);
+    ActivationEmailLink<PhysicalResourceGroup> link = physicalResourceGroupService.findActivationLink(uuid);
 
     if (link == null) {
       return "index";
     }
-    else if (link.getCreationDateTime().plusDays(5).isBefore(LocalDateTime.now())) {
+    else if (!link.isValid()) {
       return "manager/linkNotValid";
     }
 
-    PhysicalResourceGroup group = link.getPhysicalResourceGroup();
+    PhysicalResourceGroup group = link.getSourceObject();
 
-    physicalResourceGroupService.activate(group);
+    physicalResourceGroupService.activate(link);
     instituteService.fillInstituteForPhysicalResourceGroup(group);
 
     uiModel.addAttribute("physicalResourceGroup", group);

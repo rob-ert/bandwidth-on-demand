@@ -81,7 +81,7 @@ public class PhysicalResourceGroup {
    * Whenever an instittute is not availabled (e.g. it was deleted in the IDD
    * system) the id of institute will be shown. This will trigger a NOC engineer
    * to investigate and correct this.
-   *
+   * 
    * @return Name of the related institute when available, the
    *         {@link #instituteId} otherwise.
    */
@@ -135,8 +135,8 @@ public class PhysicalResourceGroup {
     this.institute = institute;
   }
 
-  public void activate() {
-    active = true;
+  public void setActive(boolean active) {
+    this.active = active;
   }
 
   public boolean isActive() {
@@ -150,6 +150,7 @@ public class PhysicalResourceGroup {
     sb.append("InstituteId: ").append(getInstituteId()).append(", ");
     sb.append("Admin group: ").append(getAdminGroup()).append(", ");
     sb.append("Manager email: ").append(getManagerEmail()).append(", ");
+    sb.append("Active: ").append(isActive()).append(", ");
     sb.append("Version: ").append(getVersion());
 
     return sb.toString();

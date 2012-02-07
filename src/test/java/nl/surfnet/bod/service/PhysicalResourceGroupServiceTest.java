@@ -25,9 +25,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -56,6 +56,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -74,6 +76,9 @@ public class PhysicalResourceGroupServiceTest {
 
   @Mock
   private ActivationEmailLinkRepo activationEmailLinkRepoMock;
+
+  @Mock
+  private MailSender mailSender;
 
   private Institute instituteOne = new InstituteFactory().setId(1L).setName("oneInst").create();
   private Institute instituteTwo = new InstituteFactory().setId(2L).setName("twoInst").create();
@@ -199,14 +204,10 @@ public class PhysicalResourceGroupServiceTest {
   @Test
   public void createActivationEmailLink() {
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
-
-    ActivationEmailLink link = subject.createActivationEmailLink(prg);
-
-    assertThat(link.getPhysicalResourceGroup(), is(prg));
-    assertThat(link.getUuid().length(), is(36));
-    assertThat(link.getCreationDateTime(), notNullValue());
-
-    verify(activationEmailLinkRepoMock).save(link);
+    ActivationEmailLink<PhysicalResourceGroup> link = subject.sendAndPersistActivationRequest(prg, "me@test.com");
+    
+    verify(mailSender).send(any(SimpleMailMessage.class));
+    verify(activationEmailLinkRepoMock,times(2)).save(link);
   }
 
 }

@@ -1,1 +1,0 @@
- create table email_activation_request (id bigint, request_source varchar(255), source_id bigint, uuid varchar(255), email_sent_time_stamp timestamp, activation_time_stamp timestamp);

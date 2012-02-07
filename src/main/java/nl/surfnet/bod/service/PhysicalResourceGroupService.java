@@ -38,33 +38,26 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
-import nl.surfnet.bod.domain.EmailActivationRequest;
-import nl.surfnet.bod.domain.ActivationRequestSource;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
 
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import antlr.StringUtils;
-
 import com.google.common.base.Function;
-import com.google.common.base.Strings;
-import com.sun.tools.internal.xjc.reader.xmlschema.bindinfo.BIConversion.User;
 
 @Service
 @Transactional
@@ -196,8 +189,9 @@ public class PhysicalResourceGroupService {
     return prg;
   }
 
-  public ActivationEmailLink findActivationLink(String uuid) {
-    return activateEmailLinkRepo.findByUuid(uuid);
+  @SuppressWarnings("unchecked")
+  public ActivationEmailLink<PhysicalResourceGroup> findActivationLink(String uuid) {
+    return (ActivationEmailLink<PhysicalResourceGroup>) activateEmailLinkRepo.findByUuid(uuid);
   }
 
   public Collection<PhysicalResourceGroup> findAllWithPorts() {
@@ -214,36 +208,40 @@ public class PhysicalResourceGroupService {
     return groups;
   }
 
-  public ActivationEmailLink createActivationEmailLink(PhysicalResourceGroup physicalResourceGroup) {
-    ActivationEmailLink link = new ActivationEmailLink();
-    link.setPhysicalResourceGroup(physicalResourceGroup);
-    link.setCreationDateTime(LocalDateTime.now());
-    link.setUuid(UUID.randomUUID().toString());
+  public void activate(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
+    activationEmailLink.activate();
 
-    activateEmailLinkRepo.save(link);
-
-    return link;
+    activateEmailLinkRepo.save(activationEmailLink);
+    update(activationEmailLink.getSourceObject());
   }
 
-  public void activate(PhysicalResourceGroup physicalResourceGroup) {
-    physicalResourceGroup.activate();
-    update(physicalResourceGroup);
+  public ActivationEmailLink<PhysicalResourceGroup> sendAndPersistActivationRequest(
+      PhysicalResourceGroup physicalResourceGroup, String userEmail) {
+
+    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = new ActivationEmailLink<PhysicalResourceGroup>(
+        physicalResourceGroup);
+    activateEmailLinkRepo.save(activationEmailLink);
+
+    SimpleMailMessage activationMessage = createActivationMessage(physicalResourceGroup, userEmail);
+
+    try {
+      mailSender.send(activationMessage);
+
+      activationEmailLink.emailWasSent();
+      activateEmailLinkRepo.save(activationEmailLink);
+    }
+    catch (MailException exc) {
+      throw new RuntimeException(exc);
+    }
+
+    return activationEmailLink;
   }
 
-  public void sendAndPersistActivationRequest(PhysicalResourceGroup physicalResourceGroup) {
-    EmailActivationRequest activationRequest = new EmailActivationRequest(
-        ActivationRequestSource.PHYSICAL_RESOURCE_GROUP, physicalResourceGroup.getId());
-
-    SimpleMailMessage activationMessage = createActivationMessage(physicalResourceGroup, Security.getUserDetails());
-
-    mailSender.send(activationMessage);
-  }
-
-  private SimpleMailMessage createActivationMessage(PhysicalResourceGroup physicalResourceGroup, RichUserDetails user) {
+  private SimpleMailMessage createActivationMessage(PhysicalResourceGroup physicalResourceGroup, String userEmail) {
     SimpleMailMessage activationMessage = new SimpleMailMessage();
     activationMessage.setTo(physicalResourceGroup.getManagerEmail());
     activationMessage.setFrom(fromAddress);
-    activationMessage.setReplyTo(user.getEmail());
+    activationMessage.setReplyTo(userEmail);
     activationMessage.setSubject("Activation mail for Physical Resource Group" + physicalResourceGroup.getName());
 
     URL activationUrl = generateActivationUrl(physicalResourceGroup);

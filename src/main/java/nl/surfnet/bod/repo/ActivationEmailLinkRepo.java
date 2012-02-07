@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ActivationEmailLinkRepo extends JpaSpecificationExecutor<ActivationEmailLink>,
-    JpaRepository<ActivationEmailLink, Long> {
+public interface ActivationEmailLinkRepo extends JpaSpecificationExecutor<ActivationEmailLink<?>>,
+    JpaRepository<ActivationEmailLink<?>, Long> {
 
-  ActivationEmailLink findByUuid(String uuid);
+  ActivationEmailLink<?> findByUuid(String uuid);
 }

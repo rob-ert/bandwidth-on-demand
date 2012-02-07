@@ -1,46 +1,46 @@
 package nl.surfnet.bod.support;
 
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
-import org.joda.time.LocalDateTime;
-
-public class ActivationEmailLinkFactory {
+public class ActivationEmailLinkFactory<T> {
 
   private static final AtomicLong COUNTER = new AtomicLong();
-
   private Long id = COUNTER.incrementAndGet();
-  private Integer version = 0;
-  private String uuid = UUID.randomUUID().toString();
-  private LocalDateTime creationDateTime = LocalDateTime.now();
+
   private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
+  private boolean activate = false;
+  private boolean emailSent = true;
+  private boolean valid = true;
 
-  public ActivationEmailLink create() {
-    ActivationEmailLink link = new ActivationEmailLink();
-
+  public ActivationEmailLink<T> create() {
+    ActivationEmailLink<T> link = new ActivationEmailLink<T>(physicalResourceGroup);
     link.setId(id);
-    link.setVersion(version);
-    link.setUuid(uuid);
-    link.setCreationDateTime(creationDateTime);
-    link.setPhysicalResourceGroup(physicalResourceGroup);
 
+    if (activate) {
+      link.activate();
+    }
+
+    if (emailSent) {
+      link.emailWasSent();
+    }
+        
     return link;
   }
-
-  public ActivationEmailLinkFactory setCreationDateTime(LocalDateTime creationDateTime) {
-    this.creationDateTime = creationDateTime;
+  
+  public ActivationEmailLinkFactory<T> setActivate(boolean activate) {
+    this.activate = activate;
     return this;
   }
 
-  public ActivationEmailLinkFactory setUuid(String uuid) {
-    this.uuid = uuid;
-    return this;
+  public ActivationEmailLinkFactory<T> setEmailSent(boolean sent) {
+    this.emailSent = sent;
+    return this;  
   }
 
-  public ActivationEmailLinkFactory setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
+  public ActivationEmailLinkFactory<T> setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
     this.physicalResourceGroup = physicalResourceGroup;
     return this;
   }
