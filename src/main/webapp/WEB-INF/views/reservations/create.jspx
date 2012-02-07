@@ -13,50 +13,76 @@
     <spring:url value="/resources/images/quater.png" var="imgQuater" />
     <spring:url var="reservation_js" value="/resources/js/reservation.js" />
 
-    <util:panel id="title" title="Create Virtual Port" render="${empty virtualPortList}">
-      No Virtual Ports found for you....
-    </util:panel>
-
-    <form:create id="fc_reservation" modelAttribute="reservation" path="/reservations"
-        render="${not empty virtualPortList}">
-
-        <field:select field="virtualResourceGroup" id="virtualresourcegroup" labelCode="virtualresourcegroup"
-            itemLabel="name" itemValue="id" items="${virtualResourceGroupList}" path="/reservations" required="true" create="false" />
-
-        <field:select field="sourcePort" id="sourcePort" labelCode="reservation_sourcePort"
-            items="${virtualPortList}" itemLabel="userLabel" itemValue="id" path="/reservations" required="true" create="false" />
-
-        <field:select field="destinationPort" id="destinationPort" labelCode="reservation_destinationPort"
-            items="${virtualPortList}" itemLabel="userLabel" itemValue="id" path="/reservations" required="true" create="false" />
-
-        <field:input type="date" field="startDate" id="startDate" labelCode="reservation_startDate" required="true" />
-        <field:input type="time" field="startTime" id="startTime" labelCode="reservation_startTime" required="true" />
-
-        <field:input type="date" field="endDate" id="endDate" labelCode="reservation_endDate" required="true" />
-        <field:input type="time" field="endTime" id="endTime" labelCode="reservation_endTime" required="true" />
-
-        <c:set var="errors"><sform:errors path="bandwidth" /></c:set>
-        <c:if test="${not empty errors}">
-            <c:set var="error_css" value="error" />
-        </c:if>
-        <div class="clearfix ${error_css}">
-            <label for="_bandwidth_id"><spring:message code="label_reservation_bandwidth"/></label>
-            <div class="input">
-                <div class="inline-inputs">
-                    <sform:input id="_bandwidth_id" path="bandwidth" type="number" />
-                    <span class="bandwidth-tool">
-                        <a href="#" id="bandwidthQuater" title="Bandwidth to a quater" rel="twipsy" data-placement="left"><img src="${imgQuater}" height="28" /></a>
-                        <a href="#" id="bandwidthHalf" title="Bandwidth to a half" rel="twipsy"><img src="${imgHalf}" height="28" /></a>
-                        <a href="#" id="bandwidthFull" title="Bandwidth to full" rel="twipsy" data-placement="right"><img src="${imgFull}" height="28" /></a>
-                    </span>
-                    <sform:errors cssClass="help-inline" id="_bandwidth_error_id" path="bandwidth" delimiter=", " />
-                </div>
-                <span class="help-block">Specified in Mbit/s</span>
-            </div>
+    <h1>Create a reservation</h1>
+    <div class="row">
+        <div class="span4">
+            <h3>Source and Destination</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
+            dolore magna aliqua.</p>
+            <h3>Start and End Time</h3>
+            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+            laborum.</p>
+            <h3>Bandwidth</h3>
+            <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+            ea commodo consequat.</p>
         </div>
-    </form:create>
-    <script type="text/javascript">
-      var dataUrl = "${vpUrl}";
-    </script>
-    <script src="${reservation_js}" type="text/javascript"><!-- needed --></script>    
+        <div class="span12">
+            <util:panel id="title" title="Create Virtual Port" render="${empty virtualPortList}">
+                No Virtual Ports found for you....
+            </util:panel>
+
+            <form:create id="fc_reservation" modelAttribute="reservation" path="/reservations"
+                render="${not empty virtualPortList}" noLabel="true">
+
+                <field:select field="virtualResourceGroup" id="virtualresourcegroup" labelCode="virtualresourcegroup"
+                    itemLabel="name" itemValue="id" items="${virtualResourceGroupList}" path="/reservations"
+                    required="true" create="false" />
+
+                <field:select field="sourcePort" id="sourcePort" labelCode="reservation_sourcePort"
+                    items="${virtualPortList}" itemLabel="userLabel" itemValue="id" path="/reservations" required="true"
+                    create="false" />
+
+                <field:select field="destinationPort" id="destinationPort" labelCode="reservation_destinationPort"
+                    items="${virtualPortList}" itemLabel="userLabel" itemValue="id" path="/reservations" required="true"
+                    create="false" />
+
+                <field:input type="date" field="startDate" id="startDate" labelCode="reservation_startDate"
+                    required="true" helpMessageCode="generic_dateformat" />
+                <field:input type="time" field="startTime" id="startTime" labelCode="reservation_startTime"
+                    required="true" />
+
+                <field:input type="date" field="endDate" id="endDate" labelCode="reservation_endDate" required="true"
+                    helpMessageCode="generic_dateformat" />
+                <field:input type="time" field="endTime" id="endTime" labelCode="reservation_endTime" required="true" />
+
+                <c:set var="errors">
+                    <sform:errors path="bandwidth" />
+                </c:set>
+                <c:if test="${not empty errors}">
+                    <c:set var="error_css" value="error" />
+                </c:if>
+                <div class="clearfix ${error_css}">
+                    <label for="_bandwidth_id"><spring:message code="label_reservation_bandwidth" /></label>
+                    <div class="input">
+                        <div class="inline-inputs">
+                            <sform:input id="_bandwidth_id" path="bandwidth" type="number" />
+                            <span class="bandwidth-tool"> <a href="#" id="bandwidthQuater"
+                                title="Bandwidth to a quater" rel="twipsy" data-placement="left"><img
+                                    src="${imgQuater}" height="28" /></a> <a href="#" id="bandwidthHalf"
+                                title="Bandwidth to a half" rel="twipsy"><img src="${imgHalf}" height="28" /></a> <a
+                                href="#" id="bandwidthFull" title="Bandwidth to full" rel="twipsy"
+                                data-placement="right"><img src="${imgFull}" height="28" /></a>
+                            </span>
+                            <sform:errors cssClass="help-inline" id="_bandwidth_error_id" path="bandwidth"
+                                delimiter=", " />
+                        </div>
+                        <span class="help-block">Specified in Mbit/s</span>
+                    </div>
+                </div>
+            </form:create>
+        </div>
+    </div>
+    <script type="text/javascript">var dataUrl = "${vpUrl}";</script>
+    <script src="${reservation_js}" type="text/javascript"><!-- needed --></script>
 </div>
