@@ -21,9 +21,11 @@ public class ActivationEmailController {
   public String activateEmail(@PathVariable String uuid) {
     ActivationEmailLink link = physicalResourceGroupService.findActivationLink(uuid);
 
-    if (link == null || link.getCreationDateTime().isAfter(LocalDateTime.now().plusDays(5))) {
-      // TODO different page?
+    if (link == null) {
       return "index";
+    }
+    else if (link.getCreationDateTime().plusDays(5).isBefore(LocalDateTime.now())) {
+      return "manager/linkNotValid";
     }
 
     physicalResourceGroupService.activate(link.getPhysicalResourceGroup());
