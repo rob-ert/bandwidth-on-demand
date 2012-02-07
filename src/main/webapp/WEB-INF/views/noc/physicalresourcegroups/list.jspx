@@ -26,8 +26,8 @@
 
     <script type="text/javascript">
         $(function() {
-            var fields = [ "nocLabel", "networkElementPk", "displayName" ];
-            var headers = [ "Name", "Network Element", "Display Name" ];
+            var fields = [ "nocLabel", "networkElementPk" ];
+            var headers = [ "Name", "Network Element" ];
             var showPhysicalPortUrl = '${showPhysicalPortUrl}';
 
             $("a[href$='showvirtualports']").detailView(
