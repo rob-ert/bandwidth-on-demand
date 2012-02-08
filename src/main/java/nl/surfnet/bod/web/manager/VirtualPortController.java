@@ -27,8 +27,8 @@ import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.PhysicalPort;
@@ -53,7 +53,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 
@@ -89,46 +88,13 @@ public class VirtualPortController {
   @Autowired
   private VirtualPortValidator virtualPortValidator;
 
-  @ModelAttribute("virtualResourceGroups")
-  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {
-    return virtualResourceGroupService.findAll();
-  }
-
-  @ModelAttribute("physicalResourceGroups")
-  public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups() {
-    return Lists.newArrayList(Collections2.filter(
-        physicalResourceGroupService.findAllForManager(Security.getUserDetails()), new Predicate<PhysicalResourceGroup>() {
-          @Override
-          public boolean apply(PhysicalResourceGroup group) {
-            return group.getPhysicalPortCount() > 0;
-          }
-        }));
-  }
-
-  @ModelAttribute("physicalPorts")
-  public Collection<PhysicalPort> populatePhysicalPorts(HttpServletRequest request) {
-    String physicalResourceGroup = Strings.nullToEmpty(request.getParameter("physicalResourceGroup"));
-    if (physicalResourceGroup.isEmpty()) {
-      Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllForManager(Security.getUserDetails());
-
-      return getFirst(transform(groups, new Function<PhysicalResourceGroup, Collection<PhysicalPort>>() {
-        @Override
-        public Collection<PhysicalPort> apply(PhysicalResourceGroup port) {
-          return port.getPhysicalPorts();
-        }
-      }), Collections.<PhysicalPort> emptyList());
-    }
-    else {
-      return physicalResourceGroupService.find(Long.valueOf(physicalResourceGroup)).getPhysicalPorts();
-    }
-  }
-
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid VirtualPort virtualPort, final BindingResult bindingResult, final Model model) {
     virtualPortValidator.validate(virtualPort, bindingResult);
 
     if (bindingResult.hasErrors()) {
       model.addAttribute(MODEL_KEY, virtualPort);
+      model.addAttribute("physicalPorts", virtualPort.getPhysicalResourceGroup().getPhysicalPorts());
 
       return PAGE_URL + CREATE;
     }
@@ -212,6 +178,32 @@ public class VirtualPortController {
     uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());
 
     return "redirect:";
+  }
+
+  @ModelAttribute("virtualResourceGroups")
+  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {
+    return virtualResourceGroupService.findAll();
+  }
+
+  @ModelAttribute
+  public void populatePhysicalResourceGroups(Model model) {
+    List<PhysicalResourceGroup> groups = Lists.newArrayList(Collections2.filter(
+        physicalResourceGroupService.findAllForManager(Security.getUserDetails()), new Predicate<PhysicalResourceGroup>() {
+          @Override
+          public boolean apply(PhysicalResourceGroup group) {
+            return group.getPhysicalPortCount() > 0;
+          }
+        }));
+
+    Collection<PhysicalPort> ports = getFirst(transform(groups, new Function<PhysicalResourceGroup, Collection<PhysicalPort>>() {
+      @Override
+      public Collection<PhysicalPort> apply(PhysicalResourceGroup port) {
+        return port.getPhysicalPorts();
+      }
+    }), Collections.<PhysicalPort> emptyList());
+
+    model.addAttribute("physicalResourceGroups", groups);
+    model.addAttribute("physicalPorts", ports);
   }
 
   public static final class VirtualPortView {

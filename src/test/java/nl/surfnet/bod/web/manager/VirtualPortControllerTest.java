@@ -29,7 +29,9 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+import java.util.List;
 
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
@@ -44,6 +46,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.ui.Model;
 
 import com.google.common.collect.Lists;
 
@@ -76,21 +79,28 @@ public class VirtualPortControllerTest {
   }
 
   @Test
-  public void populatePhysicalResourceGroupShouldFilterOutEmptyGroups() {
+  public void populatePhysicalResourceGroupAndPortsShouldFilterOutEmptyGroups() {
     RichUserDetails user = new RichUserDetailsFactory().create();
     Security.setUserDetails(user);
+    Model model = new ModelStub();
 
-    PhysicalResourceGroup groupWithPorts = new PhysicalResourceGroupFactory().addPhysicalPort(
-        new PhysicalPortFactory().create()).create();
+    PhysicalPort port = new PhysicalPortFactory().create();
+    PhysicalResourceGroup groupWithPorts = new PhysicalResourceGroupFactory().addPhysicalPort(port).create();
     PhysicalResourceGroup groupWithoutPorts = new PhysicalResourceGroupFactory().create();
 
     when(physicalResourceGroupServiceMock.findAllForManager(user)).thenReturn(
         Lists.newArrayList(groupWithPorts, groupWithoutPorts));
 
-    Collection<PhysicalResourceGroup> groups = subject.populatePhysicalResourceGroups();
+    subject.populatePhysicalResourceGroups(model);
 
+    assertThat(model.asMap(), hasKey("physicalResourceGroups"));
+    List<PhysicalResourceGroup> groups = (List<PhysicalResourceGroup>) model.asMap().get("physicalResourceGroups");
     assertThat(groups, hasSize(1));
     assertThat(groups, contains(groupWithPorts));
+
+    assertThat(model.asMap(), hasKey("physicalPorts"));
+    List<PhysicalPort> ports = (List<PhysicalPort>) model.asMap().get("physicalPorts");
+    assertThat(ports, contains(port));
   }
 
 }
