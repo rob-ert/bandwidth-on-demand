@@ -23,8 +23,11 @@ package nl.surfnet.bod.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Mockito.times;
@@ -41,17 +44,21 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.UserGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
+import org.joda.time.LocalDateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -179,8 +186,7 @@ public class PhysicalResourceGroupServiceTest {
     RichUserDetails user = new RichUserDetailsFactory().addUserGroup("urn:myfirstgroup").create();
 
     Institute institute = new InstituteFactory().setId(1L).setName("oneInst").create();
-    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory()
-        .setInstitute(institute).create();
+    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setInstitute(institute).create();
     List<PhysicalResourceGroup> physicalResourceGroups = ImmutableList.of(physicalResourceGroup);
 
     when(groupRepoMock.findAll(any(Specification.class))).thenReturn(physicalResourceGroups);
@@ -204,10 +210,38 @@ public class PhysicalResourceGroupServiceTest {
   @Test
   public void createActivationEmailLink() {
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
+
+    when(groupRepoMock.save(any(PhysicalResourceGroup.class))).thenReturn(prg);
+    when(activationEmailLinkRepoMock.save(any(ActivationEmailLink.class))).thenAnswer(
+        new Answer<ActivationEmailLink<PhysicalResourceGroup>>() {
+          @SuppressWarnings("unchecked")
+          @Override
+          public ActivationEmailLink<PhysicalResourceGroup> answer(InvocationOnMock invocation) throws Throwable {
+            return (ActivationEmailLink<PhysicalResourceGroup>) invocation.getArguments()[0];
+          }
+        });
+
     ActivationEmailLink<PhysicalResourceGroup> link = subject.sendAndPersistActivationRequest(prg);
-    
+
     verify(mailSender).send(any(SimpleMailMessage.class));
-    verify(activationEmailLinkRepoMock,times(2)).save(link);
+    verify(activationEmailLinkRepoMock, times(2)).save(link);
+  }
+
+  @Test
+  public void shouldCreateUrlWithNameAndUUID() {
+    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = new ActivationEmailLinkFactory<PhysicalResourceGroup>()
+        .create();
+
+    SimpleMailMessage activationMessage = subject.createActivationMessage(activationEmailLink);
+    assertThat(activationMessage.getSubject(), containsString(activationEmailLink.getSourceObject().getName()));
+    assertThat(activationMessage.getText(), containsString(activationEmailLink.getUuid()));
+    
+    assertThat(activationMessage.getTo().length, is(1));
+    assertThat(activationMessage.getTo()[0], equalTo(((activationEmailLink.getSourceObject().getManagerEmail()))));
+    assertThat(activationMessage.getFrom(), equalTo(subject.getFromAddress()));
+    assertThat(activationMessage.getBcc(), nullValue());
+    assertThat(activationMessage.getCc(), nullValue());
+    assertThat(activationMessage.getReplyTo(), nullValue());        
   }
 
 }

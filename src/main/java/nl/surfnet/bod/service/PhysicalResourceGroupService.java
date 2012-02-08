@@ -206,6 +206,7 @@ public class PhysicalResourceGroupService {
 
   public void activate(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
     activationEmailLink.activate();
+    activationEmailLink.getSourceObject().setActive(true);
 
     activateEmailLinkRepo.save(activationEmailLink);
     update(activationEmailLink.getSourceObject());
@@ -215,13 +216,13 @@ public class PhysicalResourceGroupService {
       PhysicalResourceGroup physicalResourceGroup) {
 
     physicalResourceGroup.setActive(false);
-    save(physicalResourceGroup);
+    physicalResourceGroup = update(physicalResourceGroup);
 
     ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = new ActivationEmailLink<PhysicalResourceGroup>(
         physicalResourceGroup);
-    activateEmailLinkRepo.save(activationEmailLink);
+    activationEmailLink = (ActivationEmailLink<PhysicalResourceGroup>) activateEmailLinkRepo.save(activationEmailLink);
 
-    SimpleMailMessage activationMessage = createActivationMessage(physicalResourceGroup);
+    SimpleMailMessage activationMessage = createActivationMessage(activationEmailLink);    
 
     try {
       mailSender.send(activationMessage);
@@ -236,13 +237,14 @@ public class PhysicalResourceGroupService {
     return activationEmailLink;
   }
 
-  private SimpleMailMessage createActivationMessage(PhysicalResourceGroup physicalResourceGroup) {
+  SimpleMailMessage createActivationMessage(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
     SimpleMailMessage activationMessage = new SimpleMailMessage();
-    activationMessage.setTo(physicalResourceGroup.getManagerEmail());
-    activationMessage.setFrom(fromAddress);    
-    activationMessage.setSubject("Activation mail for Physical Resource Group" + physicalResourceGroup.getName());
+    activationMessage.setTo(activationEmailLink.getSourceObject().getManagerEmail());
+    activationMessage.setFrom(fromAddress);
+    activationMessage.setSubject("Activation mail for Physical Resource Group"
+        + activationEmailLink.getSourceObject().getName());    
 
-    URL activationUrl = generateActivationUrl(physicalResourceGroup);
+    URL activationUrl = generateActivationUrl(activationEmailLink);
 
     StringBuffer text = new StringBuffer(
         "Please click the link below to activate this email adres for physical resource group: ");
@@ -253,13 +255,17 @@ public class PhysicalResourceGroupService {
     return activationMessage;
   }
 
-  private URL generateActivationUrl(PhysicalResourceGroup physicalResourceGroup) {
+  URL generateActivationUrl(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
 
     try {
-      return new URL("http://localhost:8082/bod/activate/physicalresourcegroup/" + UUID.randomUUID().toString());
+      return new URL("http://localhost:8082/bod/activate/physicalresourcegroup/" + activationEmailLink.getUuid());
     }
     catch (MalformedURLException e) {
       throw new RuntimeException(e);
     }
+  }
+  
+  String getFromAddress() {
+    return fromAddress;
   }
 }

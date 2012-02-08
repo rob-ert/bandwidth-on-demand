@@ -82,7 +82,6 @@ public class PhysicalResourceGroupController {
       final Model model, final RedirectAttributes redirectAttributes) {
 
     PhysicalResourceGroup group = physicalResourceGroupService.find(command.getId());
-
     if (group == null || !Security.managerMayEdit(group)) {
       return "redirect:physicalresourcegroups";
     }
