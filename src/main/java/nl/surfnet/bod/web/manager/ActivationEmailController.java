@@ -33,9 +33,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@RequestMapping("/manager/activate")
+@RequestMapping(ActivationEmailController.ACTIVATION_MANAGER_PATH)
 @Controller
 public class ActivationEmailController {
+
+  public final static String ACTIVATION_MANAGER_PATH = "/manager/activate";
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;

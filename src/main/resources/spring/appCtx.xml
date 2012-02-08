@@ -78,4 +78,7 @@
     
 	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" />
 
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+	  <property name="host" value="localhost"/>
+	</bean>
 </beans>

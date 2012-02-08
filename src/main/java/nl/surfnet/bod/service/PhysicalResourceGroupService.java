@@ -30,7 +30,6 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -43,6 +42,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import nl.surfnet.bod.web.manager.ActivationEmailController;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +70,7 @@ public class PhysicalResourceGroupService {
   @Autowired
   private ActivationEmailLinkRepo activateEmailLinkRepo;
 
-  // TODO @Autowired
+  @Autowired
   private MailSender mailSender;
 
   @Value("${activation.email.from}")
@@ -258,7 +258,7 @@ public class PhysicalResourceGroupService {
   URL generateActivationUrl(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
 
     try {
-      return new URL("http://localhost:8082/bod/activate/physicalresourcegroup/" + activationEmailLink.getUuid());
+      return new URL("http://localhost:8082/bod" + ActivationEmailController.ACTIVATION_MANAGER_PATH + "/" +activationEmailLink.getUuid());
     }
     catch (MalformedURLException e) {
       throw new RuntimeException(e);
