@@ -69,7 +69,7 @@ public class PhysicalResourceGroupController {
     model.asMap().clear();
     physicalResourceGroupService.save(physicalResourceGroup);
     ActivationEmailLink<PhysicalResourceGroup> activationLink = physicalResourceGroupService
-        .sendAndPersistActivationRequest(physicalResourceGroup, Security.getUserDetails().getEmail());
+        .sendAndPersistActivationRequest(physicalResourceGroup);
 
     // TODO send email with activation Link...
 

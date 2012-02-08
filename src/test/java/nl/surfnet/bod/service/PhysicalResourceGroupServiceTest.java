@@ -204,7 +204,7 @@ public class PhysicalResourceGroupServiceTest {
   @Test
   public void createActivationEmailLink() {
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
-    ActivationEmailLink<PhysicalResourceGroup> link = subject.sendAndPersistActivationRequest(prg, "me@test.com");
+    ActivationEmailLink<PhysicalResourceGroup> link = subject.sendAndPersistActivationRequest(prg);
     
     verify(mailSender).send(any(SimpleMailMessage.class));
     verify(activationEmailLinkRepoMock,times(2)).save(link);

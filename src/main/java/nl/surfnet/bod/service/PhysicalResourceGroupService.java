@@ -212,13 +212,16 @@ public class PhysicalResourceGroupService {
   }
 
   public ActivationEmailLink<PhysicalResourceGroup> sendAndPersistActivationRequest(
-      PhysicalResourceGroup physicalResourceGroup, String userEmail) {
+      PhysicalResourceGroup physicalResourceGroup) {
+
+    physicalResourceGroup.setActive(false);
+    save(physicalResourceGroup);
 
     ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = new ActivationEmailLink<PhysicalResourceGroup>(
         physicalResourceGroup);
     activateEmailLinkRepo.save(activationEmailLink);
 
-    SimpleMailMessage activationMessage = createActivationMessage(physicalResourceGroup, userEmail);
+    SimpleMailMessage activationMessage = createActivationMessage(physicalResourceGroup);
 
     try {
       mailSender.send(activationMessage);
@@ -233,11 +236,10 @@ public class PhysicalResourceGroupService {
     return activationEmailLink;
   }
 
-  private SimpleMailMessage createActivationMessage(PhysicalResourceGroup physicalResourceGroup, String userEmail) {
+  private SimpleMailMessage createActivationMessage(PhysicalResourceGroup physicalResourceGroup) {
     SimpleMailMessage activationMessage = new SimpleMailMessage();
     activationMessage.setTo(physicalResourceGroup.getManagerEmail());
-    activationMessage.setFrom(fromAddress);
-    activationMessage.setReplyTo(userEmail);
+    activationMessage.setFrom(fromAddress);    
     activationMessage.setSubject("Activation mail for Physical Resource Group" + physicalResourceGroup.getName());
 
     URL activationUrl = generateActivationUrl(physicalResourceGroup);
