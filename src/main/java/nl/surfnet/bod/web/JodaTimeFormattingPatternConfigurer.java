@@ -30,18 +30,18 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.format.datetime.joda.DateTimeParser;
-import org.springframework.format.datetime.joda.JodaTimeFormattingConfigurer;
+import org.springframework.format.datetime.joda.JodaTimeFormatterRegistrar;
 import org.springframework.format.datetime.joda.ReadablePartialPrinter;
 
-public class JodaTimeFormattingPatternConfigurer extends JodaTimeFormattingConfigurer {
+public class JodaTimeFormattingPatternConfigurer extends JodaTimeFormatterRegistrar {
 
   private String dateTimePattern;
   private String datePattern;
   private String timePattern;
 
   @Override
-  public void installJodaTimeFormatting(FormatterRegistry registry) {
-    super.installJodaTimeFormatting(registry);
+  public void registerFormatters(FormatterRegistry registry) {
+    super.registerFormatters(registry);
 
     DateTimeFormatter jodaDateFormatter = getJodaDateFormatter();
     if (jodaDateFormatter != null) {

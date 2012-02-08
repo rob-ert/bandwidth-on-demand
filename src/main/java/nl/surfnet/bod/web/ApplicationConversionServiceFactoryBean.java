@@ -54,7 +54,7 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
   protected void installFormatters(FormatterRegistry registry) {
     registry.addFormatterForFieldAnnotation(new NumberFormatAnnotationFormatterFactory());
     new JodaTimeFormattingPatternConfigurer().setDateTimePattern("yyyy-MM-dd H:mm").setTimePattern("H:mm")
-        .setDatePattern("yyyy-MM-dd").installJodaTimeFormatting(registry);
+        .setDatePattern("yyyy-MM-dd").registerFormatters(registry);
   }
 
   public Converter<PhysicalPort, String> getPhysicalPortToStringConverter() {

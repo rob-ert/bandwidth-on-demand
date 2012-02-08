@@ -72,9 +72,12 @@ public class ReservationControllerTest {
 
     when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(Lists.newArrayList(group));
 
+    subject.populateVirtualPorts(model);
     subject.createForm(model);
 
     assertThat(model.asMap(), hasKey("reservation"));
+    assertThat(model.asMap(), hasKey("virtualPortList"));
+    assertThat(model.asMap(), hasKey("virtualResourceGroupList"));
 
     Reservation reservation = (Reservation) model.asMap().get("reservation");
     assertThat(reservation.getStartDate(), not(nullValue()));
@@ -92,9 +95,12 @@ public class ReservationControllerTest {
 
     when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(Collections.<VirtualResourceGroup>emptyList());
 
+    subject.populateVirtualPorts(model);
     subject.createForm(model);
 
     assertThat(model.asMap(), hasKey("reservation"));
+    assertThat(model.asMap(), hasKey("virtualPortList"));
+    assertThat(model.asMap(), hasKey("virtualResourceGroupList"));
 
     Reservation reservation = (Reservation) model.asMap().get("reservation");
     assertThat(reservation.getStartDate(), not(nullValue()));
