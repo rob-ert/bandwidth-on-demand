@@ -24,15 +24,7 @@ package nl.surfnet.bod.domain;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Transient;
-import javax.persistence.Version;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
@@ -55,7 +47,7 @@ public class ActivationEmailLink<T> {
 
   @NotNull
   @Column(nullable = false)
-  private final String uuid;
+  private String uuid;
 
   @Nullable
   @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
@@ -68,14 +60,17 @@ public class ActivationEmailLink<T> {
   @NotNull
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private final ActivationRequestSource requestSource;
+  private ActivationRequestSource requestSource;
 
   @NotNull
   @Column(nullable = false)
-  private final Long sourceId;
+  private Long sourceId;
 
   @Transient
   private T sourceObject;
+
+  public ActivationEmailLink() {
+  }
 
   @SuppressWarnings("unchecked")
   public ActivationEmailLink(PhysicalResourceGroup physicalResourceGroup) {
@@ -159,7 +154,7 @@ public class ActivationEmailLink<T> {
    * This link is valid when the activationEmail was sent, this link is not
    * activated yet and the email was sent within the last
    * {@link #VALID_PERIOD_DAYS}
-   * 
+   *
    * @return true if valid, false otherwise
    */
   public boolean isValid() {
