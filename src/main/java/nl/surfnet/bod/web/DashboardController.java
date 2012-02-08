@@ -36,11 +36,11 @@ public class DashboardController {
     if (Security.hasUserRole()) {
       return "index";
     }
-    if (Security.hasIctManagerRole()) {
-      return "redirect:manager";
-    }
     if (Security.hasNocEngineerRole()) {
       return "redirect:noc";
+    }
+    if (Security.hasIctManagerRole()) {
+      return "redirect:manager";
     }
 
     return "noUserRole";
