@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -40,7 +41,9 @@ public class PhysicalResourceGroupControllerTest {
 
   @Test
   public void whenEmailHasChangedShouldCallService() {
-    RedirectAttributes model = new ModelStub();
+    Model model = new ModelStub();
+    RedirectAttributes requestAttributes = new ModelStub();
+
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setManagerEmail("old@mail.com")
         .setAdminGroupName("urn:ict-manager").create();
 
@@ -49,16 +52,18 @@ public class PhysicalResourceGroupControllerTest {
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
-    String page = subject.update(command, new BeanPropertyBindingResult(command, "updateEmailCommand"), model);
+    String page = subject.update(command, new BeanPropertyBindingResult(command, "updateEmailCommand"), model,
+        requestAttributes);
 
-    assertThat(model.getFlashAttributes(), hasKey("infoMessages"));
+    assertThat(requestAttributes.getFlashAttributes(), hasKey("infoMessages"));
     assertThat(page, is("redirect:physicalresourcegroups"));
     verify(physicalResourceGroupServiceMock).sendAndPersistActivationRequest(group);
   }
 
   @Test
   public void whenUserIsNotAnIctManagerShouldNotUpdate() {
-    RedirectAttributes model = new ModelStub();
+    Model model = new ModelStub();
+    RedirectAttributes redirectAttributes = new ModelStub();
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setManagerEmail("old@mail.com")
         .setAdminGroupName("urn:no-ict-manager").create();
 
@@ -67,7 +72,8 @@ public class PhysicalResourceGroupControllerTest {
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
-    String page = subject.update(command, new BeanPropertyBindingResult(command, "updateEmailCommand"), model);
+    String page = subject.update(command, new BeanPropertyBindingResult(command, "updateEmailCommand"), model,
+        redirectAttributes);
 
     assertThat(page, is("redirect:physicalresourcegroups"));
 
@@ -76,7 +82,9 @@ public class PhysicalResourceGroupControllerTest {
 
   @Test
   public void whenEmailDidNotChangeShouldNotUpdate() {
-    RedirectAttributes model = new ModelStub();
+    Model model = new ModelStub();
+    RedirectAttributes redirectAttributes = new ModelStub();
+
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setManagerEmail("old@mail.com")
         .setAdminGroupName("urn:ict-manager").create();
 
@@ -84,7 +92,8 @@ public class PhysicalResourceGroupControllerTest {
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
-    String page = subject.update(command, new BeanPropertyBindingResult(command, "updateEmailCommand"), model);
+    String page = subject.update(command, new BeanPropertyBindingResult(command, "updateEmailCommand"), model,
+        redirectAttributes);
 
     assertThat(page, is("redirect:physicalresourcegroups"));
 
@@ -93,20 +102,48 @@ public class PhysicalResourceGroupControllerTest {
 
   @Test
   public void whenGroupNotFoundDontCrashOrUpdate() {
-    RedirectAttributes model = new ModelStub();
+    Model model = new ModelStub();
+    RedirectAttributes redirectAttributes = new ModelStub();
 
     UpdateEmailCommand command = new PhysicalResourceGroupController.UpdateEmailCommand();
     command.setId(1L);
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(null);
 
-    String page = subject.update(command, new BeanPropertyBindingResult(command, "updateEmailCommand"), model);
+    String page = subject.update(command, new BeanPropertyBindingResult(command, "updateEmailCommand"), model,
+        redirectAttributes);
 
     assertThat(page, is("redirect:physicalresourcegroups"));
 
     verify(physicalResourceGroupServiceMock, never()).sendAndPersistActivationRequest(any(PhysicalResourceGroup.class));
   }
 
+  @SuppressWarnings("serial")
+  @Test
+  public void whenGroupHasErrors() {
+    Model model = new ModelStub();
+    RedirectAttributes redirectAttributes = new ModelStub();
 
+    UpdateEmailCommand command = new PhysicalResourceGroupController.UpdateEmailCommand();
+    command.setId(1L);
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setAdminGroupName("urn:ict-manager").create();
+
+    when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
+
+    BeanPropertyBindingResult result = new BeanPropertyBindingResult(command, "updateEmailCommand") {
+      @Override
+      public boolean hasErrors() {
+        return true;
+      }
+    };
+
+    String page = subject.update(command, result, model,
+        redirectAttributes);
+
+    assertThat(page, is("manager/physicalresourcegroups/update"));
+
+    assertThat(model.asMap(), hasKey("physicalResourceGroup"));
+    verify(physicalResourceGroupServiceMock, never()).sendAndPersistActivationRequest(any(PhysicalResourceGroup.class));
+  }
 
 }

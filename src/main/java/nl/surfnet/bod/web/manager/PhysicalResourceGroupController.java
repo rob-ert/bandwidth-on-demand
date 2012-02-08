@@ -22,11 +22,16 @@
 package nl.surfnet.bod.web.manager;
 
 import static nl.surfnet.bod.web.WebUtils.*;
+
+import javax.validation.Valid;
+
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -59,28 +64,39 @@ public class PhysicalResourceGroupController {
   }
 
   @RequestMapping(value = "/edit", params = "id", method = RequestMethod.GET)
-  public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
+  public String updateForm(@RequestParam("id") final Long id, final Model model) {
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
 
-    if (!Security.managerMayEdit(group)) {
-      return "manager/physicalresourcegroups";
+    if (group == null || !Security.managerMayEdit(group)) {
+      return "redirect:physicalresourcegroups";
     }
 
-    uiModel.addAttribute("updateEmailCommand", new UpdateEmailCommand(group));
-    uiModel.addAttribute("physicalResourceGroup", group);
+    model.addAttribute("updateEmailCommand", new UpdateEmailCommand(group));
+    model.addAttribute("physicalResourceGroup", group);
 
     return "manager/physicalresourcegroups/update";
   }
 
   @RequestMapping(method = RequestMethod.PUT)
-  public String update(final UpdateEmailCommand command, final BindingResult bindingResult,
-      final RedirectAttributes model) {
+  public String update(@Valid final UpdateEmailCommand command, final BindingResult result,
+      final Model model, final RedirectAttributes redirectAttributes) {
+
     PhysicalResourceGroup group = physicalResourceGroupService.find(command.getId());
 
-    if (group != null && Security.managerMayEdit(group) && emailChanged(group, command)) {
+    if (group == null || !Security.managerMayEdit(group)) {
+      return "redirect:physicalresourcegroups";
+    }
+
+    if (result.hasErrors()) {
+      model.addAttribute("physicalResourceGroup", group);
+
+      return "manager/physicalresourcegroups/update";
+    }
+
+    if (emailChanged(group, command)) {
       physicalResourceGroupService.sendAndPersistActivationRequest(group);
 
-      model.addFlashAttribute(
+      redirectAttributes.addFlashAttribute(
           "infoMessages",
           Lists.newArrayList(String.format("A new activation email request has been sent to '%s'",
               command.getManagerEmail())));
@@ -96,6 +112,8 @@ public class PhysicalResourceGroupController {
   public static final class UpdateEmailCommand {
     private Long id;
     private Integer version;
+    @Email
+    @NotEmpty
     private String managerEmail;
 
     public UpdateEmailCommand() {
