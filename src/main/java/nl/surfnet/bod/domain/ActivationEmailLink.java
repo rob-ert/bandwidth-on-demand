@@ -79,7 +79,7 @@ public class ActivationEmailLink<T> {
 
   private ActivationEmailLink(T sourceObject, ActivationRequestSource activationRequestSource, Long sourceId) {
     Preconditions.checkArgument(sourceId != null);
-
+    
     this.requestSource = activationRequestSource;
     this.sourceObject = sourceObject;
     this.sourceId = sourceId;
@@ -113,11 +113,7 @@ public class ActivationEmailLink<T> {
   void setEmailSentDateTime(LocalDateTime emailSentDateTime) {
     this.emailSentDateTime = emailSentDateTime;
   }
-
-  public void setActivationDateTime(LocalDateTime activationDateTime) {
-    this.activationDateTime = activationDateTime;
-  }
-
+ 
   public LocalDateTime getActivationDateTime() {
     return activationDateTime;
   }

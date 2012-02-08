@@ -22,35 +22,41 @@
 package nl.surfnet.bod.domain;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-
-import java.lang.reflect.Field;
-
 import junit.framework.Assert;
 import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 
-import org.hibernate.annotations.common.reflection.ReflectionUtil;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Test;
-import org.springframework.util.ReflectionUtils;
 
 public class ActivationEmailLinkTest {
 
+  private ActivationEmailLink<PhysicalResourceGroup> linkOne = new ActivationEmailLinkFactory<PhysicalResourceGroup>()
+      .create();
+
   /**
-   * Set system time back to prevent influencing other testcases
+   * Set system time back to prevent influencing other test cases
    */
   @AfterClass
   public static void tearDown() {
     DateTimeUtils.setCurrentMillisSystem();
   }
 
-  private ActivationEmailLink<PhysicalResourceGroup> linkOne = new ActivationEmailLinkFactory<PhysicalResourceGroup>()
-      .create();
+  @Test
+  public void shouldHaveUUID() {
+    assertThat(linkOne.getUuid(), notNullValue());
+  }
+
+  @Test
+  public void shouldSameIdSourceObjectIdAndSourceId() {
+    assertThat(linkOne.getSourceId(), equalTo(linkOne.getSourceObject().getId()));
+  }
 
   @Test
   public void shouldNoEmailSent() {
@@ -63,11 +69,21 @@ public class ActivationEmailLinkTest {
 
   @Test
   public void shouldEmailSent() {
+    Long millis = DateMidnight.now().getMillis();
+    DateTimeUtils.setCurrentMillisFixed(millis);
+
     ActivationEmailLink<PhysicalResourceGroup> link = new ActivationEmailLinkFactory<PhysicalResourceGroup>()
-        .setEmailSent(true).create();
+        .setEmailSent(false).create();
+
+    assertThat(link.isEmailSent(), is(false));
+    assertThat(link.getEmailSentDateTime(), nullValue());
+
+    link.emailWasSent();
 
     assertThat(link.isEmailSent(), is(true));
-    assertThat(link.getEmailSentDateTime(), notNullValue());
+    assertThat(link.getEmailSentDateTime().toDate().getTime(), is(millis));
+
+    DateTimeUtils.setCurrentMillisSystem();
   }
 
   @Test
@@ -113,7 +129,7 @@ public class ActivationEmailLinkTest {
 
     assertThat(link.isValid(), is(false));
   }
-  
+
   @Test
   public void shouldStillBeValid() {
     ActivationEmailLink<PhysicalResourceGroup> link = new ActivationEmailLinkFactory<PhysicalResourceGroup>().create();
