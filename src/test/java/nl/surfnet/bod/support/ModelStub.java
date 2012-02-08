@@ -25,26 +25,28 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.Maps;
 
-public class ModelStub implements Model {
+public class ModelStub implements RedirectAttributes {
 
   private final Map<String, Object> attributes = Maps.newHashMap();
+  private final Map<String, Object> flashAttributes = Maps.newHashMap();
 
   @Override
-  public Model addAttribute(String attributeName, Object attributeValue) {
+  public RedirectAttributes addAttribute(String attributeName, Object attributeValue) {
     attributes.put(attributeName, attributeValue);
     return this;
   }
 
   @Override
-  public Model addAttribute(Object attributeValue) {
+  public RedirectAttributes addAttribute(Object attributeValue) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Model addAllAttributes(Collection<?> attributeValues) {
+  public RedirectAttributes addAllAttributes(Collection<?> attributeValues) {
     throw new UnsupportedOperationException();
   }
 
@@ -55,7 +57,7 @@ public class ModelStub implements Model {
   }
 
   @Override
-  public Model mergeAttributes(Map<String, ?> attributes) {
+  public RedirectAttributes mergeAttributes(Map<String, ?> attributes) {
     throw new UnsupportedOperationException();
   }
 
@@ -67,5 +69,21 @@ public class ModelStub implements Model {
   @Override
   public Map<String, Object> asMap() {
     return attributes;
+  }
+
+  @Override
+  public RedirectAttributes addFlashAttribute(String attributeName, Object attributeValue) {
+    flashAttributes.put(attributeName, attributeValue);
+    return this;
+  }
+
+  @Override
+  public RedirectAttributes addFlashAttribute(Object attributeValue) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Map<String, ?> getFlashAttributes() {
+    return flashAttributes;
   }
 }

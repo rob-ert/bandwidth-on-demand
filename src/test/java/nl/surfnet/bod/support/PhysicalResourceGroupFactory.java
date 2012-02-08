@@ -33,12 +33,14 @@ import com.google.common.collect.Lists;
 
 public class PhysicalResourceGroupFactory {
   private static final AtomicLong COUNTER = new AtomicLong();
-  
+
   private Long id = COUNTER.incrementAndGet();
   private String adminGroup = null;
   private List<PhysicalPort> physicalPorts = Lists.newArrayList();
   private Institute institute = new InstituteFactory().setId(id).setName("Institute " + id).create();
   private Long instituteId = id;
+  private String managerEmail;
+  private boolean active;
 
   private boolean setInstituteIdFirst = false;
 
@@ -56,6 +58,8 @@ public class PhysicalResourceGroupFactory {
 
     group.setAdminGroup(adminGroup);
     group.setPhysicalPorts(physicalPorts);
+    group.setManagerEmail(managerEmail);
+    group.setActive(active);
 
     return group;
   }
@@ -84,6 +88,16 @@ public class PhysicalResourceGroupFactory {
   public PhysicalResourceGroupFactory setInstituteId(Long instituteId) {
     this.setInstituteIdFirst = true;
     this.instituteId = instituteId;
+    return this;
+  }
+
+  public PhysicalResourceGroupFactory setActive(boolean active) {
+    this.active = active;
+    return this;
+  }
+
+  public PhysicalResourceGroupFactory setManagerEmail(String managerEmail) {
+    this.managerEmail = managerEmail;
     return this;
   }
 
