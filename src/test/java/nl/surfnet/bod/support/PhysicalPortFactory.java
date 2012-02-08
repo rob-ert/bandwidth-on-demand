@@ -35,7 +35,7 @@ public class PhysicalPortFactory {
   private String nocLabel = "nameDefault " + id;
   private String managerLabel = "";
   private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
-  private Integer version;
+  private Integer version = 0;
   private String networkElementPk = UUID.randomUUID().toString();
 
   public PhysicalPort create() {

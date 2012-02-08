@@ -28,6 +28,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 public class PhysicalResourceGroup {
@@ -49,8 +50,10 @@ public class PhysicalResourceGroup {
   @Transient
   private Institute institute;
 
+  @NotEmpty
   private String adminGroup;
 
+  @NotEmpty
   @Email(message = "Not a valid email address")
   private String managerEmail;
 
@@ -81,7 +84,7 @@ public class PhysicalResourceGroup {
    * Whenever an instittute is not availabled (e.g. it was deleted in the IDD
    * system) the id of institute will be shown. This will trigger a NOC engineer
    * to investigate and correct this.
-   * 
+   *
    * @return Name of the related institute when available, the
    *         {@link #instituteId} otherwise.
    */

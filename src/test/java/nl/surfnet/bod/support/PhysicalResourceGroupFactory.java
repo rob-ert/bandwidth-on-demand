@@ -35,11 +35,11 @@ public class PhysicalResourceGroupFactory {
   private static final AtomicLong COUNTER = new AtomicLong();
 
   private Long id = COUNTER.incrementAndGet();
-  private String adminGroup = null;
+  private String adminGroup = "urn:my-group";
   private List<PhysicalPort> physicalPorts = Lists.newArrayList();
   private Institute institute = new InstituteFactory().setId(id).setName("Institute " + id).create();
   private Long instituteId = id;
-  private String managerEmail;
+  private String managerEmail = "email@example.com";
   private boolean active;
 
   private boolean setInstituteIdFirst = false;

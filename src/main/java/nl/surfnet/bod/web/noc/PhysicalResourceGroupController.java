@@ -41,6 +41,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Lists;
 
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
@@ -114,18 +117,41 @@ public class PhysicalResourceGroupController {
   }
 
   @RequestMapping(method = RequestMethod.PUT)
-  public String update(@Valid final PhysicalResourceGroup physicalResourceGroup, final BindingResult bindingResult,
-      final Model model) {
+  public String update(@Valid final PhysicalResourceGroup physicalResourceGroup, final BindingResult result,
+      final RedirectAttributes model) {
 
-    physicalResourceGroupValidator.validate(physicalResourceGroup, bindingResult);
-    if (bindingResult.hasErrors()) {
+    if (!Security.managerMayEdit(physicalResourceGroup)) {
+      return "redirect:" + PAGE_URL;
+    }
+
+    physicalResourceGroupValidator.validate(physicalResourceGroup, result);
+
+    if (result.hasErrors()) {
       model.addAttribute(MODEL_KEY, physicalResourceGroup);
       return PAGE_URL + UPDATE;
     }
+
     model.asMap().clear();
+
+    if (managerMailHasChanged(physicalResourceGroup)) {
+      physicalResourceGroupService.sendAndPersistActivationRequest(physicalResourceGroup);
+      addInfoMessage(model,
+          String.format("A new activation email has been sent to '%s'", physicalResourceGroup.getManagerEmail()));
+    }
+
     physicalResourceGroupService.update(physicalResourceGroup);
 
     return "redirect:" + PAGE_URL;
+  }
+
+  private void addInfoMessage(RedirectAttributes model, String message) {
+    model.addFlashAttribute("infoMessages", Lists.newArrayList(message));
+  }
+
+  private boolean managerMailHasChanged(PhysicalResourceGroup group) {
+    PhysicalResourceGroup original = physicalResourceGroupService.find(group.getId());
+
+    return original.getManagerEmail() == null || !original.getManagerEmail().equals(group.getManagerEmail());
   }
 
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
@@ -147,5 +173,9 @@ public class PhysicalResourceGroupController {
     uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());
 
     return "redirect:";
+  }
+
+  protected void setPhysicalResourceGroupValidator(PhysicalResourceGroupValidator physicalResourceGroupValidator) {
+    this.physicalResourceGroupValidator = physicalResourceGroupValidator;
   }
 }
