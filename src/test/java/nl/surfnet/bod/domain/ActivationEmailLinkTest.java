@@ -25,13 +25,19 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+
+import java.lang.reflect.Field;
+
 import junit.framework.Assert;
 import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 
+import org.hibernate.annotations.common.reflection.ReflectionUtil;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeUtils;
+import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Test;
+import org.springframework.util.ReflectionUtils;
 
 public class ActivationEmailLinkTest {
 
@@ -100,6 +106,20 @@ public class ActivationEmailLinkTest {
     assertThat(linkOne.isValid(), is(false));
   }
 
+  @Test
+  public void shouldExpire() {
+    ActivationEmailLink<PhysicalResourceGroup> link = new ActivationEmailLinkFactory<PhysicalResourceGroup>().create();
+    link.setEmailSentDateTime(LocalDateTime.now().minusDays(ActivationEmailLink.VALID_PERIOD_DAYS + 1));
+
+    assertThat(link.isValid(), is(false));
+  }
   
-  
+  @Test
+  public void shouldStillBeValid() {
+    ActivationEmailLink<PhysicalResourceGroup> link = new ActivationEmailLinkFactory<PhysicalResourceGroup>().create();
+    link.setEmailSentDateTime(LocalDateTime.now());
+
+    assertThat(link.isValid(), is(true));
+  }
+
 }

@@ -58,11 +58,11 @@ public class ActivationEmailLink<T> {
   private final String uuid;
 
   @Nullable
-  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")  
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
   private LocalDateTime emailSentDateTime;
 
   @Nullable
-  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")  
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
   private LocalDateTime activationDateTime;
 
   @NotNull
@@ -79,7 +79,7 @@ public class ActivationEmailLink<T> {
 
   @SuppressWarnings("unchecked")
   public ActivationEmailLink(PhysicalResourceGroup physicalResourceGroup) {
-    this((T) physicalResourceGroup, ActivationRequestSource.PHYSICAL_RESOURCE_GROUP, physicalResourceGroup.getId());    
+    this((T) physicalResourceGroup, ActivationRequestSource.PHYSICAL_RESOURCE_GROUP, physicalResourceGroup.getId());
   }
 
   private ActivationEmailLink(T sourceObject, ActivationRequestSource activationRequestSource, Long sourceId) {
@@ -113,6 +113,10 @@ public class ActivationEmailLink<T> {
 
   public LocalDateTime getEmailSentDateTime() {
     return emailSentDateTime;
+  }
+
+  void setEmailSentDateTime(LocalDateTime emailSentDateTime) {
+    this.emailSentDateTime = emailSentDateTime;
   }
 
   public void setActivationDateTime(LocalDateTime activationDateTime) {
@@ -155,7 +159,7 @@ public class ActivationEmailLink<T> {
    * This link is valid when the activationEmail was sent, this link is not
    * activated yet and the email was sent within the last
    * {@link #VALID_PERIOD_DAYS}
-   *
+   * 
    * @return true if valid, false otherwise
    */
   public boolean isValid() {
