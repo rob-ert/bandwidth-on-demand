@@ -23,7 +23,16 @@ package nl.surfnet.bod.domain;
 
 import java.util.UUID;
 
-import javax.persistence.*;
+import javax.annotation.Nullable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Transient;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
@@ -48,14 +57,12 @@ public class ActivationEmailLink<T> {
   @Column(nullable = false)
   private final String uuid;
 
-  @NotNull
-  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
-  @Column(nullable = false)
+  @Nullable
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")  
   private LocalDateTime emailSentDateTime;
 
-  @NotNull
-  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
-  @Column(nullable = false)
+  @Nullable
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")  
   private LocalDateTime activationDateTime;
 
   @NotNull
@@ -72,8 +79,7 @@ public class ActivationEmailLink<T> {
 
   @SuppressWarnings("unchecked")
   public ActivationEmailLink(PhysicalResourceGroup physicalResourceGroup) {
-    this((T) physicalResourceGroup, ActivationRequestSource.PHYSICAL_RESOURCE_GROUP, physicalResourceGroup.getId());
-    physicalResourceGroup.setActive(false);
+    this((T) physicalResourceGroup, ActivationRequestSource.PHYSICAL_RESOURCE_GROUP, physicalResourceGroup.getId());    
   }
 
   private ActivationEmailLink(T sourceObject, ActivationRequestSource activationRequestSource, Long sourceId) {

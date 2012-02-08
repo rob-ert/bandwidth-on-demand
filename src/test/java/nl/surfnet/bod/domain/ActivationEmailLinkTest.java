@@ -30,9 +30,18 @@ import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeUtils;
+import org.junit.AfterClass;
 import org.junit.Test;
 
 public class ActivationEmailLinkTest {
+
+  /**
+   * Set system time back to prevent influencing other testcases
+   */
+  @AfterClass
+  public static void tearDown() {
+    DateTimeUtils.setCurrentMillisSystem();
+  }
 
   private ActivationEmailLink<PhysicalResourceGroup> linkOne = new ActivationEmailLinkFactory<PhysicalResourceGroup>()
       .create();
@@ -58,7 +67,6 @@ public class ActivationEmailLinkTest {
   @Test
   public void shouldActivate() {
     Long millis = DateMidnight.now().getMillis();
-
     DateTimeUtils.setCurrentMillisFixed(millis);
 
     assertThat(linkOne.isActivated(), is(false));
@@ -68,8 +76,30 @@ public class ActivationEmailLinkTest {
 
     assertThat(linkOne.isActivated(), is(true));
     Assert.assertEquals(new Long(linkOne.getActivationDateTime().toDate().getTime()), millis);
-    
-   DateTimeUtils.setCurrentMillisSystem();
+
+    DateTimeUtils.setCurrentMillisSystem();
   }
 
+  @Test
+  public void shouldBeValid() {
+    assertThat(linkOne.isValid(), is(true));
+  }
+
+  @Test
+  public void shouldNotBeValidWhenNoEmailWasSent() {
+    ActivationEmailLink<PhysicalResourceGroup> link = new ActivationEmailLinkFactory<PhysicalResourceGroup>()
+        .setEmailSent(false).create();
+
+    assertThat(link.isValid(), is(false));
+  }
+
+  @Test
+  public void shouldNotBeValidWhenAlreadyActviated() {
+
+    linkOne.activate();
+    assertThat(linkOne.isValid(), is(false));
+  }
+
+  
+  
 }
