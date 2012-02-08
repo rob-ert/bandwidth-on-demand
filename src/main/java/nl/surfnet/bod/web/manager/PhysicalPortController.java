@@ -202,14 +202,20 @@ public class PhysicalPortController {
     private final String managerLabel;
     private final String nocLabel;
     private final PhysicalResourceGroup physicalResourceGroup;
+    private final String networkElementPk;
     private final Collection<VirtualPort> virtualPorts;
 
     public PhysicalPortView(PhysicalPort port, Collection<VirtualPort> virtualPorts) {
       this.id = port.getId();
       this.managerLabel = port.getManagerLabel();
       this.nocLabel = port.getNocLabel();
+      this.networkElementPk = port.getNetworkElementPk();
       this.physicalResourceGroup = port.getPhysicalResourceGroup();
       this.virtualPorts = virtualPorts;
+    }
+
+    public String getNetworkElementPk() {
+      return networkElementPk;
     }
 
     public Integer getNumberOfVirtualPorts() {
