@@ -6,18 +6,30 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <form:update id="fc_PhysicalResourceGroup" modelAttribute="updateEmailCommand" path="/manager/physicalresourcegroups">
-        <field:input field="managerEmail" id="managerEmail" labelCode="physicalResourceGroup_managerEmail" />
-
-        <div class="clearfix">
-            <label><spring:message code="label_physicalresourcegroup_name" /></label>
-            <div class="input input-text">${physicalResourceGroup.institute.name}</div>
+    <h1>Change the Email of the Physical Resource Group</h1>
+    <div class="row">
+        <div class="span4">
+            <h3>Email and Activation</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+            consequat.</p>
         </div>
+        <div class="span12">
+            <form:update id="fc_PhysicalResourceGroup" modelAttribute="updateEmailCommand" path="/manager/physicalresourcegroups" noLabel="true">
+                <field:input field="managerEmail" id="managerEmail" labelCode="physicalResourceGroup_managerEmail" />
 
-        <div class="clearfix">
-            <label><spring:message code="label_physicalresourcegroup_admingroup" /></label>
-            <div class="input input-text">${physicalResourceGroup.adminGroup}</div>
+                <div class="clearfix">
+                    <label><spring:message code="label_physicalresourcegroup_name" /></label>
+                    <div class="input input-text">${physicalResourceGroup.institute.name}</div>
+                </div>
+
+                <div class="clearfix">
+                    <label><spring:message code="label_physicalresourcegroup_admingroup" /></label>
+                    <div class="input input-text">${physicalResourceGroup.adminGroup}</div>
+                </div>
+            </form:update>
         </div>
-    </form:update>
+    </div>
 
 </div>

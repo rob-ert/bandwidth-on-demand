@@ -11,8 +11,8 @@
     <jsp:directive.attribute name="idField" type="java.lang.String" required="false" rtexprvalue="true" description="Specify the field name of the id field (default 'id')" />
     <jsp:directive.attribute name="versionField" type="java.lang.String" required="false" rtexprvalue="true" description="Specify the field name of the version field (default 'version'). If specified 'none' the version field will not be inlcuded (versionField='none')." />
     <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
+    <jsp:directive.attribute name="noLabel" type="java.lang.Boolean" required="false" rtexprvalue="true" description="If form should have a title (default true)" />
     <jsp:directive.attribute name="openPane" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Control if the title pane is opened or closed by default (default: true)" />
-    <jsp:directive.attribute name="z" type="java.lang.String" required="false" description="Used for checking if element has been modified (to recalculate simply provide empty string value)" />
 
     <c:if test="${empty render or render}">
         <c:if test="${empty label}">
@@ -42,9 +42,21 @@
                     </div>
                 </div>
             </c:if>
+            <c:forEach items="${infoMessages}" var="infoMessage">
+                <div class="row">
+                    <div class="span10">
+                        <div class="alert-message warn" data-alert="true">
+                            <a class="close" href="#">&amp;times;</a>
+                            <p><c:out value="${infoMessage}"/></p>
+                        </div>
+                    </div>
+                </div>
+            </c:forEach>
 
             <fieldset>
-                <legend>Update ${label}</legend>
+                <c:if test="${empty noLabel or not noLabel}">
+                    <legend>Update a ${label}</legend>
+                </c:if>
                 <jsp:doBody />
             </fieldset>
 
