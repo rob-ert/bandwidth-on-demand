@@ -34,6 +34,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Lists;
 
 @Controller("managerPhysicalResourceGroupController")
 @RequestMapping("/manager/physicalresourcegroups")
@@ -47,8 +50,8 @@ public class PhysicalResourceGroupController {
 
     RichUserDetails user = Security.getUserDetails();
 
-    uiModel.addAttribute("physicalResourceGroups", physicalResourceGroupService.findEntriesForManager(
-        user, calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
+    uiModel.addAttribute("physicalResourceGroups",
+        physicalResourceGroupService.findEntriesForManager(user, calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalResourceGroupService.countForManager(user)));
 
@@ -70,23 +73,33 @@ public class PhysicalResourceGroupController {
   }
 
   @RequestMapping(method = RequestMethod.PUT)
-  public String update(final UpdateEmailCommand command, final BindingResult bindingResult, final Model uiModel) {
+  public String update(final UpdateEmailCommand command, final BindingResult bindingResult,
+      final RedirectAttributes model) {
     PhysicalResourceGroup group = physicalResourceGroupService.find(command.getId());
 
-    if (Security.managerMayEdit(group)) {
-      // FIXME should save... and validate email..
-      // physicalResourceGroupService.changeEmail(...);
+    if (group != null && Security.managerMayEdit(group) && emailChanged(group, command)) {
+      physicalResourceGroupService.sendAndPersistActivationRequest(group);
+
+      model.addFlashAttribute(
+          "infoMessages",
+          Lists.newArrayList(String.format("A new activation email request has been sent to '%s'",
+              command.getManagerEmail())));
     }
 
-    uiModel.asMap().clear();
-
     return "redirect:physicalresourcegroups";
+  }
+
+  private boolean emailChanged(PhysicalResourceGroup group, UpdateEmailCommand command) {
+    return group.getManagerEmail() == null || !group.getManagerEmail().equals(command.getManagerEmail());
   }
 
   public static final class UpdateEmailCommand {
     private Long id;
     private Integer version;
     private String managerEmail;
+
+    public UpdateEmailCommand() {
+    }
 
     public UpdateEmailCommand(PhysicalResourceGroup group) {
       this.id = group.getId();
@@ -117,7 +130,6 @@ public class PhysicalResourceGroupController {
     public void setManagerEmail(String email) {
       this.managerEmail = email;
     }
-
 
   }
 }
