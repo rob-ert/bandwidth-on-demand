@@ -26,11 +26,7 @@ import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static nl.surfnet.bod.web.noc.PhysicalPortController.MODEL_KEY;
 import static nl.surfnet.bod.web.noc.PhysicalPortController.MODEL_KEY_LIST;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
@@ -53,6 +49,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.ui.Model;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.Lists;
 
@@ -140,6 +139,27 @@ public class PhysicalPortControllerTest {
     subject.updateForm("00:00/port2", model);
 
     assertThat(model.asMap(), hasEntry(MODEL_KEY, Object.class.cast(port)));
+  }
+
+  @Test
+  public void updateShouldGoToFreePortsAndShowMessage() {
+    RedirectAttributes model = new ModelStub();
+    PhysicalPort port = new PhysicalPortFactory().create();
+    BindingResult result = new BeanPropertyBindingResult(port, "physicalPort");
+
+    when(physicalPortServiceMock.findByNetworkElementPk(port.getNetworkElementPk())).thenReturn(port);
+
+    String page = subject.update(port, result, model);
+
+    assertThat(page, is("redirect:physicalports/free"));
+    assertThat(model.getFlashAttributes(), hasKey("infoMessages"));
+
+    @SuppressWarnings("unchecked")
+    String flashMessage = ((List<String>) model.getFlashAttributes().get("infoMessages")).get(0);
+    assertThat(flashMessage, containsString(port.getNocLabel()));
+    assertThat(flashMessage, containsString(port.getPhysicalResourceGroup().getInstitute().getName()));
+
+    verify(physicalPortServiceMock).save(port);
   }
 
   @Test

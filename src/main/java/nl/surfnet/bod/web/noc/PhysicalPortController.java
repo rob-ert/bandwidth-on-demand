@@ -43,6 +43,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Lists;
 
 @Controller
 @RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
@@ -61,10 +64,9 @@ public class PhysicalPortController {
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
 
-  @RequestMapping(method = RequestMethod.POST)
-  public String update(@Valid PhysicalPort physicalPort, final BindingResult bindingResult, final Model model) {
-
-    if (bindingResult.hasErrors()) {
+  @RequestMapping(method = RequestMethod.PUT)
+  public String update(@Valid PhysicalPort physicalPort, final BindingResult result, final RedirectAttributes model) {
+    if (result.hasErrors()) {
       model.addAttribute(MODEL_KEY, physicalPort);
       return PAGE_URL + UPDATE;
     }
@@ -73,20 +75,23 @@ public class PhysicalPortController {
     portToSave.setPhysicalResourceGroup(physicalPort.getPhysicalResourceGroup());
     portToSave.setNocLabel(physicalPort.getNocLabel());
 
-    model.asMap().clear();
-
     physicalPortService.save(portToSave);
 
-    return "redirect:" + PAGE_URL;
+    model.asMap().clear();
+    model.addFlashAttribute("infoMessages", Lists.newArrayList(String.format(
+        "A Physical Port was assigned '%s' to '%s'", physicalPort.getNocLabel(), physicalPort
+            .getPhysicalResourceGroup().getInstitute().getName())));
+
+
+    return "redirect:physicalports/free";
   }
 
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
   public String show(@RequestParam(ID_KEY) final String networkElementPk, final Model model) {
     PhysicalPort physicalPort = physicalPortService.findByNetworkElementPk(networkElementPk);
 
-    Collection<VirtualPort> virutalPorts = physicalPort != null && physicalPort.isAllocated()
-        ? virutalPortService.findAllForPhysicalPort(physicalPort)
-        : Collections.<VirtualPort> emptyList();
+    Collection<VirtualPort> virutalPorts = physicalPort != null && physicalPort.isAllocated() ? virutalPortService
+        .findAllForPhysicalPort(physicalPort) : Collections.<VirtualPort> emptyList();
 
     model.addAttribute(MODEL_KEY, physicalPort);
     model.addAttribute("virtualPorts", virutalPorts);
@@ -96,14 +101,16 @@ public class PhysicalPortController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String listAllocated(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY_LIST, physicalPortService.findAllocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
+    uiModel.addAttribute(MODEL_KEY_LIST,
+        physicalPortService.findAllocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countAllocated()));
 
     return PAGE_URL + LIST;
   }
 
   @RequestMapping(value = "/free", method = RequestMethod.GET)
-  public String listUnallocated(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
+  public String listUnallocated(@RequestParam(value = PAGE_KEY, required = false) final Integer page,
+      final Model uiModel) {
     uiModel.addAttribute(MODEL_KEY_LIST,
         physicalPortService.findUnallocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
