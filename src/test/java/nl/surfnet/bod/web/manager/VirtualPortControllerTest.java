@@ -78,6 +78,7 @@ public class VirtualPortControllerTest {
     assertThat((Collection<VirtualPort>) model.asMap().get(MODEL_KEY_LIST), hasSize(1));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void populatePhysicalResourceGroupAndPortsShouldFilterOutEmptyGroups() {
     RichUserDetails user = new RichUserDetailsFactory().create();
