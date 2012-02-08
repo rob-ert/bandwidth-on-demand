@@ -34,7 +34,6 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.validator.PhysicalResourceGroupValidator;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -119,10 +118,6 @@ public class PhysicalResourceGroupController {
   @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid final PhysicalResourceGroup physicalResourceGroup, final BindingResult result,
       final RedirectAttributes model) {
-
-    if (!Security.managerMayEdit(physicalResourceGroup)) {
-      return "redirect:" + PAGE_URL;
-    }
 
     physicalResourceGroupValidator.validate(physicalResourceGroup, result);
 

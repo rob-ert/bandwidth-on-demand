@@ -41,10 +41,7 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.web.security.Security;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -68,11 +65,6 @@ public class PhysicalResourceGroupControllerTest {
   @SuppressWarnings("unused")
   @Mock
   private PhysicalResourceGroupValidator physicalResourceGroupValidatorMock;
-
-  @Before
-  public void login() {
-    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:ict-manager").create());
-  }
 
   @Test
   public void listShouldSetGroupsAndMaxPages() {
@@ -135,7 +127,7 @@ public class PhysicalResourceGroupControllerTest {
   public void updateWhenEmailDidNotChangeDontSentActivationEmail() {
     RedirectAttributes model = new ModelStub();
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setManagerEmail("mail@example.com")
-        .setAdminGroupName("urn:ict-manager").create();
+        .create();
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
@@ -148,26 +140,11 @@ public class PhysicalResourceGroupControllerTest {
     verify(physicalResourceGroupServiceMock).update(group);
   }
 
-  @Test
-  public void updateWhenManagerHasNoRightsDontSave() {
-    RedirectAttributes model = new ModelStub();
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L)
-        .setAdminGroupName("urn:other-ict-manager").create();
-
-    String page = subject.update(group, new BeanPropertyBindingResult(group, "physicalResrouceGroup"), model);
-
-    assertThat(page, is("redirect:physicalresourcegroups"));
-    assertThat(model.getFlashAttributes().keySet(), hasSize(0));
-
-    verify(physicalResourceGroupServiceMock, never()).sendAndPersistActivationRequest(group);
-    verify(physicalResourceGroupServiceMock, never()).update(group);
-  }
-
   @SuppressWarnings("serial")
   @Test
   public void updateWithErrorsShouldNotUpdate() {
     RedirectAttributes model = new ModelStub();
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroupName("urn:ict-manager").create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
 
     BeanPropertyBindingResult result = new BeanPropertyBindingResult(group, "physicalResrouceGroup") {
       @Override
