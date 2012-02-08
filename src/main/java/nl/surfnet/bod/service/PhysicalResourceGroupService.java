@@ -45,8 +45,6 @@ import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -62,8 +60,6 @@ import com.google.common.base.Function;
 @Service
 @Transactional
 public class PhysicalResourceGroupService {
-
-  private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
   private InstituteService instituteService;

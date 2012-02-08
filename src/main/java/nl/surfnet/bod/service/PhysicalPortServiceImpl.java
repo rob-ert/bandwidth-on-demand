@@ -221,7 +221,8 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<PhysicalPort> root, CriteriaQuery<?> query,
           CriteriaBuilder cb) {
-        return cb.and(root.get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.adminGroup).in(user.getUserGroupIds()));
+        return cb.and(root.get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.adminGroup)
+            .in(user.getUserGroupIds()));
       }
     };
   }
