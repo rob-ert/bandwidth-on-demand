@@ -34,8 +34,7 @@ public class ActivationEmailLinkFactory<T> {
   private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
   private boolean activate = false;
   private boolean emailSent = true;
-  private boolean valid = true;
-
+  
   public ActivationEmailLink<T> create() {
     ActivationEmailLink<T> link = new ActivationEmailLink<T>(physicalResourceGroup);
     link.setId(id);
