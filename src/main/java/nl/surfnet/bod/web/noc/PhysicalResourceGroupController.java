@@ -21,23 +21,11 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.SHOW;
-import static nl.surfnet.bod.web.WebUtils.UPDATE;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
@@ -52,11 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
@@ -74,15 +58,15 @@ public class PhysicalResourceGroupController {
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid final PhysicalResourceGroup physicalResourceGroup, final BindingResult bindingResult,
-      final Model uiModel, final HttpServletRequest httpServletRequest) {
+      final Model model) {
 
     physicalResourceGroupValidator.validate(physicalResourceGroup, bindingResult);
     if (bindingResult.hasErrors()) {
-      uiModel.addAttribute(MODEL_KEY, physicalResourceGroup);
+      model.addAttribute(MODEL_KEY, physicalResourceGroup);
       return PAGE_URL + CREATE;
     }
 
-    uiModel.asMap().clear();
+    model.asMap().clear();
     physicalResourceGroupService.save(physicalResourceGroup);
     ActivationEmailLink<PhysicalResourceGroup> activationLink = physicalResourceGroupService
         .sendAndPersistActivationRequest(physicalResourceGroup, Security.getUserDetails().getEmail());
@@ -94,8 +78,8 @@ public class PhysicalResourceGroupController {
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
-  public String createForm(final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY, new PhysicalResourceGroup());
+  public String createForm(final Model model) {
+    model.addAttribute(MODEL_KEY, new PhysicalResourceGroup());
 
     return PAGE_URL + CREATE;
   }
@@ -108,11 +92,11 @@ public class PhysicalResourceGroupController {
   }
 
   @RequestMapping(method = RequestMethod.GET)
-  public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY_LIST,
+  public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model model) {
+    model.addAttribute(MODEL_KEY_LIST,
         physicalResourceGroupService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
-    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalResourceGroupService.count()));
+    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalResourceGroupService.count()));
 
     return PAGE_URL + LIST;
   }
@@ -131,14 +115,14 @@ public class PhysicalResourceGroupController {
 
   @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid final PhysicalResourceGroup physicalResourceGroup, final BindingResult bindingResult,
-      final Model uiModel, final HttpServletRequest httpServletRequest) {
+      final Model model) {
 
     physicalResourceGroupValidator.validate(physicalResourceGroup, bindingResult);
     if (bindingResult.hasErrors()) {
-      uiModel.addAttribute(MODEL_KEY, physicalResourceGroup);
+      model.addAttribute(MODEL_KEY, physicalResourceGroup);
       return PAGE_URL + UPDATE;
     }
-    uiModel.asMap().clear();
+    model.asMap().clear();
     physicalResourceGroupService.update(physicalResourceGroup);
 
     return "redirect:" + PAGE_URL;

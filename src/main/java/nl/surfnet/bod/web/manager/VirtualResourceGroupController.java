@@ -25,7 +25,6 @@ import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -63,23 +62,21 @@ public class VirtualResourceGroupController {
    *          {@link VirtualResourceGroup}
    * @param bindingResult
    *          {@link BindingResult}
-   * @param uiModel
+   * @param model
    *          model
-   * @param httpServletRequest
-   *          Request
    * @return String viewName
    */
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid VirtualResourceGroup virtualResourceGroup, final BindingResult bindingResult,
-      final Model uiModel, final HttpServletRequest httpServletRequest) {
+      final Model model) {
 
     virtualResourceGroupValidator.validate(virtualResourceGroup, bindingResult);
     if (bindingResult.hasErrors()) {
-      uiModel.addAttribute(MODEL_KEY, virtualResourceGroup);
+      model.addAttribute(MODEL_KEY, virtualResourceGroup);
       return PAGE_URL + CREATE;
     }
 
-    uiModel.asMap().clear();
+    model.asMap().clear();
     virtualResourceGroupService.save(virtualResourceGroup);
 
     return "redirect:" + PAGE_URL;
@@ -117,23 +114,21 @@ public class VirtualResourceGroupController {
    *          {@link VirtualResourceGroup}
    * @param bindingResult
    *          {@link BindingResult}
-   * @param uiModel
+   * @param model
    *          Model
-   * @param httpServletRequest
-   *          Request
    * @return String viewName
    */
   @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid final VirtualResourceGroup virtualResourceGroup, final BindingResult bindingResult,
-      final Model uiModel, final HttpServletRequest httpServletRequest) {
+      final Model model) {
 
     virtualResourceGroupValidator.validate(virtualResourceGroup, bindingResult);
     if (bindingResult.hasErrors()) {
-      uiModel.addAttribute(MODEL_KEY, virtualResourceGroup);
+      model.addAttribute(MODEL_KEY, virtualResourceGroup);
       return PAGE_URL + UPDATE;
     }
 
-    uiModel.asMap().clear();
+    model.asMap().clear();
     virtualResourceGroupService.update(virtualResourceGroup);
 
     return "redirect:" + PAGE_URL;

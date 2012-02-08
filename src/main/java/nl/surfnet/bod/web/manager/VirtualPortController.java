@@ -124,18 +124,16 @@ public class VirtualPortController {
   }
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid VirtualPort virtualPort, final BindingResult bindingResult, final Model uiModel,
-      final HttpServletRequest httpServletRequest) {
-
+  public String create(@Valid VirtualPort virtualPort, final BindingResult bindingResult, final Model model) {
     virtualPortValidator.validate(virtualPort, bindingResult);
 
     if (bindingResult.hasErrors()) {
-      uiModel.addAttribute(MODEL_KEY, virtualPort);
+      model.addAttribute(MODEL_KEY, virtualPort);
 
       return PAGE_URL + CREATE;
     }
 
-    uiModel.asMap().clear();
+    model.asMap().clear();
 
     virtualPortService.save(virtualPort);
 
@@ -144,7 +142,7 @@ public class VirtualPortController {
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(@RequestParam(value = "port", required = false) final Long physicalPortId,
-      final Model uiModel) {
+      final Model model) {
 
     VirtualPort virtualPort = new VirtualPort();
     if (physicalPortId != null) {
@@ -152,44 +150,42 @@ public class VirtualPortController {
       virtualPort.setPhysicalPort(port);
     }
 
-    uiModel.addAttribute(MODEL_KEY, virtualPort);
+    model.addAttribute(MODEL_KEY, virtualPort);
 
     return PAGE_URL + CREATE;
   }
 
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
-  public String show(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY, TO_VIRTUAL_PORT_VIEW.apply(virtualPortService.find(id)));
+  public String show(@RequestParam(ID_KEY) final Long id, final Model model) {
+    model.addAttribute(MODEL_KEY, TO_VIRTUAL_PORT_VIEW.apply(virtualPortService.find(id)));
 
     return PAGE_URL + SHOW;
   }
 
   @RequestMapping(method = RequestMethod.GET)
-  public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY_LIST,
+  public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model model) {
+    model.addAttribute(MODEL_KEY_LIST,
         Lists.transform(
             virtualPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE),
             TO_VIRTUAL_PORT_VIEW
         )
     );
 
-    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(virtualPortService.count()));
+    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(virtualPortService.count()));
 
     return PAGE_URL + LIST;
   }
 
   @RequestMapping(method = RequestMethod.PUT)
-  public String update(@Valid final VirtualPort virtualPort, final BindingResult bindingResult, final Model uiModel,
-      final HttpServletRequest httpServletRequest) {
-
+  public String update(@Valid final VirtualPort virtualPort, final BindingResult bindingResult, final Model model) {
     virtualPortValidator.validate(virtualPort, bindingResult);
 
     if (bindingResult.hasErrors()) {
-      uiModel.addAttribute(MODEL_KEY, virtualPort);
+      model.addAttribute(MODEL_KEY, virtualPort);
       return PAGE_URL + UPDATE;
     }
 
-    uiModel.asMap().clear();
+    model.asMap().clear();
     virtualPortService.update(virtualPort);
 
     return "redirect:" + PAGE_URL;

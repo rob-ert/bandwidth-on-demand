@@ -26,7 +26,6 @@ import static nl.surfnet.bod.web.WebUtils.*;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.PhysicalPort;
@@ -63,11 +62,10 @@ public class PhysicalPortController {
   private PhysicalResourceGroupService physicalResourceGroupService;
 
   @RequestMapping(method = RequestMethod.POST)
-  public String update(@Valid PhysicalPort physicalPort, final BindingResult bindingResult, final Model uiModel,
-      final HttpServletRequest httpServletRequest) {
+  public String update(@Valid PhysicalPort physicalPort, final BindingResult bindingResult, final Model model) {
 
     if (bindingResult.hasErrors()) {
-      uiModel.addAttribute(MODEL_KEY, physicalPort);
+      model.addAttribute(MODEL_KEY, physicalPort);
       return PAGE_URL + UPDATE;
     }
 
@@ -75,7 +73,7 @@ public class PhysicalPortController {
     portToSave.setPhysicalResourceGroup(physicalPort.getPhysicalResourceGroup());
     portToSave.setNocLabel(physicalPort.getNocLabel());
 
-    uiModel.asMap().clear();
+    model.asMap().clear();
 
     physicalPortService.save(portToSave);
 
@@ -83,15 +81,15 @@ public class PhysicalPortController {
   }
 
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
-  public String show(@RequestParam(ID_KEY) final String networkElementPk, final Model uiModel) {
+  public String show(@RequestParam(ID_KEY) final String networkElementPk, final Model model) {
     PhysicalPort physicalPort = physicalPortService.findByNetworkElementPk(networkElementPk);
 
     Collection<VirtualPort> virutalPorts = physicalPort != null && physicalPort.isAllocated()
         ? virutalPortService.findAllForPhysicalPort(physicalPort)
         : Collections.<VirtualPort> emptyList();
 
-    uiModel.addAttribute(MODEL_KEY, physicalPort);
-    uiModel.addAttribute("virtualPorts", virutalPorts);
+    model.addAttribute(MODEL_KEY, physicalPort);
+    model.addAttribute("virtualPorts", virutalPorts);
 
     return PAGE_URL + SHOW;
   }
