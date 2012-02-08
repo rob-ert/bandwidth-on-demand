@@ -12,6 +12,7 @@
             <table:column id="name" property="name" labelCode="physicalResourceGroup_name" />
             <table:column id="adminGroup" property="adminGroup" labelCode="physicalResourceGroup_adminGroup" />
             <table:column id="managerEmail" property="managerEmail" labelCode="physicalResourceGroup_managerEmail" />
+            <table:column id="active" property="active" labelCode="physicalResourceGroup_active" />
             <table:column id="count" property="physicalPortCount" labelCode="physicalResourceGroup_physicalPortCount" />
 
         </table:table>

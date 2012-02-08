@@ -1,18 +1,33 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <div xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields" xmlns:jsp="http://java.sun.com/JSP/Page"
-    xmlns:page="urn:jsptagdir:/WEB-INF/tags/form">
+    xmlns:page="urn:jsptagdir:/WEB-INF/tags/form" xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <page:show id="ps_nl_surfnet_bod_domain_PhysicalResourceGroup" object="${physicalResourceGroup}"
+    <page:show id="ps_PhysicalResourceGroup" object="${physicalResourceGroup}"
         path="/noc/physicalresourcegroups">
 
         <field:display field="name" id="name" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_name" />        
         <field:display field="adminGroup" id="adminGroup" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_adminGroup" />
         <field:display field="managerEmail" id="managerEmail" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_managerEmail" />
-        <field:display field="physicalPorts" id="ports" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_physicalPorts" list="true" />
+        <field:display field="active" id="active" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_active" />
         
     </page:show>
+
+    <h2>Physical Ports</h2>
+    <c:choose>
+        <c:when test="${empty physicalResourceGroup.physicalPorts}">
+            No physical ports..
+        </c:when>
+        <c:otherwise>
+            <table:table data="${physicalResourceGroup.physicalPorts}" id="l_physicalPort" path="/noc/physicalports" typeIdFieldName="id"
+                update="false" delete="false" show="false">
+                <table:column labelCode="physicalport_name" id="physicalport" property="nocLabel" />
+                <table:column labelCode="physicalPort_networkElementPk" id="networkElementPk" property="networkElementPk" />
+            </table:table>
+        </c:otherwise>
+    </c:choose>
 
 </div>
