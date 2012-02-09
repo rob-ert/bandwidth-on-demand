@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.domain;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -66,6 +67,10 @@ public class ActivationEmailLink<T> {
   @Column(nullable = false)
   private Long sourceId;
 
+  @NotNull
+  @Column(nullable = false)
+  private String toEmail;
+
   @Transient
   private T sourceObject;
 
@@ -75,11 +80,13 @@ public class ActivationEmailLink<T> {
   @SuppressWarnings("unchecked")
   public ActivationEmailLink(PhysicalResourceGroup physicalResourceGroup) {
     this((T) physicalResourceGroup, ActivationRequestSource.PHYSICAL_RESOURCE_GROUP, physicalResourceGroup.getId());
+
+    this.toEmail =  physicalResourceGroup.getManagerEmail();
   }
 
   private ActivationEmailLink(T sourceObject, ActivationRequestSource activationRequestSource, Long sourceId) {
     Preconditions.checkArgument(sourceId != null);
-    
+
     this.requestSource = activationRequestSource;
     this.sourceObject = sourceObject;
     this.sourceId = sourceId;
@@ -113,7 +120,7 @@ public class ActivationEmailLink<T> {
   void setEmailSentDateTime(LocalDateTime emailSentDateTime) {
     this.emailSentDateTime = emailSentDateTime;
   }
- 
+
   public LocalDateTime getActivationDateTime() {
     return activationDateTime;
   }
@@ -124,6 +131,10 @@ public class ActivationEmailLink<T> {
 
   public Long getSourceId() {
     return sourceId;
+  }
+
+  public String getToEmail() {
+    return toEmail;
   }
 
   public void activate() {
@@ -150,7 +161,7 @@ public class ActivationEmailLink<T> {
    * This link is valid when the activationEmail was sent, this link is not
    * activated yet and the email was sent within the last
    * {@link #VALID_PERIOD_DAYS}
-   *
+   * 
    * @return true if valid, false otherwise
    */
   public boolean isValid() {

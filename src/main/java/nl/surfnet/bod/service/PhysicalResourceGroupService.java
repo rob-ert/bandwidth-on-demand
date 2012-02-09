@@ -239,7 +239,7 @@ public class PhysicalResourceGroupService {
 
   SimpleMailMessage createActivationMessage(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
     SimpleMailMessage activationMessage = new SimpleMailMessage();
-    activationMessage.setTo(activationEmailLink.getSourceObject().getManagerEmail());
+    activationMessage.setTo(activationEmailLink.getToEmail());
     activationMessage.setFrom(fromAddress);
     activationMessage.setSubject("Activation mail for Physical Resource Group"
         + activationEmailLink.getSourceObject().getName());    

@@ -1,0 +1,1 @@
+ALTER TABLE activation_email_link ADD COLUMN to_email character varying(255) NOT NULL DEFAULT '';
