@@ -17,7 +17,29 @@
         </div>
         <div class="span12">
             <form:update id="fc_PhysicalResourceGroup" modelAttribute="updateEmailCommand" path="/manager/physicalresourcegroups" noLabel="true">
-                <field:input field="managerEmail" id="managerEmail" labelCode="physicalResourceGroup_managerEmail" />
+                <c:set var="errors"><sform:errors path="managerEmail" /></c:set>
+                <c:if test="${not empty errors}">
+                    <c:set var="error_css" value="error" />
+                </c:if>
+                <div class="clearfix ${error_css}">
+                    <label>
+                        <spring:message code="label_physicalresourcegroup_manageremail" />
+                    </label>
+                    <div class="input">
+                        <div class="input-append">
+                            <sform:input id="_manageremail_id" path="managerEmail" type="email" />
+                            <c:choose>
+                                <c:when test="${physicalResourceGroup.active}">
+                                    <span class="success add-on">Active</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <span class="important add-on">Inactive</span>
+                                </c:otherwise>
+                            </c:choose>
+                            <sform:errors cssClass="help-inline" id="_manageremail_error_id" path="managerEmail" delimiter=", " />
+                        </div>
+                    </div>
+                </div>
 
                 <div class="clearfix">
                     <label><spring:message code="label_physicalresourcegroup_name" /></label>

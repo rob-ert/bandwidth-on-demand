@@ -93,14 +93,28 @@
                                             pattern="${fn:escapeXml(columnDatePattern)}" var="colTxt" />
                                     </spring:escapeBody>
                                 </c:when>
+                                <c:when test="${columnType eq 'boolean'}">
+                                    <c:set var="colTxt">
+                                        <c:choose>
+                                            <c:when test="${item[column]}">
+                                                <span class="label success"><spring:eval expression="item[column]" htmlEscape="false" /></span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="label important"><spring:eval expression="item[column]" htmlEscape="false" /></span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </c:set>
+                                </c:when>
                                 <c:otherwise>
                                     <c:set var="colTxt">
-                                        <spring:eval expression="item[column]" htmlEscape="false" />
+                                        <spring:eval expression="item[column]" htmlEscape="true" />
                                     </c:set>
                                 </c:otherwise>
-                            </c:choose> <c:if test="${columnMaxLength ge 0}">
+                            </c:choose>
+                            <c:if test="${columnMaxLength ge 0}">
                                 <c:set value="${fn:substring(colTxt, 0, columnMaxLength)}" var="colTxt" />
-                            </c:if> <c:out value="${colTxt}" /></td>
+                            </c:if>
+                            <c:out value="${colTxt}" escapeXml="false" /></td>
                     </c:forTokens>
                     <c:set var="itemId">
                         <spring:eval expression="item[typeIdFieldName]" />

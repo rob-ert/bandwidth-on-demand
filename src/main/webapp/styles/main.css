@@ -1,6 +1,4 @@
-body {
-	padding-top: 50px;
-}
+body {padding-top: 50px;}
 input[type="image"] {
 	width: auto;
 	height: auto;
@@ -24,9 +22,7 @@ form#command {
 	box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
 	text-align: center;
 }
-.container {
-	margin-top: 80px;
-}
+.container {margin-top: 80px;}
 div.topbar {
 	background: url(../images/body_theme_bck.gif) no-repeat;
 	height: 120px;
@@ -110,9 +106,7 @@ form .clearfix.error select {
     -moz-box-shadow: 2px 3px 5px #0064CD;
 	box-shadow: 2px 3px 5px #0064CD;
 }
-.bandwidth-tool img:hover {
-	box-shadow: 0 0 0 #0064CD;
-}
+.bandwidth-tool img:hover {box-shadow: 0 0 0 #0064CD;}
 .bandwidth-tool img {
 	border: 1px solid white;
 	margin-right: 5px;
@@ -122,11 +116,7 @@ form .clearfix.error select {
 	box-shadow: 2px 3px 5px #0064CD;
 }
 
-.input-text {
-	padding-top: 6px;
-	font-size: 13px;
-	line-height: 18px;
-}
+.input-text {padding-top: 6px;font-size: 13px;line-height: 18px;}
 
 .zebra-striped > thead > tr > th{background-color: white;}
 .zebra-striped > tbody > tr:nth-child(odd) > td,.zebra-striped > tbody > tr:nth-child(odd) > th{background-color:#f9f9f9;}
@@ -135,7 +125,10 @@ form .clearfix.error select {
 .zebra-striped > tbody > tr.detailview > td,.zebra-striped > tbody > tr.detailview:nth-child(odd) > td{background-color: #E5F2FF;}
 .zebra-striped > tbody > tr.detailview:hover > td,.zebra-striped > thead > tr.detailview:hover > th{background-color: #E5F2FF;}
 
-tr.highlight { background-color: #E5F2FF !important}
-tr.highlight > td { background-color: #E5F2FF !important}
-
-.dropdown-menu li { white-space: nowrap; }
+tr.highlight{background-color:#E5F2FF !important}
+tr.highlight > td{background-color:#E5F2FF !important}
+.dropdown-menu li{white-space: nowrap;}
+.add-on.success{background-color:#57A957;color:white;font-weight:bold;text-shadow:0 0;border-color:#57A957;}
+.add-on.important{background-color:#c43c35;color:white;font-weight:bold;text-shadow:0 0;border-color:#c43c35}
+.input-append .help-inline{padding-top: 6px;display:table;}
+.utilbox{white-space:nowrap;}

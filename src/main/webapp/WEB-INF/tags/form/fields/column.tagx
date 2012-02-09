@@ -10,6 +10,7 @@
   <jsp:directive.attribute name="calendar" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate that this field is of type java.util.Calendar" />
   <jsp:directive.attribute name="dateTimePattern" type="java.lang.String" required="false" rtexprvalue="true" description="The date / time pattern to use if the field is a date or calendar type" />
   <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
+  <jsp:directive.attribute name="booleanType" type="java.lang.Boolean" required="false" rtexprvalue="true" />
 
   <c:if test="${empty render or render}">
     <c:if test="${empty label}">
@@ -39,6 +40,12 @@
       <c:when test="${calendar and not empty columnTypes}">
         <c:set var="columnTypes" value="${columnTypes},calendar" scope="request" />
         <c:set var="columnDatePatterns" value="${columnDatePatterns},${dateTimePattern}" scope="request" />
+      </c:when>
+      <c:when test="${booleanType and empty columnTypes}">
+        <c:set var="columnTypes" value="boolean" scope="request" />
+      </c:when>
+      <c:when test="${booleanType and not empty columnTypes}">
+        <c:set var="columnTypes" value="${columnTypes},boolean" scope="request" />
       </c:when>
       <c:when test="${empty columnTypes}">
         <c:set var="columnTypes" value="default" scope="request" />
