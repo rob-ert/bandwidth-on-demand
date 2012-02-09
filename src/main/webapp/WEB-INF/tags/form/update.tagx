@@ -42,16 +42,6 @@
                     </div>
                 </div>
             </c:if>
-            <c:forEach items="${infoMessages}" var="infoMessage">
-                <div class="row">
-                    <div class="span10">
-                        <div class="alert-message warn" data-alert="true">
-                            <a class="close" href="#">&amp;times;</a>
-                            <p><c:out value="${infoMessage}"/></p>
-                        </div>
-                    </div>
-                </div>
-            </c:forEach>
 
             <fieldset>
                 <c:if test="${empty noLabel or not noLabel}">

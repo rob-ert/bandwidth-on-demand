@@ -20,16 +20,6 @@
                 htmlEscape="false" />
         </c:if>
         <spring:message arguments="${labelPlural}" code="entity_list_all" var="title_msg" htmlEscape="false" />
-        <c:forEach items="${infoMessages}" var="infoMessage">
-            <div class="row">
-                <div class="span10">
-                    <div class="alert-message warn" data-alert="true">
-                        <a class="close" href="#">&amp;times;</a>
-                        <p><c:out value="${infoMessage}"/></p>
-                    </div>
-                </div>
-            </div>
-        </c:forEach>
         <div class="page-header">
             <h2>${title_msg}</h2>
         </div>
