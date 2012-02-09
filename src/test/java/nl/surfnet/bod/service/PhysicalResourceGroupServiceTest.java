@@ -23,14 +23,10 @@ package nl.surfnet.bod.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,14 +40,12 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
-import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.UserGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
-import org.joda.time.LocalDateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -63,8 +57,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -85,7 +77,7 @@ public class PhysicalResourceGroupServiceTest {
   private ActivationEmailLinkRepo activationEmailLinkRepoMock;
 
   @Mock
-  private MailSender mailSender;
+  private EmailSender emailSender;
 
   private Institute instituteOne = new InstituteFactory().setId(1L).setName("oneInst").create();
   private Institute instituteTwo = new InstituteFactory().setId(2L).setName("twoInst").create();
@@ -116,10 +108,6 @@ public class PhysicalResourceGroupServiceTest {
     Collection<PhysicalResourceGroup> groups = subject.findAllForManager(loggedInUser);
 
     assertThat(groups, hasSize(0));
-  }
-
-  private static <E> ImmutableList<E> listOf(E element) {
-    return ImmutableList.of(element);
   }
 
   @Test
@@ -194,8 +182,7 @@ public class PhysicalResourceGroupServiceTest {
 
     Collection<PhysicalResourceGroup> prgs = subject.findAllForManager(user);
 
-    Iterator<PhysicalResourceGroup> it = prgs.iterator();
-    assertThat(it.next().getInstitute(), is(institute));
+    assertThat(prgs.iterator().next().getInstitute(), is(institute));
   }
 
   @Test
@@ -211,7 +198,6 @@ public class PhysicalResourceGroupServiceTest {
   public void createActivationEmailLink() {
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
 
-    when(groupRepoMock.save(any(PhysicalResourceGroup.class))).thenReturn(prg);
     when(activationEmailLinkRepoMock.save(any(ActivationEmailLink.class))).thenAnswer(
         new Answer<ActivationEmailLink<PhysicalResourceGroup>>() {
           @SuppressWarnings("unchecked")
@@ -223,25 +209,8 @@ public class PhysicalResourceGroupServiceTest {
 
     ActivationEmailLink<PhysicalResourceGroup> link = subject.sendAndPersistActivationRequest(prg);
 
-    verify(mailSender).send(any(SimpleMailMessage.class));
-    verify(activationEmailLinkRepoMock, times(2)).save(link);
-  }
-
-  @Test
-  public void shouldCreateUrlWithNameAndUUID() {
-    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = new ActivationEmailLinkFactory<PhysicalResourceGroup>()
-        .create();
-
-    SimpleMailMessage activationMessage = subject.createActivationMessage(activationEmailLink);
-    assertThat(activationMessage.getSubject(), containsString(activationEmailLink.getSourceObject().getName()));
-    assertThat(activationMessage.getText(), containsString(activationEmailLink.getUuid()));
-    
-    assertThat(activationMessage.getTo().length, is(1));
-    assertThat(activationMessage.getTo()[0], equalTo(((activationEmailLink.getSourceObject().getManagerEmail()))));
-    assertThat(activationMessage.getFrom(), equalTo(subject.getFromAddress()));
-    assertThat(activationMessage.getBcc(), nullValue());
-    assertThat(activationMessage.getCc(), nullValue());
-    assertThat(activationMessage.getReplyTo(), nullValue());        
+    verify(emailSender).sendActivationMail(link);
+    verify(activationEmailLinkRepoMock).save(link);
   }
 
 }

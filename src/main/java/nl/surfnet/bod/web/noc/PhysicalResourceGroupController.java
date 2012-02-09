@@ -133,8 +133,9 @@ public class PhysicalResourceGroupController {
       addInfoMessage(model,
           String.format("A new activation email has been sent to '%s'", physicalResourceGroup.getManagerEmail()));
     }
-
-    physicalResourceGroupService.update(physicalResourceGroup);
+    else {
+      physicalResourceGroupService.update(physicalResourceGroup);
+    }
 
     return "redirect:" + PAGE_URL;
   }
