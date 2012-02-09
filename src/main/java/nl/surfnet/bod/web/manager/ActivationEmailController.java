@@ -24,6 +24,7 @@ package nl.surfnet.bod.web.manager;
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.web.WebUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -32,7 +33,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @RequestMapping(ActivationEmailController.ACTIVATION_MANAGER_PATH)
@@ -75,7 +75,7 @@ public class ActivationEmailController {
     ActivationEmailLink<PhysicalResourceGroup> activationLink = physicalResourceGroupService
         .sendAndPersistActivationRequest(foundPhysicalResourceGroup);
 
-    redirectAttributes.addFlashAttribute("infoMessage", "An activation email for Physcial Resource Group '"
+    redirectAttributes.addFlashAttribute(WebUtils.INFO_MESSAGE_KEY, "An activation email for Physcial Resource Group '"
         + activationLink.getSourceObject().getName() + "' was sent to '" + activationLink.getToEmail() + "'");
 
     return "manager/index";
