@@ -11,6 +11,11 @@
         <put-attribute name="active_menu" value="virtualport" cascade="true" />
     </definition>
 
+    <definition extends="default" name="virtualports/requestform">
+        <put-attribute name="body" value="/WEB-INF/views/virtualports/requestForm.jspx" />
+        <put-attribute name="active_menu" value="virtualport" cascade="true" />
+    </definition>
+
     <definition extends="default" name="virtualports/update">
         <put-attribute name="body" value="/WEB-INF/views/virtualports/update.jspx" />
         <put-attribute name="active_menu" value="virtualport" cascade="true" />

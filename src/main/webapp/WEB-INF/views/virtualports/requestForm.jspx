@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
     xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:tiles="http://tiles.apache.org/tags-tiles"
+    xmlns:form="http://www.springframework.org/tags/form"
     xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields" xmlns:spring="http://www.springframework.org/tags">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
     <spring:url value="/resources/images/information.png" var="infoImageUrl" />
+    <spring:url value="/virtualports/request" var="postUrl" />
 
     <h1>Request a new Virtual Port</h1>
     <div class="row">
@@ -24,31 +26,33 @@
                 ligula. Aenean at erat ligula, nec fermentum nunc. Nullam vestibulum mattis lectus vel mattis. In eu
                 velit libero. Aliquam dictum rhoncus sollicitudin.</p>
         </div>
-        <div class="span7">
-            <table class="zebra-striped">
-                <c:forEach var="group" items="${physicalResourceGroups}">
-                    <tr>
-                        <td>${group.institute.name} (${group.institute.shortName})</td>
-                        <td>
-                            <c:choose>
-                                <c:when test="${group.active}">
-                                    <spring:url value="/virtualports/request" var="requestUrl">
-                                        <spring:param name="id" value="${group.id}" />
-                                    </spring:url>
-                                    <a href="${requestUrl}">Select institute</a>
-                                </c:when>
-                                <c:otherwise>
-                                    <span>Not active</span>
-                                    <span title="This Institute is disabled because they did not activate their email."
-                                        rel="twipsy"> <img style="margin-left: 5px; cursor: help;"
-                                        src="${infoImageUrl}" />
-                                    </span>
-                                </c:otherwise>
-                            </c:choose>
-                        </td>
-                    </tr>
-                </c:forEach>
-            </table>
+        <div class="span12">
+            <form:form action="${postUrl}" method="POST" modelAttribute="requestCommand">
+                <div class="clearfix">
+                    <label>To</label>
+                    <div class="input input-text">ICT Manager(s) of '${physicalResourceGroup.institute.name}'</div>
+                </div>
+                <div class="clearfix">
+                    <label>From</label>
+                    <div class="input input-text"><c:out value="${user.displayName}" /> (<c:out value="${user.email}" />)</div>
+                </div>
+                <c:set var="errors"><form:errors path="message" /></c:set>
+                <c:if test="${not empty errors}">
+                    <c:set var="error_css" value="error" />
+                </c:if>
+                <div class="clearfix ${error_css}">
+                    <label>Message</label>
+                    <div class="input">
+                        <form:textarea path="message" rows="5" cssClass="xlarge" />
+                        <form:errors cssClass="help-inline" id="_message_error_id" path="message" delimiter=", " />
+                        <span class="help-block">Describe why you want this virtual port</span>
+                    </div>
+                </div>
+                <form:hidden path="groupId" />
+                <div class="actions">
+                    <input class="btn primary" type="submit" value="Sent request" />
+                </div>
+            </form:form>
         </div>
     </div>
 </div>

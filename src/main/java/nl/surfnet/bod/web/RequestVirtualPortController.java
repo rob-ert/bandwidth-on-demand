@@ -1,0 +1,110 @@
+package nl.surfnet.bod.web;
+
+import java.util.Collection;
+
+import javax.validation.Valid;
+
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.web.security.Security;
+
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Lists;
+
+@Controller
+@RequestMapping("/virtualports/request")
+public class RequestVirtualPortController {
+
+  @Autowired
+  private PhysicalResourceGroupService physicalResourceGroupService;
+
+  @RequestMapping(method = RequestMethod.GET)
+  public String request(Model model) {
+    Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllWithPorts();
+
+    model.addAttribute("physicalResourceGroups", groups);
+
+    return "virtualports/request";
+  }
+
+  @RequestMapping(params = "id", method = RequestMethod.GET)
+  public String requestForm(@RequestParam Long id, Model model, RedirectAttributes redirectAttributes) {
+    PhysicalResourceGroup group = physicalResourceGroupService.find(id);
+
+    if (group == null || !group.isActive()) {
+      addInfoMessage(redirectAttributes, "A invalid Physical Resource Group was selected.");
+      return "redirect:/virtualports/request";
+    }
+
+    model.addAttribute("requestCommand", new RequestCommand(group));
+    model.addAttribute("physicalResourceGroup", group);
+    model.addAttribute("user", Security.getUserDetails());
+
+    return "virtualports/requestform";
+  }
+
+  @RequestMapping(method = RequestMethod.POST)
+  public String request(@Valid RequestCommand requestCommand, BindingResult result, Model model,
+      RedirectAttributes redirectAttributes) {
+    PhysicalResourceGroup group = physicalResourceGroupService.find(requestCommand.getGroupId());
+
+    if (group == null || !group.isActive()) {
+      return "redirect:/virtualports/request";
+    }
+
+    if (result.hasErrors()) {
+      model.addAttribute("user", Security.getUserDetails());
+      model.addAttribute("physicalResourceGroup", group);
+
+      return "virtualports/requestform";
+    }
+
+    // TODO sent email..
+
+    addInfoMessage(redirectAttributes, "Request for virutal port has been sent");
+
+    return "redirect:/";
+  }
+
+  private void addInfoMessage(RedirectAttributes redirectAttributes, String message) {
+    redirectAttributes.addFlashAttribute("infoMessages", Lists.newArrayList(message));
+  }
+
+  public static class RequestCommand {
+    @NotEmpty
+    private String message;
+    private Long groupId;
+
+    public RequestCommand() {
+    }
+
+    public RequestCommand(PhysicalResourceGroup group) {
+      groupId = group.getId();
+    }
+
+    public String getMessage() {
+      return message;
+    }
+
+    public void setMessage(String message) {
+      this.message = message;
+    }
+
+    public Long getGroupId() {
+      return groupId;
+    }
+
+    public void setGroupId(Long groupId) {
+      this.groupId = groupId;
+    }
+  }
+}

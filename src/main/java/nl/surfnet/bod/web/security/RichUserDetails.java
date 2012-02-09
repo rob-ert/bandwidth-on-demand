@@ -43,11 +43,6 @@ public class RichUserDetails implements UserDetails {
   private final Collection<GrantedAuthority> authorities;
   private final Collection<UserGroup> userGroups;
 
-  public RichUserDetails(String username, String displayName, Collection<GrantedAuthority> authorities,
-      Collection<UserGroup> userGroups) {
-    this(username, displayName, null, authorities, userGroups);
-  }
-
   public RichUserDetails(String username, String displayName, String email, Collection<GrantedAuthority> authorities,
       Collection<UserGroup> userGroups) {
     this.username = username;
@@ -83,11 +78,11 @@ public class RichUserDetails implements UserDetails {
   public Collection<UserGroup> getUserGroups() {
     return userGroups;
   }
-  
+
   public String getEmail() {
     return email;
   }
-  
+
   public Collection<String> getUserGroupIds() {
     return newArrayList(transform(getUserGroups(), new Function<UserGroup, String>() {
       @Override

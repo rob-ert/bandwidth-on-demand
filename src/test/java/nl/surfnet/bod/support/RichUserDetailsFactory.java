@@ -36,11 +36,12 @@ public class RichUserDetailsFactory {
 
   private String username = "urn:guest:truus";
   private String displayName = "Truus Visscher";
+  private String email = "truus@example.com";
   private Collection<GrantedAuthority> authorities = Lists.newArrayList();
   private Collection<UserGroup> userGroups = Lists.newArrayList();
 
   public RichUserDetails create() {
-    return new RichUserDetails(username, displayName, authorities, userGroups);
+    return new RichUserDetails(username, displayName, email, authorities, userGroups);
   }
 
   public RichUserDetailsFactory addUserAuthority() {

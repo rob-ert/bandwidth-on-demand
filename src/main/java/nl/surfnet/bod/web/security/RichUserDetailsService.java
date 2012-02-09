@@ -77,7 +77,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
       authorities.add(createAuthority(Security.USER));
     }
 
-    return new RichUserDetails(principal.getNameId(), principal.getDisplayName(), authorities, groups);
+    return new RichUserDetails(principal.getNameId(), principal.getDisplayName(), principal.getEmail(), authorities, groups);
   }
 
   private boolean isIctManager(Collection<UserGroup> groups) {
