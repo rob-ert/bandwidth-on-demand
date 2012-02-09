@@ -22,6 +22,7 @@
 package nl.surfnet.bod.web.manager;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
@@ -32,6 +33,7 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -68,7 +70,7 @@ public class DashboardControllerTest {
 
     assertThat(page, startsWith("redirect:"));
     assertThat(page, endsWith("id=101"));
-    assertThat(model.getFlashAttributes(), hasKey("infoMessages"));
+    assertThat(model.getFlashAttributes(), hasKey(WebUtils.INFO_MESSAGES_KEY));
   }
 
   @Test
@@ -84,6 +86,16 @@ public class DashboardControllerTest {
     String page = subject.index(model);
 
     assertThat(page, is("index"));
+  }
+
+  @Test
+  public void shouldCreateNewLinkForm() {
+
+    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
+    String linkForm = subject.createNewActivationLinkForm(physicalResourceGroup);
+
+    assertThat(linkForm, containsString(physicalResourceGroup.getId().toString()));
+    assertThat(linkForm, containsString(ActivationEmailController.ACTIVATION_MANAGER_PATH));
   }
 
 }

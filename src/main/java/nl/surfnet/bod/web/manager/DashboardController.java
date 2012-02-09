@@ -25,6 +25,7 @@ import java.util.Collection;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.tags.HtmlEscapeTag;
 
 import com.google.common.collect.Lists;
 
@@ -49,8 +51,10 @@ public class DashboardController {
 
     for (PhysicalResourceGroup group : groups) {
       if (!group.isActive()) {
-        redirectAttributes.addFlashAttribute("infoMessages",
-            Lists.newArrayList("Your Physical Resource group is not activated yet, please do so now."));
+        redirectAttributes.addFlashAttribute(
+            WebUtils.INFO_MESSAGES_KEY,
+            Lists.newArrayList("Your Physical Resource group is not activated yet, please do so now. "
+                + createNewActivationLinkForm(group)));
 
         return "redirect:manager/physicalresourcegroups/edit?id=" + group.getId();
       }
@@ -58,4 +62,14 @@ public class DashboardController {
 
     return "index";
   }
+
+  String createNewActivationLinkForm(PhysicalResourceGroup physicalResourceGroup) {
+
+    return String
+        .format(
+            "<form id=\"physicalResourceGroup\" action=\"%s\" method=\"POST\" enctype=\"application/x-www-form-urlencoded\"><fieldset><legend>Create a New request</legend><input id=\"id\" name=\"id\" type=\"hidden\" value=\"%d\"></fieldset><div class=\"actions\"><input class=\"btn primary\" value=\"Save\" type=\"submit\"> <a class=\"btn\" href=\"/bod/manager/activate\">Cancel</a></div></form>",
+            ActivationEmailController.ACTIVATION_MANAGER_PATH, physicalResourceGroup.getId());
+
+  }
+
 }

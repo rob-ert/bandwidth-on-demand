@@ -130,10 +130,10 @@ public class ActivationEmailControllerTest {
 
     verify(physicalResourceGroupServiceMock).sendAndPersistActivationRequest(physicalResourceGroup);
 
-    assertThat(redirectAttributesMock.getFlashAttributes().keySet(), contains(WebUtils.INFO_MESSAGE_KEY));
-    assertThat((String) redirectAttributesMock.getFlashAttributes().get(WebUtils.INFO_MESSAGE_KEY),
+    assertThat(redirectAttributesMock.getFlashAttributes().keySet(), contains(WebUtils.INFO_MESSAGES_KEY));
+    assertThat((String) redirectAttributesMock.getFlashAttributes().get(WebUtils.INFO_MESSAGES_KEY),
         containsString(physicalResourceGroup.getName()));
-    assertThat((String) redirectAttributesMock.getFlashAttributes().get(WebUtils.INFO_MESSAGE_KEY),
+    assertThat((String) redirectAttributesMock.getFlashAttributes().get(WebUtils.INFO_MESSAGES_KEY),
         containsString(physicalResourceGroup.getManagerEmail()));
   }
 

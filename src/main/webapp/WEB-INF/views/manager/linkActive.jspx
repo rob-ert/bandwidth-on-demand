@@ -6,7 +6,7 @@
 
     <div class="hero-unit">
         <h1>Link is already activated</h1>
-        <p>The email address "${link.toEmail}" is already activated for Physical Resource Group "${physicalResourceGroup.name}".</p>
+        <p>The email address "${link.toEmail}" was already activated for Physical Resource Group "${physicalResourceGroup.name}" on ${link.activationDateTime}.</p>
 
         <p>No further action is required.</p>
         

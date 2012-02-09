@@ -170,7 +170,7 @@ public class ActivationEmailLink<T> {
   }
 
   public Date getExpirationDateTime() {
-    return this.emailSentDateTime.plusDays(VALID_PERIOD_DAYS).toDate();
+    return emailSentDateTime != null ? this.emailSentDateTime.plusDays(VALID_PERIOD_DAYS).toDate() : null;
   }
 
   /**
