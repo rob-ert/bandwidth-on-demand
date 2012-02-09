@@ -28,7 +28,6 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,8 +45,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -118,15 +115,13 @@ public class ActivationEmailControllerTest {
   @Test
   public void shouldRequestNewLink() {
     PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
-    BindingResult bindingResultMock = mock(BindingResult.class);
-    Model modelMock = new ModelStub();
     RedirectAttributes redirectAttributesMock = new ModelStub();
 
     when(physicalResourceGroupServiceMock.find(anyLong())).thenReturn(physicalResourceGroup);
     when(linkMock.getToEmail()).thenReturn(physicalResourceGroup.getManagerEmail());
     when(linkMock.getSourceObject()).thenReturn(physicalResourceGroup);
     when(physicalResourceGroupServiceMock.sendAndPersistActivationRequest(physicalResourceGroup)).thenReturn(linkMock);
-    subject.create(physicalResourceGroup, bindingResultMock, modelMock, redirectAttributesMock);
+    subject.create(physicalResourceGroup, redirectAttributesMock);
 
     verify(physicalResourceGroupServiceMock).sendAndPersistActivationRequest(physicalResourceGroup);
 

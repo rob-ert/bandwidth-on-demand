@@ -29,7 +29,6 @@ import nl.surfnet.bod.web.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -39,7 +38,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class ActivationEmailController {
 
-  public final static String ACTIVATION_MANAGER_PATH = "/manager/activate";
+  public static final String ACTIVATION_MANAGER_PATH = "/manager/activate";
   private static final String MODEL_KEY = "link";
 
   @Autowired
@@ -67,18 +66,16 @@ public class ActivationEmailController {
   }
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(PhysicalResourceGroup physicalResourceGroup, final BindingResult bindingResult,
-      final Model model, final RedirectAttributes redirectAttributes) {
-
+  public String create(PhysicalResourceGroup physicalResourceGroup, final RedirectAttributes redirectAttributes) {
     PhysicalResourceGroup foundPhysicalResourceGroup = physicalResourceGroupService.find(physicalResourceGroup.getId());
 
     ActivationEmailLink<PhysicalResourceGroup> activationLink = physicalResourceGroupService
         .sendAndPersistActivationRequest(foundPhysicalResourceGroup);
 
-    redirectAttributes.addFlashAttribute(WebUtils.INFO_MESSAGES_KEY, "An activation email for Physcial Resource Group '"
-        + activationLink.getSourceObject().getName() + "' was sent to '" + activationLink.getToEmail() + "'");
+    redirectAttributes.addFlashAttribute(WebUtils.INFO_MESSAGES_KEY, String.format(
+        "An activation email for Physcial Resource Group '%s' was sent to '%s'", activationLink.getSourceObject()
+            .getName(), activationLink.getToEmail()));
 
     return "manager/index";
   }
-
 }
