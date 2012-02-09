@@ -5,8 +5,11 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <div class="hero-unit">
-        <h1>Email of Physical Resource Group confirmed</h1>
-        <p>You have successfully confirmed e-mail address "${link.toEmail}" for your Physical Resource Group "${physicalResourceGroup.name}".</p>
+        <h1>Link is already activated</h1>
+        <p>The email address "${link.toEmail}" is already activated for Physical Resource Group "${physicalResourceGroup.name}".</p>
+
+        <p>No further action is required.</p>
+        
     </div>
 
 </div>

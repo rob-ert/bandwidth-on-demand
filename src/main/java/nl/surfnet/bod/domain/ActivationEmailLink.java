@@ -21,11 +21,19 @@
  */
 package nl.surfnet.bod.domain;
 
-import java.util.Arrays;
+import java.util.Date;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Transient;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
@@ -81,7 +89,7 @@ public class ActivationEmailLink<T> {
   public ActivationEmailLink(PhysicalResourceGroup physicalResourceGroup) {
     this((T) physicalResourceGroup, ActivationRequestSource.PHYSICAL_RESOURCE_GROUP, physicalResourceGroup.getId());
 
-    this.toEmail =  physicalResourceGroup.getManagerEmail();
+    this.toEmail = physicalResourceGroup.getManagerEmail();
   }
 
   private ActivationEmailLink(T sourceObject, ActivationRequestSource activationRequestSource, Long sourceId) {
@@ -155,6 +163,14 @@ public class ActivationEmailLink<T> {
 
   public T getSourceObject() {
     return sourceObject;
+  }
+
+  public void setSourceObject(T sourceObject) {
+    this.sourceObject = sourceObject;
+  }
+
+  public Date getExpirationDateTime() {
+    return this.emailSentDateTime.plusDays(VALID_PERIOD_DAYS).toDate();
   }
 
   /**

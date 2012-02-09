@@ -13,5 +13,13 @@
     <definition extends="manager" name="manager/linkNotValid">
         <put-attribute name="body" value="/WEB-INF/views/manager/linkNotValid.jspx" />
     </definition>
+    
+    <definition extends="manager" name="manager/linkActive">
+        <put-attribute name="body" value="/WEB-INF/views/manager/linkActive.jspx" />
+    </definition>
+    
+        <definition extends="manager" name="manager/linkSent">
+        <put-attribute name="body" value="/WEB-INF/views/manager/linkSent.jspx" />
+    </definition>
 
 </tiles-definitions>
