@@ -42,6 +42,8 @@ import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -53,6 +55,8 @@ import com.google.common.base.Function;
 @Service
 @Transactional
 public class PhysicalResourceGroupService {
+  
+  private Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
   private InstituteService instituteService;
@@ -65,6 +69,7 @@ public class PhysicalResourceGroupService {
 
   @Autowired
   private EmailSender emailSender;
+
 
   public long count() {
     return physicalResourceGroupRepo.count();
@@ -203,6 +208,7 @@ public class PhysicalResourceGroupService {
   }
 
   public void activate(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
+    log.info("Activating link [{}] for physical resource group: {}", activationEmailLink.getUuid(), activationEmailLink.getSourceObject().getName());
     activationEmailLink.activate();
     activationEmailLink.getSourceObject().setActive(true);
 

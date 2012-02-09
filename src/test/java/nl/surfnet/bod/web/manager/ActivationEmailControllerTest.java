@@ -37,6 +37,7 @@ import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 import nl.surfnet.bod.support.ModelStub;
+import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.web.WebUtils;
 
@@ -83,9 +84,12 @@ public class ActivationEmailControllerTest {
 
   @Test
   public void activationLinkIsNotValidAnymore() {
+    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
     when(linkMock.isValid()).thenReturn(false);
+    when(linkMock.getToEmail()).thenReturn(physicalResourceGroup.getManagerEmail());
+    
     when(physicalResourceGroupServiceMock.findActivationLink("1234567890")).thenReturn(linkMock);
-
+    when(linkMock.getSourceObject()).thenReturn(physicalResourceGroup);
     String page = subject.activateEmail("1234567890", new ModelStub());
 
     verify(physicalResourceGroupServiceMock, times(0)).activate(any((ActivationEmailLink.class)));
@@ -130,6 +134,20 @@ public class ActivationEmailControllerTest {
         containsString(physicalResourceGroup.getName()));
     assertThat((String) redirectAttributesMock.getFlashAttributes().get(WebUtils.INFO_MESSAGES_KEY),
         containsString(physicalResourceGroup.getManagerEmail()));
+  }
+
+  @Test
+  public void emailInLinkDiffersFromPhysicalResourceGroup() {
+    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setManagerEmail(
+        "manager@surfnet.nl").create();
+    when(physicalResourceGroupServiceMock.findActivationLink("1234567890")).thenReturn(linkMock);
+    when(linkMock.getSourceObject()).thenReturn(physicalResourceGroup);
+    when(linkMock.getToEmail()).thenReturn("link@surfnet.nl");
+
+    String page = subject.activateEmail("1234567890", new ModelStub());
+    verify(physicalResourceGroupServiceMock, times(0)).activate(any((ActivationEmailLink.class)));
+    assertThat(page, is("manager/linkChanged"));
+
   }
 
 }
