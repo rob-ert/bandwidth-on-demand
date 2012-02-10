@@ -43,7 +43,7 @@ public class VirtualResourceGroupController {
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
 
-  @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET, headers = "accept=application/json")
+  @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET, produces = "application/json")
   @ResponseBody
   public Collection<VirtualPort> listForVirtualResourceGroup(@PathVariable Long id) {
     VirtualResourceGroup group = virtualResourceGroupService.find(id);

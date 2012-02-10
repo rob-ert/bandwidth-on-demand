@@ -65,7 +65,7 @@ public class InstituteController {
     this.physicalResourceGroupService = physicalResourceGroupService;
   }
 
-  @RequestMapping(method = RequestMethod.GET, headers = "accept=application/json")
+  @RequestMapping(method = RequestMethod.GET, produces = "application/json")
   @ResponseBody
   public Collection<Institute> jsonList(@RequestParam(required = false) String q) {
     final Collection<String> existingInstitutes = getExistingInstituteNames();

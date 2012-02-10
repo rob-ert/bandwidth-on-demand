@@ -103,7 +103,7 @@ public class PhysicalResourceGroupController {
     return PAGE_URL + LIST;
   }
 
-  @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET, headers = "accept=application/json")
+  @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET, produces = "application/json")
   @ResponseBody
   public Collection<PhysicalPort> listPortsJson(@PathVariable Long id) {
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
