@@ -130,6 +130,7 @@ public class VirtualPortController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model model) {
+    // TODO AvD security..
     model.addAttribute(MODEL_KEY_LIST,
         Lists.transform(
             virtualPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE),
@@ -145,6 +146,8 @@ public class VirtualPortController {
   @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid final VirtualPort virtualPort, final BindingResult bindingResult, final Model model) {
     virtualPortValidator.validate(virtualPort, bindingResult);
+
+    // TODO AvD security..
 
     if (bindingResult.hasErrors()) {
       model.addAttribute(MODEL_KEY, virtualPort);
