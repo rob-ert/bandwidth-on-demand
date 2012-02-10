@@ -58,6 +58,10 @@ public class VirtualPortController {
   public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
     VirtualPort virtualPort = virtualPortService.find(id);
 
+    if (virtualPort == null || Security.userMayNotEdit(virtualPort)) {
+      return "redirect:";
+    }
+
     uiModel.addAttribute("virtualPort", virtualPort);
     uiModel.addAttribute("updateUserLabelCommand", new UpdateUserLabelCommand(virtualPort));
 
@@ -67,8 +71,8 @@ public class VirtualPortController {
   @RequestMapping(method = RequestMethod.PUT)
   public String update(final UpdateUserLabelCommand command, final BindingResult bindingResult, final Model uiModel) {
     VirtualPort virtualPort = virtualPortService.find(command.getId());
-    if (virtualPort == null || !Security.userMayEdit(virtualPort)) {
-      // form has been tampered just go to the list...
+
+    if (virtualPort == null || Security.userMayNotEdit(virtualPort)) {
       return "redirect:/virtualports";
     }
 

@@ -78,6 +78,10 @@ public final class Security {
     return isUserMemberOf(virtualPort.getVirtualResourceGroup().getSurfConextGroupName());
   }
 
+  public static boolean userMayNotEdit(VirtualPort virtualPort) {
+    return !userMayEdit(virtualPort);
+  }
+
   public static boolean managerMayEdit(PhysicalPort port) {
     return isUserMemberOf(port.getPhysicalResourceGroup().getAdminGroup());
   }
