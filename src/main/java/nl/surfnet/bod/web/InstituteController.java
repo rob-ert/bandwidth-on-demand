@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.web;
 
+import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.Collections2.filter;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
@@ -36,7 +37,6 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -45,7 +45,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
 
 @RequestMapping("/institutes")
 @Controller
@@ -54,16 +53,11 @@ public class InstituteController {
   static final String MODEL_KEY = "institute";
   static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
 
+  @Autowired
   private InstituteService instituteService;
 
-  private PhysicalResourceGroupService physicalResourceGroupService;
-
   @Autowired
-  public InstituteController(InstituteService instituteService,
-      PhysicalResourceGroupService physicalResourceGroupService) {
-    this.instituteService = instituteService;
-    this.physicalResourceGroupService = physicalResourceGroupService;
-  }
+  private PhysicalResourceGroupService physicalResourceGroupService;
 
   @RequestMapping(method = RequestMethod.GET, produces = "application/json")
   @ResponseBody
@@ -74,12 +68,9 @@ public class InstituteController {
     return filter(instituteService.getInstitutes(), new Predicate<Institute>() {
       @Override
       public boolean apply(Institute input) {
-        String instituteName = (input == null ? null : input.getName());
-        if (!Strings.isNullOrEmpty(instituteName)) {
-          instituteName = instituteName.toLowerCase();
-        }
+        String instituteName = nullToEmpty(input.getName()).toLowerCase();
 
-        return !existingInstitutes.contains(instituteName) && instituteName.contains(query);
+        return !existingInstitutes.contains(instituteName) && !instituteName.isEmpty() && instituteName.contains(query);
       }
     });
   }
@@ -90,24 +81,11 @@ public class InstituteController {
     return newArrayList(transform(groups, new Function<PhysicalResourceGroup, String>() {
       @Override
       public String apply(PhysicalResourceGroup input) {
-        String instituteName = (input == null || (input.getInstitute() == null) ? null : input.getInstitute().getName());
+        String instituteName = input.getInstitute() == null ? "" : nullToEmpty(input.getInstitute().getName());
 
-        if (!Strings.isNullOrEmpty(instituteName)) {
-          instituteName = instituteName.toLowerCase();
-        }
-
-        return instituteName;
+        return instituteName.toLowerCase();
       }
     }));
-  }
-
-  @RequestMapping(method = RequestMethod.GET)
-  public String list(final Model uiModel) {
-    Collection<Institute> institutes = instituteService.getInstitutes();
-
-    uiModel.addAttribute(MODEL_KEY_LIST, institutes);
-
-    return "institutes/list";
   }
 
 }

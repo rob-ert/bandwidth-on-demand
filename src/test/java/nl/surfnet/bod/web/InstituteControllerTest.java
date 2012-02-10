@@ -40,13 +40,21 @@ import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class InstituteControllerTest {
 
+  @Mock
   private InstituteService instituteServiceMock = mock(InstituteService.class);
+  @Mock
   private PhysicalResourceGroupService prgServiceMock = mock(PhysicalResourceGroupService.class);
 
-  private InstituteController subject = new InstituteController(instituteServiceMock, prgServiceMock);
+  @InjectMocks
+  private InstituteController subject;
 
   @Test
   public void instutionsShouldBeFilteredBySearchParamIgnoringCase() {
@@ -91,5 +99,17 @@ public class InstituteControllerTest {
     Collection<Institute> result = subject.jsonList(null);
 
     assertThat(result, hasSize(1));
+  }
+
+  @Test
+  public void aInstituteWithoutANameShouldBeFine() {
+    Collection<Institute> institutes = newArrayList(
+        new InstituteFactory().setId(1L).setName(null).create());
+
+    when(instituteServiceMock.getInstitutes()).thenReturn(institutes);
+
+    Collection<Institute> institutesInAmsterdam = subject.jsonList("");
+
+    assertThat(institutesInAmsterdam, hasSize(0));
   }
 }
