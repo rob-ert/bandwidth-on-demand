@@ -32,11 +32,11 @@ import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.idd.generated.Klanten;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.googlecode.ehcache.annotations.Cacheable;
 
 @Service
 public class InstituteIddService implements InstituteService {
@@ -45,7 +45,7 @@ public class InstituteIddService implements InstituteService {
   private IddClient iddClient;
 
   @Override
-  @Cacheable(cacheName = InstituteCacheRefresher.CACHE_NAME)
+  @Cacheable(InstituteCacheRefresher.CACHE_NAME)
   public Collection<Institute> getInstitutes() {
     Collection<Klanten> klanten = iddClient.getKlanten();
 

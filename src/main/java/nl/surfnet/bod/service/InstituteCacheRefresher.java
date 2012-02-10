@@ -21,10 +21,9 @@
  */
 package nl.surfnet.bod.service;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +45,7 @@ public class InstituteCacheRefresher {
   @Scheduled(fixedRate = 1000 * 60 * 60 * 8)
   public void refreshCache() {
     Cache cache = cacheManager.getCache(CACHE_NAME);
-    cache.removeAll();
+    cache.clear();
     instituteService.getInstitutes();
   }
 }
