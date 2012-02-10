@@ -24,6 +24,7 @@ package nl.surfnet.bod.web.manager;
 import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -31,6 +32,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +70,7 @@ public class PhysicalPortController {
   public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
     PhysicalPort port = physicalPortService.find(id);
 
-    if (!Security.managerMayEdit(port)) {
+    if (port == null || Security.managerMayNotEdit(port)) {
       return "manager/physicalports";
     }
 
@@ -82,24 +84,27 @@ public class PhysicalPortController {
   public String update(final UpdateManagerLabelCommand command, final BindingResult result, final Model model) {
     PhysicalPort port = physicalPortService.find(command.getId());
 
-    if (Security.managerMayEdit(port)) {
-      port.setManagerLabel(command.getManagerLabel());
-      physicalPortService.update(port);
+    if (port == null || Security.managerMayNotEdit(port)) {
+      return "redirect:physicalports";
     }
 
-    model.asMap().clear();
+    port.setManagerLabel(command.getManagerLabel());
+    physicalPortService.update(port);
 
     return "redirect:physicalports";
   }
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model model) {
-    Collection<PhysicalPortView> ports = findPortsForUser(page);
+    RichUserDetails user = Security.getUserDetails();
+
+    Collection<PhysicalPortView> ports = Collections2.transform(
+        physicalPortService.findAllocatedEntriesForUser(user, calculateFirstPage(page), MAX_ITEMS_PER_PAGE),
+        toView);
 
     model.addAttribute("physicalPorts", ports);
-
     model.addAttribute(MAX_PAGES_KEY,
-        calculateMaxPages(physicalPortService.countAllocatedForUser(Security.getUserDetails())));
+        calculateMaxPages(physicalPortService.countAllocatedForUser(user)));
 
     return "manager/physicalports/list";
   }
@@ -108,6 +113,10 @@ public class PhysicalPortController {
   @ResponseBody
   public Collection<VirtualPortJsonView> listVirtualPortsJson(@PathVariable Long id) {
     PhysicalPort physicalPort = physicalPortService.find(id);
+
+    if (physicalPort == null) {
+      return Collections.emptyList();
+    }
 
     return Collections2.transform(virtualPortService.findAllForPhysicalPort(physicalPort),
         new Function<VirtualPort, VirtualPortJsonView>() {
@@ -118,16 +127,9 @@ public class PhysicalPortController {
         });
   }
 
-  private Collection<PhysicalPortView> findPortsForUser(Integer page) {
-    Collection<PhysicalPort> ports = physicalPortService.findAllocatedEntriesForUser(Security.getUserDetails(),
-        calculateFirstPage(page), MAX_ITEMS_PER_PAGE);
-
-    return Collections2.transform(ports, toView);
-  }
-
-  // **** **** //
+  // ****                  **** //
   // ** View/Command objects ** //
-  // **** **** //
+  // ****                  **** //
   public static final class UpdateManagerLabelCommand {
     private Long id;
     private Integer version;

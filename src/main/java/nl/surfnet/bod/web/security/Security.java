@@ -82,6 +82,10 @@ public final class Security {
     return isUserMemberOf(port.getPhysicalResourceGroup().getAdminGroup());
   }
 
+  public static boolean managerMayNotEdit(PhysicalPort port) {
+    return !managerMayEdit(port);
+  }
+
   public static boolean managerMayEdit(PhysicalResourceGroup group) {
     return isUserMemberOf(group.getAdminGroup());
   }
