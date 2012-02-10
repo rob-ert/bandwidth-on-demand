@@ -222,19 +222,19 @@ public class PhysicalResourceGroupService {
 
     deActivatePhysicalResourceGroup(physicalResourceGroup);
 
-    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = new ActivationEmailLink<PhysicalResourceGroup>(
-        physicalResourceGroup);
-    activationEmailLink = (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo.save(activationEmailLink);
+    ActivationEmailLink<PhysicalResourceGroup> link = (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo
+        .save(new ActivationEmailLink<PhysicalResourceGroup>(physicalResourceGroup));
 
-    emailSender.sendActivationMail(activationEmailLink);
+    emailSender.sendActivationMail(link);
 
-    return activationEmailLink;
+    link.emailWasSent();
+    return (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo.save(link);
   }
 
   private void deActivatePhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
     physicalResourceGroup.setActive(false);
     physicalResourceGroupRepo.save(physicalResourceGroup);
 
-//    instituteService.fillInstituteForPhysicalResourceGroup(physicalResourceGroup);
+    // instituteService.fillInstituteForPhysicalResourceGroup(physicalResourceGroup);
   }
 }

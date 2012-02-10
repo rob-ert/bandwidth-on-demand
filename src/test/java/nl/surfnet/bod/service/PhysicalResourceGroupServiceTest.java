@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -210,7 +211,7 @@ public class PhysicalResourceGroupServiceTest {
     ActivationEmailLink<PhysicalResourceGroup> link = subject.sendAndPersistActivationRequest(prg);
 
     verify(emailSender).sendActivationMail(link);
-    verify(activationEmailLinkRepoMock).save(link);
+    verify(activationEmailLinkRepoMock, atLeastOnce()).save(link);
   }
 
 }

@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.verify;
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 
 import org.junit.Test;
@@ -28,9 +27,6 @@ public class EmailSenderTest {
 
   @Mock
   private MailSender mailSenderMock;
-
-  @Mock
-  private ActivationEmailLinkRepo activationEmailLinkRepoMock;
 
   @Captor
   private ArgumentCaptor<SimpleMailMessage> messageCaptor;

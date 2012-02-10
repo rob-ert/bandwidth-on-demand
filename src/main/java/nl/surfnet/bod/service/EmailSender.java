@@ -5,12 +5,10 @@ import java.net.URL;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.web.manager.ActivationEmailController;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
@@ -24,9 +22,6 @@ public class EmailSender {
   @Autowired
   private MailSender mailSender;
 
-  @Autowired
-  private ActivationEmailLinkRepo activationEmailLinkRepo;
-
   public void sendActivationMail(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
     SimpleMailMessage activationMessage = new SimpleMailMessage();
     activationMessage.setTo(activationEmailLink.getToEmail());
@@ -34,26 +29,21 @@ public class EmailSender {
     activationMessage.setSubject("Activation mail for Physical Resource Group "
         + activationEmailLink.getSourceObject().getName());
 
-    URL activationUrl = generateActivationUrl(activationEmailLink);
+    String body = String.format(
+        "Please click the link to activate this email adres for physical resource group: %s",
+        generateActivationUrl(activationEmailLink).toExternalForm());
 
-    StringBuffer text = new StringBuffer(
-        "Please click the link below to activate this email adres for physical resource group: ");
-    text.append(activationUrl.toExternalForm());
+    activationMessage.setText(body);
 
-    activationMessage.setText(text.toString());
-
-    try {
-      mailSender.send(activationMessage);
-      activationEmailLink.emailWasSent();
-      activationEmailLinkRepo.save(activationEmailLink);
-    }
-    catch (MailException exc) {
-      throw new RuntimeException(exc);
-    }
+    mailSender.send(activationMessage);
   }
 
-  public void sendVirtualPortRequestMail() {
-    // TODO AvD
+  public void sendVirtualPortRequestMail(String to, String from) {
+    SimpleMailMessage mail = new SimpleMailMessage();
+    mail.setTo(to);
+    mail.setReplyTo(from);
+    mail.setFrom(fromAddress);
+    mail.setText("hallo...");
   }
 
   private URL generateActivationUrl(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
