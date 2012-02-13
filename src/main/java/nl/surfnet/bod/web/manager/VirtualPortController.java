@@ -109,14 +109,14 @@ public class VirtualPortController {
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(@RequestParam(value = "port", required = false) Long physicalPortId,
-      @RequestParam(value = "vgroup", required = false) Long vGroupId,
-      @RequestParam(value = "pgroup", required = false) Long pGroupId, final Model model) {
+      @RequestParam(value = "pgroup", required = false) Long pGroupId,
+      @RequestParam(value = "vgroup", required = false) Long vGroupId, final Model model) {
 
     VirtualPort virtualPort = new VirtualPort();
 
     if (vGroupId != null) {
       VirtualResourceGroup vGroup = virtualResourceGroupService.find(vGroupId);
-      if (vGroup != null && Security.isUserMemberOf(vGroup)) {
+      if (vGroup != null) {
         virtualPort.setVirtualResourceGroup(vGroup);
       }
     }
