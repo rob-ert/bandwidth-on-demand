@@ -10,6 +10,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.web.manager.ActivationEmailController;
 import nl.surfnet.bod.web.manager.VirtualPortController;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,18 +73,23 @@ public class EmailSenderOnline implements EmailSender {
    * nl.surfnet.bod.domain.VirtualResourceGroup)
    */
   @Override
-  public void sendVirtualPortRequestMail(String to, String from, String requestMessage, PhysicalResourceGroup pGroup,
-      VirtualResourceGroup vGroup) {
+  public void sendVirtualPortRequestMail(RichUserDetails from, PhysicalResourceGroup pGroup,
+      VirtualResourceGroup vGroup, String requestMessage) {
     String link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create?vgroup=%d&pgroup=%d",
         vGroup.getId(), pGroup.getId());
 
-    SimpleMailMessage mail = new MailMessageBuilder().withTo(to).withReplyTo(from)
+    SimpleMailMessage mail = new MailMessageBuilder()
+        .withTo(pGroup.getManagerEmail())
+        .withReplyTo(from.getEmail())
         .withSubject("A Virtual Port Request")
-        .withBodyText(String.format(VIRTUAL_PORT_REQUEST_BODY, from, requestMessage, link)).create();
+        .withBodyText(
+            String.format(VIRTUAL_PORT_REQUEST_BODY, from.getDisplayName(), from.getEmail(), pGroup.getInstitute()
+                .getName(), vGroup.getName(), requestMessage, link)).create();
 
     send(mail);
   }
-
+  
+  
   private URL generateActivationUrl(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
     if (!StringUtils.endsWithIgnoreCase(externalBodUrl, "/")) {
       externalBodUrl = externalBodUrl + "/";
