@@ -9,6 +9,7 @@ import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -23,10 +24,16 @@ import org.springframework.mail.SimpleMailMessage;
 public class EmailSenderTest {
 
   @InjectMocks
-  private EmailSender subject;
+  private EmailSenderOnline subject;
 
   @Mock
   private MailSender mailSenderMock;
+  
+  
+  @Before
+  public void setUp() {
+    subject.setExternalBodUrl("http://host/context");
+  }
 
   @Captor
   private ArgumentCaptor<SimpleMailMessage> messageCaptor;

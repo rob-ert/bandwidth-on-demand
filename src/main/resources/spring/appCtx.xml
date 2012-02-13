@@ -90,4 +90,7 @@
          </props>
         </property>
 	</bean>
+	
+	<!-- Enable switching between mock and real implementation -->
+	<bean id ="emailSender" class="${emailsender.class}"/>
 </beans>
