@@ -36,6 +36,23 @@
                     <label>From</label>
                     <div class="input input-text"><c:out value="${user.displayName}" /> (<c:out value="${user.email}" />)</div>
                 </div>
+                <div class="clearfix">
+                    <label>Virtual User Group</label>
+                    <c:choose>
+                        <c:when test="${virtualResourceGroups.size() > 1}">
+                            <div class="input">
+                                <form:select path="virtualResourceGroupId" items="${virtualResourceGroups}" itemValue="id" itemLabel="name" />
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="input input-text">
+                                <c:out value="${virtualResourceGroups[0].name}" />
+                                <input type="hidden" name="virtualResourceGroupId" value="${virtualResourceGroups[0].id}" />
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+
                 <c:set var="errors"><form:errors path="message" /></c:set>
                 <c:if test="${not empty errors}">
                     <c:set var="error_css" value="error" />
@@ -48,7 +65,7 @@
                         <span class="help-block">Describe why you want this virtual port</span>
                     </div>
                 </div>
-                <form:hidden path="groupId" />
+                <form:hidden path="physicalResourceGroupId" />
                 <div class="actions">
                     <input class="btn primary" type="submit" value="Sent request" />
                 </div>
