@@ -23,6 +23,18 @@ import com.google.common.base.Strings;
 
 public class EmailSenderOnline implements EmailSender {
 
+  private static final String ACTIVATION_BODY =
+      "Please click the link to activate this email adres for physical resource group: %s";
+
+  private static final String VIRTUAL_PORT_REQUEST_BODY =
+      "Dear ICT Manager,\n\n"
+      + "You have received a new Virtual Port Request.\n\n"
+      + "Who: %s (%s)\n"
+      + "Physical Resource Group: %s\n"
+      + "Virtual Resource Group: %s\n"
+      + "Reason: %s\n\n"
+      + "Click on the following link %s to create the virtual port";
+
   @Value("${mail.fromAddress}")
   private String fromAddress;
 
@@ -32,12 +44,6 @@ public class EmailSenderOnline implements EmailSender {
   @Autowired
   private MailSender mailSender;
 
-  private static final String ACTIVATION_BODY = "Please click the link to activate this email adres for physical resource group: %s";
-
-  private static final String VIRTUAL_PORT_REQUEST_BODY = "Dear ICT Manager,\n\n"
-      + "You have received a new Virtual Port Request.\n\n" + "Who: %s\n" + "Reason: %s\n\n"
-      + "Click on the following link %s to create the virtual port";
-
   @PostConstruct
   protected void init() {
     if (!StringUtils.endsWithIgnoreCase(externalBodUrl, "/")) {
@@ -45,13 +51,6 @@ public class EmailSenderOnline implements EmailSender {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * nl.surfnet.bod.service.EmailSender#sendActivationMail(nl.surfnet.bod.domain
-   * .ActivationEmailLink)
-   */
   @Override
   public void sendActivationMail(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
     String bodyText = String.format(ACTIVATION_BODY, generateActivationUrl(activationEmailLink).toExternalForm());
@@ -63,15 +62,6 @@ public class EmailSenderOnline implements EmailSender {
     send(mail);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * nl.surfnet.bod.service.EmailSender#sendVirtualPortRequestMail(java.lang
-   * .String, java.lang.String, java.lang.String,
-   * nl.surfnet.bod.domain.PhysicalResourceGroup,
-   * nl.surfnet.bod.domain.VirtualResourceGroup)
-   */
   @Override
   public void sendVirtualPortRequestMail(RichUserDetails from, PhysicalResourceGroup pGroup,
       VirtualResourceGroup vGroup, String requestMessage) {
@@ -88,8 +78,8 @@ public class EmailSenderOnline implements EmailSender {
 
     send(mail);
   }
-  
-  
+
+
   private URL generateActivationUrl(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
     if (!StringUtils.endsWithIgnoreCase(externalBodUrl, "/")) {
       externalBodUrl = externalBodUrl + "/";
@@ -104,32 +94,16 @@ public class EmailSenderOnline implements EmailSender {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see nl.surfnet.bod.service.EmailSender#send(org.springframework.mail.
-   * SimpleMailMessage)
-   */
   @Override
   public void send(SimpleMailMessage mail) {
     mailSender.send(mail);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see nl.surfnet.bod.service.EmailSender#setFromAddress(java.lang.String)
-   */
   @Override
   public void setFromAddress(String fromAddress) {
     this.fromAddress = fromAddress;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see nl.surfnet.bod.service.EmailSender#setExternalBodUrl(java.lang.String)
-   */
   @Override
   public void setExternalBodUrl(String externalBodUrl) {
     this.externalBodUrl = externalBodUrl;
