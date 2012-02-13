@@ -25,12 +25,18 @@ import com.google.common.base.Strings;
 
 public class EmailSenderOnline implements EmailSender {
 
-  private static final String ACTIVATION_BODY = "Please click the link to activate this email adres for physical resource group: %s";
+  private static final String ACTIVATION_BODY = //
+      "Please click the link to activate this email adres for physical resource group: %s";
 
-  private static final String VIRTUAL_PORT_REQUEST_BODY = "Dear ICT Manager,\n\n"
-      + "You have received a new Virtual Port Request.\n\n" + "Who: %s (%s)\n" + "Physical Resource Group: %s\n"
-      + "Virtual Resource Group: %s\n" + "Reason: %s\n\n"
-      + "Click on the following link %s to create the virtual port\n\n" + "Kind regards,\n"
+  private static final String VIRTUAL_PORT_REQUEST_BODY = //
+        "Dear ICT Manager,\n\n" //
+      + "You have received a new Virtual Port Request.\n\n" //
+      + "Who: %s (%s)\n" //
+      + "Physical Resource Group: %s\n" //
+      + "Virtual Resource Group: %s\n" //
+      + "Reason: %s\n\n" //
+      + "Click on the following link %s to create the virtual port\n\n" //
+      + "Kind regards,\n" //
       + "The Bandwidth on Demand Application";
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
