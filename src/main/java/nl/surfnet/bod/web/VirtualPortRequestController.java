@@ -72,7 +72,7 @@ public class VirtualPortRequestController {
     PhysicalResourceGroup pGroup = physicalResourceGroupService.find(requestCommand.getPhysicalResourceGroupId());
     VirtualResourceGroup vGroup = virtualResourceGroupService.find(requestCommand.getVirtualResourceGroupId());
 
-    if (pGroup == null || !pGroup.isActive() || vGroup == null || !Security.userIsMemberOf(vGroup)) {
+    if (pGroup == null || !pGroup.isActive() || vGroup == null || !Security.isUserMemberOf(vGroup)) {
       return "redirect:/virtualports/request";
     }
 

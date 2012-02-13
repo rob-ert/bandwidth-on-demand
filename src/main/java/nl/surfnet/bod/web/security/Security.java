@@ -75,12 +75,16 @@ public final class Security {
     return !isUserMemberOf(groupId);
   }
 
-  public static boolean userMayEdit(VirtualPort virtualPort) {
-    return isUserMemberOf(virtualPort.getVirtualResourceGroup().getSurfConextGroupName());
+  public static boolean isUserMemberOf(VirtualResourceGroup group) {
+    return isUserMemberOf(group.getSurfConextGroupName());
   }
 
-  public static boolean userIsMemberOf(VirtualResourceGroup group) {
-    return isUserMemberOf(group.getSurfConextGroupName());
+  public static boolean isManagerMemberOf(PhysicalResourceGroup group) {
+    return isUserMemberOf(group.getAdminGroup());
+  }
+
+  public static boolean userMayEdit(VirtualPort virtualPort) {
+    return isUserMemberOf(virtualPort.getVirtualResourceGroup());
   }
 
   public static boolean userMayNotEdit(VirtualPort virtualPort) {
@@ -88,7 +92,7 @@ public final class Security {
   }
 
   public static boolean managerMayEdit(PhysicalPort port) {
-    return isUserMemberOf(port.getPhysicalResourceGroup().getAdminGroup());
+    return isManagerMemberOf(port.getPhysicalResourceGroup());
   }
 
   public static boolean managerMayNotEdit(PhysicalPort port) {
@@ -96,7 +100,7 @@ public final class Security {
   }
 
   public static boolean managerMayEdit(PhysicalResourceGroup group) {
-    return isUserMemberOf(group.getAdminGroup());
+    return isManagerMemberOf(group);
   }
 
   /**

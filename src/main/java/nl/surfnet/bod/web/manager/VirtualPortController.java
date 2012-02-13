@@ -54,6 +54,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 @Controller("managerVirtualPortController")
@@ -71,7 +72,7 @@ public class VirtualPortController {
         public VirtualPortView apply(VirtualPort port) {
           return new VirtualPortView(port);
         }
-    };
+      };
 
   @Autowired
   private VirtualPortService virtualPortService;
@@ -107,13 +108,33 @@ public class VirtualPortController {
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
-  public String createForm(@RequestParam(value = "port", required = false) final Long physicalPortId,
-      final Model model) {
+  public String createForm(@RequestParam(value = "port", required = false) Long physicalPortId,
+      @RequestParam(value = "vgroup", required = false) Long vGroupId,
+      @RequestParam(value = "pgroup", required = false) Long pGroupId, final Model model) {
 
     VirtualPort virtualPort = new VirtualPort();
+
+    if (vGroupId != null) {
+      VirtualResourceGroup vGroup = virtualResourceGroupService.find(vGroupId);
+      if (vGroup != null && Security.isUserMemberOf(vGroup)) {
+        virtualPort.setVirtualResourceGroup(vGroup);
+      }
+    }
+
+    if (pGroupId != null && physicalPortId == null) {
+      PhysicalResourceGroup pGroup = physicalResourceGroupService.find(pGroupId);
+      if (pGroup != null && Security.isManagerMemberOf(pGroup) && pGroup.getPhysicalPortCount() > 0) {
+        virtualPort.setPhysicalPort(Iterables.get(pGroup.getPhysicalPorts(), 0));
+        model.addAttribute("physicalPorts", pGroup.getPhysicalPorts());
+      }
+    }
+
     if (physicalPortId != null) {
       PhysicalPort port = physicalPortService.find(physicalPortId);
-      virtualPort.setPhysicalPort(port);
+      if (Security.isManagerMemberOf(port.getPhysicalResourceGroup())) {
+        virtualPort.setPhysicalPort(port);
+        model.addAttribute("physicalPorts", port.getPhysicalResourceGroup().getPhysicalPorts());
+      }
     }
 
     model.addAttribute(MODEL_KEY, virtualPort);
