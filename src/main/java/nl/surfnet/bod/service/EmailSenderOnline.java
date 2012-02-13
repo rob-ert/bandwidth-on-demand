@@ -33,7 +33,9 @@ public class EmailSenderOnline implements EmailSender {
       + "Physical Resource Group: %s\n"
       + "Virtual Resource Group: %s\n"
       + "Reason: %s\n\n"
-      + "Click on the following link %s to create the virtual port";
+      + "Click on the following link %s to create the virtual port\n\n"
+      + "Kind regards,\n"
+      + "The Bandwidth on Demand Application";
 
   @Value("${mail.fromAddress}")
   private String fromAddress;
@@ -94,18 +96,15 @@ public class EmailSenderOnline implements EmailSender {
     }
   }
 
-  @Override
-  public void send(SimpleMailMessage mail) {
+  protected void send(SimpleMailMessage mail) {
     mailSender.send(mail);
   }
 
-  @Override
-  public void setFromAddress(String fromAddress) {
+  protected void setFromAddress(String fromAddress) {
     this.fromAddress = fromAddress;
   }
 
-  @Override
-  public void setExternalBodUrl(String externalBodUrl) {
+  protected void setExternalBodUrl(String externalBodUrl) {
     this.externalBodUrl = externalBodUrl;
   }
 

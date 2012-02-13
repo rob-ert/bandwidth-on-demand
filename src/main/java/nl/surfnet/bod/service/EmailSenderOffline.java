@@ -10,7 +10,7 @@ public class EmailSenderOffline extends EmailSenderOnline {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-  @SuppressWarnings("unused")
+  @Override
   @PostConstruct
   protected void init() {
     super.init();
