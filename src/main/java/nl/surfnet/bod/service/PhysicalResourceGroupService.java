@@ -216,7 +216,8 @@ public class PhysicalResourceGroupService {
     update(activationEmailLink.getSourceObject());
   }
 
-  @Transactional
+  @SuppressWarnings("unchecked")
+  @Transactional  
   public ActivationEmailLink<PhysicalResourceGroup> sendAndPersistActivationRequest(
       PhysicalResourceGroup physicalResourceGroup) {
 
