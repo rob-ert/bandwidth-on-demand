@@ -36,15 +36,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Strings;
-
 @RequestMapping(ActivationEmailController.ACTIVATION_MANAGER_PATH)
 @Controller
 public class ActivationEmailController {
 
-  private final Logger log = LoggerFactory.getLogger(this.getClass());
   public static final String ACTIVATION_MANAGER_PATH = "/manager/activate";
   private static final String MODEL_KEY = "link";
+
+  private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;

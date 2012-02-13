@@ -29,7 +29,7 @@ public final class WebUtils {
   public static final String UPDATE = "/update";
   public static final String DELETE = "/delete";
   public static final String LIST = "/list";
-  
+
   /**
    * Used to distinguish between the model and a listmodel.
    */
@@ -39,8 +39,8 @@ public final class WebUtils {
   public static final String ID_KEY = "id";
 
   public static final int MAX_ITEMS_PER_PAGE = 15;
-  
-  public static final String INFO_MESSAGES_KEY ="infoMessages";
+
+  public static final String INFO_MESSAGES_KEY = "infoMessages";
 
   private WebUtils() {
   }
