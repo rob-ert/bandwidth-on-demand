@@ -12,6 +12,8 @@ import nl.surfnet.bod.web.manager.ActivationEmailController;
 import nl.surfnet.bod.web.manager.VirtualPortController;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSender;
@@ -23,19 +25,15 @@ import com.google.common.base.Strings;
 
 public class EmailSenderOnline implements EmailSender {
 
-  private static final String ACTIVATION_BODY =
-      "Please click the link to activate this email adres for physical resource group: %s";
+  private static final String ACTIVATION_BODY = "Please click the link to activate this email adres for physical resource group: %s";
 
-  private static final String VIRTUAL_PORT_REQUEST_BODY =
-      "Dear ICT Manager,\n\n"
-      + "You have received a new Virtual Port Request.\n\n"
-      + "Who: %s (%s)\n"
-      + "Physical Resource Group: %s\n"
-      + "Virtual Resource Group: %s\n"
-      + "Reason: %s\n\n"
-      + "Click on the following link %s to create the virtual port\n\n"
-      + "Kind regards,\n"
+  private static final String VIRTUAL_PORT_REQUEST_BODY = "Dear ICT Manager,\n\n"
+      + "You have received a new Virtual Port Request.\n\n" + "Who: %s (%s)\n" + "Physical Resource Group: %s\n"
+      + "Virtual Resource Group: %s\n" + "Reason: %s\n\n"
+      + "Click on the following link %s to create the virtual port\n\n" + "Kind regards,\n"
       + "The Bandwidth on Demand Application";
+
+  private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Value("${mail.fromAddress}")
   private String fromAddress;
@@ -46,11 +44,17 @@ public class EmailSenderOnline implements EmailSender {
   @Autowired
   private MailSender mailSender;
 
+  /**
+   * Removes a trailing slash at the end the {@link #externalBodUrl} which is
+   * configurable
+   */
   @PostConstruct
   protected void init() {
-    if (!StringUtils.endsWithIgnoreCase(externalBodUrl, "/")) {
-      externalBodUrl = externalBodUrl.concat("/");
+    if (StringUtils.endsWithIgnoreCase(externalBodUrl, "/")) {
+      externalBodUrl = externalBodUrl.substring(0, externalBodUrl.length() - 1);
     }
+
+    log.debug("Expecting BOD to be externally accessible from: {}", externalBodUrl);
   }
 
   @Override
@@ -81,11 +85,7 @@ public class EmailSenderOnline implements EmailSender {
     send(mail);
   }
 
-
   private URL generateActivationUrl(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
-    if (!StringUtils.endsWithIgnoreCase(externalBodUrl, "/")) {
-      externalBodUrl = externalBodUrl + "/";
-    }
 
     try {
       return new URL(String.format(externalBodUrl + "%s/%s", ActivationEmailController.ACTIVATION_MANAGER_PATH,
