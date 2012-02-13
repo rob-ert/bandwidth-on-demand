@@ -27,6 +27,7 @@ import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -94,11 +95,9 @@ public class PhysicalResourceGroupController {
 
     if (emailChanged(group, command)) {
       physicalResourceGroupService.sendAndPersistActivationRequest(group);
-
-      redirectAttributes.addFlashAttribute(
-          "infoMessages",
-          Lists.newArrayList(String.format("A new activation email request has been sent to '%s'",
-              command.getManagerEmail())));
+      
+      WebUtils.addInfoMessage(redirectAttributes, "A new activation email request has been sent to '%s'",
+              command.getManagerEmail());
     }
 
     return "redirect:physicalresourcegroups";

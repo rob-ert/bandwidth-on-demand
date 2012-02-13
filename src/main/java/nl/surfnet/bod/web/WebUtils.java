@@ -21,7 +21,16 @@
  */
 package nl.surfnet.bod.web;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.HtmlUtils;
+
+@Component
 public final class WebUtils {
+
+  @Value("${external.bod.url}")
+  private String externalBodUrl;
 
   public static final String CREATE = "/create";
   public static final String SHOW = "/show";
@@ -52,5 +61,39 @@ public final class WebUtils {
   public static int calculateMaxPages(long totalEntries) {
     float nrOfPages = (float) totalEntries / MAX_ITEMS_PER_PAGE;
     return (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1 : nrOfPages);
+  }
+
+  public String getExternalBodUrl() {
+    return externalBodUrl;
+  }
+
+  /**
+   * Adds a flashMessage which will survive a redirect.
+   * 
+   * @param redirectAttributes
+   *          Model to add the message to
+   * @param message
+   *          Message to add
+   * @param messageArg
+   *          Arguments to parse into the message, using
+   *          {@link String#format(String, Object...)}
+   */
+  public static void addInfoMessage(RedirectAttributes redirectAttributes, String message, Object... messageArg) {
+
+    redirectAttributes.addFlashAttribute(INFO_MESSAGES_KEY, formatMessage(message, messageArg));
+  }
+
+  public static void addInfoMessageWithHtml(RedirectAttributes redirectAttributes, String htmlMessage, String message,
+      Object... messageArgs) {
+    String formattedMessage = formatMessage(message, messageArgs);
+
+    // Add the html
+    formattedMessage = formattedMessage + "<p>" + htmlMessage + "</p>";
+
+    redirectAttributes.addFlashAttribute(INFO_MESSAGES_KEY, formattedMessage);
+  }
+
+  static String formatMessage(String message, Object... args) {
+    return HtmlUtils.htmlEscape(String.format(message, args));
   }
 }

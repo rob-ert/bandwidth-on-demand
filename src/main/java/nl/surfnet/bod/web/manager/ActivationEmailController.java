@@ -84,9 +84,9 @@ public class ActivationEmailController {
     ActivationEmailLink<PhysicalResourceGroup> activationLink = physicalResourceGroupService
         .sendAndPersistActivationRequest(foundPhysicalResourceGroup);
 
-    redirectAttributes.addFlashAttribute(WebUtils.INFO_MESSAGES_KEY, String.format(
+    WebUtils.addInfoMessage(redirectAttributes,
         "An activation email for Physcial Resource Group '%s' was sent to '%s'", activationLink.getSourceObject()
-            .getName(), activationLink.getToEmail()));
+            .getName(), activationLink.getToEmail());
 
     return "manager/index";
   }

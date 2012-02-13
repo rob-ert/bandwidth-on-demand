@@ -135,10 +135,7 @@ public class PhysicalResourceGroupController {
     return "redirect:" + PAGE_URL;
   }
 
-  private void addInfoMessage(RedirectAttributes model, String message) {
-    model.addFlashAttribute("infoMessages", Lists.newArrayList(message));
-  }
-
+  
   private boolean managerMailHasChanged(PhysicalResourceGroup group) {
     PhysicalResourceGroup original = physicalResourceGroupService.find(group.getId());
 

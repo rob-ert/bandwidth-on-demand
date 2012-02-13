@@ -34,6 +34,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.web.WebUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -78,10 +79,9 @@ public class PhysicalPortController {
     physicalPortService.save(portToSave);
 
     model.asMap().clear();
-    model.addFlashAttribute("infoMessages", Lists.newArrayList(String.format(
-        "A Physical Port was assigned '%s' to '%s'", physicalPort.getNocLabel(), physicalPort
-            .getPhysicalResourceGroup().getInstitute().getName())));
 
+    WebUtils.addInfoMessage(model, "A Physical Port was assigned '%s' to '%s'",
+        physicalPort.getNocLabel(), physicalPort.getPhysicalResourceGroup().getInstitute().getName());
 
     return "redirect:physicalports/free";
   }
@@ -141,7 +141,7 @@ public class PhysicalPortController {
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   *
+   * 
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)

@@ -34,14 +34,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.collect.Lists;
-
 @Controller("managerDashboardController")
 @RequestMapping("/manager")
 public class DashboardController {
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
+  
+  @Autowired
+  private WebUtils webUtils;
+  
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(RedirectAttributes redirectAttributes) {
@@ -50,10 +52,9 @@ public class DashboardController {
 
     for (PhysicalResourceGroup group : groups) {
       if (!group.isActive()) {
-        redirectAttributes.addFlashAttribute(
-            WebUtils.INFO_MESSAGES_KEY,
-            Lists.newArrayList("Your Physical Resource group is not activated yet, please do so now. "
-                + createNewActivationLinkForm(group)));
+
+        WebUtils.addInfoMessageWithHtml(redirectAttributes, createNewActivationLinkForm(group),
+            "Your Physical Resource group is not activated yet, please do so now. ");
 
         return "redirect:manager/physicalresourcegroups/edit?id=" + group.getId();
       }
@@ -63,12 +64,10 @@ public class DashboardController {
   }
 
   String createNewActivationLinkForm(PhysicalResourceGroup physicalResourceGroup) {
-
     return String
         .format(
-            "<form id=\"physicalResourceGroup\" action=\"%s\" method=\"POST\" enctype=\"application/x-www-form-urlencoded\"><fieldset><legend>Create a New request</legend><input id=\"id\" name=\"id\" type=\"hidden\" value=\"%d\"></fieldset><div class=\"actions\"><input class=\"btn primary\" value=\"Save\" type=\"submit\"> <a class=\"btn\" href=\"/bod/manager/activate\">Cancel</a></div></form>",
-            ActivationEmailController.ACTIVATION_MANAGER_PATH, physicalResourceGroup.getId());
-
+            "<form id=\"\" action=\"%s\" method=\"POST\" enctype=\"application/x-www-form-urlencoded\"><input id=\"id\" name=\"id\" type=\"hidden\" value=\"%d\"><input class=\"btn primary\" value=\"Save\" type=\"submit\"></div></form>",
+             webUtils.getExternalBodUrl()+ActivationEmailController.ACTIVATION_MANAGER_PATH, physicalResourceGroup.getId());
   }
 
 }
