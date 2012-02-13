@@ -92,5 +92,5 @@
 	</bean>
 	
 	<!-- Enable switching between mock and real implementation -->
-	<bean id ="emailSender" class="${emailsender.class}"/>
+	<bean id ="emailSender" class="${mail.sender.class}"/>
 </beans>

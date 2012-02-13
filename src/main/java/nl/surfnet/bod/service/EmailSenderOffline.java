@@ -12,12 +12,13 @@ public class EmailSenderOffline extends EmailSenderOnline {
 
   @SuppressWarnings("unused")
   @PostConstruct
-  private void init() {
+  protected void init() {
+    super.init();
     log.info("USING MOCK EMAIL SENDER!");
   }
 
   @Override
-  void sendMessage(SimpleMailMessage activationMessage) {
+  public void send(SimpleMailMessage activationMessage) {
     log.info("Mock sending of message: {}", activationMessage);
   }
 

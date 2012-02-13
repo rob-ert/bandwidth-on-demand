@@ -63,7 +63,7 @@ public class VirtualPortController {
   public static final String MODEL_KEY = "virtualPort";
   public static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
 
-  static final String PAGE_URL = "/manager/virtualports";
+  public static final String PAGE_URL = "/manager/virtualports";
 
   private static final Function<VirtualPort, VirtualPortView> TO_VIRTUAL_PORT_VIEW =
       new Function<VirtualPort, VirtualPortView>() {

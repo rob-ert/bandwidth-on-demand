@@ -25,10 +25,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RequestVirtualPortControllerTest {
+public class VirtualPortRequestControllerTest {
 
   @InjectMocks
-  private RequestVirtualPortController subject;
+  private VirtualPortRequestController subject;
 
   @Mock
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
@@ -47,7 +47,7 @@ public class RequestVirtualPortControllerTest {
 
     when(physicalResourceGroupServiceMock.findAllWithPorts()).thenReturn(Lists.newArrayList(group));
 
-    subject.request(model);
+    subject.requestList(model);
 
     assertThat(model.asMap(), hasKey("physicalResourceGroups"));
     assertThat(((Collection<PhysicalResourceGroup>) model.asMap().get("physicalResourceGroups")), contains(group));
