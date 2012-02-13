@@ -1,15 +1,23 @@
 <div xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
-    xmlns:sec="http://www.springframework.org/security/tags" xmlns:jsp="http://java.sun.com/JSP/Page">
+    xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:sec="http://www.springframework.org/security/tags"
+    xmlns:jsp="http://java.sun.com/JSP/Page">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
+    <spring:url value="/manager/virtualports/create" var="createVirtualPortUrl">
+        <spring:param name="pgroup" value="${physicalResourceGroup.id}" />
+    </spring:url>
+
     <div class="hero-unit">
         <h1>Link is already activated</h1>
-        <p>The email address "${link.toEmail}" was already activated for Physical Resource Group "${physicalResourceGroup.name}" on ${link.activationDateTime}.</p>
+        <p>
+            The email address "${link.toEmail}" was already activated for Physical Resource Group
+            "${physicalResourceGroup.name}" on
+            <spring:eval expression="link.activationDateTime" />.
+        </p>
 
-        <p>No further action is required.</p>
-        
+        <a href="${createVirtualPortUrl}" class="btn primary large">Add Virtual Ports</a>
     </div>
 
 </div>
