@@ -7,7 +7,12 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.verify;
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.support.ActivationEmailLinkFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -21,22 +26,21 @@ import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EmailSenderTest {
+public class EmailSenderOnlineTest {
 
   @InjectMocks
   private EmailSenderOnline subject;
 
   @Mock
   private MailSender mailSenderMock;
-  
-  
+
+  @Captor
+  private ArgumentCaptor<SimpleMailMessage> messageCaptor;
+
   @Before
   public void setUp() {
     subject.setExternalBodUrl("http://host/context");
   }
-
-  @Captor
-  private ArgumentCaptor<SimpleMailMessage> messageCaptor;
 
   @Test
   public void mailMessageShouldContainUrlWithNameAndUUID() {
@@ -59,5 +63,24 @@ public class EmailSenderTest {
     assertThat(message.getBcc(), nullValue());
     assertThat(message.getCc(), nullValue());
     assertThat(message.getReplyTo(), nullValue());
+  }
+
+  @Test
+  public void virtualPortRequestMessage() {
+    RichUserDetails user = new RichUserDetailsFactory().create();
+    PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().create();
+    VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().create();
+    String requestMessage = "I would like to have a port.";
+
+    subject.sendVirtualPortRequestMail(user, pGroup, vGroup, requestMessage);
+
+    verify(mailSenderMock).send(messageCaptor.capture());
+
+    SimpleMailMessage message = messageCaptor.getValue();
+
+    assertThat(message.getReplyTo(), is(user.getEmail()));
+    assertThat(message.getTo()[0], is(pGroup.getManagerEmail()));
+    assertThat(message.getText(), containsString("Physical Resource Group: " + pGroup.getInstitute().getName()));
+    assertThat(message.getText(), containsString("Reason: " + requestMessage));
   }
 }

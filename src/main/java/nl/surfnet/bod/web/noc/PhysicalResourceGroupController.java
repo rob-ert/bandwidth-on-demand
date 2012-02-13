@@ -28,7 +28,6 @@ import java.util.Collections;
 
 import javax.validation.Valid;
 
-import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.validator.PhysicalResourceGroupValidator;
@@ -70,12 +69,8 @@ public class PhysicalResourceGroupController {
 
     model.asMap().clear();
     physicalResourceGroupService.save(physicalResourceGroup);
-    ActivationEmailLink<PhysicalResourceGroup> activationLink = physicalResourceGroupService
-        .sendAndPersistActivationRequest(physicalResourceGroup);
+    physicalResourceGroupService.sendAndPersistActivationRequest(physicalResourceGroup);
 
-    // TODO send email with activation Link...
-
-    // Do not return to the create instance, but to the list view
     return "redirect:" + PAGE_URL;
   }
 

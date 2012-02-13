@@ -46,8 +46,8 @@ public class RequestAttributeAuthenticationFilter extends AbstractPreAuthenticat
     String displayName = getRequestAttributeOrImitate(request, ShibbolethConstants.DISPLAY_NAME,
         env.getImitateShibbolethDisplayName());
     String email = getRequestAttributeOrImitate(request, ShibbolethConstants.EMAIL, env.getImitateShibbolethEmail());
-    
-    logger.debug("Found Shibboleth name-id: '{}', displayName: '{}', email: {}", new String [] {nameId, displayName,email});
+
+    logger.debug("Found Shibboleth name-id: '{}', displayName: '{}', email: {}", new String [] {nameId, displayName, email});
 
     if (nameId.isEmpty() || displayName.isEmpty()) {
       return null;

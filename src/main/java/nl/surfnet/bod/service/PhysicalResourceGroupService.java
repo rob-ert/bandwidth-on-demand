@@ -55,7 +55,7 @@ import com.google.common.base.Function;
 @Service
 @Transactional
 public class PhysicalResourceGroupService {
-  
+
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
@@ -182,8 +182,8 @@ public class PhysicalResourceGroupService {
 
   @SuppressWarnings("unchecked")
   public ActivationEmailLink<PhysicalResourceGroup> findActivationLink(String uuid) {
-    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo
-        .findByUuid(uuid);
+    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink =
+        (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo.findByUuid(uuid);
 
     if (activationEmailLink != null) {
       activationEmailLink.setSourceObject(find(activationEmailLink.getSourceId()));
@@ -208,7 +208,8 @@ public class PhysicalResourceGroupService {
   }
 
   public void activate(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
-    log.info("Activating link [{}] for physical resource group: {}", activationEmailLink.getUuid(), activationEmailLink.getSourceObject().getName());
+    log.info("Activating link [{}] for physical resource group: {}", activationEmailLink.getUuid(), activationEmailLink
+        .getSourceObject().getName());
     activationEmailLink.activate();
     activationEmailLink.getSourceObject().setActive(true);
 
@@ -217,7 +218,7 @@ public class PhysicalResourceGroupService {
   }
 
   @SuppressWarnings("unchecked")
-  @Transactional  
+  @Transactional
   public ActivationEmailLink<PhysicalResourceGroup> sendAndPersistActivationRequest(
       PhysicalResourceGroup physicalResourceGroup) {
 
