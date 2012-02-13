@@ -7,6 +7,7 @@ import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.web.manager.ActivationEmailController;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,21 +21,23 @@ import com.google.common.base.Strings;
 @Service
 public class EmailSender {
 
-  @Value("${mail.fromAddress}")
-  private String fromAddress;
-
-  @Autowired
-  private MailSender mailSender;
-
   private static final String ACTIVATION_BODY =
       "Please click the link to activate this email adres for physical resource group: %s";
 
   private static final String VIRTUAL_PORT_REQUEST_BODY =
       "Dear ICT Manager,\n\n"
       + "You have received a new Virtual Port Request.\n\n"
-      + "Who: %s\n"
+      + "Who: %s (%s)\n"
+      + "Physical Resource Group: %s\n"
+      + "Virtual Resource Group: %s\n"
       + "Reason: %s\n\n"
       + "Click on the following link %s to create the virtual port";
+
+  @Value("${mail.fromAddress}")
+  private String fromAddress;
+
+  @Autowired
+  private MailSender mailSender;
 
   public void sendActivationMail(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
     String bodyText = String.format(ACTIVATION_BODY,
@@ -49,16 +52,19 @@ public class EmailSender {
     mailSender.send(mail);
   }
 
-  public void sendVirtualPortRequestMail(
-      String to, String from, String requestMessage, PhysicalResourceGroup pGroup, VirtualResourceGroup vGroup) {
+  public void sendVirtualPortRequestMail(RichUserDetails from,
+      PhysicalResourceGroup pGroup, VirtualResourceGroup vGroup, String requestMessage) {
     String link = String.format(
         "http://localhost:8082/bod/manager/virtualports/create?vgroup=%d&pgroup=%d", vGroup.getId(), pGroup.getId());
 
     SimpleMailMessage mail = new MailMessageBuilder()
-      .withTo(to)
-      .withReplyTo(from)
+      .withTo(pGroup.getManagerEmail())
+      .withReplyTo(from.getEmail())
       .withSubject("A Virtual Port Request")
-      .withBodyText(String.format(VIRTUAL_PORT_REQUEST_BODY, from, requestMessage, link)).create();
+      .withBodyText(
+          String.format(VIRTUAL_PORT_REQUEST_BODY,
+              from.getDisplayName(), from.getEmail(), pGroup.getInstitute().getName(), vGroup.getName(), requestMessage, link))
+      .create();
 
     mailSender.send(mail);
   }

@@ -26,6 +26,7 @@ import java.util.Collections;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 
 import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -76,6 +77,10 @@ public final class Security {
 
   public static boolean userMayEdit(VirtualPort virtualPort) {
     return isUserMemberOf(virtualPort.getVirtualResourceGroup().getSurfConextGroupName());
+  }
+
+  public static boolean userIsMemberOf(VirtualResourceGroup group) {
+    return isUserMemberOf(group.getSurfConextGroupName());
   }
 
   public static boolean userMayNotEdit(VirtualPort virtualPort) {

@@ -16,12 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 @Controller
@@ -61,29 +61,32 @@ public class VirtualPortRequestController {
     return "virtualports/requestform";
   }
 
+  @ModelAttribute("virtualResourceGroups")
+  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {
+    return virtualResourceGroupService.findAllForUser(Security.getUserDetails());
+  }
+
   @RequestMapping(method = RequestMethod.POST)
   public String request(@Valid RequestCommand requestCommand, BindingResult result, Model model,
       RedirectAttributes redirectAttributes) {
-    PhysicalResourceGroup group = physicalResourceGroupService.find(requestCommand.getGroupId());
+    PhysicalResourceGroup pGroup = physicalResourceGroupService.find(requestCommand.getPhysicalResourceGroupId());
+    VirtualResourceGroup vGroup = virtualResourceGroupService.find(requestCommand.getVirtualResourceGroupId());
 
-    if (group == null || !group.isActive()) {
+    if (pGroup == null || !pGroup.isActive() || vGroup == null || !Security.userIsMemberOf(vGroup)) {
       return "redirect:/virtualports/request";
     }
 
     if (result.hasErrors()) {
       model.addAttribute("user", Security.getUserDetails());
-      model.addAttribute("physicalResourceGroup", group);
+      model.addAttribute("physicalResourceGroup", pGroup);
 
       return "virtualports/requestform";
     }
 
-    Collection<VirtualResourceGroup> vGroups = virtualResourceGroupService.findAllForUser(Security.getUserDetails());
-    VirtualResourceGroup vGroup = Iterables.getFirst(vGroups, null);
+    emailSender.sendVirtualPortRequestMail(Security.getUserDetails(), pGroup, vGroup, requestCommand.getMessage());
 
-    emailSender.sendVirtualPortRequestMail(group.getManagerEmail(), Security.getUserDetails().getEmail(),
-        requestCommand.getMessage(), group, vGroup);
-
-    addInfoMessage(redirectAttributes, "Request for virutal port has been sent");
+    addInfoMessage(redirectAttributes,
+        String.format("Your request for a new Virutal Port (%s) has been sent", pGroup.getInstitute().getName()));
 
     return "redirect:/";
   }
@@ -95,13 +98,14 @@ public class VirtualPortRequestController {
   public static class RequestCommand {
     @NotEmpty
     private String message;
-    private Long groupId;
+    private Long physicalResourceGroupId;
+    private Long virtualResourceGroupId;
 
     public RequestCommand() {
     }
 
     public RequestCommand(PhysicalResourceGroup group) {
-      groupId = group.getId();
+      physicalResourceGroupId = group.getId();
     }
 
     public String getMessage() {
@@ -112,12 +116,20 @@ public class VirtualPortRequestController {
       this.message = message;
     }
 
-    public Long getGroupId() {
-      return groupId;
+    public Long getPhysicalResourceGroupId() {
+      return physicalResourceGroupId;
     }
 
-    public void setGroupId(Long groupId) {
-      this.groupId = groupId;
+    public void setPhysicalResourceGroupId(Long groupId) {
+      this.physicalResourceGroupId = groupId;
+    }
+
+    public Long getVirtualResourceGroupId() {
+      return virtualResourceGroupId;
+    }
+
+    public void setVirtualResourceGroupId(Long virtualResourceGroupId) {
+      this.virtualResourceGroupId = virtualResourceGroupId;
     }
   }
 }
