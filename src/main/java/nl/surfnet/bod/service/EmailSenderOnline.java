@@ -26,7 +26,10 @@ import com.google.common.base.Strings;
 public class EmailSenderOnline implements EmailSender {
 
   private static final String ACTIVATION_BODY = //
-      "Please click the link to activate this email adres for physical resource group: %s";
+      "Dear ICT Manager,\n\n" //
+      + "Please click the link to activate this email adres for physical resource group: %s\n\n"
+      + "Kind regards,\n" //
+      + "The bandwidth on Demand Application team";
 
   private static final String VIRTUAL_PORT_REQUEST_BODY = //
         "Dear ICT Manager,\n\n" //
@@ -35,9 +38,9 @@ public class EmailSenderOnline implements EmailSender {
       + "Physical Resource Group: %s\n" //
       + "Virtual Resource Group: %s\n" //
       + "Reason: %s\n\n" //
-      + "Click on the following link %s to create the virtual port\n\n" //
+      + "Click on the following link %s to create the virtual port.\n\n" //
       + "Kind regards,\n" //
-      + "The Bandwidth on Demand Application";
+      + "The Bandwidth on Demand Application team";
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -67,8 +70,9 @@ public class EmailSenderOnline implements EmailSender {
   public void sendActivationMail(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
     String bodyText = String.format(ACTIVATION_BODY, generateActivationUrl(activationEmailLink).toExternalForm());
 
-    SimpleMailMessage mail = new MailMessageBuilder().withTo(activationEmailLink.getToEmail())
-        .withSubject("Activation mail for Physical Resource Group " + activationEmailLink.getSourceObject().getName())
+    SimpleMailMessage mail = new MailMessageBuilder()
+        .withTo(activationEmailLink.getToEmail())
+        .withSubject("[BoD] Activation mail for Physical Resource Group " + activationEmailLink.getSourceObject().getName())
         .withBodyText(bodyText).create();
 
     send(mail);
@@ -83,7 +87,7 @@ public class EmailSenderOnline implements EmailSender {
     SimpleMailMessage mail = new MailMessageBuilder()
         .withTo(pGroup.getManagerEmail())
         .withReplyTo(from.getEmail())
-        .withSubject("A Virtual Port Request")
+        .withSubject(String.format("[BoD] A Virtual Port Request for %s", pGroup.getInstitute().getName()))
         .withBodyText(
             String.format(VIRTUAL_PORT_REQUEST_BODY, from.getDisplayName(), from.getEmail(), pGroup.getInstitute()
                 .getName(), vGroup.getName(), requestMessage, link)).create();
@@ -92,7 +96,6 @@ public class EmailSenderOnline implements EmailSender {
   }
 
   private URL generateActivationUrl(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
-
     try {
       return new URL(String.format(externalBodUrl + "%s/%s", ActivationEmailController.ACTIVATION_MANAGER_PATH,
           activationEmailLink.getUuid()));
