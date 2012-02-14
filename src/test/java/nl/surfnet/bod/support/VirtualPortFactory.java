@@ -45,7 +45,7 @@ public class VirtualPortFactory {
   private String userLabel = "A user virtual port " + id;;
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
   private PhysicalPort physicalPort = new PhysicalPortFactory().create();
-  private String physicalPortAdminGroup = "urn:mygroup";
+  private String physicalPortAdminGroup = "";
   private Integer maxBandwidth = 10000;
   private Integer vlanId = null;
 

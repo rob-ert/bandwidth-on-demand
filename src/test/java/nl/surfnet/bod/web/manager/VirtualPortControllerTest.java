@@ -23,10 +23,7 @@ package nl.surfnet.bod.web.manager;
 
 import static nl.surfnet.bod.web.manager.VirtualPortController.MODEL_KEY_LIST;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,6 +35,7 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -54,6 +52,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.ui.Model;
+import org.springframework.validation.BeanPropertyBindingResult;
 
 import com.google.common.collect.Lists;
 
@@ -75,9 +74,14 @@ public class VirtualPortControllerTest {
   @Mock
   private PhysicalPortService physicalPortServiceMock;
 
+  @Mock
+  private VirtualPortValidator virtualPortValidatorMock;
+
+  private RichUserDetails manager = new RichUserDetailsFactory().addUserGroup("urn:manager-group").create();
+
   @Before
   public void login() {
-    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:manager-group").create());
+    Security.setUserDetails(manager);
   }
 
   @SuppressWarnings("unchecked")
@@ -85,7 +89,7 @@ public class VirtualPortControllerTest {
   public void listShouldFindEntries() {
     ModelStub model = new ModelStub();
 
-    when(virtualPortServiceMock.findEntries(0, WebUtils.MAX_ITEMS_PER_PAGE)).thenReturn(
+    when(virtualPortServiceMock.findEntriesForManager(manager, 0, WebUtils.MAX_ITEMS_PER_PAGE)).thenReturn(
         Lists.newArrayList(new VirtualPortFactory().create()));
 
     subject.list(1, model);
@@ -94,6 +98,32 @@ public class VirtualPortControllerTest {
     assertThat(model.asMap(), hasKey(WebUtils.MAX_PAGES_KEY));
 
     assertThat((Collection<VirtualPort>) model.asMap().get(MODEL_KEY_LIST), hasSize(1));
+  }
+
+  @Test
+  public void shouldUpdatePort() {
+    ModelStub model = new ModelStub();
+    VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:manager-group").create();
+
+    String page = subject.update(port, new BeanPropertyBindingResult(port, "port"), model, model);
+
+    assertThat(page, is("redirect:/manager/virtualports"));
+    assertThat(model.getFlashAttributes(), hasKey("infoMessages"));
+
+    verify(virtualPortServiceMock).update(port);
+  }
+
+  @Test
+  public void shouldNotUpdatePortBecauseNotAllowed() {
+    ModelStub model = new ModelStub();
+    VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:wrong-group").create();
+
+    String page = subject.update(port, new BeanPropertyBindingResult(port, "port"), model, model);
+
+    assertThat(page, is("redirect:/manager/virtualports"));
+    assertThat(model.getFlashAttributes(), not(hasKey("infoMessages")));
+
+    verify(virtualPortServiceMock, never()).update(port);
   }
 
   @SuppressWarnings("unchecked")

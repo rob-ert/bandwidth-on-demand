@@ -75,7 +75,8 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void testNonExistingName() {
-    VirtualPort virtualPortOne = new VirtualPortFactory().setManagerLabel("one").create();
+    VirtualPort virtualPortOne = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:mygroup")
+        .setManagerLabel("one").create();
 
     when(virtualPortServiceMock.findByManagerLabel("one")).thenReturn(null);
     Errors errors = createErrorObject(virtualPortOne);
@@ -99,7 +100,7 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void negativeBandwidth() {
-    VirtualPort port = new VirtualPortFactory().setMaxBandwidth(-1).create();
+    VirtualPort port = new VirtualPortFactory().setMaxBandwidth(-1).setPhysicalPortAdminGroup("urn:mygroup").create();
     Errors errors = createErrorObject(port);
 
     subject.validate(port, errors);
@@ -110,7 +111,7 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void zeroBandwidth() {
-    VirtualPort port = new VirtualPortFactory().setMaxBandwidth(0).create();
+    VirtualPort port = new VirtualPortFactory().setMaxBandwidth(0).setPhysicalPortAdminGroup("urn:mygroup").create();
     Errors errors = createErrorObject(port);
 
     subject.validate(port, errors);
@@ -121,7 +122,7 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void minimalBandwidth() {
-    VirtualPort port = new VirtualPortFactory().setMaxBandwidth(1).create();
+    VirtualPort port = new VirtualPortFactory().setMaxBandwidth(1).setPhysicalPortAdminGroup("urn:mygroup").create();
     Errors errors = createErrorObject(port);
 
     subject.validate(port, errors);
@@ -131,7 +132,7 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void nullBandwidth() {
-    VirtualPort port = new VirtualPortFactory().setMaxBandwidth(null).create();
+    VirtualPort port = new VirtualPortFactory().setMaxBandwidth(null).setPhysicalPortAdminGroup("urn:mygroup").create();
     Errors errors = createErrorObject(port);
 
     subject.validate(port, errors);

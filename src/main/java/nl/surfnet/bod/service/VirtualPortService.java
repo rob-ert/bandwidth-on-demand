@@ -32,10 +32,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPort_;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
@@ -58,6 +55,10 @@ public class VirtualPortService {
 
   public long countForUser(RichUserDetails user) {
     return virtualPortRepo.count(specificationForUser(user));
+  }
+
+  public long countForManager(RichUserDetails manager) {
+    return virtualPortRepo.count(specificationForManager(manager));
   }
 
   public void delete(final VirtualPort virtualPort) {
@@ -93,6 +94,17 @@ public class VirtualPortService {
     };
   }
 
+  private Specification<VirtualPort> specificationForManager(final RichUserDetails manager) {
+    return new Specification<VirtualPort>() {
+      @Override
+      public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
+          CriteriaBuilder cb) {
+        return cb.and(root.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
+            .get(PhysicalResourceGroup_.adminGroup).in(manager.getUserGroupIds()));
+      }
+    };
+  }
+
   public List<VirtualPort> findEntries(final int firstResult, final int maxResults) {
     checkArgument(maxResults > 0);
 
@@ -108,6 +120,18 @@ public class VirtualPortService {
 
     return virtualPortRepo.findAll(specificationForUser(user), new PageRequest(firstResult / maxResults, maxResults))
         .getContent();
+  }
+
+  public List<VirtualPort> findEntriesForManager(final RichUserDetails manager, final int firstResult,
+      final int maxResults) {
+    checkNotNull(manager);
+
+    if (manager.getUserGroups().isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    return virtualPortRepo
+        .findAll(specificationForManager(manager), new PageRequest(firstResult / maxResults, maxResults)).getContent();
   }
 
   public VirtualPort findByManagerLabel(String label) {

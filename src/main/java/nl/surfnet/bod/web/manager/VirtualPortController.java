@@ -40,6 +40,8 @@ import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +52,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -63,7 +66,6 @@ public class VirtualPortController {
 
   public static final String MODEL_KEY = "virtualPort";
   public static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
-
   public static final String PAGE_URL = "/manager/virtualports";
 
   private static final Function<VirtualPort, VirtualPortView> TO_VIRTUAL_PORT_VIEW =
@@ -90,7 +92,8 @@ public class VirtualPortController {
   private VirtualPortValidator virtualPortValidator;
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid VirtualPort virtualPort, final BindingResult bindingResult, final Model model) {
+  public String create(@Valid VirtualPort virtualPort, BindingResult bindingResult, Model model,
+      RedirectAttributes redirectAttributes) {
     virtualPortValidator.validate(virtualPort, bindingResult);
 
     if (bindingResult.hasErrors()) {
@@ -101,6 +104,8 @@ public class VirtualPortController {
     }
 
     model.asMap().clear();
+
+    WebUtils.addInfoMessage(redirectAttributes, "Virtual Port '%s' was created.", virtualPort.getManagerLabel());
 
     virtualPortService.save(virtualPort);
 
@@ -151,57 +156,67 @@ public class VirtualPortController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model model) {
-    // TODO AvD security..
-    model.addAttribute(MODEL_KEY_LIST,
-        Lists.transform(
-            virtualPortService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE),
-            TO_VIRTUAL_PORT_VIEW
-        )
-    );
+    RichUserDetails manager = Security.getUserDetails();
 
-    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(virtualPortService.count()));
+    model.addAttribute(MODEL_KEY_LIST, Lists.transform(
+        virtualPortService.findEntriesForManager(manager, calculateFirstPage(page), MAX_ITEMS_PER_PAGE),
+        TO_VIRTUAL_PORT_VIEW));
+
+    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(virtualPortService.countForManager(manager)));
 
     return PAGE_URL + LIST;
   }
 
   @RequestMapping(method = RequestMethod.PUT)
-  public String update(@Valid final VirtualPort virtualPort, final BindingResult bindingResult, final Model model) {
+  public String update(@Valid VirtualPort virtualPort, BindingResult bindingResult, Model model,
+      RedirectAttributes redirectAttributes) {
+    if (Security.managerMayNotEdit(virtualPort)) {
+      return "redirect:" + PAGE_URL;
+    }
+
     virtualPortValidator.validate(virtualPort, bindingResult);
-
-    // TODO AvD security..
-
     if (bindingResult.hasErrors()) {
       model.addAttribute(MODEL_KEY, virtualPort);
       return PAGE_URL + UPDATE;
     }
 
     model.asMap().clear();
+    WebUtils.addInfoMessage(redirectAttributes, "The Virtual Port has been updated.");
+
     virtualPortService.update(virtualPort);
 
     return "redirect:" + PAGE_URL;
   }
 
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
-  public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
+  public String updateForm(@RequestParam(ID_KEY) final Long id, final Model model) {
     VirtualPort virtualPort = virtualPortService.find(id);
 
-    uiModel.addAttribute(MODEL_KEY, virtualPort);
-    uiModel.addAttribute("physicalPorts", virtualPort.getPhysicalResourceGroup().getPhysicalPorts());
+    if (virtualPort == null || Security.managerMayNotEdit(virtualPort)) {
+      return "redirect:" + PAGE_URL;
+    }
+
+    model.addAttribute(MODEL_KEY, virtualPort);
+    model.addAttribute("physicalPorts", virtualPort.getPhysicalResourceGroup().getPhysicalPorts());
 
     return PAGE_URL + UPDATE;
   }
 
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
-  public String delete(@RequestParam(ID_KEY) final Long id,
-      @RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
+  public String delete(@RequestParam(ID_KEY) Long id, @RequestParam(value = PAGE_KEY, required = false) Integer page,
+      RedirectAttributes redirectAttributes) {
 
     VirtualPort virtualPort = virtualPortService.find(id);
+
+    if (virtualPort == null || Security.managerMayNotEdit(virtualPort)) {
+      return "redirect:" + PAGE_URL;
+    }
+
     virtualPortService.delete(virtualPort);
 
-    uiModel.asMap().clear();
-    uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());
+    WebUtils.addInfoMessage(redirectAttributes, "The virtual port was deleted.");
 
-    return "redirect:";
+    return "redirect:" + PAGE_URL;
   }
 
   @ModelAttribute("virtualResourceGroups")
@@ -212,19 +227,21 @@ public class VirtualPortController {
   @ModelAttribute
   public void populatePhysicalResourceGroups(Model model) {
     List<PhysicalResourceGroup> groups = Lists.newArrayList(Collections2.filter(
-        physicalResourceGroupService.findAllForManager(Security.getUserDetails()), new Predicate<PhysicalResourceGroup>() {
+        physicalResourceGroupService.findAllForManager(Security.getUserDetails()),
+        new Predicate<PhysicalResourceGroup>() {
           @Override
           public boolean apply(PhysicalResourceGroup group) {
             return group.getPhysicalPortCount() > 0;
           }
         }));
 
-    Collection<PhysicalPort> ports = getFirst(transform(groups, new Function<PhysicalResourceGroup, Collection<PhysicalPort>>() {
-      @Override
-      public Collection<PhysicalPort> apply(PhysicalResourceGroup port) {
-        return port.getPhysicalPorts();
-      }
-    }), Collections.<PhysicalPort> emptyList());
+    Collection<PhysicalPort> ports = getFirst(
+        transform(groups, new Function<PhysicalResourceGroup, Collection<PhysicalPort>>() {
+          @Override
+          public Collection<PhysicalPort> apply(PhysicalResourceGroup port) {
+            return port.getPhysicalPorts();
+          }
+        }), Collections.<PhysicalPort> emptyList());
 
     model.addAttribute("physicalResourceGroups", groups);
     model.addAttribute("physicalPorts", ports);
