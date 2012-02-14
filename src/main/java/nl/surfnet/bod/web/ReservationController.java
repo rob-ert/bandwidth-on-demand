@@ -135,17 +135,23 @@ public class ReservationController {
   }
 
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
-  public String delete(@RequestParam(ID_KEY) final Long id,
-      @RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
+  public String delete(@RequestParam(ID_KEY) Long id, @RequestParam(value = PAGE_KEY, required = false) Integer page,
+      RedirectAttributes redirectAttributes) {
 
     Reservation reservation = reservationService.find(id);
 
-    reservationService.cancel(reservation);
+    boolean result = reservationService.cancel(reservation);
 
-    uiModel.asMap().clear();
-    uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());
+    if (result) {
+      WebUtils.addInfoMessage(redirectAttributes, "A reservation for %s has been cancelled.", reservation
+          .getVirtualResourceGroup().getName());
+    }
+    else {
+      WebUtils.addInfoMessage(redirectAttributes, "A reservation for %s can NOT be cancelled.", reservation
+          .getVirtualResourceGroup().getName());
+    }
 
-    return "redirect:";
+    return "redirect:/" + PAGE_URL;
   }
 
   @ModelAttribute

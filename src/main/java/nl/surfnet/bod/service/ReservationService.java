@@ -134,13 +134,15 @@ public class ReservationService {
     return reservationRepo.save(reservation);
   }
 
-  public void cancel(Reservation reservation) {
+  public boolean cancel(Reservation reservation) {
     if (reservation.getStatus() == RUNNING || reservation.getStatus() == SCHEDULED) {
       reservation.setStatus(CANCELLED);
       nbiService.cancelReservation(reservation.getReservationId());
       reservationRepo.save(reservation);
 
+      return true;
     }
+    return false;
   }
 
   Specification<Reservation> specReservationsToPoll(final LocalDateTime startOrEndDateTime) {
