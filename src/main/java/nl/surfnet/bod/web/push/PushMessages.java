@@ -118,7 +118,7 @@ public final class PushMessages {
   public static PushMessage createMessage(ReservationStatusChangeEvent reservationStatusChangeEvent) {
     Reservation reservation = reservationStatusChangeEvent.getReservation();
 
-    String message = String.format("Status of a reservation for <b>%s</b> was changed from <b>%s<b/> to <b>%s</b>.", reservation
+    String message = String.format("Status of a reservation for <b>%s</b> was changed from <b>%s</b> to <b>%s</b>.", reservation
         .getVirtualResourceGroup().getName(), reservationStatusChangeEvent.getOldStatus(), reservation.getStatus()
         .name());
 

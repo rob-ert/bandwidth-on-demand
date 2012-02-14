@@ -31,18 +31,19 @@ import nl.surfnet.bod.support.ReservationFactory;
 
 import org.junit.Test;
 
-public class EventsTest {
+public class PushMessagesTest {
 
   @Test
   public void aReservationStatusChangedEventShouldHaveAJsonMessage() {
     Reservation reservation = new ReservationFactory().setId(54L).setStatus(ReservationStatus.SCHEDULED).create();
 
-    ReservationStatusChangeEvent reservationStatusChangeEvent = new ReservationStatusChangeEvent(ReservationStatus.PREPARING, reservation);    
-    
+    ReservationStatusChangeEvent reservationStatusChangeEvent = new ReservationStatusChangeEvent(
+        ReservationStatus.PREPARING, reservation);
+
     PushMessage event = PushMessages.createMessage(reservationStatusChangeEvent);
 
     assertThat(event.getMessage(), containsString("\"id\":54"));
-    assertThat(event.getMessage(), containsString("from PREPARING to SCHEDULED"));
+    assertThat(event.getMessage(), containsString("from <b>PREPARING</b> to <b>SCHEDULED</b>"));
     assertThat(event.getMessage(), containsString("\"status\":\"SCHEDULED\""));
     assertThat(event.getGroupId(), is(reservation.getVirtualResourceGroup().getSurfConextGroupName()));
   }
