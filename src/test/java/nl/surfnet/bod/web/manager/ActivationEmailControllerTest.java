@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,8 +38,11 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.Security;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -68,6 +72,11 @@ public class ActivationEmailControllerTest {
       .create();
 
   private ModelStub model = new ModelStub();
+
+  @Before
+  public void setUp() {
+    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(link.getSourceObject().getAdminGroup()).create());
+  }
 
   @Test
   public void physicalResourceGroupShouldBeActivated() {
@@ -106,11 +115,11 @@ public class ActivationEmailControllerTest {
     assertThat(page, is("index"));
   }
 
-  
   @Test
   public void activationLinkIsAlreadyActivated() {
     when(linkMock.isActivated()).thenReturn(true);
     when(physicalResourceGroupServiceMock.findActivationLink("1234567890")).thenReturn(linkMock);
+    when(linkMock.getSourceObject()).thenReturn(link.getSourceObject());
 
     String page = subject.activateEmail("1234567890", new ModelStub());
     verify(physicalResourceGroupServiceMock, times(0)).activate(any((ActivationEmailLink.class)));
@@ -151,6 +160,25 @@ public class ActivationEmailControllerTest {
     verify(physicalResourceGroupServiceMock, times(0)).activate(any((ActivationEmailLink.class)));
     assertThat(page, is("manager/linkChanged"));
 
+  }
+
+  @Test
+  public void managerHasNoRightToAccessPhysicalResourceGroup() {
+    PhysicalResourceGroup physicalResourceGroupMock = mock(PhysicalResourceGroup.class);
+    when(physicalResourceGroupMock.getAdminGroup()).thenReturn("wrong:group");
+    when(physicalResourceGroupMock.getName()).thenReturn("prgOne");
+    when(linkMock.getSourceObject()).thenReturn(physicalResourceGroupMock);
+
+    when(physicalResourceGroupServiceMock.findActivationLink("1234567890")).thenReturn(linkMock);
+
+    String page = subject.activateEmail("1234567890", model);
+
+    assertThat(WebUtils.getFirstInfoMessage((Model) model), containsString(Security.getUserDetails().getDisplayName()));
+    assertThat(WebUtils.getFirstInfoMessage((Model) model), containsString("not allowed"));
+    assertThat(WebUtils.getFirstInfoMessage((Model) model), containsString("prgOne"));
+
+    verify(physicalResourceGroupServiceMock, times(0)).activate(any((ActivationEmailLink.class)));
+    assertThat(page, is("index"));
   }
 
 }
