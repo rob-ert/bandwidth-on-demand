@@ -97,7 +97,7 @@ public class ReservationController {
     try {
       reservationService.reserve(reservation);
 
-      WebUtils.addInfoMessage(redirectAttributes, "A new reservation for '%s' has been requested.", reservation
+      WebUtils.addInfoMessage(redirectAttributes, "A new reservation for %s has been requested.", reservation
           .getVirtualResourceGroup().getName());
 
       return "redirect:" + PAGE_URL;

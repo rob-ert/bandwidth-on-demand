@@ -118,8 +118,9 @@ public final class PushMessages {
   public static PushMessage createMessage(ReservationStatusChangeEvent reservationStatusChangeEvent) {
     Reservation reservation = reservationStatusChangeEvent.getReservation();
 
-    String message = String.format("The status of a reservation was changed from %s to %s",
-        reservationStatusChangeEvent.getOldStatus(), reservation.getStatus().name());
+    String message = String.format("Status of a reservation for <b>%s</b> was changed from <b>%s<b/> to <b>%s</b>.", reservation
+        .getVirtualResourceGroup().getName(), reservationStatusChangeEvent.getOldStatus(), reservation.getStatus()
+        .name());
 
     return new JsonMessageEvent(reservation.getVirtualResourceGroup().getSurfConextGroupName(), new JsonEvent(message,
         reservation.getId(), reservation.getStatus().name()));
