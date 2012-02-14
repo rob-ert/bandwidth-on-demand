@@ -42,13 +42,8 @@ div.topbar {
 	overflow: visible;
 	height: 1px;
 }
-#messages {
-	width: 650px;
-	float: right;
-}
-#messages .alert-message {
-	margin-bottom: 1px;
-}
+#messages{width: 650px; float: right;}
+#messages .alert-message{margin-bottom: 1px; z-index: 1000;}
 div.topbar img.logo {
 	float: left;
 	margin: 10px 0 0 10px;

@@ -65,9 +65,6 @@
         function showMessage(message) {
             var closeLink = $("<a/>", {class: "close", href: "#", html: "&amp;times;"});
             var record = $("<div/>", {text: message, class: "alert-message fade in"}).append(closeLink).alert();
-            setTimeout(function() {
-                closeLink.click();
-            }, 5000);
 
             $("#messages").prepend(record);
         }
