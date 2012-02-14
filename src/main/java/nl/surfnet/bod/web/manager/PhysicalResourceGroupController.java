@@ -42,8 +42,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.collect.Lists;
-
 @Controller("managerPhysicalResourceGroupController")
 @RequestMapping("/manager/physicalresourcegroups")
 public class PhysicalResourceGroupController {
@@ -53,7 +51,6 @@ public class PhysicalResourceGroupController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
-
     RichUserDetails user = Security.getUserDetails();
 
     uiModel.addAttribute("physicalResourceGroups",
@@ -95,7 +92,7 @@ public class PhysicalResourceGroupController {
 
     if (emailChanged(group, command)) {
       physicalResourceGroupService.sendAndPersistActivationRequest(group);
-      
+
       WebUtils.addInfoMessage(redirectAttributes, "A new activation email request has been sent to '%s'",
               command.getManagerEmail());
     }
