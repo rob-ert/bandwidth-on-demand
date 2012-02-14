@@ -105,17 +105,17 @@ public class WebUtilsTest {
   }
 
   @Test
-  public void shouldEscapeMessage() {
+  public void shouldNotEscapeMessage() {
     String formatAndEscapeMessage = WebUtils.formatAndEscapeMessage("<p>", emptyArgs);
 
-    assertThat(formatAndEscapeMessage, is("&lt;p&gt;"));
+    assertThat(formatAndEscapeMessage, is("<p>"));
   }
 
   @Test
-  public void shouldFormatAndEscapeMessage() {
-    String formatAndEscapeMessage = WebUtils.formatAndEscapeMessage("<p>%s</p>", messageArgs);
+  public void shouldFormatAndNotEscapeMessageButArgs() {
+    String formatAndEscapeMessage = WebUtils.formatAndEscapeMessage("<p>%s</p>","<b>");
 
-    assertThat(formatAndEscapeMessage, is("&lt;p&gt;" + messageArg + "&lt;/p&gt;"));
+    assertThat(formatAndEscapeMessage, is("<p>" + "&lt;b&gt;" + "</p>"));
   }
 
   @Test

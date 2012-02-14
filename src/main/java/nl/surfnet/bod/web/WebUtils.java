@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.web;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.ui.Model;
@@ -113,11 +114,25 @@ public final class WebUtils {
     return message;
   }
 
+  /**
+   * Html escapes the argument and replaces them with the parameter placeholders
+   * in the message. The parameter placeholders can be either "{}" or the regular
+   * {@link String#format(String, Object...)} placeholders.
+   * 
+   * @param message The message to parse
+   * @param args Values the replace the placeholders with
+   * @return Formatted string, with the arguments html escaped.
+   */
   public static String formatAndEscapeMessage(String message, Object... args) {
-    if (message != null) {      
-      //Enable replacement by log and spring convention
-      message = StringUtils.replace(message, "{}", "%s");      
-      return HtmlUtils.htmlEscape(String.format(message, args));
+    if (message != null) {
+      // Enable replacement by log and spring convention
+      message = StringUtils.replace(message, "{}", "%s");
+
+      ArrayList<String> escapedArgs = Lists.newArrayList();
+      for (Object object : args) {
+        escapedArgs.add(HtmlUtils.htmlEscape((String) object));
+      }
+      return String.format(message, escapedArgs.toArray());
     }
 
     return "";
