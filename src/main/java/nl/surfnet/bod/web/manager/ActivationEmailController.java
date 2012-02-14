@@ -78,15 +78,14 @@ public class ActivationEmailController {
   }
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(PhysicalResourceGroup physicalResourceGroup, final RedirectAttributes redirectAttributes) {
+  public String create(PhysicalResourceGroup physicalResourceGroup, final Model model) {
     PhysicalResourceGroup foundPhysicalResourceGroup = physicalResourceGroupService.find(physicalResourceGroup.getId());
 
     ActivationEmailLink<PhysicalResourceGroup> activationLink = physicalResourceGroupService
         .sendAndPersistActivationRequest(foundPhysicalResourceGroup);
 
-    WebUtils.addInfoMessage(redirectAttributes,
-        "An activation email for Physcial Resource Group '%s' was sent to '%s'", activationLink.getSourceObject()
-            .getName(), activationLink.getToEmail());
+    WebUtils.addInfoMessage(model, "An activation email for Physcial Resource Group '%s' was sent to '%s'",
+        activationLink.getSourceObject().getName(), activationLink.getToEmail());
 
     return "manager/index";
   }

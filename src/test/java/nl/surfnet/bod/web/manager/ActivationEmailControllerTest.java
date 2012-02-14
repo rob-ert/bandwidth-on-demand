@@ -22,7 +22,6 @@
 package nl.surfnet.bod.web.manager;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
@@ -37,7 +36,6 @@ import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.web.WebUtils;
 
@@ -46,8 +44,10 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)
 public class ActivationEmailControllerTest {
 
@@ -106,6 +106,7 @@ public class ActivationEmailControllerTest {
     assertThat(page, is("index"));
   }
 
+  
   @Test
   public void activationLinkIsAlreadyActivated() {
     when(linkMock.isActivated()).thenReturn(true);
@@ -125,12 +126,16 @@ public class ActivationEmailControllerTest {
     when(linkMock.getToEmail()).thenReturn(physicalResourceGroup.getManagerEmail());
     when(linkMock.getSourceObject()).thenReturn(physicalResourceGroup);
     when(physicalResourceGroupServiceMock.sendAndPersistActivationRequest(physicalResourceGroup)).thenReturn(linkMock);
+
     subject.create(physicalResourceGroup, redirectAttributesMock);
 
     verify(physicalResourceGroupServiceMock).sendAndPersistActivationRequest(physicalResourceGroup);
 
-    assertThat(WebUtils.getFirstInfoMessage(redirectAttributesMock), containsString(physicalResourceGroup.getName()));
-    assertThat(WebUtils.getFirstInfoMessage(redirectAttributesMock),
+    // The create model will cast the RedirectAttributes to a Model, so to
+    // verify we also need to cast to Model
+    assertThat(WebUtils.getFirstInfoMessage(((Model) redirectAttributesMock)),
+        containsString(physicalResourceGroup.getName()));
+    assertThat(WebUtils.getFirstInfoMessage(((Model) redirectAttributesMock)),
         containsString(physicalResourceGroup.getManagerEmail()));
   }
 

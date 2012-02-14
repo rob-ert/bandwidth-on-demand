@@ -47,6 +47,10 @@ public class Environment {
 
   @Value("${os.oauth-secret}")
   private String openSocialOAuthSecret;
+  
+  @Value("${external.bod.url}")
+  private String externalBodUrl;
+
 
   public Environment() {
   }
@@ -91,6 +95,10 @@ public class Environment {
 
   public String getImitateShibbolethEmail() {
     return imitateShibbolethEmail;
+  }
+  
+  public String getExternalBodUrl() {
+    return externalBodUrl;
   }
 
 }

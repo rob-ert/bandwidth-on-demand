@@ -25,6 +25,7 @@ import java.util.Collection;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.Security;
 
@@ -40,10 +41,9 @@ public class DashboardController {
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
-  
+
   @Autowired
-  private WebUtils webUtils;
-  
+  private Environment environment;
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(RedirectAttributes redirectAttributes) {
@@ -66,8 +66,10 @@ public class DashboardController {
   String createNewActivationLinkForm(PhysicalResourceGroup physicalResourceGroup) {
     return String
         .format(
-            "<form id=\"\" action=\"%s\" method=\"POST\" enctype=\"application/x-www-form-urlencoded\"><input id=\"id\" name=\"id\" type=\"hidden\" value=\"%d\"><input class=\"btn primary\" value=\"Save\" type=\"submit\"></div></form>",
-             webUtils.getExternalBodUrl()+ActivationEmailController.ACTIVATION_MANAGER_PATH, physicalResourceGroup.getId());
+            "<form id=\"activateFrom\" action=\"%s\" method=\"POST\" enctype=\"application/x-www-form-urlencoded\" +"
+                + "display:\"inline\"><input id=\"id\" name=\"id\" type=\"hidden\" value=\"%d\"><input class=\"btn primary\""
+                + "value=\"Send email\" type=\"submit\"></div></form>", environment.getExternalBodUrl()
+                + ActivationEmailController.ACTIVATION_MANAGER_PATH, physicalResourceGroup.getId());
   }
 
 }

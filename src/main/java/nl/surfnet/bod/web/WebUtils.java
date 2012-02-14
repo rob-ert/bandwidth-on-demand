@@ -23,18 +23,13 @@ package nl.surfnet.bod.web;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.HtmlUtils;
 
 import com.google.common.collect.Lists;
 
-@Component
-public class WebUtils {
-
-  @Value("${external.bod.url}")
-  private String externalBodUrl;
+public final class WebUtils {
 
   public static final String CREATE = "/create";
   public static final String SHOW = "/show";
@@ -67,14 +62,11 @@ public class WebUtils {
     return (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1 : nrOfPages);
   }
 
-  public String getExternalBodUrl() {
-    return externalBodUrl;
-  }
-
   /**
-   * Adds a flashMessage which will survive a redirect.
+   * Adds an infoMessage, depending on the type of {@link Model} it will will
+   * survive a redirect.
    * 
-   * @param redirectAttributes
+   * @param model
    *          Model to add the message to
    * @param message
    *          Message to add
@@ -82,18 +74,32 @@ public class WebUtils {
    *          Arguments to parse into the message, using
    *          {@link String#format(String, Object...)}
    */
-  public static void addInfoMessage(RedirectAttributes redirectAttributes, String message, Object... messageArg) {
-    addMessage(redirectAttributes, formatMessage(message, messageArg));
+  public static void addInfoMessage(Model model, String message, Object... messageArgs) {
+    addMessage(model, formatAndEscapeMessage(message, messageArgs));
   }
 
-  public static void addInfoMessageWithHtml(RedirectAttributes redirectAttributes, String htmlMessage, String message,
+  public static void addInfoMessage(RedirectAttributes model, String message, Object... messageArgs) {
+    addMessage(model, formatAndEscapeMessage(message, messageArgs));
+  }
+
+  public static void addInfoMessageWithHtml(Model model, String htmlMessage, String message, Object... messageArgs) {
+    addMessage(model, formatAndEscapeMessage(htmlMessage, message, messageArgs));
+  }
+
+  public static void addInfoMessageWithHtml(RedirectAttributes model, String htmlMessage, String message,
       Object... messageArgs) {
-    String formattedMessage = formatMessage(message, messageArgs);
+    String formattedMessage = formatAndEscapeMessage(htmlMessage, message, messageArgs);
+    addMessage(model, formattedMessage);
+  }
 
-    // Add the html
-    formattedMessage = formattedMessage + "<p>" + htmlMessage + "</p>";
-
-    addMessage(redirectAttributes, formattedMessage);
+  public static String getFirstInfoMessage(Model model) {
+    String message = null;
+    @SuppressWarnings("unchecked")
+    List<String> messages = (List<String>) model.asMap().get(INFO_MESSAGES_KEY);
+    if (messages != null) {
+      message = messages.get(0);
+    }
+    return message;
   }
 
   public static String getFirstInfoMessage(RedirectAttributes redirectAttributes) {
@@ -105,16 +111,36 @@ public class WebUtils {
     }
     return message;
   }
- 
-  static String formatMessage(String message, Object... args) {
+
+  static String formatAndEscapeMessage(String message, Object... args) {
     return HtmlUtils.htmlEscape(String.format(message, args));
   }
 
-  static void addMessage(RedirectAttributes redirectAttributes, String message) {
+  private static String formatAndEscapeMessage(String htmlMessage, String message, Object... messageArgs) {
+    String formattedMessage = formatAndEscapeMessage(message, messageArgs);
+
+    // Add the html
+    formattedMessage = formattedMessage + " " + htmlMessage;
+    return formattedMessage;
+  }
+
+  static void addMessage(RedirectAttributes model, String message) {
     @SuppressWarnings("unchecked")
-    List<String> messages = (List<String>) redirectAttributes.getFlashAttributes().get(INFO_MESSAGES_KEY);
+    List<String> messages = (List<String>) model.getFlashAttributes().get(INFO_MESSAGES_KEY);
+
     if (messages == null) {
-      redirectAttributes.addFlashAttribute(INFO_MESSAGES_KEY, Lists.newArrayList(message));
+      model.addFlashAttribute(INFO_MESSAGES_KEY, Lists.newArrayList(message));
+    }
+    else {
+      messages.add(message);
+    }
+  }
+
+  static void addMessage(Model model, String message) {
+    @SuppressWarnings("unchecked")
+    List<String> messages = (List<String>) model.asMap().get(INFO_MESSAGES_KEY);
+    if (messages == null) {
+      model.addAttribute(INFO_MESSAGES_KEY, Lists.newArrayList(message));
     }
     else {
       messages.add(message);

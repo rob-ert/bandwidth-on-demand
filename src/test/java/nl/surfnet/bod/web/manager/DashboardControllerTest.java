@@ -33,6 +33,7 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -56,8 +57,8 @@ public class DashboardControllerTest {
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
   
   @Mock
-  private WebUtils webUtils;
-
+  private Environment environment;
+  
   @Test
   public void managerWhithInactivePhysicalResourceGroupsShouldGetRedirected() {
     RichUserDetails user = new RichUserDetailsFactory().create();
