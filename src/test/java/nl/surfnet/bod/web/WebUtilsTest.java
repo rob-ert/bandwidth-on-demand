@@ -24,12 +24,11 @@ public class WebUtilsTest {
   private final Object[] messageArgs = { messageArg };
   private final Object[] emptyArgs = new Object[0];
 
-  
   @Test
   public void testSecondPage() {
     assertThat(WebUtils.calculateFirstPage(2), is(WebUtils.MAX_ITEMS_PER_PAGE));
   }
-  
+
   @Test
   public void shouldContainOnePage() {
     assertThat(WebUtils.calculateMaxPages(10), is(10 / WebUtils.MAX_ITEMS_PER_PAGE));
@@ -74,6 +73,14 @@ public class WebUtilsTest {
     List<String> messages = (List<String>) redirectModel.getFlashAttributes().get(WebUtils.INFO_MESSAGES_KEY);
     assertThat(messages.get(0), is(messageBase + messageArg));
     assertThat(messages.get(1), is("SecondMessage"));
+  }
+
+  @Test
+  public void shouldAddNullMessages() {
+    WebUtils.addInfoMessage(model, null, emptyArgs);
+    WebUtils.addInfoMessage(redirectModel, null, emptyArgs);
+    WebUtils.addInfoMessageWithHtml(model, null, null, emptyArgs);
+    WebUtils.addInfoMessageWithHtml(redirectModel, null, null, emptyArgs);
   }
 
   @Test
