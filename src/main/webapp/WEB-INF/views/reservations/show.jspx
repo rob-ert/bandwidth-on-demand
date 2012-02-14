@@ -5,7 +5,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <page:show id="fc_nl_surfnet_bod_domain_reservation" path="/reservations" object="${reservation}" update="false">
+    <page:show id="fc_reservation" path="/reservations" object="${reservation}" update="false">
 		<field:display field="sourcePort" labelCode="reservation_sourcePort" id="c_nl_surfnet_bod_domain_sourceport" object="${reservation}" />
         <field:display field="destinationPort" labelCode="reservation_destinationPort" id="c_nl_surfnet_bod_domain_destinationPort" object="${reservation}" />
         <field:display field="virtualResourceGroup" labelCode="virtualresourcegroup" id="c_nl_surfnet_bod_domain_virtualresourcegroup" object="${reservation}" />
@@ -16,5 +16,7 @@
         
         <field:display field="bandwidth" labelCode="reservation_bandwidth" id="bandwidth" object="${reservation}"/>
         <field:display field="userCreated" labelCode="reservation_userCreated" id="userCreated" object="${reservation}" />
+
+        <field:display field="reservationId" labelCode="reservation_reservationId" id="reservationId" object="${reservation}" />
     </page:show>
 </div>
