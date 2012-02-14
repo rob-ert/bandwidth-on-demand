@@ -15,7 +15,6 @@
             <table:column id="c_PhysicalPort_physicalResourceGroup" property="physicalResourceGroup" />
             <table:column id="c_PhysicalPort_virtualPortCount" property="numberOfVirtualPorts" />
             
-
             <table:actionColumn image="/resources/images/application_put.png"
                 action="/showvirtualports" title="Show Virtual Ports" />
                 
@@ -37,8 +36,8 @@
             "${closePaneImageUrl}",
             {
               hide: function($row) {
-                      var numberOfVirtualPorts = parseInt($($row.children("td")[2]).text());
-                      return !numberOfVirtualPorts;
+                      var numberOfPorts = parseInt($($row.children("td")[3]).text());
+                      return !numberOfPorts;
                     }
             }
           );
