@@ -7,13 +7,15 @@
 
     <div class="hero-unit">
         <h1>Link is not valid anymore</h1>
-        <p>The activation link is not valid anymore, it has expired on ${link.expirationDateTime}.</p>
+
+        <p>The activation link is not valid anymore, it has expired on '<i><spring:eval expression="link.expirationDateTime"/></i>'.</p>
 
         <p>You can request a new link which will be sent by e-mail.</p>
-	   
-	   <form:create id="fc_newLink" modelAttribute="physicalResourceGroup" path="/manager/activate" label="New request">
-	   		<sform:hidden path="id" />
-	   </form:create>        
+
+       <sform:form modelAttribute="physicalResourceGroup" method="POST" action="${formUrl}">
+            <sform:hidden path="id" />
+            <input type="submit" value="Request new link" class="btn primary large" />
+        </sform:form>
     </div>
 
 </div>

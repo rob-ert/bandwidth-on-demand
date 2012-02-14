@@ -21,19 +21,10 @@
  */
 package nl.surfnet.bod.domain;
 
-import java.util.Date;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Transient;
-import javax.persistence.Version;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
@@ -169,15 +160,15 @@ public class ActivationEmailLink<T> {
     this.sourceObject = sourceObject;
   }
 
-  public Date getExpirationDateTime() {
-    return emailSentDateTime != null ? this.emailSentDateTime.plusDays(VALID_PERIOD_DAYS).toDate() : null;
+  public LocalDateTime getExpirationDateTime() {
+    return emailSentDateTime != null ? emailSentDateTime.plusDays(VALID_PERIOD_DAYS) : null;
   }
 
   /**
    * This link is valid when the activationEmail was sent, this link is not
    * activated yet and the email was sent within the last
    * {@link #VALID_PERIOD_DAYS}
-   * 
+   *
    * @return true if valid, false otherwise
    */
   public boolean isValid() {

@@ -18,10 +18,6 @@
         <put-attribute name="body" value="/WEB-INF/views/manager/linkActive.jspx" />
     </definition>
     
-     <definition extends="manager" name="manager/linkSent">
-        <put-attribute name="body" value="/WEB-INF/views/manager/linkSent.jspx" />
-    </definition>
-    
     <definition extends="manager" name="manager/linkChanged">
         <put-attribute name="body" value="/WEB-INF/views/manager/linkChanged.jspx" />
     </definition>
