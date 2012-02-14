@@ -68,7 +68,7 @@
                     <div class="span14">
                         <div class="alert-message warn" data-alert="true">
                             <a class="close" href="#">&amp;times;</a>
-                            <p><c:out value="${infoMessage}" escapeXml="false"/></p>
+                            <p style='display: inline'><c:out value="${infoMessage}" escapeXml="false"/></p>
                         </div>
                     </div>
                 </div>

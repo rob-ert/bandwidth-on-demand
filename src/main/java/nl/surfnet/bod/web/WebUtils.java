@@ -113,7 +113,11 @@ public final class WebUtils {
   }
 
   static String formatAndEscapeMessage(String message, Object... args) {
-    return HtmlUtils.htmlEscape(String.format(message, args));
+    if (message != null) {
+      return HtmlUtils.htmlEscape(String.format(message, args));
+    }
+
+    return "";
   }
 
   private static String formatAndEscapeMessage(String htmlMessage, String message, Object... messageArgs) {

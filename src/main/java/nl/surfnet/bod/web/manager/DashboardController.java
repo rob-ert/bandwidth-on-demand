@@ -64,12 +64,11 @@ public class DashboardController {
   }
 
   String createNewActivationLinkForm(PhysicalResourceGroup physicalResourceGroup) {
-    return String
-        .format(
-            "<form id=\"activateFrom\" action=\"%s\" method=\"POST\" enctype=\"application/x-www-form-urlencoded\" +"
-                + "display:\"inline\"><input id=\"id\" name=\"id\" type=\"hidden\" value=\"%d\"><input class=\"btn primary\""
-                + "value=\"Send email\" type=\"submit\"></div></form>", environment.getExternalBodUrl()
-                + ActivationEmailController.ACTIVATION_MANAGER_PATH, physicalResourceGroup.getId());
+    return String.format("<form style='display: inline' id=\"activateFrom\" action=\"%s\" method=\"POST\" + "
+        + "enctype=\"application/x-www-form-urlencoded\">"
+        + "<input id=\"id\" name=\"id\" type=\"hidden\" value=\"%d\"><input class=\"btn primary\""
+        + "value=\"Send email\" type=\"submit\"></div></form>", environment.getExternalBodUrl()
+        + ActivationEmailController.ACTIVATION_MANAGER_PATH, physicalResourceGroup.getId());
   }
 
 }
