@@ -12,9 +12,8 @@
     <div class="hero-unit">
         <h1>Link is already activated</h1>
         <p>
-            The email address "${link.toEmail}" was already activated for Physical Resource Group
-            "${physicalResourceGroup.name}" on
-            <spring:eval expression="link.activationDateTime" />.
+            The email address '<i><c:out value="${link.toEmail}" /></i>' was already activated for Physical Resource Group
+            '<i><c:out value="${physicalResourceGroup.name}" /></i>' on <i><spring:eval expression="link.activationDateTime" /></i>.
         </p>
 
         <a href="${createVirtualPortUrl}" class="btn primary large">Add Virtual Ports</a>
