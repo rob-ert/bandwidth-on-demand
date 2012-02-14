@@ -51,7 +51,7 @@ public class WebUtils {
   public static final String PAGE_KEY = "page";
   public static final String ID_KEY = "id";
 
-  public static final int MAX_ITEMS_PER_PAGE = 15;
+  public static final int MAX_ITEMS_PER_PAGE = 10;
 
   public static final String INFO_MESSAGES_KEY = "infoMessages";
 
