@@ -54,6 +54,9 @@ public class DashboardControllerTest {
 
   @Mock
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
+  
+  @Mock
+  private WebUtils webUtils;
 
   @Test
   public void managerWhithInactivePhysicalResourceGroupsShouldGetRedirected() {

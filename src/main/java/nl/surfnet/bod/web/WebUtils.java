@@ -21,13 +21,17 @@
  */
 package nl.surfnet.bod.web;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.HtmlUtils;
 
+import com.google.common.collect.Lists;
+
 @Component
-public final class WebUtils {
+public class WebUtils {
 
   @Value("${external.bod.url}")
   private String externalBodUrl;
@@ -79,8 +83,7 @@ public final class WebUtils {
    *          {@link String#format(String, Object...)}
    */
   public static void addInfoMessage(RedirectAttributes redirectAttributes, String message, Object... messageArg) {
-
-    redirectAttributes.addFlashAttribute(INFO_MESSAGES_KEY, formatMessage(message, messageArg));
+    addMessage(redirectAttributes, formatMessage(message, messageArg));
   }
 
   public static void addInfoMessageWithHtml(RedirectAttributes redirectAttributes, String htmlMessage, String message,
@@ -90,10 +93,31 @@ public final class WebUtils {
     // Add the html
     formattedMessage = formattedMessage + "<p>" + htmlMessage + "</p>";
 
-    redirectAttributes.addFlashAttribute(INFO_MESSAGES_KEY, formattedMessage);
+    addMessage(redirectAttributes, formattedMessage);
   }
 
+  public static String getFirstInfoMessage(RedirectAttributes redirectAttributes) {
+    String message = null;
+    @SuppressWarnings("unchecked")
+    List<String> messages = (List<String>) redirectAttributes.getFlashAttributes().get(INFO_MESSAGES_KEY);
+    if (messages != null) {
+      message = messages.get(0);
+    }
+    return message;
+  }
+ 
   static String formatMessage(String message, Object... args) {
     return HtmlUtils.htmlEscape(String.format(message, args));
+  }
+
+  static void addMessage(RedirectAttributes redirectAttributes, String message) {
+    @SuppressWarnings("unchecked")
+    List<String> messages = (List<String>) redirectAttributes.getFlashAttributes().get(INFO_MESSAGES_KEY);
+    if (messages == null) {
+      redirectAttributes.addFlashAttribute(INFO_MESSAGES_KEY, Lists.newArrayList(message));
+    }
+    else {
+      messages.add(message);
+    }
   }
 }

@@ -87,7 +87,7 @@ public class ActivationEmailControllerTest {
     PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
     when(linkMock.isValid()).thenReturn(false);
     when(linkMock.getToEmail()).thenReturn(physicalResourceGroup.getManagerEmail());
-    
+
     when(physicalResourceGroupServiceMock.findActivationLink("1234567890")).thenReturn(linkMock);
     when(linkMock.getSourceObject()).thenReturn(physicalResourceGroup);
     String page = subject.activateEmail("1234567890", new ModelStub());
@@ -129,10 +129,8 @@ public class ActivationEmailControllerTest {
 
     verify(physicalResourceGroupServiceMock).sendAndPersistActivationRequest(physicalResourceGroup);
 
-    assertThat(redirectAttributesMock.getFlashAttributes().keySet(), contains(WebUtils.INFO_MESSAGES_KEY));
-    assertThat((String) redirectAttributesMock.getFlashAttributes().get(WebUtils.INFO_MESSAGES_KEY),
-        containsString(physicalResourceGroup.getName()));
-    assertThat((String) redirectAttributesMock.getFlashAttributes().get(WebUtils.INFO_MESSAGES_KEY),
+    assertThat(WebUtils.getFirstInfoMessage(redirectAttributesMock), containsString(physicalResourceGroup.getName()));
+    assertThat(WebUtils.getFirstInfoMessage(redirectAttributesMock),
         containsString(physicalResourceGroup.getManagerEmail()));
   }
 
