@@ -93,7 +93,7 @@ public class PhysicalResourceGroupController {
     if (emailChanged(group, command)) {
       physicalResourceGroupService.sendAndPersistActivationRequest(group);
 
-      WebUtils.addInfoMessage(redirectAttributes, "A new activation email request has been sent to '%s'",
+      WebUtils.addInfoMessage(redirectAttributes, "A new activation email request has been sent to '{}'",
               command.getManagerEmail());
     }
 

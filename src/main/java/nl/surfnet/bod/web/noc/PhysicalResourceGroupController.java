@@ -21,7 +21,19 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.CREATE;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.EDIT;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.SHOW;
+import static nl.surfnet.bod.web.WebUtils.UPDATE;
+import static nl.surfnet.bod.web.WebUtils.addInfoMessage;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +43,7 @@ import javax.validation.Valid;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.validator.PhysicalResourceGroupValidator;
+import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.web.WebUtils;
 
@@ -38,10 +51,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.google.common.collect.Lists;
 
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
@@ -55,11 +70,14 @@ public class PhysicalResourceGroupController {
   private PhysicalResourceGroupService physicalResourceGroupService;
 
   @Autowired
+  private InstituteService instituteIddService;
+
+  @Autowired
   private PhysicalResourceGroupValidator physicalResourceGroupValidator;
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid final PhysicalResourceGroup physicalResourceGroup, final BindingResult bindingResult,
-      final Model model) {
+      final RedirectAttributes redirectAttributes, final Model model) {
 
     physicalResourceGroupValidator.validate(physicalResourceGroup, bindingResult);
     if (bindingResult.hasErrors()) {
@@ -69,7 +87,13 @@ public class PhysicalResourceGroupController {
 
     model.asMap().clear();
     physicalResourceGroupService.save(physicalResourceGroup);
+
     physicalResourceGroupService.sendAndPersistActivationRequest(physicalResourceGroup);
+    instituteIddService.fillInstituteForPhysicalResourceGroup(physicalResourceGroup);
+    
+    WebUtils.addInfoMessage(redirectAttributes,
+        "An email activation request for physical resource group '{}' was sent to: '{}'",
+        physicalResourceGroup.getName(), physicalResourceGroup.getManagerEmail());
 
     return "redirect:" + PAGE_URL;
   }
@@ -125,8 +149,7 @@ public class PhysicalResourceGroupController {
 
     if (managerMailHasChanged(physicalResourceGroup)) {
       physicalResourceGroupService.sendAndPersistActivationRequest(physicalResourceGroup);
-      addInfoMessage(model,
-          String.format("A new activation email has been sent to '%s'", physicalResourceGroup.getManagerEmail()));
+      addInfoMessage(model, "A new activation email has been sent to {}", physicalResourceGroup.getManagerEmail());
     }
     else {
       physicalResourceGroupService.update(physicalResourceGroup);
@@ -135,7 +158,6 @@ public class PhysicalResourceGroupController {
     return "redirect:" + PAGE_URL;
   }
 
-  
   private boolean managerMailHasChanged(PhysicalResourceGroup group) {
     PhysicalResourceGroup original = physicalResourceGroupService.find(group.getId());
 

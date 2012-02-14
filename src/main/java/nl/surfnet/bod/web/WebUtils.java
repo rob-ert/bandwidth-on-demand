@@ -24,6 +24,7 @@ package nl.surfnet.bod.web;
 import java.util.List;
 
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.HtmlUtils;
 
@@ -112,8 +113,10 @@ public final class WebUtils {
     return message;
   }
 
-  static String formatAndEscapeMessage(String message, Object... args) {
-    if (message != null) {
+  public static String formatAndEscapeMessage(String message, Object... args) {
+    if (message != null) {      
+      //Enable replacement by log and spring convention
+      message = StringUtils.replace(message, "{}", "%s");      
       return HtmlUtils.htmlEscape(String.format(message, args));
     }
 

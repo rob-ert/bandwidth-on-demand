@@ -18,7 +18,7 @@ public class WebUtilsTest {
   private RedirectAttributes redirectModel = new ModelStub();
 
   private final String messageBase = "Test message ";
-  private final String message = messageBase + "%s";
+  private final String message = messageBase + "{}";
   private final String htmlMessage = "<p>" + messageBase + "</p>";
   private final String messageArg = "unittest";
   private final Object[] messageArgs = { messageArg };
