@@ -34,9 +34,9 @@ import com.google.common.base.Objects;
 /**
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 @Entity
 public class Reservation {
@@ -52,7 +52,7 @@ public class Reservation {
   private VirtualResourceGroup virtualResourceGroup;
 
   @Enumerated(EnumType.STRING)
-  private ReservationStatus status;
+  private ReservationStatus status = ReservationStatus.REQUESTED;
 
   @NotNull
   @ManyToOne(optional = false)

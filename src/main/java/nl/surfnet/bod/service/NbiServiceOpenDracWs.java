@@ -22,7 +22,6 @@
 package nl.surfnet.bod.service;
 
 import static nl.surfnet.bod.domain.ReservationStatus.*;
-import static org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleStatusT.*;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -46,6 +45,7 @@ import org.opendrac.www.ws.networkmonitoringservice.v3_0.NetworkMonitoringServic
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.*;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointRequestDocument.QueryEndpointRequest;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsRequestDocument.QueryEndpointsRequest;
+import org.opendrac.www.ws.resourceallocationandschedulingservice.v3_0.ResourceAllocationAndSchedulingServiceFault;
 import org.opendrac.www.ws.resourceallocationandschedulingservice.v3_0.ResourceAllocationAndSchedulingService_v30Stub;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.*;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CancelReservationScheduleRequestDocument.CancelReservationScheduleRequest;
@@ -117,11 +117,6 @@ class NbiServiceOpenDracWs implements NbiService {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see nl.surfnet.bod.nbi.NbiService#cancelSchedule(java.lang.String)
-   */
   @Override
   public void cancelReservation(final String reservationId) {
     final CancelReservationScheduleRequestDocument requestDocument = CancelReservationScheduleRequestDocument.Factory
@@ -138,33 +133,38 @@ class NbiServiceOpenDracWs implements NbiService {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see nl.surfnet.bod.nbi.NbiService#createReservation(nl.surfnet.bod.domain.
-   * Reservation)
-   */
   @Override
-  public String createReservation(final Reservation reservation) {
+  public Reservation createReservation(final Reservation reservation) {
     try {
-      final CreateReservationScheduleResponseDocument responseDocument = schedulingService.createReservationSchedule(
+      CreateReservationScheduleResponseDocument responseDocument = schedulingService.createReservationSchedule(
           createSchedule(reservation), getSecurityDocument());
 
-      log.info("Response: {}", responseDocument.getCreateReservationScheduleResponse());
+      log.debug("Response: {}", responseDocument.getCreateReservationScheduleResponse());
 
-      return responseDocument.getCreateReservationScheduleResponse().getReservationScheduleId();
+      String reservationId = responseDocument.getCreateReservationScheduleResponse().getReservationScheduleId();
+      ReservationStatus status = OpenDracStatusTranslator.translate(responseDocument
+          .getCreateReservationScheduleResponse().getResult());
+
+      if (status == FAILED) {
+        String failedReason = responseDocument.getCreateReservationScheduleResponse().getOccurrenceInfoArray()[0]
+            .getReason();
+        log.info(String.format("Reservation '%s' failed '%s'", reservationId, failedReason));
+      }
+
+      reservation.setReservationId(reservationId);
+      reservation.setStatus(status);
     }
-    catch (Exception e) {
-      log.error("Error: ", e);
+    catch (RemoteException e) {
+      throw new RuntimeException(e);
     }
-    return null;
+    catch (ResourceAllocationAndSchedulingServiceFault e) {
+      log.warn("Creating a reservation failed", e);
+      reservation.setStatus(FAILED);
+    }
+
+    return reservation;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see nl.surfnet.bod.nbi.NbiService#extendSchedule(java.lang.String, int)
-   */
   @Override
   public void extendReservation(final String reservationId, final int minutes) {
     final ExtendCurrentServiceForScheduleT extensionDefinition = ExtendCurrentServiceForScheduleT.Factory.newInstance();
@@ -185,11 +185,6 @@ class NbiServiceOpenDracWs implements NbiService {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see nl.surfnet.bod.nbi.NbiService#findAllPhysicalPorts()
-   */
   @Override
   public List<PhysicalPort> findAllPhysicalPorts() {
     final List<PhysicalPort> ports = Lists.newArrayList();
@@ -210,13 +205,6 @@ class NbiServiceOpenDracWs implements NbiService {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * nl.surfnet.bod.nbi.NbiService#findPhysicalPortByNetworkElementId(java.lang
-   * .String)
-   */
   @Override
   public PhysicalPort findPhysicalPortByNetworkElementId(final String networkElementId) {
     EndpointT endpoint = findEndPointById(networkElementId);
@@ -263,21 +251,11 @@ class NbiServiceOpenDracWs implements NbiService {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see nl.surfnet.bod.nbi.NbiService#getPhysicalPortsCount
-   */
   @Override
   public long getPhysicalPortsCount() {
     return findAllPhysicalPorts().size();
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see nl.surfnet.bod.nbi.NbiService#getScheduleStatus(java.lang.String)
-   */
   @Override
   public ReservationStatus getReservationStatus(final String reservationId) {
     final QueryReservationScheduleRequestDocument requestDocument = QueryReservationScheduleRequestDocument.Factory
@@ -298,52 +276,81 @@ class NbiServiceOpenDracWs implements NbiService {
           .getReservationSchedule();
       final ValidReservationScheduleStatusT.Enum status = schedule.getStatus();
 
-      // Translate OpenDRAC schedule status or state to BoD's reservation status
-      if (status == CONFIRMATION_PENDING) {
-        return PREPARING;
-      }
-      else if (status == CONFIRMATION_TIMED_OUT) {
-        return FAILED;
-      }
-      else if (status == CONFIRMATION_CANCELLED) {
-        return CANCELLED;
-      }
-      else if (status == EXECUTION_PENDING) {
-        return SCHEDULED;
-      }
-      else if (status == EXECUTION_IN_PROGRESS) {
-        return RUNNING;
-      }
-      else if (status == EXECUTION_SUCCEEDED) {
-        return SUCCEEDED;
-      }
-      else if (status == EXECUTION_PARTIALLY_SUCCEEDED) {
-        // An OpenDRAC service can be partially successful, a single schedule
-        // not (thats a reservation in BoD context).
-        return FAILED;
-      }
-      else if (status == EXECUTION_TIMED_OUT) {
-        return FAILED;
-      }
-      else if (status == EXECUTION_FAILED) {
-        return FAILED;
-      }
-      else if (status == EXECUTION_PARTIALLY_CANCELLED) {
-        return CANCELLED;
-      }
-      else if (status == EXECUTION_CANCELLED) {
-        return CANCELLED;
-      }
-      else {
-        log.warn("Unknow status: {}", status);
-        return null;
-      }
+      return OpenDracStatusTranslator.translate(status);
     }
     else {
       log.info("No reservation found for reservation id: {}, returning FAILED", reservationId);
       return FAILED;
     }
 
+  }
+
+  private static final class OpenDracStatusTranslator {
+    private static Logger logger = LoggerFactory.getLogger(OpenDracStatusTranslator.class);
+
+    private OpenDracStatusTranslator() {
+    }
+
+    public static ReservationStatus translate(ValidReservationScheduleCreationResultT.Enum status) {
+      if (status == ValidReservationScheduleCreationResultT.FAILED) {
+        return FAILED;
+      }
+      else if (status == ValidReservationScheduleCreationResultT.SUCCEEDED) {
+        return SUBMITTED;
+      }
+      else if (status == ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY) {
+        return SUBMITTED;
+      }
+      else if (status == ValidReservationScheduleCreationResultT.UNKNOWN) {
+        return FAILED;
+      }
+      else {
+        logger.error("Could not translate status: " + status);
+        throw new RuntimeException("Could not translate status: " + status);
+      }
+    }
+
+    public static ReservationStatus translate(ValidReservationScheduleStatusT.Enum status) {
+      if (status == ValidReservationScheduleStatusT.CONFIRMATION_PENDING) {
+        return PREPARING;
+      }
+      else if (status == ValidReservationScheduleStatusT.CONFIRMATION_TIMED_OUT) {
+        return FAILED;
+      }
+      else if (status == ValidReservationScheduleStatusT.CONFIRMATION_CANCELLED) {
+        return CANCELLED;
+      }
+      else if (status == ValidReservationScheduleStatusT.EXECUTION_PENDING) {
+        return SCHEDULED;
+      }
+      else if (status == ValidReservationScheduleStatusT.EXECUTION_IN_PROGRESS) {
+        return RUNNING;
+      }
+      else if (status == ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED) {
+        return SUCCEEDED;
+      }
+      else if (status == ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED) {
+        // An OpenDRAC service can be partially successful, a single schedule
+        // not (thats a reservation in BoD context).
+        return FAILED;
+      }
+      else if (status == ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT) {
+        return FAILED;
+      }
+      else if (status == ValidReservationScheduleStatusT.EXECUTION_FAILED) {
+        return FAILED;
+      }
+      else if (status == ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED) {
+        return CANCELLED;
+      }
+      else if (status == ValidReservationScheduleStatusT.EXECUTION_CANCELLED) {
+        return CANCELLED;
+      }
+      else {
+        logger.error("Could not translate status: " + status);
+        throw new RuntimeException("Could not translate status: " + status);
+      }
+    }
   }
 
   private CreateReservationScheduleRequestDocument createSchedule(final Reservation reservation) {
@@ -416,8 +423,8 @@ class NbiServiceOpenDracWs implements NbiService {
 
       final QueryEndpointsResponseDocument response = networkingService.queryEndpoints(requestDocument,
           getSecurityDocument());
-      final List<EndpointT> endPoints = Lists.newArrayList();
 
+      final List<EndpointT> endPoints = Lists.newArrayList();
       for (final String tna : response.getQueryEndpointsResponse().getTnaArray()) {
         endPoints.add(findEndpointByTna(tna));
       }
@@ -468,6 +475,10 @@ class NbiServiceOpenDracWs implements NbiService {
       }
     }
     return securityDocument;
+  }
+
+  void setEncryptedPassword(String encryptedPassword) {
+    this.encryptedPassword = encryptedPassword;
   }
 
 }

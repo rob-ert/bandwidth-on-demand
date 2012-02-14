@@ -51,7 +51,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -136,24 +138,30 @@ public class ReservationServiceTest {
 
   @Test
   public void reserveSameVirtualResourceGroupsShouldBeFine() throws InterruptedException, ExecutionException {
-    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
-    VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
-    VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
-
-    Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg).setSourcePort(source)
-        .setDestinationPort(destination).create();
+    final Reservation reservation = new ReservationFactory().create();
 
     final String reservationId = "SCHEDULE-" + System.currentTimeMillis();
     when(reservationRepoMock.save(any(Reservation.class))).thenReturn(reservation);
-    when(nbiPortService.createReservation((any(Reservation.class)))).thenReturn(reservationId);
+    when(nbiPortService.createReservation((any(Reservation.class)))).thenAnswer(new Answer<Reservation>() {
+      @Override
+      public Reservation answer(InvocationOnMock invocation) throws Throwable {
+        reservation.setReservationId(reservationId);
+        reservation.setStatus(ReservationStatus.SUCCEEDED);
+        return reservation;
+      }
+    });
 
     Future<?> future = subject.reserve(reservation);
 
-    // Wait while done
-    future.get();
+    waitTillDone(future);
 
     assertThat(reservation.getReservationId(), is(reservationId));
+
     verify(reservationRepoMock, times(2)).save(reservation);
+  }
+
+  private void waitTillDone(Future<?> future) throws InterruptedException, ExecutionException {
+    future.get();
   }
 
   @Test(expected = IllegalStateException.class)
@@ -201,7 +209,7 @@ public class ReservationServiceTest {
 
     Reservation reservation = new ReservationFactory().setStartTime(startTime).setEndTime(endTime).create();
     subject.reserve(reservation);
-    
+
     assertThat(reservation.getStartTime(), is(startTime.withSecondOfMinute(0).withMillisOfSecond(0)));
     assertThat(reservation.getEndTime(), is(endTime.withSecondOfMinute(0).withMillisOfSecond(0)));
   }

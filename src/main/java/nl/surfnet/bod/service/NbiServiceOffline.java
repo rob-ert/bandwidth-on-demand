@@ -112,10 +112,14 @@ class NbiServiceOffline implements NbiService {
   }
 
   @Override
-  public String createReservation(Reservation reservation) {
+  public Reservation createReservation(Reservation reservation) {
     final String scheduleId = "SCHEDULE-" + System.currentTimeMillis();
     scheduleIds.put(scheduleId, SCHEDULED);
-    return scheduleId;
+
+    reservation.setReservationId(scheduleId);
+    reservation.setStatus(SCHEDULED);
+
+    return reservation;
   }
 
   @Override

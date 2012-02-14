@@ -1,0 +1,6 @@
+<net:QueryEndpointsResponse xmlns:net="http://www.opendrac.org/ws/NetworkMonitoringServiceTypes_v3.0"
+    xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+    <net:numOfElementsIncluded>1</net:numOfElementsIncluded>
+    <net:numOfElementsFound>1</net:numOfElementsFound>
+    <net:tna>Ut002A_OME01_ETH-1-1-4</net:tna>
+</net:QueryEndpointsResponse>

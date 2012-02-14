@@ -86,7 +86,9 @@ public class ReservationService {
     reservation.setStartTime(reservation.getStartTime().withSecondOfMinute(0).withMillisOfSecond(0));
     reservation.setEndTime(reservation.getEndTime().withSecondOfMinute(0).withMillisOfSecond(0));
 
-    return executorService.submit(new ReservationCreator(reservation));
+    reservationRepo.save(reservation);
+
+    return executorService.submit(new ReservationSubmitter(reservation));
   }
 
   public Reservation find(Long id) {
@@ -147,14 +149,13 @@ public class ReservationService {
       public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
           CriteriaBuilder cb) {
 
-        return
-            cb.and(
-              cb.or(
+        return cb.and(
+            cb.or(
                 cb.and(cb.equal(reservation.get(Reservation_.startTime), startOrEndDateTime.toLocalTime()),
-                  cb.equal(reservation.get(Reservation_.startDate), startOrEndDateTime.toLocalDate())),
+                    cb.equal(reservation.get(Reservation_.startDate), startOrEndDateTime.toLocalDate())),
                 cb.and(cb.equal(reservation.get(Reservation_.endTime), startOrEndDateTime.toLocalTime()),
-                  cb.equal(reservation.get(Reservation_.endDate), startOrEndDateTime.toLocalDate()))),
-              cb.and(reservation.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES)));
+                    cb.equal(reservation.get(Reservation_.endDate), startOrEndDateTime.toLocalDate()))),
+            cb.and(reservation.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES)));
       }
     };
   }
@@ -179,42 +180,28 @@ public class ReservationService {
    * Asynchronous {@link Reservation} creator.
    *
    */
-  private class ReservationCreator implements Runnable {
+  private final class ReservationSubmitter implements Runnable {
+    private final Reservation reservation;
+    private final ReservationStatus originalStatus;
 
-    private Reservation reservation;
-
-    public ReservationCreator(Reservation reservation) {
+    public ReservationSubmitter(Reservation reservation) {
       this.reservation = reservation;
+      this.originalStatus = reservation.getStatus();
     }
 
     @Override
     public void run() {
-      reservation.setStatus(ReservationStatus.SUBMITTED);
-      final ReservationStatus oldStatus = reservation.getStatus();
+      Reservation createdReservation = nbiService.createReservation(reservation);
 
-      try {
-        // First persist in db
-        reservation = update(reservation);
+      update(createdReservation);
 
-        final String reservationId = nbiService.createReservation(reservation);
+      publishStatusChanged(createdReservation);
+    }
 
-        // Was there an error?
-        if (reservationId == null) {
-          reservationRepo.save(reservation);
+    private void publishStatusChanged(Reservation newReservation) {
+      ReservationStatusChangeEvent createEvent = new ReservationStatusChangeEvent(originalStatus, newReservation);
 
-          throw new ReservationFailedException("Unable to create reservation: " + reservation);
-        }
-
-        reservation.setReservationId(reservationId);
-        reservation.setStatus(getStatus(reservation));
-        reservation = reservationRepo.save(reservation);
-
-        log.info("Reservation created: {}", reservation);
-      }
-      finally {
-        ReservationStatusChangeEvent createEvent = new ReservationStatusChangeEvent(oldStatus, reservation);
-        reservationEventPublisher.notifyListeners(createEvent);
-      }
+      reservationEventPublisher.notifyListeners(createEvent);
     }
   }
 

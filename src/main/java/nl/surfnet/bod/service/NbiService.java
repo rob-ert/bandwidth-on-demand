@@ -46,7 +46,7 @@ public interface NbiService {
    * @param reservation
    * @return the reservation id returned from the underlying NMS
    */
-  String createReservation(Reservation reservation);
+  Reservation createReservation(Reservation reservation);
 
   /**
    * Extends the schedule identified by the schedule id with an certain amount

@@ -50,6 +50,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -80,8 +81,8 @@ public class ReservationController {
   private ReservationValidator reservationValidator = new ReservationValidator();
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid Reservation reservation, BindingResult bindingResult, Model model) {
-
+  public String create(@Valid Reservation reservation, BindingResult bindingResult, Model model,
+      RedirectAttributes redirectAttributes) {
     reservation.setUserCreated(Security.getUserDetails().getNameId());
 
     reservationValidator.validate(reservation, bindingResult);
@@ -95,13 +96,16 @@ public class ReservationController {
 
     try {
       reservationService.reserve(reservation);
-      model.asMap().clear();
+
+      WebUtils.addInfoMessage(redirectAttributes, "A new reservation for '%s' has been requested.", reservation
+          .getVirtualResourceGroup().getName());
 
       return "redirect:" + PAGE_URL;
     }
     catch (ReservationFailedException e) {
       model.addAttribute(MODEL_KEY, reservation);
       model.addAttribute(VirtualPortController.MODEL_KEY_LIST, reservation.getVirtualResourceGroup().getVirtualPorts());
+
       bindingResult.reject("", e.getMessage());
 
       return PAGE_URL + CREATE;
