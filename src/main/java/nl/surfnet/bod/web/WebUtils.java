@@ -52,6 +52,9 @@ public final class WebUtils {
 
   public static final String INFO_MESSAGES_KEY = "infoMessages";
 
+  static final String PARAM_MARKUP_START = "<b>";
+  static final String PARAM_MARKUP_END = "</b>";
+
   private WebUtils() {
   }
 
@@ -116,17 +119,20 @@ public final class WebUtils {
 
   /**
    * Html escapes the argument and replaces them with the parameter placeholders
-   * in the message. The parameter placeholders can be either "{}" or the regular
-   * {@link String#format(String, Object...)} placeholders.
+   * in the message. The parameter placeholders can be either "{}" or the
+   * regular {@link String#format(String, Object...)} placeholders.
    * 
-   * @param message The message to parse
-   * @param args Values the replace the placeholders with
+   * @param message
+   *          The message to parse
+   * @param args
+   *          Values the replace the placeholders with
    * @return Formatted string, with the arguments html escaped.
    */
   public static String formatAndEscapeMessage(String message, Object... args) {
     if (message != null) {
       // Enable replacement by log and spring convention
       message = StringUtils.replace(message, "{}", "%s");
+      message = StringUtils.replace(message, "%s", PARAM_MARKUP_START + "%s" + PARAM_MARKUP_END);
 
       ArrayList<String> escapedArgs = Lists.newArrayList();
       for (Object object : args) {

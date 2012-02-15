@@ -21,6 +21,7 @@ public class WebUtilsTest {
   private final String message = messageBase + "{}";
   private final String htmlMessage = "<p>" + messageBase + "</p>";
   private final String messageArg = "unittest";
+  private final String messageArgWithMarkup = WebUtils.PARAM_MARKUP_START + messageArg + WebUtils.PARAM_MARKUP_END;
   private final Object[] messageArgs = { messageArg };
   private final Object[] emptyArgs = new Object[0];
 
@@ -43,7 +44,7 @@ public class WebUtilsTest {
   public void shouldHaveReplacedPlaceholderWithNormalModel() {
     WebUtils.addInfoMessage(model, message, messageArgs);
 
-    assertThat(WebUtils.getFirstInfoMessage(model), is(messageBase + messageArg));
+    assertThat(WebUtils.getFirstInfoMessage(model), is(messageBase + messageArgWithMarkup));
   }
 
   @Test
@@ -53,7 +54,7 @@ public class WebUtilsTest {
 
     @SuppressWarnings("unchecked")
     List<String> messages = (List<String>) model.asMap().get(WebUtils.INFO_MESSAGES_KEY);
-    assertThat(messages.get(0), is(messageBase + messageArg));
+    assertThat(messages.get(0), is(messageBase + messageArgWithMarkup));
     assertThat(messages.get(1), is("SecondMessage"));
   }
 
@@ -61,7 +62,7 @@ public class WebUtilsTest {
   public void shouldHaveReplacedPlaceholderWithNormalRedirectModel() {
     WebUtils.addInfoMessage(redirectModel, message, messageArgs);
 
-    assertThat(WebUtils.getFirstInfoMessage(redirectModel), is(messageBase + messageArg));
+    assertThat(WebUtils.getFirstInfoMessage(redirectModel), is(messageBase + messageArgWithMarkup));
   }
 
   @Test
@@ -71,7 +72,7 @@ public class WebUtilsTest {
 
     @SuppressWarnings("unchecked")
     List<String> messages = (List<String>) redirectModel.getFlashAttributes().get(WebUtils.INFO_MESSAGES_KEY);
-    assertThat(messages.get(0), is(messageBase + messageArg));
+    assertThat(messages.get(0), is(messageBase + messageArgWithMarkup));
     assertThat(messages.get(1), is("SecondMessage"));
   }
 
@@ -101,7 +102,7 @@ public class WebUtilsTest {
   public void shouldFormatMessage() {
     String formatAndEscapeMessage = WebUtils.formatAndEscapeMessage(message, messageArgs);
 
-    assertThat(formatAndEscapeMessage, is(messageBase + messageArg));
+    assertThat(formatAndEscapeMessage, is(messageBase + messageArgWithMarkup));
   }
 
   @Test
@@ -113,9 +114,9 @@ public class WebUtilsTest {
 
   @Test
   public void shouldFormatAndNotEscapeMessageButArgs() {
-    String formatAndEscapeMessage = WebUtils.formatAndEscapeMessage("<p>%s</p>","<b>");
+    String formatAndEscapeMessage = WebUtils.formatAndEscapeMessage("<p>%s</p>", "<b>");
 
-    assertThat(formatAndEscapeMessage, is("<p>" + "&lt;b&gt;" + "</p>"));
+    assertThat(formatAndEscapeMessage, is("<p>" + WebUtils.PARAM_MARKUP_START + "&lt;b&gt;" + WebUtils.PARAM_MARKUP_END + "</p>"));
   }
 
   @Test
