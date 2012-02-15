@@ -35,7 +35,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @RequestMapping(ActivationEmailController.ACTIVATION_MANAGER_PATH)
 @Controller
@@ -51,7 +50,6 @@ public class ActivationEmailController {
 
   @RequestMapping(value = "/{uuid}", method = RequestMethod.GET)
   public String activateEmail(@PathVariable String uuid, Model uiModel) {
-
     ActivationEmailLink<PhysicalResourceGroup> link = physicalResourceGroupService.findActivationLink(uuid);
 
     if (link == null) {
@@ -66,7 +64,7 @@ public class ActivationEmailController {
 
     uiModel.addAttribute("physicalResourceGroup", physicalResourceGroup);
     if (!Security.isManagerMemberOf(physicalResourceGroup)) {
-      WebUtils.addInfoMessage(uiModel, "User '%s' is not allowed to activate physical resource group '%s'", Security
+      WebUtils.addInfoMessage(uiModel, "User %s is not allowed to activate physical resource group %s", Security
           .getUserDetails().getDisplayName(), physicalResourceGroup.getName());
       log.info("Manager [{}] has no right to access physical resourcegroup: {}", Security.getUserDetails()
           .getUsername(), physicalResourceGroup.getName());
@@ -99,7 +97,7 @@ public class ActivationEmailController {
     ActivationEmailLink<PhysicalResourceGroup> activationLink = physicalResourceGroupService
         .sendAndPersistActivationRequest(foundPhysicalResourceGroup);
 
-    WebUtils.addInfoMessage(model, "An activation email for Physcial Resource Group '%s' was sent to '%s'",
+    WebUtils.addInfoMessage(model, "An activation email for Physcial Resource Group %s was sent to %s",
         activationLink.getSourceObject().getName(), activationLink.getToEmail());
 
     return "manager/index";

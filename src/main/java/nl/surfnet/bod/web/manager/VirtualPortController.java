@@ -105,7 +105,7 @@ public class VirtualPortController {
 
     model.asMap().clear();
 
-    WebUtils.addInfoMessage(redirectAttributes, "Virtual Port '%s' was created.", virtualPort.getManagerLabel());
+    WebUtils.addInfoMessage(redirectAttributes, "Virtual Port %s was created.", virtualPort.getManagerLabel());
 
     virtualPortService.save(virtualPort);
 
