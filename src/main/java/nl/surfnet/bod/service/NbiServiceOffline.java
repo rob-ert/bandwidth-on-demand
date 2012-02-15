@@ -135,7 +135,7 @@ class NbiServiceOffline implements NbiService {
 
   private ReservationStatus getNextStatus(ReservationStatus status) {
     switch (status) {
-    case SUBMITTED:
+    case REQUESTED:
       return ReservationStatus.SCHEDULED;
     case SCHEDULED:
       return ReservationStatus.PREPARING;
@@ -144,8 +144,7 @@ class NbiServiceOffline implements NbiService {
     case RUNNING:
       return ReservationStatus.SUCCEEDED;
     case SUCCEEDED:
-      // go round...
-      return ReservationStatus.SUBMITTED;
+      return ReservationStatus.SUCCEEDED;
     case FAILED:
       return ReservationStatus.FAILED;
     case CANCELLED:
@@ -158,11 +157,6 @@ class NbiServiceOffline implements NbiService {
   @Override
   public void cancelReservation(String scheduleId) {
     scheduleIds.put(scheduleId, CANCELLED);
-  }
-
-  @Override
-  public void extendReservation(String scheduleId, int minutes) {
-    throw new UnsupportedOperationException();
   }
 
   @Override

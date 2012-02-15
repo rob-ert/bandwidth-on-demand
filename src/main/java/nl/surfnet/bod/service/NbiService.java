@@ -49,15 +49,6 @@ public interface NbiService {
   Reservation createReservation(Reservation reservation);
 
   /**
-   * Extends the schedule identified by the schedule id with an certain amount
-   * of minutes
-   *
-   * @param scheduleId
-   * @param minutes
-   */
-  void extendReservation(String scheduleId, int minutes);
-
-  /**
    *
    * @return all available {@link PhysicalPort}'s
    */

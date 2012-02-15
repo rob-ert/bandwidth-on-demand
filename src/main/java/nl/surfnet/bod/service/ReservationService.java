@@ -78,7 +78,7 @@ public class ReservationService {
    * @param reservation
    * @return
    */
-  public Future<?> reserve(Reservation reservation) throws ReservationFailedException {
+  public Future<?> create(Reservation reservation) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
 

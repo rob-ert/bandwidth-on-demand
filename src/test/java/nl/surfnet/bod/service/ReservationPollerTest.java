@@ -65,7 +65,7 @@ public class ReservationPollerTest {
 
   @Test
   public void pollerShouldRaiseOneChangingReservation() throws InterruptedException {
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SUBMITTED).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.REQUESTED).create();
 
     when(reservationServiceMock.findReservationsToPoll(any(LocalDateTime.class))).thenReturn(
         Lists.newArrayList(reservation));
@@ -81,18 +81,18 @@ public class ReservationPollerTest {
     verify(reservationEventPublisherMock).notifyListeners(eventCaptor.capture());
 
     assertThat(eventCaptor.getAllValues(), hasSize(1));
-    assertThat(eventCaptor.getValue().getOldStatus(), is(ReservationStatus.SUBMITTED));
+    assertThat(eventCaptor.getValue().getOldStatus(), is(ReservationStatus.REQUESTED));
     assertThat(eventCaptor.getValue().getReservation().getStatus(), is(ReservationStatus.SCHEDULED));
   }
 
   @Test
   public void pollerShouldPollMaxTimes() throws InterruptedException {
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SUBMITTED).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
     int maxTries = 3;
 
     when(reservationServiceMock.findReservationsToPoll(any(LocalDateTime.class))).thenReturn(
         Lists.newArrayList(reservation));
-    when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.SUBMITTED);
+    when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.SCHEDULED);
 
     subject.setMaxPollingTries(3);
     subject.setPollingInterval(1, TimeUnit.MILLISECONDS);

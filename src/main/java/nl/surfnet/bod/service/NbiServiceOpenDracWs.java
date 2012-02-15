@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PostConstruct;
 
@@ -50,11 +50,11 @@ import org.opendrac.www.ws.resourceallocationandschedulingservice.v3_0.ResourceA
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.*;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CancelReservationScheduleRequestDocument.CancelReservationScheduleRequest;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument.CreateReservationScheduleRequest;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ExtendCurrentServiceForScheduleRequestDocument.ExtendCurrentServiceForScheduleRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.nortel.appcore.app.drac.common.utility.CryptoWrapper;
@@ -81,7 +81,7 @@ class NbiServiceOpenDracWs implements NbiService {
   private ResourceAllocationAndSchedulingService_v30Stub schedulingService;
   private SecurityDocument securityDocument;
 
-  private final Map<String, String> idToTnaCache = Maps.newHashMap();
+  private final ConcurrentMap<String, String> idToTnaCache = Maps.newConcurrentMap();
 
   @Value("${nbi.billing.group.name}")
   private String billingGroupName;
@@ -139,26 +139,31 @@ class NbiServiceOpenDracWs implements NbiService {
       CreateReservationScheduleResponseDocument responseDocument = schedulingService.createReservationSchedule(
           createSchedule(reservation), getSecurityDocument());
 
-      log.debug("Response: {}", responseDocument.getCreateReservationScheduleResponse());
+      log.debug("Create reservation response: {}", responseDocument.getCreateReservationScheduleResponse());
 
       String reservationId = responseDocument.getCreateReservationScheduleResponse().getReservationScheduleId();
       ReservationStatus status = OpenDracStatusTranslator.translate(responseDocument
           .getCreateReservationScheduleResponse().getResult());
 
       if (status == FAILED) {
-        String failedReason = responseDocument.getCreateReservationScheduleResponse().getOccurrenceInfoArray()[0]
-            .getReason();
-        log.info(String.format("Reservation '%s' failed '%s'", reservationId, failedReason));
+        List<String> reasons = Lists.newArrayList();
+        for (final ReservationOccurrenceInfoT occurenceInfo : responseDocument.getCreateReservationScheduleResponse()
+            .getOccurrenceInfoArray()) {
+          reasons.add(occurenceInfo.getReason());
+        }
+
+        log.info("Create reservation ({}) failed with '{}'", reservationId, Joiner.on(", ").join(reasons));
       }
 
       reservation.setReservationId(reservationId);
       reservation.setStatus(status);
     }
-    catch (RemoteException e) {
-      throw new RuntimeException(e);
-    }
     catch (ResourceAllocationAndSchedulingServiceFault e) {
       log.warn("Creating a reservation failed", e);
+      reservation.setStatus(FAILED);
+    }
+    catch (Exception e) {
+      log.error("Unexpected Exception while request reservation to openDRAC", e);
       reservation.setStatus(FAILED);
     }
 
@@ -166,50 +171,32 @@ class NbiServiceOpenDracWs implements NbiService {
   }
 
   @Override
-  public void extendReservation(final String reservationId, final int minutes) {
-    final ExtendCurrentServiceForScheduleT extensionDefinition = ExtendCurrentServiceForScheduleT.Factory.newInstance();
-    extensionDefinition.setScheduleId(reservationId);
-    extensionDefinition.setMinutesToExtend(minutes);
-
-    final ExtendCurrentServiceForScheduleRequestDocument requestDocument = ExtendCurrentServiceForScheduleRequestDocument.Factory
-        .newInstance();
-
-    final ExtendCurrentServiceForScheduleRequest request = requestDocument
-        .addNewExtendCurrentServiceForScheduleRequest();
-    request.setExtensionDefinition(extensionDefinition);
-    try {
-      schedulingService.extendCurrentServiceForSchedule(requestDocument, getSecurityDocument());
-    }
-    catch (Exception e) {
-      log.error("Error: ", e);
-    }
-  }
-
-  @Override
   public List<PhysicalPort> findAllPhysicalPorts() {
-    final List<PhysicalPort> ports = Lists.newArrayList();
-    for (final EndpointT endpoint : findAllEndPoints()) {
-      ports.add(getPhysicalPort(endpoint));
-    }
-
-    return ports;
-  }
-
-  public PhysicalPort findPhysicalPortByName(final String name) {
     try {
-      return getPhysicalPort(findEndpointByTna(name));
+      final List<PhysicalPort> ports = Lists.newArrayList();
+
+      for (final EndpointT endpoint : findAllEndPoints()) {
+        ports.add(getPhysicalPort(endpoint));
+      }
+
+      return ports;
     }
-    catch (Exception e) {
-      log.error("Error: ", e);
-      return null;
+    catch (NetworkMonitoringServiceFault e) {
+      log.warn("Could not query OpenDrac for all endpoints", e);
+      throw new RuntimeException(e);
     }
   }
 
   @Override
   public PhysicalPort findPhysicalPortByNetworkElementId(final String networkElementId) {
-    EndpointT endpoint = findEndPointById(networkElementId);
-
-    return getPhysicalPort(endpoint);
+    try {
+      EndpointT endpoint = findEndPointById(networkElementId);
+      return getPhysicalPort(endpoint);
+    }
+    catch (NetworkMonitoringServiceFault e) {
+      log.warn("Could not query OpenDrac for end point by id '{}'", networkElementId);
+      throw new RuntimeException(e);
+    }
   }
 
   /*
@@ -219,7 +206,7 @@ class NbiServiceOpenDracWs implements NbiService {
    * OpenDRAC. So the only save thing todo is use the id. The service keeps a
    * chache of id to tna.
    */
-  private EndpointT findEndPointById(String id) {
+  private EndpointT findEndPointById(String id) throws NetworkMonitoringServiceFault {
     String tna = idToTnaCache.get(id);
 
     if (tna == null) {
@@ -234,19 +221,14 @@ class NbiServiceOpenDracWs implements NbiService {
     }
     else {
       EndpointT endPoint;
-      try {
-        endPoint = findEndpointByTna(tna);
+      endPoint = findEndpointByTna(tna);
 
-        if (endPoint.getId().equals(id)) {
-          return endPoint;
-        }
-        else {
-          idToTnaCache.remove(id);
-          return findEndPointById(id);
-        }
+      if (endPoint.getId().equals(id)) {
+        return endPoint;
       }
-      catch (Exception e) {
-        return null;
+      else {
+        idToTnaCache.remove(id);
+        return findEndPointById(id);
       }
     }
   }
@@ -296,10 +278,10 @@ class NbiServiceOpenDracWs implements NbiService {
         return FAILED;
       }
       else if (status == ValidReservationScheduleCreationResultT.SUCCEEDED) {
-        return SUBMITTED;
+        return SCHEDULED;
       }
       else if (status == ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY) {
-        return SUBMITTED;
+        return SCHEDULED;
       }
       else if (status == ValidReservationScheduleCreationResultT.UNKNOWN) {
         return FAILED;
@@ -353,7 +335,8 @@ class NbiServiceOpenDracWs implements NbiService {
     }
   }
 
-  private CreateReservationScheduleRequestDocument createSchedule(final Reservation reservation) {
+  private CreateReservationScheduleRequestDocument createSchedule(final Reservation reservation)
+      throws NetworkMonitoringServiceFault {
     final CreateReservationScheduleRequestDocument requestDocument = CreateReservationScheduleRequestDocument.Factory
         .newInstance();
 
@@ -387,7 +370,7 @@ class NbiServiceOpenDracWs implements NbiService {
     return userInfo;
   }
 
-  private PathRequestT createPath(final Reservation reservation) {
+  private PathRequestT createPath(final Reservation reservation) throws NetworkMonitoringServiceFault {
     final PathRequestT pathRequest = PathRequestT.Factory.newInstance();
 
     final VirtualPort virtualSourcePort = reservation.getSourcePort();
@@ -413,16 +396,18 @@ class NbiServiceOpenDracWs implements NbiService {
     return virtualPort.getVlanId() == null ? DEFAULT_VID : virtualPort.getVlanId().toString();
   }
 
-  private List<EndpointT> findAllEndPoints() {
-    try {
-      final QueryEndpointsRequestDocument requestDocument = QueryEndpointsRequestDocument.Factory.newInstance();
-      final QueryEndpointsRequest request = requestDocument.addNewQueryEndpointsRequest();
-      request.setUserGroup(groupName);
-      request.setLayer(ValidLayerT.LAYER_2);
-      request.setType(ValidEndpointsQueryTypeT.QUERY_ENDPOINTS_BY_LAYER_AND_USER_GROUP_T);
+  private List<EndpointT> findAllEndPoints() throws NetworkMonitoringServiceFault {
+    final QueryEndpointsRequestDocument requestDocument = QueryEndpointsRequestDocument.Factory.newInstance();
+    final QueryEndpointsRequest request = requestDocument.addNewQueryEndpointsRequest();
+    request.setUserGroup(groupName);
+    request.setLayer(ValidLayerT.LAYER_2);
+    request.setType(ValidEndpointsQueryTypeT.QUERY_ENDPOINTS_BY_LAYER_AND_USER_GROUP_T);
 
+    try {
       final QueryEndpointsResponseDocument response = networkingService.queryEndpoints(requestDocument,
           getSecurityDocument());
+
+      log.debug("Find all endpoints response: {}", response);
 
       final List<EndpointT> endPoints = Lists.newArrayList();
       for (final String tna : response.getQueryEndpointsResponse().getTnaArray()) {
@@ -431,24 +416,29 @@ class NbiServiceOpenDracWs implements NbiService {
 
       return endPoints;
     }
-    catch (Exception e) {
-      log.error("Error: ", e);
-      return null;
+    catch (RemoteException e) {
+      log.warn("Could not query openDRAC for end points", e);
+      throw new RuntimeException(e);
     }
   }
 
-  private EndpointT findEndpointByTna(final String tna) throws RemoteException, NetworkMonitoringServiceFault {
+  private EndpointT findEndpointByTna(final String tna) throws NetworkMonitoringServiceFault {
     final QueryEndpointRequestDocument requestDocument = QueryEndpointRequestDocument.Factory.newInstance();
     final QueryEndpointRequest request = requestDocument.addNewQueryEndpointRequest();
     request.setTna(tna);
 
-    final QueryEndpointResponseDocument response = networkingService.queryEndpoint(requestDocument,
-        getSecurityDocument());
-    final EndpointT endpointFound = response.getQueryEndpointResponse().getEndpoint();
+    try {
+      QueryEndpointResponseDocument response = networkingService.queryEndpoint(requestDocument, getSecurityDocument());
+      final EndpointT endpointFound = response.getQueryEndpointResponse().getEndpoint();
 
-    idToTnaCache.put(endpointFound.getId(), endpointFound.getTna());
+      idToTnaCache.put(endpointFound.getId(), endpointFound.getTna());
 
-    return endpointFound;
+      return endpointFound;
+    }
+    catch (RemoteException e) {
+      log.warn("Can query openDrac for end point by tna", e);
+      throw new RuntimeException(e);
+    }
   }
 
   private PhysicalPort getPhysicalPort(final EndpointT endpoint) {

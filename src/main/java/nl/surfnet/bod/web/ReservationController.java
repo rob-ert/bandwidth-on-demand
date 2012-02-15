@@ -32,7 +32,6 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.ReservationValidator;
-import nl.surfnet.bod.service.ReservationFailedException;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.manager.VirtualPortController;
@@ -94,22 +93,12 @@ public class ReservationController {
       return PAGE_URL + CREATE;
     }
 
-    try {
-      reservationService.reserve(reservation);
+    reservationService.create(reservation);
 
-      WebUtils.addInfoMessage(redirectAttributes, "A new reservation for %s has been requested.", reservation
-          .getVirtualResourceGroup().getName());
+    WebUtils.addInfoMessage(redirectAttributes, "A new reservation for %s has been requested.", reservation
+        .getVirtualResourceGroup().getName());
 
-      return "redirect:" + PAGE_URL;
-    }
-    catch (ReservationFailedException e) {
-      model.addAttribute(MODEL_KEY, reservation);
-      model.addAttribute(VirtualPortController.MODEL_KEY_LIST, reservation.getVirtualResourceGroup().getVirtualPorts());
-
-      bindingResult.reject("", e.getMessage());
-
-      return PAGE_URL + CREATE;
-    }
+    return "redirect:" + PAGE_URL;
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)

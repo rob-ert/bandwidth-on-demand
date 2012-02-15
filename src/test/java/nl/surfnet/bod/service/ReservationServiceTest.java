@@ -133,7 +133,7 @@ public class ReservationServiceTest {
     Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg1).setSourcePort(source)
         .setDestinationPort(destination).create();
 
-    subject.reserve(reservation);
+    subject.create(reservation);
   }
 
   @Test
@@ -151,7 +151,7 @@ public class ReservationServiceTest {
       }
     });
 
-    Future<?> future = subject.reserve(reservation);
+    Future<?> future = subject.create(reservation);
 
     waitTillDone(future);
 
@@ -208,7 +208,7 @@ public class ReservationServiceTest {
     LocalTime endTime = LocalTime.now().withSecondOfMinute(1);
 
     Reservation reservation = new ReservationFactory().setStartTime(startTime).setEndTime(endTime).create();
-    subject.reserve(reservation);
+    subject.create(reservation);
 
     assertThat(reservation.getStartTime(), is(startTime.withSecondOfMinute(0).withMillisOfSecond(0)));
     assertThat(reservation.getEndTime(), is(endTime.withSecondOfMinute(0).withMillisOfSecond(0)));

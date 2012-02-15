@@ -32,13 +32,13 @@ import java.util.Set;
  */
 public enum ReservationStatus {
 
-  REQUESTED, SCHEDULED, RUNNING, SUCCEEDED, SUBMITTED, PREPARING, CANCELLED, FAILED;
+  REQUESTED, SCHEDULED, PREPARING, RUNNING, SUCCEEDED, CANCELLED, FAILED;
 
   /**
    * All states which are allowed to transition to an other state. All other
    * states will automatically be regarded as endStates.
    */
-  public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, SCHEDULED, RUNNING, SUBMITTED, PREPARING);
+  public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, SCHEDULED, RUNNING, PREPARING);
 
   /**
    * @return true if the reservationStatus is an endState, meaning no further
