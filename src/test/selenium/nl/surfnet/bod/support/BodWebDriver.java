@@ -25,7 +25,6 @@ import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.not;
 
 import java.io.File;
@@ -43,6 +42,7 @@ import nl.surfnet.bod.pages.virtual.NewVirtualResourceGroupPage;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.openqa.selenium.OutputType;
@@ -195,7 +195,8 @@ public class BodWebDriver {
     assertThat(
         table,
         allOf(
-            either(containsString(ReservationStatus.REQUESTED.name())).or(containsString(ReservationStatus.SCHEDULED.name())),
+            CombinableMatcher.<String>either(containsString(ReservationStatus.REQUESTED.name()))
+              .or(containsString(ReservationStatus.SCHEDULED.name())),
             containsString(start),
             containsString(end)));
   }
