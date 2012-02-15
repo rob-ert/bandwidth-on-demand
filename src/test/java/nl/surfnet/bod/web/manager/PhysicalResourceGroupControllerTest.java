@@ -46,7 +46,7 @@ public class PhysicalResourceGroupControllerTest {
 
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setManagerEmail("old@mail.com")
         .setAdminGroupName("urn:ict-manager").create();
-
+ 
     UpdateEmailCommand command = new PhysicalResourceGroupController.UpdateEmailCommand(group);
     command.setManagerEmail("new@mail.com");
 
@@ -57,6 +57,7 @@ public class PhysicalResourceGroupControllerTest {
 
     assertThat(requestAttributes.getFlashAttributes(), hasKey("infoMessages"));
     assertThat(page, is("redirect:physicalresourcegroups"));
+    assertThat(group.getManagerEmail(), is(command.getManagerEmail()));
     verify(physicalResourceGroupServiceMock).sendAndPersistActivationRequest(group);
   }
 
