@@ -24,7 +24,12 @@ package nl.surfnet.bod.web.noc;
 import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
 import static nl.surfnet.bod.web.noc.PhysicalResourceGroupController.MODEL_KEY_LIST;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -41,6 +46,8 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.noc.PhysicalResourceGroupController.PhysicalResourceGroupCommand;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -106,21 +113,22 @@ public class PhysicalResourceGroupControllerTest {
     RedirectAttributes model = new ModelStub();
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setManagerEmail("old@example.com")
         .setAdminGroupName("urn:ict-manager").create();
+
     PhysicalResourceGroup changedGroup = new PhysicalResourceGroupFactory().setId(1L)
         .setManagerEmail("new@example.com").setAdminGroupName("urn:ict-manager").create();
 
+    PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(
+        changedGroup);
+
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
-    String page = subject.update(changedGroup, new BeanPropertyBindingResult(changedGroup, "physicalResrouceGroup"),
-        model);
+    String page = subject.update(command, new BeanPropertyBindingResult(changedGroup, "physicalResrouceGroup"), model);
 
     assertThat(page, is("redirect:physicalresourcegroups"));
-    assertThat(model.getFlashAttributes(), hasKey("infoMessages"));
-    @SuppressWarnings("unchecked")
-    String flashMessage = ((List<String>) model.getFlashAttributes().get("infoMessages")).get(0);
-    assertThat(flashMessage, containsString("new@example.com"));
+    assertThat(WebUtils.getFirstInfoMessage(model), containsString("has been sent"));
+    assertThat(WebUtils.getFirstInfoMessage(model), containsString("new@example.com"));
 
-    verify(physicalResourceGroupServiceMock).sendAndPersistActivationRequest(changedGroup);
+    verify(physicalResourceGroupServiceMock).sendAndPersistActivationRequest(any(PhysicalResourceGroup.class));
   }
 
   @Test
@@ -131,7 +139,8 @@ public class PhysicalResourceGroupControllerTest {
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
-    String page = subject.update(group, new BeanPropertyBindingResult(group, "physicalResrouceGroup"), model);
+    PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(group);
+    String page = subject.update(command, new BeanPropertyBindingResult(group, "physicalResrouceGroup"), model);
 
     assertThat(page, is("redirect:physicalresourcegroups"));
     assertThat(model.getFlashAttributes().keySet(), hasSize(0));
@@ -145,6 +154,7 @@ public class PhysicalResourceGroupControllerTest {
   public void updateWithErrorsShouldNotUpdate() {
     RedirectAttributes model = new ModelStub();
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
+    when(physicalResourceGroupServiceMock.find(group.getId())).thenReturn(group);
 
     BeanPropertyBindingResult result = new BeanPropertyBindingResult(group, "physicalResrouceGroup") {
       @Override
@@ -153,10 +163,11 @@ public class PhysicalResourceGroupControllerTest {
       }
     };
 
-    String page = subject.update(group, result, model);
+    PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(group);
+    String page = subject.update(command, result, model);
 
     assertThat(page, is("physicalresourcegroups/update"));
-    assertThat(model.asMap().get("physicalResourceGroup"), is(Object.class.cast(group)));
+    assertThat(model.asMap().get("physicalResourceGroup"), is(Object.class.cast(command)));
   }
 
 }

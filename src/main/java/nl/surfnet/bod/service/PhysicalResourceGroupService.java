@@ -235,6 +235,6 @@ public class PhysicalResourceGroupService {
 
   private void deActivatePhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
     physicalResourceGroup.setActive(false);
-    physicalResourceGroupRepo.save(physicalResourceGroup);
+    physicalResourceGroup = physicalResourceGroupRepo.save(physicalResourceGroup);
   }
 }

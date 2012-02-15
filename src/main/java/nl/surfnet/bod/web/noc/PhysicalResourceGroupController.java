@@ -27,7 +27,9 @@ import java.util.Collection;
 import java.util.Collections;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.validator.PhysicalResourceGroupValidator;
@@ -35,9 +37,12 @@ import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.web.WebUtils;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -60,16 +65,20 @@ public class PhysicalResourceGroupController {
   private PhysicalResourceGroupValidator physicalResourceGroupValidator;
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid final PhysicalResourceGroup physicalResourceGroup, final BindingResult bindingResult,
+  public String create(@Valid final PhysicalResourceGroupCommand command, final BindingResult bindingResult,
       final RedirectAttributes redirectAttributes, final Model model) {
+
+    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroup();
+    command.copyFieldsTo(physicalResourceGroup);
 
     physicalResourceGroupValidator.validate(physicalResourceGroup, bindingResult);
     if (bindingResult.hasErrors()) {
-      model.addAttribute(MODEL_KEY, physicalResourceGroup);
+      model.addAttribute(MODEL_KEY, command);
       return PAGE_URL + CREATE;
     }
 
     model.asMap().clear();
+
     physicalResourceGroupService.save(physicalResourceGroup);
 
     physicalResourceGroupService.sendAndPersistActivationRequest(physicalResourceGroup);
@@ -84,7 +93,7 @@ public class PhysicalResourceGroupController {
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(final Model model) {
-    model.addAttribute(MODEL_KEY, new PhysicalResourceGroup());
+    model.addAttribute(MODEL_KEY, new PhysicalResourceGroupCommand());
 
     return PAGE_URL + CREATE;
   }
@@ -119,19 +128,21 @@ public class PhysicalResourceGroupController {
   }
 
   @RequestMapping(method = RequestMethod.PUT)
-  public String update(@Valid final PhysicalResourceGroup physicalResourceGroup, final BindingResult result,
+  public String update(@Valid final PhysicalResourceGroupCommand command, final BindingResult result,
       final RedirectAttributes model) {
 
+    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(command.id);
+    command.copyFieldsTo(physicalResourceGroup);
     physicalResourceGroupValidator.validate(physicalResourceGroup, result);
 
     if (result.hasErrors()) {
-      model.addAttribute(MODEL_KEY, physicalResourceGroup);
+      model.addAttribute(MODEL_KEY, command);
       return PAGE_URL + UPDATE;
     }
 
     model.asMap().clear();
 
-    if (managerMailHasChanged(physicalResourceGroup)) {
+    if (command.managerEmailChanged) {
       physicalResourceGroupService.sendAndPersistActivationRequest(physicalResourceGroup);
       addInfoMessage(model, "A new activation email has been sent to {}", physicalResourceGroup.getManagerEmail());
     }
@@ -142,15 +153,9 @@ public class PhysicalResourceGroupController {
     return "redirect:" + PAGE_URL;
   }
 
-  private boolean managerMailHasChanged(PhysicalResourceGroup group) {
-    PhysicalResourceGroup original = physicalResourceGroupService.find(group.getId());
-
-    return original.getManagerEmail() == null || !original.getManagerEmail().equals(group.getManagerEmail());
-  }
-
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY, physicalResourceGroupService.find(id));
+    uiModel.addAttribute(MODEL_KEY, new PhysicalResourceGroupCommand(physicalResourceGroupService.find(id)));
 
     return PAGE_URL + UPDATE;
   }
@@ -171,5 +176,127 @@ public class PhysicalResourceGroupController {
 
   protected void setPhysicalResourceGroupValidator(PhysicalResourceGroupValidator physicalResourceGroupValidator) {
     this.physicalResourceGroupValidator = physicalResourceGroupValidator;
+  }
+
+  public static final class PhysicalResourceGroupCommand {
+
+    private Long id;
+
+    private Integer version;
+
+    @NotNull
+    private Long instituteId;
+
+    private String name;
+
+    private Institute institute;
+
+    @NotEmpty
+    private String adminGroup;
+
+    @NotEmpty
+    private String managerEmail;
+
+    private boolean active = false;
+
+    private boolean managerEmailChanged;
+
+    public PhysicalResourceGroupCommand() {
+
+    }
+
+    public PhysicalResourceGroupCommand(PhysicalResourceGroup physicalResourceGroup) {
+      this.id = physicalResourceGroup.getId();
+      this.version = physicalResourceGroup.getVersion();
+
+      this.instituteId = physicalResourceGroup.getInstituteId();
+      this.institute = physicalResourceGroup.getInstitute();
+      this.adminGroup = physicalResourceGroup.getAdminGroup();
+      this.active = physicalResourceGroup.isActive();
+      this.managerEmail = physicalResourceGroup.getManagerEmail();
+      this.name = physicalResourceGroup.getName();
+    }
+
+    /**
+     * Copies fields this command object to the given domainOjbect. Only the
+     * fields that can be changed in the UI will be copied. Determines if the
+     * {@link #managerEmail} has changed.
+     * 
+     * @param physicalResourceGroup
+     *          The {@link PhysicalResourceGroup} the copy the field to.
+     */
+    public void copyFieldsTo(PhysicalResourceGroup physicalResourceGroup) {
+      managerEmailChanged = hasManagerEmailChanged(managerEmail, physicalResourceGroup.getManagerEmail());
+      
+      // Never copy id, should be generated by jpa
+      physicalResourceGroup.setInstituteId(instituteId);
+      physicalResourceGroup.setAdminGroup(adminGroup);
+      physicalResourceGroup.setManagerEmail(managerEmail);
+    }
+
+    private boolean hasManagerEmailChanged(String commandEmail, String groupEmail) {
+      return commandEmail == null || !commandEmail.equals(groupEmail);
+    }
+
+    public Long getId() {
+      return id;
+    }
+
+    public void setId(Long id) {
+      this.id = id;
+    }
+
+    public Integer getVersion() {
+      return version;
+    }
+
+    public Long getInstituteId() {
+      return instituteId;
+    }
+
+    public void setInstituteId(Long instituteId) {
+      this.instituteId = instituteId;
+    }
+
+    public String getAdminGroup() {
+      return adminGroup;
+    }
+
+    public Institute getInstitute() {
+      return institute;
+    }
+
+    public void setAdminGroup(String adminGroup) {
+      this.adminGroup = adminGroup;
+    }
+
+    public String getManagerEmail() {
+      return managerEmail;
+    }
+
+    public void setManagerEmail(String managerEmail) {
+      this.managerEmail = managerEmail;
+    }
+
+    public boolean isActive() {
+      return active;
+    }
+
+    public void setActive(boolean active) {
+      this.active = active;
+    }
+
+    public boolean isManagerEmailChanged() {
+      return managerEmailChanged;
+    }
+
+    public void setInstitute(Institute institute) {
+      this.institute = institute;
+    }
+
+    public String getName() {
+      return name;
+    }
+
   }
 }
