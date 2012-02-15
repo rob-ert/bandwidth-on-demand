@@ -39,6 +39,10 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getWebDriver().createNewReservation(startDate, endDate, startTime, endTime);
 
     getWebDriver().verifyReservationWasCreated(startDate, endDate, startTime, endTime);
+
+    getWebDriver().cancelReservation(startDate, endDate, startTime, endTime);
+
+    getWebDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);
   }
 
   @Test
@@ -51,24 +55,6 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getWebDriver().createNewReservation(startDate, endDate, startTime, endTime);
 
     getWebDriver().verifyReservationStartDateHasError("not be in the past");
-  }
-
-  @Test
-  public void cancelAReservation() {
-    LocalDate startDate = LocalDate.now().plusDays(3);
-    LocalDate endDate = LocalDate.now().plusDays(5);
-    LocalTime startTime = LocalTime.now().plusHours(1);
-    LocalTime endTime = LocalTime.now();
-
-    givenAReservation(startDate, endDate, startTime, endTime);
-
-    getWebDriver().cancelReservation(startDate, endDate, startTime, endTime);
-
-    getWebDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);
-  }
-
-  private void givenAReservation(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
-    getWebDriver().createNewReservation(startDate, endDate, startTime, endTime);
   }
 
 }

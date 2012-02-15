@@ -25,6 +25,7 @@ import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.not;
 
 import java.io.File;
@@ -78,10 +79,11 @@ public class BodWebDriver {
     }
   }
 
-  public void createNewPhysicalGroup(String institute, String adminGroup) throws Exception {
+  public void createNewPhysicalGroup(String institute, String adminGroup, String email) throws Exception {
     NewPhysicalResourceGroupPage page = NewPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
     page.sendInstitute(institute);
     page.sendAdminGroup(adminGroup);
+    page.sendEmail(email);
 
     page.save();
   }
@@ -90,21 +92,23 @@ public class BodWebDriver {
     return path.endsWith("/") ? path : path + "/";
   }
 
-  public void deletePhysicalGroup(String institute, String adminGroup) {
+  public void deletePhysicalGroup(String institute, String adminGroup, String email) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
 
-    page.delete(institute, adminGroup);
+    page.delete(institute, adminGroup, email);
   }
 
-  public void verifyGroupWasCreated(String institute, String adminGroup) {
-    assertListTable(Matchers.<String>allOf(containsString(institute), containsString(adminGroup)));
+  public void verifyGroupWasCreated(String institute, String adminGroup, String email) {
+    assertListTable(Matchers.<String> allOf(containsString(institute), containsString(adminGroup),
+        containsString(email)));
   }
 
-  public void verifyGroupWasDeleted(String institute, String adminGroup) {
+  public void verifyGroupWasDeleted(String institute, String adminGroup, String email) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver);
 
     if (page.containsAnyItems()) {
-      assertListTable(not(Matchers.<String>allOf(containsString(institute), containsString(adminGroup))));
+      assertListTable(not(Matchers.<String> allOf(containsString(institute), containsString(adminGroup),
+          containsString(email))));
     }
   }
 
@@ -175,7 +179,7 @@ public class BodWebDriver {
     page.sendStartTime(startTime);
     page.sendEndDate(endDate);
     page.sendEndTime(endTime);
-    page.sendBandwidth("5000");
+    page.sendBandwidth("500");
 
     page.save();
   }
@@ -188,7 +192,12 @@ public class BodWebDriver {
 
     String table = page.getTable();
 
-    assertThat(table, allOf(containsString("SCHEDULED"), containsString(start), containsString(end)));
+    assertThat(
+        table,
+        allOf(
+            either(containsString(ReservationStatus.REQUESTED.name())).or(containsString(ReservationStatus.SCHEDULED.name())),
+            containsString(start),
+            containsString(end)));
   }
 
   public void verifyReservationStartDateHasError(String string) {

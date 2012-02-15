@@ -42,6 +42,9 @@ public class NewPhysicalResourceGroupPage {
   @FindBy(css = "input[name='adminGroup']")
   private WebElement adminGroupInput;
 
+  @FindBy(css = "input[name='managerEmail']")
+  private WebElement managerEmailInput;
+
   @FindBy(css = "input[type='submit']")
   private WebElement saveButton;
 
@@ -74,6 +77,11 @@ public class NewPhysicalResourceGroupPage {
   public void sendAdminGroup(String adminGroup) {
     adminGroupInput.clear();
     adminGroupInput.sendKeys(adminGroup);
+  }
+
+  public void sendEmail(String email) {
+    managerEmailInput.clear();
+    managerEmailInput.sendKeys(email);
   }
 
 }

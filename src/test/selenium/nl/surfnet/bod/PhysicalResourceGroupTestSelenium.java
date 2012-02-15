@@ -29,13 +29,13 @@ public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
 
   @Test
   public void createAndDeletePhysicalGroup() throws Exception {
-    getWebDriver().createNewPhysicalGroup("SURFnet bv", "urn:utrecht-icters");
+    getWebDriver().createNewPhysicalGroup("SURFnet bv", "urn:utrecht-icters", "truus@example.com");
 
-    getWebDriver().verifyGroupWasCreated("SURFnet bv", "urn:utrecht-icters");
+    getWebDriver().verifyGroupWasCreated("SURFnet bv", "urn:utrecht-icters", "truus@example.com");
 
-    getWebDriver().deletePhysicalGroup("SURFnet bv", "urn:utrecht-icters");
+    getWebDriver().deletePhysicalGroup("SURFnet bv", "urn:utrecht-icters", "truus@example.com");
 
-    getWebDriver().verifyGroupWasDeleted("SURFnet bv", "urn:utrecht-icters");
+    getWebDriver().verifyGroupWasDeleted("SURFnet bv", "urn:utrecht-icters", "truus@example.com");
   }
 
 }
