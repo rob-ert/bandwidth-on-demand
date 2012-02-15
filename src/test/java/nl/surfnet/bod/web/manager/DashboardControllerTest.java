@@ -55,10 +55,10 @@ public class DashboardControllerTest {
 
   @Mock
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
-  
+
   @Mock
   private Environment environment;
-  
+
   @Test
   public void managerWhithInactivePhysicalResourceGroupsShouldGetRedirected() {
     RichUserDetails user = new RichUserDetailsFactory().create();
@@ -96,7 +96,9 @@ public class DashboardControllerTest {
   public void shouldCreateNewLinkForm() {
 
     PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
-    String linkForm = subject.createNewActivationLinkForm(physicalResourceGroup);
+    String linkForm = subject.createNewActivationLinkForm(new Object[] {
+        environment.getExternalBodUrl() + ActivationEmailController.ACTIVATION_MANAGER_PATH,
+        physicalResourceGroup.getId().toString() });
 
     assertThat(linkForm, containsString(physicalResourceGroup.getId().toString()));
     assertThat(linkForm, containsString(ActivationEmailController.ACTIVATION_MANAGER_PATH));

@@ -62,7 +62,7 @@
                 <c:forEach items="${infoMessages}" var="infoMessage">
                     <div class="alert-message warn" data-alert="true">
                         <a class="close" href="#">&amp;times;</a>
-                        <p><c:out value="${infoMessage}" escapeXml="false"/></p>
+                        <p style='display: inline'><c:out value="${infoMessage}" escapeXml="false"/></p>
                     </div>
                 </c:forEach>
             </div>

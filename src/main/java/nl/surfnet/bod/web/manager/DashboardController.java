@@ -46,15 +46,16 @@ public class DashboardController {
   private Environment environment;
 
   @RequestMapping(method = RequestMethod.GET)
-  public String index(RedirectAttributes redirectAttributes) {
+  public String index(RedirectAttributes model) {
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService
         .findAllForManager(Security.getUserDetails());
 
     for (PhysicalResourceGroup group : groups) {
       if (!group.isActive()) {
 
-        WebUtils.addInfoMessageWithHtml(redirectAttributes, createNewActivationLinkForm(group),
-            "Your Physical Resource group is not activated yet, please do so now. ");
+        WebUtils.addInfoMessage(model, createNewActivationLinkForm(new Object[] {
+            environment.getExternalBodUrl() + ActivationEmailController.ACTIVATION_MANAGER_PATH,
+            group.getId().toString() }));
 
         return "redirect:manager/physicalresourcegroups/edit?id=" + group.getId();
       }
@@ -63,12 +64,21 @@ public class DashboardController {
     return "index";
   }
 
-  String createNewActivationLinkForm(PhysicalResourceGroup physicalResourceGroup) {
-    return String.format("<form style='display: inline' id=\"activateFrom\" action=\"%s\" method=\"POST\" + "
+  /**
+   * Creates a form which posts to the activationEmailController to send the
+   * activationEmail again. We don't use the
+   * {@link WebUtils#addInfoMessage(org.springframework.ui.Model, String, String...)}
+   * method here, since this places markup around the parameters which will
+   * created an invalid post url.
+   * 
+   * @param args
+   * @return
+   */
+  String createNewActivationLinkForm(Object... args) {
+    return String.format("Your Physical Resource group is not activated yet, please do so now. "
+        + "<form style='display: inline' id=\"activateFrom\" action=\"%s\" method=\"POST\""
         + "enctype=\"application/x-www-form-urlencoded\">"
-        + "<input id=\"id\" name=\"id\" type=\"hidden\" value=\"%d\"><input class=\"btn primary\""
-        + "value=\"Send email\" type=\"submit\"></div></form>", environment.getExternalBodUrl()
-        + ActivationEmailController.ACTIVATION_MANAGER_PATH, physicalResourceGroup.getId());
+        + "<input id=\"id\" name=\"id\" type=\"hidden\" value=\"%s\"><input class=\"btn primary\""
+        + "value=\"Send email\" type=\"submit\"></div></form>", args);
   }
-
 }

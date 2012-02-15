@@ -22,8 +22,8 @@ public class WebUtilsTest {
   private final String htmlMessage = "<p>" + messageBase + "</p>";
   private final String messageArg = "unittest";
   private final String messageArgWithMarkup = WebUtils.PARAM_MARKUP_START + messageArg + WebUtils.PARAM_MARKUP_END;
-  private final Object[] messageArgs = { messageArg };
-  private final Object[] emptyArgs = new Object[0];
+  private final String[] messageArgs = { messageArg };
+  private final String[] emptyArgs = new String[0];
 
   @Test
   public void testSecondPage() {
@@ -80,22 +80,6 @@ public class WebUtilsTest {
   public void shouldAddNullMessages() {
     WebUtils.addInfoMessage(model, null, emptyArgs);
     WebUtils.addInfoMessage(redirectModel, null, emptyArgs);
-    WebUtils.addInfoMessageWithHtml(model, null, null, emptyArgs);
-    WebUtils.addInfoMessageWithHtml(redirectModel, null, null, emptyArgs);
-  }
-
-  @Test
-  public void shouldHaveAddHtmlMessageWithNormalModel() {
-    WebUtils.addInfoMessageWithHtml(model, htmlMessage, "", emptyArgs);
-
-    assertThat(WebUtils.getFirstInfoMessage(model), is(" " + htmlMessage));
-  }
-
-  @Test
-  public void shouldHaveAddHtmlMessageWithRedirectModel() {
-    WebUtils.addInfoMessageWithHtml(redirectModel, htmlMessage, "", emptyArgs);
-
-    assertThat(WebUtils.getFirstInfoMessage(redirectModel), is(" " + htmlMessage));
   }
 
   @Test
@@ -116,7 +100,8 @@ public class WebUtilsTest {
   public void shouldFormatAndNotEscapeMessageButArgs() {
     String formatAndEscapeMessage = WebUtils.formatAndEscapeMessage("<p>%s</p>", "<b>");
 
-    assertThat(formatAndEscapeMessage, is("<p>" + WebUtils.PARAM_MARKUP_START + "&lt;b&gt;" + WebUtils.PARAM_MARKUP_END + "</p>"));
+    assertThat(formatAndEscapeMessage, is("<p>" + WebUtils.PARAM_MARKUP_START + "&lt;b&gt;" + WebUtils.PARAM_MARKUP_END
+        + "</p>"));
   }
 
   @Test

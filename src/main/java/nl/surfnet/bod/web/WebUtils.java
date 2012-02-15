@@ -79,22 +79,12 @@ public final class WebUtils {
    *          Arguments to parse into the message, using
    *          {@link String#format(String, Object...)}
    */
-  public static void addInfoMessage(Model model, String message, Object... messageArgs) {
+  public static void addInfoMessage(Model model, String message, String... messageArgs) {
     addMessage(model, formatAndEscapeMessage(message, messageArgs));
   }
 
-  public static void addInfoMessage(RedirectAttributes model, String message, Object... messageArgs) {
+  public static void addInfoMessage(RedirectAttributes model, String message, String... messageArgs) {
     addMessage(model, formatAndEscapeMessage(message, messageArgs));
-  }
-
-  public static void addInfoMessageWithHtml(Model model, String htmlMessage, String message, Object... messageArgs) {
-    addMessage(model, formatAndEscapeMessage(htmlMessage, message, messageArgs));
-  }
-
-  public static void addInfoMessageWithHtml(RedirectAttributes model, String htmlMessage, String message,
-      Object... messageArgs) {
-    String formattedMessage = formatAndEscapeMessage(htmlMessage, message, messageArgs);
-    addMessage(model, formattedMessage);
   }
 
   public static String getFirstInfoMessage(Model model) {
@@ -107,10 +97,10 @@ public final class WebUtils {
     return message;
   }
 
-  public static String getFirstInfoMessage(RedirectAttributes redirectAttributes) {
+  public static String getFirstInfoMessage(RedirectAttributes model) {
     String message = null;
     @SuppressWarnings("unchecked")
-    List<String> messages = (List<String>) redirectAttributes.getFlashAttributes().get(INFO_MESSAGES_KEY);
+    List<String> messages = (List<String>) model.getFlashAttributes().get(INFO_MESSAGES_KEY);
     if (messages != null) {
       message = messages.get(0);
     }
@@ -128,28 +118,20 @@ public final class WebUtils {
    *          Values the replace the placeholders with
    * @return Formatted string, with the arguments html escaped.
    */
-  public static String formatAndEscapeMessage(String message, Object... args) {
+  public static String formatAndEscapeMessage(String message, String... args) {
     if (message != null) {
       // Enable replacement by log and spring convention
       message = StringUtils.replace(message, "{}", "%s");
       message = StringUtils.replace(message, "%s", PARAM_MARKUP_START + "%s" + PARAM_MARKUP_END);
 
       ArrayList<String> escapedArgs = Lists.newArrayList();
-      for (Object object : args) {
-        escapedArgs.add(HtmlUtils.htmlEscape((String) object));
+      for (String arg : args) {
+        escapedArgs.add(HtmlUtils.htmlEscape(arg));
       }
       return String.format(message, escapedArgs.toArray());
     }
 
     return "";
-  }
-
-  private static String formatAndEscapeMessage(String htmlMessage, String message, Object... messageArgs) {
-    String formattedMessage = formatAndEscapeMessage(message, messageArgs);
-
-    // Add the html
-    formattedMessage = formattedMessage + " " + htmlMessage;
-    return formattedMessage;
   }
 
   static void addMessage(RedirectAttributes model, String message) {
