@@ -23,6 +23,7 @@ package nl.surfnet.bod.web.push;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
+import nl.surfnet.bod.web.WebUtils;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -118,10 +119,10 @@ public final class PushMessages {
   public static PushMessage createMessage(ReservationStatusChangeEvent reservationStatusChangeEvent) {
     Reservation reservation = reservationStatusChangeEvent.getReservation();
 
-    String message = String.format("Status of a reservation for <b>%s</b> was changed from <b>%s</b> to <b>%s</b>.", reservation
-        .getVirtualResourceGroup().getName(), reservationStatusChangeEvent.getOldStatus(), reservation.getStatus()
+    String message = WebUtils.formatAndEscapeMessage("Status of a reservation for {} was changed from {} to {}.", reservation
+        .getVirtualResourceGroup().getName(), reservationStatusChangeEvent.getOldStatus().name(), reservation.getStatus()
         .name());
-
+    
     return new JsonMessageEvent(reservation.getVirtualResourceGroup().getSurfConextGroupName(), new JsonEvent(message,
         reservation.getId(), reservation.getStatus().name()));
 

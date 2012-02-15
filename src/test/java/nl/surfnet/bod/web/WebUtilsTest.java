@@ -19,7 +19,6 @@ public class WebUtilsTest {
 
   private final String messageBase = "Test message ";
   private final String message = messageBase + "{}";
-  private final String htmlMessage = "<p>" + messageBase + "</p>";
   private final String messageArg = "unittest";
   private final String messageArgWithMarkup = WebUtils.PARAM_MARKUP_START + messageArg + WebUtils.PARAM_MARKUP_END;
   private final String[] messageArgs = { messageArg };
