@@ -75,7 +75,7 @@ public class DashboardController {
    * @return
    */
   String createNewActivationLinkForm(Object... args) {
-    return String.format("Your Physical Resource group is not activated yet, please do so now. "
+    return String.format("Your Physical Resource Group is not activated yet, please do so now. "
         + "<form style=\"display: inline\" id=\"activateFrom\" action=\"%s\" method=\"POST\""
         + "enctype=\"application/x-www-form-urlencoded\">"
         + "<input id=\"id\" name=\"id\" type=\"hidden\" value=\"%s\"><input class=\"btn primary\""
