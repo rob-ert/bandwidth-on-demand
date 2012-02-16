@@ -22,11 +22,7 @@
 package nl.surfnet.bod.web.manager;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
@@ -89,7 +85,7 @@ public class DashboardControllerTest {
 
     String page = subject.index(model);
 
-    assertThat(page, is("index"));
+    assertThat(page, is("manager/index"));
   }
 
   @Test
