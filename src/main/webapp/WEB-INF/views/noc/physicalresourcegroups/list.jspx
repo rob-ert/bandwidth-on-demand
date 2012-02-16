@@ -5,8 +5,8 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <page:list id="pl_physicalResourceGroup" items="${physicalResourceGroupCommandList}">
-        <table:table data="${physicalResourceGroupCommandList}" id="l_PhysicalResourceGroup" path="/noc/physicalresourcegroups">
+    <page:list id="pl_physicalResourceGroup" items="${physicalResourceGroupList}">
+        <table:table data="${physicalResourceGroupList}" id="l_PhysicalResourceGroup" path="/noc/physicalresourcegroups">
 
             <table:column id="name" property="name" labelCode="physicalResourceGroup_name" />
             <table:column id="adminGroup" property="adminGroup" labelCode="physicalResourceGroup_adminGroup" />
