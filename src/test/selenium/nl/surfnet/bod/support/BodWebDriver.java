@@ -22,6 +22,7 @@
 package nl.surfnet.bod.support;
 
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
@@ -29,10 +30,14 @@ import static org.hamcrest.Matchers.not;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+
+import javax.mail.internet.MimeMessage;
 
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.pages.ListReservationPage;
 import nl.surfnet.bod.pages.NewReservationPage;
+import nl.surfnet.bod.pages.physical.EditPhysicalResoruceGroupPage;
 import nl.surfnet.bod.pages.physical.ListPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.physical.NewPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.virtual.ListVirtualPortPage;
@@ -41,14 +46,16 @@ import nl.surfnet.bod.pages.virtual.NewVirtualPortPage;
 import nl.surfnet.bod.pages.virtual.NewVirtualResourceGroupPage;
 
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
 import com.google.common.io.Files;
+import com.icegreen.greenmail.util.GreenMail;
+import com.icegreen.greenmail.util.GreenMailUtil;
 
 public class BodWebDriver {
 
@@ -56,6 +63,8 @@ public class BodWebDriver {
       "http://localhost:8080/bod"));
 
   private FirefoxDriver driver;
+
+  private GreenMail mailServer;
 
   public synchronized void initializeOnce() {
     if (driver == null) {
@@ -70,6 +79,21 @@ public class BodWebDriver {
         }
       });
     }
+
+    if (mailServer == null) {
+      mailServer = new GreenMail();
+      mailServer.start();
+
+      Runtime.getRuntime().addShutdownHook(new Thread() {
+        @Override
+        public void run() {
+          if (mailServer != null) {
+            mailServer.stop();
+          }
+        }
+      });
+
+    }
   }
 
   public void takeScreenshot(File screenshot) throws Exception {
@@ -79,7 +103,7 @@ public class BodWebDriver {
     }
   }
 
-  public void createNewPhysicalGroup(String institute, String adminGroup, String email) throws Exception {
+  public void createNewPhysicalResourceGroup(String institute, String adminGroup, String email) throws Exception {
     NewPhysicalResourceGroupPage page = NewPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
     page.sendInstitute(institute);
     page.sendAdminGroup(adminGroup);
@@ -99,17 +123,29 @@ public class BodWebDriver {
   }
 
   public void verifyGroupWasCreated(String institute, String adminGroup, String email) {
-    assertListTable(Matchers.<String> allOf(containsString(institute), containsString(adminGroup),
-        containsString(email)));
+    verifyGroupExists(institute, adminGroup, email, "FALSE");
+  }
+
+  public void verifyGroupExists(String institute, String adminGroup, String email, String status) {
+    ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
+
+    page.findRow(institute, adminGroup, email, status);
   }
 
   public void verifyGroupWasDeleted(String institute, String adminGroup, String email) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver);
 
-    if (page.containsAnyItems()) {
-      assertListTable(not(Matchers.<String> allOf(containsString(institute), containsString(adminGroup),
-          containsString(email))));
+    try {
+      page.findRow(institute, adminGroup, email);
+      fail("The physical resource group was not deleted");
     }
+    catch (NoSuchElementException e) {
+      // expected
+    }
+  }
+
+  public void verifyPhysicalResourceGroupIsActive(String institute, String adminGroup, String email) {
+    verifyGroupExists(institute, adminGroup, email, "TRUE");
   }
 
   private void assertListTable(Matcher<String> tableMatcher) {
@@ -195,10 +231,8 @@ public class BodWebDriver {
     assertThat(
         table,
         allOf(
-            CombinableMatcher.<String>either(containsString(ReservationStatus.REQUESTED.name()))
-              .or(containsString(ReservationStatus.SCHEDULED.name())),
-            containsString(start),
-            containsString(end)));
+            CombinableMatcher.<String> either(containsString(ReservationStatus.REQUESTED.name())).or(
+                containsString(ReservationStatus.SCHEDULED.name())), containsString(start), containsString(end)));
   }
 
   public void verifyReservationStartDateHasError(String string) {
@@ -233,6 +267,45 @@ public class BodWebDriver {
     if (page.containsAnyItems()) {
       assertListTable(not(containsString(name)));
     }
+  }
+
+  private MimeMessage getLastEmail() {
+    MimeMessage[] mails = mailServer.getReceivedMessages();
+    return mails[mails.length - 1];
+  }
+
+  public void verifyLastEmailRecipient(String to) {
+    MimeMessage lastMail = getLastEmail();
+
+    assertThat(GreenMailUtil.getHeaders(lastMail), containsString("To: " + to));
+  }
+
+  public void clickLinkInLastEmail() {
+    String body = GreenMailUtil.getBody(getLastEmail());
+
+    driver.get(extractLink(body));
+  }
+
+  private String extractLink(String message) {
+    Pattern pattern = Pattern.compile(".*(https?://[\\w:/\\-\\.\\?]+).*", Pattern.DOTALL);
+
+    java.util.regex.Matcher matcher = pattern.matcher(message);
+
+    if (matcher.matches()) {
+      return matcher.group(1);
+    }
+
+    throw new AssertionError("Could not find link in message");
+  }
+
+  public void editPhysicalResoruceGroup(String institute, String finalEmail) {
+    ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver);
+
+    EditPhysicalResoruceGroupPage editPage = page.edit(institute);
+
+    editPage.sendEmail(finalEmail);
+
+    editPage.save();
   }
 
 }

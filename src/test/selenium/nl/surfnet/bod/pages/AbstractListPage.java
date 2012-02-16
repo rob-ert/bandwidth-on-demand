@@ -35,7 +35,7 @@ import com.google.common.collect.Iterables;
 
 public class AbstractListPage {
 
-  private final RemoteWebDriver driver;
+  protected final RemoteWebDriver driver;
 
   @FindBy(css = "table.zebra-striped tbody")
   private WebElement table;
@@ -56,17 +56,16 @@ public class AbstractListPage {
     driver.switchTo().alert().accept();
   }
 
-  protected WebElement findRow(String... fields) {
+  public WebElement findRow(String... fields) {
     List<WebElement> rows = table.findElements(By.tagName("tr"));
 
     for (final WebElement row : rows) {
-
       if (containsAll(row, fields)) {
         return row;
       }
     }
 
-    throw new AssertionError(String.format("row with name '%s' not found", fields.toString()));
+    throw new NoSuchElementException(String.format("row with name '%s' not found", fields.toString()));
   }
 
   private boolean containsAll(final WebElement row, String... fields) {

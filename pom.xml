@@ -460,7 +460,15 @@
             <artifactId>mail</artifactId>
             <version>1.4.4</version>
         </dependency>
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail</artifactId>
+            <version>1.3.1b</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+
     <build>
         <plugins>
             <plugin>
@@ -692,6 +700,10 @@
                                 <systemProperty>
                                     <name>jdbc.jdbcUrl</name>
                                     <value>jdbc:postgresql://localhost/bod-selenium</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>external.bod.url</name>
+                                    <value>http://localhost:${jetty.port}/bod</value>
                                 </systemProperty>
                             </systemProperties>
                             <systemPropertiesFile>src/test/resources/bod.properties</systemPropertiesFile>

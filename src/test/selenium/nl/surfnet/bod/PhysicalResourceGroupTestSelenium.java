@@ -28,14 +28,31 @@ import org.junit.Test;
 public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
 
   @Test
-  public void createAndDeletePhysicalGroup() throws Exception {
-    getWebDriver().createNewPhysicalGroup("SURFnet bv", "urn:utrecht-icters", "truus@example.com");
+  public void createActivateEditAndDeletePhysicalResourceGroup() throws Exception {
+    String adminGroup = "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:ict-managers";
+    String institute = "SURFnet bv";
+    String initialEmail = "truus@example.com";
+    String finalEmail = "henk@example.com";
 
-    getWebDriver().verifyGroupWasCreated("SURFnet bv", "urn:utrecht-icters", "truus@example.com");
+    getWebDriver().createNewPhysicalResourceGroup(institute, adminGroup, initialEmail);
 
-    getWebDriver().deletePhysicalGroup("SURFnet bv", "urn:utrecht-icters", "truus@example.com");
+    getWebDriver().verifyGroupWasCreated(institute, adminGroup, initialEmail);
 
-    getWebDriver().verifyGroupWasDeleted("SURFnet bv", "urn:utrecht-icters", "truus@example.com");
+    getWebDriver().verifyLastEmailRecipient(initialEmail);
+
+    getWebDriver().clickLinkInLastEmail();
+
+    getWebDriver().verifyPhysicalResourceGroupIsActive(institute, adminGroup, initialEmail);
+
+    getWebDriver().editPhysicalResoruceGroup(institute, finalEmail);
+
+    getWebDriver().verifyGroupExists(institute, adminGroup, finalEmail, "FALSE");
+
+    getWebDriver().verifyLastEmailRecipient(finalEmail);
+
+    getWebDriver().deletePhysicalGroup(institute, adminGroup, finalEmail);
+
+    getWebDriver().verifyGroupWasDeleted(institute, adminGroup, finalEmail);
   }
 
 }
