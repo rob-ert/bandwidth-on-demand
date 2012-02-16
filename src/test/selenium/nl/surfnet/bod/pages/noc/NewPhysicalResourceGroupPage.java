@@ -19,7 +19,7 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.pages.physical;
+package nl.surfnet.bod.pages.noc;
 
 import nl.surfnet.bod.support.Probes;
 

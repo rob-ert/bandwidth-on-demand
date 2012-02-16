@@ -19,32 +19,42 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.pages.virtual;
+package nl.surfnet.bod.pages.noc;
 
 import nl.surfnet.bod.pages.AbstractListPage;
-import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
-public class ListVirtualResourceGroupPage extends AbstractListPage {
+public class ListPhysicalResourceGroupPage extends AbstractListPage {
 
-  private static final String PAGE =  "/manager/"  + VirtualResourceGroupController.PAGE_URL;
+  private static final String PAGE = "noc/physicalresourcegroups";
 
-  public ListVirtualResourceGroupPage(RemoteWebDriver driver) {
+  public ListPhysicalResourceGroupPage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public static ListVirtualResourceGroupPage get(RemoteWebDriver driver, String baseUrl) {
-    driver.get(baseUrl + PAGE);
+  public static ListPhysicalResourceGroupPage get(RemoteWebDriver driver, String urlUnderTest) {
+    driver.get(urlUnderTest + PAGE);
     return get(driver);
   }
 
-  public static ListVirtualResourceGroupPage get(RemoteWebDriver driver) {
-    ListVirtualResourceGroupPage page = new ListVirtualResourceGroupPage(driver);
+  public static ListPhysicalResourceGroupPage get(RemoteWebDriver driver) {
+    ListPhysicalResourceGroupPage page = new ListPhysicalResourceGroupPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;
+  }
+
+  public EditPhysicalResourceGroupPage edit(String adminGroup) {
+    WebElement row = findRow(adminGroup);
+
+    WebElement editLink = row.findElement(By.cssSelector("a[alt~=Update]"));
+    editLink.click();
+
+    return EditPhysicalResourceGroupPage.get(driver);
   }
 
 }

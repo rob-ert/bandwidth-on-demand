@@ -19,11 +19,12 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.pages;
+package nl.surfnet.bod.pages.user;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.pages.AbstractListPage;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;

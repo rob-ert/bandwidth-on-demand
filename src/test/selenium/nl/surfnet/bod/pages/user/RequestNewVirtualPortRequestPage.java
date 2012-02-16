@@ -1,4 +1,4 @@
-package nl.surfnet.bod.pages;
+package nl.surfnet.bod.pages.user;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;

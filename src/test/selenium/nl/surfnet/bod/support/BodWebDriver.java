@@ -36,17 +36,17 @@ import java.util.regex.Pattern;
 import javax.mail.internet.MimeMessage;
 
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.ListReservationPage;
-import nl.surfnet.bod.pages.NewReservationPage;
-import nl.surfnet.bod.pages.RequestNewVirtualPortRequestPage;
-import nl.surfnet.bod.pages.RequestNewVirtualPortSelectInstitutePage;
-import nl.surfnet.bod.pages.physical.EditPhysicalResoruceGroupPage;
-import nl.surfnet.bod.pages.physical.ListPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.physical.NewPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.virtual.ListVirtualPortPage;
-import nl.surfnet.bod.pages.virtual.ListVirtualResourceGroupPage;
-import nl.surfnet.bod.pages.virtual.NewVirtualPortPage;
-import nl.surfnet.bod.pages.virtual.NewVirtualResourceGroupPage;
+import nl.surfnet.bod.pages.manager.ListVirtualPortPage;
+import nl.surfnet.bod.pages.manager.ListVirtualResourceGroupPage;
+import nl.surfnet.bod.pages.manager.NewVirtualPortPage;
+import nl.surfnet.bod.pages.manager.NewVirtualResourceGroupPage;
+import nl.surfnet.bod.pages.noc.EditPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.noc.NewPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.user.ListReservationPage;
+import nl.surfnet.bod.pages.user.NewReservationPage;
+import nl.surfnet.bod.pages.user.RequestNewVirtualPortRequestPage;
+import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectInstitutePage;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.core.CombinableMatcher;
@@ -304,7 +304,7 @@ public class BodWebDriver {
   public void editPhysicalResoruceGroup(String institute, String finalEmail) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver);
 
-    EditPhysicalResoruceGroupPage editPage = page.edit(institute);
+    EditPhysicalResourceGroupPage editPage = page.edit(institute);
 
     editPage.sendEmail(finalEmail);
 
@@ -312,7 +312,8 @@ public class BodWebDriver {
   }
 
   public void selectInstituteAndRequest(String institute, String message) {
-    RequestNewVirtualPortSelectInstitutePage page = RequestNewVirtualPortSelectInstitutePage.get(driver, URL_UNDER_TEST);
+    RequestNewVirtualPortSelectInstitutePage page = RequestNewVirtualPortSelectInstitutePage
+        .get(driver, URL_UNDER_TEST);
 
     RequestNewVirtualPortRequestPage requestPage = page.selectInstitute(institute);
     requestPage.sendMessage(message);
@@ -325,6 +326,19 @@ public class BodWebDriver {
     String group = page.getSelectedPhysicalResourceGroup();
 
     assertThat(group, is(instituteName));
+  }
+
+  public void managerDashboard() {
+    driver.get(URL_UNDER_TEST + "manager");
+  }
+
+  public void verifyOnEditPhysicalResourceGroupPage(String expectedMailAdress) {
+    nl.surfnet.bod.pages.manager.EditPhysicalResourceGroupPage page = nl.surfnet.bod.pages.manager.EditPhysicalResourceGroupPage
+        .get(driver);
+
+    String email = page.getEmailValue();
+
+    assertThat(email, is(expectedMailAdress));
   }
 
 }

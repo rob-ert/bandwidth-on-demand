@@ -1,4 +1,6 @@
-package nl.surfnet.bod.pages;
+package nl.surfnet.bod.pages.user;
+
+import nl.surfnet.bod.pages.AbstractListPage;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
