@@ -61,7 +61,7 @@ public class DashboardController {
       }
     }
 
-    return "index";
+    return "manager/index";
   }
 
   /**
