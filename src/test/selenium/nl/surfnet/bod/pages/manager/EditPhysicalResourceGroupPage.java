@@ -1,11 +1,13 @@
 package nl.surfnet.bod.pages.manager;
 
+import nl.surfnet.bod.pages.AbstractPage;
+
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class EditPhysicalResourceGroupPage {
+public class EditPhysicalResourceGroupPage extends AbstractPage {
 
   private final RemoteWebDriver driver;
 
@@ -24,6 +26,6 @@ public class EditPhysicalResourceGroupPage {
   }
 
   public String getEmailValue() {
-    return emailInput.getText();
+    return emailInput.getAttribute("value");
   }
 }

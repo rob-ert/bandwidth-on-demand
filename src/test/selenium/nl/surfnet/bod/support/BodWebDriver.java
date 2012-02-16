@@ -24,10 +24,7 @@ package nl.surfnet.bod.support;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -119,10 +116,10 @@ public class BodWebDriver {
     return path.endsWith("/") ? path : path + "/";
   }
 
-  public void deletePhysicalGroup(String institute, String adminGroup, String email) {
+  public void deletePhysicalGroup(String institute) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
 
-    page.delete(institute, adminGroup, email);
+    page.delete(institute);
   }
 
   public void verifyGroupWasCreated(String institute, String adminGroup, String email) {
@@ -337,8 +334,10 @@ public class BodWebDriver {
         .get(driver);
 
     String email = page.getEmailValue();
-
     assertThat(email, is(expectedMailAdress));
+
+    assertThat(page.getInfoMessages(), hasSize(1));
+    assertThat(page.getInfoMessages().get(0), containsString("Your Physical Resource Group is not activated"));
   }
 
 }

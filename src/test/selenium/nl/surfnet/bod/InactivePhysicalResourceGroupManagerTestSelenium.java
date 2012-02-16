@@ -14,5 +14,7 @@ public class InactivePhysicalResourceGroupManagerTestSelenium extends TestExtern
     getWebDriver().managerDashboard();
 
     getWebDriver().verifyOnEditPhysicalResourceGroupPage("wrong@example.com");
+
+    getWebDriver().deletePhysicalGroup("SURFnet bv");
   }
 }

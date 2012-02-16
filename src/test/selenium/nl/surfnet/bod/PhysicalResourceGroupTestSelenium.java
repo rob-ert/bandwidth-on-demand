@@ -50,7 +50,7 @@ public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
 
     getWebDriver().verifyLastEmailRecipient(finalEmail);
 
-    getWebDriver().deletePhysicalGroup(institute, adminGroup, finalEmail);
+    getWebDriver().deletePhysicalGroup(institute);
 
     getWebDriver().verifyGroupWasDeleted(institute, adminGroup, finalEmail);
   }

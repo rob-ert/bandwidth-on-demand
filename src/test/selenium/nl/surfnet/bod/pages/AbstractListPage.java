@@ -30,6 +30,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
@@ -65,7 +66,7 @@ public class AbstractListPage {
       }
     }
 
-    throw new NoSuchElementException(String.format("row with name '%s' not found", fields.toString()));
+    throw new NoSuchElementException(String.format("row with name '%s' not found", Joiner.on(',').join(fields)));
   }
 
   private boolean containsAll(final WebElement row, String... fields) {
