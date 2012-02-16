@@ -67,7 +67,7 @@
                 </div>
                 <form:hidden path="physicalResourceGroupId" />
                 <div class="actions">
-                    <input class="btn primary" type="submit" value="Sent request" />
+                    <input class="btn primary" type="submit" value="Send request" />
                 </div>
             </form:form>
         </div>
