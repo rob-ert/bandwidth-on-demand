@@ -705,6 +705,18 @@
                                     <name>external.bod.url</name>
                                     <value>http://localhost:${jetty.port}/bod</value>
                                 </systemProperty>
+                                <systemProperty>
+                                    <name>mail.port</name>
+                                    <value>3025</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>mail.sender.class</name>
+                                    <value>nl.surfnet.bod.service.EmailSenderOnline</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <name>nbi.client.class</name>
+                                    <value>nl.surfnet.bod.service.NbiServiceOffline</value>
+                                </systemProperty>
                             </systemProperties>
                             <systemPropertiesFile>src/test/resources/bod.properties</systemPropertiesFile>
                             <connectors>
