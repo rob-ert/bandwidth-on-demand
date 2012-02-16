@@ -4,7 +4,7 @@ import nl.surfnet.bod.support.TestExternalSupport;
 
 import org.junit.Test;
 
-public class InactivePhysicalResourceGroupManagerSeleniumTest extends TestExternalSupport {
+public class InactivePhysicalResourceGroupManagerTestSelenium extends TestExternalSupport {
 
   @Test
   public void anInactivePhysicalResourceGroupShouldGiveARedirectForManager() throws Exception {
