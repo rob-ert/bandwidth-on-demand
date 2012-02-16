@@ -42,6 +42,7 @@ import java.util.List;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.validator.PhysicalResourceGroupValidator;
+import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalPortFactory;
@@ -72,6 +73,9 @@ public class PhysicalResourceGroupControllerTest {
   @SuppressWarnings("unused")
   @Mock
   private PhysicalResourceGroupValidator physicalResourceGroupValidatorMock;
+
+  @Mock
+  private InstituteService instituteIddService;
 
   @Test
   public void listShouldSetGroupsAndMaxPages() {
@@ -110,7 +114,8 @@ public class PhysicalResourceGroupControllerTest {
 
   @Test
   public void updateEmailOfPhysicalResourceGroupShouldSentActivationEmail() {
-    RedirectAttributes model = new ModelStub();
+    RedirectAttributes redirectAttribs = new ModelStub();
+    Model model = new ModelStub();
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setManagerEmail("old@example.com")
         .setAdminGroupName("urn:ict-manager").create();
 
@@ -122,28 +127,31 @@ public class PhysicalResourceGroupControllerTest {
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
-    String page = subject.update(command, new BeanPropertyBindingResult(changedGroup, "physicalResrouceGroup"), model);
+    String page = subject.update(command, new BeanPropertyBindingResult(changedGroup, PhysicalResourceGroupController.MODEL_KEY), model,
+        redirectAttribs);
 
     assertThat(page, is("redirect:physicalresourcegroups"));
-    assertThat(WebUtils.getFirstInfoMessage(model), containsString("has been sent"));
-    assertThat(WebUtils.getFirstInfoMessage(model), containsString("new@example.com"));
+    assertThat(WebUtils.getFirstInfoMessage(redirectAttribs), containsString("has been sent"));
+    assertThat(WebUtils.getFirstInfoMessage(redirectAttribs), containsString("new@example.com"));
 
     verify(physicalResourceGroupServiceMock).sendAndPersistActivationRequest(any(PhysicalResourceGroup.class));
   }
 
   @Test
   public void updateWhenEmailDidNotChangeDontSentActivationEmail() {
-    RedirectAttributes model = new ModelStub();
+    RedirectAttributes redirectAttribs = new ModelStub();
+    Model model = new ModelStub();
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setManagerEmail("mail@example.com")
         .create();
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
     PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(group);
-    String page = subject.update(command, new BeanPropertyBindingResult(group, "physicalResrouceGroup"), model);
+    String page = subject.update(command, new BeanPropertyBindingResult(group, PhysicalResourceGroupController.MODEL_KEY), model,
+        redirectAttribs);
 
     assertThat(page, is("redirect:physicalresourcegroups"));
-    assertThat(model.getFlashAttributes().keySet(), hasSize(0));
+    assertThat(redirectAttribs.getFlashAttributes().keySet(), hasSize(0));
 
     verify(physicalResourceGroupServiceMock, never()).sendAndPersistActivationRequest(group);
     verify(physicalResourceGroupServiceMock).update(group);
@@ -152,11 +160,12 @@ public class PhysicalResourceGroupControllerTest {
   @SuppressWarnings("serial")
   @Test
   public void updateWithErrorsShouldNotUpdate() {
-    RedirectAttributes model = new ModelStub();
+    RedirectAttributes redirectAtribs = new ModelStub();
+    Model model = new ModelStub();
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
     when(physicalResourceGroupServiceMock.find(group.getId())).thenReturn(group);
 
-    BeanPropertyBindingResult result = new BeanPropertyBindingResult(group, "physicalResrouceGroup") {
+    BeanPropertyBindingResult result = new BeanPropertyBindingResult(group, PhysicalResourceGroupController.MODEL_KEY) {
       @Override
       public boolean hasErrors() {
         return true;
@@ -164,10 +173,11 @@ public class PhysicalResourceGroupControllerTest {
     };
 
     PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(group);
-    String page = subject.update(command, result, model);
+    String page = subject.update(command, result, model, redirectAtribs);
 
     assertThat(page, is("physicalresourcegroups/update"));
-    assertThat(model.asMap().get("physicalResourceGroup"), is(Object.class.cast(command)));
+    verify(physicalResourceGroupServiceMock, never()).update(any(PhysicalResourceGroup.class));
+    assertThat(model.asMap().get(PhysicalResourceGroupController.MODEL_KEY), is(Object.class.cast(command)));
   }
 
 }

@@ -6,23 +6,23 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <page:show id="ps_PhysicalResourceGroup" object="${physicalResourceGroup}"
+    <page:show id="ps_PhysicalResourceGroup" object="${physicalResourceGroupCommand}"
         path="/noc/physicalresourcegroups">
 
-        <field:display field="name" id="name" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_name" />        
-        <field:display field="adminGroup" id="adminGroup" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_adminGroup" />
-        <field:display field="managerEmail" id="managerEmail" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_managerEmail" />
-        <field:display field="active" id="active" object="${physicalResourceGroup}" labelCode="physicalresourcegroup_active" />
+        <field:display field="name" id="name" object="${physicalResourceGroupCommand}" labelCode="physicalresourcegroup_name" />        
+        <field:display field="adminGroup" id="adminGroup" object="${physicalResourceGroupCommand}" labelCode="physicalresourcegroup_adminGroup" />
+        <field:display field="managerEmail" id="managerEmail" object="${physicalResourceGroupCommand}" labelCode="physicalresourcegroup_managerEmail" />
+        <field:display field="active" id="active" object="${physicalResourceGroupCommand}" labelCode="physicalresourcegroup_active" />
         
     </page:show>
 
     <h2>Physical Ports</h2>
     <c:choose>
-        <c:when test="${empty physicalResourceGroup.physicalPorts}">
+        <c:when test="${empty physicalResourceGroupCommand.physicalPorts}">
             No physical ports..
         </c:when>
         <c:otherwise>
-            <table:table data="${physicalResourceGroup.physicalPorts}" id="l_physicalPort" path="/noc/physicalports" typeIdFieldName="id"
+            <table:table data="${physicalResourceGroupCommand.physicalPorts}" id="l_physicalPort" path="/noc/physicalports" typeIdFieldName="id"
                 update="false" delete="false" show="false">
                 <table:column labelCode="physicalport_name" id="physicalport" property="nocLabel" />
                 <table:column labelCode="physicalPort_networkElementPk" id="networkElementPk" property="networkElementPk" />
