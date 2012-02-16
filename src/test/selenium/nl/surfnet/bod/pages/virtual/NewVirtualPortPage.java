@@ -25,6 +25,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.Select;
 
 public class NewVirtualPortPage {
 
@@ -40,6 +41,9 @@ public class NewVirtualPortPage {
   @FindBy(id = "_maxBandwidth_id")
   private WebElement maxBandwidthInput;
 
+  @FindBy(id = "_physicalResourceGroup")
+  private WebElement physicalResourceGroupSelect;
+
   @FindBy(css = "input[type='submit']")
   private WebElement saveButton;
 
@@ -52,7 +56,7 @@ public class NewVirtualPortPage {
     return get(driver);
   }
 
-  private static NewVirtualPortPage get(RemoteWebDriver driver) {
+  public static NewVirtualPortPage get(RemoteWebDriver driver) {
     NewVirtualPortPage page = new NewVirtualPortPage(driver);
     PageFactory.initElements(driver, page);
 
@@ -71,6 +75,10 @@ public class NewVirtualPortPage {
 
   public void save() {
     saveButton.click();
+  }
+
+  public String getSelectedPhysicalResourceGroup() {
+    return new Select(physicalResourceGroupSelect).getFirstSelectedOption().getText();
   }
 
 }

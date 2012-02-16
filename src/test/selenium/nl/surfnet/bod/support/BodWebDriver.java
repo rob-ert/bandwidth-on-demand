@@ -26,6 +26,7 @@ import static junit.framework.Assert.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import java.io.File;
@@ -37,6 +38,8 @@ import javax.mail.internet.MimeMessage;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.pages.ListReservationPage;
 import nl.surfnet.bod.pages.NewReservationPage;
+import nl.surfnet.bod.pages.RequestNewVirtualPortRequestPage;
+import nl.surfnet.bod.pages.RequestNewVirtualPortSelectInstitutePage;
 import nl.surfnet.bod.pages.physical.EditPhysicalResoruceGroupPage;
 import nl.surfnet.bod.pages.physical.ListPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.physical.NewPhysicalResourceGroupPage;
@@ -287,7 +290,7 @@ public class BodWebDriver {
   }
 
   private String extractLink(String message) {
-    Pattern pattern = Pattern.compile(".*(https?://[\\w:/\\-\\.\\?]+).*", Pattern.DOTALL);
+    Pattern pattern = Pattern.compile(".*(https?://[\\w:/\\-\\.\\?&=]+).*", Pattern.DOTALL);
 
     java.util.regex.Matcher matcher = pattern.matcher(message);
 
@@ -306,6 +309,22 @@ public class BodWebDriver {
     editPage.sendEmail(finalEmail);
 
     editPage.save();
+  }
+
+  public void selectInstituteAndRequest(String institute, String message) {
+    RequestNewVirtualPortSelectInstitutePage page = RequestNewVirtualPortSelectInstitutePage.get(driver, URL_UNDER_TEST);
+
+    RequestNewVirtualPortRequestPage requestPage = page.selectInstitute(institute);
+    requestPage.sendMessage(message);
+    requestPage.sentRequest();
+  }
+
+  public void verifyNewVirtualPortHasPhysicalResourceGroup(String instituteName) {
+    NewVirtualPortPage page = NewVirtualPortPage.get(driver);
+
+    String group = page.getSelectedPhysicalResourceGroup();
+
+    assertThat(group, is(instituteName));
   }
 
 }
