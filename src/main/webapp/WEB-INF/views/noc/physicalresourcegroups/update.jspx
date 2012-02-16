@@ -11,8 +11,6 @@
         versionField="Version">
 
         <field:input field="name" id="name" labelCode="physicalresourcegroup_name" required="true" disabled="true" />
-
-	   ${physicalResourceGroupCommand.instituteId}-${physicalResourceGroupCommand.institute.name}
 	   
         <field:suggestion-input field="instituteId" labelCode="physicalresourcegroup_instituteName"
             suggestionUrl="/institutes" preFillId="${physicalResourceGroupCommand.instituteId}" preFillName="${physicalResourceGroupCommand.institute.name}" />
