@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    <pre>
+    The owner of the original code is Ciena Corporation.
+
+    Portions created by the original owner are Copyright (C) 2004-2010
+    the original owner. All Rights Reserved.
+
+    Portions created by other contributors are Copyright (C) the contributor.
+    All Rights Reserved.
+
+    Contributor(s):
+      (Contributors insert name & email here)
+
+    This file is part of DRAC (Dynamic Resource Allocation Controller).
+
+    DRAC is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    DRAC is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program.  If not, see <http://www.gnu.org/licenses/>.
+    </pre>
+
+-->
+
+<definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
+    xmlns:tns="http://www.opendrac.org/ws/NetworkMonitoringService_v3.0" 
+    xmlns:t="http://www.opendrac.org/ws/NetworkMonitoringServiceTypes_v3.0" 
+    xmlns:ct="http://www.nortel.com/drac/2007/07/03/ws/ct/DracCommonTypes" 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+    xmlns:wsaddr="http://www.w3.org/2006/05/addressing/wsdl" 
+    xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+    xmlns="http://schemas.xmlsoap.org/wsdl/" 
+    targetNamespace="http://www.opendrac.org/ws/NetworkMonitoringService_v3.0">
+   <types>
+      <xs:schema targetNamespace="http://www.opendrac.org/ws/NetworkMonitoringService_v3.0" xmlns:t="http://www.opendrac.org/ws/NetworkMonitoringServiceTypes_v3.0" xmlns:ct="http://www.nortel.com/drac/2007/07/03/ws/ct/DracCommonTypes">
+         <xs:import namespace="http://www.opendrac.org/ws/NetworkMonitoringServiceTypes_v3.0" schemaLocation="./NetworkMonitoringServiceTypes_v3.0.xsd"/>
+         <xs:import namespace="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" schemaLocation="./Wssecurity_v3.0.xsd"/>
+      </xs:schema>
+   </types>
+    <message name="Security">
+      <part name="header" element="wsse:Security"/>
+   </message>
+   <message name="authenticationRequest">
+      <part name="payload" element="ct:AuthenticationRequest"/>
+   </message>
+   <message name="networkMonitoringServiceFault">
+      <part name="payload" element="ct:DracFault"/>
+   </message>
+   <message name="queryEndpointsRequest">
+      <part name="header" element="ct:Credentials"/>
+      <part name="payload" element="t:QueryEndpointsRequest"/>
+   </message>
+   <message name="queryEndpointsResponse">
+      <part name="payload" element="t:QueryEndpointsResponse"/>
+   </message>
+   <message name="queryEndpointRequest">
+      <part name="header" element="ct:Credentials"/>
+      <part name="payload" element="t:QueryEndpointRequest"/>
+   </message>
+   <message name="queryEndpointResponse">
+      <part name="payload" element="t:QueryEndpointResponse"/>
+   </message>
+   <message name="disconnectRequest">
+      <part name="header" element="ct:Credentials"/>
+   </message>
+   <message name="completionResponse">
+      <part name="payload" element="ct:CompletionResponse"/>
+   </message>
+   <portType name="NetworkMonitoringServicePortType">
+      <operation name="authenticate">
+         <documentation>
+         The authenticate operation must be invoked as the first operation before invoking any other operations on this service.
+      </documentation>
+         <input message="tns:authenticationRequest" wsaddr:Action="http://www.opendrac.org/ws/NetworkMonitoringService_v3.0/authenticationRequest"/>
+         <output message="tns:completionResponse" wsaddr:Action="http://www.opendrac.org/ws/NetworkMonitoringService_v3.0/completionResponse"/>
+	 <fault name="fault" message="tns:networkMonitoringServiceFault"/>
+      </operation>
+      <operation name="queryEndpoints">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+      </documentation>
+         <input message="tns:queryEndpointsRequest" wsaddr:Action="http://www.opendrac.org/ws/NetworkMonitoringService_v3.0/queryEndpointsRequest"/>
+         <output message="tns:queryEndpointsResponse" wsaddr:Action="http://www.opendrac.org/ws/NetworkMonitoringService_v3.0/queryEndpointsResponse"/>
+         <fault name="fault" message="tns:networkMonitoringServiceFault"/>
+      </operation>
+      <operation name="queryEndpoint">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+      </documentation>
+         <input message="tns:queryEndpointRequest" wsaddr:Action="http://www.opendrac.org/ws/NetworkMonitoringService_v3.0/queryEndpointRequest"/>
+         <output message="tns:queryEndpointResponse" wsaddr:Action="http://www.opendrac.org/ws/NetworkMonitoringService_v3.0/queryEndpointResponse"/>
+         <fault name="fault" message="tns:networkMonitoringServiceFault"/>
+      </operation>
+      <operation name="disconnect">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+      </documentation>
+         <input message="tns:disconnectRequest" wsaddr:Action="http://www.opendrac.org/ws/NetworkMonitoringService_v3.0/disconnectRequest"/>
+         <output message="tns:completionResponse" wsaddr:Action="http://www.opendrac.org/ws/NetworkMonitoringService_v3.0/completionResponse"/>
+	 <fault name="fault" message="tns:networkMonitoringServiceFault"/>
+      </operation>
+   </portType>
+</definitions>

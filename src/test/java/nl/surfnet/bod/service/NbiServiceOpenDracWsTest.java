@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.nbi.NetworkMonitoringServiceFault;
+import nl.surfnet.bod.nbi.NetworkMonitoringService_v30Stub;
 
 import org.apache.xmlbeans.XmlException;
 import org.junit.Before;
@@ -40,8 +42,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.SecurityDocument;
-import org.opendrac.www.ws.networkmonitoringservice.v3_0.NetworkMonitoringServiceFault;
-import org.opendrac.www.ws.networkmonitoringservice.v3_0.NetworkMonitoringService_v30Stub;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointRequestDocument;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointResponseDocument;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsRequestDocument;

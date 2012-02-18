@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    <pre>
+    The owner of the original code is Ciena Corporation.
+
+    Portions created by the original owner are Copyright (C) 2004-2010
+    the original owner. All Rights Reserved.
+
+    Portions created by other contributors are Copyright (C) the contributor.
+    All Rights Reserved.
+
+    Contributor(s):
+      (Contributors insert name & email here)
+
+    This file is part of DRAC (Dynamic Resource Allocation Controller).
+
+    DRAC is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    DRAC is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program.  If not, see <http://www.gnu.org/licenses/>.
+    </pre>
+
+-->
+
+<definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
+    xmlns:tns="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0" 
+    xmlns:t="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingServiceTypes_v3.0" 
+    xmlns:ct="http://www.nortel.com/drac/2007/07/03/ws/ct/DracCommonTypes" 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+    xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+    xmlns:wsaddr="http://www.w3.org/2006/05/addressing/wsdl" 
+    xmlns="http://schemas.xmlsoap.org/wsdl/" 
+    targetNamespace="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0">
+
+   <types>
+      <xs:schema targetNamespace="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0" xmlns:t="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingServiceTypes_v3.0" xmlns:ct="http://www.nortel.com/drac/2007/07/03/ws/ct/DracCommonTypes">
+         <xs:import namespace="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingServiceTypes_v3.0" schemaLocation="./ResourceAllocationAndSchedulingServiceTypes_v3.0.xsd"/>
+         <xs:import namespace="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" schemaLocation="./Wssecurity_v3.0.xsd"/>
+      </xs:schema>
+   </types>
+   <message name="Security">
+      <part name="header" element="wsse:Security"/>
+   </message>
+   <message name="createReservationScheduleRequest">
+      <part name="header" element="ct:Credentials"/>
+      <part name="payload" element="t:CreateReservationScheduleRequest"/>
+   </message>   
+   <message name="createReservationScheduleResponse">
+      <part name="payload" element="t:CreateReservationScheduleResponse"/>
+   </message>
+   <message name="queryReservationScheduleByNamePathUserRequest">
+      <part name="payload" element="t:QueryReservationScheduleByNamePathUserRequest"/>
+   </message>   
+   <message name="queryServicesByScheduleIdRequest">
+      <part name="payload" element="t:QueryServicesByScheduleIdRequest"/>
+   </message>
+   <message name="queryActiveServiceByScheduleIdRequest">
+      <part name="payload" element="t:QueryActiveServiceByScheduleIdRequest"/>
+   </message>
+   <message name="resumeServiceByIdRequest">
+      <part name="payload" element="t:ResumeServiceByIdRequest"/>
+   </message>
+   <message name="terminateServiceByIdRequest">
+      <part name="payload" element="t:TerminateServiceByIdRequest"/>
+   </message>
+   <message name="completionResponse">
+      <part name="payload" element="ct:CompletionResponse"/>
+   </message>
+   <message name="cancelReservationScheduleRequest">
+      <part name="header" element="ct:Credentials"/>
+      <part name="payload" element="t:CancelReservationScheduleRequest"/>
+   </message>
+   <message name="cancelReservationOccurrenceRequest">
+      <part name="header" element="ct:Credentials"/>
+      <part name="payload" element="t:CancelReservationOccurrenceRequest"/>
+   </message>
+   <message name="addReservationOccurrenceRequest">
+      <part name="header" element="ct:Credentials"/>
+      <part name="payload" element="t:AddReservationOccurrenceRequest"/>
+   </message>
+   <message name="addReservationOccurrenceResponse">
+      <part name="payload" element="t:AddReservationOccurrenceResponse"/>
+   </message>
+   <message name="queryReservationSchedulesRequest">
+      <part name="header" element="ct:Credentials"/>
+      <part name="payload" element="t:QueryReservationSchedulesRequest"/>
+   </message>
+   <message name="queryReservationSchedulesResponse">
+      <part name="payload" element="t:QueryReservationSchedulesResponse"/>
+   </message>
+   <message name="queryReservationScheduleRequest">
+      <part name="payload" element="t:QueryReservationScheduleRequest"/>
+   </message>
+   <message name="queryReservationScheduleResponse">
+      <part name="payload" element="t:QueryReservationScheduleResponse"/>
+   </message>
+  <message name="queryReservationScheduleByNamePathUserResponse">
+      <part name="payload" element="t:QueryReservationScheduleResponse"/>
+   </message>   
+   <message name="queryServicesByScheduleIdResponse">
+      <part name="payload" element="t:QueryServicesByScheduleIdResponse"/>
+   </message>
+   <message name="queryActiveServiceByScheduleIdResponse">
+      <part name="payload" element="t:QueryActiveServiceByScheduleIdResponse"/>
+   </message>
+   <message name="resumeServiceByIdResponse">
+      <part name="payload" element="t:ResumeServiceByIdResponse"/>
+   </message>
+   <message name="terminateServiceByIdResponse">
+      <part name="payload" element="t:TerminateServiceByIdResponse"/>
+   </message>  
+   <message name="queryReservationOccurrencesRequest">
+      <part name="header" element="ct:Credentials"/>
+      <part name="payload" element="t:QueryReservationOccurrencesRequest"/>
+   </message>
+   <message name="queryReservationOccurrencesResponse">
+      <part name="payload" element="t:QueryReservationOccurrencesResponse"/>
+   </message>
+   <message name="queryReservationOccurrenceRequest">
+      <part name="header" element="ct:Credentials"/>
+      <part name="payload" element="t:QueryReservationOccurrenceRequest"/>
+   </message>
+   <message name="queryReservationOccurrenceResponse">
+      <part name="payload" element="t:QueryReservationOccurrenceResponse"/>
+   </message>
+   <message name="queryPathAvailabilityRequest">
+      <part name="header" element="ct:Credentials"/>
+      <part name="payload" element="t:QueryPathAvailabilityRequest"/>
+   </message>
+   <message name="authenticationRequest">
+      <part name="payload" element="ct:AuthenticationRequest"/>
+   </message>
+   <message name="queryReservationOccurrenceAlarmsRequest">
+      <part name="header" element="ct:Credentials"/>
+      <part name="payload" element="t:QueryAlarmsRequest"/>
+   </message>
+   <message name="queryReservationOccurrenceAlarmsResponse">
+      <part name="payload" element="t:QueryAlarmsResponse"/>
+   </message>
+   <message name="resourceAllocationAndSchedulingServiceFault">
+      <part name="payload" element="ct:DracFault"/>
+   </message>
+   <message name="disconnectRequest">
+      <part name="header" element="ct:Credentials"/>
+   </message>
+   <message name="confirmReservationScheduleRequest">
+      <part name="header" element="ct:Credentials"/>
+      <part name="payload" element="t:ConfirmReservationScheduleRequest"/>
+   </message>
+   <message name="activateReservationOccurrenceRequest">
+      <part name="header" element="ct:Credentials"/>
+      <part name="payload" element="t:ActivateReservationOccurrenceRequest"/>
+   </message>
+    <message name="extendCurrentServiceForScheduleRequest">
+      <part name="payload" element="t:ExtendCurrentServiceForScheduleRequest"/>
+   </message>   
+   <message name="extendCurrentServiceForScheduleResponse">
+      <part name="payload" element="t:ExtendCurrentServiceForScheduleResponse"/>
+   </message>
+   
+   <portType name="ResourceAllocationAndSchedulingServicePortType">
+      <operation name="createReservationSchedule">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+      </documentation>
+         <input message="tns:createReservationScheduleRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/createReservationScheduleRequest"/>
+         <output message="tns:createReservationScheduleResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/createReservationScheduleResponse"/>
+         <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+      <operation name="cancelReservationSchedule">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+      </documentation>
+         <input message="tns:cancelReservationScheduleRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/cancelReservationScheduleRequest"/>
+         <output message="tns:completionResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/completionResponse"/>      
+         <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+      <operation name="queryReservationSchedules">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+      </documentation>
+         <input message="tns:queryReservationSchedulesRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationSchedulesRequest"/>
+         <output message="tns:queryReservationSchedulesResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationSchedulesResponse"/>
+         <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault" />
+      </operation>      
+      <operation name="queryReservationSchedule">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+      </documentation>
+         <input message="tns:queryReservationScheduleRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationScheduleRequest"/>
+         <output message="tns:queryReservationScheduleResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationScheduleResponse"/>
+         <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>  
+      <operation name="addReservationOccurrence">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+      </documentation>
+         <input message="tns:addReservationOccurrenceRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/addReservationOccurrenceRequest"/>
+         <output message="tns:addReservationOccurrenceResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/addReservationOccurrenceResponse"/>
+         <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+      <operation name="cancelReservationOccurrence">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+      </documentation>
+         <input message="tns:cancelReservationOccurrenceRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/cancelReservationOccurrenceRequest"/>
+         <output message="tns:completionResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/completionResponse"/>	 
+         <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+      <operation name="queryReservationOccurrences">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+      </documentation>
+         <input message="tns:queryReservationOccurrencesRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationOccurrencesRequest"/>
+         <output message="tns:queryReservationOccurrencesResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationOccurrencesResponse"/>
+         <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+      <operation name="queryReservationOccurrence">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+      </documentation>
+         <input message="tns:queryReservationOccurrenceRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationOccurrenceRequest"/>
+         <output message="tns:queryReservationOccurrenceResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationOccurrenceResponse"/>
+         <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+      <operation name="queryPathAvailability">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+      </documentation>
+         <input message="tns:queryPathAvailabilityRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryPathAvailabilityRequest"/>
+         <output message="tns:completionResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/completionResponse"/>
+         <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+      <operation name="queryReservationOccurrenceAlarms">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+      </documentation>
+         <input message="tns:queryReservationOccurrenceAlarmsRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationOccurrenceAlarmsRequest"/>
+         <output message="tns:queryReservationOccurrenceAlarmsResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationOccurrenceAlarmsResponse"/>
+         <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+      <operation name="activateReservationOccurrence">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+         </documentation>
+         <input message="tns:activateReservationOccurrenceRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/activateReservationOccurrenceRequest"/>
+         <output message="tns:completionResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/completionResponse"/>
+         <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+      <operation name="confirmReservationSchedule">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+      </documentation>
+         <input message="tns:confirmReservationScheduleRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/confirmReservationScheduleRequest"/>
+         <output message="tns:completionResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/completionResponse"/>
+         <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+      <operation name="disconnect">
+         <documentation>
+          For authorization purposes user id must be included in the SOAP message header.
+      </documentation>
+         <input message="tns:disconnectRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/disconnectRequest"/>
+         <output message="tns:completionResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/completionResponse"/>
+         <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>      
+      <operation name="queryReservationScheduleByNamePathUser">
+        <documentation>For authorization purposes user id must be included in the SOAP message header.</documentation>
+        <input message="tns:queryReservationScheduleByNamePathUserRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationScheduleByNamePathUserRequest" />
+        <output message="tns:queryReservationScheduleResponse"             wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationScheduleResponse" />
+        <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+      <operation name="queryServicesByScheduleId">
+        <documentation>For authorization purposes user id must be included in the SOAP message header.</documentation>
+        <input message="tns:queryServicesByScheduleIdRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryServicesByScheduleIdRequest" />
+        <output message="tns:queryServicesByScheduleIdResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryServicesByScheduleIdResponse" />
+        <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+      <operation name="queryActiveServiceByScheduleId">
+        <documentation>For authorization purposes user id must be included in the SOAP message header.</documentation>
+        <input message="tns:queryActiveServiceByScheduleIdRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryActiveServiceByScheduleIdRequest" />
+        <output message="tns:queryActiveServiceByScheduleIdResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryActiveServiceByScheduleIdResponse" />
+        <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+      <operation name="resumeServiceById">
+        <documentation>For authorization purposes user id must be included in the SOAP message header.</documentation>
+        <input message="tns:resumeServiceByIdRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/resumeServiceByIdRequest" />
+        <output message="tns:resumeServiceByIdResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/resumeServiceByIdResponse" />
+        <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+      <operation name="terminateServiceById">
+        <documentation>For authorization purposes user id must be included in the SOAP message header.</documentation>
+        <input message="tns:resumeServiceByIdRequest" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/terminateServiceByIdRequest" />
+        <output message="tns:resumeServiceByIdResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/terminateServiceByIdResponse" />
+        <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+      <operation name="extendCurrentServiceForSchedule">
+         <documentation>For authorization purposes user id must be included in the SOAP message header.
+         </documentation>
+         <input message="tns:extendCurrentServiceForScheduleRequest"   wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/extendCurrentServiceForScheduleRequest"/>
+         <output message="tns:extendCurrentServiceForScheduleResponse" wsaddr:Action="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/extendCurrentServiceForScheduleResponse"/>
+         <fault name="fault" message="tns:resourceAllocationAndSchedulingServiceFault"/>
+      </operation>
+
+      
+   </portType>
+</definitions>

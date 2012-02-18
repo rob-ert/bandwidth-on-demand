@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    <pre>
+    The owner of the original code is Ciena Corporation.
+
+    Portions created by the original owner are Copyright (C) 2004-2010
+    the original owner. All Rights Reserved.
+
+    Portions created by other contributors are Copyright (C) the contributor.
+    All Rights Reserved.
+
+    Contributor(s):
+      (Contributors insert name & email here)
+
+    This file is part of DRAC (Dynamic Resource Allocation Controller).
+
+    DRAC is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    DRAC is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program.  If not, see <http://www.gnu.org/licenses/>.
+    </pre>
+
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://www.nortel.com/drac/2007/07/03/ws/ct/DracCommonTypes" targetNamespace="http://www.nortel.com/drac/2007/07/03/ws/ct/DracCommonTypes" elementFormDefault="qualified" attributeFormDefault="unqualified">
+   <xs:simpleType name="DateTimeWithTimezoneT">
+      <xs:annotation>
+         <xs:documentation>
+               Time format for the DRAC WSDL interfaces : YYYY-MM-DDTHH:mm:ssTZD 
+               YYYY = four-digit year
+               MM   = two-digit month (01=January, etc.)
+               DD   = two-digit day of month (01 through 31)
+               HH   = two digits of hour (00 through 23) (am/pm NOT allowed)
+               mm  = two digits of minute (00 through 59)
+               ss     = two digits of second (00 through 59)
+               TZD  = time zone designator (+hh:mm or -hh:mm)
+               Examples :
+                2007-03-25T09:30:00-05:00
+                2007-05-22T23:30:00+04:00
+                2007-06-11T10:30:00Z
+         </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:dateTime">
+         <xs:pattern value=".+T.+(Z|[+\-].+)"/>
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="WeekdayT">
+      <xs:annotation>
+         <xs:documentation>
+         The value identifies which days of a week the reservation should be made.
+          Value should be between 1 to 7, 1 being Sunday, and 7 being Saturday. 
+          For examle the following instance document describes a reservation request
+          for Mondays and Wednesdays (Monday is 2, Wed. is 4) 
+            <weekday>2</weekday>
+            <weekday>4</weekday>
+         </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:int">
+         <xs:minInclusive value="1"/>
+         <xs:maxInclusive value="7"/>
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:complexType name="DracWsFaultT">
+      <xs:sequence>
+         <xs:element name="errorId" type="ct:DracWsErrorIdT" nillable="false"/>
+         <xs:element name="errorMsg" type="xs:string" nillable="false"/>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:simpleType name="DracWsErrorIdT">
+      <xs:restriction base="xs:short">
+         <xs:minInclusive value="4000"/>
+         <xs:maxInclusive value="4999"/>
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:element name="DracFault" type="ct:DracWsFaultT"/>
+   <xs:element name="Credentials" type="ct:CredentialsT" nillable="false"/>
+   <xs:complexType name="CredentialsT">
+      <xs:sequence>
+         <xs:element name="userId" type="xs:string" nillable="false"/>
+         <xs:element name="certificate" type="xs:string" nillable="false"/>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:element name="AuthenticationRequest">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="credentials" type="ct:CredentialsT" nillable="false"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:complexType name="AlarmT">
+      <xs:sequence>
+         <xs:element name="alarmId" type="xs:string"/>
+         <xs:element name="alarmSourceId" type="xs:string"/>
+         <xs:element name="severity" type="xs:string"/>
+         <xs:element name="timeRaised" type="xs:dateTime"/>
+         <xs:element name="isCleared" type="xs:boolean"/>
+         <xs:element name="timeCleared" type="xs:dateTime" minOccurs="0"/>
+         <xs:element name="description" type="xs:string"/>
+         <xs:element name="additionalInfo" type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name="QueryCriteriaT" abstract="true">
+      <xs:sequence/>
+   </xs:complexType>
+   <xs:simpleType name="ValidLayerT">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="layer0"/>
+         <xs:enumeration value="layer1"/>
+         <xs:enumeration value="layer2"/>
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="ValidCompletionTypeT">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="Success"/>
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:element name="CompletionResponse">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="result" type="ct:ValidCompletionTypeT" nillable="false"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+</xs:schema>

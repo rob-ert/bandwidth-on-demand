@@ -10,20 +10,21 @@
     <properties>
         <spring.version>3.1.0.RELEASE</spring.version>
         <slf4j.version>1.6.3</slf4j.version>
+        <axis2.version>1.5.6</axis2.version>
         <jetty.version>8.0.4.v20111024</jetty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-security.version>3.0.7.RELEASE</spring-security.version>
         <selenium.version>2.13.0</selenium.version>
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:8888/bod</selenium.test.url>
-        <opendrac.prod.version>4.2.0</opendrac.prod.version>
-        <opendrac.dev.version>4.3.0-BoD</opendrac.dev.version>
+        <opendrac.version>4.2.0</opendrac.version>
     </properties>
     <scm>
         <developerConnection>scm:git:gitolite@atlas.dlp.surfnet.nl:bandwidth-on-demand.git</developerConnection>
     </scm>
+
     <dependencies>
-        <!-- General dependencies for standard applications -->
+        <!--  Begin logging -->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -44,12 +45,20 @@
             <artifactId>jcl-over-slf4j</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
+        <!-- End logging -->
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4.4</version>
+        </dependency>
+
         <!-- Spring dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -279,11 +288,6 @@
             <version>2.2.2</version>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.3.163</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
             <version>1.0.2.RELEASE</version>
@@ -295,11 +299,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>c3p0</groupId>
-            <artifactId>c3p0</artifactId>
-            <version>0.9.1.2</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>11.0.1</version>
@@ -309,7 +308,6 @@
             <artifactId>jackson-mapper-asl</artifactId>
             <version>1.9.1</version>
         </dependency>
-        <!-- ENCRYPTION JARS -->
         <dependency>
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt</artifactId>
@@ -320,7 +318,8 @@
             <artifactId>opensocial-java-client</artifactId>
             <version>1.16.1-coin</version>
         </dependency>
-        <!-- axis1 (needed for rpc style encoding of IDD) -->
+
+        <!-- Begin Axis1 for IDD (needed for rpc style encoding of IDD) -->
         <dependency>
             <groupId>org.apache.axis</groupId>
             <artifactId>axis</artifactId>
@@ -339,13 +338,32 @@
             <version>0.4</version>
             <scope>compile</scope>
         </dependency>
+        <!-- End Axis1 -->
+
+        <!-- Begin Axis2 for OpenDRAC webservice -->
         <dependency>
-            <groupId>wsdl4j</groupId>
-            <artifactId>wsdl4j</artifactId>
-            <version>1.6.2</version>
-            <scope>compile</scope>
+          <groupId>org.apache.axis2</groupId>
+          <artifactId>axis2-kernel</artifactId>
+          <version>${axis2.version}</version>
         </dependency>
-        <!-- tests -->
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-local</artifactId>
+            <version>${axis2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-http</artifactId>
+            <version>${axis2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlbeans</groupId>
+            <artifactId>xmlbeans</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+        <!-- End Axis2 for OpenDRAC webservices -->
+
+        <!-- Begin test libraries -->
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
@@ -375,6 +393,8 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- End test libraries -->
+
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
@@ -392,7 +412,8 @@
             <artifactId>jetty-websocket</artifactId>
             <version>${jetty.version}</version>
         </dependency>
-        <!-- selenium tests -->
+
+        <!-- Begin Selenium -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-firefox-driver</artifactId>
@@ -405,11 +426,19 @@
             <version>${selenium.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- OpenDRAC Jars -->
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail</artifactId>
+            <version>1.3.1b</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- End Selenium -->
+
+        <!-- OpenDRAC (only needed for CryptoWrapper...) -->
         <dependency>
             <groupId>org.opendrac</groupId>
             <artifactId>Common</artifactId>
-            <version>${opendrac.prod.version}</version>
+            <version>${opendrac.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.jdom</groupId>
@@ -421,26 +450,18 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.opendrac</groupId>
-            <artifactId>ResourceAllocationAndSchedulingService</artifactId>
-            <version>${opendrac.dev.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.httpcomponents</groupId>
-                    <artifactId>httpcore</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.opendrac</groupId>
-            <artifactId>NetworkMonitoringService</artifactId>
-            <version>${opendrac.dev.version}</version>
-        </dependency>
+
+        <!-- Begin Database dependencies -->
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>9.1-901.jdbc4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.3.163</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.googlecode.flyway</groupId>
@@ -453,23 +474,26 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
-        <!-- Email stuff -->
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>1.4.4</version>
+            <groupId>c3p0</groupId>
+            <artifactId>c3p0</artifactId>
+            <version>0.9.1.2</version>
         </dependency>
-        <dependency>
-            <groupId>com.icegreen</groupId>
-            <artifactId>greenmail</artifactId>
-            <version>1.3.1b</version>
-            <scope>test</scope>
-        </dependency>
+        <!-- End Databse dependencies -->
     </dependencies>
 
-
     <build>
+         <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.build.directory}/generated-sources/axis2/wsdl2code/resources</directory>
+                <includes>
+                    <include>**/**</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -553,6 +577,7 @@
                     </dependency>
                 </dependencies>
             </plugin>
+
             <!-- Generates the classes for IDD based on the wsdl -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -560,16 +585,48 @@
                 <version>1.4</version>
                 <configuration>
                     <packageSpace>nl.surfnet.bod.idd.generated</packageSpace>
-                    <sourceDirectory>src/main/resources/wsdl</sourceDirectory>
-                    <outputDirectory>target/generated-sources/wsdl2java</outputDirectory>
+                    <sourceDirectory>src/main/resources/wsdl/idd</sourceDirectory>
+                    <outputDirectory>target/generated-sources/axis/wsdl2code</outputDirectory>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>add-wsdl2java-source</id>
+                        <id>idd-ws</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>wsdl2java</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Generates the classes for OpenDRAC webservices -->
+            <plugin>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-wsdl2code-maven-plugin</artifactId>
+                <version>1.5.6</version>
+                <executions>
+                    <execution>
+                        <id>resource-ws</id>
+                        <goals>
+                            <goal>wsdl2code</goal>
+                        </goals>
+                        <configuration>
+                            <databindingName>xmlbeans</databindingName>
+                            <unpackClasses>true</unpackClasses>
+                            <packageName>nl.surfnet.bod.nbi</packageName>
+                            <wsdlFile>src/main/resources/wsdl/opendrac/ResourceAllocationAndSchedulingServiceBindings_v3.0.wsdl</wsdlFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>network-ws</id>
+                        <goals>
+                            <goal>wsdl2code</goal>
+                        </goals>
+                        <configuration>
+                            <databindingName>xmlbeans</databindingName>
+                            <unpackClasses>true</unpackClasses>
+                            <packageName>nl.surfnet.bod.nbi</packageName>
+                            <wsdlFile>src/main/resources/wsdl/opendrac/NetworkMonitoringServiceBindings_v3.0.wsdl</wsdlFile>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -643,6 +700,7 @@
             </plugin>
         </plugins>
     </build>
+
     <profiles>
         <profile>
             <id>selenium</id>
@@ -815,11 +873,6 @@
             <id>coin-repo</id>
             <name>COIN Repository</name>
             <url>http://bamboo-dev.coin.surfnetlabs.nl</url>
-        </repository>
-        <repository>
-            <id>opendrac-maven-snapshot</id>
-            <name>OpenDRAC Repository</name>
-            <url>http://dev.dlp.surfnet.nl/artifactory/libs-snapshot-local</url>
         </repository>
         <repository>
             <id>opendrac-maven-release</id>

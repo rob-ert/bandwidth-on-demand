@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    <pre>
+    The owner of the original code is Ciena Corporation.
+
+    Portions created by the original owner are Copyright (C) 2004-2010
+    the original owner. All Rights Reserved.
+
+    Portions created by other contributors are Copyright (C) the contributor.
+    All Rights Reserved.
+
+    Contributor(s):
+      (Contributors insert name & email here)
+
+    This file is part of DRAC (Dynamic Resource Allocation Controller).
+
+    DRAC is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    DRAC is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program.  If not, see <http://www.gnu.org/licenses/>.
+    </pre>
+
+-->
+
+<definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsaddr="http://www.w3.org/2006/05/addressing/wsdl" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0">
+   <import namespace="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0" location="./ResourceAllocationAndSchedulingServiceMessages_v3.0.wsdl"/>
+   <binding name="ResourceAllocationAndSchedulingServiceSOAPBinding" type="tns:ResourceAllocationAndSchedulingServicePortType">
+      <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+      <operation name="createReservationSchedule">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/createReservationSchedule" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+      <operation name="cancelReservationSchedule">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/cancelReservationSchedule" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+      <operation name="cancelReservationOccurrence">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/cancelReservationOccurrence" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+      <operation name="addReservationOccurrence">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/addReservationOccurrence" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+      <operation name="queryReservationSchedules">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationSchedules" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+      <operation name="queryReservationSchedule">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationSchedule" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+      <operation name="queryReservationOccurrences">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationOccurrences" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+      <operation name="queryReservationOccurrence">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationOccurrence" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+      <operation name="queryPathAvailability">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryPathAvailability" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+      <operation name="queryReservationOccurrenceAlarms">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationOccurrenceAlarms" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+      <operation name="confirmReservationSchedule">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/confirmReservationSchedule" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+      <operation name="activateReservationOccurrence">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/activateReservationOccurrence" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+      <operation name="queryReservationScheduleByNamePathUser">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryReservationScheduleByNamePathUser" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+       <operation name="queryServicesByScheduleId">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryServicesByScheduleId" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+       <operation name="queryActiveServiceByScheduleId">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/queryActiveServiceByScheduleId" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+       <operation name="resumeServiceById">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/resumeServiceById" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+       <operation name="terminateServiceById">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/terminateServiceById" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+      <operation name="extendCurrentServiceForSchedule">
+         <soap:operation soapAction="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingService_v3.0/extendCurrentServiceForSchedule" style="document"/>
+         <input>
+            <soap:header message="tns:Security" part="header" use="literal"/>
+            <soap:body parts="payload" use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+         <fault name="fault">
+            <soap:fault name="fault" use="literal"/>
+         </fault>
+      </operation>
+   </binding>
+   <service name="ResourceAllocationAndSchedulingService_v3.0">
+      <documentation>
+         The ResourceAllocationAndSchedulingService allows clients to reserve bandwidth.
+      </documentation>
+      <port name="ResourceAllocationAndSchedulingServiceSOAPport" binding="tns:ResourceAllocationAndSchedulingServiceSOAPBinding">
+         <soap:address location="https://localhost:8443/axis2/services/ResourceAllocationAndSchedulingService_v3.0"/>
+      </port>
+   </service>
+</definitions>

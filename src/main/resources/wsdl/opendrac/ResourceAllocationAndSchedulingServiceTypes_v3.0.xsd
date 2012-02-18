@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    <pre>
+    The owner of the original code is Ciena Corporation.
+
+    Portions created by the original owner are Copyright (C) 2004-2010
+    the original owner. All Rights Reserved.
+
+    Portions created by other contributors are Copyright (C) the contributor.
+    All Rights Reserved.
+
+    Contributor(s):
+      (Contributors insert name & email here)
+
+    This file is part of DRAC (Dynamic Resource Allocation Controller).
+
+    DRAC is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    DRAC is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program.  If not, see <http://www.gnu.org/licenses/>.
+    </pre>
+
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xmlns:tns="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingServiceTypes_v3.0" 
+    xmlns:ct="http://www.nortel.com/drac/2007/07/03/ws/ct/DracCommonTypes" 
+    targetNamespace="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingServiceTypes_v3.0" 
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:import namespace="http://www.nortel.com/drac/2007/07/03/ws/ct/DracCommonTypes" schemaLocation="./DracCommonTypes_v2.0.0.xsd"/>
+
+	<xs:simpleType name="ValidRecurrenceTypeT">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="DailyRecurrenceT"/>
+            <xs:enumeration value="WeeklyRecurrenceT"/>
+            <xs:enumeration value="MonthlyRecurrenceT"/>
+            <xs:enumeration value="YearlyRecurrenceT"/>
+        </xs:restriction>
+    </xs:simpleType>
+	<!-- <xs:complexType name="RecurrenceRangeT" abstract="true">
+		<xs:sequence/>
+	</xs:complexType> -->
+	<xs:complexType name="EndsAfterDateT">
+		<xs:sequence>
+			<xs:element name="endDate" type="xs:date"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!--xs:complexType name="EndsAfterNumOfOccurrencesT">
+      <xs:complexContent>
+         <xs:extension base="tns:RecurrenceRangeT">ct
+            <xs:sequence>
+               <xs:element name="numOfOccurrences" type="xs:int"/>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType-->
+   <!-- 
+	<xs:complexType name="DailyRecurrenceT">
+		<xs:complexContent>
+			<xs:extension base="tns:RecurrenceTypeT"/>
+		</xs:complexContent>
+	</xs:complexType>
+	 -->
+	<xs:complexType name="WeeklyRecurrenceT">
+		<xs:sequence>
+				<xs:element name="weekday" type="ct:WeekdayT" nillable="false" maxOccurs="7"/>
+			</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MonthlyRecurrenceT">
+		<xs:sequence>
+			<xs:annotation>
+				<xs:documentation>
+          The value (1-31) identifies which day of a month the reservation should be made.
+          </xs:documentation>
+			</xs:annotation>
+			<xs:element name="day" type="xs:gDay" nillable="false"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="YearlyRecurrenceT">
+		<xs:sequence>
+			<xs:annotation>
+				<xs:documentation>
+                    The schedule will repeat every dayOfMonth,  yearly.  
+                    The format of the gMonthDay is --MM-DD
+                    Month January is 01, February is 02, March is 03, and so on.
+                    For example, Jan 24 should be presented as :
+                    <monthAndDay>--01-24</monthAndDay>
+				</xs:documentation>
+			</xs:annotation>
+			<xs:element name="monthAndDay" type="xs:gMonthDay" nillable="false"/>
+		</xs:sequence>
+	</xs:complexType>
+    <xs:complexType name="RecurrenceT">
+        <xs:sequence>
+            <xs:element name="type" type="tns:ValidRecurrenceTypeT" nillable="false"/>
+            <xs:element name="range" type="tns:EndsAfterDateT" minOccurs="0" nillable="false"/>
+            <xs:element name="weeklyRecurrence" type="tns:WeeklyRecurrenceT" minOccurs="0" nillable="false"/>
+            <xs:element name="monthlyRecurrence" type="tns:MonthlyRecurrenceT" minOccurs="0" nillable="false"/>
+            <xs:element name="yearlyRecurrence" type="tns:YearlyRecurrenceT" minOccurs="0" nillable="false"/>
+        </xs:sequence>
+    </xs:complexType>
+	
+	<xs:simpleType name="ValidReservationScheduleCreationResultT">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Succeeded"/>
+			<xs:enumeration value="SucceededPartially"/>
+			<xs:enumeration value="Failed"/>
+			<xs:enumeration value="Unknown"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ValidReservationOccurrenceCreationResultT">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Succeeded"/>
+			<xs:enumeration value="Failed"/>
+			<xs:enumeration value="Unknown"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ValidServiceActionResultResultT">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Succeeded"/>
+			<xs:enumeration value="Failed"/>
+			<xs:enumeration value="Unknown"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ValidServiceActionTypeT">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="terminate"/>
+			<xs:enumeration value="resume"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="ValidReservationOcurrenceStatusT">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ConfirmationPending"/>
+			<xs:enumeration value="ConfirmationTimedOut"/>
+			<xs:enumeration value="ConfirmationCancelled"/>
+			<xs:enumeration value="ActivationPending"/>
+			<xs:enumeration value="ActivationTimedOut"/>
+			<xs:enumeration value="ActivationCancelled"/>
+			<xs:enumeration value="ExecutionPending"/>
+			<xs:enumeration value="ExecutionInProgress"/>
+			<xs:enumeration value="ExecutionTimedOut"/>
+			<xs:enumeration value="ExecutionSucceeded"/>
+			<xs:enumeration value="ExecutionFailed"/>
+			<xs:enumeration value="ExecutionPartiallyCancelled"/>
+			<xs:enumeration value="ExecutionCancelled"/>
+			<xs:enumeration value="Unknown"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ValidReservationScheduleStatusT">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ConfirmationPending"/>
+			<xs:enumeration value="ConfirmationTimedOut"/>
+			<xs:enumeration value="ConfirmationCancelled"/>
+			<xs:enumeration value="ExecutionPending"/>
+			<xs:enumeration value="ExecutionInProgress"/>
+			<xs:enumeration value="ExecutionTimedOut"/>
+			<xs:enumeration value="ExecutionSucceeded"/>
+			<xs:enumeration value="ExecutionPartiallySucceeded"/>
+			<xs:enumeration value="ExecutionFailed"/>
+			<xs:enumeration value="ExecutionPartiallyCancelled"/>
+			<xs:enumeration value="ExecutionCancelled"/>
+			<xs:enumeration value="Unknown"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ValidProtectionTypeT">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Unprotected"/>
+			<xs:enumeration value="1Plus1Path"/>
+			<xs:enumeration value="Unknown"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ValidChannelNumberT">
+		<xs:restriction base="xs:int">
+			<xs:minInclusive value="-1"/>
+			<xs:maxInclusive value="192"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ValidReservationScheduleTypeT">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="PreReservationScheduleManual"/>
+			<xs:enumeration value="PreReservationScheduleAutomatic"/>
+			<xs:enumeration value="ReservationScheduleManual"/>
+			<xs:enumeration value="ReservationScheduleAutomatic"/>
+			<xs:enumeration value="Unknown"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="ResourceT" abstract="true">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="ResourceRequestT" abstract="true">
+		<xs:sequence/>
+	</xs:complexType>
+	<xs:complexType name="PathT">
+		<!--  <xs:complexContent>
+			<xs:extension base="tns:ResourceT"> -->
+				<xs:sequence>
+					<xs:element name="sourceTna" type="xs:string" nillable="false"/>
+					<xs:element name="targetTna" type="xs:string" nillable="false"/>
+					<xs:element name="sourceChannel" type="tns:ValidChannelNumberT" nillable="true" minOccurs="0"/>
+					<xs:element name="targetChannel" type="tns:ValidChannelNumberT" nillable="true" minOccurs="0"/>
+					<xs:element name="source_vlanId" type="xs:string" nillable="true" minOccurs="0"/>
+					<xs:element name="target_vlanId" type="xs:string" nillable="true" minOccurs="0"/>
+					<xs:element name="rate" type="xs:int" nillable="false"/>
+					<!--The srlgExclusions string contains comma seperated srlg (shared risk link group) values.
+                      Example : <srlgExclusions>3, 5, 6</srlgExclusions>  
+                -->
+					<xs:element name="srlgExclusions" type="xs:string" nillable="true" minOccurs="0"/>
+					<!--The srlgInclusions string contains comma seperated srlg (shared risk link group) values for tandem nodes.
+                      Example : <srlgInclusions>3, 5, 6</srlgInclusions>  
+                -->
+					<xs:element name="srlgInclusions" type="xs:string" nillable="true" minOccurs="0"/>
+					<xs:element name="cost" type="xs:int" nillable="true" minOccurs="0"/>
+					<xs:element name="metric" type="xs:int" nillable="true" minOccurs="0"/>
+					<xs:element name="hop" type="xs:int" nillable="true" minOccurs="0"/>
+					<xs:element name="routingMetric" type="xs:int" nillable="true" minOccurs="0"/>
+					<xs:element name="routingAlgorithm" type="xs:string" nillable="true" minOccurs="0"/>
+					<xs:element name="protectionType" type="tns:ValidProtectionTypeT" nillable="true" minOccurs="0"/>
+					<!--The sharedRiskReservationOccurrenceGroup string contains comma seperated occurence id values.
+                    Example : <sharedRiskReservationOccurrenceGroup>SERVICE-1182011757996, SERVICE-1202022567003</sharedRiskReservationOccurrenceGroup>  
+               -->
+					<xs:element name="sharedRiskReservationOccurrenceGroup" type="xs:string" nillable="true" minOccurs="0"/>
+				</xs:sequence>
+			<!--  </xs:extension>
+		</xs:complexContent>  -->
+	</xs:complexType>
+	<xs:complexType name="PathRequestT">
+		<!-- <xs:complexContent>
+			<xs:extension base="tns:ResourceRequestT"> -->
+				<xs:sequence>
+					<xs:element name="sourceTna" type="xs:string" nillable="false"/>
+					<xs:element name="targetTna" type="xs:string" nillable="false"/>
+					<xs:element name="sourceChannel" type="tns:ValidChannelNumberT" nillable="true" minOccurs="0"/>
+					<xs:element name="targetChannel" type="tns:ValidChannelNumberT" nillable="true" minOccurs="0"/>
+					<xs:element name="source_vlanId" type="xs:string" nillable="true" minOccurs="0"/>
+					<xs:element name="target_vlanId" type="xs:string" nillable="true" minOccurs="0"/>
+					<xs:element name="rate" type="xs:int" nillable="false"/>
+					<!--The srlgExclusions string contains comma seperated srlg (shared risk link group) values.
+                      Example : <srlgExclusions>3, 5, 6</srlgExclusions>  
+                -->
+					<xs:element name="srlgExclusions" type="xs:string" nillable="true" minOccurs="0"/>
+					<xs:element name="cost" type="xs:int" nillable="true" minOccurs="0"/>
+					<xs:element name="metric" type="xs:int" nillable="true" minOccurs="0"/>
+					<xs:element name="hop" type="xs:int" nillable="true" minOccurs="0"/>
+					<xs:element name="routingMetric" type="xs:int" nillable="true" minOccurs="0"/>
+					<xs:element name="routingAlgorithm" type="xs:string" nillable="true" minOccurs="0"/>
+					<xs:element name="protectionType" type="tns:ValidProtectionTypeT" nillable="true" minOccurs="0"/>
+					<!--The sharedRiskReservationOccurrenceGroup string contains comma seperated occurence id values.
+                    Example : <sharedRiskReservationOccurrenceGroup>SERVICE-1182011757996, SERVICE-1202022567003</sharedRiskReservationOccurrenceGroup>  
+               -->
+					<xs:element name="sharedRiskReservationOccurrenceGroup" type="xs:string" nillable="true" minOccurs="0"/>
+				</xs:sequence>
+			<!-- </xs:extension>
+		</xs:complexContent> -->
+	</xs:complexType>
+	<xs:complexType name="ReservationScheduleRequestT">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" nillable="false"/>
+			<xs:element name="type" type="tns:ValidReservationScheduleTypeT" nillable="true" minOccurs="0"/>
+			<xs:element name="startTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+			<!-- duration must be specified in minutes -->
+			<xs:element name="reservationOccurrenceDuration" type="xs:int" nillable="false"/>
+			<xs:element name="path" type="tns:PathRequestT" nillable="false"/>
+			<xs:element name="userInfo" type="tns:UserInfoT" nillable="false"/>
+			<xs:element name="isRecurring" type="xs:boolean" nillable="false"/>
+			<!-- recurrence element must be present if isRecurring set to true.-->
+			<xs:element name="recurrence" type="tns:RecurrenceT" nillable="true" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ReservationScheduleByNamePathUserT">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string" nillable="false"/>
+			<xs:element name="path" type="tns:PathRequestT" nillable="false"/>
+			<xs:element name="userInfo" type="tns:UserInfoT" nillable="false"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ReservationScheduleT">
+		<xs:sequence>
+			<xs:element name="id" type="xs:string" nillable="false"/>
+			<xs:element name="type" type="tns:ValidReservationScheduleTypeT" nillable="false"/>
+			<xs:element name="status" type="tns:ValidReservationScheduleStatusT" nillable="false"/>
+			<xs:element name="name" type="xs:string" nillable="false"/>
+			<xs:element name="startTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+			<xs:element name="reservationOccurrenceDuration" type="xs:int" nillable="false"/>
+			<xs:element name="path" type="tns:PathT" nillable="false"/>
+			<xs:element name="userInfo" type="tns:UserInfoT" nillable="false"/>
+			<xs:element name="userId" type="xs:string" nillable="false"/>
+			<xs:element name="isRecurring" type="xs:boolean" nillable="false"/>
+			<xs:element name="isCanceble" type="xs:boolean" nillable="false"/>
+			<xs:element name="recurrence" type="tns:RecurrenceT" nillable="true" minOccurs="0"/>
+			<xs:element name="occurrenceId" type="xs:string" nillable="true" maxOccurs="3650"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SimpleServiceT">
+		<xs:sequence>
+			<xs:element name="id" type="xs:string" nillable="false"/>
+			<xs:element name="name" type="xs:string" nillable="false"/>
+			<xs:element name="path" type="tns:PathT" nillable="false"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="UserInfoT">
+		<xs:sequence>
+			<xs:element name="billingGroup" type="xs:string" nillable="false"/>
+			<xs:element name="sourceEndpointResourceGroup" type="xs:string" nillable="false"/>
+			<xs:element name="targetEndpointResourceGroup" type="xs:string" nillable="false"/>
+			<xs:element name="sourceEndpointUserGroup" type="xs:string" nillable="true"/>
+			<xs:element name="targetEndpointUserGroup" type="xs:string" nillable="true"/>
+			<xs:element name="emailAddress" type="xs:string" nillable="true" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ReservationOccurrenceT">
+		<xs:sequence>
+			<xs:element name="reservationScheduleId" type="xs:string" nillable="false"/>
+			<xs:element name="reservationScheduleStartTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+			<xs:element name="reservationScheduleEndTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+			<xs:element name="reservationScheduleStatus" type="tns:ValidReservationScheduleStatusT" nillable="false"/>
+			<xs:element name="reservationScheduleName" type="xs:string" nillable="false"/>
+			<xs:element name="occurrenceId" type="xs:string" nillable="false"/>
+			<xs:element name="occurrenceStartTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+			<xs:element name="occurrenceEndTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+			<xs:element name="occurrenceStatus" type="tns:ValidReservationOcurrenceStatusT" nillable="false"/>
+			<xs:element name="path" type="tns:PathT" nillable="false"/>
+			<xs:element name="userInfo" type="tns:UserInfoT" nillable="false"/>
+			<xs:element name="userId" type="xs:string" nillable="false"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ReservationOccurrenceRequestT">
+		<xs:sequence>
+			<xs:element name="reservationScheduleId" type="xs:string"/>
+			<xs:element name="startTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+			<!--The sharedRiskReservationOccurrenceGroup string contains comma seperated occurence id values.
+            Example : <sharedRiskReservationOccurrenceGroup>SERVICE-1182011757996, SERVICE-1202022567003</sharedRiskReservationOccurrenceGroup>  
+         -->
+			<xs:element name="sharedRiskReservationOccurrenceGroup" type="xs:string" nillable="true" minOccurs="0"/>
+			<!--The srlgExclusions string contains comma seperated srlg (shared risk link group) values.
+            Example : <srlgExclusions>3, 5, 6</srlgExclusions>  
+         -->
+			<xs:element name="srlgExclusions" type="xs:string" nillable="true" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="QueryReservationSchedulesByDateTimeAndUserGroupT">
+		<xs:complexContent>
+			<xs:extension base="ct:QueryCriteriaT">
+				<xs:sequence>
+					<xs:element name="startTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+					<xs:element name="endTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+					<xs:element name="userGroup" type="xs:string" nillable="true" minOccurs="0"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="QueryReservationOccurrencesByDateTimeAndUserGroupT">
+		<xs:sequence>
+			<xs:element name="startTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+			<xs:element name="endTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+			<xs:element name="userGroup" type="xs:string" nillable="true"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="QueryAlarmsByDateTimeAndUserGroupT">
+		<xs:complexContent>
+			<xs:extension base="ct:QueryCriteriaT">
+				<xs:sequence>
+					<xs:element name="startTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+					<xs:element name="endTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+					<xs:element name="userGroup" type="xs:string" nillable="true"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="ReservationOccurrenceInfoT">
+		<xs:sequence>
+            <xs:element name="result" type="tns:ValidReservationOccurrenceCreationResultT" nillable="false"/>
+            <xs:element name="reason" type="xs:string" nillable="false"/>
+			<xs:element name="occurrenceId" type="xs:string" nillable="true"/>
+			<xs:element name="startTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+			<xs:element name="endTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PathAvailabilityRequestT">
+		<xs:sequence>
+			<xs:element name="startTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+			<xs:element name="endTime" type="ct:DateTimeWithTimezoneT" nillable="false"/>
+			<xs:element name="path" type="tns:PathRequestT" nillable="false"/>
+			<xs:element name="userInfo" type="tns:UserInfoT" nillable="false"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ExtendCurrentServiceForScheduleT">
+		<xs:sequence>					
+				<xs:element name="scheduleId" type="xs:string" nillable="false"/>
+				<xs:element name="minutesToExtend" type="xs:int" nillable="false"/>
+			</xs:sequence>
+	</xs:complexType>		
+	<xs:element name="CancelReservationScheduleRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="reservationScheduleId" type="xs:string" nillable="false"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CancelReservationOccurrenceRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="occurrenceId" type="xs:string" nillable="false"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AddReservationOccurrenceRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="occurrence" type="tns:ReservationOccurrenceRequestT" nillable="false"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AddReservationOccurrenceResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="occurrenceId" type="xs:string" nillable="false"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CreateReservationScheduleRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="reservationSchedule" type="tns:ReservationScheduleRequestT"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CreateReservationScheduleResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="reservationScheduleId" type="xs:string" nillable="false"/>
+				<xs:element name="result" type="tns:ValidReservationScheduleCreationResultT" nillable="false"/>
+				<xs:element name="occurrenceInfo" type="tns:ReservationOccurrenceInfoT" nillable="false" maxOccurs="3650"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryReservationScheduleByNamePathUserRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="reservationSchedule" type="tns:ReservationScheduleByNamePathUserT"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryServicesByScheduleIdRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="sourceTna" type="xs:string" nillable="false"/>
+				<xs:element name="scheduleId" type="xs:string" nillable="false" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryActiveServiceByScheduleIdRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="scheduleId" type="xs:string" nillable="false"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ResumeServiceByIdRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="serviceId" type="xs:string" nillable="false"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="TerminateServiceByIdRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="serviceId" type="xs:string" nillable="false"/>				
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryServicesByScheduleIdResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="service" type="tns:SimpleServiceT" nillable="false"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryActiveServiceByScheduleIdResponse">
+		<xs:complexType>
+			<xs:sequence maxOccurs="1">
+				<xs:element name="isFound" type="xs:boolean" nillable="false"/>
+				<xs:element name="service" type="tns:SimpleServiceT" nillable="false"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ResumeServiceByIdResponse">
+		<xs:complexType>
+			<xs:sequence maxOccurs="1">
+				<xs:element name="result" type="tns:ValidServiceActionResultResultT" nillable="false"/>
+				<xs:element name="service" type="tns:SimpleServiceT" nillable="false"/>
+				<xs:element name="action" type="tns:ValidServiceActionTypeT" nillable="false"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="TerminateServiceByIdResponse">
+		<xs:complexType>
+			<xs:sequence maxOccurs="1">
+				<xs:element name="result" type="tns:ValidServiceActionResultResultT" nillable="false"/>
+				<xs:element name="service" type="tns:SimpleServiceT" nillable="false"/>
+				<xs:element name="action" type="tns:ValidServiceActionTypeT" nillable="false"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryReservationSchedulesRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="criteria" type="tns:QueryReservationSchedulesByDateTimeAndUserGroupT"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="ReservationScheduleInfoT">
+		<xs:sequence>
+			<xs:element name="reservationScheduleId" type="xs:string" nillable="false"/>
+			<xs:element name="reservationScheduleName" type="xs:string" nillable="false"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="QueryReservationSchedulesResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="numOfElementsIncluded" type="xs:int" nillable="false"/>
+				<xs:element name="numOfElementsFound" type="xs:int" nillable="false"/>
+				<xs:element name="reservationSchedule" type="tns:ReservationScheduleInfoT" nillable="true" minOccurs="0" maxOccurs="3650"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryAlarmsRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="criteria" type="tns:QueryAlarmsByDateTimeAndUserGroupT"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryAlarmsResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="numOfElementsIncluded" type="xs:int" nillable="false"/>
+				<xs:element name="numOfElementsFound" type="xs:int" nillable="false"/>
+				<xs:element name="alarm" type="ct:AlarmT" nillable="true" minOccurs="0" maxOccurs="500"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryReservationScheduleRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="reservationScheduleId" type="xs:string"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryReservationScheduleResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="isFound" type="xs:boolean" nillable="false"/>
+				<xs:element name="reservationSchedule" type="tns:ReservationScheduleT" nillable="true" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryReservationOccurrencesRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="criteria" type="tns:QueryReservationOccurrencesByDateTimeAndUserGroupT"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryReservationOccurrencesResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="numOfElementsIncluded" type="xs:int" nillable="false"/>
+				<xs:element name="numOfElementsFound" type="xs:int" nillable="false"/>
+				<xs:element name="occurrenceId" type="xs:string" nillable="true" minOccurs="0" maxOccurs="3650"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryReservationOccurrenceRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="occurrenceId" type="xs:string"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryReservationOccurrenceResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="isFound" type="xs:boolean" nillable="false"/>
+				<xs:element name="occurrence" type="tns:ReservationOccurrenceT" nillable="true" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryPathAvailabilityRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="pathAvailability" type="tns:PathAvailabilityRequestT"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ConfirmReservationScheduleRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="reservationScheduleId" type="xs:string" nillable="false"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ActivateReservationOccurrenceRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="occurrenceId" type="xs:string" nillable="false"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+		<xs:element name="ExtendCurrentServiceForScheduleRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="extensionDefinition" type="tns:ExtendCurrentServiceForScheduleT"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ExtendCurrentServiceForScheduleResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="resultString" type="xs:string" nillable="false"/>
+				<xs:element name="minutesExtended" type="xs:int" nillable="false"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>		
+</xs:schema>

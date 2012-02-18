@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    <pre>
+    The owner of the original code is Ciena Corporation.
+
+    Portions created by the original owner are Copyright (C) 2004-2010
+    the original owner. All Rights Reserved.
+
+    Portions created by other contributors are Copyright (C) the contributor.
+    All Rights Reserved.
+
+    Contributor(s):
+      (Contributors insert name & email here)
+
+    This file is part of DRAC (Dynamic Resource Allocation Controller).
+
+    DRAC is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    DRAC is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program.  If not, see <http://www.gnu.org/licenses/>.
+    </pre>
+
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.opendrac.org/ws/NetworkMonitoringServiceTypes_v3.0" xmlns:ct="http://www.nortel.com/drac/2007/07/03/ws/ct/DracCommonTypes" targetNamespace="http://www.opendrac.org/ws/NetworkMonitoringServiceTypes_v3.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
+   <xs:import namespace="http://www.nortel.com/drac/2007/07/03/ws/ct/DracCommonTypes" schemaLocation="./DracCommonTypes_v2.0.0.xsd"/>
+   <xs:complexType name="EndpointT">
+      <xs:sequence>
+         <xs:element name="tna" type="xs:string" nillable="false"/>
+         <xs:element name="type" type="xs:string" nillable="false"/>
+         <xs:element name="speed" type="xs:int" nillable="true" minOccurs="0"/>
+         <xs:element name="mtu" type="xs:int" nillable="true" minOccurs="0"/>
+         <xs:element name="physicalAddress" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="status" type="xs:string" nillable="true"/>
+         <xs:element name="layer" type="ct:ValidLayerT" nillable="false"/>
+         <xs:element name="id" type="xs:string" nillable="false"/>
+         <xs:element name="cost" type="xs:int" nillable="true" minOccurs="0"/>
+         <xs:element name="metric" type="xs:int" nillable="true" minOccurs="0"/>
+         <xs:element name="srlg" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="constrain" type="xs:integer" nillable="true" minOccurs="0"/>
+         <xs:element name="channel" type="xs:int" nillable="true" minOccurs="0"/>
+         <xs:element name="signalingType" type="xs:string" nillable="true"/>
+         <xs:element name="passControlFrame" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="sts" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="vcat" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="autoNegotiation" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="autoNegotiationStatus" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="advertisedDuplex" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="flowControl" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="txConditioning" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="controlPauseTx" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="controlPauseRx" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="negotiatedDuplex" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="negotiatedSpeed" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="negotiatedPauseTx" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="negotiatedPauseRx" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="linkPartnerDuplex" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="linkPartnerSpeed" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="linkPartnerFlowControl" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="interfaceType" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="policing" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="encapsulationType" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="priorityMode" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="bandwidthThreshold" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="remainedBandwidth" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="bandwidthUtilization" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="lagId" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="vlanId" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="siteId" type="xs:string" nillable="true" minOccurs="0"/>
+	       <xs:element name="wavelength" type="xs:string" nillable="true" minOccurs="0"/>
+	       <xs:element name="domain" type="xs:string" nillable="true" minOccurs="0"/>
+         <xs:element name="userLabel" type="xs:string" nillable="true" minOccurs="0"/>
+         
+      </xs:sequence>
+   </xs:complexType>
+   <xs:simpleType name="ValidEndpointsQueryTypeT">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="QueryEndpointsByLayerAndUserGroupT"/>
+         <xs:enumeration value="QueryEndpointsByWavelengthT"/>
+         <xs:enumeration value="QueryEndpointsBySiteIdT"/>
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:complexType name="QueryEndpointsByLayerAndUserGroupT">
+      <xs:complexContent>
+         <xs:extension base="ct:QueryCriteriaT">
+            <xs:sequence>
+               <xs:element name="layer" type="ct:ValidLayerT" nillable="false"/>
+               <xs:element name="userGroup" type="xs:string" nillable="true"/>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="QueryEndpointsByWavelengthT">
+      <xs:complexContent>
+         <xs:extension base="ct:QueryCriteriaT">
+            <xs:sequence>
+               <xs:element name="wavelength" type="xs:string" nillable="false"/>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="QueryEndpointsBySiteIdT">
+      <xs:complexContent>
+         <xs:extension base="ct:QueryCriteriaT">
+            <xs:sequence>
+               <xs:element name="siteId" type="xs:string" nillable="false"/>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:element name="QueryEndpointsRequest">
+      <xs:complexType>
+         <xs:sequence>
+            <!--  <xs:element name="criteria" type="ct:QueryCriteriaT"/> -->
+            <xs:element name="type" type="tns:ValidEndpointsQueryTypeT" nillable="false" minOccurs="1" />
+            <xs:element name="layer" type="ct:ValidLayerT" nillable="false" minOccurs="0"/>
+            <xs:element name="userGroup" type="xs:string" nillable="true" minOccurs="0"/>
+            <xs:element name="wavelength" type="xs:string" nillable="false" minOccurs="0"/>
+            <xs:element name="siteId" type="xs:string" nillable="false" minOccurs="0"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="QueryEndpointsResponse">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="numOfElementsIncluded" type="xs:int" nillable="false"/>
+            <xs:element name="numOfElementsFound" type="xs:int" nillable="false"/>
+            <xs:element name="tna" type="xs:string" minOccurs="0" maxOccurs="500" nillable="true"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="QueryEndpointRequest">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="tna" type="xs:string"/>
+            <xs:element name="networkElementId" type="xs:string"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="QueryEndpointResponse">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element name="isFound" type="xs:boolean" nillable="false"/>
+            <xs:element name="endpoint" type="tns:EndpointT" minOccurs="0" nillable="true"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+</xs:schema>
