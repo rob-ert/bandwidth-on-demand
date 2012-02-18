@@ -43,17 +43,14 @@
     <cache:annotation-driven />
 	<tx:annotation-driven mode="aspectj" transaction-manager="transactionManager" />
 
-	<!-- (Encrypted) PropertyPlaceholderConfigurer -->
 	<bean
-		class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer"
-		id="encryptablePropertyPlaceholderConfigurer">
+		class="org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer"
+		id="propertyConfigurer">
 		<constructor-arg>
 			<bean class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
 				<property name="config">
 					<bean class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
-						<property name="algorithm">
-							<value>PBEWithMD5AndTripleDES</value>
-						</property>
+						<property name="algorithm" value="PBEWithMD5AndTripleDES" />
 						<property name="passwordEnvName" value="BOD_ENCRYPTION_PASSWORD" />
 					</bean>
 				</property>
@@ -92,5 +89,5 @@
 	</bean>
 	
 	<!-- Enable switching between mock and real implementation -->
-	<bean id ="emailSender" class="${mail.sender.class}"/>
+	<bean id="emailSender" class="${mail.sender.class}"/>
 </beans>

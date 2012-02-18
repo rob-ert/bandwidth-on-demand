@@ -57,8 +57,6 @@ import org.springframework.beans.factory.annotation.Value;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.nortel.appcore.app.drac.common.utility.CryptoWrapper;
-import com.nortel.appcore.app.drac.common.utility.CryptoWrapper.CryptedString;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.CompletionResponseDocument;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 
@@ -87,7 +85,7 @@ class NbiServiceOpenDracWs implements NbiService {
   private String billingGroupName;
 
   @Value("${nbi.password}")
-  private String encryptedPassword;
+  private String password;
 
   @Value("${nbi.group.name}")
   private String groupName;
@@ -453,22 +451,17 @@ class NbiServiceOpenDracWs implements NbiService {
   private SecurityDocument getSecurityDocument() {
     if (securityDocument == null) {
       securityDocument = SecurityDocument.Factory.newInstance();
-      final Security security = securityDocument.addNewSecurity();
-      final UsernameToken token = security.addNewUsernameToken();
+
+      Security security = securityDocument.addNewSecurity();
+      UsernameToken token = security.addNewUsernameToken();
       token.setUsername(username);
-      try {
-        token.setPassword(CryptoWrapper.getInstance().decrypt(new CryptedString(encryptedPassword)));
-      }
-      catch (Exception e) {
-        log.error("Error: ", e);
-        securityDocument = null;
-      }
+      token.setPassword(password);
     }
     return securityDocument;
   }
 
-  void setEncryptedPassword(String encryptedPassword) {
-    this.encryptedPassword = encryptedPassword;
+  void setPassword(String password) {
+    this.password = password;
   }
 
 }

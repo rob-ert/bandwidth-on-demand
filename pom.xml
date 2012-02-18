@@ -12,12 +12,12 @@
         <slf4j.version>1.6.3</slf4j.version>
         <axis2.version>1.5.6</axis2.version>
         <jetty.version>8.0.4.v20111024</jetty.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-security.version>3.0.7.RELEASE</spring-security.version>
+        <opendrac.version>4.2.0</opendrac.version>
         <selenium.version>2.13.0</selenium.version>
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:8888/bod</selenium.test.url>
-        <opendrac.version>4.2.0</opendrac.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <scm>
         <developerConnection>scm:git:gitolite@atlas.dlp.surfnet.nl:bandwidth-on-demand.git</developerConnection>
@@ -310,8 +310,8 @@
         </dependency>
         <dependency>
             <groupId>org.jasypt</groupId>
-            <artifactId>jasypt</artifactId>
-            <version>1.8</version>
+            <artifactId>jasypt-spring31</artifactId>
+            <version>1.9.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.code</groupId>
@@ -433,23 +433,6 @@
             <scope>test</scope>
         </dependency>
         <!-- End Selenium -->
-
-        <!-- OpenDRAC (only needed for CryptoWrapper...) -->
-        <dependency>
-            <groupId>org.opendrac</groupId>
-            <artifactId>Common</artifactId>
-            <version>${opendrac.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.jdom</groupId>
-                    <artifactId>jdom</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-lang</groupId>
-                    <artifactId>commons-lang</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
 
         <!-- Begin Database dependencies -->
         <dependency>
@@ -860,11 +843,6 @@
             <url>http://maven.springframework.org/release</url>
         </repository>
         <repository>
-            <id>spring-maven-milestone</id>
-            <name>Spring Maven Milestone Repository</name>
-            <url>http://maven.springframework.org/milestone</url>
-        </repository>
-        <repository>
             <id>JBoss Repo</id>
             <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
             <name>JBoss Repo</name>
@@ -873,11 +851,6 @@
             <id>coin-repo</id>
             <name>COIN Repository</name>
             <url>http://bamboo-dev.coin.surfnetlabs.nl</url>
-        </repository>
-        <repository>
-            <id>opendrac-maven-release</id>
-            <name>OpenDRAC Repository</name>
-            <url>http://dev.dlp.surfnet.nl/artifactory/libs-release-local</url>
         </repository>
     </repositories>
     <pluginRepositories>

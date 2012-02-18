@@ -58,7 +58,7 @@ public class NbiServiceOpenDracWsTest {
 
   @Before
   public void init() {
-    subject.setEncryptedPassword("292c2cdcb5f669a8");
+    subject.setPassword("292c2cdcb5f669a8");
   }
 
   @Test
