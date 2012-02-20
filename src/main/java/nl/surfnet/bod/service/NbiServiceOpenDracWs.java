@@ -35,10 +35,10 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nbi.NetworkMonitoringServiceFault;
-import nl.surfnet.bod.nbi.NetworkMonitoringService_v30Stub;
-import nl.surfnet.bod.nbi.ResourceAllocationAndSchedulingServiceFault;
-import nl.surfnet.bod.nbi.ResourceAllocationAndSchedulingService_v30Stub;
+import nl.surfnet.bod.nbi.generated.NetworkMonitoringServiceFault;
+import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
+import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingServiceFault;
+import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingService_v30Stub;
 
 import org.joda.time.Minutes;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.Security;
