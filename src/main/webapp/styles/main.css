@@ -127,3 +127,5 @@ tr.highlight > td{background-color:#E5F2FF !important}
 .add-on.important{background-color:#c43c35;color:white;font-weight:bold;text-shadow:0 0;border-color:#c43c35}
 .input-append .help-inline{padding-top: 6px;display:table;}
 .utilbox{white-space:nowrap;}
+.hero-unit ul{font-size:18px;}
+.hero-unit ul li{color:#404040;font-weight:200;line-height:27px;}

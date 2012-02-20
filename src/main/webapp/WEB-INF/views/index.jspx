@@ -7,11 +7,10 @@
     <spring:message var="app_name" code="application_name" htmlEscape="false" />
 
     <div class="hero-unit">
-        <h1>Welcome to ${app_name}</h1>
-        <p>Vestibulum id ligula porta felis euismod semper. Integer posuere erat a ante venenatis dapibus posuere
-            velit aliquet. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec
-            elit.</p>
-            
+        <h1>Welcome User</h1>
+        <p>Welcome to SURFnet's ${app_name} user interface.</p>
+        <p>Manage your bandwidth on demand reservations and virtual ports by
+        selecting a task in the menu.</p>
             
         <spring:url var="noc_url" value="/noc" />
         <spring:url var="manager_url" value="/manager" />

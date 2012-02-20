@@ -10,12 +10,11 @@
     </spring:url>
 
     <div class="hero-unit">
-        <h1>Email of Physical Resource Group confirmed</h1>
+        <h1>Email address of institute is confirmed</h1>
         <p>
-            You have successfully confirmed e-mail address '<i><c:out value="${link.toEmail}" /></i>' for your
-            Physical Resource Group '<i><c:out value="${physicalResourceGroup.name}" /></i>'.
+            You have successfully confirmed the email address '<i><c:out value="${link.toEmail}" /></i>' as contact
+            address for your institute '<i><c:out value="${physicalResourceGroup.name}" /></i>'.
         </p>
-
         <a href="${createVirtualPortUrl}" class="btn primary large">Add Virtual Ports</a>
     </div>
 

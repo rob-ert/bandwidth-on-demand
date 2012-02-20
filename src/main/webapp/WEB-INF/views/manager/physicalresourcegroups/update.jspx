@@ -8,22 +8,22 @@
 
     <h1>Change the Email of the Physical Resource Group</h1>
     <div class="row">
-        <div class="span4">
-            <h3>Email and Activation</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-            tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-            quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-            consequat.</p>
+        <div class="span5">
+            <h3>Email address and activation</h3>
+            <p>If the email address of this institute isn't verified yet you can resend the confirmation mail. If
+                you change the email address a confirmation email will be sent to the new address.</p>
         </div>
-        <div class="span12">
-            <form:update id="fc_PhysicalResourceGroup" modelAttribute="updateEmailCommand" path="/manager/physicalresourcegroups" noLabel="true">
-                <c:set var="errors"><sform:errors path="managerEmail" /></c:set>
+        <div class="span11">
+            <form:update id="fc_PhysicalResourceGroup" modelAttribute="updateEmailCommand"
+                path="/manager/physicalresourcegroups" noLabel="true">
+                <c:set var="errors">
+                    <sform:errors path="managerEmail" />
+                </c:set>
                 <c:if test="${not empty errors}">
                     <c:set var="error_css" value="error" />
                 </c:if>
                 <div class="clearfix ${error_css}">
-                    <label>
-                        <spring:message code="label_physicalresourcegroup_manageremail" />
+                    <label> <spring:message code="label_physicalresourcegroup_manageremail" />
                     </label>
                     <div class="input">
                         <div class="input-append">
@@ -36,7 +36,8 @@
                                     <span class="important add-on">Inactive</span>
                                 </c:otherwise>
                             </c:choose>
-                            <sform:errors cssClass="help-inline" id="_manageremail_error_id" path="managerEmail" delimiter=", " />
+                            <sform:errors cssClass="help-inline" id="_manageremail_error_id" path="managerEmail"
+                                delimiter=", " />
                         </div>
                     </div>
                 </div>

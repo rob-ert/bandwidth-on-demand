@@ -1,16 +1,22 @@
 <div xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
     xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
-    
+
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-    
-    <!-- <spring:message var="title" code="error_accessdenied_title" htmlEscape="false" />-->
 
     <div class="hero-unit">
         <h1>Not a member of a Virtual User Group</h1>
-        <p>You are not a member of any virtual user group. Pleas request a membership first and come back later.</p>
-        <p>See you later!</p>
+        <p>You are not member of a virtual user group yet. You can do one of the following things:</p>
+        <ul>
+            <li>If you are already part of a collaboration you can:</li>
+            <ul>
+                <li>Ask to be added to the existing SURFconext group of your collaboration or</li>
+                <li>Create a new SURFconext group for your collaboration,</li>
+            </ul>
+            <li>If you are already member of the SURFconext group of your collaboration please check if there are
+                virtual ports assigned to your group.</li>
+        </ul>
     </div>
-    
+
 </div>

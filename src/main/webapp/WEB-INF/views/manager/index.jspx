@@ -5,10 +5,10 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <div class="hero-unit">
-        <h1>Welcome Manager</h1>
-        <p>Vestibulum id ligula porta felis euismod semper. Integer posuere erat a ante venenatis dapibus posuere
-            velit aliquet. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec
-            elit.</p>
+        <h1>Welcome Institute ICT Manager</h1>
+        <p> Welcome to SURFnet's Bandwidth on Demand user interface.</p>
+        <p>Please select the task you want to perform as institute ICT
+        manager.</p>
 
         <spring:url var="noc_url" value="/noc" />
         <spring:url var="reservation_url" value="/reservations/create" />

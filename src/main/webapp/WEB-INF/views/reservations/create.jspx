@@ -17,15 +17,14 @@
     <div class="row">
         <div class="span4">
             <h3>Source and Destination</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-            dolore magna aliqua.</p>
+            <p>Select the source and destination port for your reservation, if you are member of more then one group
+                you can select the virtual resource group to be used.</p>
             <h3>Start and End Time</h3>
-            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
-            laborum.</p>
+            <p>Select the start and end date and time for your reservation, the time that it takes to setup and tear
+                down your bandwidht on demand circuit falls within this period.</p>
             <h3>Bandwidth</h3>
-            <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-            ea commodo consequat.</p>
+            <p>Select the amount of bandwidth you want to reserve, you can use the quarter, half or full bandwidth
+                buttons or specify it with a 1Mbit/s granularity.</p>
         </div>
         <div class="span12">
             <util:panel id="title" title="Create Virtual Port" render="${empty virtualPortList}">
@@ -83,6 +82,11 @@
             </form:create>
         </div>
     </div>
-    <script type="text/javascript">var dataUrl = "${vpUrl}";</script>
-    <script src="${reservation_js}" type="text/javascript"><!-- needed --></script>
+    <script type="text/javascript">
+                    var dataUrl = "${vpUrl}";
+                </script>
+    <script src="${reservation_js}" type="text/javascript">
+                <!-- needed -->
+                    
+                </script>
 </div>
