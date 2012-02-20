@@ -43,8 +43,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.collect.Lists;
-
 @Controller
 @RequestMapping("/virtualports/request")
 public class VirtualPortRequestController {
@@ -71,7 +69,8 @@ public class VirtualPortRequestController {
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
 
     if (group == null || !group.isActive()) {
-      addInfoMessage(redirectAttributes, "A invalid Physical Resource Group was selected.");
+      WebUtils.addInfoMessage(redirectAttributes, "A invalid Physical Resource Group was selected.");
+
       return "redirect:/virtualports/request";
     }
 
@@ -106,14 +105,10 @@ public class VirtualPortRequestController {
 
     emailSender.sendVirtualPortRequestMail(Security.getUserDetails(), pGroup, vGroup, requestCommand.getMessage());
 
-    addInfoMessage(redirectAttributes,
-        String.format("Your request for a new Virutal Port (%s) has been sent", pGroup.getInstitute().getName()));
+    WebUtils.addInfoMessage(redirectAttributes, "Your request for a new Virutal Port %s has been send.", pGroup
+        .getInstitute().getName());
 
     return "redirect:/";
-  }
-
-  private void addInfoMessage(RedirectAttributes redirectAttributes, String message) {
-    redirectAttributes.addFlashAttribute("infoMessages", Lists.newArrayList(message));
   }
 
   public static class RequestCommand {
