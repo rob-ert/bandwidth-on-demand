@@ -24,16 +24,14 @@
     <bean id="nbiService" class="nl.surfnet.bod.service.NbiServiceOpenDracWs" lazy-init="true" />
 
     <bean
-        class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer"
+        class="org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer"
         id="encryptablePropertyPlaceholderConfigurer">
         <constructor-arg>
             <bean class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
                 <property name="config">
                     <bean
                         class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
-                        <property name="algorithm">
-                            <value>PBEWithMD5AndTripleDES</value>
-                        </property>
+                        <property name="algorithm" value="PBEWithMD5AndTripleDES" />
                         <property name="passwordEnvName" value="BOD_ENCRYPTION_PASSWORD" />
                     </bean>
                 </property>
