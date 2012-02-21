@@ -43,6 +43,7 @@ public class EndPoints {
       .<RichUserDetails, EndPoint> create());
 
   public WebSocket createNew(RichUserDetails user) {
+    log.debug("Creating a new endpoint for user {}", user);
     return new EndPoint(user, this);
   }
 
@@ -66,11 +67,11 @@ public class EndPoints {
   }
 
   private void broadcast(Collection<EndPoint> clients, String message) {
+    log.debug("Sent message '{}' to '{}' clients", message, clients.size());
+
     for (EndPoint client : clients) {
       client.sendMessage(message);
     }
-
-    log.debug("Sent message [{}] to [{}] clients", message, clients.size());
   }
 
 }

@@ -40,8 +40,9 @@ public class ReservationEventPublisher {
   }
 
   public void notifyListeners(ReservationStatusChangeEvent changeEvent) {
+    log.info("notify {} listeners of event {}", listeners.size(), changeEvent);
+
     for (ReservationListener listener : listeners) {
-      log.info("notify listeners {}", changeEvent);
       listener.onStatusChange(changeEvent);
     }
   }

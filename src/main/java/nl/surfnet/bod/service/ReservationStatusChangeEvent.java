@@ -24,10 +24,11 @@ package nl.surfnet.bod.service;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 
+import com.google.common.base.Objects;
+
 public class ReservationStatusChangeEvent {
 
   private ReservationStatus oldStatus;
-
   private Reservation reservation;
 
   public ReservationStatusChangeEvent(final ReservationStatus oldStatus, final Reservation reservation) {
@@ -41,6 +42,12 @@ public class ReservationStatusChangeEvent {
 
   public Reservation getReservation() {
     return reservation;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this).add("reservationId", reservation.getId()).add("oldStatus", oldStatus)
+        .add("newStatus", reservation.getStatus()).toString();
   }
 
 }
