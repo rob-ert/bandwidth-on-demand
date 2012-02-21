@@ -105,7 +105,7 @@ public class VirtualPortRequestController {
 
     emailSender.sendVirtualPortRequestMail(Security.getUserDetails(), pGroup, vGroup, requestCommand.getMessage());
 
-    WebUtils.addInfoMessage(redirectAttributes, "Your request for a new Virutal Port %s has been send.", pGroup
+    WebUtils.addInfoMessage(redirectAttributes, "Your request for a new Virtual Port %s has been send.", pGroup
         .getInstitute().getName());
 
     return "redirect:/";
