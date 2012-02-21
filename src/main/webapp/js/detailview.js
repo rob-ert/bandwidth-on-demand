@@ -5,11 +5,17 @@
         return this.each(function() {
             var $self = $(this),
                 $sourceRow = $self.closest("tr"),
+                $spinner = $("<img/>", {src: "/bod/resources/images/spinner.gif"}).hide(),
                 $hideSelf = $("<div/>").css({float: "left", width: "21px", height: "15px"}).hide(),
                 nrOfColumns = $sourceRow.find("td").length,
                 elementId = $self.next().attr('href').split('=').pop(),
 
                 showDetails = function() {
+                    $self.twipsy("hide");
+                    $self.hide();
+                    $hideSelf.show();
+                    $spinner.show();
+
                     $.getJSON(detailsUrl.replace("{}", elementId), function(data) {
                         var $detailTable = $("<table/>", {"class" : "zebra-striped"}).append($("<thead/>").append(createHeaders()));
 
@@ -36,9 +42,7 @@
                             colspan : nrOfColumns - 1
                         }).append($detailTable)).append($("<td/>").append($closeLink));
 
-                        $self.twipsy("hide");
-                        $self.hide();
-                        $hideSelf.show();
+                        $spinner.hide();
 
                         $newRow.css("opacity", "0");
                         $sourceRow.after($newRow);
@@ -60,6 +64,7 @@
                     });
                 };
 
+            $hideSelf.append($spinner);
             $self.after($hideSelf);
 
             if (settings.hide($sourceRow)) {
