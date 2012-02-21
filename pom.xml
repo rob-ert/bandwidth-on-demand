@@ -762,7 +762,7 @@
                                 </systemProperty>
                                 <systemProperty>
                                     <name>nbi.client.class</name>
-                                    <value>nl.surfnet.bod.service.NbiServiceOffline</value>
+                                    <value>nl.surfnet.bod.nbi.NbiOfflineClient</value>
                                 </systemProperty>
                             </systemProperties>
                             <systemPropertiesFile>src/test/resources/bod.properties</systemPropertiesFile>

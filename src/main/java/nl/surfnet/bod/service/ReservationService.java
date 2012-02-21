@@ -42,6 +42,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.Reservation_;
 import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -65,7 +66,7 @@ public class ReservationService {
   private ReservationRepo reservationRepo;
 
   @Autowired
-  private NbiService nbiService;
+  private NbiClient nbiClient;
 
   @Autowired
   private ReservationEventPublisher reservationEventPublisher;
@@ -73,7 +74,7 @@ public class ReservationService {
   private ExecutorService executorService = Executors.newCachedThreadPool();
 
   /**
-   * Reserves a reservation using the {@link NbiService} asynchronously.
+   * Reserves a reservation using the {@link NbiClient} asynchronously.
    *
    * @param reservation
    * @return
@@ -137,7 +138,7 @@ public class ReservationService {
   public boolean cancel(Reservation reservation) {
     if (reservation.getStatus() == RUNNING || reservation.getStatus() == SCHEDULED) {
       reservation.setStatus(CANCELLED);
-      nbiService.cancelReservation(reservation.getReservationId());
+      nbiClient.cancelReservation(reservation.getReservationId());
       reservationRepo.save(reservation);
 
       return true;
@@ -163,7 +164,7 @@ public class ReservationService {
   }
 
   public ReservationStatus getStatus(Reservation reservation) {
-    return nbiService.getReservationStatus(reservation.getReservationId());
+    return nbiClient.getReservationStatus(reservation.getReservationId());
   }
 
   /**
@@ -193,7 +194,7 @@ public class ReservationService {
 
     @Override
     public void run() {
-      Reservation createdReservation = nbiService.createReservation(reservation);
+      Reservation createdReservation = nbiClient.createReservation(reservation);
 
       update(createdReservation);
 

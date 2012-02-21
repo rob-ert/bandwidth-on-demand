@@ -19,7 +19,7 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.service;
+package nl.surfnet.bod.nbi;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -29,6 +29,7 @@ import static org.hamcrest.Matchers.is;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.nbi.NbiClient;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,30 +39,30 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/bod-opendrac-test.xml")
-public class NbiServiceTestIntegration {
+public class NbiClientTestIntegration {
 
   @Autowired
-  private NbiService nbiService;
+  private NbiClient nbiClient;
 
   @Test
   public void testFindAllPhysicalPorts() throws Exception {
-    List<PhysicalPort> allPorts = nbiService.findAllPhysicalPorts();
+    List<PhysicalPort> allPorts = nbiClient.findAllPhysicalPorts();
     assertThat(allPorts, hasSize(greaterThan(0)));
   }
 
   @Test
   public void testFindPhysicalPortByNetworkElementId() throws Exception {
-    PhysicalPort firstPort = nbiService.findAllPhysicalPorts().get(0);
+    PhysicalPort firstPort = nbiClient.findAllPhysicalPorts().get(0);
 
-    PhysicalPort foundPort = nbiService.findPhysicalPortByNetworkElementId(firstPort.getNetworkElementPk());
+    PhysicalPort foundPort = nbiClient.findPhysicalPortByNetworkElementId(firstPort.getNetworkElementPk());
 
     assertThat(foundPort.getNetworkElementPk(), is(firstPort.getNetworkElementPk()));
   }
 
   @Test
   public void portCountShouldMatchSizeOfAllPorts() {
-    long count = nbiService.getPhysicalPortsCount();
-    List<PhysicalPort> ports = nbiService.findAllPhysicalPorts();
+    long count = nbiClient.getPhysicalPortsCount();
+    List<PhysicalPort> ports = nbiClient.findAllPhysicalPorts();
 
     assertThat(count, is((long) ports.size()));
   }

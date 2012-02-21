@@ -19,7 +19,7 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.service;
+package nl.surfnet.bod.nbi;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -29,12 +29,13 @@ import static org.hamcrest.Matchers.is;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.nbi.NbiOfflineClient;
 
 import org.junit.Test;
 
-public class NbiServiceOfflineTest {
+public class NbiOfflineClientTest {
 
-  private NbiServiceOffline subject = new NbiServiceOffline();
+  private NbiOfflineClient subject = new NbiOfflineClient();
 
   @Test
   public void offlineClientShouldGivePorts() {

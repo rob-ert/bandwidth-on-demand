@@ -36,13 +36,13 @@ import javax.persistence.criteria.Root;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalPort_;
 import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -75,15 +75,14 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   private PhysicalPortRepo physicalPortRepo;
 
   @Autowired
-  @Qualifier("nbiService")
-  private NbiService nbiService;
+  private NbiClient nbiClient;
 
   /**
    * Finds all ports using the North Bound Interface and enhances these ports
    * with data found in our own database.
    */
   protected List<PhysicalPort> findAll() {
-    List<PhysicalPort> nbiPorts = nbiService.findAllPhysicalPorts();
+    List<PhysicalPort> nbiPorts = nbiClient.findAllPhysicalPorts();
     List<PhysicalPort> repoPorts = physicalPortRepo.findAll();
 
     logger.debug("Got '{}' ports from nbi and '{}' ports from the repo", nbiPorts.size(), repoPorts.size());
@@ -126,12 +125,12 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public long countUnallocated() {
-    return nbiService.getPhysicalPortsCount() - physicalPortRepo.count();
+    return nbiClient.getPhysicalPortsCount() - physicalPortRepo.count();
   }
 
   @Override
   public PhysicalPort findByNetworkElementPk(final String networkElementPk) {
-    PhysicalPort nbiPort = nbiService.findPhysicalPortByNetworkElementId(networkElementPk);
+    PhysicalPort nbiPort = nbiClient.findPhysicalPortByNetworkElementId(networkElementPk);
     PhysicalPort repoPort = physicalPortRepo.findByNetworkElementPk(networkElementPk);
 
     if (repoPort != null) {

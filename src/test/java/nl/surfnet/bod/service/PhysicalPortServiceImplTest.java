@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -59,7 +60,7 @@ public class PhysicalPortServiceImplTest {
   private PhysicalPortServiceImpl subject;
 
   @Mock
-  private NbiService nbiServiceMock;
+  private NbiClient nbiClientMock;
 
   @Mock
   private PhysicalPortRepo physicalPortRepoMock;
@@ -73,7 +74,7 @@ public class PhysicalPortServiceImplTest {
     List<PhysicalPort> repoPorts = Lists.newArrayList(
         new PhysicalPortFactory().setNocLabel("overwrite").setNetworkElementPk("first").setId(1L).setVersion(2).create());
 
-    when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
+    when(nbiClientMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
 
     List<PhysicalPort> allPorts = subject.findAll();
@@ -98,7 +99,7 @@ public class PhysicalPortServiceImplTest {
     List<PhysicalPort> repoPorts = Lists.newArrayList(
         new PhysicalPortFactory().setNetworkElementPk("first").setId(1L).create());
 
-    when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
+    when(nbiClientMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
 
     Collection<PhysicalPort> unallocatedPorts = subject.findUnallocated();
@@ -114,7 +115,7 @@ public class PhysicalPortServiceImplTest {
         new PhysicalPortFactory().setNetworkElementPk("first").create(),
         new PhysicalPortFactory().setNetworkElementPk("first").create());
 
-    when(nbiServiceMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
+    when(nbiClientMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
 
     subject.findAll();
@@ -122,7 +123,7 @@ public class PhysicalPortServiceImplTest {
 
   @Test
   public void findByNetworkElementPkShouldGiveNullIfNotFound() {
-    when(nbiServiceMock.findPhysicalPortByNetworkElementId("first")).thenReturn(null);
+    when(nbiClientMock.findPhysicalPortByNetworkElementId("first")).thenReturn(null);
     when(physicalPortRepoMock.findByNetworkElementPk("first")).thenReturn(null);
 
     PhysicalPort port = subject.findByNetworkElementPk("first");
@@ -135,7 +136,7 @@ public class PhysicalPortServiceImplTest {
     PhysicalPort nbiPort = new PhysicalPortFactory().setNetworkElementPk("first").create();
     PhysicalPort repoPort = new PhysicalPortFactory().setId(1L).setNetworkElementPk("first").create();
 
-    when(nbiServiceMock.findPhysicalPortByNetworkElementId("first")).thenReturn(nbiPort);
+    when(nbiClientMock.findPhysicalPortByNetworkElementId("first")).thenReturn(nbiPort);
     when(physicalPortRepoMock.findByNetworkElementPk("first")).thenReturn(repoPort);
 
     PhysicalPort port = subject.findByNetworkElementPk("first");
@@ -200,7 +201,7 @@ public class PhysicalPortServiceImplTest {
 
   @Test
   public void countUnallocatedShouldCalculateDifferenceBetweenNbiAndRepoPorts() {
-    when(nbiServiceMock.getPhysicalPortsCount()).thenReturn(15L);
+    when(nbiClientMock.getPhysicalPortsCount()).thenReturn(15L);
     when(physicalPortRepoMock.count()).thenReturn(10L);
 
     long countUnallocated = subject.countUnallocated();
@@ -216,7 +217,7 @@ public class PhysicalPortServiceImplTest {
 
     assertThat(ports, hasSize(0));
 
-    verifyZeroInteractions(physicalPortRepoMock, nbiServiceMock);
+    verifyZeroInteractions(physicalPortRepoMock, nbiClientMock);
   }
 
   @SuppressWarnings("unchecked")

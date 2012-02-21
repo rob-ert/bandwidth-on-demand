@@ -19,7 +19,7 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.service;
+package nl.surfnet.bod.nbi;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.nbi.NbiOpenDracWsClient;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringServiceFault;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
 
@@ -48,10 +49,10 @@ import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsRequ
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsResponseDocument;
 
 @RunWith(MockitoJUnitRunner.class)
-public class NbiServiceOpenDracWsTest {
+public class NbiOpenDracWsClientTest {
 
   @InjectMocks
-  private NbiServiceOpenDracWs subject;
+  private NbiOpenDracWsClient subject;
 
   @Mock
   private NetworkMonitoringService_v30Stub networkingServiceMock;

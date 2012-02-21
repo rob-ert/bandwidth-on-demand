@@ -38,6 +38,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -73,7 +74,7 @@ public class ReservationServiceTest {
   private ReservationEventPublisher reservationEventPublisherMock;
 
   @Mock
-  private NbiService nbiPortService;
+  private NbiClient nbiPortService;
 
   private Object object;
 

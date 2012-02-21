@@ -21,7 +21,7 @@
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd
         http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd">
 
-    <bean id="nbiService" class="nl.surfnet.bod.service.NbiServiceOpenDracWs" lazy-init="true" />
+    <bean id="nbiClient" class="nl.surfnet.bod.nbi.NbiOpenDracWsClient" lazy-init="true" />
 
     <bean
         class="org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer"

@@ -19,7 +19,7 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.service;
+package nl.surfnet.bod.nbi;
 
 import static nl.surfnet.bod.domain.ReservationStatus.*;
 
@@ -67,7 +67,7 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
  * @author robert
  *
  */
-class NbiServiceOpenDracWs implements NbiService {
+class NbiOpenDracWsClient implements NbiClient {
 
   public static final String ROUTING_ALGORITHM = "VCAT";
   public static final String DEFAULT_VID = "Untagged";
