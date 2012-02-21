@@ -34,6 +34,7 @@ import nl.surfnet.bod.web.security.Security;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -55,6 +56,9 @@ public class VirtualPortRequestController {
   @Autowired
   private EmailSender emailSender;
 
+  @Autowired
+  private MessageSource messageSource;
+
   @RequestMapping(method = RequestMethod.GET)
   public String requestList(Model model) {
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllWithPorts();
@@ -69,7 +73,7 @@ public class VirtualPortRequestController {
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
 
     if (group == null || !group.isActive()) {
-      WebUtils.addInfoMessage(redirectAttributes, "A invalid Physical Resource Group was selected.");
+      WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_invalid_group");
 
       return "redirect:/virtualports/request";
     }
@@ -105,8 +109,8 @@ public class VirtualPortRequestController {
 
     emailSender.sendVirtualPortRequestMail(Security.getUserDetails(), pGroup, vGroup, requestCommand.getMessage());
 
-    WebUtils.addInfoMessage(redirectAttributes, "Your request for a new Virtual Port %s has been send.", pGroup
-        .getInstitute().getName());
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_send", pGroup.getInstitute()
+        .getName());
 
     return "redirect:/";
   }

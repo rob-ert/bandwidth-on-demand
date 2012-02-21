@@ -24,6 +24,8 @@ package nl.surfnet.bod.web;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -70,7 +72,7 @@ public final class WebUtils {
   /**
    * Adds an infoMessage, depending on the type of {@link Model} it will will
    * survive a redirect.
-   * 
+   *
    * @param model
    *          Model to add the message to
    * @param message
@@ -81,6 +83,11 @@ public final class WebUtils {
    */
   public static void addInfoMessage(Model model, String message, String... messageArgs) {
     addMessage(model, formatAndEscapeMessage(message, messageArgs));
+  }
+
+  public static void addInfoMessage(RedirectAttributes model, MessageSource messageSource, String label, String... messageArgs) {
+    String message = messageSource.getMessage(label, null, LocaleContextHolder.getLocale());
+    addInfoMessage(model, message, messageArgs);
   }
 
   public static void addInfoMessage(RedirectAttributes model, String message, String... messageArgs) {
@@ -111,7 +118,7 @@ public final class WebUtils {
    * Html escapes the argument and replaces them with the parameter placeholders
    * in the message. The parameter placeholders can be either "{}" or the
    * regular {@link String#format(String, Object...)} placeholders.
-   * 
+   *
    * @param message
    *          The message to parse
    * @param args

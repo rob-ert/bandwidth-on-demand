@@ -52,6 +52,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.MessageSource;
 import org.springframework.validation.BeanPropertyBindingResult;
 
 import com.google.common.collect.Lists;
@@ -70,6 +71,10 @@ public class VirtualPortRequestControllerTest {
 
   @Mock
   private VirtualResourceGroupService virtualResourceGroupService;
+
+  @SuppressWarnings("unused")
+  @Mock
+  private MessageSource messageSourceMock;
 
   private RichUserDetails user = new RichUserDetailsFactory().addUserGroup("urn:user-group").create();
 
