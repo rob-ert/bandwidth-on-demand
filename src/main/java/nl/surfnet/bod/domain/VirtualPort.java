@@ -66,7 +66,7 @@ public class VirtualPort {
   @Column(nullable = false)
   private Integer maxBandwidth;
 
-  @Range(min = 0, max = 4092)
+  @Range(min = 1, max = 4095)
   private Integer vlanId;
 
   public Long getId() {
