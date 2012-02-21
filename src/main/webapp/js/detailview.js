@@ -5,7 +5,7 @@
         return this.each(function() {
             var $self = $(this),
                 $sourceRow = $self.closest("tr"),
-                $spinner = $("<img/>", {src: "/bod/resources/images/spinner.gif"}).hide(),
+                $spinner = $("<img/>", {src: "../images/spinner.gif"}).hide(),
                 $hideSelf = $("<div/>").css({float: "left", width: "21px", height: "15px"}).hide(),
                 nrOfColumns = $sourceRow.find("td").length,
                 elementId = $self.next().attr('href').split('=').pop(),
