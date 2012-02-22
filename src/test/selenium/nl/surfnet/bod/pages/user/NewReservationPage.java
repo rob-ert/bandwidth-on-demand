@@ -43,6 +43,8 @@ l code is SURFnet BV.
  */
 package nl.surfnet.bod.pages.user;
 
+import nl.surfnet.bod.pages.AbstractFormPage;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
@@ -52,17 +54,12 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class NewReservationPage {
+public class NewReservationPage extends AbstractFormPage {
 
   private static final String PAGE = "/reservations/create";
 
   private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd");
   private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormat.forPattern("H:mm");
-
-  private final RemoteWebDriver driver;
-
-  @FindBy(css = "input[type='submit']")
-  private WebElement saveButton;
 
   @FindBy(id = "_startDate_id")
   private WebElement startDateInput;
@@ -82,24 +79,16 @@ public class NewReservationPage {
   @FindBy(id = "_startDate_error_id")
   private WebElement startDateError;
 
-  public NewReservationPage(RemoteWebDriver driver) {
-    this.driver = driver;
-  }
-
   public static NewReservationPage get(RemoteWebDriver driver, String urlUnderTest) {
     driver.get(urlUnderTest + PAGE);
     return get(driver);
   }
 
   public static NewReservationPage get(RemoteWebDriver driver) {
-    NewReservationPage page = new NewReservationPage(driver);
+    NewReservationPage page = new NewReservationPage();
     PageFactory.initElements(driver, page);
 
     return page;
-  }
-
-  public void save() {
-    saveButton.click();
   }
 
   public void sendStartDate(LocalDate startDate) {

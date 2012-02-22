@@ -30,17 +30,14 @@ import org.openqa.selenium.support.PageFactory;
 
 public class EditPhysicalResourceGroupPage extends AbstractPage {
 
-  private final RemoteWebDriver driver;
-
   @FindBy(id = "_manageremail_id")
   private WebElement emailInput;
 
-  private EditPhysicalResourceGroupPage(RemoteWebDriver driver) {
-    this.driver = driver;
+  private EditPhysicalResourceGroupPage() {
   }
 
   public static EditPhysicalResourceGroupPage get(RemoteWebDriver driver) {
-    EditPhysicalResourceGroupPage page = new EditPhysicalResourceGroupPage(driver);
+    EditPhysicalResourceGroupPage page = new EditPhysicalResourceGroupPage();
     PageFactory.initElements(driver, page);
 
     return page;

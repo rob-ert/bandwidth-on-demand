@@ -23,8 +23,6 @@ package nl.surfnet.bod.pages.noc;
 
 import nl.surfnet.bod.pages.AbstractListPage;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
@@ -49,10 +47,7 @@ public class ListPhysicalResourceGroupPage extends AbstractListPage {
   }
 
   public EditPhysicalResourceGroupPage edit(String adminGroup) {
-    WebElement row = findRow(adminGroup);
-
-    WebElement editLink = row.findElement(By.cssSelector("a[alt~=Update]"));
-    editLink.click();
+    clickEditRow(adminGroup);
 
     return EditPhysicalResourceGroupPage.get(driver);
   }

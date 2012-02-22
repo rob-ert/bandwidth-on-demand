@@ -21,19 +21,19 @@
  */
 package nl.surfnet.bod.pages.manager;
 
+import nl.surfnet.bod.pages.AbstractFormPage;
+
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 
-public class NewVirtualPortPage {
+public class NewVirtualPortPage extends AbstractFormPage {
 
   public static final String DEFAULT_BANDWIDTH = "100";
 
   private static final String PAGE =  "/manager/virtualports/create";
-
-  private final RemoteWebDriver driver;
 
   @FindBy(id = "_managerLabel_id")
   private WebElement nameInput;
@@ -44,20 +44,13 @@ public class NewVirtualPortPage {
   @FindBy(id = "_physicalResourceGroup")
   private WebElement physicalResourceGroupSelect;
 
-  @FindBy(css = "input[type='submit']")
-  private WebElement saveButton;
-
-  public NewVirtualPortPage(RemoteWebDriver driver) {
-    this.driver = driver;
-  }
-
   public static NewVirtualPortPage get(RemoteWebDriver driver, String urlUnderTest) {
     driver.get(urlUnderTest + PAGE);
     return get(driver);
   }
 
   public static NewVirtualPortPage get(RemoteWebDriver driver) {
-    NewVirtualPortPage page = new NewVirtualPortPage(driver);
+    NewVirtualPortPage page = new NewVirtualPortPage();
     PageFactory.initElements(driver, page);
 
     return page;
@@ -71,10 +64,6 @@ public class NewVirtualPortPage {
   public void sendMaxBandwidth(String maxBandwidth) {
     maxBandwidthInput.clear();
     maxBandwidthInput.sendKeys(maxBandwidth);
-  }
-
-  public void save() {
-    saveButton.click();
   }
 
   public String getSelectedPhysicalResourceGroup() {

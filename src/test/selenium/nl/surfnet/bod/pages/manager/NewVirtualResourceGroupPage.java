@@ -21,16 +21,16 @@
  */
 package nl.surfnet.bod.pages.manager;
 
+import nl.surfnet.bod.pages.AbstractFormPage;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class NewVirtualResourceGroupPage {
+public class NewVirtualResourceGroupPage extends AbstractFormPage {
 
   private static final String PAGE = "/manager/"
       + VirtualResourceGroupController.PAGE_URL + WebUtils.CREATE;
@@ -41,25 +41,18 @@ public class NewVirtualResourceGroupPage {
   @FindBy(id = "_name_id")
   private WebElement nameInput;
 
-  @FindBy(css = "input[type='submit']")
-  private WebElement saveButton;
-
   @FindBy(id = "_name_error_id")
   private WebElement nameError;
 
-  public NewVirtualResourceGroupPage(WebDriver driver) {
-  }
 
   public static NewVirtualResourceGroupPage get(RemoteWebDriver driver, String baseUrl) {
     driver.get(baseUrl + PAGE);
-    NewVirtualResourceGroupPage page = new NewVirtualResourceGroupPage(driver);
-    PageFactory.initElements(driver, page);
 
-    return page;
+    return get(driver);
   }
 
   public static NewVirtualResourceGroupPage get(RemoteWebDriver driver) {
-    NewVirtualResourceGroupPage page = new NewVirtualResourceGroupPage(driver);
+    NewVirtualResourceGroupPage page = new NewVirtualResourceGroupPage();
     PageFactory.initElements(driver, page);
 
     return page;
@@ -73,10 +66,6 @@ public class NewVirtualResourceGroupPage {
   public void sendName(String name) {
     nameInput.clear();
     nameInput.sendKeys(name);
-  }
-
-  public void save() {
-    saveButton.click();
   }
 
   public boolean hasNameValidationError() {

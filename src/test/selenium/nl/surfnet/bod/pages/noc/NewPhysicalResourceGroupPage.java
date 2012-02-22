@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.pages.noc;
 
+import nl.surfnet.bod.pages.AbstractFormPage;
 import nl.surfnet.bod.support.Probes;
 
 import org.openqa.selenium.By;
@@ -30,7 +31,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class NewPhysicalResourceGroupPage {
+public class NewPhysicalResourceGroupPage extends AbstractFormPage {
 
   private static final String PAGE = "noc/physicalresourcegroups/create";
 
@@ -44,9 +45,6 @@ public class NewPhysicalResourceGroupPage {
 
   @FindBy(css = "input[name='managerEmail']")
   private WebElement managerEmailInput;
-
-  @FindBy(css = "input[type='submit']")
-  private WebElement saveButton;
 
   public NewPhysicalResourceGroupPage(WebDriver driver) {
     this.probes = new Probes(driver);
@@ -68,10 +66,6 @@ public class NewPhysicalResourceGroupPage {
 
     instituteInput.sendKeys("\t");
     instituteInput.sendKeys("\n");
-  }
-
-  public void save() {
-    saveButton.click();
   }
 
   public void sendAdminGroup(String adminGroup) {

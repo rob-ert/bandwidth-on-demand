@@ -21,27 +21,20 @@
  */
 package nl.surfnet.bod.pages.user;
 
+import nl.surfnet.bod.pages.AbstractFormPage;
+
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class RequestNewVirtualPortRequestPage {
-
-  private final RemoteWebDriver driver;
+public class RequestNewVirtualPortRequestPage extends AbstractFormPage {
 
   @FindBy(id = "message")
   private WebElement messageTextArea;
 
-  @FindBy(css = "input[type=submit]")
-  private WebElement sentRequestButton;
-
-  private RequestNewVirtualPortRequestPage(RemoteWebDriver driver) {
-    this.driver = driver;
-  }
-
   public static RequestNewVirtualPortRequestPage get(RemoteWebDriver driver) {
-    RequestNewVirtualPortRequestPage page = new RequestNewVirtualPortRequestPage(driver);
+    RequestNewVirtualPortRequestPage page = new RequestNewVirtualPortRequestPage();
     PageFactory.initElements(driver, page);
 
     return page;
@@ -51,7 +44,8 @@ public class RequestNewVirtualPortRequestPage {
     messageTextArea.clear();
     messageTextArea.sendKeys(message);
   }
+
   public void sentRequest() {
-    sentRequestButton.click();
+    save();
   }
 }

@@ -34,7 +34,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
-public class AbstractListPage {
+public class AbstractListPage extends AbstractPage {
 
   protected final RemoteWebDriver driver;
 
@@ -55,6 +55,10 @@ public class AbstractListPage {
     WebElement deleteButton = row.findElement(By.cssSelector("input[type=image]"));
     deleteButton.click();
     driver.switchTo().alert().accept();
+  }
+
+  protected void clickEditRow(String... fields) {
+    findRow(fields).findElement(By.cssSelector("a[alt~=Update]")).click();
   }
 
   public WebElement findRow(String... fields) {

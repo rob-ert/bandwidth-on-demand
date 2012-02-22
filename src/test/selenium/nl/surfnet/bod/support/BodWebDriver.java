@@ -33,13 +33,10 @@ import java.util.regex.Pattern;
 import javax.mail.internet.MimeMessage;
 
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.manager.ListVirtualPortPage;
-import nl.surfnet.bod.pages.manager.ListVirtualResourceGroupPage;
-import nl.surfnet.bod.pages.manager.NewVirtualPortPage;
-import nl.surfnet.bod.pages.manager.NewVirtualResourceGroupPage;
+import nl.surfnet.bod.pages.manager.*;
+import nl.surfnet.bod.pages.manager.EditPhysicalPortPage;
+import nl.surfnet.bod.pages.noc.*;
 import nl.surfnet.bod.pages.noc.EditPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.noc.NewPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.user.ListReservationPage;
 import nl.surfnet.bod.pages.user.NewReservationPage;
 import nl.surfnet.bod.pages.user.RequestNewVirtualPortRequestPage;
@@ -338,6 +335,55 @@ public class BodWebDriver {
 
     assertThat(page.getInfoMessages(), hasSize(1));
     assertThat(page.getInfoMessages().get(0), containsString("Your Physical Resource Group is not activated"));
+  }
+
+  public void linkPhysicalPort(String networkElementPk, String nocLabel) {
+    ListUnallocatedPortsPage listPage = ListUnallocatedPortsPage.get(driver, URL_UNDER_TEST);
+
+    nl.surfnet.bod.pages.noc.EditPhysicalPortPage editPage = listPage.editRow(networkElementPk);
+    editPage.sendNocLabel(nocLabel);
+    editPage.save();
+  }
+
+  public void verifyPhysicalPortWasAllocated(String networkElementPk, String nocLabel) {
+    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+
+    page.findRow(networkElementPk, nocLabel);
+  }
+
+  public void unlinkPhysicalPort(String networkElementPk) {
+    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+
+    page.unlinkPhysicalPort(networkElementPk);
+  }
+
+  public void verifyPhysicalPortWasUnlinked(String networkElementPk) {
+    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver);
+
+    assertTrue(page.containsAnyItems());
+
+    try {
+      page.findRow(networkElementPk);
+      fail("The physical port was not unlinked");
+    }
+    catch (NoSuchElementException e) {
+      // expected
+    }
+  }
+
+  public void changeManagerLabelOfPhyiscalPort(String networkElementPk, String managerLabel) {
+    ListPhysicalPortsPage page = ListPhysicalPortsPage.get(driver, URL_UNDER_TEST);
+
+    EditPhysicalPortPage editPage = page.edit(networkElementPk);
+
+    editPage.sendMagerLabel(managerLabel);
+    editPage.save();
+  }
+
+  public void verifyManagerLabelChanged(String networkElementPk, String managerLabel) {
+    ListPhysicalPortsPage listPage = ListPhysicalPortsPage.get(driver);
+
+    listPage.findRow(networkElementPk, managerLabel);
   }
 
 }
