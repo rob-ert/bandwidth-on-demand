@@ -44,6 +44,9 @@ public class NewVirtualPortPage extends AbstractFormPage {
   @FindBy(id = "_physicalResourceGroup")
   private WebElement physicalResourceGroupSelect;
 
+  @FindBy(id = "_physicalPort")
+  private WebElement physicalPortSelect;
+
   public static NewVirtualPortPage get(RemoteWebDriver driver, String urlUnderTest) {
     driver.get(urlUnderTest + PAGE);
     return get(driver);
@@ -68,6 +71,10 @@ public class NewVirtualPortPage extends AbstractFormPage {
 
   public String getSelectedPhysicalResourceGroup() {
     return new Select(physicalResourceGroupSelect).getFirstSelectedOption().getText();
+  }
+
+  public String getSelectedPhysicalPort() {
+    return new Select(physicalPortSelect).getFirstSelectedOption().getText();
   }
 
 }

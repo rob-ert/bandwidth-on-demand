@@ -28,21 +28,25 @@ import org.junit.Test;
 public class PhysicalPortTestSelenium extends TestExternalSupport {
 
   @Test
-  public void createAndDeleteAPhysicalPort() {
+  public void createRenameAndDeleteAPhysicalPort() {
     String networkElementPk = "00-21-E1-D6-D6-70_ETH10G-1-13-1";
     String nocLabel = "My Selenium Port (Noc)";
     String managerLabel = "My Selenium Port (Manager)";
 
-    getWebDriver().linkPhysicalPort(networkElementPk, nocLabel);
+    getNocDriver().linkPhysicalPort(networkElementPk, nocLabel);
 
-    getWebDriver().verifyPhysicalPortWasAllocated(networkElementPk, nocLabel);
+    getNocDriver().verifyPhysicalPortWasAllocated(networkElementPk, nocLabel);
 
-    getWebDriver().changeManagerLabelOfPhyiscalPort(networkElementPk, managerLabel);
+    getManagerDriver().changeManagerLabelOfPhyiscalPort(networkElementPk, managerLabel);
 
-    getWebDriver().verifyManagerLabelChanged(networkElementPk, managerLabel);
+    getManagerDriver().verifyManagerLabelChanged(networkElementPk, managerLabel);
 
-    getWebDriver().unlinkPhysicalPort(networkElementPk);
+    getManagerDriver().createNewVirtualPortForPhysicalPort(networkElementPk);
 
-    getWebDriver().verifyPhysicalPortWasUnlinked(networkElementPk);
+    getManagerDriver().verifyPhysicalPortSelected(managerLabel);
+
+    getNocDriver().unlinkPhysicalPort(networkElementPk);
+
+    getNocDriver().verifyPhysicalPortWasUnlinked(networkElementPk);
   }
 }
