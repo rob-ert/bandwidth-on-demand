@@ -32,7 +32,6 @@ import javax.validation.constraints.NotNull;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.validator.PhysicalResourceGroupValidator;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.web.WebUtils;
@@ -40,6 +39,7 @@ import nl.surfnet.bod.web.WebUtils;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -61,7 +61,7 @@ public class PhysicalResourceGroupController {
   private InstituteService instituteIddService;
 
   @Autowired
-  private PhysicalResourceGroupValidator physicalResourceGroupValidator;
+  private MessageSource messageSource;
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid final PhysicalResourceGroupCommand command, final BindingResult bindingResult,
@@ -71,7 +71,6 @@ public class PhysicalResourceGroupController {
     command.copyFieldsTo(physicalResourceGroup);
     fillInstitute(command, physicalResourceGroup);
 
-    physicalResourceGroupValidator.validate(physicalResourceGroup, bindingResult);
     if (bindingResult.hasErrors()) {
       model.addAttribute(MODEL_KEY, command);
       return PAGE_URL + CREATE;
@@ -80,10 +79,9 @@ public class PhysicalResourceGroupController {
     model.asMap().clear();
 
     physicalResourceGroupService.save(physicalResourceGroup);
+    physicalResourceGroupService.sendActivationRequest(physicalResourceGroup);
 
-    physicalResourceGroupService.sendAndPersistActivationRequest(physicalResourceGroup);
-
-    WebUtils.addInfoMessage(redirectAttributes, "An activation request for physical resource group {} was sent to {}",
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_activation_request_send",
         physicalResourceGroup.getName(), physicalResourceGroup.getManagerEmail());
 
     return "redirect:" + PAGE_URL;
@@ -129,11 +127,14 @@ public class PhysicalResourceGroupController {
   public String update(@Valid final PhysicalResourceGroupCommand command, final BindingResult result,
       final Model model, final RedirectAttributes redirectAttributes) {
 
-    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(command.id);
+    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(command.getId());
+
+    if (physicalResourceGroup == null) {
+      return "redirect:" + PAGE_URL;
+    }
+
     command.copyFieldsTo(physicalResourceGroup);
     fillInstitute(command, physicalResourceGroup);
-
-    physicalResourceGroupValidator.validate(physicalResourceGroup, result);
 
     if (result.hasErrors()) {
       model.addAttribute(MODEL_KEY, command);
@@ -142,13 +143,12 @@ public class PhysicalResourceGroupController {
 
     model.asMap().clear();
 
+    physicalResourceGroupService.update(physicalResourceGroup);
+
     if (command.isManagerEmailChanged()) {
-      physicalResourceGroupService.sendAndPersistActivationRequest(physicalResourceGroup);
-      addInfoMessage(redirectAttributes, "A new activation email has been sent to {}",
-          physicalResourceGroup.getManagerEmail());
-    }
-    else {
-      physicalResourceGroupService.update(physicalResourceGroup);
+      physicalResourceGroupService.sendActivationRequest(physicalResourceGroup);
+      addInfoMessage(redirectAttributes, messageSource, "info_activation_request_send",
+          physicalResourceGroup.getName(), physicalResourceGroup.getManagerEmail());
     }
 
     return "redirect:" + PAGE_URL;
@@ -177,39 +177,32 @@ public class PhysicalResourceGroupController {
     return "redirect:";
   }
 
-  protected void setPhysicalResourceGroupValidator(PhysicalResourceGroupValidator physicalResourceGroupValidator) {
-    this.physicalResourceGroupValidator = physicalResourceGroupValidator;
-  }
+  private void fillInstitute(final PhysicalResourceGroupCommand command, PhysicalResourceGroup group) {
+    if (command.getInstituteId() == null) {
+      return;
+    }
 
-  private void fillInstitute(final PhysicalResourceGroupCommand command, PhysicalResourceGroup physicalResourceGroup) {
-    instituteIddService.fillInstituteForPhysicalResourceGroup(physicalResourceGroup);
-    command.setInstitute(physicalResourceGroup.getInstitute());
+    Institute institute = instituteIddService.findInstitute(command.getInstituteId());
+    command.setInstitute(institute);
+    group.setInstitute(institute);
   }
 
   public static final class PhysicalResourceGroupCommand {
 
     private Long id;
-
     private Integer version;
-
     @NotNull
     private Long instituteId;
-
     private Institute institute;
-
     @NotEmpty
     private String adminGroup;
-
     @NotEmpty
     @Email(message = "Not a valid email address")
     private String managerEmail;
-
     private boolean active = false;
-
     private boolean managerEmailChanged;
 
     public PhysicalResourceGroupCommand() {
-
     }
 
     public PhysicalResourceGroupCommand(PhysicalResourceGroup physicalResourceGroup) {
@@ -232,7 +225,7 @@ public class PhysicalResourceGroupController {
      *          The {@link PhysicalResourceGroup} the copy the field to.
      */
     public void copyFieldsTo(PhysicalResourceGroup physicalResourceGroup) {
-      managerEmailChanged = hasManagerEmailChanged(managerEmail, physicalResourceGroup.getManagerEmail());
+      managerEmailChanged = hasManagerEmailChanged(physicalResourceGroup.getManagerEmail());
 
       // Never copy id, should be generated by jpa
       physicalResourceGroup.setInstituteId(instituteId);
@@ -240,8 +233,8 @@ public class PhysicalResourceGroupController {
       physicalResourceGroup.setManagerEmail(managerEmail);
     }
 
-    private boolean hasManagerEmailChanged(String commandEmail, String groupEmail) {
-      return commandEmail == null || !commandEmail.equals(groupEmail);
+    private boolean hasManagerEmailChanged(String newEmail) {
+      return managerEmail == null || !managerEmail.equals(newEmail);
     }
 
     public void setId(Long id) {

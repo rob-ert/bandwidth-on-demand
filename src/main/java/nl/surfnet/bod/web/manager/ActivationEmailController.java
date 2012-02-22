@@ -95,7 +95,7 @@ public class ActivationEmailController {
     PhysicalResourceGroup foundPhysicalResourceGroup = physicalResourceGroupService.find(physicalResourceGroup.getId());
 
     ActivationEmailLink<PhysicalResourceGroup> activationLink = physicalResourceGroupService
-        .sendAndPersistActivationRequest(foundPhysicalResourceGroup);
+        .sendActivationRequest(foundPhysicalResourceGroup);
 
     WebUtils.addInfoMessage(model, "An activation email for Physcial Resource Group %s was sent to %s",
         activationLink.getSourceObject().getName(), activationLink.getToEmail());

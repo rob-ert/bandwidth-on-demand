@@ -24,24 +24,21 @@ package nl.surfnet.bod.web.noc;
 import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
 import static nl.surfnet.bod.web.noc.PhysicalResourceGroupController.MODEL_KEY_LIST;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.validator.PhysicalResourceGroupValidator;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
@@ -55,6 +52,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.MessageSource;
 import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -70,12 +68,11 @@ public class PhysicalResourceGroupControllerTest {
   @Mock
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
 
-  @SuppressWarnings("unused")
-  @Mock
-  private PhysicalResourceGroupValidator physicalResourceGroupValidatorMock;
-
   @Mock
   private InstituteService instituteIddService;
+
+  @Mock
+  private MessageSource messageSourceMock;
 
   @Test
   public void listShouldSetGroupsAndMaxPages() {
@@ -125,16 +122,18 @@ public class PhysicalResourceGroupControllerTest {
     PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(
         changedGroup);
 
+    when(messageSourceMock.getMessage(eq("info_activation_request_send"), isNull(Object[].class), any(Locale.class)))
+        .thenReturn("SEND %s %s");
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
-    String page = subject.update(command, new BeanPropertyBindingResult(changedGroup, PhysicalResourceGroupController.MODEL_KEY), model,
-        redirectAttribs);
+    String page = subject.update(command, new BeanPropertyBindingResult(changedGroup,
+        PhysicalResourceGroupController.MODEL_KEY), model, redirectAttribs);
 
     assertThat(page, is("redirect:physicalresourcegroups"));
-    assertThat(WebUtils.getFirstInfoMessage(redirectAttribs), containsString("has been sent"));
+    assertThat(WebUtils.getFirstInfoMessage(redirectAttribs), containsString("SEND"));
     assertThat(WebUtils.getFirstInfoMessage(redirectAttribs), containsString("new@example.com"));
 
-    verify(physicalResourceGroupServiceMock).sendAndPersistActivationRequest(any(PhysicalResourceGroup.class));
+    verify(physicalResourceGroupServiceMock).sendActivationRequest(any(PhysicalResourceGroup.class));
   }
 
   @Test
@@ -147,13 +146,13 @@ public class PhysicalResourceGroupControllerTest {
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
     PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(group);
-    String page = subject.update(command, new BeanPropertyBindingResult(group, PhysicalResourceGroupController.MODEL_KEY), model,
-        redirectAttribs);
+    String page = subject.update(command, new BeanPropertyBindingResult(group,
+        PhysicalResourceGroupController.MODEL_KEY), model, redirectAttribs);
 
     assertThat(page, is("redirect:physicalresourcegroups"));
     assertThat(redirectAttribs.getFlashAttributes().keySet(), hasSize(0));
 
-    verify(physicalResourceGroupServiceMock, never()).sendAndPersistActivationRequest(group);
+    verify(physicalResourceGroupServiceMock, never()).sendActivationRequest(group);
     verify(physicalResourceGroupServiceMock).update(group);
   }
 
@@ -178,6 +177,24 @@ public class PhysicalResourceGroupControllerTest {
     assertThat(page, is("physicalresourcegroups/update"));
     verify(physicalResourceGroupServiceMock, never()).update(any(PhysicalResourceGroup.class));
     assertThat(model.asMap().get(PhysicalResourceGroupController.MODEL_KEY), is(Object.class.cast(command)));
+  }
+
+  @Test
+  public void updateForIllegalGroupShouldNotUpdate() {
+    RedirectAttributes model = new ModelStub();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
+
+    when(physicalResourceGroupServiceMock.find(group.getId())).thenReturn(null);
+
+    PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(group);
+    String page = subject.update(command, new BeanPropertyBindingResult(group,
+        PhysicalResourceGroupController.MODEL_KEY), model, model);
+
+    assertThat(page, is("redirect:physicalresourcegroups"));
+
+    verify(physicalResourceGroupServiceMock, never()).sendActivationRequest(group);
+    verify(physicalResourceGroupServiceMock, never()).update(group);
+
   }
 
 }

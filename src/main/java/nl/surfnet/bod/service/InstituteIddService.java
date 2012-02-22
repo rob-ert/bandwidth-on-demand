@@ -66,7 +66,8 @@ public class InstituteIddService implements InstituteService {
     return institutes;
   }
 
-  Institute findInstitute(Long id) {
+  @Override
+  public Institute findInstitute(Long id) {
     Institute institute = null;
 
     Iterator<Institute> it = toInstitutes(iddClient.getKlantById(id)).iterator();

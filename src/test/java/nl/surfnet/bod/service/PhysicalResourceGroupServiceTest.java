@@ -208,7 +208,7 @@ public class PhysicalResourceGroupServiceTest {
           }
         });
 
-    ActivationEmailLink<PhysicalResourceGroup> link = subject.sendAndPersistActivationRequest(prg);
+    ActivationEmailLink<PhysicalResourceGroup> link = subject.sendActivationRequest(prg);
 
     verify(emailSender).sendActivationMail(link);
     verify(activationEmailLinkRepoMock, atLeastOnce()).save(link);

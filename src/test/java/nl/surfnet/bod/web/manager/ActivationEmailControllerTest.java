@@ -134,11 +134,11 @@ public class ActivationEmailControllerTest {
     when(physicalResourceGroupServiceMock.find(anyLong())).thenReturn(physicalResourceGroup);
     when(linkMock.getToEmail()).thenReturn(physicalResourceGroup.getManagerEmail());
     when(linkMock.getSourceObject()).thenReturn(physicalResourceGroup);
-    when(physicalResourceGroupServiceMock.sendAndPersistActivationRequest(physicalResourceGroup)).thenReturn(linkMock);
+    when(physicalResourceGroupServiceMock.sendActivationRequest(physicalResourceGroup)).thenReturn(linkMock);
 
     subject.create(physicalResourceGroup, redirectAttributesMock);
 
-    verify(physicalResourceGroupServiceMock).sendAndPersistActivationRequest(physicalResourceGroup);
+    verify(physicalResourceGroupServiceMock).sendActivationRequest(physicalResourceGroup);
 
     // The create model will cast the RedirectAttributes to a Model, so to
     // verify we also need to cast to Model

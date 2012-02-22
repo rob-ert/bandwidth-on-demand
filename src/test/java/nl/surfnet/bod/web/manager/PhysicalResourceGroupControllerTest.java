@@ -79,7 +79,7 @@ public class PhysicalResourceGroupControllerTest {
     assertThat(requestAttributes.getFlashAttributes(), hasKey("infoMessages"));
     assertThat(page, is("redirect:physicalresourcegroups"));
     assertThat(group.getManagerEmail(), is(command.getManagerEmail()));
-    verify(physicalResourceGroupServiceMock).sendAndPersistActivationRequest(group);
+    verify(physicalResourceGroupServiceMock).sendActivationRequest(group);
   }
 
   @Test
@@ -99,7 +99,7 @@ public class PhysicalResourceGroupControllerTest {
 
     assertThat(page, is("redirect:physicalresourcegroups"));
 
-    verify(physicalResourceGroupServiceMock, never()).sendAndPersistActivationRequest(group);
+    verify(physicalResourceGroupServiceMock, never()).sendActivationRequest(group);
   }
 
   @Test
@@ -119,7 +119,7 @@ public class PhysicalResourceGroupControllerTest {
 
     assertThat(page, is("redirect:physicalresourcegroups"));
 
-    verify(physicalResourceGroupServiceMock, never()).sendAndPersistActivationRequest(group);
+    verify(physicalResourceGroupServiceMock, never()).sendActivationRequest(group);
   }
 
   @Test
@@ -137,7 +137,7 @@ public class PhysicalResourceGroupControllerTest {
 
     assertThat(page, is("redirect:physicalresourcegroups"));
 
-    verify(physicalResourceGroupServiceMock, never()).sendAndPersistActivationRequest(any(PhysicalResourceGroup.class));
+    verify(physicalResourceGroupServiceMock, never()).sendActivationRequest(any(PhysicalResourceGroup.class));
   }
 
   @SuppressWarnings("serial")
@@ -165,7 +165,7 @@ public class PhysicalResourceGroupControllerTest {
     assertThat(page, is("manager/physicalresourcegroups/update"));
 
     assertThat(model.asMap(), hasKey("physicalResourceGroup"));
-    verify(physicalResourceGroupServiceMock, never()).sendAndPersistActivationRequest(any(PhysicalResourceGroup.class));
+    verify(physicalResourceGroupServiceMock, never()).sendActivationRequest(any(PhysicalResourceGroup.class));
   }
 
 }
