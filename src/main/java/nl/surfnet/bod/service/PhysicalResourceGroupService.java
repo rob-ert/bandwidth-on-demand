@@ -70,7 +70,6 @@ public class PhysicalResourceGroupService {
   @Autowired
   private EmailSender emailSender;
 
-
   public long count() {
     return physicalResourceGroupRepo.count();
   }
@@ -81,6 +80,9 @@ public class PhysicalResourceGroupService {
 
   public PhysicalResourceGroup find(final Long id) {
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupRepo.findOne(id);
+    if (physicalResourceGroup == null) {
+      return null;
+    }
     instituteService.fillInstituteForPhysicalResourceGroup(physicalResourceGroup);
 
     return physicalResourceGroup;

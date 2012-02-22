@@ -24,18 +24,15 @@ package nl.surfnet.bod.idd;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.util.Collection;
 
 import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.support.MockHttpServer;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.springframework.core.io.ClassPathResource;
 
@@ -67,12 +64,10 @@ public class IddLiveClientTest {
     subject.setPassword("secret");
 
     server.addResponse("/getKlant.php", new ClassPathResource("idd_response_with_5_klanten.xml"));
-
   }
 
   @Test
   public void shouldGet5Klanten() {
-
     Collection<Klanten> result = subject.getKlanten();
 
     assertThat(result, hasSize(5));
@@ -80,18 +75,26 @@ public class IddLiveClientTest {
 
   @Test
   public void getKlantByExistingId() {
-
     Klanten result = subject.getKlantById(564L);
 
-    Assert.assertTrue(result.getKlant_id() == 564L);
+    assertThat(result.getKlant_id(), is(564));
   }
 
   @Test
   public void getKlantByNonExistingId() {
-
     Klanten result = subject.getKlantById(-9999L);
 
-    Assert.assertNull(result);
+    assertThat(result, nullValue());
+  }
+
+  @Test
+  public void getKlantByIdShouldBeCached() {
+    subject.refreshCache();
+    server.removeResponse("/getKlant.php");
+
+    Klanten result = subject.getKlantById(564L);
+
+    assertThat(result.getKlant_id(), is(564));
   }
 
   @Test

@@ -32,9 +32,9 @@ import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.idd.generated.Klanten;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
@@ -45,7 +45,6 @@ public class InstituteIddService implements InstituteService {
   private IddClient iddClient;
 
   @Override
-  @Cacheable(InstituteCacheRefresher.CACHE_NAME)
   public Collection<Institute> getInstitutes() {
     Collection<Klanten> klanten = iddClient.getKlanten();
 
@@ -91,14 +90,10 @@ public class InstituteIddService implements InstituteService {
 
   @Override
   public void fillInstituteForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
-    Institute institute = new Institute();
+    Preconditions.checkNotNull(physicalResourceGroup);
 
-    if (physicalResourceGroup != null) {
-
-      if (physicalResourceGroup.getInstituteId() != null) {
-        institute = findInstitute(physicalResourceGroup.getInstituteId());
-      }
-
+    if (physicalResourceGroup.getInstituteId() != null) {
+      Institute institute = findInstitute(physicalResourceGroup.getInstituteId());
       physicalResourceGroup.setInstitute(institute);
     }
   }
@@ -112,6 +107,7 @@ public class InstituteIddService implements InstituteService {
 
   @Override
   public void fillInstituteForPhysicalPorts(Collection<PhysicalPort> ports) {
+
     for (PhysicalPort port : ports) {
       fillInstituteForPhysicalResourceGroup(port.getPhysicalResourceGroup());
     }

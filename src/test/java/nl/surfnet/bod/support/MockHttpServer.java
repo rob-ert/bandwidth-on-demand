@@ -119,8 +119,16 @@ public class MockHttpServer extends AbstractHandler {
     }
   }
 
+  public void removeResponse(String path) {
+    this.responseResource.remove(prependPathWithSlash(path));
+  }
+
   public void addResponse(String path, Resource resource) {
-    this.responseResource.put(path.startsWith("/") ? path : "/" + path, resource);
+    this.responseResource.put(prependPathWithSlash(path), resource);
+  }
+
+  private String prependPathWithSlash(String path) {
+    return path.startsWith("/") ? path : "/" + path;
   }
 
   public void withBasicAuthentication(String user, String pass) {

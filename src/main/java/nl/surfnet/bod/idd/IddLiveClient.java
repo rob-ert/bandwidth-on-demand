@@ -21,19 +21,26 @@
  */
 package nl.surfnet.bod.idd;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.ConcurrentMap;
 
 import nl.surfnet.bod.idd.generated.InvoerKlant;
 import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.idd.generated.KsrBindingStub;
 import nl.surfnet.bod.idd.generated.KsrLocator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+
+import com.google.common.collect.Maps;
 
 public class IddLiveClient implements IddClient {
 
   private static final String IDD_VERSION = "1.09";
+
+  private Logger logger = LoggerFactory.getLogger(IddLiveClient.class);
 
   @Value("${idd.user}")
   private String username;
@@ -44,8 +51,30 @@ public class IddLiveClient implements IddClient {
   @Value("${idd.url}")
   private String endPoint;
 
+  private final ConcurrentMap<Long, Klanten> klantenCache = Maps.newConcurrentMap();
+
+  @Scheduled(fixedRate = 1000 * 60 * 60 * 8)
+  public synchronized void refreshCache() {
+    klantenCache.clear();
+    fillKlantenCache();
+  }
+
   @Override
   public Collection<Klanten> getKlanten() {
+    if (klantenCache.isEmpty()) {
+      fillKlantenCache();
+    }
+
+    return klantenCache.values();
+  }
+
+  private synchronized void fillKlantenCache() {
+    if (!klantenCache.isEmpty()) {
+      return;
+    }
+
+    logger.info("Idd cache is empty... call idd..");
+
     try {
       KsrLocator locator = new KsrLocator();
       locator.setksrPortEndpointAddress(endPoint);
@@ -56,29 +85,23 @@ public class IddLiveClient implements IddClient {
 
       Klanten[] klantnamen = port.getKlantList(new InvoerKlant("list", "", IDD_VERSION)).getKlantnamen();
 
-      return Arrays.asList(klantnamen);
+      for (Klanten klant : klantnamen) {
+        klantenCache.put((long) klant.getKlant_id(), klant);
+      }
     }
     catch (Exception e) {
+      logger.error("Could not get the institutes from IDD", e);
       throw new RuntimeException(e);
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Klanten getKlantById(final Long klantId) {
-    Klanten matchedKlant = null;
-
-    Collection<Klanten> klanten = getKlanten();
-
-    for (Klanten foundKlant : klanten) {
-      if (klantId == foundKlant.getKlant_id()) {
-        matchedKlant = foundKlant;
-        break;
-      }
+    if (klantenCache.isEmpty()) {
+      fillKlantenCache();
     }
-    return matchedKlant;
+
+    return klantenCache.get(klantId);
   }
 
   protected void setUsername(String username) {
