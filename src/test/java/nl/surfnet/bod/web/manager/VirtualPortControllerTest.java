@@ -51,6 +51,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.MessageSource;
 import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 
@@ -74,8 +75,13 @@ public class VirtualPortControllerTest {
   @Mock
   private PhysicalPortService physicalPortServiceMock;
 
+  @SuppressWarnings("unused")
   @Mock
   private VirtualPortValidator virtualPortValidatorMock;
+
+  @SuppressWarnings("unused")
+  @Mock
+  private MessageSource messageSourceMock;
 
   private RichUserDetails manager = new RichUserDetailsFactory().addUserGroup("urn:manager-group").create();
 

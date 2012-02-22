@@ -45,6 +45,7 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -91,12 +92,16 @@ public class VirtualPortController {
   @Autowired
   private VirtualPortValidator virtualPortValidator;
 
-  @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid VirtualPort virtualPort, BindingResult bindingResult, Model model,
-      RedirectAttributes redirectAttributes) {
-    virtualPortValidator.validate(virtualPort, bindingResult);
+  @Autowired
+  private MessageSource messageSource;
 
-    if (bindingResult.hasErrors()) {
+  @RequestMapping(method = RequestMethod.POST)
+  public String create(@Valid VirtualPort virtualPort, BindingResult result, Model model,
+      RedirectAttributes redirectAttributes) {
+
+    virtualPortValidator.validate(virtualPort, result);
+
+    if (result.hasErrors()) {
       model.addAttribute(MODEL_KEY, virtualPort);
       model.addAttribute("physicalPorts", virtualPort.getPhysicalResourceGroup().getPhysicalPorts());
 
@@ -105,7 +110,8 @@ public class VirtualPortController {
 
     model.asMap().clear();
 
-    WebUtils.addInfoMessage(redirectAttributes, "Virtual Port %s was created.", virtualPort.getManagerLabel());
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_created",
+        virtualPort.getManagerLabel());
 
     virtualPortService.save(virtualPort);
 
@@ -181,7 +187,7 @@ public class VirtualPortController {
     }
 
     model.asMap().clear();
-    WebUtils.addInfoMessage(redirectAttributes, "The Virtual Port has been updated.");
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_updated");
 
     virtualPortService.update(virtualPort);
 
@@ -214,7 +220,7 @@ public class VirtualPortController {
 
     virtualPortService.delete(virtualPort);
 
-    WebUtils.addInfoMessage(redirectAttributes, "The virtual port was deleted.");
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_deleted");
 
     return "redirect:" + PAGE_URL;
   }

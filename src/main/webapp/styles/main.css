@@ -95,20 +95,24 @@ form .clearfix.error select {
     color: #B94A48;
     border-color: #EE5F5B;
 }
+.bandwidth-tool{margin-left: 20px;}
 .bandwidth-tool img.active {
-	border: 3px solid #0064CD;
-	-webkit-box-shadow: 2px 3px 5px #0064CD;
-    -moz-box-shadow: 2px 3px 5px #0064CD;
-	box-shadow: 2px 3px 5px #0064CD;
+	-webkit-box-shadow: 0px 0px 6px 1px green;
+    -moz-box-shadow: 0px 0px 6px 1px green;
+	box-shadow: 0px 0px 6px 1px green;
 }
-.bandwidth-tool img:hover {box-shadow: 0 0 0 #0064CD;}
+.bandwidth-tool img:hover {
+	-webkit-box-shadow: 0px 0px 1px 1px #0064CD;
+    -moz-box-shadow: 0px 0px 1px 1px #0064CD;
+	box-shadow: 0px 0px 1px 1px #0064CD;
+}
 .bandwidth-tool img {
 	border: 1px solid white;
-	margin-right: 5px;
+	margin-right: 10px;
 	vertical-align: middle;
 	-webkit-box-shadow: 2px 3px 5px #0064CD;
 	-moz-box-shadow: 2px 3px 5px #0064CD;
-	box-shadow: 2px 3px 5px #0064CD;
+	box-shadow: 0px 0px 6px 1px #0064CD;
 }
 
 .input-text {padding-top: 6px;font-size: 13px;line-height: 18px;}

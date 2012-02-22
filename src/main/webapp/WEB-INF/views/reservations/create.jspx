@@ -65,7 +65,7 @@
                     <label for="_bandwidth_id"><spring:message code="label_reservation_bandwidth" /></label>
                     <div class="input">
                         <div class="inline-inputs">
-                            <sform:input id="_bandwidth_id" path="bandwidth" type="number" />
+                            <sform:input id="_bandwidth_id" path="bandwidth" cssClass="mini" />
                             <span class="bandwidth-tool"> <a href="#" id="bandwidthQuater"
                                 title="Bandwidth to a quater" rel="twipsy" data-placement="left"><img
                                     src="${imgQuater}" height="28" /></a> <a href="#" id="bandwidthHalf"

@@ -13,8 +13,8 @@
         <sform:hidden path="userLabel" />
         <field:input field="managerLabel" id="name" labelCode="virtualport_name" required="true" />
         <field:input field="userLabel" id="userLabel" labelCode="virtualport_user_label" disabled="true" />
-        <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_max_bandwidth" type="number" />
-        <field:input field="vlanId" id="vlanId" labelCode="virtualport_vlan_id" type="number" />
+        <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_max_bandwidth" />
+        <field:input field="vlanId" id="vlanId" labelCode="virtualport_vlan_id" />
 
         <field:select items="${virtualResourceGroups}" field="virtualResourceGroup" labelCode="virtualresourcegroup"
             id="virtualresourcegroup" itemValue="id" path="/manager/virtualports" required="true" />
