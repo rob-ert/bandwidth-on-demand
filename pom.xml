@@ -354,6 +354,18 @@
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-transport-http</artifactId>
             <version>${axis2.version}</version>
+            <exclusions>
+                <!-- need a newer version for selenium tests -->
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.1.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
