@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+    xmlns:spring="http://www.springframework.org/tags"
     xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
     
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
@@ -10,6 +11,30 @@
             <table:column id="c_virtualresourcegroup_name" property="name" />
             <table:column id="c_virtualresourcegroup_surfconextgroupname" property="surfConextGroupName" />
             <table:column id="c_virtualresourcegroup_virtualPortCount" property="virtualPortCount" />
+
+            <table:actionColumn image="/resources/images/application_put.png" action="/showvirtualports"
+                title="Show Virtual Ports" />
         </table:table>
     </page:list>
+
+    <spring:url value="/virtualresourcegroups/{}/ports" var="portsUrl" />
+
+    <script type="text/javascript">
+        $(function() {
+            var fields = ["managerLabel", "maxBandwidth", "vlanId"];
+            var headers = ["ManagerLabel", "Max Bandwidth", "VLAN ID"];
+
+            $("a[href$='showvirtualports']").detailView(
+                    "${portsUrl}",
+                    fields,
+                    headers,
+                    {
+                        hide: function($row) {
+                            var numberOfPorts = parseInt($($row.children("td")[2]).text());
+                            return !numberOfPorts;
+                        }
+                    }
+            );
+        });
+    </script>
 </div>

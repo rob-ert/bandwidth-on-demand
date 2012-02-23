@@ -82,11 +82,6 @@
             </form:create>
         </div>
     </div>
-    <script type="text/javascript">
-                    var dataUrl = "${vpUrl}";
-                </script>
-    <script src="${reservation_js}" type="text/javascript">
-                <!-- needed -->
-                    
-                </script>
+    <script type="text/javascript">var dataUrl = "${vpUrl}";</script>
+    <script src="${reservation_js}" type="text/javascript"><!-- needed --></script>
 </div>

@@ -14,14 +14,13 @@
             <table:column id="active" booleanType="true" property="active" labelCode="physicalResourceGroup_active" />
             <table:column id="count" property="physicalPortCount" labelCode="physicalResourceGroup_physicalPortCount" />
 
-            <table:actionColumn image="/resources/images/application_put.png" action="/showvirtualports"
+            <table:actionColumn image="/resources/images/application_put.png" action="/showphysicalports"
                 title="Show Physical Ports" />
 
         </table:table>
     </page:list>
 
     <spring:url value="/noc/physicalresourcegroups/{}/ports" var="portsUrl" />
-    <spring:url value="/resources/images/application_get.png" var="closePaneImageUrl" />
     <spring:url value="/resources/images/show.png" var="showImageUrl" />
     <spring:url value="/noc/physicalports?id={}" var="showPhysicalPortUrl" />
 
@@ -31,11 +30,10 @@
             var headers = [ "Name", "Network Element" ];
             var showPhysicalPortUrl = '${showPhysicalPortUrl}';
 
-            $("a[href$='showvirtualports']").detailView(
+            $("a[href$='showphysicalports']").detailView(
                     "${portsUrl}",
                     fields,
                     headers,
-                    "${closePaneImageUrl}",
                     {
                         extraColumn: function(portId) {
                             return $('<a/>', {href: showPhysicalPortUrl.replace('{}', portId), title: 'Show Physical Port'})

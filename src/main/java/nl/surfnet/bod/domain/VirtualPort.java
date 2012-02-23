@@ -24,7 +24,6 @@ package nl.surfnet.bod.domain;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
 
@@ -39,7 +38,6 @@ import com.google.common.base.Strings;
  *
  */
 @Entity
-@JsonIgnoreProperties({ "virtualResourceGroup" })
 public class VirtualPort {
 
   @Id

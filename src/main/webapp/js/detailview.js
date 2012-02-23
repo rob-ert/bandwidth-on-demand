@@ -1,5 +1,5 @@
 (function($) {
-    $.fn.detailView = function(detailsUrl, fields, headers, closeImageUrl, options) {
+    $.fn.detailView = function(detailsUrl, fields, headers, options) {
         var settings = $.extend({}, $.fn.detailView.defaults, options);
 
         return this.each(function() {
@@ -28,7 +28,7 @@
                             href: "#",
                             title: $self.attr("data-original-title").replace("Show", "Hide")
                         }).append($("<img/>", {
-                            src : closeImageUrl
+                            src : "../images/application_get.png"
                         })).click(
                             function(event) {
                                 event.preventDefault();

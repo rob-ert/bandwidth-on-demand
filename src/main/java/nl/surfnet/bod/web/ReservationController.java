@@ -38,6 +38,7 @@ import nl.surfnet.bod.web.manager.VirtualPortController;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;

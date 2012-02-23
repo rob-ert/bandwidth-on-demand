@@ -42,9 +42,9 @@ import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.manager.PhysicalPortController.PhysicalPortView;
 import nl.surfnet.bod.web.manager.PhysicalPortController.UpdateManagerLabelCommand;
-import nl.surfnet.bod.web.manager.PhysicalPortController.VirtualPortJsonView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.VirtualPortJsonView;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -108,7 +108,7 @@ public class PhysicalPortControllerTest {
     Collection<VirtualPortJsonView> portsViews = subject.listVirtualPortsJson(101L);
 
     assertThat(portsViews, hasSize(1));
-    assertThat(portsViews.iterator().next().getName(), is("manager label"));
+    assertThat(portsViews.iterator().next().getManagerLabel(), is("manager label"));
   }
 
   @Test

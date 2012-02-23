@@ -27,13 +27,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 
-import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.VirtualPortJsonView;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,7 +59,7 @@ public class VirtualResourceGroupControllerTest {
 
     when(vrgServiceMock.find(2L)).thenReturn(vrg);
 
-    Collection<VirtualPort> ports = subject.listForVirtualResourceGroup(2L);
+    Collection<VirtualPortJsonView> ports = subject.listForVirtualResourceGroup(2L);
 
     assertThat(ports, hasSize(1));
   }
@@ -68,7 +68,7 @@ public class VirtualResourceGroupControllerTest {
   public void whenGroupDoesNotExistPortShouldBeEmpty() {
     when(vrgServiceMock.find(1L)).thenReturn(null);
 
-    Collection<VirtualPort> ports = subject.listForVirtualResourceGroup(1L);
+    Collection<VirtualPortJsonView> ports = subject.listForVirtualResourceGroup(1L);
 
     assertThat(ports, hasSize(0));
   }
@@ -81,7 +81,7 @@ public class VirtualResourceGroupControllerTest {
 
     when(vrgServiceMock.find(2L)).thenReturn(vrg);
 
-    Collection<VirtualPort> ports = subject.listForVirtualResourceGroup(2L);
+    Collection<VirtualPortJsonView> ports = subject.listForVirtualResourceGroup(2L);
 
     assertThat(ports, hasSize(0));
   }

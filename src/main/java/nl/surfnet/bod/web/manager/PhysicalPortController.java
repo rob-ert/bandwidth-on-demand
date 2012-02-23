@@ -34,6 +34,7 @@ import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.VirtualPortJsonView;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -166,36 +167,6 @@ public class PhysicalPortController {
 
     public void setManagerLabel(String managerLabel) {
       this.managerLabel = managerLabel;
-    }
-  }
-
-  public static final class VirtualPortJsonView {
-    private final String name;
-    private final Integer maxBandwidth;
-    private final Integer vlanId;
-    private final String virtualResourceGroupName;
-
-    public VirtualPortJsonView(VirtualPort port) {
-      this.name = port.getManagerLabel();
-      this.maxBandwidth = port.getMaxBandwidth();
-      this.vlanId = port.getVlanId();
-      this.virtualResourceGroupName = port.getVirtualResourceGroup().getName();
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public Integer getMaxBandwidth() {
-      return maxBandwidth;
-    }
-
-    public Integer getVlanId() {
-      return vlanId;
-    }
-
-    public String getVirtualResourceGroupName() {
-      return virtualResourceGroupName;
     }
   }
 

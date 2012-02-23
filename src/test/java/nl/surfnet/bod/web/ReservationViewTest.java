@@ -27,6 +27,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.web.view.ReservationView;
 
 import org.junit.Test;
 

@@ -24,16 +24,14 @@
     </page:list>
     
     <spring:url value="/manager/physicalports/{}/virtualports" var="portsUrl" />
-    <spring:url value="/resources/images/application_get.png" var="closePaneImageUrl" />
     <script type="text/javascript">
       $(function() {
-          var fields = ["name", "maxBandwidth", "vlanId", "virtualResourceGroupName"];
-          var headers = ["Name", "Max Bandwidth", "VID", "Virtual Resource Group"];
+          var fields = ["managerLabel", "maxBandwidth", "vlanId", "virtualResourceGroupName"];
+          var headers = ["ManagerLabel", "Max Bandwidth", "VLAN ID", "Virtual Resource Group"];
           $("a[href$='showvirtualports']").detailView(
             "${portsUrl}",
             fields,
             headers,
-            "${closePaneImageUrl}",
             {
               hide: function($row) {
                       var numberOfPorts = parseInt($($row.children("td")[3]).text());
