@@ -24,14 +24,12 @@ package nl.surfnet.bod.domain;
 import javax.annotation.Nullable;
 import javax.persistence.*;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 
 @Entity
-@JsonIgnoreProperties({ "physicalResourceGroup" })
 public class PhysicalPort {
 
   @Id

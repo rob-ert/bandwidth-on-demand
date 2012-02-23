@@ -15,7 +15,30 @@
             <table:column id="active" booleanType="true" property="active" labelCode="physicalResourceGroup_active" />
             <table:column id="count" property="physicalPortCount" labelCode="physicalResourceGroup_physicalPortCount" />
 
+            <table:actionColumn image="/resources/images/application_put.png" action="/showphysicalports"
+                title="Show Physical Ports" />
         </table:table>
     </page:list>
+
+    <spring:url value="/physicalresourcegroups/{}/ports" var="portsUrl" />
+
+    <script type="text/javascript">
+        $(function() {
+            var fields = [ "managerLabel", "nocLabel", "networkElementPk" ];
+            var headers = [ "Manager Label", "Noc Label", "Network Element" ];
+
+            $("a[href$='showphysicalports']").detailView(
+                    "${portsUrl}",
+                    fields,
+                    headers,
+                    {
+                        hide: function($row) {
+                            var numberOfPorts = parseInt($($row.children("td")[4]).text());
+                            return !numberOfPorts;
+                        }
+                    }
+            );
+        });
+    </script>
 
 </div>

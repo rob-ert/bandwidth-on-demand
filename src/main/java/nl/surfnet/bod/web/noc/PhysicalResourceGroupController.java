@@ -35,6 +35,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.view.PhysicalPortJsonView;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -45,6 +46,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
@@ -113,14 +117,19 @@ public class PhysicalResourceGroupController {
 
   @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET, produces = "application/json")
   @ResponseBody
-  public Collection<PhysicalPort> listPortsJson(@PathVariable Long id) {
+  public Collection<PhysicalPortJsonView> listPortsJson(@PathVariable Long id) {
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
 
     if (group == null) {
       return Collections.emptyList();
     }
 
-    return group.getPhysicalPorts();
+    return Collections2.transform(group.getPhysicalPorts(), new Function<PhysicalPort, PhysicalPortJsonView>() {
+      @Override
+      public PhysicalPortJsonView apply(PhysicalPort port) {
+        return new PhysicalPortJsonView(port);
+      }
+    });
   }
 
   @RequestMapping(method = RequestMethod.PUT)

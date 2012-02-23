@@ -24,7 +24,10 @@ package nl.surfnet.bod.web.noc;
 import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
 import static nl.surfnet.bod.web.noc.PhysicalResourceGroupController.MODEL_KEY_LIST;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -46,6 +49,7 @@ import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.noc.PhysicalResourceGroupController.PhysicalResourceGroupCommand;
+import nl.surfnet.bod.web.view.PhysicalPortJsonView;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -90,7 +94,7 @@ public class PhysicalResourceGroupControllerTest {
   public void listPortsForNonExistingGroup() {
     when(physicalResourceGroupServiceMock.find(12L)).thenReturn(null);
 
-    Collection<PhysicalPort> ports = subject.listPortsJson(12L);
+    Collection<PhysicalPortJsonView> ports = subject.listPortsJson(12L);
 
     assertThat(ports, hasSize(0));
   }
@@ -103,10 +107,9 @@ public class PhysicalResourceGroupControllerTest {
 
     when(physicalResourceGroupServiceMock.find(12L)).thenReturn(group);
 
-    Collection<PhysicalPort> ports = subject.listPortsJson(12L);
+    Collection<PhysicalPortJsonView> ports = subject.listPortsJson(12L);
 
     assertThat(ports, hasSize(2));
-    assertThat(ports, hasItems(port1, port2));
   }
 
   @Test

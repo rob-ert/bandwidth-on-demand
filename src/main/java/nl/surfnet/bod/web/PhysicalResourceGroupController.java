@@ -28,6 +28,7 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.PhysicalPortJsonView;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,6 +36,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 
 @RequestMapping("/physicalresourcegroups")
 @Controller
@@ -45,13 +49,18 @@ public class PhysicalResourceGroupController {
 
   @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET, produces = "application/json")
   @ResponseBody
-  public Collection<PhysicalPort> listForPhysicalResourceGroup(@PathVariable Long id) {
+  public Collection<PhysicalPortJsonView> listForPhysicalResourceGroup(@PathVariable Long id) {
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
 
     if (group == null || Security.isUserNotMemberOf(group.getAdminGroup())) {
       return Collections.emptyList();
     }
 
-    return group.getPhysicalPorts();
+    return Collections2.transform(group.getPhysicalPorts(), new Function<PhysicalPort, PhysicalPortJsonView>() {
+      @Override
+      public PhysicalPortJsonView apply(PhysicalPort port) {
+        return new PhysicalPortJsonView(port);
+      }
+    });
   }
 }

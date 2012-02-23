@@ -22,8 +22,8 @@
 package nl.surfnet.bod.web;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
@@ -36,12 +36,15 @@ import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.PhysicalPortJsonView;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import com.google.common.collect.Iterables;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PhyscialResourceGroupControllerTest {
@@ -56,7 +59,7 @@ public class PhyscialResourceGroupControllerTest {
   public void whenPortDoesNotExistPortAreEmpty() {
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(null);
 
-    Collection<PhysicalPort> ports = subject.listForPhysicalResourceGroup(1L);
+    Collection<PhysicalPortJsonView> ports = subject.listForPhysicalResourceGroup(1L);
 
     assertThat(ports, hasSize(0));
   }
@@ -70,7 +73,7 @@ public class PhyscialResourceGroupControllerTest {
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
-    Collection<PhysicalPort> ports = subject.listForPhysicalResourceGroup(1L);
+    Collection<PhysicalPortJsonView> ports = subject.listForPhysicalResourceGroup(1L);
 
     assertThat(ports, hasSize(0));
   }
@@ -86,9 +89,10 @@ public class PhyscialResourceGroupControllerTest {
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
-    Collection<PhysicalPort> ports = subject.listForPhysicalResourceGroup(1L);
+    Collection<PhysicalPortJsonView> ports = subject.listForPhysicalResourceGroup(1L);
 
-    assertThat(ports, contains(onlyPort));
+    assertThat(ports, hasSize(1));
+    assertThat(Iterables.getOnlyElement(ports).getId(), is(onlyPort.getId()));
   }
 
 }
