@@ -47,7 +47,7 @@ public class ListPhysicalResourceGroupPage extends AbstractListPage {
   }
 
   public EditPhysicalResourceGroupPage edit(String adminGroup) {
-    clickEditRow(adminGroup);
+    editRow(adminGroup);
 
     return EditPhysicalResourceGroupPage.get(driver);
   }

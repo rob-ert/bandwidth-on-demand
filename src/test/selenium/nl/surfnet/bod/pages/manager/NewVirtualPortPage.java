@@ -31,8 +31,6 @@ import org.openqa.selenium.support.ui.Select;
 
 public class NewVirtualPortPage extends AbstractFormPage {
 
-  public static final String DEFAULT_BANDWIDTH = "100";
-
   private static final String PAGE =  "/manager/virtualports/create";
 
   @FindBy(id = "_managerLabel_id")
@@ -40,6 +38,9 @@ public class NewVirtualPortPage extends AbstractFormPage {
 
   @FindBy(id = "_maxBandwidth_id")
   private WebElement maxBandwidthInput;
+
+  @FindBy(id = "_vlanId_id")
+  private WebElement vlandIdInput;
 
   @FindBy(id = "_physicalResourceGroup")
   private WebElement physicalResourceGroupSelect;
@@ -67,6 +68,11 @@ public class NewVirtualPortPage extends AbstractFormPage {
   public void sendMaxBandwidth(String maxBandwidth) {
     maxBandwidthInput.clear();
     maxBandwidthInput.sendKeys(maxBandwidth);
+  }
+
+  public void sendVlanId(String vlandId) {
+    vlandIdInput.clear();
+    vlandIdInput.sendKeys(vlandId);
   }
 
   public String getSelectedPhysicalResourceGroup() {

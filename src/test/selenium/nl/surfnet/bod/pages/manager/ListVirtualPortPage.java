@@ -46,4 +46,9 @@ public class ListVirtualPortPage extends AbstractListPage {
     return get(driver);
   }
 
+  public EditVirtualPortPage edit(String orignalName) {
+    editRow(orignalName);
+    return EditVirtualPortPage.get(driver);
+  }
+
 }

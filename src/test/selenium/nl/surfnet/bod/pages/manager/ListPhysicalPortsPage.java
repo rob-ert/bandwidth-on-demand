@@ -27,7 +27,7 @@ public class ListPhysicalPortsPage extends AbstractListPage {
   }
 
   public EditPhysicalPortPage edit(String networkElementPk) {
-    clickEditRow(networkElementPk);
+    editRow(networkElementPk);
 
     return EditPhysicalPortPage.get(driver);
   }

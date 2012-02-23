@@ -57,7 +57,7 @@ public class AbstractListPage extends AbstractPage {
     driver.switchTo().alert().accept();
   }
 
-  protected void clickEditRow(String... fields) {
+  protected void editRow(String... fields) {
     findRow(fields).findElement(By.cssSelector("a[alt~=Update]")).click();
   }
 

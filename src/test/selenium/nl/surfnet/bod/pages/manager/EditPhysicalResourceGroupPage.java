@@ -21,14 +21,14 @@
  */
 package nl.surfnet.bod.pages.manager;
 
-import nl.surfnet.bod.pages.AbstractPage;
+import nl.surfnet.bod.pages.AbstractFormPage;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class EditPhysicalResourceGroupPage extends AbstractPage {
+public class EditPhysicalResourceGroupPage extends AbstractFormPage {
 
   @FindBy(id = "_manageremail_id")
   private WebElement emailInput;

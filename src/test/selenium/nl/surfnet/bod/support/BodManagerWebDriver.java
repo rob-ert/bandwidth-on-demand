@@ -70,13 +70,10 @@ public class BodManagerWebDriver {
     page.save();
   }
 
-  public void verifyVirtualPortWasCreated(String name, String maxBandwidth) {
+  public void verifyVirtualPortExists(String name, String maxBandwidth, String vlandId) {
     ListVirtualPortPage page = ListVirtualPortPage.get(driver);
 
-    String table = page.getTable();
-
-    assertThat(table, containsString(name));
-    assertThat(table, containsString(maxBandwidth));
+    page.findRow(name, maxBandwidth, vlandId);
   }
 
   public void deleteVirtualPort(String name) {
@@ -140,6 +137,17 @@ public class BodManagerWebDriver {
     String group = page.getSelectedPhysicalResourceGroup();
 
     assertThat(group, is(instituteName));
+  }
+
+  public void editVirtualPort(String orignalName, String newName, String bandwidth, String vlanId) {
+    ListVirtualPortPage listPage = ListVirtualPortPage.get(driver);
+
+    EditVirtualPortPage editPage = listPage.edit(orignalName);
+
+    editPage.sendName(newName);
+    editPage.sendMaxBandwidth(bandwidth);
+    editPage.sendVlanId(vlanId);
+    editPage.save();
   }
 
 }

@@ -31,10 +31,14 @@ public class VirtualPortTestSelenium extends TestExternalSupport {
   public void createAVirtualPort() {
     getManagerDriver().createNewVirtualPort("My first virtual port", "100");
 
-    getManagerDriver().verifyVirtualPortWasCreated("My first virtual port", "100");
+    getManagerDriver().verifyVirtualPortExists("My first virtual port", "100", "");
 
-    getManagerDriver().deleteVirtualPort("My first virtual port");
+    getManagerDriver().editVirtualPort("My first virtual port", "My edited virtual port", "900", "20");
 
-    getManagerDriver().verifyVirtualPortWasDeleted("My first virtual port");
+    getManagerDriver().verifyVirtualPortExists("My edited virtual port", "900", "20");
+
+    getManagerDriver().deleteVirtualPort("My edited virtual port");
+
+    getManagerDriver().verifyVirtualPortWasDeleted("My edited virtual port");
   }
 }

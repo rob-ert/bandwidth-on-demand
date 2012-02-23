@@ -25,8 +25,8 @@ public class ListUnallocatedPortsPage extends AbstractListPage {
     return page;
   }
 
-  public EditPhysicalPortPage editRow(String networkElementPk) {
-    clickEditRow(networkElementPk);
+  public EditPhysicalPortPage edit(String networkElementPk) {
+    editRow(networkElementPk);
 
     return EditPhysicalPortPage.get(driver);
   }

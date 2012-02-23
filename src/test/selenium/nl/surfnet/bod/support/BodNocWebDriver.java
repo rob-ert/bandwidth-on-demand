@@ -74,7 +74,7 @@ public class BodNocWebDriver {
   public void linkPhysicalPort(String networkElementPk, String nocLabel) {
     ListUnallocatedPortsPage listPage = ListUnallocatedPortsPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
-    EditPhysicalPortPage editPage = listPage.editRow(networkElementPk);
+    EditPhysicalPortPage editPage = listPage.edit(networkElementPk);
     editPage.sendNocLabel(nocLabel);
     editPage.save();
   }
