@@ -33,7 +33,7 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
     getWebDriver().clickLinkInLastEmail();
 
-    getWebDriver().verifyNewVirtualPortHasPhysicalResourceGroup("Universiteit Utrecht");
+    getManagerDriver().verifyNewVirtualPortHasPhysicalResourceGroup("Universiteit Utrecht");
   }
 
 }

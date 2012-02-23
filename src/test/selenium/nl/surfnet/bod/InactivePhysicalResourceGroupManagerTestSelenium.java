@@ -29,13 +29,13 @@ public class InactivePhysicalResourceGroupManagerTestSelenium extends TestExtern
 
   @Test
   public void anInactivePhysicalResourceGroupShouldGiveARedirectForManager() throws Exception {
-    getWebDriver().createNewPhysicalResourceGroup("SURFnet bv",
+    getNocDriver().createNewPhysicalResourceGroup("SURFnet bv",
         "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:ict-managers", "wrong@example.com");
 
-    getWebDriver().managerDashboard();
+    getManagerDriver().managerDashboard();
 
-    getWebDriver().verifyOnEditPhysicalResourceGroupPage("wrong@example.com");
+    getManagerDriver().verifyOnEditPhysicalResourceGroupPage("wrong@example.com");
 
-    getWebDriver().deletePhysicalGroup("SURFnet bv");
+    getNocDriver().deletePhysicalGroup("SURFnet bv");
   }
 }

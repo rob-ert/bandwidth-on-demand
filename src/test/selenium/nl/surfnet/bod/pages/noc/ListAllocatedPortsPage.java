@@ -9,7 +9,7 @@ public class ListAllocatedPortsPage extends AbstractListPage {
 
   private static final String PAGE = "noc/physicalports";
 
-  private ListAllocatedPortsPage(RemoteWebDriver driver) {
+  public ListAllocatedPortsPage(RemoteWebDriver driver) {
     super(driver);
   }
 

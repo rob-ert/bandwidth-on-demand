@@ -27,7 +27,7 @@ import org.openqa.selenium.support.PageFactory;
 
 public class EditPhysicalResourceGroupPage extends NewPhysicalResourceGroupPage {
 
-  private EditPhysicalResourceGroupPage(WebDriver driver) {
+  public EditPhysicalResourceGroupPage(WebDriver driver) {
     super(driver);
   }
 
