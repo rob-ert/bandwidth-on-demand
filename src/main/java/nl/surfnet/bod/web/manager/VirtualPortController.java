@@ -176,6 +176,7 @@ public class VirtualPortController {
   @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid VirtualPort virtualPort, BindingResult bindingResult, Model model,
       RedirectAttributes redirectAttributes) {
+
     if (Security.managerMayNotEdit(virtualPort)) {
       return "redirect:" + PAGE_URL;
     }
@@ -187,7 +188,7 @@ public class VirtualPortController {
     }
 
     model.asMap().clear();
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_updated");
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_updated", virtualPort.getManagerLabel());
 
     virtualPortService.update(virtualPort);
 
@@ -220,7 +221,7 @@ public class VirtualPortController {
 
     virtualPortService.delete(virtualPort);
 
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_deleted");
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_deleted", virtualPort.getManagerLabel());
 
     return "redirect:" + PAGE_URL;
   }
