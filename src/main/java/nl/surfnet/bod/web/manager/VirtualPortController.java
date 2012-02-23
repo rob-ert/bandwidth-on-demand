@@ -31,28 +31,20 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
-import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.service.*;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ReservationView;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;
@@ -91,6 +83,9 @@ public class VirtualPortController {
 
   @Autowired
   private VirtualPortValidator virtualPortValidator;
+
+  @Autowired
+  private ReservationService reservationService;
 
   @Autowired
   private MessageSource messageSource;
@@ -188,7 +183,8 @@ public class VirtualPortController {
     }
 
     model.asMap().clear();
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_updated", virtualPort.getManagerLabel());
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_updated",
+        virtualPort.getManagerLabel());
 
     virtualPortService.update(virtualPort);
 
@@ -221,9 +217,30 @@ public class VirtualPortController {
 
     virtualPortService.delete(virtualPort);
 
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_deleted", virtualPort.getManagerLabel());
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_deleted",
+        virtualPort.getManagerLabel());
 
     return "redirect:" + PAGE_URL;
+  }
+
+  @RequestMapping(value = "{portId}/reservations", method = RequestMethod.GET, produces = "application/json")
+  @ResponseBody
+  public Collection<ReservationView> listReservationsForPort(@PathVariable Long portId) {
+    VirtualPort port = virtualPortService.find(portId);
+
+    if (port == null || Security.managerMayNotEdit(port)) {
+      return Collections.emptyList();
+    }
+
+    Collection<Reservation> reservations = reservationService.findByVirtualPort(port);
+
+    return Collections2.transform(reservations,
+        new Function<Reservation, ReservationView>() {
+          @Override
+          public ReservationView apply(Reservation reservation) {
+            return new ReservationView(reservation);
+          }
+        });
   }
 
   @ModelAttribute("virtualResourceGroups")

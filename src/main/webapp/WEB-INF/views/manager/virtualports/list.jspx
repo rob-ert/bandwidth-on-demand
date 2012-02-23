@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+    xmlns:spring="http://www.springframework.org/tags"
     xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
     
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-        
+
      <page:list id="pl_virtualport" items="${virtualPortList}">
         <table:table data="${virtualPortList}" id="l_VirtualPort" path="/manager/virtualports" typeIdFieldName="id">
             <table:column labelCode="virtualPort" id="virtualport" property="managerLabel" />
@@ -13,6 +14,24 @@
             <table:column labelCode="virtualResourceGroup" id="virtualresourcegroup" property="virtualResourceGroup" />
             <table:column labelCode="physicalResourceGroup" id="physicalresourcegroup" property="physicalResourceGroup" />
             <table:column labelCode="physicalPort" id="physicalport" property="physicalPort" />
+
+            <table:actionColumn image="/resources/images/application_put.png" action="/showreservations"
+                title="Show Reservations" />
         </table:table>
-    </page:list>    
+    </page:list>
+
+    <spring:url value="/manager/virtualports/{}/reservations" var="reservationsUrl" />
+
+    <script type="text/javascript">
+        $(function() {
+            var fields = [ "sourcePort", "destinationPort", "status", "startDateTime", "endDateTime", "bandwidth"];
+            var headers = [ "Source Port", "Destination Port", "Status", "Start", "End", "Bandwidth"];
+
+            $("a[href$='showreservations']").detailView(
+                    "${reservationsUrl}",
+                    fields,
+                    headers
+            );
+        });
+    </script>
 </div>
