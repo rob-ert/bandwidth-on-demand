@@ -62,7 +62,7 @@ public class PhysicalResourceGroupController {
   private PhysicalResourceGroupService physicalResourceGroupService;
 
   @Autowired
-  private InstituteService instituteIddService;
+  private InstituteService instituteService;
 
   @Autowired
   private MessageSource messageSource;
@@ -166,7 +166,7 @@ public class PhysicalResourceGroupController {
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
-    instituteIddService.fillInstituteForPhysicalResourceGroup(group);
+    instituteService.fillInstituteForPhysicalResourceGroup(group);
 
     uiModel.addAttribute(MODEL_KEY, new PhysicalResourceGroupCommand(group));
     return PAGE_URL + UPDATE;
@@ -191,7 +191,7 @@ public class PhysicalResourceGroupController {
       return;
     }
 
-    Institute institute = instituteIddService.findInstitute(command.getInstituteId());
+    Institute institute = instituteService.findInstitute(command.getInstituteId());
     command.setInstitute(institute);
     group.setInstitute(institute);
   }

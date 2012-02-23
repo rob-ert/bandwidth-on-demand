@@ -24,10 +24,7 @@ package nl.surfnet.bod.web.noc;
 import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
 import static nl.surfnet.bod.web.noc.PhysicalResourceGroupController.MODEL_KEY_LIST;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -44,6 +41,7 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
@@ -73,7 +71,7 @@ public class PhysicalResourceGroupControllerTest {
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
 
   @Mock
-  private InstituteService instituteIddService;
+  private InstituteService instituteService;
 
   @Mock
   private MessageSource messageSourceMock;
@@ -165,7 +163,9 @@ public class PhysicalResourceGroupControllerTest {
     RedirectAttributes redirectAtribs = new ModelStub();
     Model model = new ModelStub();
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
+
     when(physicalResourceGroupServiceMock.find(group.getId())).thenReturn(group);
+    when(instituteService.findInstitute(group.getInstituteId())).thenReturn(new InstituteFactory().create());
 
     BeanPropertyBindingResult result = new BeanPropertyBindingResult(group, PhysicalResourceGroupController.MODEL_KEY) {
       @Override
@@ -178,8 +178,14 @@ public class PhysicalResourceGroupControllerTest {
     String page = subject.update(command, result, model, redirectAtribs);
 
     assertThat(page, is("physicalresourcegroups/update"));
+    PhysicalResourceGroupCommand newCommand = (PhysicalResourceGroupCommand) model.asMap().get(
+        PhysicalResourceGroupController.MODEL_KEY);
+
+    assertThat(newCommand, is(command));
+
+    assertThat(newCommand.getInstitute(), not(nullValue()));
+
     verify(physicalResourceGroupServiceMock, never()).update(any(PhysicalResourceGroup.class));
-    assertThat(model.asMap().get(PhysicalResourceGroupController.MODEL_KEY), is(Object.class.cast(command)));
   }
 
   @Test
@@ -197,7 +203,6 @@ public class PhysicalResourceGroupControllerTest {
 
     verify(physicalResourceGroupServiceMock, never()).sendActivationRequest(group);
     verify(physicalResourceGroupServiceMock, never()).update(group);
-
   }
 
 }
