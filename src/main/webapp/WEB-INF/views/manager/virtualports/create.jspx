@@ -9,27 +9,42 @@
 
     <spring:url value="/physicalresourcegroups/{}/ports" var="ppUrl" />
 
-    <form:create id="fc_virtualport" modelAttribute="virtualPort" path="/manager/virtualports">
-        <field:input field="managerLabel" id="name" labelCode="virtualport_name" />
-        <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_max_bandwidth" />
-        <field:input field="vlanId" id="vlanId" labelCode="virtualport_vlan_id" />
+    <div class="row">
+        <div class="span4">
+            <h3>Port properties</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sagittis, mi vel ultrices
+                pellentesque, dui purus varius eros, et malesuada justo neque pulvinar nulla. Donec lacus purus, semper
+                eget blandit vel, hendrerit vitae elit.</p>
+            <h3>Physical port</h3>
+            <p>Nam commodo odio in nisl eleifend auctor posuere arcu ornare. Mauris eu magna diam. Suspendisse
+                pellentesque quam eget leo blandit vitae venenatis ligula hendrerit. Aliquam eget turpis non ipsum
+                dictum cursus at sed massa.</p>
+        </div>
+        <div class="span12">
+            <form:create id="fc_virtualport" modelAttribute="virtualPort" path="/manager/virtualports">
+                <field:input field="managerLabel" id="name" labelCode="virtualport_name" />
+                <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_max_bandwidth" />
+                <field:input field="vlanId" id="vlanId" labelCode="virtualport_vlan_id" />
 
-        <field:select items="${virtualResourceGroups}" field="virtualResourceGroup" labelCode="virtualresourcegroup"
-            id="virtualresourcegroup" itemValue="id" path="/manager/virtualports" />
+                <field:select items="${virtualResourceGroups}" field="virtualResourceGroup"
+                    labelCode="virtualresourcegroup" id="virtualresourcegroup" itemValue="id"
+                    path="/manager/virtualports" showSingle="true" />
 
-        <fieldset>
-            <legend>Specify the physical port</legend>
-            <field:select items="${physicalResourceGroups}" id="physicalResourceGroup" labelCode="physicalresourcegroup"
-                itemValue="id" field="physicalResourceGroup" path="/noc/physicalresourcegroups" create="false" />
+                <field:select items="${physicalResourceGroups}" id="physicalResourceGroup"
+                    labelCode="physicalresourcegroup" itemValue="id" field="physicalResourceGroup"
+                    path="/noc/physicalresourcegroups" create="false" showSingle="true" />
 
-            <field:select items="${physicalPorts}" id="physicalPort" labelCode="physicalport" itemValue="id" itemLabel="managerLabel"
-                field="physicalPort" path="/manager/virtualports" create="false" />
-        </fieldset>
-    </form:create>
+                <field:select items="${physicalPorts}" id="physicalPort" labelCode="physicalport" itemValue="id"
+                    itemLabel="managerLabel" field="physicalPort" path="/manager/virtualports" create="false" />
+            </form:create>
+        </div>
+    </div>
 
     <script type="text/javascript">
-      $(function() {
-	    $("#_physicalResourceGroup").dropdownReload("${ppUrl}", "#_physicalPort", {displayProp: "managerLabel"});
-      });
-	</script>
+        $(function() {
+            $("#_physicalResourceGroup").dropdownReload("${ppUrl}", "#_physicalPort", {
+                displayProp : "managerLabel"
+            });
+        });
+    </script>
 </div>

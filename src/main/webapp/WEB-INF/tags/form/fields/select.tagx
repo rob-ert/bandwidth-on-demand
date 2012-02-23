@@ -15,11 +15,16 @@
   <jsp:directive.attribute name="disableFormBinding" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Set to true to disable Spring form binding" />
   <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
   <jsp:directive.attribute name="create" type="java.lang.Boolean" required="false" rtexprvalue="true" description="" />
+  <jsp:directive.attribute name="showSingle" type="java.lang.Boolean" required="false" rtexprvalue="true" description="" />
 
   <c:if test="${empty render or render}">
 
     <c:if test="${empty disabled}">
       <c:set value="false" var="disabled" />
+    </c:if>
+
+    <c:if test="${empty showSingle}" >
+        <c:set value="false" var="showSingle" />
     </c:if>
 
     <c:if test="${empty label}">
@@ -49,7 +54,6 @@
         _${fn:escapeXml(id)}
     </c:set>
 
-
     <c:set var="errors"><form:errors path="${sec_field}" /></c:set>
     <c:if test="${not empty errors}">
         <c:set var="error_css" value="error" />
@@ -57,7 +61,29 @@
         
     <div class="clearfix ${error_css}" id="_${fn:escapeXml(id)}_id">
       <c:choose>
-        <c:when test="${not empty items}">
+        <c:when test="${empty items}">
+            <c:otherwise>
+              <field:reference label="${label}" field="${label}" id="${id}" path="${path}" required="${required}" create="${empty create or create}" />
+            </c:otherwise>
+        </c:when>
+        <c:when test="${fn:length(items) == 1 and showSingle}">
+          <label for="${component_id}">
+            <c:out value="${fn:escapeXml(label)}" />
+          </label>
+          <div class="input input-text">
+            <spring:eval expression="items[0]" var="item" />
+            <c:choose>
+              <c:when test="${empty itemLabel}">
+                <spring:eval expression="item" />
+              </c:when>
+              <c:otherwise>
+                <spring:eval expression="item[sec_itemLabel]"/>
+              </c:otherwise>
+            </c:choose>
+            <input type="hidden" value="${item[fn:escapeXml(itemValue)]}" name="${sec_field}" />
+          </div>
+        </c:when>
+        <c:otherwise>
           <label for="${component_id}">
             <c:out value="${fn:escapeXml(label)}" />
           </label>
@@ -195,9 +221,6 @@
             </c:otherwise>
           </c:choose>
           </div>
-        </c:when>
-        <c:otherwise>
-          <field:reference label="${label}" field="${label}" id="${id}" path="${path}" required="${required}" create="${empty create or create}" />
         </c:otherwise>
       </c:choose>
     </div>

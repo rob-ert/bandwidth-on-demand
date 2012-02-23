@@ -36,7 +36,7 @@
 
                 <field:select field="virtualResourceGroup" id="virtualresourcegroup" labelCode="virtualresourcegroup"
                     itemLabel="name" itemValue="id" items="${virtualResourceGroupList}" path="/reservations"
-                    required="true" create="false" />
+                    required="true" create="false" showSingle="true" />
 
                 <field:select field="sourcePort" id="sourcePort" labelCode="reservation_sourcePort"
                     items="${virtualPortList}" itemLabel="userLabel" itemValue="id" path="/reservations" required="true"
