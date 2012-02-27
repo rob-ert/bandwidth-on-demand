@@ -57,6 +57,8 @@ public class PhysicalResourceGroup {
   @Email(message = "Not a valid email address")
   private String managerEmail;
 
+  @NotNull
+  @Column(nullable = false)
   private Boolean active = false;
 
   @OneToMany(mappedBy = "physicalResourceGroup", cascade = CascadeType.REMOVE)
