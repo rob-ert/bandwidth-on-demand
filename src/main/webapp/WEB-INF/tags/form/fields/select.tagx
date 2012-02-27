@@ -62,9 +62,7 @@
     <div class="clearfix ${error_css}" id="_${fn:escapeXml(id)}_id">
       <c:choose>
         <c:when test="${empty items}">
-            <c:otherwise>
               <field:reference label="${label}" field="${label}" id="${id}" path="${path}" required="${required}" create="${empty create or create}" />
-            </c:otherwise>
         </c:when>
         <c:when test="${fn:length(items) == 1 and showSingle}">
           <label for="${component_id}">
