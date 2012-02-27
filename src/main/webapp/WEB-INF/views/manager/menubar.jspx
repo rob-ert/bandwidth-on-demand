@@ -1,4 +1,7 @@
 <menu id="_menu" xmlns="urn:jsptagdir:/WEB-INF/tags/menu">
+    <category id="c_reservation" menu="reservation">
+        <item id="i_res_list" url="/manager/reservations" messageCode="global_menu_list" />
+    </category>
     <category id="c_virtualresourcegroup" menu="virtualresourcegroup">
         <item id="i_vrg_new" url="/manager/virtualresourcegroups/create" messageCode="global_menu_new" />
         <item id="i_vrg_list" url="/manager/virtualresourcegroups" messageCode="global_menu_list" />

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields" xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:page="urn:jsptagdir:/WEB-INF/tags/form">
+
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+
+    <page:show id="fc_reservation" path="/manager/reservations" object="${reservation}" update="false" delete="false" create="false">
+        <field:display field="sourcePort" labelCode="reservation_sourcePort" id="c_nl_surfnet_bod_domain_sourceport" object="${reservation}" />
+        <field:display field="destinationPort" labelCode="reservation_destinationPort" id="c_nl_surfnet_bod_domain_destinationPort" object="${reservation}" />
+        <field:display field="virtualResourceGroup" labelCode="virtualresourcegroup" id="c_nl_surfnet_bod_domain_virtualresourcegroup" object="${reservation}" />
+        <field:display field="status" labelCode="reservation_status" id="status" object="${reservation}" />
+        
+        <field:display field="startDateTime" labelCode="reservation_startDate" id="startDateTime" object="${reservation}"/>
+        <field:display field="endDateTime" labelCode="reservation_endDate" id="endDateTime" object="${reservation}"/>
+        
+        <field:display field="bandwidth" labelCode="reservation_bandwidth" id="bandwidth" object="${reservation}"/>
+        <field:display field="userCreated" labelCode="reservation_userCreated" id="userCreated" object="${reservation}" />
+
+        <field:display field="reservationId" labelCode="reservation_reservationId" id="reservationId" object="${reservation}" />
+    </page:show>
+</div>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN" "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
+<tiles-definitions>
+
+    <definition extends="manager" name="manager/reservations/list">
+        <put-attribute name="body" value="/WEB-INF/views/manager/reservations/list.jspx" />
+        <put-attribute name="active_menu" value="reservation" cascade="true" />
+    </definition>
+    
+    <definition extends="manager" name="manager/reservations/show">
+        <put-attribute name="body" value="/WEB-INF/views/manager/reservations/show.jspx" />
+        <put-attribute name="active_menu" value="reservation" cascade="true" />
+    </definition>
+
+</tiles-definitions>

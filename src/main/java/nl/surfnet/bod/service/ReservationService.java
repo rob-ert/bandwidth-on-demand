@@ -118,16 +118,6 @@ public class ReservationService {
     return reservationRepo.count(forCurrentUser(user));
   }
 
-  private Specification<Reservation> forCurrentUser(final RichUserDetails user) {
-    return new Specification<Reservation>() {
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(root.get(Reservation_.virtualResourceGroup).get(VirtualResourceGroup_.surfConextGroupName)
-            .in(user.getUserGroupIds()));
-      }
-    };
-  }
-
   public Reservation update(Reservation reservation) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
@@ -147,7 +137,63 @@ public class ReservationService {
     return false;
   }
 
-  Specification<Reservation> specReservationsToPoll(final LocalDateTime startOrEndDateTime) {
+  public ReservationStatus getStatus(Reservation reservation) {
+    return nbiClient.getReservationStatus(reservation.getReservationId());
+  }
+
+  /**
+   * Finds all reservations which start or ends on the given dateTime and have a
+   * status which can still change its status.
+   *
+   * @param dateTime
+   *          {@link LocalDateTime} to search for
+   * @return list of found Reservations
+   */
+  public List<Reservation> findReservationsToPoll(LocalDateTime dateTime) {
+    return reservationRepo.findAll(specReservationsToPoll(dateTime));
+  }
+
+  public Collection<Reservation> findEntriesForManager(final RichUserDetails manager, int firstResult, int maxResults) {
+    if (manager.getUserGroups().isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    return reservationRepo.findAll(forManager(manager), new PageRequest(firstResult / maxResults, maxResults)).getContent();
+  }
+
+  public long countForManager(final RichUserDetails manager) {
+    return reservationRepo.count(forManager(manager));
+  }
+
+  private Specification<Reservation> forManager(final RichUserDetails manager) {
+    return new Specification<Reservation>() {
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.and(
+            cb.or(
+              root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort)
+              .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.adminGroup)
+              .in(manager.getUserGroupIds()),
+              root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort)
+              .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.adminGroup)
+              .in(manager.getUserGroupIds())
+            )
+        );
+      }
+    };
+  }
+
+  private Specification<Reservation> forCurrentUser(final RichUserDetails user) {
+    return new Specification<Reservation>() {
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.and(root.get(Reservation_.virtualResourceGroup).get(VirtualResourceGroup_.surfConextGroupName)
+            .in(user.getUserGroupIds()));
+      }
+    };
+  }
+
+  private Specification<Reservation> specReservationsToPoll(final LocalDateTime startOrEndDateTime) {
     return new Specification<Reservation>() {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
@@ -164,21 +210,6 @@ public class ReservationService {
     };
   }
 
-  public ReservationStatus getStatus(Reservation reservation) {
-    return nbiClient.getReservationStatus(reservation.getReservationId());
-  }
-
-  /**
-   * Finds all reservations which start or ends on the given dateTime and have a
-   * status which can still change its status.
-   *
-   * @param dateTime
-   *          {@link LocalDateTime} to search for
-   * @return list of found Reservations
-   */
-  public List<Reservation> findReservationsToPoll(LocalDateTime dateTime) {
-    return reservationRepo.findAll(specReservationsToPoll(dateTime));
-  }
 
   /**
    * Asynchronous {@link Reservation} creator.
@@ -208,5 +239,4 @@ public class ReservationService {
       reservationEventPublisher.notifyListeners(createEvent);
     }
   }
-
 }

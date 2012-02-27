@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+    xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields"
+     xmlns:spring="http://www.springframework.org/tags">
+    
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+
+    <page:list id="pl_reservation" items="${reservations}" labelCode="label_reservation_manager_list">
+        <table:table data="${reservations}" id="l_reservation" path="/manager/reservations" typeIdFieldName="id" update="false" delete="false">
+            <table:column labelCode="virtualresourcegroup" id="virtualresourcegroup" property="virtualResourceGroup"/>
+            <table:column labelCode="reservation_sourcePort" id="sourceport" property="sourcePort"/>
+            <table:column labelCode="reservation_destinationPort" id="destinationport" property="destinationPort"/>
+            <table:column labelCode="reservation_status" id="status" property="status"/>
+            <table:column labelCode="reservation_startTime" id="starttime" property="startDateTime" />
+            <table:column labelCode="reservation_endTime" id="endtime" property="endDateTime" />
+            <table:column labelCode="reservation_bandwidth" id="bandwidth" property="bandwidth" />
+        </table:table>
+    </page:list>
+
+</div>
