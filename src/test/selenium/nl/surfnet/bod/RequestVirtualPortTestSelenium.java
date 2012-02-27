@@ -21,19 +21,40 @@
  */
 package nl.surfnet.bod;
 
+import java.util.concurrent.TimeUnit;
+
 import nl.surfnet.bod.support.TestExternalSupport;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.util.concurrent.Uninterruptibles;
 
 public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
+  @Before
+  public void setup() {
+    getNocDriver().createNewPhysicalResourceGroup("SURFnet bv", ICT_MANAGERS_GROUP, "test@test.nl");
+    getWebDriver().clickLinkInLastEmail();
+    getNocDriver().linkPhysicalPort("00-21-E1-D6-D6-70_ETH10G-1-13-1", "Request a virtual port", "SURFnet bv");
+  }
+
   @Test
   public void requestAVirtualPort() {
-    getWebDriver().selectInstituteAndRequest("Universiteit Utrecht (UU)", "I would like to have a new port");
+    getWebDriver().selectInstituteAndRequest("SURFnet bv", "I would like to have a new port");
 
     getWebDriver().clickLinkInLastEmail();
 
-    getManagerDriver().verifyNewVirtualPortHasPhysicalResourceGroup("Universiteit Utrecht");
+    Uninterruptibles.sleepUninterruptibly(5, TimeUnit.SECONDS);
+
+    getManagerDriver().verifyNewVirtualPortHasPhysicalResourceGroup("SURFnet bv");
+  }
+
+  @After
+  public void teardown() {
+    getNocDriver().unlinkPhysicalPort("00-21-E1-D6-D6-70_ETH10G-1-13-1");
+    getNocDriver().deletePhysicalGroup("SURFnet bv");
   }
 
 }

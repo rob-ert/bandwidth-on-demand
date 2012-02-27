@@ -23,19 +23,28 @@ package nl.surfnet.bod;
 
 import nl.surfnet.bod.support.TestExternalSupport;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class InactivePhysicalResourceGroupManagerTestSelenium extends TestExternalSupport {
 
+  private static final String WRONG_EMAIL = "wrong@example.com";
+
+  @Before
+  public void setup() {
+    getNocDriver().createNewPhysicalResourceGroup("SURFnet bv", ICT_MANAGERS_GROUP, WRONG_EMAIL);
+  }
+
   @Test
   public void anInactivePhysicalResourceGroupShouldGiveARedirectForManager() throws Exception {
-    getNocDriver().createNewPhysicalResourceGroup("SURFnet bv",
-        "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:ict-managers", "wrong@example.com");
-
     getManagerDriver().managerDashboard();
 
-    getManagerDriver().verifyOnEditPhysicalResourceGroupPage("wrong@example.com");
+    getManagerDriver().verifyOnEditPhysicalResourceGroupPage(WRONG_EMAIL);
+  }
 
+  @After
+  public void teardown() {
     getNocDriver().deletePhysicalGroup("SURFnet bv");
   }
 }

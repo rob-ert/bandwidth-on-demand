@@ -32,8 +32,9 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     String networkElementPk = "00-21-E1-D6-D6-70_ETH10G-1-13-1";
     String nocLabel = "My Selenium Port (Noc)";
     String managerLabel = "My Selenium Port (Manager)";
+    String group = "2COLLEGE";
 
-    getNocDriver().linkPhysicalPort(networkElementPk, nocLabel);
+    getNocDriver().linkPhysicalPort(networkElementPk, nocLabel, group);
 
     getNocDriver().verifyPhysicalPortWasAllocated(networkElementPk, nocLabel);
 

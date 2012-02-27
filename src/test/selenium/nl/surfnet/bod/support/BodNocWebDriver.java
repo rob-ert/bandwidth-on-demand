@@ -19,7 +19,7 @@ public class BodNocWebDriver {
   /*        Physical Resource Group           */
   /* **************************************** */
 
-  public void createNewPhysicalResourceGroup(String institute, String adminGroup, String email) throws Exception {
+  public void createNewPhysicalResourceGroup(String institute, String adminGroup, String email) {
     NewPhysicalResourceGroupPage page = NewPhysicalResourceGroupPage.get(driver, BodWebDriver.URL_UNDER_TEST);
     page.sendInstitute(institute);
     page.sendAdminGroup(adminGroup);
@@ -71,11 +71,12 @@ public class BodNocWebDriver {
   /*                Physical ports                */
   /* ******************************************** */
 
-  public void linkPhysicalPort(String networkElementPk, String nocLabel) {
+  public void linkPhysicalPort(String networkElementPk, String nocLabel, String physicalResourceGroup) {
     ListUnallocatedPortsPage listPage = ListUnallocatedPortsPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
     EditPhysicalPortPage editPage = listPage.edit(networkElementPk);
     editPage.sendNocLabel(nocLabel);
+    editPage.selectPhysicalResourceGroup(physicalResourceGroup);
     editPage.save();
   }
 

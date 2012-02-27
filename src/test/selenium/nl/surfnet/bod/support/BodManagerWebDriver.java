@@ -8,6 +8,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.pages.manager.*;
 
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -148,6 +150,15 @@ public class BodManagerWebDriver {
     editPage.sendMaxBandwidth(bandwidth);
     editPage.sendVlanId(vlanId);
     editPage.save();
+  }
+
+  public void verifyReservationExists(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+    ListReservationPage page = ListReservationPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+
+    String start = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
+    String end = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
+
+    page.findRow(start, end);
   }
 
 }

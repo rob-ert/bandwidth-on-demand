@@ -58,7 +58,7 @@ public class NewPhysicalResourceGroupPage extends AbstractFormPage {
     return page;
   }
 
-  public void sendInstitute(String institute) throws Exception {
+  public void sendInstitute(String institute) {
     instituteInput.clear();
     instituteInput.sendKeys(institute);
 

@@ -31,7 +31,7 @@ public class Probes {
     this.webDriver = webDriver;
   }
 
-  public void assertTextPresent(By locator, String textPresent) throws Exception {
+  public void assertTextPresent(By locator, String textPresent) {
     new Poller().check(new TextOnPageProbe(webDriver, locator, textPresent));
   }
 }

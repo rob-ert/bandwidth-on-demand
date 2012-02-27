@@ -29,30 +29,29 @@ public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
 
   @Test
   public void createActivateEditAndDeletePhysicalResourceGroup() throws Exception {
-    String adminGroup = "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:ict-managers";
     String institute = "SURFnet bv";
     String initialEmail = "truus@example.com";
     String finalEmail = "henk@example.com";
 
-    getNocDriver().createNewPhysicalResourceGroup(institute, adminGroup, initialEmail);
+    getNocDriver().createNewPhysicalResourceGroup(institute, ICT_MANAGERS_GROUP, initialEmail);
 
-    getNocDriver().verifyGroupWasCreated(institute, adminGroup, initialEmail);
+    getNocDriver().verifyGroupWasCreated(institute, ICT_MANAGERS_GROUP, initialEmail);
 
     getWebDriver().verifyLastEmailRecipient(initialEmail);
 
     getWebDriver().clickLinkInLastEmail();
 
-    getNocDriver().verifyPhysicalResourceGroupIsActive(institute, adminGroup, initialEmail);
+    getNocDriver().verifyPhysicalResourceGroupIsActive(institute, ICT_MANAGERS_GROUP, initialEmail);
 
     getNocDriver().editPhysicalResoruceGroup(institute, finalEmail);
 
-    getNocDriver().verifyGroupExists(institute, adminGroup, finalEmail, "FALSE");
+    getNocDriver().verifyGroupExists(institute, ICT_MANAGERS_GROUP, finalEmail, "FALSE");
 
     getWebDriver().verifyLastEmailRecipient(finalEmail);
 
     getNocDriver().deletePhysicalGroup(institute);
 
-    getNocDriver().verifyGroupWasDeleted(institute, adminGroup, finalEmail);
+    getNocDriver().verifyGroupWasDeleted(institute, ICT_MANAGERS_GROUP, finalEmail);
   }
 
 }

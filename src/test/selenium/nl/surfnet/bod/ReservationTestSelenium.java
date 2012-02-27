@@ -30,7 +30,7 @@ import org.junit.Test;
 public class ReservationTestSelenium extends TestExternalSupport {
 
   @Test
-  public void createAReservation() {
+  public void createAndDeleteAReservation() {
     LocalDate startDate = LocalDate.now().plusDays(3);
     LocalDate endDate = LocalDate.now().plusDays(5);
     LocalTime startTime = LocalTime.now().plusHours(1);
@@ -39,6 +39,8 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getWebDriver().createNewReservation(startDate, endDate, startTime, endTime);
 
     getWebDriver().verifyReservationWasCreated(startDate, endDate, startTime, endTime);
+
+    getManagerDriver().verifyReservationExists(startDate, endDate, startTime, endTime);
 
     getWebDriver().cancelReservation(startDate, endDate, startTime, endTime);
 

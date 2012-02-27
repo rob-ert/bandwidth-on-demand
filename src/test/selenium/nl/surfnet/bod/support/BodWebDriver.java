@@ -39,6 +39,8 @@ import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectInstitutePage;
 import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -51,6 +53,8 @@ public class BodWebDriver {
 
   public static final String URL_UNDER_TEST = withEndingSlash(System.getProperty("selenium.test.url",
       "http://localhost:8080/bod"));
+
+  public static final DateTimeFormatter RESERVATION_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd H:mm");
 
   private FirefoxDriver driver;
   private GreenMail mailServer;
@@ -141,8 +145,8 @@ public class BodWebDriver {
   public void verifyReservationWasCreated(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
     ListReservationPage page = ListReservationPage.get(driver);
 
-    String start = ListReservationPage.DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
-    String end = ListReservationPage.DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
+    String start = RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
+    String end = RESERVATION_DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
 
     WebElement row = page.findRow(start, end);
 
@@ -177,6 +181,7 @@ public class BodWebDriver {
         .get(driver, URL_UNDER_TEST);
 
     RequestNewVirtualPortRequestPage requestPage = page.selectInstitute(institute);
+
     requestPage.sendMessage(message);
     requestPage.sentRequest();
   }

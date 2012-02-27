@@ -21,15 +21,19 @@
  */
 package nl.surfnet.bod.support;
 
+import java.util.concurrent.TimeUnit;
+
+import com.google.common.util.concurrent.Uninterruptibles;
+
 public class Poller {
 
   private long[] waitTimes = new long[] { 0, 50, 100, 100, 100, 500, 1000, 1000 };
 
-  public void check(Probe probe) throws InterruptedException {
+  public void check(Probe probe) {
     int tries = 0;
     while (!probe.isSatisfied() && tries < waitTimes.length) {
       probe.sample();
-      Thread.sleep(waitTimes[tries]);
+      Uninterruptibles.sleepUninterruptibly(waitTimes[tries], TimeUnit.MILLISECONDS);
       tries++;
     }
 
