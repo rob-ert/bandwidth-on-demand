@@ -78,7 +78,7 @@
                 <spring:eval expression="item[sec_itemLabel]"/>
               </c:otherwise>
             </c:choose>
-            <input type="hidden" value="${item[fn:escapeXml(itemValue)]}" name="${sec_field}" />
+            <input type="hidden" value="${item[fn:escapeXml(itemValue)]}" name="${sec_field}" id="${component_id}" />
           </div>
         </c:when>
         <c:otherwise>
