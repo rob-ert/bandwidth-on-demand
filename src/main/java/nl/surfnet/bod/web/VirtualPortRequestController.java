@@ -94,7 +94,15 @@ public class VirtualPortRequestController {
   public String request(@Valid RequestCommand requestCommand, BindingResult result, Model model,
       RedirectAttributes redirectAttributes) {
     PhysicalResourceGroup pGroup = physicalResourceGroupService.find(requestCommand.getPhysicalResourceGroupId());
-    VirtualResourceGroup vGroup = virtualResourceGroupService.find(requestCommand.getVirtualResourceGroupId());
+
+    VirtualResourceGroup vGroup = null;
+    if (requestCommand.getVirtualResourceGroupId() != null) {
+      vGroup = virtualResourceGroupService.find(requestCommand.getVirtualResourceGroupId());
+    }
+    else {
+      WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_no_virtual_resource_group",
+          pGroup.getInstitute().getName());
+    }
 
     if (pGroup == null || !pGroup.isActive() || vGroup == null || !Security.isUserMemberOf(vGroup)) {
       return "redirect:/virtualports/request";
