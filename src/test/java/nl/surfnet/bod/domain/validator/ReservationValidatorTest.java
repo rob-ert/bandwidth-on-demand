@@ -36,8 +36,12 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.Security;
 
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
+import org.joda.time.Minutes;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -138,19 +142,23 @@ public class ReservationValidatorTest {
 
     subject.validate(reservation, errors);
 
-    assertTrue(errors.hasErrors());
     assertTrue(errors.hasFieldErrors("startDate"));
   }
 
   @Test
   public void aReservationShouldNotBeInThePast2() {
-    LocalDate today = LocalDate.now();
-    LocalTime fewMinutesAgo = LocalTime.now().minusMinutes(20);
+    LocalDateTime THIRTY_PAST_MIDNIGHT = LocalDateTime.now().plusMinutes(30);
+    DateTimeUtils.setCurrentMillisFixed(THIRTY_PAST_MIDNIGHT.toDate().getTime());
+
+    LocalDate today = THIRTY_PAST_MIDNIGHT.toLocalDate();
+    LocalTime fewMinutesAgo = THIRTY_PAST_MIDNIGHT.toLocalTime().minusMinutes(20);
 
     Reservation reservation = new ReservationFactory().setStartDate(today).setStartTime(fewMinutesAgo).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
+
+    DateTimeUtils.setCurrentMillisSystem();
 
     assertTrue(errors.hasFieldErrors("startTime"));
   }
@@ -202,7 +210,8 @@ public class ReservationValidatorTest {
     LocalDate startDate = LocalDate.now().plusDays(5);
     LocalDate endDate = startDate.plusYears(1).plusDays(1);
 
-    Reservation reservation = new ReservationFactory().setStartDate(startDate).setEndDate(endDate).setSurfConextGroupName(GROUP_NAME).create();
+    Reservation reservation = new ReservationFactory().setStartDate(startDate).setEndDate(endDate)
+        .setSurfConextGroupName(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
