@@ -6,9 +6,18 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.pages.manager.*;
+import nl.surfnet.bod.pages.manager.EditPhysicalPortPage;
+import nl.surfnet.bod.pages.manager.EditPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.manager.EditVirtualPortPage;
+import nl.surfnet.bod.pages.manager.ListPhysicalPortsPage;
+import nl.surfnet.bod.pages.manager.ListReservationPage;
+import nl.surfnet.bod.pages.manager.ListVirtualPortPage;
+import nl.surfnet.bod.pages.manager.ListVirtualResourceGroupPage;
+import nl.surfnet.bod.pages.manager.NewVirtualPortPage;
+import nl.surfnet.bod.pages.manager.NewVirtualResourceGroupPage;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -158,13 +167,14 @@ public class BodManagerWebDriver {
     editPage.save();
   }
 
-  public void verifyReservationExists(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+  public void verifyReservationExists(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, LocalDateTime creationDateTime) {
     ListReservationPage page = ListReservationPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
     String start = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
     String end = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
-
-    page.findRow(start, end);
+    String creation = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(creationDateTime);
+    
+    page.findRow(start, end, creation);
   }
 
 }

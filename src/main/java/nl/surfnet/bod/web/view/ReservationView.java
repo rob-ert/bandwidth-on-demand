@@ -40,6 +40,7 @@ public class ReservationView {
   private final Integer bandwidth;
   private final String userCreated;
   private final String reservationId;
+  private final LocalDateTime creationDateTime;
 
   public ReservationView(Reservation reservation) {
     this.id = reservation.getId();
@@ -52,6 +53,7 @@ public class ReservationView {
     this.bandwidth = reservation.getBandwidth();
     this.userCreated = reservation.getUserCreated();
     this.reservationId = reservation.getReservationId();
+    this.creationDateTime = reservation.getCreationDateTime();
   }
 
   public String getVirtualResourceGroup() {
@@ -94,4 +96,7 @@ public class ReservationView {
     return reservationId;
   }
 
+  public LocalDateTime getCreationDateTime() {
+    return creationDateTime;
+  }
 }

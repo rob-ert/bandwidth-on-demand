@@ -1,0 +1,1 @@
+ALTER TABLE reservation ADD COLUMN creation_date_time TIMESTAMP NOT NULL;

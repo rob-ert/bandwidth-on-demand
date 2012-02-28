@@ -31,10 +31,16 @@ import java.util.regex.Pattern;
 import javax.mail.internet.MimeMessage;
 
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.user.*;
+import nl.surfnet.bod.pages.user.EditVirtualPortPage;
+import nl.surfnet.bod.pages.user.ListReservationPage;
+import nl.surfnet.bod.pages.user.ListVirtualPortPage;
+import nl.surfnet.bod.pages.user.NewReservationPage;
+import nl.surfnet.bod.pages.user.RequestNewVirtualPortRequestPage;
+import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectInstitutePage;
 
 import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -49,7 +55,7 @@ import com.icegreen.greenmail.util.GreenMailUtil;
 public class BodWebDriver {
 
   public static final String URL_UNDER_TEST = withEndingSlash(System.getProperty("selenium.test.url",
-      "http://localhost:8080/bod"));
+      "http://localhost:8082/bod"));
 
   public static final DateTimeFormatter RESERVATION_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd H:mm");
 
@@ -139,13 +145,14 @@ public class BodWebDriver {
     throw new AssertionError("Could not find link in message");
   }
 
-  public void verifyReservationWasCreated(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+  public void verifyReservationWasCreated(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, LocalDateTime creationDateTime) {
     ListReservationPage page = ListReservationPage.get(driver);
 
     String start = RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
     String end = RESERVATION_DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
-
-    WebElement row = page.findRow(start, end);
+    String creation = RESERVATION_DATE_TIME_FORMATTER.print(creationDateTime);
+    
+    WebElement row = page.findRow(start, end, creation);
 
     assertThat(
         row.getText(),

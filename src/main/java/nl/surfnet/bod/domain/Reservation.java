@@ -34,9 +34,9 @@ import com.google.common.base.Objects;
 /**
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
- *
+ * 
  * @author Franky
- *
+ * 
  */
 @Entity
 public class Reservation {
@@ -90,6 +90,15 @@ public class Reservation {
   private Integer bandwidth;
 
   private String reservationId;
+
+  @NotNull
+  @Column(nullable = false)
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
+  private LocalDateTime creationDateTime;
+
+  public Reservation() {
+    creationDateTime = LocalDateTime.now();
+  }
 
   public Long getId() {
     return id;
@@ -203,17 +212,16 @@ public class Reservation {
     this.reservationId = reservationId;
   }
 
+  public LocalDateTime getCreationDateTime() {
+    return creationDateTime;
+  }
+
   @Override
   public String toString() {
-    return Objects.toStringHelper(Reservation.class)
-      .add("id", id)
-      .add("startDate", startDate)
-      .add("starTime", startTime)
-      .add("endDate", endDate)
-      .add("endTime", endTime)
-      .add("sourcePort", sourcePort)
-      .add("destinationPort", destinationPort)
-      .add("userCreated", userCreated).toString();
+    return Objects.toStringHelper(Reservation.class).add("id", id).add("startDate", startDate)
+        .add("starTime", startTime).add("endDate", endDate).add("endTime", endTime).add("sourcePort", sourcePort)
+        .add("destinationPort", destinationPort).add("userCreated", userCreated)
+        .add("creationDT", creationDateTime).toString();
   }
 
 }
