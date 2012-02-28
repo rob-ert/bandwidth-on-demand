@@ -167,14 +167,14 @@ public class ReservationController {
   }
 
   private Reservation createDefaultReservation(Collection<VirtualPort> ports) {
-    LocalDate tomorrow = LocalDate.now().plusDays(1);
-    LocalTime noon = new LocalTime(12, 00);
+    LocalDate today = LocalDate.now();
+    LocalTime inFifteenMinutes = LocalTime.now().plusMinutes(15);
 
     Reservation reservation = new Reservation();
-    reservation.setStartDate(tomorrow);
-    reservation.setStartTime(noon);
-    reservation.setEndDate(tomorrow);
-    reservation.setEndTime(noon.plusHours(4));
+    reservation.setStartDate(today);
+    reservation.setStartTime(inFifteenMinutes);
+    reservation.setEndDate(today.plusDays(1));
+    reservation.setEndTime(inFifteenMinutes);
 
     VirtualPort sourcePort = Iterables.get(ports, 0, null);
     VirtualPort destPort = Iterables.get(ports, 1, null);
