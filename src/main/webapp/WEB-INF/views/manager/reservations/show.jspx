@@ -17,6 +17,7 @@
         <field:display field="bandwidth" labelCode="reservation_bandwidth" id="bandwidth" object="${reservation}"/>
         <field:display field="userCreated" labelCode="reservation_userCreated" id="userCreated" object="${reservation}" />
 
+		<field:display field="creationDateTime" labelCode="reservation_creationdatetime" id="creationdatetime" object="${reservation}"/>
         <field:display field="reservationId" labelCode="reservation_reservationId" id="reservationId" object="${reservation}" />
     </page:show>
 </div>
