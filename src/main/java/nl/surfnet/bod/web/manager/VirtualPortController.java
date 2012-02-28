@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
@@ -39,6 +40,8 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationView;
 
+import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
@@ -170,24 +173,34 @@ public class VirtualPortController {
   }
 
   @RequestMapping(method = RequestMethod.PUT)
-  public String update(@Valid VirtualPort virtualPort, BindingResult bindingResult, Model model,
+  public String update(@Valid VirtualPortUpdateCommand command, BindingResult result, Model model,
       RedirectAttributes redirectAttributes) {
 
-    if (Security.managerMayNotEdit(virtualPort)) {
+    VirtualPort port = virtualPortService.find(command.getId());
+
+    if (port == null || Security.managerMayNotEdit(port)) {
       return "redirect:" + PAGE_URL;
     }
 
-    virtualPortValidator.validate(virtualPort, bindingResult);
-    if (bindingResult.hasErrors()) {
-      model.addAttribute(MODEL_KEY, virtualPort);
+    port.setManagerLabel(command.getManagerLabel());
+    port.setVlanId(command.getVlanId());
+    port.setMaxBandwidth(command.getMaxBandwidth());
+    port.setPhysicalPort(command.getPhysicalPort());
+    port.setVirtualResourceGroup(command.getVirtualResourceGroup());
+
+    virtualPortValidator.validate(port, result);
+
+    if (result.hasErrors()) {
+      System.err.println(result);
+      model.addAttribute("virtualPortUpdateCommand", command);
       return PAGE_URL + UPDATE;
     }
 
     model.asMap().clear();
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_updated",
-        virtualPort.getManagerLabel());
+        port.getManagerLabel());
 
-    virtualPortService.update(virtualPort);
+    virtualPortService.update(port);
 
     return "redirect:" + PAGE_URL;
   }
@@ -200,7 +213,7 @@ public class VirtualPortController {
       return "redirect:" + PAGE_URL;
     }
 
-    model.addAttribute(MODEL_KEY, virtualPort);
+    model.addAttribute("virtualPortUpdateCommand", new VirtualPortUpdateCommand(virtualPort));
     model.addAttribute("physicalPorts", virtualPort.getPhysicalResourceGroup().getPhysicalPorts());
 
     return PAGE_URL + UPDATE;
@@ -269,6 +282,101 @@ public class VirtualPortController {
 
     model.addAttribute("physicalResourceGroups", groups);
     model.addAttribute("physicalPorts", ports);
+  }
+
+  public static final class VirtualPortUpdateCommand {
+    private Long id;
+    private Integer version;
+    @NotEmpty
+    private String managerLabel;
+    @NotNull
+    private Integer maxBandwidth;
+    @Range(min = 1, max = 4095)
+    private Integer vlanId;
+    @NotNull
+    private PhysicalPort physicalPort;
+    @NotNull
+    private VirtualResourceGroup virtualResourceGroup;
+    @NotNull
+    private PhysicalResourceGroup physicalResourceGroup;
+
+    public VirtualPortUpdateCommand() {
+    }
+
+    public VirtualPortUpdateCommand(VirtualPort port) {
+      this.id = port.getId();
+      this.version = port.getVersion();
+      this.managerLabel = port.getManagerLabel();
+      this.maxBandwidth = port.getMaxBandwidth();
+      this.vlanId = port.getVlanId();
+      this.physicalResourceGroup = port.getPhysicalResourceGroup();
+      this.physicalPort = port.getPhysicalPort();
+      this.virtualResourceGroup = port.getVirtualResourceGroup();
+    }
+
+    public Long getId() {
+      return id;
+    }
+
+    public void setId(Long id) {
+      this.id = id;
+    }
+
+    public Integer getVersion() {
+      return version;
+    }
+
+    public void setVersion(Integer version) {
+      this.version = version;
+    }
+
+    public String getManagerLabel() {
+      return managerLabel;
+    }
+
+    public void setManagerLabel(String managerLabel) {
+      this.managerLabel = managerLabel;
+    }
+
+    public Integer getMaxBandwidth() {
+      return maxBandwidth;
+    }
+
+    public void setMaxBandwidth(Integer maxBandwidth) {
+      this.maxBandwidth = maxBandwidth;
+    }
+
+    public Integer getVlanId() {
+      return vlanId;
+    }
+
+    public void setVlanId(Integer vlanId) {
+      this.vlanId = vlanId;
+    }
+
+    public PhysicalPort getPhysicalPort() {
+      return physicalPort;
+    }
+
+    public void setPhysicalPort(PhysicalPort physicalPort) {
+      this.physicalPort = physicalPort;
+    }
+
+    public VirtualResourceGroup getVirtualResourceGroup() {
+      return virtualResourceGroup;
+    }
+
+    public void setVirtualResourceGroup(VirtualResourceGroup virtualResourceGroup) {
+      this.virtualResourceGroup = virtualResourceGroup;
+    }
+
+    public PhysicalResourceGroup getPhysicalResourceGroup() {
+      return physicalResourceGroup;
+    }
+
+    public void setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
+      this.physicalResourceGroup = physicalResourceGroup;
+    }
   }
 
   public static final class VirtualPortView {

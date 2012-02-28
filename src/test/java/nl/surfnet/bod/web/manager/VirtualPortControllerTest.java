@@ -36,6 +36,7 @@ import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.*;
 import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortUpdateCommand;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationView;
@@ -108,8 +109,11 @@ public class VirtualPortControllerTest {
   public void shouldUpdatePort() {
     ModelStub model = new ModelStub();
     VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:manager-group").create();
+    VirtualPortUpdateCommand command = new VirtualPortUpdateCommand(port);
 
-    String page = subject.update(port, new BeanPropertyBindingResult(port, "port"), model, model);
+    when(virtualPortServiceMock.find(port.getId())).thenReturn(port);
+
+    String page = subject.update(command, new BeanPropertyBindingResult(port, "port"), model, model);
 
     assertThat(page, is("redirect:/manager/virtualports"));
     assertThat(model.getFlashAttributes(), hasKey("infoMessages"));
@@ -121,8 +125,11 @@ public class VirtualPortControllerTest {
   public void shouldNotUpdatePortBecauseNotAllowed() {
     ModelStub model = new ModelStub();
     VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:wrong-group").create();
+    VirtualPortUpdateCommand command = new VirtualPortUpdateCommand(port);
 
-    String page = subject.update(port, new BeanPropertyBindingResult(port, "port"), model, model);
+    when(virtualPortServiceMock.find(port.getId())).thenReturn(port);
+
+    String page = subject.update(command, new BeanPropertyBindingResult(port, "port"), model, model);
 
     assertThat(page, is("redirect:/manager/virtualports"));
     assertThat(model.getFlashAttributes(), not(hasKey("infoMessages")));

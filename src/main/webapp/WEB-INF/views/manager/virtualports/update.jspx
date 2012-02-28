@@ -20,10 +20,8 @@
                 dictum cursus at sed massa.</p>
         </div>
         <div class="span12">
-            <form:update id="fc_VirtualPort" modelAttribute="virtualPort" path="/manager/virtualports">
-                <sform:hidden path="userLabel" />
+            <form:update id="fc_VirtualPort" modelAttribute="virtualPortUpdateCommand" path="/manager/virtualports">
                 <field:input field="managerLabel" id="name" labelCode="virtualport_name" />
-                <field:input field="userLabel" id="userLabel" labelCode="virtualport_user_label" disabled="true" />
                 <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_max_bandwidth" />
                 <field:input field="vlanId" id="vlanId" labelCode="virtualport_vlan_id" />
 
