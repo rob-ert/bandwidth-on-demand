@@ -28,7 +28,7 @@
 
                 <field:select items="${virtualResourceGroups}" field="virtualResourceGroup"
                     labelCode="virtualresourcegroup" id="virtualresourcegroup" itemValue="id"
-                    path="/manager/virtualports" showSingle="true" />
+                    path="/manager/virtualresourcegroups" showSingle="true" />
 
                 <field:select items="${physicalResourceGroups}" id="physicalResourceGroup"
                     labelCode="physicalresourcegroup" itemValue="id" field="physicalResourceGroup"
