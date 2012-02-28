@@ -54,10 +54,12 @@ public class VirtualPort {
   @Column(unique = true)
   private String userLabel;
 
-  @ManyToOne
+  @NotNull
+  @ManyToOne(optional = false)
   private VirtualResourceGroup virtualResourceGroup;
 
-  @ManyToOne
+  @NotNull
+  @ManyToOne(optional = false)
   private PhysicalPort physicalPort;
 
   @NotNull

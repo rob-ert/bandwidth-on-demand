@@ -122,6 +122,9 @@ public class ReservationServiceDbTest {
     reservation.getSourcePort().getPhysicalPort().setId(null);
     physicalPortRepo.save(reservation.getSourcePort().getPhysicalPort());
 
+    reservation.getSourcePort().getVirtualResourceGroup().setId(null);
+    virtualResourceGroupRepo.save(reservation.getSourcePort().getVirtualResourceGroup());
+
     reservation.getSourcePort().setId(null);
     virtualPortRepo.save(reservation.getSourcePort());
 
@@ -135,10 +138,6 @@ public class ReservationServiceDbTest {
     reservation.getDestinationPort().setId(null);
     virtualPortRepo.save(reservation.getDestinationPort());
 
-    // Reservation stuff
-    reservation.getVirtualResourceGroup().setId(null);
-
-    virtualResourceGroupRepo.save(reservation.getVirtualResourceGroup());
     reservation.setId(null);
     reservationRepo.save(reservation);
 

@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.domain.validator;
 
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.security.Security;
@@ -60,8 +61,9 @@ public class VirtualPortValidator implements Validator {
   }
 
   private void validatePhysicalPort(VirtualPort virtualPort, Errors errors) {
-    String adminGroup = virtualPort.getPhysicalResourceGroup().getAdminGroup();
-    if (Security.isUserNotMemberOf(adminGroup)) {
+    PhysicalResourceGroup prg = virtualPort.getPhysicalResourceGroup();
+
+    if (!Security.isManagerMemberOf(prg)) {
       errors.rejectValue("physicalPort", "validation.virtualport.physicalport.security",
           "You do not have the right permissions for this port");
     }

@@ -137,8 +137,18 @@ public class VirtualPortValidatorTest {
 
     subject.validate(port, errors);
 
-    // validation error is added by hibernat validator...
+    // validation error is added by hibernate validator...
     assertFalse(errors.hasErrors());
+  }
+
+  @Test
+  public void withoutAPhysicalPort() {
+    VirtualPort port = new VirtualPortFactory().setPhysicalPort(null).create();
+    Errors errors = createErrorObject(port);
+
+    subject.validate(port, errors);
+
+    assertTrue(errors.hasErrors());
   }
 
   private Errors createErrorObject(VirtualPort port) {

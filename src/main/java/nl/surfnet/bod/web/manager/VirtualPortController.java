@@ -98,7 +98,8 @@ public class VirtualPortController {
 
     if (result.hasErrors()) {
       model.addAttribute(MODEL_KEY, virtualPort);
-      model.addAttribute("physicalPorts", virtualPort.getPhysicalResourceGroup().getPhysicalPorts());
+      model.addAttribute("physicalPorts", virtualPort.getPhysicalResourceGroup() == null ? Collections.emptyList()
+          : virtualPort.getPhysicalResourceGroup().getPhysicalPorts());
 
       return PAGE_URL + CREATE;
     }
@@ -234,13 +235,12 @@ public class VirtualPortController {
 
     Collection<Reservation> reservations = reservationService.findByVirtualPort(port);
 
-    return Collections2.transform(reservations,
-        new Function<Reservation, ReservationView>() {
-          @Override
-          public ReservationView apply(Reservation reservation) {
-            return new ReservationView(reservation);
-          }
-        });
+    return Collections2.transform(reservations, new Function<Reservation, ReservationView>() {
+      @Override
+      public ReservationView apply(Reservation reservation) {
+        return new ReservationView(reservation);
+      }
+    });
   }
 
   @ModelAttribute("virtualResourceGroups")
