@@ -1,6 +1,5 @@
 package nl.surfnet.bod.support;
 
-import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 import nl.surfnet.bod.pages.noc.*;
 
@@ -27,13 +26,13 @@ public class BodNocWebDriver {
 
     page.save();
   }
-  public void deletePhysicalGroup(String institute) {
+  public void deletePhysicalResourceGroup(String institute) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
     page.delete(institute);
   }
 
-  public void editPhysicalResoruceGroup(String institute, String finalEmail) {
+  public void editPhysicalResourceGroup(String institute, String finalEmail) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver);
 
     EditPhysicalResourceGroupPage editPage = page.edit(institute);
@@ -94,8 +93,6 @@ public class BodNocWebDriver {
 
   public void verifyPhysicalPortWasUnlinked(String networkElementPk) {
     ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver);
-
-    assertTrue(page.containsAnyItems());
 
     try {
       page.findRow(networkElementPk);

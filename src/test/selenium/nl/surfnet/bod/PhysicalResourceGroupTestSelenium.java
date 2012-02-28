@@ -37,19 +37,21 @@ public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
 
     getNocDriver().verifyGroupWasCreated(institute, ICT_MANAGERS_GROUP, initialEmail);
 
+    getWebDriver().refreshGroups();
+
     getWebDriver().verifyLastEmailRecipient(initialEmail);
 
     getWebDriver().clickLinkInLastEmail();
 
     getNocDriver().verifyPhysicalResourceGroupIsActive(institute, ICT_MANAGERS_GROUP, initialEmail);
 
-    getNocDriver().editPhysicalResoruceGroup(institute, finalEmail);
+    getNocDriver().editPhysicalResourceGroup(institute, finalEmail);
 
     getNocDriver().verifyGroupExists(institute, ICT_MANAGERS_GROUP, finalEmail, "FALSE");
 
     getWebDriver().verifyLastEmailRecipient(finalEmail);
 
-    getNocDriver().deletePhysicalGroup(institute);
+    getNocDriver().deletePhysicalResourceGroup(institute);
 
     getNocDriver().verifyGroupWasDeleted(institute, ICT_MANAGERS_GROUP, finalEmail);
   }

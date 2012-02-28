@@ -21,40 +21,44 @@
  */
 package nl.surfnet.bod;
 
-import java.util.concurrent.TimeUnit;
-
 import nl.surfnet.bod.support.TestExternalSupport;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.util.concurrent.Uninterruptibles;
-
 public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
   @Before
   public void setup() {
+    getNocDriver().createNewPhysicalResourceGroup("2COLLEGE", ICT_MANAGERS_GROUP, "test@test.nl");
     getNocDriver().createNewPhysicalResourceGroup("SURFnet bv", ICT_MANAGERS_GROUP, "test@test.nl");
+    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, "Request a virtual port", "SURFnet bv");
+    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK_2, "Request a virtual port", "2COLLEGE");
+
+    getWebDriver().refreshGroups();
     getWebDriver().clickLinkInLastEmail();
-    getNocDriver().linkPhysicalPort("00-21-E1-D6-D6-70_ETH10G-1-13-1", "Request a virtual port", "SURFnet bv");
+    getManagerDriver().createNewVirtualResourceGroup("Selenium Onderzoekers", USERS_GROUP);
   }
 
   @Test
   public void requestAVirtualPort() {
+    getWebDriver().verifyRequestVirtualPortInstituteInactive("2COLLEGE");
+
     getWebDriver().selectInstituteAndRequest("SURFnet bv", "I would like to have a new port");
 
     getWebDriver().clickLinkInLastEmail();
-
-    Uninterruptibles.sleepUninterruptibly(5, TimeUnit.SECONDS);
 
     getManagerDriver().verifyNewVirtualPortHasPhysicalResourceGroup("SURFnet bv");
   }
 
   @After
   public void teardown() {
-    getNocDriver().unlinkPhysicalPort("00-21-E1-D6-D6-70_ETH10G-1-13-1");
-    getNocDriver().deletePhysicalGroup("SURFnet bv");
+    getManagerDriver().deleteVirtualResourceGroup("Selenium Onderzoekers");
+    getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
+    getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK_2);
+    getNocDriver().deletePhysicalResourceGroup("SURFnet bv");
+    getNocDriver().deletePhysicalResourceGroup("2COLLEGE");
   }
 
 }

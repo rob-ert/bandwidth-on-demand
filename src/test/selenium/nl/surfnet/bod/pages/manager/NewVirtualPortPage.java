@@ -29,6 +29,8 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 
+import com.google.common.base.Strings;
+
 public class NewVirtualPortPage extends AbstractFormPage {
 
   private static final String PAGE =  "/manager/virtualports/create";
@@ -48,6 +50,9 @@ public class NewVirtualPortPage extends AbstractFormPage {
   @FindBy(id = "_physicalPort")
   private WebElement physicalPortSelect;
 
+  @FindBy(id = "_virtualresourcegroup")
+  private WebElement virtualResourceGroupSelect;
+
   public static NewVirtualPortPage get(RemoteWebDriver driver, String urlUnderTest) {
     driver.get(urlUnderTest + PAGE);
     return get(driver);
@@ -65,9 +70,9 @@ public class NewVirtualPortPage extends AbstractFormPage {
     nameInput.sendKeys(name);
   }
 
-  public void sendMaxBandwidth(String maxBandwidth) {
+  public void sendMaxBandwidth(int maxBandwidth) {
     maxBandwidthInput.clear();
-    maxBandwidthInput.sendKeys(maxBandwidth);
+    maxBandwidthInput.sendKeys("" + maxBandwidth);
   }
 
   public void sendVlanId(String vlandId) {
@@ -81,6 +86,27 @@ public class NewVirtualPortPage extends AbstractFormPage {
 
   public String getSelectedPhysicalPort() {
     return new Select(physicalPortSelect).getFirstSelectedOption().getText();
+  }
+
+  public void selectVirtualResourceGroup(String virtualResourceGroup) {
+    if (Strings.isNullOrEmpty(virtualResourceGroup)) {
+      return;
+    }
+    new Select(virtualResourceGroupSelect).selectByVisibleText(virtualResourceGroup);
+  }
+
+  public void selectPhysicalResourceGroup(String physicalResourceGroup) {
+    if (Strings.isNullOrEmpty(physicalResourceGroup)) {
+      return;
+    }
+    new Select(physicalResourceGroupSelect).selectByVisibleText(physicalResourceGroup);
+  }
+
+  public void selectPhysicalPort(String physicalPort) {
+    if (Strings.isNullOrEmpty(physicalPort)) {
+      return;
+    }
+    new Select(physicalPortSelect).selectByVisibleText(physicalPort);
   }
 
 }

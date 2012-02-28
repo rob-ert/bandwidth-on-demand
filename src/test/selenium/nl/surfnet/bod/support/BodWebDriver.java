@@ -31,10 +31,7 @@ import java.util.regex.Pattern;
 import javax.mail.internet.MimeMessage;
 
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.user.ListReservationPage;
-import nl.surfnet.bod.pages.user.NewReservationPage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortRequestPage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectInstitutePage;
+import nl.surfnet.bod.pages.user.*;
 
 import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.LocalDate;
@@ -186,6 +183,14 @@ public class BodWebDriver {
     requestPage.sentRequest();
   }
 
+  public void verifyRequestVirtualPortInstituteInactive(String instituteName) {
+    RequestNewVirtualPortSelectInstitutePage page = RequestNewVirtualPortSelectInstitutePage
+        .get(driver, URL_UNDER_TEST);
+
+    WebElement row = page.findRow(instituteName);
+    assertThat(row.getText(), containsString("Not active"));
+  }
+
   public void createNewReservation(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
     NewReservationPage page = NewReservationPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
@@ -196,6 +201,24 @@ public class BodWebDriver {
     page.sendBandwidth("500");
 
     page.save();
+  }
+
+  public void refreshGroups() {
+    driver.get(URL_UNDER_TEST + "shibboleth/refresh");
+  }
+
+  public void editVirtualPort(String oldLabel, String newLabel) {
+    ListVirtualPortPage listPage = ListVirtualPortPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+
+    EditVirtualPortPage editPage = listPage.edit(oldLabel);
+    editPage.sendUserLabel(newLabel);
+    editPage.save();
+  }
+
+  public void verifyVirtualPortExists(String userLabel) {
+    ListVirtualPortPage listPage = ListVirtualPortPage.get(driver);
+
+    listPage.findRow(userLabel);
   }
 
 }

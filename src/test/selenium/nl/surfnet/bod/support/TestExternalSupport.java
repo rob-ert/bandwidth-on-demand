@@ -27,6 +27,9 @@ import org.junit.Rule;
 public abstract class TestExternalSupport {
 
   protected static final String ICT_MANAGERS_GROUP = "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:selenium-ict-managers";
+  protected static final String USERS_GROUP = "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:selenium-users";
+  protected static final String NETWORK_ELEMENT_PK = "00-21-E1-D6-D6-70_ETH10G-1-13-1";
+  protected static final String NETWORK_ELEMENT_PK_2 = "00-21-E1-D6-D6-70_ETH10G-1-13-2";
 
   private static BodWebDriver webDriver = new BodWebDriver();
 

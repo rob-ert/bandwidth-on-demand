@@ -23,21 +23,36 @@ package nl.surfnet.bod;
 
 import nl.surfnet.bod.support.TestExternalSupport;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 public class VirtualResourceGroupTestSelenium extends TestExternalSupport {
 
-  public void createAndDeleteVirtualResourceGroup() throws Exception {
-    getManagerDriver().createNewVirtualResourceGroup("My First Virtual Group");
+  @Before
+  public void setup() {
+    getNocDriver().createNewPhysicalResourceGroup("SURFnet bv", ICT_MANAGERS_GROUP, "test@example.com");
+    getWebDriver().refreshGroups();
+  }
+
+  @Test
+  public void createAndDeleteVirtualResourceGroup() {
+    getManagerDriver().createNewVirtualResourceGroup("My First Virtual Group", USERS_GROUP);
 
     getManagerDriver().verifyVirtualResourceGroupWasCreated("My First Virtual Group");
 
-    getManagerDriver().createNewVirtualResourceGroup("My First Virtual Group");
+    getManagerDriver().createNewVirtualResourceGroup("My First Virtual Group", USERS_GROUP);
 
     getManagerDriver().verifyNewVirtualResoruceGroupHasValidationError();
 
     getManagerDriver().deleteVirtualResourceGroup("My First Virtual Group");
 
     getManagerDriver().verifyVirtualResourceGroupWasDeleted("My First Virtual Group");
+  }
 
+  @After
+  public void teardown() {
+    getNocDriver().deletePhysicalResourceGroup("SURFnet bv");
   }
 
 }

@@ -31,7 +31,7 @@ public class BodManagerWebDriver {
     listPage.findRow(networkElementPk, managerLabel);
   }
 
-  public void createNewVirtualPortForPhysicalPort(String networkElementPk) {
+  public void gotoCreateNewVirtualPortForPhysicalPort(String networkElementPk) {
     ListPhysicalPortsPage listPage = ListPhysicalPortsPage.get(driver);
 
     listPage.newVirtualPort(networkElementPk);
@@ -64,18 +64,22 @@ public class BodManagerWebDriver {
     assertThat(page.getInfoMessages().get(0), containsString("Your Physical Resource Group is not activated"));
   }
 
-  public void createNewVirtualPort(String name, String maxBandwidth) {
+  public void createNewVirtualPort(String name, int maxBandwidth, String virtualResourceGroup, String physicalResourceGroup, String physicalPort) {
     NewVirtualPortPage page = NewVirtualPortPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
     page.sendName(name);
     page.sendMaxBandwidth(maxBandwidth);
+    page.selectVirtualResourceGroup(virtualResourceGroup);
+    page.selectPhysicalResourceGroup(physicalResourceGroup);
+    page.selectPhysicalPort(physicalPort);
+
     page.save();
   }
 
-  public void verifyVirtualPortExists(String name, String maxBandwidth, String vlandId) {
+  public void verifyVirtualPortExists(String... fields) {
     ListVirtualPortPage page = ListVirtualPortPage.get(driver);
 
-    page.findRow(name, maxBandwidth, vlandId);
+    page.findRow(fields);
   }
 
   public void deleteVirtualPort(String name) {
@@ -96,10 +100,11 @@ public class BodManagerWebDriver {
     }
   }
 
-  public NewVirtualResourceGroupPage createNewVirtualResourceGroup(String name) throws Exception {
+  public NewVirtualResourceGroupPage createNewVirtualResourceGroup(String name, String surfConextGroup) {
     NewVirtualResourceGroupPage page = NewVirtualResourceGroupPage.get(driver, BodWebDriver.URL_UNDER_TEST);
     page.sendName(name);
-    page.sendSurfConextGroupName(name);
+    page.sendSurfConextGroupName(surfConextGroup);
+
     page.save();
 
     return page;
@@ -141,7 +146,7 @@ public class BodManagerWebDriver {
     assertThat(group, is(instituteName));
   }
 
-  public void editVirtualPort(String orignalName, String newName, String bandwidth, String vlanId) {
+  public void editVirtualPort(String orignalName, String newName, int bandwidth, String vlanId) {
     ListVirtualPortPage listPage = ListVirtualPortPage.get(driver);
 
     EditVirtualPortPage editPage = listPage.edit(orignalName);
@@ -149,6 +154,7 @@ public class BodManagerWebDriver {
     editPage.sendName(newName);
     editPage.sendMaxBandwidth(bandwidth);
     editPage.sendVlanId(vlanId);
+
     editPage.save();
   }
 

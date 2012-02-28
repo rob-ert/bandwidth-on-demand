@@ -23,31 +23,45 @@ package nl.surfnet.bod;
 
 import nl.surfnet.bod.support.TestExternalSupport;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class PhysicalPortTestSelenium extends TestExternalSupport {
 
+  private final String groupName = "2COLLEGE";
+
+  @Before
+  public void setup() {
+    getNocDriver().createNewPhysicalResourceGroup(groupName, ICT_MANAGERS_GROUP, "test@example.com");
+  }
+
   @Test
   public void createRenameAndDeleteAPhysicalPort() {
-    String networkElementPk = "00-21-E1-D6-D6-70_ETH10G-1-13-1";
     String nocLabel = "My Selenium Port (Noc)";
     String managerLabel = "My Selenium Port (Manager)";
-    String group = "2COLLEGE";
 
-    getNocDriver().linkPhysicalPort(networkElementPk, nocLabel, group);
+    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, nocLabel, groupName);
 
-    getNocDriver().verifyPhysicalPortWasAllocated(networkElementPk, nocLabel);
+    getNocDriver().verifyPhysicalPortWasAllocated(NETWORK_ELEMENT_PK, nocLabel);
 
-    getManagerDriver().changeManagerLabelOfPhyiscalPort(networkElementPk, managerLabel);
+    getWebDriver().refreshGroups();
 
-    getManagerDriver().verifyManagerLabelChanged(networkElementPk, managerLabel);
+    getManagerDriver().changeManagerLabelOfPhyiscalPort(NETWORK_ELEMENT_PK, managerLabel);
 
-    getManagerDriver().createNewVirtualPortForPhysicalPort(networkElementPk);
+    getManagerDriver().verifyManagerLabelChanged(NETWORK_ELEMENT_PK, managerLabel);
+
+    getManagerDriver().gotoCreateNewVirtualPortForPhysicalPort(NETWORK_ELEMENT_PK);
 
     getManagerDriver().verifyPhysicalPortSelected(managerLabel);
 
-    getNocDriver().unlinkPhysicalPort(networkElementPk);
+    getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
 
-    getNocDriver().verifyPhysicalPortWasUnlinked(networkElementPk);
+    getNocDriver().verifyPhysicalPortWasUnlinked(NETWORK_ELEMENT_PK);
+  }
+
+  @After
+  public void teardown() {
+    getNocDriver().deletePhysicalResourceGroup(groupName);
   }
 }

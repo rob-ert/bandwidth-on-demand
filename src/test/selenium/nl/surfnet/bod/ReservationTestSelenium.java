@@ -25,9 +25,22 @@ import nl.surfnet.bod.support.TestExternalSupport;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ReservationTestSelenium extends TestExternalSupport {
+
+  @Before
+  public void setup() {
+    getNocDriver().createNewPhysicalResourceGroup("SURFnet bv", ICT_MANAGERS_GROUP, "test@example.com");
+    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, "First port", "SURFnet bv");
+    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK_2, "Second port", "SURFnet bv");
+    getWebDriver().refreshGroups();
+    getManagerDriver().createNewVirtualResourceGroup("Selenium research", USERS_GROUP);
+    getManagerDriver().createNewVirtualPort("Port 1", 1000, null, null, "First port");
+    getManagerDriver().createNewVirtualPort("Port 2", 1000, null, null, "Second port");
+  }
 
   @Test
   public void createAndDeleteAReservation() {
@@ -47,16 +60,14 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getWebDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);
   }
 
-  @Test
-  public void createAReservationWithWrongStartDate() {
-    LocalDate startDate = LocalDate.now().minusDays(1);
-    LocalDate endDate = LocalDate.now();
-    LocalTime startTime = LocalTime.now();
-    LocalTime endTime = LocalTime.now();
-
-    getWebDriver().createNewReservation(startDate, endDate, startTime, endTime);
-
-    getWebDriver().verifyReservationStartDateHasError("not be in the past");
+  @After
+  public void teardown() {
+//    getManagerDriver().deleteVirtualPort("Port 1");
+//    getManagerDriver().deleteVirtualPort("Port 2");
+    getManagerDriver().deleteVirtualResourceGroup("Selenium research");
+    getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
+    getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK_2);
+    getNocDriver().deletePhysicalResourceGroup("SURFnet bv");
   }
 
 }
