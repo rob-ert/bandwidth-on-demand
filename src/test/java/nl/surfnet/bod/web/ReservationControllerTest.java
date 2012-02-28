@@ -41,6 +41,10 @@ import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
+import org.joda.time.Duration;
+import org.joda.time.DurationFieldType;
+import org.joda.time.Hours;
+import org.joda.time.Period;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -58,7 +62,6 @@ public class ReservationControllerTest {
 
   @Mock
   private VirtualResourceGroupService virtualResourceGroupServiceMock;
-
 
   @Test
   public void newReservationShouldHaveDefaults() {
@@ -93,7 +96,8 @@ public class ReservationControllerTest {
     Security.setUserDetails(user);
     Model model = new ModelStub();
 
-    when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(Collections.<VirtualResourceGroup>emptyList());
+    when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(
+        Collections.<VirtualResourceGroup> emptyList());
 
     subject.populateVirtualPorts(model);
     subject.createForm(model);
@@ -110,4 +114,19 @@ public class ReservationControllerTest {
     assertThat(reservation.getBandwidth(), nullValue());
   }
 
+  @Test
+  public void reservationShouldHaveDefaultDuration() {
+    RichUserDetails user = new RichUserDetailsFactory().create();
+    Security.setUserDetails(user);
+    Model model = new ModelStub();
+
+    subject.populateVirtualPorts(model);
+    Reservation reservation = (Reservation) model.asMap().get(ReservationController.MODEL_KEY);
+
+    Period period = new Period(reservation.getStartDateTime().toDate().getTime(), reservation.getEndDateTime().toDate()
+        .getTime());
+
+    assertThat(period.get(DurationFieldType.minutes()),
+        is(ReservationController.DEFAULT_RESERVATON_DURATION.get(DurationFieldType.minutes())));
+  }
 }

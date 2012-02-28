@@ -21,7 +21,17 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.CREATE;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.SHOW;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -40,8 +50,11 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationView;
 
+import org.joda.time.Hours;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
+import org.joda.time.ReadablePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -60,6 +73,8 @@ import com.google.common.collect.Iterables;
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller
 public class ReservationController {
+  public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
+
   static final String PAGE_URL = "reservations";
 
   static final String MODEL_KEY = "reservation";
@@ -173,8 +188,10 @@ public class ReservationController {
     Reservation reservation = new Reservation();
     reservation.setStartDate(today);
     reservation.setStartTime(inFifteenMinutes);
-    reservation.setEndDate(today.plusDays(1));
-    reservation.setEndTime(inFifteenMinutes);
+
+    LocalDateTime reservationEnd = reservation.getStartDateTime().plus(DEFAULT_RESERVATON_DURATION);
+    reservation.setEndDate(reservationEnd.toLocalDate());
+    reservation.setEndTime(reservationEnd.toLocalTime());
 
     VirtualPort sourcePort = Iterables.get(ports, 0, null);
     VirtualPort destPort = Iterables.get(ports, 1, null);
