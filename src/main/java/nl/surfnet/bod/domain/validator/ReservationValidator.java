@@ -126,7 +126,7 @@ public class ReservationValidator implements Validator {
     }
     if (startDate.isAfter(maxFutureDate)) {
       errors.rejectValue("startDate", "validation.reservation.startdate.maxFuture",
-          new Object[] { MAX_PERIOD_AWAY.toString(PERIOD_FORMATTER) }, "Start date too far away");
+          new Object[] { MAX_PERIOD_AWAY.toString(PERIOD_FORMATTER) }, "Start date to far away");
     }
 
     if (endDate.isBefore(startDate)) {
