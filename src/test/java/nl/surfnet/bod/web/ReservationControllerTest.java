@@ -22,7 +22,12 @@
 package nl.surfnet.bod.web;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -35,17 +40,25 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.support.ModelStub;
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.web.manager.VirtualPortController;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.DurationFieldType;
 import org.joda.time.Period;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.ui.Model;
@@ -54,6 +67,8 @@ import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationControllerTest {
+
+  private static final String INFO_AT_LEAST_TWO_PORTS = "at least two ports";
 
   @InjectMocks
   private ReservationController subject;
@@ -64,11 +79,20 @@ public class ReservationControllerTest {
   @Mock
   private ReservationService reservationServiceMock;
 
+  @Mock
+  private MessageSource messageSource;
+
+  private RichUserDetails user = new RichUserDetailsFactory().create();
+
+  private Model model = new ModelStub();
+
+  @Before
+  public void onSetup() {
+    Security.setUserDetails(user);
+  }
+
   @Test
   public void newReservationShouldHaveDefaults() {
-    RichUserDetails user = new RichUserDetailsFactory().create();
-    Security.setUserDetails(user);
-    Model model = new ModelStub();
 
     VirtualPort sourcePort = new VirtualPortFactory().setMaxBandwidth(8000).create();
     VirtualPort destPort = new VirtualPortFactory().setMaxBandwidth(4000).create();
@@ -93,17 +117,13 @@ public class ReservationControllerTest {
 
   @Test
   public void reservationEmptyPorts() {
-    RichUserDetails user = new RichUserDetailsFactory().create();
-    Security.setUserDetails(user);
-    Model model = new ModelStub();
-
     when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(
         Collections.<VirtualResourceGroup> emptyList());
 
     subject.populateVirtualPorts(model);
     subject.createForm(model);
 
-    assertThat(model.asMap(), hasKey("reservation"));
+    assertThat(model.asMap(), hasKey(ReservationController.MODEL_KEY));
     assertThat(model.asMap(), hasKey("virtualPortList"));
     assertThat(model.asMap(), hasKey("virtualResourceGroupList"));
 
@@ -117,10 +137,6 @@ public class ReservationControllerTest {
 
   @Test
   public void reservationShouldHaveDefaultDuration() {
-    RichUserDetails user = new RichUserDetailsFactory().create();
-    Security.setUserDetails(user);
-    Model model = new ModelStub();
-
     subject.populateVirtualPorts(model);
     Reservation reservation = (Reservation) model.asMap().get(ReservationController.MODEL_KEY);
 
@@ -166,4 +182,29 @@ public class ReservationControllerTest {
     assertThat(model.asMap().get("sortProperty"), is(Object.class.cast("startDateTime")));
     assertThat(((List<?>) model.asMap().get("list")), hasSize(1));
   }
+  
+  @Test
+  public void lessThenTwoVirtualPortsShouldShowInfoMessage() {
+    when(messageSource.getMessage("info_reservation_need_two_virtual_ports", null, LocaleContextHolder.getLocale()))
+        .thenReturn(INFO_AT_LEAST_TWO_PORTS);
+
+    subject.createForm(model);
+
+    assertThat(WebUtils.getFirstInfoMessage(model), containsString(INFO_AT_LEAST_TWO_PORTS));
+  }
+
+  @Test
+  public void twoVirtualPortsOrMoreShouldNotShowInfoMessage() {
+    VirtualPort sourcePort = new VirtualPortFactory().setMaxBandwidth(8000).create();
+    VirtualPort destPort = new VirtualPortFactory().setMaxBandwidth(4000).create();
+    model.addAttribute(VirtualPortController.MODEL_KEY_LIST, Lists.newArrayList(sourcePort, destPort));
+
+    when(messageSource.getMessage("info_reservation_need_two_virtual_ports", null, LocaleContextHolder.getLocale()))
+        .thenReturn(INFO_AT_LEAST_TWO_PORTS);
+
+    subject.createForm(model);
+
+    assertThat(WebUtils.getFirstInfoMessage(model), nullValue());
+  }
+
 }

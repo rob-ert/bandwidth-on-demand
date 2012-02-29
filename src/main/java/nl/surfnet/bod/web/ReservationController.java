@@ -21,7 +21,12 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.CREATE;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.SHOW;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -41,11 +46,17 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationView;
 
-import org.joda.time.*;
+import org.joda.time.Hours;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+import org.joda.time.ReadablePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -84,6 +95,9 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
   private ReservationValidator reservationValidator = new ReservationValidator();
 
+  @Autowired
+  private MessageSource messageSource;
+
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid Reservation reservation, BindingResult bindingResult, Model model,
       RedirectAttributes redirectAttributes) {
@@ -107,7 +121,14 @@ public class ReservationController extends AbstractSortableListController<Reserv
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
-  public String createForm(final Model uiModel) {
+  @SuppressWarnings("unchecked")
+  public String createForm(final Model model) {
+
+    Collection<VirtualPort> ports = (Collection<VirtualPort>) model.asMap().get(VirtualPortController.MODEL_KEY_LIST);
+    if (CollectionUtils.isEmpty(ports) || ports.size() == 1) {
+      WebUtils.addInfoMessage(model, messageSource, "info_reservation_need_two_virtual_ports");
+    }
+
     return PAGE_URL + CREATE;
   }
 
@@ -193,7 +214,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
     model.addAttribute(VirtualPortController.MODEL_KEY_LIST, ports);
 
-    model.addAttribute("reservation", createDefaultReservation(ports));
+    model.addAttribute(MODEL_KEY, createDefaultReservation(ports));
   }
 
   private Reservation createDefaultReservation(Collection<VirtualPort> ports) {
