@@ -69,14 +69,14 @@
                             <c:when test="${sortProperty eq sortProperties[num.count - 1]}">
                                 <c:choose>
                                     <c:when test="${sortDirection eq 'DESC'}">
-                                        <c:set var="headClass" value="headerSortDown" />
+                                        <c:set var="headClass" value="sortable headerSortDown" />
                                         <spring:url value="${path}" var="sortLink">
                                             <spring:param name="sort" value="${sortProperties[num.count - 1]}" />
                                             <spring:param name="order" value="ASC"/>
                                         </spring:url>
                                     </c:when>
                                     <c:otherwise>
-                                        <c:set var="headClass" value="headerSortUp" />
+                                        <c:set var="headClass" value="sortable headerSortUp" />
                                         <spring:url value="${path}" var="sortLink">
                                             <spring:param name="sort" value="${sortProperties[num.count - 1]}" />
                                             <spring:param name="order" value="DESC"/>
@@ -85,7 +85,7 @@
                                 </c:choose>
                             </c:when>
                             <c:otherwise>
-                                <c:set var="headClass" value=""/>
+                                <c:set var="headClass" value="sortable"/>
                                 <spring:url value="${path}" var="sortLink">
                                     <spring:param name="sort" value="${sortProperties[num.count - 1]}" />
                                 </spring:url>
