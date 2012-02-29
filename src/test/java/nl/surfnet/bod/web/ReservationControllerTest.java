@@ -178,9 +178,12 @@ public class ReservationControllerTest {
     when(messageSource.getMessage("info_reservation_need_two_virtual_ports", null, LocaleContextHolder.getLocale()))
         .thenReturn(INFO_AT_LEAST_TWO_PORTS);
 
-    subject.createForm(model);
+    String view = subject.createForm(model);
 
-    assertThat(WebUtils.getFirstInfoMessage(model), containsString(INFO_AT_LEAST_TWO_PORTS));
+    assertThat(model.asMap().containsKey(MessageCommand.MODEL_KEY), is(true));
+    assertThat(((MessageCommand) model.asMap().get(MessageCommand.MODEL_KEY)).getParagraph(),
+        containsString(INFO_AT_LEAST_TWO_PORTS));
+    assertThat(view, is(MessageCommand.PAGE_URL));
   }
 
   @Test
@@ -192,9 +195,10 @@ public class ReservationControllerTest {
     when(messageSource.getMessage("info_reservation_need_two_virtual_ports", null, LocaleContextHolder.getLocale()))
         .thenReturn(INFO_AT_LEAST_TWO_PORTS);
 
-    subject.createForm(model);
+    String view = subject.createForm(model);
 
-    assertThat(WebUtils.getFirstInfoMessage(model), nullValue());
+    assertThat(model.asMap().containsKey(MessageCommand.MODEL_KEY), is(false));
+    assertThat(view, is(ReservationController.PAGE_URL + WebUtils.CREATE));
   }
 
 }
