@@ -55,6 +55,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
@@ -291,6 +292,15 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   @Override
   protected String defaultSortProperty() {
     return "managerLabel";
+  }
+
+  @Override
+  protected List<String> translateSortProperty(String sortProperty) {
+    if (sortProperty.equals("physicalResourceGroup")) {
+      return ImmutableList.of("physicalPort.physicalResourceGroup");
+    }
+
+    return super.translateSortProperty(sortProperty);
   }
 
   public static final class VirtualPortUpdateCommand {

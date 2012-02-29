@@ -14,16 +14,13 @@ import java.util.List;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 public abstract class AbstractSortableListController<T> {
 
@@ -104,11 +101,6 @@ public abstract class AbstractSortableListController<T> {
   }
 
   private Sort sort(final Direction direction, List<String> properties) {
-    return new Sort(Lists.transform(properties, new Function<String, Sort.Order>() {
-      @Override
-      public Order apply(String property) {
-        return new Sort.Order(direction, property);
-      }
-    }));
+    return new Sort(direction, properties);
   }
 }
