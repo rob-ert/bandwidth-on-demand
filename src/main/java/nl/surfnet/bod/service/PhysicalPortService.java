@@ -60,7 +60,7 @@ public interface PhysicalPortService {
    *
    * @return Collection of allocated ports
    */
-  Collection<PhysicalPort> findAllocatedEntries(int firstResult, int sizeNo);
+  List<PhysicalPort> findAllocatedEntries(int firstResult, int sizeNo, Sort sort);
 
   /**
    * Finds all physical ports that are visible for a user.

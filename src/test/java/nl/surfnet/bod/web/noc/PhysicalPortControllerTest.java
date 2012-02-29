@@ -25,6 +25,7 @@ import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
@@ -47,6 +48,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -70,9 +72,9 @@ public class PhysicalPortControllerTest {
   public void listAllPortsShouldSetPortsAndMaxPages() {
     Model model = new ModelStub();
     List<PhysicalPort> ports = Lists.newArrayList(new PhysicalPortFactory().create());
-    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt())).thenReturn(ports);
+    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), any(Sort.class))).thenReturn(ports);
 
-    subject.listAllocated(1, model);
+    subject.list(1, null, null, model);
 
     assertThat(model.asMap(), hasEntry("list", Object.class.cast(ports)));
     assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
@@ -82,9 +84,9 @@ public class PhysicalPortControllerTest {
   public void listAllPortsWithoutAPageParam() {
     Model model = new ModelStub();
     List<PhysicalPort> ports = Lists.newArrayList(new PhysicalPortFactory().create());
-    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt())).thenReturn(ports);
+    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), any(Sort.class))).thenReturn(ports);
 
-    subject.listAllocated(null, model);
+    subject.list(null, null, null, model);
 
     assertThat(model.asMap(), hasEntry("list", Object.class.cast(ports)));
     assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));

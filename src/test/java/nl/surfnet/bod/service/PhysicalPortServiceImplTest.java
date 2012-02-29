@@ -48,6 +48,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.collect.ImmutableList;
@@ -153,7 +154,7 @@ public class PhysicalPortServiceImplTest {
 
     when(physicalPortRepoMock.findAll(any(Pageable.class))).thenReturn(new PageImpl(ports));
 
-    List<PhysicalPort> entries = subject.findAllocatedEntries(0, 20);
+    List<PhysicalPort> entries = subject.findAllocatedEntries(0, 20, new Sort("id"));
 
     assertThat(entries, hasSize(2));
   }

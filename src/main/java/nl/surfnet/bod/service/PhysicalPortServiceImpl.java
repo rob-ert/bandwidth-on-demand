@@ -94,8 +94,8 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   }
 
   @Override
-  public List<PhysicalPort> findAllocatedEntries(int firstResult, int maxResults) {
-    return physicalPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults)).getContent();
+  public List<PhysicalPort> findAllocatedEntries(int firstResult, int maxResults, Sort sort) {
+    return physicalPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
   @Override

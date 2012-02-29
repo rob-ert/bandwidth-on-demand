@@ -25,6 +25,7 @@ import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -35,10 +36,12 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.web.AbstractSortableListController;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -52,7 +55,7 @@ import com.google.common.base.Strings;
 
 @Controller
 @RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
-public class PhysicalPortController {
+public class PhysicalPortController extends AbstractSortableListController<PhysicalPort> {
 
   static final String PAGE_URL = "physicalports";
   static final String MODEL_KEY = "createPhysicalPortCommand";
@@ -103,15 +106,6 @@ public class PhysicalPortController {
     model.addAttribute("virtualPorts", virutalPorts);
 
     return PAGE_URL + SHOW;
-  }
-
-  @RequestMapping(method = RequestMethod.GET)
-  public String listAllocated(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
-    uiModel
-        .addAttribute("list", physicalPortService.findAllocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
-    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countAllocated()));
-
-    return PAGE_URL + LIST;
   }
 
   @RequestMapping(value = "/free", method = RequestMethod.GET)
@@ -224,5 +218,20 @@ public class PhysicalPortController {
       this.version = version;
     }
 
+  }
+
+  @Override
+  protected String listUrl() {
+    return PAGE_URL + LIST;
+  }
+
+  @Override
+  protected List<PhysicalPort> list(int firstPage, int maxItems, Sort sort) {
+    return physicalPortService.findAllocatedEntries(firstPage, maxItems, sort);
+  }
+
+  @Override
+  protected long count() {
+    return physicalPortService.countAllocated();
   }
 }
