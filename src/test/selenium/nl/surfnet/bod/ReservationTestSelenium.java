@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod;
 
-import java.util.concurrent.TimeUnit;
-
 import nl.surfnet.bod.support.TestExternalSupport;
 
 import org.joda.time.LocalDate;
@@ -31,8 +29,6 @@ import org.joda.time.LocalTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.util.concurrent.Uninterruptibles;
 
 public class ReservationTestSelenium extends TestExternalSupport {
 
@@ -53,12 +49,12 @@ public class ReservationTestSelenium extends TestExternalSupport {
     LocalDate startDate = LocalDate.now().plusDays(3);
     LocalDate endDate = LocalDate.now().plusDays(5);
     LocalTime startTime = LocalTime.now().plusHours(1);
-    LocalTime endTime = LocalTime.now(); 
+    LocalTime endTime = LocalTime.now();
 
     getWebDriver().createNewReservation(startDate, endDate, startTime, endTime);
 
     getWebDriver().verifyReservationWasCreated(startDate, endDate, startTime, endTime, creationDateTime);
-        
+
     getManagerDriver().verifyReservationExists(startDate, endDate, startTime, endTime, creationDateTime);
 
     getWebDriver().cancelReservation(startDate, endDate, startTime, endTime);
