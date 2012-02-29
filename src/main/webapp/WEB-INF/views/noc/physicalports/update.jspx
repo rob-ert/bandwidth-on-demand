@@ -7,10 +7,12 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <form:update id="fc_PhysicalPort" modelAttribute="physicalPort" path="/noc/physicalports" idField="networkElementPk">
+    <form:update id="fc_PhysicalPort" modelAttribute="createPhysicalPortCommand" path="/noc/physicalports/free" idField="networkElementPk">
         <field:input field="nocLabel" id="c_PhysicalPort_name" />
+        <field:input field="managerLabel" id="c_PhysicalPort_managerlabel" />
+
         <field:select field="physicalResourceGroup" id="c_PhysicalPort_physicalResourceGroup" itemValue="id"
-            items="${physicalResourceGroupList}" path="/noc/physicalresourcegroups" required="false" />
+            items="${physicalResourceGroupList}" path="/noc/physicalresourcegroups/free" required="false" />
 
     </form:update>
 

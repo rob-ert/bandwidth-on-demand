@@ -71,10 +71,15 @@ public class BodNocWebDriver {
   /* ******************************************** */
 
   public void linkPhysicalPort(String networkElementPk, String nocLabel, String physicalResourceGroup) {
+    linkPhysicalPort(networkElementPk, nocLabel, "", physicalResourceGroup);
+  }
+
+  public void linkPhysicalPort(String networkElementPk, String nocLabel, String managerLabel, String physicalResourceGroup) {
     ListUnallocatedPortsPage listPage = ListUnallocatedPortsPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
     EditPhysicalPortPage editPage = listPage.edit(networkElementPk);
     editPage.sendNocLabel(nocLabel);
+    editPage.sendManagerLabel(managerLabel);
     editPage.selectPhysicalResourceGroup(physicalResourceGroup);
     editPage.save();
   }

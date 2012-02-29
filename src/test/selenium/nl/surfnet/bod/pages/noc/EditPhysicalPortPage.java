@@ -13,6 +13,9 @@ public class EditPhysicalPortPage extends AbstractFormPage {
   @FindBy(id = "_nocLabel_id")
   private WebElement nocLabelInput;
 
+  @FindBy(id = "_managerLabel_id")
+  private WebElement managerLabelInput;
+
   @FindBy(id = "_c_PhysicalPort_physicalResourceGroup")
   private WebElement physicalResourceGroupSelect;
 
@@ -30,5 +33,10 @@ public class EditPhysicalPortPage extends AbstractFormPage {
 
   public void selectPhysicalResourceGroup(String physicalResourceGroup) {
     new Select(physicalResourceGroupSelect).selectByVisibleText(physicalResourceGroup);
+  }
+
+  public void sendManagerLabel(String managerLabel) {
+    managerLabelInput.clear();
+    managerLabelInput.sendKeys(managerLabel);
   }
 }

@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -36,6 +37,7 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.WebUtils;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -46,13 +48,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.base.Strings;
+
 @Controller
 @RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
 public class PhysicalPortController {
 
   static final String PAGE_URL = "physicalports";
-  static final String MODEL_KEY = "physicalPort";
-  static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
+  static final String MODEL_KEY = "createPhysicalPortCommand";
 
   @Autowired
   private PhysicalPortService physicalPortService;
@@ -63,25 +66,30 @@ public class PhysicalPortController {
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
 
-  @RequestMapping(method = RequestMethod.PUT)
-  public String update(@Valid PhysicalPort physicalPort, final BindingResult result, final RedirectAttributes model) {
+  @RequestMapping(value = "/free", method = RequestMethod.PUT)
+  public String update(@Valid CreatePhysicalPortCommand command, final BindingResult result, final Model model,
+      final RedirectAttributes redirectAttributes) {
+
     if (result.hasErrors()) {
-      model.addAttribute(MODEL_KEY, physicalPort);
+      model.addAttribute(MODEL_KEY, command);
       return PAGE_URL + UPDATE;
     }
 
-    PhysicalPort portToSave = physicalPortService.findByNetworkElementPk(physicalPort.getNetworkElementPk());
-    portToSave.setPhysicalResourceGroup(physicalPort.getPhysicalResourceGroup());
-    portToSave.setNocLabel(physicalPort.getNocLabel());
+    PhysicalPort portToSave = physicalPortService.findByNetworkElementPk(command.getNetworkElementPk());
+    portToSave.setPhysicalResourceGroup(command.getPhysicalResourceGroup());
+    portToSave.setNocLabel(command.getNocLabel());
+    if (Strings.emptyToNull(command.getManagerLabel()) != null) {
+      portToSave.setManagerLabel(command.getManagerLabel());
+    }
 
     physicalPortService.save(portToSave);
 
     model.asMap().clear();
 
-    WebUtils.addInfoMessage(model, "Physical Port %s was assigned to %s",
-        physicalPort.getNocLabel(), physicalPort.getPhysicalResourceGroup().getInstitute().getName());
+    WebUtils.addInfoMessage(redirectAttributes, "Physical Port %s was assigned to %s", portToSave.getNocLabel(),
+        portToSave.getPhysicalResourceGroup().getInstitute().getName());
 
-    return "redirect:physicalports/free";
+    return "redirect:free";
   }
 
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
@@ -91,7 +99,7 @@ public class PhysicalPortController {
     Collection<VirtualPort> virutalPorts = physicalPort != null && physicalPort.isAllocated() ? virutalPortService
         .findAllForPhysicalPort(physicalPort) : Collections.<VirtualPort> emptyList();
 
-    model.addAttribute(MODEL_KEY, physicalPort);
+    model.addAttribute("physicalPort", physicalPort);
     model.addAttribute("virtualPorts", virutalPorts);
 
     return PAGE_URL + SHOW;
@@ -99,8 +107,8 @@ public class PhysicalPortController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String listAllocated(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY_LIST,
-        physicalPortService.findAllocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
+    uiModel
+        .addAttribute("list", physicalPortService.findAllocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countAllocated()));
 
     return PAGE_URL + LIST;
@@ -109,7 +117,7 @@ public class PhysicalPortController {
   @RequestMapping(value = "/free", method = RequestMethod.GET)
   public String listUnallocated(@RequestParam(value = PAGE_KEY, required = false) final Integer page,
       final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY_LIST,
+    uiModel.addAttribute("list",
         physicalPortService.findUnallocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocated()));
@@ -117,9 +125,18 @@ public class PhysicalPortController {
     return PAGE_URL + "/listunallocated";
   }
 
-  @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
+  @RequestMapping(value = "free/edit", params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final String networkElementPk, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY, physicalPortService.findByNetworkElementPk(networkElementPk));
+    PhysicalPort port;
+    try {
+      port = physicalPortService.findByNetworkElementPk(networkElementPk);
+    }
+    catch (IllegalStateException e) {
+      return "redirect:free";
+    }
+
+    uiModel.addAttribute(MODEL_KEY, new CreatePhysicalPortCommand(port));
+
     return PAGE_URL + UPDATE;
   }
 
@@ -147,7 +164,65 @@ public class PhysicalPortController {
     return physicalResourceGroupService.findAll();
   }
 
-  protected void setPhysicalPortService(PhysicalPortService physicalPortService) {
-    this.physicalPortService = physicalPortService;
+  public static final class CreatePhysicalPortCommand {
+    private String networkElementPk;
+    @NotNull
+    private PhysicalResourceGroup physicalResourceGroup;
+    @NotEmpty
+    private String nocLabel;
+    private String managerLabel;
+    private Integer version;
+
+    public CreatePhysicalPortCommand() {
+    }
+
+    public CreatePhysicalPortCommand(PhysicalPort port) {
+      this.networkElementPk = port.getNetworkElementPk();
+      this.physicalResourceGroup = port.getPhysicalResourceGroup();
+      this.nocLabel = port.getNocLabel();
+      this.managerLabel = "";
+      this.version = port.getVersion();
+    }
+
+    public String getNetworkElementPk() {
+      return networkElementPk;
+    }
+
+    public void setNetworkElementPk(String networkElementPk) {
+      this.networkElementPk = networkElementPk;
+    }
+
+    public PhysicalResourceGroup getPhysicalResourceGroup() {
+      return physicalResourceGroup;
+    }
+
+    public void setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
+      this.physicalResourceGroup = physicalResourceGroup;
+    }
+
+    public String getNocLabel() {
+      return nocLabel;
+    }
+
+    public void setNocLabel(String nocLabel) {
+      this.nocLabel = nocLabel;
+    }
+
+    public String getManagerLabel() {
+      return managerLabel;
+    }
+
+    public void setManagerLabel(String managerLabel) {
+      this.managerLabel = managerLabel;
+    }
+
+    public Integer getVersion() {
+      return version;
+    }
+
+    public void setVersion(Integer version) {
+      this.version = version;
+    }
+
   }
 }

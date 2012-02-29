@@ -39,21 +39,22 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
   @Test
   public void createRenameAndDeleteAPhysicalPort() {
     String nocLabel = "My Selenium Port (Noc)";
-    String managerLabel = "My Selenium Port (Manager)";
+    String managerLabel1 = "My Selenium Port (Manager 1st)";
+    String managerLabel2 = "My Selenium Port (Manager 2nd)";
 
-    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, nocLabel, groupName);
+    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, nocLabel, managerLabel1, groupName);
 
     getNocDriver().verifyPhysicalPortWasAllocated(NETWORK_ELEMENT_PK, nocLabel);
 
     getWebDriver().refreshGroups();
 
-    getManagerDriver().changeManagerLabelOfPhyiscalPort(NETWORK_ELEMENT_PK, managerLabel);
+    getManagerDriver().changeManagerLabelOfPhyiscalPort(NETWORK_ELEMENT_PK, managerLabel2);
 
-    getManagerDriver().verifyManagerLabelChanged(NETWORK_ELEMENT_PK, managerLabel);
+    getManagerDriver().verifyManagerLabelChanged(NETWORK_ELEMENT_PK, managerLabel2);
 
     getManagerDriver().gotoCreateNewVirtualPortForPhysicalPort(NETWORK_ELEMENT_PK);
 
-    getManagerDriver().verifyPhysicalPortSelected(managerLabel);
+    getManagerDriver().verifyPhysicalPortSelected(managerLabel2);
 
     getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
 

@@ -9,10 +9,10 @@
 
     <spring:message code="label_physicalport_unallocated_plural" var="unallocated_plural_label" />
 
-    <page:list id="pl_PhysicalPort" items="${physicalPortList}"
+    <page:list id="pl_PhysicalPort" items="${list}"
         labelPlural="${show_unallocated ? unallocated_plural_label : ''}">
 
-        <table:table data="${physicalPortList}" id="l_nl_surfnet_bod_domain_PhysicalPort"
+        <table:table data="${list}" id="l_nl_surfnet_bod_domain_PhysicalPort"
             path="${show_unallocated ? '/noc/physicalports/free' : '/noc/physicalports'}"
             typeIdFieldName="networkElementPk" delete="false" icon_url="/resources/images/link_break.png"
             icon_label="Unlink Physical Resource Group">

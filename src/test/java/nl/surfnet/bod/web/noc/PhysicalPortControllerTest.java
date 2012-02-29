@@ -23,8 +23,6 @@ package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.noc.PhysicalPortController.MODEL_KEY;
-import static nl.surfnet.bod.web.noc.PhysicalPortController.MODEL_KEY_LIST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.anyInt;
@@ -42,6 +40,7 @@ import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.web.noc.PhysicalPortController.CreatePhysicalPortCommand;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,7 +74,7 @@ public class PhysicalPortControllerTest {
 
     subject.listAllocated(1, model);
 
-    assertThat(model.asMap(), hasEntry(MODEL_KEY_LIST, Object.class.cast(ports)));
+    assertThat(model.asMap(), hasEntry("list", Object.class.cast(ports)));
     assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
   }
 
@@ -87,7 +86,7 @@ public class PhysicalPortControllerTest {
 
     subject.listAllocated(null, model);
 
-    assertThat(model.asMap(), hasEntry(MODEL_KEY_LIST, Object.class.cast(ports)));
+    assertThat(model.asMap(), hasEntry("list", Object.class.cast(ports)));
     assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
   }
 
@@ -99,7 +98,7 @@ public class PhysicalPortControllerTest {
 
     subject.listUnallocated(1, model);
 
-    assertThat(model.asMap(), hasEntry(MODEL_KEY_LIST, Object.class.cast(ports)));
+    assertThat(model.asMap(), hasEntry("list", Object.class.cast(ports)));
     assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
   }
 
@@ -110,7 +109,7 @@ public class PhysicalPortControllerTest {
 
     subject.show("12:00/port1", model);
 
-    assertThat(model.asMap(), hasEntry(is(MODEL_KEY), nullValue()));
+    assertThat(model.asMap(), hasEntry(is("physicalPort"), nullValue()));
   }
 
   @SuppressWarnings("unchecked")
@@ -125,7 +124,7 @@ public class PhysicalPortControllerTest {
 
     subject.show("12:00/port1", model);
 
-    assertThat(model.asMap(), hasEntry(MODEL_KEY, Object.class.cast(port)));
+    assertThat(model.asMap(), hasEntry("physicalPort", Object.class.cast(port)));
     assertThat(model.asMap(), hasKey("virtualPorts"));
     assertThat(((List<VirtualPort>) model.asMap().get("virtualPorts")), hasSize(1));
   }
@@ -133,12 +132,15 @@ public class PhysicalPortControllerTest {
   @Test
   public void updateForm() {
     Model model = new ModelStub();
-    PhysicalPort port = new PhysicalPortFactory().create();
+    PhysicalPort port = new PhysicalPortFactory().setNetworkElementPk("00:00/port2").create();
+
     when(physicalPortServiceMock.findByNetworkElementPk("00:00/port2")).thenReturn(port);
 
     subject.updateForm("00:00/port2", model);
 
-    assertThat(model.asMap(), hasEntry(MODEL_KEY, Object.class.cast(port)));
+    assertThat(model.asMap(), hasKey("createPhysicalPortCommand"));
+    assertThat(((CreatePhysicalPortCommand) model.asMap().get("createPhysicalPortCommand")).getNetworkElementPk(),
+        is("00:00/port2"));
   }
 
   @Test
@@ -149,9 +151,9 @@ public class PhysicalPortControllerTest {
 
     when(physicalPortServiceMock.findByNetworkElementPk(port.getNetworkElementPk())).thenReturn(port);
 
-    String page = subject.update(port, result, model);
+    String page = subject.update(new CreatePhysicalPortCommand(port), result, model, model);
 
-    assertThat(page, is("redirect:physicalports/free"));
+    assertThat(page, is("redirect:free"));
     assertThat(model.getFlashAttributes(), hasKey("infoMessages"));
 
     @SuppressWarnings("unchecked")
