@@ -56,18 +56,44 @@
             htmlEscape="false" />
         <c:set var="lengths" value="${fn:split(columnMaxLengths, ',')}" scope="request" />
         <c:set var="types" value="${fn:split(columnTypes, ',')}" scope="request" />
+        <c:set var="sortProperties" value="${fn:split(columnProperties, ',')}" scope="request" />
         <c:set var="patterns" value="${fn:split(columnDatePatterns, ',')}" scope="request" />
         <c:set var="actions" value="${fn:split(actionLinks, ',')}" scope="request" />
         <c:set var="titles" value="${fn:split(actionTitles, ',')}" scope="request" />
 
-        <spring:eval var="colCounter" expression="1" />
-
         <table class="zebra-striped">
             <thead>
                 <tr>
-                    <c:forTokens items="${columnLabels}" delims="," var="columnHeading">
-                        <th><c:out value="${columnHeading}" />
-                        <spring:eval var="colCounter" expression="colCounter  + 1" /></th>
+                    <c:forTokens items="${columnLabels}" delims="," var="columnHeading" varStatus="num">
+                        <c:choose>
+                            <c:when test="${sortProperty eq sortProperties[num.count - 1]}">
+                                <c:choose>
+                                    <c:when test="${sortDirection eq 'DESC'}">
+                                        <c:set var="headClass" value="headerSortDown" />
+                                        <spring:url value="${path}" var="sortLink">
+                                            <spring:param name="sort" value="${sortProperties[num.count - 1]}" />
+                                            <spring:param name="order" value="ASC"/>
+                                        </spring:url>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <c:set var="headClass" value="headerSortUp" />
+                                        <spring:url value="${path}" var="sortLink">
+                                            <spring:param name="sort" value="${sortProperties[num.count - 1]}" />
+                                            <spring:param name="order" value="DESC"/>
+                                        </spring:url>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:when>
+                            <c:otherwise>
+                                <c:set var="headClass" value=""/>
+                                <spring:url value="${path}" var="sortLink">
+                                    <spring:param name="sort" value="${sortProperties[num.count - 1]}" />
+                                </spring:url>
+                            </c:otherwise>
+                        </c:choose>
+                        <th class="${headClass}">
+                            <a href="${sortLink}"><c:out value="${columnHeading}" /></a>
+                        </th>
                     </c:forTokens>
                     <c:if test="${show or update or delete or (icon and not empty item.id) or not empty imageUrls}">
                         <th></th>

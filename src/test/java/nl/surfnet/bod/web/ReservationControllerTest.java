@@ -22,34 +22,32 @@
 package nl.surfnet.bod.web;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.List;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
-import org.joda.time.Duration;
 import org.joda.time.DurationFieldType;
-import org.joda.time.Hours;
 import org.joda.time.Period;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.ui.Model;
 
 import com.google.common.collect.Lists;
@@ -62,6 +60,9 @@ public class ReservationControllerTest {
 
   @Mock
   private VirtualResourceGroupService virtualResourceGroupServiceMock;
+
+  @Mock
+  private ReservationService reservationServiceMock;
 
   @Test
   public void newReservationShouldHaveDefaults() {
@@ -128,5 +129,41 @@ public class ReservationControllerTest {
 
     assertThat(period.get(DurationFieldType.minutes()),
         is(ReservationController.DEFAULT_RESERVATON_DURATION.get(DurationFieldType.minutes())));
+  }
+
+  @Test
+  public void listShouldSetListOnModel() {
+    Model model = new ModelStub();
+    Reservation reservation = new ReservationFactory().create();
+
+    when(reservationServiceMock.findEntries(eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
+        Lists.newArrayList(reservation));
+
+    subject.list(1, null, null, model);
+
+    assertThat(model.asMap(), hasKey("list"));
+    assertThat(model.asMap(), hasKey("sortProperty"));
+    assertThat(model.asMap(), hasKey("sortDirection"));
+
+    assertThat(((List<?>) model.asMap().get("list")), hasSize(1));
+  }
+
+  @Test
+  public void listWithNonExistingSortProperty() {
+    Model model = new ModelStub();
+    Reservation reservation = new ReservationFactory().create();
+
+    when(reservationServiceMock.findEntries(eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
+        Lists.newArrayList(reservation));
+
+    subject.list(1, "nonExistingProperty", "nonExistingDirection", model);
+
+    assertThat(model.asMap(), hasKey("list"));
+    assertThat(model.asMap(), hasKey("sortProperty"));
+    assertThat(model.asMap(), hasKey("sortDirection"));
+
+    assertThat(model.asMap().get("sortDirection"), is(Object.class.cast(Direction.ASC)));
+    assertThat(model.asMap().get("sortProperty"), is(Object.class.cast("startDateTime")));
+    assertThat(((List<?>) model.asMap().get("list")), hasSize(1));
   }
 }

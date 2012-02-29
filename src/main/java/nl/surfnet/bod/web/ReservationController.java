@@ -21,20 +21,11 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.SHOW;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -50,12 +41,9 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationView;
 
-import org.joda.time.Hours;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.ReadablePeriod;
+import org.joda.time.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -68,17 +56,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller
-public class ReservationController {
+public class ReservationController extends AbstractSortableListController<ReservationView> {
   public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
 
   static final String PAGE_URL = "reservations";
 
   static final String MODEL_KEY = "reservation";
-  static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
 
   private static final Function<Reservation, ReservationView> TO_RESERVATION_VIEW = new Function<Reservation, ReservationView>() {
     @Override
@@ -129,14 +118,40 @@ public class ReservationController {
     return PAGE_URL + SHOW;
   }
 
-  @RequestMapping(method = RequestMethod.GET)
-  public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY_LIST, Collections2.transform(
-        reservationService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE), TO_RESERVATION_VIEW));
-
-    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(reservationService.count()));
-
+  @Override
+  public String listUrl() {
     return PAGE_URL + LIST;
+  }
+
+  @Override
+  public List<ReservationView> list(int firstPage, int maxItems, Sort sort) {
+    return Lists.transform(reservationService.findEntries(firstPage, maxItems, sort), TO_RESERVATION_VIEW);
+  }
+
+  @Override
+  public long count() {
+    return reservationService.count();
+  }
+
+  @Override
+  public String defaultSortProperty() {
+    return "startDateTime";
+  }
+
+  @Override
+  protected List<String> translateSortProperty(String sortProperty) {
+    List<String> sortProperties;
+    if (sortProperty.equals("startDateTime")) {
+      sortProperties = ImmutableList.of("startDate", "startTime");
+    }
+    else if (sortProperty.equals("endDateTime")) {
+      sortProperties = ImmutableList.of("endDate", "endTime");
+    }
+    else {
+      sortProperties = ImmutableList.of(sortProperty);
+    }
+
+    return sortProperties;
   }
 
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)

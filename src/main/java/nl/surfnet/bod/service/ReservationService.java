@@ -49,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,14 +94,14 @@ public class ReservationService {
     return reservationRepo.findOne(id);
   }
 
-  public Collection<Reservation> findEntries(int firstResult, int maxResults) {
+  public List<Reservation> findEntries(int firstResult, int maxResults, Sort sort) {
     final RichUserDetails user = Security.getUserDetails();
 
     if (user.getUserGroups().isEmpty()) {
       return Collections.emptyList();
     }
 
-    return reservationRepo.findAll(forCurrentUser(user), new PageRequest(firstResult / maxResults, maxResults))
+    return reservationRepo.findAll(forCurrentUser(user), new PageRequest(firstResult / maxResults, maxResults, sort))
         .getContent();
   }
 
@@ -153,12 +154,14 @@ public class ReservationService {
     return reservationRepo.findAll(specReservationsToPoll(dateTime));
   }
 
-  public Collection<Reservation> findEntriesForManager(final RichUserDetails manager, int firstResult, int maxResults) {
+  public List<Reservation> findEntriesForManager(final RichUserDetails manager, int firstResult, int maxResults,
+      Sort sort) {
     if (manager.getUserGroups().isEmpty()) {
       return Collections.emptyList();
     }
 
-    return reservationRepo.findAll(forManager(manager), new PageRequest(firstResult / maxResults, maxResults)).getContent();
+    return reservationRepo.findAll(forManager(manager), new PageRequest(firstResult / maxResults, maxResults, sort))
+        .getContent();
   }
 
   public long countForManager(final RichUserDetails manager) {
@@ -169,16 +172,12 @@ public class ReservationService {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(
-            cb.or(
-              root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort)
-              .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.adminGroup)
-              .in(manager.getUserGroupIds()),
-              root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort)
-              .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.adminGroup)
-              .in(manager.getUserGroupIds())
-            )
-        );
+        return cb.and(cb.or(
+            root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
+                .get(PhysicalResourceGroup_.adminGroup).in(manager.getUserGroupIds()),
+            root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort)
+                .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.adminGroup)
+                .in(manager.getUserGroupIds())));
       }
     };
   }
@@ -209,7 +208,6 @@ public class ReservationService {
       }
     };
   }
-
 
   /**
    * Asynchronous {@link Reservation} creator.

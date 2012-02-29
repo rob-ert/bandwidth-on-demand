@@ -6,8 +6,8 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <page:list id="pl_reservation" items="${reservations}" labelCode="label_reservation_manager_list">
-        <table:table data="${reservations}" id="l_reservation" path="/manager/reservations" typeIdFieldName="id" update="false" delete="false">
+    <page:list id="pl_reservation" items="${list}" labelCode="label_reservation_manager_list">
+        <table:table data="${list}" id="l_reservation" path="/manager/reservations" typeIdFieldName="id" update="false" delete="false">
             <table:column labelCode="virtualresourcegroup" id="virtualresourcegroup" property="virtualResourceGroup"/>
             <table:column labelCode="reservation_sourcePort" id="sourceport" property="sourcePort"/>
             <table:column labelCode="reservation_destinationPort" id="destinationport" property="destinationPort"/>

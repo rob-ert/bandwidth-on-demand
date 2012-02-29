@@ -52,12 +52,15 @@ public class WebUtilsTest {
 
   @Test
   public void shouldContainOnePage() {
-    assertThat(WebUtils.calculateMaxPages(10), is(10 / WebUtils.MAX_ITEMS_PER_PAGE));
+    assertThat(WebUtils.calculateMaxPages(0), is(1));
+    assertThat(WebUtils.calculateMaxPages(WebUtils.MAX_ITEMS_PER_PAGE), is(1));
+    assertThat(WebUtils.calculateMaxPages(WebUtils.MAX_ITEMS_PER_PAGE - 1), is(1));
   }
 
   @Test
-  public void shouldContainTenPages() {
-    assertThat(WebUtils.calculateMaxPages(100), is(100 / WebUtils.MAX_ITEMS_PER_PAGE));
+  public void shouldContainTwoPages() {
+    assertThat(WebUtils.calculateMaxPages(WebUtils.MAX_ITEMS_PER_PAGE + 1), is(2));
+    assertThat(WebUtils.calculateMaxPages(WebUtils.MAX_ITEMS_PER_PAGE + WebUtils.MAX_ITEMS_PER_PAGE), is(2));
   }
 
   @Test

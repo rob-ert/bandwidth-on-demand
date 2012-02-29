@@ -24,6 +24,8 @@
                     <c:otherwise>
                         <spring:url value="" var="prev_page_url">
                             <spring:param name="page" value="${page - 1}" />
+                            <spring:param name="sort" value="${sortProperty}" />
+                            <spring:param name="order" value="${sortDirection}" />
                         </spring:url>
                         <li class="prev"><a href="${prev_page_url}">&#8592; Previous</a></li>
                     </c:otherwise>
@@ -39,6 +41,8 @@
                     </c:choose>
                     <spring:url value="" var="page_url">
                         <spring:param name="page" value="${i}" />
+                        <spring:param name="sort" value="${sortProperty}" />
+                        <spring:param name="order" value="${sortDirection}" />
                     </spring:url>
                     <li class="${page_class}"><a href="${page_url}">${i}</a></li>
                 </c:forEach>
@@ -50,6 +54,8 @@
                     <c:otherwise>
                         <spring:url value="" var="next_page_url">
                             <spring:param name="page" value="${page + 1}" />
+                            <spring:param name="sort" value="${sortProperty}" />
+                            <spring:param name="order" value="${sortDirection}" />
                         </spring:url>
                         <li class="next"><a href="${next_page_url}">Next &#8594;</a></li>
                     </c:otherwise>

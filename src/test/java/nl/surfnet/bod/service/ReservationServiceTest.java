@@ -30,7 +30,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -57,6 +57,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.collect.Lists;
@@ -76,14 +77,12 @@ public class ReservationServiceTest {
   @Mock
   private NbiClient nbiPortService;
 
-  private Object object;
-
   @Test
   public void whenTheUserHasNoGroupsTheReservationsShouldBeEmpty() {
     RichUserDetails richUserDetailsWithoutGroups = new RichUserDetailsFactory().create();
     Security.setUserDetails(richUserDetailsWithoutGroups);
 
-    Collection<Reservation> reservations = subject.findEntries(0, 20);
+    List<Reservation> reservations = subject.findEntries(0, 20, new Sort("id"));
 
     assertThat(reservations, hasSize(0));
   }
@@ -97,7 +96,7 @@ public class ReservationServiceTest {
     PageImpl<Reservation> pageResult = new PageImpl<Reservation>(Lists.newArrayList(new ReservationFactory().create()));
     when(reservationRepoMock.findAll(any(Specification.class), any(Pageable.class))).thenReturn(pageResult);
 
-    Collection<Reservation> reservations = subject.findEntries(0, 20);
+    List<Reservation> reservations = subject.findEntries(0, 20, new Sort("id"));
 
     assertThat(reservations, hasSize(1));
   }

@@ -118,6 +118,11 @@ form .clearfix.error select {
 .input-text {padding-top: 6px;font-size: 13px;line-height: 18px;}
 
 .zebra-striped > thead > tr > th{background-color: white;}
+thead tr th.headerSortDown, thead tr th.headerSortUp{background-color: rgba(141, 192, 219, 0.25);}
+th.headerSortDown::after{content:"";float:right;margin-top:7px;border-width: 4px 4px 0px;border-style: solid; border-color: black transparent;}
+th.headerSortUp::after{content:"";float:right;margin-top:7px;border-width: 0 4px 4px;border-style: solid; border-color: black transparent;}
+th a{color:#404040;text-decoration:none}
+th a:hover{text-decoration:none}
 .zebra-striped > tbody > tr:nth-child(odd) > td,.zebra-striped > tbody > tr:nth-child(odd) > th{background-color:#f9f9f9;}
 .zebra-striped > tbody > tr > td,.zebra-striped > tbody > tr > th{background-color:white;}
 .zebra-striped > tbody > tr:hover > td,.zebra-striped > tbody > tr:hover > th{background-color:#f5f5f5;}
