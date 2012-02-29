@@ -86,14 +86,12 @@ public final class WebUtils {
   }
 
   public static void addInfoMessage(Model model, MessageSource messageSource, String label, String... messageArgs) {
-    String message = messageSource.getMessage(label, null, LocaleContextHolder.getLocale());
-    addInfoMessage(model, message, messageArgs);
+    addInfoMessage(model, getMessage(messageSource, label), messageArgs);
   }
 
   public static void addInfoMessage(RedirectAttributes model, MessageSource messageSource, String label,
       String... messageArgs) {
-    String message = messageSource.getMessage(label, null, LocaleContextHolder.getLocale());
-    addInfoMessage(model, message, messageArgs);
+    addInfoMessage(model, getMessage(messageSource, label), messageArgs);
   }
 
   public static void addInfoMessage(RedirectAttributes model, String message, String... messageArgs) {
@@ -168,5 +166,9 @@ public final class WebUtils {
     else {
       messages.add(message);
     }
+  }
+
+  public static String getMessage(MessageSource messageSource, String key) {
+    return messageSource.getMessage(key, null, LocaleContextHolder.getLocale());
   }
 }

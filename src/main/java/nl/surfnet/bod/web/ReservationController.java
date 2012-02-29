@@ -115,7 +115,11 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
     Collection<VirtualPort> ports = (Collection<VirtualPort>) model.asMap().get("virtualPorts");
     if (CollectionUtils.isEmpty(ports) || ports.size() == 1) {
-      WebUtils.addInfoMessage(model, messageSource, "info_reservation_need_two_virtual_ports");
+
+      MessageCommand message = new MessageCommand(messageSource).setInfoMessage("info_reservation_need_two_virtual_ports");
+      model.addAttribute(MessageCommand.MODEL_KEY, message);
+
+      return MessageCommand.PAGE_URL;
     }
 
     return PAGE_URL + CREATE;

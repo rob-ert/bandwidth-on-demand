@@ -1,0 +1,19 @@
+<div xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
+    xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:sec="http://www.springframework.org/security/tags"
+    xmlns:jsp="http://java.sun.com/JSP/Page">
+
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+
+    <div class="hero-unit">
+        <h1><c:out value="${message.header}" /></h1>
+        <br/>
+        <p>
+            <c:out value="${message.paragraph}" />
+        </p>
+        <br/>
+		<c:if test="${not empty message.url}">
+        		<a href="${message.url}" class="btn primary large"> <c:out value="${message.urlText}" /></a>
+        </c:if>
+    </div>
+</div>

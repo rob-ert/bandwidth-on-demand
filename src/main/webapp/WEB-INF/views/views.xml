@@ -20,5 +20,7 @@
     <definition extends="default" name="uncaughtException">
         <put-attribute name="body" value="/WEB-INF/views/uncaughtException.jspx" />
     </definition>
-
+    <definition extends="default" name="message">
+        <put-attribute name="body" value="/WEB-INF/views/message.jspx" />
+    </definition>
 </tiles-definitions>
