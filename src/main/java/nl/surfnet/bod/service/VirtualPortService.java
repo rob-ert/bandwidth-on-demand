@@ -38,6 +38,7 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,15 +112,16 @@ public class VirtualPortService {
     return virtualPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults)).getContent();
   }
 
-  public List<VirtualPort> findEntriesForUser(final RichUserDetails user, final int firstResult, final int maxResults) {
+  public List<VirtualPort> findEntriesForUser(final RichUserDetails user, final int firstResult, final int maxResults,
+      Sort sort) {
     checkNotNull(user);
 
     if (user.getUserGroups().isEmpty()) {
       return Collections.emptyList();
     }
 
-    return virtualPortRepo.findAll(specificationForUser(user), new PageRequest(firstResult / maxResults, maxResults))
-        .getContent();
+    return virtualPortRepo.findAll(specificationForUser(user),
+        new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
   public List<VirtualPort> findEntriesForManager(final RichUserDetails manager, final int firstResult,
@@ -130,8 +132,8 @@ public class VirtualPortService {
       return Collections.emptyList();
     }
 
-    return virtualPortRepo
-        .findAll(specificationForManager(manager), new PageRequest(firstResult / maxResults, maxResults)).getContent();
+    return virtualPortRepo.findAll(specificationForManager(manager),
+        new PageRequest(firstResult / maxResults, maxResults)).getContent();
   }
 
   public VirtualPort findByManagerLabel(String label) {

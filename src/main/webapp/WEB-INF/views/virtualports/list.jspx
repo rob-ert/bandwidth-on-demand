@@ -5,8 +5,8 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
         
-     <page:list id="pl_virtualport" items="${virtualPorts}">
-        <table:table data="${virtualPorts}" id="l_VirtualPort" path="/virtualports" typeIdFieldName="id" delete="false" show="false" >
+     <page:list id="pl_virtualport" items="${list}">
+        <table:table data="${list}" id="l_VirtualPort" path="/virtualports" typeIdFieldName="id" delete="false" show="false" >
             <table:column labelCode="virtualPort" id="virtualport" property="userLabel" />
             <table:column labelCode="virtualport_max_bandwidth" id="maxBandwidth" property="maxBandwidth"/>
             <table:column labelCode="virtualResourceGroup" id="virtualresourcegroup" property="virtualResourceGroup" />
