@@ -35,8 +35,9 @@ import javax.validation.constraints.NotNull;
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.*;
+import nl.surfnet.bod.web.AbstractSortableListController;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortView;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationView;
 
@@ -44,6 +45,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -58,10 +60,9 @@ import com.google.common.collect.Lists;
 
 @Controller("managerVirtualPortController")
 @RequestMapping(VirtualPortController.PAGE_URL)
-public class VirtualPortController {
+public class VirtualPortController extends AbstractSortableListController<VirtualPortView> {
 
   public static final String MODEL_KEY = "virtualPort";
-  public static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
   public static final String PAGE_URL = "/manager/virtualports";
 
   private static final Function<VirtualPort, VirtualPortView> TO_VIRTUAL_PORT_VIEW =
@@ -159,19 +160,6 @@ public class VirtualPortController {
     return PAGE_URL + SHOW;
   }
 
-  @RequestMapping(method = RequestMethod.GET)
-  public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model model) {
-    RichUserDetails manager = Security.getUserDetails();
-
-    model.addAttribute(MODEL_KEY_LIST, Lists.transform(
-        virtualPortService.findEntriesForManager(manager, calculateFirstPage(page), MAX_ITEMS_PER_PAGE),
-        TO_VIRTUAL_PORT_VIEW));
-
-    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(virtualPortService.countForManager(manager)));
-
-    return PAGE_URL + LIST;
-  }
-
   @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid VirtualPortUpdateCommand command, BindingResult result, Model model,
       RedirectAttributes redirectAttributes) {
@@ -197,8 +185,7 @@ public class VirtualPortController {
     }
 
     model.asMap().clear();
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_updated",
-        port.getManagerLabel());
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_updated", port.getManagerLabel());
 
     virtualPortService.update(port);
 
@@ -282,6 +269,28 @@ public class VirtualPortController {
 
     model.addAttribute("physicalResourceGroups", groups);
     model.addAttribute("physicalPorts", ports);
+  }
+
+  @Override
+  protected String listUrl() {
+    return PAGE_URL + LIST;
+  }
+
+  @Override
+  protected List<VirtualPortView> list(int firstPage, int maxItems, Sort sort) {
+    return Lists.transform(
+        virtualPortService.findEntriesForManager(Security.getUserDetails(), firstPage, maxItems, sort),
+        TO_VIRTUAL_PORT_VIEW);
+  }
+
+  @Override
+  protected long count() {
+    return virtualPortService.countForManager(Security.getUserDetails());
+  }
+
+  @Override
+  protected String defaultSortProperty() {
+    return "managerLabel";
   }
 
   public static final class VirtualPortUpdateCommand {
@@ -433,5 +442,4 @@ public class VirtualPortController {
     }
 
   }
-
 }

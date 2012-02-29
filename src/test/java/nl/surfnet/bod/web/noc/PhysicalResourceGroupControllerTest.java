@@ -22,7 +22,6 @@
 package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
-import static nl.surfnet.bod.web.noc.PhysicalResourceGroupController.MODEL_KEY_LIST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
@@ -55,6 +54,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -80,11 +80,11 @@ public class PhysicalResourceGroupControllerTest {
   public void listShouldSetGroupsAndMaxPages() {
     Model model = new ModelStub();
     List<PhysicalResourceGroup> groups = Lists.newArrayList(new PhysicalResourceGroupFactory().create());
-    when(physicalResourceGroupServiceMock.findEntries(eq(0), anyInt())).thenReturn(groups);
+    when(physicalResourceGroupServiceMock.findEntries(eq(0), anyInt(), any(Sort.class))).thenReturn(groups);
 
-    subject.list(1, model);
+    subject.list(1, null, null, model);
 
-    assertThat(model.asMap(), hasEntry(MODEL_KEY_LIST, Object.class.cast(groups)));
+    assertThat(model.asMap(), hasEntry("list", Object.class.cast(groups)));
     assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
   }
 

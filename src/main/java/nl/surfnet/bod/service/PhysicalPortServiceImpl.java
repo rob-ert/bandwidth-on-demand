@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -196,14 +197,14 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   }
 
   @Override
-  public Collection<PhysicalPort> findAllocatedEntriesForUser(final RichUserDetails user, int firstResult,
-      int maxResults) {
+  public List<PhysicalPort> findAllocatedEntriesForUser(RichUserDetails user, int firstResult, int maxResults,
+      Sort sort) {
     if (user.getUserGroups().isEmpty()) {
       return Collections.emptyList();
     }
 
-    return physicalPortRepo.findAll(specificationForUser(user), new PageRequest(firstResult / maxResults, maxResults))
-        .getContent();
+    return physicalPortRepo.findAll(specificationForUser(user),
+        new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
   @Override

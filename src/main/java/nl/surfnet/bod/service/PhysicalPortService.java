@@ -22,9 +22,12 @@
 package nl.surfnet.bod.service;
 
 import java.util.Collection;
+import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.web.security.RichUserDetails;
+
+import org.springframework.data.domain.Sort;
 
 public interface PhysicalPortService {
 
@@ -75,7 +78,7 @@ public interface PhysicalPortService {
    *          the user
    * @return list of user visible physical ports
    */
-  Collection<PhysicalPort> findAllocatedEntriesForUser(RichUserDetails user, final int firstResult, final int sizeNo);
+  List<PhysicalPort> findAllocatedEntriesForUser(RichUserDetails user, int firstResult, int sizeNo, Sort sort);
 
   long countUnallocated();
 

@@ -25,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -48,6 +49,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.domain.Sort;
 import org.springframework.validation.BeanPropertyBindingResult;
 
 import com.google.common.collect.Lists;
@@ -71,11 +73,11 @@ public class VirtualPortControllerTest {
 
   @Test
   public void list() {
-    when(virtualPortServiceMock.findEntriesForUser(eq(user), eq(0), anyInt())).thenReturn(
+    when(virtualPortServiceMock.findEntriesForUser(eq(user), eq(0), anyInt(), any(Sort.class))).thenReturn(
         Lists.newArrayList(new VirtualPortFactory().create()));
 
     ModelStub model = new ModelStub();
-    subject.list(null, model);
+    subject.list(null, null, null, model);
 
     assertThat(model.asMap(), hasKey("virtualPorts"));
 

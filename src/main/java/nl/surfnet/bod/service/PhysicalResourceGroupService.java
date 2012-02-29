@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,17 +97,17 @@ public class PhysicalResourceGroupService {
     return prgs;
   }
 
-  public List<PhysicalResourceGroup> findEntries(final int firstResult, final int maxResults) {
+  public List<PhysicalResourceGroup> findEntries(int firstResult, int maxResults, Sort sort) {
     List<PhysicalResourceGroup> prgs = physicalResourceGroupRepo.findAll(
-        new PageRequest(firstResult / maxResults, maxResults)).getContent();
+        new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
 
     instituteService.fillInstituteForPhysicalResourceGroups(prgs);
 
     return prgs;
   }
 
-  public List<PhysicalResourceGroup> findEntriesForManager(final RichUserDetails user, final int firstResult,
-      final int maxResults) {
+  public List<PhysicalResourceGroup> findEntriesForManager(RichUserDetails user, int firstResult, int maxResults,
+      Sort sort) {
     checkNotNull(user);
 
     if (user.getUserGroups().isEmpty()) {
@@ -114,7 +115,7 @@ public class PhysicalResourceGroupService {
     }
 
     List<PhysicalResourceGroup> prgs = physicalResourceGroupRepo.findAll(forCurrentManager(user),
-        new PageRequest(firstResult / maxResults, maxResults)).getContent();
+        new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
 
     instituteService.fillInstituteForPhysicalResourceGroups(prgs);
 
@@ -184,8 +185,8 @@ public class PhysicalResourceGroupService {
 
   @SuppressWarnings("unchecked")
   public ActivationEmailLink<PhysicalResourceGroup> findActivationLink(String uuid) {
-    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink =
-        (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo.findByUuid(uuid);
+    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo
+        .findByUuid(uuid);
 
     if (activationEmailLink != null) {
       activationEmailLink.setSourceObject(find(activationEmailLink.getSourceId()));
@@ -221,8 +222,7 @@ public class PhysicalResourceGroupService {
 
   @SuppressWarnings("unchecked")
   @Transactional
-  public ActivationEmailLink<PhysicalResourceGroup> sendActivationRequest(
-      PhysicalResourceGroup physicalResourceGroup) {
+  public ActivationEmailLink<PhysicalResourceGroup> sendActivationRequest(PhysicalResourceGroup physicalResourceGroup) {
 
     deActivatePhysicalResourceGroup(physicalResourceGroup);
 

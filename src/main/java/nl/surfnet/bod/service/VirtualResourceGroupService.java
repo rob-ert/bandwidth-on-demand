@@ -36,6 +36,7 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,10 +65,10 @@ public class VirtualResourceGroupService {
     return virtualResourceGroupRepo.findAll();
   }
 
-  public List<VirtualResourceGroup> findEntries(final int firstResult, final int maxResults) {
+  public List<VirtualResourceGroup> findEntries(final int firstResult, final int maxResults, final Sort sort) {
     checkArgument(maxResults > 0);
 
-    return virtualResourceGroupRepo.findAll(new PageRequest(firstResult / maxResults, maxResults)).getContent();
+    return virtualResourceGroupRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
   public void save(final VirtualResourceGroup virtualResourceGroup) {

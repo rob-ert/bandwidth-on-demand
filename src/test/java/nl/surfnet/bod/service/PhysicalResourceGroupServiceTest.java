@@ -57,6 +57,7 @@ import org.mockito.stubbing.Answer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.collect.ImmutableList;
@@ -139,12 +140,13 @@ public class PhysicalResourceGroupServiceTest {
   @Test
   public void shoudFillInstitutesFindEntries() {
     Page<PhysicalResourceGroup> pageResult = new PageImpl<PhysicalResourceGroup>(physicalResourceGroups);
-    when(groupRepoMock.findAll(new PageRequest(1, 1))).thenReturn(pageResult);
+    Sort sort = new Sort("id");
 
+    when(groupRepoMock.findAll(new PageRequest(1, 1, sort))).thenReturn(pageResult);
     when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
     when(instituteServiceMock.findInstitute(2L)).thenReturn(instituteTwo);
 
-    List<PhysicalResourceGroup> prgs = subject.findEntries(1, 1);
+    List<PhysicalResourceGroup> prgs = subject.findEntries(1, 1, new Sort("id"));
 
     Iterator<PhysicalResourceGroup> it = prgs.iterator();
     assertThat(it.next().getInstitute(), is(instituteOne));

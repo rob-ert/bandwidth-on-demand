@@ -44,6 +44,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.collect.ImmutableList;
@@ -121,7 +122,7 @@ public class VirtualPortServiceTest {
 
   @Test
   public void findAllEntriesForUserWithoutGroupsShouldNotGoToRepo() {
-      List<VirtualPort> ports = subject.findEntriesForUser(new RichUserDetailsFactory().create(), 2, 5);
+      List<VirtualPort> ports = subject.findEntriesForUser(new RichUserDetailsFactory().create(), 2, 5, new Sort("id"));
 
       assertThat(ports, hasSize(0));
       verifyZeroInteractions(virtualPortRepoMock);

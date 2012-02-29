@@ -6,8 +6,8 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <page:list id="pl_PhysicalPort" items="${physicalPorts}">
-        <table:table data="${physicalPorts}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/manager/physicalports"
+    <page:list id="pl_PhysicalPort" items="${list}">
+        <table:table data="${list}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/manager/physicalports"
             typeIdFieldName="id" delete="false" show="false">
 
             <table:column id="c_PhysicalPort_managerLabel" property="managerLabel" />

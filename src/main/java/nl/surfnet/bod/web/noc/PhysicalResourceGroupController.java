@@ -25,6 +25,7 @@ import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -34,6 +35,7 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.web.AbstractSortableListController;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.view.PhysicalPortJsonView;
 
@@ -41,6 +43,7 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -49,10 +52,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
-public class PhysicalResourceGroupController {
+public class PhysicalResourceGroupController extends AbstractSortableListController<PhysicalResourceGroup> {
 
   static final String PAGE_URL = "physicalresourcegroups";
   static final String MODEL_KEY = "physicalResourceGroupCommand";
@@ -103,16 +107,6 @@ public class PhysicalResourceGroupController {
     uiModel.addAttribute(MODEL_KEY, physicalResourceGroupService.find(id));
 
     return PAGE_URL + SHOW;
-  }
-
-  @RequestMapping(method = RequestMethod.GET)
-  public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model model) {
-    model.addAttribute(MODEL_KEY_LIST,
-        physicalResourceGroupService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
-
-    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalResourceGroupService.count()));
-
-    return PAGE_URL + LIST;
   }
 
   @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET, produces = "application/json")
@@ -194,6 +188,35 @@ public class PhysicalResourceGroupController {
     Institute institute = instituteService.findInstitute(command.getInstituteId());
     command.setInstitute(institute);
     group.setInstitute(institute);
+  }
+
+  @Override
+  protected String listUrl() {
+    return PAGE_URL + LIST;
+  }
+
+  @Override
+  protected List<PhysicalResourceGroup> list(int firstPage, int maxItems, Sort sort) {
+    return physicalResourceGroupService.findEntries(firstPage, maxItems, sort);
+  }
+
+  @Override
+  protected long count() {
+    return physicalResourceGroupService.count();
+  }
+
+  @Override
+  protected String defaultSortProperty() {
+    return "name";
+  }
+
+  @Override
+  protected List<String> translateSortProperty(String sortProperty) {
+    if (sortProperty.equals("name")) {
+      return ImmutableList.of("instituteId");
+    }
+
+    return super.translateSortProperty(sortProperty);
   }
 
   public static final class PhysicalResourceGroupCommand {

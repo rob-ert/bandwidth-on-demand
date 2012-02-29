@@ -49,6 +49,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -89,7 +90,7 @@ public class VirtualResourceGroupServiceTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void findEntriesWithMaxResultZeroShouldGiveAnException() {
-    subject.findEntries(1, 0);
+    subject.findEntries(1, 0, new Sort("id"));
   }
 
   @Test
@@ -99,7 +100,7 @@ public class VirtualResourceGroupServiceTest {
     when(groupRepoMock.findAll(any(PageRequest.class))).thenReturn(
         new PageImpl<VirtualResourceGroup>(Lists.newArrayList(group)));
 
-    List<VirtualResourceGroup> groups = subject.findEntries(5, 10);
+    List<VirtualResourceGroup> groups = subject.findEntries(5, 10, null);
 
     assertThat(groups, contains(group));
   }

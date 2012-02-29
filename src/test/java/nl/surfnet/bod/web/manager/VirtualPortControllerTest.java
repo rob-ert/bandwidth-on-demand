@@ -21,9 +21,10 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.web.manager.VirtualPortController.MODEL_KEY_LIST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,6 +49,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 
@@ -94,15 +96,16 @@ public class VirtualPortControllerTest {
   public void listShouldFindEntries() {
     ModelStub model = new ModelStub();
 
-    when(virtualPortServiceMock.findEntriesForManager(manager, 0, WebUtils.MAX_ITEMS_PER_PAGE)).thenReturn(
-        Lists.newArrayList(new VirtualPortFactory().create()));
+    when(
+        virtualPortServiceMock.findEntriesForManager(eq(manager), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE),
+            any(Sort.class))).thenReturn(Lists.newArrayList(new VirtualPortFactory().create()));
 
-    subject.list(1, model);
+    subject.list(1, null, null, model);
 
-    assertThat(model.asMap(), hasKey(MODEL_KEY_LIST));
+    assertThat(model.asMap(), hasKey("list"));
     assertThat(model.asMap(), hasKey(WebUtils.MAX_PAGES_KEY));
 
-    assertThat((Collection<VirtualPort>) model.asMap().get(MODEL_KEY_LIST), hasSize(1));
+    assertThat((Collection<VirtualPort>) model.asMap().get("list"), hasSize(1));
   }
 
   @Test
@@ -166,7 +169,8 @@ public class VirtualPortControllerTest {
   @Test
   public void shouldSetVirtualResourceGroupOnPort() {
     ModelStub model = new ModelStub();
-    VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:some-user-group").create();
+    VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:some-user-group")
+        .create();
 
     when(virtualResourceGroupServiceMock.find(1L)).thenReturn(vGroup);
 

@@ -21,10 +21,9 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.web.WebUtils.*;
-
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -32,11 +31,13 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.AbstractSortableListController;
+import nl.surfnet.bod.web.manager.PhysicalPortController.PhysicalPortView;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.VirtualPortJsonView;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -44,10 +45,11 @@ import org.springframework.web.bind.annotation.*;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 
 @Controller("managerPhysicalPortController")
 @RequestMapping("/manager/physicalports")
-public class PhysicalPortController {
+public class PhysicalPortController extends AbstractSortableListController<PhysicalPortView> {
 
   @Autowired
   private PhysicalPortService physicalPortService;
@@ -95,21 +97,6 @@ public class PhysicalPortController {
     return "redirect:physicalports";
   }
 
-  @RequestMapping(method = RequestMethod.GET)
-  public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model model) {
-    RichUserDetails user = Security.getUserDetails();
-
-    Collection<PhysicalPortView> ports = Collections2.transform(
-        physicalPortService.findAllocatedEntriesForUser(user, calculateFirstPage(page), MAX_ITEMS_PER_PAGE),
-        toView);
-
-    model.addAttribute("physicalPorts", ports);
-    model.addAttribute(MAX_PAGES_KEY,
-        calculateMaxPages(physicalPortService.countAllocatedForUser(user)));
-
-    return "manager/physicalports/list";
-  }
-
   @RequestMapping(value = "/{id}/virtualports", method = RequestMethod.GET, produces = "application/json")
   @ResponseBody
   public Collection<VirtualPortJsonView> listVirtualPortsJson(@PathVariable Long id) {
@@ -126,6 +113,28 @@ public class PhysicalPortController {
             return new VirtualPortJsonView(port);
           }
         });
+  }
+
+  @Override
+  protected String listUrl() {
+    return "manager/physicalports/list";
+  }
+
+  @Override
+  protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort) {
+    return Lists.transform(
+        physicalPortService.findAllocatedEntriesForUser(Security.getUserDetails(), firstPage, maxItems, sort),
+        toView);
+  }
+
+  @Override
+  protected String defaultSortProperty() {
+    return "managerLabel";
+  }
+
+  @Override
+  protected long count() {
+    return physicalPortService.countAllocatedForUser(Security.getUserDetails());
   }
 
   // ****                  **** //
@@ -212,4 +221,5 @@ public class PhysicalPortController {
     }
 
   }
+
 }

@@ -21,19 +21,20 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import java.util.List;
 
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.web.AbstractSortableListController;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -42,24 +43,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.collect.ImmutableList;
+
 @Controller("managerPhysicalResourceGroupController")
 @RequestMapping("/manager/physicalresourcegroups")
-public class PhysicalResourceGroupController {
+public class PhysicalResourceGroupController extends AbstractSortableListController<PhysicalResourceGroup> {
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
-
-  @RequestMapping(method = RequestMethod.GET)
-  public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
-    RichUserDetails user = Security.getUserDetails();
-
-    uiModel.addAttribute("physicalResourceGroups",
-        physicalResourceGroupService.findEntriesForManager(user, calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
-
-    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalResourceGroupService.countForManager(user)));
-
-    return "manager/physicalresourcegroups/list";
-  }
 
   @RequestMapping(value = "/edit", params = "id", method = RequestMethod.GET)
   public String updateForm(@RequestParam("id") final Long id, final Model model) {
@@ -105,6 +96,36 @@ public class PhysicalResourceGroupController {
     return group.getManagerEmail() == null || !group.getManagerEmail().equals(command.getManagerEmail());
   }
 
+  @Override
+  protected String listUrl() {
+    return "manager/physicalresourcegroups/list";
+  }
+
+  @Override
+  protected List<PhysicalResourceGroup> list(int firstPage, int maxItems, Sort sort) {
+    return physicalResourceGroupService.findEntriesForManager(Security.getUserDetails(), firstPage, maxItems, sort);
+  }
+
+  @Override
+  protected long count() {
+    return physicalResourceGroupService.countForManager(Security.getUserDetails());
+  }
+
+  @Override
+  protected String defaultSortProperty() {
+    return "name";
+  }
+
+  @Override
+  protected List<String> translateSortProperty(String sortProperty) {
+    if (sortProperty.equals("name")) {
+      // TODO not a field in the database...
+      return ImmutableList.of("instituteId");
+    }
+
+    return super.translateSortProperty(sortProperty);
+  }
+
   public static final class UpdateEmailCommand {
     private Long id;
     private Integer version;
@@ -146,4 +167,5 @@ public class PhysicalResourceGroupController {
     }
 
   }
+
 }

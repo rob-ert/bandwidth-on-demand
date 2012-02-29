@@ -22,12 +22,11 @@
 package nl.surfnet.bod.web.manager;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
-
-import static nl.surfnet.bod.web.manager.VirtualResourceGroupController.MODEL_KEY_LIST;
 
 import java.util.Collection;
 
@@ -42,6 +41,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.domain.Sort;
 
 import com.google.common.collect.Lists;
 
@@ -59,14 +59,14 @@ public class VirtualResourceGroupControllerTest {
   public void listShouldFindEntries() {
     ModelStub model = new ModelStub();
 
-    when(virtualResourceGroupServiceMock.findEntries(0, WebUtils.MAX_ITEMS_PER_PAGE)).thenReturn(
+    when(virtualResourceGroupServiceMock.findEntries(eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
         Lists.newArrayList(new VirtualResourceGroupFactory().create()));
 
-    subject.list(1, model);
+    subject.list(1, null, null, model);
 
-    assertThat(model.asMap(), hasKey(MODEL_KEY_LIST));
+    assertThat(model.asMap(), hasKey("list"));
     assertThat(model.asMap(), hasKey(WebUtils.MAX_PAGES_KEY));
 
-    assertThat((Collection<VirtualResourceGroup>) model.asMap().get(MODEL_KEY_LIST), hasSize(1));
+    assertThat((Collection<VirtualResourceGroup>) model.asMap().get("list"), hasSize(1));
   }
 }

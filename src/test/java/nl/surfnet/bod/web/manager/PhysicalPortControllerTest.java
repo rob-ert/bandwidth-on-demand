@@ -52,6 +52,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.domain.Sort;
 import org.springframework.validation.BeanPropertyBindingResult;
 
 import com.google.common.collect.Lists;
@@ -84,15 +85,15 @@ public class PhysicalPortControllerTest {
   public void listPorts() {
     ModelStub model = new ModelStub();
 
-    when(physicalPortServiceMock.findAllocatedEntriesForUser(eq(user), eq(0), anyInt())).thenReturn(
+    when(physicalPortServiceMock.findAllocatedEntriesForUser(eq(user), eq(0), anyInt(), any(Sort.class))).thenReturn(
         Lists.newArrayList(new PhysicalPortFactory().setId(2L).create()));
 
-    subject.list(null, model);
+    subject.list(null, null, null, model);
 
-    assertThat(model.asMap(), hasKey("physicalPorts"));
+    assertThat(model.asMap(), hasKey("list"));
     assertThat(model.asMap(), hasKey("maxPages"));
 
-    Collection<PhysicalPortView> ports = (Collection<PhysicalPortView>) model.asMap().get("physicalPorts");
+    Collection<PhysicalPortView> ports = (Collection<PhysicalPortView>) model.asMap().get("list");
     assertThat(ports, hasSize(1));
     assertThat(ports.iterator().next().getId(), is(2L));
   }

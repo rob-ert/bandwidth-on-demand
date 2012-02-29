@@ -104,8 +104,8 @@ public class ReservationControllerTest {
     subject.createForm(model);
 
     assertThat(model.asMap(), hasKey("reservation"));
-    assertThat(model.asMap(), hasKey("virtualPortList"));
-    assertThat(model.asMap(), hasKey("virtualResourceGroupList"));
+    assertThat(model.asMap(), hasKey("virtualPorts"));
+    assertThat(model.asMap(), hasKey("virtualResourceGroups"));
 
     Reservation reservation = (Reservation) model.asMap().get("reservation");
     assertThat(reservation.getStartDate(), not(nullValue()));
@@ -124,8 +124,8 @@ public class ReservationControllerTest {
     subject.createForm(model);
 
     assertThat(model.asMap(), hasKey(ReservationController.MODEL_KEY));
-    assertThat(model.asMap(), hasKey("virtualPortList"));
-    assertThat(model.asMap(), hasKey("virtualResourceGroupList"));
+    assertThat(model.asMap(), hasKey("virtualPorts"));
+    assertThat(model.asMap(), hasKey("virtualResourceGroups"));
 
     Reservation reservation = (Reservation) model.asMap().get("reservation");
     assertThat(reservation.getStartDate(), not(nullValue()));

@@ -40,8 +40,6 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.ReservationValidator;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.web.manager.VirtualPortController;
-import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationView;
@@ -107,7 +105,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
     if (bindingResult.hasErrors()) {
       model.addAttribute(MODEL_KEY, reservation);
-      model.addAttribute(VirtualPortController.MODEL_KEY_LIST, reservation.getVirtualResourceGroup().getVirtualPorts());
+      model.addAttribute("virtualPorts", reservation.getVirtualResourceGroup().getVirtualPorts());
 
       return PAGE_URL + CREATE;
     }
@@ -207,13 +205,12 @@ public class ReservationController extends AbstractSortableListController<Reserv
           }
         });
 
-    model.addAttribute(VirtualResourceGroupController.MODEL_KEY_LIST, groups);
 
     Collection<VirtualPort> ports = groups.isEmpty() ? Collections.<VirtualPort> emptyList() : groups.iterator().next()
         .getVirtualPorts();
 
-    model.addAttribute(VirtualPortController.MODEL_KEY_LIST, ports);
-
+    model.addAttribute("virtualResourceGroups", groups);
+    model.addAttribute("virtualPorts", ports);
     model.addAttribute(MODEL_KEY, createDefaultReservation(ports));
   }
 

@@ -24,14 +24,17 @@ package nl.surfnet.bod.web.manager;
 import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.VirtualResourceGroupValidator;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.web.AbstractSortableListController;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -42,11 +45,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller("managerVirtualResourceGroupController")
 @RequestMapping("/manager/" + VirtualResourceGroupController.PAGE_URL)
-public class VirtualResourceGroupController {
+public class VirtualResourceGroupController extends AbstractSortableListController<VirtualResourceGroup> {
   public static final String PAGE_URL = "virtualresourcegroups";
 
   public static final String MODEL_KEY = "virtualResourceGroup";
-  public static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
 
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
@@ -94,16 +96,6 @@ public class VirtualResourceGroupController {
     uiModel.addAttribute(MODEL_KEY, virtualResourceGroupService.find(id));
 
     return PAGE_URL + SHOW;
-  }
-
-  @RequestMapping(method = RequestMethod.GET)
-  public String list(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY_LIST,
-        virtualResourceGroupService.findEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
-
-    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(virtualResourceGroupService.count()));
-
-    return PAGE_URL + LIST;
   }
 
   /**
@@ -158,9 +150,29 @@ public class VirtualResourceGroupController {
    *
    * @return Collection<PhysicalResourceGroup>
    */
-  @ModelAttribute(MODEL_KEY_LIST)
+  @ModelAttribute("virtualResourceGroups")
   public Collection<VirtualResourceGroup> populatevirtualResourceGroups() {
     return virtualResourceGroupService.findAll();
+  }
+
+  @Override
+  protected String listUrl() {
+    return PAGE_URL + LIST;
+  }
+
+  @Override
+  protected List<VirtualResourceGroup> list(int firstPage, int maxItems, Sort sort) {
+    return virtualResourceGroupService.findEntries(firstPage, maxItems, sort);
+  }
+
+  @Override
+  protected long count() {
+    return virtualResourceGroupService.count();
+  }
+
+  @Override
+  protected String defaultSortProperty() {
+    return "name";
   }
 
 }

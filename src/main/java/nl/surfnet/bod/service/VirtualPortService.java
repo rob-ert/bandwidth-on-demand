@@ -124,8 +124,7 @@ public class VirtualPortService {
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
-  public List<VirtualPort> findEntriesForManager(final RichUserDetails manager, final int firstResult,
-      final int maxResults) {
+  public List<VirtualPort> findEntriesForManager(RichUserDetails manager, int firstResult, int maxResults, Sort sort) {
     checkNotNull(manager);
 
     if (manager.getUserGroups().isEmpty()) {
@@ -133,7 +132,7 @@ public class VirtualPortService {
     }
 
     return virtualPortRepo.findAll(specificationForManager(manager),
-        new PageRequest(firstResult / maxResults, maxResults)).getContent();
+        new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
   public VirtualPort findByManagerLabel(String label) {
