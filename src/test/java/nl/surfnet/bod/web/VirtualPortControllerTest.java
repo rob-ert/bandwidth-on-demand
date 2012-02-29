@@ -79,10 +79,10 @@ public class VirtualPortControllerTest {
     ModelStub model = new ModelStub();
     subject.list(null, null, null, model);
 
-    assertThat(model.asMap(), hasKey("virtualPorts"));
+    assertThat(model.asMap(), hasKey("list"));
 
     @SuppressWarnings("unchecked")
-    Collection<VirtualPort> ports = (Collection<VirtualPort>) model.asMap().get("virtualPorts");
+    Collection<VirtualPort> ports = (Collection<VirtualPort>) model.asMap().get("list");
     assertThat(ports, hasSize(1));
   }
 

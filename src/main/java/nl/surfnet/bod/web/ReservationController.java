@@ -21,12 +21,7 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.SHOW;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -44,11 +39,7 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationView;
 
-import org.joda.time.Hours;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.ReadablePeriod;
+import org.joda.time.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
@@ -122,7 +113,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
   @SuppressWarnings("unchecked")
   public String createForm(final Model model) {
 
-    Collection<VirtualPort> ports = (Collection<VirtualPort>) model.asMap().get(VirtualPortController.MODEL_KEY_LIST);
+    Collection<VirtualPort> ports = (Collection<VirtualPort>) model.asMap().get("virtualPorts");
     if (CollectionUtils.isEmpty(ports) || ports.size() == 1) {
       WebUtils.addInfoMessage(model, messageSource, "info_reservation_need_two_virtual_ports");
     }
