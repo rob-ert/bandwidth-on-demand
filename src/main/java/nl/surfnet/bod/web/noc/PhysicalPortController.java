@@ -69,7 +69,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
 
-  @RequestMapping(value = "/free", method = RequestMethod.PUT)
+  @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid CreatePhysicalPortCommand command, final BindingResult result, final Model model,
       final RedirectAttributes redirectAttributes) {
 
@@ -92,7 +92,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     WebUtils.addInfoMessage(redirectAttributes, "Physical Port %s was assigned to %s", portToSave.getNocLabel(),
         portToSave.getPhysicalResourceGroup().getInstitute().getName());
 
-    return "redirect:free";
+    return "redirect:physicalports";
   }
 
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
@@ -119,14 +119,14 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     return PAGE_URL + "/listunallocated";
   }
 
-  @RequestMapping(value = "free/edit", params = ID_KEY, method = RequestMethod.GET)
+  @RequestMapping(value = "edit", params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final String networkElementPk, final Model uiModel) {
     PhysicalPort port;
     try {
       port = physicalPortService.findByNetworkElementPk(networkElementPk);
     }
     catch (IllegalStateException e) {
-      return "redirect:free";
+      return "redirect:";
     }
 
     uiModel.addAttribute(MODEL_KEY, new CreatePhysicalPortCommand(port));

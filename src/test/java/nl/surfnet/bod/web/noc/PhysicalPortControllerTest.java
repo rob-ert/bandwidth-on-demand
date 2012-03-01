@@ -155,7 +155,7 @@ public class PhysicalPortControllerTest {
 
     String page = subject.update(new CreatePhysicalPortCommand(port), result, model, model);
 
-    assertThat(page, is("redirect:free"));
+    assertThat(page, is("redirect:physicalports"));
     assertThat(model.getFlashAttributes(), hasKey("infoMessages"));
 
     @SuppressWarnings("unchecked")
