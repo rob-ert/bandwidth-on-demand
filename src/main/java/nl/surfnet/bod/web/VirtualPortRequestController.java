@@ -24,6 +24,7 @@ package nl.surfnet.bod.web;
 import java.util.Collection;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -115,7 +116,8 @@ public class VirtualPortRequestController {
       return "virtualports/requestform";
     }
 
-    emailSender.sendVirtualPortRequestMail(Security.getUserDetails(), pGroup, vGroup, requestCommand.getMessage());
+    emailSender.sendVirtualPortRequestMail(Security.getUserDetails(), pGroup, vGroup, requestCommand.getBandwidth(),
+        requestCommand.getMessage());
 
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_send", pGroup.getInstitute()
         .getName());
@@ -128,6 +130,8 @@ public class VirtualPortRequestController {
     private String message;
     private Long physicalResourceGroupId;
     private Long virtualResourceGroupId;
+    @NotNull
+    private Integer bandwidth;
 
     public RequestCommand() {
     }
@@ -158,6 +162,14 @@ public class VirtualPortRequestController {
 
     public void setVirtualResourceGroupId(Long virtualResourceGroupId) {
       this.virtualResourceGroupId = virtualResourceGroupId;
+    }
+
+    public Integer getBandwidth() {
+      return bandwidth;
+    }
+
+    public void setBandwidth(Integer bandwidth) {
+      this.bandwidth = bandwidth;
     }
   }
 }

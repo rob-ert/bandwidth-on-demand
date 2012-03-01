@@ -120,9 +120,12 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
-  public String createForm(@RequestParam(value = "port", required = false) Long physicalPortId,
+  public String createForm(
+      @RequestParam(value = "port", required = false) Long physicalPortId,
       @RequestParam(value = "pgroup", required = false) Long pGroupId,
-      @RequestParam(value = "vgroup", required = false) Long vGroupId, final Model model) {
+      @RequestParam(value = "vgroup", required = false) Long vGroupId,
+      @RequestParam(value = "bandwidth", required = false) Integer bandwidth,
+      Model model) {
 
     VirtualPort virtualPort = new VirtualPort();
 
@@ -148,6 +151,8 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
         model.addAttribute("physicalPorts", port.getPhysicalResourceGroup().getPhysicalPorts());
       }
     }
+
+    virtualPort.setMaxBandwidth(bandwidth);
 
     model.addAttribute(MODEL_KEY, virtualPort);
 

@@ -6,15 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.pages.manager.EditPhysicalPortPage;
-import nl.surfnet.bod.pages.manager.EditPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.manager.EditVirtualPortPage;
-import nl.surfnet.bod.pages.manager.ListPhysicalPortsPage;
-import nl.surfnet.bod.pages.manager.ListReservationPage;
-import nl.surfnet.bod.pages.manager.ListVirtualPortPage;
-import nl.surfnet.bod.pages.manager.ListVirtualResourceGroupPage;
-import nl.surfnet.bod.pages.manager.NewVirtualPortPage;
-import nl.surfnet.bod.pages.manager.NewVirtualResourceGroupPage;
+import nl.surfnet.bod.pages.manager.*;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -147,10 +139,11 @@ public class BodManagerWebDriver {
     assertTrue(page.hasNameValidationError());
   }
 
-  public void verifyNewVirtualPortHasPhysicalResourceGroup(String instituteName) {
+  public void verifyNewVirtualPortHasProperties(String instituteName, Integer bandwidth) {
     NewVirtualPortPage page = NewVirtualPortPage.get(driver);
 
     String group = page.getSelectedPhysicalResourceGroup();
+    Integer ban = page.getBandwidth();
 
     assertThat(group, is(instituteName));
   }
@@ -173,7 +166,7 @@ public class BodManagerWebDriver {
     String start = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
     String end = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
     String creation = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(creationDateTime);
-    
+
     page.findRow(start, end, creation);
   }
 

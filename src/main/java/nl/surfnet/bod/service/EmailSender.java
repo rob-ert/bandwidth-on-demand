@@ -31,6 +31,6 @@ public interface EmailSender {
   void sendActivationMail(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink);
 
   void sendVirtualPortRequestMail(RichUserDetails from, PhysicalResourceGroup pGroup, VirtualResourceGroup vGroup,
-      String requestMessage);
+      Integer bandwidth, String requestMessage);
 
 }

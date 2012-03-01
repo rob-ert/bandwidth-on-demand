@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -156,7 +157,7 @@ public class VirtualPortRequestControllerTest {
     assertThat(page, is("redirect:/virtualports/request"));
 
     verify(emailSender, never()).sendVirtualPortRequestMail(any(RichUserDetails.class),
-        any(PhysicalResourceGroup.class), any(VirtualResourceGroup.class), anyString());
+        any(PhysicalResourceGroup.class), any(VirtualResourceGroup.class), anyInt(), anyString());
   }
 
   @Test
@@ -176,7 +177,7 @@ public class VirtualPortRequestControllerTest {
     assertThat(page, is("redirect:/virtualports/request"));
 
     verify(emailSender, never()).sendVirtualPortRequestMail(any(RichUserDetails.class),
-        any(PhysicalResourceGroup.class), any(VirtualResourceGroup.class), anyString());
+        any(PhysicalResourceGroup.class), any(VirtualResourceGroup.class), anyInt(), anyString());
   }
 
   @Test
@@ -196,7 +197,7 @@ public class VirtualPortRequestControllerTest {
     assertThat(page, is("redirect:/virtualports/request"));
 
     verify(emailSender, never()).sendVirtualPortRequestMail(any(RichUserDetails.class),
-        any(PhysicalResourceGroup.class), any(VirtualResourceGroup.class), anyString());
+        any(PhysicalResourceGroup.class), any(VirtualResourceGroup.class), anyInt(), anyString());
   }
 
   @Test
@@ -206,6 +207,7 @@ public class VirtualPortRequestControllerTest {
     RequestCommand command = new RequestCommand(pGroup);
     command.setPhysicalResourceGroupId(2L);
     command.setVirtualResourceGroupId(1L);
+    command.setBandwidth(1000);
     command.setMessage("message");
 
     VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:user-group").create();
@@ -216,7 +218,7 @@ public class VirtualPortRequestControllerTest {
 
     assertThat(page, is("redirect:/"));
 
-    verify(emailSender).sendVirtualPortRequestMail(user, pGroup, vGroup, "message");
+    verify(emailSender).sendVirtualPortRequestMail(user, pGroup, vGroup, 1000, "message");
   }
 
 }

@@ -48,6 +48,19 @@
                     </c:choose>
                 </div>
 
+                <c:set var="errors"><form:errors path="bandwidth" /></c:set>
+                <c:if test="${not empty errors}">
+                    <c:set var="error_css" value="error" />
+                </c:if>
+                <div class="clearfix ${error_css}">
+                    <label>Minimum Bandwidth</label>
+                    <div class="input">
+                        <form:input path="bandwidth" class="mini"/>
+                        Mbit/s
+                        <form:errors cssClass="help-inline" id="_message_error_id" path="bandwidth" delimiter=", " />
+                    </div>
+                </div>
+
                 <c:set var="errors"><form:errors path="message" /></c:set>
                 <c:if test="${not empty errors}">
                     <c:set var="error_css" value="error" />

@@ -45,11 +45,11 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
   public void requestAVirtualPort() {
     getWebDriver().verifyRequestVirtualPortInstituteInactive("2COLLEGE");
 
-    getWebDriver().selectInstituteAndRequest("SURFnet bv", "I would like to have a new port");
+    getWebDriver().selectInstituteAndRequest("SURFnet bv", 1200, "I would like to have a new port");
 
     getWebDriver().clickLinkInLastEmail();
 
-    getManagerDriver().verifyNewVirtualPortHasPhysicalResourceGroup("SURFnet bv");
+    getManagerDriver().verifyNewVirtualPortHasProperties("SURFnet bv", 1200);
   }
 
   @After

@@ -31,12 +31,7 @@ import java.util.regex.Pattern;
 import javax.mail.internet.MimeMessage;
 
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.user.EditVirtualPortPage;
-import nl.surfnet.bod.pages.user.ListReservationPage;
-import nl.surfnet.bod.pages.user.ListVirtualPortPage;
-import nl.surfnet.bod.pages.user.NewReservationPage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortRequestPage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectInstitutePage;
+import nl.surfnet.bod.pages.user.*;
 
 import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.LocalDate;
@@ -151,7 +146,7 @@ public class BodWebDriver {
     String start = RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
     String end = RESERVATION_DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
     String creation = RESERVATION_DATE_TIME_FORMATTER.print(creationDateTime);
-    
+
     WebElement row = page.findRow(start, end, creation);
 
     assertThat(
@@ -180,13 +175,14 @@ public class BodWebDriver {
     page.reservationShouldBe(startDate, endDate, startTime, endTime, ReservationStatus.CANCELLED);
   }
 
-  public void selectInstituteAndRequest(String institute, String message) {
+  public void selectInstituteAndRequest(String institute, Integer bandwidth, String message) {
     RequestNewVirtualPortSelectInstitutePage page = RequestNewVirtualPortSelectInstitutePage
         .get(driver, URL_UNDER_TEST);
 
     RequestNewVirtualPortRequestPage requestPage = page.selectInstitute(institute);
 
     requestPage.sendMessage(message);
+    requestPage.sendBandwidth("" + bandwidth);
     requestPage.sentRequest();
   }
 

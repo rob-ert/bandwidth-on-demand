@@ -58,6 +58,7 @@ public class EmailSenderOnline implements EmailSender {
       + "Who: %s (%s)\n" //
       + "Physical Resource Group: %s\n" //
       + "Virtual Resource Group: %s\n" //
+      + "Minimum Bandwidth: %d Mbit/s\n" //
       + "Reason: %s\n\n" //
       + "Click on the following link %s to create the virtual port.\n\n" //
       + "Kind regards,\n" //
@@ -101,9 +102,9 @@ public class EmailSenderOnline implements EmailSender {
 
   @Override
   public void sendVirtualPortRequestMail(RichUserDetails from, PhysicalResourceGroup pGroup,
-      VirtualResourceGroup vGroup, String requestMessage) {
-    String link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create?vgroup=%d&pgroup=%d",
-        vGroup.getId(), pGroup.getId());
+      VirtualResourceGroup vGroup, Integer bandwidth, String requestMessage) {
+    String link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create?vgroup=%d&pgroup=%d&bandwidth=%s",
+        vGroup.getId(), pGroup.getId(), bandwidth);
 
     SimpleMailMessage mail = new MailMessageBuilder()
         .withTo(pGroup.getManagerEmail())
@@ -111,7 +112,7 @@ public class EmailSenderOnline implements EmailSender {
         .withSubject(String.format("[BoD] A Virtual Port Request for %s", pGroup.getInstitute().getName()))
         .withBodyText(
             String.format(VIRTUAL_PORT_REQUEST_BODY, from.getDisplayName(), from.getEmail(), pGroup.getInstitute()
-                .getName(), vGroup.getName(), requestMessage, link)).create();
+                .getName(), vGroup.getName(), bandwidth, requestMessage, link)).create();
 
     send(mail);
   }

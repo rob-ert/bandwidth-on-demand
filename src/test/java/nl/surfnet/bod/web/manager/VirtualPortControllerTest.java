@@ -174,10 +174,24 @@ public class VirtualPortControllerTest {
 
     when(virtualResourceGroupServiceMock.find(1L)).thenReturn(vGroup);
 
-    subject.createForm(null, null, 1L, model);
+    subject.createForm(null, null, 1L, null, model);
 
     VirtualPort port = (VirtualPort) model.asMap().get("virtualPort");
     assertThat(port.getVirtualResourceGroup(), is(vGroup));
+  }
+
+  @Test
+  public void shouldSetBandwidthPort() {
+    ModelStub model = new ModelStub();
+    VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:some-user-group")
+        .create();
+
+    when(virtualResourceGroupServiceMock.find(1L)).thenReturn(vGroup);
+
+    subject.createForm(null, null, null, 1200, model);
+
+    VirtualPort port = (VirtualPort) model.asMap().get("virtualPort");
+    assertThat(port.getMaxBandwidth(), is(1200));
   }
 
   @Test
@@ -188,7 +202,7 @@ public class VirtualPortControllerTest {
 
     when(physicalPortServiceMock.find(1L)).thenReturn(pPort);
 
-    subject.createForm(1L, 3L, null, model);
+    subject.createForm(1L, 3L, null, null, model);
 
     VirtualPort port = (VirtualPort) model.asMap().get("virtualPort");
 

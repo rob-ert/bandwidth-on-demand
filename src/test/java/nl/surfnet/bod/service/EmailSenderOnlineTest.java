@@ -91,9 +91,10 @@ public class EmailSenderOnlineTest {
     RichUserDetails user = new RichUserDetailsFactory().create();
     PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().create();
     VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().create();
+    Integer bandwidth = 1000;
     String requestMessage = "I would like to have a port.";
 
-    subject.sendVirtualPortRequestMail(user, pGroup, vGroup, requestMessage);
+    subject.sendVirtualPortRequestMail(user, pGroup, vGroup, bandwidth, requestMessage);
 
     verify(mailSenderMock).send(messageCaptor.capture());
 
@@ -103,5 +104,6 @@ public class EmailSenderOnlineTest {
     assertThat(message.getTo()[0], is(pGroup.getManagerEmail()));
     assertThat(message.getText(), containsString("Physical Resource Group: " + pGroup.getInstitute().getName()));
     assertThat(message.getText(), containsString("Reason: " + requestMessage));
+    assertThat(message.getText(), containsString("Bandwidth: " + bandwidth));
   }
 }

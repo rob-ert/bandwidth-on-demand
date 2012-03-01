@@ -109,4 +109,8 @@ public class NewVirtualPortPage extends AbstractFormPage {
     new Select(physicalPortSelect).selectByVisibleText(physicalPort);
   }
 
+  public Integer getBandwidth() {
+    return Integer.valueOf(maxBandwidthInput.getText());
+  }
+
 }
