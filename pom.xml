@@ -385,6 +385,7 @@
             <groupId>junit</groupId>
             <artifactId>junit-dep</artifactId>
             <version>4.10</version>
+            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.hamcrest</groupId>
