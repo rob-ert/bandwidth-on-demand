@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
-    xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:tiles="http://tiles.apache.org/tags-tiles"
-    xmlns:form="http://www.springframework.org/tags/form"
-    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-    xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields" xmlns:spring="http://www.springframework.org/tags">
+<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core" 
+    xmlns:form="http://www.springframework.org/tags/form" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:spring="http://www.springframework.org/tags" class="span12">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
@@ -11,73 +9,67 @@
     <spring:url value="/resources/images/information.png" var="infoImageUrl" />
     <spring:url value="/virtualports/request" var="postUrl" />
 
-    <h1>Request a new Virtual Port</h1>
-    <div class="row">
-        <div class="span4">
-            <h3>Choose the Institute</h3>
-            <p>Select the institute you want to connect to from the list with with institutes that offer bandwidth
-                on demand.</p>
-            <h3>Sent email</h3>
-            <p>An email will be sent to the institute with your request. If the institute honors your request the
-                virtual port will show up in your virtual resource group.</p>
+    <form:form action="${postUrl}" method="POST" modelAttribute="requestCommand">
+        <div class="clearfix">
+            <label><spring:message code="label_request_vp_to" /></label>
+            <div class="input input-text">ICT Manager(s) of '${physicalResourceGroup.institute.name}'</div>
         </div>
-        <div class="span12">
-            <form:form action="${postUrl}" method="POST" modelAttribute="requestCommand">
-                <div class="clearfix">
-                    <label>To</label>
-                    <div class="input input-text">ICT Manager(s) of '${physicalResourceGroup.institute.name}'</div>
-                </div>
-                <div class="clearfix">
-                    <label>From</label>
-                    <div class="input input-text"><c:out value="${user.displayName}" /> (<c:out value="${user.email}" />)</div>
-                </div>
-                <div class="clearfix">
-                    <label>Virtual User Group</label>
-                    <c:choose>
-                        <c:when test="${fn:length(virtualResourceGroups) > 1}">
-                            <div class="input">
-                                <form:select path="virtualResourceGroupId" items="${virtualResourceGroups}" itemValue="id" itemLabel="name" />
-                            </div>
-                        </c:when>
-                        <c:otherwise>
-                            <div class="input input-text">
-                                <c:out value="${virtualResourceGroups[0].name}" />
-                                <input type="hidden" name="virtualResourceGroupId" value="${virtualResourceGroups[0].id}" />
-                            </div>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-
-                <c:set var="errors"><form:errors path="bandwidth" /></c:set>
-                <c:if test="${not empty errors}">
-                    <c:set var="error_css" value="error" />
-                </c:if>
-                <div class="clearfix ${error_css}">
-                    <label>Minimum Bandwidth</label>
-                    <div class="input">
-                        <form:input path="bandwidth" class="mini"/>
-                        Mbit/s
-                        <form:errors cssClass="help-inline" id="_message_error_id" path="bandwidth" delimiter=", " />
-                    </div>
-                </div>
-
-                <c:set var="errors"><form:errors path="message" /></c:set>
-                <c:if test="${not empty errors}">
-                    <c:set var="error_css" value="error" />
-                </c:if>
-                <div class="clearfix ${error_css}">
-                    <label>Message</label>
-                    <div class="input">
-                        <form:textarea path="message" rows="5" cssClass="xlarge" />
-                        <form:errors cssClass="help-inline" id="_message_error_id" path="message" delimiter=", " />
-                        <span class="help-block">Describe why you want this virtual port</span>
-                    </div>
-                </div>
-                <form:hidden path="physicalResourceGroupId" />
-                <div class="actions">
-                    <input class="btn primary" type="submit" value="Send request" />
-                </div>
-            </form:form>
+        <div class="clearfix">
+            <label><spring:message code="label_request_vp_from" /></label>
+            <div class="input input-text">
+                <c:out value="${user.displayName}" /> (<c:out value="${user.email}" />)
+            </div>
         </div>
-    </div>
+        <div class="clearfix">
+            <label><spring:message code="label_request_vp_virtual_user_group" /></label>
+            <c:choose>
+                <c:when test="${fn:length(virtualResourceGroups) > 1}">
+                    <div class="input">
+                        <form:select path="virtualResourceGroupId" items="${virtualResourceGroups}" itemValue="id"
+                            itemLabel="name" />
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <div class="input input-text">
+                        <c:out value="${virtualResourceGroups[0].name}" />
+                        <input type="hidden" name="virtualResourceGroupId" value="${virtualResourceGroups[0].id}" />
+                    </div>
+                </c:otherwise>
+            </c:choose>
+        </div>
+
+        <c:set var="errors">
+            <form:errors path="bandwidth" />
+        </c:set>
+        <c:if test="${not empty errors}">
+            <c:set var="error_css" value="error" />
+        </c:if>
+        <div class="clearfix ${error_css}">
+            <label><spring:message code="label_request_vp_bandwidth" /></label>
+            <div class="input">
+                <form:input path="bandwidth" class="mini" /> Mbit/s
+                <form:errors cssClass="help-inline" id="_message_error_id" path="bandwidth" delimiter=", " />
+            </div>
+        </div>
+
+        <c:set var="errors">
+            <form:errors path="message" />
+        </c:set>
+        <c:if test="${not empty errors}">
+            <c:set var="error_css" value="error" />
+        </c:if>
+        <div class="clearfix ${error_css}">
+            <label><spring:message code="label_request_vp_message" /></label>
+            <div class="input">
+                <form:textarea path="message" rows="5" cssClass="xlarge" />
+                <form:errors cssClass="help-inline" id="_message_error_id" path="message" delimiter=", " />
+                <span class="help-block"><spring:message code="label_request_vp_message_help" /></span>
+            </div>
+        </div>
+        <form:hidden path="physicalResourceGroupId" />
+        <div class="actions">
+            <spring:message code="label_request_vp_send_request" var="submitText" />
+            <input class="btn primary" type="submit" value="${submitText}" />
+        </div>
+    </form:form>
 </div>

@@ -6,14 +6,17 @@
         <put-attribute name="active_menu" value="virtualport" cascade="true" />
     </definition>
 
-    <definition extends="default" name="virtualports/request">
-        <put-attribute name="body" value="/WEB-INF/views/virtualports/request.jspx" />
+    <definition extends="default" name="requestVirtualPortLayout">
+        <put-attribute name="body" value="/WEB-INF/views/virtualports/requestLayout.jspx" />
         <put-attribute name="active_menu" value="virtualport" cascade="true" />
     </definition>
 
-    <definition extends="default" name="virtualports/requestform">
-        <put-attribute name="body" value="/WEB-INF/views/virtualports/requestForm.jspx" />
-        <put-attribute name="active_menu" value="virtualport" cascade="true" />
+    <definition extends="requestVirtualPortLayout" name="virtualports/request">
+        <put-attribute name="requestBody" value="/WEB-INF/views/virtualports/request.jspx" cascade="true" />
+    </definition>
+
+    <definition extends="requestVirtualPortLayout" name="virtualports/requestform">
+        <put-attribute name="requestBody" value="/WEB-INF/views/virtualports/requestForm.jspx" cascade="true" />
     </definition>
 
     <definition extends="default" name="virtualports/update">
