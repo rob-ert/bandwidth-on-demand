@@ -43,8 +43,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.collect.ImmutableList;
-
 @Controller("managerPhysicalResourceGroupController")
 @RequestMapping("/manager/physicalresourcegroups")
 public class PhysicalResourceGroupController extends AbstractSortableListController<PhysicalResourceGroup> {
@@ -113,17 +111,7 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
 
   @Override
   protected String defaultSortProperty() {
-    return "name";
-  }
-
-  @Override
-  protected List<String> translateSortProperty(String sortProperty) {
-    if (sortProperty.equals("name")) {
-      // TODO not a field in the database...
-      return ImmutableList.of("instituteId");
-    }
-
-    return super.translateSortProperty(sortProperty);
+    return "adminGroup";
   }
 
   public static final class UpdateEmailCommand {

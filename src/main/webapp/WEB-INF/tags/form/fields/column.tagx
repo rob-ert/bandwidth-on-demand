@@ -13,6 +13,7 @@
   <jsp:directive.attribute name="dateTimePattern" type="java.lang.String" required="false" rtexprvalue="true" description="The date / time pattern to use if the field is a date or calendar type" />
   <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
   <jsp:directive.attribute name="booleanType" type="java.lang.Boolean" required="false" rtexprvalue="true" />
+  <jsp:directive.attribute name="sortable" type="java.lang.Boolean" required="false" rtexprvalue="true" />
 
   <c:if test="${empty render or render}">
     <c:if test="${empty label}">
@@ -57,6 +58,19 @@
         <c:set var="columnTypes" value="${columnTypes},default" scope="request" />
         <c:set var="columnDatePatterns" value="${columnDatePatterns},none" scope="request" />
       </c:otherwise>
+    </c:choose>
+
+    <c:if test="${empty sortable}">
+        <c:set var="sortable" value="true" />
+    </c:if>
+
+    <c:choose>
+        <c:when test="${empty columnSortable}">
+            <c:set var="columnSortable" value="${sortable}" scope="request" />
+        </c:when>
+        <c:otherwise>
+            <c:set var="columnSortable" value="${columnSortable},${sortable}" scope="request" />
+        </c:otherwise>
     </c:choose>
 
     <c:choose>

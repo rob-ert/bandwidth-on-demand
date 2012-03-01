@@ -13,7 +13,7 @@
             <table:column id="c_PhysicalPort_managerLabel" property="managerLabel" />
             <table:column id="c_PhysicalPort_networkElementPk" property="networkElementPk" />
             <table:column id="c_PhysicalPort_physicalResourceGroup" property="physicalResourceGroup" />
-            <table:column id="c_PhysicalPort_virtualPortCount" property="numberOfVirtualPorts" />
+            <table:column id="c_PhysicalPort_virtualPortCount" property="numberOfVirtualPorts" sortable="false" />
             
             <table:actionColumn image="/resources/images/application_put.png"
                 action="/showvirtualports" title="Show Virtual Ports" />

@@ -10,7 +10,7 @@
         <table:table data="${list}" id="l_VirtualResourceGroup" path="/manager/virtualresourcegroups" typeIdFieldName="id">
             <table:column id="c_virtualresourcegroup_name" property="name" />
             <table:column id="c_virtualresourcegroup_surfconextgroupname" property="surfConextGroupName" />
-            <table:column id="c_virtualresourcegroup_virtualPortCount" property="virtualPortCount" />
+            <table:column id="c_virtualresourcegroup_virtualPortCount" property="virtualPortCount" sortable="false" />
 
             <table:actionColumn image="/resources/images/application_put.png" action="/showvirtualports"
                 title="Show Virtual Ports" />

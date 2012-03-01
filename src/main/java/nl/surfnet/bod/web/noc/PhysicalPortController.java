@@ -158,6 +158,26 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     return physicalResourceGroupService.findAll();
   }
 
+  @Override
+  protected String listUrl() {
+    return PAGE_URL + LIST;
+  }
+
+  @Override
+  protected List<PhysicalPort> list(int firstPage, int maxItems, Sort sort) {
+    return physicalPortService.findAllocatedEntries(firstPage, maxItems, sort);
+  }
+
+  @Override
+  protected long count() {
+    return physicalPortService.countAllocated();
+  }
+
+  @Override
+  protected String defaultSortProperty() {
+    return "nocLabel";
+  }
+
   public static final class CreatePhysicalPortCommand {
     private String networkElementPk;
     @NotNull
@@ -220,18 +240,4 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
   }
 
-  @Override
-  protected String listUrl() {
-    return PAGE_URL + LIST;
-  }
-
-  @Override
-  protected List<PhysicalPort> list(int firstPage, int maxItems, Sort sort) {
-    return physicalPortService.findAllocatedEntries(firstPage, maxItems, sort);
-  }
-
-  @Override
-  protected long count() {
-    return physicalPortService.countAllocated();
-  }
 }
