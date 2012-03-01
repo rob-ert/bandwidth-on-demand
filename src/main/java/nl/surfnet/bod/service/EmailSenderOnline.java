@@ -161,23 +161,23 @@ public class EmailSenderOnline implements EmailSender {
       return mailMessage;
     }
 
-    public MailMessageBuilder withReplyTo(String replyTo) {
-      this.replyTo = replyTo;
+    public MailMessageBuilder withReplyTo(String rt) {
+      this.replyTo = rt;
       return this;
     }
 
-    public MailMessageBuilder withSubject(String subject) {
-      this.subject = subject;
+    public MailMessageBuilder withSubject(String sub) {
+      this.subject = sub;
       return this;
     }
 
-    public MailMessageBuilder withTo(String to) {
-      this.to = to;
+    public MailMessageBuilder withTo(String t) {
+      this.to = t;
       return this;
     }
 
-    public MailMessageBuilder withBodyText(String text) {
-      this.text = text;
+    public MailMessageBuilder withBodyText(String body) {
+      this.text = body;
       return this;
     }
   }
