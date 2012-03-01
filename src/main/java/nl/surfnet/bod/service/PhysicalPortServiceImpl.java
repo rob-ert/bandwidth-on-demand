@@ -35,17 +35,20 @@ import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalPort_;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
+import org.hibernate.annotations.Where;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Preconditions;
@@ -55,15 +58,15 @@ import com.google.common.collect.Iterables;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
- *
+ * 
  * The {@link PhysicalPort}s found in the {@link NbiPortService} are leading and
  * when more data is available in our repository they will be enriched.
- *
+ * 
  * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
- *
- *
+ * 
+ * 
  * @author Frank Mölder ($Author$)
  * @version $Revision$ $Date$
  */
@@ -163,7 +166,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Adds data found in given ports to the specified ports, enriches them.
-   *
+   * 
    * @param nbiPorts
    *          {@link PhysicalPort}s to add the data to
    * @param repoPorts
@@ -197,13 +200,15 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   }
 
   @Override
-  public List<PhysicalPort> findAllocatedEntriesForUser(RichUserDetails user, int firstResult, int maxResults,
-      Sort sort) {
+  public List<PhysicalPort> findAllocatedEntriesForPhysicalResourceGroupAndUser(
+      PhysicalResourceGroup physicalResourceGroup, RichUserDetails user, int firstResult, int maxResults, Sort sort) {
     if (user.getUserGroups().isEmpty()) {
       return Collections.emptyList();
     }
 
-    return physicalPortRepo.findAll(specificationForUser(user),
+    return physicalPortRepo.findAll(
+        Specifications.where(specificationForUser(user)).and(
+            specificationForPhysicalResourceGroup(physicalResourceGroup)),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
@@ -227,12 +232,25 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     };
   }
 
+  private Specification<PhysicalPort> specificationForPhysicalResourceGroup(
+      final PhysicalResourceGroup physicalResourceGroup) {
+    return new Specification<PhysicalPort>() {
+
+      @Override
+      public javax.persistence.criteria.Predicate toPredicate(Root<PhysicalPort> root, CriteriaQuery<?> query,
+          CriteriaBuilder cb) {
+
+        return cb.equal(root.get(PhysicalPort_.physicalResourceGroup), physicalResourceGroup);
+      }
+    };
+  }
+
   /**
    * Enriches the port with additional data.
-   *
+   * 
    * Clones JPA attributes (id and version), so a find will return these
    * preventing a additional save instead of an update.
-   *
+   * 
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort

@@ -85,7 +85,7 @@ public class PhysicalPortControllerTest {
   public void listPorts() {
     ModelStub model = new ModelStub();
 
-    when(physicalPortServiceMock.findAllocatedEntriesForUser(eq(user), eq(0), anyInt(), any(Sort.class))).thenReturn(
+    when(physicalPortServiceMock.findAllocatedEntriesForPhysicalResourceGroupAndUser(eq(user), eq(0), anyInt(), any(Sort.class))).thenReturn(
         Lists.newArrayList(new PhysicalPortFactory().setId(2L).create()));
 
     subject.list(null, null, null, model);

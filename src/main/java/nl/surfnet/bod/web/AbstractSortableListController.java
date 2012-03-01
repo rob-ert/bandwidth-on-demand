@@ -57,7 +57,7 @@ public abstract class AbstractSortableListController<T> {
     return ImmutableList.of(sortProperty);
   }
 
-  private Sort sortOrder(String sortProperty, Direction direction) {
+  protected Sort sortOrder(String sortProperty, Direction direction) {
     return sort(direction, translateSortProperty(sortProperty));
   }
 

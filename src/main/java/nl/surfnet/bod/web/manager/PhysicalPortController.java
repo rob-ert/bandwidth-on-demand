@@ -30,9 +30,9 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.web.AbstractSortableListController;
-import nl.surfnet.bod.web.manager.PhysicalPortController.PhysicalPortView;
+import nl.surfnet.bod.web.AbstractFilteredSortableListController;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.VirtualPortJsonView;
 
@@ -41,7 +41,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
@@ -49,7 +54,8 @@ import com.google.common.collect.Lists;
 
 @Controller("managerPhysicalPortController")
 @RequestMapping("/manager/physicalports")
-public class PhysicalPortController extends AbstractSortableListController<PhysicalPortView> {
+public class PhysicalPortController extends
+    AbstractFilteredSortableListController<PhysicalPortController.PhysicalPortView> {
 
   @Autowired
   private PhysicalPortService physicalPortService;
@@ -59,6 +65,9 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
   @Autowired
   private InstituteService instituteService;
+
+  @Autowired
+  private PhysicalResourceGroupService physicalResourceGroupService;
 
   private final Function<PhysicalPort, PhysicalPortView> toView = new Function<PhysicalPort, PhysicalPortView>() {
     @Override
@@ -114,32 +123,24 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
           }
         });
   }
+  
 
-  @Override
-  protected String listUrl() {
-    return "manager/physicalports/list";
-  }
-
-  @Override
-  protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort) {
-    return Lists.transform(
-        physicalPortService.findAllocatedEntriesForUser(Security.getUserDetails(), firstPage, maxItems, sort),
-        toView);
-  }
-
-  @Override
   protected String defaultSortProperty() {
     return "managerLabel";
   }
 
-  @Override
   protected long count() {
     return physicalPortService.countAllocatedForUser(Security.getUserDetails());
   }
 
-  // ****                  **** //
+  @ModelAttribute("selPrgs")
+  public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups(Model model) {
+    return physicalResourceGroupService.findAllForManager(Security.getUserDetails());
+  }
+
+  // **** **** //
   // ** View/Command objects ** //
-  // ****                  **** //
+  // **** **** //
   public static final class UpdateManagerLabelCommand {
     private Long id;
     private Integer version;
@@ -220,6 +221,30 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
       return nocLabel;
     }
 
+  }
+
+  @Override
+  protected String listUrl() {
+    return "manager/physicalports/list";
+  }
+
+  @Override
+  protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Long filterId) {
+    PhysicalResourceGroup physicalResourceGroup = null;
+    
+    if (filterId != null) {
+      physicalResourceGroup = physicalResourceGroupService.find(filterId);
+    }
+    else {
+      // Just pick the first one
+      physicalResourceGroup = physicalResourceGroupService.findAllForManager(Security.getUserDetails()).iterator()
+          .next();
+    }
+
+    List<PhysicalPort> list = physicalPortService.findAllocatedEntriesForPhysicalResourceGroupAndUser(
+        physicalResourceGroup, Security.getUserDetails(), firstPage, maxItems, sort);
+
+    return Lists.transform(list, toView);
   }
 
 }

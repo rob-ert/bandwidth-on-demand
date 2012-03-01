@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.data.domain.Sort;
@@ -34,7 +35,7 @@ public interface PhysicalPortService {
   /**
    * Finds all unallocated ports. Which means ports that are not connected to a
    * {@link PhysicalPort} in BoD.
-   *
+   * 
    * @return List of unallocated physical ports
    */
   Collection<PhysicalPort> findUnallocated();
@@ -42,7 +43,7 @@ public interface PhysicalPortService {
   /**
    * Finds unallocated {@link PhysicalPort}s with a start index and a max number
    * of results.
-   *
+   * 
    * @param firstResult
    * @param sizeNo
    *          max result size
@@ -52,19 +53,19 @@ public interface PhysicalPortService {
 
   /**
    * Finds all allocated physical ports.
-   *
+   * 
    * @param firstResult
    *          index of first result
    * @param sizeNo
    *          max result size
-   *
+   * 
    * @return Collection of allocated ports
    */
   List<PhysicalPort> findAllocatedEntries(int firstResult, int sizeNo, Sort sort);
 
   /**
    * Finds all physical ports that are visible for a user.
-   *
+   * 
    * @param user
    *          the user
    * @return list of user visible physical ports
@@ -73,12 +74,13 @@ public interface PhysicalPortService {
 
   /**
    * Finds all physical ports that are visible for a user.
-   *
+   * 
    * @param user
    *          the user
    * @return list of user visible physical ports
    */
-  List<PhysicalPort> findAllocatedEntriesForUser(RichUserDetails user, int firstResult, int sizeNo, Sort sort);
+  List<PhysicalPort> findAllocatedEntriesForPhysicalResourceGroupAndUser(PhysicalResourceGroup physicalResourceGroup,
+      RichUserDetails user, int firstResult, int sizeNo, Sort sort);
 
   long countUnallocated();
 
