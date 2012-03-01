@@ -38,6 +38,7 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.manager.PhysicalPortController.PhysicalPortView;
@@ -67,12 +68,17 @@ public class PhysicalPortControllerTest {
   private PhysicalPortService physicalPortServiceMock;
 
   @Mock
+  private PhysicalResourceGroupService physicalResourceGroupService;
+
+  @Mock
   private InstituteService instituteService;
 
   @Mock
   private VirtualPortService virtualPortServiceMock;
 
   private RichUserDetails user;
+
+  private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
 
   @Before
   public void setAuthenticatedUser() {
@@ -85,10 +91,15 @@ public class PhysicalPortControllerTest {
   public void listPorts() {
     ModelStub model = new ModelStub();
 
-    when(physicalPortServiceMock.findAllocatedEntriesForPhysicalResourceGroupAndUser(eq(user), eq(0), anyInt(), any(Sort.class))).thenReturn(
+    when(
+        physicalPortServiceMock.findAllocatedEntriesForPhysicalResourceGroupAndUser(eq(physicalResourceGroup),
+            eq(user), eq(0), anyInt(), any(Sort.class))).thenReturn(
         Lists.newArrayList(new PhysicalPortFactory().setId(2L).create()));
 
-    subject.list(null, null, null, model);
+    when(physicalResourceGroupService.findAllForManager(eq(user)))
+        .thenReturn(Lists.newArrayList(physicalResourceGroup));
+
+    subject.list(null, null, null, null, model);
 
     assertThat(model.asMap(), hasKey("list"));
     assertThat(model.asMap(), hasKey("maxPages"));
