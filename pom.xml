@@ -396,7 +396,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>1.9.0-rc1</version>
+            <version>1.9.0</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -640,7 +640,7 @@
                             <exclude>org/oasis_open/**/*.class</exclude>
                             <exclude>org/xmlsoap/schemas/**/*.class</exclude>
                             <exclude>schemaorg_apache_xmlbeans/**/*.class</exclude>
-                            <exclude>org/w3/www//**/*.class</exclude>
+                            <exclude>org/w3/www/**/*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
