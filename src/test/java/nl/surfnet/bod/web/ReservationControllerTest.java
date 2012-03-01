@@ -180,10 +180,10 @@ public class ReservationControllerTest {
 
     String view = subject.createForm(model);
 
-    assertThat(model.asMap().containsKey(MessageCommand.MODEL_KEY), is(true));
-    assertThat(((MessageCommand) model.asMap().get(MessageCommand.MODEL_KEY)).getParagraph(),
+    assertThat(model.asMap().containsKey(MessageView.MODEL_KEY), is(true));
+    assertThat(((MessageView) model.asMap().get(MessageView.MODEL_KEY)).getParagraph(),
         containsString(INFO_AT_LEAST_TWO_PORTS));
-    assertThat(view, is(MessageCommand.PAGE_URL));
+    assertThat(view, is(MessageView.PAGE_URL));
   }
 
   @Test
@@ -197,7 +197,7 @@ public class ReservationControllerTest {
 
     String view = subject.createForm(model);
 
-    assertThat(model.asMap().containsKey(MessageCommand.MODEL_KEY), is(false));
+    assertThat(model.asMap().containsKey(MessageView.MODEL_KEY), is(false));
     assertThat(view, is(ReservationController.PAGE_URL + WebUtils.CREATE));
   }
 
