@@ -146,7 +146,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
     if (physicalPortId != null) {
       PhysicalPort port = physicalPortService.find(physicalPortId);
-      if (Security.isManagerMemberOf(port.getPhysicalResourceGroup())) {
+      if (port != null && Security.isManagerMemberOf(port.getPhysicalResourceGroup())) {
         virtualPort.setPhysicalPort(port);
         model.addAttribute("physicalPorts", port.getPhysicalResourceGroup().getPhysicalPorts());
       }

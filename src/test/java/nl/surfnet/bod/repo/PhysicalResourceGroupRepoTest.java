@@ -72,10 +72,10 @@ public class PhysicalResourceGroupRepoTest {
     Collection<String> adminGroups = ImmutableList.of(firstAdminGroup, "urn:secondGroup");
 
     PhysicalResourceGroup firstPhysicalResourceGroup = physicalResourceGroupFactory.setId(null)
-        .setAdminGroupName(firstAdminGroup).setInstituteId(1L).create();
+        .setAdminGroup(firstAdminGroup).setInstituteId(1L).create();
 
     given(firstPhysicalResourceGroup,
-        physicalResourceGroupFactory.setId(null).setInstituteId(2L).setAdminGroupName("urn:noMatch").create());
+        physicalResourceGroupFactory.setId(null).setInstituteId(2L).setAdminGroup("urn:noMatch").create());
 
     Collection<PhysicalResourceGroup> foundAdminGroups = subject.findByAdminGroupIn(adminGroups);
 

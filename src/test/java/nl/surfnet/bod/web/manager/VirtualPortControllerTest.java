@@ -167,7 +167,7 @@ public class VirtualPortControllerTest {
   }
 
   @Test
-  public void shouldSetVirtualResourceGroupOnPort() {
+  public void createWithGroupShouldSetVirtualResourceGroupOnPort() {
     ModelStub model = new ModelStub();
     VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:some-user-group")
         .create();
@@ -181,12 +181,36 @@ public class VirtualPortControllerTest {
   }
 
   @Test
-  public void shouldSetBandwidthPort() {
+  public void createWithIllegalGroupShouldNotSetVirtualResourceGroupOnPort() {
     ModelStub model = new ModelStub();
-    VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:some-user-group")
-        .create();
 
-    when(virtualResourceGroupServiceMock.find(1L)).thenReturn(vGroup);
+    when(virtualResourceGroupServiceMock.find(1L)).thenReturn(null);
+
+    subject.createForm(null, null, 1L, null, model);
+
+    VirtualPort port = (VirtualPort) model.asMap().get("virtualPort");
+    assertThat(port.getVirtualResourceGroup(), nullValue());
+  }
+
+  @Test
+  public void createWithPhysicalGroupShoulSetPhysicalPort() {
+    ModelStub model = new ModelStub();
+    PhysicalPort physicalPort = new PhysicalPortFactory().create();
+    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group")
+        .addPhysicalPort(physicalPort).create();
+
+    when(physicalResourceGroupServiceMock.find(2L)).thenReturn(physicalResourceGroup);
+
+    subject.createForm(null, 2L, null, null, model);
+
+    VirtualPort port = (VirtualPort) model.asMap().get("virtualPort");
+
+    assertThat(port.getPhysicalPort(), is(physicalPort));
+  }
+
+  @Test
+  public void createWithBandwidthShouldSetBandwidth() {
+    ModelStub model = new ModelStub();
 
     subject.createForm(null, null, null, 1200, model);
 
@@ -197,7 +221,7 @@ public class VirtualPortControllerTest {
   @Test
   public void whenBothPhysicalGroupAndPortAreSetIgnoreGroup() {
     ModelStub model = new ModelStub();
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroupName("urn:manager-group").create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").create();
     PhysicalPort pPort = new PhysicalPortFactory().setPhysicalResourceGroup(group).create();
 
     when(physicalPortServiceMock.find(1L)).thenReturn(pPort);

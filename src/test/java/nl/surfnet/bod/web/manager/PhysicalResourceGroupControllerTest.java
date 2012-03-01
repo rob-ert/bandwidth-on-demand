@@ -66,7 +66,7 @@ public class PhysicalResourceGroupControllerTest {
     RedirectAttributes requestAttributes = new ModelStub();
 
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setManagerEmail("old@mail.com")
-        .setAdminGroupName("urn:ict-manager").create();
+        .setAdminGroup("urn:ict-manager").create();
  
     UpdateEmailCommand command = new PhysicalResourceGroupController.UpdateEmailCommand(group);
     command.setManagerEmail("new@mail.com");
@@ -87,7 +87,7 @@ public class PhysicalResourceGroupControllerTest {
     Model model = new ModelStub();
     RedirectAttributes redirectAttributes = new ModelStub();
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setManagerEmail("old@mail.com")
-        .setAdminGroupName("urn:no-ict-manager").create();
+        .setAdminGroup("urn:no-ict-manager").create();
 
     UpdateEmailCommand command = new PhysicalResourceGroupController.UpdateEmailCommand(group);
     command.setManagerEmail("new@mail.com");
@@ -108,7 +108,7 @@ public class PhysicalResourceGroupControllerTest {
     RedirectAttributes redirectAttributes = new ModelStub();
 
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setManagerEmail("old@mail.com")
-        .setAdminGroupName("urn:ict-manager").create();
+        .setAdminGroup("urn:ict-manager").create();
 
     UpdateEmailCommand command = new PhysicalResourceGroupController.UpdateEmailCommand(group);
 
@@ -148,7 +148,7 @@ public class PhysicalResourceGroupControllerTest {
 
     UpdateEmailCommand command = new PhysicalResourceGroupController.UpdateEmailCommand();
     command.setId(1L);
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setAdminGroupName("urn:ict-manager").create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setAdminGroup("urn:ict-manager").create();
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 

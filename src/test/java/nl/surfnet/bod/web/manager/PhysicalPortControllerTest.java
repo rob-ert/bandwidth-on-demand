@@ -145,9 +145,9 @@ public class PhysicalPortControllerTest {
 
   @Test
   public void updateForIllegalPort() {
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroupName("urn:manager-group").create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").create();
     PhysicalPort port = new PhysicalPortFactory().setPhysicalResourceGroup(group).create();
-    PhysicalResourceGroup illegalGroup = new PhysicalResourceGroupFactory().setAdminGroupName("urn:illegal-group")
+    PhysicalResourceGroup illegalGroup = new PhysicalResourceGroupFactory().setAdminGroup("urn:illegal-group")
         .create();
     PhysicalPort illegalPort = new PhysicalPortFactory().setPhysicalResourceGroup(illegalGroup).create();
 
@@ -163,7 +163,7 @@ public class PhysicalPortControllerTest {
 
   @Test
   public void updateForPort() {
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroupName("urn:manager-group").create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").create();
     PhysicalPort port = new PhysicalPortFactory().setId(1L).setPhysicalResourceGroup(group).create();
 
     UpdateManagerLabelCommand command = new PhysicalPortController.UpdateManagerLabelCommand(port);
@@ -186,7 +186,7 @@ public class PhysicalPortControllerTest {
 
   @Test
   public void updateFormForIllegalPort() {
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroupName("urn:illegal-group").create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroup("urn:illegal-group").create();
     PhysicalPort port = new PhysicalPortFactory().setPhysicalResourceGroup(group).create();
 
     when(physicalPortServiceMock.find(101L)).thenReturn(port);
@@ -198,7 +198,7 @@ public class PhysicalPortControllerTest {
 
   @Test
   public void updateFormForPort() {
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroupName("urn:manager-group").create();
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").create();
     PhysicalPort port = new PhysicalPortFactory().setPhysicalResourceGroup(group).create();
 
     when(physicalPortServiceMock.find(101L)).thenReturn(port);

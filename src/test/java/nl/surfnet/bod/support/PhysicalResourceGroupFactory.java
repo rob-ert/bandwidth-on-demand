@@ -69,7 +69,7 @@ public class PhysicalResourceGroupFactory {
     return this;
   }
 
-  public PhysicalResourceGroupFactory setAdminGroupName(String adminGroup) {
+  public PhysicalResourceGroupFactory setAdminGroup(String adminGroup) {
     this.adminGroup = adminGroup;
     return this;
   }

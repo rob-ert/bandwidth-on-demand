@@ -115,10 +115,10 @@ public class PhysicalResourceGroupControllerTest {
     RedirectAttributes redirectAttribs = new ModelStub();
     Model model = new ModelStub();
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setManagerEmail("old@example.com")
-        .setAdminGroupName("urn:ict-manager").create();
+        .setAdminGroup("urn:ict-manager").create();
 
     PhysicalResourceGroup changedGroup = new PhysicalResourceGroupFactory().setId(1L)
-        .setManagerEmail("new@example.com").setAdminGroupName("urn:ict-manager").create();
+        .setManagerEmail("new@example.com").setAdminGroup("urn:ict-manager").create();
 
     PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(
         changedGroup);

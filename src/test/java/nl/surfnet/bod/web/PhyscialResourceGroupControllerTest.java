@@ -84,7 +84,7 @@ public class PhyscialResourceGroupControllerTest {
     Security.setUserDetails(user);
 
     PhysicalPort onlyPort = new PhysicalPortFactory().create();
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroupName("urn:group")
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroup("urn:group")
         .addPhysicalPort(onlyPort).create();
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
