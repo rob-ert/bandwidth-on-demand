@@ -28,7 +28,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
   private ReservationService reservationService;
 
   @Override
-  public List<Reservation> list(int firstPage, int maxItems, Sort sort) {
+  protected List<Reservation> list(int firstPage, int maxItems, Sort sort) {
     return reservationService.findEntriesForManager(Security.getUserDetails(), firstPage, maxItems, sort);
   }
 
