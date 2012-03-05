@@ -135,7 +135,14 @@ public class PhysicalPortController extends
 
   @ModelAttribute("selPrgs")
   public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups(Model model) {
-    return physicalResourceGroupService.findAllForManager(Security.getUserDetails());
+
+    Collection<PhysicalResourceGroup> groups = physicalResourceGroupService
+        .findAllForManager(Security.getUserDetails());
+    
+    if (!model.asMap().containsKey("selPrg")) {
+      model.addAttribute("selPrg", groups.iterator().next());
+    }
+    return groups;
   }
 
   // **** **** //
@@ -231,7 +238,7 @@ public class PhysicalPortController extends
   @Override
   protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Long filterId) {
     PhysicalResourceGroup physicalResourceGroup = null;
-    
+
     if (filterId != null) {
       physicalResourceGroup = physicalResourceGroupService.find(filterId);
     }
