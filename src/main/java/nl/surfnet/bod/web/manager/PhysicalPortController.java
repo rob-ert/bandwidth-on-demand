@@ -139,9 +139,9 @@ public class PhysicalPortController extends
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService
         .findAllForManager(Security.getUserDetails());
     
-    if (!model.asMap().containsKey("selPrg")) {
-      model.addAttribute("selPrg", groups.iterator().next());
-    }
+   //Select first group    
+   model.addAttribute("selPrg", groups.iterator().next());
+    
     return groups;
   }
 
