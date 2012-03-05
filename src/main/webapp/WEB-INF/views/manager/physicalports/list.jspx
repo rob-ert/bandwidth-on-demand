@@ -6,7 +6,7 @@
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-    <spring:url value="/manager/physicalports/filter/" var="filterUrl"/>    
+    <spring:url var="filterUrl"  value="/manager/physicalports/filter/" />    
     <spring:url var="filter_js" value="/resources/js/filter.js" />
             
    	<field:select id="filter" items="${selPrgs}"  labelCode="physicalresourcegroup" field="selPrg.name" itemValue="id" 
@@ -46,19 +46,9 @@
           );
       });
       
-      $("#_filter").change(function(){    	  	  
-          console.log("changed to:" + $("#_filter").val());          
+      $("#_filter").change(function(){
           window.location = "${filterUrl}" + $("#_filter").val() +"/";
       });
-      
-      $(document).ready(function(){   	
-       	var startPos = window.location.href.lastIndexOf("/filter/");
-       	var endPos = window.location.href.indexOf("/", startPos+8);
-       	var selectedValue = window.location.href.substring(startPos+8, endPos);
-       	
-        $("#_filter").val(selectedValue);
-     });
-
     </script>
- 
+     <script src="${filter_js}" type="text/javascript"><!-- needed --></script> 
 </div>
