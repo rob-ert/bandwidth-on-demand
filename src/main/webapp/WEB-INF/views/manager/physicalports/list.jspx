@@ -8,7 +8,7 @@
     <jsp:output omit-xml-declaration="yes" />
     <spring:url var="filterUrl"  value="/manager/physicalports/filter/" />    
             
-   	<field:select id="filter" items="${selPrgs}"  labelCode="physicalresourcegroup" field="selPrg.name" itemValue="id" 
+   	<field:select id="filter" items="${selPrgList}"  labelCode="physicalresourcegroup" field="selPrg.name" itemValue="id" 
    	 showSingle="true" path="/manager/physicalports"  />
      
     <page:list id="pl_PhysicalPort" items="${list}">

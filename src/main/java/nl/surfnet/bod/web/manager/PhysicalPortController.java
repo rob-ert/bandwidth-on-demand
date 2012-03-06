@@ -128,10 +128,12 @@ public class PhysicalPortController extends
     return "managerLabel";
   }
 
+  @Override
   protected long count() {
     return physicalPortService.countAllocatedForUser(Security.getUserDetails());
   }
 
+  @Override
   protected long count(Long filterId) {
 
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(filterId);
@@ -140,7 +142,7 @@ public class PhysicalPortController extends
         Security.getUserDetails());
   }
 
-  @ModelAttribute("selPrgs")
+  @ModelAttribute("selPrgList")
   public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups(Model model) {
 
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService
