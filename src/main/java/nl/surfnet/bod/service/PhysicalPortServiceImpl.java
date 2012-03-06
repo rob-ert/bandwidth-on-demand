@@ -41,7 +41,6 @@ import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
-import org.hibernate.annotations.Where;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

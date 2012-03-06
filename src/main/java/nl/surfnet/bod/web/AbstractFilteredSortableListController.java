@@ -22,10 +22,10 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 public abstract class AbstractFilteredSortableListController<T> extends AbstractSortableListController<T> {
 
-  @RequestMapping(value = "/filter/{id}", method = RequestMethod.GET)
+  @RequestMapping(value = "/filter/{filterId}", method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order, @PathVariable(value = "id") Long filterId,
+      @RequestParam(value = "order", required = false) String order, @PathVariable(value = "filterId") Long filterId,
       Model model) {
 
     Sort sortOptions = super.prepareSortOptions(sort, order, model);
@@ -33,7 +33,7 @@ public abstract class AbstractFilteredSortableListController<T> extends Abstract
 
     // Add filterId to model, so a ui component can determine which item is
     // selected
-    model.addAttribute("filterId", filterId);
+    model.addAttribute(WebUtils.FILTER_KEY, filterId);
     model.addAttribute("list", list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, filterId));
 
     return listUrl();

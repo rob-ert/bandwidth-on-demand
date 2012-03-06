@@ -142,16 +142,16 @@ public class PhysicalPortController extends
         Security.getUserDetails());
   }
 
-  @ModelAttribute("selPrgList")
-  public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups(Model model) {
+  @ModelAttribute
+  public void populatePhysicalResourceGroups(Model model) {
 
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService
         .findAllForManager(Security.getUserDetails());
 
     // Select first group
     model.addAttribute("selPrg", groups.iterator().next());
-
-    return groups;
+    // Put list on model
+    model.addAttribute("selPrgList", groups);
   }
 
   // **** **** //

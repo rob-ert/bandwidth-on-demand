@@ -49,6 +49,7 @@ public final class WebUtils {
   public static final String MAX_PAGES_KEY = "maxPages";
   public static final String PAGE_KEY = "page";
   public static final String ID_KEY = "id";
+  public static final String FILTER_KEY = "filterId";
 
   public static final int MAX_ITEMS_PER_PAGE = 15;
 

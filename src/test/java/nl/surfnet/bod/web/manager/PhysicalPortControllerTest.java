@@ -40,7 +40,12 @@ import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.support.ModelStub;
+import nl.surfnet.bod.support.PhysicalPortFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.manager.PhysicalPortController.PhysicalPortView;
 import nl.surfnet.bod.web.manager.PhysicalPortController.UpdateManagerLabelCommand;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -48,12 +53,14 @@ import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.VirtualPortJsonView;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.Sort;
+import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 
 import com.google.common.collect.Lists;
@@ -89,7 +96,7 @@ public class PhysicalPortControllerTest {
   @SuppressWarnings("unchecked")
   @Test
   public void listPorts() {
-    ModelStub model = new ModelStub();
+    Model model = new ModelStub();
 
     when(
         physicalPortServiceMock.findAllocatedEntriesForPhysicalResourceGroupAndUser(eq(physicalResourceGroup),
@@ -107,6 +114,30 @@ public class PhysicalPortControllerTest {
     Collection<PhysicalPortView> ports = (Collection<PhysicalPortView>) model.asMap().get("list");
     assertThat(ports, hasSize(1));
     assertThat(ports.iterator().next().getId(), is(2L));
+  }
+
+  @Ignore("issue with lazy list?")
+  @SuppressWarnings("unchecked")
+  public void listPortsWithFilter() {
+    Model model = new ModelStub();
+
+    PhysicalPort portOne = new PhysicalPortFactory().setId(1L).create();
+
+    when(
+        physicalPortServiceMock.findAllocatedEntriesForPhysicalResourceGroupAndUser(eq(physicalResourceGroup),
+            eq(user), anyInt(), anyInt(), any(Sort.class))).thenReturn(Lists.newArrayList(portOne));
+
+    when(physicalResourceGroupService.find(physicalResourceGroup.getId())).thenReturn(physicalResourceGroup);
+
+    subject.list(null, null, null, 1L, model);
+
+    assertThat(model.asMap(), hasKey("list"));
+    assertThat((Long) model.asMap().get(WebUtils.FILTER_KEY), is(1L));
+
+    Collection<PhysicalPortView> ports = (Collection<PhysicalPortView>) model.asMap().get("list");
+
+    assertThat(ports.size(), is(1));
+    assertThat(ports.iterator().next().getId(), is(portOne.getId()));
   }
 
   @Test
@@ -147,8 +178,7 @@ public class PhysicalPortControllerTest {
   public void updateForIllegalPort() {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").create();
     PhysicalPort port = new PhysicalPortFactory().setPhysicalResourceGroup(group).create();
-    PhysicalResourceGroup illegalGroup = new PhysicalResourceGroupFactory().setAdminGroup("urn:illegal-group")
-        .create();
+    PhysicalResourceGroup illegalGroup = new PhysicalResourceGroupFactory().setAdminGroup("urn:illegal-group").create();
     PhysicalPort illegalPort = new PhysicalPortFactory().setPhysicalResourceGroup(illegalGroup).create();
 
     UpdateManagerLabelCommand command = new PhysicalPortController.UpdateManagerLabelCommand(port);
@@ -208,6 +238,23 @@ public class PhysicalPortControllerTest {
 
     assertThat(page, is("manager/physicalports/update"));
     assertThat(model.asMap(), hasKey("physicalPort"));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void populateShouldAddPhysicalResourceGroupList() {
+    Model model = new ModelStub();
+
+    when(physicalResourceGroupService.findAllForManager(user)).thenReturn(Lists.newArrayList(physicalResourceGroup));
+
+    subject.populatePhysicalResourceGroups(model);
+
+    assertThat(model.asMap(), hasKey("selPrg"));
+    assertThat(model.asMap(), hasKey("selPrgList"));
+
+    assertThat(((PhysicalResourceGroup) model.asMap().get("selPrg")).getId(), is(physicalResourceGroup.getId()));
+    assertThat(((Collection<PhysicalResourceGroup>) model.asMap().get("selPrgList")).iterator().next(),
+        is(physicalResourceGroup));
   }
 
 }
