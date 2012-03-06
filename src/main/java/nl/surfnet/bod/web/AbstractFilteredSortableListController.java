@@ -26,6 +26,8 @@ public abstract class AbstractFilteredSortableListController<T> extends Abstract
 
     super.list(page, sort, order, model);
     
+    //Add filterId to model, so a ui component can determine which item is selected
+    model.addAttribute("filterId", filterId);
     model.addAttribute("list",
         list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOrder((String) model.asMap().get("sortProperty" ), (Direction) model.asMap().get("sortOrder")), filterId));
 
