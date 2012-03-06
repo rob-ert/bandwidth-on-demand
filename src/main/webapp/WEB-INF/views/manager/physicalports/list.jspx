@@ -51,8 +51,7 @@
       });
       
       //Set filterSelectBox to selected id
-      $(document).ready(function(){
-	    	  console.log("FilterId: " + ${filterId});
+      $(document).ready(function(){	    	  
 	    	  $("#_filter").val(${filterId});    
       });      
     </script>      
