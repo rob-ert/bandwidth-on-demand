@@ -123,7 +123,6 @@ public class PhysicalPortController extends
           }
         });
   }
-  
 
   protected String defaultSortProperty() {
     return "managerLabel";
@@ -133,15 +132,23 @@ public class PhysicalPortController extends
     return physicalPortService.countAllocatedForUser(Security.getUserDetails());
   }
 
+  protected long count(Long filterId) {
+
+    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(filterId);
+
+    return physicalPortService.countAllocatedForPhysicalResourceGroupAndUser(physicalResourceGroup,
+        Security.getUserDetails());
+  }
+
   @ModelAttribute("selPrgs")
   public Collection<PhysicalResourceGroup> populatePhysicalResourceGroups(Model model) {
 
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService
         .findAllForManager(Security.getUserDetails());
-    
-   //Select first group    
-   model.addAttribute("selPrg", groups.iterator().next());
-    
+
+    // Select first group
+    model.addAttribute("selPrg", groups.iterator().next());
+
     return groups;
   }
 

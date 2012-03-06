@@ -206,10 +206,19 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
       return Collections.emptyList();
     }
 
-    return physicalPortRepo.findAll(
-        Specifications.where(specificationForUser(user)).and(
-            specificationForPhysicalResourceGroup(physicalResourceGroup)),
+    return physicalPortRepo.findAll(specificationForPhysicalResourceGroupAndUser(physicalResourceGroup, user),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+  }
+
+  @Override
+  public long countAllocatedForPhysicalResourceGroupAndUser(final PhysicalResourceGroup physicalResourceGroup,
+      final RichUserDetails user) {
+
+    if (user.getUserGroups().isEmpty()) {
+      return 0L;
+    }
+
+    return physicalPortRepo.count(specificationForPhysicalResourceGroupAndUser(physicalResourceGroup, user));
   }
 
   @Override
@@ -243,6 +252,12 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
         return cb.equal(root.get(PhysicalPort_.physicalResourceGroup), physicalResourceGroup);
       }
     };
+  }
+
+  private Specification<PhysicalPort> specificationForPhysicalResourceGroupAndUser(
+      final PhysicalResourceGroup physicalResourceGroup, final RichUserDetails user) {
+    return Specifications.where(specificationForUser(user)).and(
+        specificationForPhysicalResourceGroup(physicalResourceGroup));
   }
 
   /**

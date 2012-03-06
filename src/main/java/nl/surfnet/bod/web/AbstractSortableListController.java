@@ -31,16 +31,22 @@ public abstract class AbstractSortableListController<T> {
       @RequestParam(value = "sort", required = false) String sort,
       @RequestParam(value = "order", required = false) String order, Model model) {
 
+    Sort sortOptions = prepareSortOptions(sort, order, model);
+    model.addAttribute("maxPages", calculateMaxPages(count()));
+
+    model.addAttribute("list", list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions));
+
+    return listUrl();
+  }
+
+  protected Sort prepareSortOptions(String sort, String order, Model model) {
     String sortProperty = sortProperty(sort);
     Direction sortDirection = sortDirection(order);
 
     model.addAttribute("sortProperty", sortProperty);
     model.addAttribute("sortDirection", sortDirection);
-    model.addAttribute("list",
-        list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOrder(sortProperty, sortDirection)));
-    model.addAttribute("maxPages", calculateMaxPages(count()));
 
-    return listUrl();
+    return sortOrder(sortProperty, sortDirection);
   }
 
   protected abstract String listUrl();

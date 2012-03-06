@@ -73,10 +73,14 @@ public interface PhysicalPortService {
   Collection<PhysicalPort> findAllocatedForUser(RichUserDetails user);
 
   /**
-   * Finds all physical ports that are visible for a user.
+   * Finds all physical ports that are visible for a user filtered by
+   * {@link PhysicalResourceGroup}.
    * 
    * @param user
-   *          the user
+   *          the user to filter on
+   * 
+   * @param physicalResourceGroup
+   *          {@link PhysicalResourceGroup} to filter on
    * @return list of user visible physical ports
    */
   List<PhysicalPort> findAllocatedEntriesForPhysicalResourceGroupAndUser(PhysicalResourceGroup physicalResourceGroup,
@@ -87,6 +91,8 @@ public interface PhysicalPortService {
   long countAllocated();
 
   long countAllocatedForUser(RichUserDetails user);
+
+  long countAllocatedForPhysicalResourceGroupAndUser(PhysicalResourceGroup physicalResourceGroup, RichUserDetails user);
 
   void delete(final PhysicalPort physicalPort);
 
