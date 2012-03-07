@@ -32,7 +32,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -116,7 +118,7 @@ public class PhysicalPortControllerTest {
     assertThat(ports.iterator().next().getId(), is(2L));
   }
 
-  @Ignore("issue with lazy list?")
+  //@Ignore("issue with lazy list?")
   @SuppressWarnings("unchecked")
   public void listPortsWithFilter() {
     Model model = new ModelStub();
@@ -135,9 +137,10 @@ public class PhysicalPortControllerTest {
     assertThat((Long) model.asMap().get(WebUtils.FILTER_KEY), is(1L));
 
     Collection<PhysicalPortView> ports = (Collection<PhysicalPortView>) model.asMap().get("list");
+    List<PhysicalPortView> portList = new ArrayList<PhysicalPortController.PhysicalPortView>(ports);
 
-    assertThat(ports.size(), is(1));
-    assertThat(ports.iterator().next().getId(), is(portOne.getId()));
+    assertThat(portList.size(), is(1));
+    assertThat(portList.get(0).getId(), is(portOne.getId()));
   }
 
   @Test
