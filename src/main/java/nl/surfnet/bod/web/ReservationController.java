@@ -21,7 +21,12 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.CREATE;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.SHOW;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -37,9 +42,15 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
-import org.joda.time.*;
+import org.joda.time.Hours;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+import org.joda.time.Months;
+import org.joda.time.ReadablePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
@@ -59,11 +70,13 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller
 public class ReservationController extends AbstractSortableListController<ReservationView> {
   public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
+  public static final ReadablePeriod DEFAULT_FILTER_INTERVAL = Months.FOUR;
 
   static final String PAGE_URL = "reservations";
 
@@ -115,8 +128,9 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
     Collection<VirtualPort> ports = (Collection<VirtualPort>) model.asMap().get("virtualPorts");
     if (CollectionUtils.isEmpty(ports) || ports.size() == 1) {
-       
-      model.addAttribute(MessageView.MODEL_KEY, MessageView.createInfoMessage(messageSource,"info_reservation_need_two_virtual_ports"));
+
+      model.addAttribute(MessageView.MODEL_KEY,
+          MessageView.createInfoMessage(messageSource, "info_reservation_need_two_virtual_ports"));
 
       return MessageView.PAGE_URL;
     }
@@ -199,13 +213,17 @@ public class ReservationController extends AbstractSortableListController<Reserv
           }
         });
 
-
     Collection<VirtualPort> ports = groups.isEmpty() ? Collections.<VirtualPort> emptyList() : groups.iterator().next()
         .getVirtualPorts();
 
     model.addAttribute("virtualResourceGroups", groups);
     model.addAttribute("virtualPorts", ports);
     model.addAttribute(MODEL_KEY, createDefaultReservation(ports));
+    
+  }
+
+  private List<nl.surfnet.bod.web.view.ReservationFilterView> createReservationFilters(Model model) {
+    throw new UnsupportedOperationException();
   }
 
   private Reservation createDefaultReservation(Collection<VirtualPort> ports) {
@@ -231,6 +249,26 @@ public class ReservationController extends AbstractSortableListController<Reserv
     }
 
     return reservation;
+  }
+
+  public List<Integer> getDistinctReservationYears(List<Reservation> reservations) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public Reservation getFirstReservation(List<Reservation> reservations) {
+    return null;
+    
+  }
+
+  public Reservation getLastReservation(List<Reservation> reservations) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public List<Reservation> getReservationsBetween(LocalDateTime now, LocalDateTime plus) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

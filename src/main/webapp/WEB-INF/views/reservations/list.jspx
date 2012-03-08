@@ -6,6 +6,9 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
+	<field:select id="filter" items="${filterResList}"  labelCode="reservations" field="selResFilter.label" itemValue="id" 
+   	 	showSingle="true" path="/reservations"  />
+
     <page:list id="pl_reservation" items="${list}">
         <table:table data="${list}" id="l_reservation" path="/reservations" typeIdFieldName="id" update="false">
             <table:column labelCode="virtualresourcegroup" id="virtualresourcegroup" property="virtualResourceGroup"/>

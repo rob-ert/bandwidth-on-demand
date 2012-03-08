@@ -38,9 +38,15 @@ import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ReservationFilterView;
 
+import org.joda.time.Chronology;
+import org.joda.time.DateMidnight;
 import org.joda.time.DurationFieldType;
+import org.joda.time.LocalDateTime;
+import org.joda.time.Months;
 import org.joda.time.Period;
+import org.joda.time.ReadablePeriod;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,6 +66,10 @@ public class ReservationControllerTest {
 
   private static final String INFO_AT_LEAST_TWO_PORTS = "at least two ports";
 
+  private final static LocalDateTime START = LocalDateTime.now().withDate(2012, 01, 01).withTime(01, 0, 0, 0);
+
+  private final static ReadablePeriod PERIOD = Months.THREE;
+
   @InjectMocks
   private ReservationController subject;
 
@@ -75,6 +85,21 @@ public class ReservationControllerTest {
   private RichUserDetails user = new RichUserDetailsFactory().create();
 
   private Model model = new ModelStub();
+
+  private Reservation resStart = new ReservationFactory().setStartAndDuration(START, PERIOD).create();
+
+  private Reservation resFirst = new ReservationFactory().setStartAndDuration(START.minusYears(2), PERIOD).create();
+
+  private Reservation resLast = new ReservationFactory().setStartAndDuration(START.plusYears(2), PERIOD).create();
+
+  private Reservation resCommingPeriod = new ReservationFactory().setStartAndDuration(
+      START.plus(ReservationController.DEFAULT_FILTER_INTERVAL), PERIOD).create();
+
+  private Reservation resElapsedPeriod = new ReservationFactory().setStartAndDuration(
+      START.minus(ReservationController.DEFAULT_FILTER_INTERVAL), PERIOD).create();
+
+  private List<Reservation> reservationsToFilter = Lists.newArrayList(resStart, resFirst, resLast, resCommingPeriod,
+      resElapsedPeriod);
 
   @Before
   public void onSetup() {
@@ -201,4 +226,47 @@ public class ReservationControllerTest {
     assertThat(view, is(ReservationController.PAGE_URL + WebUtils.CREATE));
   }
 
+  @Test
+  public void testFirstReservation() {
+    Reservation first = subject.getFirstReservation(reservationsToFilter);
+
+    assertThat(first, is(resFirst));
+  }
+
+  @Test
+  public void testLastReservation() {
+    Reservation last = subject.getLastReservation(reservationsToFilter);
+
+    assertThat(last, is(resLast));
+  }
+
+  @Test
+  public void testCommingPeriod() {
+    List<Reservation> reservations = subject.getReservationsBetween(START,
+        START.plus(ReservationController.DEFAULT_FILTER_INTERVAL));
+
+    assertThat(reservations, hasSize(1));
+    assertThat(reservations, contains(resStart));
+    assertThat(reservations, contains(resCommingPeriod));
+  }
+
+  @Test
+  public void testElapsedPeriod() {
+    List<Reservation> reservations = subject.getReservationsBetween(START,
+        START.minus(ReservationController.DEFAULT_FILTER_INTERVAL));
+
+    assertThat(reservations, hasSize(1));
+    assertThat(reservations, contains(resElapsedPeriod));
+  }
+
+  @Test
+  public void testDistinctReservationYears() {
+    List<Integer> reservationYears = subject.getDistinctReservationYears(reservationsToFilter);
+
+    assertThat(reservationYears, hasSize(4));
+    assertThat(
+        reservationYears,
+        contains(resFirst.getStartDateTime().getYear(), resLast.getStartDateTime().getYear(), resElapsedPeriod
+            .getStartDateTime().getYear(), START.getYear()));
+  }
 }

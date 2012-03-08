@@ -31,6 +31,9 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
+import org.joda.time.Months;
+import org.joda.time.ReadableDuration;
+import org.joda.time.ReadablePeriod;
 
 import com.google.common.base.Strings;
 
@@ -78,7 +81,7 @@ public class ReservationFactory {
     if (!Strings.isNullOrEmpty(surfConextGroupName)) {
       reservation.getVirtualResourceGroup().setSurfConextGroupName(surfConextGroupName);
     }
-    
+
     return reservation;
   }
 
@@ -161,6 +164,14 @@ public class ReservationFactory {
 
   public ReservationFactory setSurfConextGroupName(String surfConextGroupName) {
     this.surfConextGroupName = surfConextGroupName;
+    return this;
+  }
+
+  public ReservationFactory setStartAndDuration(LocalDateTime start, ReadablePeriod period) {
+    setStartDateTime(start);
+    
+    setEndDateTime(start.plus(period));
+
     return this;
   }
 
