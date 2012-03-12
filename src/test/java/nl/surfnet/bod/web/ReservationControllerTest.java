@@ -47,6 +47,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.Months;
 import org.joda.time.Period;
 import org.joda.time.ReadablePeriod;
+import org.joda.time.Seconds;
 import org.joda.time.Years;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,6 +59,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.test.annotation.ExpectedException;
 import org.springframework.ui.Model;
 
 import com.google.common.collect.Lists;
@@ -99,7 +101,7 @@ public class ReservationControllerTest {
   private Reservation resElapsedPeriod = new ReservationFactory().setStartAndDuration(
       START.minus(ReservationController.DEFAULT_FILTER_INTERVAL), PERIOD).create();
 
-  private List<Reservation> reservationsToFilter = Lists.newArrayList(resFirst, resElapsedPeriod, resStart, 
+  private List<Reservation> reservationsToFilter = Lists.newArrayList(resFirst, resElapsedPeriod, resStart,
       resCommingPeriod, resLast);
 
   @Before
@@ -243,21 +245,20 @@ public class ReservationControllerTest {
 
   @Test
   public void testCommingPeriod() {
-    List<Reservation> reservations = subject.getReservationsBetween(START,
+    List<Reservation> reservations = subject.getReservationsBetweenBasedOnStartDateOrEndDate(START,
         START.plus(ReservationController.DEFAULT_FILTER_INTERVAL), reservationsToFilter);
 
-    assertThat(reservations, hasSize(1));
-    assertThat(reservations, contains(resStart));
-    assertThat(reservations, contains(resCommingPeriod));
+    assertThat(reservations, hasSize(2));
+    assertThat(reservations, containsInAnyOrder(resStart, resCommingPeriod));
   }
 
   @Test
   public void testElapsedPeriod() {
-    List<Reservation> reservations = subject.getReservationsBetween(START,
-        START.minus(ReservationController.DEFAULT_FILTER_INTERVAL), reservationsToFilter);
+    List<Reservation> reservations = subject.getReservationsBetweenBasedOnStartDateOrEndDate(
+        START.minus(ReservationController.DEFAULT_FILTER_INTERVAL), START, reservationsToFilter);
 
-    assertThat(reservations, hasSize(1));
-    assertThat(reservations, contains(resElapsedPeriod));
+    assertThat(reservations, hasSize(2));
+    assertThat(reservations, containsInAnyOrder(resStart, resElapsedPeriod));
   }
 
   @Test
@@ -267,7 +268,9 @@ public class ReservationControllerTest {
     assertThat(reservationYears, hasSize(4));
     assertThat(
         reservationYears,
-        contains(Years.years(resFirst.getStartDateTime().getYear()), Years.years(resLast.getStartDateTime().getYear()),
+        containsInAnyOrder(Years.years(resFirst.getStartDateTime().getYear()),
+            Years.years(resLast.getStartDateTime().getYear()),
             Years.years(resElapsedPeriod.getStartDateTime().getYear()), Years.years(START.getYear())));
   }
+
 }

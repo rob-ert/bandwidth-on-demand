@@ -28,12 +28,12 @@ import static nl.surfnet.bod.web.WebUtils.LIST;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static nl.surfnet.bod.web.WebUtils.SHOW;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -45,11 +45,10 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
-import org.joda.time.DateTimeUtils;
 import org.joda.time.Hours;
+import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -74,7 +73,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
@@ -93,6 +91,34 @@ public class ReservationController extends AbstractSortableListController<Reserv
     @Override
     public ReservationView apply(Reservation reservation) {
       return new ReservationView(reservation);
+    }
+  };
+
+  private final Function<Reservation, Years> TO_UNIQUE_START_YEARS = new Function<Reservation, Years>() {
+    final List<Years> uniqueYears = new ArrayList<Years>();
+
+    @Override
+    public Years apply(Reservation input) {
+      Years startYear = Years.years(input.getStartDate().getYear());
+      if (!uniqueYears.contains(startYear)) {
+        uniqueYears.add(startYear);
+        return startYear;
+      }
+      return null;
+    }
+  };
+
+  private final Function<Reservation, Years> TO_UNIQUE_END_YEARS = new Function<Reservation, Years>() {
+    final List<Years> uniqueYears = new ArrayList<Years>();
+
+    @Override
+    public Years apply(Reservation input) {
+      Years startYear = Years.years(input.getEndDate().getYear());
+      if (!uniqueYears.contains(startYear)) {
+        uniqueYears.add(startYear);
+        return startYear;
+      }
+      return null;
     }
   };
 
@@ -267,38 +293,16 @@ public class ReservationController extends AbstractSortableListController<Reserv
     return reservation;
   }
 
-  @SuppressWarnings("unchecked")
   public List<Years> getDistinctReservationYears(List<Reservation> reservations) {
-    final List<Years> uniqueYears = Lists.newArrayList();
+    Set<Years> uniqueYears = Sets.newHashSet();
 
-    Predicate<Reservation> uniqueStartDatePredicate = new Predicate<Reservation>() {
-      @Override
-      public boolean apply(Reservation input) {
-        Years startYear = Years.years(input.getStartDate().getYear());
-        if (!uniqueYears.contains(startYear)) {
-          uniqueYears.add(startYear);
-          return true;
-        }
-        return false;
-      }
-    };
-    
-    Predicate<Reservation> uniqueEndDatePredicate = new Predicate<Reservation>() {
-      @Override
-      public boolean apply(Reservation input) {
-        Years endYear = Years.years(input.getEndDate().getYear());
-        if (!uniqueYears.contains(endYear)) {
-          uniqueYears.add(endYear);
-          return true;
-        }
-        return false;
-      }
-    };
-    
-    Iterators.filter(reservations.iterator(), uniqueStartDatePredicate);
-    Iterators.filter(reservations.iterator(), uniqueEndDatePredicate);
+    uniqueYears.addAll(Lists.transform(reservations, TO_UNIQUE_START_YEARS));
+    uniqueYears.addAll(Lists.transform(reservations, TO_UNIQUE_END_YEARS));
 
-    return uniqueYears;
+    // Remove null value
+    uniqueYears.remove(null);
+
+    return Lists.newArrayList(uniqueYears);
   }
 
   public Reservation getFirstReservation(List<Reservation> reservations) {
@@ -311,19 +315,23 @@ public class ReservationController extends AbstractSortableListController<Reserv
     return ORDER_BY_START_DATETIME.max(reservations);
   }
 
-  public List<Reservation> getReservationsBetween(LocalDateTime start, LocalDateTime end, List<Reservation> reservations) {
+  public List<Reservation> getReservationsBetweenBasedOnStartDateOrEndDate(LocalDateTime start, LocalDateTime end,
+      List<Reservation> reservations) {
+
+    //Interval is exclusive of the end, so add one millisecond
+    Interval interval = new Interval(start.toDate().getTime(), end.toDate().getTime()+1);
+
     List<Reservation> intervalReservations = Lists.newArrayList();
-
-    if (!ORDER_BY_START_DATETIME.isOrdered(reservations)) {
-      throw new IllegalArgumentException("List of reservations is not sorted on startDate");
-    }
-
+    Interval reservationInterval;
     for (Reservation reservation : reservations) {
-      if ((reservation.getStartDateTime().compareTo(start) >= 0) && (reservation.getEndDateTime().compareTo(end) <= 1)) {
+      reservationInterval = new Interval(reservation.getStartDateTime().toDate().getTime(), reservation
+          .getEndDateTime().toDate().getTime());
+
+      if (interval.overlaps(reservationInterval)) {
         intervalReservations.add(reservation);
       }
     }
-
     return intervalReservations;
   }
+
 }
