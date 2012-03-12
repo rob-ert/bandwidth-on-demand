@@ -45,8 +45,10 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
+import org.joda.time.DateMidnight;
 import org.joda.time.Hours;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
@@ -94,12 +96,12 @@ public class ReservationController extends AbstractSortableListController<Reserv
     }
   };
 
-  private final Function<Reservation, Years> TO_UNIQUE_START_YEARS = new Function<Reservation, Years>() {
-    final List<Years> uniqueYears = new ArrayList<Years>();
+  private final Function<Reservation, Integer> TO_UNIQUE_START_YEARS = new Function<Reservation, Integer>() {
+    final List<Integer> uniqueYears = new ArrayList<Integer>();
 
     @Override
-    public Years apply(Reservation input) {
-      Years startYear = Years.years(input.getStartDate().getYear());
+    public Integer apply(Reservation input) {
+      Integer startYear = input.getStartDate().getYear();
       if (!uniqueYears.contains(startYear)) {
         uniqueYears.add(startYear);
         return startYear;
@@ -108,15 +110,15 @@ public class ReservationController extends AbstractSortableListController<Reserv
     }
   };
 
-  private final Function<Reservation, Years> TO_UNIQUE_END_YEARS = new Function<Reservation, Years>() {
-    final List<Years> uniqueYears = new ArrayList<Years>();
+  private final Function<Reservation, Integer> TO_UNIQUE_END_YEARS = new Function<Reservation, Integer>() {
+    final List<Integer> uniqueYears = new ArrayList<Integer>();
 
     @Override
-    public Years apply(Reservation input) {
-      Years startYear = Years.years(input.getEndDate().getYear());
-      if (!uniqueYears.contains(startYear)) {
-        uniqueYears.add(startYear);
-        return startYear;
+    public Integer apply(Reservation input) {
+      Integer endYear = input.getEndDate().getYear();
+      if (!uniqueYears.contains(endYear)) {
+        uniqueYears.add(endYear);
+        return endYear;
       }
       return null;
     }
@@ -262,10 +264,64 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
   }
 
-  private List<nl.surfnet.bod.web.view.ReservationFilterView> createReservationFilters(Model model) {
-    // Sort by startDate
+  List<nl.surfnet.bod.web.view.ReservationFilterView> createReservationFilters(Model model) {
+    List<ReservationFilterView> filterViews = Lists.newArrayList();
+    @SuppressWarnings("unchecked")
+    List<Reservation> reservations = (List<Reservation>) model.asMap().get(WebUtils.LIST);
 
-    throw new UnsupportedOperationException();
+    final LocalDateTime now = LocalDateTime.now();
+    // Comming period
+    filterViews.add(new ReservationFilterView("reservation.filter.comming", now, now.plus(DEFAULT_FILTER_INTERVAL)));
+    // Elapsed period
+    filterViews.add(new ReservationFilterView("reservation.filter.elapsed", now.minus(DEFAULT_FILTER_INTERVAL), now));
+
+    // Years with reservations
+    for (Integer year : getDistinctReservationYears(reservations)) {
+      filterViews.add(new ReservationFilterView(year));
+    }
+
+    return filterViews;
+  }
+
+  List<Integer> getDistinctReservationYears(List<Reservation> reservations) {
+    Set<Integer> uniqueYears = Sets.newHashSet();
+
+    uniqueYears.addAll(Lists.transform(reservations, TO_UNIQUE_START_YEARS));
+    uniqueYears.addAll(Lists.transform(reservations, TO_UNIQUE_END_YEARS));
+
+    // Remove null value
+    uniqueYears.remove(null);
+
+    return Lists.newArrayList(uniqueYears);
+  }
+
+  Reservation getFirstReservation(List<Reservation> reservations) {
+
+    return ORDER_BY_START_DATETIME.min(reservations);
+  }
+
+  Reservation getLastReservation(List<Reservation> reservations) {
+
+    return ORDER_BY_START_DATETIME.max(reservations);
+  }
+
+  List<Reservation> getReservationsBetweenBasedOnStartDateOrEndDate(LocalDateTime start, LocalDateTime end,
+      List<Reservation> reservations) {
+
+    // Interval is exclusive of the end, so add one millisecond
+    Interval interval = new Interval(start.toDate().getTime(), end.toDate().getTime() + 1);
+
+    List<Reservation> intervalReservations = Lists.newArrayList();
+    Interval reservationInterval;
+    for (Reservation reservation : reservations) {
+      reservationInterval = new Interval(reservation.getStartDateTime().toDate().getTime(), reservation
+          .getEndDateTime().toDate().getTime());
+
+      if (interval.overlaps(reservationInterval)) {
+        intervalReservations.add(reservation);
+      }
+    }
+    return intervalReservations;
   }
 
   private Reservation createDefaultReservation(Collection<VirtualPort> ports) {
@@ -292,46 +348,4 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
     return reservation;
   }
-
-  public List<Years> getDistinctReservationYears(List<Reservation> reservations) {
-    Set<Years> uniqueYears = Sets.newHashSet();
-
-    uniqueYears.addAll(Lists.transform(reservations, TO_UNIQUE_START_YEARS));
-    uniqueYears.addAll(Lists.transform(reservations, TO_UNIQUE_END_YEARS));
-
-    // Remove null value
-    uniqueYears.remove(null);
-
-    return Lists.newArrayList(uniqueYears);
-  }
-
-  public Reservation getFirstReservation(List<Reservation> reservations) {
-
-    return ORDER_BY_START_DATETIME.min(reservations);
-  }
-
-  public Reservation getLastReservation(List<Reservation> reservations) {
-
-    return ORDER_BY_START_DATETIME.max(reservations);
-  }
-
-  public List<Reservation> getReservationsBetweenBasedOnStartDateOrEndDate(LocalDateTime start, LocalDateTime end,
-      List<Reservation> reservations) {
-
-    //Interval is exclusive of the end, so add one millisecond
-    Interval interval = new Interval(start.toDate().getTime(), end.toDate().getTime()+1);
-
-    List<Reservation> intervalReservations = Lists.newArrayList();
-    Interval reservationInterval;
-    for (Reservation reservation : reservations) {
-      reservationInterval = new Interval(reservation.getStartDateTime().toDate().getTime(), reservation
-          .getEndDateTime().toDate().getTime());
-
-      if (interval.overlaps(reservationInterval)) {
-        intervalReservations.add(reservation);
-      }
-    }
-    return intervalReservations;
-  }
-
 }

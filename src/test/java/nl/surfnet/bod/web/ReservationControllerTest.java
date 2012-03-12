@@ -263,14 +263,14 @@ public class ReservationControllerTest {
 
   @Test
   public void testDistinctReservationYears() {
-    List<Years> reservationYears = subject.getDistinctReservationYears(reservationsToFilter);
+    List<Integer> reservationYears = subject.getDistinctReservationYears(reservationsToFilter);
 
     assertThat(reservationYears, hasSize(4));
     assertThat(
         reservationYears,
-        containsInAnyOrder(Years.years(resFirst.getStartDateTime().getYear()),
-            Years.years(resLast.getStartDateTime().getYear()),
-            Years.years(resElapsedPeriod.getStartDateTime().getYear()), Years.years(START.getYear())));
+        containsInAnyOrder(Integer.valueOf(resFirst.getStartDateTime().getYear()),
+            Integer.valueOf(resLast.getStartDateTime().getYear()),
+            Integer.valueOf(resElapsedPeriod.getStartDateTime().getYear()), Integer.valueOf(START.getYear())));
   }
 
 }
