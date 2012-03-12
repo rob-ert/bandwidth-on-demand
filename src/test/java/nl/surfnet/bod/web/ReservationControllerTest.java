@@ -47,6 +47,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.Months;
 import org.joda.time.Period;
 import org.joda.time.ReadablePeriod;
+import org.joda.time.Years;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -98,8 +99,8 @@ public class ReservationControllerTest {
   private Reservation resElapsedPeriod = new ReservationFactory().setStartAndDuration(
       START.minus(ReservationController.DEFAULT_FILTER_INTERVAL), PERIOD).create();
 
-  private List<Reservation> reservationsToFilter = Lists.newArrayList(resStart, resFirst, resLast, resCommingPeriod,
-      resElapsedPeriod);
+  private List<Reservation> reservationsToFilter = Lists.newArrayList(resFirst, resElapsedPeriod, resStart, 
+      resCommingPeriod, resLast);
 
   @Before
   public void onSetup() {
@@ -243,7 +244,7 @@ public class ReservationControllerTest {
   @Test
   public void testCommingPeriod() {
     List<Reservation> reservations = subject.getReservationsBetween(START,
-        START.plus(ReservationController.DEFAULT_FILTER_INTERVAL));
+        START.plus(ReservationController.DEFAULT_FILTER_INTERVAL), reservationsToFilter);
 
     assertThat(reservations, hasSize(1));
     assertThat(reservations, contains(resStart));
@@ -253,7 +254,7 @@ public class ReservationControllerTest {
   @Test
   public void testElapsedPeriod() {
     List<Reservation> reservations = subject.getReservationsBetween(START,
-        START.minus(ReservationController.DEFAULT_FILTER_INTERVAL));
+        START.minus(ReservationController.DEFAULT_FILTER_INTERVAL), reservationsToFilter);
 
     assertThat(reservations, hasSize(1));
     assertThat(reservations, contains(resElapsedPeriod));
@@ -261,12 +262,12 @@ public class ReservationControllerTest {
 
   @Test
   public void testDistinctReservationYears() {
-    List<Integer> reservationYears = subject.getDistinctReservationYears(reservationsToFilter);
+    List<Years> reservationYears = subject.getDistinctReservationYears(reservationsToFilter);
 
     assertThat(reservationYears, hasSize(4));
     assertThat(
         reservationYears,
-        contains(resFirst.getStartDateTime().getYear(), resLast.getStartDateTime().getYear(), resElapsedPeriod
-            .getStartDateTime().getYear(), START.getYear()));
+        contains(Years.years(resFirst.getStartDateTime().getYear()), Years.years(resLast.getStartDateTime().getYear()),
+            Years.years(resElapsedPeriod.getStartDateTime().getYear()), Years.years(START.getYear())));
   }
 }
