@@ -28,10 +28,8 @@ import static nl.surfnet.bod.web.WebUtils.LIST;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static nl.surfnet.bod.web.WebUtils.SHOW;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -48,7 +46,6 @@ import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
-import org.joda.time.DateMidnight;
 import org.joda.time.Hours;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
@@ -56,7 +53,6 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.Months;
 import org.joda.time.ReadablePeriod;
-import org.joda.time.Years;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
@@ -76,7 +72,6 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
 @RequestMapping(ReservationController.PAGE_URL)
@@ -95,41 +90,6 @@ public class ReservationController extends AbstractSortableListController<Reserv
       return new ReservationView(reservation);
     }
   };
-
-  private final Function<Reservation, Integer> TO_UNIQUE_START_YEARS = new Function<Reservation, Integer>() {
-    final List<Integer> uniqueYears = new ArrayList<Integer>();
-
-    @Override
-    public Integer apply(Reservation input) {
-      Integer startYear = input.getStartDate().getYear();
-      if (!uniqueYears.contains(startYear)) {
-        uniqueYears.add(startYear);
-        return startYear;
-      }
-      return null;
-    }
-  };
-
-  private final Function<Reservation, Integer> TO_UNIQUE_END_YEARS = new Function<Reservation, Integer>() {
-    final List<Integer> uniqueYears = new ArrayList<Integer>();
-
-    @Override
-    public Integer apply(Reservation input) {
-      Integer endYear = input.getEndDate().getYear();
-      if (!uniqueYears.contains(endYear)) {
-        uniqueYears.add(endYear);
-        return endYear;
-      }
-      return null;
-    }
-  };
-
-  private static final Ordering<Reservation> ORDER_BY_START_DATETIME = Ordering.from(new Comparator<Reservation>() {
-    @Override
-    public int compare(Reservation res1, Reservation res2) {
-      return (res1.getStartDateTime().compareTo(res2.getStartDateTime()));
-    }
-  });
 
   @Autowired
   private ReservationService reservationService;
@@ -284,32 +244,37 @@ public class ReservationController extends AbstractSortableListController<Reserv
   }
 
   List<Integer> getDistinctReservationYears(List<Reservation> reservations) {
-    Set<Integer> uniqueYears = Sets.newHashSet();
+    Set<Integer> uniqueYears = Sets.newTreeSet();
 
-    uniqueYears.addAll(Lists.transform(reservations, TO_UNIQUE_START_YEARS));
-    uniqueYears.addAll(Lists.transform(reservations, TO_UNIQUE_END_YEARS));
-
-    // Remove null value
-    uniqueYears.remove(null);
+    for (Reservation reservation : reservations) {
+      uniqueYears.add(reservation.getStartDate().getYear());
+      uniqueYears.add(reservation.getEndDate().getYear());
+    }
 
     return Lists.newArrayList(uniqueYears);
   }
 
-  Reservation getFirstReservation(List<Reservation> reservations) {
+  List<Reservation> getReservationsBetweenBasedOnEndDateOnly(LocalDateTime start, LocalDateTime end,
+      List<Reservation> reservations) {
 
-    return ORDER_BY_START_DATETIME.min(reservations);
-  }
+    // Interval is exclusive of the end, so add one minute
+    Interval interval = new Interval(start.toDate().getTime(), end.toDate().getTime() + 60000);
 
-  Reservation getLastReservation(List<Reservation> reservations) {
+    List<Reservation> intervalReservations = Lists.newArrayList();
 
-    return ORDER_BY_START_DATETIME.max(reservations);
+    for (Reservation reservation : reservations) {
+      if (interval.contains(reservation.getEndDateTime().toDate().getTime())) {
+        intervalReservations.add(reservation);
+      }
+    }
+    return intervalReservations;
   }
 
   List<Reservation> getReservationsBetweenBasedOnStartDateOrEndDate(LocalDateTime start, LocalDateTime end,
       List<Reservation> reservations) {
 
-    // Interval is exclusive of the end, so add one millisecond
-    Interval interval = new Interval(start.toDate().getTime(), end.toDate().getTime() + 1);
+    // Interval is exclusive of the end, so add one minute
+    Interval interval = new Interval(start.toDate().getTime(), end.toDate().getTime() + 60000);
 
     List<Reservation> intervalReservations = Lists.newArrayList();
     Interval reservationInterval;

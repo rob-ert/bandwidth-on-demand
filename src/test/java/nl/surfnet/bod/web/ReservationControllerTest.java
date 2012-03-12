@@ -22,7 +22,14 @@
 package nl.surfnet.bod.web;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -35,20 +42,21 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.support.ModelStub;
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 
-import org.joda.time.Chronology;
-import org.joda.time.DateMidnight;
+import org.joda.time.DateTimeUtils;
 import org.joda.time.DurationFieldType;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Months;
 import org.joda.time.Period;
 import org.joda.time.ReadablePeriod;
-import org.joda.time.Seconds;
-import org.joda.time.Years;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,7 +67,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.test.annotation.ExpectedException;
 import org.springframework.ui.Model;
 
 import com.google.common.collect.Lists;
@@ -230,21 +237,25 @@ public class ReservationControllerTest {
   }
 
   @Test
-  public void testFirstReservation() {
-    Reservation first = subject.getFirstReservation(reservationsToFilter);
+  public void testCommingPeriodEndDate() {
+    List<Reservation> reservations = subject.getReservationsBetweenBasedOnEndDateOnly(START,
+        START.plus(ReservationController.DEFAULT_FILTER_INTERVAL), reservationsToFilter);
 
-    assertThat(first, is(resFirst));
+    assertThat(reservations, hasSize(1));
+    assertThat(reservations, contains((resStart)));
   }
 
   @Test
-  public void testLastReservation() {
-    Reservation last = subject.getLastReservation(reservationsToFilter);
+  public void testElapedPeriodEndDate() {
+    List<Reservation> reservations = subject.getReservationsBetweenBasedOnEndDateOnly(START,
+        START.plus(ReservationController.DEFAULT_FILTER_INTERVAL), reservationsToFilter);
 
-    assertThat(last, is(resLast));
+    assertThat(reservations, hasSize(1));
+    assertThat(reservations, containsInAnyOrder(resStart));
   }
 
   @Test
-  public void testCommingPeriod() {
+  public void testCommingPeriodStartAndEndDate() {
     List<Reservation> reservations = subject.getReservationsBetweenBasedOnStartDateOrEndDate(START,
         START.plus(ReservationController.DEFAULT_FILTER_INTERVAL), reservationsToFilter);
 
@@ -253,7 +264,7 @@ public class ReservationControllerTest {
   }
 
   @Test
-  public void testElapsedPeriod() {
+  public void testElapsedPeriodStartAndEndDate() {
     List<Reservation> reservations = subject.getReservationsBetweenBasedOnStartDateOrEndDate(
         START.minus(ReservationController.DEFAULT_FILTER_INTERVAL), START, reservationsToFilter);
 
@@ -271,6 +282,34 @@ public class ReservationControllerTest {
         containsInAnyOrder(Integer.valueOf(resFirst.getStartDateTime().getYear()),
             Integer.valueOf(resLast.getStartDateTime().getYear()),
             Integer.valueOf(resElapsedPeriod.getStartDateTime().getYear()), Integer.valueOf(START.getYear())));
+  }
+
+  @Test
+  public void testShouldHaveSixSpecificFilters() {
+    model.addAttribute(WebUtils.LIST, reservationsToFilter);
+
+    DateTimeUtils.setCurrentMillisFixed(START.toDate().getTime());
+
+    try {
+      List<ReservationFilterView> reservationFilters = subject.createReservationFilters(model);      
+      assertThat(reservationFilters, hasSize(6));
+      
+      assertThat(
+          new ReservationFilterView("reservation.filter.comming", START,
+              START.plus(ReservationController.DEFAULT_FILTER_INTERVAL)), is(reservationFilters.get(0)));
+
+      assertThat(
+          new ReservationFilterView("reservation.filter.elapsed",
+              START.minus(ReservationController.DEFAULT_FILTER_INTERVAL), START), is(reservationFilters.get(1)));
+
+      assertThat(new ReservationFilterView(2010), is(reservationFilters.get(2)));
+      assertThat(new ReservationFilterView(2011), is(reservationFilters.get(3)));
+      assertThat(new ReservationFilterView(2012), is(reservationFilters.get(4)));      
+      assertThat(new ReservationFilterView(2014), is(reservationFilters.get(5)));
+    }
+    finally {
+      DateTimeUtils.setCurrentMillisSystem();
+    }
   }
 
 }

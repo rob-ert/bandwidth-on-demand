@@ -2,7 +2,10 @@ package nl.surfnet.bod.web.view;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.hibernate.util.EqualsHelper;
 import org.joda.time.LocalDateTime;
+
+import com.google.common.base.Objects;
 
 public class ReservationFilterView {
 
@@ -46,5 +49,34 @@ public class ReservationFilterView {
 
   public LocalDateTime getEndPeriod() {
     return endPeriod;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(labelKey, labelValue, startPeriod, endPeriod);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj instanceof ReservationFilterView) {
+      ReservationFilterView resFilterView = (ReservationFilterView) obj;
+
+      return Objects.equal(this.labelKey, resFilterView.labelKey)
+          && Objects.equal(this.labelValue, resFilterView.labelValue)
+          && Objects.equal(this.startPeriod, resFilterView.startPeriod)
+          && Objects.equal(this.endPeriod, resFilterView.endPeriod);
+    }
+    else {
+      return false;
+    }
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this).toString();
   }
 }
