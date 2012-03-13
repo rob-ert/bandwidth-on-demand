@@ -34,8 +34,7 @@ public abstract class AbstractSortableListController<T> {
     Sort sortOptions = prepareSortOptions(sort, order, model);
     model.addAttribute("maxPages", calculateMaxPages(count()));
 
-    model.addAttribute("list", list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions));
-    
+    model.addAttribute("list", list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
 
     return listUrl();
   }
@@ -52,7 +51,7 @@ public abstract class AbstractSortableListController<T> {
 
   protected abstract String listUrl();
 
-  protected abstract List<T> list(int firstPage, int maxItems, Sort sort);
+  protected abstract List<T> list(int firstPage, int maxItems, Sort sort, Model model);
 
   protected abstract long count();
 

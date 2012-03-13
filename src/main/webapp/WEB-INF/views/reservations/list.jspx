@@ -6,7 +6,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-	<field:select id="filter" items="${filterList}"  labelCode="reservations" field="selResFilter.label" itemValue="id" 
+	<field:select id="filter" items="${filterList}"  labelCode="reservation_filter" field="selResFilter.label" itemValue="id" 
    	 	showSingle="true" path="/reservations"  />
 
     <page:list id="pl_reservation" items="${list}">
@@ -23,7 +23,7 @@
     </page:list>
 
     <spring:url value="/push" var="pushUrl" />
-
+ 	<spring:url value="/reservations/filter/{}" var="portsUrl" />    
     <script type="text/javascript">
     $(function() {
         var location = "ws://${pageContext.request.serverName}:${pageContext.request.serverPort}${pushUrl}";
@@ -72,6 +72,17 @@
 
             $("#messages").prepend(record);
         }
+        
+        //Do new get based on selected item
+        $("#_filter").change(function(){
+            window.location = "${filterUrl}" + $("#_filter").val();
+        });
+        
+        //Set filterSelectBox to selected id
+        $(document).ready(function(){	    	  
+  	    	  $("#_filter").val(${filterId});    
+        });      
+        
     })
     </script>
 </div>

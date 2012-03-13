@@ -225,19 +225,22 @@ public class ReservationController extends AbstractFilteredSortableListControlle
 
     final LocalDateTime now = LocalDateTime.now();
     // Comming period
-    filterViews.add(new ReservationFilterView(WebUtils.getMessage(messageSource, "reservation.filter.comming"), now,
-        now.plus(DEFAULT_FILTER_INTERVAL)));
+    filterViews.add(new ReservationFilterView(WebUtils.getMessage(messageSource,
+        "label_reservation_filter_comming_period", DEFAULT_FILTER_INTERVAL), now, now.plus(DEFAULT_FILTER_INTERVAL)));
 
     // Elapsed period
-    filterViews.add(new ReservationFilterView(WebUtils.getMessage(messageSource, "reservation.filter.elapsed"), now
-        .minus(DEFAULT_FILTER_INTERVAL), now));
+    filterViews.add(new ReservationFilterView(WebUtils.getMessage(messageSource,
+        "label_reservation_filter_elapsed_period", DEFAULT_FILTER_INTERVAL), now.minus(DEFAULT_FILTER_INTERVAL), now));
 
     // Years with reservations
     for (Integer year : getDistinctReservationYears(reservations)) {
       filterViews.add(new ReservationFilterView(year));
     }
 
-    model.addAttribute(WebUtils.FILTER_LIST, filterViews);
+    if (model != null) {
+      model.addAttribute(WebUtils.FILTER_LIST, filterViews);
+      model.addAttribute("selResFilter", filterViews.get(0));
+    }
   }
 
   private Reservation createDefaultReservation(Collection<VirtualPort> ports) {
@@ -269,13 +272,24 @@ public class ReservationController extends AbstractFilteredSortableListControlle
   protected long count(Long filterId, Model model) {
     ReservationFilterView filterView = findFilter(filterId, model);
 
-    return getReservationsByFilter(filterView, (List<ReservationView>) model.asMap().get(WebUtils.DATA_LIST)).size();
+    @SuppressWarnings("unchecked")
+    List<ReservationView> filteredReservations = getReservationsByFilter(filterView, (List<ReservationView>) model
+        .asMap().get(WebUtils.DATA_LIST));
+
+    if (CollectionUtils.isEmpty(filteredReservations)) {
+      return 0;
+    }
+    else {
+      return filteredReservations.size();
+    }
   }
 
   @Override
   protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Long filterId, Model model) {
     List<ReservationView> reservationViews = Lists.transform(reservationService.findEntries(firstPage, maxItems, sort),
         TO_RESERVATION_VIEW);
+
+    populateFilter(reservationViews, model);
 
     if (filterId != null) {
       ReservationFilterView filterView = findFilter(filterId, model);
@@ -313,7 +327,7 @@ public class ReservationController extends AbstractFilteredSortableListControlle
 
   List<ReservationView> getReservationsByFilter(ReservationFilterView filterView, List<ReservationView> reservations) {
 
-    //No filter? Return all.
+    // No filter? Return all.
     if (filterView == null) {
       return reservations;
     }

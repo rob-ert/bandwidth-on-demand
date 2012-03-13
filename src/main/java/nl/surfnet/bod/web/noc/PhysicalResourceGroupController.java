@@ -196,7 +196,7 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
   }
 
   @Override
-  protected List<PhysicalResourceGroup> list(int firstPage, int maxItems, Sort sort) {
+  protected List<PhysicalResourceGroup> list(int firstPage, int maxItems, Sort sort, Model model) {
     return physicalResourceGroupService.findEntries(firstPage, maxItems, sort);
   }
 

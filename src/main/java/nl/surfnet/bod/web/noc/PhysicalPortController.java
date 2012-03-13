@@ -150,7 +150,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   *
+   * 
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
@@ -164,7 +164,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   }
 
   @Override
-  protected List<PhysicalPort> list(int firstPage, int maxItems, Sort sort) {
+  protected List<PhysicalPort> list(int firstPage, int maxItems, Sort sort, Model model) {
     return physicalPortService.findAllocatedEntries(firstPage, maxItems, sort);
   }
 

@@ -283,7 +283,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   }
 
   @Override
-  protected List<VirtualPortView> list(int firstPage, int maxItems, Sort sort) {
+  protected List<VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
     return Lists.transform(
         virtualPortService.findEntriesForManager(Security.getUserDetails(), firstPage, maxItems, sort),
         TO_VIRTUAL_PORT_VIEW);

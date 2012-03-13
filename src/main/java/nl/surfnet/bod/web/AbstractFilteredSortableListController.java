@@ -37,8 +37,6 @@ public abstract class AbstractFilteredSortableListController<T> extends Abstract
     List<T> list = list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, filterId, model);
     model.addAttribute(WebUtils.DATA_LIST, list);
 
-    populateFilter(list, model);
-
     return listUrl();
   }
 
@@ -49,8 +47,8 @@ public abstract class AbstractFilteredSortableListController<T> extends Abstract
   protected abstract void populateFilter(List<T> list, Model model);
 
   @Override
-  protected List<T> list(int firstPage, int maxItems, Sort sort) {
-    return list(firstPage, maxItems, sort, null, null);
+  protected List<T> list(int firstPage, int maxItems, Sort sort, Model model) {
+    return list(firstPage, maxItems, sort, null, model);
   }
 
 }

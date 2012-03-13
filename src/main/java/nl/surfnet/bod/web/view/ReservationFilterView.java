@@ -80,7 +80,7 @@ public class ReservationFilterView {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).toString();
+    return label;
   }
 
   public boolean isFilterOnEndDateOnly() {

@@ -51,7 +51,7 @@ public final class WebUtils {
   public static final String ID_KEY = "id";
   public static final String FILTER_KEY = "filterId";
   public static final String FILTER_LIST = "filterList";
-  public static final String DATA_LIST= "list";
+  public static final String DATA_LIST = "list";
 
   public static final int MAX_ITEMS_PER_PAGE = 15;
 
@@ -173,5 +173,9 @@ public final class WebUtils {
 
   public static String getMessage(MessageSource messageSource, String key) {
     return messageSource.getMessage(key, null, LocaleContextHolder.getLocale());
+  }
+
+  public static String getMessage(MessageSource messageSource, String key, Object... args) {
+    return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());
   }
 }

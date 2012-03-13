@@ -161,7 +161,7 @@ public class VirtualResourceGroupController extends AbstractSortableListControll
   }
 
   @Override
-  protected List<VirtualResourceGroup> list(int firstPage, int maxItems, Sort sort) {
+  protected List<VirtualResourceGroup> list(int firstPage, int maxItems, Sort sort, Model model) {
     return virtualResourceGroupService.findEntries(firstPage, maxItems, sort);
   }
 
