@@ -22,6 +22,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
+/**
+ * Base controller class which facilitates sorting
+ * 
+ */
 public abstract class AbstractSortableListController<T> {
 
   public static final Direction DEFAULT_SORT_DIRECTION = Direction.ASC;
@@ -34,7 +38,7 @@ public abstract class AbstractSortableListController<T> {
     Sort sortOptions = prepareSortOptions(sort, order, model);
     model.addAttribute("maxPages", calculateMaxPages(count()));
 
-    model.addAttribute("list", list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
+    model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
 
     return listUrl();
   }

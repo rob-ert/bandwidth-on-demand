@@ -46,6 +46,7 @@ import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
+import org.joda.time.DurationFieldType;
 import org.joda.time.Hours;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
@@ -53,6 +54,8 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.Months;
 import org.joda.time.ReadablePeriod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
@@ -77,6 +80,9 @@ import com.google.common.collect.Sets;
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller
 public class ReservationController extends AbstractFilteredSortableListController<ReservationView> {
+
+  private final Logger log = LoggerFactory.getLogger(this.getClass());
+
   public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
   public static final ReadablePeriod DEFAULT_FILTER_INTERVAL = Months.FOUR;
 
@@ -125,10 +131,9 @@ public class ReservationController extends AbstractFilteredSortableListControlle
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
-  @SuppressWarnings("unchecked")
   public String createForm(final Model model) {
 
-    Collection<VirtualPort> ports = (Collection<VirtualPort>) model.asMap().get("virtualPorts");
+    Collection<VirtualPort> ports = WebUtils.getAttributeFromModel("virtualPorts", model);
     if (CollectionUtils.isEmpty(ports) || ports.size() == 1) {
 
       model.addAttribute(MessageView.MODEL_KEY,
@@ -216,7 +221,6 @@ public class ReservationController extends AbstractFilteredSortableListControlle
     model.addAttribute("virtualResourceGroups", groups);
     model.addAttribute("virtualPorts", ports);
     model.addAttribute(MODEL_KEY, createDefaultReservation(ports));
-
   }
 
   @Override
@@ -226,21 +230,21 @@ public class ReservationController extends AbstractFilteredSortableListControlle
     final LocalDateTime now = LocalDateTime.now();
     // Comming period
     filterViews.add(new ReservationFilterView(WebUtils.getMessage(messageSource,
-        "label_reservation_filter_comming_period", DEFAULT_FILTER_INTERVAL), now, now.plus(DEFAULT_FILTER_INTERVAL)));
+        "label_reservation_filter_comming_period", DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), now, now
+        .plus(DEFAULT_FILTER_INTERVAL)));
 
     // Elapsed period
     filterViews.add(new ReservationFilterView(WebUtils.getMessage(messageSource,
-        "label_reservation_filter_elapsed_period", DEFAULT_FILTER_INTERVAL), now.minus(DEFAULT_FILTER_INTERVAL), now));
+        "label_reservation_filter_elapsed_period", DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), now
+        .minus(DEFAULT_FILTER_INTERVAL), now));
 
     // Years with reservations
     for (Integer year : getDistinctReservationYears(reservations)) {
       filterViews.add(new ReservationFilterView(year));
     }
 
-    if (model != null) {
-      model.addAttribute(WebUtils.FILTER_LIST, filterViews);
-      model.addAttribute("selResFilter", filterViews.get(0));
-    }
+    model.addAttribute(WebUtils.FILTER_LIST, filterViews);
+    model.addAttribute(WebUtils.FILTER_SELECT, filterViews.get(0));
   }
 
   private Reservation createDefaultReservation(Collection<VirtualPort> ports) {
@@ -276,12 +280,7 @@ public class ReservationController extends AbstractFilteredSortableListControlle
     List<ReservationView> filteredReservations = getReservationsByFilter(filterView, (List<ReservationView>) model
         .asMap().get(WebUtils.DATA_LIST));
 
-    if (CollectionUtils.isEmpty(filteredReservations)) {
-      return 0;
-    }
-    else {
-      return filteredReservations.size();
-    }
+    return CollectionUtils.isEmpty(filteredReservations) ? 0 : filteredReservations.size();
   }
 
   @Override
@@ -289,20 +288,19 @@ public class ReservationController extends AbstractFilteredSortableListControlle
     List<ReservationView> reservationViews = Lists.transform(reservationService.findEntries(firstPage, maxItems, sort),
         TO_RESERVATION_VIEW);
 
-    populateFilter(reservationViews, model);
+    // Did user select a filter?
+    ReservationFilterView selectedFilter = findFilter(filterId, model);
 
-    if (filterId != null) {
-      ReservationFilterView filterView = findFilter(filterId, model);
-      return getReservationsByFilter(filterView, reservationViews);
+    if (selectedFilter == null) {
+      populateFilter(reservationViews, model);
+      selectedFilter = WebUtils.getAttributeFromModel(WebUtils.FILTER_SELECT, model);
     }
-    else {
-      return reservationViews;
-    }
+
+    return getReservationsByFilter(selectedFilter, reservationViews);
   }
 
   ReservationFilterView findFilter(Long filterId, Model model) {
-    @SuppressWarnings("unchecked")
-    List<ReservationFilterView> filters = (List<ReservationFilterView>) model.asMap().get(WebUtils.FILTER_LIST);
+    List<ReservationFilterView> filters = WebUtils.getAttributeFromModel(WebUtils.FILTER_LIST, model);
 
     if (!CollectionUtils.isEmpty(filters)) {
       for (ReservationFilterView filterView : filters) {

@@ -51,6 +51,7 @@ public final class WebUtils {
   public static final String ID_KEY = "id";
   public static final String FILTER_KEY = "filterId";
   public static final String FILTER_LIST = "filterList";
+  public static final String FILTER_SELECT="filterSelect";
   public static final String DATA_LIST = "list";
 
   public static final int MAX_ITEMS_PER_PAGE = 15;
@@ -72,6 +73,11 @@ public final class WebUtils {
     return (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1 : nrOfPages);
   }
 
+  @SuppressWarnings("unchecked")
+  public static <T> T getAttributeFromModel(String attributeName, Model model) {
+    return (T) model.asMap().get(attributeName);    
+  }
+  
   /**
    * Adds an infoMessage, depending on the type of {@link Model} it will will
    * survive a redirect.
