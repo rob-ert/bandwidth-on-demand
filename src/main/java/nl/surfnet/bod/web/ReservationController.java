@@ -76,7 +76,7 @@ import com.google.common.collect.Sets;
 
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller
-public class ReservationController extends AbstractSortableListController<ReservationView> {
+public class ReservationController extends AbstractFilteredSortableListController<ReservationView> {
   public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
   public static final ReadablePeriod DEFAULT_FILTER_INTERVAL = Months.FOUR;
 
@@ -84,7 +84,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
   static final String MODEL_KEY = "reservation";
 
-  private static final Function<Reservation, ReservationView> TO_RESERVATION_VIEW = new Function<Reservation, ReservationView>() {
+  static final Function<Reservation, ReservationView> TO_RESERVATION_VIEW = new Function<Reservation, ReservationView>() {
     @Override
     public ReservationView apply(Reservation reservation) {
       return new ReservationView(reservation);
@@ -150,11 +150,6 @@ public class ReservationController extends AbstractSortableListController<Reserv
   @Override
   public String listUrl() {
     return PAGE_URL + LIST;
-  }
-
-  @Override
-  public List<ReservationView> list(int firstPage, int maxItems, Sort sort) {
-    return Lists.transform(reservationService.findEntries(firstPage, maxItems, sort), TO_RESERVATION_VIEW);
   }
 
   @Override
@@ -224,69 +219,25 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
   }
 
-  List<nl.surfnet.bod.web.view.ReservationFilterView> createReservationFilters(Model model) {
+  @Override
+  protected void populateFilter(List<ReservationView> reservations, Model model) {
     List<ReservationFilterView> filterViews = Lists.newArrayList();
-    @SuppressWarnings("unchecked")
-    List<Reservation> reservations = (List<Reservation>) model.asMap().get(WebUtils.LIST);
 
     final LocalDateTime now = LocalDateTime.now();
     // Comming period
-    filterViews.add(new ReservationFilterView("reservation.filter.comming", now, now.plus(DEFAULT_FILTER_INTERVAL)));
+    filterViews.add(new ReservationFilterView(WebUtils.getMessage(messageSource, "reservation.filter.comming"), now,
+        now.plus(DEFAULT_FILTER_INTERVAL)));
+
     // Elapsed period
-    filterViews.add(new ReservationFilterView("reservation.filter.elapsed", now.minus(DEFAULT_FILTER_INTERVAL), now));
+    filterViews.add(new ReservationFilterView(WebUtils.getMessage(messageSource, "reservation.filter.elapsed"), now
+        .minus(DEFAULT_FILTER_INTERVAL), now));
 
     // Years with reservations
     for (Integer year : getDistinctReservationYears(reservations)) {
       filterViews.add(new ReservationFilterView(year));
     }
 
-    return filterViews;
-  }
-
-  List<Integer> getDistinctReservationYears(List<Reservation> reservations) {
-    Set<Integer> uniqueYears = Sets.newTreeSet();
-
-    for (Reservation reservation : reservations) {
-      uniqueYears.add(reservation.getStartDate().getYear());
-      uniqueYears.add(reservation.getEndDate().getYear());
-    }
-
-    return Lists.newArrayList(uniqueYears);
-  }
-
-  List<Reservation> getReservationsBetweenBasedOnEndDateOnly(LocalDateTime start, LocalDateTime end,
-      List<Reservation> reservations) {
-
-    // Interval is exclusive of the end, so add one minute
-    Interval interval = new Interval(start.toDate().getTime(), end.toDate().getTime() + 60000);
-
-    List<Reservation> intervalReservations = Lists.newArrayList();
-
-    for (Reservation reservation : reservations) {
-      if (interval.contains(reservation.getEndDateTime().toDate().getTime())) {
-        intervalReservations.add(reservation);
-      }
-    }
-    return intervalReservations;
-  }
-
-  List<Reservation> getReservationsBetweenBasedOnStartDateOrEndDate(LocalDateTime start, LocalDateTime end,
-      List<Reservation> reservations) {
-
-    // Interval is exclusive of the end, so add one minute
-    Interval interval = new Interval(start.toDate().getTime(), end.toDate().getTime() + 60000);
-
-    List<Reservation> intervalReservations = Lists.newArrayList();
-    Interval reservationInterval;
-    for (Reservation reservation : reservations) {
-      reservationInterval = new Interval(reservation.getStartDateTime().toDate().getTime(), reservation
-          .getEndDateTime().toDate().getTime());
-
-      if (interval.overlaps(reservationInterval)) {
-        intervalReservations.add(reservation);
-      }
-    }
-    return intervalReservations;
+    model.addAttribute(WebUtils.FILTER_LIST, filterViews);
   }
 
   private Reservation createDefaultReservation(Collection<VirtualPort> ports) {
@@ -312,5 +263,103 @@ public class ReservationController extends AbstractSortableListController<Reserv
     }
 
     return reservation;
+  }
+
+  @Override
+  protected long count(Long filterId, Model model) {
+    ReservationFilterView filterView = findFilter(filterId, model);
+
+    return getReservationsByFilter(filterView, (List<ReservationView>) model.asMap().get(WebUtils.DATA_LIST)).size();
+  }
+
+  @Override
+  protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Long filterId, Model model) {
+    List<ReservationView> reservationViews = Lists.transform(reservationService.findEntries(firstPage, maxItems, sort),
+        TO_RESERVATION_VIEW);
+
+    if (filterId != null) {
+      ReservationFilterView filterView = findFilter(filterId, model);
+      return getReservationsByFilter(filterView, reservationViews);
+    }
+    else {
+      return reservationViews;
+    }
+  }
+
+  ReservationFilterView findFilter(Long filterId, Model model) {
+    @SuppressWarnings("unchecked")
+    List<ReservationFilterView> filters = (List<ReservationFilterView>) model.asMap().get(WebUtils.FILTER_LIST);
+
+    if (!CollectionUtils.isEmpty(filters)) {
+      for (ReservationFilterView filterView : filters) {
+        if (filterView.getId().equals(filterId)) {
+          return filterView;
+        }
+      }
+    }
+    return null;
+  }
+
+  List<Integer> getDistinctReservationYears(List<ReservationView> reservations) {
+    Set<Integer> uniqueYears = Sets.newTreeSet();
+
+    for (ReservationView reservation : reservations) {
+      uniqueYears.add(reservation.getStartDateTime().getYear());
+      uniqueYears.add(reservation.getEndDateTime().getYear());
+    }
+
+    return Lists.newArrayList(uniqueYears);
+  }
+
+  List<ReservationView> getReservationsByFilter(ReservationFilterView filterView, List<ReservationView> reservations) {
+
+    //No filter? Return all.
+    if (filterView == null) {
+      return reservations;
+    }
+
+    if (filterView.isFilterOnEndDateOnly()) {
+      return getReservationsBetweenBasedOnEndDateOnly(filterView.getStartPeriod(), filterView.getEndPeriod(),
+          reservations);
+    }
+    else {
+      return getReservationsBetweenBasedOnStartDateOrEndDate(filterView.getStartPeriod(), filterView.getEndPeriod(),
+          reservations);
+    }
+  }
+
+  List<ReservationView> getReservationsBetweenBasedOnEndDateOnly(LocalDateTime start, LocalDateTime end,
+      List<ReservationView> reservations) {
+
+    // Interval is exclusive of the end, so add one minute
+    Interval interval = new Interval(start.toDate().getTime(), end.toDate().getTime() + 60000);
+
+    List<ReservationView> intervalReservations = Lists.newArrayList();
+
+    for (ReservationView reservation : reservations) {
+      if (interval.contains(reservation.getEndDateTime().toDate().getTime())) {
+        intervalReservations.add(reservation);
+      }
+    }
+    return intervalReservations;
+  }
+
+  List<ReservationView> getReservationsBetweenBasedOnStartDateOrEndDate(LocalDateTime start, LocalDateTime end,
+      List<ReservationView> reservations) {
+
+    // Interval is exclusive of the end, so add one minute
+    Interval interval = new Interval(start.toDate().getTime(), end.toDate().getTime() + 60000);
+
+    List<ReservationView> intervalReservations = Lists.newArrayList();
+    Interval reservationInterval;
+    for (ReservationView reservation : reservations) {
+      reservationInterval = new Interval(reservation.getStartDateTime().toDate().getTime(), reservation
+          .getEndDateTime().toDate().getTime());
+
+      if (interval.overlaps(reservationInterval)) {
+        intervalReservations.add(reservation);
+      }
+    }
+    return intervalReservations;
   }
 }

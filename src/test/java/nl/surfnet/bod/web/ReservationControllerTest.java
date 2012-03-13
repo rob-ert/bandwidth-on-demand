@@ -50,6 +50,7 @@ import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
+import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DurationFieldType;
@@ -96,19 +97,22 @@ public class ReservationControllerTest {
 
   private Model model = new ModelStub();
 
-  private Reservation resStart = new ReservationFactory().setStartAndDuration(START, PERIOD).create();
+  private ReservationView resStart = new ReservationView(new ReservationFactory().setStartAndDuration(START, PERIOD)
+      .create());
 
-  private Reservation resFirst = new ReservationFactory().setStartAndDuration(START.minusYears(2), PERIOD).create();
+  private ReservationView resFirst = new ReservationView(new ReservationFactory().setStartAndDuration(
+      START.minusYears(2), PERIOD).create());
 
-  private Reservation resLast = new ReservationFactory().setStartAndDuration(START.plusYears(2), PERIOD).create();
+  private ReservationView resLast = new ReservationView(new ReservationFactory().setStartAndDuration(
+      START.plusYears(2), PERIOD).create());
 
-  private Reservation resCommingPeriod = new ReservationFactory().setStartAndDuration(
-      START.plus(ReservationController.DEFAULT_FILTER_INTERVAL), PERIOD).create();
+  private ReservationView resCommingPeriod = new ReservationView(new ReservationFactory().setStartAndDuration(
+      START.plus(ReservationController.DEFAULT_FILTER_INTERVAL), PERIOD).create());
 
-  private Reservation resElapsedPeriod = new ReservationFactory().setStartAndDuration(
-      START.minus(ReservationController.DEFAULT_FILTER_INTERVAL), PERIOD).create();
+  private ReservationView resElapsedPeriod = new ReservationView(new ReservationFactory().setStartAndDuration(
+      START.minus(ReservationController.DEFAULT_FILTER_INTERVAL), PERIOD).create());
 
-  private List<Reservation> reservationsToFilter = Lists.newArrayList(resFirst, resElapsedPeriod, resStart,
+  private List<ReservationView> reservationsToFilter = Lists.newArrayList(resFirst, resElapsedPeriod, resStart,
       resCommingPeriod, resLast);
 
   @Before
@@ -238,16 +242,16 @@ public class ReservationControllerTest {
 
   @Test
   public void testCommingPeriodEndDate() {
-    List<Reservation> reservations = subject.getReservationsBetweenBasedOnEndDateOnly(START,
+    List<ReservationView> reservations = subject.getReservationsBetweenBasedOnEndDateOnly(START,
         START.plus(ReservationController.DEFAULT_FILTER_INTERVAL), reservationsToFilter);
 
     assertThat(reservations, hasSize(1));
-    assertThat(reservations, contains((resStart)));
+    assertThat(reservations, contains(resStart));
   }
 
   @Test
   public void testElapedPeriodEndDate() {
-    List<Reservation> reservations = subject.getReservationsBetweenBasedOnEndDateOnly(START,
+    List<ReservationView> reservations = subject.getReservationsBetweenBasedOnEndDateOnly(START,
         START.plus(ReservationController.DEFAULT_FILTER_INTERVAL), reservationsToFilter);
 
     assertThat(reservations, hasSize(1));
@@ -256,7 +260,7 @@ public class ReservationControllerTest {
 
   @Test
   public void testCommingPeriodStartAndEndDate() {
-    List<Reservation> reservations = subject.getReservationsBetweenBasedOnStartDateOrEndDate(START,
+    List<ReservationView> reservations = subject.getReservationsBetweenBasedOnStartDateOrEndDate(START,
         START.plus(ReservationController.DEFAULT_FILTER_INTERVAL), reservationsToFilter);
 
     assertThat(reservations, hasSize(2));
@@ -265,7 +269,7 @@ public class ReservationControllerTest {
 
   @Test
   public void testElapsedPeriodStartAndEndDate() {
-    List<Reservation> reservations = subject.getReservationsBetweenBasedOnStartDateOrEndDate(
+    List<ReservationView> reservations = subject.getReservationsBetweenBasedOnStartDateOrEndDate(
         START.minus(ReservationController.DEFAULT_FILTER_INTERVAL), START, reservationsToFilter);
 
     assertThat(reservations, hasSize(2));
@@ -286,25 +290,27 @@ public class ReservationControllerTest {
 
   @Test
   public void testShouldHaveSixSpecificFilters() {
-    model.addAttribute(WebUtils.LIST, reservationsToFilter);
+    model.addAttribute(WebUtils.DATA_LIST, reservationsToFilter);
 
     DateTimeUtils.setCurrentMillisFixed(START.toDate().getTime());
 
     try {
-      List<ReservationFilterView> reservationFilters = subject.createReservationFilters(model);      
+      subject.populateFilter(reservationsToFilter, model);
+      List<ReservationFilterView> reservationFilters = (List<ReservationFilterView>) model.asMap().get(
+          WebUtils.FILTER_LIST);
       assertThat(reservationFilters, hasSize(6));
-      
+
       assertThat(
-          new ReservationFilterView("reservation.filter.comming", START,
+          new ReservationFilterView(null, START,
               START.plus(ReservationController.DEFAULT_FILTER_INTERVAL)), is(reservationFilters.get(0)));
 
       assertThat(
-          new ReservationFilterView("reservation.filter.elapsed",
+          new ReservationFilterView(null,
               START.minus(ReservationController.DEFAULT_FILTER_INTERVAL), START), is(reservationFilters.get(1)));
 
       assertThat(new ReservationFilterView(2010), is(reservationFilters.get(2)));
       assertThat(new ReservationFilterView(2011), is(reservationFilters.get(3)));
-      assertThat(new ReservationFilterView(2012), is(reservationFilters.get(4)));      
+      assertThat(new ReservationFilterView(2012), is(reservationFilters.get(4)));
       assertThat(new ReservationFilterView(2014), is(reservationFilters.get(5)));
     }
     finally {

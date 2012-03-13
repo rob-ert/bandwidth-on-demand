@@ -134,7 +134,7 @@ public class PhysicalPortController extends
   }
 
   @Override
-  protected long count(Long filterId) {
+  protected long count(Long filterId, Model model) {
 
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(filterId);
 
@@ -142,14 +142,14 @@ public class PhysicalPortController extends
         Security.getUserDetails());
   }
 
-  @ModelAttribute
-  public void populatePhysicalResourceGroups(Model model) {
-
+  @Override
+  protected void populateFilter(List<PhysicalPortView> list, Model model) {
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService
         .findAllForManager(Security.getUserDetails());
 
     // Select first group
     model.addAttribute("selPrg", groups.iterator().next());
+
     // Put list on model
     model.addAttribute("selPrgList", groups);
   }
@@ -245,7 +245,7 @@ public class PhysicalPortController extends
   }
 
   @Override
-  protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Long filterId) {
+  protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Long filterId, Model model) {
     PhysicalResourceGroup physicalResourceGroup = null;
 
     if (filterId != null) {

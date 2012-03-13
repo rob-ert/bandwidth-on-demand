@@ -29,23 +29,28 @@ public abstract class AbstractFilteredSortableListController<T> extends Abstract
       Model model) {
 
     Sort sortOptions = super.prepareSortOptions(sort, order, model);
-    model.addAttribute("maxPages", calculateMaxPages(count(filterId)));
+    model.addAttribute("maxPages", calculateMaxPages(count(filterId, model)));
 
     // Add filterId to model, so a ui component can determine which item is
     // selected
     model.addAttribute(WebUtils.FILTER_KEY, filterId);
-    model.addAttribute("list", list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, filterId));
+    List<T> list = list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, filterId, model);
+    model.addAttribute(WebUtils.DATA_LIST, list);
+
+    populateFilter(list, model);
 
     return listUrl();
   }
 
-  protected abstract long count(Long filterId);
+  protected abstract List<T> list(int firstPage, int maxItems, Sort sort, Long filterId, Model model);
 
-  protected abstract List<T> list(int firstPage, int maxItems, Sort sort, Long filterId);
+  protected abstract long count(Long filterId, Model model);
+
+  protected abstract void populateFilter(List<T> list, Model model);
 
   @Override
   protected List<T> list(int firstPage, int maxItems, Sort sort) {
-    return list(firstPage, maxItems, sort, null);
+    return list(firstPage, maxItems, sort, null, null);
   }
 
 }

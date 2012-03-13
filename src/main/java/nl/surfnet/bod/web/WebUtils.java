@@ -50,6 +50,8 @@ public final class WebUtils {
   public static final String PAGE_KEY = "page";
   public static final String ID_KEY = "id";
   public static final String FILTER_KEY = "filterId";
+  public static final String FILTER_LIST = "filterList";
+  public static final String DATA_LIST= "list";
 
   public static final int MAX_ITEMS_PER_PAGE = 15;
 

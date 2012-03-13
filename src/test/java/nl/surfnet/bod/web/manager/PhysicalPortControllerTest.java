@@ -55,7 +55,6 @@ import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.VirtualPortJsonView;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -248,9 +247,8 @@ public class PhysicalPortControllerTest {
   public void populateShouldAddPhysicalResourceGroupList() {
     Model model = new ModelStub();
 
-    when(physicalResourceGroupService.findAllForManager(user)).thenReturn(Lists.newArrayList(physicalResourceGroup));
-
-    subject.populatePhysicalResourceGroups(model);
+    when(physicalResourceGroupService.findAllForManager(user)).thenReturn(Lists.newArrayList(physicalResourceGroup));    
+    subject.populateFilter(null, model);
 
     assertThat(model.asMap(), hasKey("selPrg"));
     assertThat(model.asMap(), hasKey("selPrgList"));

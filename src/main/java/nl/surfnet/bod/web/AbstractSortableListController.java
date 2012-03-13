@@ -35,6 +35,7 @@ public abstract class AbstractSortableListController<T> {
     model.addAttribute("maxPages", calculateMaxPages(count()));
 
     model.addAttribute("list", list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions));
+    
 
     return listUrl();
   }
