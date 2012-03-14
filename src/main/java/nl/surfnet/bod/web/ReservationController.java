@@ -277,8 +277,8 @@ public class ReservationController extends AbstractFilteredSortableListControlle
     ReservationFilterView filterView = findFilter(filterId, model);
 
     @SuppressWarnings("unchecked")
-    List<ReservationView> filteredReservations = getReservationsByFilter(filterView, (List<ReservationView>) model
-        .asMap().get(WebUtils.DATA_LIST));
+    List<ReservationView> filteredReservations = getReservationsByFilter(filterView,
+        (List<ReservationView>) WebUtils.getAttributeFromModel(WebUtils.DATA_LIST, model));
 
     return CollectionUtils.isEmpty(filteredReservations) ? 0 : filteredReservations.size();
   }
