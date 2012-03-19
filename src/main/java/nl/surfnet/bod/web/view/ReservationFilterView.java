@@ -1,7 +1,5 @@
 package nl.surfnet.bod.web.view;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import nl.surfnet.bod.domain.Reservation;
 
 import org.joda.time.LocalDateTime;
@@ -16,29 +14,29 @@ import com.google.common.base.Objects;
  */
 public class ReservationFilterView {
 
-  private static final AtomicLong ID_COUNTER = new AtomicLong();
-
-  private final Long id = ID_COUNTER.incrementAndGet();
+  private final String id;
   private final String label;
   private final LocalDateTime startPeriod;
   private final LocalDateTime endPeriod;
   private final boolean filterOnEndDateOnly;
 
   public ReservationFilterView(int year) {
-    label = String.valueOf(year);
+    id = String.valueOf(year);
+    label = id;
     startPeriod = new LocalDateTime(year, 01, 01, 0, 0, 0, 0);
     endPeriod = new LocalDateTime(year, 12, 31, 0, 0, 0, 0);
     filterOnEndDateOnly = false;
   }
 
-  public ReservationFilterView(String label, LocalDateTime startPeriod, LocalDateTime endPeriod) {
+  public ReservationFilterView(String id, String label, LocalDateTime startPeriod, LocalDateTime endPeriod) {
+    this.id = id;
     this.label = label;
     this.startPeriod = startPeriod;
     this.endPeriod = endPeriod;
     filterOnEndDateOnly = true;
   }
 
-  public Long getId() {
+  public String getId() {
     return id;
   }
 

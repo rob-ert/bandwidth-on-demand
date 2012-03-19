@@ -300,11 +300,13 @@ public class ReservationControllerTest {
           WebUtils.FILTER_LIST);
       assertThat(reservationFilters, hasSize(6));
 
-      assertThat(new ReservationFilterView(null, START, START.plus(ReservationController.DEFAULT_FILTER_INTERVAL)),
-          is(reservationFilters.get(0)));
+      assertThat(
+          new ReservationFilterView(ReservationController.FILTER_COMMING_PERIOD, null, START,
+              START.plus(ReservationController.DEFAULT_FILTER_INTERVAL)), is(reservationFilters.get(0)));
 
-      assertThat(new ReservationFilterView(null, START.minus(ReservationController.DEFAULT_FILTER_INTERVAL), START),
-          is(reservationFilters.get(1)));
+      assertThat(
+          new ReservationFilterView(ReservationController.FILTER_ELAPSED_PERIOD, null,
+              START.minus(ReservationController.DEFAULT_FILTER_INTERVAL), START), is(reservationFilters.get(1)));
 
       assertThat(new ReservationFilterView(2010), is(reservationFilters.get(2)));
       assertThat(new ReservationFilterView(2011), is(reservationFilters.get(3)));
@@ -344,7 +346,7 @@ public class ReservationControllerTest {
 
     subject.populateFilter(reservationsToFilter, model);
     ReservationFilterView filter = WebUtils.getAttributeFromModel(WebUtils.FILTER_SELECT, model);
-    
+
     long count = subject.count(filter.getId(), model);
 
     assertThat(count, is(1l));
@@ -367,7 +369,7 @@ public class ReservationControllerTest {
 
     subject.populateFilter(reservationsToFilter, model);
 
-    long count = subject.count(9999L, model);
+    long count = subject.count("9999", model);
 
     assertThat(count, is(Long.valueOf(reservationsToFilter.size())));
   }

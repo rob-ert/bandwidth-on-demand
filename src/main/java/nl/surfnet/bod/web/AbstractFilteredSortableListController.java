@@ -43,8 +43,7 @@ public abstract class AbstractFilteredSortableListController<T> extends Abstract
   @RequestMapping(value = "/filter/{filterId}", method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order,
-      @PathVariable(value = "filterId") Long filterId,
+      @RequestParam(value = "order", required = false) String order, @PathVariable(value = "filterId") String filterId,
       Model model) {
 
     Sort sortOptions = super.prepareSortOptions(sort, order, model);
@@ -76,7 +75,7 @@ public abstract class AbstractFilteredSortableListController<T> extends Abstract
    *          Model to place the result on
    * @return
    */
-  protected abstract List<T> list(int firstPage, int maxItems, Sort sort, Long filterId, Model model);
+  protected abstract List<T> list(int firstPage, int maxItems, Sort sort, String filterId, Model model);
 
   /**
    * Determines the amount of items, after applying the specificied filter.
@@ -88,7 +87,7 @@ public abstract class AbstractFilteredSortableListController<T> extends Abstract
    *          {@link WebUtils#DATA_LIST}
    * @return long amount of items
    */
-  protected abstract long count(Long filterId, Model model);
+  protected abstract long count(String filterId, Model model);
 
   /**
    * Dynamically determines filters based on the given data, which will be

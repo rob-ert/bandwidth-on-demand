@@ -21,7 +21,12 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.CREATE;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.SHOW;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -41,7 +46,16 @@ import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
-import org.joda.time.*;
+import org.joda.time.DurationFieldType;
+import org.joda.time.Hours;
+import org.joda.time.Interval;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+import org.joda.time.Months;
+import org.joda.time.ReadablePeriod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
@@ -57,7 +71,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller
@@ -65,8 +83,11 @@ public class ReservationController extends AbstractFilteredSortableListControlle
 
   public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
   public static final ReadablePeriod DEFAULT_FILTER_INTERVAL = Months.FOUR;
+  public static final String FILTER_COMMING_PERIOD = "comming";
+  public static final String FILTER_ELAPSED_PERIOD = "elapsed";
 
   static final String PAGE_URL = "reservations";
+  
   static final String MODEL_KEY = "reservation";
 
   static final Function<Reservation, ReservationView> TO_RESERVATION_VIEW = new Function<Reservation, ReservationView>() {
@@ -202,18 +223,18 @@ public class ReservationController extends AbstractFilteredSortableListControlle
     model.addAttribute(MODEL_KEY, createDefaultReservation(ports));
   }
 
-  @Override
+ @Override
   protected void populateFilter(List<ReservationView> reservations, Model model) {
     List<ReservationFilterView> filterViews = Lists.newArrayList();
 
     final LocalDateTime now = LocalDateTime.now();
-    // Coming period
-    filterViews.add(new ReservationFilterView(WebUtils.getMessage(messageSource,
+    // Comming period
+    filterViews.add(new ReservationFilterView(FILTER_COMMING_PERIOD, WebUtils.getMessage(messageSource,
         "label_reservation_filter_comming_period", DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), now, now
         .plus(DEFAULT_FILTER_INTERVAL)));
 
     // Elapsed period
-    filterViews.add(new ReservationFilterView(WebUtils.getMessage(messageSource,
+    filterViews.add(new ReservationFilterView(FILTER_ELAPSED_PERIOD, WebUtils.getMessage(messageSource,
         "label_reservation_filter_elapsed_period", DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), now
         .minus(DEFAULT_FILTER_INTERVAL), now));
 
@@ -252,7 +273,7 @@ public class ReservationController extends AbstractFilteredSortableListControlle
   }
 
   @Override
-  protected long count(Long filterId, Model model) {
+  protected long count(String filterId, Model model) {
     ReservationFilterView filterView = findFilter(filterId, model);
 
     @SuppressWarnings("unchecked")
@@ -263,7 +284,7 @@ public class ReservationController extends AbstractFilteredSortableListControlle
   }
 
   @Override
-  protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Long filterId, Model model) {
+  protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, String filterId, Model model) {
     List<ReservationView> reservationViews = Lists.transform(reservationService.findEntries(firstPage, maxItems, sort),
         TO_RESERVATION_VIEW);
 
@@ -278,7 +299,7 @@ public class ReservationController extends AbstractFilteredSortableListControlle
     return getReservationsByFilter(selectedFilter, reservationViews);
   }
 
-  ReservationFilterView findFilter(Long filterId, Model model) {
+  ReservationFilterView findFilter(String filterId, Model model) {
     List<ReservationFilterView> filters = WebUtils.getAttributeFromModel(WebUtils.FILTER_LIST, model);
 
     if (!CollectionUtils.isEmpty(filters)) {

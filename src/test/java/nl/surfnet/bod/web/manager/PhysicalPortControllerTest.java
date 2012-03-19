@@ -130,7 +130,7 @@ public class PhysicalPortControllerTest {
 
     when(physicalResourceGroupService.find(physicalResourceGroup.getId())).thenReturn(physicalResourceGroup);
 
-    subject.list(null, null, null, 1L, model);
+    subject.list(null, null, null, "1", model);
 
     assertThat(model.asMap(), hasKey("list"));
     assertThat((Long) model.asMap().get(WebUtils.FILTER_KEY), is(1L));

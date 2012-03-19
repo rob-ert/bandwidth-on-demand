@@ -43,6 +43,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import antlr.StringUtils;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
@@ -130,9 +132,13 @@ public class PhysicalPortController extends
   }
 
   @Override
-  protected long count(Long filterId, Model model) {
+  protected long count(String filterId, Model model) {
 
-    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(filterId);
+    if (!org.springframework.util.StringUtils.hasText(filterId)) {
+      return 0;
+    }
+
+    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(Long.valueOf(filterId));
 
     return physicalPortService.countAllocatedForPhysicalResourceGroupAndUser(physicalResourceGroup,
         Security.getUserDetails());
@@ -241,11 +247,11 @@ public class PhysicalPortController extends
   }
 
   @Override
-  protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Long filterId, Model model) {
+  protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, String filterId, Model model) {
     PhysicalResourceGroup physicalResourceGroup = null;
 
     if (filterId != null) {
-      physicalResourceGroup = physicalResourceGroupService.find(filterId);
+      physicalResourceGroup = physicalResourceGroupService.find(Long.valueOf(filterId));
     }
     else {
       // Just pick the first one
