@@ -7,7 +7,6 @@
 
     <div class="hero-unit">
         <h1><c:out value="${message.header}" /></h1>
-        <br/>
         <p>
             <c:out value="${message.paragraph}" />
         </p>
