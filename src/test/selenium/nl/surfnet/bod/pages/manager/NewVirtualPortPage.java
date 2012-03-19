@@ -110,7 +110,8 @@ public class NewVirtualPortPage extends AbstractFormPage {
   }
 
   public Integer getBandwidth() {
-    return Integer.valueOf(maxBandwidthInput.getText());
+    String maxBandwidth = maxBandwidthInput.getText();
+    return Strings.emptyToNull(maxBandwidth) == null ? 0 : Integer.valueOf(maxBandwidth);
   }
 
 }

@@ -64,15 +64,14 @@ public class AbstractListPage extends AbstractPage {
   public WebElement findRow(String... fields) {
     List<WebElement> rows = table.findElements(By.tagName("tr"));
 
-    WebElement currentRow=null;
     for (final WebElement row : rows) {
-      currentRow = row;
-      if (containsAll(row, fields)) {        
+      if (containsAll(row, fields)) {
         return row;
       }
     }
 
-    throw new NoSuchElementException(String.format("row with name '%s' not found, row was: %s", Joiner.on(',').join(fields), currentRow != null ? currentRow. getText(): "null"));
+    throw new NoSuchElementException(String.format("row with fields '%s' not found in rows: '%s'",
+        Joiner.on(',').join(fields), Joiner.on(" | ").join(rows)));
   }
 
   private boolean containsAll(final WebElement row, String... fields) {

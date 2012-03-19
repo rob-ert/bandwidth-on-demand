@@ -64,8 +64,6 @@ public class ReservationTestSelenium extends TestExternalSupport {
 
   @After
   public void teardown() {
-//    getManagerDriver().deleteVirtualPort("Port 1");
-//    getManagerDriver().deleteVirtualPort("Port 2");
     getManagerDriver().deleteVirtualResourceGroup("Selenium research");
     getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
     getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK_2);
