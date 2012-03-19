@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 /**
  * Base controller class which facilitates filtering and sorting, upon the
  * {@link AbstractSortableListController}
- * 
+ *
  * @see AbstractSortableListController
  */
 public abstract class AbstractFilteredSortableListController<T> extends AbstractSortableListController<T> {
@@ -26,7 +26,7 @@ public abstract class AbstractFilteredSortableListController<T> extends Abstract
    * Retrieves a list and filters by applying the filter specified by the
    * filterId. After the user selects a filter a new Http get with the selected
    * filterId can be performed.
-   * 
+   *
    * @param page
    *          StartPage
    * @param sort
@@ -43,15 +43,16 @@ public abstract class AbstractFilteredSortableListController<T> extends Abstract
   @RequestMapping(value = "/filter/{filterId}", method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order, @PathVariable(value = "filterId") Long filterId,
+      @RequestParam(value = "order", required = false) String order,
+      @PathVariable(value = "filterId") Long filterId,
       Model model) {
 
     Sort sortOptions = super.prepareSortOptions(sort, order, model);
     model.addAttribute("maxPages", calculateMaxPages(count(filterId, model)));
 
-    // Add filterId to model, so a ui component can determine which item is
-    // selected
+    // Add filterId to model, so a ui component can determine which item is selected
     model.addAttribute(WebUtils.FILTER_KEY, filterId);
+
     List<T> list = list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, filterId, model);
     model.addAttribute(WebUtils.DATA_LIST, list);
 
@@ -62,7 +63,7 @@ public abstract class AbstractFilteredSortableListController<T> extends Abstract
    * Retrieves a list of data to be presented, paging is supported. Applies the
    * specified filter to the data and places it on the model using key
    * {@link WebUtils#DATA_LIST}
-   * 
+   *
    * @param firstPage
    *          StartPage
    * @param maxItems
@@ -79,7 +80,7 @@ public abstract class AbstractFilteredSortableListController<T> extends Abstract
 
   /**
    * Determines the amount of items, after applying the specificied filter.
-   * 
+   *
    * @param filterId
    *          Id of the filter to use
    * @param model
@@ -92,7 +93,7 @@ public abstract class AbstractFilteredSortableListController<T> extends Abstract
   /**
    * Dynamically determines filters based on the given data, which will be
    * available for the user to make a selection.
-   * 
+   *
    * @param list
    *          List containing the data
    * @param model
@@ -105,7 +106,7 @@ public abstract class AbstractFilteredSortableListController<T> extends Abstract
   /**
    * Retrieves a list of data to be presented, only used for compatibility
    * reasons, when no filter is available yet.
-   * 
+   *
    * @see #list(Integer, String, String, Model)
    */
   @Override

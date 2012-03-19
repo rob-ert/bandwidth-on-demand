@@ -21,12 +21,7 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.SHOW;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -46,16 +41,7 @@ import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
-import org.joda.time.DurationFieldType;
-import org.joda.time.Hours;
-import org.joda.time.Interval;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.Months;
-import org.joda.time.ReadablePeriod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.joda.time.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
@@ -71,23 +57,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller
 public class ReservationController extends AbstractFilteredSortableListController<ReservationView> {
 
-  private final Logger log = LoggerFactory.getLogger(this.getClass());
-
   public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
   public static final ReadablePeriod DEFAULT_FILTER_INTERVAL = Months.FOUR;
 
   static final String PAGE_URL = "reservations";
-
   static final String MODEL_KEY = "reservation";
 
   static final Function<Reservation, ReservationView> TO_RESERVATION_VIEW = new Function<Reservation, ReservationView>() {
@@ -103,10 +82,10 @@ public class ReservationController extends AbstractFilteredSortableListControlle
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
 
-  private ReservationValidator reservationValidator = new ReservationValidator();
-
   @Autowired
   private MessageSource messageSource;
+
+  private ReservationValidator reservationValidator = new ReservationValidator();
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid Reservation reservation, BindingResult bindingResult, Model model,
@@ -228,7 +207,7 @@ public class ReservationController extends AbstractFilteredSortableListControlle
     List<ReservationFilterView> filterViews = Lists.newArrayList();
 
     final LocalDateTime now = LocalDateTime.now();
-    // Comming period
+    // Coming period
     filterViews.add(new ReservationFilterView(WebUtils.getMessage(messageSource,
         "label_reservation_filter_comming_period", DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), now, now
         .plus(DEFAULT_FILTER_INTERVAL)));

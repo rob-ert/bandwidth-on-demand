@@ -10,15 +10,15 @@ import com.google.common.base.Objects;
 
 /**
  * View object which holds filter related data regaring {@link Reservation}s.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 public class ReservationFilterView {
 
-  private final static AtomicLong idCounter = new AtomicLong();
+  private static final AtomicLong ID_COUNTER = new AtomicLong();
 
-  private final Long id = idCounter.incrementAndGet();
+  private final Long id = ID_COUNTER.incrementAndGet();
   private final String label;
   private final LocalDateTime startPeriod;
   private final LocalDateTime endPeriod;

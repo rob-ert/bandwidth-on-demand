@@ -51,7 +51,7 @@ public final class WebUtils {
   public static final String ID_KEY = "id";
   public static final String FILTER_KEY = "filterId";
   public static final String FILTER_LIST = "filterList";
-  public static final String FILTER_SELECT="filterSelect";
+  public static final String FILTER_SELECT = "filterSelect";
   public static final String DATA_LIST = "list";
 
   public static final int MAX_ITEMS_PER_PAGE = 15;
@@ -75,13 +75,13 @@ public final class WebUtils {
 
   @SuppressWarnings("unchecked")
   public static <T> T getAttributeFromModel(String attributeName, Model model) {
-    return (T) model.asMap().get(attributeName);    
+    return (T) model.asMap().get(attributeName);
   }
-  
+
   /**
    * Adds an infoMessage, depending on the type of {@link Model} it will will
    * survive a redirect.
-   * 
+   *
    * @param model
    *          Model to add the message to
    * @param message
@@ -131,7 +131,7 @@ public final class WebUtils {
    * Html escapes the argument and replaces them with the parameter placeholders
    * in the message. The parameter placeholders can be either "{}" or the
    * regular {@link String#format(String, Object...)} placeholders.
-   * 
+   *
    * @param message
    *          The message to parse
    * @param args
