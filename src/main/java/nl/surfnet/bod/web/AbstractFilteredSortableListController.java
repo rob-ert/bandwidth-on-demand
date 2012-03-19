@@ -89,19 +89,7 @@ public abstract class AbstractFilteredSortableListController<T> extends Abstract
    */
   protected abstract long count(String filterId, Model model);
 
-  /**
-   * Dynamically determines filters based on the given data, which will be
-   * available for the user to make a selection.
-   *
-   * @param list
-   *          List containing the data
-   * @param model
-   *          Model filters will be placed on the model using key
-   *          {@link WebUtils#FILTER_SELECT}
-   * @return Default selectedFilter
-   */
-  protected abstract void populateFilter(List<T> list, Model model);
-
+  
   /**
    * Retrieves a list of data to be presented, only used for compatibility
    * reasons, when no filter is available yet.
