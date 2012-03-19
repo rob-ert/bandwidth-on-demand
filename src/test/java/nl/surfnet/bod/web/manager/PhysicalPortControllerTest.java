@@ -248,7 +248,7 @@ public class PhysicalPortControllerTest {
     Model model = new ModelStub();
 
     when(physicalResourceGroupService.findAllForManager(user)).thenReturn(Lists.newArrayList(physicalResourceGroup));    
-    subject.populateFilter(null, model);
+    subject.populateFilter(model);
 
     assertThat(model.asMap(), hasKey("selPrg"));
     assertThat(model.asMap(), hasKey("selPrgList"));
