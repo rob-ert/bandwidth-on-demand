@@ -54,8 +54,6 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.Months;
 import org.joda.time.ReadablePeriod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
@@ -79,7 +77,7 @@ import com.google.common.collect.Sets;
 
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller
-public class ReservationController extends AbstractFilteredSortableListController<ReservationView> {
+public class ReservationController extends AbstractSortableListController<ReservationView> {
 
   public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
   public static final ReadablePeriod DEFAULT_FILTER_INTERVAL = Months.FOUR;
@@ -156,11 +154,7 @@ public class ReservationController extends AbstractFilteredSortableListControlle
   public String listUrl() {
     return PAGE_URL + LIST;
   }
-
-  @Override
-  public long count() {
-    return reservationService.count();
-  }
+  
 
   @Override
   public String defaultSortProperty() {
@@ -272,45 +266,7 @@ public class ReservationController extends AbstractFilteredSortableListControlle
     return reservation;
   }
 
-  @Override
-  protected long count(String filterId, Model model) {
-    ReservationFilterView filterView = findFilter(filterId, model);
-
-    @SuppressWarnings("unchecked")
-    List<ReservationView> filteredReservations = getReservationsByFilter(filterView,
-        (List<ReservationView>) WebUtils.getAttributeFromModel(WebUtils.DATA_LIST, model));
-
-    return CollectionUtils.isEmpty(filteredReservations) ? 0 : filteredReservations.size();
-  }
-
-  @Override
-  protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, String filterId, Model model) {
-    List<ReservationView> reservationViews = Lists.transform(reservationService.findEntries(firstPage, maxItems, sort),
-        TO_RESERVATION_VIEW);
-
-    // Did user select a filter?
-    ReservationFilterView selectedFilter = findFilter(filterId, model);
-
-    if (selectedFilter == null) {
-      populateFilter(reservationViews, model);
-      selectedFilter = WebUtils.getAttributeFromModel(WebUtils.FILTER_SELECT, model);
-    }
-
-    return getReservationsByFilter(selectedFilter, reservationViews);
-  }
-
-  ReservationFilterView findFilter(String filterId, Model model) {
-    List<ReservationFilterView> filters = WebUtils.getAttributeFromModel(WebUtils.FILTER_LIST, model);
-
-    if (!CollectionUtils.isEmpty(filters)) {
-      for (ReservationFilterView filterView : filters) {
-        if (filterView.getId().equals(filterId)) {
-          return filterView;
-        }
-      }
-    }
-    return null;
-  }
+  
 
   List<Integer> getDistinctReservationYears(List<ReservationView> reservations) {
     Set<Integer> uniqueYears = Sets.newTreeSet();
@@ -374,4 +330,19 @@ public class ReservationController extends AbstractFilteredSortableListControlle
     }
     return intervalReservations;
   }
+
+  @Override
+  protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
+    List<ReservationView> reservationViews = Lists.transform(reservationService.findEntries(firstPage, maxItems, sort),
+        TO_RESERVATION_VIEW);
+    
+    return reservationViews;
+  }
+    
+  @Override
+  protected long count() {
+    return reservationService.count();
+  }
+  
+  
 }

@@ -6,9 +6,11 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
+<!-- 
 	<field:select id="filter" items="${filterList}"  labelCode="reservation_filter" field="filterSelect.label" itemValue="id" 
    	 	showSingle="true" path="/reservations"  />
-
+ -->
+ 
     <page:list id="pl_reservation" items="${list}">
         <table:table data="${list}" id="l_reservation" path="/reservations" typeIdFieldName="id" update="false">
             <table:column labelCode="virtualresourcegroup" id="virtualresourcegroup" property="virtualResourceGroup"/>
@@ -71,18 +73,7 @@
             var record = $("<div/>", {html: message, class: "alert-message fade in"}).append(closeLink).alert();
 
             $("#messages").prepend(record);
-        }
-        
-        //Do new get based on selected item
-        $("#_filter").change(function(){
-            window.location = "${filterUrl}" + $("#_filter").val();
-        });
-        
-        //Set filterSelectBox to selected id
-        $(document).ready(function(){	    	  
-  	    	  $("#_filter").val(${filterId});    
-        });      
-        
+        }        
     })
     </script>
 </div>
