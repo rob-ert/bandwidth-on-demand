@@ -47,14 +47,13 @@ import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
+import nl.surfnet.bod.web.view.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.view.ReservationView;
 
-import org.joda.time.DurationFieldType;
 import org.joda.time.Hours;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
-import org.joda.time.Months;
 import org.joda.time.ReadablePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -62,7 +61,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.NumberUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -83,7 +81,6 @@ import com.google.common.collect.Lists;
 public class ReservationController extends AbstractSortableListController<ReservationView> {
 
   public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
-  public static final ReadablePeriod DEFAULT_FILTER_INTERVAL = Months.FOUR;
   public static final String FILTER_COMMING_PERIOD = "comming";
   public static final String FILTER_ELAPSED_PERIOD = "elapsed";
 
@@ -106,6 +103,9 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
   @Autowired
   private MessageSource messageSource;
+
+  @Autowired
+  private ReservationFilterViewFactory reservationFilterViewFactory;
 
   private ReservationValidator reservationValidator = new ReservationValidator();
 
@@ -224,19 +224,14 @@ public class ReservationController extends AbstractSortableListController<Reserv
     List<ReservationFilterView> filterViews = Lists.newArrayList();
 
     // Comming period
-    filterViews.add(new ReservationFilterView(FILTER_COMMING_PERIOD, WebUtils.getMessage(messageSource,
-        "label_reservation_filter_comming_period", DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months()))));
+    filterViews.add(reservationFilterViewFactory.COMMING_PERIOD_FILTER);
 
     // Elapsed period
-    filterViews.add(new ReservationFilterView(FILTER_ELAPSED_PERIOD, WebUtils.getMessage(messageSource,
-        "label_reservation_filter_elapsed_period", DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months()))));
+    filterViews.add(reservationFilterViewFactory.ELAPSED_PERIOD_FILTER);
 
-    List<Double> yearsFromReservationsQuery = reservationService.findUniqueYearsFromReservations();
+    List<Double> uniqueReservationYears = reservationService.findUniqueYearsFromReservations();
 
-    // Years with reservations
-    for (Double year : yearsFromReservationsQuery) {
-      filterViews.add(new ReservationFilterView(year.intValue()));
-    }
+    filterViews.addAll(reservationFilterViewFactory.create(uniqueReservationYears));
 
     model.addAttribute(FILTER_LIST, filterViews);
 
@@ -273,37 +268,23 @@ public class ReservationController extends AbstractSortableListController<Reserv
     model.addAttribute("maxPages", 1); // calculateMaxPages(count(filterId,
                                        // model)));
 
-    // Add filterId to model, so a ui component can determine which item is
-    // selected
-    model.addAttribute(WebUtils.FILTER_KEY, filterId);
-
     List<ReservationView> list = list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, filterId, model);
     model.addAttribute(WebUtils.DATA_LIST, list);
 
     return listUrl();
   }
 
-  private List<ReservationView> list(int calculateFirstPage, int maxItemsPerPage, Sort sortOptions, String filter,
+  private List<ReservationView> list(int calculateFirstPage, int maxItemsPerPage, Sort sortOptions, String filterId,
       Model model) {
     List<Reservation> reservations = Lists.newArrayList();
 
-    try {
-      Integer year = NumberUtils.parseNumber(filter, Integer.class);
-      reservations = reservationService.findReservationsInYear(year);
+    ReservationFilterView reservationFilter = reservationFilterViewFactory.get(filterId);
+    // Add filterId to model, so a ui component can determine which item is
+    // selected
+    model.addAttribute(WebUtils.FILTER_SELECT, reservationFilter);
 
-    }
-    catch (IllegalArgumentException exc) {
-      if (FILTER_COMMING_PERIOD.equals(filter)) {
-        reservations = reservationService.findReservationsForCommingPeriod(DEFAULT_FILTER_INTERVAL);
-      }
-      else if (FILTER_ELAPSED_PERIOD.equals(filter)) {
-        reservations = reservationService.findReservationsForElapsedPeriod(DEFAULT_FILTER_INTERVAL);
-      }
-      else {
-        throw new IllegalArgumentException("Filter argument is not valid: " + filter);
-      }
+    reservations = reservationService.findReservationsUsingFilter(reservationFilter);
 
-    }
     return Lists.transform(reservations, TO_RESERVATION_VIEW);
   }
 

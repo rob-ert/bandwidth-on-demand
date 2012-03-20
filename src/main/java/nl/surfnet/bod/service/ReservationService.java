@@ -51,6 +51,8 @@ import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ReservationFilterView;
+import nl.surfnet.bod.web.view.ReservationFilterViewFactory;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeConstants;
@@ -225,32 +227,12 @@ public class ReservationService {
     };
   }
 
-  public List<Reservation> findReservationsInYear(Integer year) {
+  public List<Reservation> findReservationsUsingFilter(ReservationFilterView resFilterView) {
 
-    LocalDate start = new DateMidnight().withYear(year).withMonthOfYear(DateTimeConstants.JANUARY).withDayOfMonth(01)
-        .toLocalDate();
+    resFilterView.resetStartAndEnd();
 
-    LocalDate end = new DateMidnight().withYear(year).withMonthOfYear(DateTimeConstants.DECEMBER).withDayOfMonth(31)
-        .toLocalDate();
-
-    return reservationRepo.findByStartDateBetweenOrEndDateBetween(start, end, start, end);
-  }
-
-  public List<Reservation> findReservationsForCommingPeriod(ReadablePeriod period) {
-
-    LocalDateTime now = LocalDateTime.now();
-    LocalDateTime end = now.plus(period);
-
-    return reservationRepo.findByStartDateBetweenOrEndDateBetween(now.toLocalDate(), end.toLocalDate(),
-        now.toLocalDate(), end.toLocalDate());
-  }
-
-  public List<Reservation> findReservationsForElapsedPeriod(ReadablePeriod period) {
-    LocalDateTime now = LocalDateTime.now();
-    LocalDateTime past = now.minus(period);
-
-    return reservationRepo.findByStartDateBetweenOrEndDateBetween(past.toLocalDate(), now.toLocalDate(),
-        past.toLocalDate(), now.toLocalDate());
+    return reservationRepo.findByStartDateBetweenOrEndDateBetween(resFilterView.getStartAsLocalDate(),
+        resFilterView.getEndAsLocalDate(), resFilterView.getStartAsLocalDate(), resFilterView.getEndAsLocalDate());
   }
 
   public List<Double> findUniqueYearsFromReservations() {
