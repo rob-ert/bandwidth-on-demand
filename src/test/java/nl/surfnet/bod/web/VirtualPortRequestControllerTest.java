@@ -38,7 +38,6 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.service.EmailSender;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -69,9 +68,6 @@ public class VirtualPortRequestControllerTest {
 
   @Mock
   private EmailSender emailSender;
-
-  @Mock
-  private VirtualResourceGroupService virtualResourceGroupService;
 
   @SuppressWarnings("unused")
   @Mock
@@ -105,7 +101,7 @@ public class VirtualPortRequestControllerTest {
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(null);
 
-    String page = subject.requestForm(1L, model, model);
+    String page = subject.requestForm(1L, null, model, model);
 
     assertThat(page, is("redirect:/virtualports/request"));
   }
@@ -118,7 +114,7 @@ public class VirtualPortRequestControllerTest {
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
-    String page = subject.requestForm(1L, model, model);
+    String page = subject.requestForm(1L, null, model, model);
 
     assertThat(page, is("redirect:/virtualports/request"));
   }
@@ -131,7 +127,7 @@ public class VirtualPortRequestControllerTest {
 
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
-    String page = subject.requestForm(1L, model, model);
+    String page = subject.requestForm(1L, "urn:user-group", model, model);
 
     assertThat(page, is("virtualports/requestform"));
 

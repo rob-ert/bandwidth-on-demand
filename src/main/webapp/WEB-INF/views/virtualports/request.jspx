@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:spring="http://www.springframework.org/tags" class="span10">
+<html xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:spring="http://www.springframework.org/tags">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <table class="zebra-striped">
-        <c:forEach var="group" items="${physicalResourceGroups}">
-            <tr>
-                <td>${group.institute.name} (${group.institute.shortName})</td>
-                <td>
-                    <c:choose>
-                        <c:when test="${group.active}">
-                            <spring:url value="/virtualports/request" var="requestUrl">
-                                <spring:param name="id" value="${group.id}" />
-                                <spring:param name="team" value="${teamUrn}" />
-                            </spring:url>
-                            <a href="${requestUrl}"><spring:message code="label_request_vp_select_institute" /></a>
-                        </c:when>
-                        <c:otherwise>
-                            <span>Not active</span>
-                            <spring:message code="label_request_vp_inactive_institute" var="disabledTitle" />
-                            <span title="${disabledTitle}" rel="twipsy">
-                                <i class="icon-info-sign icon-large"  style="margin-left: 5px; cursor: help;" />
-                            </span>
-                        </c:otherwise>
-                    </c:choose>
-                </td>
-            </tr>
-        </c:forEach>
-    </table>
-</div>
+    <div class="span10">
+        <table class="zebra-striped">
+            <c:forEach var="group" items="${physicalResourceGroups}">
+                <tr>
+                    <td>${group.institute.name} (${group.institute.shortName})</td>
+                    <td><c:choose>
+                            <c:when test="${group.active}">
+                                <spring:url value="/virtualports/request" var="requestUrl">
+                                    <spring:param name="id" value="${group.id}" />
+                                    <spring:param name="team" value="${teamUrn}" />
+                                </spring:url>
+                                <a href="${requestUrl}"><spring:message code="label_request_vp_select_institute" /></a>
+                            </c:when>
+                            <c:otherwise>
+                                <span>Not active</span>
+                                <spring:message code="label_request_vp_inactive_institute" var="disabledTitle" />
+                                <span title="${disabledTitle}" rel="twipsy"> <i class="icon-info-sign icon-large"
+                                    style="margin-left: 5px; cursor: help;" />
+                                </span>
+                            </c:otherwise>
+                        </c:choose></td>
+                </tr>
+            </c:forEach>
+        </table>
+    </div>
+</html>

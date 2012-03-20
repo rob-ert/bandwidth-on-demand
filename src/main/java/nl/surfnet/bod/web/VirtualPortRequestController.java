@@ -22,6 +22,7 @@
 package nl.surfnet.bod.web;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -41,7 +42,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -76,7 +76,10 @@ public class VirtualPortRequestController {
   }
 
   @RequestMapping(params = "id", method = RequestMethod.GET)
-  public String requestForm(@RequestParam Long id, Model model, RedirectAttributes redirectAttributes) {
+  public String requestForm(
+      @RequestParam Long id,
+      @RequestParam(value = "team", required = false) String teamUrn,
+      Model model, RedirectAttributes redirectAttributes) {
 
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
     if (group == null || !group.isActive()) {
@@ -85,24 +88,30 @@ public class VirtualPortRequestController {
       return "redirect:/virtualports/request";
     }
 
+    Collection<VirtualResourceGroup> vGroups = getVirtualResourceGroups(teamUrn);
+    if (vGroups.isEmpty()) {
+      return "redirect:/";
+    }
+
     model.addAttribute("requestCommand", new RequestCommand(group));
     model.addAttribute("physicalResourceGroup", group);
     model.addAttribute("user", Security.getUserDetails());
+    model.addAttribute("virtualResourceGroups", vGroups);
 
     return "virtualports/requestform";
   }
 
-  @ModelAttribute("virtualResourceGroups")
-  public Collection<VirtualResourceGroup> populateVirtualResourceGroups(
-      @RequestParam(value = "team", required = false) final String teamUrn) {
-
+  public Collection<VirtualResourceGroup> getVirtualResourceGroups(final String teamUrn) {
     if (Strings.emptyToNull(teamUrn) == null) {
       return virtualResourceGroupService.findAllForUser(Security.getUserDetails());
     }
     else {
       UserGroup userGroup = Security.getUserGroup(teamUrn);
 
-      // TODO [AvD] check for null...
+      if (userGroup == null) {
+        return Collections.emptyList();
+      }
+
       VirtualResourceGroup group = new VirtualResourceGroup();
       group.setSurfConextGroupName(userGroup.getId());
       group.setName(StringUtils.capitalize(userGroup.getName()));
@@ -116,7 +125,6 @@ public class VirtualPortRequestController {
       RedirectAttributes redirectAttributes) {
 
     PhysicalResourceGroup pGroup = physicalResourceGroupService.find(requestCommand.getPhysicalResourceGroupId());
-
     UserGroup userGroup = Security.getUserGroup(requestCommand.getUserGroupId());
 
     if (pGroup == null || !pGroup.isActive() || userGroup == null) {
@@ -126,6 +134,7 @@ public class VirtualPortRequestController {
     if (result.hasErrors()) {
       model.addAttribute("user", Security.getUserDetails());
       model.addAttribute("physicalResourceGroup", pGroup);
+      model.addAttribute("virtualResourceGroups", getVirtualResourceGroups(requestCommand.getUserGroupId()));
 
       return "virtualports/requestform";
     }

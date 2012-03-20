@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core" 
+<html xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core" 
     xmlns:form="http://www.springframework.org/tags/form" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-    xmlns:spring="http://www.springframework.org/tags" class="span12">
+    xmlns:spring="http://www.springframework.org/tags">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
@@ -71,4 +71,4 @@
             <input class="btn primary" type="submit" value="${submitText}" />
         </div>
     </form:form>
-</div>
+</html>
