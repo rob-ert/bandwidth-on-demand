@@ -33,18 +33,31 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.PhysicalPort_;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.Reservation_;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.joda.time.Period;
+import org.joda.time.ReadablePeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,11 +82,14 @@ public class ReservationService {
   @Autowired
   private ReservationEventPublisher reservationEventPublisher;
 
+  @Autowired
+  private EntityManagerFactory entityManagerFactory;
+
   private ExecutorService executorService = Executors.newCachedThreadPool();
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   *
+   * 
    * @param reservation
    * @return
    */
@@ -145,7 +161,7 @@ public class ReservationService {
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   *
+   * 
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -209,9 +225,51 @@ public class ReservationService {
     };
   }
 
+  public List<Reservation> findReservationsInYear(Integer year) {
+
+    LocalDate start = new DateMidnight().withYear(year).withMonthOfYear(DateTimeConstants.JANUARY).withDayOfMonth(01)
+        .toLocalDate();
+
+    LocalDate end = new DateMidnight().withYear(year).withMonthOfYear(DateTimeConstants.DECEMBER).withDayOfMonth(31)
+        .toLocalDate();
+
+    return reservationRepo.findByStartDateBetweenOrEndDateBetween(start, end, start, end);
+  }
+
+  public List<Reservation> findReservationsForCommingPeriod(ReadablePeriod period) {
+
+    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime end = now.plus(period);
+
+    return reservationRepo.findByStartDateBetweenOrEndDateBetween(now.toLocalDate(), end.toLocalDate(),
+        now.toLocalDate(), end.toLocalDate());
+  }
+
+  public List<Reservation> findReservationsForElapsedPeriod(ReadablePeriod period) {
+    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime past = now.minus(period);
+
+    return reservationRepo.findByStartDateBetweenOrEndDateBetween(past.toLocalDate(), now.toLocalDate(),
+        past.toLocalDate(), now.toLocalDate());
+  }
+
+  public List<Double> findUniqueYearsFromReservations() {
+
+    RichUserDetails userDetails = Security.getUserDetails();
+    // FIXME add userDetails to query
+
+    final String queryString = "select distinct extract(year from start_date)  startYear from reservation UNION select distinct extract(year from end_date) from reservation";
+
+    List<Double> resultList = entityManagerFactory.createEntityManager().createNativeQuery(queryString).getResultList();
+
+    Collections.sort(resultList);
+
+    return resultList;
+  }
+
   /**
    * Asynchronous {@link Reservation} creator.
-   *
+   * 
    */
   private final class ReservationSubmitter implements Runnable {
     private final Reservation reservation;
@@ -237,4 +295,5 @@ public class ReservationService {
       reservationEventPublisher.notifyListeners(createEvent);
     }
   }
+
 }

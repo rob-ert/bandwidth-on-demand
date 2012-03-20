@@ -23,38 +23,27 @@ package nl.surfnet.bod.web.view;
 
 import nl.surfnet.bod.domain.Reservation;
 
-import org.joda.time.LocalDateTime;
-
 import com.google.common.base.Objects;
 
 /**
  * View object which holds filter related data regaring {@link Reservation}s.
- *
+ * 
  * @author Franky
- *
+ * 
  */
 public class ReservationFilterView {
 
   private final String id;
   private final String label;
-  private final LocalDateTime startPeriod;
-  private final LocalDateTime endPeriod;
-  private final boolean filterOnEndDateOnly;
 
   public ReservationFilterView(int year) {
     id = String.valueOf(year);
     label = id;
-    startPeriod = new LocalDateTime(year, 01, 01, 0, 0, 0, 0);
-    endPeriod = new LocalDateTime(year, 12, 31, 0, 0, 0, 0);
-    filterOnEndDateOnly = false;
   }
 
-  public ReservationFilterView(String id, String label, LocalDateTime startPeriod, LocalDateTime endPeriod) {
+  public ReservationFilterView(String id, String label) {
     this.id = id;
     this.label = label;
-    this.startPeriod = startPeriod;
-    this.endPeriod = endPeriod;
-    filterOnEndDateOnly = true;
   }
 
   public String getId() {
@@ -65,17 +54,9 @@ public class ReservationFilterView {
     return label;
   }
 
-  public LocalDateTime getStartPeriod() {
-    return startPeriod;
-  }
-
-  public LocalDateTime getEndPeriod() {
-    return endPeriod;
-  }
-
   @Override
   public int hashCode() {
-    return Objects.hashCode(label, startPeriod, endPeriod, filterOnEndDateOnly);
+    return Objects.hashCode(id, label);
   }
 
   @Override
@@ -87,10 +68,8 @@ public class ReservationFilterView {
     if (obj instanceof ReservationFilterView) {
       ReservationFilterView resFilterView = (ReservationFilterView) obj;
 
-      return Objects.equal(this.label, resFilterView.label)
-          && Objects.equal(this.startPeriod, resFilterView.startPeriod)
-          && Objects.equal(this.endPeriod, resFilterView.endPeriod)
-          && Objects.equal(this.isFilterOnEndDateOnly(), resFilterView.filterOnEndDateOnly);
+      return Objects.equal(this.id, resFilterView.id) && Objects.equal(this.label, resFilterView.label);
+
     }
     else {
       return false;
@@ -99,10 +78,6 @@ public class ReservationFilterView {
 
   @Override
   public String toString() {
-    return label;
-  }
-
-  public boolean isFilterOnEndDateOnly() {
-    return filterOnEndDateOnly;
+    return id + " " + label;
   }
 }

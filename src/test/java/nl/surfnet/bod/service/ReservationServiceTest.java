@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import javax.persistence.EntityManager;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -47,6 +49,8 @@ import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,6 +80,9 @@ public class ReservationServiceTest {
 
   @Mock
   private NbiClient nbiPortService;
+  
+  @Mock
+  private EntityManager entityManager;
 
   @Test
   public void whenTheUserHasNoGroupsTheReservationsShouldBeEmpty() {
@@ -213,5 +220,6 @@ public class ReservationServiceTest {
     assertThat(reservation.getStartTime(), is(startTime.withSecondOfMinute(0).withMillisOfSecond(0)));
     assertThat(reservation.getEndTime(), is(endTime.withSecondOfMinute(0).withMillisOfSecond(0)));
   }
+  
 
 }
