@@ -19,10 +19,10 @@
             <table:column id="c_PhysicalPort_networkElementPk" property="networkElementPk" />            
             <table:column id="c_PhysicalPort_virtualPortCount" property="numberOfVirtualPorts" sortable="false" />
             
-            <table:actionColumn image="/resources/images/application_put.png"
+            <table:actionColumn icon="icon-arrow-down"
                 action="/showvirtualports" title="Show Virtual Ports" />
                 
-            <table:actionColumn image="/resources/images/application_form_add.png"
+            <table:actionColumn icon="icon-share"
                 action="/manager/virtualports/create?port={}" title="Create new virtual port" />
         </table:table>
     </page:list>

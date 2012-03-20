@@ -10,9 +10,8 @@ form#command {
 	display: inline;
 	margin: 0;
 }
-.utilbox a, .quicklinks span {
-	padding-right: 5px;
-}
+.utilbox a, .quicklinks span {padding-right: 5px;}
+.utilbox a {text-decoration: none; color: #0064CD;}
 .quicklinks {
 	background-color: #FEFBF3;
 	padding: 9px;

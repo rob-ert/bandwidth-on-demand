@@ -15,7 +15,7 @@
             <table:column labelCode="physicalResourceGroup" id="physicalresourcegroup" property="physicalResourceGroup" />
             <table:column labelCode="physicalPort" id="physicalport" property="physicalPort" />
 
-            <table:actionColumn image="/resources/images/application_put.png" action="/showreservations"
+            <table:actionColumn icon="arrow-down" action="/showreservations"
                 title="Show Reservations" />
         </table:table>
     </page:list>

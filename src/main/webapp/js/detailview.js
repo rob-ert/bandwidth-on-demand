@@ -27,8 +27,8 @@
                             id: "closeLink",
                             href: "#",
                             title: $self.attr("data-original-title").replace("Show", "Hide")
-                        }).append($("<img/>", {
-                            src : "../images/application_get.png"
+                        }).append($("<i/>", {
+                            "class": "icon-large icon-arrow-up"
                         })).click(
                             function(event) {
                                 event.preventDefault();
@@ -40,7 +40,7 @@
                             "class" : "detailview"
                         }).append($("<td/>", {
                             colspan : nrOfColumns - 1
-                        }).append($detailTable)).append($("<td/>").append($closeLink));
+                        }).append($detailTable)).append($("<td/>", {"class": "utilbox"}).append($closeLink));
 
                         $spinner.hide();
 

@@ -25,7 +25,7 @@
         <c:set var="columnDatePatterns" scope="request" />
         <c:set var="columnSortable" scope="request" />
         
-        <c:set var="imageUrls" scope="request" />
+        <c:set var="icons" scope="request" />
         <c:set var="actionLinks" scope="request" />
         <c:set var="actionTitles" scope="request" />
 
@@ -103,7 +103,7 @@
                             </c:otherwise>
                         </c:choose>
                     </c:forTokens>
-                    <c:if test="${show or update or delete or (icon and not empty item.id) or not empty imageUrls}">
+                    <c:if test="${show or update or delete or (icon and not empty item.id) or not empty icons}">
                         <th></th>
                     </c:if>
                 </tr>
@@ -153,11 +153,11 @@
                     <c:set var="itemId">
                         <spring:eval expression="item[typeIdFieldName]" />
                     </c:set>
-                    <c:if test="${show or update or delete or (icon and not empty item.id) or not empty imageUrls}">
+                    <c:if test="${show or update or delete or (icon and not empty item.id) or not empty icons}">
                         <td class="utilbox">
-                            <c:forTokens items="${imageUrls}" delims="," var="image" varStatus="num">
-                                <a href="${fn:replace(actions[num.count-1], '{}', itemId)}" rel="twipsy" title="${titles[num.count-1]}">
-                                    <img src="${image}" alt="${titles[num.count-1]}" />
+                            <c:forTokens items="${icons}" delims="," var="icon" varStatus="num">
+                                <a href="${fn:replace(actions[num.count-1], '{}', itemId)}" rel="twipsy" title="${titles[num.count-1]}" class="icon-large ${icon}">
+                                    <!-- -->
                                 </a>
                             </c:forTokens>
                             <c:if test="${show}">
@@ -166,9 +166,7 @@
                                 </spring:url>
                                 <spring:url value="/resources/images/show.png" var="show_image_url" />
                                 <spring:message arguments="${typeName}" code="entity_show" var="show_label" htmlEscape="false" />
-                                <a href="${show_form_url}" alt="${fn:escapeXml(show_label)}" title="${fn:escapeXml(show_label)}" rel="twipsy">
-                                    <img alt="${fn:escapeXml(show_label)}" class="image" src="${show_image_url}" />
-                                </a>
+                                <a href="${show_form_url}" class="icon-eye-open icon-large" alt="${fn:escapeXml(show_label)}" title="${fn:escapeXml(show_label)}" rel="twipsy"><!--  --></a>
                             </c:if>
                             <c:if test="${update}">
                                 <spring:url value="${path}/edit" var="update_form_url">
@@ -176,9 +174,7 @@
                                 </spring:url>
                                 <spring:url value="/resources/images/update.png" var="update_image_url" />
                                 <spring:message arguments="${typeName}" code="entity_update" var="update_label" htmlEscape="false" />
-                                <a href="${update_form_url}" alt="${fn:escapeXml(update_label)}" title="${fn:escapeXml(update_label)}" rel="twipsy">
-                                    <img alt="${fn:escapeXml(update_label)}" class="image" src="${update_image_url}" />
-                                </a>
+                                <a href="${update_form_url}" class="icon-edit icon-large" alt="${fn:escapeXml(update_label)}" title="${fn:escapeXml(update_label)}" rel="twipsy"><!--  --></a>
                             </c:if>
                             <c:if test="${delete}">
                                 <spring:url value="${path}/delete" var="delete_form_url" />
@@ -191,10 +187,8 @@
                                         </spring:escapeBody>
                                     </c:set>
                                     <input type="hidden" name="id" value="${itemId}" />
-                                    <input alt="${fn:escapeXml(delete_label)}" class="image" src="${delete_image_url}"
-                                        title="${fn:escapeXml(delete_label)}" type="image"
-                                        value="${fn:escapeXml(delete_label)}"
-                                        onclick="return confirm('${delete_confirm_msg}');" rel="twipsy" />
+                                    <a href="#" class="icon-trash icon-large" alt="${fn:escapeXml(delete_label)}" title="${fn:escapeXml(delete_label)}" rel="twipsy"
+                                        onclick="if (confirm('${delete_confirm_msg}')){ $('form').submit(); } return false;"><!--  --></a>
                                     <c:if test="${not empty param.page}">
                                         <input name="page" type="hidden" value="${param.page}" />
                                     </c:if>

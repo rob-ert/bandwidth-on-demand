@@ -15,7 +15,7 @@
             <table:column id="active" booleanType="true" property="active" labelCode="physicalResourceGroup_active" />
             <table:column id="count" property="physicalPortCount" labelCode="physicalResourceGroup_physicalPortCount" sortable="false" />
 
-            <table:actionColumn image="/resources/images/application_put.png" action="/showphysicalports"
+            <table:actionColumn icon="icon-arrow-down" action="/showphysicalports"
                 title="Show Physical Ports" />
         </table:table>
     </page:list>
