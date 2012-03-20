@@ -4,6 +4,7 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <spring:url value="/resources/styles/bootstrap.min.css" var="bootstrap_css_url" />
+    <spring:url value="/resources/styles/font-awesome.css" var="font_awesome_css_url" />
     <spring:url value="/resources/styles/main.css" var="main_css_url" />
 
     <spring:url value="/resources/js/jquery.min.js" var="jquery_url" />
@@ -23,6 +24,7 @@
     <spring:url value="/resources/js/main.js" var="main_js_url" />
 
     <link rel="stylesheet" type="text/css" media="screen" href="${bootstrap_css_url}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${font_awesome_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${main_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${autosuggest_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${datepicker_css_url}" />
