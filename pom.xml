@@ -13,7 +13,7 @@
         <jetty.version>8.0.4.v20111024</jetty.version>
         <spring-security.version>3.0.7.RELEASE</spring-security.version>
         <opendrac.version>4.2.0</opendrac.version>
-        <selenium.version>2.13.0</selenium.version>
+        <selenium.version>2.20.0</selenium.version>
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:8888/bod</selenium.test.url>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
