@@ -7,6 +7,7 @@
 	<jsp:directive.attribute name="label" type="java.lang.String" required="false" rtexprvalue="true" description="The label for this category (if not set the resource bundle is used)"/>
 	<jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
     <jsp:directive.attribute name="menu" type="java.lang.String" required="false" rtexprvalue="true" description="" />
+    <jsp:directive.attribute name="icon" type="java.lang.String" required="false" rtexprvalue="true" description="Possible icon that is prepended to the label" />
 	
     <tiles:useAttribute id="active_menu" name="active_menu" classname="java.lang.String" />
     
@@ -17,7 +18,12 @@
 		</c:if>
 		
 		<li id="${fn:escapeXml(id)}" class="dropdown ${active_menu eq menu ? 'active' : ''}">
-            <a href="#" class="dropdown-toggle"><c:out value="${label}" /></a>
+            <a href="#" class="dropdown-toggle">
+                <c:if test="${not empty icon}">
+                    <i class="${icon}"><!--  --></i>
+                </c:if>
+                <c:out value=" ${label}" />
+            </a>
 			<ul class="dropdown-menu">
 				<jsp:doBody />
 			</ul>
