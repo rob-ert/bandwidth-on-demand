@@ -9,23 +9,29 @@
         <table class="zebra-striped">
             <c:forEach var="group" items="${physicalResourceGroups}">
                 <tr>
-                    <td>${group.institute.name} (${group.institute.shortName})</td>
-                    <td><c:choose>
+                    <td>
+                        <c:choose>
                             <c:when test="${group.active}">
-                                <spring:url value="/virtualports/request" var="requestUrl">
+                                <spring:url value="/request" var="requestUrl">
                                     <spring:param name="id" value="${group.id}" />
                                     <spring:param name="team" value="${teamUrn}" />
                                 </spring:url>
-                                <a href="${requestUrl}"><spring:message code="label_request_vp_select_institute" /></a>
+                                <a href="${requestUrl}">${group.institute.name} (${group.institute.shortName})</a>
                             </c:when>
                             <c:otherwise>
-                                <span>Not active</span>
-                                <spring:message code="label_request_vp_inactive_institute" var="disabledTitle" />
-                                <span title="${disabledTitle}" rel="twipsy"> <i class="icon-info-sign icon-large"
-                                    style="margin-left: 5px; cursor: help;" />
-                                </span>
+                                ${group.institute.name} (${group.institute.shortName})
                             </c:otherwise>
-                        </c:choose></td>
+                        </c:choose>
+                    </td>
+                    <td>
+                        <c:if test="${not group.active}">
+                            <span>Not active</span>
+                            <spring:message code="label_request_vp_inactive_institute" var="disabledTitle" />
+                            <span title="${disabledTitle}" rel="twipsy"> <i class="icon-info-sign icon-large"
+                                style="margin-left: 5px; cursor: help;" />
+                            </span>
+                        </c:if>
+                    </td>
                 </tr>
             </c:forEach>
         </table>

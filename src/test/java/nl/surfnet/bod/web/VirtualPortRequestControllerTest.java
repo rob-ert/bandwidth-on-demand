@@ -89,7 +89,7 @@ public class VirtualPortRequestControllerTest {
 
     when(physicalResourceGroupServiceMock.findAllWithPorts()).thenReturn(Lists.newArrayList(group));
 
-    subject.requestList("", model);
+    subject.selectInstitute("", model);
 
     assertThat(model.asMap(), hasKey("physicalResourceGroups"));
     assertThat(((Collection<PhysicalResourceGroup>) model.asMap().get("physicalResourceGroups")), contains(group));

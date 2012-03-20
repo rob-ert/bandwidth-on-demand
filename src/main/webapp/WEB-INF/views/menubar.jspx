@@ -7,7 +7,7 @@
             </category>
             <category id="c_virtualport" menu="virtualport">
                 <item id="i_vp_list" url="/virtualports" messageCode="global_menu_list" icon="icon-list" />
-                <item id="i_vp_request" url="/virtualports/request" messageCode="menu_item_virtualport_request_label" icon="icon-envelope" />
+                <item id="i_vp_request" url="/request" messageCode="menu_item_virtualport_request_label" icon="icon-envelope" />
             </category>
         </menu>
     </sec:authorize>

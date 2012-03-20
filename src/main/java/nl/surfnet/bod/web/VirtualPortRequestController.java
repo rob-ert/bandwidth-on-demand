@@ -51,7 +51,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
 @Controller
-@RequestMapping("/virtualports/request")
+@RequestMapping("/request")
 public class VirtualPortRequestController {
 
   @Autowired
@@ -66,19 +66,28 @@ public class VirtualPortRequestController {
   private MessageSource messageSource;
 
   @RequestMapping(method = RequestMethod.GET)
-  public String requestList(@RequestParam(value = "team", required = false) String teamUrn, Model model) {
+  public String selectTeam(Model model) {
+    model.addAttribute("userGroups", Security.getUserDetails().getUserGroups());
+
+    return "virtualports/selectTeam";
+  }
+
+  @RequestMapping(method = RequestMethod.GET, params = "team")
+  public String selectInstitute(
+      @RequestParam(value = "team") String teamUrn,
+      Model model) {
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllWithPorts();
 
     model.addAttribute("physicalResourceGroups", groups);
     model.addAttribute("teamUrn", teamUrn);
 
-    return "virtualports/request";
+    return "virtualports/selectInstitute";
   }
 
-  @RequestMapping(params = "id", method = RequestMethod.GET)
+  @RequestMapping(method = RequestMethod.GET, params = { "id", "team" })
   public String requestForm(
       @RequestParam Long id,
-      @RequestParam(value = "team", required = false) String teamUrn,
+      @RequestParam("team") String teamUrn,
       Model model, RedirectAttributes redirectAttributes) {
 
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);

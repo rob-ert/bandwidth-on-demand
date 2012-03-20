@@ -6,7 +6,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <spring:url value="/virtualports/request" var="postUrl" />
+    <spring:url value="/request" var="postUrl" />
 
     <form:form action="${postUrl}" method="POST" modelAttribute="requestCommand">
         <div class="clearfix">
