@@ -25,14 +25,16 @@ import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Locale;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -48,6 +50,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -68,11 +71,14 @@ public class PhysicalPortControllerTest {
   @Mock
   private VirtualPortService virtualPortServiceMock;
 
+  @Mock
+  private MessageSource messageSource;
+
   @Test
   public void listAllPortsShouldSetPortsAndMaxPages() {
     Model model = new ModelStub();
     List<PhysicalPort> ports = Lists.newArrayList(new PhysicalPortFactory().create());
-    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), any(Sort.class))).thenReturn(ports);
+    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), org.mockito.Matchers.any(Sort.class))).thenReturn(ports);
 
     subject.list(1, null, null, model);
 
@@ -84,7 +90,7 @@ public class PhysicalPortControllerTest {
   public void listAllPortsWithoutAPageParam() {
     Model model = new ModelStub();
     List<PhysicalPort> ports = Lists.newArrayList(new PhysicalPortFactory().create());
-    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), any(Sort.class))).thenReturn(ports);
+    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), org.mockito.Matchers.any(Sort.class))).thenReturn(ports);
 
     subject.list(null, null, null, model);
 
@@ -151,6 +157,8 @@ public class PhysicalPortControllerTest {
     PhysicalPort port = new PhysicalPortFactory().create();
     BindingResult result = new BeanPropertyBindingResult(port, "physicalPort");
 
+    when(messageSource.getMessage(anyString(), isNull(Object[].class), org.mockito.Matchers.any(Locale.class)))
+        .thenReturn("{} {}");
     when(physicalPortServiceMock.findByNetworkElementPk(port.getNetworkElementPk())).thenReturn(port);
 
     String page = subject.update(new CreatePhysicalPortCommand(port), result, model, model);

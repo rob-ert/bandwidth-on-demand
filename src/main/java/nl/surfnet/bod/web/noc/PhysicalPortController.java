@@ -41,6 +41,7 @@ import nl.surfnet.bod.web.WebUtils;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -69,6 +70,9 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
 
+  @Autowired
+  private MessageSource messageSource;
+
   @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid CreatePhysicalPortCommand command, final BindingResult result, final Model model,
       final RedirectAttributes redirectAttributes) {
@@ -89,7 +93,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     model.asMap().clear();
 
-    WebUtils.addInfoMessage(redirectAttributes, "Physical Port %s was assigned to %s", portToSave.getNocLabel(),
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_physicalport_updated", portToSave.getNocLabel(),
         portToSave.getPhysicalResourceGroup().getInstitute().getName());
 
     return "redirect:physicalports";
@@ -150,7 +154,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   * 
+   *
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
