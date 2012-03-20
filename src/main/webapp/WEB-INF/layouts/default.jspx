@@ -61,7 +61,7 @@
         <div class="messagebar">
             <div id="messages">
                 <c:forEach items="${infoMessages}" var="infoMessage">
-                    <div class="alert-message warn" data-alert="true">
+                    <div class="alert-message info" data-alert="true">
                         <a class="close" href="#">&amp;times;</a>
                         <p style='display: inline'><c:out value="${infoMessage}" escapeXml="false"/></p>
                     </div>
