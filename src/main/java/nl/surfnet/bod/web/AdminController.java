@@ -37,9 +37,9 @@ public class AdminController {
   private ReloadableResourceBundleMessageSource messageSource;
 
   @RequestMapping(value = "refreshMessages", method = RequestMethod.GET)
-  public String refreshMessageSource() {
+  public String refreshMessageSource(HttpServletRequest request) {
     messageSource.clearCache();
 
-    return "redirect:/";
+    return "redirect:" + request.getHeader("Referer");
   }
 }
