@@ -24,12 +24,12 @@ package nl.surfnet.bod.domain;
 public class UserGroup {
 
   private final String id;
-  private final String title;
+  private final String name;
   private final String description;
   
-  public UserGroup(String id, String title, String description) {
+  public UserGroup(String id, String name, String description) {
     this.id = id;
-    this.title = title;
+    this.name = name;
     this.description = description;
   }
   
@@ -37,8 +37,8 @@ public class UserGroup {
     return id;
   }
   
-  public String getTitle() {
-    return title;
+  public String getName() {
+    return name;
   }
   
   public String getDescription() {

@@ -6,16 +6,20 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <div class="hero-unit">
-        <h1>Not a member of a Virtual User Group</h1>
-        <p>You are not member of a virtual user group yet. You can do one of the following things:</p>
+        <h1>Not a member of a team</h1>
+        
+        <p>You do not have access to virtual resources for Bandwith on Demand.
+           You have to select a collaboration team and ask an ICT manager of an organisation, which offers BoD, for virtual resources.</p> 
+
+        <p>Band With On Demand detects the following teams related to your account. Select the one for which you like to use BoD.</p>
+            
         <ul>
-            <li>If you are already part of a collaboration you can:</li>
-            <ul>
-                <li>Ask to be added to the existing SURFconext group of your collaboration or</li>
-                <li>Create a new SURFconext group for your collaboration,</li>
-            </ul>
-            <li>If you are already member of the SURFconext group of your collaboration please check if there are
-                virtual ports assigned to your group.</li>
+            <c:forEach var="group" items="${userGroups}">
+                <spring:url value="virtualports/request" var="url" >
+                    <spring:param value="${group.id}" name="team" />
+                </spring:url>
+                <li><a href="${url}"><c:out value="${group.name}" /></a> - <i><c:out value="${group.description}" /></i></li>
+            </c:forEach>
         </ul>
     </div>
 

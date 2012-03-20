@@ -67,7 +67,7 @@ public class GroupOpenSocialServiceTest {
     assertThat(groups, hasSize(1));
     
     UserGroup group = groups.iterator().next();
-    assertThat(group.getTitle(), is("bandwidth-on-demand"));
+    assertThat(group.getName(), is("bandwidth-on-demand"));
     assertThat(group.getId(), is("urn:collab:group:surfteams.nl:nl:surfnet:diensten:bandwidth-on-demand"));
   }
 }

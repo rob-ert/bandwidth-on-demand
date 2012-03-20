@@ -24,6 +24,7 @@ package nl.surfnet.bod.web;
 import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -32,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class DashboardController {
 
   @RequestMapping(method = RequestMethod.GET)
-  public String index() {
+  public String index(Model model) {
     if (Security.hasUserRole()) {
       return "index";
     }
@@ -42,6 +43,8 @@ public class DashboardController {
     if (Security.hasIctManagerRole()) {
       return "redirect:manager";
     }
+
+    model.addAttribute("userGroups", Security.getUserDetails().getUserGroups());
 
     return "noUserRole";
   }

@@ -27,6 +27,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.EmailSender;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
@@ -38,12 +39,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
 @Controller
 @RequestMapping("/virtualports/request")
@@ -61,18 +66,19 @@ public class VirtualPortRequestController {
   private MessageSource messageSource;
 
   @RequestMapping(method = RequestMethod.GET)
-  public String requestList(Model model) {
+  public String requestList(@RequestParam(value = "team", required = false) String teamUrn, Model model) {
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllWithPorts();
 
     model.addAttribute("physicalResourceGroups", groups);
+    model.addAttribute("teamUrn", teamUrn);
 
     return "virtualports/request";
   }
 
   @RequestMapping(params = "id", method = RequestMethod.GET)
   public String requestForm(@RequestParam Long id, Model model, RedirectAttributes redirectAttributes) {
-    PhysicalResourceGroup group = physicalResourceGroupService.find(id);
 
+    PhysicalResourceGroup group = physicalResourceGroupService.find(id);
     if (group == null || !group.isActive()) {
       WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_invalid_group");
 
@@ -87,25 +93,33 @@ public class VirtualPortRequestController {
   }
 
   @ModelAttribute("virtualResourceGroups")
-  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {
-    return virtualResourceGroupService.findAllForUser(Security.getUserDetails());
+  public Collection<VirtualResourceGroup> populateVirtualResourceGroups(
+      @RequestParam(value = "team", required = false) final String teamUrn) {
+
+    if (Strings.emptyToNull(teamUrn) == null) {
+      return virtualResourceGroupService.findAllForUser(Security.getUserDetails());
+    }
+    else {
+      UserGroup userGroup = Security.getUserGroup(teamUrn);
+
+      // TODO [AvD] check for null...
+      VirtualResourceGroup group = new VirtualResourceGroup();
+      group.setSurfConextGroupName(userGroup.getId());
+      group.setName(StringUtils.capitalize(userGroup.getName()));
+
+      return ImmutableList.of(group);
+    }
   }
 
   @RequestMapping(method = RequestMethod.POST)
   public String request(@Valid RequestCommand requestCommand, BindingResult result, Model model,
       RedirectAttributes redirectAttributes) {
+
     PhysicalResourceGroup pGroup = physicalResourceGroupService.find(requestCommand.getPhysicalResourceGroupId());
 
-    VirtualResourceGroup vGroup = null;
-    if (requestCommand.getVirtualResourceGroupId() != null) {
-      vGroup = virtualResourceGroupService.find(requestCommand.getVirtualResourceGroupId());
-    }
-    else {
-      WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_no_virtual_resource_group",
-          pGroup.getInstitute().getName());
-    }
+    UserGroup userGroup = Security.getUserGroup(requestCommand.getUserGroupId());
 
-    if (pGroup == null || !pGroup.isActive() || vGroup == null || !Security.isUserMemberOf(vGroup)) {
+    if (pGroup == null || !pGroup.isActive() || userGroup == null) {
       return "redirect:/virtualports/request";
     }
 
@@ -116,7 +130,7 @@ public class VirtualPortRequestController {
       return "virtualports/requestform";
     }
 
-    emailSender.sendVirtualPortRequestMail(Security.getUserDetails(), pGroup, vGroup, requestCommand.getBandwidth(),
+    emailSender.sendVirtualPortRequestMail(Security.getUserDetails(), pGroup, userGroup, requestCommand.getBandwidth(),
         requestCommand.getMessage());
 
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_send", pGroup.getInstitute()
@@ -129,7 +143,7 @@ public class VirtualPortRequestController {
     @NotEmpty
     private String message;
     private Long physicalResourceGroupId;
-    private Long virtualResourceGroupId;
+    private String userGroupId;
     @NotNull
     private Integer bandwidth;
 
@@ -156,12 +170,12 @@ public class VirtualPortRequestController {
       this.physicalResourceGroupId = groupId;
     }
 
-    public Long getVirtualResourceGroupId() {
-      return virtualResourceGroupId;
+    public String getUserGroupId() {
+      return userGroupId;
     }
 
-    public void setVirtualResourceGroupId(Long virtualResourceGroupId) {
-      this.virtualResourceGroupId = virtualResourceGroupId;
+    public void setUserGroupId(String userGroupId) {
+      this.userGroupId = userGroupId;
     }
 
     public Integer getBandwidth() {

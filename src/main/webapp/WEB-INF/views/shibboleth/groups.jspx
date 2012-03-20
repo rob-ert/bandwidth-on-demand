@@ -9,7 +9,7 @@
         <ul>
             <c:forEach var="group" items="${groups}">
                 <li>
-                    <strong>${group.title}</strong>, <code>${group.id}</code><br/>
+                    <strong>${group.name}</strong>, <code>${group.id}</code><br/>
                     ${group.description}
                 </li>
             </c:forEach>

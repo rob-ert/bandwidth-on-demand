@@ -21,17 +21,19 @@
  */
 package nl.surfnet.bod.web.security;
 
+import java.util.Collection;
 import java.util.Collections;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 
 import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 public final class Security {
 
@@ -44,6 +46,18 @@ public final class Security {
 
   public static RichUserDetails getUserDetails() {
     return (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+  }
+
+  public static UserGroup getUserGroup(final String groupId) {
+    Preconditions.checkNotNull(groupId);
+
+    Collection<UserGroup> groups = getUserDetails().getUserGroups();
+    return Iterables.find(groups, new Predicate<UserGroup>() {
+      @Override
+      public boolean apply(UserGroup group) {
+        return group.getId().equals(groupId);
+      }
+    }, null);
   }
 
   public static boolean hasNocEngineerRole() {

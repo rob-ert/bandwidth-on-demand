@@ -28,7 +28,7 @@ import javax.annotation.PostConstruct;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.web.manager.ActivationEmailController;
 import nl.surfnet.bod.web.manager.VirtualPortController;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -102,9 +102,9 @@ public class EmailSenderOnline implements EmailSender {
 
   @Override
   public void sendVirtualPortRequestMail(RichUserDetails from, PhysicalResourceGroup pGroup,
-      VirtualResourceGroup vGroup, Integer bandwidth, String requestMessage) {
-    String link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create?vgroup=%d&pgroup=%d&bandwidth=%s",
-        vGroup.getId(), pGroup.getId(), bandwidth);
+      UserGroup userGroup, Integer bandwidth, String requestMessage) {
+    String link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create?team=%s&pgroup=%d&bandwidth=%s",
+        userGroup.getId(), pGroup.getId(), bandwidth);
 
     SimpleMailMessage mail = new MailMessageBuilder()
         .withTo(pGroup.getManagerEmail())
@@ -112,7 +112,7 @@ public class EmailSenderOnline implements EmailSender {
         .withSubject(String.format("[BoD] A Virtual Port Request for %s", pGroup.getInstitute().getName()))
         .withBodyText(
             String.format(VIRTUAL_PORT_REQUEST_BODY, from.getDisplayName(), from.getEmail(), pGroup.getInstitute()
-                .getName(), vGroup.getName(), bandwidth, requestMessage, link)).create();
+                .getName(), userGroup.getName(), bandwidth, requestMessage, link)).create();
 
     send(mail);
   }
