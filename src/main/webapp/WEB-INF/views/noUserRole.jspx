@@ -11,7 +11,7 @@
         <p>You do not have access to virtual resources for Bandwith on Demand.
            You have to select a collaboration team and ask an ICT manager of an organisation, which offers BoD, for virtual resources.</p> 
 
-        <p>Band With On Demand detects the following teams related to your account. Select the one for which you like to use BoD.</p>
+        <p>Bandwith On Demand detects the following teams related to your account. Select the one for which you like to use BoD.</p>
             
         <ul>
             <c:forEach var="group" items="${userGroups}">
