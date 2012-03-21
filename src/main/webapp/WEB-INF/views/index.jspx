@@ -6,31 +6,33 @@
 
     <spring:message var="app_name" code="application_name" htmlEscape="false" />
 
-    <div class="hero-unit">
-        <h1>Welcome User</h1>
-        <p>Welcome to SURFnet's ${app_name} user interface.</p>
-        <p>Manage your bandwidth on demand reservations and virtual ports by
-        selecting a task in the menu.</p>
+    <div class="row">
+        <div class="hero-unit span9">
+            <h1>Welcome User</h1>
+            <p>Welcome to SURFnet's ${app_name} user interface.</p>
+            <p>Manage your bandwidth on demand reservations and virtual ports by
+            selecting a task in the menu.</p>
+        </div>
+        <div class="tasks span4">
+            <h1>Common tasks</h1>
+            <spring:url var="noc_url" value="/noc" />
+            <spring:url var="manager_url" value="/manager" />
+            <spring:url var="reservation_url" value="/reservations/create" />
+            <spring:url var="request_url" value="/request" />
             
-        <spring:url var="noc_url" value="/noc" />
-        <spring:url var="manager_url" value="/manager" />
-        <spring:url var="reservation_url" value="/reservations/create" />
-        
-        <sec:authorize access="hasRole('USER')">
-            <a class="btn primary large" href="${reservation_url}">Create a reservation »</a>
-        </sec:authorize>
-        <sec:authorize access="hasRole('ICT_MANAGER') and hasRole('USER')">
-            <span style="padding: 10px">or</span>
-        </sec:authorize>
-        <sec:authorize access="hasRole('ICT_MANAGER')">
-            <a class="btn large" href="${manager_url}">ICT manager work »</a>
-        </sec:authorize>
-        <sec:authorize access="hasRole('NOC_ENGINEER') and (hasRole('ICT_MANAGER') or hasRole('USER'))">
-            <span style="padding: 10px">or</span>
-        </sec:authorize>
-        <sec:authorize access="hasRole('NOC_ENGINEER')">
-            <a class="btn large" href="${noc_url}">NOC Engineer work »</a>
-        </sec:authorize>
+            <ul>
+                <sec:authorize access="hasRole('USER')">
+                    <li><a class="btn primary" href="${reservation_url}"><i class="icon-plus"><!--  --></i>Create a reservation</a></li>
+                    <li><a href="${request_url}" class="btn"><i class="icon-envelope"><!--  --></i> Request a Virtual Port</a></li>
+                </sec:authorize>
+                <sec:authorize access="hasRole('ICT_MANAGER')">
+                    <li><a class="btn" href="${manager_url}"><i class="icon-user"><!--  --></i> Become ICT manager</a></li>
+                </sec:authorize>
+                <sec:authorize access="hasRole('NOC_ENGINEER')">
+                    <li><a class="btn" href="${noc_url}"><i class="icon-user"><!--  --></i> Become NOC Engineer</a></li>
+                </sec:authorize>
+            </ul>
+        </div>
     </div>
 
 </div>

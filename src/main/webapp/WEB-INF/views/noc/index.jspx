@@ -4,17 +4,25 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <div class="hero-unit">
-        <h1>Welcome NOC engineer</h1>
-        <p>Welcome to SURFnet's Bandwidth on Demand user interface.</p>
-        <p>Please select the task you want to perform as NOC engineer.</p>
-
-        <spring:url var="manager_url" value="/manager" />
-        <spring:url var="reservation_url" value="/reservations/create" />
-
-        <sec:authorize access="hasRole('ICT_MANAGER')">
-            <a class="btn large" href="${manager_url}">ICT manager work »</a>
-        </sec:authorize>
+    <div class="row">
+        <div class="hero-unit span9">
+            <h1>Welcome NOC engineer</h1>
+            <p>Welcome to SURFnet's Bandwidth on Demand user interface.</p>
+            <p>Please select the task you want to perform as NOC engineer.</p>
+        </div>
+        <div class="tasks span4">
+            <h1>Common tasks</h1>
+            <spring:url var="manager_url" value="/manager" />
+            <spring:url var="user_url" value="/" />
+            <ul>
+                <sec:authorize access="hasRole('USER')">
+                    <li><a class="btn" href="${user_url}"><i class="icon-user"><!--  --></i> Become User</a></li>
+                </sec:authorize>
+                <sec:authorize access="hasRole('ICT_MANAGER')">
+                    <li><a class="btn" href="${manager_url}"><i class="icon-user"><!--  --></i> Become ICT Manager</a></li>
+                </sec:authorize>
+            </ul>
+        </div>
     </div>
 
 </div>
