@@ -52,14 +52,8 @@ import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
-import nl.surfnet.bod.web.view.ReservationFilterViewFactory;
 
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
-import org.joda.time.Period;
-import org.joda.time.ReadablePeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -228,8 +222,6 @@ public class ReservationService {
   }
 
   public List<Reservation> findReservationsUsingFilter(ReservationFilterView resFilterView) {
-
-    resFilterView.resetStartAndEnd();
 
     return reservationRepo.findByStartDateBetweenOrEndDateBetween(resFilterView.getStartAsLocalDate(),
         resFilterView.getEndAsLocalDate(), resFilterView.getStartAsLocalDate(), resFilterView.getEndAsLocalDate());

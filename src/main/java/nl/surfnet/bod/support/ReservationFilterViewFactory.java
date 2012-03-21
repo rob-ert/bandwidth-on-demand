@@ -1,10 +1,11 @@
-package nl.surfnet.bod.web.view;
+package nl.surfnet.bod.support;
 
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.view.ReservationFilterView;
 
 import org.joda.time.DurationFieldType;
 import org.joda.time.Months;
@@ -21,40 +22,28 @@ public class ReservationFilterViewFactory {
 
   public static final ReadablePeriod DEFAULT_FILTER_INTERVAL = Months.FOUR;
 
-  private static final String COMMING = "comming";
-  private static final String ELAPSED = "elapsed";
+  public static final String COMMING = "comming";
+  public static final String ELAPSED = "elapsed";
 
   @Autowired
   private MessageSource messageSource;
 
-  public ReservationFilterView COMMING_PERIOD_FILTER;
-
-  public ReservationFilterView ELAPSED_PERIOD_FILTER;
-
-  @PostConstruct
-  public void init() {
-    COMMING_PERIOD_FILTER = new ReservationFilterView(COMMING, WebUtils.getMessage(messageSource,
-        "label_reservation_filter_comming_period", DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())),
-        DEFAULT_FILTER_INTERVAL, false);
-
-    ELAPSED_PERIOD_FILTER = new ReservationFilterView(ELAPSED, WebUtils.getMessage(messageSource,
-        "label_reservation_filter_elapsed_period", DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())),
-        DEFAULT_FILTER_INTERVAL, true);
-  }
-
-  public ReservationFilterView get(String id) {
+  public ReservationFilterView create(String id) {
 
     try {
+      // If it is a number we assume it is a year
       Integer year = NumberUtils.parseNumber(id, Integer.class);
       return new ReservationFilterView(year);
     }
     catch (IllegalArgumentException exc) {
 
       if (COMMING.equals(id)) {
-        return COMMING_PERIOD_FILTER;
+        return new ReservationFilterView(COMMING, "Comming " + DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months()),
+            DEFAULT_FILTER_INTERVAL, false);
       }
       else if (ELAPSED.equals(id)) {
-        return ELAPSED_PERIOD_FILTER;
+        return new ReservationFilterView(ELAPSED, "Elapsed " + DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months()),
+            DEFAULT_FILTER_INTERVAL, true);
       }
       else
         throw new IllegalArgumentException("No filter available for id: " + id);
@@ -66,7 +55,7 @@ public class ReservationFilterViewFactory {
 
     // Years with reservations
     for (Double year : reservationYears) {
-      filterViews.add(get(year.toString()));
+      filterViews.add(create(String.valueOf((year.intValue()))));
     }
 
     return filterViews;

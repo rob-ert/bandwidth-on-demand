@@ -28,7 +28,6 @@ import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.ReadablePeriod;
-import org.joda.time.Years;
 
 import com.google.common.base.Objects;
 
@@ -42,33 +41,32 @@ public class ReservationFilterView {
 
   private final String id;
   private final String label;
-  private final ReadablePeriod period;
-  private final boolean endInPast;
-
   private LocalDateTime start;
   private LocalDateTime end;
 
   public ReservationFilterView(int year) {
     id = String.valueOf(year);
     label = id;
-    endInPast = false;
 
     start = new DateMidnight().withYear(year).withMonthOfYear(DateTimeConstants.JANUARY).withDayOfMonth(01)
         .toDateTime().toLocalDateTime();
 
     end = new DateMidnight().withYear(year).withMonthOfYear(DateTimeConstants.DECEMBER).withDayOfMonth(31).toDateTime()
         .toLocalDateTime();
-
-    period = Years.ONE;
-
   }
 
   public ReservationFilterView(String id, String label, ReadablePeriod period, boolean endInPast) {
     this.id = id;
     this.label = label;
-    this.period = period;
-    this.start = null;
-    this.endInPast = endInPast;
+
+    if (endInPast) {
+      this.end = LocalDateTime.now();
+      this.start = end.minus(period);
+    }
+    else {
+      this.start = LocalDateTime.now();
+      this.end = start.plus(period);
+    }
   }
 
   public String getId() {
@@ -81,7 +79,7 @@ public class ReservationFilterView {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(id, label, period, start);
+    return Objects.hashCode(id, label, start, end);
   }
 
   @Override
@@ -94,30 +92,10 @@ public class ReservationFilterView {
       ReservationFilterView resFilterView = (ReservationFilterView) obj;
 
       return Objects.equal(this.id, resFilterView.id) && Objects.equal(this.label, resFilterView.label)
-          && Objects.equal(this.period, resFilterView.period) && Objects.equal(this.start, resFilterView.start);
-
+          && Objects.equal(this.start, resFilterView.start) && Objects.equal(this.end, resFilterView.getEnd());
     }
     else {
       return false;
-    }
-  }
-
-  public void resetStartAndEnd() {
-    LocalDateTime calculatedStart;
-    if (start == null) {
-      calculatedStart = LocalDateTime.now();
-    }
-    else {
-      calculatedStart = start;
-    }
-
-    if (endInPast) {
-      this.end = calculatedStart;
-      this.start = calculatedStart.plus(period);
-    }
-    else {
-      this.start = calculatedStart;
-      this.end = calculatedStart.plus(period);
     }
   }
 
@@ -135,10 +113,10 @@ public class ReservationFilterView {
   }
 
   public LocalDate getStartAsLocalDate() {
-    return start == null ? null : start.toLocalDate();
+    return start.toLocalDate();
   }
 
   public LocalDate getEndAsLocalDate() {
-    return end == null ? null : end.toLocalDate();
+    return end.toLocalDate();
   }
 }

@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.Reservation;
@@ -44,10 +45,10 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.ReservationValidator;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
-import nl.surfnet.bod.web.view.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.Hours;
@@ -67,6 +68,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;
@@ -224,20 +226,17 @@ public class ReservationController extends AbstractSortableListController<Reserv
     List<ReservationFilterView> filterViews = Lists.newArrayList();
 
     // Comming period
-    filterViews.add(reservationFilterViewFactory.COMMING_PERIOD_FILTER);
+    filterViews.add(reservationFilterViewFactory.create(nl.surfnet.bod.support.ReservationFilterViewFactory.COMMING));
 
     // Elapsed period
-    filterViews.add(reservationFilterViewFactory.ELAPSED_PERIOD_FILTER);
+    filterViews.add(reservationFilterViewFactory.create(nl.surfnet.bod.support.ReservationFilterViewFactory.ELAPSED));
 
     List<Double> uniqueReservationYears = reservationService.findUniqueYearsFromReservations();
 
     filterViews.addAll(reservationFilterViewFactory.create(uniqueReservationYears));
 
     model.addAttribute(FILTER_LIST, filterViews);
-
-    if (!model.containsAttribute(FILTER_SELECT)) {
-      model.addAttribute(FILTER_SELECT, filterViews.get(0));
-    }
+    model.addAttribute(FILTER_SELECT, filterViews.get(0));
   }
 
   /**
@@ -254,8 +253,9 @@ public class ReservationController extends AbstractSortableListController<Reserv
    * @param filterId
    *          Id of the filter to apply
    * @param model
-   *          Model to place the state on {@link WebUtils#FILTER_KEY} and
+   *          Model to place the state on {@link WebUtils#FILTER_SELECT} and
    *          {@link WebUtils#DATA_LIST}
+   * @param request
    * @return
    */
   @RequestMapping(value = "/filter/{filterId}", method = RequestMethod.GET)
@@ -278,10 +278,10 @@ public class ReservationController extends AbstractSortableListController<Reserv
       Model model) {
     List<Reservation> reservations = Lists.newArrayList();
 
-    ReservationFilterView reservationFilter = reservationFilterViewFactory.get(filterId);
+    ReservationFilterView reservationFilter = reservationFilterViewFactory.create(filterId);
     // Add filterId to model, so a ui component can determine which item is
     // selected
-    model.addAttribute(WebUtils.FILTER_SELECT, reservationFilter);
+    model.addAttribute(FILTER_SELECT, reservationFilter);
 
     reservations = reservationService.findReservationsUsingFilter(reservationFilter);
 

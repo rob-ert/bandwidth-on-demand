@@ -133,7 +133,7 @@ public class PhysicalPortControllerTest {
     subject.list(null, null, null, "1", model);
 
     assertThat(model.asMap(), hasKey("list"));
-    assertThat((Long) model.asMap().get(WebUtils.FILTER_KEY), is(1L));
+    assertThat((Long) model.asMap().get(WebUtils.FILTER_SELECT), is(1L));
 
     Collection<PhysicalPortView> ports = (Collection<PhysicalPortView>) model.asMap().get("list");
     List<PhysicalPortView> portList = new ArrayList<PhysicalPortController.PhysicalPortView>(ports);
