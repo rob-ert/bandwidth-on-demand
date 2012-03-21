@@ -64,7 +64,17 @@ public class RichUserDetailsFactory {
     return this;
   }
 
-  public RichUserDetailsFactory setNameId(String username) {
+  public RichUserDetailsFactory setDisplayname(String displayName) {
+    this.displayName = displayName;
+    return this;
+  }
+
+  public RichUserDetailsFactory setEmail(String email) {
+    this.email = email;
+    return this;
+  }
+
+  public RichUserDetailsFactory setUsername(String username) {
     this.username = username;
     return this;
   }

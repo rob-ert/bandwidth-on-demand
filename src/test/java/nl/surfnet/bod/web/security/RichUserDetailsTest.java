@@ -59,7 +59,7 @@ public class RichUserDetailsTest {
 
   @Test
   public void toStringContainsNameId() {
-    RichUserDetails user = new RichUserDetailsFactory().setNameId("urn:truus").create();
+    RichUserDetails user = new RichUserDetailsFactory().setUsername("urn:truus").create();
 
     assertThat(user.toString(), containsString("urn:truus"));
   }

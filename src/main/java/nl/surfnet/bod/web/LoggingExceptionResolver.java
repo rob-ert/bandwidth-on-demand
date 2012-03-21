@@ -24,8 +24,12 @@ package nl.surfnet.bod.web;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import nl.surfnet.bod.service.EmailSender;
+import nl.surfnet.bod.web.security.Security;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
@@ -33,12 +37,18 @@ public class LoggingExceptionResolver extends SimpleMappingExceptionResolver {
 
   private final Logger logger = LoggerFactory.getLogger(LoggingExceptionResolver.class);
 
+  @Autowired
+  private EmailSender emailSender;
+
   @Override
   protected ModelAndView doResolveException(HttpServletRequest request,
       HttpServletResponse response,
       Object handler,
       Exception ex) {
+
     logger.error("An exception occured during user request", ex);
+
+    emailSender.sendErrorMail(Security.getUserDetails(), ex, request);
 
     return super.doResolveException(request, response, handler, ex);
   }

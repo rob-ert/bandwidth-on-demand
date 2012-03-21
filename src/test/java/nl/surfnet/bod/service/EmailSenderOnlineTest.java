@@ -25,7 +25,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import javax.servlet.http.HttpServletRequest;
+
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -105,5 +110,28 @@ public class EmailSenderOnlineTest {
     assertThat(message.getText(), containsString("Physical Resource Group: " + pGroup.getInstitute().getName()));
     assertThat(message.getText(), containsString("Reason: " + requestMessage));
     assertThat(message.getText(), containsString("Bandwidth: " + bandwidth));
+  }
+
+  @Test
+  public void errorMailMessage() {
+    RichUserDetails user = new RichUserDetailsFactory().setDisplayname("Truus Visscher").setEmail("truus@visscher.nl").create();
+    Throwable throwable = new RuntimeException("Something went terrible wrong");
+    HttpServletRequest request = mock(HttpServletRequest.class);
+
+    when(request.getRequestURL()).thenReturn(new StringBuffer("http://bod.dlp.surfnet.nl/error"));
+
+    subject.setBodTeamMailAddress("bodteam@surfnet.nl");
+
+    subject.sendErrorMail(user, throwable, request);
+
+    verify(mailSenderMock).send(messageCaptor.capture());
+
+    SimpleMailMessage message = messageCaptor.getValue();
+
+    assertThat(message.getTo()[0], is("bodteam@surfnet.nl"));
+    assertThat(message.getText(), containsString("Truus Visscher (truus@visscher.nl)"));
+    assertThat(message.getText(), containsString("http://bod.dlp.surfnet.nl/error"));
+    assertThat(message.getText(), containsString("java.lang.RuntimeException"));
+    assertThat(message.getSubject(), containsString("Something went terrible wrong"));
   }
 }

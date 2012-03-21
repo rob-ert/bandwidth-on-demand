@@ -25,6 +25,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -33,6 +34,8 @@ import nl.surfnet.bod.web.manager.ActivationEmailController;
 import nl.surfnet.bod.web.manager.VirtualPortController;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +46,7 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 
 public class EmailSenderOnline implements EmailSender {
 
@@ -64,10 +68,22 @@ public class EmailSenderOnline implements EmailSender {
       + "Kind regards,\n" //
       + "The Bandwidth on Demand Application team";
 
+  private static final String ERROR_MAIL_BODY = //
+      "Dear BoD Team,\n\n" //
+      + "An exception occured.\n\n" //
+      + "User: %s (%s)\n" //
+      + "Username: %s\n" //
+      + "Request: %s (%s)\n" //
+      + "Around: %s\n" //
+      + "Stacktrace:\n%s\n";
+
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Value("${mail.fromAddress}")
   private String fromAddress;
+
+  @Value("${mail.bodTeamAddress}")
+  private String bodTeamMailAddress;
 
   @Value("${external.bod.url}")
   private String externalBodUrl;
@@ -112,7 +128,25 @@ public class EmailSenderOnline implements EmailSender {
         .withSubject(String.format("[BoD] A Virtual Port Request for %s", pGroup.getInstitute().getName()))
         .withBodyText(
             String.format(VIRTUAL_PORT_REQUEST_BODY, from.getDisplayName(), from.getEmail(), pGroup.getInstitute()
-                .getName(), vGroup.getName(), bandwidth, requestMessage, link)).create();
+                .getName(), vGroup.getName(), bandwidth, requestMessage, link))
+        .create();
+
+    send(mail);
+  }
+
+  @Override
+  public void sendErrorMail(RichUserDetails user, Throwable throwable, HttpServletRequest request) {
+    SimpleMailMessage mail = new MailMessageBuilder()
+      .withTo(bodTeamMailAddress)
+      .withSubject(String.format("[Exception on %s] %s", externalBodUrl, throwable.getMessage()))
+      .withBodyText(String.format(ERROR_MAIL_BODY,
+            user.getDisplayName(), user.getEmail(),
+            user.getUsername(),
+            request.getRequestURL().append(request.getQueryString() != null ? "?" + request.getQueryString() : "").toString(),
+            request.getMethod(),
+            DateTimeFormat.mediumDateTime().print(DateTime.now()),
+            Throwables.getStackTraceAsString(throwable)))
+      .create();
 
     send(mail);
   }
@@ -137,6 +171,10 @@ public class EmailSenderOnline implements EmailSender {
 
   protected void setExternalBodUrl(String externalBodUrl) {
     this.externalBodUrl = externalBodUrl;
+  }
+
+  protected void setBodTeamMailAddress(String bodTeamMailAddress) {
+    this.bodTeamMailAddress = bodTeamMailAddress;
   }
 
   private final class MailMessageBuilder {
