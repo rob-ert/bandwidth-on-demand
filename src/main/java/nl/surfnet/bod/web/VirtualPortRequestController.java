@@ -38,6 +38,7 @@ import nl.surfnet.bod.web.security.Security;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -201,6 +202,9 @@ public class VirtualPortRequestController {
 
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_send", pGroup.getInstitute()
         .getName());
+
+    // in case a new vrg was created make sure the user sees it
+    SecurityContextHolder.clearContext();
 
     return "redirect:/";
   }
