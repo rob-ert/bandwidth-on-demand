@@ -70,7 +70,7 @@ public class VirtualResourceGroupServiceTest {
 
     RichUserDetails loggedInUser = new RichUserDetailsFactory().addUserGroup(groupOfLoggedInUser).create();
 
-    when(groupRepoMock.findBySurfConextGroupNameIn(Lists.newArrayList(groupOfLoggedInUser))).thenReturn(
+    when(groupRepoMock.findBySurfconextGroupIdIn(Lists.newArrayList(groupOfLoggedInUser))).thenReturn(
         ImmutableList.of(vGroup));
 
     Collection<VirtualResourceGroup> groups = subject.findAllForUser(loggedInUser);
@@ -144,7 +144,7 @@ public class VirtualResourceGroupServiceTest {
   @Test
   public void findByUserGroupsShouldMatchingGroups() {
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
-    when(groupRepoMock.findBySurfConextGroupNameIn(Lists.newArrayList("urn:mygroup"))).thenReturn(
+    when(groupRepoMock.findBySurfconextGroupIdIn(Lists.newArrayList("urn:mygroup"))).thenReturn(
         Lists.newArrayList(vrg));
 
     Collection<VirtualResourceGroup> vrgs = subject.findByUserGroups(Lists.newArrayList(new UserGroupFactory().setId(

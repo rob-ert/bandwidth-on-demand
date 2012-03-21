@@ -9,7 +9,8 @@
     <page:list id="pl_VirtualResourceGroup" items="${list}">
         <table:table data="${list}" id="l_VirtualResourceGroup" path="/manager/virtualresourcegroups" typeIdFieldName="id">
             <table:column id="c_virtualresourcegroup_name" property="name" />
-            <table:column id="c_virtualresourcegroup_surfconextgroupname" property="surfConextGroupName" />
+            <table:column id="c_virtualresourcegroup_surfconextgroupid" property="surfconextGroupId" />
+            <table:column id="c_virtualresourcegroup_description" property="description" />
             <table:column id="c_virtualresourcegroup_virtualPortCount" property="virtualPortCount" sortable="false" />
 
             <table:actionColumn icon="icon-arrow-down" action="/showvirtualports" title="Show Virtual Ports" />

@@ -36,12 +36,10 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.Security;
 
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
-import org.joda.time.Minutes;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -86,7 +84,7 @@ public class ReservationValidatorTest {
     LocalTime noon = new LocalTime(12, 0);
 
     Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
-        .setEndTime(noon.plusMinutes(10)).setSurfConextGroupName(GROUP_NAME).create();
+        .setEndTime(noon.plusMinutes(10)).setSurfconextGroupId(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -113,7 +111,7 @@ public class ReservationValidatorTest {
     LocalDate tomorrow = LocalDate.now().plusDays(1);
     LocalTime noon = new LocalTime(12, 0);
     Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
-        .setEndTime(noon.plusHours(1)).setSurfConextGroupName(GROUP_NAME).create();
+        .setEndTime(noon.plusHours(1)).setSurfconextGroupId(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -179,7 +177,7 @@ public class ReservationValidatorTest {
     LocalDate tomorrow = LocalDate.now().plusDays(1);
     LocalTime noon = new LocalTime(12, 0);
     Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
-        .setEndTime(noon.plusMinutes(3)).setSurfConextGroupName(GROUP_NAME).create();
+        .setEndTime(noon.plusMinutes(3)).setSurfconextGroupId(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -196,7 +194,7 @@ public class ReservationValidatorTest {
     LocalTime endTime = new LocalTime().withHourOfDay(0).withMinuteOfHour(1);
 
     Reservation reservation = new ReservationFactory().setStartDate(startDate).setEndDate(endDate)
-        .setStartTime(startTime).setEndTime(endTime).setSurfConextGroupName(GROUP_NAME).create();
+        .setStartTime(startTime).setEndTime(endTime).setSurfconextGroupId(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -211,7 +209,7 @@ public class ReservationValidatorTest {
     LocalDate endDate = startDate.plusYears(1).plusDays(1);
 
     Reservation reservation = new ReservationFactory().setStartDate(startDate).setEndDate(endDate)
-        .setSurfConextGroupName(GROUP_NAME).create();
+        .setSurfconextGroupId(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -222,7 +220,7 @@ public class ReservationValidatorTest {
 
   @Test
   public void vritualGroupNameShouldBeSameAsOfThePorts() {
-    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:wronggroup").create();
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfconextGroupId("urn:wronggroup").create();
     VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
 
     Reservation reservation = new ReservationFactory().setSourcePort(source).create();
@@ -235,7 +233,7 @@ public class ReservationValidatorTest {
 
   @Test
   public void userIsNotAMemberOfTheSurfConextGroup() {
-    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:wronggroup").create();
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfconextGroupId("urn:wronggroup").create();
     VirtualPort sourcePort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
     VirtualPort destPort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
 

@@ -47,12 +47,14 @@ public class VirtualResourceGroup {
   private Integer version;
 
   @NotEmpty
-  @Column(unique = true, nullable = false)
+  @Column(nullable = false)
   private String name;
+
+  private String description;
 
   @NotEmpty
   @Column(unique = true, nullable = false)
-  private String surfConextGroupName;
+  private String surfconextGroupId;
 
   @OneToMany(mappedBy = "virtualResourceGroup", cascade = CascadeType.REMOVE)
   private Collection<VirtualPort> virtualPorts;
@@ -76,12 +78,12 @@ public class VirtualResourceGroup {
     this.version = version;
   }
 
-  public String getSurfConextGroupName() {
-    return surfConextGroupName;
+  public String getSurfconextGroupId() {
+    return surfconextGroupId;
   }
 
-  public void setSurfConextGroupName(String surfConextGroupName) {
-    this.surfConextGroupName = surfConextGroupName;
+  public void setSurfconextGroupId(String surfconextGroupId) {
+    this.surfconextGroupId = surfconextGroupId;
   }
 
   public Collection<VirtualPort> getVirtualPorts() {
@@ -117,6 +119,14 @@ public class VirtualResourceGroup {
     return Objects.toStringHelper(this)
         .add("id", getId())
         .add("name", getName())
-        .add("surfConextGroupName", surfConextGroupName).toString();
+        .add("surfConextGroupName", surfconextGroupId).toString();
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 }

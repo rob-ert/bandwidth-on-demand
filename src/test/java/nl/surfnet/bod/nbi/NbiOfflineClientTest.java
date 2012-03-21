@@ -29,7 +29,6 @@ import static org.hamcrest.Matchers.is;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.nbi.NbiOfflineClient;
 
 import org.junit.Test;
 

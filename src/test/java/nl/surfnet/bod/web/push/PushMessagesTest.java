@@ -45,7 +45,7 @@ public class PushMessagesTest {
     assertThat(event.getMessage(), containsString("\"id\":54"));
     assertThat(event.getMessage(), containsString("from <b>PREPARING</b> to <b>SCHEDULED</b>"));
     assertThat(event.getMessage(), containsString("\"status\":\"SCHEDULED\""));
-    assertThat(event.getGroupId(), is(reservation.getVirtualResourceGroup().getSurfConextGroupName()));
+    assertThat(event.getGroupId(), is(reservation.getVirtualResourceGroup().getSurfconextGroupId()));
   }
 
 }

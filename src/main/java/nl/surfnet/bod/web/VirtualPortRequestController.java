@@ -47,7 +47,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.base.Function;
 import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 
 @Controller
@@ -67,15 +69,54 @@ public class VirtualPortRequestController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String selectTeam(Model model) {
-    model.addAttribute("userGroups", Security.getUserDetails().getUserGroups());
+    Collection<UserGroupView> groups = Collections2.transform(Security.getUserDetails().getUserGroups(),
+        new Function<UserGroup, UserGroupView>() {
+          @Override
+          public UserGroupView apply(UserGroup userGroup) {
+            boolean exists = virtualResourceGroupService.findBySurfconextGroupId(userGroup.getId()) != null;
+            return new UserGroupView(userGroup, exists);
+          }
+        });
+
+    model.addAttribute("userGroups", groups);
 
     return "virtualports/selectTeam";
   }
 
+  public static class UserGroupView {
+    private final String id;
+    private final String name;
+    private final String description;
+    private final boolean existing;
+
+    public UserGroupView(UserGroup group, boolean existing) {
+      this.id = group.getId();
+      this.name = group.getName();
+      this.description = group.getDescription();
+      this.existing = existing;
+    }
+
+    public String getId() {
+      return id;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public boolean isExisting() {
+      return existing;
+    }
+
+
+    public String getDescription() {
+      return description;
+    }
+
+  }
+
   @RequestMapping(method = RequestMethod.GET, params = "team")
-  public String selectInstitute(
-      @RequestParam(value = "team") String teamUrn,
-      Model model) {
+  public String selectInstitute(@RequestParam(value = "team") String teamUrn, Model model) {
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllWithPorts();
 
     model.addAttribute("physicalResourceGroups", groups);
@@ -85,10 +126,8 @@ public class VirtualPortRequestController {
   }
 
   @RequestMapping(method = RequestMethod.GET, params = { "id", "team" })
-  public String requestForm(
-      @RequestParam Long id,
-      @RequestParam("team") String teamUrn,
-      Model model, RedirectAttributes redirectAttributes) {
+  public String requestForm(@RequestParam Long id, @RequestParam("team") String teamUrn, Model model,
+      RedirectAttributes redirectAttributes) {
 
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
     if (group == null || !group.isActive()) {
@@ -122,7 +161,7 @@ public class VirtualPortRequestController {
       }
 
       VirtualResourceGroup group = new VirtualResourceGroup();
-      group.setSurfConextGroupName(userGroup.getId());
+      group.setSurfconextGroupId(userGroup.getId());
       group.setName(StringUtils.capitalize(userGroup.getName()));
 
       return ImmutableList.of(group);
@@ -148,7 +187,16 @@ public class VirtualPortRequestController {
       return "virtualports/requestform";
     }
 
-    emailSender.sendVirtualPortRequestMail(Security.getUserDetails(), pGroup, userGroup, requestCommand.getBandwidth(),
+    VirtualResourceGroup vrg = virtualResourceGroupService.findBySurfconextGroupId(userGroup.getId());
+    if (vrg == null) {
+      vrg = new VirtualResourceGroup();
+      vrg.setName(userGroup.getName());
+      vrg.setSurfconextGroupId(userGroup.getId());
+      vrg.setDescription(userGroup.getDescription());
+      virtualResourceGroupService.save(vrg);
+    }
+
+    emailSender.sendVirtualPortRequestMail(Security.getUserDetails(), pGroup, vrg, requestCommand.getBandwidth(),
         requestCommand.getMessage());
 
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_send", pGroup.getInstitute()
@@ -160,7 +208,9 @@ public class VirtualPortRequestController {
   public static class RequestCommand {
     @NotEmpty
     private String message;
+    @NotNull
     private Long physicalResourceGroupId;
+    @NotEmpty
     private String userGroupId;
     @NotNull
     private Integer bandwidth;

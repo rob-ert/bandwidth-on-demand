@@ -36,13 +36,13 @@ public interface VirtualResourceGroupRepo extends JpaSpecificationExecutor<Virtu
 
   /**
    * Finds a {@link VirtualResourceGroup} by
-   * {@link VirtualResourceGroup#getSurfConextGroupName()}
+   * {@link VirtualResourceGroup#getSurfconextGroupId()}
    *
-   * @param surfConextGroupName
+   * @param surfconextGroupId
    *          The name to search for
    * @return {@link VirtualResourceGroup} or null when no match was found.
    */
-  VirtualResourceGroup findBySurfConextGroupName(String surfConextGroupName);
+  VirtualResourceGroup findBySurfconextGroupId(String surfconextGroupId);
 
   /**
    * Finds a {@link VirtualResourceGroup} by
@@ -56,12 +56,11 @@ public interface VirtualResourceGroupRepo extends JpaSpecificationExecutor<Virtu
 
   /**
    * Finds {@link VirtualResourceGroup}s by a Collection of adminGroups
-   * {@link VirtualResourceGroup#getSurfConextGroupName())}
    *
    * @param Collection
-   *          <String> adminGroups to search for
+   *          adminGroups to search for
    *
    * @return List<VirtualResourceGroup> or empty list when no match was found.
    */
-  List<VirtualResourceGroup> findBySurfConextGroupNameIn(Collection<String> adminGroups);
+  List<VirtualResourceGroup> findBySurfconextGroupIdIn(Collection<String> adminGroups);
 }

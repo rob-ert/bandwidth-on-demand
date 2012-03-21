@@ -52,7 +52,7 @@ public class VirtualResourceGroupController {
   public Collection<VirtualPortJsonView> listForVirtualResourceGroup(@PathVariable Long id) {
     VirtualResourceGroup group = virtualResourceGroupService.find(id);
 
-    if (group == null || Security.isUserNotMemberOf(group.getSurfConextGroupName())) {
+    if (group == null || Security.isUserNotMemberOf(group.getSurfconextGroupId())) {
       return Collections.emptyList();
     }
 

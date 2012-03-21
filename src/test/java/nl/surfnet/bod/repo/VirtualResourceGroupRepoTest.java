@@ -53,7 +53,7 @@ public class VirtualResourceGroupRepoTest {
   @Test
   public void testSave() {
     String nameOne = "groupOne";
-    VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().setName("one").setSurfConextGroupName(nameOne)
+    VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().setName("one").setSurfconextGroupId(nameOne)
         .create();
 
     subject.save(vrGroup);
@@ -62,12 +62,12 @@ public class VirtualResourceGroupRepoTest {
   @Test(expected = JpaSystemException.class)
   public void testSaveNameNotUnique() {
     String nameOne = "groupOne";
-    VirtualResourceGroup vrGroupOne = new VirtualResourceGroupFactory().setName("one").setSurfConextGroupName(nameOne)
+    VirtualResourceGroup vrGroupOne = new VirtualResourceGroupFactory().setName("one").setSurfconextGroupId(nameOne)
         .create();
 
     subject.save(vrGroupOne);
 
-    VirtualResourceGroup vrGroupTwo = new VirtualResourceGroupFactory().setSurfConextGroupName(nameOne).create();
+    VirtualResourceGroup vrGroupTwo = new VirtualResourceGroupFactory().setSurfconextGroupId(nameOne).create();
 
     try {
       subject.save(vrGroupTwo);
@@ -84,16 +84,16 @@ public class VirtualResourceGroupRepoTest {
     String firstAdminGroup = "urn:firstGroup";
     Collection<String> adminGroups = Lists.newArrayList(firstAdminGroup, "urn:secondGroup");
     VirtualResourceGroup firstVirtualResourceGroup = new VirtualResourceGroupFactory().setName("testName")
-        .setSurfConextGroupName(firstAdminGroup).create();
+        .setSurfconextGroupId(firstAdminGroup).create();
 
     Collection<VirtualResourceGroup> virtualResourceGroups = Lists.newArrayList(firstVirtualResourceGroup,
-        new VirtualResourceGroupFactory().setName("noMatcher").setSurfConextGroupName("urn:noMatch").create());
+        new VirtualResourceGroupFactory().setName("noMatcher").setSurfconextGroupId("urn:noMatch").create());
     subject.save(virtualResourceGroups);
 
-    Collection<VirtualResourceGroup> foundAdminGroups = subject.findBySurfConextGroupNameIn(adminGroups);
+    Collection<VirtualResourceGroup> foundAdminGroups = subject.findBySurfconextGroupIdIn(adminGroups);
 
     assertThat(foundAdminGroups, hasSize(1));
-    assertThat(foundAdminGroups.iterator().next().getSurfConextGroupName(), is(firstAdminGroup));
+    assertThat(foundAdminGroups.iterator().next().getSurfconextGroupId(), is(firstAdminGroup));
   }
 
 }

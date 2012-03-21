@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.nbi.NbiOpenDracWsClient;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringServiceFault;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
 

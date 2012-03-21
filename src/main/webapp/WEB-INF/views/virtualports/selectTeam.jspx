@@ -12,7 +12,21 @@
                     <spring:param name="team" value="${group.id}" />
                 </spring:url>
                 <tr>
-                    <td><a href="${url}">${group.name}</a> - <i>${group.description}</i></td>
+                    <td>
+                        <c:choose>
+                            <c:when test="${group.existing}">
+                                <a href="${url}" title="This team is already knonw in BoD" rel="twipsy" class="icon-ok-sign icon-large">
+                                    ${group.name}
+                                </a>
+                            </c:when>
+                            <c:otherwise>
+                                <a href="${url}" title="This team is not yet known in BoD" rel="twipsy" class="icon-plus-sign icon-large">
+                                    ${group.name}
+                                </a>
+                            </c:otherwise>
+                        </c:choose>
+                         - <i>${group.description}</i>
+                    </td>
                 </tr>
             </c:forEach>
         </table>

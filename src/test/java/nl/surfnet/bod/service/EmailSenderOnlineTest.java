@@ -28,11 +28,11 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.verify;
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.UserGroupFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.junit.Before;
@@ -90,11 +90,11 @@ public class EmailSenderOnlineTest {
   public void virtualPortRequestMessage() {
     RichUserDetails user = new RichUserDetailsFactory().create();
     PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().create();
-    UserGroup userGroup = new UserGroupFactory().create();
+    VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().create();
     Integer bandwidth = 1000;
     String requestMessage = "I would like to have a port.";
 
-    subject.sendVirtualPortRequestMail(user, pGroup, userGroup, bandwidth, requestMessage);
+    subject.sendVirtualPortRequestMail(user, pGroup, vGroup, bandwidth, requestMessage);
 
     verify(mailSenderMock).send(messageCaptor.capture());
 

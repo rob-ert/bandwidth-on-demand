@@ -3,7 +3,6 @@
         <item id="i_res_list" url="/manager/reservations" messageCode="global_menu_list" icon="icon-list" />
     </category>
     <category id="c_virtualresourcegroup" menu="virtualresourcegroup">
-        <item id="i_vrg_new" url="/manager/virtualresourcegroups/create" messageCode="global_menu_new" icon="icon-plus" />
         <item id="i_vrg_list" url="/manager/virtualresourcegroups" messageCode="global_menu_list" icon="icon-list" />
     </category>
     <category id="c_physicalresourcegroup" menu="physicalresourcegroup">

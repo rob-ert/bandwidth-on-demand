@@ -90,9 +90,9 @@ public class ReservationValidator implements Validator {
       errors.rejectValue("destinationPort", "", "");
     }
 
-    String groupNameOfSource = sourcePort.getVirtualResourceGroup().getSurfConextGroupName();
-    String groupNameOfDestination = destinationPort.getVirtualResourceGroup().getSurfConextGroupName();
-    String groupName = reservation.getVirtualResourceGroup().getSurfConextGroupName();
+    String groupNameOfSource = sourcePort.getVirtualResourceGroup().getSurfconextGroupId();
+    String groupNameOfDestination = destinationPort.getVirtualResourceGroup().getSurfconextGroupId();
+    String groupName = reservation.getVirtualResourceGroup().getSurfconextGroupId();
 
     if (!groupNameOfSource.equals(groupNameOfDestination) || !groupName.equals(groupNameOfSource)) {
       errors.reject("validation.reservation.security", "Ports are not in the same virtualResourceGroup");

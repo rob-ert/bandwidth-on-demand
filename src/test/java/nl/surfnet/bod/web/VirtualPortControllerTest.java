@@ -97,7 +97,7 @@ public class VirtualPortControllerTest {
 
   @Test
   public void updateFormForIllegalPort() {
-    VirtualResourceGroup group = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:wrong-group").create();
+    VirtualResourceGroup group = new VirtualResourceGroupFactory().setSurfconextGroupId("urn:wrong-group").create();
     VirtualPort port = new VirtualPortFactory().setVirtualResourceGroup(group).create();
 
     when(virtualPortServiceMock.find(201L)).thenReturn(port);
@@ -110,7 +110,7 @@ public class VirtualPortControllerTest {
 
   @Test
   public void updateFormForPort() {
-    VirtualResourceGroup group = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:correct-group").create();
+    VirtualResourceGroup group = new VirtualResourceGroupFactory().setSurfconextGroupId("urn:correct-group").create();
     VirtualPort port = new VirtualPortFactory().setVirtualResourceGroup(group).create();
 
     when(virtualPortServiceMock.find(201L)).thenReturn(port);

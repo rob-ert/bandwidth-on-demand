@@ -169,7 +169,7 @@ public class VirtualPortControllerTest {
   @Test
   public void createWithGroupShouldSetVirtualResourceGroupOnPort() {
     ModelStub model = new ModelStub();
-    VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().setSurfConextGroupName("urn:some-user-group")
+    VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().setSurfconextGroupId("urn:some-user-group")
         .create();
 
     when(virtualResourceGroupServiceMock.find(1L)).thenReturn(vGroup);

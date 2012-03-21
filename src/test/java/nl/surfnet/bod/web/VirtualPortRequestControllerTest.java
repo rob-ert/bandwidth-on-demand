@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,12 +36,14 @@ import static org.mockito.Mockito.when;
 import java.util.Collection;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.EmailSender;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.VirtualPortRequestController.RequestCommand;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -54,7 +57,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.MessageSource;
 import org.springframework.validation.BeanPropertyBindingResult;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -72,6 +74,9 @@ public class VirtualPortRequestControllerTest {
   @SuppressWarnings("unused")
   @Mock
   private MessageSource messageSourceMock;
+
+  @Mock
+  private VirtualResourceGroupService virtualResourceGroupServiceMock;
 
   private RichUserDetails user = new RichUserDetailsFactory().addUserGroup("urn:user-group").create();
 
@@ -151,7 +156,7 @@ public class VirtualPortRequestControllerTest {
     assertThat(page, is("redirect:/virtualports/request"));
 
     verify(emailSender, never()).sendVirtualPortRequestMail(any(RichUserDetails.class),
-        any(PhysicalResourceGroup.class), any(UserGroup.class), anyInt(), anyString());
+        any(PhysicalResourceGroup.class), any(VirtualResourceGroup.class), anyInt(), anyString());
   }
 
   @Test
@@ -169,7 +174,7 @@ public class VirtualPortRequestControllerTest {
     assertThat(page, is("redirect:/virtualports/request"));
 
     verify(emailSender, never()).sendVirtualPortRequestMail(any(RichUserDetails.class),
-        any(PhysicalResourceGroup.class), any(UserGroup.class), anyInt(), anyString());
+        any(PhysicalResourceGroup.class), any(VirtualResourceGroup.class), anyInt(), anyString());
   }
 
   @Test
@@ -187,26 +192,52 @@ public class VirtualPortRequestControllerTest {
     assertThat(page, is("redirect:/virtualports/request"));
 
     verify(emailSender, never()).sendVirtualPortRequestMail(any(RichUserDetails.class),
-        any(PhysicalResourceGroup.class), any(UserGroup.class), anyInt(), anyString());
+        any(PhysicalResourceGroup.class), any(VirtualResourceGroup.class), anyInt(), anyString());
   }
 
   @Test
   public void requestShouldSentAnEmail() {
     ModelStub model = new ModelStub();
     PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().setActive(true).create();
+    VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().create();
+
     RequestCommand command = new RequestCommand(pGroup);
     command.setPhysicalResourceGroupId(2L);
     command.setUserGroupId("urn:user-group");
     command.setBandwidth(1000);
     command.setMessage("message");
 
+    when(virtualResourceGroupServiceMock.findBySurfconextGroupId("urn:user-group")).thenReturn(vGroup);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
 
     String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
 
     assertThat(page, is("redirect:/"));
 
-    verify(emailSender).sendVirtualPortRequestMail(user, pGroup, Iterables.getOnlyElement(user.getUserGroups()), 1000, "message");
+    verify(emailSender).sendVirtualPortRequestMail(user, pGroup, vGroup, 1000, "message");
+  }
+
+  @Test
+  public void whenVirtualResourceGroupDoesNotExistsItShouldBeCreated() {
+    ModelStub model = new ModelStub();
+    PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().setActive(true).create();
+
+    RequestCommand command = new RequestCommand(pGroup);
+    command.setPhysicalResourceGroupId(2L);
+    command.setUserGroupId("urn:user-group");
+    command.setBandwidth(1000);
+    command.setMessage("message");
+
+    when(virtualResourceGroupServiceMock.findBySurfconextGroupId("urn:user-group")).thenReturn(null);
+    when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
+
+    String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
+
+    assertThat(page, is("redirect:/"));
+
+    verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
+    verify(emailSender).sendVirtualPortRequestMail(eq(user), eq(pGroup), any(VirtualResourceGroup.class), eq(1000),
+        eq("message"));
   }
 
 }

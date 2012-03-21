@@ -123,7 +123,7 @@ public final class PushMessages {
         .getVirtualResourceGroup().getName(), reservationStatusChangeEvent.getOldStatus().name(), reservation.getStatus()
         .name());
 
-    return new JsonMessageEvent(reservation.getVirtualResourceGroup().getSurfConextGroupName(), new JsonEvent(message,
+    return new JsonMessageEvent(reservation.getVirtualResourceGroup().getSurfconextGroupId(), new JsonEvent(message,
         reservation.getId(), reservation.getStatus().name()));
   }
 }

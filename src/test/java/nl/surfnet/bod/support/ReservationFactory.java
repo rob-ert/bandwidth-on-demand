@@ -54,7 +54,7 @@ public class ReservationFactory {
   private String userCreated = "urn:truusvisscher";
   private Integer bandwidth = 10000;
   private String reservationId = "9" + String.valueOf(id);
-  private String surfConextGroupName;
+  private String surfconextGroupId;
 
   public Reservation create() {
     if (vrGroup != null) {
@@ -78,8 +78,8 @@ public class ReservationFactory {
     reservation.setBandwidth(bandwidth);
     reservation.setReservationId(reservationId);
 
-    if (!Strings.isNullOrEmpty(surfConextGroupName)) {
-      reservation.getVirtualResourceGroup().setSurfConextGroupName(surfConextGroupName);
+    if (!Strings.isNullOrEmpty(surfconextGroupId)) {
+      reservation.getVirtualResourceGroup().setSurfconextGroupId(surfconextGroupId);
     }
 
     return reservation;
@@ -162,8 +162,8 @@ public class ReservationFactory {
     return this;
   }
 
-  public ReservationFactory setSurfConextGroupName(String surfConextGroupName) {
-    this.surfConextGroupName = surfConextGroupName;
+  public ReservationFactory setSurfconextGroupId(String surfconextGroupId) {
+    this.surfconextGroupId = surfconextGroupId;
     return this;
   }
 

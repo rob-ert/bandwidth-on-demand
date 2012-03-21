@@ -5,16 +5,8 @@
         <put-attribute name="body" value="/WEB-INF/views//manager/virtualresourcegroups/list.jspx" />
         <put-attribute name="active_menu" value="virtualresourcegroup" cascade="true" />
     </definition>
-    <definition extends="manager" name="virtualresourcegroups/create">
-        <put-attribute name="body" value="/WEB-INF/views/manager/virtualresourcegroups/create.jspx" />
-        <put-attribute name="active_menu" value="virtualresourcegroup" cascade="true" />
-    </definition>    
     <definition extends="manager" name="virtualresourcegroups/show">
         <put-attribute name="body" value="/WEB-INF/views/manager/virtualresourcegroups/show.jspx" />
-        <put-attribute name="active_menu" value="virtualresourcegroup" cascade="true" />
-    </definition>
-    <definition extends="manager" name="virtualresourcegroups/update">
-        <put-attribute name="body" value="/WEB-INF/views/manager/virtualresourcegroups/update.jspx" />
         <put-attribute name="active_menu" value="virtualresourcegroup" cascade="true" />
     </definition>
 </tiles-definitions>
