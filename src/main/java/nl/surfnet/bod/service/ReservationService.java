@@ -266,8 +266,6 @@ public class ReservationService {
 
   public List<Double> findUniqueYearsFromReservations() {
 
-    RichUserDetails userDetails = Security.getUserDetails();
-
     // FIXME Franky add userDetails to query
 
     final String queryString = "select distinct extract(year from start_date)  startYear from reservation UNION select distinct extract(year from end_date) from reservation";

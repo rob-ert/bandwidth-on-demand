@@ -30,18 +30,15 @@ public class ReservationFilterViewFactory {
       return new ReservationFilterView(year);
     }
     catch (IllegalArgumentException exc) {
-
-      if (COMMING.equals(id)) {
-        return new ReservationFilterView(COMMING, String.format("Now + %d months",
-            DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, false);
-      }
-      else if (ELAPSED.equals(id)) {
+      
+      if (ELAPSED.equals(id)) {
         return new ReservationFilterView(ELAPSED, String.format("Now - %d months",
             DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, true);
+      } else {        
+          return new ReservationFilterView(COMMING, String.format("Now + %d months",
+              DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, false);
+        }
       }
-      else
-        throw new IllegalArgumentException("No filter available for id: " + id);
-    }
   }
 
   public List<ReservationFilterView> create(List<Double> reservationYears) {
