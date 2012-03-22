@@ -266,11 +266,25 @@ public class ReservationController extends AbstractSortableListController<Reserv
     model.addAttribute(FILTER_SELECT, reservationFilter);
 
     Sort sortOptions = super.prepareSortOptions(sort, order, model);
-    List<ReservationView> list = list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model);
-
-    model.addAttribute(WebUtils.DATA_LIST, list);
+    list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model);
 
     return listUrl();
+  }
+
+  @Override
+  protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
+
+    ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
+
+    model.addAttribute("maxPages", WebUtils.calculateMaxPages(reservationService.countForFilterAndCurrentUser(filter)));
+
+    List<ReservationView> reservationViews = Lists.transform(reservationService
+        .findReservationsEntriesForUserUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems, sort),
+        TO_RESERVATION_VIEW);
+
+    model.addAttribute(WebUtils.DATA_LIST, reservationViews);
+
+    return reservationViews;
   }
 
   private Reservation createDefaultReservation(Collection<VirtualPort> ports) {
@@ -296,20 +310,6 @@ public class ReservationController extends AbstractSortableListController<Reserv
     }
 
     return reservation;
-  }
-
-  @Override
-  protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
-
-    ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-
-    model.addAttribute("maxPages", WebUtils.calculateMaxPages(reservationService.countForFilterAndCurrentUser(filter)));
-
-    List<ReservationView> reservationViews = Lists.transform(reservationService
-        .findReservationsEntriesForUserUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems, sort),
-        TO_RESERVATION_VIEW);
-
-    return reservationViews;
   }
 
   @Override
