@@ -68,6 +68,10 @@ public class NbiOpenDracWsClientTest {
 
   private QueryEndpointResponseDocument endpointResponse;
 
+  private LocalDateTime start;
+
+  private Reservation reservation;
+
   @Before
   public void init() {
     subject.setPassword("292c2cdcb5f669a8");
@@ -78,6 +82,21 @@ public class NbiOpenDracWsClientTest {
 
       endpointResponse = QueryEndpointResponseDocument.Factory.parse(new File(
           "src/test/resources/opendrac/queryEndpointResponse.xml"));
+      
+      
+      start = LocalDateTime.now();
+      LocalDateTime end = start.plus(Days.ONE);
+      reservation = new ReservationFactory().setStartDateTime(start).setEndDateTime(end).create();
+      // Set ports to mock values in xml
+      reservation.getSourcePort().getPhysicalPort().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4");
+      reservation.getDestinationPort().getPhysicalPort().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4");
+
+      when(networkingServiceMock.queryEndpoints(any(QueryEndpointsRequestDocument.class), any(SecurityDocument.class)))
+          .thenReturn(endpointsResponse);
+
+      when(networkingServiceMock.queryEndpoint(any(QueryEndpointRequestDocument.class), any(SecurityDocument.class)))
+          .thenReturn(endpointResponse);
+
     }
     catch (Exception e) {
       Assert.fail(e.getMessage());
@@ -99,19 +118,6 @@ public class NbiOpenDracWsClientTest {
 
   @Test
   public void shouldCreateReservationWithGivenStartTime() throws Exception {
-    LocalDateTime start = LocalDateTime.now();
-    LocalDateTime end = start.plus(Days.ONE);
-    Reservation reservation = new ReservationFactory().setStartDateTime(start).setEndDateTime(end).create();
-    // Set ports to mock values in xml
-    reservation.getSourcePort().getPhysicalPort().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4");
-    reservation.getDestinationPort().getPhysicalPort().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4");
-
-    when(networkingServiceMock.queryEndpoints(any(QueryEndpointsRequestDocument.class), any(SecurityDocument.class)))
-        .thenReturn(endpointsResponse);
-
-    when(networkingServiceMock.queryEndpoint(any(QueryEndpointRequestDocument.class), any(SecurityDocument.class)))
-        .thenReturn(endpointResponse);
-
     CreateReservationScheduleRequestDocument schedule = null;
 
     schedule = subject.createSchedule(reservation);
@@ -122,24 +128,10 @@ public class NbiOpenDracWsClientTest {
 
   @Test
   public void shouldCreateReservationNow() throws Exception {
-    LocalDateTime start = LocalDateTime.now();
-    LocalDateTime end = start.plus(Days.ONE);
-
     DateTimeUtils.setCurrentMillisFixed(start.toDate().getTime());
-    try {
-      Reservation reservation = new ReservationFactory().setEndDateTime(end).create();
+    try {      
       reservation.setStartDate(null);
       reservation.setStartTime(null);
-
-      // Set ports to mock values in xml
-      reservation.getSourcePort().getPhysicalPort().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4");
-      reservation.getDestinationPort().getPhysicalPort().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4");
-
-      when(networkingServiceMock.queryEndpoints(any(QueryEndpointsRequestDocument.class), any(SecurityDocument.class)))
-          .thenReturn(endpointsResponse);
-
-      when(networkingServiceMock.queryEndpoint(any(QueryEndpointRequestDocument.class), any(SecurityDocument.class)))
-          .thenReturn(endpointResponse);
 
       CreateReservationScheduleRequestDocument schedule = null;
 
