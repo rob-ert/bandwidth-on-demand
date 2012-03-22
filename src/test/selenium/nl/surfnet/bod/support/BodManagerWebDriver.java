@@ -161,6 +161,7 @@ public class BodManagerWebDriver {
     Integer ban = page.getBandwidth();
 
     assertThat(group, is(instituteName));
+    assertThat(ban, is(bandwidth));
   }
 
   public void editVirtualPort(String orignalName, String newName, int bandwidth, String vlanId) {

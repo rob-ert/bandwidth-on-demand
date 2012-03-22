@@ -38,11 +38,12 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
     getWebDriver().refreshGroups();
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().createNewVirtualResourceGroup("Selenium Onderzoekers", USERS_GROUP);
   }
 
   @Test
   public void requestAVirtualPort() {
+    getWebDriver().requestVirtualPort("selenium-users");
+
     getWebDriver().verifyRequestVirtualPortInstituteInactive("2COLLEGE");
 
     getWebDriver().selectInstituteAndRequest("SURFnet bv", 1200, "I would like to have a new port");
@@ -54,7 +55,8 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
   @After
   public void teardown() {
-    getManagerDriver().deleteVirtualResourceGroup("Selenium Onderzoekers");
+    getManagerDriver().deleteVirtualResourceGroup("selenium-users");
+
     getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
     getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK_2);
     getNocDriver().deletePhysicalResourceGroup("SURFnet bv");

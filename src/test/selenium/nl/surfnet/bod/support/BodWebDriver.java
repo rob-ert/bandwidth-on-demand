@@ -176,8 +176,7 @@ public class BodWebDriver {
   }
 
   public void selectInstituteAndRequest(String institute, Integer bandwidth, String message) {
-    RequestNewVirtualPortSelectInstitutePage page = RequestNewVirtualPortSelectInstitutePage
-        .get(driver, URL_UNDER_TEST);
+    RequestNewVirtualPortSelectInstitutePage page = RequestNewVirtualPortSelectInstitutePage.get(driver);
 
     RequestNewVirtualPortRequestPage requestPage = page.selectInstitute(institute);
 
@@ -186,9 +185,14 @@ public class BodWebDriver {
     requestPage.sentRequest();
   }
 
+  public void requestVirtualPort(String team) {
+    RequestNewVirtualPortSelectTeamPage page = RequestNewVirtualPortSelectTeamPage.get(driver, URL_UNDER_TEST);
+
+    page.selectInstitute(team);
+  }
+
   public void verifyRequestVirtualPortInstituteInactive(String instituteName) {
-    RequestNewVirtualPortSelectInstitutePage page = RequestNewVirtualPortSelectInstitutePage
-        .get(driver, URL_UNDER_TEST);
+    RequestNewVirtualPortSelectInstitutePage page = RequestNewVirtualPortSelectInstitutePage.get(driver);
 
     WebElement row = page.findRow(instituteName);
     assertThat(row.getText(), containsString("Not active"));

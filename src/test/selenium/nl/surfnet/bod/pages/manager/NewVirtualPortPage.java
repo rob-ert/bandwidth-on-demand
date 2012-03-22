@@ -23,17 +23,19 @@ package nl.surfnet.bod.pages.manager;
 
 import nl.surfnet.bod.pages.AbstractFormPage;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.UnexpectedTagNameException;
 
 import com.google.common.base.Strings;
 
 public class NewVirtualPortPage extends AbstractFormPage {
 
-  private static final String PAGE =  "/manager/virtualports/create";
+  private static final String PAGE = "/manager/virtualports/create";
 
   @FindBy(id = "_managerLabel_id")
   private WebElement nameInput;
@@ -81,7 +83,13 @@ public class NewVirtualPortPage extends AbstractFormPage {
   }
 
   public String getSelectedPhysicalResourceGroup() {
-    return new Select(physicalResourceGroupSelect).getFirstSelectedOption().getText();
+    try {
+      return new Select(physicalResourceGroupSelect).getFirstSelectedOption().getText();
+    }
+    catch (UnexpectedTagNameException e) {
+      WebElement element = physicalResourceGroupSelect.findElement(By.xpath(".."));
+      return element.getText();
+    }
   }
 
   public String getSelectedPhysicalPort() {
@@ -110,7 +118,7 @@ public class NewVirtualPortPage extends AbstractFormPage {
   }
 
   public Integer getBandwidth() {
-    String maxBandwidth = maxBandwidthInput.getText();
+    String maxBandwidth = maxBandwidthInput.getAttribute("value");
     return Strings.emptyToNull(maxBandwidth) == null ? 0 : Integer.valueOf(maxBandwidth);
   }
 
