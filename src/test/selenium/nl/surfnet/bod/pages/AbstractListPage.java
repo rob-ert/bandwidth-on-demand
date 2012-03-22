@@ -52,7 +52,7 @@ public class AbstractListPage extends AbstractPage {
   public void delete(String... fields) {
     WebElement row = findRow(fields);
 
-    WebElement deleteButton = row.findElement(By.cssSelector("input[type=image]"));
+    WebElement deleteButton = row.findElement(By.cssSelector("a[class~=icon-trash]"));
     deleteButton.click();
     driver.switchTo().alert().accept();
   }
