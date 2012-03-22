@@ -36,7 +36,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.Reservation;
@@ -68,7 +67,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;
@@ -265,10 +263,10 @@ public class ReservationController extends AbstractSortableListController<Reserv
       Model model) {
 
     Sort sortOptions = super.prepareSortOptions(sort, order, model);
-    model.addAttribute("maxPages", 1); // calculateMaxPages(count(filterId,
-                                       // model)));
-
     List<ReservationView> list = list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, filterId, model);
+
+    // FIXME is this correct?
+    model.addAttribute("maxPages",1); // WebUtils.calculateMaxPages(list.size()));
     model.addAttribute(WebUtils.DATA_LIST, list);
 
     return listUrl();
@@ -282,7 +280,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
     // Add filterId to model, so a ui component can determine which item is
     // selected
     model.addAttribute(FILTER_SELECT, reservationFilter);
-
+    
     reservations = reservationService.findReservationsUsingFilter(reservationFilter);
 
     return Lists.transform(reservations, TO_RESERVATION_VIEW);

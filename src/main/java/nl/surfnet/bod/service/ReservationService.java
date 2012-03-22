@@ -221,16 +221,31 @@ public class ReservationService {
     };
   }
 
-  public List<Reservation> findReservationsUsingFilter(ReservationFilterView resFilterView) {
+  public List<Reservation> findReservationsUsingFilter(final ReservationFilterView resFilterView) {
 
-    return reservationRepo.findByStartDateBetweenOrEndDateBetween(resFilterView.getStartAsLocalDate(),
-        resFilterView.getEndAsLocalDate(), resFilterView.getStartAsLocalDate(), resFilterView.getEndAsLocalDate());
+    // FIXME Franky add userDetails to query
+    
+    Specification<Reservation> spec = new Specification<Reservation>() {
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.and(cb.between(root.get(Reservation_.startDate), resFilterView.getStartAsLocalDate(),
+            resFilterView.getEndAsLocalDate()));
+      }
+    };
+
+    return reservationRepo.findAll(spec);
+
+    // return
+    // reservationRepo.findByStartDateBetweenOrEndDateBetween(resFilterView.getStartAsLocalDate(),
+    // resFilterView.getEndAsLocalDate(), resFilterView.getStartAsLocalDate(),
+    // resFilterView.getEndAsLocalDate());
   }
 
   public List<Double> findUniqueYearsFromReservations() {
 
     RichUserDetails userDetails = Security.getUserDetails();
-    // FIXME add userDetails to query
+
+    // FIXME Franky add userDetails to query
 
     final String queryString = "select distinct extract(year from start_date)  startYear from reservation UNION select distinct extract(year from end_date) from reservation";
 

@@ -79,7 +79,7 @@ public class ReservationFilterView {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(id, label, start, end);
+    return Objects.hashCode(id, label);
   }
 
   @Override
@@ -91,8 +91,7 @@ public class ReservationFilterView {
     if (obj instanceof ReservationFilterView) {
       ReservationFilterView resFilterView = (ReservationFilterView) obj;
 
-      return Objects.equal(this.id, resFilterView.id) && Objects.equal(this.label, resFilterView.label)
-          && Objects.equal(this.start, resFilterView.start) && Objects.equal(this.end, resFilterView.getEnd());
+      return Objects.equal(this.id, resFilterView.id) && Objects.equal(this.label, resFilterView.label);
     }
     else {
       return false;

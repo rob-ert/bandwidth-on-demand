@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
-    xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields"
+     xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields"
+     xmlns:sform="http://www.springframework.org/tags/form"
      xmlns:spring="http://www.springframework.org/tags" xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields">
     
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
- 
-	<field:select id="filter" items="${filterList}"  labelCode="reservation_filter" field="filterSelect.label" itemValue="id" itemLabel="label" 
-  	 	showSingle="true" path="/reservations"  />
- 
- 
+	<div class="clearfix">
+           <label>Reservation Filter</label>
+           <div class="input input-text">
+               <sform:select id="filter" path="filterSelect.id" items="${filterList}" itemLabel="label" itemValue="id" />
+           </div>
+      </div>
+	 
     <page:list id="pl_reservation" items="${list}">
         <table:table data="${list}" id="l_reservation" path="/reservations" typeIdFieldName="id" update="false">
             <table:column labelCode="virtualresourcegroup" id="virtualresourcegroup" property="virtualResourceGroup"/>
@@ -75,13 +78,8 @@
             $("#messages").prepend(record);
         }  
         //Do new get based on selected item
-        $("#_filter").change(function(){
-            window.location = "${filterUrl}" + $("#_filter").val();
-        });
-        
-        //Set filterSelectBox to selected id
-        $(document).ready(function(){	    	  
-  	    	  $("#_filter").val(${filterId});    
+        $("#filter").change(function() {
+            window.location = "${filterUrl}" + $(this).val();
         });
     })
     </script>

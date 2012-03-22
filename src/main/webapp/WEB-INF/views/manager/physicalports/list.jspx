@@ -49,7 +49,7 @@
       
       //Set filterSelectBox to selected id
       $(document).ready(function(){	    	  
-	    	  $("#_filter").val(${filterId});    
+	    	  $("#_filter").val("${filterSelect}");    
       });      
     </script>      
 </div>
