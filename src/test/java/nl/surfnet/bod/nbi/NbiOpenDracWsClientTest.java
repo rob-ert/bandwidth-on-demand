@@ -82,8 +82,7 @@ public class NbiOpenDracWsClientTest {
 
       endpointResponse = QueryEndpointResponseDocument.Factory.parse(new File(
           "src/test/resources/opendrac/queryEndpointResponse.xml"));
-      
-      
+
       start = LocalDateTime.now();
       LocalDateTime end = start.plus(Days.ONE);
       reservation = new ReservationFactory().setStartDateTime(start).setEndDateTime(end).create();
@@ -129,7 +128,7 @@ public class NbiOpenDracWsClientTest {
   @Test
   public void shouldCreateReservationNow() throws Exception {
     DateTimeUtils.setCurrentMillisFixed(start.toDate().getTime());
-    try {      
+    try {
       reservation.setStartDate(null);
       reservation.setStartTime(null);
 
@@ -137,10 +136,11 @@ public class NbiOpenDracWsClientTest {
 
       schedule = subject.createSchedule(reservation);
 
+      // Accuracy of 10 seconds is enough
       long scheduleStart = schedule.getCreateReservationScheduleRequest().getReservationSchedule().getStartTime()
-          .getTime().getTime()-1;
+          .getTime().getTime() / 10000;
 
-      assertThat(scheduleStart, equalTo(start.toDate().getTime()));
+      assertThat(scheduleStart, equalTo(start.toDate().getTime() / 10000));
     }
     finally {
       DateTimeUtils.setCurrentMillisSystem();
