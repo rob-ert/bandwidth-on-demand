@@ -274,6 +274,23 @@ public class ReservationValidatorTest {
     assertThat(errors.hasFieldErrors("bandwidth"), is(true));
   }
 
+  @Test
+  public void noStartDateShouldBeAllowed() {
+    Reservation reservation = new ReservationFactory().create();
+    reservation.setStartDate(null);
+    reservation.setStartTime(null);
+
+    reservation.setEndDate(null);
+    
+    Errors errors = createErrorObject(reservation);
+
+    subject.validate(reservation, errors);
+
+    assertThat(errors.hasErrors(), is(true));
+  }
+  
+  
+  
   private Errors createErrorObject(Reservation reservation) {
     return new BeanPropertyBindingResult(reservation, "reservation");
   }
