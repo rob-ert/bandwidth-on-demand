@@ -15,7 +15,7 @@
             
         <ul>
             <c:forEach var="group" items="${userGroups}">
-                <spring:url value="virtualports/request" var="url" >
+                <spring:url value="/request" var="url" >
                     <spring:param value="${group.id}" name="team" />
                 </spring:url>
                 <li><a href="${url}"><c:out value="${group.name}" /></a> - <i><c:out value="${group.description}" /></i></li>
