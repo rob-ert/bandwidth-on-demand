@@ -40,6 +40,7 @@ import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingServiceFault;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingService_v30Stub;
 
+import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.Security;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.SecurityDocument;
@@ -63,9 +64,9 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 /**
  * A bridge to OpenDRAC's web services. Everything is contained in this one
  * class so that only this class is linked to OpenDRAC related classes.
- *
+ * 
  * @author robert
- *
+ * 
  */
 class NbiOpenDracWsClient implements NbiClient {
 
@@ -333,7 +334,7 @@ class NbiOpenDracWsClient implements NbiClient {
     }
   }
 
-  private CreateReservationScheduleRequestDocument createSchedule(final Reservation reservation)
+  CreateReservationScheduleRequestDocument createSchedule(final Reservation reservation)
       throws NetworkMonitoringServiceFault {
     final CreateReservationScheduleRequestDocument requestDocument = CreateReservationScheduleRequestDocument.Factory
         .newInstance();
@@ -345,11 +346,16 @@ class NbiOpenDracWsClient implements NbiClient {
     schedule.setType(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC);
 
     final Calendar calendar = Calendar.getInstance();
-    calendar.setTime(reservation.getStartDateTime().toDate());
+    if (reservation.getStartDateTime() != null) {
+      calendar.setTime(reservation.getStartDateTime().toDate());
+    }
+    else {
+      log.info("No startTime specified, using now: {0}", calendar);
+    }
     schedule.setStartTime(calendar);
 
-    schedule.setReservationOccurrenceDuration(Minutes.minutesBetween(reservation.getStartDateTime(),
-        reservation.getEndDateTime()).getMinutes());
+    schedule.setReservationOccurrenceDuration(Minutes.minutesBetween(
+        LocalDateTime.fromCalendarFields(schedule.getStartTime()), reservation.getEndDateTime()).getMinutes());
 
     schedule.setIsRecurring(false);
     schedule.setPath(createPath(reservation));

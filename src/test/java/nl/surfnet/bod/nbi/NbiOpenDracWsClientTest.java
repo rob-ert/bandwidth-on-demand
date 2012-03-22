@@ -22,6 +22,7 @@
 package nl.surfnet.bod.nbi;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -31,10 +32,16 @@ import java.io.IOException;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringServiceFault;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
+import nl.surfnet.bod.support.ReservationFactory;
 
 import org.apache.xmlbeans.XmlException;
+import org.joda.time.DateTimeUtils;
+import org.joda.time.Days;
+import org.joda.time.LocalDateTime;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +53,7 @@ import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointReque
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointResponseDocument;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsRequestDocument;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsResponseDocument;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NbiOpenDracWsClientTest {
@@ -56,17 +64,28 @@ public class NbiOpenDracWsClientTest {
   @Mock
   private NetworkMonitoringService_v30Stub networkingServiceMock;
 
+  private QueryEndpointsResponseDocument endpointsResponse;
+
+  private QueryEndpointResponseDocument endpointResponse;
+
   @Before
   public void init() {
     subject.setPassword("292c2cdcb5f669a8");
+
+    try {
+      endpointsResponse = QueryEndpointsResponseDocument.Factory.parse(new File(
+          "src/test/resources/opendrac/queryEndpointsResponse.xml"));
+
+      endpointResponse = QueryEndpointResponseDocument.Factory.parse(new File(
+          "src/test/resources/opendrac/queryEndpointResponse.xml"));
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
   }
 
   @Test
   public void findAllPhysicalPorts() throws XmlException, NetworkMonitoringServiceFault, IOException {
-    QueryEndpointsResponseDocument endpointsResponse = QueryEndpointsResponseDocument.Factory.parse(new File(
-        "src/test/resources/opendrac/queryEndpointsResponse.xml"));
-    QueryEndpointResponseDocument endpointResponse = QueryEndpointResponseDocument.Factory.parse(new File(
-        "src/test/resources/opendrac/queryEndpointResponse.xml"));
 
     when(networkingServiceMock.queryEndpoints(any(QueryEndpointsRequestDocument.class), any(SecurityDocument.class)))
         .thenReturn(endpointsResponse);
@@ -78,4 +97,61 @@ public class NbiOpenDracWsClientTest {
     assertThat(ports, hasSize(1));
   }
 
+  @Test
+  public void shouldCreateReservationWithGivenStartTime() throws Exception {
+    LocalDateTime start = LocalDateTime.now();
+    LocalDateTime end = start.plus(Days.ONE);
+    Reservation reservation = new ReservationFactory().setStartDateTime(start).setEndDateTime(end).create();
+    // Set ports to mock values in xml
+    reservation.getSourcePort().getPhysicalPort().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4");
+    reservation.getDestinationPort().getPhysicalPort().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4");
+
+    when(networkingServiceMock.queryEndpoints(any(QueryEndpointsRequestDocument.class), any(SecurityDocument.class)))
+        .thenReturn(endpointsResponse);
+
+    when(networkingServiceMock.queryEndpoint(any(QueryEndpointRequestDocument.class), any(SecurityDocument.class)))
+        .thenReturn(endpointResponse);
+
+    CreateReservationScheduleRequestDocument schedule = null;
+
+    schedule = subject.createSchedule(reservation);
+
+    assertThat(schedule.getCreateReservationScheduleRequest().getReservationSchedule().getStartTime().getTime(),
+        equalTo(start.toDate()));
+  }
+
+  @Test
+  public void shouldCreateReservationNow() throws Exception {
+    LocalDateTime start = LocalDateTime.now();
+    LocalDateTime end = start.plus(Days.ONE);
+
+    DateTimeUtils.setCurrentMillisFixed(start.toDate().getTime());
+    try {
+      Reservation reservation = new ReservationFactory().setEndDateTime(end).create();
+      reservation.setStartDate(null);
+      reservation.setStartTime(null);
+
+      // Set ports to mock values in xml
+      reservation.getSourcePort().getPhysicalPort().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4");
+      reservation.getDestinationPort().getPhysicalPort().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4");
+
+      when(networkingServiceMock.queryEndpoints(any(QueryEndpointsRequestDocument.class), any(SecurityDocument.class)))
+          .thenReturn(endpointsResponse);
+
+      when(networkingServiceMock.queryEndpoint(any(QueryEndpointRequestDocument.class), any(SecurityDocument.class)))
+          .thenReturn(endpointResponse);
+
+      CreateReservationScheduleRequestDocument schedule = null;
+
+      schedule = subject.createSchedule(reservation);
+
+      long scheduleStart = schedule.getCreateReservationScheduleRequest().getReservationSchedule().getStartTime()
+          .getTime().getTime()-1;
+
+      assertThat(scheduleStart, equalTo(start.toDate().getTime()));
+    }
+    finally {
+      DateTimeUtils.setCurrentMillisSystem();
+    }
+  }
 }
