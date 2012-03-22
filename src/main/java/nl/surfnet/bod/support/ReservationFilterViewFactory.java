@@ -22,9 +22,6 @@ public class ReservationFilterViewFactory {
   public static final String COMMING = "comming";
   public static final String ELAPSED = "elapsed";
 
-  @Autowired
-  private MessageSource messageSource;
-
   public ReservationFilterView create(String id) {
 
     try {
@@ -35,12 +32,12 @@ public class ReservationFilterViewFactory {
     catch (IllegalArgumentException exc) {
 
       if (COMMING.equals(id)) {
-        return new ReservationFilterView(COMMING, "Comming " + DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months()),
-            DEFAULT_FILTER_INTERVAL, false);
+        return new ReservationFilterView(COMMING, String.format("Now + %d months",
+            DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, false);
       }
       else if (ELAPSED.equals(id)) {
-        return new ReservationFilterView(ELAPSED, "Elapsed " + DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months()),
-            DEFAULT_FILTER_INTERVAL, true);
+        return new ReservationFilterView(ELAPSED, String.format("Now - %d months",
+            DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, true);
       }
       else
         throw new IllegalArgumentException("No filter available for id: " + id);
