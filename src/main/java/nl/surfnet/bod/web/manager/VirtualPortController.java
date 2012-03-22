@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static com.google.common.collect.Iterables.getFirst;
-import static com.google.common.collect.Iterables.transform;
 import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
@@ -34,7 +32,9 @@ import javax.validation.constraints.NotNull;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
-import nl.surfnet.bod.service.*;
+import nl.surfnet.bod.service.InstituteService;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.AbstractSortableListController;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortView;
@@ -53,7 +53,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -78,13 +77,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   private VirtualPortService virtualPortService;
 
   @Autowired
-  private PhysicalResourceGroupService physicalResourceGroupService;
-
-  @Autowired
-  private VirtualResourceGroupService virtualResourceGroupService;
-
-  @Autowired
-  private PhysicalPortService physicalPortService;
+  private InstituteService instituteService;
 
   @Autowired
   private VirtualPortValidator virtualPortValidator;
@@ -102,9 +95,13 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     virtualPortValidator.validate(virtualPort, result);
 
     if (result.hasErrors()) {
+      instituteService.fillInstituteForPhysicalResourceGroup(virtualPort.getPhysicalResourceGroup());
+
       model.addAttribute(MODEL_KEY, virtualPort);
       model.addAttribute("physicalPorts", virtualPort.getPhysicalResourceGroup() == null ? Collections.emptyList()
           : virtualPort.getPhysicalResourceGroup().getPhysicalPorts());
+      model.addAttribute("virtualResourceGroups", ImmutableList.of(virtualPort.getVirtualResourceGroup()));
+      model.addAttribute("physicalResourceGroups", ImmutableList.of(virtualPort.getPhysicalResourceGroup()));
 
       return PAGE_URL + CREATE;
     }
@@ -119,42 +116,31 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     return "redirect:" + PAGE_URL;
   }
 
-  @RequestMapping(value = CREATE, method = RequestMethod.GET)
-  public String createForm(
-      @RequestParam(value = "port", required = false) Long physicalPortId,
-      @RequestParam(value = "pgroup", required = false) Long pGroupId,
-      @RequestParam(value = "vgroup", required = false) Long vGroupId,
-      @RequestParam(value = "bandwidth", required = false) Integer bandwidth,
-      Model model) {
+  @RequestMapping(value = "/create/{uuid}", method = RequestMethod.GET)
+  public String createForm(@PathVariable("uuid") String link, Model model, RedirectAttributes redirectAttributes) {
+    VirtualPortRequestLink requestLink = virtualPortService.findRequest(link);
+
+    if (requestLink == null) {
+      WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualportrequestlink_notvalid");
+      return "redirect:/manager/virtualports";
+    }
+
+    if (!Security.isManagerMemberOf(requestLink.getPhysicalResourceGroup())) {
+      WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualportrequestlink_notmanager");
+      return "redirect:/manager/virtualports";
+    }
+
+    instituteService.fillInstituteForPhysicalResourceGroup(requestLink.getPhysicalResourceGroup());
 
     VirtualPort virtualPort = new VirtualPort();
-
-    if (vGroupId != null) {
-      VirtualResourceGroup vGroup = virtualResourceGroupService.find(vGroupId);
-      if (vGroup != null) {
-        virtualPort.setVirtualResourceGroup(vGroup);
-      }
-    }
-
-    if (pGroupId != null && physicalPortId == null) {
-      PhysicalResourceGroup pGroup = physicalResourceGroupService.find(pGroupId);
-      if (pGroup != null && Security.isManagerMemberOf(pGroup) && pGroup.getPhysicalPortCount() > 0) {
-        virtualPort.setPhysicalPort(Iterables.get(pGroup.getPhysicalPorts(), 0));
-        model.addAttribute("physicalPorts", pGroup.getPhysicalPorts());
-      }
-    }
-
-    if (physicalPortId != null) {
-      PhysicalPort port = physicalPortService.find(physicalPortId);
-      if (port != null && Security.isManagerMemberOf(port.getPhysicalResourceGroup())) {
-        virtualPort.setPhysicalPort(port);
-        model.addAttribute("physicalPorts", port.getPhysicalResourceGroup().getPhysicalPorts());
-      }
-    }
-
-    virtualPort.setMaxBandwidth(bandwidth);
+    virtualPort.setVirtualResourceGroup(requestLink.getVirtualResourceGroup());
+    virtualPort.setMaxBandwidth(requestLink.getMinBandwidth());
+    virtualPort.setPhysicalPort(Iterables.get(requestLink.getPhysicalResourceGroup().getPhysicalPorts(), 0));
 
     model.addAttribute(MODEL_KEY, virtualPort);
+    model.addAttribute("physicalPorts", requestLink.getPhysicalResourceGroup().getPhysicalPorts());
+    model.addAttribute("virtualResourceGroups", ImmutableList.of(requestLink.getVirtualResourceGroup()));
+    model.addAttribute("physicalResourceGroups", ImmutableList.of(requestLink.getPhysicalResourceGroup()));
 
     return PAGE_URL + CREATE;
   }
@@ -247,34 +233,6 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
         return new ReservationView(reservation);
       }
     });
-  }
-
-  @ModelAttribute("virtualResourceGroups")
-  public Collection<VirtualResourceGroup> populateVirtualResourceGroups() {
-    return virtualResourceGroupService.findAll();
-  }
-
-  @ModelAttribute
-  public void populatePhysicalResourceGroups(Model model) {
-    List<PhysicalResourceGroup> groups = Lists.newArrayList(Collections2.filter(
-        physicalResourceGroupService.findAllForManager(Security.getUserDetails()),
-        new Predicate<PhysicalResourceGroup>() {
-          @Override
-          public boolean apply(PhysicalResourceGroup group) {
-            return group.getPhysicalPortCount() > 0;
-          }
-        }));
-
-    Collection<PhysicalPort> ports = getFirst(
-        transform(groups, new Function<PhysicalResourceGroup, Collection<PhysicalPort>>() {
-          @Override
-          public Collection<PhysicalPort> apply(PhysicalResourceGroup port) {
-            return port.getPhysicalPorts();
-          }
-        }), Collections.<PhysicalPort> emptyList());
-
-    model.addAttribute("physicalResourceGroups", groups);
-    model.addAttribute("physicalPorts", ports);
   }
 
   @Override

@@ -9,7 +9,6 @@
         <item id="i_prg_list" url="/manager/physicalresourcegroups" messageCode="global_menu_list" icon="icon-list" />
     </category>
     <category id="c_virtualport" menu="virtualport">
-        <item id="i_vp_new" url="/manager/virtualports/create" messageCode="global_menu_new" icon="icon-plus" />
         <item id="i_vp_list" url="/manager/virtualports" messageCode="global_menu_list" icon="icon-list" />
     </category>
     <category id="c_physicalport" menu="physicalport">

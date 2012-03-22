@@ -50,6 +50,7 @@ public class VirtualResourceGroup {
   @Column(nullable = false)
   private String name;
 
+  @Basic
   private String description;
 
   @NotEmpty
@@ -61,6 +62,9 @@ public class VirtualResourceGroup {
 
   @OneToMany(mappedBy = "virtualResourceGroup", cascade = CascadeType.REMOVE)
   private Collection<Reservation> reservations;
+
+  @OneToMany(mappedBy = "virtualResourceGroup", cascade = CascadeType.REMOVE)
+  private Collection<VirtualPortRequestLink> virtualPortRequestLinks;
 
   public Long getId() {
     return id;
@@ -114,19 +118,23 @@ public class VirtualResourceGroup {
     return virtualPorts.size();
   }
 
-  @Override
-  public String toString() {
-    return Objects.toStringHelper(this)
-        .add("id", getId())
-        .add("name", getName())
-        .add("surfConextGroupName", surfconextGroupId).toString();
-  }
-
   public String getDescription() {
     return description;
   }
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public Collection<VirtualPortRequestLink> getVirtualPortRequestLinks() {
+    return virtualPortRequestLinks;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+        .add("id", getId())
+        .add("name", getName())
+        .add("surfConextGroupName", surfconextGroupId).toString();
   }
 }

@@ -113,9 +113,7 @@ form .clearfix.error select {
 	-moz-box-shadow: 2px 3px 5px #0064CD;
 	box-shadow: 0px 0px 6px 1px #0064CD;
 }
-
 .input-text {padding-top: 6px;font-size: 13px;line-height: 18px;}
-
 .zebra-striped > thead > tr > th{background-color: white;}
 th.sortable{cursor: pointer;white-space:nowrap;}
 thead tr th.headerSortDown, thead tr th.headerSortUp{background-color: rgba(141, 192, 219, 0.25);}

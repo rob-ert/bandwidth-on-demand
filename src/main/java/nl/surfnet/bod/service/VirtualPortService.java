@@ -34,8 +34,11 @@ import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.repo.VirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -49,6 +52,10 @@ public class VirtualPortService {
 
   @Autowired
   private VirtualPortRepo virtualPortRepo;
+  @Autowired
+  private VirtualPortRequestLinkRepo virtualPortRequestLinkRepo;
+  @Autowired
+  private EmailSender emailSender;
 
   public long count() {
     return virtualPortRepo.count();
@@ -155,6 +162,24 @@ public class VirtualPortService {
     checkNotNull(port);
 
     return virtualPortRepo.findByPhysicalPort(port);
+  }
+
+  public void requestNewVirtualPort(RichUserDetails user, VirtualResourceGroup vGroup, PhysicalResourceGroup pGroup,
+      Integer minBandwidth, String message) {
+    VirtualPortRequestLink link = new VirtualPortRequestLink();
+    link.setVirtualResourceGroup(vGroup);
+    link.setPhysicalResourceGroup(pGroup);
+    link.setMinBandwidth(minBandwidth);
+    link.setMessage(message);
+    link.setRequestor(user.getUsername());
+    link.setRequestDateTime(LocalDateTime.now());
+
+    virtualPortRequestLinkRepo.save(link);
+    emailSender.sendVirtualPortRequestMail(Security.getUserDetails(), link);
+  }
+
+  public VirtualPortRequestLink findRequest(String uuid) {
+    return virtualPortRequestLinkRepo.findByUuid(uuid);
   }
 
 }

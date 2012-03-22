@@ -37,8 +37,8 @@ import java.util.Collection;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.service.EmailSender;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
@@ -67,16 +67,14 @@ public class VirtualPortRequestControllerTest {
 
   @Mock
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
-
   @Mock
-  private EmailSender emailSender;
+  private VirtualPortService virtualPortServiceMock;
+  @Mock
+  private VirtualResourceGroupService virtualResourceGroupServiceMock;
 
   @SuppressWarnings("unused")
   @Mock
   private MessageSource messageSourceMock;
-
-  @Mock
-  private VirtualResourceGroupService virtualResourceGroupServiceMock;
 
   private RichUserDetails user = new RichUserDetailsFactory().addUserGroup("urn:user-group").create();
 
@@ -155,8 +153,7 @@ public class VirtualPortRequestControllerTest {
 
     assertThat(page, is("redirect:/virtualports/request"));
 
-    verify(emailSender, never()).sendVirtualPortRequestMail(any(RichUserDetails.class),
-        any(PhysicalResourceGroup.class), any(VirtualResourceGroup.class), anyInt(), anyString());
+    verifyNeverRequestNewVirtualPort();
   }
 
   @Test
@@ -173,8 +170,7 @@ public class VirtualPortRequestControllerTest {
 
     assertThat(page, is("redirect:/virtualports/request"));
 
-    verify(emailSender, never()).sendVirtualPortRequestMail(any(RichUserDetails.class),
-        any(PhysicalResourceGroup.class), any(VirtualResourceGroup.class), anyInt(), anyString());
+    verifyNeverRequestNewVirtualPort();
   }
 
   @Test
@@ -191,8 +187,7 @@ public class VirtualPortRequestControllerTest {
 
     assertThat(page, is("redirect:/virtualports/request"));
 
-    verify(emailSender, never()).sendVirtualPortRequestMail(any(RichUserDetails.class),
-        any(PhysicalResourceGroup.class), any(VirtualResourceGroup.class), anyInt(), anyString());
+    verifyNeverRequestNewVirtualPort();
   }
 
   @Test
@@ -214,7 +209,7 @@ public class VirtualPortRequestControllerTest {
 
     assertThat(page, is("redirect:/"));
 
-    verify(emailSender).sendVirtualPortRequestMail(user, pGroup, vGroup, 1000, "message");
+    verify(virtualPortServiceMock).requestNewVirtualPort(user, vGroup, pGroup, 1000, "message");
   }
 
   @Test
@@ -225,8 +220,8 @@ public class VirtualPortRequestControllerTest {
     RequestCommand command = new RequestCommand(pGroup);
     command.setPhysicalResourceGroupId(2L);
     command.setUserGroupId("urn:user-group");
-    command.setBandwidth(1000);
-    command.setMessage("message");
+    command.setBandwidth(1111);
+    command.setMessage("I want!");
 
     when(virtualResourceGroupServiceMock.findBySurfconextGroupId("urn:user-group")).thenReturn(null);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
@@ -236,8 +231,13 @@ public class VirtualPortRequestControllerTest {
     assertThat(page, is("redirect:/"));
 
     verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
-    verify(emailSender).sendVirtualPortRequestMail(eq(user), eq(pGroup), any(VirtualResourceGroup.class), eq(1000),
-        eq("message"));
+    verify(virtualPortServiceMock).requestNewVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
+        eq(1111), eq("I want!"));
+  }
+
+  private void verifyNeverRequestNewVirtualPort() {
+    verify(virtualPortServiceMock, never()).requestNewVirtualPort(any(RichUserDetails.class),
+        any(VirtualResourceGroup.class), any(PhysicalResourceGroup.class), anyInt(), anyString());
   }
 
 }

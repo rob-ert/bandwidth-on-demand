@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.web.manager.ActivationEmailController;
 import nl.surfnet.bod.web.manager.VirtualPortController;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -51,13 +51,12 @@ import com.google.common.base.Throwables;
 public class EmailSenderOnline implements EmailSender {
 
   private static final String ACTIVATION_BODY = //
-      "Dear ICT Manager,\n\n" //
-      + "Please click the link to activate this email adres for physical resource group: %s\n\n"
-      + "Kind regards,\n" //
+  "Dear ICT Manager,\n\n" //
+      + "Please click the link to activate this email adres for physical resource group: %s\n\n" + "Kind regards,\n" //
       + "The bandwidth on Demand Application team";
 
   private static final String VIRTUAL_PORT_REQUEST_BODY = //
-        "Dear ICT Manager,\n\n" //
+  "Dear ICT Manager,\n\n" //
       + "You have received a new Virtual Port Request.\n\n" //
       + "Who: %s (%s)\n" //
       + "Physical Resource Group: %s\n" //
@@ -69,7 +68,7 @@ public class EmailSenderOnline implements EmailSender {
       + "The Bandwidth on Demand Application team";
 
   private static final String ERROR_MAIL_BODY = //
-      "Dear BoD Team,\n\n" //
+  "Dear BoD Team,\n\n" //
       + "An exception occured.\n\n" //
       + "User: %s (%s)\n" //
       + "Username: %s\n" //
@@ -110,25 +109,30 @@ public class EmailSenderOnline implements EmailSender {
 
     SimpleMailMessage mail = new MailMessageBuilder()
         .withTo(activationEmailLink.getToEmail())
-        .withSubject("[BoD] Activation mail for Physical Resource Group " + activationEmailLink.getSourceObject().getName())
+        .withSubject(
+            "[BoD] Activation mail for Physical Resource Group " + activationEmailLink.getSourceObject().getName())
         .withBodyText(bodyText).create();
 
     send(mail);
   }
 
   @Override
-  public void sendVirtualPortRequestMail(RichUserDetails from, PhysicalResourceGroup pGroup,
-      VirtualResourceGroup vGroup, Integer bandwidth, String requestMessage) {
-    String link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create?vgroup=%s&pgroup=%d&bandwidth=%s",
-        vGroup.getId(), pGroup.getId(), bandwidth);
+  public void sendVirtualPortRequestMail(RichUserDetails from, VirtualPortRequestLink requestLink) {
+    String link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create/%s",
+        requestLink.getUuid());
 
     SimpleMailMessage mail = new MailMessageBuilder()
-        .withTo(pGroup.getManagerEmail())
+        .withTo(requestLink.getPhysicalResourceGroup().getManagerEmail())
         .withReplyTo(from.getEmail())
-        .withSubject(String.format("[BoD] A Virtual Port Request for %s", pGroup.getInstitute().getName()))
+        .withSubject(
+            String.format("[BoD] A Virtual Port Request for %s", requestLink.getPhysicalResourceGroup().getInstitute()
+                .getName()))
         .withBodyText(
-            String.format(VIRTUAL_PORT_REQUEST_BODY, from.getDisplayName(), from.getEmail(), pGroup.getInstitute()
-                .getName(), vGroup.getName(), bandwidth, requestMessage, link))
+            String.format(VIRTUAL_PORT_REQUEST_BODY,
+                from.getDisplayName(), from.getEmail(),
+                requestLink.getPhysicalResourceGroup().getInstitute().getName(),
+                requestLink.getVirtualResourceGroup().getName(),
+                requestLink.getMinBandwidth(), requestLink.getMessage(), link))
         .create();
 
     send(mail);
@@ -137,16 +141,16 @@ public class EmailSenderOnline implements EmailSender {
   @Override
   public void sendErrorMail(RichUserDetails user, Throwable throwable, HttpServletRequest request) {
     SimpleMailMessage mail = new MailMessageBuilder()
-      .withTo(bodTeamMailAddress)
-      .withSubject(String.format("[Exception on %s] %s", externalBodUrl, throwable.getMessage()))
-      .withBodyText(String.format(ERROR_MAIL_BODY,
-            user.getDisplayName(), user.getEmail(),
-            user.getUsername(),
-            request.getRequestURL().append(request.getQueryString() != null ? "?" + request.getQueryString() : "").toString(),
-            request.getMethod(),
-            DateTimeFormat.mediumDateTime().print(DateTime.now()),
-            Throwables.getStackTraceAsString(throwable)))
-      .create();
+        .withTo(bodTeamMailAddress)
+        .withSubject(String.format("[Exception on %s] %s", externalBodUrl, throwable.getMessage()))
+        .withBodyText(
+            String.format(ERROR_MAIL_BODY,
+                user.getDisplayName(), user.getEmail(), user.getUsername(),
+                request.getRequestURL().append(request.getQueryString() != null ? "?" + request.getQueryString() : "").toString(),
+                request.getMethod(),
+                DateTimeFormat.mediumDateTime().print(DateTime.now()),
+                Throwables.getStackTraceAsString(throwable)))
+        .create();
 
     send(mail);
   }

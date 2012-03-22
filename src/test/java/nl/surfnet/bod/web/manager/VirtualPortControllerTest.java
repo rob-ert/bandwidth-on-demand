@@ -22,7 +22,10 @@
 package nl.surfnet.bod.web.manager;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -30,7 +33,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
-import java.util.List;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
@@ -50,7 +52,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
-import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 
 import com.google.common.collect.Lists;
@@ -65,7 +66,7 @@ public class VirtualPortControllerTest {
   private VirtualPortService virtualPortServiceMock;
 
   @Mock
-  private VirtualResourceGroupService virtualResourceGroupServiceMock;
+  private InstituteService instituteServiceMock;
 
   @Mock
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
@@ -140,99 +141,36 @@ public class VirtualPortControllerTest {
     verify(virtualPortServiceMock, never()).update(port);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
-  public void populatePhysicalResourceGroupAndPortsShouldFilterOutEmptyGroups() {
-    RichUserDetails user = new RichUserDetailsFactory().create();
-    Security.setUserDetails(user);
-    Model model = new ModelStub();
+  public void createWithIllegalPhysicalResourceGroupShouldRedirect() {
+    ModelStub model = new ModelStub();
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group-wrong").create();
+    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(prg).create();
 
+    when(virtualPortServiceMock.findRequest("1234567890")).thenReturn(link);
+
+    String page = subject.createForm("1234567890", model, model);
+
+    assertThat(page, is("redirect:/manager/virtualports"));
+  }
+
+  @Test
+  public void createShouldVirtualPortModel() {
+    ModelStub model = new ModelStub();
     PhysicalPort port = new PhysicalPortFactory().create();
-    PhysicalResourceGroup groupWithPorts = new PhysicalResourceGroupFactory().addPhysicalPort(port).create();
-    PhysicalResourceGroup groupWithoutPorts = new PhysicalResourceGroupFactory().create();
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group")
+        .addPhysicalPort(port).create();
+    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(prg).create();
 
-    when(physicalResourceGroupServiceMock.findAllForManager(user)).thenReturn(
-        Lists.newArrayList(groupWithPorts, groupWithoutPorts));
+    when(virtualPortServiceMock.findRequest("1234567890")).thenReturn(link);
 
-    subject.populatePhysicalResourceGroups(model);
+    subject.createForm("1234567890", model, model);
 
-    assertThat(model.asMap(), hasKey("physicalResourceGroups"));
-    List<PhysicalResourceGroup> groups = (List<PhysicalResourceGroup>) model.asMap().get("physicalResourceGroups");
-    assertThat(groups, hasSize(1));
-    assertThat(groups, contains(groupWithPorts));
-
-    assertThat(model.asMap(), hasKey("physicalPorts"));
-    List<PhysicalPort> ports = (List<PhysicalPort>) model.asMap().get("physicalPorts");
-    assertThat(ports, contains(port));
-  }
-
-  @Test
-  public void createWithGroupShouldSetVirtualResourceGroupOnPort() {
-    ModelStub model = new ModelStub();
-    VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().setSurfconextGroupId("urn:some-user-group")
-        .create();
-
-    when(virtualResourceGroupServiceMock.find(1L)).thenReturn(vGroup);
-
-    subject.createForm(null, null, 1L, null, model);
-
-    VirtualPort port = (VirtualPort) model.asMap().get("virtualPort");
-    assertThat(port.getVirtualResourceGroup(), is(vGroup));
-  }
-
-  @Test
-  public void createWithIllegalGroupShouldNotSetVirtualResourceGroupOnPort() {
-    ModelStub model = new ModelStub();
-
-    when(virtualResourceGroupServiceMock.find(1L)).thenReturn(null);
-
-    subject.createForm(null, null, 1L, null, model);
-
-    VirtualPort port = (VirtualPort) model.asMap().get("virtualPort");
-    assertThat(port.getVirtualResourceGroup(), nullValue());
-  }
-
-  @Test
-  public void createWithPhysicalGroupShoulSetPhysicalPort() {
-    ModelStub model = new ModelStub();
-    PhysicalPort physicalPort = new PhysicalPortFactory().create();
-    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group")
-        .addPhysicalPort(physicalPort).create();
-
-    when(physicalResourceGroupServiceMock.find(2L)).thenReturn(physicalResourceGroup);
-
-    subject.createForm(null, 2L, null, null, model);
-
-    VirtualPort port = (VirtualPort) model.asMap().get("virtualPort");
-
-    assertThat(port.getPhysicalPort(), is(physicalPort));
-  }
-
-  @Test
-  public void createWithBandwidthShouldSetBandwidth() {
-    ModelStub model = new ModelStub();
-
-    subject.createForm(null, null, null, 1200, model);
-
-    VirtualPort port = (VirtualPort) model.asMap().get("virtualPort");
-    assertThat(port.getMaxBandwidth(), is(1200));
-  }
-
-  @Test
-  public void whenBothPhysicalGroupAndPortAreSetIgnoreGroup() {
-    ModelStub model = new ModelStub();
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").create();
-    PhysicalPort pPort = new PhysicalPortFactory().setPhysicalResourceGroup(group).create();
-
-    when(physicalPortServiceMock.find(1L)).thenReturn(pPort);
-
-    subject.createForm(1L, 3L, null, null, model);
-
-    VirtualPort port = (VirtualPort) model.asMap().get("virtualPort");
-
-    assertThat(port.getPhysicalPort(), is(pPort));
-
-    verify(physicalResourceGroupServiceMock, never()).find(3L);
+    VirtualPort vport = (VirtualPort) model.asMap().get("virtualPort");
+    assertThat(vport.getVirtualResourceGroup(), is(link.getVirtualResourceGroup()));
+    assertThat(vport.getPhysicalPort(), is(port));
+    assertThat(vport.getPhysicalResourceGroup(), is(prg));
+    assertThat(vport.getMaxBandwidth(), is(link.getMinBandwidth()));
   }
 
   @Test

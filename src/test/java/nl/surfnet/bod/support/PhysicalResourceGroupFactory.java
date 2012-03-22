@@ -58,6 +58,9 @@ public class PhysicalResourceGroupFactory {
 
     group.setAdminGroup(adminGroup);
     group.setPhysicalPorts(physicalPorts);
+    for (PhysicalPort port : physicalPorts) {
+      port.setPhysicalResourceGroup(group);
+    }
     group.setManagerEmail(managerEmail);
     group.setActive(active);
 

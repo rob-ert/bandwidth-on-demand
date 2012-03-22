@@ -33,11 +33,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.support.ActivationEmailLinkFactory;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.junit.Before;
@@ -99,7 +97,10 @@ public class EmailSenderOnlineTest {
     Integer bandwidth = 1000;
     String requestMessage = "I would like to have a port.";
 
-    subject.sendVirtualPortRequestMail(user, pGroup, vGroup, bandwidth, requestMessage);
+    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(pGroup)
+        .setVirtualResourceGroup(vGroup).setMessage(requestMessage).setMinBandwidth(bandwidth).create();
+
+    subject.sendVirtualPortRequestMail(user, link);
 
     verify(mailSenderMock).send(messageCaptor.capture());
 
@@ -114,7 +115,8 @@ public class EmailSenderOnlineTest {
 
   @Test
   public void errorMailMessage() {
-    RichUserDetails user = new RichUserDetailsFactory().setDisplayname("Truus Visscher").setEmail("truus@visscher.nl").create();
+    RichUserDetails user = new RichUserDetailsFactory().setDisplayname("Truus Visscher").setEmail("truus@visscher.nl")
+        .create();
     Throwable throwable = new RuntimeException("Something went terrible wrong");
     HttpServletRequest request = mock(HttpServletRequest.class);
 

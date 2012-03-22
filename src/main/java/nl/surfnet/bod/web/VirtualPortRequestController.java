@@ -30,8 +30,8 @@ import javax.validation.constraints.NotNull;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.service.EmailSender;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.security.Security;
 
@@ -61,10 +61,8 @@ public class VirtualPortRequestController {
   private PhysicalResourceGroupService physicalResourceGroupService;
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
-
   @Autowired
-  private EmailSender emailSender;
-
+  private VirtualPortService virtualPortService;
   @Autowired
   private MessageSource messageSource;
 
@@ -82,38 +80,6 @@ public class VirtualPortRequestController {
     model.addAttribute("userGroups", groups);
 
     return "virtualports/selectTeam";
-  }
-
-  public static class UserGroupView {
-    private final String id;
-    private final String name;
-    private final String description;
-    private final boolean existing;
-
-    public UserGroupView(UserGroup group, boolean existing) {
-      this.id = group.getId();
-      this.name = group.getName();
-      this.description = group.getDescription();
-      this.existing = existing;
-    }
-
-    public String getId() {
-      return id;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public boolean isExisting() {
-      return existing;
-    }
-
-
-    public String getDescription() {
-      return description;
-    }
-
   }
 
   @RequestMapping(method = RequestMethod.GET, params = "team")
@@ -173,16 +139,16 @@ public class VirtualPortRequestController {
   public String request(@Valid RequestCommand requestCommand, BindingResult result, Model model,
       RedirectAttributes redirectAttributes) {
 
-    PhysicalResourceGroup pGroup = physicalResourceGroupService.find(requestCommand.getPhysicalResourceGroupId());
+    PhysicalResourceGroup prg = physicalResourceGroupService.find(requestCommand.getPhysicalResourceGroupId());
     UserGroup userGroup = Security.getUserGroup(requestCommand.getUserGroupId());
 
-    if (pGroup == null || !pGroup.isActive() || userGroup == null) {
+    if (prg == null || !prg.isActive() || userGroup == null) {
       return "redirect:/virtualports/request";
     }
 
     if (result.hasErrors()) {
       model.addAttribute("user", Security.getUserDetails());
-      model.addAttribute("physicalResourceGroup", pGroup);
+      model.addAttribute("physicalResourceGroup", prg);
       model.addAttribute("virtualResourceGroups", getVirtualResourceGroups(requestCommand.getUserGroupId()));
 
       return "virtualports/requestform";
@@ -197,10 +163,10 @@ public class VirtualPortRequestController {
       virtualResourceGroupService.save(vrg);
     }
 
-    emailSender.sendVirtualPortRequestMail(Security.getUserDetails(), pGroup, vrg, requestCommand.getBandwidth(),
+    virtualPortService.requestNewVirtualPort(Security.getUserDetails(), vrg, prg, requestCommand.getBandwidth(),
         requestCommand.getMessage());
 
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_send", pGroup.getInstitute()
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_send", prg.getInstitute()
         .getName());
 
     // in case a new vrg was created make sure the user sees it
@@ -257,5 +223,36 @@ public class VirtualPortRequestController {
     public void setBandwidth(Integer bandwidth) {
       this.bandwidth = bandwidth;
     }
+  }
+
+  public static class UserGroupView {
+    private final String id;
+    private final String name;
+    private final String description;
+    private final boolean existing;
+
+    public UserGroupView(UserGroup group, boolean existing) {
+      this.id = group.getId();
+      this.name = group.getName();
+      this.description = group.getDescription();
+      this.existing = existing;
+    }
+
+    public String getId() {
+      return id;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public boolean isExisting() {
+      return existing;
+    }
+
+    public String getDescription() {
+      return description;
+    }
+
   }
 }

@@ -223,7 +223,6 @@ public class PhysicalResourceGroupService {
   @SuppressWarnings("unchecked")
   @Transactional
   public ActivationEmailLink<PhysicalResourceGroup> sendActivationRequest(PhysicalResourceGroup physicalResourceGroup) {
-
     deActivatePhysicalResourceGroup(physicalResourceGroup);
 
     ActivationEmailLink<PhysicalResourceGroup> link = (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo
