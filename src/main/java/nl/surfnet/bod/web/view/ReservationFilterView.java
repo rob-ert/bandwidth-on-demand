@@ -27,6 +27,7 @@ import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
 import org.joda.time.ReadablePeriod;
 
 import com.google.common.base.Objects;
@@ -43,7 +44,15 @@ public class ReservationFilterView {
   private final String label;
   private LocalDateTime start;
   private LocalDateTime end;
+  private boolean filterOnReservationEndOnly;
 
+  /**
+   * Constructs a filter for the given year. Filtering will take place both on
+   * the start and end of {@link Reservation}
+   * 
+   * @param year
+   *          Year
+   */
   public ReservationFilterView(int year) {
     id = String.valueOf(year);
     label = id;
@@ -53,8 +62,24 @@ public class ReservationFilterView {
 
     end = new DateMidnight().withYear(year).withMonthOfYear(DateTimeConstants.DECEMBER).withDayOfMonth(31).toDateTime()
         .toLocalDateTime();
+
+    filterOnReservationEndOnly = false;
   }
 
+  /**
+   * Constructs a filter for a given Period. Filtering will take place on the
+   * end of {@link Reservation} only;
+   * 
+   * @param id
+   *          Id
+   * @param label
+   *          Label
+   * @param period
+   *          Period
+   * @param endInPast
+   *          Indicates that the endDate lies before the start date. This will
+   *          be correct in the filter.
+   */
   public ReservationFilterView(String id, String label, ReadablePeriod period, boolean endInPast) {
     this.id = id;
     this.label = label;
@@ -67,6 +92,9 @@ public class ReservationFilterView {
       this.start = LocalDateTime.now();
       this.end = start.plus(period);
     }
+
+    filterOnReservationEndOnly = true;
+
   }
 
   public String getId() {
@@ -106,16 +134,28 @@ public class ReservationFilterView {
     return end;
   }
 
+  public boolean isFilterOnReservationEndOnly() {
+    return filterOnReservationEndOnly;
+  }
+
   @Override
   public String toString() {
-    return id + " " + label;
+    return id;
   }
 
   public LocalDate getStartAsLocalDate() {
     return start.toLocalDate();
   }
 
+  public LocalTime getStartAsLocalTime() {
+    return start.toLocalTime();
+  }
+
   public LocalDate getEndAsLocalDate() {
     return end.toLocalDate();
+  }
+
+  public LocalTime getEndAsLocalTime() {
+    return end.toLocalTime();
   }
 }

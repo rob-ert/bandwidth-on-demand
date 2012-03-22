@@ -60,6 +60,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -221,24 +222,46 @@ public class ReservationService {
     };
   }
 
-  public List<Reservation> findReservationsUsingFilter(final ReservationFilterView resFilterView) {
+  private Specification<Reservation> specFilteredReservationsForUser(final ReservationFilterView filter,
+      final RichUserDetails user) {
 
-    // FIXME Franky add userDetails to query
-    
-    Specification<Reservation> spec = new Specification<Reservation>() {
+    Specification<Reservation> filterSpecOnStart = new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(cb.between(root.get(Reservation_.startDate), resFilterView.getStartAsLocalDate(),
-            resFilterView.getEndAsLocalDate()));
+        return cb.between(root.get(Reservation_.startDate), filter.getStartAsLocalDate(), filter.getEndAsLocalDate());
+        // FIXME cb.between(root.get(Reservation_.startTime),
+        // filter.getStartAsLocalTime(), filter.getEndAsLocalTime()));
       }
     };
 
-    return reservationRepo.findAll(spec);
+    Specification<Reservation> filterSpecOnEnd = new Specification<Reservation>() {
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
-    // return
-    // reservationRepo.findByStartDateBetweenOrEndDateBetween(resFilterView.getStartAsLocalDate(),
-    // resFilterView.getEndAsLocalDate(), resFilterView.getStartAsLocalDate(),
-    // resFilterView.getEndAsLocalDate());
+        return cb.between(root.get(Reservation_.endDate), filter.getStartAsLocalDate(), filter.getEndAsLocalDate());
+        // FIXME cb.between(root.get(Reservation_.endTime),
+        // filter.getStartAsLocalTime(), filter.getEndAsLocalTime()));
+      }
+    };
+
+    if (filter.isFilterOnReservationEndOnly()) {
+      return Specifications.where(filterSpecOnEnd).and(forCurrentUser(user));
+    }
+    else {
+      return Specifications.where(filterSpecOnEnd).or(filterSpecOnStart).and(forCurrentUser(user));
+    }
+  }
+
+  public List<Reservation> findReservationsEntriesForUserUsingFilter(final RichUserDetails user,
+      final ReservationFilterView filter, int firstResult, int maxResults, Sort sort) {
+
+    return reservationRepo.findAll(specFilteredReservationsForUser(filter, user),
+        new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+
+  }
+
+  public long countForFilterAndCurrentUser(ReservationFilterView filter) {
+    return reservationRepo.count(specFilteredReservationsForUser(filter, Security.getUserDetails()));
   }
 
   public List<Double> findUniqueYearsFromReservations() {
