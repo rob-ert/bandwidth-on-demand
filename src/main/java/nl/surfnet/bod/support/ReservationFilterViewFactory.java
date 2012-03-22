@@ -2,9 +2,6 @@ package nl.surfnet.bod.support;
 
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
-import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 
 import org.joda.time.DurationFieldType;

@@ -53,6 +53,7 @@ import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.DateTimeUtils;
 import org.joda.time.DurationFieldType;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Months;
 import org.joda.time.Period;
@@ -179,9 +180,11 @@ public class ReservationControllerTest {
   @Test
   public void listShouldSetListOnModel() {
     Model model = new ModelStub();
-    Reservation reservation = new ReservationFactory().create();
+    Reservation reservation = new ReservationFactory().setStartDate(LocalDate.now().plusDays(1)).create();
 
-    when(reservationServiceMock.findEntries(eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
+    when(
+        reservationServiceMock.findReservationsEntriesForUserUsingFilter(any(RichUserDetails.class),
+            any(ReservationFilterView.class), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
         Lists.newArrayList(reservation));
 
     subject.list(1, null, null, model);
@@ -198,9 +201,10 @@ public class ReservationControllerTest {
     Model model = new ModelStub();
     Reservation reservation = new ReservationFactory().create();
 
-    when(reservationServiceMock.findEntries(eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
+    when(
+        reservationServiceMock.findReservationsEntriesForUserUsingFilter(any(RichUserDetails.class),
+            any(ReservationFilterView.class), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
         Lists.newArrayList(reservation));
-
     subject.list(1, "nonExistingProperty", "nonExistingDirection", model);
 
     assertThat(model.asMap(), hasKey("list"));
@@ -240,148 +244,4 @@ public class ReservationControllerTest {
     assertThat(view, is(ReservationController.PAGE_URL + WebUtils.CREATE));
   }
 
-//  @Test
-//  public void testCommingPeriodEndDate() {
-//    List<ReservationView> reservations = subject.getReservationsBetweenBasedOnEndDateOnly(START,
-//        START.plus(ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL), reservationsToFilter);
-//
-//    assertThat(reservations, hasSize(1));
-//    assertThat(reservations, contains(resStart));
-//  }
-//
-//  @Test
-//  public void testElapedPeriodEndDate() {
-//    List<ReservationView> reservations = subject.getReservationsBetweenBasedOnEndDateOnly(START,
-//        START.plus(ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL), reservationsToFilter);
-//
-//    assertThat(reservations, hasSize(1));
-//    assertThat(reservations, containsInAnyOrder(resStart));
-//  }
-//
-//  @Test
-//  public void testCommingPeriodStartAndEndDate() {
-//    List<ReservationView> reservations = subject.getReservationsBetweenBasedOnStartDateOrEndDate(START,
-//        START.plus(ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL), reservationsToFilter);
-//
-//    assertThat(reservations, hasSize(2));
-//    assertThat(reservations, containsInAnyOrder(resStart, resCommingPeriod));
-//  }
-
-  // @Test
-  // public void testElapsedPeriodStartAndEndDate() {
-  // List<ReservationView> reservations =
-  // subject.getReservationsBetweenBasedOnStartDateOrEndDate(
-  // START.minus(ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL), START,
-  // reservationsToFilter);
-  //
-  // assertThat(reservations, hasSize(2));
-  // assertThat(reservations, containsInAnyOrder(resStart, resElapsedPeriod));
-  // }
-  //
-  // @Test
-  // public void testDistinctReservationYears() {
-  // List<Integer> reservationYears =
-  // subject.getDistinctReservationYears(reservationsToFilter);
-  //
-  // assertThat(reservationYears, hasSize(4));
-  // assertThat(
-  // reservationYears,
-  // containsInAnyOrder(Integer.valueOf(resFirst.getStartDateTime().getYear()),
-  // Integer.valueOf(resLast.getStartDateTime().getYear()),
-  // Integer.valueOf(resElapsedPeriod.getStartDateTime().getYear()),
-  // Integer.valueOf(START.getYear())));
-  // }
-
-  @Test
-  @Ignore
-  public void testShouldHaveSixSpecificFilters() {
-    model.addAttribute(WebUtils.DATA_LIST, reservationsToFilter);
-
-    DateTimeUtils.setCurrentMillisFixed(START.toDate().getTime());
-
-    try {
-      subject.populateFilter( model);
-      List<ReservationFilterView> reservationFilters = (List<ReservationFilterView>) model.asMap().get(
-          WebUtils.FILTER_LIST);
-      assertThat(reservationFilters, hasSize(6));
-
-//      assertThat(
-//          new ReservationFilterView(ReservationController.FILTER_COMMING_PERIOD, null, START,
-//              START.plus(ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL)), is(reservationFilters.get(0)));
-//
-//      assertThat(
-//          new ReservationFilterView(ReservationController.FILTER_ELAPSED_PERIOD, null,
-//              START.minus(ReservationFilterViewFactoryReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL), START), is(reservationFilters.get(1)));
-
-      assertThat(new ReservationFilterView(2010), is(reservationFilters.get(2)));
-      assertThat(new ReservationFilterView(2011), is(reservationFilters.get(3)));
-      assertThat(new ReservationFilterView(2012), is(reservationFilters.get(4)));
-      assertThat(new ReservationFilterView(2014), is(reservationFilters.get(5)));
-    }
-    finally {
-      DateTimeUtils.setCurrentMillisSystem();
-    }
-  }
-
-  // @Test
-  // public void testFindFilter() {
-  // int duration =
-  // ReservationController.DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months());
-  // when(
-  // messageSource.getMessage("label_reservation_filter_comming_period", new
-  // Object[] { duration },
-  // LocaleContextHolder.getLocale())).thenReturn("CommingPeriod");
-  // when(
-  // messageSource.getMessage("label_reservation_filter_elapsed_period", new
-  // Object[] { duration },
-  // LocaleContextHolder.getLocale())).thenReturn("ElapsedPeriod");
-  //
-  // model.addAttribute(WebUtils.DATA_LIST, reservationsToFilter);
-  //
-  // subject.populateFilter(reservationsToFilter, model);
-  //
-  // // Default selection is first filter...
-  // ReservationFilterView expectedFilter =
-  // WebUtils.getAttributeFromModel(WebUtils.FILTER_SELECT, model);
-  // ReservationFilterView filterView =
-  // subject.findFilter(expectedFilter.getId(), model);
-  //
-  // assertThat(filterView, is(expectedFilter));
-  // }
-  //
-  // @Test
-  // public void testCountWithFilter() {
-  //
-  // model.addAttribute(WebUtils.DATA_LIST, reservationsToFilter);
-  //
-  // subject.populateFilter(reservationsToFilter, model);
-  // ReservationFilterView filter =
-  // WebUtils.getAttributeFromModel(WebUtils.FILTER_SELECT, model);
-  //
-  // long count = subject.count(filter.getId(), model);
-  //
-  // assertThat(count, is(1l));
-  // }
-  //
-  // @Test
-  // public void testCountWithoutFilterShoulfFindAllReservations() {
-  // model.addAttribute(WebUtils.DATA_LIST, reservationsToFilter);
-  //
-  // subject.populateFilter(reservationsToFilter, model);
-  //
-  // long count = subject.count(null, model);
-  //
-  // assertThat(count, is(Long.valueOf(reservationsToFilter.size())));
-  // }
-  //
-  // @Test
-  // public void testCountWithNonExistingFilterShoulfFindAllReservations() {
-  // model.addAttribute(WebUtils.DATA_LIST, reservationsToFilter);
-  //
-  // subject.populateFilter(reservationsToFilter, model);
-  //
-  // long count = subject.count("9999", model);
-  //
-  // assertThat(count, is(Long.valueOf(reservationsToFilter.size())));
-  // }
 }
