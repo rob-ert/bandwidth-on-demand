@@ -52,9 +52,8 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
 
     getManagerDriver().verifyManagerLabelChanged(NETWORK_ELEMENT_PK, managerLabel2);
 
-    getManagerDriver().gotoCreateNewVirtualPortForPhysicalPort(NETWORK_ELEMENT_PK);
-
-    getManagerDriver().verifyPhysicalPortSelected(managerLabel2);
+//    getManagerDriver().gotoCreateNewVirtualPortForPhysicalPort(NETWORK_ELEMENT_PK);
+//    getManagerDriver().verifyPhysicalPortSelected(managerLabel2);
 
     getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
 

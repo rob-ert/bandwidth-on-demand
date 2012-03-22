@@ -53,12 +53,6 @@ public class BodManagerWebDriver {
     listPage.findRow(networkElementPk, managerLabel);
   }
 
-  public void gotoCreateNewVirtualPortForPhysicalPort(String networkElementPk) {
-    ListPhysicalPortsPage listPage = ListPhysicalPortsPage.get(driver);
-
-    listPage.newVirtualPort(networkElementPk);
-  }
-
   public void verifyPhysicalPortSelected(String managerLabel) {
     NewVirtualPortPage page = NewVirtualPortPage.get(driver);
 

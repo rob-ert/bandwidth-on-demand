@@ -50,9 +50,13 @@ public class AbstractListPage extends AbstractPage {
   }
 
   public void delete(String... fields) {
+    deleteForIcon("icon-trash", fields);
+  }
+
+  protected void deleteForIcon(String icon, String... fields) {
     WebElement row = findRow(fields);
 
-    WebElement deleteButton = row.findElement(By.cssSelector("a[class~=icon-trash]"));
+    WebElement deleteButton = row.findElement(By.cssSelector(String.format("a[class~=%s]", icon)));
     deleteButton.click();
     driver.switchTo().alert().accept();
   }

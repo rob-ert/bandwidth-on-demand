@@ -14,7 +14,7 @@
 
         <table:table data="${list}" id="l_nl_surfnet_bod_domain_PhysicalPort"
             path="/noc/physicalports"
-            typeIdFieldName="networkElementPk" delete="false" icon_url="/resources/images/link_break.png"
+            typeIdFieldName="networkElementPk" delete="false" icon_name="icon-remove-sign"
             icon_label="Unlink Physical Resource Group">
 
             <table:column id="c_PhysicalPort_name" property="nocLabel" sortable="${not show_unallocated}" />
