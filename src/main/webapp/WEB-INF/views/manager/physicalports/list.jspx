@@ -21,9 +21,6 @@
             
             <table:actionColumn icon="icon-arrow-down"
                 action="/showvirtualports" title="Show Virtual Ports" />
-                
-            <table:actionColumn icon="icon-share"
-                action="/manager/virtualports/create?port={}" title="Create new virtual port" />
         </table:table>
     </page:list>
     
