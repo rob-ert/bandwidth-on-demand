@@ -9,10 +9,8 @@
     <properties>
         <spring.version>3.1.0.RELEASE</spring.version>
         <slf4j.version>1.6.3</slf4j.version>
-        <axis2.version>1.5.6</axis2.version>
         <jetty.version>8.0.4.v20111024</jetty.version>
         <spring-security.version>3.0.7.RELEASE</spring-security.version>
-        <opendrac.version>4.2.0</opendrac.version>
         <selenium.version>2.20.0</selenium.version>
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:8888/bod</selenium.test.url>
@@ -23,6 +21,11 @@
     </scm>
 
     <dependencies>
+        <dependency>
+            <groupId>nl.surfnet.bod</groupId>
+            <artifactId>bod-opendrac</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+	   </dependency>
         <!--  Begin logging -->
         <dependency>
             <groupId>log4j</groupId>
@@ -339,41 +342,6 @@
         </dependency>
         <!-- End Axis1 -->
 
-        <!-- Begin Axis2 for OpenDRAC webservice -->
-        <dependency>
-          <groupId>org.apache.axis2</groupId>
-          <artifactId>axis2-kernel</artifactId>
-          <version>${axis2.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.axis2</groupId>
-            <artifactId>axis2-transport-local</artifactId>
-            <version>${axis2.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.axis2</groupId>
-            <artifactId>axis2-transport-http</artifactId>
-            <version>${axis2.version}</version>
-            <exclusions>
-                <!-- need a newer version for selenium tests -->
-                <exclusion>
-                    <groupId>org.apache.httpcomponents</groupId>
-                    <artifactId>httpcore</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <version>4.1.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.xmlbeans</groupId>
-            <artifactId>xmlbeans</artifactId>
-            <version>2.5.0</version>
-        </dependency>
-        <!-- End Axis2 for OpenDRAC webservices -->
-
         <!-- Begin test libraries -->
         <dependency>
             <groupId>org.hamcrest</groupId>
@@ -478,17 +446,6 @@
     </dependencies>
 
     <build>
-         <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-            <resource>
-                <directory>${project.build.directory}/generated-sources/axis2/wsdl2code/resources</directory>
-                <includes>
-                    <include>**/**</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -590,38 +547,6 @@
                         <goals>
                             <goal>wsdl2java</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- Generates the classes for OpenDRAC webservices -->
-            <plugin>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-wsdl2code-maven-plugin</artifactId>
-                <version>1.5.6</version>
-                <executions>
-                    <execution>
-                        <id>resource-ws</id>
-                        <goals>
-                            <goal>wsdl2code</goal>
-                        </goals>
-                        <configuration>
-                            <databindingName>xmlbeans</databindingName>
-                            <unpackClasses>true</unpackClasses>
-                            <packageName>nl.surfnet.bod.nbi.generated</packageName>
-                            <wsdlFile>src/main/resources/wsdl/opendrac/ResourceAllocationAndSchedulingServiceBindings_v3.0.wsdl</wsdlFile>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>network-ws</id>
-                        <goals>
-                            <goal>wsdl2code</goal>
-                        </goals>
-                        <configuration>
-                            <databindingName>xmlbeans</databindingName>
-                            <unpackClasses>true</unpackClasses>
-                            <packageName>nl.surfnet.bod.nbi.generated</packageName>
-                            <wsdlFile>src/main/resources/wsdl/opendrac/NetworkMonitoringServiceBindings_v3.0.wsdl</wsdlFile>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
