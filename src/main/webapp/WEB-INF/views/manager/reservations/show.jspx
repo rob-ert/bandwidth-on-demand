@@ -11,6 +11,8 @@
         <field:display field="virtualResourceGroup" labelCode="virtualresourcegroup" id="c_nl_surfnet_bod_domain_virtualresourcegroup" object="${reservation}" />
         <field:display field="status" labelCode="reservation_status" id="status" object="${reservation}" />
         
+        <field:display render="${reservation.status eq 'FAILED'}" field="failedMessage" object="${reservation}" id="failedMessage" labelCode="reservation_failedmessage" />
+
         <field:display field="startDateTime" labelCode="reservation_startDate" id="startDateTime" object="${reservation}"/>
         <field:display field="endDateTime" labelCode="reservation_endDate" id="endDateTime" object="${reservation}"/>
         

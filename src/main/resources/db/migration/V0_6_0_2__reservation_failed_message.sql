@@ -1,0 +1,1 @@
+ALTER TABLE reservation ADD COLUMN failed_message character varying(255);

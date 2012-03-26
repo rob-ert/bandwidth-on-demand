@@ -34,9 +34,9 @@ import com.google.common.base.Objects;
 /**
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 @Entity
 public class Reservation {
@@ -53,6 +53,8 @@ public class Reservation {
 
   @Enumerated(EnumType.STRING)
   private ReservationStatus status = ReservationStatus.REQUESTED;
+
+  private String failedMessage;
 
   @NotNull
   @ManyToOne(optional = false)
@@ -222,6 +224,14 @@ public class Reservation {
         .add("starTime", startTime).add("endDate", endDate).add("endTime", endTime).add("sourcePort", sourcePort)
         .add("destinationPort", destinationPort).add("userCreated", userCreated)
         .add("creationDT", creationDateTime).toString();
+  }
+
+  public String getFailedMessage() {
+    return failedMessage;
+  }
+
+  public void setFailedMessage(String failedMessage) {
+    this.failedMessage = failedMessage;
   }
 
 }

@@ -1,0 +1,10 @@
+<res:CreateReservationScheduleResponse xmlns:res="http://www.opendrac.org/ws/ResourceAllocationAndSchedulingServiceTypes_v3.0" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+  <res:reservationScheduleId>SCHEDULE-1332759427439</res:reservationScheduleId>
+  <res:result>Failed</res:result>
+  <res:occurrenceInfo>
+    <res:result>Failed</res:result>
+    <res:reason>No available bandwidth on source port</res:reason>
+    <res:startTime>2012-03-26T13:12:00+02:00</res:startTime>
+    <res:endTime>2012-03-26T17:12:00+02:00</res:endTime>
+  </res:occurrenceInfo>
+</res:CreateReservationScheduleResponse>

@@ -31,8 +31,6 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
-import org.joda.time.Months;
-import org.joda.time.ReadableDuration;
 import org.joda.time.ReadablePeriod;
 
 import com.google.common.base.Strings;
@@ -55,6 +53,7 @@ public class ReservationFactory {
   private Integer bandwidth = 10000;
   private String reservationId = "9" + String.valueOf(id);
   private String surfconextGroupId;
+  private String failedMessage;
 
   public Reservation create() {
     if (vrGroup != null) {
@@ -77,6 +76,7 @@ public class ReservationFactory {
     reservation.setUserCreated(userCreated);
     reservation.setBandwidth(bandwidth);
     reservation.setReservationId(reservationId);
+    reservation.setFailedMessage(failedMessage);
 
     if (!Strings.isNullOrEmpty(surfconextGroupId)) {
       reservation.getVirtualResourceGroup().setSurfconextGroupId(surfconextGroupId);
@@ -87,6 +87,11 @@ public class ReservationFactory {
 
   public ReservationFactory setId(Long id) {
     this.id = id;
+    return this;
+  }
+
+  public ReservationFactory setFailedMessage(String failedMessage) {
+    this.failedMessage = failedMessage;
     return this;
   }
 
@@ -169,7 +174,7 @@ public class ReservationFactory {
 
   public ReservationFactory setStartAndDuration(LocalDateTime start, ReadablePeriod period) {
     setStartDateTime(start);
-    
+
     setEndDateTime(start.plus(period));
 
     return this;

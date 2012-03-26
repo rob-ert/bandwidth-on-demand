@@ -108,7 +108,7 @@ public class ReservationPoller {
       ReservationStatus currentStatus = null;
 
       while (numberOfTries < maxPollingTries) {
-        log.info("Checking status update for: '{}'", reservation.getReservationId());
+        log.debug("Checking status update for: '{}'", reservation.getReservationId());
 
         currentStatus = reservationService.getStatus(reservation);
         numberOfTries++;

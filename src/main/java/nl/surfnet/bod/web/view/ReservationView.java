@@ -33,6 +33,7 @@ public class ReservationView {
   private final String sourcePort;
   private final String destinationPort;
   private final ReservationStatus status;
+  private final String failedMessage;
   @JsonSerialize(using = JsonLocalDateTimeSerializer.class)
   private final LocalDateTime startDateTime;
   @JsonSerialize(using = JsonLocalDateTimeSerializer.class)
@@ -48,6 +49,7 @@ public class ReservationView {
     this.sourcePort = reservation.getSourcePort().getUserLabel();
     this.destinationPort = reservation.getDestinationPort().getUserLabel();
     this.status = reservation.getStatus();
+    this.failedMessage = reservation.getFailedMessage();
     this.startDateTime = reservation.getStartDateTime();
     this.endDateTime = reservation.getEndDateTime();
     this.bandwidth = reservation.getBandwidth();
@@ -70,6 +72,10 @@ public class ReservationView {
 
   public ReservationStatus getStatus() {
     return status;
+  }
+
+  public String getFailedMessage() {
+    return failedMessage;
   }
 
   public LocalDateTime getStartDateTime() {

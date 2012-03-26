@@ -64,9 +64,9 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 /**
  * A bridge to OpenDRAC's web services. Everything is contained in this one
  * class so that only this class is linked to OpenDRAC related classes.
- * 
+ *
  * @author robert
- * 
+ *
  */
 class NbiOpenDracWsClient implements NbiClient {
 
@@ -151,7 +151,10 @@ class NbiOpenDracWsClient implements NbiClient {
           reasons.add(occurenceInfo.getReason());
         }
 
-        log.info("Create reservation ({}) failed with '{}'", reservationId, Joiner.on(", ").join(reasons));
+        String failedMessage = Joiner.on(", ").join(reasons);
+        reservation.setFailedMessage(failedMessage);
+
+        log.info("Create reservation ({}) failed with '{}'", reservationId, failedMessage);
       }
 
       reservation.setReservationId(reservationId);

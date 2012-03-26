@@ -24,6 +24,7 @@ package nl.surfnet.bod.nbi;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -33,8 +34,11 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringServiceFault;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
+import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingServiceFault;
+import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingService_v30Stub;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.apache.xmlbeans.XmlException;
@@ -54,6 +58,7 @@ import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointRespo
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsRequestDocument;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsResponseDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleResponseDocument;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NbiOpenDracWsClientTest {
@@ -63,6 +68,8 @@ public class NbiOpenDracWsClientTest {
 
   @Mock
   private NetworkMonitoringService_v30Stub networkingServiceMock;
+  @Mock
+  private ResourceAllocationAndSchedulingService_v30Stub schedulingServiceMock;
 
   private QueryEndpointsResponseDocument endpointsResponse;
 
@@ -104,7 +111,6 @@ public class NbiOpenDracWsClientTest {
 
   @Test
   public void findAllPhysicalPorts() throws XmlException, NetworkMonitoringServiceFault, IOException {
-
     when(networkingServiceMock.queryEndpoints(any(QueryEndpointsRequestDocument.class), any(SecurityDocument.class)))
         .thenReturn(endpointsResponse);
     when(networkingServiceMock.queryEndpoint(any(QueryEndpointRequestDocument.class), any(SecurityDocument.class)))
@@ -117,9 +123,7 @@ public class NbiOpenDracWsClientTest {
 
   @Test
   public void shouldCreateReservationWithGivenStartTime() throws Exception {
-    CreateReservationScheduleRequestDocument schedule = null;
-
-    schedule = subject.createSchedule(reservation);
+    CreateReservationScheduleRequestDocument schedule = subject.createSchedule(reservation);
 
     assertThat(schedule.getCreateReservationScheduleRequest().getReservationSchedule().getStartTime().getTime(),
         equalTo(start.toDate()));
@@ -145,5 +149,20 @@ public class NbiOpenDracWsClientTest {
     finally {
       DateTimeUtils.setCurrentMillisSystem();
     }
+  }
+
+  @Test
+  public void adfadf() throws XmlException, IOException, ResourceAllocationAndSchedulingServiceFault {
+    CreateReservationScheduleResponseDocument responseDocument = CreateReservationScheduleResponseDocument.Factory
+        .parse(new File("src/test/resources/opendrac/createReservationScheduleResponse.xml"));
+
+    when(
+        schedulingServiceMock.createReservationSchedule(any(CreateReservationScheduleRequestDocument.class),
+            any(SecurityDocument.class))).thenReturn(responseDocument);
+
+    Reservation scheduledReservation = subject.createReservation(reservation);
+
+    assertThat(scheduledReservation.getStatus(), is(ReservationStatus.FAILED));
+    assertThat(scheduledReservation.getFailedMessage(), is("No available bandwidth on source port"));
   }
 }
