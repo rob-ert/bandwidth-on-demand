@@ -119,7 +119,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
     if (ports.isEmpty() || ports.size() <= 1) {
       MessageView message = MessageView.createInfoMessage(messageSource, "info_reservation_need_two_virtual_ports");
-      message.setHeader(String.format("You have only %d Virtual Port%s", ports.size(), ports.isEmpty() ? "s" : ""));
+      message.setHeader(String.format("You have %d Virtual Port%s", ports.size(), ports.isEmpty() ? "s" : ""));
       message.setUrl("/request");
       message.setUrlText("Request a Virtual Port");
 
