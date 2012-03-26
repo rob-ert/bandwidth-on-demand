@@ -28,8 +28,6 @@ import nl.surfnet.bod.web.view.ReservationFilterView;
 import org.joda.time.DurationFieldType;
 import org.joda.time.Months;
 import org.joda.time.ReadablePeriod;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.NumberUtils;
 
@@ -51,11 +49,12 @@ public class ReservationFilterViewFactory {
       return new ReservationFilterView(year);
     }
     catch (IllegalArgumentException exc) {
-      
+
       if (ELAPSED.equals(id)) {
         return new ReservationFilterView(ELAPSED, String.format("Now - %d months",
             DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, true);
-      } else {        
+      }
+      else {
           return new ReservationFilterView(COMMING, String.format("Now + %d months",
               DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, false);
         }

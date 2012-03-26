@@ -65,7 +65,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   public static final String MODEL_KEY = "virtualPort";
   public static final String PAGE_URL = "/manager/virtualports";
 
-  private final Function<VirtualPort, VirtualPortView> TO_VIRTUAL_PORT_VIEW =
+  private final Function<VirtualPort, VirtualPortView> toVitualPortView =
       new Function<VirtualPort, VirtualPortView>() {
         @Override
         public VirtualPortView apply(VirtualPort port) {
@@ -148,7 +148,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
   public String show(@RequestParam(ID_KEY) final Long id, final Model model) {
-    model.addAttribute(MODEL_KEY, TO_VIRTUAL_PORT_VIEW.apply(virtualPortService.find(id)));
+    model.addAttribute(MODEL_KEY, toVitualPortView.apply(virtualPortService.find(id)));
 
     return PAGE_URL + SHOW;
   }
@@ -251,7 +251,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   protected List<VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
     return Lists.transform(
         virtualPortService.findEntriesForManager(Security.getUserDetails(), firstPage, maxItems, sort),
-        TO_VIRTUAL_PORT_VIEW);
+        toVitualPortView);
   }
 
   @Override

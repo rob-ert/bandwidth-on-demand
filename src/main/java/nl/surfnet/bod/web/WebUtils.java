@@ -48,7 +48,7 @@ public final class WebUtils {
   public static final String LIST_POSTFIX = "List";
   public static final String MAX_PAGES_KEY = "maxPages";
   public static final String PAGE_KEY = "page";
-  public static final String ID_KEY = "id";  
+  public static final String ID_KEY = "id";
   public static final String FILTER_LIST = "filterList";
   public static final String FILTER_SELECT = "filterSelect";
   public static final String DATA_LIST = "list";
@@ -181,6 +181,6 @@ public final class WebUtils {
   }
 
   public static String getMessage(MessageSource messageSource, String key, Object... args) {
-    return messageSource.getMessage(key, args, LocaleContextHolder.  getLocale());
+    return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());
   }
 }

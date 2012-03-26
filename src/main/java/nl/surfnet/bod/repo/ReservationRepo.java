@@ -39,6 +39,7 @@ public interface ReservationRepo extends JpaSpecificationExecutor<Reservation>, 
   List<Reservation> findByStatusIn(Collection<ReservationStatus> reservationStates);
 
   List<Reservation> findBySourcePortOrDestinationPort(VirtualPort sourcePort, VirtualPort destinationPort);
-  
-  List<Reservation> findByStartDateBetweenOrEndDateBetween(LocalDate startDateStart, LocalDate startDateEnd, LocalDate endDateStart, LocalDate endDateEnd);
+
+  List<Reservation> findByStartDateBetweenOrEndDateBetween(LocalDate startDateStart, LocalDate startDateEnd,
+      LocalDate endDateStart, LocalDate endDateEnd);
 }
