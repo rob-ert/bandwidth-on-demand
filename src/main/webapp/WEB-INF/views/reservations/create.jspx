@@ -46,10 +46,22 @@
                     items="${virtualPorts}" itemLabel="userLabel" itemValue="id" path="/reservations" required="true"
                     create="false" />
 
-                <field:input type="date" field="startDate" id="startDate" labelCode="reservation_startDate"
-                    required="false" helpMessageCode="generic_dateformat" />
-                <field:input type="time" field="startTime" id="startTime" labelCode="reservation_startTime"
-                    required="false" />
+				<div class="clearfix">
+					   <label><spring:message code="label_reservation_startdate" /></label>
+					   <div class="input">
+			                 <div class="inline-inputs">
+						   		<sform:input id="_startDate_id" path="startDate" type="date" />
+								<span style="color: #404040;">
+									<spring:message code="label_reservation_now"  /> 					
+									<input id="now_chk" name="now" type="checkbox" onselect="toggleStart" style="margin-left: 5px;"/>
+								</span>
+							</div>
+                    			<span class="help-block"><spring:message code="help_generic_dateformat" /></span>
+	                 </div>
+                 </div>
+                 
+                 <field:input type="time" field="startTime" id="startTime" labelCode="reservation_startTime"
+	                    required="false" />
 
                 <field:input type="date" field="endDate" id="endDate" labelCode="reservation_endDate" required="true"
                     helpMessageCode="generic_dateformat" />
@@ -82,6 +94,28 @@
             </form:create>
         </div>
     </div>
-    <script type="text/javascript">var dataUrl = "${vpUrl}";</script>
+    <script type="text/javascript">
+    			var dataUrl = "${vpUrl}";    			
+    			var $startTime = $("#_startTime_id");
+    			var $startDate = $("#_startDate_id");
+    			var $startTimeVal = $startTime.val();
+    			var $startDateVal = $startDate.val();
+    			
+		    $(function() {
+		    		$("#now_chk").click(function() {		    			
+		    			$startTime.closest("div.clearfix").toggle('slow');
+		    			if ($startDate.attr('disabled')) {
+		    				$startDate.val($startDateVal);		
+						$startTime.val($startTimeVal);
+						$startDate.removeAttr('disabled');						
+		    			} else {
+		    				$startDate.val("");		    				
+		    				$startTime.val("");
+			    			$startDate.attr('disabled', 'true');
+			    			$startTime.attr('disabled', 'true');
+		    			}
+		    		});    	
+		    });    	
+    </script>
     <script src="${reservation_js}" type="text/javascript"><!-- needed --></script>
 </div>

@@ -128,6 +128,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
       return MessageView.PAGE_URL;
     }
 
+    model.addAttribute(MODEL_KEY, createDefaultReservation(ports));
     return PAGE_URL + CREATE;
   }
 
@@ -200,8 +201,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
         .getVirtualPorts();
 
     model.addAttribute("virtualResourceGroups", groups);
-    model.addAttribute("virtualPorts", ports);
-    model.addAttribute(MODEL_KEY, createDefaultReservation(ports));
+    model.addAttribute("virtualPorts", ports);    
   }
 
   @ModelAttribute

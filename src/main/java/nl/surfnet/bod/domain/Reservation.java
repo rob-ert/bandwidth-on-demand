@@ -193,7 +193,7 @@ public class Reservation {
   }
 
   public LocalDateTime getStartDateTime() {
-    return startDate == null ? null : startDate.toLocalDateTime(startTime);
+    return startDate == null || startTime == null ? null : startDate.toLocalDateTime(startTime);
   }
 
   public Integer getBandwidth() {
