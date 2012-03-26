@@ -12,7 +12,8 @@
         </p>
         <br/>
 		<c:if test="${not empty message.url}">
-        		<a href="${message.url}" class="btn primary large"> <c:out value="${message.urlText}" /></a>
+            <spring:url var="url" value="${message.url}" />
+    		<a href="${url}" class="btn primary large"> <c:out value="${message.urlText}" /></a>
         </c:if>
     </div>
 </div>

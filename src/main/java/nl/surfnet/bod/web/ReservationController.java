@@ -21,16 +21,7 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
-import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.SHOW;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -50,23 +41,14 @@ import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
-import org.joda.time.Hours;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.ReadablePeriod;
+import org.joda.time.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;
@@ -133,12 +115,15 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(final Model model) {
-
     Collection<VirtualPort> ports = WebUtils.getAttributeFromModel("virtualPorts", model);
-    if (CollectionUtils.isEmpty(ports) || ports.size() == 1) {
 
-      model.addAttribute(MessageView.MODEL_KEY,
-          MessageView.createInfoMessage(messageSource, "info_reservation_need_two_virtual_ports"));
+    if (ports.isEmpty() || ports.size() <= 1) {
+      MessageView message = MessageView.createInfoMessage(messageSource, "info_reservation_need_two_virtual_ports");
+      message.setHeader(String.format("You have only %d Virtual Port%s", ports.size(), ports.isEmpty() ? "s" : ""));
+      message.setUrl("/request");
+      message.setUrlText("Request a Virtual Port");
+
+      model.addAttribute(MessageView.MODEL_KEY, message);
 
       return MessageView.PAGE_URL;
     }
@@ -223,7 +208,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
   protected void populateFilter(Model model) {
     List<ReservationFilterView> filterViews = Lists.newArrayList();
 
-    // Comming period
+    // Coming period
     filterViews.add(reservationFilterViewFactory.create(nl.surfnet.bod.support.ReservationFilterViewFactory.COMMING));
 
     // Elapsed period
@@ -241,7 +226,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
    * Retrieves a list and filters by applying the filter specified by the
    * filterId. After the user selects a filter a new Http get with the selected
    * filterId can be performed.
-   * 
+   *
    * @param page
    *          StartPage
    * @param sort

@@ -22,12 +22,7 @@
 package nl.surfnet.bod.web;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -40,26 +35,15 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.ReservationFactory;
-import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
-import nl.surfnet.bod.web.view.ReservationView;
 
-import org.joda.time.DateTimeUtils;
 import org.joda.time.DurationFieldType;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.Months;
 import org.joda.time.Period;
-import org.joda.time.ReadablePeriod;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -78,10 +62,6 @@ public class ReservationControllerTest {
 
   private static final String INFO_AT_LEAST_TWO_PORTS = "at least two ports";
 
-  private final static LocalDateTime START = LocalDateTime.now().withDate(2012, 01, 01).withTime(01, 0, 0, 0);
-
-  private final static ReadablePeriod PERIOD = Months.THREE;
-
   @InjectMocks
   private ReservationController subject;
 
@@ -95,26 +75,7 @@ public class ReservationControllerTest {
   private MessageSource messageSource;
 
   private RichUserDetails user = new RichUserDetailsFactory().create();
-
   private Model model = new ModelStub();
-
-  private ReservationView resStart = new ReservationView(new ReservationFactory().setStartAndDuration(START, PERIOD)
-      .create());
-
-  private ReservationView resFirst = new ReservationView(new ReservationFactory().setStartAndDuration(
-      START.minusYears(2), PERIOD).create());
-
-  private ReservationView resLast = new ReservationView(new ReservationFactory().setStartAndDuration(
-      START.plusYears(2), PERIOD).create());
-
-  private ReservationView resCommingPeriod = new ReservationView(new ReservationFactory().setStartAndDuration(
-      START.plus(ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL), PERIOD).create());
-
-  private ReservationView resElapsedPeriod = new ReservationView(new ReservationFactory().setStartAndDuration(
-      START.minus(ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL), PERIOD).create());
-
-  private List<ReservationView> reservationsToFilter = Lists.newArrayList(resFirst, resElapsedPeriod, resStart,
-      resCommingPeriod, resLast);
 
   @Before
   public void onSetup() {
@@ -220,6 +181,8 @@ public class ReservationControllerTest {
   public void lessThenTwoVirtualPortsShouldShowInfoMessage() {
     when(messageSource.getMessage("info_reservation_need_two_virtual_ports", null, LocaleContextHolder.getLocale()))
         .thenReturn(INFO_AT_LEAST_TWO_PORTS);
+
+    model.addAttribute("virtualPorts", Collections.emptyList());
 
     String view = subject.createForm(model);
 

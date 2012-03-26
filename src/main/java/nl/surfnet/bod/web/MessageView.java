@@ -54,6 +54,10 @@ public class MessageView {
     return header;
   }
 
+  public void setHeader(String header) {
+    this.header = header;
+  }
+
   public String getParagraph() {
     return paragraph;
   }
