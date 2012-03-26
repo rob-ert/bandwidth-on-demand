@@ -22,6 +22,7 @@
 package nl.surfnet.bod.nbi;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -127,10 +128,12 @@ public class NbiOpenDracWsClientTest {
 
     assertThat(schedule.getCreateReservationScheduleRequest().getReservationSchedule().getStartTime().getTime(),
         equalTo(start.toDate()));
+    assertThat(reservation.getStartDateTime(), equalTo(start));
   }
 
   @Test
   public void shouldCreateReservationNow() throws Exception {
+    final int ACCURACY = 10000; 
     DateTimeUtils.setCurrentMillisFixed(start.toDate().getTime());
     try {
       reservation.setStartDate(null);
@@ -142,9 +145,12 @@ public class NbiOpenDracWsClientTest {
 
       // Accuracy of 10 seconds is enough
       long scheduleStart = schedule.getCreateReservationScheduleRequest().getReservationSchedule().getStartTime()
-          .getTime().getTime() / 10000;
+          .getTime().getTime() / ACCURACY;
 
-      assertThat(scheduleStart, equalTo(start.toDate().getTime() / 10000));
+      assertThat(scheduleStart, equalTo(start.toDate().getTime() / ACCURACY));
+
+      // Reservation should be update with start
+      assertThat((reservation.getStartDateTime().toDate().getTime() / ACCURACY), equalTo(scheduleStart));
     }
     finally {
       DateTimeUtils.setCurrentMillisSystem();
