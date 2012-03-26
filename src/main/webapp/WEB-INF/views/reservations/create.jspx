@@ -47,9 +47,9 @@
                     create="false" />
 
                 <field:input type="date" field="startDate" id="startDate" labelCode="reservation_startDate"
-                    required="true" helpMessageCode="generic_dateformat" />
+                    required="false" helpMessageCode="generic_dateformat" />
                 <field:input type="time" field="startTime" id="startTime" labelCode="reservation_startTime"
-                    required="true" />
+                    required="false" />
 
                 <field:input type="date" field="endDate" id="endDate" labelCode="reservation_endDate" required="true"
                     helpMessageCode="generic_dateformat" />

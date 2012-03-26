@@ -64,13 +64,11 @@ public class Reservation {
   @ManyToOne(optional = false)
   private VirtualPort destinationPort;
 
-  @NotNull
-  @Column(nullable = false)
+  @Column(nullable = true)
   @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDate")
   private LocalDate startDate;
 
-  @NotNull
-  @Column(nullable = false)
+  @Column(nullable = true)
   @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalTimeAsTime")
   private LocalTime startTime;
 

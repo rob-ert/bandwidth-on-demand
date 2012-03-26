@@ -95,7 +95,9 @@ public class ReservationService {
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
 
     // Make sure reservations occur on whole minutes only
-    reservation.setStartTime(reservation.getStartTime().withSecondOfMinute(0).withMillisOfSecond(0));
+    if (reservation.getStartDateTime() != null) {
+      reservation.setStartTime(reservation.getStartTime().withSecondOfMinute(0).withMillisOfSecond(0));
+    }
     reservation.setEndTime(reservation.getEndTime().withSecondOfMinute(0).withMillisOfSecond(0));
 
     reservationRepo.save(reservation);
@@ -271,6 +273,7 @@ public class ReservationService {
     final String queryString = "select distinct extract(year from start_date)  startYear from reservation UNION select distinct extract(year from end_date) from reservation";
 
     List<Double> resultList = entityManagerFactory.createEntityManager().createNativeQuery(queryString).getResultList();
+    resultList.remove(null);
 
     Collections.sort(resultList);
 
