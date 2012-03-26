@@ -45,6 +45,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -70,16 +71,16 @@ public class InstituteIddServiceTest {
 
   @Before
   public void setUp() {
-    klantOne = newKlantWithName("klantOne");
+    klantOne = newKlantWithName("klantOne", "ONE");
     klantOne.setKlant_id(1);
 
-    klantTwo = newKlantWithName("klantTwo");
+    klantTwo = newKlantWithName("klantTwo", "TWO");
     klantTwo.setKlant_id(2);
   }
 
   @Test
   public void shouldIgnoreEmptyNames() {
-    Klanten klant = newKlantWithName("");
+    Klanten klant = newKlantWithName("", "");
 
     when(iddClientMock.getKlanten()).thenReturn(Lists.newArrayList(klant));
 
@@ -89,20 +90,21 @@ public class InstituteIddServiceTest {
   }
 
   @Test
-  public void shouldRemoveTrailingWhitespaceFromName() {
-    Klanten klant = newKlantWithName("SURFnet\n");
+  public void shouldRemoveTrailingWhitespaceFromNameAndAfkorting() {
+    Klanten klant = newKlantWithName("SURFnet\n", "SURF\n");
 
     when(iddClientMock.getKlanten()).thenReturn(Lists.newArrayList(klant));
 
     Collection<Institute> institutes = subject.getInstitutes();
 
     assertThat(institutes, hasSize(1));
-    assertThat(institutes.iterator().next().getName(), is("SURFnet"));
+    Institute institute = Iterables.getOnlyElement(institutes);
+    assertThat(institute.getName(), is("SURFnet"));
+    assertThat(institute.getShortName(), is("SURF"));
   }
 
   @Test
   public void shouldFillInstituteForPhysicalPorts() {
-
     when(iddClientMock.getKlantById(1L)).thenReturn(klantOne);
     when(iddClientMock.getKlantById(2L)).thenReturn(klantTwo);
 
@@ -132,9 +134,10 @@ public class InstituteIddServiceTest {
     assertThat(groupOne.getInstituteId(), is(groupOne.getInstitute().getId()));
   }
 
-  private Klanten newKlantWithName(String naam) {
+  private Klanten newKlantWithName(String naam, String afkorting) {
     Klanten klanten = new Klanten();
     klanten.setKlantnaam(naam);
+    klanten.setKlantafkorting(afkorting);
     return klanten;
   }
 }
