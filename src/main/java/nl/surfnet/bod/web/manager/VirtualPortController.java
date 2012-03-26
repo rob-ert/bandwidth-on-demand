@@ -65,10 +65,11 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   public static final String MODEL_KEY = "virtualPort";
   public static final String PAGE_URL = "/manager/virtualports";
 
-  private static final Function<VirtualPort, VirtualPortView> TO_VIRTUAL_PORT_VIEW =
+  private final Function<VirtualPort, VirtualPortView> TO_VIRTUAL_PORT_VIEW =
       new Function<VirtualPort, VirtualPortView>() {
         @Override
         public VirtualPortView apply(VirtualPort port) {
+          instituteService.fillInstituteForPhysicalResourceGroup(port.getPhysicalResourceGroup());
           return new VirtualPortView(port);
         }
       };
@@ -171,8 +172,10 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     virtualPortValidator.validate(port, result);
 
     if (result.hasErrors()) {
-      System.err.println(result);
       model.addAttribute("virtualPortUpdateCommand", command);
+      model.addAttribute("virtualResourceGroups", ImmutableList.of(port.getVirtualResourceGroup()));
+      model.addAttribute("physicalResourceGroups", ImmutableList.of(port.getPhysicalResourceGroup()));
+      model.addAttribute("physicalPorts", port.getPhysicalResourceGroup().getPhysicalPorts());
       return PAGE_URL + UPDATE;
     }
 
@@ -192,8 +195,12 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
       return "redirect:" + PAGE_URL;
     }
 
+    instituteService.fillInstituteForPhysicalResourceGroup(virtualPort.getPhysicalResourceGroup());
+
     model.addAttribute("virtualPortUpdateCommand", new VirtualPortUpdateCommand(virtualPort));
     model.addAttribute("physicalPorts", virtualPort.getPhysicalResourceGroup().getPhysicalPorts());
+    model.addAttribute("virtualResourceGroups", ImmutableList.of(virtualPort.getVirtualResourceGroup()));
+    model.addAttribute("physicalResourceGroups", ImmutableList.of(virtualPort.getPhysicalResourceGroup()));
 
     return PAGE_URL + UPDATE;
   }
