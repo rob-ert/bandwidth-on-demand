@@ -115,7 +115,6 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(final Model model) {
-    Collection<VirtualPort> ports = WebUtils.getAttributeFromModel("virtualPorts", model);
 
     if (ports.isEmpty() || ports.size() <= 1) {
       MessageView message = MessageView.createInfoMessage(messageSource, "info_reservation_need_two_virtual_ports");
