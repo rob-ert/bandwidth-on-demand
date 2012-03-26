@@ -47,6 +47,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -115,8 +116,11 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(final Model model) {
+    Collection<VirtualPort> ports = WebUtils.getAttributeFromModel("virtualPorts", model, Collections.<VirtualPort>emptyList());
 
-    if (ports.isEmpty() || ports.size() <= 1) {
+    model.addAttribute(MODEL_KEY, createDefaultReservation(ports));
+    
+    if (CollectionUtils.isEmpty(ports) || ports.size() <= 1) {
       MessageView message = MessageView.createInfoMessage(messageSource, "info_reservation_need_two_virtual_ports");
       message.setHeader(String.format("You have %d Virtual Port%s", ports.size(), ports.isEmpty() ? "s" : ""));
       message.setUrl("/request");
@@ -126,8 +130,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
       return MessageView.PAGE_URL;
     }
-
-    model.addAttribute(MODEL_KEY, createDefaultReservation(ports));
+    
     return PAGE_URL + CREATE;
   }
 

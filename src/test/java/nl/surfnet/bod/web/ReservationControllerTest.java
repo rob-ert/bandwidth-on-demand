@@ -128,7 +128,7 @@ public class ReservationControllerTest {
 
   @Test
   public void reservationShouldHaveDefaultDuration() {
-    subject.populateVirtualPorts(model);
+    subject.createForm(model);
     Reservation reservation = (Reservation) model.asMap().get(ReservationController.MODEL_KEY);
 
     Period period = new Period(reservation.getStartDateTime().toDate().getTime(), reservation.getEndDateTime().toDate()
