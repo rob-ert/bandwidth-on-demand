@@ -56,8 +56,7 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
     getManagerDriver().createVirtualPort("Your vport");
 
-    // FIXME "SURFnet bv" is not visible...
-    getManagerDriver().verifyVirtualPortExists("Your vport", "selenium-users", "1200");
+    getManagerDriver().verifyVirtualPortExists("Your vport", "SURFnet bv", "selenium-users", "1200");
 
     getManagerDriver().editVirtualPort("Your vport", "Edited vport", 1000, "20");
 
@@ -65,7 +64,7 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
     getWebDriver().editVirtualPort("Edited vport", "User label");
 
-    getWebDriver().verifyVirtualPortExists("User label");
+    getWebDriver().verifyVirtualPortExists("User label", "1000", "selenium-users");
 
     getManagerDriver().deleteVirtualPort("Edited vport");
 

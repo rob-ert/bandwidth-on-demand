@@ -225,10 +225,10 @@ public class BodWebDriver {
     editPage.save();
   }
 
-  public void verifyVirtualPortExists(String userLabel) {
+  public void verifyVirtualPortExists(String... fields) {
     ListVirtualPortPage listPage = ListVirtualPortPage.get(driver);
 
-    listPage.findRow(userLabel);
+    listPage.findRow(fields);
   }
 
 }
