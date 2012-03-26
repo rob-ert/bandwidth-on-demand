@@ -12,9 +12,11 @@
         </div>
         <div class="tasks span4">
             <h1>Common tasks</h1>
+            <spring:url var="create_prg_url" value="/noc/physicalresourcegroups/create" />
             <spring:url var="manager_url" value="/manager" />
             <spring:url var="user_url" value="/" />
             <ul>
+                <li><a class="btn" href="${create_prg_url}"><i class="icon-plus"><!--  --></i> Phys. Resource Group</a></li>
                 <sec:authorize access="hasRole('USER')">
                     <li><a class="btn" href="${user_url}"><i class="icon-user"><!--  --></i> Become User</a></li>
                 </sec:authorize>
