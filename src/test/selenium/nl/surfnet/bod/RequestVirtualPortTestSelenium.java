@@ -48,9 +48,28 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
     getWebDriver().selectInstituteAndRequest("SURFnet bv", 1200, "I would like to have a new port");
 
+    getManagerDriver().verifyVirtualResourceGroupExists("selenium-users");
+
     getWebDriver().clickLinkInLastEmail();
 
     getManagerDriver().verifyNewVirtualPortHasProperties("SURFnet bv", 1200);
+
+    getManagerDriver().createVirtualPort("Your vport");
+
+    // FIXME "SURFnet bv" is not visible...
+    getManagerDriver().verifyVirtualPortExists("Your vport", "selenium-users", "1200");
+
+    getManagerDriver().editVirtualPort("Your vport", "Edited vport", 1000, "20");
+
+    getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "20");
+
+    getWebDriver().editVirtualPort("Edited vport", "User label");
+
+    getWebDriver().verifyVirtualPortExists("User label");
+
+    getManagerDriver().deleteVirtualPort("Edited vport");
+
+    getManagerDriver().verifyVirtualPortWasDeleted("Edited vport");
   }
 
   @After

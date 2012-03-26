@@ -39,7 +39,7 @@ public class VirtualResourceGroupTestSelenium extends TestExternalSupport {
   public void createAndDeleteVirtualResourceGroup() {
     getManagerDriver().createNewVirtualResourceGroup("My First Virtual Group", USERS_GROUP);
 
-    getManagerDriver().verifyVirtualResourceGroupWasCreated("My First Virtual Group");
+    getManagerDriver().verifyVirtualResourceGroupExists("My First Virtual Group");
 
     getManagerDriver().createNewVirtualResourceGroup("My First Virtual Group", USERS_GROUP);
 

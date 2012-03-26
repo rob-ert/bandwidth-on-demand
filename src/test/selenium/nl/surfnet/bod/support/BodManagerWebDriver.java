@@ -80,17 +80,17 @@ public class BodManagerWebDriver {
     assertThat(page.getInfoMessages().get(0), containsString("Your Physical Resource Group is not activated"));
   }
 
-  public void createNewVirtualPort(String name, int maxBandwidth, String virtualResourceGroup, String physicalResourceGroup, String physicalPort) {
-    NewVirtualPortPage page = NewVirtualPortPage.get(driver, BodWebDriver.URL_UNDER_TEST);
-
-    page.sendName(name);
-    page.sendMaxBandwidth(maxBandwidth);
-    page.selectVirtualResourceGroup(virtualResourceGroup);
-    page.selectPhysicalResourceGroup(physicalResourceGroup);
-    page.selectPhysicalPort(physicalPort);
-
-    page.save();
-  }
+//  public void createNewVirtualPort(String name, int maxBandwidth, String virtualResourceGroup, String physicalResourceGroup, String physicalPort) {
+//    NewVirtualPortPage page = NewVirtualPortPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+//
+//    page.sendName(name);
+//    page.sendMaxBandwidth(maxBandwidth);
+//    page.selectVirtualResourceGroup(virtualResourceGroup);
+//    page.selectPhysicalResourceGroup(physicalResourceGroup);
+//    page.selectPhysicalPort(physicalPort);
+//
+//    page.save();
+//  }
 
   public void verifyVirtualPortExists(String... fields) {
     ListVirtualPortPage page = ListVirtualPortPage.get(driver);
@@ -132,8 +132,8 @@ public class BodManagerWebDriver {
     page.delete(vrgName);
   }
 
-  public void verifyVirtualResourceGroupWasCreated(String name) {
-    ListVirtualResourceGroupPage page = ListVirtualResourceGroupPage.get(driver);
+  public void verifyVirtualResourceGroupExists(String name) {
+    ListVirtualResourceGroupPage page = ListVirtualResourceGroupPage.get(driver, BodWebDriver.URL_UNDER_TEST);
     page.findRow(name);
   }
 
@@ -184,6 +184,13 @@ public class BodManagerWebDriver {
     String creation = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(creationDateTime);
 
     page.findRow(start, end, creation);
+  }
+
+  public void createVirtualPort(String name) {
+    NewVirtualPortPage page = NewVirtualPortPage.get(driver);
+    page.sendName(name);
+
+    page.save();
   }
 
 }

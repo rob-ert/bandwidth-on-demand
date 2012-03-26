@@ -57,17 +57,16 @@ import com.google.common.collect.Iterables;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
- * 
+ *
  * The {@link PhysicalPort}s found in the {@link NbiPortService} are leading and
  * when more data is available in our repository they will be enriched.
- * 
+ *
  * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
- * 
- * 
- * @author Frank Mölder ($Author$)
- * @version $Revision$ $Date$
+ *
+ *
+ * @author Frank Mölder
  */
 @Service
 public class PhysicalPortServiceImpl implements PhysicalPortService {
@@ -165,7 +164,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Adds data found in given ports to the specified ports, enriches them.
-   * 
+   *
    * @param nbiPorts
    *          {@link PhysicalPort}s to add the data to
    * @param repoPorts
@@ -261,10 +260,10 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Enriches the port with additional data.
-   * 
+   *
    * Clones JPA attributes (id and version), so a find will return these
    * preventing a additional save instead of an update.
-   * 
+   *
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort

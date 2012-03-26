@@ -39,8 +39,8 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK_2, "Second port", "SURFnet bv");
     getWebDriver().refreshGroups();
     getManagerDriver().createNewVirtualResourceGroup("Selenium research", USERS_GROUP);
-    getManagerDriver().createNewVirtualPort("Port 1", 1000, null, null, "First port");
-    getManagerDriver().createNewVirtualPort("Port 2", 1000, null, null, "Second port");
+//    getManagerDriver().createNewVirtualPort("Port 1", 1000, null, null, "First port");
+//    getManagerDriver().createNewVirtualPort("Port 2", 1000, null, null, "Second port");
   }
 
   @Test
