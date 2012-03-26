@@ -46,13 +46,16 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import com.google.common.io.Files;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
+import com.icegreen.greenmail.util.ServerSetup;
 
 public class BodWebDriver {
 
   public static final String URL_UNDER_TEST = withEndingSlash(System.getProperty("selenium.test.url",
-      "http://localhost:8082/bod"));
+      "http://localhost:8083/bod"));
 
   public static final DateTimeFormatter RESERVATION_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd H:mm");
+
+  private static final int MAIL_SMTP_PORT = 4025;
 
   private FirefoxDriver driver;
   private GreenMail mailServer;
@@ -79,7 +82,7 @@ public class BodWebDriver {
     }
 
     if (mailServer == null) {
-      mailServer = new GreenMail();
+      mailServer = new GreenMail(new ServerSetup(MAIL_SMTP_PORT, null, ServerSetup.PROTOCOL_SMTP));
       mailServer.start();
 
       Runtime.getRuntime().addShutdownHook(new Thread() {
