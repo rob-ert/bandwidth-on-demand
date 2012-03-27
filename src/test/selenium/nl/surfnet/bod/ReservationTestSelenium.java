@@ -28,7 +28,6 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ReservationTestSelenium extends TestExternalSupport {
@@ -38,11 +37,23 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getNocDriver().createNewPhysicalResourceGroup("SURFnet bv", ICT_MANAGERS_GROUP, "test@example.com");
     getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, "First port", "SURFnet bv");
     getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK_2, "Second port", "SURFnet bv");
+
     getWebDriver().refreshGroups();
+
+    getWebDriver().clickLinkInLastEmail();
+
+    getWebDriver().requestVirtualPort("selenium-users");
+    getWebDriver().selectInstituteAndRequest("SURFnet bv", 1200, "port 1");
+    getWebDriver().clickLinkInLastEmail();
+    getManagerDriver().createVirtualPort("First port");
+
+    getWebDriver().requestVirtualPort("selenium-users");
+    getWebDriver().selectInstituteAndRequest("SURFnet bv", 1200, "port 2");
+    getWebDriver().clickLinkInLastEmail();
+    getManagerDriver().createVirtualPort("Second port");
   }
 
   @Test
-  @Ignore
   public void createAndDeleteAReservation() {
     LocalDateTime creationDateTime = LocalDateTime.now();
     LocalDate startDate = LocalDate.now().plusDays(3);
@@ -63,7 +74,7 @@ public class ReservationTestSelenium extends TestExternalSupport {
 
   @After
   public void teardown() {
-    getManagerDriver().deleteVirtualResourceGroup("Selenium research");
+    getManagerDriver().deleteVirtualResourceGroup("selenium-users");
     getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
     getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK_2);
     getNocDriver().deletePhysicalResourceGroup("SURFnet bv");
