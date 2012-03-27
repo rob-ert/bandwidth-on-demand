@@ -35,7 +35,7 @@
             headers,
             {
               hide: function($row) {
-                      var numberOfPorts = parseInt($($row.children("td")[3]).text());
+                      var numberOfPorts = parseInt($($row.children("td")[2]).text());
                       return !numberOfPorts;
                     }
             }
