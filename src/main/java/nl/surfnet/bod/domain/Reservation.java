@@ -238,8 +238,16 @@ public class Reservation {
     return endDateTime;
   }
 
+  public void setEndDateTime(LocalDateTime endDateTime) {
+    this.endDateTime = endDateTime;
+  }
+
   public LocalDateTime getStartDateTime() {
     return startDateTime;
+  }
+
+  public void setStartDateTime(LocalDateTime startDateTime) {
+    this.startDateTime = startDateTime;
   }
 
   public Integer getBandwidth() {

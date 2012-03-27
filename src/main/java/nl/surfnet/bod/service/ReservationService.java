@@ -96,9 +96,9 @@ public class ReservationService {
 
     // Make sure reservations occur on whole minutes only
     if (reservation.getStartDateTime() != null) {
-      reservation.setStartTime(reservation.getStartTime().withSecondOfMinute(0).withMillisOfSecond(0));
+      reservation.setStartDateTime(reservation.getStartDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
     }
-    reservation.setEndTime(reservation.getEndTime().withSecondOfMinute(0).withMillisOfSecond(0));
+    reservation.setEndDateTime(reservation.getEndDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
 
     reservationRepo.save(reservation);
 
@@ -213,10 +213,10 @@ public class ReservationService {
       public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
           CriteriaBuilder cb) {
 
-        return cb.and(            
-                cb.or(cb.equal(reservation.get(Reservation_.startDateTime), startOrEndDateTime),                    
-                cb.equal(reservation.get(Reservation_.endDateTime), startOrEndDateTime)),                    
-               reservation.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES));
+        return cb.and(
+            cb.or(cb.equal(reservation.get(Reservation_.startDateTime), startOrEndDateTime),
+                cb.equal(reservation.get(Reservation_.endDateTime), startOrEndDateTime)),
+            reservation.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES));
       }
     };
   }

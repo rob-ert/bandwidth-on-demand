@@ -49,8 +49,7 @@ import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -80,7 +79,7 @@ public class ReservationServiceTest {
 
   @Mock
   private NbiClient nbiPortService;
-  
+
   @Mock
   private EntityManager entityManager;
 
@@ -211,15 +210,15 @@ public class ReservationServiceTest {
 
   @Test
   public void startAndEndShouldBeInWholeMinutes() {
-    LocalTime startTime = LocalTime.now().withSecondOfMinute(1);
-    LocalTime endTime = LocalTime.now().withSecondOfMinute(1);
+    LocalDateTime startDateTime = LocalDateTime.now().withSecondOfMinute(1);
+    LocalDateTime endDateTime = LocalDateTime.now().withSecondOfMinute(1);
 
-    Reservation reservation = new ReservationFactory().setStartTime(startTime).setEndTime(endTime).create();
+    Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
+        .create();
     subject.create(reservation);
 
-    assertThat(reservation.getStartTime(), is(startTime.withSecondOfMinute(0).withMillisOfSecond(0)));
-    assertThat(reservation.getEndTime(), is(endTime.withSecondOfMinute(0).withMillisOfSecond(0)));
+    assertThat(reservation.getStartDateTime(), is(startDateTime.withSecondOfMinute(0).withMillisOfSecond(0)));
+    assertThat(reservation.getEndDateTime(), is(endDateTime.withSecondOfMinute(0).withMillisOfSecond(0)));
   }
-  
 
 }
