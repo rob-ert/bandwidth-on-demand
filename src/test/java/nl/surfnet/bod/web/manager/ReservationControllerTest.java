@@ -82,22 +82,4 @@ public class ReservationControllerTest {
     assertThat(((List<Reservation>) model.asMap().get("list")), contains(reservation));
   }
 
-  @Test
-  public void listReservationsSortPropertyShouldBeMappedToTwoProperties() {
-    ModelStub model = new ModelStub();
-
-    Reservation reservation = new ReservationFactory().create();
-    Sort sort = new Sort("startDate", "startTime");
-
-    when(
-        reservationServiceMock.findEntriesForManager(eq(manager), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE),
-            eq(sort))).thenReturn(Lists.newArrayList(reservation));
-
-    subject.list(null, "startDateTime", null, model);
-
-    assertThat(model.asMap(), hasKey("list"));
-
-    assertThat(((List<Reservation>) model.asMap().get("list")), contains(reservation));
-  }
-
 }
