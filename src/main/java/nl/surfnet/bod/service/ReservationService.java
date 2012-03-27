@@ -213,13 +213,10 @@ public class ReservationService {
       public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
           CriteriaBuilder cb) {
 
-        return cb.and(
-            cb.or(
-                cb.and(cb.equal(reservation.get(Reservation_.startTime), startOrEndDateTime.toLocalTime()),
-                    cb.equal(reservation.get(Reservation_.startDate), startOrEndDateTime.toLocalDate())),
-                cb.and(cb.equal(reservation.get(Reservation_.endTime), startOrEndDateTime.toLocalTime()),
-                    cb.equal(reservation.get(Reservation_.endDate), startOrEndDateTime.toLocalDate()))),
-            cb.and(reservation.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES)));
+        return cb.and(            
+                cb.or(cb.equal(reservation.get(Reservation_.startDateTime), startOrEndDateTime),                    
+                cb.equal(reservation.get(Reservation_.endDateTime), startOrEndDateTime)),                    
+               reservation.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES));
       }
     };
   }
@@ -230,9 +227,7 @@ public class ReservationService {
     Specification<Reservation> filterSpecOnStart = new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.between(root.get(Reservation_.startDate), filter.getStartAsLocalDate(), filter.getEndAsLocalDate());
-        // FIXME cb.between(root.get(Reservation_.startTime),
-        // filter.getStartAsLocalTime(), filter.getEndAsLocalTime()));
+        return cb.between(root.get(Reservation_.startDateTime), filter.getStart(), filter.getEnd());
       }
     };
 
@@ -240,9 +235,7 @@ public class ReservationService {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
-        return cb.between(root.get(Reservation_.endDate), filter.getStartAsLocalDate(), filter.getEndAsLocalDate());
-        // FIXME cb.between(root.get(Reservation_.endTime),
-        // filter.getStartAsLocalTime(), filter.getEndAsLocalTime()));
+        return cb.between(root.get(Reservation_.endDateTime), filter.getStart(), filter.getEnd());
       }
     };
 
@@ -270,7 +263,7 @@ public class ReservationService {
 
     // FIXME Franky add userDetails to query
 
-    final String queryString = "select distinct extract(year from start_date)  startYear from reservation UNION select distinct extract(year from end_date) from reservation";
+    final String queryString = "select distinct extract(year from start_date_time)  startYear from reservation UNION select distinct extract(year from end_date_time) from reservation";
 
     List<Double> resultList = entityManagerFactory.createEntityManager().createNativeQuery(queryString).getResultList();
     resultList.remove(null);

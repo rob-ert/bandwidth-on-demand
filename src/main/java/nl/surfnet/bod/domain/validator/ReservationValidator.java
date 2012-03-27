@@ -104,9 +104,8 @@ public class ReservationValidator implements Validator {
   }
 
   /**
-   * Validates time related values. {@link Reservation#getStartDate()} and
-   * {@link Reservation#getStartTime()} are allowed to be null, to indicate an
-   * immediate start
+   * Validates time related values. {@link Reservation#getStartDateTime()} is
+   * allowed to be null, to indicate an immediate start
    * 
    * @param errors
    *          {@link Errors}
@@ -123,7 +122,7 @@ public class ReservationValidator implements Validator {
       errors.rejectValue("endTime", "validation.not.empty");
     }
 
-    if ((reservation.getStartDate() == null) || (reservation.getStartTime() == null)) {
+    if (reservation.getStartDateTime() == null) {
       return;
     }
 

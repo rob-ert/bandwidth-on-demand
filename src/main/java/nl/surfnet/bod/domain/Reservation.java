@@ -21,7 +21,15 @@
  */
 package nl.surfnet.bod.domain;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
@@ -34,9 +42,9 @@ import com.google.common.base.Objects;
 /**
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
- *
+ * 
  * @author Franky
- *
+ * 
  */
 @Entity
 public class Reservation {
@@ -65,22 +73,13 @@ public class Reservation {
   private VirtualPort destinationPort;
 
   @Column(nullable = true)
-  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDate")
-  private LocalDate startDate;
-
-  @Column(nullable = true)
-  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalTimeAsTime")
-  private LocalTime startTime;
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
+  private LocalDateTime startDateTime;
 
   @NotNull
   @Column(nullable = false)
-  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDate")
-  private LocalDate endDate;
-
-  @NotNull
-  @Column(nullable = false)
-  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalTimeAsTime")
-  private LocalTime endTime;
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
+  private LocalDateTime endDateTime;
 
   @Column(nullable = false)
   private String userCreated;
@@ -149,11 +148,23 @@ public class Reservation {
   }
 
   public LocalTime getStartTime() {
-    return startTime;
+    return startDateTime == null ? null : startDateTime.toLocalTime();
   }
 
   public void setStartTime(LocalTime startTime) {
-    this.startTime = startTime;
+
+    if (startTime == null) {
+      startDateTime = null;
+      return;
+    }
+
+    if (startDateTime == null) {
+      startDateTime = new LocalDateTime(startTime);
+    }
+    else {
+      startDateTime = startDateTime.withTime(startTime.getHourOfDay(), startTime.getMinuteOfHour(),
+          startTime.getSecondOfMinute(), startTime.getMillisOfSecond());
+    }
   }
 
   public String getUserCreated() {
@@ -165,35 +176,70 @@ public class Reservation {
   }
 
   public LocalDate getStartDate() {
-    return startDate;
+    return startDateTime == null ? null : startDateTime.toLocalDate();
   }
 
   public void setStartDate(LocalDate startDate) {
-    this.startDate = startDate;
+
+    if (startDate == null) {
+      startDateTime = null;
+      return;
+    }
+
+    if (startDateTime == null) {
+      startDateTime = new LocalDateTime(startDate.toDate());
+    }
+    else {
+      startDateTime = startDateTime
+          .withDate(startDate.getYear(), startDate.getMonthOfYear(), startDate.getDayOfMonth());
+    }
   }
 
   public LocalDate getEndDate() {
-    return endDate;
+    return endDateTime == null ? null : endDateTime.toLocalDate();
   }
 
   public void setEndDate(LocalDate endDate) {
-    this.endDate = endDate;
+
+    if (endDate == null) {
+      endDateTime = null;
+      return;
+    }
+
+    if (endDateTime == null) {
+      this.endDateTime = new LocalDateTime(endDate.toDate());
+    }
+    else {
+      endDateTime = endDateTime.withDate(endDate.getYear(), endDate.getMonthOfYear(), endDate.getDayOfMonth());
+    }
   }
 
   public LocalTime getEndTime() {
-    return endTime;
+    return endDateTime == null ? null : endDateTime.toLocalTime();
   }
 
   public void setEndTime(LocalTime endTime) {
-    this.endTime = endTime;
+
+    if (endTime == null) {
+      endDateTime = null;
+      return;
+    }
+
+    if (endDateTime == null) {
+      this.endDateTime = new LocalDateTime(endTime);
+    }
+    else {
+      endDateTime = endDateTime.withTime(endTime.getHourOfDay(), endTime.getMinuteOfHour(),
+          endTime.getSecondOfMinute(), endTime.getMillisOfSecond());
+    }
   }
 
   public LocalDateTime getEndDateTime() {
-    return endDate.toLocalDateTime(endTime);
+    return endDateTime;
   }
 
   public LocalDateTime getStartDateTime() {
-    return startDate == null || startTime == null ? null : startDate.toLocalDateTime(startTime);
+    return startDateTime;
   }
 
   public Integer getBandwidth() {
@@ -218,10 +264,9 @@ public class Reservation {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(Reservation.class).add("id", id).add("startDate", startDate)
-        .add("starTime", startTime).add("endDate", endDate).add("endTime", endTime).add("sourcePort", sourcePort)
-        .add("destinationPort", destinationPort).add("userCreated", userCreated)
-        .add("creationDT", creationDateTime).toString();
+    return Objects.toStringHelper(Reservation.class).add("id", id).add("startDateTime", startDateTime)
+        .add("endDateTime", endDateTime).add("sourcePort", sourcePort).add("destinationPort", destinationPort)
+        .add("userCreated", userCreated).add("creationDT", creationDateTime).toString();
   }
 
   public String getFailedMessage() {

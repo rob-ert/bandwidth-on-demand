@@ -167,23 +167,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
   public String defaultSortProperty() {
     return "startDateTime";
   }
-
-  @Override
-  protected List<String> translateSortProperty(String sortProperty) {
-    List<String> sortProperties;
-    if (sortProperty.equals("startDateTime")) {
-      sortProperties = ImmutableList.of("startDate", "startTime");
-    }
-    else if (sortProperty.equals("endDateTime")) {
-      sortProperties = ImmutableList.of("endDate", "endTime");
-    }
-    else {
-      sortProperties = ImmutableList.of(sortProperty);
-    }
-
-    return sortProperties;
-  }
-
+  
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
   public String delete(@RequestParam(ID_KEY) Long id, @RequestParam(value = PAGE_KEY, required = false) Integer page,
       RedirectAttributes redirectAttributes) {

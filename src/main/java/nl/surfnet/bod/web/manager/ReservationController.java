@@ -68,22 +68,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
     return "manager/reservations/list";
   }
 
-  @Override
-  protected List<String> translateSortProperty(String sortProperty) {
-    List<String> sortProperties;
-    if (sortProperty.equals("startDateTime")) {
-      sortProperties = ImmutableList.of("startDate", "startTime");
-    }
-    else if (sortProperty.equals("endDateTime")) {
-      sortProperties = ImmutableList.of("endDate", "endTime");
-    }
-    else {
-      sortProperties = ImmutableList.of(sortProperty);
-    }
-
-    return sortProperties;
-  }
-
+ 
   @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
   public String show(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
     uiModel.addAttribute("reservation", new ReservationView(reservationService.find(id)));

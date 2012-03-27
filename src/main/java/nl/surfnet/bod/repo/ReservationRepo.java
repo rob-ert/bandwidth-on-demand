@@ -28,7 +28,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 
-import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -40,6 +40,6 @@ public interface ReservationRepo extends JpaSpecificationExecutor<Reservation>, 
 
   List<Reservation> findBySourcePortOrDestinationPort(VirtualPort sourcePort, VirtualPort destinationPort);
 
-  List<Reservation> findByStartDateBetweenOrEndDateBetween(LocalDate startDateStart, LocalDate startDateEnd,
-      LocalDate endDateStart, LocalDate endDateEnd);
+  List<Reservation> findByStartDateTimeBetween(LocalDateTime startDateTime,  LocalDateTime endDateTime);
+      
 }
