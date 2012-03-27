@@ -58,6 +58,16 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
     getManagerDriver().verifyVirtualPortExists("Your vport", "SURFnet bv", "selenium-users", "1200");
 
+    // virtual resource group should have one virtual port now
+    getManagerDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
+
+    getManagerDriver().showVirtualResourceGroupDetailViewAndVerify("selenium-users", "Your vport");
+
+    // physical resource group should have one physical port
+    getManagerDriver().verifyPhysicalResourceGroupExists("SURFnet bv", "test@test.nl", "1");
+
+    getManagerDriver().showPhysicalResourceGroupDetailViewAndVerify("SURFnet bv", NETWORK_ELEMENT_PK);
+
     getManagerDriver().editVirtualPort("Your vport", "Edited vport", 1000, "20");
 
     getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "20");

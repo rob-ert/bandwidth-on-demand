@@ -28,6 +28,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ReservationTestSelenium extends TestExternalSupport {
@@ -38,12 +39,10 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, "First port", "SURFnet bv");
     getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK_2, "Second port", "SURFnet bv");
     getWebDriver().refreshGroups();
-    getManagerDriver().createNewVirtualResourceGroup("Selenium research", USERS_GROUP);
-//    getManagerDriver().createNewVirtualPort("Port 1", 1000, null, null, "First port");
-//    getManagerDriver().createNewVirtualPort("Port 2", 1000, null, null, "Second port");
   }
 
   @Test
+  @Ignore
   public void createAndDeleteAReservation() {
     LocalDateTime creationDateTime = LocalDateTime.now();
     LocalDate startDate = LocalDate.now().plusDays(3);

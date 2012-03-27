@@ -52,6 +52,10 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
 
     getManagerDriver().verifyManagerLabelChanged(NETWORK_ELEMENT_PK, managerLabel2);
 
+    getManagerDriver().verifyPhysicalResourceGroupExists("2COLLEGE");
+
+    getManagerDriver().showPhysicalResourceGroupDetailViewAndVerify("2COLLEGE", managerLabel2);
+
     getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
 
     getNocDriver().verifyPhysicalPortWasUnlinked(NETWORK_ELEMENT_PK);

@@ -22,17 +22,22 @@
 package nl.surfnet.bod.pages.manager;
 
 import nl.surfnet.bod.pages.AbstractListPage;
+import nl.surfnet.bod.support.Probes;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
 public class ListVirtualResourceGroupPage extends AbstractListPage {
 
   private static final String PAGE =  "/manager/"  + VirtualResourceGroupController.PAGE_URL;
+  private final Probes probes;
 
   public ListVirtualResourceGroupPage(RemoteWebDriver driver) {
     super(driver);
+    probes = new Probes(driver);
   }
 
   public static ListVirtualResourceGroupPage get(RemoteWebDriver driver, String baseUrl) {
@@ -45,6 +50,15 @@ public class ListVirtualResourceGroupPage extends AbstractListPage {
     PageFactory.initElements(driver, page);
 
     return page;
+  }
+
+  public void showDetailViewForRowAndVerify(String name, String detailViewContent) {
+    WebElement row = findRow(name);
+
+    WebElement icon = row.findElement(By.cssSelector("a[class~=icon-arrow-down]"));
+    icon.click();
+
+    probes.assertTextPresent(By.className("detailview"), detailViewContent);
   }
 
 }
