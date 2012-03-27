@@ -25,7 +25,8 @@
                     path="/noc/physicalresourcegroups" create="false" showSingle="true" />
 
                 <field:select items="${physicalPorts}" id="physicalPort" labelCode="physicalport" itemValue="id"
-                    itemLabel="managerLabel" field="physicalPort" path="/manager/virtualports" create="false" />
+                    itemLabel="managerLabel" field="physicalPort" path="/manager/virtualports" create="false"
+                    showSingle="true" />
             </form:create>
         </div>
         <div class="span4">
@@ -38,14 +39,5 @@
                 pellentesque quam eget leo blandit vitae venenatis ligula hendrerit. Aliquam eget turpis non ipsum
                 dictum cursus at sed massa.</p>
         </div>
-        
     </div>
-
-    <script type="text/javascript">
-        $(function() {
-            $("#_physicalResourceGroup").dropdownReload("${ppUrl}", "#_physicalPort", {
-                displayProp : "managerLabel"
-            });
-        });
-    </script>
 </div>
