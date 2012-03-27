@@ -7,7 +7,7 @@
     <jsp:output omit-xml-declaration="yes" />
         
     <page:list id="pl_VirtualResourceGroup" items="${list}">
-        <table:table data="${list}" id="l_VirtualResourceGroup" path="/manager/virtualresourcegroups" typeIdFieldName="id">
+        <table:table data="${list}" id="l_VirtualResourceGroup" path="/manager/virtualresourcegroups" typeIdFieldName="id" update="false">
             <table:column id="c_virtualresourcegroup_name" property="name" />
             <table:column id="c_virtualresourcegroup_surfconextgroupid" property="surfconextGroupId" />
             <table:column id="c_virtualresourcegroup_description" property="description" />
