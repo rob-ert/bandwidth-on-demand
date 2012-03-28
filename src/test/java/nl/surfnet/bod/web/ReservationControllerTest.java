@@ -22,7 +22,12 @@
 package nl.surfnet.bod.web;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -35,13 +40,17 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.support.ModelStub;
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 
 import org.joda.time.DurationFieldType;
-import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,8 +108,8 @@ public class ReservationControllerTest {
     assertThat(model.asMap(), hasKey("virtualResourceGroups"));
 
     Reservation reservation = (Reservation) model.asMap().get("reservation");
-    assertThat(reservation.getStartDate(), not(nullValue()));
-    assertThat(reservation.getEndDate(), not(nullValue()));
+    assertThat(reservation.getStartDateTime(), not(nullValue()));
+    assertThat(reservation.getEndDateTime(), not(nullValue()));
     assertThat(reservation.getSourcePort(), is(sourcePort));
     assertThat(reservation.getDestinationPort(), is(destPort));
     assertThat(reservation.getBandwidth(), is(2000));
@@ -119,8 +128,8 @@ public class ReservationControllerTest {
     assertThat(model.asMap(), hasKey("virtualResourceGroups"));
 
     Reservation reservation = (Reservation) model.asMap().get("reservation");
-    assertThat(reservation.getStartDate(), not(nullValue()));
-    assertThat(reservation.getEndDate(), not(nullValue()));
+    assertThat(reservation.getStartDateTime(), not(nullValue()));
+    assertThat(reservation.getEndDateTime(), not(nullValue()));
     assertThat(reservation.getSourcePort(), nullValue());
     assertThat(reservation.getDestinationPort(), nullValue());
     assertThat(reservation.getBandwidth(), nullValue());
@@ -141,7 +150,7 @@ public class ReservationControllerTest {
   @Test
   public void listShouldSetListOnModel() {
     Model model = new ModelStub();
-    Reservation reservation = new ReservationFactory().setStartDate(LocalDate.now().plusDays(1)).create();
+    Reservation reservation = new ReservationFactory().setStartDateTime(LocalDateTime.now().plusDays(1)).create();
 
     when(
         reservationServiceMock.findReservationsEntriesForUserUsingFilter(any(RichUserDetails.class),

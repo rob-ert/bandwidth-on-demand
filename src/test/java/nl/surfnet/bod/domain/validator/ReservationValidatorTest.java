@@ -49,6 +49,8 @@ public class ReservationValidatorTest {
 
   private static final String GROUP_NAME = "urn:bandwidth-on-demand";
   private ReservationValidator subject;
+  private LocalDateTime tomorrowNoon = LocalDateTime.now().plusDays(1).withHourOfDay(12).withMinuteOfHour(0)
+      .withSecondOfMinute(0);
 
   @Before
   public void setUp() {
@@ -68,8 +70,8 @@ public class ReservationValidatorTest {
 
   @Test
   public void endDateShouldNotBeBeforeStartDate() {
-    LocalDate now = LocalDate.now();
-    Reservation reservation = new ReservationFactory().setStartDate(now).setEndDate(now.minusDays(1)).create();
+    LocalDateTime now = LocalDateTime.now();
+    Reservation reservation = new ReservationFactory().setStartDateTime(now).setEndDateTime(now.minusDays(1)).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -80,11 +82,9 @@ public class ReservationValidatorTest {
 
   @Test
   public void endDateMayBeOnStartDate() {
-    LocalDate tomorrow = LocalDate.now().plusDays(1);
-    LocalTime noon = new LocalTime(12, 0);
 
-    Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
-        .setEndTime(noon.plusMinutes(10)).setSurfconextGroupId(GROUP_NAME).create();
+    Reservation reservation = new ReservationFactory().setStartDateTime(tomorrowNoon)
+        .setEndDateTime(tomorrowNoon.plusMinutes(10)).setSurfconextGroupId(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -94,10 +94,9 @@ public class ReservationValidatorTest {
 
   @Test
   public void whenEndAndStartDateAreOnTheSameDayStartTimeShouldBeBeforeEndTime() {
-    LocalDate today = LocalDate.now();
-    LocalTime now = LocalTime.now();
-    Reservation reservation = new ReservationFactory().setStartDate(today).setEndDate(today).setStartTime(now)
-        .setEndTime(now.minusMinutes(1)).create();
+    LocalDateTime now = LocalDateTime.now();
+    Reservation reservation = new ReservationFactory().setStartDateTime(now).setEndDateTime(now.minusMinutes(1))
+        .create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -108,10 +107,8 @@ public class ReservationValidatorTest {
 
   @Test
   public void whenEndAndStartDateAreOnTheSameDayStartTimeShouldBeBeforeEndTime2() {
-    LocalDate tomorrow = LocalDate.now().plusDays(1);
-    LocalTime noon = new LocalTime(12, 0);
-    Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
-        .setEndTime(noon.plusHours(1)).setSurfconextGroupId(GROUP_NAME).create();
+    Reservation reservation = new ReservationFactory().setStartDateTime(tomorrowNoon)
+        .setEndDateTime(tomorrowNoon.plusHours(1)).setSurfconextGroupId(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -133,9 +130,9 @@ public class ReservationValidatorTest {
 
   @Test
   public void aReservationShouldNotBeInThePast() {
-    LocalDate yesterday = LocalDate.now().minusDays(1);
+    LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
 
-    Reservation reservation = new ReservationFactory().setStartDate(yesterday).create();
+    Reservation reservation = new ReservationFactory().setStartDateTime(yesterday).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -148,10 +145,9 @@ public class ReservationValidatorTest {
     LocalDateTime THIRTY_PAST_MIDNIGHT = LocalDateTime.now().plusMinutes(30);
     DateTimeUtils.setCurrentMillisFixed(THIRTY_PAST_MIDNIGHT.toDate().getTime());
 
-    LocalDate today = THIRTY_PAST_MIDNIGHT.toLocalDate();
-    LocalTime fewMinutesAgo = THIRTY_PAST_MIDNIGHT.toLocalTime().minusMinutes(20);
+    LocalDateTime fewMinutesAgo = THIRTY_PAST_MIDNIGHT.minusMinutes(20);
 
-    Reservation reservation = new ReservationFactory().setStartDate(today).setStartTime(fewMinutesAgo).create();
+    Reservation reservation = new ReservationFactory().setStartDateTime(fewMinutesAgo).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -163,8 +159,8 @@ public class ReservationValidatorTest {
 
   @Test
   public void aReservationShouldNotBeFurtherInTheFuterThanOneYear() {
-    Reservation reservation = new ReservationFactory().setStartDate(LocalDate.now().plusYears(1).plusDays(1))
-        .setEndDate(LocalDate.now().plusYears(1).plusDays(10)).create();
+    Reservation reservation = new ReservationFactory().setStartDateTime(LocalDateTime.now().plusYears(1).plusDays(1))
+        .setEndDateTime(LocalDateTime.now().plusYears(1).plusDays(10)).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -174,10 +170,8 @@ public class ReservationValidatorTest {
 
   @Test
   public void reservationShouldBeLongerThan5Minutes() {
-    LocalDate tomorrow = LocalDate.now().plusDays(1);
-    LocalTime noon = new LocalTime(12, 0);
-    Reservation reservation = new ReservationFactory().setStartDate(tomorrow).setEndDate(tomorrow).setStartTime(noon)
-        .setEndTime(noon.plusMinutes(3)).setSurfconextGroupId(GROUP_NAME).create();
+    Reservation reservation = new ReservationFactory().setStartDateTime(tomorrowNoon)
+        .setEndDateTime(tomorrowNoon.plusMinutes(3)).setSurfconextGroupId(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -188,13 +182,12 @@ public class ReservationValidatorTest {
 
   @Test
   public void reservationShouldBeLongerThan5Minutes2() {
-    LocalDate startDate = LocalDate.now().withMonthOfYear(12).withDayOfMonth(31);
-    LocalDate endDate = startDate.plusDays(1);
-    LocalTime startTime = new LocalTime().withHourOfDay(23).withMinuteOfHour(58);
-    LocalTime endTime = new LocalTime().withHourOfDay(0).withMinuteOfHour(1);
+    LocalDateTime startDateTime = LocalDateTime.now().withMonthOfYear(12).withDayOfMonth(31).withHourOfDay(23)
+        .withMinuteOfHour(58);
+    LocalDateTime endDateTime = startDateTime.plusDays(1).withHourOfDay(0).withMinuteOfHour(1);
 
-    Reservation reservation = new ReservationFactory().setStartDate(startDate).setEndDate(endDate)
-        .setStartTime(startTime).setEndTime(endTime).setSurfconextGroupId(GROUP_NAME).create();
+    Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
+        .setSurfconextGroupId(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -205,10 +198,10 @@ public class ReservationValidatorTest {
 
   @Test
   public void aReservationShouldNotBeLongerThanOneYear() {
-    LocalDate startDate = LocalDate.now().plusDays(5);
-    LocalDate endDate = startDate.plusYears(1).plusDays(1);
+    LocalDateTime startDateTime = LocalDateTime.now().plusDays(5);
+    LocalDateTime endDateTime = startDateTime.plusYears(1).plusDays(1);
 
-    Reservation reservation = new ReservationFactory().setStartDate(startDate).setEndDate(endDate)
+    Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
         .setSurfconextGroupId(GROUP_NAME).create();
     Errors errors = createErrorObject(reservation);
 
@@ -277,20 +270,16 @@ public class ReservationValidatorTest {
   @Test
   public void noStartDateShouldBeAllowed() {
     Reservation reservation = new ReservationFactory().create();
-    reservation.setStartDate(null);
-    reservation.setStartTime(null);
+    reservation.setStartDateTime(null);
+    reservation.setEndDateTime(null);
 
-    reservation.setEndDate(null);
-    
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
 
     assertThat(errors.hasErrors(), is(true));
   }
-  
-  
-  
+
   private Errors createErrorObject(Reservation reservation) {
     return new BeanPropertyBindingResult(reservation, "reservation");
   }

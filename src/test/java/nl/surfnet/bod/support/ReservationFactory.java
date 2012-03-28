@@ -27,10 +27,9 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.web.ReservationController;
 
-import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
 import org.joda.time.ReadablePeriod;
 
 import com.google.common.base.Strings;
@@ -45,10 +44,8 @@ public class ReservationFactory {
   private ReservationStatus status = ReservationStatus.SCHEDULED;
   private VirtualPort sourcePort;
   private VirtualPort destinationPort;
-  private LocalDate startDate = LocalDate.now();
-  private LocalDate endDate = LocalDate.now().plusDays(1);
-  private LocalTime startTime = new LocalTime(12, 0);
-  private LocalTime endTime = new LocalTime(16, 0);
+  private LocalDateTime startDateTime = LocalDateTime.now().withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0);
+  private LocalDateTime endDateTime = startDateTime.plusDays(1).plus(ReservationController.DEFAULT_RESERVATON_DURATION);  
   private String userCreated = "urn:truusvisscher";
   private Integer bandwidth = 10000;
   private String reservationId = "9" + String.valueOf(id);
@@ -69,10 +66,8 @@ public class ReservationFactory {
     reservation.setSourcePort(sourcePort);
     reservation.setDestinationPort(destinationPort);
     reservation.setVirtualResourceGroup(vrGroup);
-    reservation.setStartDate(startDate);
-    reservation.setStartTime(startTime);
-    reservation.setEndDate(endDate);
-    reservation.setEndTime(endTime);
+    reservation.setStartDateTime(startDateTime);    
+    reservation.setEndDateTime(endDateTime);    
     reservation.setUserCreated(userCreated);
     reservation.setBandwidth(bandwidth);
     reservation.setReservationId(reservationId);
@@ -124,36 +119,14 @@ public class ReservationFactory {
     this.userCreated = user;
     return this;
   }
-
-  public ReservationFactory setEndDate(LocalDate endDate) {
-    this.endDate = endDate;
-    return this;
-  }
-
+  
   public ReservationFactory setEndDateTime(LocalDateTime endDateTime) {
-    this.endDate = endDateTime.toLocalDate();
-    this.endTime = endDateTime.toLocalTime();
+    this.endDateTime = endDateTime;
     return this;
   }
 
   public ReservationFactory setStartDateTime(LocalDateTime startDateTime) {
-    this.startDate = startDateTime.toLocalDate();
-    this.startTime = startDateTime.toLocalTime();
-    return this;
-  }
-
-  public ReservationFactory setStartDate(LocalDate startDate) {
-    this.startDate = startDate;
-    return this;
-  }
-
-  public ReservationFactory setStartTime(LocalTime startTime) {
-    this.startTime = startTime;
-    return this;
-  }
-
-  public ReservationFactory setEndTime(LocalTime endTime) {
-    this.endTime = endTime;
+    this.startDateTime = startDateTime;    
     return this;
   }
 

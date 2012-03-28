@@ -274,17 +274,14 @@ public class ReservationController extends AbstractSortableListController<Reserv
     return reservationViews;
   }
 
-  private Reservation createDefaultReservation(Collection<VirtualPort> ports) {
-    LocalDate today = LocalDate.now();
-    LocalTime inFifteenMinutes = LocalTime.now().plusMinutes(15);
+  private Reservation createDefaultReservation(Collection<VirtualPort> ports) {    
+    LocalDateTime inFifteenMinutes = LocalDateTime.now().plusMinutes(15);
 
-    Reservation reservation = new Reservation();
-    reservation.setStartDate(today);
-    reservation.setStartTime(inFifteenMinutes);
+    Reservation reservation = new Reservation();    
+    reservation.setStartDateTime(inFifteenMinutes);
 
     LocalDateTime reservationEnd = reservation.getStartDateTime().plus(DEFAULT_RESERVATON_DURATION);
-    reservation.setEndDate(reservationEnd.toLocalDate());
-    reservation.setEndTime(reservationEnd.toLocalTime());
+    reservation.setEndDateTime(reservationEnd);    
 
     VirtualPort sourcePort = Iterables.get(ports, 0, null);
     VirtualPort destPort = Iterables.get(ports, 1, null);

@@ -147,10 +147,19 @@ public class Reservation {
     this.destinationPort = destinationPort;
   }
 
+  /**
+   * 
+   * @return LocalTime the time part of the {@link #startDateTime}
+   */
   public LocalTime getStartTime() {
     return startDateTime == null ? null : startDateTime.toLocalTime();
   }
 
+  /**
+   * Sets the time part of the {@link #startDateTime}
+   * 
+   * @param startTime
+   */
   public void setStartTime(LocalTime startTime) {
 
     if (startTime == null) {
@@ -175,10 +184,19 @@ public class Reservation {
     this.userCreated = user;
   }
 
+  /**
+   * 
+   * @return LocalDate The date part of the {@link #getStartDateTime()}
+   */
   public LocalDate getStartDate() {
     return startDateTime == null ? null : startDateTime.toLocalDate();
   }
 
+  /**
+   * Sets the date part of the {@link #endDateTime}
+   * 
+   * @param startDate
+   */
   public void setStartDate(LocalDate startDate) {
 
     if (startDate == null) {
@@ -195,10 +213,19 @@ public class Reservation {
     }
   }
 
+  /**
+   * 
+   * @return LocalDate the date part of the {@link #endDateTime}
+   */
   public LocalDate getEndDate() {
     return endDateTime == null ? null : endDateTime.toLocalDate();
   }
 
+  /**
+   * Sets the date part of the {@link #endDateTime}
+   * 
+   * @param endDate
+   */
   public void setEndDate(LocalDate endDate) {
 
     if (endDate == null) {
@@ -214,10 +241,19 @@ public class Reservation {
     }
   }
 
+  /**
+   * 
+   * @return LocalTime The time part of the {@link #endDateTime}
+   */
   public LocalTime getEndTime() {
     return endDateTime == null ? null : endDateTime.toLocalTime();
   }
 
+  /**
+   * Sets the time part of the {@link #endDateTime}
+   * 
+   * @param endTime
+   */
   public void setEndTime(LocalTime endTime) {
 
     if (endTime == null) {

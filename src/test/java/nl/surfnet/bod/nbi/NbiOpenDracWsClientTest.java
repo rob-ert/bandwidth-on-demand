@@ -136,9 +136,8 @@ public class NbiOpenDracWsClientTest {
     final int ACCURACY = 10000; 
     DateTimeUtils.setCurrentMillisFixed(start.toDate().getTime());
     try {
-      reservation.setStartDate(null);
-      reservation.setStartTime(null);
-
+      reservation.setStartDateTime(null);
+      
       CreateReservationScheduleRequestDocument schedule = null;
 
       schedule = subject.createSchedule(reservation);
