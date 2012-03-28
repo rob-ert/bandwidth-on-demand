@@ -32,23 +32,25 @@ import org.junit.Test;
 
 public class ReservationTestSelenium extends TestExternalSupport {
 
+  private static final String INSTITUTE_NAME = "SURFnet netwerk";
+
   @Before
   public void setup() {
-    getNocDriver().createNewPhysicalResourceGroup("SURFnet bv", ICT_MANAGERS_GROUP, "test@example.com");
-    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, "First port", "SURFnet bv");
-    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK_2, "Second port", "SURFnet bv");
+    getNocDriver().createNewPhysicalResourceGroup(INSTITUTE_NAME, ICT_MANAGERS_GROUP, "test@example.com");
+    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, "First port", INSTITUTE_NAME);
+    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK_2, "Second port", INSTITUTE_NAME);
 
     getWebDriver().refreshGroups();
 
     getWebDriver().clickLinkInLastEmail();
 
     getWebDriver().requestVirtualPort("selenium-users");
-    getWebDriver().selectInstituteAndRequest("SURFnet bv", 1200, "port 1");
+    getWebDriver().selectInstituteAndRequest(INSTITUTE_NAME, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("First port");
 
     getWebDriver().requestVirtualPort("selenium-users");
-    getWebDriver().selectInstituteAndRequest("SURFnet bv", 1200, "port 2");
+    getWebDriver().selectInstituteAndRequest(INSTITUTE_NAME, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("Second port");
   }
@@ -77,7 +79,7 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getManagerDriver().deleteVirtualResourceGroup("selenium-users");
     getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
     getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK_2);
-    getNocDriver().deletePhysicalResourceGroup("SURFnet bv");
+    getNocDriver().deletePhysicalResourceGroup(INSTITUTE_NAME);
   }
 
 }
