@@ -107,7 +107,8 @@
 		    			if ($startDate.attr('disabled')) {
 		    				$startDate.val($startDateVal);		
 						$startTime.val($startTimeVal);
-						$startDate.removeAttr('disabled');						
+						$startDate.removeAttr('disabled');
+						$startTime.removeAttr('disabled');
 		    			} else {
 		    				$startDate.val("");		    				
 		    				$startTime.val("");
