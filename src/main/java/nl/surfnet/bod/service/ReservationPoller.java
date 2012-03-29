@@ -54,7 +54,7 @@ import com.google.common.util.concurrent.Uninterruptibles;
 @Transactional
 public class ReservationPoller {
 
-  private final Logger log = LoggerFactory.getLogger(this.getClass());
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
   private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
   @Autowired
@@ -65,6 +65,8 @@ public class ReservationPoller {
 
   @Value("${reservation.poll.max.tries}")
   private int maxPollingTries;
+
+  @Value("${reservation.poll.interval.milliseconds}")
   private long pollingIntervalInMillis;
 
   /**
@@ -75,6 +77,8 @@ public class ReservationPoller {
   public void pollReservations() {
     LocalDateTime dateTime = LocalDateTime.now().withSecondOfMinute(0).withMillisOfSecond(0);
     List<Reservation> reservations = reservationService.findReservationsToPoll(dateTime);
+
+    logger.debug("Found {} reservations to poll", reservations.size());
 
     for (Reservation reservation : reservations) {
       executorService.submit(new ReservationStatusChecker(reservation));
@@ -108,7 +112,7 @@ public class ReservationPoller {
       ReservationStatus currentStatus = null;
 
       while (numberOfTries < maxPollingTries) {
-        log.debug("Checking status update for: '{}'", reservation.getReservationId());
+        logger.debug("Checking status update for: '{}' (times {})", reservation.getReservationId(), numberOfTries);
 
         currentStatus = reservationService.getStatus(reservation);
         numberOfTries++;

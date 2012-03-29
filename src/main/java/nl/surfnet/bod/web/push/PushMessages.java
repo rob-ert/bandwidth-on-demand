@@ -124,7 +124,7 @@ public final class PushMessages {
         .getVirtualResourceGroup().getName(), reservationStatusChangeEvent.getOldStatus().name(), reservation.getStatus()
         .name());
 
-    if (reservationStatusChangeEvent.getReservation().getStatus().equals(ReservationStatus.FAILED)) {
+    if (reservation.getStatus().equals(ReservationStatus.FAILED) && reservation.getFailedMessage() != null) {
       message += String.format(" Failed because '%s'.", reservation.getFailedMessage());
     }
 

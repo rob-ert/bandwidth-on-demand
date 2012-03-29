@@ -41,7 +41,7 @@ public class EndPoints {
 
   public void clientRequest(String id, Integer count, AsyncContext asyncContext, RichUserDetails user) {
     logger.debug("New request for client {} with count {}", id, count);
-    EndPoint connection = endPoints.containsKey(id) ? endPoints.get(id) : new LongPollEndPoint(user);
+    EndPoint connection = endPoints.containsKey(id) ? endPoints.get(id) : new LongPollEndPoint(id, user);
     connection.setAsyncContext(asyncContext);
 
     if (count == 1) {

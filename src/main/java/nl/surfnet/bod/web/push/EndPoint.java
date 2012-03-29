@@ -24,10 +24,12 @@ public interface EndPoint {
     private final Logger logger = LoggerFactory.getLogger(LongPollEndPoint.class);
 
     private AsyncContext asyncContext;
+    private final String id;
     private final RichUserDetails user;
     private final AtomicInteger eventId = new AtomicInteger(0);
 
-    public LongPollEndPoint(RichUserDetails user) {
+    public LongPollEndPoint(String id, RichUserDetails user) {
+      this.id = id;
       this.user = user;
     }
 
@@ -63,7 +65,7 @@ public interface EndPoint {
         }
       }
       else {
-        logger.info("!!! Async is not started could not send {} {}", type, data);
+        logger.info("Could not send message to {}, {}", id, data);
       }
     }
 

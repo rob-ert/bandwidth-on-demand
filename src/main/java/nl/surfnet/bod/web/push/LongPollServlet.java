@@ -75,9 +75,6 @@ public class LongPollServlet extends HttpServlet {
       }
     });
 
-    // should have a heartbeat...
-    aCtx.setTimeout(0);
-
     connections.clientRequest(id, Integer.valueOf(request.getParameter("count")), aCtx, Security.getUserDetails());
   }
 
