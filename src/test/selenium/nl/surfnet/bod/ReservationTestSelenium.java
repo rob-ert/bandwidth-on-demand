@@ -32,7 +32,7 @@ import org.junit.Test;
 
 public class ReservationTestSelenium extends TestExternalSupport {
 
-  private static final String INSTITUTE_NAME = "SURFnet netwerk";
+  private static final String INSTITUTE_NAME = "SURFnet Netwerk";
 
   @Before
   public void setup() {
