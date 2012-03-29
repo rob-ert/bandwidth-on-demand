@@ -8,6 +8,7 @@
     <spring:url value="/resources/styles/main.css" var="main_css_url" />
 
     <spring:url value="/resources/js/jquery.min.js" var="jquery_url" />
+    <spring:url value="/resources/js/jquery-socket.js" var="jquery_socket_url" />
     <spring:url value="/resources/js/bootstrap-dropdown.js" var="bootstrap_dropdown_url" />
     <spring:url value="/resources/js/bootstrap-alerts.js" var="bootstrap_alerts_url" />
     <spring:url value="/resources/js/bootstrap-twipsy.js" var="bootstrap_twipsy_url" />
@@ -30,6 +31,7 @@
     <link rel="stylesheet" type="text/css" media="screen" href="${datepicker_css_url}" />
     
     <script src="${jquery_url}" type="text/javascript"><!-- needed --></script>
+    <script src="${jquery_socket_url}" type="text/javascript"><!-- needed --></script>
     <script src="${bootstrap_dropdown_url}" type="text/javascript"><!-- needed --></script>
     <script src="${bootstrap_alerts_url}" type="text/javascript"><!-- needed --></script>
     <script src="${bootstrap_twipsy_url}" type="text/javascript"><!-- needed --></script>

@@ -28,29 +28,29 @@
     </page:list>
 
     <spring:url value="/push" var="pushUrl" />
- 	<spring:url value="/reservations/filter/" var="filterUrl" />    
+ 	<spring:url value="/reservations/filter/" var="filterUrl" />
+
     <script type="text/javascript">
     $(function() {
-        var location = "ws://${pageContext.request.serverName}:${pageContext.request.serverPort}${pushUrl}";
-        var ws;
-        if ('WebSocket' in window) {
-            ws = new WebSocket(location);
-        } else if ('MozWebSocket' in window) {
-            ws = new MozWebSocket(location);
-        } else {
-            console.log('Sorry your browser does not support web sockets');
-        }
-
-        ws.onmessage = function(evt) {
-            var message = evt.data;
-            processMessage(message);
+        setTimeout(function() { startPushConnection(); }, 100);
+        function startPushConnection() {
+            $.socket("${pushUrl}", {
+                transports: "longpoll"
+           })
+           .open(function() {
+              console.log("Push connection open");
+           })
+           .message(function(data) {
+               processEvent(data);
+           })
+           .close(function() {
+             console.log("Push connection closed");
+           });
         };
 
-        function processMessage(message) {
-            var dataObject = $.parseJSON(message);
-
-            showMessage(dataObject["message"]);
-            updateReservationRow(dataObject["id"], dataObject["status"]);
+       function processEvent(event) {
+            showInfoMessage(event["message"]);
+            updateReservationRow(event["id"], event["status"]);
         }
 
         function updateReservationRow(id, newStatus) {
@@ -71,12 +71,6 @@
             );
         }
 
-        function showMessage(message) {
-            var closeLink = $("<a/>", {class: "close", href: "#", html: "&amp;times;"});
-            var record = $("<div/>", {html: message, class: "alert-message fade in"}).append(closeLink).alert();
-
-            $("#messages").prepend(record);
-        }  
         //Do new get based on selected item
         $("#filter").change(function() {
             window.location = "${filterUrl}" + $(this).val();

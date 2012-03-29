@@ -37,7 +37,7 @@ public class ReservationStatusChangeListener implements ReservationListener {
   private ReservationEventPublisher reservationEventPublisher;
 
   @Autowired
-  private EndPoints endPoints;
+  private EndPoints connections;
 
   @PostConstruct
   public void registerListener() {
@@ -48,7 +48,7 @@ public class ReservationStatusChangeListener implements ReservationListener {
   public void onStatusChange(ReservationStatusChangeEvent reservationStatusChangeEvent) {
     PushMessage event = PushMessages.createMessage(reservationStatusChangeEvent);
 
-    endPoints.broadcast(event);
+    connections.broadcast(event);
   }
 
 }

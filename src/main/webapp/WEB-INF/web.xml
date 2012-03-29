@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
-<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.5" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" metadata-complete="true">
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    version="3.0" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+    metadata-complete="true">
     
     <display-name>bod</display-name>
     
@@ -77,12 +79,13 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
-        <servlet-name>pushServlet</servlet-name>
-        <servlet-class>nl.surfnet.bod.web.push.PushServlet</servlet-class>
+        <servlet-name>longPollServlet</servlet-name>
+        <servlet-class>nl.surfnet.bod.web.push.LongPollServlet</servlet-class>
+        <async-supported>true</async-supported>
     </servlet>
-    
+
     <servlet-mapping>
-        <servlet-name>pushServlet</servlet-name>
+        <servlet-name>longPollServlet</servlet-name>
         <url-pattern>/push</url-pattern>
     </servlet-mapping>
 
@@ -90,16 +93,16 @@
         <servlet-name>bod</servlet-name>
         <url-pattern>/</url-pattern>
     </servlet-mapping>
-    
+
     <session-config>
         <session-timeout>10</session-timeout>
     </session-config>
-    
+
     <error-page>
         <exception-type>java.lang.Exception</exception-type>
         <location>/uncaughtException</location>
     </error-page>
-    
+
     <error-page>
         <error-code>404</error-code>
         <location>/resourceNotFound</location>
