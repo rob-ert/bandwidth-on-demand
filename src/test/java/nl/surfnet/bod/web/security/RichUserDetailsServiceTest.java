@@ -24,8 +24,10 @@ package nl.surfnet.bod.web.security;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.GroupService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
@@ -112,8 +114,29 @@ public class RichUserDetailsServiceTest {
     assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is(Security.ICT_MANAGER));
   }
 
-  private static <E> ImmutableList<E> listOf(E element) {
-    return ImmutableList.of(element);
+  @Test
+  public void shouldUpdateVirtualResourceGroupsIfChangedInSurfconext() {
+    ImmutableList<UserGroup> userGroups = listOf(
+        new UserGroupFactory().setId("urn:nameGroup").setName("new name").create(),
+        new UserGroupFactory().setId("urn:descGroup").setDescription("new desc").create());
+
+    VirtualResourceGroup vrgNewName = new VirtualResourceGroupFactory().setName("old name").create();
+    VirtualResourceGroup vrgNewDesc = new VirtualResourceGroupFactory().setDescription("old desc").create();
+
+    when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(userGroups);
+    when(vrgServiceMock.findBySurfconextGroupId("urn:nameGroup")).thenReturn(vrgNewName);
+    when(vrgServiceMock.findBySurfconextGroupId("urn:descGroup")).thenReturn(vrgNewDesc);
+
+    subject.loadUserDetails(createToken("urn:alanvdam"));
+
+    assertThat(vrgNewName.getName(), is("new name"));
+    assertThat(vrgNewDesc.getDescription(), is("new desc"));
+    verify(vrgServiceMock).update(vrgNewDesc);
+    verify(vrgServiceMock).update(vrgNewName);
+  }
+
+  private static <E> ImmutableList<E> listOf(E... elements) {
+    return ImmutableList.copyOf(elements);
   }
 
   private static Authentication createToken(String nameId) {

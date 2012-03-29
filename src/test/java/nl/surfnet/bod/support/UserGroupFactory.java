@@ -26,11 +26,11 @@ import nl.surfnet.bod.domain.UserGroup;
 public class UserGroupFactory {
 
   private String id = "urn:emtpy";
-  private String title = "";
+  private String name = "";
   private String description = "";
   
   public UserGroup create() {
-    UserGroup group = new UserGroup(id, title, description);
+    UserGroup group = new UserGroup(id, name, description);
     
     return group;
   }
@@ -45,8 +45,8 @@ public class UserGroupFactory {
     return this;
   }
   
-  public UserGroupFactory setTitle(String title) {
-    this.title = title;
+  public UserGroupFactory setName(String name) {
+    this.name = name;
     return this;
   }
 

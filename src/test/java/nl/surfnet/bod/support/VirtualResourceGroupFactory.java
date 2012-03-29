@@ -37,27 +37,34 @@ public class VirtualResourceGroupFactory {
 
   private Long id = COUNTER.getAndIncrement();
   private Integer version;
-  private String name = "VRG " + id;
   private String surfconextGroupId = "urn:bandwidth-on-demand" + id;
+  private String name = "VRG " + id;
+  private String description = "Some virtual resource group";
 
   private Collection<VirtualPort> virtualPorts = Lists.newArrayList();
   private Collection<Reservation> reservations = Lists.newArrayList();
 
   public VirtualResourceGroup create() {
-    VirtualResourceGroup vRGroup = new VirtualResourceGroup();
+    VirtualResourceGroup vrg = new VirtualResourceGroup();
 
-    vRGroup.setId(id);
-    vRGroup.setVersion(version);
-    vRGroup.setName(name);
-    vRGroup.setSurfconextGroupId(surfconextGroupId);
-    vRGroup.setVirtualPorts(virtualPorts);
-    vRGroup.setReservations(reservations);
+    vrg.setId(id);
+    vrg.setVersion(version);
+    vrg.setName(name);
+    vrg.setDescription(description);
+    vrg.setSurfconextGroupId(surfconextGroupId);
+    vrg.setVirtualPorts(virtualPorts);
+    vrg.setReservations(reservations);
 
-    return vRGroup;
+    return vrg;
   }
 
   public VirtualResourceGroupFactory setId(Long id) {
     this.id = id;
+    return this;
+  }
+
+  public VirtualResourceGroupFactory setDescription(String description) {
+    this.description = description;
     return this;
   }
 
