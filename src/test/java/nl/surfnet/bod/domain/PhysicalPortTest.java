@@ -23,6 +23,7 @@ package nl.surfnet.bod.domain;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 
 import org.junit.Test;
@@ -34,5 +35,21 @@ public class PhysicalPortTest {
     PhysicalPort port = new PhysicalPortFactory().setNocLabel("pooooort").create();
 
     assertThat(port.toString(), containsString("pooooort"));
+  }
+
+  @Test
+  public void whenManagerLabelIsEmptyShouldReturnNocLabel() {
+    PhysicalPort port = new PhysicalPortFactory().setNocLabel("Noc label").setManagerLabel(null).create();
+
+    assertThat(port.getManagerLabel(), is("Noc label"));
+    assertThat(port.hasManagerLabel(), is(false));
+  }
+
+  @Test
+  public void whenManagerLabelIsSet() {
+    PhysicalPort port = new PhysicalPortFactory().setNocLabel("Noc label").setManagerLabel("Manager label").create();
+
+    assertThat(port.getManagerLabel(), is("Manager label"));
+    assertThat(port.hasManagerLabel(), is(true));
   }
 }

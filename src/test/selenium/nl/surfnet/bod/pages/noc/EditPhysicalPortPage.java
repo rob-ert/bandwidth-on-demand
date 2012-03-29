@@ -60,4 +60,8 @@ public class EditPhysicalPortPage extends AbstractFormPage {
     managerLabelInput.clear();
     managerLabelInput.sendKeys(managerLabel);
   }
+
+  public String getManagerLabel() {
+    return managerLabelInput.getAttribute("value");
+  }
 }

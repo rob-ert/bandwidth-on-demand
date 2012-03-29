@@ -49,4 +49,10 @@ public class ListAllocatedPortsPage extends AbstractListPage {
   public void unlinkPhysicalPort(String networkElementPk) {
     deleteForIcon("icon-remove-sign", networkElementPk);
   }
+
+  public EditPhysicalPortPage edit(String networkElementPk) {
+    editRow(networkElementPk);
+
+    return EditPhysicalPortPage.get(driver);
+  }
 }

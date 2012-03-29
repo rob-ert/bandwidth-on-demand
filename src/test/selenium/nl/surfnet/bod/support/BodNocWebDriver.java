@@ -22,6 +22,8 @@
 package nl.surfnet.bod.support;
 
 import static junit.framework.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.pages.noc.*;
 
 import org.openqa.selenium.NoSuchElementException;
@@ -128,4 +130,13 @@ public class BodNocWebDriver {
       // expected
     }
   }
+
+  public void gotoEditPhysicalPortAndVerifyManagerLabel(String networkElementPk, String managerLabel) {
+    ListAllocatedPortsPage listPage = ListAllocatedPortsPage.get(driver);
+
+    EditPhysicalPortPage editPage = listPage.edit(networkElementPk);
+
+    assertThat(editPage.getManagerLabel(), is(managerLabel));
+  }
+
 }

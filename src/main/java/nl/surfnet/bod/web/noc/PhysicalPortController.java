@@ -198,7 +198,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
       this.networkElementPk = port.getNetworkElementPk();
       this.physicalResourceGroup = port.getPhysicalResourceGroup();
       this.nocLabel = port.getNocLabel();
-      this.managerLabel = "";
+      this.managerLabel = port.hasManagerLabel() ? port.getManagerLabel() : "";
       this.version = port.getVersion();
     }
 

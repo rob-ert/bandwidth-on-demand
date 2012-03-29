@@ -107,6 +107,10 @@ public class PhysicalPort {
     return Strings.emptyToNull(managerLabel) == null ? nocLabel : managerLabel;
   }
 
+  public boolean hasManagerLabel() {
+    return Strings.emptyToNull(managerLabel) != null;
+  }
+
   public void setManagerLabel(String managerLabel) {
     this.managerLabel = managerLabel;
   }
