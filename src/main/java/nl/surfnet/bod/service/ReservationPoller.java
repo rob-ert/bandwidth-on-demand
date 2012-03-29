@@ -74,14 +74,25 @@ public class ReservationPoller {
    * precision of reservations is in minutes.
    */
   @Scheduled(cron = "0 * * * * *")
-  public void pollReservations() {
+  public void pollReservationsThatAreAboutToStartOrEnd() {
     LocalDateTime dateTime = LocalDateTime.now().withSecondOfMinute(0).withMillisOfSecond(0);
     List<Reservation> reservations = reservationService.findReservationsToPoll(dateTime);
 
-    logger.debug("Found {} reservations to poll", reservations.size());
+    logger.debug("Found {} reservations that are about to start or end", reservations.size());
 
     for (Reservation reservation : reservations) {
-      executorService.submit(new ReservationStatusChecker(reservation));
+      executorService.submit(new ReservationStatusChecker(reservation, maxPollingTries));
+    }
+  }
+
+  @Scheduled(cron = "0 * * * * *")
+  public void pollReservationsThatHaveARunningStatus() {
+    List<Reservation> reservations = reservationService.findReservationWithStatus(ReservationStatus.RUNNING);
+
+    logger.debug("Found {} reservations that are running", reservations.size());
+
+    for (Reservation reservation : reservations) {
+      executorService.submit(new ReservationStatusChecker(reservation, 1));
     }
   }
 
@@ -100,10 +111,12 @@ public class ReservationPoller {
   private class ReservationStatusChecker implements Runnable {
     private final Reservation reservation;
     private final ReservationStatus startStatus;
+    private final int maxPollingTries;
     private int numberOfTries;
 
-    public ReservationStatusChecker(Reservation reservation) {
+    public ReservationStatusChecker(Reservation reservation, int maxPollingTries) {
       this.reservation = reservation;
+      this.maxPollingTries = maxPollingTries;
       this.startStatus = reservation.getStatus();
     }
 
@@ -112,7 +125,7 @@ public class ReservationPoller {
       ReservationStatus currentStatus = null;
 
       while (numberOfTries < maxPollingTries) {
-        logger.debug("Checking status update for: '{}' (times {})", reservation.getReservationId(), numberOfTries);
+        logger.debug("Checking status update for: '{}' (try {})", reservation.getReservationId(), numberOfTries);
 
         currentStatus = reservationService.getStatus(reservation);
         numberOfTries++;
