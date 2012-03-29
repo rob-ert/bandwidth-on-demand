@@ -33,12 +33,13 @@
         <intercept-url pattern="/noc/**" access="hasRole('NOC_ENGINEER')" />
         <intercept-url pattern="/manager/**" access="hasRole('ICT_MANAGER')" />
         <intercept-url pattern="/resources/**" filters="none" />
+        <intercept-url pattern="/shibboleth/**" filters="none" />
         <intercept-url pattern="/**" access="isAuthenticated()" />
     </http>
 
     <beans:bean id="preAuthEntryPoint" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />
 
-    <beans:bean id="preAuthenticatedProcessingFilter" class="nl.surfnet.bod.web.security.RequestAttributeAuthenticationFilter">
+    <beans:bean id="preAuthenticatedProcessingFilter" class="nl.surfnet.bod.web.security.RequestHeaderAuthenticationFilter">
         <beans:property name="authenticationManager" ref="authenticationManager" />
     </beans:bean>
 

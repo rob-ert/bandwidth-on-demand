@@ -35,9 +35,9 @@ import nl.surfnet.bod.util.ShibbolethConstants;
 
 import org.junit.Test;
 
-public class RequestAttributeAuthenticationFilterTest {
+public class RequestHeaderAuthenticationFilterTest {
 
-  private RequestAttributeAuthenticationFilter subject = new RequestAttributeAuthenticationFilter();
+  private RequestHeaderAuthenticationFilter subject = new RequestHeaderAuthenticationFilter();
 
   @Test
   public void noShibbolethHeadersSetAndNotImitatingShouldGiveNull() {
@@ -54,8 +54,8 @@ public class RequestAttributeAuthenticationFilterTest {
     HttpServletRequest requestMock = mock(HttpServletRequest.class);
     subject.setEnvironment(new Environment(false, "urn:dummy", "Dummy", "dummy@dummy.com"));
 
-    when(requestMock.getAttribute(ShibbolethConstants.NAME_ID)).thenReturn("fake");
-    when(requestMock.getAttribute(ShibbolethConstants.DISPLAY_NAME)).thenReturn("");
+    when(requestMock.getHeader(ShibbolethConstants.NAME_ID)).thenReturn("fake");
+    when(requestMock.getHeader(ShibbolethConstants.DISPLAY_NAME)).thenReturn("");
 
     Object principal = subject.getPreAuthenticatedPrincipal(requestMock);
 
@@ -67,8 +67,8 @@ public class RequestAttributeAuthenticationFilterTest {
     HttpServletRequest requestMock = mock(HttpServletRequest.class);
     subject.setEnvironment(new Environment(false, "urn:dummy", "Dummy", "dummy@dummy.com"));
 
-    when(requestMock.getAttribute(ShibbolethConstants.NAME_ID)).thenReturn("urn:truusvisscher");
-    when(requestMock.getAttribute(ShibbolethConstants.DISPLAY_NAME)).thenReturn("Truus Visscher");
+    when(requestMock.getHeader(ShibbolethConstants.NAME_ID)).thenReturn("urn:truusvisscher");
+    when(requestMock.getHeader(ShibbolethConstants.DISPLAY_NAME)).thenReturn("Truus Visscher");
 
     Object principal = subject.getPreAuthenticatedPrincipal(requestMock);
 

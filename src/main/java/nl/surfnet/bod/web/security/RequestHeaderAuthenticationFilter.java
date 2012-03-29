@@ -33,19 +33,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
-public class RequestAttributeAuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
+public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
 
-  private final Logger logger = LoggerFactory.getLogger(RequestAttributeAuthenticationFilter.class);
+  private final Logger logger = LoggerFactory.getLogger(RequestHeaderAuthenticationFilter.class);
 
   @Autowired
   private Environment env;
 
   @Override
   protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
-    String nameId = getRequestAttributeOrImitate(request, ShibbolethConstants.NAME_ID, env.getImitateShibbolethUserId());
-    String displayName = getRequestAttributeOrImitate(request, ShibbolethConstants.DISPLAY_NAME,
+    String nameId = getRequestHeaderOrImitate(request, ShibbolethConstants.NAME_ID, env.getImitateShibbolethUserId());
+    String displayName = getRequestHeaderOrImitate(request, ShibbolethConstants.DISPLAY_NAME,
         env.getImitateShibbolethDisplayName());
-    String email = getRequestAttributeOrImitate(request, ShibbolethConstants.EMAIL, env.getImitateShibbolethEmail());
+    String email = getRequestHeaderOrImitate(request, ShibbolethConstants.EMAIL, env.getImitateShibbolethEmail());
 
     logger.debug("Found Shibboleth name-id: '{}', displayName: '{}', email: {}", new String [] {nameId, displayName, email});
 
@@ -56,8 +56,8 @@ public class RequestAttributeAuthenticationFilter extends AbstractPreAuthenticat
     return new RichPrincipal(nameId, displayName, email);
   }
 
-  private String getRequestAttributeOrImitate(HttpServletRequest request, String attribute, String imitateValue) {
-    String value = nullToEmpty((String) request.getAttribute(attribute));
+  private String getRequestHeaderOrImitate(HttpServletRequest request, String header, String imitateValue) {
+    String value = nullToEmpty(request.getHeader(header));
 
     return value.isEmpty() && env.getImitateShibboleth() ? imitateValue : value;
   }
