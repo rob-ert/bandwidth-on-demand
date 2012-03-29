@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.GroupService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
@@ -62,10 +63,19 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
   @Override
   public RichUserDetails loadUserDetails(Authentication token) throws UsernameNotFoundException {
     RichPrincipal principal = (RichPrincipal) token.getPrincipal();
-
     Collection<UserGroup> groups = groupService.getGroups(principal.getNameId());
+
     logger.debug("Found groups: '{}' for name-id: '{}'", groups, principal.getNameId());
 
+    updateVirtualResourceGroups(groups);
+
+    List<GrantedAuthority> authorities = getAuthorities(groups);
+
+    return new RichUserDetails(principal.getNameId(), principal.getDisplayName(), principal.getEmail(), authorities,
+        groups);
+  }
+
+  private List<GrantedAuthority> getAuthorities(Collection<UserGroup> groups) {
     List<GrantedAuthority> authorities = Lists.newArrayList();
     if (isNocEngineerGroup(groups)) {
       authorities.add(createAuthority(Security.NOC_ENGINEER));
@@ -76,8 +86,24 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
     if (isUser(groups)) {
       authorities.add(createAuthority(Security.USER));
     }
+    return authorities;
+  }
 
-    return new RichUserDetails(principal.getNameId(), principal.getDisplayName(), principal.getEmail(), authorities, groups);
+  private void updateVirtualResourceGroups(Collection<UserGroup> userGroups) {
+    for (UserGroup userGroup : userGroups) {
+      VirtualResourceGroup vrg = virtualResourceGroupService.findBySurfconextGroupId(userGroup.getId());
+
+      if (vrg == null) {
+        continue;
+      }
+
+      if (!vrg.getName().equals(userGroup.getName()) || !vrg.getDescription().equals(userGroup.getDescription())) {
+        vrg.setDescription(userGroup.getDescription());
+        vrg.setName(userGroup.getName());
+
+        virtualResourceGroupService.update(vrg);
+      }
+    }
   }
 
   private boolean isIctManager(Collection<UserGroup> groups) {
