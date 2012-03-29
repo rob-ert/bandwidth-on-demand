@@ -37,15 +37,11 @@
             $.socket("${pushUrl}", {
                 transports: "longpoll"
            })
-           .open(function() {
-              console.log("Push connection open");
-           })
+           .open(function() { })
            .message(function(data) {
                processEvent(data);
            })
-           .close(function() {
-             console.log("Push connection closed");
-           });
+           .close(function() { });
         };
 
        function processEvent(event) {
