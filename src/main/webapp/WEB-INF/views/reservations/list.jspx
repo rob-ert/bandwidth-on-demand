@@ -7,12 +7,12 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-	<div class="clearfix">
-           <label>Reservation Filter</label>
-           <div class="input input-text">
-               <sform:select id="filter" path="filterSelect.id" items="${filterList}" itemLabel="label" itemValue="id" />
-           </div>
-      </div>
+	<div>
+       <label>Reservation Filter</label>
+       <div class="input" style="margin-left: 160px;">
+           <sform:select id="filter" path="filterSelect.id" items="${filterList}" itemLabel="label" itemValue="id" />
+       </div>
+    </div>
 	 
     <page:list id="pl_reservation" items="${list}">
         <table:table data="${list}" id="l_reservation" path="/reservations" typeIdFieldName="id" update="false">
