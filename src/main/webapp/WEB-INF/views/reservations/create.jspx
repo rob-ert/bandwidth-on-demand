@@ -95,28 +95,7 @@
         </div>
     </div>
     <script type="text/javascript">
-    			var dataUrl = "${vpUrl}";    			
-    			var $startTime = $("#_startTime_id");
-    			var $startDate = $("#_startDate_id");
-    			var $startTimeVal = $startTime.val();
-    			var $startDateVal = $startDate.val();
-    			
-		    $(function() {
-		    		$("#now_chk").click(function() {		    			
-		    			$startTime.closest("div.clearfix").toggle('slow');
-		    			if ($startDate.attr('disabled')) {
-		    				$startDate.val($startDateVal);		
-						$startTime.val($startTimeVal);
-						$startDate.removeAttr('disabled');
-						$startTime.removeAttr('disabled');
-		    			} else {
-		    				$startDate.val("");		    				
-		    				$startTime.val("");
-			    			$startDate.attr('disabled', 'true');
-			    			$startTime.attr('disabled', 'true');
-		    			}
-		    		});    	
-		    });    	
+	    var dataUrl = "${vpUrl}";
     </script>
     <script src="${reservation_js}" type="text/javascript"><!-- needed --></script>
 </div>

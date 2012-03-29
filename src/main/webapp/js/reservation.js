@@ -73,7 +73,27 @@ $(function() {
     });
   }
   initBandwidthSelection();
-  
+
+  var $startTime = $("#_startTime_id"),
+      $startDate = $("#_startDate_id"),
+      startTimeVal = $startTime.val(),
+      startDateVal = $startDate.val();
+
+  $("#now_chk").click(function() {
+    $startTime.closest("div.clearfix").toggle('slow');
+    if ($startDate.attr('disabled')) {
+      $startDate.val(startDateVal);
+      $startTime.val(startTimeVal);
+      $startDate.removeAttr('disabled');
+      $startTime.removeAttr('disabled');
+    } else {
+      $startDate.val("");
+      $startTime.val("");
+      $startDate.attr('disabled', 'true');
+      $startTime.attr('disabled', 'true');
+    }
+  });
+
   // date pickers
   $("#_startDate_id").DatePicker({
     date: $('#_startDate_id').val(),
