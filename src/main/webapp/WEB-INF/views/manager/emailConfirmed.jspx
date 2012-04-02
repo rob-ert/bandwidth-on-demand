@@ -5,17 +5,12 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <spring:url value="/manager/virtualports/create" var="createVirtualPortUrl">
-        <spring:param name="pgroup" value="${physicalResourceGroup.id}" />
-    </spring:url>
-
     <div class="hero-unit">
         <h1>Email address of institute is confirmed</h1>
         <p>
             You have successfully confirmed the email address '<i><c:out value="${link.toEmail}" /></i>' as contact
             address for your institute '<i><c:out value="${physicalResourceGroup.name}" /></i>'.
         </p>
-        <a href="${createVirtualPortUrl}" class="btn primary large">Add Virtual Ports</a>
     </div>
 
 </div>

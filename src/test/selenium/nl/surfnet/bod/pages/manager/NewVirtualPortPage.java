@@ -35,8 +35,6 @@ import com.google.common.base.Strings;
 
 public class NewVirtualPortPage extends AbstractFormPage {
 
-  private static final String PAGE = "/manager/virtualports/create";
-
   @FindBy(id = "_managerLabel_id")
   private WebElement nameInput;
 
@@ -54,11 +52,6 @@ public class NewVirtualPortPage extends AbstractFormPage {
 
   @FindBy(id = "_virtualresourcegroup")
   private WebElement virtualResourceGroupSelect;
-
-  public static NewVirtualPortPage get(RemoteWebDriver driver, String urlUnderTest) {
-    driver.get(urlUnderTest + PAGE);
-    return get(driver);
-  }
 
   public static NewVirtualPortPage get(RemoteWebDriver driver) {
     NewVirtualPortPage page = new NewVirtualPortPage();
