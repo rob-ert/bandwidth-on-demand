@@ -42,7 +42,7 @@
                                     <menu:menu id="user_menu">
                                         <menu:category id="c_user" label="${displayName}" icon="icon-user">
                                             <menu:item id="i_refresh" url="/shibboleth/refresh" messageCode="security_refresh" icon="icon-refresh" />
-                                            <menu:item id="i_labels" url="/admin/refreshMessages" messageCode="menu_item_refresh_messages" icon="icon-refresh"/>
+                                            <!-- <menu:item id="i_labels" url="/admin/refreshMessages" messageCode="menu_item_refresh_messages" icon="icon-refresh"/> -->
                                             <menu:item id="i_logout" url="/Shibboleth.sso/Logout?target=/" messageCode="global_menu_logout" icon="icon-signout" />
                                         </menu:category>
                                     </menu:menu>
