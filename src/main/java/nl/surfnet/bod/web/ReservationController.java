@@ -21,16 +21,7 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
-import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.SHOW;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -51,9 +42,7 @@ import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.Hours;
-import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
 import org.joda.time.ReadablePeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -62,11 +51,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;
@@ -135,7 +120,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
     Collection<VirtualPort> ports = WebUtils.getAttributeFromModel("virtualPorts", model, Collections.<VirtualPort>emptyList());
 
     model.addAttribute(MODEL_KEY, createDefaultReservation(ports));
-    
+
     if (CollectionUtils.isEmpty(ports) || ports.size() <= 1) {
       MessageView message = MessageView.createInfoMessage(messageSource, "info_reservation_need_two_virtual_ports");
       message.setHeader(String.format("You have %d Virtual Port%s", ports.size(), ports.isEmpty() ? "s" : ""));
@@ -146,7 +131,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
       return MessageView.PAGE_URL;
     }
-    
+
     return PAGE_URL + CREATE;
   }
 
@@ -166,7 +151,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
   public String defaultSortProperty() {
     return "startDateTime";
   }
-  
+
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
   public String delete(@RequestParam(ID_KEY) Long id, @RequestParam(value = PAGE_KEY, required = false) Integer page,
       RedirectAttributes redirectAttributes) {
@@ -203,7 +188,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
         .getVirtualPorts();
 
     model.addAttribute("virtualResourceGroups", groups);
-    model.addAttribute("virtualPorts", ports);    
+    model.addAttribute("virtualPorts", ports);
   }
 
   @ModelAttribute
@@ -274,14 +259,14 @@ public class ReservationController extends AbstractSortableListController<Reserv
     return reservationViews;
   }
 
-  private Reservation createDefaultReservation(Collection<VirtualPort> ports) {    
+  private Reservation createDefaultReservation(Collection<VirtualPort> ports) {
     LocalDateTime inFifteenMinutes = LocalDateTime.now().plusMinutes(15);
 
-    Reservation reservation = new Reservation();    
+    Reservation reservation = new Reservation();
     reservation.setStartDateTime(inFifteenMinutes);
 
     LocalDateTime reservationEnd = reservation.getStartDateTime().plus(DEFAULT_RESERVATON_DURATION);
-    reservation.setEndDateTime(reservationEnd);    
+    reservation.setEndDateTime(reservationEnd);
 
     VirtualPort sourcePort = Iterables.get(ports, 0, null);
     VirtualPort destPort = Iterables.get(ports, 1, null);

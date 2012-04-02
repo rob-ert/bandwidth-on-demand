@@ -256,9 +256,11 @@ public class ReservationService {
   public List<Double> findUniqueYearsFromReservations() {
 
     // FIXME Franky add userDetails to query
+    final String queryString =
+        "select distinct extract(year from start_date_time) startYear "
+        + "from reservation UNION select distinct extract(year from end_date_time) from reservation";
 
-    final String queryString = "select distinct extract(year from start_date_time)  startYear from reservation UNION select distinct extract(year from end_date_time) from reservation";
-
+    @SuppressWarnings("unchecked")
     List<Double> resultList = entityManagerFactory.createEntityManager().createNativeQuery(queryString).getResultList();
     resultList.remove(null);
 
