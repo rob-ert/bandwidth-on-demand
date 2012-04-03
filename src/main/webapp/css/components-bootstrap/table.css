@@ -27,3 +27,41 @@
 .table-striped tbody tr:nth-child(2n) th {
     background-color: #ebebeb;
 }
+
+/* table containing expandable row details (requires js) */
+
+.table .rowdetails {
+    position: relative;
+}
+
+.table .rowdetails .label-minus-sign {
+    display: none;
+}
+
+.table .rowdetails.expanded .label-minus-sign {
+    display: inline;
+}
+
+.table .rowdetails.expanded .label-plus-sign {
+    display: none;
+}
+
+.table .rowdetails-content {
+    opacity: 0;
+    position: absolute;
+    margin: 10px 16px;
+    width: 90%;
+    background-color: #ecf8fa;
+    border: 1px solid #85cadd;
+}
+
+.table .rowdetails-content:before {
+    content: "";
+    position: absolute;
+    left: -12px;
+    top: -6px;
+    width: 11px;
+    height: 50%;
+    border-left: 1px solid #85cadd;
+    border-bottom: 1px solid #85cadd;
+}
