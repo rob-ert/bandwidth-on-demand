@@ -4,6 +4,7 @@
 
     <definition extends="noc" name="noc/index">
         <put-attribute name="body" value="/WEB-INF/views/noc/index.jspx" />
+        <put-attribute name="active_menu" value="overview" cascade="true" />
     </definition>
     
 </tiles-definitions>
