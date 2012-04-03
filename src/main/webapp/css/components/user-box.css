@@ -18,9 +18,24 @@
     display: block;
 }
 
-.user-box .user-img {
+.user-box .user-icon {
     float: left;
     margin: 0 5px 5px 0;
+    height: 20px;
+    width: 20px;
+}
+
+.user-box .user-role-default .user-icon {
+    background-color: grey;
+}
+.user-box .user-role-manager .user-icon {
+    background-color: blue;
+}
+.user-box .user-role-user .user-icon {
+    background-color: red;
+}
+.user-box .user-role-noc .user-icon {
+    background-color: green;
 }
 
 .user-box .user-name {
