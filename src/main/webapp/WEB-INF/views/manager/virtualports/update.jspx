@@ -9,7 +9,7 @@
     <spring:url value="/physicalresourcegroups/{}/ports" var="ppUrl" />
 
     <div class="row">
-        <div class="span12">
+        <div class="span9">
             <form:update id="fc_VirtualPort" modelAttribute="virtualPortUpdateCommand" path="/manager/virtualports">
                 <field:input field="managerLabel" id="name" labelCode="virtualport_name" />
                 <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_max_bandwidth" />
@@ -28,15 +28,20 @@
                     showSingle="true" />
             </form:update>
         </div>
-        <div class="span4">
-            <h3>Port properties</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sagittis, mi vel ultrices
-                pellentesque, dui purus varius eros, et malesuada justo neque pulvinar nulla. Donec lacus purus, semper
-                eget blandit vel, hendrerit vitae elit.</p>
-            <h3>Physical port</h3>
-            <p>Nam commodo odio in nisl eleifend auctor posuere arcu ornare. Mauris eu magna diam. Suspendisse
-                pellentesque quam eget leo blandit vitae venenatis ligula hendrerit. Aliquam eget turpis non ipsum
-                dictum cursus at sed massa.</p>
+        <div class="span3">
+            <section>
+                <h2>..</h2>
+                <div class="content">
+                    <h3>Port properties</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sagittis, mi vel ultrices
+                        pellentesque, dui purus varius eros, et malesuada justo neque pulvinar nulla. Donec lacus purus, semper
+                        eget blandit vel, hendrerit vitae elit.</p>
+                    <h3>Physical port</h3>
+                    <p>Nam commodo odio in nisl eleifend auctor posuere arcu ornare. Mauris eu magna diam. Suspendisse
+                        pellentesque quam eget leo blandit vitae venenatis ligula hendrerit. Aliquam eget turpis non ipsum
+                        dictum cursus at sed massa.</p>
+                </div>
+            </section>
         </div>
     </div>
 </div>

@@ -37,16 +37,18 @@
             </div>
         </c:if>
 
-        <div class="page-header">
+        <section>
             <h2>${title_msg}</h2>
-        </div>
-        <c:choose>
-            <c:when test="${not empty items}">
-                <jsp:doBody />
-            </c:when>
-            <c:otherwise>
-                <spring:message arguments="${label}" code="entity_not_found" />
-            </c:otherwise>
-        </c:choose>
+            <div class="content">
+                <c:choose>
+                    <c:when test="${not empty items}">
+                        <jsp:doBody />
+                    </c:when>
+                    <c:otherwise>
+                        <spring:message arguments="${label}" code="entity_not_found" />
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </section>
     </c:if>
 </jsp:root>
