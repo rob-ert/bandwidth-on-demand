@@ -28,56 +28,36 @@
 
         <div class="wrapper">
             <header>
-                <h1>Bandwidth on Demand</h1>
+                <h1>${app_name}</h1>
             </header>
             <nav class="navbar">
                 <div class="navbar-inner">
                     <div class="container">
-                        <ul class="nav">
-                            <li><a href="#">Overview</a></li>
-                            <li><a href="#">Reservations</a></li>
-                            <li><a href="#">Virtual ports</a></li>
-                            <li class="active"><a href="#">Physical ports</a></li>
-                            <li><a href="#">Teams</a></li>
-                        </ul>
+                        <tiles:insertAttribute name="menubar" ignore="true" />
                     </div>
                 </div>
             </nav>
         </div>
 
-        <div class="topbar" data-dropdown="dropdown">
-            <a href="${home}"><img src="${banner}" class="logo" /></a>
-    
-            <h1>${app_name}</h1>
-            <div class="topbar-inner">
-                <div class="container">
-                    <div class="topbar-wrapper"> 
-                        <tiles:insertAttribute name="menubar" ignore="true" />
-                        <ul class="nav secondary-nav">
-                            <c:set var="displayName" >
-                                <sec:authentication property="principal.displayName" htmlEscape="false"/>
-                            </c:set>
-                            <c:choose>
-                                <c:when test="${not empty displayName}">
-                                    <menu:menu id="user_menu">
-                                        <menu:category id="c_user" label="${displayName}" icon="icon-user">
-                                            <menu:item id="i_refresh" url="/shibboleth/refresh" messageCode="security_refresh" icon="icon-refresh" />
-                                            <!-- <menu:item id="i_labels" url="/admin/refreshMessages" messageCode="menu_item_refresh_messages" icon="icon-refresh"/> -->
-                                            <menu:item id="i_logout" url="/Shibboleth.sso/Logout?target=/" messageCode="global_menu_logout" icon="icon-signout" />
-                                        </menu:category>
-                                    </menu:menu>
-                                </c:when>
-                                <c:otherwise>
-                                    <menu:menu id="user_menu">
-                                        <menu:item url="#" id="no_auth" messageCode="security_not_authenticated" />
-                                    </menu:menu>
-                                </c:otherwise>
-                            </c:choose>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- <c:set var="displayName" >
+            <sec:authentication property="principal.displayName" htmlEscape="false"/>
+        </c:set>
+        <c:choose>
+            <c:when test="${not empty displayName}">
+                <menu:menu id="user_menu">
+                    <menu:category id="c_user" label="${displayName}" icon="icon-user">
+                        <menu:item id="i_refresh" url="/shibboleth/refresh" messageCode="security_refresh" icon="icon-refresh" />
+                        <menu:item id="i_labels" url="/admin/refreshMessages" messageCode="menu_item_refresh_messages" icon="icon-refresh"/>
+                        <menu:item id="i_logout" url="/Shibboleth.sso/Logout?target=/" messageCode="global_menu_logout" icon="icon-signout" />
+                    </menu:category>
+                </menu:menu>
+            </c:when>
+            <c:otherwise>
+                <menu:menu id="user_menu">
+                    <menu:item url="#" id="no_auth" messageCode="security_not_authenticated" />
+                </menu:menu>
+            </c:otherwise>
+        </c:choose>-->
         <div class="messagebar">
             <div id="messages">
                 <c:forEach items="${infoMessages}" var="infoMessage">

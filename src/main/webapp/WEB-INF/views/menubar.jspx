@@ -1,14 +1,9 @@
-<sec:authorize access="isAuthenticated()" xmlns:sec="http://www.springframework.org/security/tags">
+<sec:authorize access="isAuthenticated()" xmlns:sec="http://www.springframework.org/security/tags" xmlns="urn:jsptagdir:/WEB-INF/tags/menu">
     <sec:authorize access="hasRole('USER')">
-        <menu id="_menu" xmlns="urn:jsptagdir:/WEB-INF/tags/menu">
-            <category id="c_reservation" menu="reservation">
-                <item id="i_res_new" url="/reservations/create" messageCode="global_menu_new" icon="icon-plus"/>
-                <item id="i_res_list" url="/reservations" messageCode="global_menu_list" icon="icon-list" />
-            </category>
-            <category id="c_virtualport" menu="virtualport">
-                <item id="i_vp_list" url="/virtualports" messageCode="global_menu_list" icon="icon-list" />
-                <item id="i_vp_request" url="/request" messageCode="menu_item_virtualport_request_label" icon="icon-envelope" />
-            </category>
+        <menu>
+            <item id="i_overview" url="/" messageCode="menu_overview_label" menu="overview" />
+            <item id="i_res_list" url="/reservations" messageCode="menu_reservation_label" menu="reservation" />
+            <item id="i_vp_list" url="/virtualports" messageCode="menu_virtualport_label" menu="virtualport" />
         </menu>
     </sec:authorize>
 </sec:authorize>

@@ -4,6 +4,7 @@
 
     <definition extends="default" name="index">
         <put-attribute name="body" value="/WEB-INF/views/index.jspx" />
+        <put-attribute name="active_menu" value="overview" cascade="true" />
     </definition>
     <definition extends="default" name="dataAccessFailure">
         <put-attribute name="body" value="/WEB-INF/views/dataAccessFailure.jspx" />
