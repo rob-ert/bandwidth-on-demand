@@ -10,7 +10,6 @@
     <jsp:directive.attribute name="multipart" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if this is a multipart form (default: false)" />
     <jsp:directive.attribute name="label" type="java.lang.String" required="false" rtexprvalue="true" description="The label used for this object, will default to a message bundle if not supplied" />
     <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
-    <jsp:directive.attribute name="noLabel" type="java.lang.Boolean" required="false" rtexprvalue="true" description="If form should have a title (default true)" />
     <jsp:directive.attribute name="openPane" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Control if the title pane is opened or closed by default (default: true)" />
 
     <c:if test="${empty render or render}">
@@ -29,39 +28,43 @@
         <c:if test="${not empty compositePkField}">
             <c:set var="jsCall" value="encodePk()" />
         </c:if>
-        <form:form action="${form_url}" method="POST" modelAttribute="${modelAttribute}" enctype="${enctype}" onsubmit="${jsCall}">
 
-            <c:set var="errors"><form:errors /></c:set>
-            <c:if test="${not empty errors}">
-                <div class="row">
-                    <div class="span10">
-                        <div class="alert-message error" data-alert="true">
-                            <a class="close" href="#">&amp;times;</a>
-                            <form:errors cssClass="errors" delimiter="&lt;p/&gt;" element="p" />
+        <section>
+            <h1>Create a ${label}</h1>
+            <div class="content">
+
+                <form:form action="${form_url}" method="POST" modelAttribute="${modelAttribute}" enctype="${enctype}" onsubmit="${jsCall}">
+
+                    <c:set var="errors"><form:errors /></c:set>
+                    <c:if test="${not empty errors}">
+                        <div class="row">
+                            <div class="span10">
+                                <div class="alert-message error" data-alert="true">
+                                    <a class="close" href="#">&amp;times;</a>
+                                    <form:errors cssClass="errors" delimiter="&lt;p/&gt;" element="p" />
+                                </div>
+                            </div>
                         </div>
+                    </c:if>
+
+                    <c:if test="${not empty compositePkField}">
+                        <form:hidden id="_${fn:escapeXml(compositePkField)}_id" path="${fn:escapeXml(compositePkField)}" />
+                    </c:if>
+
+                    <fieldset>
+                        <jsp:doBody />
+                    </fieldset>
+
+                    <div class="actions">
+                        <spring:message code="button_save" var="save_button" htmlEscape="false" />
+                        <spring:message code="button_cancel" var="cancel_button" htmlEscape="false" />
+                        <input type="submit" value="${fn:escapeXml(save_button)}" class="btn primary" />
+                        <c:out value=" " />
+                        <a href="${form_url}" class="btn">${fn:escapeXml(cancel_button)}</a>
                     </div>
-                </div>
-            </c:if>
-
-            <c:if test="${not empty compositePkField}">
-                <form:hidden id="_${fn:escapeXml(compositePkField)}_id" path="${fn:escapeXml(compositePkField)}" />
-            </c:if>
-
-            <fieldset>
-                <c:if test="${empty noLabel or not noLabel}">
-                    <legend>Create a ${label}</legend>
-                </c:if>
-                <jsp:doBody />
-            </fieldset>
-
-            <div class="actions">
-                <spring:message code="button_save" var="save_button" htmlEscape="false" />
-                <spring:message code="button_cancel" var="cancel_button" htmlEscape="false" />
-                <input type="submit" value="${fn:escapeXml(save_button)}" class="btn primary" />
-                <c:out value=" " />
-                <a href="${form_url}" class="btn">${fn:escapeXml(cancel_button)}</a>
+                </form:form>
             </div>
-        </form:form>
+        </section>
 
     </c:if>
 </jsp:root>

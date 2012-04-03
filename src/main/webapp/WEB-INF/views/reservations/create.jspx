@@ -13,26 +13,14 @@
     <spring:url value="/resources/images/quater.png" var="imgQuater" />
     <spring:url var="reservation_js" value="/resources/js/reservation.js" />
 
-    <h1>Create a reservation</h1>
     <div class="row">
-        <div class="span4">
-            <h3>Source and Destination</h3>
-            <p>Select the source and destination port for your reservation, if you are member of more then one group
-                you can select the virtual resource group to be used.</p>
-            <h3>Start and End Time</h3>
-            <p>Select the start and end date and time for your reservation, the time that it takes to setup and tear
-                down your bandwidht on demand circuit falls within this period.</p>
-            <h3>Bandwidth</h3>
-            <p>Select the amount of bandwidth you want to reserve, you can use the quarter, half or full bandwidth
-                buttons or specify it with a 1Mbit/s granularity.</p>
-        </div>
-        <div class="span12">
+        <div class="span9">
             <util:panel id="title" title="Create Virtual Port" render="${empty virtualPorts}">
                 No Virtual Ports found for you....
             </util:panel>
 
             <form:create id="fc_reservation" modelAttribute="reservation" path="/reservations"
-                render="${not empty virtualPorts}" noLabel="true">
+                render="${not empty virtualPorts}">
 
                 <field:select field="virtualResourceGroup" id="virtualresourcegroup" labelCode="virtualresourcegroup"
                     itemLabel="name" itemValue="id" items="${virtualResourceGroups}" path="/reservations"
@@ -92,6 +80,22 @@
                     </div>
                 </div>
             </form:create>
+        </div>
+        <div class="span3">
+            <section>
+                <h2>.</h2>
+                <div class="content">
+                    <h3>Source and Destination</h3>
+                    <p>Select the source and destination port for your reservation, if you are member of more then one group
+                        you can select the virtual resource group to be used.</p>
+                    <h3>Start and End Time</h3>
+                    <p>Select the start and end date and time for your reservation, the time that it takes to setup and tear
+                        down your bandwidht on demand circuit falls within this period.</p>
+                    <h3>Bandwidth</h3>
+                    <p>Select the amount of bandwidth you want to reserve, you can use the quarter, half or full bandwidth
+                        buttons or specify it with a 1Mbit/s granularity.</p>
+                </div>
+            </section>
         </div>
     </div>
     <script type="text/javascript">

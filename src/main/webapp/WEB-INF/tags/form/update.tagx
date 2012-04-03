@@ -30,38 +30,41 @@
         </c:if>
         <spring:message arguments="${label}" code="entity_update" var="title_msg" htmlEscape="false" />
         <spring:url value="${path}" var="form_url" />
-        <form:form action="${form_url}" method="PUT" modelAttribute="${modelAttribute}" enctype="${enctype}">
-        <c:set var="errors"><form:errors /></c:set>
-            <c:if test="${not empty errors}">
-                <div class="row">
-                    <div class="span10">
-                        <div class="alert-message error" data-alert="true">
-                            <a class="close" href="#">&amp;times;</a>
-                            <form:errors cssClass="errors" delimiter="&lt;p/&gt;" element="p" />
+
+        <section>
+            <h1>Update a ${label}</h1>
+            <div class="content">
+                <form:form action="${form_url}" method="PUT" modelAttribute="${modelAttribute}" enctype="${enctype}">
+                    <c:set var="errors"><form:errors /></c:set>
+                    <c:if test="${not empty errors}">
+                        <div class="row">
+                            <div class="span10">
+                                <div class="alert-message error" data-alert="true">
+                                    <a class="close" href="#">&amp;times;</a>
+                                    <form:errors cssClass="errors" delimiter="&lt;p/&gt;" element="p" />
+                                </div>
+                            </div>
                         </div>
+                    </c:if>
+
+                    <fieldset>
+                        <jsp:doBody />
+                    </fieldset>
+
+                    <div class="actions" id="${fn:escapeXml(id)}_submit">
+                        <spring:message code="button_save" var="save_button" htmlEscape="false" />
+                        <spring:message code="button_cancel" var="cancel_button" htmlEscape="false" />
+                        <input id="proceed" type="submit" value="${fn:escapeXml(save_button)}" class="btn primary" />
+                        <c:out value=" " />
+                        <a href="${form_url}" class="btn">${cancel_button}</a>
                     </div>
-                </div>
-            </c:if>
 
-            <fieldset>
-                <c:if test="${empty noLabel or not noLabel}">
-                    <legend>Update a ${label}</legend>
-                </c:if>
-                <jsp:doBody />
-            </fieldset>
-
-            <div class="actions" id="${fn:escapeXml(id)}_submit">
-                <spring:message code="button_save" var="save_button" htmlEscape="false" />
-                <spring:message code="button_cancel" var="cancel_button" htmlEscape="false" />
-                <input id="proceed" type="submit" value="${fn:escapeXml(save_button)}" class="btn primary" />
-                <c:out value=" " />
-                <a href="${form_url}" class="btn">${cancel_button}</a>
+                    <form:hidden id="_${fn:escapeXml(idField)}_id" path="${fn:escapeXml(idField)}" />
+                    <c:if test="${versionField ne 'none'}">
+                        <form:hidden id="_${fn:escapeXml(versionField)}_id" path="${fn:escapeXml(versionField)}" />
+                    </c:if>
+                </form:form>
             </div>
-
-            <form:hidden id="_${fn:escapeXml(idField)}_id" path="${fn:escapeXml(idField)}" />
-            <c:if test="${versionField ne 'none'}">
-                <form:hidden id="_${fn:escapeXml(versionField)}_id" path="${fn:escapeXml(versionField)}" />
-            </c:if>
-        </form:form>
+        </section>
     </c:if>
 </jsp:root>
