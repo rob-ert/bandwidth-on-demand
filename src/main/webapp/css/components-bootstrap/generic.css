@@ -2,6 +2,7 @@
 
 [class^="icon-"], [class*=" icon-"] {
     color: #0381a4;
+    font-size: 16px;
 }
 
 /* table + paginator combo */
