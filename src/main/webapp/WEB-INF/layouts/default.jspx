@@ -36,20 +36,27 @@
                     </div>
                 </div>
             </nav>
-        </div>
 
-        <div class="messagebar">
-            <div id="messages">
-                <c:forEach items="${infoMessages}" var="infoMessage">
-                    <div class="alert-message info" data-alert="true">
-                        <a class="close" href="#">&amp;times;</a>
-                        <p style='display: inline'><c:out value="${infoMessage}" escapeXml="false"/></p>
-                    </div>
-                </c:forEach>
+            <div class="messagebar">
+                <div id="messages">
+                    <c:forEach items="${infoMessages}" var="infoMessage">
+                        <div class="alert-message info" data-alert="true">
+                            <a class="close" href="#">&amp;times;</a>
+                            <p style='display: inline'><c:out value="${infoMessage}" escapeXml="false"/></p>
+                        </div>
+                    </c:forEach>
+                </div>
             </div>
-        </div>
-        <div class="container">
-            <tiles:insertAttribute name="body" />
+            <div class="container">
+                <tiles:insertAttribute name="body" />
+            </div>
+
+            <footer>
+                <div class="content-some-dense">
+                    SURFnet bv | Postbus 190-35, 3501 DA Utrecht | T +31 302 305 305 | F +31 302 305 329 | <a href="mailto:admin@surfnet.nl">Admin@SURFnet.nl</a>
+                </div>
+            </footer>
+
         </div>
     </body>
 </html>

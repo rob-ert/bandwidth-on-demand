@@ -26,10 +26,9 @@ header h1 {
 
 /* content */
 
-section {
+section, footer {
     background-color: #f1f1f1;
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
+    border-radius: 8px;
 }
 
 section h1,

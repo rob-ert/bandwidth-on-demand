@@ -9,6 +9,10 @@ header {
     margin-bottom: 25px;
 }
 
+footer {
+	margin-top: 10px;
+}
+
 section {
     margin-bottom: 1em;
 }
@@ -17,9 +21,12 @@ section {
     padding: 20px;
 }
 
+.content-some-dense {
+	padding: 10px 20px 10px 20px;
+}
+
 .content-dense {
     padding: 10px;
-    border-radius: 8px;
 }
 
 .user-box {
@@ -28,3 +35,5 @@ section {
     right: 0;
     min-width: 250px;
 }
+
+
