@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Bandwidth On Demand</title>
+
+        <link rel="stylesheet" href="css/layout.css">
+        <link rel="stylesheet" href="css/typography-colors.css">
+
+        <!-- Custom components -->
+        <link rel="stylesheet" href="css/components/user-box.css">
+
+        <!-- Bootstrap & custom styles -->
+        <link rel="stylesheet" href="css/bootstrap-2.0.2.css">
+        <link rel="stylesheet" href="css/components-bootstrap/generic.css">
+        <link rel="stylesheet" href="css/components-bootstrap/navbar.css">
+        <link rel="stylesheet" href="css/components-bootstrap/table.css">
+        <link rel="stylesheet" href="css/components-bootstrap/pagination.css">
+        <link rel="stylesheet" href="css/components-bootstrap/dropdown.css">
+
+        <link rel="stylesheet" href="css/font-awesome.css">
+
+        <script src="js/tools/prefixfree.min.js"></script>
+
+    </head>
+    <body>
+
+        <div class="wrapper">
+
+            <header>
+                <h1>Bandwidth on Demand</h1>
+            </header>
+
+            <section class="user-box content-dense">
+                <span class="user-name">ReneS</span>
+                <a href="#" class="logout">Logout <i class="icon-signout"></i></a>
+
+                <!-- b:dropdown -->
+
+                <div class="dropdown" id="menu1">
+
+                    <div class="dropdown-toggle" data-toggle="dropdown">
+                        <img src="" class="user-img" style="background-color:#CCC;height:20px;width:20px;" height="20" width="20"/>
+                        <span class="user-title">ICT Manager
+                            <span class="user-role">(BoD administrator)</span>
+                        </span>
+                        <b class="caret"></b>
+                        <span class="user-group">University of Amsterdam</span>
+                    </div>
+
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="#">
+                                <img class="user-img" src="" style="background-color:#CCC;height:20px;width:20px;" height="20" width="20"/>
+                                <span class="user-title">UX Manager
+                                    <span class="user-role">(BoD user)</span>
+                                </span>
+                                <span class="user-group">University of Utrecht</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <img class="user-img" src="" style="background-color:#CCC;height:20px;width:20px;" height="20" width="20"/>
+                                <span class="user-title">VD Manager
+                                    <span class="user-role">(BoD administrator)</span>
+                                </span>
+                                <span class="user-group">University of Amsterdam</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <img class="user-img" src="" style="background-color:#CCC;height:20px;width:20px;" height="20" width="20"/>
+                                <span class="user-title">UI Manager
+                                    <span class="user-role">(BoD user)</span>
+                                </span>
+                                <span class="user-group">Hospital of Amsterdam</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </div>
+
+            </section>
+
+            <!-- b:navbar -->
+
+            <nav class="navbar">
+                <div class="navbar-inner">
+                    <div class="container">
+                        <ul class="nav">
+                            <li><a href="#">Overview</a></li>
+                            <li><a href="#">Reservations</a></li>
+                            <li><a href="#">Virtual ports</a></li>
+                            <li class="active"><a href="#">Physical ports</a></li>
+                            <li><a href="#">Teams</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <section>
+
+                <h2>Default content</h2>
+
+                <div class="content">
+                    <p>Paragraph.</p>
+                </div>
+
+            </section>
+
+            <section>
+
+                <h2>Table + pagination</h2>
+
+                <div class="content">
+
+                    <!-- b:table b:table-bordered b:table-striped -->
+
+                    <table class="table table-bordered table-striped table-above-pagination">
+                        <thead>
+                        <tr>
+                            <th class="small">Extra info</th>
+                            <th>Label</th>
+                            <th>Location description</th>
+                            <th>Max. capacity</th>
+                            <th>Virtual ports</th>
+                            <th class="small">Link</th>
+                            <th class="small">Edit</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><i class="icon-plus-sign"></i> More...</td>
+                            <td>UT12</td>
+                            <td>Steenweg</td>
+                            <td>100 Gbps</td>
+                            <td>3</td>
+                            <td>L</td>
+                            <td>E</td>
+                        </tr>
+                        <tr>
+                            <td>More...</td>
+                            <td>UT12</td>
+                            <td>Steenweg</td>
+                            <td>100 Gbps</td>
+                            <td>3</td>
+                            <td>L</td>
+                            <td>E</td>
+                        </tr>
+                        <tr>
+                            <td>More...</td>
+                            <td>UT12</td>
+                            <td>Steenweg</td>
+                            <td>100 Gbps</td>
+                            <td>3</td>
+                            <td>L</td>
+                            <td>E</td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- b:pagination -->
+
+                    <div class="pagination pagination-below-table">
+                        <ul>
+                            <li><a href="#">←</a></li>
+                            <li class="active">
+                                <a href="#">1</a>
+                            </li>
+                            <li><a href="#">2</a></li>
+                            <li class="disabled"><a href="#">...</a></li>
+                            <li><a href="#">3</a></li>
+                            <li><a href="#">4</a></li>
+                            <li><a href="#">→</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+
+        <!--<script src="js/tools/live.js"></script>-->
+        <script src="js/jquery/jquery-1.7.2.min.js"></script>
+        <script src="js/bootstrap/bootstrap-2.0.2.min.js"></script>
+    </body>
+</html>

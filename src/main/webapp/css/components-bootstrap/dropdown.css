@@ -1,0 +1,32 @@
+/* dropdown (inherited from bootstrap) */
+
+.dropdown {
+    background-color: #FFF;
+    border: 1px solid #bec1b8;
+}
+
+.dropdown.open .dropdown-toggle {
+    background-color: inherit;
+    color: inherit;
+}
+
+.dropdown-menu {
+    left: -1px;
+    width: 100%;
+    padding: 0;
+}
+
+.dropdown-menu a {
+    padding: 0;
+}
+
+.dropdown-toggle {
+    cursor: pointer;
+}
+
+.dropdown-menu li > a:hover,
+.dropdown-menu .active > a,
+.dropdown-menu .active > a:hover {
+    color: inherit;
+    background-color: #EBEBEB;
+}

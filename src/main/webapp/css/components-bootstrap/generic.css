@@ -1,0 +1,18 @@
+/* icons */
+
+[class^="icon-"], [class*=" icon-"] {
+    color: #0381a4;
+}
+
+/* table + paginator combo */
+
+.table-above-pagination {
+    margin-bottom: 0;
+    border-bottom: 0;
+}
+
+.pagination-below-table {
+    background-color: #d8dadc;
+    border: 1px solid #bfbfbf;
+    border-top: 0;
+}

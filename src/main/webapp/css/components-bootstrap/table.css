@@ -1,0 +1,29 @@
+/* table (inherited from bootstrap) */
+
+.table-bordered {
+    border: 1px solid #bfbfbf;
+    border-left: 0;
+}
+
+.table-bordered,
+.table-bordered thead:first-child tr:first-child th:first-child,
+.table-bordered tbody:first-child tr:first-child td:first-child,
+.table-bordered thead:last-child tr:last-child th:first-child,
+.table-bordered tbody:last-child tr:last-child td:first-child {
+    border-radius: 0;
+}
+
+.table-bordered th,
+.table-bordered td {
+    border-left: 1px solid #bfbfbf;
+}
+
+.table-striped tbody tr:nth-child(2n+1) td,
+.table-striped tbody tr:nth-child(2n+1) th {
+    background-color: #FFF;
+}
+
+.table-striped tbody tr:nth-child(2n) td,
+.table-striped tbody tr:nth-child(2n) th {
+    background-color: #ebebeb;
+}

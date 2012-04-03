@@ -1,0 +1,29 @@
+/* user-box (top right user selection dropdown) */
+
+.user-box {
+    font-size: 11px;
+}
+
+.user-box .logout {
+    float: right;
+    text-decoration: none;
+}
+
+.user-box .user-role {
+    font-size: 10px;
+    color: #8c8c8c;
+}
+
+.user-box .user-group {
+    display: block;
+}
+
+.user-box .user-img {
+    float: left;
+    margin: 0 5px 5px 0;
+}
+
+.user-box .user-name {
+    display: inline-block;
+    margin-bottom: 8px;
+}

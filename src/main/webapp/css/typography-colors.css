@@ -1,0 +1,42 @@
+/* generic */
+
+body {
+    font-family: Arial, sans-serif; /* Bootstrap default is Helvetica (Neue) */
+}
+
+.small {
+    font-size: 11px;
+}
+
+thead {
+    background-color: #d8dadc;
+}
+
+/* header */
+
+header {
+    background: url("../images/logo.png") 10px 10px no-repeat;
+    padding-left: 155px;
+}
+
+header h1 {
+    padding-top: 30px;
+    font-weight: normal;
+}
+
+/* content */
+
+section {
+    background-color: #f1f1f1;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+section h2 {
+    background-color: #4fb3cf;
+    color: #FFF;
+    font-size: 15px;
+    padding-left: 20px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
