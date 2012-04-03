@@ -156,7 +156,7 @@
                     <c:if test="${show or update or delete or (extraIcon and not empty item.id) or not empty icons}">
                         <td class="utilbox">
                             <c:forTokens items="${icons}" delims="," var="icon" varStatus="num">
-                                <a href="${fn:replace(actions[num.count-1], '{}', itemId)}" rel="twipsy" title="${titles[num.count-1]}" class="icon-large ${icon}">
+                                <a href="${fn:replace(actions[num.count-1], '{}', itemId)}" rel="tooltip" title="${titles[num.count-1]}" class="icon-large ${icon}">
                                     <!-- -->
                                 </a>
                             </c:forTokens>
@@ -166,7 +166,7 @@
                                 </spring:url>
                                 <spring:url value="/resources/images/show.png" var="show_image_url" />
                                 <spring:message arguments="${typeName}" code="entity_show" var="show_label" htmlEscape="false" />
-                                <a href="${show_form_url}" class="icon-eye-open icon-large" alt="${fn:escapeXml(show_label)}" title="${fn:escapeXml(show_label)}" rel="twipsy"><!--  --></a>
+                                <a href="${show_form_url}" class="icon-eye-open icon-large" alt="${fn:escapeXml(show_label)}" title="${fn:escapeXml(show_label)}" rel="tooltip"><!--  --></a>
                             </c:if>
                             <c:if test="${update}">
                                 <spring:url value="${path}/edit" var="update_form_url">
@@ -174,7 +174,7 @@
                                 </spring:url>
                                 <spring:url value="/resources/images/update.png" var="update_image_url" />
                                 <spring:message arguments="${typeName}" code="entity_update" var="update_label" htmlEscape="false" />
-                                <a href="${update_form_url}" class="icon-edit icon-large" alt="${fn:escapeXml(update_label)}" title="${fn:escapeXml(update_label)}" rel="twipsy"><!--  --></a>
+                                <a href="${update_form_url}" class="icon-edit icon-large" alt="${fn:escapeXml(update_label)}" title="${fn:escapeXml(update_label)}" rel="tooltip"><!--  --></a>
                             </c:if>
                             <c:if test="${delete}">
                                 <spring:url value="${path}/delete" var="delete_form_url" />
@@ -187,7 +187,7 @@
                                         </spring:escapeBody>
                                     </c:set>
                                     <input type="hidden" name="id" value="${itemId}" />
-                                    <a href="#" class="icon-trash icon-large" alt="${fn:escapeXml(delete_label)}" title="${fn:escapeXml(delete_label)}" rel="twipsy"
+                                    <a href="#" class="icon-trash icon-large" alt="${fn:escapeXml(delete_label)}" title="${fn:escapeXml(delete_label)}" rel="tooltip"
                                         onclick="if (confirm('${delete_confirm_msg}')){ $(this).closest('form').submit(); } return false;"><!--  --></a>
                                     <c:if test="${not empty param.page}">
                                         <input name="page" type="hidden" value="${param.page}" />
@@ -203,7 +203,7 @@
                                         </spring:escapeBody>
                                     </c:set>
                                     <input type="hidden" name="id" value="${itemId}" />
-                                    <a href="#" class="${icon_name} icon-large" alt="${fn:escapeXml(icon_label)}" title="${fn:escapeXml(icon_label)}" rel="twipsy"
+                                    <a href="#" class="${icon_name} icon-large" alt="${fn:escapeXml(icon_label)}" title="${fn:escapeXml(icon_label)}" rel="tooltip"
                                         onclick="if (confirm('${icon_confirm_msg}')){ $(this).closest('form').submit(); } return false;"><!--  --></a>
                                     <c:if test="${not empty param.page}">
                                         <input name="page" type="hidden" value="${param.page}" />

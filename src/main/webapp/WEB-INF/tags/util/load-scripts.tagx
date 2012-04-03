@@ -14,9 +14,9 @@
 
     <spring:url value="/resources/js/jquery.min.js" var="jquery_url" />
     <spring:url value="/resources/js/jquery-socket.js" var="jquery_socket_url" />
+    <spring:url value="/resources/js/bootstrap/bootstrap-2.0.2.min.js" var="bootstrap_js_url" />
     <spring:url value="/resources/js/bootstrap-dropdown.js" var="bootstrap_dropdown_url" />
     <spring:url value="/resources/js/bootstrap-alerts.js" var="bootstrap_alerts_url" />
-    <spring:url value="/resources/js/bootstrap-twipsy.js" var="bootstrap_twipsy_url" />
 
     <spring:url value="/resources/js/autoSuggestv14/autoSuggest.css" var="autosuggest_css_url" />
     <spring:url value="/resources/js/autoSuggestv14/jquery.autoSuggest.js" var="autosuggest_js_url" />
@@ -41,9 +41,9 @@
 
     <script src="${jquery_url}" type="text/javascript"><!-- needed --></script>
     <script src="${jquery_socket_url}" type="text/javascript"><!-- needed --></script>
+    <script src="${bootstrap_js_url}" type="text/javascript"><!-- --></script>
     <script src="${bootstrap_dropdown_url}" type="text/javascript"><!-- needed --></script>
     <script src="${bootstrap_alerts_url}" type="text/javascript"><!-- needed --></script>
-    <script src="${bootstrap_twipsy_url}" type="text/javascript"><!-- needed --></script>
     <script src="${autosuggest_js_url}" type="text/javascript"><!-- needed --></script>
     <script src="${dropdownreload_js_url}" type="text/javascript"><!-- needed --></script>
     <script src="${datepicker_js_url}" type="text/javascript"><!-- needed --></script>

@@ -1,7 +1,7 @@
 $(function() {
-	$.fn.twipsy.defaults.delayIn = 500;
+	$.fn.tooltip.defaults.delay = 500;
 
-	$('[rel="twipsy"]').twipsy();
+	$('[rel="tooltip"]').tooltip();
 
 	$('th.sortable').each(function(i, item) {
 	    var $header = $(item),
