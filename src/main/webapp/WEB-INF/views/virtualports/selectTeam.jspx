@@ -5,8 +5,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <div class="span10">
-        <table class="zebra-striped">
+        <table class="table table-striped">
             <c:forEach var="group" items="${userGroups}">
                 <spring:url var="url" value="request">
                     <spring:param name="team" value="${group.id}" />
@@ -30,5 +29,4 @@
                 </tr>
             </c:forEach>
         </table>
-    </div>
 </html>

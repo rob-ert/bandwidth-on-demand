@@ -7,22 +7,32 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <h1><spring:message code="label_request_vp" /></h1>
-    
     <div class="row">
-        <div class="span12">
-            <tiles:insertAttribute name="requestBody" />
+
+        <div class="span9">
+            <section>
+                <h1><spring:message code="label_request_vp" /></h1>
+                <div class="content">
+                    <tiles:insertAttribute name="requestBody" />
+                </div>
+            </section>
         </div>
-        <div class="span4">
-            <h3>Choose the Institute</h3>
-            <p>Select the institute you want to connect to from the list with with institutes that offer bandwidth
-                on demand.</p>
-            <h3>Fill in your request</h3>
-            <p>Specify the minimum required bandwidth and a reason why you need the virtual port. If you are a
-                member of multiple virtual user groups you also need to specify for which group you need the port.</p>
-            <h3>Send email</h3>
-            <p>An email will be sent to the institute with your request. If the institute honors your request the
-                virtual port will show up in your virtual resource group.</p>
+
+        <div class="span3">
+            <section>
+                <h2>.</h2>
+                <div class="content-dense">
+                    <h3>Choose the Institute</h3>
+                    <p>Select the institute you want to connect to from the list with with institutes that offer bandwidth
+                        on demand.</p>
+                    <h3>Fill in your request</h3>
+                    <p>Specify the minimum required bandwidth and a reason why you need the virtual port. If you are a
+                        member of multiple virtual user groups you also need to specify for which group you need the port.</p>
+                    <h3>Send email</h3>
+                    <p>An email will be sent to the institute with your request. If the institute honors your request the
+                        virtual port will show up in your virtual resource group.</p>
+                </div>
+            </section>
         </div>
     </div>
 </div>
