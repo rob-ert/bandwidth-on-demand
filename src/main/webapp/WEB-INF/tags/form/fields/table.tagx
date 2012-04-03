@@ -62,7 +62,7 @@
         <c:set var="actions" value="${fn:split(actionLinks, ',')}" scope="request" />
         <c:set var="titles" value="${fn:split(actionTitles, ',')}" scope="request" />
 
-        <table class="zebra-striped">
+        <table class="table table-striped">
             <thead>
                 <tr>
                     <c:forTokens items="${columnLabels}" delims="," var="columnHeading" varStatus="num">
