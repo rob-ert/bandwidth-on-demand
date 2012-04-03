@@ -25,6 +25,26 @@
     </head>
 
     <body>
+
+        <div class="wrapper">
+            <header>
+                <h1>Bandwidth on Demand</h1>
+            </header>
+            <nav class="navbar">
+                <div class="navbar-inner">
+                    <div class="container">
+                        <ul class="nav">
+                            <li><a href="#">Overview</a></li>
+                            <li><a href="#">Reservations</a></li>
+                            <li><a href="#">Virtual ports</a></li>
+                            <li class="active"><a href="#">Physical ports</a></li>
+                            <li><a href="#">Teams</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+
         <div class="topbar" data-dropdown="dropdown">
             <a href="${home}"><img src="${banner}" class="logo" /></a>
     
