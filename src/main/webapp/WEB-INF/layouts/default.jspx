@@ -25,7 +25,6 @@
     </head>
 
     <body>
-
         <div class="wrapper">
             <header>
                 <h1>${app_name}</h1>
@@ -39,25 +38,6 @@
             </nav>
         </div>
 
-        <!-- <c:set var="displayName" >
-            <sec:authentication property="principal.displayName" htmlEscape="false"/>
-        </c:set>
-        <c:choose>
-            <c:when test="${not empty displayName}">
-                <menu:menu id="user_menu">
-                    <menu:category id="c_user" label="${displayName}" icon="icon-user">
-                        <menu:item id="i_refresh" url="/shibboleth/refresh" messageCode="security_refresh" icon="icon-refresh" />
-                        <menu:item id="i_labels" url="/admin/refreshMessages" messageCode="menu_item_refresh_messages" icon="icon-refresh"/>
-                        <menu:item id="i_logout" url="/Shibboleth.sso/Logout?target=/" messageCode="global_menu_logout" icon="icon-signout" />
-                    </menu:category>
-                </menu:menu>
-            </c:when>
-            <c:otherwise>
-                <menu:menu id="user_menu">
-                    <menu:item url="#" id="no_auth" messageCode="security_not_authenticated" />
-                </menu:menu>
-            </c:otherwise>
-        </c:choose>-->
         <div class="messagebar">
             <div id="messages">
                 <c:forEach items="${infoMessages}" var="infoMessage">
