@@ -11,6 +11,8 @@
     <spring:url value="/resources/css/typography-colors.css" var="typo_colors_css_url" />
     <spring:url value="/resources/css/components-bootstrap/navbar.css" var="b_navbar_css_url" />
     <spring:url value="/resources/css/components-bootstrap/table.css" var="b_table_css_url" />
+    <spring:url value="/resources/css/components-bootstrap/pagination.css" var="b_pagination_css_url" />
+    <spring:url value="/resources/css/components-bootstrap/generic.css" var="b_generic_css_url" />
 
     <spring:url value="/resources/js/jquery.min.js" var="jquery_url" />
     <spring:url value="/resources/js/jquery-socket.js" var="jquery_socket_url" />
@@ -38,6 +40,8 @@
     <link rel="stylesheet" type="text/css" media="screen" href="${typo_colors_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${b_navbar_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${b_table_css_url}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${b_pagination_css_url}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${b_generic_css_url}" />
 
     <script src="${jquery_url}" type="text/javascript"><!-- needed --></script>
     <script src="${jquery_socket_url}" type="text/javascript"><!-- needed --></script>

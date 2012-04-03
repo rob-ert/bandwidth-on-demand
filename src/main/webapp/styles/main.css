@@ -59,19 +59,6 @@ div.topbar h1 {
   line-height: 1;
   letter-spacing: -1px;
 }
-table ul li {
-    color: #404040;
-}
-table ul {
-	margin: 0 0 0 15px;
-}
-.pagination {
-	text-align: center;
-}
-.pagination ul {
-	float: none;
-	display: inline-block;
-}
 label {
 	width: 150px;
 }
@@ -113,7 +100,6 @@ form .clearfix.error select {
 	box-shadow: 0px 0px 6px 1px #0064CD;
 }
 .input-text {padding-top: 6px;font-size: 13px;line-height: 18px;}
-.table-striped > thead > tr > th{background-color: white;}
 th.sortable{cursor: pointer;white-space:nowrap;}
 thead tr th.headerSortDown, thead tr th.headerSortUp{background-color: rgba(141, 192, 219, 0.25);}
 th.headerSortDown::after{content:"";float:right;margin-left:4px;margin-top:7px;border-width: 4px 4px 0px;border-style: solid; border-color: black transparent;}

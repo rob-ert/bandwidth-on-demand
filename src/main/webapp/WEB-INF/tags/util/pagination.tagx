@@ -15,7 +15,7 @@
             <c:set var="page" value="1" />
         </c:if>
 
-        <div class="pagination">
+        <div class="pagination pagination-below-table">
             <ul>
                 <c:choose>
                     <c:when test="${page eq 1}">

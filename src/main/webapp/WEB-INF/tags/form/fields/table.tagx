@@ -62,7 +62,7 @@
         <c:set var="actions" value="${fn:split(actionLinks, ',')}" scope="request" />
         <c:set var="titles" value="${fn:split(actionTitles, ',')}" scope="request" />
 
-        <table class="table table-striped">
+        <table class="table table-bordered table-striped table-above-pagination">
             <thead>
                 <tr>
                     <c:forTokens items="${columnLabels}" delims="," var="columnHeading" varStatus="num">
@@ -104,116 +104,118 @@
                         </c:choose>
                     </c:forTokens>
                     <c:if test="${show or update or delete or (extraIcon and not empty item.id) or not empty icons}">
-                        <th></th>
+                        <th class="small">Actions</th>
                     </c:if>
                 </tr>
             </thead>
-            <c:forEach items="${data}" var="item">
-                <tr>
-                    <c:forTokens items="${columnProperties}" delims="," var="column" varStatus="num">
-                        <c:set var="columnMaxLength" value="${lengths[num.count-1]}" />
-                        <c:set var="columnType" value="${types[num.count-1]}" />
-                        <c:set var="columnDatePattern" value="${patterns[num.count-1]}" />
-                        <td><c:choose>
-                                <c:when test="${columnType eq 'date'}">
-                                    <spring:escapeBody>
-                                        <fmt:formatDate value="${item[column]}"
-                                            pattern="${fn:escapeXml(columnDatePattern)}" var="colTxt" />
-                                    </spring:escapeBody>
-                                </c:when>
-                                <c:when test="${columnType eq 'calendar'}">
-                                    <spring:escapeBody>
-                                        <fmt:formatDate value="${item[column].time}"
-                                            pattern="${fn:escapeXml(columnDatePattern)}" var="colTxt" />
-                                    </spring:escapeBody>
-                                </c:when>
-                                <c:when test="${columnType eq 'boolean'}">
-                                    <c:set var="colTxt">
-                                        <c:choose>
-                                            <c:when test="${item[column]}">
-                                                <span class="label success"><spring:eval expression="item[column]" htmlEscape="false" /></span>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span class="label important"><spring:eval expression="item[column]" htmlEscape="false" /></span>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </c:set>
-                                </c:when>
-                                <c:otherwise>
-                                    <c:set var="colTxt">
-                                        <spring:eval expression="item[column]" htmlEscape="true" />
-                                    </c:set>
-                                </c:otherwise>
-                            </c:choose>
-                            <c:if test="${columnMaxLength ge 0}">
-                                <c:set value="${fn:substring(colTxt, 0, columnMaxLength)}" var="colTxt" />
-                            </c:if>
-                            <c:out value="${colTxt}" escapeXml="false" /></td>
-                    </c:forTokens>
-                    <c:set var="itemId">
-                        <spring:eval expression="item[typeIdFieldName]" />
-                    </c:set>
-                    <c:if test="${show or update or delete or (extraIcon and not empty item.id) or not empty icons}">
-                        <td class="utilbox">
-                            <c:forTokens items="${icons}" delims="," var="icon" varStatus="num">
-                                <a href="${fn:replace(actions[num.count-1], '{}', itemId)}" rel="tooltip" title="${titles[num.count-1]}" class="icon-large ${icon}">
-                                    <!-- -->
-                                </a>
-                            </c:forTokens>
-                            <c:if test="${show}">
-                                <spring:url value="${path}" var="show_form_url">
-                                    <spring:param name="id" value="${itemId}" />
-                                </spring:url>
-                                <spring:url value="/resources/images/show.png" var="show_image_url" />
-                                <spring:message arguments="${typeName}" code="entity_show" var="show_label" htmlEscape="false" />
-                                <a href="${show_form_url}" class="icon-eye-open icon-large" alt="${fn:escapeXml(show_label)}" title="${fn:escapeXml(show_label)}" rel="tooltip"><!--  --></a>
-                            </c:if>
-                            <c:if test="${update}">
-                                <spring:url value="${path}/edit" var="update_form_url">
-                                    <spring:param name="id" value="${itemId}"/>
-                                </spring:url>
-                                <spring:url value="/resources/images/update.png" var="update_image_url" />
-                                <spring:message arguments="${typeName}" code="entity_update" var="update_label" htmlEscape="false" />
-                                <a href="${update_form_url}" class="icon-edit icon-large" alt="${fn:escapeXml(update_label)}" title="${fn:escapeXml(update_label)}" rel="tooltip"><!--  --></a>
-                            </c:if>
-                            <c:if test="${delete}">
-                                <spring:url value="${path}/delete" var="delete_form_url" />
-                                <spring:url value="/resources/images/delete.png" var="delete_image_url" />
-                                <form:form action="${delete_form_url}" method="DELETE">
-                                    <spring:message arguments="${typeName}" code="entity_delete" var="delete_label" htmlEscape="false" />
-                                    <c:set var="delete_confirm_msg">
-                                        <spring:escapeBody javaScriptEscape="true">
-                                            <spring:message code="entity_delete_confirm" />
+            <tbody>
+                <c:forEach items="${data}" var="item">
+                    <tr>
+                        <c:forTokens items="${columnProperties}" delims="," var="column" varStatus="num">
+                            <c:set var="columnMaxLength" value="${lengths[num.count-1]}" />
+                            <c:set var="columnType" value="${types[num.count-1]}" />
+                            <c:set var="columnDatePattern" value="${patterns[num.count-1]}" />
+                            <td><c:choose>
+                                    <c:when test="${columnType eq 'date'}">
+                                        <spring:escapeBody>
+                                            <fmt:formatDate value="${item[column]}"
+                                                pattern="${fn:escapeXml(columnDatePattern)}" var="colTxt" />
                                         </spring:escapeBody>
-                                    </c:set>
-                                    <input type="hidden" name="id" value="${itemId}" />
-                                    <a href="#" class="icon-trash icon-large" alt="${fn:escapeXml(delete_label)}" title="${fn:escapeXml(delete_label)}" rel="tooltip"
-                                        onclick="if (confirm('${delete_confirm_msg}')){ $(this).closest('form').submit(); } return false;"><!--  --></a>
-                                    <c:if test="${not empty param.page}">
-                                        <input name="page" type="hidden" value="${param.page}" />
-                                    </c:if>
-                                </form:form>
-                            </c:if>
-                            <c:if test="${extraIcon and not empty item.id}">
-                                <spring:url value="${path}/delete" var="icon_form_url" />
-                                <form:form action="${icon_form_url}" method="DELETE">
-                                    <c:set var="icon_confirm_msg">
-                                        <spring:escapeBody javaScriptEscape="true">
-                                            <spring:message text="${fn:escapeXml(icon_label)}?" />
+                                    </c:when>
+                                    <c:when test="${columnType eq 'calendar'}">
+                                        <spring:escapeBody>
+                                            <fmt:formatDate value="${item[column].time}"
+                                                pattern="${fn:escapeXml(columnDatePattern)}" var="colTxt" />
                                         </spring:escapeBody>
-                                    </c:set>
-                                    <input type="hidden" name="id" value="${itemId}" />
-                                    <a href="#" class="${icon_name} icon-large" alt="${fn:escapeXml(icon_label)}" title="${fn:escapeXml(icon_label)}" rel="tooltip"
-                                        onclick="if (confirm('${icon_confirm_msg}')){ $(this).closest('form').submit(); } return false;"><!--  --></a>
-                                    <c:if test="${not empty param.page}">
-                                        <input name="page" type="hidden" value="${param.page}" />
-                                    </c:if>
-                                </form:form>
-                            </c:if>
-                        </td>
-                    </c:if>
-                </tr>
-            </c:forEach>
+                                    </c:when>
+                                    <c:when test="${columnType eq 'boolean'}">
+                                        <c:set var="colTxt">
+                                            <c:choose>
+                                                <c:when test="${item[column]}">
+                                                    <span class="label success"><spring:eval expression="item[column]" htmlEscape="false" /></span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="label important"><spring:eval expression="item[column]" htmlEscape="false" /></span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </c:set>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <c:set var="colTxt">
+                                            <spring:eval expression="item[column]" htmlEscape="true" />
+                                        </c:set>
+                                    </c:otherwise>
+                                </c:choose>
+                                <c:if test="${columnMaxLength ge 0}">
+                                    <c:set value="${fn:substring(colTxt, 0, columnMaxLength)}" var="colTxt" />
+                                </c:if>
+                                <c:out value="${colTxt}" escapeXml="false" /></td>
+                        </c:forTokens>
+                        <c:set var="itemId">
+                            <spring:eval expression="item[typeIdFieldName]" />
+                        </c:set>
+                        <c:if test="${show or update or delete or (extraIcon and not empty item.id) or not empty icons}">
+                            <td class="utilbox">
+                                <c:forTokens items="${icons}" delims="," var="icon" varStatus="num">
+                                    <a href="${fn:replace(actions[num.count-1], '{}', itemId)}" rel="tooltip" title="${titles[num.count-1]}" class="icon-large ${icon}">
+                                        <!-- -->
+                                    </a>
+                                </c:forTokens>
+                                <c:if test="${show}">
+                                    <spring:url value="${path}" var="show_form_url">
+                                        <spring:param name="id" value="${itemId}" />
+                                    </spring:url>
+                                    <spring:url value="/resources/images/show.png" var="show_image_url" />
+                                    <spring:message arguments="${typeName}" code="entity_show" var="show_label" htmlEscape="false" />
+                                    <a href="${show_form_url}" class="icon-eye-open icon-large" alt="${fn:escapeXml(show_label)}" title="${fn:escapeXml(show_label)}" rel="tooltip"><!--  --></a>
+                                </c:if>
+                                <c:if test="${update}">
+                                    <spring:url value="${path}/edit" var="update_form_url">
+                                        <spring:param name="id" value="${itemId}"/>
+                                    </spring:url>
+                                    <spring:url value="/resources/images/update.png" var="update_image_url" />
+                                    <spring:message arguments="${typeName}" code="entity_update" var="update_label" htmlEscape="false" />
+                                    <a href="${update_form_url}" class="icon-edit icon-large" alt="${fn:escapeXml(update_label)}" title="${fn:escapeXml(update_label)}" rel="tooltip"><!--  --></a>
+                                </c:if>
+                                <c:if test="${delete}">
+                                    <spring:url value="${path}/delete" var="delete_form_url" />
+                                    <spring:url value="/resources/images/delete.png" var="delete_image_url" />
+                                    <form:form action="${delete_form_url}" method="DELETE">
+                                        <spring:message arguments="${typeName}" code="entity_delete" var="delete_label" htmlEscape="false" />
+                                        <c:set var="delete_confirm_msg">
+                                            <spring:escapeBody javaScriptEscape="true">
+                                                <spring:message code="entity_delete_confirm" />
+                                            </spring:escapeBody>
+                                        </c:set>
+                                        <input type="hidden" name="id" value="${itemId}" />
+                                        <a href="#" class="icon-trash icon-large" alt="${fn:escapeXml(delete_label)}" title="${fn:escapeXml(delete_label)}" rel="tooltip"
+                                            onclick="if (confirm('${delete_confirm_msg}')){ $(this).closest('form').submit(); } return false;"><!--  --></a>
+                                        <c:if test="${not empty param.page}">
+                                            <input name="page" type="hidden" value="${param.page}" />
+                                        </c:if>
+                                    </form:form>
+                                </c:if>
+                                <c:if test="${extraIcon and not empty item.id}">
+                                    <spring:url value="${path}/delete" var="icon_form_url" />
+                                    <form:form action="${icon_form_url}" method="DELETE">
+                                        <c:set var="icon_confirm_msg">
+                                            <spring:escapeBody javaScriptEscape="true">
+                                                <spring:message text="${fn:escapeXml(icon_label)}?" />
+                                            </spring:escapeBody>
+                                        </c:set>
+                                        <input type="hidden" name="id" value="${itemId}" />
+                                        <a href="#" class="${icon_name} icon-large" alt="${fn:escapeXml(icon_label)}" title="${fn:escapeXml(icon_label)}" rel="tooltip"
+                                            onclick="if (confirm('${icon_confirm_msg}')){ $(this).closest('form').submit(); } return false;"><!--  --></a>
+                                        <c:if test="${not empty param.page}">
+                                            <input name="page" type="hidden" value="${param.page}" />
+                                        </c:if>
+                                    </form:form>
+                                </c:if>
+                            </td>
+                        </c:if>
+                    </tr>
+                </c:forEach>
+            </tbody>
         </table>
         
         <c:if test="${not empty maxPages}">
