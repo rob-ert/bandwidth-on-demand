@@ -13,21 +13,23 @@
             </div>
         </div>
         <div class="span4">
-            <div class="tasks">
+            <section>
                 <h1>Common tasks</h1>
                 <spring:url var="create_prg_url" value="/noc/physicalresourcegroups/create" />
                 <spring:url var="manager_url" value="/manager" />
                 <spring:url var="user_url" value="/" />
-                <ul>
-                    <li><a class="btn" href="${create_prg_url}"><i class="icon-plus"><!--  --></i> Phys. Resource Group</a></li>
-                    <sec:authorize access="hasRole('USER')">
-                        <li><a class="btn" href="${user_url}"><i class="icon-user"><!--  --></i> Become User</a></li>
-                    </sec:authorize>
-                    <sec:authorize access="hasRole('ICT_MANAGER')">
-                        <li><a class="btn" href="${manager_url}"><i class="icon-user"><!--  --></i> Become ICT Manager</a></li>
-                    </sec:authorize>
-                </ul>
-            </div>
+                <div class="content">
+                    <ul class="tasks">
+                        <li><a class="btn" href="${create_prg_url}"><i class="icon-plus"><!--  --></i> Phys. Resource Group</a></li>
+                        <sec:authorize access="hasRole('USER')">
+                            <li><a class="btn" href="${user_url}"><i class="icon-user"><!--  --></i> Become User</a></li>
+                        </sec:authorize>
+                        <sec:authorize access="hasRole('ICT_MANAGER')">
+                            <li><a class="btn" href="${manager_url}"><i class="icon-user"><!--  --></i> Become ICT Manager</a></li>
+                        </sec:authorize>
+                    </ul>
+                </div>
+            </section>
         </div>
     </div>
 

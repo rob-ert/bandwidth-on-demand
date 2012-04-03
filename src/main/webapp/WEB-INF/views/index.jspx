@@ -16,26 +16,28 @@
             </div>
         </div>
         <div class="span4">
-            <div class="tasks">
-                <h1>Common tasks</h1>
+            <section>
+                <h2>Common tasks</h2>
                 <spring:url var="noc_url" value="/noc" />
                 <spring:url var="manager_url" value="/manager" />
                 <spring:url var="reservation_url" value="/reservations/create" />
                 <spring:url var="request_url" value="/request" />
 
-                <ul>
-                    <sec:authorize access="hasRole('USER')">
-                        <li><a class="btn primary" href="${reservation_url}"><i class="icon-plus"><!--  --></i>Create a Reservation</a></li>
-                        <li><a href="${request_url}" class="btn"><i class="icon-envelope"><!--  --></i> Request a Virtual Port</a></li>
-                    </sec:authorize>
-                    <sec:authorize access="hasRole('ICT_MANAGER')">
-                        <li><a class="btn" href="${manager_url}"><i class="icon-user"><!--  --></i> Become ICT Manager</a></li>
-                    </sec:authorize>
-                    <sec:authorize access="hasRole('NOC_ENGINEER')">
-                        <li><a class="btn" href="${noc_url}"><i class="icon-user"><!--  --></i> Become NOC Engineer</a></li>
-                    </sec:authorize>
-                </ul>
-            </div>
+                <div class="content">
+                    <ul class="tasks">
+                        <sec:authorize access="hasRole('USER')">
+                            <li><a class="btn primary" href="${reservation_url}"><i class="icon-plus"><!--  --></i>Create a Reservation</a></li>
+                            <li><a href="${request_url}" class="btn"><i class="icon-envelope"><!--  --></i> Request a Virtual Port</a></li>
+                        </sec:authorize>
+                        <sec:authorize access="hasRole('ICT_MANAGER')">
+                            <li><a class="btn" href="${manager_url}"><i class="icon-user"><!--  --></i> Become ICT Manager</a></li>
+                        </sec:authorize>
+                        <sec:authorize access="hasRole('NOC_ENGINEER')">
+                            <li><a class="btn" href="${noc_url}"><i class="icon-user"><!--  --></i> Become NOC Engineer</a></li>
+                        </sec:authorize>
+                    </ul>
+                </div>
+            </section>
         </div>
     </div>
 

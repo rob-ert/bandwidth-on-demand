@@ -14,19 +14,21 @@
             </div>
         </div>
         <div class="span4">
-            <div class="tasks">
-                <h1>Common tasks</h1>
+            <section>
+                <h2>Common tasks</h2>
                 <spring:url var="noc_url" value="/noc" />
                 <spring:url var="user_url" value="/" />
-                <ul>
-                    <sec:authorize access="hasRole('USER')">
-                        <li><a class="btn" href="${user_url}"><i class="icon-user"><!--  --></i> Become User</a></li>
-                    </sec:authorize>
-                    <sec:authorize access="hasRole('NOC_ENGINEER')">
-                        <li><a class="btn" href="${noc_url}"><i class="icon-user"><!--  --></i> Become NOC Engineer</a></li>
-                    </sec:authorize>
-                </ul>
-            </div>
+                    <div class="content">
+                    <ul class="tasks">
+                        <sec:authorize access="hasRole('USER')">
+                            <li><a class="btn" href="${user_url}"><i class="icon-user"><!--  --></i> Become User</a></li>
+                        </sec:authorize>
+                        <sec:authorize access="hasRole('NOC_ENGINEER')">
+                            <li><a class="btn" href="${noc_url}"><i class="icon-user"><!--  --></i> Become NOC Engineer</a></li>
+                        </sec:authorize>
+                    </ul>
+                </div>
+            </section>
         </div>
     </div>
 </div>
