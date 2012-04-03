@@ -21,9 +21,12 @@
  */
 package nl.surfnet.bod.web.security;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.GroupService;
@@ -71,8 +74,45 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
 
     List<GrantedAuthority> authorities = getAuthorities(groups);
 
-    return new RichUserDetails(principal.getNameId(), principal.getDisplayName(), principal.getEmail(), authorities,
-        groups);
+    RichUserDetails userDetails = new RichUserDetails(principal.getNameId(), principal.getDisplayName(),
+        principal.getEmail(), authorities, groups);
+
+    enrichWithRoles(userDetails);
+
+    return userDetails;
+  }
+
+  /**
+   * Determines for which userGroups there is a {@link PhysicalResourceGroup}
+   * related and creates a {@link BodRole} based on that information.
+   * 
+   * @param richUserDetails
+   *          {@link RichUserDetails}
+   */
+  void enrichWithRoles(RichUserDetails richUserDetails) {
+
+    for (UserGroup userGroup : richUserDetails.getUserGroups()) {
+      PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.findByAdminGroup(userGroup.getId());
+      String role = null;
+      if (physicalResourceGroup != null) {
+
+        ArrayList<UserGroup> groups = Lists.newArrayList(userGroup);
+        if (isNocEngineerGroup(groups)) {
+          role = Security.NOC_ENGINEER;
+        }
+        else if (isIctManager(groups)) {
+          role = Security.ICT_MANAGER;
+        }
+        else if (isUser(groups)) {
+          role = Security.USER;
+        }
+
+        richUserDetails.addRole(new BodRole(userGroup, role, physicalResourceGroup.getInstitute()));
+      }
+    }
+    
+    //Set the selected role the first one
+    richUserDetails.setSelectedRole(richUserDetails.getBodRoles().get(0));
   }
 
   private List<GrantedAuthority> getAuthorities(Collection<UserGroup> groups) {

@@ -64,6 +64,11 @@ public class RichUserDetailsFactory {
     return this;
   }
 
+  public RichUserDetailsFactory addUserGroup(UserGroup userGroup) {
+    userGroups.add(userGroup);
+    return this;
+  }
+
   public RichUserDetailsFactory setDisplayname(String displayName) {
     this.displayName = displayName;
     return this;

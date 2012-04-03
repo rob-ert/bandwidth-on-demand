@@ -34,6 +34,15 @@ import org.springframework.stereotype.Repository;
 public interface PhysicalResourceGroupRepo extends JpaSpecificationExecutor<PhysicalResourceGroup>,
     JpaRepository<PhysicalResourceGroup, Long> {
 
+  
+  /**
+   * Finds a {@link PhysicalResourceGroup} by a adminGroup
+   * 
+   * @param adminGroup
+   * @return {@link PhysicalResourceGroup} related to the given adminGroup
+   */
+  PhysicalResourceGroup findByAdminGroup(String adminGroup);
+  
   /**
    * Finds {@link PhysicalResourceGroup}s by a Collection of adminGroups
    * {@link PhysicalResourceGroup#getAdminGroup()}

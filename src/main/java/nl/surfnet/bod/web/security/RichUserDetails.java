@@ -25,7 +25,9 @@ import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Collection;
+import java.util.List;
 
+import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.UserGroup;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -33,6 +35,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 
 @SuppressWarnings("serial")
 public class RichUserDetails implements UserDetails {
@@ -42,6 +45,8 @@ public class RichUserDetails implements UserDetails {
   private final String email;
   private final Collection<GrantedAuthority> authorities;
   private final Collection<UserGroup> userGroups;
+  private final List<BodRole> bodRoles = Lists.newArrayList();
+  private BodRole selectedRole;
 
   public RichUserDetails(String username, String displayName, String email, Collection<GrantedAuthority> authorities,
       Collection<UserGroup> userGroups) {
@@ -112,9 +117,26 @@ public class RichUserDetails implements UserDetails {
     return true;
   }
 
+  public void addRole(BodRole bodRole) {
+    this.bodRoles.add(bodRole);
+  }
+
+  public List<BodRole> getBodRoles() {
+    return bodRoles;
+  }
+
+  public void setSelectedRole(BodRole role) {
+    this.selectedRole = role;
+  }
+
+  public BodRole getSelectedRole() {
+    return selectedRole;
+  }
+
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("nameId", getNameId()).add("displayName", getDisplayName()).toString();
+    return Objects.toStringHelper(this).add("nameId", getNameId()).add("displayName", getDisplayName())
+        .add("bodRoles", bodRoles).toString();
   }
 
 }

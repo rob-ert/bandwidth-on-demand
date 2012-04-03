@@ -26,12 +26,17 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.GroupService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.UserGroupFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
@@ -45,6 +50,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RichUserDetailsServiceTest {
@@ -116,9 +122,8 @@ public class RichUserDetailsServiceTest {
 
   @Test
   public void shouldUpdateVirtualResourceGroupsIfChangedInSurfconext() {
-    ImmutableList<UserGroup> userGroups = listOf(
-        new UserGroupFactory().setId("urn:nameGroup").setName("new name").create(),
-        new UserGroupFactory().setId("urn:descGroup").setDescription("new desc").create());
+    ImmutableList<UserGroup> userGroups = listOf(new UserGroupFactory().setId("urn:nameGroup").setName("new name")
+        .create(), new UserGroupFactory().setId("urn:descGroup").setDescription("new desc").create());
 
     VirtualResourceGroup vrgNewName = new VirtualResourceGroupFactory().setName("old name").create();
     VirtualResourceGroup vrgNewDesc = new VirtualResourceGroupFactory().setDescription("old desc").create();
@@ -133,6 +138,47 @@ public class RichUserDetailsServiceTest {
     assertThat(vrgNewDesc.getDescription(), is("new desc"));
     verify(vrgServiceMock).update(vrgNewDesc);
     verify(vrgServiceMock).update(vrgNewName);
+  }
+
+  @Test
+  public void shouldAddRole() {
+    UserGroup userGroup = new UserGroupFactory().setId("urn:nameGroup").setName("new name").create();
+
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
+
+    when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(listOf(userGroup));
+    when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(prg);
+
+    RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
+        "urn:alanvdam", "Alan van Dam", "alan@test.com"), "N/A"));
+
+    assertThat(userDetails.getBodRoles(), hasSize(1));
+  }
+
+  @Test
+  public void shouldContainUserGroupData() {
+    UserGroup userGroup = new UserGroupFactory().setId("urn:nameGroup").setName("new name").create();
+    RichUserDetails userDetails = new RichUserDetailsFactory().addUserGroup(userGroup).create();
+
+    Institute institute = new InstituteFactory().create();
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setInstitute(institute).create();
+
+    when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(listOf(userGroup));
+    when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(prg);
+    // Force role Manager
+    when(prgServiceMock.findAllForAdminGroups(Lists.newArrayList(userGroup))).thenReturn(Lists.newArrayList(prg));
+
+    subject.enrichWithRoles(userDetails);
+
+    assertThat(userDetails.getBodRoles(), hasSize(1));
+    BodRole bodRole = userDetails.getBodRoles().get(0);
+
+    assertThat(bodRole.getGroupId(), is(userGroup.getId()));
+    assertThat(bodRole.getGroupName(), is(userGroup.getName()));
+    assertThat(bodRole.getGroupDescription(), is(userGroup.getDescription()));
+    assertThat(bodRole.getInstituteId(), is(institute.getId()));
+    assertThat(bodRole.getInstituteName(), is(institute.getName()));
+    assertThat(bodRole.getRoleName(), is(Security.ICT_MANAGER));
   }
 
   private static <E> ImmutableList<E> listOf(E... elements) {

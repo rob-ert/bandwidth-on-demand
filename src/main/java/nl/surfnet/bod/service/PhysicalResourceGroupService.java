@@ -183,10 +183,19 @@ public class PhysicalResourceGroupService {
     return prg;
   }
 
+  public PhysicalResourceGroup findByAdminGroup(String groupId) {
+    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupRepo.findByAdminGroup(groupId);
+
+    if (physicalResourceGroup != null) {
+      instituteService.fillInstituteForPhysicalResourceGroup(physicalResourceGroup);
+    }
+    return physicalResourceGroup;
+  }
+
   @SuppressWarnings("unchecked")
   public ActivationEmailLink<PhysicalResourceGroup> findActivationLink(String uuid) {
-    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink =
-        (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo.findByUuid(uuid);
+    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo
+        .findByUuid(uuid);
 
     if (activationEmailLink != null) {
       activationEmailLink.setSourceObject(find(activationEmailLink.getSourceId()));

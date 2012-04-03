@@ -29,6 +29,41 @@
             <header>
                 <h1>${app_name}</h1>
             </header>
+            
+             <section class="user-box content-dense">
+                <span class="user-name"><sec:authentication property="principal.displayName" htmlEscape="false"/></span>
+            		
+                <a href="#" class="logout">Logout <i class="icon-signout"><!-- --></i></a>
+
+               <div class="dropdown">
+                     <sec:authentication property='principal.selectedRole.roleName'  var="s_role_key" />
+                     <spring:message  code="role_class_${s_role_key}" var="s_role_class"/>                     
+                    <div class="dropdown-toggle ${s_role_class}" data-toggle="dropdown">
+                        <span class="user-icon"><!--  --></span>
+                        <span class="user-title"><span class="user-title"><spring:message  code="role_${s_role_key}"/></span>                            
+                        </span>
+                        <b class="caret"><!--  --></b>
+                        <span class="user-group"><sec:authentication property="principal.selectedRole.instituteName"/></span>
+                    </div>
+
+                    <ul class="dropdown-menu">
+	                     <sec:authentication property="principal.bodRoles"  var="bodRoles"/>
+	                    	 <c:forEach items="${bodRoles}" var="bodRole">	                    	  
+		                     	  <spring:message  code="role_class_${bodRole.roleName}" var="role_class"/>
+		                    
+		                        <li class="${role_class}">
+		                            <a href="#">
+		                                <span class="user-icon"><!--  --></span>
+		                                <span class="user-title"><spring:message  code="role_${bodRole.roleName}"/></span>
+		                                <span class="user-group"><c:out value="${bodRole.instituteName}"/></span>
+		                            </a>
+		                        </li>         
+	                     </c:forEach>               
+                    </ul>
+                </div>
+            </section>
+            
+            <!--  -->
             <nav class="navbar">
                 <div class="navbar-inner">
                     <div class="container">
@@ -38,7 +73,7 @@
             </nav>
 
             <div class="messagebar">
-                <div id="messages">
+                <div id="messages">                	  
                     <c:forEach items="${infoMessages}" var="infoMessage">
                         <div class="alert-message info" data-alert="true">
                             <a class="close" href="#">&amp;times;</a>
@@ -47,7 +82,7 @@
                     </c:forEach>
                 </div>
             </div>
-            <div class="container">
+            <div class="container">            		            		
                 <tiles:insertAttribute name="body" />
             </div>
 
