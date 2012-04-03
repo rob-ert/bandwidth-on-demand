@@ -5,24 +5,28 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <div class="row">
-        <div class="hero-unit span9">
-            <h1>Welcome Institute ICT Manager</h1>
-            <p>Welcome to SURFnet's Bandwidth on Demand user interface.</p>
-            <p>Please select the task you want to perform as institute ICT
-            manager.</p>
+        <div class="span8">
+            <div class="hero-unit">
+                <h1>Welcome Institute ICT Manager</h1>
+                <p>Welcome to SURFnet's Bandwidth on Demand user interface.</p>
+                <p>Please select the task you want to perform as institute ICT
+                manager.</p>
+            </div>
         </div>
-        <div class="tasks span4">
-            <h1>Common tasks</h1>
-            <spring:url var="noc_url" value="/noc" />
-            <spring:url var="user_url" value="/" />
-            <ul>
-                <sec:authorize access="hasRole('USER')">
-                    <li><a class="btn" href="${user_url}"><i class="icon-user"><!--  --></i> Become User</a></li>
-                </sec:authorize>
-                <sec:authorize access="hasRole('NOC_ENGINEER')">
-                    <li><a class="btn" href="${noc_url}"><i class="icon-user"><!--  --></i> Become NOC Engineer</a></li>
-                </sec:authorize>
-            </ul>
+        <div class="span4">
+            <div class="tasks">
+                <h1>Common tasks</h1>
+                <spring:url var="noc_url" value="/noc" />
+                <spring:url var="user_url" value="/" />
+                <ul>
+                    <sec:authorize access="hasRole('USER')">
+                        <li><a class="btn" href="${user_url}"><i class="icon-user"><!--  --></i> Become User</a></li>
+                    </sec:authorize>
+                    <sec:authorize access="hasRole('NOC_ENGINEER')">
+                        <li><a class="btn" href="${noc_url}"><i class="icon-user"><!--  --></i> Become NOC Engineer</a></li>
+                    </sec:authorize>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
