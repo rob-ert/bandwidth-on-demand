@@ -10,6 +10,7 @@
     <jsp:directive.attribute name="labelPlural" type="java.lang.String" required="false" rtexprvalue="true" description="The label used for this object, will default to a message bundle if not supplied" />
     <jsp:directive.attribute name="labelCode" type="java.lang.String" required="false" rtexprvalue="true" description="The code of the label header" />
     <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
+    <jsp:directive.attribute name="path" type="java.lang.String" required="false" rtexprvalue="true" description="" />
 
     <c:if test="${empty render or render}">
         <c:if test="${empty label}">
@@ -27,6 +28,14 @@
                 <spring:message code="${labelCode}" var="title_msg" />
             </c:otherwise>
         </c:choose>
+
+        <c:if test="${not empty path}">
+            <spring:url value="${path}/create" var="create_url" />
+
+            <div class="actions">
+                <a href="${create_url}" class="btn"><spring:message code="global_menu_new" /></a>
+            </div>
+        </c:if>
 
         <div class="page-header">
             <h2>${title_msg}</h2>

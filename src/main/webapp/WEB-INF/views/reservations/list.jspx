@@ -13,8 +13,8 @@
            <sform:select id="filter" path="filterSelect.id" items="${filterList}" itemLabel="label" itemValue="id" />
        </div>
     </div>
-	 
-    <page:list id="pl_reservation" items="${list}">
+    
+    <page:list id="pl_reservation" items="${list}" path="/reservations">
         <table:table data="${list}" id="l_reservation" path="/reservations" typeIdFieldName="id" update="false">
             <table:column labelCode="virtualresourcegroup" id="virtualresourcegroup" property="virtualResourceGroup"/>
             <table:column labelCode="reservation_sourcePort" id="sourceport" property="sourcePort"/>
