@@ -29,7 +29,10 @@ public class LongPollServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     String transport = request.getParameter("transport");
-    if (transport.equals("longpollajax") || transport.equals("longpollxdr") || transport.equals("longpolljsonp")) {
+    if (transport == null) {
+      logger.error("No transport defined for the long polling call");
+    }
+    else if (transport.equals("longpollajax") || transport.equals("longpollxdr") || transport.equals("longpolljsonp")) {
       doLongPollConnect(request, response, transport);
     }
     else {
@@ -46,6 +49,7 @@ public class LongPollServlet extends HttpServlet {
     response.setContentType("text/" + (transport.equals("longpolljsonp") ? "javascript" : "plain"));
 
     final String id = request.getParameter("id");
+    final String count = request.getParameter("count");
 
     AsyncContext aCtx = request.startAsync(request, response);
     aCtx.addListener(new AsyncListener() {
@@ -75,24 +79,31 @@ public class LongPollServlet extends HttpServlet {
       }
     });
 
-    connections.clientRequest(id, Integer.valueOf(request.getParameter("count")), aCtx, Security.getUserDetails());
+    connections.clientRequest(id, Integer.valueOf(count), aCtx, Security.getUserDetails());
   }
 
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     request.setCharacterEncoding("utf-8");
-    String message = request.getReader().readLine();
-    // example of message
-    // data={"id":"1","socket":"f8eed38c-c0d5-4b15-b9b9-e121a1741df6","type":"heartbeat","data":null,"reply":false}
 
-    Matcher matcher = SOCKET_ID_PATTERN.matcher(message);
+    String socketId = extractSocketId(request.getReader().readLine());
 
-    if (matcher.matches()) {
-      String id = matcher.group(1);
-      connections.sendHeartbeat(id);
+    if (socketId != null) {
+      connections.sendHeartbeat(socketId);
     }
 
     response.setHeader("Access-Control-Allow-Origin", "*");
+  }
+
+  protected String extractSocketId(String message) {
+    // data={"id":"1","socket":"f8eed38c-c0d5-4b15-b9b9-e121a1741df6","type":"heartbeat","data":null,"reply":false}
+    Matcher matcher = SOCKET_ID_PATTERN.matcher(message);
+
+    if (matcher.matches()) {
+      return matcher.group(1);
+    }
+
+    return null;
   }
 
   @Override
