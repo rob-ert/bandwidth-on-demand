@@ -1,0 +1,4 @@
+<menu xmlns="urn:jsptagdir:/WEB-INF/tags/menu">
+    <item id="i_overview" url="/" messageCode="menu_overview_label" menu="overview" />
+    <item id="i_error" url="#" messageCode="menu_error_label" menu="error" />
+</menu>

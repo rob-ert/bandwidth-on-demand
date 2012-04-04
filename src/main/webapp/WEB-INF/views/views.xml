@@ -6,22 +6,24 @@
         <put-attribute name="body" value="/WEB-INF/views/index.jspx" />
         <put-attribute name="active_menu" value="overview" cascade="true" />
     </definition>
-    <definition extends="default" name="dataAccessFailure">
-        <put-attribute name="body" value="/WEB-INF/views/dataAccessFailure.jspx" />
-    </definition>
-    <definition extends="default" name="resourceNotFound">
-        <put-attribute name="body" value="/WEB-INF/views/resourceNotFound.jspx" />
-    </definition>
-    <definition extends="default" name="accessDenied">
-        <put-attribute name="body" value="/WEB-INF/views/accessDenied.jspx" />
-    </definition>
+
     <definition extends="default" name="noUserRole">
         <put-attribute name="body" value="/WEB-INF/views/noUserRole.jspx" />
     </definition>
-    <definition extends="default" name="uncaughtException">
-        <put-attribute name="body" value="/WEB-INF/views/uncaughtException.jspx" />
-    </definition>
     <definition extends="default" name="message">
         <put-attribute name="body" value="/WEB-INF/views/message.jspx" />
+    </definition>
+
+    <definition extends="error" name="dataAccessFailure">
+        <put-attribute name="body" value="/WEB-INF/views/dataAccessFailure.jspx" />
+    </definition>
+    <definition extends="error" name="resourceNotFound">
+        <put-attribute name="body" value="/WEB-INF/views/resourceNotFound.jspx" />
+    </definition>
+    <definition extends="error" name="accessDenied">
+        <put-attribute name="body" value="/WEB-INF/views/accessDenied.jspx" />
+    </definition>
+    <definition extends="error" name="uncaughtException">
+        <put-attribute name="body" value="/WEB-INF/views/uncaughtException.jspx" />
     </definition>
 </tiles-definitions>
