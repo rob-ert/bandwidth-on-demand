@@ -62,7 +62,12 @@
         <c:set var="actions" value="${fn:split(actionLinks, ',')}" scope="request" />
         <c:set var="titles" value="${fn:split(actionTitles, ',')}" scope="request" />
 
-        <table class="table table-bordered table-striped table-above-pagination">
+        <c:set var="table_classes" value="table table-bordered table-striped" />
+        <c:if test="${not empty maxPages and maxPages > 1}">
+            <c:set var="table_classes" value="${table_classes} table-above-pagination"/>
+        </c:if>
+
+        <table class="${table_classes}">
             <thead>
                 <tr>
                     <c:forTokens items="${columnLabels}" delims="," var="columnHeading" varStatus="num">
@@ -155,7 +160,7 @@
                             <spring:eval expression="item[typeIdFieldName]" />
                         </c:set>
                         <c:if test="${show or update or delete or (extraIcon and not empty item.id) or not empty icons}">
-                            <td class="utilbox">
+                            <td>
                                 <c:forTokens items="${icons}" delims="," var="icon" varStatus="num">
                                     <a href="${fn:replace(actions[num.count-1], '{}', itemId)}" rel="tooltip" title="${titles[num.count-1]}" class="icon-large ${icon}">
                                         <!-- -->
