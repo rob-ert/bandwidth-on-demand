@@ -36,11 +36,12 @@
                 <a href="#" class="logout">Logout <i class="icon-signout"><!-- --></i></a>
 
                <div class="dropdown">
-                     <sec:authentication property='principal.selectedRole.roleName'  var="s_role_key" />
-                     <spring:message  code="role_class_${s_role_key}" var="s_role_class"/>                     
+                     <sec:authentication property='principal.selectedRole'  var="selectedRole" />
+                     <spring:message  code="role_class_${selectedRole.roleName}" var="s_role_class"/>                     
                     <div class="dropdown-toggle ${s_role_class}" data-toggle="dropdown">
+                    	  <input id="roleId" type="hidden" value="${selectedRole.groupId}"/>
                         <span class="user-icon"><!--  --></span>
-                        <span class="user-title"><span class="user-title"><spring:message  code="role_${s_role_key}"/></span>                            
+                        <span class="user-title"><span class="user-title"><spring:message  code="role_${selectedRole.roleName}"/></span>                            
                         </span>
                         <b class="caret"><!--  --></b>
                         <span class="user-group"><sec:authentication property="principal.selectedRole.instituteName"/></span>
