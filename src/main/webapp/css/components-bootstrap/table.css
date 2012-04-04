@@ -57,6 +57,7 @@
     width: 90%;
     background-color: #ecf8fa;
     border: 1px solid #85cadd;
+    box-shadow: 2px 2px 5px #bfbfbf;
 }
 
 .table .rowdetails-content:before {

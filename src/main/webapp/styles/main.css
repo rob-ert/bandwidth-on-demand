@@ -9,13 +9,11 @@ form#command {
 	display: inline;
 	margin: 0;
 }
-.topbar, .messagebar {
+.messagebar {
 	background-color: white;
     width: 940px;
     margin-left: auto;
     margin-right: auto;
-}
-.messagebar {
     display: none;
 	margin-top: 121px;
 	position: fixed;
@@ -65,23 +63,21 @@ form .clearfix.error select {
 	box-shadow: 0px 0px 6px 1px #0064CD;
 }
 .input-text {padding-top: 6px;font-size: 13px;line-height: 18px;}
-th.sortable{cursor: pointer;white-space:nowrap;}
+
 thead tr th.headerSortDown, thead tr th.headerSortUp{background-color: rgba(141, 192, 219, 0.25);}
 th.headerSortDown::after{content:"";float:right;margin-left:4px;margin-top:7px;border-width: 4px 4px 0px;border-style: solid; border-color: black transparent;}
 th.headerSortUp::after{content:"";float:right;margin-left:4px;margin-top:7px;border-width: 0 4px 4px;border-style: solid; border-color: black transparent;}
+
 .zebra-striped > tbody > tr:nth-child(odd) > td,.zebra-striped > tbody > tr:nth-child(odd) > th{background-color:#f9f9f9;}
 .zebra-striped > tbody > tr > td,.zebra-striped > tbody > tr > th{background-color:white;}
 .zebra-striped > tbody > tr:hover > td,.zebra-striped > tbody > tr:hover > th{background-color:#f5f5f5;}
 .zebra-striped > tbody > tr.detailview > td,.zebra-striped > tbody > tr.detailview:nth-child(odd) > td{background-color: #E5F2FF;}
 .zebra-striped > tbody > tr.detailview:hover > td,.zebra-striped > thead > tr.detailview:hover > th{background-color: #E5F2FF;}
 
-tr.highlight{background-color:#E5F2FF !important}
-tr.highlight > td{background-color:#E5F2FF !important}
 .dropdown-menu li{white-space: nowrap;}
 .add-on.success{background-color:#57A957;color:white;font-weight:bold;text-shadow:0 0;border-color:#57A957;}
 .add-on.important{background-color:#c43c35;color:white;font-weight:bold;text-shadow:0 0;border-color:#c43c35}
 .input-append .help-inline{padding-top: 6px;display:table;}
-.utilbox{white-space:nowrap;}
 .hero-unit ul{font-size:18px;}
 .hero-unit ul li{color:#404040;font-weight:200;line-height:27px;}
 .hero-unit h1 {margin-bottom: 10px;}

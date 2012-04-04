@@ -1,0 +1,14 @@
+<jsp:root xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:spring="http://www.springframework.org/tags" xmlns:form="http://www.springframework.org/tags/form"
+    xmlns:util="urn:jsptagdir:/WEB-INF/tags/util" xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
+
+    <c:set var="table_classes" value="table table-bordered table-striped" />
+    <c:if test="${not empty maxPages and maxPages > 1}">
+        <c:set var="table_classes" value="${table_classes} table-above-pagination"/>
+    </c:if>
+
+    <table class="${table_classes}">
+        <jsp:doBody />
+    </table>
+    <util:pagination maxPages="${maxPages}" page="${param.page}" />
+</jsp:root>
