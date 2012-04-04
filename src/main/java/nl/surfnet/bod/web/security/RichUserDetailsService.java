@@ -110,9 +110,11 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
         richUserDetails.addRole(new BodRole(userGroup, role, physicalResourceGroup.getInstitute()));
       }
     }
-    
-    //Set the selected role the first one
-    richUserDetails.setSelectedRole(richUserDetails.getBodRoles().get(0));
+
+    // Set the selected role the first one
+    if (!richUserDetails.getBodRoles().isEmpty()) {
+      richUserDetails.setSelectedRole(richUserDetails.getBodRoles().get(0));
+    }
   }
 
   private List<GrantedAuthority> getAuthorities(Collection<UserGroup> groups) {
