@@ -135,13 +135,6 @@ public class ReservationController extends AbstractSortableListController<Reserv
     return PAGE_URL + CREATE;
   }
 
-  @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
-  public String show(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY, new ReservationView(reservationService.find(id)));
-
-    return PAGE_URL + SHOW;
-  }
-
   @Override
   public String listUrl() {
     return PAGE_URL + LIST;

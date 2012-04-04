@@ -19,6 +19,7 @@
     <spring:url value="/resources/js/bootstrap/bootstrap-2.0.2.min.js" var="bootstrap_js_url" />
     <spring:url value="/resources/js/bootstrap-dropdown.js" var="bootstrap_dropdown_url" />
     <spring:url value="/resources/js/bootstrap-alerts.js" var="bootstrap_alerts_url" />
+    <spring:url value="/resources/js/table-rowdetails.js" var="table_rowdetails_url"/>
 
     <spring:url value="/resources/js/autoSuggestv14/autoSuggest.css" var="autosuggest_css_url" />
     <spring:url value="/resources/js/autoSuggestv14/jquery.autoSuggest.js" var="autosuggest_js_url" />
@@ -50,6 +51,7 @@
     <script src="${bootstrap_alerts_url}" type="text/javascript"><!-- needed --></script>
     <script src="${autosuggest_js_url}" type="text/javascript"><!-- needed --></script>
     <script src="${dropdownreload_js_url}" type="text/javascript"><!-- needed --></script>
+    <script src="${table_rowdetails_url}" type="text/javascript"><!-- needed --></script>
     <script src="${datepicker_js_url}" type="text/javascript"><!-- needed --></script>
     <script src="${detailview_js_url}" type="text/javascript"><!-- needed --></script>
     <script src="${main_js_url}" type="text/javascript"><!-- needed --></script>

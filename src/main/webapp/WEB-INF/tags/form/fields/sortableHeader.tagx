@@ -1,0 +1,36 @@
+<jsp:root xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:spring="http://www.springframework.org/tags" xmlns:form="http://www.springframework.org/tags/form"
+    xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
+
+    <jsp:directive.attribute name="name" type="java.lang.String" required="true" rtexprvalue="true" />
+    <jsp:directive.attribute name="property" type="java.lang.String" required="false" rtexprvalue="true" />
+        
+    <c:choose>
+        <c:when test="${sortProperty eq property}">
+            <c:choose>
+                <c:when test="${sortDirection eq 'DESC'}">
+                    <c:set var="headClass" value="sortable headerSortDown" />
+                    <spring:url value="" var="sortLink">
+                        <spring:param name="sort" value="${property}" />
+                        <spring:param name="order" value="ASC" />
+                    </spring:url>
+                </c:when>
+                <c:otherwise>
+                    <c:set var="headClass" value="sortable headerSortUp" />
+                    <spring:url value="" var="sortLink">
+                        <spring:param name="sort" value="${property}" />
+                        <spring:param name="order" value="DESC" />
+                    </spring:url>
+                </c:otherwise>
+            </c:choose>
+        </c:when>
+        <c:otherwise>
+            <c:set var="headClass" value="sortable"/>
+            <spring:url value="" var="sortLink">
+                <spring:param name="sort" value="${property}" />
+            </spring:url>
+        </c:otherwise>
+    </c:choose>
+
+    <th class="${headClass}"><a href="${sortLink}"><c:out value="${name}"/></a></th>
+</jsp:root>

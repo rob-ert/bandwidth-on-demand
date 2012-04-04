@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+     xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
      xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields"
-     xmlns:sform="http://www.springframework.org/tags/form"
+     xmlns:sform="http://www.springframework.org/tags/form" xmlns:c="http://java.sun.com/jsp/jstl/core"
      xmlns:spring="http://www.springframework.org/tags" xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields">
     
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
@@ -15,62 +16,138 @@
     </div>
     
     <page:list id="pl_reservation" items="${list}" path="/reservations">
-        <table:table data="${list}" id="l_reservation" path="/reservations" typeIdFieldName="id" update="false">
-            <table:column labelCode="virtualresourcegroup" id="virtualresourcegroup" property="virtualResourceGroup"/>
-            <table:column labelCode="reservation_sourcePort" id="sourceport" property="sourcePort"/>
-            <table:column labelCode="reservation_destinationPort" id="destinationport" property="destinationPort"/>
-            <table:column labelCode="reservation_status" id="status" property="status"/>
-            <table:column labelCode="reservation_startTime" id="starttime" property="startDateTime" />
-            <table:column labelCode="reservation_endTime" id="endtime" property="endDateTime" />
-            <table:column labelCode="reservation_bandwidth" id="bandwidth" property="bandwidth" />    
-			<table:column labelCode="reservation_creationDateTime" id="creationDT" property="creationDateTime"/>       
-        </table:table>
+        <c:set var="table_classes" value="table table-bordered table-striped" />
+        <c:if test="${not empty maxPages and maxPages > 1}">
+            <c:set var="table_classes" value="${table_classes} table-above-pagination"/>
+        </c:if>
+
+        <table class="${table_classes}">
+            <thead>
+                <th class="small">Extra info</th>
+                <table:sortableHeader property="virtualResourceGroup" name="Virtual Resource Group" />
+                <table:sortableHeader property="sourcePort" name="Source" />
+                <table:sortableHeader property="destinationPort" name="Destination" />
+                <table:sortableHeader property="startDateTime" name="Starts" />
+                <table:sortableHeader property="endDateTime" name="Ends" />
+                <table:sortableHeader property="status" name="Status" />
+            </thead>
+            <tbody>
+                 <c:forEach items="${list}" var="item">
+                    <tr class="rowdetails">
+                        <td>
+                            <span class="label-plus-sign"><i class="icon-plus-sign"><!-- --></i> More...</span>
+                            <span class="label-minus-sign"><i class="icon-minus-sign"><!--  --></i> Less...</span>
+                            <div class="rowdetails-content">
+                                <div class="row-fluid">
+                                    <div class="span6">
+                                        <dl class="dl-horizontal">
+                                            <dt>Bandwidth:</dt>
+                                            <dd>
+                                                <spring:eval expression="item['bandwidth']" htmlEscape="true" />
+                                            </dd>
+                                            <dt>Reservation id:</dt>
+                                            <dd>
+                                                <spring:eval expression="item['reservationId']" htmlEscape="true" />
+                                            </dd>
+                                            <c:if test="${item.status eq 'FAILED'}">
+                                                <dt>Failed reason:</dt>
+                                                <dd>
+                                                    <c:choose>
+                                                        <c:when test="${empty item.failedMessage}">
+                                                            -
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <spring:eval expression="item['failedMessage']" htmlEscape="true" />
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </dd>
+                                            </c:if>
+                                        </dl>
+                                    </div>
+                                    <div class="span6">
+                                        <dl class="dl-horizontal">
+                                            <dt>Creation date:</dt>
+                                            <dd>
+                                                <spring:eval expression="item['creationDateTime']" htmlEscape="true" />
+                                            </dd>
+                                            <dt>User created:</dt>
+                                            <dd>
+                                                <spring:eval expression="item['userCreated']" htmlEscape="true" />
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <spring:eval expression="item['virtualResourceGroup']" htmlEscape="true" />
+                        </td>
+                        <td>
+                            <spring:eval expression="item['sourcePort']" htmlEscape="true" />
+                        </td>
+                        <td>
+                            <spring:eval expression="item['destinationPort']" htmlEscape="true" />
+                        </td>
+                        <td>
+                            <spring:eval expression="item['startDateTime']" htmlEscape="true" />
+                        </td>
+                        <td>
+                            <spring:eval expression="item['endDateTime']" htmlEscape="true" />
+                        </td>
+                        <td>
+                            <spring:eval expression="item['status']" htmlEscape="true" />
+                        </td>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+        <util:pagination maxPages="${maxPages}" page="${param.page}" />
     </page:list>
 
     <spring:url value="/push" var="pushUrl" />
  	<spring:url value="/reservations/filter/" var="filterUrl" />
 
     <script type="text/javascript">
-    $(function() {
-        setTimeout(function() { startPushConnection(); }, 100);
-        function startPushConnection() {
-            $.socket("${pushUrl}", {
-                transports: "longpoll"
-           })
-           .open(function() { })
-           .message(function(data) {
-               processEvent(data);
-           })
-           .close(function() { });
-        };
+        $(function() {
+            setTimeout(function() { startPushConnection(); }, 100);
+            function startPushConnection() {
+                $.socket("${pushUrl}", {
+                    transports: "longpoll"
+               })
+               .open(function() { })
+               .message(function(data) {
+                   processEvent(data);
+               })
+               .close(function() { });
+            };
 
-       function processEvent(event) {
-            showInfoMessage(event["message"]);
-            updateReservationRow(event["id"], event["status"]);
-        }
+            function processEvent(event) {
+                showInfoMessage(event["message"]);
+                updateReservationRow(event["id"], event["status"]);
+            }
 
-        function updateReservationRow(id, newStatus) {
-            var statusIndex = 3;
-            var row = $('a[href$="id=' + id + '"]').closest("tr");
-            row.addClass("highlight");
-            $(row.children()[statusIndex]).animate(
-                {opacity: 0},
-                1000,
-                function() {
-                    $(this).text(newStatus);
-                    $(this).animate({opacity: 1}, 1000,
-                      function () {
-                        row.removeClass("highlight");
-                      }
-                    );
-                }
-            );
-        }
+            function updateReservationRow(id, newStatus) {
+                var statusIndex = 3;
+                var row = $('a[href$="id=' + id + '"]').closest("tr");
+                row.addClass("highlight");
+                $(row.children()[statusIndex]).animate(
+                    {opacity: 0},
+                    1000,
+                    function() {
+                        $(this).text(newStatus);
+                        $(this).animate({opacity: 1}, 1000,
+                          function () {
+                            row.removeClass("highlight");
+                          }
+                        );
+                    }
+                );
+            }
 
-        //Do new get based on selected item
-        $("#filter").change(function() {
-            window.location = "${filterUrl}" + $(this).val();
-        });
-    })
+            // Do new get based on selected item
+            $("#filter").change(function() {
+                window.location = "${filterUrl}" + $(this).val();
+            });
+        })
     </script>
 </div>
