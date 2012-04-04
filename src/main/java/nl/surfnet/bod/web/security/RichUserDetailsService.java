@@ -42,14 +42,23 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.util.CollectionUtils;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 
 public class RichUserDetailsService implements AuthenticationUserDetailsService {
 
   private final Logger logger = LoggerFactory.getLogger(RichUserDetailsService.class);
+
+  private final static Ordering<BodRole> BY_ROLE_NAME = Ordering.natural().onResultOf(new Function<BodRole, String>() {
+    public String apply(BodRole role) {
+      return role.getRoleName();
+    }
+  });
 
   @Value("${os.group.noc}")
   private String nocEngineerGroupId;
@@ -77,8 +86,10 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
     RichUserDetails userDetails = new RichUserDetails(principal.getNameId(), principal.getDisplayName(),
         principal.getEmail(), authorities, groups);
 
-    enrichWithRoles(userDetails);
+    userDetails.setBodRoles(determineRoles(userDetails.getUserGroups()));
 
+    userDetails.setSelectedRole(CollectionUtils.isEmpty(userDetails.getBodRoles()) ? null : userDetails.getBodRoles()
+        .get(0));
     return userDetails;
   }
 
@@ -86,12 +97,15 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
    * Determines for which userGroups there is a {@link PhysicalResourceGroup}
    * related and creates a {@link BodRole} based on that information.
    * 
-   * @param richUserDetails
-   *          {@link RichUserDetails}
+   * @param Collection
+   *          <UserGroup> groups to process
+   * @return List<BodRole> List with roles sorted on the roleName
    */
-  void enrichWithRoles(RichUserDetails richUserDetails) {
+  List<BodRole> determineRoles(Collection<UserGroup> userGroups) {
 
-    for (UserGroup userGroup : richUserDetails.getUserGroups()) {
+    List<BodRole> roles = Lists.newArrayList();
+
+    for (UserGroup userGroup : userGroups) {
       PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.findByAdminGroup(userGroup.getId());
       String role = null;
       if (physicalResourceGroup != null) {
@@ -107,14 +121,11 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
           role = Security.USER;
         }
 
-        richUserDetails.addRole(new BodRole(userGroup, role, physicalResourceGroup.getInstitute()));
+        roles.add(new BodRole(userGroup, role, physicalResourceGroup.getInstitute()));
       }
     }
 
-    // Set the selected role the first one
-    if (!richUserDetails.getBodRoles().isEmpty()) {
-      richUserDetails.setSelectedRole(richUserDetails.getBodRoles().get(0));
-    }
+    return BY_ROLE_NAME.sortedCopy(roles);
   }
 
   private List<GrantedAuthority> getAuthorities(Collection<UserGroup> groups) {

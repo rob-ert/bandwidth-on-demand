@@ -11,7 +11,7 @@ public class BodRole {
   private final Long instituteId;
   private final String instituteName;
 
-  public BodRole(UserGroup userGroup, String role, Institute institute) {
+  public BodRole(UserGroup userGroup, String role, Institute institute)  {
     this.groupId = userGroup.getId();
     this.groupName = userGroup.getName();
     this.groupDescription = userGroup.getDescription();

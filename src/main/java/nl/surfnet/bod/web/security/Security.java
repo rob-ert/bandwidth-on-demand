@@ -37,9 +37,9 @@ import com.google.common.collect.Iterables;
 
 public final class Security {
 
-  public static final String NOC_ENGINEER = "NOC_ENGINEER";
-  public static final String ICT_MANAGER = "ICT_MANAGER";
-  public static final String USER = "USER";
+  public static final String NOC_ENGINEER = "1_NOC_ENGINEER";
+  public static final String ICT_MANAGER = "2_ICT_MANAGER";
+  public static final String USER = "3_USER";
 
   private Security() {
   }

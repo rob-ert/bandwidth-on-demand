@@ -45,7 +45,7 @@ public class RichUserDetails implements UserDetails {
   private final String email;
   private final Collection<GrantedAuthority> authorities;
   private final Collection<UserGroup> userGroups;
-  private final List<BodRole> bodRoles = Lists.newArrayList();
+  private List<BodRole> bodRoles = Lists.newArrayList();
   private BodRole selectedRole;
 
   public RichUserDetails(String username, String displayName, String email, Collection<GrantedAuthority> authorities,
@@ -117,12 +117,12 @@ public class RichUserDetails implements UserDetails {
     return true;
   }
 
-  public void addRole(BodRole bodRole) {
-    this.bodRoles.add(bodRole);
-  }
-
   public List<BodRole> getBodRoles() {
     return bodRoles;
+  }
+
+  public void setBodRoles(List<BodRole> roles) {
+    this.bodRoles = roles;
   }
 
   public void setSelectedRole(BodRole role) {

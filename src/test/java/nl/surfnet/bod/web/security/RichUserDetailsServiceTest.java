@@ -24,8 +24,12 @@ package nl.surfnet.bod.web.security;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
+
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -153,6 +157,23 @@ public class RichUserDetailsServiceTest {
         "urn:alanvdam", "Alan van Dam", "alan@test.com"), "N/A"));
 
     assertThat(userDetails.getBodRoles(), hasSize(1));
+
+  }
+
+  @Test
+  public void shouldSetDefaultSelectedRole() {
+    UserGroup userGroup = new UserGroupFactory().setId("urn:nameGroup").setName("new name").create();
+
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
+
+    when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(listOf(userGroup));
+    when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(prg);
+
+    RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
+        "urn:alanvdam", "Alan van Dam", "alan@test.com"), "N/A"));
+
+    assertThat(userDetails.getSelectedRole(), notNullValue());
+
   }
 
   @Test
@@ -168,10 +189,10 @@ public class RichUserDetailsServiceTest {
     // Force role Manager
     when(prgServiceMock.findAllForAdminGroups(Lists.newArrayList(userGroup))).thenReturn(Lists.newArrayList(prg));
 
-    subject.enrichWithRoles(userDetails);
+    List<BodRole> roles = subject.determineRoles(userDetails.getUserGroups());
 
-    assertThat(userDetails.getBodRoles(), hasSize(1));
-    BodRole bodRole = userDetails.getBodRoles().get(0);
+    assertThat(roles, hasSize(1));
+    BodRole bodRole = roles.get(0);
 
     assertThat(bodRole.getGroupId(), is(userGroup.getId()));
     assertThat(bodRole.getGroupName(), is(userGroup.getName()));
