@@ -7,9 +7,4 @@
         <put-attribute name="active_menu" value="reservation" cascade="true" />
     </definition>
     
-    <definition extends="manager" name="manager/reservations/show">
-        <put-attribute name="body" value="/WEB-INF/views/manager/reservations/show.jspx" />
-        <put-attribute name="active_menu" value="reservation" cascade="true" />
-    </definition>
-
 </tiles-definitions>

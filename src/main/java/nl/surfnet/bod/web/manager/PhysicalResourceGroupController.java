@@ -111,7 +111,7 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
 
   @Override
   protected String defaultSortProperty() {
-    return "adminGroup";
+    return "managerEmail";
   }
 
   public static final class UpdateEmailCommand {

@@ -2,17 +2,41 @@
 <div xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields"
  	xmlns:form="urn:jsptagdir:/WEB-INF/tags/form" xmlns:jsp="http://java.sun.com/JSP/Page"
     xmlns:sform="http://www.springframework.org/tags/form" xmlns:spring="http://www.springframework.org/tags"
-    xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"  xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
+    xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"  xmlns:table="urn:jsptagdir:/WEB-INF/tags/table">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-    <spring:url var="filterUrl"  value="/manager/physicalports/filter/" />    
-            
-   	<field:select id="filter" items="${selPrgList}"  labelCode="physicalresourcegroup" field="selPrg.name" itemValue="id" 
-   	 showSingle="true" path="/manager/physicalports"  />
-     
-    <page:list id="pl_PhysicalPort" items="${list}">
-        <table:table data="${list}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/manager/physicalports"
+    <spring:url var="filterUrl"  value="/manager/physicalports/filter/" />
+
+    <page:list id="pl_PhysicalPort">
+       	<field:select id="filter" items="${selPrgList}"  labelCode="physicalresourcegroup" field="selPrg.name" itemValue="id" 
+   	        showSingle="true" path="/manager/physicalports"  />
+        <table:table items="${list}">
+            <thead>
+                <tr>
+                    <table:sortableHeader name="Label" property="managerLabel" />
+                    <table:sortableHeader name="Network Element Id" property="networkElementPk" />
+                    <th># of Virtual Ports</th>
+                    <th class="small">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach items="${list}" var="item">
+                    <tr>
+                        <table:column item="${item}" property="managerLabel" />
+                        <table:column item="${item}" property="networkElementPk" />
+                        <table:column item="${item}" property="numberOfVirtualPorts" />
+                        <td>
+                            TODO<a href=""><i class="icon-edit"><!--  --></i></a>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table:table>
+    </page:list>
+    
+    
+    <!--     <table:table data="${list}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/manager/physicalports"
             typeIdFieldName="id" delete="false" show="false">
 
             <table:column id="c_PhysicalPort_managerLabel" property="managerLabel" />
@@ -22,26 +46,9 @@
             <table:actionColumn icon="icon-arrow-down"
                 action="/showvirtualports" title="Show Virtual Ports" />
         </table:table>
-    </page:list>
+    </page:list>-->
     
-    <spring:url value="/manager/physicalports/{}/virtualports" var="portsUrl" />    
     <script type="text/javascript">
-      $(function() {
-          var fields = ["managerLabel", "maxBandwidth", "vlanId", "virtualResourceGroupName"];
-          var headers = ["ManagerLabel", "Max Bandwidth", "VLAN ID", "Virtual Resource Group"];
-          $("a[href$='showvirtualports']").detailView(
-            "${portsUrl}",
-            fields,
-            headers,
-            {
-              hide: function($row) {
-                      var numberOfPorts = parseInt($($row.children("td")[2]).text());
-                      return !numberOfPorts;
-                    }
-            }
-          );
-      });
-      
       //Do new get based on selected item
       $("#_filter").change(function(){
           window.location = "${filterUrl}" + $("#_filter").val();

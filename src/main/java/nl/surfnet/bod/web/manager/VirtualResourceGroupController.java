@@ -21,7 +21,10 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 
 import java.util.List;
 
@@ -45,13 +48,6 @@ public class VirtualResourceGroupController extends AbstractSortableListControll
 
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
-
-  @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
-  public String show(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY, virtualResourceGroupService.find(id));
-
-    return PAGE_URL + SHOW;
-  }
 
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
   public String delete(@RequestParam(ID_KEY) final Long id,

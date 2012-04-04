@@ -146,13 +146,6 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     return PAGE_URL + CREATE;
   }
 
-  @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
-  public String show(@RequestParam(ID_KEY) final Long id, final Model model) {
-    model.addAttribute(MODEL_KEY, toVitualPortView.apply(virtualPortService.find(id)));
-
-    return PAGE_URL + SHOW;
-  }
-
   @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid VirtualPortUpdateCommand command, BindingResult result, Model model,
       RedirectAttributes redirectAttributes) {

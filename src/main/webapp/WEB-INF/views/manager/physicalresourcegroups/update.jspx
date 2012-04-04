@@ -6,14 +6,10 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <h1>Change the Email of the Physical Resource Group</h1>
     <div class="row">
-        <div class="span5">
-            <h3>Email address and activation</h3>
-            <p>If the email address of this institute isn't verified yet you can resend the confirmation mail. If
-                you change the email address a confirmation email will be sent to the new address.</p>
-        </div>
-        <div class="span11">
+
+        <div class="span9">
+
             <form:update id="fc_PhysicalResourceGroup" modelAttribute="updateEmailCommand"
                 path="/manager/physicalresourcegroups" noLabel="true">
                 <c:set var="errors">
@@ -52,7 +48,22 @@
                     <div class="input input-text">${physicalResourceGroup.adminGroup}</div>
                 </div>
             </form:update>
+            
         </div>
+
+        <div class="span3">
+
+            <section>
+                <h2>Change Email Address</h2>
+                <div class="content">
+                    <h3>Email and activation</h3>
+                    <p>If the email address of this institute isn't verified yet you can resend the confirmation mail. If
+                        you change the email address a confirmation email will be sent to the new address.</p>
+                </div>
+            </section>
+
+        </div>
+
     </div>
 
 </div>

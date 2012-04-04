@@ -52,7 +52,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
 
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
@@ -100,13 +99,6 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
     model.addAttribute(MODEL_KEY, new PhysicalResourceGroupCommand());
 
     return PAGE_URL + CREATE;
-  }
-
-  @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
-  public String show(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
-    uiModel.addAttribute(MODEL_KEY, physicalResourceGroupService.find(id));
-
-    return PAGE_URL + SHOW;
   }
 
   @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET, produces = "application/json")
@@ -207,20 +199,10 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
 
   @Override
   protected String defaultSortProperty() {
-    return "name";
-  }
-
-  @Override
-  protected List<String> translateSortProperty(String sortProperty) {
-    if (sortProperty.equals("name")) {
-      return ImmutableList.of("instituteId");
-    }
-
-    return super.translateSortProperty(sortProperty);
+    return "managerEmail";
   }
 
   public static final class PhysicalResourceGroupCommand {
-
     private Long id;
     private Integer version;
     @NotNull

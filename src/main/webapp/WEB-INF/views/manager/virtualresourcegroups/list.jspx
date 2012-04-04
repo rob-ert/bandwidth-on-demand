@@ -1,40 +1,55 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
-    xmlns:spring="http://www.springframework.org/tags"
-    xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
+    xmlns:spring="http://www.springframework.org/tags" xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/table">
     
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
         
-    <page:list id="pl_VirtualResourceGroup" items="${list}">
-        <table:table data="${list}" id="l_VirtualResourceGroup" path="/manager/virtualresourcegroups" typeIdFieldName="id" update="false">
+    <page:list id="pl_VirtualResourceGroup">
+        <table:table items="${list}">
+            <thead>
+                <tr>
+                    <th class="small">Extra info</th>
+                    <table:sortableHeader property="name" name="Name" />
+                    <table:sortableHeader property="description" name="Description" />
+                    <th># of Virtual Ports</th>
+                    <th class="small">actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach items="${list}" var="item">
+                    <tr class="rowdetails">
+                        <table:rowDetailsColumn>
+                            <dl class="dl-horizontal">
+                                <dt>SurfConext id:</dt>
+                                <dd>
+                                    <c:out value="${item.surfconextGroupId}" />
+                                </dd>
+                            </dl>
+                        </table:rowDetailsColumn>
+                        <table:column item="${item}" property="name" />
+                        <table:column item="${item}" property="description" />
+                        <table:column item="${item}" property="virtualPortCount" />
+                        <td>
+                            <spring:url value="" var="edit_url">
+                                <spring:param name="id" value="${item.id}" />
+                            </spring:url>
+                            <a href="${edit_url}"><i class="icon-trash"><!--  --></i>TODO</a>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table:table>
+    
+    <!--<table:table data="${list}" id="l_VirtualResourceGroup" path="/manager/virtualresourcegroups" typeIdFieldName="id" update="false">
             <table:column id="c_virtualresourcegroup_name" property="name" />
             <table:column id="c_virtualresourcegroup_surfconextgroupid" property="surfconextGroupId" />
             <table:column id="c_virtualresourcegroup_description" property="description" />
             <table:column id="c_virtualresourcegroup_virtualPortCount" property="virtualPortCount" sortable="false" />
 
             <table:actionColumn icon="icon-arrow-down" action="/showvirtualports" title="Show Virtual Ports" />
-        </table:table>
+        </table:table>-->
     </page:list>
 
-    <spring:url value="/virtualresourcegroups/{}/ports" var="portsUrl" />
-
-    <script type="text/javascript">
-        $(function() {
-            var fields = ["managerLabel", "maxBandwidth", "vlanId"];
-            var headers = ["ManagerLabel", "Max Bandwidth", "VLAN ID"];
-
-            $("a[href$='showvirtualports']").detailView(
-                    "${portsUrl}",
-                    fields,
-                    headers,
-                    {
-                        hide: function($row) {
-                            var numberOfPorts = parseInt($($row.children("td")[3]).text());
-                            return !numberOfPorts;
-                        }
-                    }
-            );
-        });
-    </script>
 </div>

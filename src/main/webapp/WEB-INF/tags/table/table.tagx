@@ -2,13 +2,23 @@
     xmlns:spring="http://www.springframework.org/tags" xmlns:form="http://www.springframework.org/tags/form"
     xmlns:util="urn:jsptagdir:/WEB-INF/tags/util" xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
 
-    <c:set var="table_classes" value="table table-bordered table-striped" />
-    <c:if test="${not empty maxPages and maxPages > 1}">
-        <c:set var="table_classes" value="${table_classes} table-above-pagination"/>
-    </c:if>
+    <jsp:directive.attribute name="items" type="java.util.Collection" required="true" rtexprvalue="true" />
 
-    <table class="${table_classes}">
-        <jsp:doBody />
-    </table>
-    <util:pagination maxPages="${maxPages}" page="${param.page}" />
+    <c:choose>
+        <c:when test="${not empty items}">
+            <c:set var="table_classes" value="table table-bordered table-striped" />
+            <c:if test="${not empty maxPages and maxPages > 1}">
+                <c:set var="table_classes" value="${table_classes} table-above-pagination"/>
+            </c:if>
+        
+            <table class="${table_classes}">
+                <jsp:doBody />
+            </table>
+            <util:pagination maxPages="${maxPages}" page="${param.page}" />
+        </c:when>
+        <c:otherwise>
+            <spring:message code="entity_not_found" />
+        </c:otherwise>
+    </c:choose>
+    
 </jsp:root>

@@ -1,0 +1,26 @@
+<jsp:root xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:spring="http://www.springframework.org/tags" xmlns:form="http://www.springframework.org/tags/form"
+    xmlns:util="urn:jsptagdir:/WEB-INF/tags/util" xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
+
+    <jsp:directive.attribute name="property" type="java.lang.String" required="true" rtexprvalue="true" />
+    <jsp:directive.attribute name="item" type="java.lang.Object" required="true" rtexprvalue="true" />
+    <jsp:directive.attribute name="type" type="java.lang.String" required="false" rtexprvalue="true" />
+    
+    <td>
+        <c:choose>
+            <c:when test="${empty type or type eq 'string'}">
+                <spring:eval expression="item[property]" htmlEscape="true" />
+            </c:when>
+            <c:when test="${type eq 'boolean'}">
+                <c:choose>
+                    <c:when test="${item[property]}">
+                        <i class="icon-ok"><!--  --></i>
+                    </c:when>
+                    <c:otherwise>
+                        <i class="icon-remove"><!--  --></i>
+                    </c:otherwise>
+                </c:choose>
+            </c:when>
+        </c:choose>
+    </td>
+</jsp:root>

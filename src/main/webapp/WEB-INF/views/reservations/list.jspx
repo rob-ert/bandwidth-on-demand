@@ -7,89 +7,75 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <page:list id="pl_reservation" items="${list}" path="/reservations">
+    <page:list id="pl_reservation" path="/reservations">
         <div>
            <label>Reservation Filter</label>
            <div class="input" style="margin-left: 160px;">
                <sform:select id="filter" path="filterSelect.id" items="${filterList}" itemLabel="label" itemValue="id" />
            </div>
         </div>
-        <table:table>
+        <table:table items="${list}">
             <thead>
-                <th class="small">Extra info</th>
-                <table:sortableHeader property="virtualResourceGroup" name="Team" />
-                <table:sortableHeader property="sourcePort" name="Source" />
-                <table:sortableHeader property="destinationPort" name="Destination" />
-                <table:sortableHeader property="startDateTime" name="Starts" />
-                <table:sortableHeader property="endDateTime" name="Ends" />
-                <table:sortableHeader property="status" name="Status" />
+                <tr>
+                    <th class="small">Extra info</th>
+                    <table:sortableHeader property="virtualResourceGroup" name="Team" />
+                    <table:sortableHeader property="sourcePort" name="Source" />
+                    <table:sortableHeader property="destinationPort" name="Destination" />
+                    <table:sortableHeader property="startDateTime" name="Starts" />
+                    <table:sortableHeader property="endDateTime" name="Ends" />
+                    <table:sortableHeader property="status" name="Status" />
+                </tr>
             </thead>
             <tbody>
                  <c:forEach items="${list}" var="item">
                     <tr class="rowdetails">
-                        <td>
-                            <span class="label-plus-sign"><i class="icon-plus-sign"><!-- --></i> More...</span>
-                            <span class="label-minus-sign"><i class="icon-minus-sign"><!--  --></i> Less...</span>
-                            <div class="rowdetails-content">
-                                <div class="row-fluid">
-                                    <div class="span6">
-                                        <dl class="dl-horizontal">
-                                            <dt>Bandwidth:</dt>
+                        <table:rowDetailsColumn>
+                            <div class="row-fluid">
+                                <div class="span6">
+                                    <dl class="dl-horizontal">
+                                        <dt>Bandwidth:</dt>
+                                        <dd>
+                                            <spring:eval expression="item['bandwidth']" htmlEscape="true" />
+                                        </dd>
+                                        <dt>Reservation id:</dt>
+                                        <dd>
+                                            <spring:eval expression="item['reservationId']" htmlEscape="true" />
+                                        </dd>
+                                        <c:if test="${item.status eq 'FAILED'}">
+                                            <dt>Failed reason:</dt>
                                             <dd>
-                                                <spring:eval expression="item['bandwidth']" htmlEscape="true" />
+                                                <c:choose>
+                                                    <c:when test="${empty item.failedMessage}">
+                                                        -
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <spring:eval expression="item['failedMessage']" htmlEscape="true" />
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </dd>
-                                            <dt>Reservation id:</dt>
-                                            <dd>
-                                                <spring:eval expression="item['reservationId']" htmlEscape="true" />
-                                            </dd>
-                                            <c:if test="${item.status eq 'FAILED'}">
-                                                <dt>Failed reason:</dt>
-                                                <dd>
-                                                    <c:choose>
-                                                        <c:when test="${empty item.failedMessage}">
-                                                            -
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <spring:eval expression="item['failedMessage']" htmlEscape="true" />
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </dd>
-                                            </c:if>
-                                        </dl>
-                                    </div>
-                                    <div class="span6">
-                                        <dl class="dl-horizontal">
-                                            <dt>Creation date:</dt>
-                                            <dd>
-                                                <spring:eval expression="item['creationDateTime']" htmlEscape="true" />
-                                            </dd>
-                                            <dt>User created:</dt>
-                                            <dd>
-                                                <spring:eval expression="item['userCreated']" htmlEscape="true" />
-                                            </dd>
-                                        </dl>
-                                    </div>
+                                        </c:if>
+                                    </dl>
+                                </div>
+                                <div class="span6">
+                                    <dl class="dl-horizontal">
+                                        <dt>Creation date:</dt>
+                                        <dd>
+                                            <spring:eval expression="item['creationDateTime']" htmlEscape="true" />
+                                        </dd>
+                                        <dt>User created:</dt>
+                                        <dd>
+                                            <spring:eval expression="item['userCreated']" htmlEscape="true" />
+                                        </dd>
+                                    </dl>
                                 </div>
                             </div>
-                        </td>
-                        <td>
-                            <spring:eval expression="item['virtualResourceGroup']" htmlEscape="true" />
-                        </td>
-                        <td>
-                            <spring:eval expression="item['sourcePort']" htmlEscape="true" />
-                        </td>
-                        <td>
-                            <spring:eval expression="item['destinationPort']" htmlEscape="true" />
-                        </td>
-                        <td>
-                            <spring:eval expression="item['startDateTime']" htmlEscape="true" />
-                        </td>
-                        <td>
-                            <spring:eval expression="item['endDateTime']" htmlEscape="true" />
-                        </td>
-                        <td>
-                            <spring:eval expression="item['status']" htmlEscape="true" />
-                        </td>
+                        </table:rowDetailsColumn>
+                        <table:column item="${item}" property="virtualResourceGroup" />
+                        <table:column item="${item}" property="sourcePort" />
+                        <table:column item="${item}" property="destinationPort" />
+                        <table:column item="${item}" property="startDateTime" />
+                        <table:column item="${item}" property="endDateTime" />
+                        <table:column item="${item}" property="status" />
                     </tr>
                 </c:forEach>
             </tbody>

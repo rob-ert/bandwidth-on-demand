@@ -3,7 +3,7 @@
     xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
 
     <jsp:directive.attribute name="name" type="java.lang.String" required="true" rtexprvalue="true" />
-    <jsp:directive.attribute name="property" type="java.lang.String" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="property" type="java.lang.String" required="true" rtexprvalue="true" />
         
     <c:choose>
         <c:when test="${sortProperty eq property}">

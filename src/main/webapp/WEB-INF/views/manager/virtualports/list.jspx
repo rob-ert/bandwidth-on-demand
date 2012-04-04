@@ -1,37 +1,66 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
-    xmlns:spring="http://www.springframework.org/tags"
-    xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
-    
+    xmlns:spring="http://www.springframework.org/tags" xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/table">
+
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-     <page:list id="pl_virtualport" items="${list}">
-        <table:table data="${list}" id="l_VirtualPort" path="/manager/virtualports" typeIdFieldName="id">
-            <table:column labelCode="virtualPort" id="virtualport" property="managerLabel" />
-            <table:column labelCode="virtualport_max_bandwidth_short" id="maxBandwidth" property="maxBandwidth"/>
-            <table:column labelCode="virtualport_vlan_id_short" id="vlanId" property="vlanId"/>
-            <table:column labelCode="virtualResourceGroup" id="virtualresourcegroup" property="virtualResourceGroup" />
-            <table:column labelCode="physicalResourceGroup" id="physicalresourcegroup" property="physicalResourceGroup" />
-            <table:column labelCode="physicalPort" id="physicalport" property="physicalPort" />
-
-            <table:actionColumn icon="arrow-down" action="/showreservations"
-                title="Show Reservations" />
+    <page:list id="pl_virtualport">
+        <table:table items="${list}">
+            <thead>
+                <tr>
+                    <th class="small">More info</th>
+                    <table:sortableHeader name="Label" property="managerLabel" />
+                    <table:sortableHeader name="Max. Bandwidth" property="maxBandwidth" />
+                    <table:sortableHeader name="Team" property="virtualResourceGroup" />
+                    <th class="small">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach items="${list}" var="item">
+                    <tr class="rowdetails">
+                        <table:rowDetailsColumn>
+                            <div class="row-fluid">
+                                <div class="span6">
+                                    <dl class="dl-horizontal">
+                                        <dt>VLAN ID:</dt>
+                                        <dd>
+                                            <c:choose>
+                                                <c:when test="${empty item.vlanId}">
+                                                    -
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <c:out value="${item.vlanId}" />
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </dd>
+                                        <dt>User Label:</dt>
+                                        <dd><c:out value="${item.userLabel}" /></dd>
+                                    </dl>
+                                </div>
+                                <div class="span6">
+                                    <dl class="dl-horizontal">
+                                        <dt>Institute:</dt>
+                                        <dd><c:out value="${item.physicalResourceGroup}" /></dd>
+                                        <dt>Physical Port:</dt>
+                                        <dd><c:out value="${item.physicalPort}" /></dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </table:rowDetailsColumn>
+                        <table:column item="${item}" property="managerLabel" />
+                        <table:column item="${item}" property="maxBandwidth" />
+                        <table:column item="${item}" property="virtualResourceGroup" />
+                        <td>
+                            TODO
+                            <a href=""><i class="icon-edit"><!--  --></i></a>
+                            <a href=""><i class="icon-trash"><!--  --></i></a>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </tbody>
         </table:table>
     </page:list>
 
-    <spring:url value="/manager/virtualports/{}/reservations" var="reservationsUrl" />
-
-    <script type="text/javascript">
-        $(function() {
-            var fields = [ "sourcePort", "destinationPort", "status", "startDateTime", "endDateTime", "bandwidth"];
-            var headers = [ "Source Port", "Destination Port", "Status", "Start", "End", "Bandwidth"];
-
-            $("a[href$='showreservations']").detailView(
-                    "${reservationsUrl}",
-                    fields,
-                    headers
-            );
-        });
-    </script>
 </div>

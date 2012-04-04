@@ -1,50 +1,45 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
-    xmlns:spring="http://www.springframework.org/tags" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:spring="http://www.springframework.org/tags" xmlns:table="urn:jsptagdir:/WEB-INF/tags/table">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <page:list id="pl_physicalResourceGroup" items="${list}" path="/noc/physicalresourcegroups">
-        <table:table data="${list}" id="l_PhysicalResourceGroup" path="/noc/physicalresourcegroups">
-
-            <table:column id="name" property="name" labelCode="physicalResourceGroup_name" />
-            <table:column id="adminGroup" property="adminGroup" labelCode="physicalResourceGroup_adminGroup" />
-            <table:column id="managerEmail" property="managerEmail" labelCode="physicalResourceGroup_managerEmail" />
-            <table:column id="active" booleanType="true" property="active" labelCode="physicalResourceGroup_active" />
-            <table:column id="count" property="physicalPortCount" labelCode="physicalResourceGroup_physicalPortCount" sortable="false" />
-
-            <table:actionColumn icon="icon-arrow-down" action="/showphysicalports" title="Show Physical Ports" />
-
+    <page:list id="pl_physicalResourceGroup" path="/noc/physicalresourcegroups">
+        <table:table items="${list}">
+            <thead>
+                <tr>
+                    <th class="small">More info</th>
+                    <th>Institute</th>
+                    <table:sortableHeader name="Email" property="managerEmail" />
+                    <table:sortableHeader name="Active" property="active" />
+                    <th># of Ports</th>
+                    <th class="small">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach items="${list}" var="item">
+                    <tr class="rowdetails">
+                        <table:rowDetailsColumn>
+                            <dl class="dl-horizontal">
+                                <dt>Surfconext id:</dt>
+                                <dd><c:out value="${item.adminGroup}" /></dd>
+                            </dl>
+                        </table:rowDetailsColumn>
+                        <table:column item="${item}" property="name"/>
+                        <table:column item="${item}" property="managerEmail"/>
+                        <table:column item="${item}" property="active" type="boolean" />
+                        <table:column item="${item}" property="physicalPortCount" />
+                        <td>
+                            TODO
+                            <a href=""><i class="icon-edit"><!--  --></i></a>
+                            <a href=""><i class="icon-trash"><!--  --></i></a>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </tbody>
         </table:table>
     </page:list>
 
-    <spring:url value="/noc/physicalresourcegroups/{}/ports" var="portsUrl" />
-    <spring:url value="/resources/images/show.png" var="showImageUrl" />
-    <spring:url value="/noc/physicalports?id={}" var="showPhysicalPortUrl" />
-
-    <script type="text/javascript">
-        $(function() {
-            var fields = [ "nocLabel", "networkElementPk" ];
-            var headers = [ "Noc Label", "Network Element" ];
-            var showPhysicalPortUrl = '${showPhysicalPortUrl}';
-
-            $("a[href$='showphysicalports']").detailView(
-                    "${portsUrl}",
-                    fields,
-                    headers,
-                    {
-                        extraColumn: function(portId) {
-                            return $('<a/>', {href: showPhysicalPortUrl.replace('{}', portId), title: 'Show Physical Port'})
-                                .twipsy()
-                                .append($('<img/>', {src: "${showImageUrl}"}));
-                        },
-                        idProp: "networkElementPk",
-                        hide: function($row) {
-                            var numberOfPorts = parseInt($($row.children("td")[4]).text());
-                            return !numberOfPorts;
-                        }
-                    });
-        });
-    </script>
 </div>
