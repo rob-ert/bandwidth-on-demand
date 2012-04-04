@@ -9,21 +9,6 @@ form#command {
 	display: inline;
 	margin: 0;
 }
-.utilbox a, .quicklinks span {padding-right: 5px;}
-.utilbox a {text-decoration: none; color: #0064CD;}
-.quicklinks {
-	background-color: #FEFBF3;
-	padding: 9px;
-	border: 1px solid rgba(0, 0, 0, .2);
-	-webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
-	-moz-box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
-	box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
-	text-align: center;
-}
-div.topbar {
-	background: url(../images/body_theme_bck.gif) no-repeat;
-	height: 120px;
-}
 .topbar, .messagebar {
 	background-color: white;
     width: 940px;
@@ -42,31 +27,11 @@ div.topbar {
 }
 #messages{width: 650px; float: right;}
 #messages .alert-message{margin-bottom: 1px; z-index: 1000;}
-div.topbar img.logo {
-	float: left;
-	margin: 10px 0 0 10px;
-	border: 0;
-}
-div.topbar h1 {
-	float: left;
-	margin: 0;
-	padding: 20px 0 0 60px;
-	color: black;
-}
 .hero-unit h1 {
   margin-bottom: 0;
   font-size: 40px;
   line-height: 1;
   letter-spacing: -1px;
-}
-label {
-	width: 150px;
-}
-form .input {
-	margin-left: 170px;
-}
-.actions {
-	padding-left: 170px;
 }
 .input span.ref-block {
 	padding-top: 6px;
