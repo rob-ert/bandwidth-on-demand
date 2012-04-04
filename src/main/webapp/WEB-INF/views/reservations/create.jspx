@@ -15,12 +15,7 @@
 
     <div class="row">
         <div class="span9">
-            <util:panel id="title" title="Create Virtual Port" render="${empty virtualPorts}">
-                No Virtual Ports found for you....
-            </util:panel>
-
-            <form:create id="fc_reservation" modelAttribute="reservation" path="/reservations"
-                render="${not empty virtualPorts}">
+            <form:create id="fc_reservation" modelAttribute="reservation" path="/reservations">
 
                 <field:select field="virtualResourceGroup" id="virtualresourcegroup" labelCode="virtualresourcegroup"
                     itemLabel="name" itemValue="id" items="${virtualResourceGroups}" path="/reservations"

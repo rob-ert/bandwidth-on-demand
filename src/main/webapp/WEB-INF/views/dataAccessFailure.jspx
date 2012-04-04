@@ -4,12 +4,11 @@
     
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-    <spring:message var="title" code="error_dataaccessfailure_title" htmlEscape="false" />
     
-    <util:panel id="title" title="${title}">
-        <p>
-            <spring:message code="error_dataaccessfailure_problemdescription" />
-        </p>
-    </util:panel>
-</div>
+    <div class="hero-unit">
+        <h1><spring:message code="error_dataaccessfailure_title" htmlEscape="false" /></h1>
+        <p><spring:message code="error_dataaccessfailure_problemdescription" /></p>
+        <p class="smiley">:-|</p>
+    </div>
 
+</div>
