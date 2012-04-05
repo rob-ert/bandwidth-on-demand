@@ -24,7 +24,10 @@ package nl.surfnet.bod.web.noc;
 import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -37,12 +40,10 @@ import java.util.List;
 import java.util.Locale;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalPortFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.web.noc.PhysicalPortController.CreatePhysicalPortCommand;
 
 import org.junit.Test;
@@ -108,33 +109,6 @@ public class PhysicalPortControllerTest {
 
     assertThat(model.asMap(), hasEntry("list", Object.class.cast(ports)));
     assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
-  }
-
-  @Test
-  public void showNonExistingPort() {
-    Model model = new ModelStub();
-    when(physicalPortServiceMock.findByNetworkElementPk("12:00/port1")).thenReturn(null);
-
-    subject.show("12:00/port1", model);
-
-    assertThat(model.asMap(), hasEntry(is("physicalPort"), nullValue()));
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test
-  public void showExistingPort() {
-    Model model = new ModelStub();
-    PhysicalPort port = new PhysicalPortFactory().create();
-    VirtualPort virtualPort = new VirtualPortFactory().create();
-
-    when(physicalPortServiceMock.findByNetworkElementPk("12:00/port1")).thenReturn(port);
-    when(virtualPortServiceMock.findAllForPhysicalPort(port)).thenReturn(Lists.newArrayList(virtualPort));
-
-    subject.show("12:00/port1", model);
-
-    assertThat(model.asMap(), hasEntry("physicalPort", Object.class.cast(port)));
-    assertThat(model.asMap(), hasKey("virtualPorts"));
-    assertThat(((List<VirtualPort>) model.asMap().get("virtualPorts")), hasSize(1));
   }
 
   @Test

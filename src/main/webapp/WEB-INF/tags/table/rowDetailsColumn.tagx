@@ -2,11 +2,15 @@
     xmlns:spring="http://www.springframework.org/tags" xmlns:form="http://www.springframework.org/tags/form"
     xmlns:util="urn:jsptagdir:/WEB-INF/tags/util" xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
 
-    <td>
-        <span class="label-plus-sign"><i class="icon-plus-sign"><!-- --></i> More...</span>
-        <span class="label-minus-sign"><i class="icon-minus-sign"><!--  --></i> Less...</span>
-        <div class="rowdetails-content">
-          <jsp:doBody />
-        </div>
-    </td>
+    <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" />
+
+    <c:if test="${empty render or render}">
+        <td>
+            <span class="label-plus-sign"><i class="icon-plus-sign"><!-- --></i> More...</span>
+            <span class="label-minus-sign"><i class="icon-minus-sign"><!--  --></i> Less...</span>
+            <div class="rowdetails-content">
+              <jsp:doBody />
+            </div>
+        </td>
+    </c:if>
 </jsp:root>

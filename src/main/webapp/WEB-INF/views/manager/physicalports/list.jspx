@@ -26,27 +26,12 @@
                         <table:column item="${item}" property="managerLabel" />
                         <table:column item="${item}" property="networkElementPk" />
                         <table:column item="${item}" property="numberOfVirtualPorts" />
-                        <td>
-                            TODO<a href=""><i class="icon-edit"><!--  --></i></a>
-                        </td>
+                        <table:actionsColumn item="${item}" delete="false" path="/manager/physicalports" />
                     </tr>
                 </c:forEach>
             </tbody>
         </table:table>
     </page:list>
-    
-    
-    <!--     <table:table data="${list}" id="l_nl_surfnet_bod_domain_PhysicalPort" path="/manager/physicalports"
-            typeIdFieldName="id" delete="false" show="false">
-
-            <table:column id="c_PhysicalPort_managerLabel" property="managerLabel" />
-            <table:column id="c_PhysicalPort_networkElementPk" property="networkElementPk" />            
-            <table:column id="c_PhysicalPort_virtualPortCount" property="numberOfVirtualPorts" sortable="false" />
-            
-            <table:actionColumn icon="icon-arrow-down"
-                action="/showvirtualports" title="Show Virtual Ports" />
-        </table:table>
-    </page:list>-->
     
     <script type="text/javascript">
       //Do new get based on selected item

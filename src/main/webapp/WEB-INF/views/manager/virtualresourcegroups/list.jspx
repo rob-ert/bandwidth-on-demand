@@ -7,6 +7,7 @@
     <jsp:output omit-xml-declaration="yes" />
         
     <page:list id="pl_VirtualResourceGroup">
+
         <table:table items="${list}">
             <thead>
                 <tr>
@@ -31,25 +32,12 @@
                         <table:column item="${item}" property="name" />
                         <table:column item="${item}" property="description" />
                         <table:column item="${item}" property="virtualPortCount" />
-                        <td>
-                            <spring:url value="" var="edit_url">
-                                <spring:param name="id" value="${item.id}" />
-                            </spring:url>
-                            <a href="${edit_url}"><i class="icon-trash"><!--  --></i>TODO</a>
-                        </td>
+                        <table:actionsColumn item="${item}" update="false" path="/manager/virtualresourcegroups" />
                     </tr>
                 </c:forEach>
             </tbody>
         </table:table>
-    
-    <!--<table:table data="${list}" id="l_VirtualResourceGroup" path="/manager/virtualresourcegroups" typeIdFieldName="id" update="false">
-            <table:column id="c_virtualresourcegroup_name" property="name" />
-            <table:column id="c_virtualresourcegroup_surfconextgroupid" property="surfconextGroupId" />
-            <table:column id="c_virtualresourcegroup_description" property="description" />
-            <table:column id="c_virtualresourcegroup_virtualPortCount" property="virtualPortCount" sortable="false" />
 
-            <table:actionColumn icon="icon-arrow-down" action="/showvirtualports" title="Show Virtual Ports" />
-        </table:table>-->
     </page:list>
 
 </div>

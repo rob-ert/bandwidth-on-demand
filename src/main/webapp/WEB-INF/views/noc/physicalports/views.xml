@@ -11,10 +11,6 @@
         <put-attribute name="unallocated" value="true" cascade="true"/>
         <put-attribute name="active_menu" value="physicalport_free" cascade="true" />
     </definition>
-    <definition extends="noc" name="physicalports/show">
-        <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/show.jspx" />
-        <put-attribute name="active_menu" value="physicalport" cascade="true" />
-    </definition>
     <definition extends="noc" name="physicalports/update">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/update.jspx" />
         <put-attribute name="active_menu" value="physicalport" cascade="true" />

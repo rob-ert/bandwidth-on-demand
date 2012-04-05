@@ -1,0 +1,41 @@
+<jsp:root xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:spring="http://www.springframework.org/tags" xmlns:form="http://www.springframework.org/tags/form"
+    xmlns:util="urn:jsptagdir:/WEB-INF/tags/util" xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
+
+    <jsp:directive.attribute name="item" type="java.lang.Object" required="true" rtexprvalue="true" />
+    <jsp:directive.attribute name="update" type="java.lang.Boolean" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="delete" type="java.lang.Boolean" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="path" type="java.lang.String" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="idFieldName" type="java.lang.String" required="false" rtexprvalue="true" />
+    
+    <c:if test="${empty idFieldName}">
+        <c:set var="idFieldName" value="id" />
+    </c:if>
+    
+    <td>
+        <c:if test="${empty update or update}">
+            <spring:url var="editUrl" value="${path}/edit">
+                <spring:param name="id" value="${item[idFieldName]}" />
+            </spring:url>
+            <a href="${editUrl}" rel="tooltip" title="Edit" class="icon-edit  icon-large"><!--  --></a>
+        </c:if>
+        <c:if test="${empty delete or delete}">
+            <spring:url value="${path}/delete" var="delete_form_url" />
+            <form:form action="${delete_form_url}" method="DELETE">
+                <!--<spring:message arguments="${typeName}" code="entity_delete" var="delete_label" htmlEscape="false" />-->
+                <c:set var="delete_confirm_msg">
+                    <spring:escapeBody javaScriptEscape="true">
+                        <spring:message code="entity_delete_confirm" />
+                    </spring:escapeBody>
+                </c:set>
+                <input type="hidden" name="id" value="${item[idFieldName]}" />
+                <a href="#" class="icon-trash icon-large" alt="${fn:escapeXml(delete_label)}" title="${fn:escapeXml(delete_label)}" rel="tooltip"
+                    onclick="if (confirm('${delete_confirm_msg}')){ $(this).closest('form').submit(); } return false;"><!--  --></a>
+                <c:if test="${not empty param.page}">
+                    <input name="page" type="hidden" value="${param.page}" />
+                </c:if>
+            </form:form>
+        </c:if>
+    </td>
+    
+</jsp:root>

@@ -24,7 +24,6 @@ package nl.surfnet.bod.web.noc;
 import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -32,7 +31,6 @@ import javax.validation.constraints.NotNull;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -97,19 +95,6 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
         portToSave.getPhysicalResourceGroup().getInstitute().getName());
 
     return "redirect:physicalports";
-  }
-
-  @RequestMapping(params = ID_KEY, method = RequestMethod.GET)
-  public String show(@RequestParam(ID_KEY) final String networkElementPk, final Model model) {
-    PhysicalPort physicalPort = physicalPortService.findByNetworkElementPk(networkElementPk);
-
-    Collection<VirtualPort> virutalPorts = physicalPort != null && physicalPort.isAllocated() ? virutalPortService
-        .findAllForPhysicalPort(physicalPort) : Collections.<VirtualPort> emptyList();
-
-    model.addAttribute("physicalPort", physicalPort);
-    model.addAttribute("virtualPorts", virutalPorts);
-
-    return PAGE_URL + SHOW;
   }
 
   @RequestMapping(value = "/free", method = RequestMethod.GET)

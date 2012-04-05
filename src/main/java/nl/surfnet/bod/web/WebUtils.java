@@ -36,7 +36,6 @@ import com.google.common.collect.Lists;
 public final class WebUtils {
 
   public static final String CREATE = "/create";
-  public static final String SHOW = "/show";
   public static final String EDIT = "/edit";
   public static final String UPDATE = "/update";
   public static final String DELETE = "/delete";
@@ -85,7 +84,7 @@ public final class WebUtils {
   /**
    * Adds an infoMessage, depending on the type of {@link Model} it will will
    * survive a redirect.
-   * 
+   *
    * @param model
    *          Model to add the message to
    * @param message
@@ -135,7 +134,7 @@ public final class WebUtils {
    * Html escapes the argument and replaces them with the parameter placeholders
    * in the message. The parameter placeholders can be either "{}" or the
    * regular {@link String#format(String, Object...)} placeholders.
-   * 
+   *
    * @param message
    *          The message to parse
    * @param args

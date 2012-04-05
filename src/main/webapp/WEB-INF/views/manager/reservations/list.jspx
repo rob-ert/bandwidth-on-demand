@@ -75,17 +75,4 @@
         </table:table>
     </page:list>
 
-    <!-- <page:list id="pl_reservation" items="${list}" labelCode="label_reservation_manager_list">
-        <table:table data="${list}" id="l_reservation" path="/manager/reservations" typeIdFieldName="id" update="false" delete="false">
-            <table:column labelCode="virtualresourcegroup" id="virtualresourcegroup" property="virtualResourceGroup"/>
-            <table:column labelCode="reservation_sourcePort" id="sourceport" property="sourcePort"/>
-            <table:column labelCode="reservation_destinationPort" id="destinationport" property="destinationPort"/>
-            <table:column labelCode="reservation_status" id="status" property="status"/>
-            <table:column labelCode="reservation_startTime" id="starttime" property="startDateTime" />
-            <table:column labelCode="reservation_endTime" id="endtime" property="endDateTime" />
-            <table:column labelCode="reservation_bandwidth" id="bandwidth" property="bandwidth" />
-            <table:column labelCode="reservation_creationDateTime" id="creationDT" property="creationDateTime"/>
-        </table:table>
-    </page:list>-->
-
 </div>

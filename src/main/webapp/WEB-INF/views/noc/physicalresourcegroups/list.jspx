@@ -31,11 +31,7 @@
                         <table:column item="${item}" property="managerEmail"/>
                         <table:column item="${item}" property="active" type="boolean" />
                         <table:column item="${item}" property="physicalPortCount" />
-                        <td>
-                            TODO
-                            <a href=""><i class="icon-edit"><!--  --></i></a>
-                            <a href=""><i class="icon-trash"><!--  --></i></a>
-                        </td>
+                        <table:actionsColumn item="${item}" path="/noc/physicalresourcegroups" />
                     </tr>
                 </c:forEach>
             </tbody>

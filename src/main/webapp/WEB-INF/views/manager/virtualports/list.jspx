@@ -52,11 +52,7 @@
                         <table:column item="${item}" property="managerLabel" />
                         <table:column item="${item}" property="maxBandwidth" />
                         <table:column item="${item}" property="virtualResourceGroup" />
-                        <td>
-                            TODO
-                            <a href=""><i class="icon-edit"><!--  --></i></a>
-                            <a href=""><i class="icon-trash"><!--  --></i></a>
-                        </td>
+                        <table:actionsColumn item="${item }" path="/manager/virtualports" />
                     </tr>
                 </c:forEach>
             </tbody>
