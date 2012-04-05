@@ -19,7 +19,7 @@
                             <i class="icon-ok"><!--  --></i>
                         </c:when>
                         <c:otherwise>
-                            <i class="icon-remove"><!--  --></i>
+                            <i class="icon-ban-circle"><!--  --></i>
                         </c:otherwise>
                     </c:choose>
                 </c:when>

@@ -17,7 +17,7 @@
                     <table:sortableHeader name="Label" property="managerLabel" />
                     <table:sortableHeader name="Network Element Id" property="networkElementPk" />
                     <th># of Virtual Ports</th>
-                    <th class="small">Actions</th>
+                    <table:actionsHeader />
                 </tr>
             </thead>
             <tbody>

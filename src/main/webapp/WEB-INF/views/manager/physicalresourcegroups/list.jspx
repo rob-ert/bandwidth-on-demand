@@ -10,12 +10,12 @@
         <table:table items="${list}">
             <thead>
                 <tr>
-                    <th class="small">Extra info</th>
+                    <table:rowDetailsHeader />
                     <th>Institute</th>
                     <table:sortableHeader name="Email" property="managerEmail" />
                     <table:sortableHeader name="Active" property="active" />
                     <th># of Ports</th>
-                    <th class="small">actions</th>
+                    <table:actionsHeader />
                 </tr>
             </thead>
             <tbody>

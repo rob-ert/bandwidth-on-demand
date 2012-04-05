@@ -5,10 +5,6 @@ input[type="image"] {
 	border: none;
 	padding: 0;
 }
-form#command {
-	display: inline;
-	margin: 0;
-}
 .messagebar {
 	background-color: white;
     width: 940px;

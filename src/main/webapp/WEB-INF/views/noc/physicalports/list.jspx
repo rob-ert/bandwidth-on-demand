@@ -14,11 +14,11 @@
         <table:table items="${list}">
             <thead>
                 <tr>
-                    <c:if test="${not show_unallocated}"><th class="small">More info</th></c:if>
+                    <table:rowDetailsHeader render="${not show_unallocated}" />
                     <table:sortableHeader name="Label" property="nocLabel" />
                     <table:sortableHeader name="Network Element Id" property="networkElementPk" />
                     <table:sortableHeader name="Physical Resrouce Group" property="physicalResourceGroup" render="${not show_unallocated}" />
-                    <th class="small">Actions</th>
+                    <table:actionsHeader />
                 </tr>
             </thead>
             <tbody>
@@ -33,7 +33,7 @@
                         <table:column item="${item}" property="nocLabel" />
                         <table:column item="${item}" property="networkElementPk" />
                         <table:column item="${item}" property="physicalResourceGroup" render="${not show_unallocated}" />
-                        <table:actionsColumn item="${item}" delete="false" path="/noc/physicalports" idFieldName="networkElementPk" />
+                        <table:actionsColumn item="${item}" delete="${not show_unallocated}" deleteIcon="icon-resize-full" path="/noc/physicalports" idFieldName="networkElementPk" />
                     </tr>
                 </c:forEach>
             </tbody>

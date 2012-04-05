@@ -7,17 +7,22 @@
     <jsp:directive.attribute name="delete" type="java.lang.Boolean" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="path" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="idFieldName" type="java.lang.String" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="deleteIcon" type="java.lang.String" required="false" rtexprvalue="true" />
     
     <c:if test="${empty idFieldName}">
         <c:set var="idFieldName" value="id" />
     </c:if>
-    
-    <td>
+    <c:if test="${empty deleteIcon}">
+        <c:set var="deleteIcon" value="icon-remove" />
+    </c:if>
+
+
+    <td class="center">
         <c:if test="${empty update or update}">
             <spring:url var="editUrl" value="${path}/edit">
                 <spring:param name="id" value="${item[idFieldName]}" />
             </spring:url>
-            <a href="${editUrl}" rel="tooltip" title="Edit" class="icon-edit  icon-large"><!--  --></a>
+            <a href="${editUrl}" rel="tooltip" title="Edit" class="icon-pencil"><!--  --></a>
         </c:if>
         <c:if test="${empty delete or delete}">
             <spring:url value="${path}/delete" var="delete_form_url" />
@@ -29,7 +34,7 @@
                     </spring:escapeBody>
                 </c:set>
                 <input type="hidden" name="id" value="${item[idFieldName]}" />
-                <a href="#" class="icon-trash icon-large" alt="${fn:escapeXml(delete_label)}" title="${fn:escapeXml(delete_label)}" rel="tooltip"
+                <a href="#" class="${deleteIcon}" alt="${fn:escapeXml(delete_label)}" title="${fn:escapeXml(delete_label)}" rel="tooltip"
                     onclick="if (confirm('${delete_confirm_msg}')){ $(this).closest('form').submit(); } return false;"><!--  --></a>
                 <c:if test="${not empty param.page}">
                     <input name="page" type="hidden" value="${param.page}" />

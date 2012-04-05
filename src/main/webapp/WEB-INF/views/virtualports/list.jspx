@@ -13,7 +13,7 @@
                     <table:sortableHeader name="Label" property="userLabel"/>
                     <table:sortableHeader name="Max. Bandwidth" property="maxBandwidth"/>
                     <table:sortableHeader name="Team" property="virtualResourceGroup"/>
-                    <th class="small">Actions</th>
+                    <table:actionsHeader />
                 </tr>
             </thead>
             <tbody>

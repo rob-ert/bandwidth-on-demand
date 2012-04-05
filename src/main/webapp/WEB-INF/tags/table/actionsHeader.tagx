@@ -5,12 +5,6 @@
     <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" />
 
     <c:if test="${empty render or render}">
-        <td class="center">
-            <i class="icon-plus-sign"><!-- --></i>
-            <i class="icon-minus-sign"><!--  --></i>
-            <div class="rowdetails-content">
-              <jsp:doBody />
-            </div>
-        </td>
+        <th class="cw55 small center">Actions</th>
     </c:if>
 </jsp:root>
