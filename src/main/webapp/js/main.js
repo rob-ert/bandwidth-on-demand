@@ -1,24 +1,24 @@
-$(function() {
-	$.fn.tooltip.defaults.delay = 500;
+var app = {};
 
-	$('[rel="tooltip"]').tooltip();
+app.modules = [];
 
-	$('th.sortable').each(function(i, item) {
-	    var $header = $(item),
-	        $link = $header.find('a'),
-	        url = $link.attr('href');
+app.register = function(module) {
 
-	    $link.replaceWith($link.html());
+    app.modules[app.modules.length] = module;
 
-	    $header.click(function() {
-	        document.location = url;
-	    });
-	});
-});
-
-function showInfoMessage(message) {
-    var closeLink = $("<a/>", {class: "close", href: "#", html: "&times;"});
-    var record = $("<div/>", {html: message, class: "alert-message fade in"}).append(closeLink).alert();
-
-    $("#messages").prepend(record);
 }
+
+app.bootstrap = function() {
+
+    app.modules.forEach(function(module) {
+        if(typeof module.init === 'function') {
+            module.init.call(module);
+        }
+    })
+
+}
+
+$(function() {
+    var go = app.bootstrap();
+
+});

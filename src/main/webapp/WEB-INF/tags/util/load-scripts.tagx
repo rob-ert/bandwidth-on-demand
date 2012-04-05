@@ -15,14 +15,13 @@
     <spring:url value="/resources/css/components-bootstrap/generic.css" var="b_generic_css_url" />
     <spring:url value="/resources/css/components-bootstrap/dropdown.css"  var="b_dropdown_css_url"/>
     <spring:url value="/resources/css/components/user-box.css" var="user_box_css_url"/>
-    
+
 
     <spring:url value="/resources/js/jquery.min.js" var="jquery_url" />
     <spring:url value="/resources/js/jquery-socket.js" var="jquery_socket_url" />
     <spring:url value="/resources/js/bootstrap/bootstrap-2.0.2.min.js" var="bootstrap_js_url" />
     <spring:url value="/resources/js/bootstrap-dropdown.js" var="bootstrap_dropdown_url" />
     <spring:url value="/resources/js/bootstrap-alerts.js" var="bootstrap_alerts_url" />
-    <spring:url value="/resources/js/table-rowdetails.js" var="table_rowdetails_url"/>
 
     <spring:url value="/resources/js/autoSuggestv14/autoSuggest.css" var="autosuggest_css_url" />
     <spring:url value="/resources/js/autoSuggestv14/jquery.autoSuggest.js" var="autosuggest_js_url" />
@@ -31,9 +30,11 @@
 
     <spring:url value="/resources/js/datepicker/datepicker.js" var="datepicker_js_url" />
     <spring:url value="/resources/js/datepicker/datepicker.css" var="datepicker_css_url" />
-    
-	<spring:url value="/resources/js/user-role-selection.js" var="user_role_selection_js_url" />
+
     <spring:url value="/resources/js/main.js" var="main_js_url" />
+    <spring:url value="/resources/js/modules/form.js" var="module_form_js_url" />
+    <spring:url value="/resources/js/modules/message.js" var="module_message_js_url" />
+    <spring:url value="/resources/js/modules/table.js" var="module_table_js_url" />
 
     <link rel="stylesheet" type="text/css" media="screen" href="${bootstrap_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${font_awesome_css_url}" />
@@ -47,7 +48,7 @@
     <link rel="stylesheet" type="text/css" media="screen" href="${b_dropdown_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${b_generic_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${user_box_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${main_css_url}" />    
+    <link rel="stylesheet" type="text/css" media="screen" href="${main_css_url}" />
 
     <script src="${jquery_url}" type="text/javascript"><!-- needed --></script>
     <script src="${jquery_socket_url}" type="text/javascript"><!-- needed --></script>
@@ -58,8 +59,11 @@
     <script src="${dropdownreload_js_url}" type="text/javascript"><!-- needed --></script>
     <script src="${table_rowdetails_url}" type="text/javascript"><!-- needed --></script>
     <script src="${datepicker_js_url}" type="text/javascript"><!-- needed --></script>
-    <script src="${user_role_selection_js_url}" type="text/javascript"><!-- needed --></script>    
+
     <script src="${main_js_url}" type="text/javascript"><!-- needed --></script>
+    <script src="${module_form_js_url}" type="text/javascript"><!-- needed --></script>
+    <script src="${module_message_js_url}" type="text/javascript"><!-- needed --></script>
+    <script src="${module_table_js_url}" type="text/javascript"><!-- needed --></script>
 
     <c:set var="userLocale">
         <c:set var="plocale">${pageContext.response.locale}</c:set>
