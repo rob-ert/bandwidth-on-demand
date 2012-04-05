@@ -23,7 +23,7 @@
                     <tr class="rowdetails">
                         <table:rowDetailsColumn>
                             <dl class="dl-horizontal">
-                                <dt>SurfConext id:</dt>
+                                <dt>SurfConext id</dt>
                                 <dd>
                                     <c:out value="${item.adminGroup}" />
                                 </dd>

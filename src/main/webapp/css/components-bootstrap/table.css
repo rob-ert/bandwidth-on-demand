@@ -74,6 +74,10 @@
     box-shadow: 2px 2px 5px #bfbfbf;
 }
 
+.table .rowdetails .rowdetails-content dt:after {
+	content: ":";
+}
+
 .table .rowdetails-content:before {
     content: "";
     position: absolute;

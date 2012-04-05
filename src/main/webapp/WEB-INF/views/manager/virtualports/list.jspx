@@ -24,7 +24,7 @@
                             <div class="row-fluid">
                                 <div class="span6">
                                     <dl class="dl-horizontal">
-                                        <dt>VLAN ID:</dt>
+                                        <dt>VLAN ID</dt>
                                         <dd>
                                             <c:choose>
                                                 <c:when test="${empty item.vlanId}">
@@ -35,15 +35,15 @@
                                                 </c:otherwise>
                                             </c:choose>
                                         </dd>
-                                        <dt>User Label:</dt>
+                                        <dt>User Label</dt>
                                         <dd><c:out value="${item.userLabel}" /></dd>
                                     </dl>
                                 </div>
                                 <div class="span6">
                                     <dl class="dl-horizontal">
-                                        <dt>Institute:</dt>
+                                        <dt>Institute</dt>
                                         <dd><c:out value="${item.physicalResourceGroup}" /></dd>
-                                        <dt>Physical Port:</dt>
+                                        <dt>Physical Port</dt>
                                         <dd><c:out value="${item.physicalPort}" /></dd>
                                     </dl>
                                 </div>

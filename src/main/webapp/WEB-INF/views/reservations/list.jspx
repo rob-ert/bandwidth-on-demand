@@ -34,16 +34,16 @@
                             <div class="row-fluid">
                                 <div class="span6">
                                     <dl class="dl-horizontal">
-                                        <dt>Bandwidth:</dt>
+                                        <dt>Bandwidth</dt>
                                         <dd>
                                             <spring:eval expression="item['bandwidth']" htmlEscape="true" />
                                         </dd>
-                                        <dt>Reservation id:</dt>
+                                        <dt>Reservation id</dt>
                                         <dd>
                                             <spring:eval expression="item['reservationId']" htmlEscape="true" />
                                         </dd>
                                         <c:if test="${item.status eq 'FAILED'}">
-                                            <dt>Failed reason:</dt>
+                                            <dt>Failed reason</dt>
                                             <dd>
                                                 <c:choose>
                                                     <c:when test="${empty item.failedMessage}">
@@ -59,11 +59,11 @@
                                 </div>
                                 <div class="span6">
                                     <dl class="dl-horizontal">
-                                        <dt>Creation date:</dt>
+                                        <dt>Creation date</dt>
                                         <dd>
                                             <spring:eval expression="item['creationDateTime']" htmlEscape="true" />
                                         </dd>
-                                        <dt>User created:</dt>
+                                        <dt>User created</dt>
                                         <dd>
                                             <spring:eval expression="item['userCreated']" htmlEscape="true" />
                                         </dd>
