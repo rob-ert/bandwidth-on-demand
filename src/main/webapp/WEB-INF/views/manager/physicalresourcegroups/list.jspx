@@ -13,7 +13,7 @@
                     <table:rowDetailsHeader />
                     <th>Institute</th>
                     <table:sortableHeader name="Email" property="managerEmail" />
-                    <table:sortableHeader name="Active" property="active" />
+                    <table:sortableHeader name="Active" property="active" styleClass="center" />
                     <th># of Ports</th>
                     <table:actionsHeader />
                 </tr>
@@ -31,7 +31,7 @@
                         </table:rowDetailsColumn>
                         <table:column item="${item}" property="name" />
                         <table:column item="${item}" property="managerEmail" />
-                        <table:column item="${item}" property="active" type="boolean" />
+                        <table:column item="${item}" property="active" type="boolean" styleClass="center" />
                         <table:column item="${item}" property="physicalPortCount" />
                         <table:actionsColumn item="${item}" delete="false" path="/manager/physicalresourcegroups" />
                     </tr>

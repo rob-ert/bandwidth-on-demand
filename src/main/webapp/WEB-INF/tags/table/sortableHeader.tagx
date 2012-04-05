@@ -5,6 +5,7 @@
     <jsp:directive.attribute name="name" type="java.lang.String" required="true" rtexprvalue="true" />
     <jsp:directive.attribute name="property" type="java.lang.String" required="true" rtexprvalue="true" />
     <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="styleClass" type="java.lang.String" required="false" rtexprvalue="true" />
         
     <c:if test="${empty render or render}">
         <c:choose>
@@ -34,6 +35,6 @@
             </c:otherwise>
         </c:choose>
     
-        <th class="${headClass}"><a href="${sortLink}"><c:out value="${name}"/></a></th>
+        <th class="${styleClass} ${headClass}"><a href="${sortLink}"><c:out value="${name}"/></a></th>
     </c:if>
 </jsp:root>

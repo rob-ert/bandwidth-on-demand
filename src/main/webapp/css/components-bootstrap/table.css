@@ -46,6 +46,20 @@
     text-decoration: none;
 }
 
+/* icons */
+.table [class^="icon-"]:before, .table [class*=" icon-"]:before {
+	font-size: 16px;
+    color: #0381a4;
+}
+
+.table [class="icon-ok"]:before {
+	color: #008000;
+}
+
+.table [class="icon-ban-circle"]:before {
+    color: #B22222;
+}
+
 /* table containing expandable row details (requires js) */
 
 .table .rowdetails {
