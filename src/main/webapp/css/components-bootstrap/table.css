@@ -42,6 +42,10 @@
     margin: 0 5px;
 }
 
+.table a:hover {
+    text-decoration: none;
+}
+
 /* table containing expandable row details (requires js) */
 
 .table .rowdetails {
