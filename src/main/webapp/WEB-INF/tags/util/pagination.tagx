@@ -19,7 +19,7 @@
             <ul>
                 <c:choose>
                     <c:when test="${page eq 1}">
-                        <li class="prev disabled"><a href="#">&#8592; Previous</a></li>                    
+                        <li class="prev disabled"><a href="#">&#8592;</a></li>
                     </c:when>
                     <c:otherwise>
                         <spring:url value="" var="prev_page_url">
@@ -27,7 +27,7 @@
                             <spring:param name="sort" value="${sortProperty}" />
                             <spring:param name="order" value="${sortDirection}" />
                         </spring:url>
-                        <li class="prev"><a href="${prev_page_url}">&#8592; Previous</a></li>
+                        <li class="prev"><a href="${prev_page_url}">&#8592;</a></li>
                     </c:otherwise>
                 </c:choose>
                 <c:forEach var="i" begin="1" end="${maxPages}" step="1">
@@ -46,10 +46,10 @@
                     </spring:url>
                     <li class="${page_class}"><a href="${page_url}">${i}</a></li>
                 </c:forEach>
-                
+
                 <c:choose>
                     <c:when test="${maxPages eq page}">
-                        <li class="next disabled"><a href="#">Next &#8594;</a></li>
+                        <li class="next disabled"><a href="#">&#8594;</a></li>
                     </c:when>
                     <c:otherwise>
                         <spring:url value="" var="next_page_url">
@@ -57,10 +57,10 @@
                             <spring:param name="sort" value="${sortProperty}" />
                             <spring:param name="order" value="${sortDirection}" />
                         </spring:url>
-                        <li class="next"><a href="${next_page_url}">Next &#8594;</a></li>
+                        <li class="next"><a href="${next_page_url}">&#8594;</a></li>
                     </c:otherwise>
                 </c:choose>
-                
+
             </ul>
         </div>
     </c:if>
