@@ -148,10 +148,10 @@ public class RichUserDetailsServiceTest {
   public void shouldAddRole() {
     UserGroup userGroup = new UserGroupFactory().setId("urn:nameGroup").setName("new name").create();
 
-    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();    
 
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(listOf(userGroup));
-    when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(prg);
+    when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg));
 
     RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
         "urn:alanvdam", "Alan van Dam", "alan@test.com"), "N/A"));
@@ -167,7 +167,7 @@ public class RichUserDetailsServiceTest {
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
 
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(listOf(userGroup));
-    when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(prg);
+    when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg));
 
     RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
         "urn:alanvdam", "Alan van Dam", "alan@test.com"), "N/A"));
@@ -185,7 +185,7 @@ public class RichUserDetailsServiceTest {
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setInstitute(institute).create();
 
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(listOf(userGroup));
-    when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(prg);
+    when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg));
     // Force role Manager
     when(prgServiceMock.findAllForAdminGroups(Lists.newArrayList(userGroup))).thenReturn(Lists.newArrayList(prg));
 

@@ -24,6 +24,7 @@ package nl.surfnet.bod.web.security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -49,6 +50,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 
 public class RichUserDetailsService implements AuthenticationUserDetailsService {
 
@@ -103,25 +105,27 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
    */
   List<BodRole> determineRoles(Collection<UserGroup> userGroups) {
 
-    List<BodRole> roles = Lists.newArrayList();
+    Set<BodRole> roles = Sets.newHashSet();
 
     for (UserGroup userGroup : userGroups) {
-      PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.findByAdminGroup(userGroup.getId());
-      String role = null;
-      if (physicalResourceGroup != null) {
+      for (PhysicalResourceGroup physicalResourceGroup : physicalResourceGroupService.findByAdminGroup(userGroup
+          .getId())) {
 
-        ArrayList<UserGroup> groups = Lists.newArrayList(userGroup);
-        if (isNocEngineerGroup(groups)) {
-          role = Security.NOC_ENGINEER;
+        String role = null;
+        
+        if (physicalResourceGroup != null) {
+          ArrayList<UserGroup> groups = Lists.newArrayList(userGroup);
+          if (isNocEngineerGroup(groups)) {
+            role = Security.NOC_ENGINEER;
+          }
+          else if (isIctManager(groups)) {
+            role = Security.ICT_MANAGER;
+          }
+          else if (isUser(groups)) {
+            role = Security.USER;
+          }
+          roles.add(new BodRole(userGroup, role, physicalResourceGroup.getInstitute()));
         }
-        else if (isIctManager(groups)) {
-          role = Security.ICT_MANAGER;
-        }
-        else if (isUser(groups)) {
-          role = Security.USER;
-        }
-
-        roles.add(new BodRole(userGroup, role, physicalResourceGroup.getInstitute()));
       }
     }
 

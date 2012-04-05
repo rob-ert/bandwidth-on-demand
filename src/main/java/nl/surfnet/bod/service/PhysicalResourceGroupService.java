@@ -50,6 +50,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import com.google.common.base.Function;
 
@@ -183,13 +184,14 @@ public class PhysicalResourceGroupService {
     return prg;
   }
 
-  public PhysicalResourceGroup findByAdminGroup(String groupId) {
-    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupRepo.findByAdminGroup(groupId);
+  public List<PhysicalResourceGroup> findByAdminGroup(String groupId) {
+    List<PhysicalResourceGroup> prgs = physicalResourceGroupRepo.findByAdminGroup(groupId);
 
-    if (physicalResourceGroup != null) {
-      instituteService.fillInstituteForPhysicalResourceGroup(physicalResourceGroup);
+    if (!CollectionUtils.isEmpty(prgs)) {
+      instituteService.fillInstituteForPhysicalResourceGroups(prgs);
     }
-    return physicalResourceGroup;
+
+    return prgs;
   }
 
   @SuppressWarnings("unchecked")

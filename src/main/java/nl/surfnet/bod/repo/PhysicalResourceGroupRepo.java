@@ -34,32 +34,32 @@ import org.springframework.stereotype.Repository;
 public interface PhysicalResourceGroupRepo extends JpaSpecificationExecutor<PhysicalResourceGroup>,
     JpaRepository<PhysicalResourceGroup, Long> {
 
-  
   /**
    * Finds a {@link PhysicalResourceGroup} by a adminGroup
    * 
    * @param adminGroup
-   * @return {@link PhysicalResourceGroup} related to the given adminGroup
+   * @return List<PhysicicalResourceGroup> related to the given adminGroup
    */
-  PhysicalResourceGroup findByAdminGroup(String adminGroup);
-  
+  List<PhysicalResourceGroup> findByAdminGroup(String adminGroup);
+
   /**
    * Finds {@link PhysicalResourceGroup}s by a Collection of adminGroups
    * {@link PhysicalResourceGroup#getAdminGroup()}
-   *
+   * 
    * @param Collection
    *          <String> adminGroups to search for
-   *
+   * 
    * @return List<PhysicalResourceGroup> or empty collection when no match was
    *         found.
    */
   List<PhysicalResourceGroup> findByAdminGroupIn(Collection<String> adminGroups);
 
   /**
-   * Finds a {@link PhysicalResourceGroup} by the id of the {@link nl.surfnet.bod.domain.Institute} to
-   * which this group is related.
-   *
-   * @param instituteId Id to search for
+   * Finds a {@link PhysicalResourceGroup} by the id of the
+   * {@link nl.surfnet.bod.domain.Institute} to which this group is related.
+   * 
+   * @param instituteId
+   *          Id to search for
    * @return
    */
   PhysicalResourceGroup findByInstituteId(Long instituteId);
