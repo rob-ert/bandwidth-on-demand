@@ -21,6 +21,10 @@ section {
     padding: 20px;
 }
 
+.span3 .content {
+    padding: 20px 10px;
+}
+
 .content-some-dense {
 	padding: 10px 20px 10px 20px;
 }
