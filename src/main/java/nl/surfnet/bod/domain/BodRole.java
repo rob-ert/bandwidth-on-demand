@@ -6,21 +6,26 @@ import com.google.common.base.Objects;
 
 public class BodRole {
 
+  private static final AtomicLong COUNTER = new AtomicLong();
+
   private final Long id;
   private final String groupId;
   private final String groupName;
   private final String groupDescription;
   private final String roleName;
-  private final Long instituteId;
-  private final String instituteName;
+  private Long instituteId;
+  private String instituteName;
 
-  public BodRole(UserGroup userGroup, String role, Institute institute) {
-
-    this.id = new AtomicLong().incrementAndGet();
+  public BodRole(UserGroup userGroup, String role) {
+    this.id = COUNTER.incrementAndGet();
     this.groupId = userGroup.getId();
     this.groupName = userGroup.getName();
     this.groupDescription = userGroup.getDescription();
     this.roleName = role;
+  }
+
+  public BodRole(UserGroup userGroup, String role, Institute institute) {
+    this(userGroup, role);
     this.instituteId = institute.getId();
     this.instituteName = institute.getName();
   }

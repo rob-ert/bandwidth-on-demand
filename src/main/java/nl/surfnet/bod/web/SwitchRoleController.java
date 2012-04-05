@@ -6,20 +6,23 @@ import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
+@RequestMapping("/switchrole")
 public class SwitchRoleController {
-  private final static String MODEL_KEY = "roleId";
 
   @RequestMapping(method = RequestMethod.POST)
-  public void switchRole(final BindingResult bindingResult, final Model uiModel) {
+  public String switchRole(final String roleId, final Model uiModel) {
     RichUserDetails userDetails = Security.getUserDetails();
-    Long bodRoleId = WebUtils.getAttributeFromModel(MODEL_KEY, uiModel);
 
-    BodRole bodRole = userDetails.findBodRole(bodRoleId);
-    userDetails.switchRoleTo(bodRole);
+    if (StringUtils.hasText(roleId)) {
+      BodRole bodRole = userDetails.findBodRole(Long.valueOf(roleId));
+      userDetails.switchRoleTo(bodRole);
+    }
+    
+    return userDetails.getSelectedRole().getRoleName();
   }
 }

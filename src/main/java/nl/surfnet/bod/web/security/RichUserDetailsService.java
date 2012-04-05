@@ -105,31 +105,50 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
    */
   List<BodRole> determineRoles(Collection<UserGroup> userGroups) {
 
-    List<BodRole> roles = Lists.newArrayList();
+    Set<BodRole> roles = Sets.newHashSet();
 
     for (UserGroup userGroup : userGroups) {
-      for (PhysicalResourceGroup physicalResourceGroup : physicalResourceGroupService.findByAdminGroup(userGroup
-          .getId())) {
+      roles.add(determineNocRole(userGroup));
+      roles.addAll(determineManagerRole(userGroup));
+      roles.add(determineUserRole(userGroup));
+    }
 
-        String role = null;
+    roles.remove(null);
 
-        if (physicalResourceGroup != null) {
-          ArrayList<UserGroup> groups = Lists.newArrayList(userGroup);
-          if (isNocEngineerGroup(groups)) {
-            role = Security.NOC_ENGINEER;
-          }
-          else if (isIctManager(groups)) {
-            role = Security.ICT_MANAGER;
-          }
-          else if (isUser(groups)) {
-            role = Security.USER;
-          }
-          roles.add(new BodRole(userGroup, role, physicalResourceGroup.getInstitute()));
+    return BY_ROLE_NAME.sortedCopy(roles);
+  }
+
+  BodRole determineNocRole(UserGroup userGroup) {
+    BodRole nocRole = null;
+
+    if (isNocEngineerGroup(Lists.newArrayList(userGroup))) {
+      nocRole = new BodRole(userGroup, Security.NOC_ENGINEER);
+    }
+
+    return nocRole;
+  }
+
+  List<BodRole> determineManagerRole(UserGroup userGroup) {
+    List<BodRole> managerRoles = Lists.newArrayList();
+    for (PhysicalResourceGroup physicalResourceGroup : physicalResourceGroupService.findByAdminGroup(userGroup.getId())) {
+
+      if (physicalResourceGroup != null) {
+        if (isIctManager(Lists.newArrayList(userGroup))) {
+          managerRoles.add(new BodRole(userGroup, Security.ICT_MANAGER, physicalResourceGroup.getInstitute()));
         }
       }
     }
+    return managerRoles;
+  }
 
-    return BY_ROLE_NAME.sortedCopy(roles);
+  private BodRole determineUserRole(UserGroup userGroup) {
+    BodRole userRole = null;
+
+    if (isUser(Lists.newArrayList(userGroup))) {
+      userRole = new BodRole(userGroup, Security.USER);
+    }
+
+    return userRole;
   }
 
   private List<GrantedAuthority> getAuthorities(Collection<UserGroup> groups) {

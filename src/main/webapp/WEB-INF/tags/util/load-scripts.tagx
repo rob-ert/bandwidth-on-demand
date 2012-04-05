@@ -31,7 +31,8 @@
 
     <spring:url value="/resources/js/datepicker/datepicker.js" var="datepicker_js_url" />
     <spring:url value="/resources/js/datepicker/datepicker.css" var="datepicker_css_url" />
-
+    
+	<spring:url value="/resources/js/user-role-selection.js" var="user_role_selection_js_url" />
     <spring:url value="/resources/js/main.js" var="main_js_url" />
 
     <link rel="stylesheet" type="text/css" media="screen" href="${bootstrap_css_url}" />
@@ -46,7 +47,7 @@
     <link rel="stylesheet" type="text/css" media="screen" href="${b_dropdown_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${b_generic_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${user_box_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${main_css_url}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${main_css_url}" />    
 
     <script src="${jquery_url}" type="text/javascript"><!-- needed --></script>
     <script src="${jquery_socket_url}" type="text/javascript"><!-- needed --></script>
@@ -57,6 +58,7 @@
     <script src="${dropdownreload_js_url}" type="text/javascript"><!-- needed --></script>
     <script src="${table_rowdetails_url}" type="text/javascript"><!-- needed --></script>
     <script src="${datepicker_js_url}" type="text/javascript"><!-- needed --></script>
+    <script src="${user_role_selection_js_url}" type="text/javascript"><!-- needed --></script>    
     <script src="${main_js_url}" type="text/javascript"><!-- needed --></script>
 
     <c:set var="userLocale">
