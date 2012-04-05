@@ -100,6 +100,10 @@
 	content: ":";
 }
 
+.table .rowdetails .rowdetails-content dd {
+	text-align: left;
+}
+
 .table .rowdetails-content:before {
     content: "";
     position: absolute;
