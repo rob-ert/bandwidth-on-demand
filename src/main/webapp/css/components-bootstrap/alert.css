@@ -1,0 +1,17 @@
+.alert:before {
+    font-family: FontAwesome;
+    font-weight: normal;
+    font-style: normal;
+    display: inline-block;
+    text-decoration: inherit;
+    content: "\f071"; /* icon-warning-sign */
+    font-size: 18px;
+}
+
+.alert-success:before {
+    content: "\f058"; /* icon-ok-sign */
+}
+
+.alert-info:before {
+    content: "\f05a"; /* icon-info-sign */
+}
