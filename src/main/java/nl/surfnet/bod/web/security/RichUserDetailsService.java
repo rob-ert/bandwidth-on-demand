@@ -141,7 +141,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
     return managerRoles;
   }
 
-   BodRole determineUserRole(UserGroup userGroup) {
+  BodRole determineUserRole(UserGroup userGroup) {
     BodRole userRole = null;
 
     if (isUser(Lists.newArrayList(userGroup))) {
@@ -205,5 +205,9 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
 
   protected void setNocEngineerGroupId(String groupId) {
     this.nocEngineerGroupId = groupId;
+  }
+
+  String getNocEngineerGroupId() {
+    return nocEngineerGroupId;
   }
 }

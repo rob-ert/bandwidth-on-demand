@@ -25,9 +25,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.BodRole;
@@ -202,6 +204,65 @@ public class RichUserDetailsServiceTest {
     assertThat(bodRole.getInstituteId(), is(institute.getId()));
     assertThat(bodRole.getInstituteName(), is(institute.getName()));
     assertThat(bodRole.getRoleName(), is(Security.RoleEnum.ICT_MANAGER.name()));
+  }
+
+  @Test
+  public void shouldBeNocRole() {
+    UserGroup userGroup = new UserGroupFactory().setId(subject.getNocEngineerGroupId()).setName("new name").create();
+
+    BodRole nocRole = subject.determineNocRole(userGroup);
+    assertThat(Security.RoleEnum.NOC_ENGINEER, is(nocRole.getRole()));
+  }
+
+  @Test
+  public void shouldNotBeNocRole() {
+    UserGroup userGroup = new UserGroupFactory().setId("nonoc").setName("new name").create();
+
+    BodRole nocRole = subject.determineNocRole(userGroup);
+    assertThat(nocRole, nullValue());
+  }
+
+  @Test
+  public void shouldBeManagerRole() {
+    UserGroup userGroup = new UserGroupFactory().create();
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setAdminGroup(userGroup.getId()).create();
+
+    when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg));
+    when(prgServiceMock.findAllForAdminGroups(listOf(userGroup))).thenReturn(listOf(prg));
+
+    List<BodRole> roles = subject.determineManagerRole(userGroup);
+    assertThat(roles, hasSize(1));
+    assertThat(Security.RoleEnum.ICT_MANAGER, is(roles.get(0).getRole()));
+  }
+
+  @Test
+  public void shouldNotBeManagerRole() {
+    UserGroup userGroup = new UserGroupFactory().setName("new name").create();
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setAdminGroup(userGroup.getId()).create();
+
+    List<BodRole> roles = subject.determineManagerRole(userGroup);
+    assertThat(roles, hasSize(0));
+  }
+
+  @Test
+  public void shouldBeUserRole() {
+    UserGroup userGroup = new UserGroupFactory().setName("new name").create();
+
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
+    when(vrgServiceMock.findByUserGroups(listOf(userGroup))).thenReturn(listOf(vrg));
+    BodRole role = subject.determineUserRole(userGroup);
+
+    assertThat(Security.RoleEnum.USER, is(role.getRole()));
+  }
+
+  @Test
+  public void shouldNotBeUserRole() {
+    UserGroup userGroup = new UserGroupFactory().create();
+
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
+    BodRole role = subject.determineUserRole(userGroup);
+
+    assertThat(role, nullValue());
   }
 
   private static <E> ImmutableList<E> listOf(E... elements) {
