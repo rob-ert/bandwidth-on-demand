@@ -21,12 +21,6 @@
                 <div class="content">
                     <ul class="tasks">
                         <li><a class="btn" href="${create_prg_url}"><i class="icon-plus"><!--  --></i> Phys. Resource Group</a></li>
-                        <sec:authorize access="hasRole('USER')">
-                            <li><a class="btn" href="${user_url}"><i class="icon-user"><!--  --></i> Become User</a></li>
-                        </sec:authorize>
-                        <sec:authorize access="hasRole('ICT_MANAGER')">
-                            <li><a class="btn" href="${manager_url}"><i class="icon-user"><!--  --></i> Become ICT Manager</a></li>
-                        </sec:authorize>
                     </ul>
                 </div>
             </section>
