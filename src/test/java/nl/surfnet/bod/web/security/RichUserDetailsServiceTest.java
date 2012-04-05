@@ -151,6 +151,7 @@ public class RichUserDetailsServiceTest {
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
 
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(listOf(userGroup));
+    when(prgServiceMock.findAllForAdminGroups(listOf(userGroup))).thenReturn(listOf(prg));
     when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg));
 
     RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
@@ -167,6 +168,7 @@ public class RichUserDetailsServiceTest {
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
 
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(listOf(userGroup));
+    when(prgServiceMock.findAllForAdminGroups(listOf(userGroup))).thenReturn(listOf(prg));
     when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg));
 
     RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(

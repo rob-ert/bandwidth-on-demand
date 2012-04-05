@@ -141,7 +141,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
     return managerRoles;
   }
 
-  private BodRole determineUserRole(UserGroup userGroup) {
+   BodRole determineUserRole(UserGroup userGroup) {
     BodRole userRole = null;
 
     if (isUser(Lists.newArrayList(userGroup))) {
