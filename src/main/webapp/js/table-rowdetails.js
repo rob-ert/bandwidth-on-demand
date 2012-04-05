@@ -33,6 +33,40 @@ $(function() {
         }
 
         row.toggleClass('expanded');
+    });
+
+    $('a[data-form]').on('click', function(event) {
+
+        var errorMessage = 'Sorry, action failed.';
+
+        var post = function(url, data) {
+            $.post(url, data)
+            .success(function() {
+                window.location.reload(true);
+            })
+            .error(function() {
+                alert(errorMessage);
+            });
+        };
+
+        var element = $(event.target).closest('a')[0];
+        var href = element.href;
+        var data = href.replace(/[^\?]*\?/, ''); // Everything after '?'
+        var url = href.replace(/\?.*/, ''); // Everything before '?'
+
+        var isToBeConfirmed = element.getAttribute('data-confirm');
+
+        if(isToBeConfirmed) {
+            var isConfirmed = confirm(isToBeConfirmed);
+            if(isConfirmed) {
+                post(url, data);
+            }
+        } else {
+            post(url, data);
+        }
+
+        event.preventDefault();
+
     })
 
 })
