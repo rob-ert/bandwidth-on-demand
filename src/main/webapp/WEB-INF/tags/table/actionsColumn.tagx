@@ -7,11 +7,16 @@
     <jsp:directive.attribute name="delete" type="java.lang.Boolean" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="path" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="idFieldName" type="java.lang.String" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="deleteIcon" type="java.lang.String" required="false" rtexprvalue="true" />
     
     <c:if test="${empty idFieldName}">
         <c:set var="idFieldName" value="id" />
     </c:if>
-    
+    <c:if test="${empty deleteIcon}">
+        <c:set var="deleteIcon" value="icon-remove" />
+    </c:if>
+
+
     <td class="center">
         <c:if test="${empty update or update}">
             <spring:url var="editUrl" value="${path}/edit">
@@ -29,7 +34,7 @@
                     </spring:escapeBody>
                 </c:set>
                 <input type="hidden" name="id" value="${item[idFieldName]}" />
-                <a href="#" class="icon-remove" alt="${fn:escapeXml(delete_label)}" title="${fn:escapeXml(delete_label)}" rel="tooltip"
+                <a href="#" class="${deleteIcon}" alt="${fn:escapeXml(delete_label)}" title="${fn:escapeXml(delete_label)}" rel="tooltip"
                     onclick="if (confirm('${delete_confirm_msg}')){ $(this).closest('form').submit(); } return false;"><!--  --></a>
                 <c:if test="${not empty param.page}">
                     <input name="page" type="hidden" value="${param.page}" />

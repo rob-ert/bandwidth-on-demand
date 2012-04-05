@@ -77,7 +77,7 @@
                         <table:column item="${item}" property="startDateTime" />
                         <table:column item="${item}" property="endDateTime" />
                         <table:column item="${item}" property="status" />
-                        <td>CANCEL TODO</td>
+                        <table:actionsColumn item="${item}" update="false" delete="${not (item.status eq 'CANCELLED' or item.status eq 'FAILED' or item.status eq 'SUCCEEDED')}" path="/reservations" />
                     </tr>
                 </c:forEach>
             </tbody>
