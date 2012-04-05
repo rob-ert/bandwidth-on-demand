@@ -1,6 +1,6 @@
 $(function() {
 
-    $('.table').on('click', '.rowdetails', function(event) {
+    $('.table').on('click', '.rowdetails td:first-child', function(event) {
 
         var row = $(event.target).closest('.rowdetails');
         var details = row.find('.rowdetails-content');

@@ -28,21 +28,35 @@
     background-color: #ebebeb;
 }
 
+/* table column/cell layout */
+
+.table .cw55 {
+    width: 55px;
+}
+
+.table .center {
+    text-align: center;
+}
+
 /* table containing expandable row details (requires js) */
 
 .table .rowdetails {
     position: relative;
 }
 
-.table .rowdetails .label-minus-sign {
+.table .rowdetails td:first-child {
+    cursor: pointer;
+}
+
+.table .rowdetails .icon-minus-sign {
     display: none;
 }
 
-.table .rowdetails.expanded .label-minus-sign {
+.table .rowdetails.expanded .icon-minus-sign {
     display: inline;
 }
 
-.table .rowdetails.expanded .label-plus-sign {
+.table .rowdetails.expanded .icon-plus-sign {
     display: none;
 }
 
@@ -53,8 +67,8 @@
 .table .rowdetails-content {
 	display: none;
     position: absolute;
-    margin: 10px 16px;
-    width: 90%;
+    margin: 10px 16px 10px 38px;
+    width: 88%;
     background-color: #ecf8fa;
     border: 1px solid #85cadd;
     box-shadow: 2px 2px 5px #bfbfbf;
