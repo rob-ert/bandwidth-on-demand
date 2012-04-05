@@ -53,7 +53,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
   @Override
   public String defaultSortProperty() {
-    return "startDateTime";
+    return "name";
   }
 
   @Override

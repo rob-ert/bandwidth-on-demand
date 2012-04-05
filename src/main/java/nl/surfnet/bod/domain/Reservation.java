@@ -21,15 +21,7 @@
  */
 package nl.surfnet.bod.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Version;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
@@ -42,9 +34,9 @@ import com.google.common.base.Objects;
 /**
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 @Entity
 public class Reservation {
@@ -55,6 +47,8 @@ public class Reservation {
 
   @Version
   private Integer version;
+
+  private String name;
 
   @ManyToOne
   private VirtualResourceGroup virtualResourceGroup;
@@ -148,7 +142,7 @@ public class Reservation {
   }
 
   /**
-   * 
+   *
    * @return LocalTime the time part of the {@link #startDateTime}
    */
   public LocalTime getStartTime() {
@@ -157,7 +151,7 @@ public class Reservation {
 
   /**
    * Sets the time part of the {@link #startDateTime}
-   * 
+   *
    * @param startTime
    */
   public void setStartTime(LocalTime startTime) {
@@ -185,7 +179,7 @@ public class Reservation {
   }
 
   /**
-   * 
+   *
    * @return LocalDate The date part of the {@link #getStartDateTime()}
    */
   public LocalDate getStartDate() {
@@ -194,7 +188,7 @@ public class Reservation {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   * 
+   *
    * @param startDate
    */
   public void setStartDate(LocalDate startDate) {
@@ -214,7 +208,7 @@ public class Reservation {
   }
 
   /**
-   * 
+   *
    * @return LocalDate the date part of the {@link #endDateTime}
    */
   public LocalDate getEndDate() {
@@ -223,7 +217,7 @@ public class Reservation {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   * 
+   *
    * @param endDate
    */
   public void setEndDate(LocalDate endDate) {
@@ -242,7 +236,7 @@ public class Reservation {
   }
 
   /**
-   * 
+   *
    * @return LocalTime The time part of the {@link #endDateTime}
    */
   public LocalTime getEndTime() {
@@ -251,7 +245,7 @@ public class Reservation {
 
   /**
    * Sets the time part of the {@link #endDateTime}
-   * 
+   *
    * @param endTime
    */
   public void setEndTime(LocalTime endTime) {
@@ -319,6 +313,14 @@ public class Reservation {
 
   public void setFailedMessage(String failedMessage) {
     this.failedMessage = failedMessage;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
 }
