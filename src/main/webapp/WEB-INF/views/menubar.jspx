@@ -1,5 +1,5 @@
 <sec:authorize access="isAuthenticated()" xmlns:sec="http://www.springframework.org/security/tags" xmlns="urn:jsptagdir:/WEB-INF/tags/menu">
-    <sec:authorize access="hasRole('USER')">
+    <sec:authorize access="hasRole('3_USER')" >
         <menu>
             <item id="i_overview" url="/" messageCode="menu_overview_label" menu="overview" />
             <item id="i_res_list" url="/reservations" messageCode="menu_reservation_label" menu="reservation" />
