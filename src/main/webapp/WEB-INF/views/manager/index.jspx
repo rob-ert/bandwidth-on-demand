@@ -20,12 +20,6 @@
                 <spring:url var="user_url" value="/" />
                     <div class="content">
                     <ul class="tasks">
-                        <sec:authorize access="hasRole('USER')">
-                            <li><a class="btn" href="${user_url}"><i class="icon-user"><!--  --></i> Become User</a></li>
-                        </sec:authorize>
-                        <sec:authorize access="hasRole('NOC_ENGINEER')">
-                            <li><a class="btn" href="${noc_url}"><i class="icon-user"><!--  --></i> Become NOC Engineer</a></li>
-                        </sec:authorize>
                     </ul>
                 </div>
             </section>

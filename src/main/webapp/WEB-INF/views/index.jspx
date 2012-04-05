@@ -27,13 +27,7 @@
                     <ul class="tasks">
                         <sec:authorize access="hasRole('USER')">
                             <li><a class="btn primary" href="${reservation_url}"><i class="icon-plus"><!--  --></i>Create a Reservation</a></li>
-                            <li><a href="${request_url}" class="btn"><i class="icon-envelope"><!--  --></i> Request a Virtual Port</a></li>
-                        </sec:authorize>
-                        <sec:authorize access="hasRole('ICT_MANAGER')">
-                            <li><a class="btn" href="${manager_url}"><i class="icon-user"><!--  --></i> Become ICT Manager</a></li>
-                        </sec:authorize>
-                        <sec:authorize access="hasRole('NOC_ENGINEER')">
-                            <li><a class="btn" href="${noc_url}"><i class="icon-user"><!--  --></i> Become NOC Engineer</a></li>
+                            <li><a href="${request_url}" class="btn"><i class="icon-plus"><!--  --></i> Request a Virtual Port</a></li>
                         </sec:authorize>
                     </ul>
                 </div>
