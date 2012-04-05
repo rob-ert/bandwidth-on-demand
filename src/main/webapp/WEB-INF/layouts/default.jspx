@@ -39,7 +39,7 @@
                      <sec:authentication property='principal.selectedRole'  var="selectedRole" />
                      <spring:message  code="role_class_${selectedRole.roleName}" var="s_role_class"/>                     
                     <div class="dropdown-toggle ${s_role_class}" data-toggle="dropdown">
-                    	  <input id="roleId" type="hidden" value="${selectedRole.groupId}"/>
+                    	  <input id="bodRoleId" type="hidden" value="${selectedRole.id}"/>
                         <span class="user-icon"><!--  --></span>
                         <span class="user-title"><span class="user-title"><spring:message  code="role_${selectedRole.roleName}"/></span>                            
                         </span>

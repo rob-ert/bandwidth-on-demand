@@ -32,9 +32,12 @@ import nl.surfnet.bod.domain.UserGroup;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.CollectionUtils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 
 @SuppressWarnings("serial")
@@ -139,4 +142,47 @@ public class RichUserDetails implements UserDetails {
         .add("bodRoles", bodRoles).toString();
   }
 
+  public BodRole findBodRole(final Long bodRoleId) {
+
+    BodRole foundRole = null;
+
+    Collection<BodRole> filteredRoles = Collections2.filter(bodRoles, new Predicate<BodRole>() {
+      @Override
+      public boolean apply(BodRole input) {
+        return input.getId() == bodRoleId;
+      }
+    });
+
+    if (!CollectionUtils.isEmpty(filteredRoles)) {
+      if (filteredRoles.size() == 1) {
+        foundRole = filteredRoles.iterator().next();
+      }
+      else {
+        throw new IllegalStateException("Multiple BodRoles found, while one expected for id: " + bodRoleId);
+      }
+    }
+    return foundRole;
+  }
+
+  /**
+   * Switches the BodRole to the given role. Adds the previous selected rol back
+   * to the list of roles and removes the newly selected role from the list. In
+   * case the given roll is null, no actions are performed.
+   * 
+   * @param bodRole
+   *          The role to switch to
+   */
+  public void switchRoleTo(BodRole bodRole) {
+
+    if (bodRole == null) {
+      return;
+    }
+
+    if ((selectedRole != null) && (!bodRoles.contains(selectedRole))) {
+      bodRoles.add(selectedRole);
+    }
+
+    bodRoles.remove(bodRole);
+    selectedRole = bodRole;
+  }
 }

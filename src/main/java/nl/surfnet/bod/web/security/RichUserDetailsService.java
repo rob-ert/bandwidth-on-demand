@@ -90,8 +90,8 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
 
     userDetails.setBodRoles(determineRoles(userDetails.getUserGroups()));
 
-    userDetails.setSelectedRole(CollectionUtils.isEmpty(userDetails.getBodRoles()) ? null : userDetails.getBodRoles()
-        .get(0));
+    userDetails.switchRoleTo(CollectionUtils.isEmpty(userDetails.getBodRoles()) ? null : userDetails.getBodRoles().get(
+        0));
     return userDetails;
   }
 
@@ -105,14 +105,14 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
    */
   List<BodRole> determineRoles(Collection<UserGroup> userGroups) {
 
-    Set<BodRole> roles = Sets.newHashSet();
+    List<BodRole> roles = Lists.newArrayList();
 
     for (UserGroup userGroup : userGroups) {
       for (PhysicalResourceGroup physicalResourceGroup : physicalResourceGroupService.findByAdminGroup(userGroup
           .getId())) {
 
         String role = null;
-        
+
         if (physicalResourceGroup != null) {
           ArrayList<UserGroup> groups = Lists.newArrayList(userGroup);
           if (isNocEngineerGroup(groups)) {

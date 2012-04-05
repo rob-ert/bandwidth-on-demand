@@ -156,8 +156,8 @@ public class RichUserDetailsServiceTest {
     RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
         "urn:alanvdam", "Alan van Dam", "alan@test.com"), "N/A"));
 
-    assertThat(userDetails.getBodRoles(), hasSize(1));
-
+    assertThat(userDetails.getSelectedRole(), notNullValue());
+    assertThat(userDetails.getBodRoles(), hasSize(0));
   }
 
   @Test

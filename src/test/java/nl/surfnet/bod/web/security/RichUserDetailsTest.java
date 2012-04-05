@@ -21,14 +21,20 @@
  */
 package nl.surfnet.bod.web.security;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.support.BodRoleFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 public class RichUserDetailsTest {
 
@@ -36,12 +42,13 @@ public class RichUserDetailsTest {
   public void noGroupsShouldGiveAnEmptyListOfUserGroupIds() {
     RichUserDetails userDetails = new RichUserDetailsFactory().create();
 
-    assertThat(userDetails.getUserGroupIds(), Matchers.<String>empty());
+    assertThat(userDetails.getUserGroupIds(), Matchers.<String> empty());
   }
 
   @Test
   public void shouldGiveBackTheUserGroupIds() {
-    RichUserDetails userDetails = new RichUserDetailsFactory().addUserGroup("urn:first").addUserGroup("urn:second").create();
+    RichUserDetails userDetails = new RichUserDetailsFactory().addUserGroup("urn:first").addUserGroup("urn:second")
+        .create();
 
     assertThat(userDetails.getUserGroupIds(), contains("urn:first", "urn:second"));
   }
@@ -63,4 +70,42 @@ public class RichUserDetailsTest {
 
     assertThat(user.toString(), containsString("urn:truus"));
   }
+
+  @Test
+  public void shouldSwitchRoleAndAddCurrentSelected() {
+    BodRole role1 = new BodRoleFactory().create();
+    BodRole role2 = new BodRoleFactory().setRole("urn:test").create();
+
+    RichUserDetails userDetails = new RichUserDetailsFactory().create();
+    userDetails.setBodRoles(Lists.newArrayList(role1, role2));
+    userDetails.setSelectedRole(role1);
+
+    assertThat(userDetails.getSelectedRole(), is(role1));
+    assertThat(userDetails.getBodRoles(), hasSize(2));
+
+    userDetails.switchRoleTo(role2);
+    assertThat(userDetails.getBodRoles(), hasSize(1));
+    assertThat(userDetails.getBodRoles(), contains(role1));
+
+    assertThat(userDetails.getSelectedRole(), is(role2));
+  }
+
+  @Test
+  public void shouldPerformNoActionWhenSwitchToNullRole() {
+    BodRole role1 = new BodRoleFactory().create();
+    BodRole role2 = new BodRoleFactory().setRole("urn:test").create();
+
+    RichUserDetails userDetails = new RichUserDetailsFactory().create();
+    userDetails.setBodRoles(Lists.newArrayList(role1, role2));
+    userDetails.setSelectedRole(role1);
+
+    assertThat(userDetails.getSelectedRole(), is(role1));
+    assertThat(userDetails.getBodRoles(), hasSize(2));
+
+    userDetails.switchRoleTo(null);
+    assertThat(userDetails.getBodRoles(), hasSize(2));
+
+    assertThat(userDetails.getSelectedRole(), is(role1));
+  }
+
 }
