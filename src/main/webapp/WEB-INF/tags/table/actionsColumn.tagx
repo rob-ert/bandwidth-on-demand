@@ -8,12 +8,16 @@
     <jsp:directive.attribute name="path" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="idFieldName" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteIcon" type="java.lang.String" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="updateIcon" type="java.lang.String" required="false" rtexprvalue="true" />
     
     <c:if test="${empty idFieldName}">
         <c:set var="idFieldName" value="id" />
     </c:if>
     <c:if test="${empty deleteIcon}">
         <c:set var="deleteIcon" value="icon-remove" />
+    </c:if>
+    <c:if test="${empty updateIcon}">
+        <c:set var="updateIcon" value="icon-pencil" />
     </c:if>
 
 
@@ -22,7 +26,7 @@
             <spring:url var="editUrl" value="${path}/edit">
                 <spring:param name="id" value="${item[idFieldName]}" />
             </spring:url>
-            <a href="${editUrl}" rel="tooltip" title="Edit object"><i class="icon-pencil"><!--  --></i></a>
+            <a href="${editUrl}" rel="tooltip" title="Edit object"><i class="${updateIcon}"><!--  --></i></a>
         </c:if>
         <c:if test="${empty delete or delete}">
             <spring:url value="${path}/delete" var="deleteUrl">

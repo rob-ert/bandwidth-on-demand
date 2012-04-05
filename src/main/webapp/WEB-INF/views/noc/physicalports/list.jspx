@@ -33,7 +33,10 @@
                         <table:column item="${item}" property="nocLabel" />
                         <table:column item="${item}" property="networkElementPk" />
                         <table:column item="${item}" property="physicalResourceGroup" render="${not show_unallocated}" />
-                        <table:actionsColumn item="${item}" delete="${not show_unallocated}" deleteIcon="icon-resize-full" path="/noc/physicalports" idFieldName="networkElementPk" />
+                        <table:actionsColumn item="${item}"
+                            delete="${not show_unallocated}" deleteIcon="icon-resize-full"
+                            updateIcon="${show_unallocated ? 'icon-resize-small' : ''}"
+                            path="/noc/physicalports" idFieldName="networkElementPk" />
                     </tr>
                 </c:forEach>
             </tbody>
