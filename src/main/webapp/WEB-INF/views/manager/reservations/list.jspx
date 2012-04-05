@@ -11,9 +11,9 @@
             <thead>
                 <tr>
                     <table:rowDetailsHeader />
+                    <table:sortableHeader property="name" name="Label" />
                     <table:sortableHeader property="virtualResourceGroup" name="Team" />
-                    <table:sortableHeader property="sourcePort" name="Source" />
-                    <table:sortableHeader property="destinationPort" name="Destination" />
+                    <table:sortableHeader property="bandwidth" name="Bandwidth" />
                     <table:sortableHeader property="startDateTime" name="Starts" />
                     <table:sortableHeader property="endDateTime" name="Ends" />
                     <table:sortableHeader property="status" name="Status" />
@@ -26,9 +26,9 @@
                             <div class="row-fluid">
                                 <div class="span6">
                                     <dl class="dl-horizontal">
-                                        <dt>Bandwidth</dt>
+                                        <dt>Source port</dt>
                                         <dd>
-                                            <spring:eval expression="item['bandwidth']" htmlEscape="true" />
+                                            <spring:eval expression="item['sourcePort']" htmlEscape="true" />
                                         </dd>
                                         <dt>Reservation id</dt>
                                         <dd>
@@ -51,6 +51,10 @@
                                 </div>
                                 <div class="span6">
                                     <dl class="dl-horizontal">
+                                        <dt>Destination port</dt>
+                                        <dd>
+                                            <spring:eval expression="item['destinationPort']" htmlEscape="true" />
+                                        </dd>
                                         <dt>Creation date</dt>
                                         <dd>
                                             <spring:eval expression="item['creationDateTime']" htmlEscape="true" />
@@ -63,9 +67,9 @@
                                 </div>
                             </div>
                         </table:rowDetailsColumn>
+                        <table:column item="${item}" property="name" />
                         <table:column item="${item}" property="virtualResourceGroup" />
-                        <table:column item="${item}" property="sourcePort" />
-                        <table:column item="${item}" property="destinationPort" />
+                        <table:column item="${item}" property="bandwidth" append="Mbit/s" />
                         <table:column item="${item}" property="startDateTime" />
                         <table:column item="${item}" property="endDateTime" />
                         <table:column item="${item}" property="status" />

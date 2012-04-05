@@ -29,6 +29,7 @@ import org.joda.time.LocalDateTime;
 
 public class ReservationView {
   private final Long id;
+  private final String name;
   private final String virtualResourceGroup;
   private final String sourcePort;
   private final String destinationPort;
@@ -56,6 +57,7 @@ public class ReservationView {
     this.userCreated = reservation.getUserCreated();
     this.reservationId = reservation.getReservationId();
     this.creationDateTime = reservation.getCreationDateTime();
+    this.name = reservation.getName();
   }
 
   public String getVirtualResourceGroup() {
@@ -104,5 +106,9 @@ public class ReservationView {
 
   public LocalDateTime getCreationDateTime() {
     return creationDateTime;
+  }
+
+  public String getName() {
+    return name;
   }
 }

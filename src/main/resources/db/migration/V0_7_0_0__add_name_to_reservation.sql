@@ -1,0 +1,1 @@
+ALTER TABLE reservation ADD COLUMN name character varying(255);

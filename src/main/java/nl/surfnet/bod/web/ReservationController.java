@@ -142,7 +142,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
   @Override
   public String defaultSortProperty() {
-    return "startDateTime";
+    return "name";
   }
 
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)

@@ -21,6 +21,8 @@
                     itemLabel="name" itemValue="id" items="${virtualResourceGroups}" path="/reservations"
                     required="true" create="false" showSingle="true" />
 
+                <field:input field="name" id="name" labelCode="reservation_name" />
+
                 <field:select field="sourcePort" id="sourcePort" labelCode="reservation_sourcePort"
                     items="${virtualPorts}" itemLabel="userLabel" itemValue="id" path="/reservations" required="true"
                     create="false" />
@@ -46,9 +48,8 @@
                  <field:input type="time" field="startTime" id="startTime" labelCode="reservation_startTime"
 	                    required="false" />
 
-                <field:input type="date" field="endDate" id="endDate" labelCode="reservation_endDate" required="true"
-                    helpMessageCode="generic_dateformat" />
-                <field:input type="time" field="endTime" id="endTime" labelCode="reservation_endTime" required="true" />
+                <field:input type="date" field="endDate" id="endDate" labelCode="reservation_endDate" helpMessageCode="generic_dateformat" />
+                <field:input type="time" field="endTime" id="endTime" labelCode="reservation_endTime" />
 
                 <c:set var="errors">
                     <sform:errors path="bandwidth" />

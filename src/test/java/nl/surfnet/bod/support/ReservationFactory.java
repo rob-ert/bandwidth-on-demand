@@ -40,12 +40,13 @@ public class ReservationFactory {
 
   private static Long id = COUNTER.incrementAndGet();
   private Integer version;
+  private String name;
   private VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().create();
   private ReservationStatus status = ReservationStatus.SCHEDULED;
   private VirtualPort sourcePort;
   private VirtualPort destinationPort;
   private LocalDateTime startDateTime = LocalDateTime.now().withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0);
-  private LocalDateTime endDateTime = startDateTime.plusDays(1).plus(ReservationController.DEFAULT_RESERVATON_DURATION);  
+  private LocalDateTime endDateTime = startDateTime.plusDays(1).plus(ReservationController.DEFAULT_RESERVATON_DURATION);
   private String userCreated = "urn:truusvisscher";
   private Integer bandwidth = 10000;
   private String reservationId = "9" + String.valueOf(id);
@@ -62,12 +63,13 @@ public class ReservationFactory {
     Reservation reservation = new Reservation();
     reservation.setId(id);
     reservation.setVersion(version);
+    reservation.setName(name);
     reservation.setStatus(status);
     reservation.setSourcePort(sourcePort);
     reservation.setDestinationPort(destinationPort);
     reservation.setVirtualResourceGroup(vrGroup);
-    reservation.setStartDateTime(startDateTime);    
-    reservation.setEndDateTime(endDateTime);    
+    reservation.setStartDateTime(startDateTime);
+    reservation.setEndDateTime(endDateTime);
     reservation.setUserCreated(userCreated);
     reservation.setBandwidth(bandwidth);
     reservation.setReservationId(reservationId);
@@ -78,6 +80,11 @@ public class ReservationFactory {
     }
 
     return reservation;
+  }
+
+  public ReservationFactory setName(String name) {
+    this.name = name;
+    return this;
   }
 
   public ReservationFactory setId(Long id) {
@@ -119,14 +126,14 @@ public class ReservationFactory {
     this.userCreated = user;
     return this;
   }
-  
+
   public ReservationFactory setEndDateTime(LocalDateTime endDateTime) {
     this.endDateTime = endDateTime;
     return this;
   }
 
   public ReservationFactory setStartDateTime(LocalDateTime startDateTime) {
-    this.startDateTime = startDateTime;    
+    this.startDateTime = startDateTime;
     return this;
   }
 
