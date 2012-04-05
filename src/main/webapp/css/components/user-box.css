@@ -43,3 +43,16 @@
     display: inline-block;
     margin-bottom: 8px;
 }
+
+.user-box .dropdown ul {
+    margin-left: 0;
+    list-style: none;
+}
+
+.user-box .dropdown li {
+    cursor: pointer;
+}
+
+.user-box .dropdown li:hover {
+    background-color: #EBEBEB;
+}

@@ -48,44 +48,38 @@
                         <span class="user-group">University of Amsterdam</span>
                     </div>
 
-                    <ul class="dropdown-menu">
-                        <li class="user-role-default">
-                            <a href="#">
+                    <form action="#" method="POST" class="dropdown-menu">
+                        <ul>
+                            <li class="user-role-default" data-roleId="default">
                                 <span class="user-icon"></span>
                                 <span class="user-title">UI Manager
                                     <span class="user-role">(default)</span>
                                 </span>
                                 <span class="user-group">Hospital of Amsterdam</span>
-                            </a>
-                        </li>
-                        <li class="user-role-manager">
-                            <a href="#">
+                            </li>
+                            <li class="user-role-manager" data-roleId="manager">
                                 <span class="user-icon"></span>
                                 <span class="user-title">UX Manager
                                     <span class="user-role">(manager)</span>
                                 </span>
                                 <span class="user-group">University of Utrecht</span>
-                            </a>
-                        </li>
-                        <li class="user-role-user">
-                            <a href="#">
+                            </li>
+                            <li class="user-role-user" data-roleId="user">
                                 <span class="user-icon"></span>
                                 <span class="user-title">VD Manager
                                     <span class="user-role">(user)</span>
                                 </span>
                                 <span class="user-group">University of Amsterdam</span>
-                            </a>
-                        </li>
-                        <li class="user-role-noc">
-                            <a href="#">
+                            </li>
+                            <li class="user-role-noc" data-roleId="noc">
                                 <span class="user-icon"></span>
                                 <span class="user-title">UI Manager
                                     <span class="user-role">(noc)</span>
                                 </span>
                                 <span class="user-group">Hospital of Amsterdam</span>
-                            </a>
-                        </li>
-                    </ul>
+                            </li>
+                        </ul>
+                    </form>
 
                 </div>
 
@@ -308,6 +302,7 @@
         <script src="js/jquery/jquery-1.7.2.min.js"></script>
         <script src="js/bootstrap/bootstrap-2.0.2.min.js"></script>
         <script src="js/table-rowdetails.js"></script>
+        <script src="js/user-role-selection.js"></script>
         <script src="js/main.js"></script>
     </body>
 </html>
