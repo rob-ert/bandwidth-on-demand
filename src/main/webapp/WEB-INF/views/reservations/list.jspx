@@ -24,6 +24,7 @@
                     <table:sortableHeader property="startDateTime" name="Starts" />
                     <table:sortableHeader property="endDateTime" name="Ends" />
                     <table:sortableHeader property="status" name="Status" />
+                    <th class="small">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -76,6 +77,7 @@
                         <table:column item="${item}" property="startDateTime" />
                         <table:column item="${item}" property="endDateTime" />
                         <table:column item="${item}" property="status" />
+                        <td>CANCEL TODO</td>
                     </tr>
                 </c:forEach>
             </tbody>
