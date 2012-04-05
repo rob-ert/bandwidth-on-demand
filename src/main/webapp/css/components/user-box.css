@@ -22,21 +22,28 @@
 .user-box .user-icon {
     float: left;
     margin: 0 5px 5px 0;
-    height: 20px;
-    width: 20px;
+    height: 27px;
+    width: 27px;
+}
+
+.user-box .user-icon {
+    background: url("../../images/icons-users.png");
+    background-repeat: no-repeat;
 }
 
 .user-box .user-role-default .user-icon {
-    background-color: grey;
+    background-position: 0 -108px;
 }
+
 .user-box .user-role-manager .user-icon {
-    background-color: blue;
+    background-position: 0 3px;
 }
+
 .user-box .user-role-user .user-icon {
-    background-color: red;
+    background-position: 0 -71px;
 }
 .user-box .user-role-noc .user-icon {
-    background-color: green;
+    background-position: 0 -34px;
 }
 
 .user-box .user-name {
