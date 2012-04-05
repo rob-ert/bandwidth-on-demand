@@ -50,6 +50,7 @@
 }
 
 .user-box .dropdown li {
+    clear:left;
     cursor: pointer;
 }
 
