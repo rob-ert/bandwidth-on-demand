@@ -11,11 +11,11 @@
         <table:table items="${list}">
             <thead>
                 <tr>
-                    <th class="small">Extra info</th>
+                    <table:rowDetailsHeader />
                     <table:sortableHeader property="name" name="Name" />
                     <table:sortableHeader property="description" name="Description" />
                     <th># of Virtual Ports</th>
-                    <th class="small">actions</th>
+                    <table:actionsHeader />
                 </tr>
             </thead>
             <tbody>

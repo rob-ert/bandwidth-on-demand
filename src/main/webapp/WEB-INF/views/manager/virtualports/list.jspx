@@ -10,11 +10,11 @@
         <table:table items="${list}">
             <thead>
                 <tr>
-                    <th class="small">More info</th>
+                    <table:rowDetailsHeader />
                     <table:sortableHeader name="Label" property="managerLabel" />
                     <table:sortableHeader name="Max. Bandwidth" property="maxBandwidth" />
                     <table:sortableHeader name="Team" property="virtualResourceGroup" />
-                    <th class="small">Actions</th>
+                    <table:actionsHeader />
                 </tr>
             </thead>
             <tbody>

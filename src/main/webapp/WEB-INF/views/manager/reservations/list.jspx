@@ -10,7 +10,7 @@
         <table:table items="${list}">
             <thead>
                 <tr>
-                    <th class="small">Extra info</th>
+                    <table:rowDetailsHeader />
                     <table:sortableHeader property="virtualResourceGroup" name="Team" />
                     <table:sortableHeader property="sourcePort" name="Source" />
                     <table:sortableHeader property="destinationPort" name="Destination" />

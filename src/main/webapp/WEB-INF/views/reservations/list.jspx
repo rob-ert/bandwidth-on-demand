@@ -17,14 +17,14 @@
         <table:table items="${list}">
             <thead>
                 <tr>
-                    <th class="small">Extra info</th>
+                    <table:rowDetailsHeader />
                     <table:sortableHeader property="virtualResourceGroup" name="Team" />
                     <table:sortableHeader property="sourcePort" name="Source" />
                     <table:sortableHeader property="destinationPort" name="Destination" />
                     <table:sortableHeader property="startDateTime" name="Starts" />
                     <table:sortableHeader property="endDateTime" name="Ends" />
                     <table:sortableHeader property="status" name="Status" />
-                    <th class="small">Actions</th>
+                    <table:actionsHeader />
                 </tr>
             </thead>
             <tbody>
