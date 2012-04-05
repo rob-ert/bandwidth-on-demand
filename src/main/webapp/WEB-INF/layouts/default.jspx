@@ -80,7 +80,6 @@
                 </div>
             </section>
             
-            <!--  -->
             <nav class="navbar">
                 <div class="navbar-inner">
                     <div class="container">
@@ -89,19 +88,14 @@
                 </div>
             </nav>
 
-            <div class="messagebar">
-                <div id="messages">                	  
-                    <c:forEach items="${infoMessages}" var="infoMessage">
-                        <div class="alert-message info" data-alert="true">
-                            <a class="close" href="#">&amp;times;</a>
-                            <p style='display: inline'><c:out value="${infoMessage}" escapeXml="false"/></p>
-                        </div>
-                    </c:forEach>
+            <c:forEach items="${infoMessages}" var="infoMessage">
+                <div class="alert alert-info">
+                    <a class="close" data-dismiss="alert">&amp;times;</a>
+                    <c:out value="${infoMessage}" escapeXml="false"/>
                 </div>
-            </div>
-            <div class="container">            		            		
-                <tiles:insertAttribute name="body" />
-            </div>
+            </c:forEach>
+
+            <tiles:insertAttribute name="body" />
 
             <footer>
                 <div class="content-some-dense">

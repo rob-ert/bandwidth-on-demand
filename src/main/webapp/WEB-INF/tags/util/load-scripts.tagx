@@ -14,8 +14,8 @@
     <spring:url value="/resources/css/components-bootstrap/pagination.css" var="b_pagination_css_url" />
     <spring:url value="/resources/css/components-bootstrap/generic.css" var="b_generic_css_url" />
     <spring:url value="/resources/css/components-bootstrap/dropdown.css"  var="b_dropdown_css_url"/>
+    <spring:url value="/resources/css/components-bootstrap/alert.css" var="b_alert_css_url"/>
     <spring:url value="/resources/css/components/user-box.css" var="user_box_css_url"/>
-
 
     <spring:url value="/resources/js/jquery.min.js" var="jquery_url" />
     <spring:url value="/resources/js/jquery-socket.js" var="jquery_socket_url" />
@@ -36,18 +36,20 @@
     <spring:url value="/resources/js/modules/message.js" var="module_message_js_url" />
     <spring:url value="/resources/js/modules/table.js" var="module_table_js_url" />
 
-    <link rel="stylesheet" type="text/css" media="screen" href="${bootstrap_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${font_awesome_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${autosuggest_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${datepicker_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${layout_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${typo_colors_css_url}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${user_box_css_url}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${bootstrap_css_url}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${b_generic_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${b_navbar_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${b_table_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${b_pagination_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${b_dropdown_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${b_generic_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${user_box_css_url}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${b_alert_css_url}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${font_awesome_css_url}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${autosuggest_css_url}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${datepicker_css_url}" />
+
     <link rel="stylesheet" type="text/css" media="screen" href="${main_css_url}" />
 
     <script src="${jquery_url}" type="text/javascript"><!-- needed --></script>
