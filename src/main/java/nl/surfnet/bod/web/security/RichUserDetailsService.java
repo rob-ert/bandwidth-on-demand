@@ -21,7 +21,6 @@
  */
 package nl.surfnet.bod.web.security;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -122,7 +121,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
     BodRole nocRole = null;
 
     if (isNocEngineerGroup(Lists.newArrayList(userGroup))) {
-      nocRole = new BodRole(userGroup, Security.NOC_ENGINEER);
+      nocRole = new BodRole(userGroup, Security.RoleEnum.NOC_ENGINEER.name());
     }
 
     return nocRole;
@@ -134,7 +133,8 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
 
       if (physicalResourceGroup != null) {
         if (isIctManager(Lists.newArrayList(userGroup))) {
-          managerRoles.add(new BodRole(userGroup, Security.ICT_MANAGER, physicalResourceGroup.getInstitute()));
+          managerRoles.add(new BodRole(userGroup, Security.RoleEnum.ICT_MANAGER.name(), physicalResourceGroup
+              .getInstitute()));
         }
       }
     }
@@ -145,7 +145,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
     BodRole userRole = null;
 
     if (isUser(Lists.newArrayList(userGroup))) {
-      userRole = new BodRole(userGroup, Security.USER);
+      userRole = new BodRole(userGroup, Security.RoleEnum.USER.name());
     }
 
     return userRole;
@@ -154,13 +154,13 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
   private List<GrantedAuthority> getAuthorities(Collection<UserGroup> groups) {
     List<GrantedAuthority> authorities = Lists.newArrayList();
     if (isNocEngineerGroup(groups)) {
-      authorities.add(createAuthority(Security.NOC_ENGINEER));
+      authorities.add(createAuthority(Security.RoleEnum.NOC_ENGINEER.name()));
     }
     if (isIctManager(groups)) {
-      authorities.add(createAuthority(Security.ICT_MANAGER));
+      authorities.add(createAuthority(Security.RoleEnum.ICT_MANAGER.name()));
     }
     if (isUser(groups)) {
-      authorities.add(createAuthority(Security.USER));
+      authorities.add(createAuthority(Security.RoleEnum.USER.name()));
     }
     return authorities;
   }

@@ -8,7 +8,7 @@ import nl.surfnet.bod.web.security.Security;
 public class BodRoleFactory {
 
   private UserGroup userGroup = new UserGroupFactory().create();
-  private String role = Security.ICT_MANAGER;
+  private String role = Security.RoleEnum.ICT_MANAGER.name();
   private Institute institute = new InstituteFactory().create();
 
   public BodRole create() {
@@ -22,7 +22,7 @@ public class BodRoleFactory {
   }
 
   public BodRoleFactory setRole(String role) {
-    this.role = role;
+    this.role = Security.RoleEnum.valueOf(role).name();
     return this;
   }
 

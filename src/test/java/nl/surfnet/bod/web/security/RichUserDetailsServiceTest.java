@@ -95,7 +95,7 @@ public class RichUserDetailsServiceTest {
     assertThat(userDetails.getNameId(), is("urn:alanvdam"));
     assertThat(userDetails.getDisplayName(), is("Alan van Dam"));
     assertThat(userDetails.getAuthorities(), hasSize(1));
-    assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is(Security.USER));
+    assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is(Security.RoleEnum.USER.name()));
   }
 
   @Test
@@ -108,7 +108,7 @@ public class RichUserDetailsServiceTest {
     assertThat(userDetails.getNameId(), is("urn:alanvdam"));
     assertThat(userDetails.getDisplayName(), is("Alan van Dam"));
     assertThat(userDetails.getAuthorities(), hasSize(1));
-    assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is(Security.NOC_ENGINEER));
+    assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is(Security.RoleEnum.NOC_ENGINEER.name()));
   }
 
   @Test
@@ -121,7 +121,7 @@ public class RichUserDetailsServiceTest {
     RichUserDetails userDetails = subject.loadUserDetails(createToken("urn:alanvdam"));
 
     assertThat(userDetails.getAuthorities(), hasSize(1));
-    assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is(Security.ICT_MANAGER));
+    assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is(Security.RoleEnum.ICT_MANAGER.name()));
   }
 
   @Test
@@ -148,7 +148,7 @@ public class RichUserDetailsServiceTest {
   public void shouldAddRole() {
     UserGroup userGroup = new UserGroupFactory().setId("urn:nameGroup").setName("new name").create();
 
-    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();    
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
 
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(listOf(userGroup));
     when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg));
@@ -199,7 +199,7 @@ public class RichUserDetailsServiceTest {
     assertThat(bodRole.getGroupDescription(), is(userGroup.getDescription()));
     assertThat(bodRole.getInstituteId(), is(institute.getId()));
     assertThat(bodRole.getInstituteName(), is(institute.getName()));
-    assertThat(bodRole.getRoleName(), is(Security.ICT_MANAGER));
+    assertThat(bodRole.getRoleName(), is(Security.RoleEnum.ICT_MANAGER.name()));
   }
 
   private static <E> ImmutableList<E> listOf(E... elements) {

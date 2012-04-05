@@ -2,6 +2,8 @@ package nl.surfnet.bod.domain;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import nl.surfnet.bod.web.security.Security.RoleEnum;
+
 import com.google.common.base.Objects;
 
 public class BodRole {
@@ -12,7 +14,7 @@ public class BodRole {
   private final String groupId;
   private final String groupName;
   private final String groupDescription;
-  private final String roleName;
+  private final RoleEnum role;
   private Long instituteId;
   private String instituteName;
 
@@ -21,7 +23,7 @@ public class BodRole {
     this.groupId = userGroup.getId();
     this.groupName = userGroup.getName();
     this.groupDescription = userGroup.getDescription();
-    this.roleName = role;
+    this.role = RoleEnum.valueOf(role);
   }
 
   public BodRole(UserGroup userGroup, String role, Institute institute) {
@@ -55,7 +57,11 @@ public class BodRole {
   }
 
   public String getRoleName() {
-    return roleName;
+    return role.name();
+  }
+
+  public RoleEnum getRole() {
+    return role;
   }
 
   @Override
@@ -68,8 +74,7 @@ public class BodRole {
       BodRole bodRole = (BodRole) obj;
 
       return Objects.equal(this.id, bodRole.id) && Objects.equal(this.groupId, bodRole.groupId)
-          && Objects.equal(this.roleName, bodRole.getRoleName())
-          && Objects.equal(this.instituteId, bodRole.getInstituteId());
+          && Objects.equal(this.role, bodRole.getRole()) && Objects.equal(this.instituteId, bodRole.getInstituteId());
     }
     else {
       return false;
@@ -78,13 +83,13 @@ public class BodRole {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(id, groupId, roleName, instituteId);
+    return Objects.hashCode(id, groupId, role, instituteId);
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("id", id).add("groupId", groupId).add("groupName", groupName)
-        .add("groupDescription", groupDescription).add("roleName", roleName).add("instituteId", instituteId)
+        .add("groupDescription", groupDescription).add("role", role).add("instituteId", instituteId)
         .add("instituteName", instituteName).toString();
   }
 

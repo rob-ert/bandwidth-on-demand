@@ -71,8 +71,7 @@ public final class WebUtils {
     return (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1 : nrOfPages);
   }
 
-  @SuppressWarnings("unchecked")
-  public static <T> T getAttributeFromModel(String attributeName, Model model) {
+    public static <T> T getAttributeFromModel(String attributeName, Model model) {
     return getAttributeFromModel(attributeName, model, null);
   }
 

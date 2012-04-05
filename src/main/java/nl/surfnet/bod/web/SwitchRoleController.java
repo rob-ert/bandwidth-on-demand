@@ -23,6 +23,6 @@ public class SwitchRoleController {
       userDetails.switchRoleTo(bodRole);
     }
     
-    return userDetails.getSelectedRole().getRoleName();
+    return userDetails.getSelectedRole().getRole().getViewName();
   }
 }

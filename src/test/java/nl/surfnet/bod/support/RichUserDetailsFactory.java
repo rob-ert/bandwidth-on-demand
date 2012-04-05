@@ -45,17 +45,17 @@ public class RichUserDetailsFactory {
   }
 
   public RichUserDetailsFactory addUserAuthority() {
-    authorities.add(new GrantedAuthorityImpl(Security.USER));
+    authorities.add(new GrantedAuthorityImpl(Security.RoleEnum.USER.name()));
     return this;
   }
 
   public RichUserDetailsFactory addNocAuthority() {
-    authorities.add(new GrantedAuthorityImpl(Security.NOC_ENGINEER));
+    authorities.add(new GrantedAuthorityImpl(Security.RoleEnum.NOC_ENGINEER.name()));
     return this;
   }
 
   public RichUserDetailsFactory addManagerAuthority() {
-    authorities.add(new GrantedAuthorityImpl(Security.ICT_MANAGER));
+    authorities.add(new GrantedAuthorityImpl(Security.RoleEnum.ICT_MANAGER.name()));
     return this;
   }
 
@@ -69,18 +69,18 @@ public class RichUserDetailsFactory {
     return this;
   }
 
-  public RichUserDetailsFactory setDisplayname(String displayName) {
-    this.displayName = displayName;
+  public RichUserDetailsFactory setDisplayname(String name) {
+    this.displayName = name;
     return this;
   }
 
-  public RichUserDetailsFactory setEmail(String email) {
-    this.email = email;
+  public RichUserDetailsFactory setEmail(String emailAddress) {
+    this.email = emailAddress;
     return this;
   }
 
-  public RichUserDetailsFactory setUsername(String username) {
-    this.username = username;
+  public RichUserDetailsFactory setUsername(String name) {
+    this.username = name;
     return this;
   }
 

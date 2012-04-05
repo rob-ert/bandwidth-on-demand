@@ -24,7 +24,11 @@ package nl.surfnet.bod.web.security;
 import java.util.Collection;
 import java.util.Collections;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 
 import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -37,9 +41,19 @@ import com.google.common.collect.Iterables;
 
 public final class Security {
 
-  public static final String NOC_ENGINEER = "1_NOC_ENGINEER";
-  public static final String ICT_MANAGER = "2_ICT_MANAGER";
-  public static final String USER = "3_USER";
+  public enum RoleEnum {
+    NOC_ENGINEER("noc/index"), ICT_MANAGER("manager/index"), USER("index");
+
+    private String viewName;
+
+    private RoleEnum(String viewName) {
+      this.viewName = viewName;
+    }
+
+    public String getViewName() {
+      return viewName;
+    }
+  }
 
   private Security() {
   }
@@ -61,15 +75,15 @@ public final class Security {
   }
 
   public static boolean hasNocEngineerRole() {
-    return hasRole(NOC_ENGINEER);
+    return hasRole(RoleEnum.NOC_ENGINEER.name());
   }
 
   public static boolean hasIctManagerRole() {
-    return hasRole(ICT_MANAGER);
+    return hasRole(RoleEnum.ICT_MANAGER.name());
   }
 
   public static boolean hasUserRole() {
-    return hasRole(USER);
+    return hasRole(RoleEnum.USER.name());
   }
 
   private static boolean hasRole(String role) {
@@ -130,7 +144,7 @@ public final class Security {
 
   /**
    * Set the current logged in user. (Should only be used from tests).
-   *
+   * 
    * @param richUserDetails
    *          the user details
    */
