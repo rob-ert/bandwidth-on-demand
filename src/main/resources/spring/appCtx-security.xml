@@ -30,8 +30,8 @@
     <http auto-config="true" use-expressions="true" entry-point-ref="preAuthEntryPoint">
         <custom-filter position="PRE_AUTH_FILTER" ref="preAuthenticatedProcessingFilter" />
         
-        <intercept-url pattern="/noc/**" access="hasRole('1_NOC_ENGINEER')" />
-        <intercept-url pattern="/manager/**" access="hasRole('2_ICT_MANAGER')" />
+        <intercept-url pattern="/noc/**" access="hasRole('NOC_ENGINEER')" />
+        <intercept-url pattern="/manager/**" access="hasRole('ICT_MANAGER')" />
         <intercept-url pattern="/resources/**" filters="none" />
         <intercept-url pattern="/**" access="isAuthenticated()" />
     </http>
