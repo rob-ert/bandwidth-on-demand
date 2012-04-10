@@ -6,13 +6,10 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <div class="hero-unit">
-        <h1>Not a member of a team</h1>
+        <h1>Choose your team</h1>
         
-        <p>You do not have access to virtual resources for Bandwith on Demand.
-           You have to select a collaboration team and ask an ICT manager of an organisation, which offers BoD, for virtual resources.</p> 
+        <p>Select your collaboration team and ask an ICT manager of an institute for virtual ports.</p>
 
-        <p>Bandwith On Demand detects the following teams related to your account. Select the one for which you like to use BoD.</p>
-            
         <ul>
             <c:forEach var="group" items="${userGroups}">
                 <spring:url value="/request" var="url" >
