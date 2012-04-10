@@ -9,6 +9,7 @@
 
     <definition extends="default" name="noUserRole">
         <put-attribute name="body" value="/WEB-INF/views/noUserRole.jspx" />
+        <put-attribute name="active_menu" value="overview" cascade="true" />
     </definition>
     <definition extends="default" name="message">
         <put-attribute name="body" value="/WEB-INF/views/message.jspx" />
