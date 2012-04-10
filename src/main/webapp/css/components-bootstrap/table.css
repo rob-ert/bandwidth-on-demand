@@ -106,3 +106,47 @@
     border-left: 1px solid #85cadd;
     border-bottom: 1px solid #85cadd;
 }
+
+/* sortable table */
+
+th.sortable {
+    padding: 0;
+}
+
+th.sortable a {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding: 8px;
+}
+
+th.sortable i {
+    float: right;
+    visibility: hidden;
+}
+
+th.sortable:hover i {
+    visibility: visible;
+}
+
+th.sortable.headerSortDown i,
+th.sortable.headerSortUp i {
+    visibility: visible;
+}
+
+th.sortable.headerSortDown i:before {
+    content: "\f078";
+}
+
+th.sortable.headerSortUp i:before {
+    content: "\f077";
+}
+
+th.sortable.headerSortDown:hover i:before {
+    content: "\f077";
+}
+
+th.sortable.headerSortUp:hover i:before {
+    content: "\f078";
+}
