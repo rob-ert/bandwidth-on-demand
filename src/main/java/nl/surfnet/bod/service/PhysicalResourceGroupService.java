@@ -50,9 +50,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 
 @Service
 @Transactional
@@ -182,6 +184,36 @@ public class PhysicalResourceGroupService {
     instituteService.fillInstituteForPhysicalResourceGroup(prg);
 
     return prg;
+  }
+
+  /**
+   * Filters exactly one {@link PhysicalResourceGroup} on the given Collection
+   * where the {@link PhysicalResourceGroup#getInstituteId()} machtes the
+   * specified param.
+   * 
+   * 
+   * @param groups
+   *          Collection to filter
+   * @param instituteId
+   *          Institute id to search for
+   * @return {@link PhysicalResourceGroup} the matched item
+   * 
+   * @throws IllegalArgumentException
+   *           when not exactly one instance is found.
+   */
+  public PhysicalResourceGroup filterByInstituteId(final Collection<PhysicalResourceGroup> groups,
+      final Long instituteId) {
+
+    Collection<PhysicalResourceGroup> filter = Collections2.filter(groups,
+        new com.google.common.base.Predicate<PhysicalResourceGroup>() {
+          @Override
+          public boolean apply(PhysicalResourceGroup prg) {
+            return prg.getInstituteId().equals(instituteId);
+          }
+        });
+
+    Assert.isTrue(filter.size() == 1);
+    return filter.iterator().next();
   }
 
   public List<PhysicalResourceGroup> findByAdminGroup(String groupId) {

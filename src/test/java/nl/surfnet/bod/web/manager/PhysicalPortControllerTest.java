@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -117,7 +118,7 @@ public class PhysicalPortControllerTest {
     assertThat(ports.iterator().next().getId(), is(2L));
   }
 
-  //@Ignore("issue with lazy list?")
+  // @Ignore("issue with lazy list?")
   @SuppressWarnings("unchecked")
   public void listPortsWithFilter() {
     Model model = new ModelStub();
@@ -247,7 +248,11 @@ public class PhysicalPortControllerTest {
   public void populateShouldAddPhysicalResourceGroupList() {
     Model model = new ModelStub();
 
-    when(physicalResourceGroupService.findAllForManager(user)).thenReturn(Lists.newArrayList(physicalResourceGroup));    
+    ArrayList<PhysicalResourceGroup> prgs = Lists.newArrayList(physicalResourceGroup);
+    when(physicalResourceGroupService.findAllForManager(user)).thenReturn(prgs);
+    when(physicalResourceGroupService.filterByInstituteId(prgs, user.getSelectedRole().getInstituteId())).thenReturn(
+        physicalResourceGroup);
+
     subject.populateFilter(model);
 
     assertThat(model.asMap(), hasKey("selPrg"));
@@ -257,5 +262,4 @@ public class PhysicalPortControllerTest {
     assertThat(((Collection<PhysicalResourceGroup>) model.asMap().get("selPrgList")).iterator().next(),
         is(physicalResourceGroup));
   }
-
 }

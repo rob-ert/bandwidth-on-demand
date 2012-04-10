@@ -23,6 +23,7 @@ package nl.surfnet.bod.support;
 
 import java.util.Collection;
 
+import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -39,9 +40,14 @@ public class RichUserDetailsFactory {
   private String email = "truus@example.com";
   private Collection<GrantedAuthority> authorities = Lists.newArrayList();
   private Collection<UserGroup> userGroups = Lists.newArrayList();
+  private BodRole role = new BodRoleFactory().create();
 
   public RichUserDetails create() {
-    return new RichUserDetails(username, displayName, email, authorities, userGroups);
+
+    RichUserDetails userDetails = new RichUserDetails(username, displayName, email, authorities, userGroups);
+    userDetails.setSelectedRole(role);
+
+    return userDetails;
   }
 
   public RichUserDetailsFactory addUserAuthority() {
@@ -81,6 +87,11 @@ public class RichUserDetailsFactory {
 
   public RichUserDetailsFactory setUsername(String name) {
     this.username = name;
+    return this;
+  }
+
+  public RichUserDetailsFactory setSelectedRole(BodRole selectedRole) {
+    this.role = selectedRole;
     return this;
   }
 
