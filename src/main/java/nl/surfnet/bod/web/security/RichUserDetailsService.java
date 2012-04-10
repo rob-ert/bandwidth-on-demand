@@ -57,7 +57,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
 
   private final static Ordering<BodRole> BY_ROLE_NAME = Ordering.natural().onResultOf(new Function<BodRole, String>() {
     public String apply(BodRole role) {
-      return role.getRoleName();
+      return role.getRole().getSortOrder();
     }
   });
 
