@@ -33,6 +33,7 @@ import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.AbstractFilteredSortableListController;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.VirtualPortJsonView;
 
@@ -40,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.Assert;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,6 +51,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 
@@ -149,11 +152,12 @@ public class PhysicalPortController extends
 
   @ModelAttribute
   protected void populateFilter(Model model) {
-    Collection<PhysicalResourceGroup> groups = physicalResourceGroupService
-        .findAllForManager(Security.getUserDetails());
+    RichUserDetails userDetails = Security.getUserDetails();
+    Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllForManager(userDetails);
 
-    // Select first group
-    model.addAttribute("selPrg", groups.iterator().next());
+    // Select prg related to choosen role and related institute
+    model.addAttribute("selPrg",
+        physicalResourceGroupService.filterByInstituteId(groups, userDetails.getSelectedRole().getInstituteId()));
 
     // Put list on model
     model.addAttribute("selPrgList", groups);
