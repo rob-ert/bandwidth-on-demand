@@ -7,7 +7,7 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <page:list id="pl_physicalResourceGroup">
-        <table:table items="${list}">
+        <table:table items="${list}" labelPluralCode="label_physicalresourcegroup_plural">
             <thead>
                 <tr>
                     <table:rowDetailsHeader />

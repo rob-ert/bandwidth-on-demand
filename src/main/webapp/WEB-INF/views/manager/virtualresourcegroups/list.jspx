@@ -8,7 +8,7 @@
         
     <page:list id="pl_VirtualResourceGroup">
 
-        <table:table items="${list}">
+        <table:table items="${list}" labelPluralCode="label_virtualresourcegroup_plural">
             <thead>
                 <tr>
                     <table:rowDetailsHeader />

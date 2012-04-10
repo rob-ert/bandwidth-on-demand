@@ -9,7 +9,7 @@
     <tiles:useAttribute id="show_unallocated" name="unallocated" classname="java.lang.Boolean" />
 
     <page:list id="pl_PhysicalPort" pluralLabelCode="${show_unallocated ? 'label_physicalport_unallocated_plural' : ''}">
-        <table:table items="${list}">
+        <table:table items="${list}" labelPluralCode="${show_unallocated ? 'label_physicalport_unallocated_plural' : 'label_physicalport_plural'}">
             <thead>
                 <tr>
                     <table:rowDetailsHeader render="${not show_unallocated}" />

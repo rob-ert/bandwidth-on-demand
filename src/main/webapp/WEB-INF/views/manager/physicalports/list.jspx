@@ -11,7 +11,7 @@
     <page:list id="pl_PhysicalPort">
        	<field:select id="filter" items="${selPrgList}"  labelCode="physicalresourcegroup" field="selPrg.name" itemValue="id" 
    	        showSingle="true" path="/manager/physicalports"  />
-        <table:table items="${list}">
+        <table:table items="${list}" labelPluralCode="label_physicalport_plural">
             <thead>
                 <tr>
                     <table:sortableHeader name="Label" property="managerLabel" />

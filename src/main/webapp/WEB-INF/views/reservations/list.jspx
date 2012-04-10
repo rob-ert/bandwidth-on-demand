@@ -14,7 +14,7 @@
                <sform:select id="filter" path="filterSelect.id" items="${filterList}" itemLabel="label" itemValue="id" />
            </div>
         </div>
-        <table:table items="${list}">
+        <table:table items="${list}" labelPluralCode="label_reservation_plural">
             <thead>
                 <tr>
                     <table:rowDetailsHeader />

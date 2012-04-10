@@ -32,7 +32,7 @@
         <spring:url value="${path}" var="form_url" />
 
         <section>
-            <h1>Update a ${label}</h1>
+            <h1><spring:message code="entity_update" arguments="${label}" /></h1>
             <div class="content">
                 <form:form action="${form_url}" method="PUT" modelAttribute="${modelAttribute}" enctype="${enctype}">
                     <c:set var="errors"><form:errors /></c:set>

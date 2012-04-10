@@ -5,7 +5,6 @@
 
     <spring:url value="/resources/css/bootstrap-2.0.2.min.css" var="bootstrap_css_url" />
     <spring:url value="/resources/css/font-awesome.css" var="font_awesome_css_url" />
-    <spring:url value="/resources/styles/main.css" var="main_css_url" />
 
     <spring:url value="/resources/css/layout.css" var="layout_css_url" />
     <spring:url value="/resources/css/typography-colors.css" var="typo_colors_css_url" />
@@ -36,11 +35,12 @@
     <spring:url value="/resources/js/modules/form.js" var="module_form_js_url" />
     <spring:url value="/resources/js/modules/message.js" var="module_message_js_url" />
     <spring:url value="/resources/js/modules/table.js" var="module_table_js_url" />
+    <spring:url value="/resources/js/tools/prefixfree.min.js" var="prefixfree_js_url" />
 
+    <link rel="stylesheet" type="text/css" media="screen" href="${bootstrap_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${layout_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${typo_colors_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${user_box_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${bootstrap_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${b_generic_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${b_navbar_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${b_table_css_url}" />
@@ -51,8 +51,6 @@
     <link rel="stylesheet" type="text/css" media="screen" href="${font_awesome_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${autosuggest_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${datepicker_css_url}" />
-
-    <link rel="stylesheet" type="text/css" media="screen" href="${main_css_url}" />
 
     <script src="${jquery_url}" type="text/javascript"><!-- needed --></script>
     <script src="${jquery_socket_url}" type="text/javascript"><!-- needed --></script>
@@ -68,6 +66,8 @@
     <script src="${module_form_js_url}" type="text/javascript"><!-- needed --></script>
     <script src="${module_message_js_url}" type="text/javascript"><!-- needed --></script>
     <script src="${module_table_js_url}" type="text/javascript"><!-- needed --></script>
+
+    <script src="${prefixfree_js_url}" type="text/javascript"><!-- needed --></script>
 
     <c:set var="userLocale">
         <c:set var="plocale">${pageContext.response.locale}</c:set>
