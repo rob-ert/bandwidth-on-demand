@@ -32,8 +32,8 @@
                         <table:column item="${item}" property="networkElementPk" />
                         <table:column item="${item}" property="physicalResourceGroup" render="${not show_unallocated}" />
                         <table:actionsColumn item="${item}"
-                            delete="${not show_unallocated}" deleteIcon="icon-resize-full"
-                            updateIcon="${show_unallocated ? 'icon-resize-small' : ''}"
+                            delete="${not show_unallocated}" deleteIcon="icon-resize-full" deleteLabelCode="label_unallocate"
+                            updateIcon="${show_unallocated ? 'icon-resize-small' : ''}" updateLabelCode="${show_unallocated ? 'label_allocate' : ''}"
                             path="/noc/physicalports" idFieldName="networkElementPk"
                             labelCode="label_physicalport" />
                     </tr>
