@@ -54,12 +54,11 @@
 
     <script src="${jquery_url}" type="text/javascript"><!-- needed --></script>
     <script src="${jquery_socket_url}" type="text/javascript"><!-- needed --></script>
-    <script src="${bootstrap_js_url}" type="text/javascript"><!-- --></script>
+    <script src="${bootstrap_js_url}" type="text/javascript"><!-- needed --></script>
     <script src="${bootstrap_dropdown_url}" type="text/javascript"><!-- needed --></script>
     <script src="${bootstrap_alerts_url}" type="text/javascript"><!-- needed --></script>
     <script src="${autosuggest_js_url}" type="text/javascript"><!-- needed --></script>
     <script src="${dropdownreload_js_url}" type="text/javascript"><!-- needed --></script>
-    <script src="${table_rowdetails_url}" type="text/javascript"><!-- needed --></script>
     <script src="${datepicker_js_url}" type="text/javascript"><!-- needed --></script>
 
     <script src="${main_js_url}" type="text/javascript"><!-- needed --></script>
