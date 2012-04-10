@@ -12,7 +12,7 @@
             <thead>
                 <tr>
                     <table:rowDetailsHeader />
-                    <table:sortableHeader property="name" name="Name" />
+                    <table:sortableHeader property="name" name="Label" />
                     <table:sortableHeader property="description" name="Description" />
                     <th># of Virtual Ports</th>
                     <table:actionsHeader />
