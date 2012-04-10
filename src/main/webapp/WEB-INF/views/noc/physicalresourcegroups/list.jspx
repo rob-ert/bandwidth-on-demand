@@ -13,7 +13,7 @@
                     <table:rowDetailsHeader />
                     <th>Institute</th>
                     <table:sortableHeader name="Email" property="managerEmail" />
-                    <table:sortableHeader name="Active" property="active" styleClass="center" />
+                    <table:sortableHeader name="Active" property="active" styleClass="cw55 center" />
                     <th># of Ports</th>
                     <table:actionsHeader />
                 </tr>

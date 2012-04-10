@@ -46,7 +46,14 @@
     text-decoration: none;
 }
 
+/* sortable table headers */
+
+.table th.sortable {
+	cursor: pointer;
+}
+
 /* icons */
+
 .table [class^="icon-"]:before, .table [class*=" icon-"]:before {
 	font-size: 16px;
     color: #0381a4;
