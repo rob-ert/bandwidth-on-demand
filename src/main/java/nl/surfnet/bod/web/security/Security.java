@@ -42,12 +42,12 @@ import com.google.common.collect.Iterables;
 public final class Security {
 
   public enum RoleEnum {
-    NOC_ENGINEER("noc/index", "1"), ICT_MANAGER("manager/index", "2"), USER("index", "3");
+    NOC_ENGINEER("noc/index", 1), ICT_MANAGER("manager/index", 2), USER("index", 3);
 
     private String viewName;
-    private String sortOrder;
+    private int sortOrder;
 
-    private RoleEnum(String viewName, String sortOrder) {
+    private RoleEnum(String viewName, int sortOrder) {
       this.viewName = viewName;
       this.sortOrder = sortOrder;
     }
@@ -56,7 +56,7 @@ public final class Security {
       return viewName;
     }
 
-    public String getSortOrder() {
+    public int getSortOrder() {
       return sortOrder;
     }
   }

@@ -281,6 +281,50 @@ public class RichUserDetailsServiceTest {
     assertThat(Security.RoleEnum.USER, is(roles.get(0).getRole()));
   }
 
+  @Test
+  public void shouldAddTwoManagerRolesBecauseOfDifferentInstitutes() {
+    UserGroup userGroup = new UserGroupFactory().create();
+    PhysicalResourceGroup prg1 = new PhysicalResourceGroupFactory().setAdminGroup(userGroup.getId()).create();
+    PhysicalResourceGroup prg2 = new PhysicalResourceGroupFactory().setAdminGroup(userGroup.getId()).create();
+
+    when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg1, prg2));
+    when(prgServiceMock.findAllForAdminGroups(listOf(userGroup))).thenReturn(listOf(prg1, prg2));
+
+    List<BodRole> roles = subject.determineRoles(listOf(userGroup));
+    assertThat(roles, hasSize(2));
+
+    assertThat(roles.get(0).getRole(), is(Security.RoleEnum.ICT_MANAGER));
+    assertThat(roles.get(0).getInstituteId(), is(prg1.getInstituteId()));
+
+    assertThat(roles.get(1).getRole(), is(Security.RoleEnum.ICT_MANAGER));
+    assertThat(roles.get(1).getInstituteId(), is(prg2.getInstituteId()));
+  }
+
+  @Test
+  public void shouldSortRolesInSpecifiedOrder() {
+    // Set Id for noc role
+    UserGroup userGroup = new UserGroupFactory().setId(subject.getNocEngineerGroupId()).setName("new name one")
+        .create();
+
+    // For USER role
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
+    when(vrgServiceMock.findByUserGroups(listOf(userGroup))).thenReturn(listOf(vrg));
+
+    // For Manager role
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setAdminGroup(userGroup.getId()).create();
+    when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg));
+    when(prgServiceMock.findAllForAdminGroups(listOf(userGroup))).thenReturn(listOf(prg));
+
+    List<BodRole> roles = subject.determineRoles(listOf(userGroup));
+
+    assertThat(roles, hasSize(3));
+    // Verify by sortOrder in enum
+    assertThat(Security.RoleEnum.NOC_ENGINEER, is(roles.get(Security.RoleEnum.NOC_ENGINEER.getSortOrder() - 1)
+        .getRole()));
+    assertThat(Security.RoleEnum.ICT_MANAGER, is(roles.get(Security.RoleEnum.ICT_MANAGER.getSortOrder() - 1).getRole()));
+    assertThat(Security.RoleEnum.USER, is(roles.get(Security.RoleEnum.USER.getSortOrder() - 1).getRole()));
+  }
+
   private static <E> ImmutableList<E> listOf(E... elements) {
     return ImmutableList.copyOf(elements);
   }
