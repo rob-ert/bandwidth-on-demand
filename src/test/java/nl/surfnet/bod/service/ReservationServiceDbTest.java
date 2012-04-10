@@ -29,7 +29,11 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.repo.*;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.repo.VirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.DateMidnight;

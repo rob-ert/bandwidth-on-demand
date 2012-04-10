@@ -34,10 +34,24 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
-import nl.surfnet.bod.service.*;
-import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.service.InstituteService;
+import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.support.ModelStub;
+import nl.surfnet.bod.support.PhysicalPortFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortUpdateCommand;
 import nl.surfnet.bod.web.security.RichUserDetails;
