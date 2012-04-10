@@ -266,6 +266,21 @@ public class RichUserDetailsServiceTest {
     assertThat(roles, hasSize(0));
   }
 
+  @Test
+  public void shouldAddUserRoleOnlyOnce() {
+    UserGroup userGroup1 = new UserGroupFactory().setName("new name one").create();
+    UserGroup userGroup2 = new UserGroupFactory().setName("new name two").create();
+    VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().create();
+    VirtualResourceGroup vrg2 = new VirtualResourceGroupFactory().create();
+
+    when(vrgServiceMock.findByUserGroups(listOf(userGroup1))).thenReturn(listOf(vrg1));
+    when(vrgServiceMock.findByUserGroups(listOf(userGroup2))).thenReturn(listOf(vrg2));
+    List<BodRole> roles = subject.determineRoles(listOf(userGroup1, userGroup2));
+
+    assertThat(roles, hasSize(1));
+    assertThat(Security.RoleEnum.USER, is(roles.get(0).getRole()));
+  }
+
   private static <E> ImmutableList<E> listOf(E... elements) {
     return ImmutableList.copyOf(elements);
   }

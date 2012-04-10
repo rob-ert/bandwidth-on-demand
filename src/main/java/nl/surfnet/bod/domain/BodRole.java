@@ -7,6 +7,17 @@ import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import com.google.common.base.Objects;
 
+/**
+ * Represents a role so the user can switch between them. Note that only the
+ * {@link #role} and {@link #instituteId} are relevant for the
+ * {@link #equals(Object)} and {@link #hashCode()}. This way duplicate
+ * {@link Security.RoleEnum#USER} are prevented even if the are related to
+ * different groups. Multiple {@link RoleEnum#ICT_MANAGER} roles are allowed, as
+ * long as they are related to different {@link #instituteId}s.
+ * 
+ * @author Franky
+ * 
+ */
 public class BodRole {
 
   private static final AtomicLong COUNTER = new AtomicLong();
@@ -74,8 +85,7 @@ public class BodRole {
     if (obj instanceof BodRole) {
       BodRole bodRole = (BodRole) obj;
 
-      return Objects.equal(this.id, bodRole.id) && Objects.equal(this.groupId, bodRole.groupId)
-          && Objects.equal(this.role, bodRole.getRole()) && Objects.equal(this.instituteId, bodRole.getInstituteId());
+      return Objects.equal(this.role, bodRole.getRole()) && Objects.equal(this.instituteId, bodRole.getInstituteId());
     }
     else {
       return false;
@@ -84,7 +94,7 @@ public class BodRole {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(id, groupId, role, instituteId);
+    return Objects.hashCode(role, instituteId);
   }
 
   @Override
