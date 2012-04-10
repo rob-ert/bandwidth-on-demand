@@ -1,4 +1,4 @@
-<div xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+<html xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:util="urn:jsptagdir:/WEB-INF/tags/util" xmlns:spring="http://www.springframework.org/tags"
     xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
     
@@ -11,4 +11,4 @@
         <p class="smiley">:-(</p>
     </div>
     
-</div>
+</html>

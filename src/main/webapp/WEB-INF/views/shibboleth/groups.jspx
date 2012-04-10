@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+<html xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
     xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <page:list id="groups" items="${groups}" label="Group" labelPlural="Groups">
+    <page:list id="groups" items="${groups}" singleLabelCode="Group" pluralLabelCode="Groups">
         <ul>
             <c:forEach var="group" items="${groups}">
                 <li>
@@ -15,4 +15,4 @@
             </c:forEach>
         </ul>
     </page:list>
-</div>
+</html>

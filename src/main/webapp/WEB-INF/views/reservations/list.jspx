@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+<html xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
      xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/table"
      xmlns:sform="http://www.springframework.org/tags/form" xmlns:c="http://java.sun.com/jsp/jstl/core"
      xmlns:spring="http://www.springframework.org/tags" xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields">
@@ -136,4 +136,4 @@
             });
         })
     </script>
-</div>
+</html>
