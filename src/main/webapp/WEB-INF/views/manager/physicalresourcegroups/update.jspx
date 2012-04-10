@@ -21,19 +21,19 @@
                 <div class="control-group ${error_css}">
                     <label class="control-label"><spring:message code="label_physicalresourcegroup_manageremail" /></label>
                     <div class="controls">
-                        <div class="input-append">
-                            <sform:input id="_manageremail_id" path="managerEmail" type="email" />
+                        <sform:input id="_manageremail_id" path="managerEmail" type="email" />
+                        <span class="help-inline">
                             <c:choose>
                                 <c:when test="${physicalResourceGroup.active}">
-                                    <span class="add-on">Active</span>
+                                    <i class="icon-ok"><!--  --></i>
                                 </c:when>
                                 <c:otherwise>
-                                    <span class="add-on">Inactive</span>
+                                    <i class="icon-ban-circle"><!--  --></i>
                                 </c:otherwise>
                             </c:choose>
-                            <sform:errors cssClass="help-inline" id="_manageremail_error_id" path="managerEmail"
-                                delimiter=", " />
-                        </div>
+                        </span>
+                        <sform:errors cssClass="help-inline" id="_manageremail_error_id" path="managerEmail"
+                            delimiter=", " />
                     </div>
                 </div>
 
