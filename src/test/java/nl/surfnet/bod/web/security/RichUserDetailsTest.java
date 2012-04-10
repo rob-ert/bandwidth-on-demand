@@ -73,7 +73,7 @@ public class RichUserDetailsTest {
   @Test
   public void shouldSwitchRoleAndAddCurrentSelected() {
     BodRole role1 = new BodRoleFactory().create();
-    BodRole role2 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER.name()).create();
+    BodRole role2 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).create();
 
     RichUserDetails userDetails = new RichUserDetailsFactory().create();
     userDetails.setBodRoles(Lists.newArrayList(role1, role2));
@@ -92,7 +92,7 @@ public class RichUserDetailsTest {
   @Test
   public void shouldPerformNoActionWhenSwitchToNullRole() {
     BodRole role1 = new BodRoleFactory().create();
-    BodRole role2 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER.name()).create();
+    BodRole role2 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).create();
 
     RichUserDetails userDetails = new RichUserDetailsFactory().create();
     userDetails.setBodRoles(Lists.newArrayList(role1, role2));
