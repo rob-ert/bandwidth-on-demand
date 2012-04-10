@@ -55,12 +55,6 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
 
   private final Logger logger = LoggerFactory.getLogger(RichUserDetailsService.class);
 
-  private final static Ordering<BodRole> BY_ROLE_NAME = Ordering.natural().onResultOf(new Function<BodRole, String>() {
-    public String apply(BodRole role) {
-      return String.valueOf(role.getRole().getSortOrder());
-    }
-  });
-
   @Value("${os.group.noc}")
   private String nocEngineerGroupId;
 
@@ -91,6 +85,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
 
     userDetails.switchRoleTo(CollectionUtils.isEmpty(userDetails.getBodRoles()) ? null : userDetails.getBodRoles().get(
         0));
+    
     return userDetails;
   }
 
@@ -114,7 +109,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
 
     roles.remove(null);
 
-    return BY_ROLE_NAME.sortedCopy(roles);
+    return Lists.newArrayList(roles);
   }
 
   private BodRole determineNocRole(UserGroup userGroup) {
