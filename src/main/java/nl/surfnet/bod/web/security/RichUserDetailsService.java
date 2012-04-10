@@ -117,35 +117,34 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
     return BY_ROLE_NAME.sortedCopy(roles);
   }
 
-  BodRole determineNocRole(UserGroup userGroup) {
+  private BodRole determineNocRole(UserGroup userGroup) {
     BodRole nocRole = null;
 
     if (isNocEngineerGroup(Lists.newArrayList(userGroup))) {
-      nocRole = new BodRole(userGroup, Security.RoleEnum.NOC_ENGINEER.name());
+      nocRole = new BodRole(userGroup, Security.RoleEnum.NOC_ENGINEER);
     }
 
     return nocRole;
   }
 
-  List<BodRole> determineManagerRole(UserGroup userGroup) {
+  private List<BodRole> determineManagerRole(UserGroup userGroup) {
     List<BodRole> managerRoles = Lists.newArrayList();
     for (PhysicalResourceGroup physicalResourceGroup : physicalResourceGroupService.findByAdminGroup(userGroup.getId())) {
 
       if (physicalResourceGroup != null) {
         if (isIctManager(Lists.newArrayList(userGroup))) {
-          managerRoles.add(new BodRole(userGroup, Security.RoleEnum.ICT_MANAGER.name(), physicalResourceGroup
-              .getInstitute()));
+          managerRoles.add(new BodRole(userGroup, Security.RoleEnum.ICT_MANAGER, physicalResourceGroup.getInstitute()));
         }
       }
     }
     return managerRoles;
   }
 
-  BodRole determineUserRole(UserGroup userGroup) {
+  private BodRole determineUserRole(UserGroup userGroup) {
     BodRole userRole = null;
 
     if (isUser(Lists.newArrayList(userGroup))) {
-      userRole = new BodRole(userGroup, Security.RoleEnum.USER.name());
+      userRole = new BodRole(userGroup, Security.RoleEnum.USER);
     }
 
     return userRole;

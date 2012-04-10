@@ -30,6 +30,7 @@ import java.util.List;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.UserGroup;
 
+import org.slf4j.Logger;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.CollectionUtils;
@@ -42,6 +43,8 @@ import com.google.common.collect.Lists;
 
 @SuppressWarnings("serial")
 public class RichUserDetails implements UserDetails {
+
+  private final Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
   private final String username;
   private final String displayName;
@@ -160,6 +163,9 @@ public class RichUserDetails implements UserDetails {
       else {
         throw new IllegalStateException("Multiple BodRoles found, while one expected for id: " + bodRoleId);
       }
+    }
+    else {
+      log.warn("No role to switch to for id: {} ", bodRoleId);
     }
     return foundRole;
   }

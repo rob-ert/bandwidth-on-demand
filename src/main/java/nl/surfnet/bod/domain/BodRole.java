@@ -2,6 +2,7 @@ package nl.surfnet.bod.domain;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import com.google.common.base.Objects;
@@ -18,15 +19,15 @@ public class BodRole {
   private Long instituteId;
   private String instituteName;
 
-  public BodRole(UserGroup userGroup, String role) {
+  public BodRole(UserGroup userGroup, Security.RoleEnum role) {
     this.id = COUNTER.incrementAndGet();
     this.groupId = userGroup.getId();
     this.groupName = userGroup.getName();
     this.groupDescription = userGroup.getDescription();
-    this.role = RoleEnum.valueOf(role);
+    this.role = role;
   }
 
-  public BodRole(UserGroup userGroup, String role, Institute institute) {
+  public BodRole(UserGroup userGroup, Security.RoleEnum role, Institute institute) {
     this(userGroup, role);
     this.instituteId = institute.getId();
     this.instituteName = institute.getName();
