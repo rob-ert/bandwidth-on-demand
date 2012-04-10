@@ -24,6 +24,7 @@ package nl.surfnet.bod.web;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -34,17 +35,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.VirtualPortRequestController.RequestCommand;
+import nl.surfnet.bod.web.VirtualPortRequestController.UserGroupView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -76,26 +77,52 @@ public class VirtualPortRequestControllerTest {
   @Mock
   private MessageSource messageSourceMock;
 
-  private RichUserDetails user = new RichUserDetailsFactory().addUserGroup("urn:user-group").create();
+  private RichUserDetails user;
 
   @Before
   public void login() {
+    UserGroup group1 = new UserGroupFactory().setName("A").setId("urn:user-group").create();
+    UserGroup group2 = new UserGroupFactory().setName("B").create();
+    UserGroup group3 = new UserGroupFactory().setName("C").create();
+
+    user = new RichUserDetailsFactory().addUserGroup(group3).addUserGroup(group1).addUserGroup(group2).create();
+
     Security.setUserDetails(user);
+  }
+
+  @Test
+  public void findAllTeamsShouldBeSorted() {
+    ModelStub model = new ModelStub();
+
+    subject.selectTeam(model);
+
+    List<UserGroupView> groups = (List<UserGroupView>) model.asMap().get("userGroups");
+
+    assertThat(groups, hasSize(3));
+    assertThat(groups.get(0).getName(), is("A"));
+    assertThat(groups.get(1).getName(), is("B"));
+    assertThat(groups.get(2).getName(), is("C"));
   }
 
   @SuppressWarnings("unchecked")
   @Test
-  public void findAllGroups() {
+  public void findAllGroupsShouldBeSorted() {
     ModelStub model = new ModelStub();
 
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
+    PhysicalResourceGroup group1 = new PhysicalResourceGroupFactory().setInstitute(
+        new InstituteFactory().setName("A").create()).create();
+    PhysicalResourceGroup group2 = new PhysicalResourceGroupFactory().setInstitute(
+        new InstituteFactory().setName("B").create()).create();
+    PhysicalResourceGroup group3 = new PhysicalResourceGroupFactory().setInstitute(
+        new InstituteFactory().setName("C").create()).create();
 
-    when(physicalResourceGroupServiceMock.findAllWithPorts()).thenReturn(Lists.newArrayList(group));
+    when(physicalResourceGroupServiceMock.findAllWithPorts()).thenReturn(Lists.newArrayList(group3, group1, group2));
 
     subject.selectInstitute("", model);
 
     assertThat(model.asMap(), hasKey("physicalResourceGroups"));
-    assertThat(((Collection<PhysicalResourceGroup>) model.asMap().get("physicalResourceGroups")), contains(group));
+    assertThat(((Collection<PhysicalResourceGroup>) model.asMap().get("physicalResourceGroups")),
+        contains(group1, group2, group3));
   }
 
   @Test

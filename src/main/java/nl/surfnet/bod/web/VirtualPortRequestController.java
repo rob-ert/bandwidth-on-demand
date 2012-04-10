@@ -23,6 +23,7 @@ package nl.surfnet.bod.web;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -52,10 +53,18 @@ import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 
 @Controller
 @RequestMapping("/request")
 public class VirtualPortRequestController {
+
+  private static final Ordering<PhysicalResourceGroup> PRG_ORDERING = new Ordering<PhysicalResourceGroup>() {
+    @Override
+    public int compare(PhysicalResourceGroup left, PhysicalResourceGroup right) {
+      return left.getName().compareTo(right.getName());
+    }
+  };
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
@@ -68,14 +77,15 @@ public class VirtualPortRequestController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String selectTeam(Model model) {
-    Collection<UserGroupView> groups = Collections2.transform(Security.getUserDetails().getUserGroups(),
+    List<UserGroupView> groups = Ordering.natural().sortedCopy(
+        Collections2.transform(Security.getUserDetails().getUserGroups(),
         new Function<UserGroup, UserGroupView>() {
           @Override
           public UserGroupView apply(UserGroup userGroup) {
             boolean exists = virtualResourceGroupService.findBySurfconextGroupId(userGroup.getId()) != null;
             return new UserGroupView(userGroup, exists);
           }
-        });
+        }));
 
     model.addAttribute("userGroups", groups);
 
@@ -86,7 +96,7 @@ public class VirtualPortRequestController {
   public String selectInstitute(@RequestParam(value = "team") String teamUrn, Model model) {
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllWithPorts();
 
-    model.addAttribute("physicalResourceGroups", groups);
+    model.addAttribute("physicalResourceGroups", PRG_ORDERING.sortedCopy(groups));
     model.addAttribute("teamUrn", teamUrn);
 
     return "virtualports/selectInstitute";
@@ -225,7 +235,7 @@ public class VirtualPortRequestController {
     }
   }
 
-  public static class UserGroupView {
+  public static class UserGroupView implements Comparable<UserGroupView> {
     private final String id;
     private final String name;
     private final String description;
@@ -252,6 +262,11 @@ public class VirtualPortRequestController {
 
     public String getDescription() {
       return description;
+    }
+
+    @Override
+    public int compareTo(UserGroupView other) {
+      return this.getName().compareTo(other.getName());
     }
 
   }
