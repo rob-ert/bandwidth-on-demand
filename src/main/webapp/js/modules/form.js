@@ -13,6 +13,7 @@ app.form = function(){
         initUserSelection();
         initFormLinks();
         initPopovers();
+        initBandwidthSelector();
 
     };
 
@@ -82,6 +83,57 @@ app.form = function(){
         });
 
     };
+
+    var initBandwidthSelector = function() {
+
+        var selectedValues,
+            bandwidth = parseInt($('[data-component="bandwidth-selector"] input').val());
+
+        var getMaxBandwidth = function() {
+            selectedValues = [];
+            $('[data-component="bandwidth-selector-source"]').each(function(i, element) {
+                selectedValues.push(parseInt($(element).find('option:selected').attr('data-bandwidth-max')));
+            });
+            return Math.max.apply(null, selectedValues);
+        }
+
+        var activateBandwidthButton = function(multiplier) {
+
+            $('[data-component="bandwidth-selector"] button').each(function(i, element) {
+                if(parseFloat(element.getAttribute('data-bandwidth-multiplier')) === multiplier) {
+                    $(element).addClass('active');
+                } else {
+                    $(element).removeClass('active');
+                }
+            });
+
+        }
+
+        $('[data-component="bandwidth-selector"] input').on('change', function(event) {
+
+            bandwidth = parseFloat(event.target.value);
+
+            activateBandwidthButton(bandwidth / getMaxBandwidth());
+
+            event.preventDefault();
+
+        });
+
+        $('[data-component="bandwidth-selector"]').on('click', '.btn', function(event) {
+
+            event.preventDefault();
+
+            if(event.clientX === 0) { return; } // For some weird reason, this 'click' event was also fired on change of the input...?!
+
+            bandwidth = getMaxBandwidth() * parseFloat(event.target.getAttribute('data-bandwidth-multiplier'));
+
+            $(event.target).closest('.controls').find('input').val(bandwidth).trigger('change');
+
+        });
+
+        activateBandwidthButton(bandwidth / getMaxBandwidth());
+
+    }
 
     return {
         init: init

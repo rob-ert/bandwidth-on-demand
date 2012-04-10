@@ -144,9 +144,19 @@
                                     <div class="control-group">
                                         <label class="control-label">Select</label>
                                         <div class="controls">
-                                            <select>
-                                                <option>Option A</option>
-                                                <option>Option B</option>
+                                            <select class="input-xlarge" data-component="bandwidth-selector-source">
+                                                <option data-bandwidth-max="200">Option A (max-bandwidth: 200)</option>
+                                                <option data-bandwidth-max="500">Option B (max-bandwidth: 500)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Select</label>
+                                        <div class="controls">
+                                            <select class="input-xlarge" data-component="bandwidth-selector-source">
+                                                <option data-bandwidth-max="1500">Option C (max-bandwidth: 1500)</option>
+                                                <option data-bandwidth-max="400">Option D (max-bandwidth: 400)</option>
                                             </select>
                                         </div>
                                     </div>
@@ -154,12 +164,12 @@
                                     <div class="control-group" data-component="bandwidth-selector">
                                         <label class="control-label">Bandwidth</label>
                                         <div class="controls">
-                                            <input type="number" class="input-mini" rows="3"></textarea>
+                                            <input type="text" class="input-mini" value="0">
                                             <span class="help-inline">
                                                 <div class="btn-group">
-                                                  <button class="btn btn-mini" data-bandwidth="10">Low</button>
-                                                  <button class="btn btn-mini" data-bandwidth="50">Med</button>
-                                                  <button class="btn btn-mini" data-bandwidth="100">High</button>
+                                                  <button class="btn btn-mini" data-bandwidth-multiplier="0.25">Low</button>
+                                                  <button class="btn btn-mini" data-bandwidth-multiplier="0.5">Med</button>
+                                                  <button class="btn btn-mini" data-bandwidth-multiplier="1">High</button>
                                                 </div>
                                             </span>
                                         </div>
