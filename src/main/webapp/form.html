@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Bandwidth On Demand</title>
+
+        <link rel="stylesheet" href="css/layout.css">
+        <link rel="stylesheet" href="css/typography-colors.css">
+
+        <!-- Custom components -->
+        <link rel="stylesheet" href="css/components/user-box.css">
+
+        <!-- Bootstrap & custom styles -->
+        <link rel="stylesheet" href="css/bootstrap-2.0.2.css">
+        <link rel="stylesheet" href="css/components-bootstrap/generic.css">
+        <link rel="stylesheet" href="css/components-bootstrap/form.css">
+        <link rel="stylesheet" href="css/components-bootstrap/popover.css">
+
+        <link rel="stylesheet" href="css/font-awesome.css">
+
+        <script src="js/tools/prefixfree.min.js"></script>
+
+    </head>
+    <body>
+
+        <div class="wrapper">
+
+            <header>
+                <h1>Bandwidth on Demand</h1>
+            </header>
+
+            <div class="row">
+
+                <div class="span8">
+
+                    <section>
+
+                        <h2>Form</h2>
+
+                        <div class="content">
+
+                            <h3>Fill in the form</h3>
+
+                            <form class="form-horizontal">
+
+                                <fieldset>
+
+                                    <div class="control-group">
+                                        <label class="control-label">To:</label>
+                                        <div class="controls">
+                                            <output>Just content, no form control</output>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">With placeholder text:</label>
+                                        <div class="controls">
+                                            <input type="email" class="input-xlarge" placeholder="Fill me in...">
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Text input (incl. help text)</label>
+                                        <div class="controls">
+                                            <input type="text" class="input-xlarge">
+                                            <span class="help-inline">(inline help)</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Text input (incl. help text)</label>
+                                        <div class="controls">
+                                            <input type="text" class="input-xlarge">
+                                            <span class="help-inline"><i class="icon-ok"></i></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Text input (incl. help text)</label>
+                                        <div class="controls">
+                                            <input type="text" class="input-xlarge">
+                                            <p class="help-block">Block help.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Text input (incl. append)</label>
+                                        <div class="controls">
+                                            <div class="input-append">
+                                                <input type="text" class="input-xlarge"><span class="add-on">Mbps</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Text input (incl. append)</label>
+                                        <div class="controls">
+                                            <div class="input-append">
+                                                <input type="text" class="input-xlarge"><span class="add-on">yyyy-mm-dd</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Text input (incl. label)</label>
+                                        <div class="controls">
+                                            <input type="text" class="input-xlarge">
+                                            <span class="label label-success">20</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="message">
+                                        <h3>Message</h3>
+                                        <p>Message, <strong>strong message</strong>, message content.</p>
+                                    </div>
+
+                                    <div class="message">
+                                        <h3>Message</h3>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Text input (incl. badge)</label>
+                                        <div class="controls">
+                                            <input type="text" class="input-xlarge">
+                                            <span class="badge badge-success">20</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Text input (incl. badge + popover)</label>
+                                        <div class="controls">
+                                            <input type="text" class="input-xlarge">
+                                            <a href="#" class="badge badge-success" rel="popover" data-content="And here's some amazing content. It's very engaging. right?">?</a>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Textarea</label>
+                                        <div class="controls">
+                                            <textarea class="input-xlarge" rows="3"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Select</label>
+                                        <div class="controls">
+                                            <select>
+                                                <option>Option A</option>
+                                                <option>Option B</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group" data-component="bandwidth-selector">
+                                        <label class="control-label">Bandwidth</label>
+                                        <div class="controls">
+                                            <input type="number" class="input-mini" rows="3"></textarea>
+                                            <span class="help-inline">
+                                                <div class="btn-group">
+                                                  <button class="btn btn-mini" data-bandwidth="10">Low</button>
+                                                  <button class="btn btn-mini" data-bandwidth="50">Med</button>
+                                                  <button class="btn btn-mini" data-bandwidth="100">High</button>
+                                                </div>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="actions">
+                                        <button type="submit" class="btn btn-primary">Send</button>
+                                        <button class="btn">Cancel</button>
+                                    </div>
+
+                                </fieldset>
+
+                                <fieldset>
+
+
+
+                                </fieldset>
+
+
+                            </form>
+
+                        </div>
+
+                    </section>
+                </div>
+
+                <div class="span4">
+
+                    <section>
+                        <h2>Help</h2>
+                        <div class="content">
+                            <p>Paragraph in right column</p>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+        </div>
+
+        <script src="js/jquery/jquery-1.7.2.min.js"></script>
+        <script src="js/bootstrap/bootstrap-2.0.2.min.js"></script>
+        <script src="js/main.js"></script>
+        <script src="js/modules/form.js"></script>
+    </body>
+</html>
