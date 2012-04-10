@@ -1,0 +1,20 @@
+.popover-inner {
+    box-shadow: 3px 3px 2px #aaa;
+}
+
+.popover.top .arrow {
+    border-top-color: #489406;
+}
+
+.popover-inner {
+    border: 2px solid #489406;
+    background-color: #edffde;
+}
+
+.popover-content {
+    background-color: inherit;
+}
+
+.popover-title {
+    display: none;
+}

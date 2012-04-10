@@ -12,6 +12,7 @@ app.form = function(){
 
         initUserSelection();
         initFormLinks();
+        initPopovers();
 
     };
 
@@ -71,6 +72,14 @@ app.form = function(){
             event.preventDefault();
 
         })
+
+    };
+
+    var initPopovers = function() {
+
+        $('[rel="popover"]').popover({
+            placement: 'top'
+        });
 
     };
 
