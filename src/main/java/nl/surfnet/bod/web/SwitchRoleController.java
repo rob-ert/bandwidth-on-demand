@@ -38,7 +38,7 @@ public class SwitchRoleController {
 
   @RequestMapping(value = "logout", method = RequestMethod.GET)
   public String logout(HttpServletRequest request) {
-    logger.info("Logging out user {}", Security.getUserDetails());
+    logger.info("Logging out user: {}", Security.getUserDetails().getUsername());
     request.getSession().invalidate();
 
     return "redirect:" + environment.getShibbolethLogoutUrl();
