@@ -30,7 +30,7 @@
                 <h1>${app_name}</h1>
             </header>
             
-             <section class="user-box content-dense">
+            <section class="user-box content-dense">
                 <span class="user-name"><sec:authentication property="principal.displayName" htmlEscape="false"/></span>
             	   <spring:url value="/switchrole/logout" var="logoutUrl" />
                  

@@ -15,6 +15,7 @@
     <spring:url value="/resources/css/components-bootstrap/dropdown.css"  var="b_dropdown_css_url"/>
     <spring:url value="/resources/css/components-bootstrap/alert.css" var="b_alert_css_url"/>
     <spring:url value="/resources/css/components-bootstrap/button.css" var="b_button_css_url"/>
+    <spring:url value="/resources/css/components-bootstrap/form.css" var="b_form_css_url"/>
     <spring:url value="/resources/css/components/user-box.css" var="user_box_css_url"/>
 
     <spring:url value="/resources/js/jquery.min.js" var="jquery_url" />
@@ -48,6 +49,7 @@
     <link rel="stylesheet" type="text/css" media="screen" href="${b_dropdown_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${b_alert_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${b_button_css_url}" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${b_form_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${font_awesome_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${autosuggest_css_url}" />
     <link rel="stylesheet" type="text/css" media="screen" href="${datepicker_css_url}" />

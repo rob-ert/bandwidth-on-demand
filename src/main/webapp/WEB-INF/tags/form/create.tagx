@@ -6,7 +6,6 @@
     <jsp:directive.attribute name="id" type="java.lang.String" required="true" rtexprvalue="true" description="The identifier for this tag (do not change!)" />
     <jsp:directive.attribute name="modelAttribute" type="java.lang.String" required="true" rtexprvalue="true" description="The name of the model attribute for form binding" />
     <jsp:directive.attribute name="path" type="java.lang.String" required="true" rtexprvalue="true" description="Specify the relative URL path (wit leading /)" />
-    <jsp:directive.attribute name="compositePkField" type="java.lang.String" required="false" rtexprvalue="true" description="The field name of the composite primary key (only used if a composite PK is present in the form backing object)" />
     <jsp:directive.attribute name="multipart" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if this is a multipart form (default: false)" />
     <jsp:directive.attribute name="label" type="java.lang.String" required="false" rtexprvalue="true" description="The label used for this object, will default to a message bundle if not supplied" />
     <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
@@ -23,17 +22,12 @@
 
         <spring:message arguments="${label}" code="entity_create" var="title_msg" htmlEscape="false" />
         <spring:url value="${path}" var="form_url" />
-        <c:set var="jsCall" value="" />
-
-        <c:if test="${not empty compositePkField}">
-            <c:set var="jsCall" value="encodePk()" />
-        </c:if>
 
         <section>
             <h1><spring:message code="entity_create" arguments="${label}" /></h1>
             <div class="content">
 
-                <form:form action="${form_url}" method="POST" modelAttribute="${modelAttribute}" enctype="${enctype}" onsubmit="${jsCall}">
+                <form:form action="${form_url}" method="POST" modelAttribute="${modelAttribute}" enctype="${enctype}" cssClass="form-horizontal">
 
                     <c:set var="errors"><form:errors /></c:set>
                     <c:if test="${not empty errors}">
@@ -53,15 +47,15 @@
 
                     <fieldset>
                         <jsp:doBody />
-                    </fieldset>
 
-                    <div class="actions">
-                        <spring:message code="button_save" var="save_button" htmlEscape="false" />
-                        <spring:message code="button_cancel" var="cancel_button" htmlEscape="false" />
-                        <input type="submit" value="${fn:escapeXml(save_button)}" class="btn primary" />
-                        <c:out value=" " />
-                        <a href="${form_url}" class="btn">${fn:escapeXml(cancel_button)}</a>
-                    </div>
+                        <div class="actions">
+                            <spring:message code="button_save" var="save_button" htmlEscape="false" />
+
+                            <input type="submit" value="${fn:escapeXml(save_button)}" class="btn btn-primary" />
+                            <c:out value=" " />
+                            <a href="${form_url}" class="btn"><spring:message code="button_cancel" /></a>
+                        </div>
+                    </fieldset>
                 </form:form>
             </div>
         </section>

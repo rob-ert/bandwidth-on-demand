@@ -30,13 +30,10 @@
 		<c:set var="error_css" value="error" />
 	</c:if>
 
-	<div class="clearfix ${error_css}">
-		<spring:message code="label_${fn:toLowerCase(labelCode)}" var="label"
-			htmlEscape="false" />
-		<label for="_${sec_field}_id"> <c:out
-				value="${fn:escapeXml(label)}" /></label>
+	<div class="control-group ${error_css}">
+		<label for="_${sec_field}_id" class="control-label"><spring:message code="label_${fn:toLowerCase(labelCode)}" /></label>
 
-		<div class="input">
+		<div class="controls">
 			<input id="_${sec_field}_id" name="${input_search_name}" type="text" />
 			<form:errors cssClass="help-inline" id="_${sec_field}_error_id"
 				path="instituteId" />

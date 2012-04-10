@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<div xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields"
+<html xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields"
     xmlns:form="urn:jsptagdir:/WEB-INF/tags/form" xmlns:jsp="http://java.sun.com/JSP/Page"
     xmlns:sform="http://www.springframework.org/tags/form" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util">
@@ -14,7 +14,7 @@
     <spring:url var="reservation_js" value="/resources/js/reservation.js" />
 
     <div class="row">
-        <div class="span9">
+        <div class="span8">
             <form:create id="fc_reservation" modelAttribute="reservation" path="/reservations">
 
                 <field:select field="virtualResourceGroup" id="virtualresourcegroup" labelCode="virtualresourcegroup"
@@ -31,21 +31,21 @@
                     items="${virtualPorts}" itemLabel="userLabel" itemValue="id" path="/reservations" required="true"
                     create="false" />
 
-				<div class="clearfix">
-					   <label><spring:message code="label_reservation_startdate" /></label>
-					   <div class="input">
-			                 <div class="inline-inputs">
-						   		<sform:input id="_startDate_id" path="startDate" type="date" />
-								<span style="color: #404040;">
-									<spring:message code="label_reservation_now"  /> 					
-									<input id="now_chk" name="now" type="checkbox" onselect="toggleStart" style="margin-left: 5px;"/>
-								</span>
-							</div>
-                    			<span class="help-block"><spring:message code="help_generic_dateformat" /></span>
+                <div class="control-group">
+                    <label class="control-label"><spring:message code="label_reservation_startdate" /></label>
+                    <div class="controls">
+                        <div class="inline-inputs">
+					   		<sform:input id="_startDate_id" path="startDate" type="date" />
+							<span class="help-inline">
+    							<spring:message code="label_reservation_now"  />
+    							<input id="now_chk" name="now" type="checkbox" onselect="toggleStart" class="inline" style="margin-left: 5px;"/>
+							</span>
+						</div>
+            			<span class="help-block"><spring:message code="help_generic_dateformat" /></span>
 	                 </div>
-                 </div>
+                </div>
                  
-                 <field:input type="time" field="startTime" id="startTime" labelCode="reservation_startTime"
+                <field:input type="time" field="startTime" id="startTime" labelCode="reservation_startTime"
 	                    required="false" />
 
                 <field:input type="date" field="endDate" id="endDate" labelCode="reservation_endDate" helpMessageCode="generic_dateformat" />
@@ -57,27 +57,35 @@
                 <c:if test="${not empty errors}">
                     <c:set var="error_css" value="error" />
                 </c:if>
-                <div class="clearfix ${error_css}">
-                    <label for="_bandwidth_id"><spring:message code="label_reservation_bandwidth" /></label>
-                    <div class="input">
-                        <div class="inline-inputs">
-                            <sform:input id="_bandwidth_id" path="bandwidth" cssClass="mini" />
-                            <span class="bandwidth-tool"> <a href="#" id="bandwidthQuater"
+                <div class="control-group ${error_css}">
+                    <label for="_bandwidth_id" class="control-label"><spring:message code="label_reservation_bandwidth" /></label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <sform:input id="_bandwidth_id" path="bandwidth" cssClass="input-mini" /><span class="add-on">Mbit/s</span>
+                        </div>
+                        <span class="help-inline">
+                            <div class="btn-group">
+                              <button class="btn btn-mini" data-bandwidth="10">Low</button>
+                              <button class="btn btn-mini" data-bandwidth="50">Med</button>
+                              <button class="btn btn-mini" data-bandwidth="100">High</button>
+                            </div>
+                        </span>
+                    </div>
+
+                            <!-- <span class="bandwidth-tool"> <a href="#" id="bandwidthQuater"
                                 title="Bandwidth to a quater" rel="tooltip" data-placement="left"><img
                                     src="${imgQuater}" height="28" /></a> <a href="#" id="bandwidthHalf"
                                 title="Bandwidth to a half" rel="tooltip"><img src="${imgHalf}" height="28" /></a> <a
                                 href="#" id="bandwidthFull" title="Bandwidth to full" rel="tooltip"
                                 data-placement="right"><img src="${imgFull}" height="28" /></a>
-                            </span>
+                            </span>-->
                             <sform:errors cssClass="help-inline" id="_bandwidth_error_id" path="bandwidth"
                                 delimiter=", " />
-                        </div>
-                        <span class="help-block">Specified in Mbit/s</span>
-                    </div>
+                        <!-- <span class="help-block">Specified in Mbit/s</span>-->
                 </div>
             </form:create>
         </div>
-        <div class="span3">
+        <div class="span4">
             <section>
                 <h2><spring:message code="label_help_text_header" /></h2>
                 <div class="content">
@@ -98,4 +106,4 @@
 	    var dataUrl = "${vpUrl}";
     </script>
     <script src="${reservation_js}" type="text/javascript"><!-- needed --></script>
-</div>
+</html>
