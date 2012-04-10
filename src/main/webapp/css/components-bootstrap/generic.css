@@ -10,3 +10,19 @@
     border: 1px solid #bfbfbf;
     border-top: 0;
 }
+
+/* icons */
+
+[class^="icon-"]:before,
+[class*=" icon-"]:before {
+	font-size: 16px;
+    color: #0381a4;
+}
+
+[class="icon-ok"]:before {
+	color: #008000;
+}
+
+[class="icon-ban-circle"]:before {
+    color: #B22222;
+}
