@@ -1,9 +1,9 @@
 <sec:authorize access="isAuthenticated()" xmlns:sec="http://www.springframework.org/security/tags" xmlns="urn:jsptagdir:/WEB-INF/tags/menu">
-    <sec:authorize access="hasRole('USER')" >
         <menu>
             <item id="i_overview" url="/" messageCode="menu_overview_label" menu="overview" />
-            <item id="i_res_list" url="/reservations" messageCode="menu_reservation_label" menu="reservation" />
-            <item id="i_vp_list" url="/virtualports" messageCode="menu_virtualport_label" menu="virtualport" />
+		    <sec:authorize access="hasRole('USER')" >
+	            <item id="i_res_list" url="/reservations" messageCode="menu_reservation_label" menu="reservation" />
+	            <item id="i_vp_list" url="/virtualports" messageCode="menu_virtualport_label" menu="virtualport" />
+		    </sec:authorize>
         </menu>
-    </sec:authorize>
 </sec:authorize>
