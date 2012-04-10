@@ -26,3 +26,8 @@
 [class="icon-ban-circle"]:before {
     color: #B22222;
 }
+
+.btn [class^="icon-"]:before {
+    font-size: 13px;
+    color: inherit;
+}
