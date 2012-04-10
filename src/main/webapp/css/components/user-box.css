@@ -64,3 +64,8 @@
 .user-box .dropdown li:hover {
     background-color: #EBEBEB;
 }
+
+.user-box .dropdown-toggle,
+.user-box .dropdown li {
+    min-height: 3.273em; /* 36/11 ~ 3.273px */
+}
