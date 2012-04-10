@@ -31,7 +31,7 @@
                         <table:column item="${item}" property="managerEmail"/>
                         <table:column item="${item}" property="active" type="boolean" styleClass="center" />
                         <table:column item="${item}" property="physicalPortCount" />
-                        <table:actionsColumn item="${item}" path="/noc/physicalresourcegroups" />
+                        <table:actionsColumn item="${item}" path="/noc/physicalresourcegroups" labelCode="label_physicalresourcegroup" />
                     </tr>
                 </c:forEach>
             </tbody>

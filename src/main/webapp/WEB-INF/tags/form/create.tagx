@@ -30,7 +30,7 @@
         </c:if>
 
         <section>
-            <h1>Create a ${label}</h1>
+            <h1><spring:message code="entity_create" arguments="${label}" /></h1>
             <div class="content">
 
                 <form:form action="${form_url}" method="POST" modelAttribute="${modelAttribute}" enctype="${enctype}" onsubmit="${jsCall}">

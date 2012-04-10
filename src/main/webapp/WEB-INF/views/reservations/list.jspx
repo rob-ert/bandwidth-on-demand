@@ -81,7 +81,9 @@
                         <table:column item="${item}" property="startDateTime" />
                         <table:column item="${item}" property="endDateTime" />
                         <table:column item="${item}" property="status" />
-                        <table:actionsColumn item="${item}" update="false" delete="${not (item.status eq 'CANCELLED' or item.status eq 'FAILED' or item.status eq 'SUCCEEDED')}" path="/reservations" />
+                        <table:actionsColumn item="${item}" update="false"
+                            delete="${not (item.status eq 'CANCELLED' or item.status eq 'FAILED' or item.status eq 'SUCCEEDED')}" path="/reservations"
+                            labelCode="label_reservation" />
                     </tr>
                 </c:forEach>
             </tbody>

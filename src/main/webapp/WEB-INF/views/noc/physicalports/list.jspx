@@ -8,9 +8,7 @@
     <jsp:output omit-xml-declaration="yes" />
     <tiles:useAttribute id="show_unallocated" name="unallocated" classname="java.lang.Boolean" />
 
-    <spring:message code="label_physicalport_unallocated_plural" var="unallocated_plural_label" />
-
-    <page:list id="pl_PhysicalPort" labelPlural="${show_unallocated ? unallocated_plural_label : ''}">
+    <page:list id="pl_PhysicalPort" pluralLabelCode="${show_unallocated ? 'label_physicalport_unallocated_plural' : ''}">
         <table:table items="${list}">
             <thead>
                 <tr>
@@ -36,7 +34,8 @@
                         <table:actionsColumn item="${item}"
                             delete="${not show_unallocated}" deleteIcon="icon-resize-full"
                             updateIcon="${show_unallocated ? 'icon-resize-small' : ''}"
-                            path="/noc/physicalports" idFieldName="networkElementPk" />
+                            path="/noc/physicalports" idFieldName="networkElementPk"
+                            labelCode="label_physicalport" />
                     </tr>
                 </c:forEach>
             </tbody>

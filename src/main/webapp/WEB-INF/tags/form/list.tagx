@@ -6,15 +6,30 @@
 
     <jsp:directive.attribute name="id" type="java.lang.String" required="true" rtexprvalue="true" description="The identifier for this tag (do not change!)" />
     <jsp:directive.attribute name="items" type="java.util.Collection" required="false" rtexprvalue="true" description="The form backing object name" />
-    <jsp:directive.attribute name="labelPlural" type="java.lang.String" required="false" rtexprvalue="true" description="The label used for this object, will default to a message bundle if not supplied" />
-    <jsp:directive.attribute name="labelCode" type="java.lang.String" required="false" rtexprvalue="true" description="The code of the label header" />
+    <jsp:directive.attribute name="pluralLabelCode" type="java.lang.String" required="false" rtexprvalue="true" description="The label used for this object, will default to a message bundle if not supplied" />
+    <jsp:directive.attribute name="singleLabelCode" type="java.lang.String" required="false" rtexprvalue="true" description="The code of the label header" />
+    <jsp:directive.attribute name="headerLabelCode" type="java.lang.String" required="false" rtexprvalue="true" description="The code of the label header" />
     <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
     <jsp:directive.attribute name="path" type="java.lang.String" required="false" rtexprvalue="true" description="" />
 
     <c:if test="${empty render or render}">
-        <c:if test="${empty labelPlural}">
-            <spring:message code="label_${fn:toLowerCase(fn:substringAfter(id,'_'))}_plural" var="labelPlural"
-                htmlEscape="false" />
+        <c:choose>
+            <c:when test="${empty pluralLabelCode}">
+                <spring:message code="label_${fn:toLowerCase(fn:substringAfter(id,'_'))}_plural" var="labelPlural" />
+            </c:when>
+            <c:otherwise>
+                <spring:message code="${pluralLabelCode}" var="labelPlural" />
+            </c:otherwise>
+        </c:choose>
+        <c:choose>
+            <c:when test="${empty singleLabelCode}">
+                <spring:message code="label_${fn:toLowerCase(fn:substringAfter(id,'_'))}" var="labelSingle" />
+            </c:when>
+            <c:otherwise>
+                <spring:message code="${singleLabelCode}" var="labelSingle" />
+            </c:otherwise>
+        </c:choose>
+        <c:if test="${empty labelSingle}">
         </c:if>
         <c:choose>
             <c:when test="${empty labelCode}">
@@ -32,7 +47,7 @@
                     <spring:url value="${path}/create" var="create_url" />
 
                     <div class="actions">
-                        <a href="${create_url}" class="btn"><i class="icon-plus"><!-- --></i><c:out value=" "/><spring:message code="global_menu_new" /></a>
+                        <a href="${create_url}" class="btn btn-primary"><i class="icon-plus"><!-- --></i><c:out value=" "/><spring:message code="global_menu_new" arguments="${labelSingle}" /></a>
                     </div>
                 </c:if>
 

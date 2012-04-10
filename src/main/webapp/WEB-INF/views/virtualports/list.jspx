@@ -22,7 +22,7 @@
                         <table:column item="${item}" property="userLabel" />
                         <table:column item="${item}" property="maxBandwidth" />
                         <table:column item="${item}" property="virtualResourceGroup" />
-                        <table:actionsColumn item="${item}" delete="false" path="/virtualports" />
+                        <table:actionsColumn item="${item}" delete="false" path="/virtualports" labelCode="label_virtualport" />
                     </tr>
                 </c:forEach>
             </tbody>

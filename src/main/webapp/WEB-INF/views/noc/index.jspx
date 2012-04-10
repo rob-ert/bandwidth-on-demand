@@ -20,7 +20,7 @@
                 <spring:url var="user_url" value="/" />
                 <div class="content">
                     <ul class="tasks">
-                        <li><a class="btn" href="${create_prg_url}"><i class="icon-plus"><!--  --></i> Phys. Resource Group</a></li>
+                        <li><a class="btn" href="${create_prg_url}"><i class="icon-plus"><!--  --></i> Add Resource Group</a></li>
                     </ul>
                 </div>
             </section>

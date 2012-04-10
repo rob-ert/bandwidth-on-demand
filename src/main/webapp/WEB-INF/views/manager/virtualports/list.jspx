@@ -52,7 +52,7 @@
                         <table:column item="${item}" property="managerLabel" />
                         <table:column item="${item}" property="maxBandwidth" />
                         <table:column item="${item}" property="virtualResourceGroup" />
-                        <table:actionsColumn item="${item }" path="/manager/virtualports" />
+                        <table:actionsColumn item="${item }" path="/manager/virtualports" labelCode="label_virtualport" />
                     </tr>
                 </c:forEach>
             </tbody>

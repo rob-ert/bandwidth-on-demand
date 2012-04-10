@@ -32,7 +32,7 @@
                         <table:column item="${item}" property="name" />
                         <table:column item="${item}" property="description" />
                         <table:column item="${item}" property="virtualPortCount" />
-                        <table:actionsColumn item="${item}" update="false" path="/manager/virtualresourcegroups" />
+                        <table:actionsColumn item="${item}" update="false" path="/manager/virtualresourcegroups" labelCode="label_virtualresourcegroup" />
                     </tr>
                 </c:forEach>
             </tbody>
