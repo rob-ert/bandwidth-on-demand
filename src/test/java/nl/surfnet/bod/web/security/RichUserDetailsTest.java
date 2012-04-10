@@ -27,7 +27,9 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.support.BodRoleFactory;
+import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 
 import org.hamcrest.Matchers;
@@ -108,7 +110,7 @@ public class RichUserDetailsTest {
   }
 
   @Test
-  public void shouldSortRoles() {
+  public void shouldSortRolesTestOnSortOrder() {
     BodRole role1 = new BodRoleFactory().setRole(Security.RoleEnum.NOC_ENGINEER).create();
     BodRole role2 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).create();
     BodRole role3 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).create();
@@ -120,11 +122,34 @@ public class RichUserDetailsTest {
 
     java.util.List<BodRole> sortedRoles = userDetails.getBodRoles();
     assertThat(sortedRoles, hasSize(3));
-    
+
     // Verify by sortOrder in enum
-    assertThat(sortedRoles.get(0), is(role1));    
+    assertThat(sortedRoles.get(0), is(role1));
     assertThat(sortedRoles.get(1), is(role2));
-    assertThat(sortedRoles.get(2), is(role4));    
+    assertThat(sortedRoles.get(2), is(role4));
+  }
+
+  @Test
+  public void shouldSortRolesTestOnInstituteName() {
+    Institute firstInstitute = new InstituteFactory().setName("AAA").create();
+    Institute lastInstitute = new InstituteFactory().setName("ZZZ").create();
+
+    BodRole role1 = new BodRoleFactory().setRole(Security.RoleEnum.NOC_ENGINEER).create();
+    BodRole role2 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).setInstitute(firstInstitute).create();
+    BodRole role3 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).setInstitute(lastInstitute).create();
+    BodRole role4 = new BodRoleFactory().setRole(Security.RoleEnum.USER).setInstitute(firstInstitute).create();
+
+    RichUserDetails userDetails = new RichUserDetailsFactory().create();
+    userDetails.setBodRoles(Lists.newArrayList(role4, role3, role2, role1));
+    userDetails.switchRoleTo(role1);
+
+    java.util.List<BodRole> sortedRoles = userDetails.getBodRoles();
+    assertThat(sortedRoles, hasSize(3));
+
+    // Verify by sortOrder in enum
+    assertThat(sortedRoles.get(0), is(role2));
+    assertThat(sortedRoles.get(1), is(role3));
+    assertThat(sortedRoles.get(2), is(role4));
   }
 
 }

@@ -64,21 +64,8 @@ public class DashboardController {
     return "manager/index";
   }
 
-  /**
-   * Creates a form which posts to the activationEmailController to send the
-   * activationEmail again. We don't use the
-   * {@link WebUtils#addInfoMessage(org.springframework.ui.Model, String, String...)}
-   * method here, since this places markup around the parameters which will
-   * created an invalid post url.
-   *
-   * @param args
-   * @return
-   */
   String createNewActivationLinkForm(Object... args) {
     return String.format("Your Physical Resource Group is not activated yet, please do so now. "
-        + "<form style=\"display: inline\" id=\"activateFrom\" action=\"%s\" method=\"POST\""
-        + "enctype=\"application/x-www-form-urlencoded\">"
-        + "<input id=\"id\" name=\"id\" type=\"hidden\" value=\"%s\"><input class=\"btn primary\""
-        + "value=\"Send email\" type=\"submit\"></div></form>", args);
+        + "<a href=\"%s?id=%s\" class=\"btn\" data-form=\"true\">Resend email</a>", args);
   }
 }

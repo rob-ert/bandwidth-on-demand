@@ -5,6 +5,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.security.Security.RoleEnum;
 
+import org.springframework.util.StringUtils;
+
 import com.google.common.base.Objects;
 
 /**
@@ -18,7 +20,7 @@ import com.google.common.base.Objects;
  * @author Franky
  * 
  */
-public class BodRole {
+public class BodRole implements Comparable<BodRole> {
 
   private static final AtomicLong COUNTER = new AtomicLong();
 
@@ -104,4 +106,23 @@ public class BodRole {
         .add("instituteName", instituteName).toString();
   }
 
+  @Override
+  public int compareTo(BodRole anOtherRole) {
+
+    if (!(anOtherRole instanceof BodRole)) {
+      throw new ClassCastException("A BodRole object was expected");
+    }
+    String sortStringThis = String.valueOf(this.getRole().getSortOrder());
+    String sortStringTwo = String.valueOf(anOtherRole.getRole().getSortOrder());
+
+    if (StringUtils.hasText(this.getInstituteName())) {
+      sortStringThis = sortStringThis.concat(this.getInstituteName());
+    }
+
+    if (StringUtils.hasText(anOtherRole.getInstituteName())) {
+      sortStringTwo = sortStringTwo + anOtherRole.getInstituteName();
+    }
+
+    return sortStringThis.compareTo(sortStringTwo);
+  }
 }

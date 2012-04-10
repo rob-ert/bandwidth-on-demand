@@ -32,7 +32,11 @@ import java.util.Collection;
 import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.support.MockHttpServer;
 
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.core.io.ClassPathResource;
 

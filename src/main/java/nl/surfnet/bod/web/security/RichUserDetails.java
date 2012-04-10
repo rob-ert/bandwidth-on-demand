@@ -25,6 +25,7 @@ import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import nl.surfnet.bod.domain.BodRole;
@@ -40,16 +41,9 @@ import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 
 @SuppressWarnings("serial")
 public class RichUserDetails implements UserDetails {
-  private final static Ordering<BodRole> BY_ROLE_SORT_ORDER_AND_INSTITUTE_NAME = Ordering.natural().onResultOf(
-      new Function<BodRole, String>() {
-        public String apply(BodRole role) {
-          return String.valueOf(role.getRole().getSortOrder());
-        }
-      });
 
   private final Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
@@ -204,8 +198,6 @@ public class RichUserDetails implements UserDetails {
   }
 
   private void sortRoles() {
-    bodRoles = BY_ROLE_SORT_ORDER_AND_INSTITUTE_NAME.sortedCopy(bodRoles);
-
-    log.warn("Sorted roles: {}", bodRoles);
+    Collections.sort(bodRoles);
   }
 }
