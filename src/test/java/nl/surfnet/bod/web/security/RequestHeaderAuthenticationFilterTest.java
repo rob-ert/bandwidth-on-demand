@@ -42,7 +42,7 @@ public class RequestHeaderAuthenticationFilterTest {
   @Test
   public void noShibbolethHeadersSetAndNotImitatingShouldGiveNull() {
     HttpServletRequest requestMock = mock(HttpServletRequest.class);
-    subject.setEnvironment(new Environment(false, "urn:dummy", "Dummy", "dummy@dummy.com"));
+    subject.setEnvironment(new Environment(false, "urn:dummy", "Dummy", "dummy@dummy.com", "shiblogout"));
 
     Object principal = subject.getPreAuthenticatedPrincipal(requestMock);
 
@@ -52,7 +52,7 @@ public class RequestHeaderAuthenticationFilterTest {
   @Test
   public void emptyShibbolethHeaderAndNotImitatingShouldGiveNull() {
     HttpServletRequest requestMock = mock(HttpServletRequest.class);
-    subject.setEnvironment(new Environment(false, "urn:dummy", "Dummy", "dummy@dummy.com"));
+    subject.setEnvironment(new Environment(false, "urn:dummy", "Dummy", "dummy@dummy.com", "shiblogout"));
 
     when(requestMock.getHeader(ShibbolethConstants.NAME_ID)).thenReturn("fake");
     when(requestMock.getHeader(ShibbolethConstants.DISPLAY_NAME)).thenReturn("");
@@ -65,7 +65,7 @@ public class RequestHeaderAuthenticationFilterTest {
   @Test
   public void shibbolethHeadersShoulGiveAPrincipal() {
     HttpServletRequest requestMock = mock(HttpServletRequest.class);
-    subject.setEnvironment(new Environment(false, "urn:dummy", "Dummy", "dummy@dummy.com"));
+    subject.setEnvironment(new Environment(false, "urn:dummy", "Dummy", "dummy@dummy.com", "shiblogout"));
 
     when(requestMock.getHeader(ShibbolethConstants.NAME_ID)).thenReturn("urn:truusvisscher");
     when(requestMock.getHeader(ShibbolethConstants.DISPLAY_NAME)).thenReturn("Truus Visscher");
@@ -76,10 +76,10 @@ public class RequestHeaderAuthenticationFilterTest {
     assertThat(((RichPrincipal) principal).getNameId(), is("urn:truusvisscher"));
   }
 
- @Test
+  @Test
   public void noShibbolethHeadersAndImitateShoulGiveAPrincipal() {
     HttpServletRequest requestMock = mock(HttpServletRequest.class);
-    subject.setEnvironment(new Environment(true, "urn:dummy", "Dummy", "dummy@dummy.com"));
+    subject.setEnvironment(new Environment(true, "urn:dummy", "Dummy", "dummy@dummy.com", "shiblogout"));
 
     Object principal = subject.getPreAuthenticatedPrincipal(requestMock);
 
