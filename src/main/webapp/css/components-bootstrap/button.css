@@ -1,12 +1,11 @@
-.btn {
+.btn-primary {
 	color: #fff;
 	text-shadow: none;
 	background-color: #0381a4;
-	background-image: -webkit-linear-gradient(top, #4FB3CF, #0381a4);
+	background-image: linear-gradient(top, #4FB3CF, #0381a4);
 }
 
-.btn:hover {
+.btn-primary:hover {
 	color: #fff;
 	background-color: #0381a4;
-	background-image: none;
 }
