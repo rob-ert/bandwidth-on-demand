@@ -128,6 +128,11 @@ app.form = function(){
             bandwidth = getMaxBandwidth() * parseFloat(event.target.getAttribute('data-bandwidth-multiplier'));
 
             $(event.target).closest('.controls').find('input').val(bandwidth).trigger('change');
+        });
+
+        $('[data-component="bandwidth-selector-source"]').on('change', function() {
+
+            $('[data-component="bandwidth-selector"] button').eq(1).trigger('click');
 
         });
 
