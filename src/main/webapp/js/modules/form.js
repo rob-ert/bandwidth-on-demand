@@ -87,7 +87,8 @@ app.form = function(){
     var initBandwidthSelector = function() {
 
         var selectedValues,
-            bandwidth = parseInt($('[data-component="bandwidth-selector"] input').val());
+            input = $('[data-component="bandwidth-selector"] input'),
+            bandwidth = parseInt(input.val());
 
         var getMaxBandwidth = function() {
             selectedValues = [];
@@ -127,7 +128,8 @@ app.form = function(){
 
             bandwidth = getMaxBandwidth() * parseFloat(event.target.getAttribute('data-bandwidth-multiplier'));
 
-            $(event.target).closest('.controls').find('input').val(bandwidth).trigger('change');
+            input.val(bandwidth).trigger('change');
+
         });
 
         $('[data-component="bandwidth-selector-source"]').on('change', function() {
