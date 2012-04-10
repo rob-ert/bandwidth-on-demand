@@ -22,7 +22,7 @@ public class SwitchRoleController {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
-  Environment environment;
+  private Environment environment;
 
   @RequestMapping(method = RequestMethod.POST)
   public String switchRole(final String roleId, final Model uiModel) {
