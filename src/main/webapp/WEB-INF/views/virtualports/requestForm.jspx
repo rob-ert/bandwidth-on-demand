@@ -8,67 +8,72 @@
 
     <spring:url value="/request" var="postUrl" />
 
-    <form:form action="${postUrl}" method="POST" modelAttribute="requestCommand">
-        <div class="clearfix">
-            <label><spring:message code="label_request_vp_to" /></label>
-            <div class="input input-text">ICT Manager(s) of '${physicalResourceGroup.institute.name}'</div>
-        </div>
-        <div class="clearfix">
-            <label><spring:message code="label_request_vp_from" /></label>
-            <div class="input input-text">
-                <c:out value="${user.displayName}" /> (<c:out value="${user.email}" />)
+    <form:form action="${postUrl}" method="POST" modelAttribute="requestCommand" cssClass="form-horizontal">
+        <fieldset>
+            <div class="control-group">
+                <label class="control-label"><spring:message code="label_request_vp_to" /></label>
+                <div class="controls">
+                    <output>ICT Manager(s) of '${physicalResourceGroup.institute.name}'</output>
+                </div>
             </div>
-        </div>
-        <div class="clearfix">
-            <label><spring:message code="label_request_vp_virtual_user_group" /></label>
-            <c:choose>
-                <c:when test="${fn:length(virtualResourceGroups) > 1}">
-                    <div class="input">
-                        <form:select path="virtualResourceGroupId" items="${virtualResourceGroups}" itemValue="id"
-                            itemLabel="name" />
-                    </div>
-                </c:when>
-                <c:otherwise>
-                    <div class="input input-text">
-                        <c:out value="${virtualResourceGroups[0].name}" />
-                        <input type="hidden" name="userGroupId" value="${virtualResourceGroups[0].surfconextGroupId}" />
-                    </div>
-                </c:otherwise>
-            </c:choose>
-        </div>
+            <div class="control-group">
+                <label class="control-label"><spring:message code="label_request_vp_from" /></label>
+                <div class="controls">
+                    <output><c:out value="${user.displayName}" /> (<c:out value="${user.email}" />)</output>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label"><spring:message code="label_request_vp_virtual_user_group" /></label>
+                <div class="controls">
+                    <c:choose>
+                        <c:when test="${fn:length(virtualResourceGroups) > 1}">
+                            <form:select path="virtualResourceGroupId" items="${virtualResourceGroups}" itemValue="id"
+                                    itemLabel="name" />
+                        </c:when>
+                        <c:otherwise>
+                            <output><c:out value="${virtualResourceGroups[0].name}" /></output>
+                            <input type="hidden" name="userGroupId" value="${virtualResourceGroups[0].surfconextGroupId}" />
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </div>
 
-        <c:set var="errors">
-            <form:errors path="bandwidth" />
-        </c:set>
-        <c:if test="${not empty errors}">
-            <c:set var="error_css" value="error" />
-        </c:if>
-        <div class="clearfix ${error_css}">
-            <label><spring:message code="label_request_vp_bandwidth" /></label>
-            <div class="input">
-                <form:input path="bandwidth" class="mini" /> Mbit/s
-                <form:errors cssClass="help-inline" id="_message_error_id" path="bandwidth" delimiter=", " />
+            <c:set var="errors">
+                <form:errors path="bandwidth" />
+            </c:set>
+            <c:if test="${not empty errors}">
+                <c:set var="error_css" value="error" />
+            </c:if>
+            <div class="control-group ${error_css}">
+                <label class="control-label"><spring:message code="label_request_vp_bandwidth" /></label>
+                <div class="controls">
+                    <div class="input-append">
+                        <form:input path="bandwidth" cssClass="input-medium" /><span class="add-on">Mbit/s</span>
+                    </div>
+                    <form:errors cssClass="help-inline" id="_message_error_id" path="bandwidth" delimiter=", " />
+                </div>
             </div>
-        </div>
 
-        <c:set var="errors">
-            <form:errors path="message" />
-        </c:set>
-        <c:if test="${not empty errors}">
-            <c:set var="error_css" value="error" />
-        </c:if>
-        <div class="clearfix ${error_css}">
-            <label><spring:message code="label_request_vp_message" /></label>
-            <div class="input">
-                <form:textarea path="message" rows="5" cssClass="xlarge" />
-                <form:errors cssClass="help-inline" id="_message_error_id" path="message" delimiter=", " />
-                <span class="help-block"><spring:message code="label_request_vp_message_help" /></span>
+            <c:set var="errors">
+                <form:errors path="message" />
+            </c:set>
+            <c:if test="${not empty errors}">
+                <c:set var="error_css" value="error" />
+            </c:if>
+            <div class="control-group ${error_css}">
+                <label class="control-label"><spring:message code="label_request_vp_message" /></label>
+                <div class="controls">
+                    <form:textarea path="message" rows="5" cssClass="xlarge" />
+                    <form:errors cssClass="help-inline" id="_message_error_id" path="message" delimiter=", " />
+                    <span class="help-block"><spring:message code="label_request_vp_message_help" /></span>
+                </div>
             </div>
-        </div>
-        <form:hidden path="physicalResourceGroupId" />
-        <div class="actions">
-            <spring:message code="label_request_vp_send_request" var="submitText" />
-            <input class="btn primary" type="submit" value="${submitText}" />
-        </div>
+            <form:hidden path="physicalResourceGroupId" />
+
+            <div class="actions">
+                <spring:message code="label_request_vp_send_request" var="submitText" />
+                <input class="btn btn-primary" type="submit" value="${submitText}" />
+            </div>
+        </fieldset>
     </form:form>
 </html>

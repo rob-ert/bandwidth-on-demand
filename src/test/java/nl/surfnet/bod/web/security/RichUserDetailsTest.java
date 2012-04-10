@@ -107,4 +107,24 @@ public class RichUserDetailsTest {
     assertThat(userDetails.getSelectedRole(), is(role1));
   }
 
+  @Test
+  public void shouldSortRoles() {
+    BodRole role1 = new BodRoleFactory().setRole(Security.RoleEnum.NOC_ENGINEER).create();
+    BodRole role2 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).create();
+    BodRole role3 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).create();
+    BodRole role4 = new BodRoleFactory().setRole(Security.RoleEnum.USER).create();
+
+    RichUserDetails userDetails = new RichUserDetailsFactory().create();
+    userDetails.setBodRoles(Lists.newArrayList(role4, role3, role2, role1));
+    userDetails.switchRoleTo(role3);
+
+    java.util.List<BodRole> sortedRoles = userDetails.getBodRoles();
+    assertThat(sortedRoles, hasSize(3));
+    
+    // Verify by sortOrder in enum
+    assertThat(sortedRoles.get(0), is(role1));    
+    assertThat(sortedRoles.get(1), is(role2));
+    assertThat(sortedRoles.get(2), is(role4));    
+  }
+
 }

@@ -24,6 +24,7 @@ package nl.surfnet.bod.web.security;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -265,6 +266,41 @@ public class RichUserDetailsServiceTest {
 
     assertThat(roles, hasSize(0));
   }
+
+  @Test
+  public void shouldAddUserRoleOnlyOnce() {
+    UserGroup userGroup1 = new UserGroupFactory().setName("new name one").create();
+    UserGroup userGroup2 = new UserGroupFactory().setName("new name two").create();
+    VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().create();
+    VirtualResourceGroup vrg2 = new VirtualResourceGroupFactory().create();
+
+    when(vrgServiceMock.findByUserGroups(listOf(userGroup1))).thenReturn(listOf(vrg1));
+    when(vrgServiceMock.findByUserGroups(listOf(userGroup2))).thenReturn(listOf(vrg2));
+    List<BodRole> roles = subject.determineRoles(listOf(userGroup1, userGroup2));
+
+    assertThat(roles, hasSize(1));
+    assertThat(Security.RoleEnum.USER, is(roles.get(0).getRole()));
+  }
+
+  @Test
+  public void shouldAddTwoManagerRolesBecauseOfDifferentInstitutes() {
+    UserGroup userGroup = new UserGroupFactory().create();
+    PhysicalResourceGroup prg1 = new PhysicalResourceGroupFactory().setAdminGroup(userGroup.getId()).create();
+    PhysicalResourceGroup prg2 = new PhysicalResourceGroupFactory().setAdminGroup(userGroup.getId()).create();
+
+    when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg1, prg2));
+    when(prgServiceMock.findAllForAdminGroups(listOf(userGroup))).thenReturn(listOf(prg1, prg2));
+
+    List<BodRole> roles = subject.determineRoles(listOf(userGroup));
+    assertThat(roles, hasSize(2));
+
+    assertThat(roles.get(0).getRole(), is(Security.RoleEnum.ICT_MANAGER));
+    assertThat(roles.get(1).getRole(), is((Security.RoleEnum.ICT_MANAGER)));
+    
+    //Different institutes
+    assertThat(roles.get(0).getInstituteId(), not(roles.get(1).getInstituteId()));
+  }
+
 
   private static <E> ImmutableList<E> listOf(E... elements) {
     return ImmutableList.copyOf(elements);

@@ -9,14 +9,18 @@
     <form:update id="fc_PhysicalPort" modelAttribute="updateManagerLabelCommand" path="/manager/physicalports">
         <field:input field="managerLabel" id="managerLabel" labelCode="physicalPort_managerLabel" />
 
-        <div class="clearfix">
-            <label><spring:message code="label_physicalport_name" /></label>
-            <div class="input input-text">${physicalPort.nocLabel}</div>
+        <div class="control-group">
+            <label class="control-label"><spring:message code="label_physicalport_name" /></label>
+            <div class="controls">
+                <output>${physicalPort.nocLabel}</output>
+            </div>
         </div>
 
-        <div class="clearfix">
-            <label><spring:message code="label_physicalresourcegroup" /></label>
-            <div class="input input-text">${physicalPort.physicalResourceGroup.name}</div>
+        <div class="control-group">
+            <label class="control-label"><spring:message code="label_physicalresourcegroup" /></label>
+            <div class="controls">
+                <output>${physicalPort.physicalResourceGroup.name}</output>
+            </div>
         </div>
     </form:update>
 

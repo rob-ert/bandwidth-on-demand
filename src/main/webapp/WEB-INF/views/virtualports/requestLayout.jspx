@@ -9,7 +9,7 @@
 
     <div class="row">
 
-        <div class="span9">
+        <div class="span8">
             <section>
                 <h1><spring:message code="label_request_vp" /></h1>
                 <div class="content">
@@ -18,7 +18,7 @@
             </section>
         </div>
 
-        <div class="span3">
+        <div class="span4">
             <section>
                 <h2><spring:message code="label_help_text_header" /></h2>
                 <div class="content-dense">

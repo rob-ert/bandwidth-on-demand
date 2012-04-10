@@ -80,7 +80,7 @@ $(function() {
       startDateVal = $startDate.val();
 
   $("#now_chk").click(function() {
-    $startTime.closest("div.clearfix").toggle('slow');
+    $startTime.closest("div.control-group").toggle('slow');
     if ($startDate.attr('disabled')) {
       $startDate.val(startDateVal);
       $startTime.val(startTimeVal);

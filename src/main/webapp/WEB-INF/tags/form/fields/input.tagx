@@ -58,13 +58,13 @@
         
         <c:set var="errors"><form:errors path="${sec_field}" /></c:set>
         <c:if test="${not empty errors}">
-            <c:set var="error_css" value="error" />
+            <c:set var="error_css" value=" error" />
         </c:if>
         
-        <div class="clearfix ${error_css}">
-            <label for="_${sec_field}_id"> <c:out value="${fn:escapeXml(label)}" /> </label>
+        <div class="control-group${error_css}">
+            <label for="_${sec_field}_id" class="control-label"> <c:out value="${fn:escapeXml(label)}" /> </label>
 
-            <div class="input">
+            <div class="controls">
                 <c:choose>
                     <c:when test="${disableFormBinding}">
                         <input id="_${sec_field}_id" name="${sec_field}" type="${fn:escapeXml(type)}" />

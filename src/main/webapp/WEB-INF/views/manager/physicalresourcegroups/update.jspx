@@ -8,7 +8,7 @@
 
     <div class="row">
 
-        <div class="span9">
+        <div class="span8">
 
             <form:update id="fc_PhysicalResourceGroup" modelAttribute="updateEmailCommand"
                 path="/manager/physicalresourcegroups" noLabel="true">
@@ -18,18 +18,17 @@
                 <c:if test="${not empty errors}">
                     <c:set var="error_css" value="error" />
                 </c:if>
-                <div class="clearfix ${error_css}">
-                    <label> <spring:message code="label_physicalresourcegroup_manageremail" />
-                    </label>
-                    <div class="input">
+                <div class="control-group ${error_css}">
+                    <label class="control-label"><spring:message code="label_physicalresourcegroup_manageremail" /></label>
+                    <div class="controls">
                         <div class="input-append">
                             <sform:input id="_manageremail_id" path="managerEmail" type="email" />
                             <c:choose>
                                 <c:when test="${physicalResourceGroup.active}">
-                                    <span class="success add-on">Active</span>
+                                    <span class="add-on">Active</span>
                                 </c:when>
                                 <c:otherwise>
-                                    <span class="important add-on">Inactive</span>
+                                    <span class="add-on">Inactive</span>
                                 </c:otherwise>
                             </c:choose>
                             <sform:errors cssClass="help-inline" id="_manageremail_error_id" path="managerEmail"
@@ -38,20 +37,24 @@
                     </div>
                 </div>
 
-                <div class="clearfix">
-                    <label><spring:message code="label_physicalresourcegroup_name" /></label>
-                    <div class="input input-text">${physicalResourceGroup.institute.name}</div>
+                <div class="control-group">
+                    <label class="control-label"><spring:message code="label_physicalresourcegroup_name" /></label>
+                    <div class="controls">
+                        <output>${physicalResourceGroup.institute.name}</output>
+                    </div>
                 </div>
 
-                <div class="clearfix">
-                    <label><spring:message code="label_physicalresourcegroup_admingroup" /></label>
-                    <div class="input input-text">${physicalResourceGroup.adminGroup}</div>
+                <div class="control-group">
+                    <label class="control-label"><spring:message code="label_physicalresourcegroup_admingroup" /></label>
+                    <div class="controls">
+                        <output>${physicalResourceGroup.adminGroup}</output>
+                    </div>
                 </div>
             </form:update>
             
         </div>
 
-        <div class="span3">
+        <div class="span4">
 
             <section>
                 <h2>Change Email Address</h2>

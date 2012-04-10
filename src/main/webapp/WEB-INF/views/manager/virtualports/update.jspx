@@ -9,7 +9,7 @@
     <spring:url value="/physicalresourcegroups/{}/ports" var="ppUrl" />
 
     <div class="row">
-        <div class="span9">
+        <div class="span8">
             <form:update id="fc_VirtualPort" modelAttribute="virtualPortUpdateCommand" path="/manager/virtualports">
                 <field:input field="managerLabel" id="name" labelCode="virtualport_name" />
                 <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_max_bandwidth" />
@@ -28,7 +28,7 @@
                     showSingle="true" />
             </form:update>
         </div>
-        <div class="span3">
+        <div class="span4">
             <section>
                 <h2><spring:message code="label_help_text_header" /></h2>
                 <div class="content">

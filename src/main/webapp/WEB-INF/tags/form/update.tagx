@@ -34,7 +34,7 @@
         <section>
             <h1><spring:message code="entity_update" arguments="${label}" /></h1>
             <div class="content">
-                <form:form action="${form_url}" method="PUT" modelAttribute="${modelAttribute}" enctype="${enctype}">
+                <form:form action="${form_url}" method="PUT" modelAttribute="${modelAttribute}" enctype="${enctype}" cssClass="form-horizontal">
                     <c:set var="errors"><form:errors /></c:set>
                     <c:if test="${not empty errors}">
                         <div class="row">
@@ -49,15 +49,14 @@
 
                     <fieldset>
                         <jsp:doBody />
-                    </fieldset>
 
-                    <div class="actions" id="${fn:escapeXml(id)}_submit">
-                        <spring:message code="button_save" var="save_button" htmlEscape="false" />
-                        <spring:message code="button_cancel" var="cancel_button" htmlEscape="false" />
-                        <input id="proceed" type="submit" value="${fn:escapeXml(save_button)}" class="btn primary" />
-                        <c:out value=" " />
-                        <a href="${form_url}" class="btn">${cancel_button}</a>
-                    </div>
+                        <div class="actions" id="${fn:escapeXml(id)}_submit">
+                            <spring:message code="button_save" var="save_button" htmlEscape="false" />
+                            <input id="proceed" type="submit" value="${fn:escapeXml(save_button)}" class="btn btn-primary" />
+                            <c:out value=" " />
+                            <a href="${form_url}" class="btn"><spring:message code="button_cancel" /></a>
+                        </div>
+                    </fieldset>
 
                     <form:hidden id="_${fn:escapeXml(idField)}_id" path="${fn:escapeXml(idField)}" />
                     <c:if test="${versionField ne 'none'}">
