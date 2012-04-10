@@ -32,63 +32,63 @@
             
             <section class="user-box content-dense">
                 <span class="user-name"><sec:authentication property="principal.displayName" htmlEscape="false"/></span>
-            	   <spring:url value="/switchrole/logout" var="logoutUrl" />
+            	<spring:url value="/switchrole/logout" var="logoutUrl" />
                  
                 <a href="${logoutUrl}" class="logout">Logout <i class="icon-signout"><!-- --></i></a>
                 
-               <br/> 
-               <div class="dropdown dropdown-disabled">
-               <sec:authentication property="principal.bodRoles"  var="bodRoles"/>
-               <c:choose>               	
-               	<c:when test="${not empty bodRoles}">
-                     <sec:authentication property='principal.selectedRole'  var="selectedRole" />
-                     <spring:message  code="role_class_${selectedRole.roleName}" var="s_role_class"/>                     
-                    <div class="dropdown-toggle ${s_role_class}" data-toggle="dropdown">                    	  
-                        <span class="user-icon"><!--  --></span>
-                        <span class="user-title"><spring:message  code="role_${selectedRole.roleName}"/></span>
-                        <b class="caret"><!--  --></b>
-                        <span class="user-group">
-                        		<c:choose>
-                        			<c:when test="${not empty selectedRole.instituteName}">
-                        				<c:out value="${selectedRole.instituteName}"/>				
-                        			</c:when>
-                        			<c:otherwise>
-                        				<!--  -->
-                        			</c:otherwise>
-                       		</c:choose>                        		
-                        	</span>
-                    </div>            
-                     <spring:url value="/switchrole" var="postUrl" />
-                    <form action="${postUrl}" method="POST" class="dropdown-menu">
-	                    <ul>		                     
-		                    	 <c:forEach items="${bodRoles}" var="bodRole">	                    	  
-			                     	  <spring:message  code="role_class_${bodRole.roleName}" var="role_class"/>			                    
-			                        <li class="${role_class}" data-roleId="${bodRole.id}">
-		                                <span class="user-icon"><!--  --></span>
-		                                <span class="user-title"><spring:message  code="role_${bodRole.roleName}"/></span>
-		                                <span class="user-group">		                                
-			                                <c:choose>
-				                        			<c:when test="${not empty bodRole.instituteName}">
-				                      				<c:out value="${bodRole.instituteName}"/>
-				                        			</c:when>
-				                        			<c:otherwise>
-				                        				<!--  -->
-				                        			</c:otherwise>
-	                       					</c:choose>
-	                       				</span>		                                
-			                        </li>         
-		                     </c:forEach>               
-	                    </ul>
-	                  </form>        
-                     </c:when>
-		                 <c:otherwise>
-	                     		 <spring:message  code="role_class_DEFAULT" var="role_class"/>		
-	                     		  <div class="dropdown-toggle ${role_class}" data-toggle="dropdown">	                    
-	                                <span class="user-icon"><!--  --></span>
-	                                <span class="user-title"><spring:message  code="role_DEFAULT"/></span>
-								</div>
-		        			</c:otherwise>
-				</c:choose>
+                <br/>
+                <div class="dropdown dropdown-disabled">
+                    <sec:authentication property="principal.bodRoles" var="bodRoles"/>
+                    <c:choose>
+                        <c:when test="${not empty bodRoles}">
+                            <sec:authentication property="principal.selectedRole" var="selectedRole" />
+                            <spring:message code="role_class_${selectedRole.roleName}" var="s_role_class"/>
+                            <div class="dropdown-toggle ${s_role_class}" data-toggle="dropdown">
+                                <span class="user-icon"><!--  --></span>
+                                <span class="user-title"><spring:message  code="role_${selectedRole.roleName}"/></span>
+                                <b class="caret"><!--  --></b>
+                                <span class="user-group">
+                            		<c:choose>
+                            			<c:when test="${not empty selectedRole.instituteName}">
+                            				<c:out value="${selectedRole.instituteName}"/>
+                            			</c:when>
+                            			<c:otherwise>
+                            				<!--  -->
+                            			</c:otherwise>
+                           		   </c:choose>
+                            	</span>
+                            </div>
+                            <spring:url value="/switchrole" var="postUrl" />
+                            <form action="${postUrl}" method="POST" class="dropdown-menu">
+                                <ul>
+                                    <c:forEach items="${bodRoles}" var="bodRole">
+                                        <spring:message  code="role_class_${bodRole.roleName}" var="role_class"/>
+    			                        <li class="${role_class}" data-roleId="${bodRole.id}">
+    		                                <span class="user-icon"><!--  --></span>
+    		                                <span class="user-title"><spring:message  code="role_${bodRole.roleName}"/></span>
+    		                                <span class="user-group">
+    			                                <c:choose>
+                                                    <c:when test="${not empty bodRole.instituteName}">
+                                                        <c:out value="${bodRole.instituteName}"/>
+    			                        			</c:when>
+    			                        			<c:otherwise>
+    			                        				<!--  -->
+    			                        			</c:otherwise>
+    	                       					</c:choose>
+    	                       				</span>
+    			                        </li>
+                                    </c:forEach>
+                                </ul>
+                            </form>
+                        </c:when>
+                        <c:otherwise>
+                            <spring:message  code="role_class_DEFAULT" var="role_class"/>
+                            <div class="dropdown-toggle ${role_class}" data-toggle="dropdown">
+                                <span class="user-icon"><!--  --></span>
+                                <span class="user-title"><spring:message  code="role_DEFAULT"/></span>
+                            </div>
+                        </c:otherwise>
+    				</c:choose>
                 </div>
             </section>
             
