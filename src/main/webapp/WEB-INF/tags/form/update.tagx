@@ -54,7 +54,7 @@
                             <spring:message code="button_save" var="save_button" htmlEscape="false" />
                             <input id="proceed" type="submit" value="${fn:escapeXml(save_button)}" class="btn btn-primary" />
                             <c:out value=" " />
-                            <a href="${form_url}" class="btn"><spring:message code="button_cancel" /></a>
+                            <a href="${form_url}"><spring:message code="button_cancel" /></a>
                         </div>
                     </fieldset>
 
