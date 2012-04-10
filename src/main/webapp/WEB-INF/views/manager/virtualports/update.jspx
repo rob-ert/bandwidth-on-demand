@@ -30,7 +30,7 @@
         </div>
         <div class="span3">
             <section>
-                <h2>..</h2>
+                <h2><spring:message code="label_help_text_header" /></h2>
                 <div class="content">
                     <h3>Port properties</h3>
                     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sagittis, mi vel ultrices

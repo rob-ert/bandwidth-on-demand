@@ -79,7 +79,7 @@
         </div>
         <div class="span3">
             <section>
-                <h2>.</h2>
+                <h2><spring:message code="label_help_text_header" /></h2>
                 <div class="content">
                     <h3>Source and Destination</h3>
                     <p>Select the source and destination port for your reservation, if you are member of more then one group

@@ -20,7 +20,7 @@
 
         <div class="span3">
             <section>
-                <h2>.</h2>
+                <h2><spring:message code="label_help_text_header" /></h2>
                 <div class="content-dense">
                     <h3>Choose the Institute</h3>
                     <p>Select the institute you want to connect to from the list with with institutes that offer bandwidth
