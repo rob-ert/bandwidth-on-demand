@@ -164,14 +164,44 @@
                                     </div>
 
                                     <div class="control-group">
-                                        <label class="control-label">Text input (w/ add. checkbox)</label>
+                                        <label class="control-label">Text input (date + now)</label>
                                         <div class="controls">
-                                            <input type="text" class="input-xlarge">
-                                            <span class="help-inline">
-                                                <label class="checkbox inline">
-                                                    <input type="checkbox" value="now"> now
-                                                </label>
-                                            </span>
+                                            <div class="input-append">
+                                                <input type="text" class="input-date"><span class="add-on">yyyy-mm-dd</span>
+                                                <span class="help-inline">
+                                                    <label class="checkbox inline">
+                                                        <input type="checkbox" value="now"> now
+                                                    </label>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Text input (disabled)</label>
+                                        <div class="controls">
+                                            <div class="input-append">
+                                                <input type="text" class="input-date" disabled><span class="add-on">yyyy-mm-dd</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Text input (time)</label>
+                                        <div class="controls">
+                                            <div class="input-append">
+                                                <input type="text" class="input-time"><span class="add-on">hh:mm</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
+                                        <label class="control-label">Text input (date + time)</label>
+                                        <div class="controls">
+                                            <div class="input-append">
+                                                <input type="text" class="input-small"><span class="add-on">yyyy:mm:dd</span>
+                                                <input type="text" class="input-small">
+                                            </div>
                                         </div>
                                     </div>
 
