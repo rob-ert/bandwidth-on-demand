@@ -4,12 +4,10 @@
 
     <jsp:output omit-xml-declaration="yes" />
 
-    <c:set value="true" var="development"  />
+    <c:set value="true" var="development" />
 
     <bod:css value="/resources/css/bootstrap-2.0.2.min.css" />
     <bod:css value="/resources/css/font-awesome.css" />
-    <bod:css value="/resources/js/autoSuggestv14/autoSuggest.css" />
-    <bod:css value="/resources/js/datepicker/datepicker.css" />
     <c:choose>
         <c:when test="${development}">
             <bod:css value="/resources/css/layout.css" />
@@ -22,6 +20,8 @@
             <bod:css value="/resources/css/components-bootstrap/alert.css" />
             <bod:css value="/resources/css/components-bootstrap/button.css" />
             <bod:css value="/resources/css/components-bootstrap/form.css" />
+            <bod:css value="/resources/css/components/autoSuggest.css" />
+            <bod:css value="/resources/css/components/datepicker.css" />
             <bod:css value="/resources/css/components/user-box.css" />
         </c:when>
         <c:otherwise>
@@ -30,18 +30,18 @@
     </c:choose>
 
     <bod:script value="/resources/js/jquery/jquery-1.7.2.min.js" />
-    <bod:script value="/resources/js/jquery/jquery-socket-1.0a.js" />
     <bod:script value="/resources/js/bootstrap/bootstrap-2.0.2.min.js" />
-    <bod:script value="/resources/js/autoSuggestv14/jquery.autoSuggest.js" />
-    <bod:script value="/resources/js/datepicker/datepicker.js" />
     <bod:script value="/resources/js/tools/prefixfree.min.js" />
     <c:choose>
         <c:when test="${development}">
-            <bod:script value="/resources/js/dropdown-reload.js" />
             <bod:script value="/resources/js/main.js" />
             <bod:script value="/resources/js/modules/form.js" />
             <bod:script value="/resources/js/modules/message.js"  />
             <bod:script value="/resources/js/modules/table.js" />
+            <bod:script value="/resources/js/jquery/dropdown-reload.js" />
+            <bod:script value="/resources/js/jquery/jquery-autoSuggest.js" />
+            <bod:script value="/resources/js/jquery/jquery-socket-1.0a.js" />
+            <bod:script value="/resources/js/datepicker/datepicker.js" />
         </c:when>
         <c:otherwise>
             <bod:script value="/resources/js/script.min.js" />

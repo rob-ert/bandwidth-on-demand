@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.surfnet.bod</groupId>
     <artifactId>bod</artifactId>
@@ -19,14 +20,13 @@
     <scm>
         <developerConnection>scm:git:gitolite@atlas.dlp.surfnet.nl:bandwidth-on-demand.git</developerConnection>
     </scm>
-
     <dependencies>
         <dependency>
             <groupId>nl.surfnet.bod</groupId>
             <artifactId>bod-opendrac</artifactId>
             <version>0.1.0</version>
-	   </dependency>
-        <!--  Begin logging -->
+        </dependency>
+        <!-- Begin logging -->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -48,7 +48,6 @@
             <version>${slf4j.version}</version>
         </dependency>
         <!-- End logging -->
-
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -60,7 +59,6 @@
             <artifactId>mail</artifactId>
             <version>1.4.4</version>
         </dependency>
-
         <!-- Spring dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -320,7 +318,6 @@
             <artifactId>opensocial-java-client</artifactId>
             <version>1.16.1-coin</version>
         </dependency>
-
         <!-- Begin Axis1 for IDD (needed for rpc style encoding of IDD) -->
         <dependency>
             <groupId>org.apache.axis</groupId>
@@ -341,7 +338,6 @@
             <scope>compile</scope>
         </dependency>
         <!-- End Axis1 -->
-
         <!-- Begin test libraries -->
         <dependency>
             <groupId>org.hamcrest</groupId>
@@ -374,7 +370,6 @@
             </exclusions>
         </dependency>
         <!-- End test libraries -->
-
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
@@ -392,7 +387,6 @@
             <artifactId>jetty-websocket</artifactId>
             <version>${jetty.version}</version>
         </dependency>
-
         <!-- Begin Selenium -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
@@ -413,7 +407,6 @@
             <scope>test</scope>
         </dependency>
         <!-- End Selenium -->
-
         <!-- Begin Database dependencies -->
         <dependency>
             <groupId>postgresql</groupId>
@@ -444,7 +437,6 @@
         </dependency>
         <!-- End Databse dependencies -->
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -529,7 +521,6 @@
                     </dependency>
                 </dependencies>
             </plugin>
-
             <!-- Generates the classes for IDD based on the wsdl -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -625,9 +616,47 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            <plugin>
+                <groupId>com.samaxes.maven</groupId>
+                <artifactId>maven-minify-plugin</artifactId>
+                <version>1.3.5</version>
+                <executions>
+                    <execution>
+                        <id>default-minify</id>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <cssSourceDir>css</cssSourceDir>
+                            <cssSourceIncludes>
+                                <cssSourceInclude>components/*.css</cssSourceInclude>
+                                <cssSourceInclude>components-bootstrap/*.css</cssSourceInclude>
+                            </cssSourceIncludes>
+                            <cssSourceFiles>
+                                <cssSourceFile>layout.css</cssSourceFile>
+                                <cssSourceFile>generic.css</cssSourceFile>
+                            </cssSourceFiles>
+                            <cssFinalFile>style.css</cssFinalFile>
+
+                            <jsSourceDir>js</jsSourceDir>
+                            <jsSourceIncludes>
+                                <jsSourceInclude>modules/*.js</jsSourceInclude>
+                            </jsSourceIncludes>
+                            <jsSourceFiles>
+                                <jsSourceFile>jquery/jquery-autoSuggest.js</jsSourceFile>
+                                <jsSourceFile>jquery/jquery-socket-1.0a.js</jsSourceFile>
+                                <jsSourceFile>jquery/dropdown-reload.js</jsSourceFile>
+                                <jsSourceFile>datepicker/datepicker.js</jsSourceFile>
+                                <jsSourceFile>main.js</jsSourceFile>
+                            </jsSourceFiles>
+                            <jsFinalFile>script.js</jsFinalFile>
+                        </configuration>
+                        <goals>
+                            <goal>minify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
             <id>selenium-server</id>
