@@ -62,3 +62,15 @@
     background-position: 3px -31px;
 }
 
+/* dev menu (only visible if dev is enabled) */
+.dev-nav {
+    display: inline;
+    list-style-type: none;
+}
+.dev-nav li {
+    display: inline;
+}
+.dev-nav li:first-child:before,
+.dev-nav li:after {
+    content: "|";
+}

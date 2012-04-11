@@ -1,7 +1,7 @@
 <html xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:spring="http://www.springframework.org/tags"
     xmlns:sec="http://www.springframework.org/security/tags" xmlns:menu="urn:jsptagdir:/WEB-INF/tags/menu"
-    xmlns:util="urn:jsptagdir:/WEB-INF/tags/util">
+    xmlns:bod="BodTags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util">
 
     <jsp:output doctype-root-element="HTML" doctype-system="about:legacy-compat" />
     
@@ -15,6 +15,8 @@
     <spring:message code="button_home" var="home_label" />
     <spring:message var="app_name" code="application_name" />
     
+    <bod:env property="development" var="dev" />
+
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
@@ -30,10 +32,18 @@
             </header>
             
             <section class="user-box content-dense">
-                <spring:url value="/admin/refreshMessages" var="refresh_messages_url"/>
                 <span class="user-name">
                     <sec:authentication property="principal.displayName"/>
-                    <a href="${refresh_messages_url}" style="margin-left:10px">&#xA0;</a>
+                    <c:if test="${dev}">
+                        <spring:url value="/admin/refreshMessages" var="refresh_messages_url"/>
+                        <spring:url value="/shibboleth/refresh" var="refresh_shib_url" />
+                        <spring:url value="/shibboleth/groups" var="groups_url" />
+                        <ul class="dev-nav">
+                            <li><a href="${refresh_messages_url}" rel="tooltip" title="Refresh messages">R</a></li>
+                            <li><a href="${refresh_shib_url}" rel="tooltip" title="Refresh Shibboleth">S</a></li>
+                            <li><a href="${groups_url}" rel="tooltip" title="Show groups">G</a></li>
+                        </ul>
+                    </c:if>
                 </span>
             	<spring:url value="/switchrole/logout" var="logoutUrl" />
                  
