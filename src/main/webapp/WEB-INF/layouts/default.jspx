@@ -31,7 +31,11 @@
             </header>
             
             <section class="user-box content-dense">
-                <span class="user-name"><sec:authentication property="principal.displayName" htmlEscape="false"/></span>
+                <spring:url value="/admin/refreshMessages" var="refresh_messages_url"/>
+                <span class="user-name">
+                    <sec:authentication property="principal.displayName" htmlEscape="false"/>
+                    <a href="${refresh_messages_url}" style="margin-left:10px;width:5px;height:5px;float:right;"></a>
+                </span>
             	<spring:url value="/switchrole/logout" var="logoutUrl" />
                  
                 <a href="${logoutUrl}" class="logout">Logout <i class="icon-signout"><!-- --></i></a>
