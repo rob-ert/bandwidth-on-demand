@@ -104,3 +104,11 @@ section h2 {
     margin: 0 0 2em 0.95em;
 }
 
+.tasks {
+    list-style: none;
+    margin: 0;
+}
+
+.tasks li {
+    margin-bottom: 1.5em;
+}
