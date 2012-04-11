@@ -10,62 +10,55 @@
     text-decoration: none;
 }
 
-.user-box .user-role {
-    font-size: 10px;
-    color: #8c8c8c;
-}
-
-.user-box .user-group {
-    display: block;
-}
-
-.user-box .user-icon {
-    float: left;
-    margin: 0 5px 5px 0;
-    height: 27px;
-    width: 27px;
-}
-
-.user-box .user-icon {
+.user-box .user {
+    padding-left: 40px;
     background: url("../../images/icons-users.png");
     background-repeat: no-repeat;
 }
 
-.user-box .user-role-default .user-icon {
-    background-position: 0 -108px;
-}
-
-.user-box .user-role-manager .user-icon {
-    background-position: 0 3px;
-}
-
-.user-box .user-role-user .user-icon {
-    background-position: 0 -71px;
-}
-.user-box .user-role-noc .user-icon {
-    background-position: 0 -34px;
-}
-
-.user-box .user-name {
-    display: inline-block;
-    margin-bottom: 8px;
-}
-
 .user-box .dropdown ul {
-    margin-left: 0;
+    margin: 0;
     list-style: none;
 }
 
 .user-box .dropdown li {
     clear:left;
     cursor: pointer;
+    display: table;
+    width: 100%;
+    border-bottom: 1px solid #EEE;
+}
+
+.user-box .dropdown li:last-child {
+    border-bottom: none;
 }
 
 .user-box .dropdown li:hover {
     background-color: #EBEBEB;
 }
 
-.user-box .dropdown-toggle,
-.user-box .dropdown li {
-    min-height: 3.273em; /* 36/11 ~ 3.273px */
+.user-box .dropdown .user {
+    display: table-cell;
+    vertical-align: middle;
 }
+
+.user-box .dropdown .user,
+.user-box .dropdown-toggle {
+    height: 3.273em; /* 36/11px ~ 3.273em */
+}
+
+.user-box .user-role-default > .user {
+    background-position: 3px -105px;
+}
+
+.user-box .user-role-manager > .user {
+    background-position: 3px 6px;
+}
+
+.user-box .user-role-user > .user {
+    background-position: 3px -68px;
+}
+.user-box .user-role-noc > .user {
+    background-position: 3px -31px;
+}
+
