@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import java.util.List;
-
 import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -33,7 +31,6 @@ import nl.surfnet.bod.web.security.Security;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -96,8 +93,12 @@ public class PhysicalResourceGroupController {
   }
 
   @RequestMapping(method = RequestMethod.GET)
-  protected List<PhysicalResourceGroup> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return Lists.newArrayList(physicalResourceGroupService.find(WebUtils.getSelectedPhysicalResourceGroupId()));
+  protected String list(Model model) {
+
+    model.addAttribute(WebUtils.DATA_LIST,
+        Lists.newArrayList(physicalResourceGroupService.find(WebUtils.getSelectedPhysicalResourceGroupId())));
+
+    return "manager/physicalresourcegroups/list";
   }
 
   public static final class UpdateEmailCommand {
