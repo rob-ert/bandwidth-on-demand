@@ -5,8 +5,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.security.Security.RoleEnum;
 
-import org.springframework.util.StringUtils;
-
 import com.google.common.base.Objects;
 
 /**
@@ -20,7 +18,7 @@ import com.google.common.base.Objects;
  * @author Franky
  * 
  */
-public class BodRole implements Comparable<BodRole> {
+public class BodRole {
 
   private static final AtomicLong COUNTER = new AtomicLong();
 
@@ -31,6 +29,7 @@ public class BodRole implements Comparable<BodRole> {
   private final RoleEnum role;
   private Long instituteId;
   private String instituteName;
+  private Long physicalResourceGroupId;
 
   public BodRole(UserGroup userGroup, Security.RoleEnum role) {
     this.id = COUNTER.incrementAndGet();
@@ -40,10 +39,11 @@ public class BodRole implements Comparable<BodRole> {
     this.role = role;
   }
 
-  public BodRole(UserGroup userGroup, Security.RoleEnum role, Institute institute) {
+  public BodRole(UserGroup userGroup, Security.RoleEnum role, PhysicalResourceGroup physicalResourceGroup) {
     this(userGroup, role);
-    this.instituteId = institute.getId();
-    this.instituteName = institute.getName();
+    this.instituteId = physicalResourceGroup.getInstituteId();
+    this.instituteName = physicalResourceGroup.getName();
+    this.physicalResourceGroupId = physicalResourceGroup.getId();
   }
 
   public Long getId() {
@@ -56,6 +56,10 @@ public class BodRole implements Comparable<BodRole> {
 
   public Long getInstituteId() {
     return instituteId;
+  }
+
+  public Long getPhysicalResourceGroupId() {
+    return physicalResourceGroupId;
   }
 
   public String getGroupId() {
@@ -87,7 +91,8 @@ public class BodRole implements Comparable<BodRole> {
     if (obj instanceof BodRole) {
       BodRole bodRole = (BodRole) obj;
 
-      return Objects.equal(this.role, bodRole.getRole()) && Objects.equal(this.instituteId, bodRole.getInstituteId());
+      return Objects.equal(this.role, bodRole.getRole())
+          && Objects.equal(this.physicalResourceGroupId, bodRole.getPhysicalResourceGroupId());
     }
     else {
       return false;
@@ -96,33 +101,14 @@ public class BodRole implements Comparable<BodRole> {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(role, instituteId);
+    return Objects.hashCode(role, physicalResourceGroupId);
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("id", id).add("groupId", groupId).add("groupName", groupName)
         .add("groupDescription", groupDescription).add("role", role).add("instituteId", instituteId)
-        .add("instituteName", instituteName).toString();
+        .add("instituteName", instituteName).add("physicalResourceGroupId", physicalResourceGroupId).toString();
   }
 
-  @Override
-  public int compareTo(BodRole anOtherRole) {
-
-    if (!(anOtherRole instanceof BodRole)) {
-      throw new ClassCastException("A BodRole object was expected");
-    }
-    String sortStringThis = String.valueOf(this.getRole().getSortOrder());
-    String sortStringTwo = String.valueOf(anOtherRole.getRole().getSortOrder());
-
-    if (StringUtils.hasText(this.getInstituteName())) {
-      sortStringThis = sortStringThis.concat(this.getInstituteName());
-    }
-
-    if (StringUtils.hasText(anOtherRole.getInstituteName())) {
-      sortStringTwo = sortStringTwo + anOtherRole.getInstituteName();
-    }
-
-    return sortStringThis.compareTo(sortStringTwo);
-  }
 }

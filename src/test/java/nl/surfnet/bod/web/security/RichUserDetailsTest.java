@@ -28,8 +28,10 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.support.BodRoleFactory;
 import nl.surfnet.bod.support.InstituteFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 
 import org.hamcrest.Matchers;
@@ -116,9 +118,11 @@ public class RichUserDetailsTest {
     BodRole role3 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).create();
     BodRole role4 = new BodRoleFactory().setRole(Security.RoleEnum.USER).create();
 
-    RichUserDetails userDetails = new RichUserDetailsFactory().create();
+    RichUserDetails userDetails = new RichUserDetailsFactory().setSelectedRole(null).create();
     userDetails.setBodRoles(Lists.newArrayList(role4, role3, role2, role1));
+
     userDetails.switchRoleTo(role3);
+    assertThat(userDetails.getSelectedRole(), is(role3));
 
     java.util.List<BodRole> sortedRoles = userDetails.getBodRoles();
     assertThat(sortedRoles, hasSize(3));
@@ -133,15 +137,21 @@ public class RichUserDetailsTest {
   public void shouldSortRolesTestOnInstituteName() {
     Institute firstInstitute = new InstituteFactory().setName("AAA").create();
     Institute lastInstitute = new InstituteFactory().setName("ZZZ").create();
+    PhysicalResourceGroup firstGroup = new PhysicalResourceGroupFactory().setInstitute(firstInstitute).create();
+    PhysicalResourceGroup lastGroup = new PhysicalResourceGroupFactory().setInstitute(lastInstitute).create();
 
     BodRole role1 = new BodRoleFactory().setRole(Security.RoleEnum.NOC_ENGINEER).create();
-    BodRole role2 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).setInstitute(firstInstitute).create();
-    BodRole role3 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).setInstitute(lastInstitute).create();
-    BodRole role4 = new BodRoleFactory().setRole(Security.RoleEnum.USER).setInstitute(firstInstitute).create();
+    BodRole role2 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).setPhysicalResourceGroup(firstGroup)
+        .create();
+    BodRole role3 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).setPhysicalResourceGroup(lastGroup)
+        .create();
+    BodRole role4 = new BodRoleFactory().setRole(Security.RoleEnum.USER).setPhysicalResourceGroup(firstGroup).create();
 
-    RichUserDetails userDetails = new RichUserDetailsFactory().create();
+    RichUserDetails userDetails = new RichUserDetailsFactory().setSelectedRole(null).create();
     userDetails.setBodRoles(Lists.newArrayList(role4, role3, role2, role1));
+
     userDetails.switchRoleTo(role1);
+    assertThat(userDetails.getSelectedRole(), is(role1));
 
     java.util.List<BodRole> sortedRoles = userDetails.getBodRoles();
     assertThat(sortedRoles, hasSize(3));

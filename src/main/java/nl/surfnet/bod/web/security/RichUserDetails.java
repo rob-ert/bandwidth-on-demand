@@ -25,7 +25,7 @@ import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import nl.surfnet.bod.domain.BodRole;
@@ -41,6 +41,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 
 @SuppressWarnings("serial")
 public class RichUserDetails implements UserDetails {
@@ -52,6 +53,18 @@ public class RichUserDetails implements UserDetails {
   private final String email;
   private final Collection<GrantedAuthority> authorities;
   private final Collection<UserGroup> userGroups;
+
+  private final static Ordering<BodRole> SORT_BY_SORT_ORDER_AND_INSTITUTE_NAME = Ordering
+      .from(new Comparator<BodRole>() {
+
+        @Override
+        public int compare(BodRole role1, BodRole role2) {
+          return (String.valueOf(role1.getRole().getSortOrder()) + role1.getInstituteName()).compareTo(String
+              .valueOf(role2.getRole().getSortOrder()) + role2.getInstituteName());
+        }
+
+      });
+
   private List<BodRole> bodRoles = Lists.newArrayList();
   private BodRole selectedRole;
 
@@ -198,6 +211,6 @@ public class RichUserDetails implements UserDetails {
   }
 
   private void sortRoles() {
-    Collections.sort(bodRoles);
+    bodRoles = SORT_BY_SORT_ORDER_AND_INSTITUTE_NAME.sortedCopy(bodRoles);
   }
 }

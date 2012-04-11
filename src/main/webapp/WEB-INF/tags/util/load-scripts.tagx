@@ -1,78 +1,56 @@
 <jsp:root xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-    xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:spring="http://www.springframework.org/tags" version="2.0">
+    xmlns:bod="BodTags" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:spring="http://www.springframework.org/tags"
+    version="2.0">
 
     <jsp:output omit-xml-declaration="yes" />
 
-    <spring:url value="/resources/css/bootstrap-2.0.2.min.css" var="bootstrap_css_url" />
-    <spring:url value="/resources/css/font-awesome.css" var="font_awesome_css_url" />
+    <c:set value="true" var="development" />
 
-    <spring:url value="/resources/css/layout.css" var="layout_css_url" />
-    <spring:url value="/resources/css/generic.css" var="generic_css_url" />
-    <spring:url value="/resources/css/components-bootstrap/navbar.css" var="b_navbar_css_url" />
-    <spring:url value="/resources/css/components-bootstrap/table.css" var="b_table_css_url" />
-    <spring:url value="/resources/css/components-bootstrap/pagination.css" var="b_pagination_css_url" />
-    <spring:url value="/resources/css/components-bootstrap/generic.css" var="b_generic_css_url" />
-    <spring:url value="/resources/css/components-bootstrap/dropdown.css"  var="b_dropdown_css_url"/>
-    <spring:url value="/resources/css/components-bootstrap/alert.css" var="b_alert_css_url"/>
-    <spring:url value="/resources/css/components-bootstrap/button.css" var="b_button_css_url"/>
-    <spring:url value="/resources/css/components-bootstrap/form.css" var="b_form_css_url"/>
-    <spring:url value="/resources/css/components/user-box.css" var="user_box_css_url"/>
+    <bod:css value="/resources/css/bootstrap-2.0.2.min.css" />
+    <bod:css value="/resources/css/font-awesome.css" />
+    <c:choose>
+        <c:when test="${development}">
+            <bod:css value="/resources/css/layout.css" />
+            <bod:css value="/resources/css/generic.css" />
+            <bod:css value="/resources/css/components-bootstrap/generic.css" />
+            <bod:css value="/resources/css/components-bootstrap/navbar.css" />
+            <bod:css value="/resources/css/components-bootstrap/table.css" />
+            <bod:css value="/resources/css/components-bootstrap/pagination.css" />
+            <bod:css value="/resources/css/components-bootstrap/dropdown.css" />
+            <bod:css value="/resources/css/components-bootstrap/alert.css" />
+            <bod:css value="/resources/css/components-bootstrap/button.css" />
+            <bod:css value="/resources/css/components-bootstrap/form.css" />
+            <bod:css value="/resources/css/components/autoSuggest.css" />
+            <bod:css value="/resources/css/components/datepicker.css" />
+            <bod:css value="/resources/css/components/user-box.css" />
+        </c:when>
+        <c:otherwise>
+            <bod:css value="/resources/css/style.min.css" />
+        </c:otherwise>
+    </c:choose>
 
-    <spring:url value="/resources/js/jquery.min.js" var="jquery_url" />
-    <spring:url value="/resources/js/jquery-socket.js" var="jquery_socket_url" />
-    <spring:url value="/resources/js/bootstrap/bootstrap-2.0.2.min.js" var="bootstrap_js_url" />
-    <spring:url value="/resources/js/bootstrap-dropdown.js" var="bootstrap_dropdown_url" />
-    <spring:url value="/resources/js/bootstrap-alerts.js" var="bootstrap_alerts_url" />
+    <bod:script value="/resources/js/jquery/jquery-1.7.2.min.js" />
+    <bod:script value="/resources/js/bootstrap/bootstrap-2.0.2.min.js" />
+    <bod:script value="/resources/js/tools/prefixfree.min.js" />
+    <c:choose>
+        <c:when test="${development}">
+            <bod:script value="/resources/js/main.js" />
+            <bod:script value="/resources/js/modules/form.js" />
+            <bod:script value="/resources/js/modules/message.js"  />
+            <bod:script value="/resources/js/modules/table.js" />
+            <bod:script value="/resources/js/jquery/dropdown-reload.js" />
+            <bod:script value="/resources/js/jquery/jquery-autoSuggest.js" />
+            <bod:script value="/resources/js/jquery/jquery-socket-1.0a.js" />
+            <bod:script value="/resources/js/datepicker/datepicker.js" />
+        </c:when>
+        <c:otherwise>
+            <bod:script value="/resources/js/script.min.js" />
+        </c:otherwise>
+    </c:choose>
 
-    <spring:url value="/resources/js/autoSuggestv14/autoSuggest.css" var="autosuggest_css_url" />
-    <spring:url value="/resources/js/autoSuggestv14/jquery.autoSuggest.js" var="autosuggest_js_url" />
-
-    <spring:url value="/resources/js/dropdown-reload.js" var="dropdownreload_js_url" />
-
-    <spring:url value="/resources/js/datepicker/datepicker.js" var="datepicker_js_url" />
-    <spring:url value="/resources/js/datepicker/datepicker.css" var="datepicker_css_url" />
-
-    <spring:url value="/resources/js/main.js" var="main_js_url" />
-    <spring:url value="/resources/js/modules/form.js" var="module_form_js_url" />
-    <spring:url value="/resources/js/modules/message.js" var="module_message_js_url" />
-    <spring:url value="/resources/js/modules/table.js" var="module_table_js_url" />
-    <spring:url value="/resources/js/tools/prefixfree.min.js" var="prefixfree_js_url" />
-
-    <link rel="stylesheet" type="text/css" media="screen" href="${bootstrap_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${layout_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${generic_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${user_box_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${b_generic_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${b_navbar_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${b_table_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${b_pagination_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${b_dropdown_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${b_alert_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${b_button_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${b_form_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${font_awesome_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${autosuggest_css_url}" />
-    <link rel="stylesheet" type="text/css" media="screen" href="${datepicker_css_url}" />
-
-    <script src="${jquery_url}" type="text/javascript"><!-- needed --></script>
-    <script src="${jquery_socket_url}" type="text/javascript"><!-- needed --></script>
-    <script src="${bootstrap_js_url}" type="text/javascript"><!-- needed --></script>
-    <script src="${bootstrap_dropdown_url}" type="text/javascript"><!-- needed --></script>
-    <script src="${bootstrap_alerts_url}" type="text/javascript"><!-- needed --></script>
-    <script src="${autosuggest_js_url}" type="text/javascript"><!-- needed --></script>
-    <script src="${dropdownreload_js_url}" type="text/javascript"><!-- needed --></script>
-    <script src="${datepicker_js_url}" type="text/javascript"><!-- needed --></script>
-
-    <script src="${main_js_url}" type="text/javascript"><!-- needed --></script>
-    <script src="${module_form_js_url}" type="text/javascript"><!-- needed --></script>
-    <script src="${module_message_js_url}" type="text/javascript"><!-- needed --></script>
-    <script src="${module_table_js_url}" type="text/javascript"><!-- needed --></script>
-
-    <script src="${prefixfree_js_url}" type="text/javascript"><!-- needed --></script>
-
-    <c:set var="userLocale">
+    <!--<c:set var="userLocale">
         <c:set var="plocale">${pageContext.response.locale}</c:set>
         <c:out value="${fn:replace(plocale, '_', '-')}" default="en" />
-    </c:set>
+    </c:set>-->
 
 </jsp:root>

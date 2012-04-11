@@ -27,7 +27,6 @@ import javax.validation.Valid;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.web.AbstractSortableListController;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.Security;
 
@@ -43,9 +42,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.collect.Lists;
+
 @Controller("managerPhysicalResourceGroupController")
 @RequestMapping("/manager/physicalresourcegroups")
-public class PhysicalResourceGroupController extends AbstractSortableListController<PhysicalResourceGroup> {
+public class PhysicalResourceGroupController {
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
@@ -65,8 +66,8 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
   }
 
   @RequestMapping(method = RequestMethod.PUT)
-  public String update(@Valid final UpdateEmailCommand command, final BindingResult result,
-      final Model model, final RedirectAttributes redirectAttributes) {
+  public String update(@Valid final UpdateEmailCommand command, final BindingResult result, final Model model,
+      final RedirectAttributes redirectAttributes) {
 
     PhysicalResourceGroup group = physicalResourceGroupService.find(command.getId());
     if (group == null || !Security.managerMayEdit(group)) {
@@ -84,7 +85,7 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
       physicalResourceGroupService.sendActivationRequest(group);
 
       WebUtils.addInfoMessage(redirectAttributes, "A new activation email request has been sent to {}",
-              group.getManagerEmail());
+          group.getManagerEmail());
     }
 
     return "redirect:physicalresourcegroups";
@@ -94,24 +95,9 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
     return group.getManagerEmail() == null || !group.getManagerEmail().equals(command.getManagerEmail());
   }
 
-  @Override
-  protected String listUrl() {
-    return "manager/physicalresourcegroups/list";
-  }
-
-  @Override
+  @RequestMapping(method = RequestMethod.GET)
   protected List<PhysicalResourceGroup> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return physicalResourceGroupService.findEntriesForManager(Security.getUserDetails(), firstPage, maxItems, sort);
-  }
-
-  @Override
-  protected long count() {
-    return physicalResourceGroupService.countForManager(Security.getUserDetails());
-  }
-
-  @Override
-  protected String defaultSortProperty() {
-    return "managerEmail";
+    return Lists.newArrayList(physicalResourceGroupService.find(WebUtils.getSelectedPhysicalResourceGroupId()));
   }
 
   public static final class UpdateEmailCommand {
@@ -153,7 +139,5 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
     public void setManagerEmail(String email) {
       this.managerEmail = email;
     }
-
   }
-
 }

@@ -91,28 +91,6 @@ public class PhysicalResourceGroupServiceTest {
       physicalResourceGroupTwo);
 
   @Test
-  public void findGroupsForManager() {
-    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
-    RichUserDetails loggedInUser = new RichUserDetailsFactory().addUserGroup("urn:myfirstgroup").create();
-
-    when(groupRepoMock.findAll(any(Specification.class))).thenReturn(Lists.newArrayList(prg));
-
-    Collection<PhysicalResourceGroup> groups = subject.findAllForManager(loggedInUser);
-
-    assertThat(groups, hasSize(1));
-    assertThat(groups, contains(prg));
-  }
-
-  @Test
-  public void findGroupsForUserWithoutUserGroups() {
-    RichUserDetails loggedInUser = new RichUserDetailsFactory().create();
-
-    Collection<PhysicalResourceGroup> groups = subject.findAllForManager(loggedInUser);
-
-    assertThat(groups, hasSize(0));
-  }
-
-  @Test
   public void shouldFillInstitute() {
     when(groupRepoMock.findOne(1L)).thenReturn(physicalResourceGroupOne);
     when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
@@ -170,31 +148,6 @@ public class PhysicalResourceGroupServiceTest {
     Iterator<PhysicalResourceGroup> it = prgs.iterator();
     assertThat(it.next().getInstitute(), is(instituteOne));
     assertThat(it.next().getInstitute(), is(instituteTwo));
-  }
-
-  @Test
-  public void shouldFillInstitutesFindAllForManager() {
-    RichUserDetails user = new RichUserDetailsFactory().addUserGroup("urn:myfirstgroup").create();
-
-    Institute institute = new InstituteFactory().setId(1L).setName("oneInst").create();
-    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setInstitute(institute).create();
-    List<PhysicalResourceGroup> physicalResourceGroups = ImmutableList.of(physicalResourceGroup);
-
-    when(groupRepoMock.findAll(any(Specification.class))).thenReturn(physicalResourceGroups);
-    when(instituteServiceMock.findInstitute(1L)).thenReturn(institute);
-
-    Collection<PhysicalResourceGroup> prgs = subject.findAllForManager(user);
-
-    assertThat(prgs.iterator().next().getInstitute(), is(institute));
-  }
-
-  @Test
-  public void testFillInstitutesFindByInstituteId() {
-    when(groupRepoMock.findByInstituteId(1L)).thenReturn(physicalResourceGroupOne);
-    when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
-
-    PhysicalResourceGroup prg = subject.findByInstituteId(1L);
-    assertThat(prg.getInstitute(), is(instituteOne));
   }
 
   @Test

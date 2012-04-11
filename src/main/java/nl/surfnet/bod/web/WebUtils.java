@@ -24,6 +24,8 @@ package nl.surfnet.bod.web;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.surfnet.bod.web.security.Security;
+
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.ui.Model;
@@ -71,7 +73,7 @@ public final class WebUtils {
     return (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1 : nrOfPages);
   }
 
-    public static <T> T getAttributeFromModel(String attributeName, Model model) {
+  public static <T> T getAttributeFromModel(String attributeName, Model model) {
     return getAttributeFromModel(attributeName, model, null);
   }
 
@@ -81,9 +83,17 @@ public final class WebUtils {
   }
 
   /**
+   * 
+   * @return The user selected PhysicalResourceGroupId
+   */
+  public static Long getSelectedPhysicalResourceGroupId() {
+    return Security.getUserDetails().getSelectedRole().getPhysicalResourceGroupId();
+  }
+
+  /**
    * Adds an infoMessage, depending on the type of {@link Model} it will will
    * survive a redirect.
-   *
+   * 
    * @param model
    *          Model to add the message to
    * @param message
@@ -133,7 +143,7 @@ public final class WebUtils {
    * Html escapes the argument and replaces them with the parameter placeholders
    * in the message. The parameter placeholders can be either "{}" or the
    * regular {@link String#format(String, Object...)} placeholders.
-   *
+   * 
    * @param message
    *          The message to parse
    * @param args

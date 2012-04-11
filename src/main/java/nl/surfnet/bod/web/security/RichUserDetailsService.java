@@ -126,7 +126,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
 
       if (physicalResourceGroup != null) {
         if (isIctManager(Lists.newArrayList(userGroup))) {
-          managerRoles.add(new BodRole(userGroup, Security.RoleEnum.ICT_MANAGER, physicalResourceGroup.getInstitute()));
+          managerRoles.add(new BodRole(userGroup, Security.RoleEnum.ICT_MANAGER, physicalResourceGroup));
         }
       }
     }
