@@ -8,12 +8,12 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:directive.page pageEncoding="UTF-8" />
     
-    <spring:message code="application_name" var="app_name" htmlEscape="false" />
+    <spring:message code="application_name" var="app_name" />
     <spring:url var="banner" value="/resources/images/surfnet_logo.gif" />
     <spring:url var="home" value="/" />
     
-    <spring:message code="button_home" var="home_label" htmlEscape="false" />
-    <spring:message var="app_name" code="application_name" htmlEscape="false" />
+    <spring:message code="button_home" var="home_label" />
+    <spring:message var="app_name" code="application_name" />
     
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -32,8 +32,8 @@
             <section class="user-box content-dense">
                 <spring:url value="/admin/refreshMessages" var="refresh_messages_url"/>
                 <span class="user-name">
-                    <sec:authentication property="principal.displayName" htmlEscape="false"/>
-                    <a href="${refresh_messages_url}" style="margin-left:10px;width:5px;height:5px;float:right;"></a>
+                    <sec:authentication property="principal.displayName"/>
+                    <a href="${refresh_messages_url}" style="margin-left:10px">&#xA0;</a>
                 </span>
             	<spring:url value="/switchrole/logout" var="logoutUrl" />
                  
@@ -47,48 +47,43 @@
                             <sec:authentication property="principal.selectedRole" var="selectedRole" />
                             <spring:message code="role_class_${selectedRole.roleName}" var="s_role_class"/>
                             <div class="dropdown-toggle ${s_role_class}" data-toggle="dropdown">
-                                <span class="user-icon"><!--  --></span>
-                                <span class="user-title"><spring:message  code="role_${selectedRole.roleName}"/></span>
-                                <b class="caret"><!--  --></b>
-                                <span class="user-group">
+                                <div class="user"><spring:message  code="role_${selectedRole.roleName}"/>
                             		<c:choose>
                             			<c:when test="${not empty selectedRole.instituteName}">
-                            				<c:out value="${selectedRole.instituteName}"/>
+                            				<br/><c:out value="${selectedRole.instituteName}"/>
                             			</c:when>
                             			<c:otherwise>
                             				<!--  -->
                             			</c:otherwise>
-                           		   </c:choose>
-                            	</span>
+                           		</c:choose>
+                                <b class="caret"><!--  --></b>
                             </div>
                             <spring:url value="/switchrole" var="postUrl" />
                             <form action="${postUrl}" method="POST" class="dropdown-menu">
                                 <ul>
                                     <c:forEach items="${bodRoles}" var="bodRole">
                                         <spring:message  code="role_class_${bodRole.roleName}" var="role_class"/>
-    			                        <li class="${role_class}" data-roleId="${bodRole.id}">
-    		                                <span class="user-icon"><!--  --></span>
-    		                                <span class="user-title"><spring:message  code="role_${bodRole.roleName}"/></span>
-    		                                <span class="user-group">
-    			                                <c:choose>
-                                                    <c:when test="${not empty bodRole.instituteName}">
-                                                        <c:out value="${bodRole.instituteName}"/>
-    			                        			</c:when>
-    			                        			<c:otherwise>
-    			                        				<!--  -->
-    			                        			</c:otherwise>
-    	                       					</c:choose>
-    	                       				</span>
+    			                        	  <li class="${role_class}" data-roleId="${bodRole.id}">    		                                
+	    		                                <div class="user"><spring:message  code="role_${bodRole.roleName}"/>
+				                                <c:choose>
+			                                        <c:when test="${not empty bodRole.instituteName}">
+			                                        <br/><c:out value="${bodRole.instituteName}"/>
+				                        			</c:when>
+				                        			<c:otherwise>
+				                        				<!--  -->
+				                        			</c:otherwise>
+			                      			</c:choose>
+		                      			</div>
     			                        </li>
                                     </c:forEach>
                                 </ul>
                             </form>
+                          </div>
                         </c:when>
                         <c:otherwise>
                             <spring:message  code="role_class_DEFAULT" var="role_class"/>
-                            <div class="dropdown-toggle ${role_class}" data-toggle="dropdown">
-                                <span class="user-icon"><!--  --></span>
-                                <span class="user-title"><spring:message  code="role_DEFAULT"/></span>
+                            <div class="dropdown-toggle ${role_class}" >
+                                <div class="user"><spring:message  code="role_DEFAULT"/></div>
                             </div>
                         </c:otherwise>
     				</c:choose>
