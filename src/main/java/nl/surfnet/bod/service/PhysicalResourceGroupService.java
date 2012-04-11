@@ -21,7 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -40,7 +39,6 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
-import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,8 +130,7 @@ public class PhysicalResourceGroupService {
 
     return prgs;
   }
-  
- 
+
   public List<PhysicalResourceGroup> findByAdminGroup(String groupId) {
     List<PhysicalResourceGroup> prgs = physicalResourceGroupRepo.findByAdminGroup(groupId);
 
@@ -146,8 +143,8 @@ public class PhysicalResourceGroupService {
 
   @SuppressWarnings("unchecked")
   public ActivationEmailLink<PhysicalResourceGroup> findActivationLink(String uuid) {
-    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo
-        .findByUuid(uuid);
+    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = 
+        (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo.findByUuid(uuid);
 
     if (activationEmailLink != null) {
       activationEmailLink.setSourceObject(find(activationEmailLink.getSourceId()));

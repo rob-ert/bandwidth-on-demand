@@ -46,16 +46,6 @@ import com.google.common.collect.Ordering;
 @SuppressWarnings("serial")
 public class RichUserDetails implements UserDetails {
 
-  private final static Ordering<BodRole> SORT_BY_SORT_ORDER_AND_INSTITUTE_NAME = Ordering.from(new Comparator<BodRole>() {
-
-    @Override
-    public int compare(BodRole role1, BodRole role2) {
-      return (String.valueOf(role1.getRole().getSortOrder()) + role1.getInstituteName())
-          .compareTo(String.valueOf(role2.getRole().getSortOrder()) + role2.getInstituteName());
-    }
-    
-  });
-  
   private final Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
   private final String username;
@@ -63,6 +53,18 @@ public class RichUserDetails implements UserDetails {
   private final String email;
   private final Collection<GrantedAuthority> authorities;
   private final Collection<UserGroup> userGroups;
+
+  private final static Ordering<BodRole> SORT_BY_SORT_ORDER_AND_INSTITUTE_NAME = Ordering
+      .from(new Comparator<BodRole>() {
+
+        @Override
+        public int compare(BodRole role1, BodRole role2) {
+          return (String.valueOf(role1.getRole().getSortOrder()) + role1.getInstituteName()).compareTo(String
+              .valueOf(role2.getRole().getSortOrder()) + role2.getInstituteName());
+        }
+
+      });
+
   private List<BodRole> bodRoles = Lists.newArrayList();
   private BodRole selectedRole;
 
