@@ -1,5 +1,7 @@
 .popover-inner {
-    box-shadow: 3px 3px 2px #aaa;
+    -webkit-box-shadow: 3px 3px 2px #aaa;
+   	-moz-box-shadow: 3px 3px 2px #aaa;
+   	box-shadow: 3px 3px 2px #aaa;
 }
 
 .popover.top .arrow {
