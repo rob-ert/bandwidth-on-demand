@@ -198,20 +198,27 @@
 
             <section>
 
-                <h2>Table + pagination</h2>
+                <h2>Table + action(s) + filter + pagination</h2>
 
                 <div class="content">
+
+                    <!-- action(s) -->
 
                     <div class="actions">
                         <a href="#" class="btn btn-primary"><i class="icon-plus"></i> Add new</a>
                     </div>
 
-                    <div class="filter">
-                        <form class="form-search">
-                            <label>Filter</label>
-                            <input type="text" />
-                        </form>
-                    </div>
+                    <!-- filter -->
+
+                    <form action="" class="form-inline" method="POST">
+                        <label>Filter</label>
+                        <input type="text" class="input-small" />
+                        <select class="input-small">
+                            <option>Allocated</option>
+                            <option>Unallocated</option>
+                        </select>
+                        <button type="submit" class="btn">Filter</button>
+                    </form>
 
                     <!-- b:table b:table-bordered b:table-striped -->
 
