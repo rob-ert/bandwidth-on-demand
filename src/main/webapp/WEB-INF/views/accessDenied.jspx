@@ -8,7 +8,7 @@
     <div class="hero-unit">
         <h1><spring:message code="error_accessdenied_title" htmlEscape="false" /></h1>
         <p><spring:message code="error_accessdenied_problemdescription" /></p>
-        <p class="smiley">:-|</p>
+        <div class="smiley">:-|</div>
     </div>
     
 </html>
