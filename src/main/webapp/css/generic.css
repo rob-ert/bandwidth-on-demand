@@ -17,6 +17,7 @@ thead {
 header {
     background: url("../images/logo.png") 10px 10px no-repeat;
     padding-left: 155px;
+    position: relative;
 }
 
 header h1 {
