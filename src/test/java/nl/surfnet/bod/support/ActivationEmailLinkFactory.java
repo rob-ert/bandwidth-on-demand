@@ -34,7 +34,7 @@ public class ActivationEmailLinkFactory<T> {
   private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
   private boolean activate = false;
   private boolean emailSent = true;
-  
+
   public ActivationEmailLink<T> create() {
     ActivationEmailLink<T> link = new ActivationEmailLink<T>(physicalResourceGroup);
     link.setId(id);
@@ -46,22 +46,22 @@ public class ActivationEmailLinkFactory<T> {
     if (emailSent) {
       link.emailWasSent();
     }
-        
+
     return link;
   }
-  
-  public ActivationEmailLinkFactory<T> setActivate(boolean activate) {
-    this.activate = activate;
+
+  public ActivationEmailLinkFactory<T> setActivate(boolean active) {
+    this.activate = active;
     return this;
   }
 
   public ActivationEmailLinkFactory<T> setEmailSent(boolean sent) {
     this.emailSent = sent;
-    return this;  
+    return this;
   }
 
-  public ActivationEmailLinkFactory<T> setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
-    this.physicalResourceGroup = physicalResourceGroup;
+  public ActivationEmailLinkFactory<T> setPhysicalResourceGroup(PhysicalResourceGroup prg) {
+    this.physicalResourceGroup = prg;
     return this;
   }
 
