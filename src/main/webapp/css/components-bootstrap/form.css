@@ -1,7 +1,5 @@
 .form-horizontal {
     padding-top: 1.5em;
-    background-color: #FFF;
-    border: 1px solid #BFBFBF;
 }
 
 .form-horizontal .control-label {
@@ -16,15 +14,4 @@
     display: inline-block;
     padding-top: 5px;
     margin-bottom: 5px;
-}
-
-.form-horizontal .message {
-    background-color: #cae8f0;
-    padding: 0.4em 40px;
-    margin-bottom: 1em;
-}
-
-.form-horizontal .message h3,
-.form-horizontal .message p {
-    margin-bottom: 0;
 }

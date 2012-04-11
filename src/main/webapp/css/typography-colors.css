@@ -41,6 +41,33 @@ section h2 {
     border-top-right-radius: 8px;
 }
 
-section h3 {
+.h3 {
     margin-bottom: 1em;
 }
+
+dl {
+    margin-left: 40px;
+}
+
+dl dt {
+    font-size: 15px;
+}
+
+dl dt:before {
+    content: "• ";
+    color: #0088CC;
+}
+
+dl dt.inactive:before {
+    color: #333;
+}
+
+dl dt i {
+    margin-left: 1em;
+}
+
+dl dd {
+    color: #666;
+    margin: 0 0 2em 0.95em;
+}
+
