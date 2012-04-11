@@ -18,7 +18,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-        <util:load-scripts />
+        <util:css />
 
         <title><spring:message code="welcome_h3" arguments="${app_name}" /></title>
     </head>
@@ -114,5 +114,7 @@
             </footer>
 
         </div>
+
+        <util:js />
     </body>
 </html>

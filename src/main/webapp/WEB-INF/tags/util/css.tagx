@@ -29,22 +29,4 @@
         </c:otherwise>
     </c:choose>
 
-    <bod:script value="/resources/js/jquery/jquery-1.7.2.min.js" />
-    <bod:script value="/resources/js/bootstrap/bootstrap-2.0.2.min.js" />
-    <c:choose>
-        <c:when test="${dev}">
-            <bod:script value="/resources/js/main.js" />
-            <bod:script value="/resources/js/modules/form.js" />
-            <bod:script value="/resources/js/modules/message.js"  />
-            <bod:script value="/resources/js/modules/table.js" />
-            <bod:script value="/resources/js/jquery/dropdown-reload.js" />
-            <bod:script value="/resources/js/jquery/jquery-autoSuggest.js" />
-            <bod:script value="/resources/js/jquery/jquery-socket-1.0a.js" />
-            <bod:script value="/resources/js/datepicker/datepicker.js" />
-        </c:when>
-        <c:otherwise>
-            <bod:script value="/resources/js/script.min.js" />
-        </c:otherwise>
-    </c:choose>
-
 </jsp:root>
