@@ -54,8 +54,8 @@ public class Environment {
   @Value("${external.bod.url}")
   private String externalBodUrl;
 
-  @Value("${bod.environment}")
-  private String environment;
+  @Value("${bod.development}")
+  private boolean development;
 
   public Environment() {
   }
@@ -111,12 +111,12 @@ public class Environment {
     return externalBodUrl;
   }
 
-  public String getEnvironment() {
-    return environment;
+  public boolean isDevelopment() {
+    return development;
   }
 
-  public void setEnvironment(String environment) {
-    this.environment = environment;
+  public void setDevelopment(boolean development) {
+    this.development = development;
   }
 
 }

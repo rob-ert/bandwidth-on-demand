@@ -4,12 +4,12 @@
 
     <jsp:output omit-xml-declaration="yes" />
 
-    <bod:env property="environment" var="env" />
+    <bod:env property="development" var="dev" />
 
     <bod:css value="/resources/css/bootstrap-2.0.2.min.css" />
     <bod:css value="/resources/css/font-awesome.css" />
     <c:choose>
-        <c:when test="${env eq 'development'}">
+        <c:when test="${dev}">
             <bod:css value="/resources/css/layout.css" />
             <bod:css value="/resources/css/generic.css" />
             <bod:css value="/resources/css/components-bootstrap/generic.css" />
@@ -32,7 +32,7 @@
     <bod:script value="/resources/js/jquery/jquery-1.7.2.min.js" />
     <bod:script value="/resources/js/bootstrap/bootstrap-2.0.2.min.js" />
     <c:choose>
-        <c:when test="${env eq 'development'}">
+        <c:when test="${dev}">
             <bod:script value="/resources/js/main.js" />
             <bod:script value="/resources/js/modules/form.js" />
             <bod:script value="/resources/js/modules/message.js"  />
