@@ -50,11 +50,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 
 @Service
 @Transactional
@@ -109,35 +107,6 @@ public class PhysicalResourceGroupService {
     return prgs;
   }
 
-  public List<PhysicalResourceGroup> findEntriesForManager(RichUserDetails user, int firstResult, int maxResults,
-      Sort sort) {
-    checkNotNull(user);
-
-    if (user.getUserGroups().isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    List<PhysicalResourceGroup> prgs = physicalResourceGroupRepo.findAll(forCurrentManager(user),
-        new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
-
-    instituteService.fillInstituteForPhysicalResourceGroups(prgs);
-
-    return prgs;
-  }
-
-  public long countForManager(RichUserDetails user) {
-    return physicalResourceGroupRepo.count(forCurrentManager(user));
-  }
-
-  private Specification<PhysicalResourceGroup> forCurrentManager(final RichUserDetails user) {
-    return new Specification<PhysicalResourceGroup>() {
-      @Override
-      public Predicate toPredicate(Root<PhysicalResourceGroup> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(root.get(PhysicalResourceGroup_.adminGroup).in(user.getUserGroupIds()));
-      }
-    };
-  }
-
   public void save(final PhysicalResourceGroup physicalResourceGroup) {
     physicalResourceGroupRepo.save(physicalResourceGroup);
   }
@@ -163,59 +132,8 @@ public class PhysicalResourceGroupService {
 
     return prgs;
   }
-
-  public Collection<PhysicalResourceGroup> findAllForManager(RichUserDetails user) {
-    checkNotNull(user);
-
-    if (user.getUserGroups().isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    List<PhysicalResourceGroup> groups = physicalResourceGroupRepo.findAll(forCurrentManager(user));
-
-    instituteService.fillInstituteForPhysicalResourceGroups(groups);
-
-    return groups;
-  }
-
-  public PhysicalResourceGroup findByInstituteId(Long instituteId) {
-    PhysicalResourceGroup prg = physicalResourceGroupRepo.findByInstituteId(instituteId);
-
-    instituteService.fillInstituteForPhysicalResourceGroup(prg);
-
-    return prg;
-  }
-
-  /**
-   * Filters exactly one {@link PhysicalResourceGroup} on the given Collection
-   * where the {@link PhysicalResourceGroup#getInstituteId()} machtes the
-   * specified param.
-   * 
-   * 
-   * @param groups
-   *          Collection to filter
-   * @param instituteId
-   *          Institute id to search for
-   * @return {@link PhysicalResourceGroup} the matched item
-   * 
-   * @throws IllegalArgumentException
-   *           when not exactly one instance is found.
-   */
-  public PhysicalResourceGroup filterByInstituteId(final Collection<PhysicalResourceGroup> groups,
-      final Long instituteId) {
-
-    Collection<PhysicalResourceGroup> filter = Collections2.filter(groups,
-        new com.google.common.base.Predicate<PhysicalResourceGroup>() {
-          @Override
-          public boolean apply(PhysicalResourceGroup prg) {
-            return prg.getInstituteId().equals(instituteId);
-          }
-        });
-
-    Assert.isTrue(filter.size() == 1);
-    return filter.iterator().next();
-  }
-
+  
+ 
   public List<PhysicalResourceGroup> findByAdminGroup(String groupId) {
     List<PhysicalResourceGroup> prgs = physicalResourceGroupRepo.findByAdminGroup(groupId);
 

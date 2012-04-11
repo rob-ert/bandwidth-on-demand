@@ -80,10 +80,10 @@ public class PhysicalPortControllerTest {
   private PhysicalResourceGroupService physicalResourceGroupService;
 
   @Mock
-  private InstituteService instituteService;
+  private VirtualPortService virtualPortServiceMock;
 
   @Mock
-  private VirtualPortService virtualPortServiceMock;
+  InstituteService instituteService;
 
   private RichUserDetails user;
 
@@ -100,15 +100,13 @@ public class PhysicalPortControllerTest {
   public void listPorts() {
     Model model = new ModelStub();
 
+    when(physicalResourceGroupService.find(anyLong())).thenReturn(physicalResourceGroup);
+
     when(
-        physicalPortServiceMock.findAllocatedEntriesForPhysicalResourceGroupAndUser(eq(physicalResourceGroup),
-            eq(user), eq(0), anyInt(), any(Sort.class))).thenReturn(
-        Lists.newArrayList(new PhysicalPortFactory().setId(2L).create()));
+        physicalPortServiceMock.findAllocatedEntriesForPhysicalResourceGroup(eq(physicalResourceGroup), eq(0),
+            anyInt(), any(Sort.class))).thenReturn(Lists.newArrayList(new PhysicalPortFactory().setId(2L).create()));
 
-    when(physicalResourceGroupService.findAllForManager(eq(user)))
-        .thenReturn(Lists.newArrayList(physicalResourceGroup));
-
-    subject.list(null, null, null, null, model);
+    subject.list(null, null, null, model);
 
     assertThat(model.asMap(), hasKey("list"));
     assertThat(model.asMap(), hasKey("maxPages"));
@@ -126,12 +124,12 @@ public class PhysicalPortControllerTest {
     PhysicalPort portOne = new PhysicalPortFactory().setId(1L).create();
 
     when(
-        physicalPortServiceMock.findAllocatedEntriesForPhysicalResourceGroupAndUser(eq(physicalResourceGroup),
-            eq(user), anyInt(), anyInt(), any(Sort.class))).thenReturn(Lists.newArrayList(portOne));
+        physicalPortServiceMock.findAllocatedEntriesForPhysicalResourceGroup(eq(physicalResourceGroup), anyInt(),
+            anyInt(), any(Sort.class))).thenReturn(Lists.newArrayList(portOne));
 
     when(physicalResourceGroupService.find(physicalResourceGroup.getId())).thenReturn(physicalResourceGroup);
 
-    subject.list(null, null, null, "1", model);
+    subject.list(null, null, "1", model);
 
     assertThat(model.asMap(), hasKey("list"));
     assertThat((Long) model.asMap().get(WebUtils.FILTER_SELECT), is(1L));
@@ -243,23 +241,4 @@ public class PhysicalPortControllerTest {
     assertThat(model.asMap(), hasKey("physicalPort"));
   }
 
-  @Test
-  @SuppressWarnings("unchecked")
-  public void populateShouldAddPhysicalResourceGroupList() {
-    Model model = new ModelStub();
-
-    ArrayList<PhysicalResourceGroup> prgs = Lists.newArrayList(physicalResourceGroup);
-    when(physicalResourceGroupService.findAllForManager(user)).thenReturn(prgs);
-    when(physicalResourceGroupService.filterByInstituteId(prgs, user.getSelectedRole().getInstituteId())).thenReturn(
-        physicalResourceGroup);
-
-    subject.populateFilter(model);
-
-    assertThat(model.asMap(), hasKey("selPrg"));
-    assertThat(model.asMap(), hasKey("selPrgList"));
-
-    assertThat(((PhysicalResourceGroup) model.asMap().get("selPrg")).getId(), is(physicalResourceGroup.getId()));
-    assertThat(((Collection<PhysicalResourceGroup>) model.asMap().get("selPrgList")).iterator().next(),
-        is(physicalResourceGroup));
-  }
 }

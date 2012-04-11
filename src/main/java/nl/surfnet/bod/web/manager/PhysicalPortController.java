@@ -32,8 +32,8 @@ import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.web.AbstractFilteredSortableListController;
-import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.AbstractSortableListController;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.VirtualPortJsonView;
 
@@ -41,9 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.Assert;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -51,14 +49,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 
 @Controller("managerPhysicalPortController")
 @RequestMapping("/manager/physicalports")
-public class PhysicalPortController extends
-    AbstractFilteredSortableListController<PhysicalPortController.PhysicalPortView> {
+public class PhysicalPortController extends AbstractSortableListController<PhysicalPortController.PhysicalPortView> {
 
   @Autowired
   private PhysicalPortService physicalPortService;
@@ -134,33 +130,9 @@ public class PhysicalPortController extends
 
   @Override
   protected long count() {
-    return physicalPortService.countAllocatedForUser(Security.getUserDetails());
-  }
-
-  @Override
-  protected long count(String filterId, Model model) {
-
-    if (!org.springframework.util.StringUtils.hasText(filterId)) {
-      return 0;
-    }
-
-    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(Long.valueOf(filterId));
-
-    return physicalPortService.countAllocatedForPhysicalResourceGroupAndUser(physicalResourceGroup,
-        Security.getUserDetails());
-  }
-
-  @ModelAttribute
-  protected void populateFilter(Model model) {
-    RichUserDetails userDetails = Security.getUserDetails();
-    Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllForManager(userDetails);
-
-    // Select prg related to choosen role and related institute
-    model.addAttribute("selPrg",
-        physicalResourceGroupService.filterByInstituteId(groups, userDetails.getSelectedRole().getInstituteId()));
-
-    // Put list on model
-    model.addAttribute("selPrgList", groups);
+    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(WebUtils
+        .getSelectedPhysicalResourceGroupId());
+    return physicalPortService.countAllocatedForPhysicalResourceGroup(physicalResourceGroup);
   }
 
   // **** **** //
@@ -254,20 +226,12 @@ public class PhysicalPortController extends
   }
 
   @Override
-  protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, String filterId, Model model) {
-    PhysicalResourceGroup physicalResourceGroup = null;
+  protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
+    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(WebUtils
+        .getSelectedPhysicalResourceGroupId());
 
-    if (filterId != null) {
-      physicalResourceGroup = physicalResourceGroupService.find(Long.valueOf(filterId));
-    }
-    else {
-      // Just pick the first one
-      physicalResourceGroup = physicalResourceGroupService.findAllForManager(Security.getUserDetails()).iterator()
-          .next();
-    }
-
-    List<PhysicalPort> list = physicalPortService.findAllocatedEntriesForPhysicalResourceGroupAndUser(
-        physicalResourceGroup, Security.getUserDetails(), firstPage, maxItems, sort);
+    List<PhysicalPort> list = physicalPortService.findAllocatedEntriesForPhysicalResourceGroup(physicalResourceGroup,
+        firstPage, maxItems, sort);
 
     return Lists.transform(list, toView);
   }

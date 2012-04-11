@@ -26,7 +26,6 @@ import static com.google.common.collect.Iterables.skip;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -36,10 +35,8 @@ import javax.persistence.criteria.Root;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalPort_;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +44,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Preconditions;
@@ -57,15 +53,15 @@ import com.google.common.collect.Iterables;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
- *
+ * 
  * The {@link PhysicalPort}s found in the {@link NbiPortService} are leading and
  * when more data is available in our repository they will be enriched.
- *
+ * 
  * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
- *
- *
+ * 
+ * 
  * @author Frank Mölder
  */
 @Service
@@ -164,7 +160,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Adds data found in given ports to the specified ports, enriches them.
-   *
+   * 
    * @param nbiPorts
    *          {@link PhysicalPort}s to add the data to
    * @param repoPorts
@@ -189,54 +185,17 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   }
 
   @Override
-  public Collection<PhysicalPort> findAllocatedForUser(final RichUserDetails user) {
-    if (user.getUserGroups().isEmpty()) {
-      return Collections.emptyList();
-    }
+  public List<PhysicalPort> findAllocatedEntriesForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup,
+      int firstResult, int maxResults, Sort sort) {
 
-    return physicalPortRepo.findAll(specificationForUser(user));
-  }
-
-  @Override
-  public List<PhysicalPort> findAllocatedEntriesForPhysicalResourceGroupAndUser(
-      PhysicalResourceGroup physicalResourceGroup, RichUserDetails user, int firstResult, int maxResults, Sort sort) {
-    if (user.getUserGroups().isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    return physicalPortRepo.findAll(specificationForPhysicalResourceGroupAndUser(physicalResourceGroup, user),
+    return physicalPortRepo.findAll(specificationForPhysicalResourceGroup(physicalResourceGroup),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
   @Override
-  public long countAllocatedForPhysicalResourceGroupAndUser(final PhysicalResourceGroup physicalResourceGroup,
-      final RichUserDetails user) {
+  public long countAllocatedForPhysicalResourceGroup(final PhysicalResourceGroup physicalResourceGroup) {
 
-    if (user.getUserGroups().isEmpty()) {
-      return 0L;
-    }
-
-    return physicalPortRepo.count(specificationForPhysicalResourceGroupAndUser(physicalResourceGroup, user));
-  }
-
-  @Override
-  public long countAllocatedForUser(final RichUserDetails user) {
-    if (user.getUserGroups().isEmpty()) {
-      return 0L;
-    }
-
-    return physicalPortRepo.count(specificationForUser(user));
-  }
-
-  private Specification<PhysicalPort> specificationForUser(final RichUserDetails user) {
-    return new Specification<PhysicalPort>() {
-      @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<PhysicalPort> root, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
-        return cb.and(root.get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.adminGroup)
-            .in(user.getUserGroupIds()));
-      }
-    };
+    return physicalPortRepo.count(specificationForPhysicalResourceGroup(physicalResourceGroup));
   }
 
   private Specification<PhysicalPort> specificationForPhysicalResourceGroup(
@@ -252,18 +211,12 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     };
   }
 
-  private Specification<PhysicalPort> specificationForPhysicalResourceGroupAndUser(
-      final PhysicalResourceGroup physicalResourceGroup, final RichUserDetails user) {
-    return Specifications.where(specificationForUser(user)).and(
-        specificationForPhysicalResourceGroup(physicalResourceGroup));
-  }
-
   /**
    * Enriches the port with additional data.
-   *
+   * 
    * Clones JPA attributes (id and version), so a find will return these
    * preventing a additional save instead of an update.
-   *
+   * 
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort

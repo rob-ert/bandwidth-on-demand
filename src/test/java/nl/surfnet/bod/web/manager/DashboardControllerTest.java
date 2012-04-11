@@ -28,8 +28,10 @@ import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.Mockito.when;
+import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.support.BodRoleFactory;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -61,14 +63,15 @@ public class DashboardControllerTest {
 
   @Test
   public void managerWhithInactivePhysicalResourceGroupsShouldGetRedirected() {
-    RichUserDetails user = new RichUserDetailsFactory().create();
-    Security.setUserDetails(user);
-    RedirectAttributes model = new ModelStub();
     PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setId(101L).setActive(false)
         .create();
 
-    when(physicalResourceGroupServiceMock.findAllForManager(user))
-        .thenReturn(Lists.newArrayList(physicalResourceGroup));
+    BodRole selectedRole = new BodRoleFactory().setPhysicalResourceGroup(physicalResourceGroup).create();
+    RichUserDetails user = new RichUserDetailsFactory().setSelectedRole(selectedRole).create();
+    Security.setUserDetails(user);
+    RedirectAttributes model = new ModelStub();
+
+    when(physicalResourceGroupServiceMock.find(physicalResourceGroup.getId())).thenReturn(physicalResourceGroup);
 
     String page = subject.index(model);
 
@@ -79,13 +82,15 @@ public class DashboardControllerTest {
 
   @Test
   public void managerWhithActivePhysicalResourceGroupShouldGoToIndex() {
-    RichUserDetails user = new RichUserDetailsFactory().create();
-    Security.setUserDetails(user);
-    RedirectAttributes model = new ModelStub();
     PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setActive(true).create();
 
-    when(physicalResourceGroupServiceMock.findAllForManager(user))
-        .thenReturn(Lists.newArrayList(physicalResourceGroup));
+    BodRole selectedRole = new BodRoleFactory().setPhysicalResourceGroup(physicalResourceGroup).create();
+    RichUserDetails user = new RichUserDetailsFactory().setSelectedRole(selectedRole).create();
+
+    Security.setUserDetails(user);
+    RedirectAttributes model = new ModelStub();
+
+    when(physicalResourceGroupServiceMock.find(physicalResourceGroup.getId())).thenReturn(physicalResourceGroup);
 
     String page = subject.index(model);
 

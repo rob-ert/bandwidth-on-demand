@@ -21,13 +21,10 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import java.util.Collection;
-
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -47,18 +44,16 @@ public class DashboardController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(RedirectAttributes model) {
-    Collection<PhysicalResourceGroup> groups = physicalResourceGroupService
-        .findAllForManager(Security.getUserDetails());
 
-    for (PhysicalResourceGroup group : groups) {
-      if (!group.isActive()) {
+    PhysicalResourceGroup group = physicalResourceGroupService.find(WebUtils.getSelectedPhysicalResourceGroupId());
 
-        WebUtils.addInfoMessage(model, createNewActivationLinkForm(new Object[] {
-            environment.getExternalBodUrl() + ActivationEmailController.ACTIVATION_MANAGER_PATH,
-            group.getId().toString() }));
+    if (!group.isActive()) {
+      WebUtils.addInfoMessage(model,
+          createNewActivationLinkForm(new Object[] {
+              environment.getExternalBodUrl() + ActivationEmailController.ACTIVATION_MANAGER_PATH,
+              group.getId().toString() }));
 
-        return "redirect:manager/physicalresourcegroups/edit?id=" + group.getId();
-      }
+      return "redirect:manager/physicalresourcegroups/edit?id=" + group.getId();
     }
 
     return "manager/index";

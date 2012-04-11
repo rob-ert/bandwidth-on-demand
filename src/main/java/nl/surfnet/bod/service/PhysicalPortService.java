@@ -26,7 +26,6 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.data.domain.Sort;
 
@@ -64,35 +63,23 @@ public interface PhysicalPortService {
   List<PhysicalPort> findAllocatedEntries(int firstResult, int sizeNo, Sort sort);
 
   /**
-   * Finds all physical ports that are visible for a user.
+   * Finds all physical ports related to the given {@link PhysicalResourceGroup}
+   * *
    * 
-   * @param user
-   *          the user
-   * @return list of user visible physical ports
-   */
-  Collection<PhysicalPort> findAllocatedForUser(RichUserDetails user);
-
-  /**
-   * Finds all physical ports that are visible for a user filtered by
-   * {@link PhysicalResourceGroup}.
-   * 
-   * @param user
-   *          the user to filter on
    * 
    * @param physicalResourceGroup
    *          {@link PhysicalResourceGroup} to filter on
-   * @return list of user visible physical ports
+   * 
+   * @return list of physical ports
    */
-  List<PhysicalPort> findAllocatedEntriesForPhysicalResourceGroupAndUser(PhysicalResourceGroup physicalResourceGroup,
-      RichUserDetails user, int firstResult, int sizeNo, Sort sort);
+  List<PhysicalPort> findAllocatedEntriesForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup,
+      int firstResult, int sizeNo, Sort sort);
 
   long countUnallocated();
 
   long countAllocated();
 
-  long countAllocatedForUser(RichUserDetails user);
-
-  long countAllocatedForPhysicalResourceGroupAndUser(PhysicalResourceGroup physicalResourceGroup, RichUserDetails user);
+  long countAllocatedForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup);
 
   void delete(final PhysicalPort physicalPort);
 

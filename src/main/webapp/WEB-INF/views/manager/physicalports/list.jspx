@@ -6,11 +6,8 @@
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-    <spring:url var="filterUrl"  value="/manager/physicalports/filter/" />
-
+    
     <page:list id="pl_PhysicalPort">
-       	<field:select id="filter" items="${selPrgList}"  labelCode="physicalresourcegroup" field="selPrg.name" itemValue="id" 
-   	        showSingle="true" path="/manager/physicalports"  />
         <table:table items="${list}" labelPluralCode="label_physicalport_plural">
             <thead>
                 <tr>
@@ -31,17 +28,5 @@
                 </c:forEach>
             </tbody>
         </table:table>
-    </page:list>
-    
-    <script type="text/javascript">
-      //Do new get based on selected item
-      $("#_filter").change(function(){
-          window.location = "${filterUrl}" + $("#_filter").val();
-      });
-      
-      //Set filterSelectBox to selected id
-      $(document).ready(function(){	    	  
-	    	  $("#_filter").val("${filterSelect}");    
-      });      
-    </script>      
+    </page:list>      
 </html>
