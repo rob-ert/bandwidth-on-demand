@@ -6,7 +6,11 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 
 public class BodTagSupport extends SimpleTagSupport {
 
+  protected PageContext getPageContext() {
+    return (PageContext) getJspContext();
+  }
+
   protected HttpServletRequest getRequest() {
-    return (HttpServletRequest) ((PageContext) getJspContext()).getRequest();
+    return (HttpServletRequest) getPageContext().getRequest();
   }
 }

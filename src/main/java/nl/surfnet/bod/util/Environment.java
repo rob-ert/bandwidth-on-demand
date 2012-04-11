@@ -54,6 +54,9 @@ public class Environment {
   @Value("${external.bod.url}")
   private String externalBodUrl;
 
+  @Value("${bod.environment}")
+  private String environment;
+
   public Environment() {
   }
 
@@ -106,6 +109,14 @@ public class Environment {
 
   public String getExternalBodUrl() {
     return externalBodUrl;
+  }
+
+  public String getEnvironment() {
+    return environment;
+  }
+
+  public void setEnvironment(String environment) {
+    this.environment = environment;
   }
 
 }
