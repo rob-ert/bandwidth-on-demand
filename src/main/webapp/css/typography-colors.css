@@ -24,6 +24,19 @@ header h1 {
     font-weight: normal;
 }
 
+header a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+}
+
+header a,
+header a:hover {
+    color: transparent;
+}
+
 /* content */
 
 section, footer {
