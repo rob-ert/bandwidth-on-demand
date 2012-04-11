@@ -78,28 +78,28 @@ section h2 {
     margin-bottom: 1em;
 }
 
-dl {
+.dl {
     margin-left: 40px;
 }
 
-dl dt {
+.dl dt {
     font-size: 15px;
 }
 
-dl dt:before {
+.dl dt:before {
     content: "• ";
     color: #0088CC;
 }
 
-dl dt.inactive:before {
+.dl dt.inactive:before {
     color: #333;
 }
 
-dl dt i {
+.dl dt i {
     margin-left: 1em;
 }
 
-dl dd {
+.dl dd {
     color: #666;
     margin: 0 0 2em 0.95em;
 }
