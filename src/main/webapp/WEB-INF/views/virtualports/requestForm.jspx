@@ -8,7 +8,7 @@
 
     <spring:url value="/request" var="postUrl" />
 
-    <form:form action="${postUrl}" method="POST" modelAttribute="requestCommand" cssClass="form-horizontal">
+    <form:form action="${postUrl}" method="POST" modelAttribute="requestCommand" cssClass="form form-horizontal">
         <fieldset>
             <div class="control-group">
                 <label class="control-label"><spring:message code="label_request_vp_to" /></label>

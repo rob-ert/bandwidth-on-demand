@@ -27,7 +27,7 @@
             <h1><spring:message code="entity_create" arguments="${label}" /></h1>
             <div class="content">
 
-                <form:form action="${form_url}" method="POST" modelAttribute="${modelAttribute}" enctype="${enctype}" cssClass="form-horizontal">
+                <form:form action="${form_url}" method="POST" modelAttribute="${modelAttribute}" enctype="${enctype}" cssClass="form form-horizontal">
 
                     <c:set var="errors"><form:errors /></c:set>
                     <c:if test="${not empty errors}">
