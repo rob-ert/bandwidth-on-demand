@@ -22,6 +22,7 @@
 package nl.surfnet.bod.web.security;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -74,17 +75,27 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
 
     updateVirtualResourceGroups(groups);
 
-    List<GrantedAuthority> authorities = getAuthorities(groups);
-
     RichUserDetails userDetails = new RichUserDetails(principal.getNameId(), principal.getDisplayName(),
-        principal.getEmail(), authorities, groups);
+        principal.getEmail(), groups);
 
     userDetails.setBodRoles(determineRoles(userDetails.getUserGroups()));
 
     userDetails.switchRoleTo(CollectionUtils.isEmpty(userDetails.getBodRoles()) ? null : userDetails.getBodRoles().get(
         0));
-    
+
+    userDetails.setAuthorities(determineAuthorities(userDetails.getAllBodRoles()));
+
     return userDetails;
+  }
+
+  private List<GrantedAuthority> determineAuthorities(List<BodRole> bodRoles) {
+    HashSet<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+
+    for (BodRole bodRole : bodRoles) {
+      authorities.add(new GrantedAuthorityImpl(bodRole.getRoleName()));
+    }
+
+    return Lists.newArrayList(authorities);
   }
 
   /**
@@ -125,7 +136,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
     for (PhysicalResourceGroup physicalResourceGroup : physicalResourceGroupService.findByAdminGroup(userGroup.getId())) {
 
       if (physicalResourceGroup != null) {
-        if (isIctManager(Lists.newArrayList(userGroup))) {
+        if (isIctManager(userGroup)) {
           managerRoles.add(new BodRole(userGroup, Security.RoleEnum.ICT_MANAGER, physicalResourceGroup));
         }
       }
@@ -141,20 +152,6 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
     }
 
     return userRole;
-  }
-
-  private List<GrantedAuthority> getAuthorities(Collection<UserGroup> groups) {
-    List<GrantedAuthority> authorities = Lists.newArrayList();
-    if (isNocEngineerGroup(groups)) {
-      authorities.add(createAuthority(Security.RoleEnum.NOC_ENGINEER.name()));
-    }
-    if (isIctManager(groups)) {
-      authorities.add(createAuthority(Security.RoleEnum.ICT_MANAGER.name()));
-    }
-    if (isUser(groups)) {
-      authorities.add(createAuthority(Security.RoleEnum.USER.name()));
-    }
-    return authorities;
   }
 
   private void updateVirtualResourceGroups(Collection<UserGroup> userGroups) {
@@ -174,16 +171,12 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
     }
   }
 
-  private boolean isIctManager(Collection<UserGroup> groups) {
-    return !physicalResourceGroupService.findAllForAdminGroups(groups).isEmpty();
+  private boolean isIctManager(UserGroup group) {
+    return physicalResourceGroupService.hasRelatedPhysicalResourceGroup(group);
   }
 
   public boolean isUser(Collection<UserGroup> groups) {
     return !virtualResourceGroupService.findByUserGroups(groups).isEmpty();
-  }
-
-  private GrantedAuthority createAuthority(String role) {
-    return new GrantedAuthorityImpl(role);
   }
 
   private boolean isNocEngineerGroup(Collection<UserGroup> groups) {

@@ -113,6 +113,11 @@ public class PhysicalResourceGroupService {
     return physicalResourceGroupRepo.save(physicalResourceGroup);
   }
 
+  public boolean hasRelatedPhysicalResourceGroup(UserGroup group) {
+
+    return (group != null) && (physicalResourceGroupRepo.findByAdminGroup(group.getId()) != null);
+  }
+
   public Collection<PhysicalResourceGroup> findAllForAdminGroups(Collection<UserGroup> groups) {
     if (groups.isEmpty()) {
       return Collections.emptyList();
@@ -143,8 +148,8 @@ public class PhysicalResourceGroupService {
 
   @SuppressWarnings("unchecked")
   public ActivationEmailLink<PhysicalResourceGroup> findActivationLink(String uuid) {
-    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = 
-        (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo.findByUuid(uuid);
+    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo
+        .findByUuid(uuid);
 
     if (activationEmailLink != null) {
       activationEmailLink.setSourceObject(find(activationEmailLink.getSourceId()));

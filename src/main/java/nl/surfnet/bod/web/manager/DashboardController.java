@@ -44,7 +44,7 @@ public class DashboardController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(RedirectAttributes model) {
-
+    
     PhysicalResourceGroup group = physicalResourceGroupService.find(WebUtils.getSelectedPhysicalResourceGroupId());
 
     if (!group.isActive()) {

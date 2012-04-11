@@ -24,12 +24,14 @@ package nl.surfnet.bod.web.security;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.slf4j.Logger;
 import org.springframework.security.core.GrantedAuthority;
@@ -60,24 +62,16 @@ public class RichUserDetails implements UserDetails {
   private final String username;
   private final String displayName;
   private final String email;
-  private final Collection<GrantedAuthority> authorities;
   private final Collection<UserGroup> userGroups;
-
+  private Collection<GrantedAuthority> authorities;
   private List<BodRole> bodRoles = Lists.newArrayList();
   private BodRole selectedRole;
 
-  public RichUserDetails(String username, String displayName, String email, Collection<GrantedAuthority> authorities,
-      Collection<UserGroup> userGroups) {
+  public RichUserDetails(String username, String displayName, String email, Collection<UserGroup> userGroups) {
     this.username = username;
     this.displayName = displayName;
-    this.authorities = authorities;
     this.userGroups = userGroups;
     this.email = email;
-  }
-
-  @Override
-  public Collection<GrantedAuthority> getAuthorities() {
-    return authorities;
   }
 
   @Override
@@ -139,6 +133,18 @@ public class RichUserDetails implements UserDetails {
     return bodRoles;
   }
 
+  /**
+   * 
+   * @return All {@link #bodRoles} and the {@link #selectedRole}
+   */
+  public List<BodRole> getAllBodRoles() {
+    ArrayList<BodRole> allRoles = Lists.newArrayList(selectedRole);
+
+    allRoles.addAll(bodRoles);
+
+    return allRoles;
+  }
+
   public void setBodRoles(List<BodRole> roles) {
     this.bodRoles = roles;
 
@@ -154,12 +160,21 @@ public class RichUserDetails implements UserDetails {
   }
 
   @Override
+  public Collection<GrantedAuthority> getAuthorities() {
+    return authorities;
+  }
+
+  public void setAuthorities(List<GrantedAuthority> authorities) {
+    this.authorities = authorities;
+  }
+
+  @Override
   public String toString() {
     return Objects.toStringHelper(this).add("nameId", getNameId()).add("displayName", getDisplayName())
         .add("bodRoles", bodRoles).toString();
   }
 
-  public BodRole findBodRole(final Long bodRoleId) {
+  public BodRole findBodRoleById(final Long bodRoleId) {
 
     BodRole foundRole = null;
 
@@ -181,6 +196,19 @@ public class RichUserDetails implements UserDetails {
     else {
       log.warn("No role to switch to for id: {} ", bodRoleId);
     }
+    return foundRole;
+  }
+
+  BodRole findFirstBodRoleByRole(RoleEnum role) {
+    BodRole foundRole = null;
+
+    for (BodRole bodRole : getAllBodRoles()) {
+      if (bodRole.getRole() == role) {
+        foundRole = bodRole;
+        break;
+      }
+    }
+
     return foundRole;
   }
 
@@ -211,4 +239,20 @@ public class RichUserDetails implements UserDetails {
   private void sortRoles() {
     bodRoles = SORT_BY_SORT_ORDER_AND_INSTITUTE_NAME.sortedCopy(bodRoles);
   }
+
+  public void switchRoleToUser() {
+    BodRole userRole = findFirstBodRoleByRole(RoleEnum.USER);
+    switchRoleTo(userRole);
+  }
+
+  public void switchRoleToNocEngineer() {
+    BodRole nocRole = findFirstBodRoleByRole(RoleEnum.NOC_ENGINEER);
+    switchRoleTo(nocRole);
+  }
+
+  public void switchRoleToFirstManager() {
+    BodRole managerRole = findFirstBodRoleByRole(RoleEnum.ICT_MANAGER);
+    switchRoleTo(managerRole);
+  }
+
 }

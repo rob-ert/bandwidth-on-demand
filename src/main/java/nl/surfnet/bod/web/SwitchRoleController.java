@@ -29,7 +29,7 @@ public class SwitchRoleController {
     RichUserDetails userDetails = Security.getUserDetails();
 
     if (StringUtils.hasText(roleId)) {
-      BodRole bodRole = userDetails.findBodRole(Long.valueOf(roleId));
+      BodRole bodRole = userDetails.findBodRoleById(Long.valueOf(roleId));
       userDetails.switchRoleTo(bodRole);
     }
 

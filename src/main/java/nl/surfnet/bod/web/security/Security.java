@@ -80,25 +80,28 @@ public final class Security {
     }, null);
   }
 
+  public static boolean isSelectedUserRole() {
+    return getUserDetails().getSelectedRole().getRole() == RoleEnum.USER;
+  }
+
+  public static boolean isSelectedManagerRole() {
+    return getUserDetails().getSelectedRole().getRole() == RoleEnum.ICT_MANAGER;
+  }
+
+  public static boolean isSelectedNocRole() {
+    return getUserDetails().getSelectedRole().getRole() == RoleEnum.NOC_ENGINEER;
+  }
+
   public static boolean hasNocEngineerRole() {
-    return hasRole(RoleEnum.NOC_ENGINEER.name());
+    return getUserDetails().findFirstBodRoleByRole(RoleEnum.NOC_ENGINEER) != null;
   }
 
   public static boolean hasIctManagerRole() {
-    return hasRole(RoleEnum.ICT_MANAGER.name());
+    return getUserDetails().findFirstBodRoleByRole(RoleEnum.ICT_MANAGER) != null;
   }
 
   public static boolean hasUserRole() {
-    return hasRole(RoleEnum.USER.name());
-  }
-
-  private static boolean hasRole(String role) {
-    for (GrantedAuthority auth : getUserDetails().getAuthorities()) {
-      if (auth.getAuthority().equals(role)) {
-        return true;
-      }
-    }
-    return false;
+    return getUserDetails().findFirstBodRoleByRole(RoleEnum.USER) != null;
   }
 
   public static boolean isUserMemberOf(String groupId) {

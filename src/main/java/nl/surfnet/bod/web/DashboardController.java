@@ -34,19 +34,21 @@ public class DashboardController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
-    if (Security.hasUserRole()) {
-      return "index";
-    }
-    if (Security.hasNocEngineerRole()) {
-      return "redirect:noc";
-    }
-    if (Security.hasIctManagerRole()) {
-      return "redirect:manager";
-    }
 
     model.addAttribute("userGroups", Security.getUserDetails().getUserGroups());
 
+    if (Security.isSelectedNocRole()) {
+      return "redirect:noc";
+    }
+
+    if (Security.isSelectedManagerRole()) {
+      return "redirect:manager";
+    }
+
+    if (Security.isSelectedUserRole()) {
+      return "index";
+    }
+
     return "noUserRole";
   }
-
 }
