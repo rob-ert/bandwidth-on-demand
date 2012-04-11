@@ -1,21 +1,3 @@
-/* forms + form-like sections */
-
-.form {
-    background-color: #FFF;
-    border: 1px solid #BFBFBF;
-}
-
-.form .message {
-    background-color: #cae8f0;
-    padding: 0.4em 40px;
-    margin-bottom: 1em;
-}
-
-.form .message h3,
-.form .message p {
-    margin-bottom: 0;
-}
-
 /* table + paginator combo */
 
 .table-above-pagination {
