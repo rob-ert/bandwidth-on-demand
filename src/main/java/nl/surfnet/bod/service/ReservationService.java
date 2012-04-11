@@ -87,7 +87,7 @@ public class ReservationService {
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   *
+   * 
    * @param reservation
    * @return
    */
@@ -161,7 +161,7 @@ public class ReservationService {
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   *
+   * 
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -172,9 +172,6 @@ public class ReservationService {
 
   public List<Reservation> findEntriesForManager(final RichUserDetails manager, int firstResult, int maxResults,
       Sort sort) {
-    if (manager.getUserGroups().isEmpty()) {
-      return Collections.emptyList();
-    }
 
     return reservationRepo.findAll(forManager(manager), new PageRequest(firstResult / maxResults, maxResults, sort))
         .getContent();
@@ -188,12 +185,15 @@ public class ReservationService {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+
+        Long prgId = manager.getSelectedRole().getPhysicalResourceGroupId();
         return cb.and(cb.or(
-            root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
-                .get(PhysicalResourceGroup_.adminGroup).in(manager.getUserGroupIds()),
-            root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort)
-                .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.adminGroup)
-                .in(manager.getUserGroupIds())));
+            cb.equal(
+                root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort)
+                    .get(PhysicalPort_.physicalResourceGroup).get("id"), prgId),
+            cb.equal(
+                root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort)
+                    .get(PhysicalPort_.physicalResourceGroup).get("id"), prgId)));
       }
     };
   }
@@ -263,8 +263,7 @@ public class ReservationService {
   public List<Double> findUniqueYearsFromReservations() {
 
     // FIXME Franky add userDetails to query
-    final String queryString =
-        "select distinct extract(year from start_date_time) startYear "
+    final String queryString = "select distinct extract(year from start_date_time) startYear "
         + "from reservation UNION select distinct extract(year from end_date_time) from reservation";
 
     @SuppressWarnings("unchecked")
@@ -278,7 +277,7 @@ public class ReservationService {
 
   /**
    * Asynchronous {@link Reservation} creator.
-   *
+   * 
    */
   private final class ReservationSubmitter implements Runnable {
     private final Reservation reservation;
