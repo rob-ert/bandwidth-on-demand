@@ -24,6 +24,10 @@ package nl.surfnet.bod.web;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
+
+import java.util.ArrayList;
+
+import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -32,13 +36,15 @@ import nl.surfnet.bod.web.security.Security;
 import org.junit.Test;
 import org.springframework.ui.Model;
 
+import com.google.common.collect.Lists;
+
 public class DashboardControllerTest {
 
   private DashboardController subject = new DashboardController();
 
   @Test
   public void aNocEngineerShouldBeRedirectToNocPage() {
-    RichUserDetails user = new RichUserDetailsFactory().addNocAuthority().create();
+    RichUserDetails user = new RichUserDetailsFactory().addNocRole().create();
     Security.setUserDetails(user);
     Model model = new ModelStub();
 
@@ -49,7 +55,7 @@ public class DashboardControllerTest {
 
   @Test
   public void aIctManagerShouldBeRedirectToManagerPage() {
-    RichUserDetails user = new RichUserDetailsFactory().addManagerAuthority().create();
+    RichUserDetails user = new RichUserDetailsFactory().addManagerRole().create();
     Security.setUserDetails(user);
     Model model = new ModelStub();
 
@@ -60,7 +66,7 @@ public class DashboardControllerTest {
 
   @Test
   public void aUserShouldGoToIndex() {
-    RichUserDetails user = new RichUserDetailsFactory().addUserAuthority().create();
+    RichUserDetails user = new RichUserDetailsFactory().addUserRole().create();
     Security.setUserDetails(user);
     Model model = new ModelStub();
 
@@ -72,6 +78,10 @@ public class DashboardControllerTest {
   @Test
   public void aNoBodyShouldGoTo() {
     RichUserDetails user = new RichUserDetailsFactory().create();
+
+    user.setBodRoles(new ArrayList<BodRole>());
+    user.setSelectedRole(null);
+
     Security.setUserDetails(user);
     Model model = new ModelStub();
 

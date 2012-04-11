@@ -24,6 +24,7 @@ package nl.surfnet.bod.web.security;
 import java.util.Collection;
 import java.util.Collections;
 
+import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
@@ -81,15 +82,18 @@ public final class Security {
   }
 
   public static boolean isSelectedUserRole() {
-    return getUserDetails().getSelectedRole().getRole() == RoleEnum.USER;
+    BodRole selectedRole = getUserDetails().getSelectedRole();
+    return selectedRole != null ? selectedRole.getRole() == RoleEnum.USER : false;
   }
 
   public static boolean isSelectedManagerRole() {
-    return getUserDetails().getSelectedRole().getRole() == RoleEnum.ICT_MANAGER;
+    BodRole selectedRole = getUserDetails().getSelectedRole();
+    return selectedRole != null ? selectedRole.getRole() == RoleEnum.ICT_MANAGER : false;
   }
 
   public static boolean isSelectedNocRole() {
-    return getUserDetails().getSelectedRole().getRole() == RoleEnum.NOC_ENGINEER;
+    BodRole selectedRole = getUserDetails().getSelectedRole();
+    return selectedRole != null ? selectedRole.getRole() == RoleEnum.NOC_ENGINEER : false;
   }
 
   public static boolean hasNocEngineerRole() {

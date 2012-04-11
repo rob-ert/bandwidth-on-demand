@@ -114,9 +114,13 @@ public class RichUserDetailsServiceTest {
 
   @Test
   public void aIctManager() {
-    ImmutableList<UserGroup> adminGroups = listOf(new UserGroupFactory().setId("urn:ict-manager").create());
-    when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(adminGroups);
-    when(prgServiceMock.findAllForAdminGroups(adminGroups)).thenReturn(
+    UserGroup userGroup = new UserGroupFactory().setId("urn:ict-manager").create();
+
+    when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(listOf(userGroup));
+    
+    when(prgServiceMock.hasRelatedPhysicalResourceGroup(userGroup)).thenReturn(true);
+    
+    when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(
         listOf(new PhysicalResourceGroupFactory().create()));
 
     RichUserDetails userDetails = subject.loadUserDetails(createToken("urn:alanvdam"));
@@ -152,7 +156,7 @@ public class RichUserDetailsServiceTest {
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
 
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(listOf(userGroup));
-    when(prgServiceMock.findAllForAdminGroups(listOf(userGroup))).thenReturn(listOf(prg));
+    when(prgServiceMock.hasRelatedPhysicalResourceGroup(userGroup)).thenReturn(true);
     when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg));
 
     RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
@@ -169,7 +173,7 @@ public class RichUserDetailsServiceTest {
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
 
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(listOf(userGroup));
-    when(prgServiceMock.findAllForAdminGroups(listOf(userGroup))).thenReturn(listOf(prg));
+    when(prgServiceMock.hasRelatedPhysicalResourceGroup(userGroup)).thenReturn(true);
     when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg));
 
     RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
@@ -190,7 +194,7 @@ public class RichUserDetailsServiceTest {
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(listOf(userGroup));
     when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg));
     // Force role Manager
-    when(prgServiceMock.findAllForAdminGroups(Lists.newArrayList(userGroup))).thenReturn(Lists.newArrayList(prg));
+    when(prgServiceMock.hasRelatedPhysicalResourceGroup(userGroup)).thenReturn(true);
 
     List<BodRole> roles = subject.determineRoles(userDetails.getUserGroups());
 
@@ -229,7 +233,7 @@ public class RichUserDetailsServiceTest {
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setAdminGroup(userGroup.getId()).create();
 
     when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg));
-    when(prgServiceMock.findAllForAdminGroups(listOf(userGroup))).thenReturn(listOf(prg));
+    when(prgServiceMock.hasRelatedPhysicalResourceGroup(userGroup)).thenReturn(true);
 
     List<BodRole> roles = subject.determineRoles(listOf(userGroup));
     assertThat(roles, hasSize(1));
@@ -289,7 +293,7 @@ public class RichUserDetailsServiceTest {
     PhysicalResourceGroup prg2 = new PhysicalResourceGroupFactory().setAdminGroup(userGroup.getId()).create();
 
     when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg1, prg2));
-    when(prgServiceMock.findAllForAdminGroups(listOf(userGroup))).thenReturn(listOf(prg1, prg2));
+    when(prgServiceMock.hasRelatedPhysicalResourceGroup(userGroup)).thenReturn(true);
 
     List<BodRole> roles = subject.determineRoles(listOf(userGroup));
     assertThat(roles, hasSize(2));

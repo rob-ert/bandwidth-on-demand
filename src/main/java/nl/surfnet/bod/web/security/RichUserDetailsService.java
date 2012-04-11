@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.web.security;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -132,7 +133,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
   }
 
   private List<BodRole> determineManagerRole(UserGroup userGroup) {
-    List<BodRole> managerRoles = Lists.newArrayList();
+    List<BodRole> managerRoles = new ArrayList<BodRole>();
     for (PhysicalResourceGroup physicalResourceGroup : physicalResourceGroupService.findByAdminGroup(userGroup.getId())) {
 
       if (physicalResourceGroup != null) {

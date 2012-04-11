@@ -135,12 +135,16 @@ public class RichUserDetails implements UserDetails {
 
   /**
    * 
-   * @return All {@link #bodRoles} and the {@link #selectedRole}
+   * @return All {@link #bodRoles} and the {@link #selectedRole} if not null
    */
   public List<BodRole> getAllBodRoles() {
-    ArrayList<BodRole> allRoles = Lists.newArrayList(selectedRole);
+    ArrayList<BodRole> allRoles = Lists.newArrayList();
 
     allRoles.addAll(bodRoles);
+
+    if (selectedRole != null) {
+      allRoles.add(selectedRole);
+    }
 
     return allRoles;
   }
