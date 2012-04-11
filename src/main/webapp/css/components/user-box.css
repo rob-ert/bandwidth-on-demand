@@ -25,6 +25,7 @@
     clear:left;
     cursor: pointer;
     display: table;
+    table-layout: fixed;
     width: 100%;
     border-bottom: 1px solid #EEE;
 }
@@ -40,6 +41,9 @@
 .user-box .dropdown .user {
     display: table-cell;
     vertical-align: middle;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .user-box .dropdown .user,
