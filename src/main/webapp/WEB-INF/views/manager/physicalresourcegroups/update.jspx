@@ -37,19 +37,9 @@
                     </div>
                 </div>
 
-                <div class="control-group">
-                    <label class="control-label"><spring:message code="label_physicalresourcegroup_name" /></label>
-                    <div class="controls">
-                        <output>${physicalResourceGroup.institute.name}</output>
-                    </div>
-                </div>
+                <field:display object="${physicalResourceGroup}" field="institute" labelCode="label_virtualport_max_bandwidth" />
+                <field:display object="${physicalResourceGroup}" field="adminGroup" labelCode="label_virtualport_max_bandwidth" />
 
-                <div class="control-group">
-                    <label class="control-label"><spring:message code="label_physicalresourcegroup_admingroup" /></label>
-                    <div class="controls">
-                        <output>${physicalResourceGroup.adminGroup}</output>
-                    </div>
-                </div>
             </form:update>
             
         </div>

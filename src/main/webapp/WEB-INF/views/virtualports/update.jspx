@@ -7,27 +7,12 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <form:update id="fc_VirtualPort" modelAttribute="updateUserLabelCommand" path="/virtualports">
-        <field:input field="userLabel" id="name" labelCode="virtualport_name" />
 
-        <div class="control-group">
-            <label class="control-label"><spring:message code="label_virtualport_max_bandwidth"/></label>
-            <div class="controls">
-                <output>${virtualPort.maxBandwidth}</output>
-            </div>
-        </div>
+        <field:input field="userLabel" id="name" labelCode="virtualport_name" />
         
-        <div class="control-group">
-            <label class="control-label"><spring:message code="label_virtualport_vlan_id" /></label>
-            <div class="controls">
-                <output>${virtualPort.vlanId}</output>
-            </div>
-        </div>
-        
-        <div class="control-group">
-            <label class="control-label"><spring:message code="label_virtualresourcegroup" /></label>
-            <div class="controls">
-                <output>${virtualPort.virtualResourceGroup.name}</output>
-            </div>
-        </div>
+        <field:display object="${virtualPort}" field="maxBandwidth" labelCode="label_virtualport_max_bandwidth" />
+        <field:display object="${virtualPort}" field="vlanId" labelCode="label_virtualport_vlan_id" />
+        <field:display object="${virtualPort}" field="virtualResourceGroup" labelCode="label_virtualresourcegroup" />
+
     </form:update>
 </html>
