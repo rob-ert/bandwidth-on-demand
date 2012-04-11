@@ -5,39 +5,36 @@
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-
-    <page:list id="pl_physicalResourceGroup">
-        <table:table items="${list}" labelPluralCode="label_physicalresourcegroup_plural">
-            <thead>
-                <tr>
-                    <table:rowDetailsHeader />
-                    <th>Institute</th>
-                    <table:sortableHeader name="Email" property="managerEmail" />
-                    <table:sortableHeader name="Active" property="active" styleClass="cw55 center" />
-                    <th># of Ports</th>
-                    <table:actionsHeader />
-                </tr>
-            </thead>
-            <tbody>
-                <c:forEach items="${list}" var="item" >
-                    <tr class="rowdetails">
-                        <table:rowDetailsColumn>
-                            <dl class="dl-horizontal">
-                                <dt>SurfConext id</dt>
-                                <dd>
-                                    <c:out value="${item.adminGroup}" />
-                                </dd>
-                            </dl>
-                        </table:rowDetailsColumn>
-                        <table:column item="${item}" property="name" />
-                        <table:column item="${item}" property="managerEmail" />
-                        <table:column item="${item}" property="active" type="boolean" styleClass="center" />
-                        <table:column item="${item}" property="physicalPortCount" />
-                        <table:actionsColumn item="${item}" delete="false" path="/manager/physicalresourcegroups" labelCode="label_physicalresourcegroup" />
-                    </tr>
-                </c:forEach>
-            </tbody>
-        </table:table>
-    </page:list>
-
+    
+       <table:table items="${list}" labelPluralCode="label_physicalresourcegroup_plural">
+           <thead>
+               <tr>
+                   <table:rowDetailsHeader />
+                   <th>Institute</th>
+                   <table:sortableHeader name="Email" property="managerEmail" />
+                   <table:sortableHeader name="Active" property="active" styleClass="cw55 center" />
+                   <th># of Ports</th>
+                   <table:actionsHeader />
+               </tr>
+           </thead>
+           <tbody>
+               <c:forEach items="${list}" var="item" >
+                   <tr class="rowdetails">
+                       <table:rowDetailsColumn>
+                           <dl class="dl-horizontal">
+                               <dt>SurfConext id</dt>
+                               <dd>
+                                   <c:out value="${item.adminGroup}" />
+                               </dd>
+                           </dl>
+                       </table:rowDetailsColumn>
+                       <table:column item="${item}" property="name" />
+                       <table:column item="${item}" property="managerEmail" />
+                       <table:column item="${item}" property="active" type="boolean" styleClass="center" />
+                       <table:column item="${item}" property="physicalPortCount" />
+                       <table:actionsColumn item="${item}" delete="false" path="/manager/physicalresourcegroups" labelCode="label_physicalresourcegroup" />
+                   </tr>
+               </c:forEach>
+           </tbody>
+       </table:table>
 </html>

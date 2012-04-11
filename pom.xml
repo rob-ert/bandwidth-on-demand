@@ -382,11 +382,6 @@
             <version>${jetty.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-websocket</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
         <!-- Begin Selenium -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
