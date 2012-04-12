@@ -8,11 +8,9 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <page:list id="pl_reservation" path="/reservations">
-        <div>
-           <label>Reservation Filter</label>
-           <div class="input" style="margin-left: 160px;">
-               <sform:select id="filter" path="filterSelect.id" items="${filterList}" itemLabel="label" itemValue="id" />
-           </div>
+        <div class="form-inline">
+           <label>Reservation Filter</label><c:out value=" " />
+           <sform:select id="filter" path="filterSelect.id" items="${filterList}" itemLabel="label" itemValue="id" cssClass="input-medium" />
         </div>
         <table:table items="${list}" labelPluralCode="label_reservation_plural">
             <thead>
