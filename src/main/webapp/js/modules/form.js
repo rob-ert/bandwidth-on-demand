@@ -13,6 +13,7 @@ app.form = function(){
         initUserSelection();
         initFormLinks();
         initBandwidthSelector();
+        initDatepickers();
 
     };
 
@@ -131,6 +132,13 @@ app.form = function(){
 
         activateBandwidthButton(bandwidth / getMaxBandwidth());
 
+    }
+
+    var initDatepickers = function() {
+        $(".input-datepicker").datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true
+        });
     }
 
     return {
