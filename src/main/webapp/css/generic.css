@@ -43,6 +43,7 @@ header a:hover {
 .form {
     background-color: #FFF;
     border: 1px solid #BFBFBF;
+    max-width: 600px;
 }
 
 .form .message {
@@ -54,6 +55,12 @@ header a:hover {
 .form .message h3,
 .form .message p {
     margin-bottom: 0;
+}
+
+.form:after {
+    clear: both;
+    content: "";
+    display: table;
 }
 
 /* content */
