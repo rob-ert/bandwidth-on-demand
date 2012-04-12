@@ -20,6 +20,7 @@
             <bod:css value="/resources/css/components-bootstrap/alert.css" />
             <bod:css value="/resources/css/components-bootstrap/button.css" />
             <bod:css value="/resources/css/components-bootstrap/form.css" />
+            <bod:css value="/resources/css/components-bootstrap/tooltip.css" />
             <bod:css value="/resources/css/components/autoSuggest.css" />
             <bod:css value="/resources/css/components/datepicker.css" />
             <bod:css value="/resources/css/components/user-box.css" />

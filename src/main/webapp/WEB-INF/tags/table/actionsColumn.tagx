@@ -37,7 +37,7 @@
             <spring:url var="editUrl" value="${path}/edit">
                 <spring:param name="id" value="${item[idFieldName]}" />
             </spring:url>
-            <a href="${editUrl}" rel="tooltip" title="${edit_title}"><i class="${updateIcon}"><!--  --></i></a>
+            <a href="${editUrl}" rel="tooltip" data-type="info" title="${edit_title}"><i class="${updateIcon}"><!--  --></i></a>
         </c:if>
         <c:if test="${empty delete or delete}">
             <spring:message code="${deleteLabelCode}" arguments="${label}" var="delete_title" />
@@ -45,7 +45,7 @@
                 <spring:param name="_method" value="DELETE" />
                 <spring:param name="id" value="${item[idFieldName]}" />
             </spring:url>
-            <a href="${deleteUrl}" rel="tooltip" title="${delete_title}" data-form="true" data-confirm="Are you sure?"><i class="${deleteIcon}"><!--  --></i></a>
+            <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true" data-confirm="Are you sure?"><i class="${deleteIcon}"><!--  --></i></a>
         </c:if>
     </td>
     

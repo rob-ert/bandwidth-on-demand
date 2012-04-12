@@ -11,6 +11,7 @@
     <c:choose>
         <c:when test="${dev}">
             <bod:script value="/resources/js/main.js" />
+            <bod:script value="/resources/js/modules/global.js" />
             <bod:script value="/resources/js/modules/form.js" />
             <bod:script value="/resources/js/modules/message.js"  />
             <bod:script value="/resources/js/modules/table.js" />
