@@ -49,7 +49,6 @@
     <c:if test="${not empty errors}">
         <c:set var="error_css" value="error" />
     </c:if>
-        
     <div class="control-group ${error_css}" id="_${fn:escapeXml(id)}_id">
         <label for="${component_id}" class="control-label">
            <c:out value="${fn:escapeXml(label)}" />
@@ -100,7 +99,7 @@
                             <form:select id="${component_id}" items="${items}" path="${sec_field}" disabled="${disabled}" itemLabel="${sec_itemLabel}" cssClass="${cssClass}" />
                         </c:otherwise>
                       </c:choose>
-                      <form:errors cssClass="help-inline" id="${component_id}_error_id" path="${sec_field}" />
+                      <form:errors cssClass="help-block" id="${component_id}_error_id" path="${sec_field}" />
                     </c:otherwise>
                   </c:choose>
                 </c:when>
