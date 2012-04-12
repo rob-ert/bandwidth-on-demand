@@ -25,11 +25,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.web.security.Security;
 
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
-import org.joda.time.Period;
+import org.joda.time.*;
 import org.joda.time.format.PeriodFormat;
 import org.joda.time.format.PeriodFormatter;
 import org.springframework.validation.Errors;
@@ -106,7 +102,7 @@ public class ReservationValidator implements Validator {
   /**
    * Validates time related values. {@link Reservation#getStartDateTime()} is
    * allowed to be null, to indicate an immediate start
-   * 
+   *
    * @param errors
    *          {@link Errors}
    * @param reservation
@@ -114,15 +110,18 @@ public class ReservationValidator implements Validator {
    */
   private void validateStartAndEndDate(Errors errors, Reservation reservation) {
 
+    boolean basicValid = true;
     if (reservation.getEndDate() == null) {
       errors.rejectValue("endDate", "validation.not.empty");
+      basicValid = false;
     }
 
     if (reservation.getEndTime() == null) {
       errors.rejectValue("endTime", "validation.not.empty");
+      basicValid = false;
     }
 
-    if (reservation.getStartDateTime() == null) {
+    if (!basicValid || reservation.getStartDateTime() == null) {
       return;
     }
 

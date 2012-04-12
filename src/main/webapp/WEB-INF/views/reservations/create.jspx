@@ -95,17 +95,26 @@
                     </div>
                 </div>
 
-                <div class="control-group">
+                <c:set var="errors_endTime"><sform:errors path="endTime" /></c:set>
+                <c:if test="${not empty errors_endTime}">
+                    <c:set var="error_endTime_css" value=" error" />
+                </c:if>
+                <div class="control-group${error_endTime_css}">
                     <label class="control-label"><spring:message code="label_reservation_endtime" /></label>
                     <div class="controls">
                         <div class="input-append">
                             <sform:input id="_startTime_id" path="endTime" cssClass="input-time" />
                             <span class="add-on">hh:mm</span>
                         </div>
+                        <sform:errors cssClass="help-block" id="_endTime_error_id" path="endTime" delimiter=", " />
                     </div>
                 </div>
 
-                <div class="control-group" data-component="bandwidth-selector">
+                <c:set var="errors_bandwidth"><sform:errors path="bandwidth" /></c:set>
+                <c:if test="${not empty errors_bandwidth}">
+                    <c:set var="error_bandwidth_css" value=" error" />
+                </c:if>
+                <div class="control-group${error_bandwidth_css}" data-component="bandwidth-selector">
                     <label for="_bandwidth_id" class="control-label"><spring:message code="label_reservation_bandwidth" /></label>
                     <div class="controls">
                         <div class="input-append">
@@ -118,6 +127,7 @@
                               <button class="btn btn-mini" data-bandwidth-multiplier="1">High</button>
                             </div>
                         </span>
+                        <sform:errors cssClass="help-block" id="_bandwidth_error_id" path="bandwidth" delimiter=", " />
                     </div>
                 </div>
             </form:create>

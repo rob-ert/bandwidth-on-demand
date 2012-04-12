@@ -71,16 +71,6 @@
                     <span class="help-block">${help_message}</span>
                 </c:if>
             </div>
-
-            <spring:message argumentSeparator="," arguments="${label}, " code="field_simple_validation"
-                var="field_validation" htmlEscape="false" />
-
-            <c:set var="sec_field_validation">
-                <spring:escapeBody javaScriptEscape="true">${field_validation}</spring:escapeBody>
-            </c:set>
-            <c:set var="sec_field_invalid">
-                <spring:escapeBody javaScriptEscape="true" htmlEscape="true">${field_invalid}</spring:escapeBody>
-            </c:set>
         </div>
     </c:if>
 </jsp:root>
