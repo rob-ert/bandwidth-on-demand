@@ -5,33 +5,29 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-        <table class="table table-striped">
+    <div class="form">
+        <div class="message"><h3>Select the institute</h3></div>
+        <ul class="ul">
             <c:forEach var="group" items="${physicalResourceGroups}">
-                <tr>
-                    <td>
-                        <c:choose>
-                            <c:when test="${group.active}">
+                    <c:choose>
+                        <c:when test="${group.active}">
+                            <li>
                                 <spring:url value="/request" var="requestUrl">
                                     <spring:param name="id" value="${group.id}" />
                                     <spring:param name="team" value="${teamUrn}" />
                                 </spring:url>
                                 <a href="${requestUrl}">${group.institute.name}</a>
-                            </c:when>
-                            <c:otherwise>
-                                ${group.institute.name}
-                            </c:otherwise>
-                        </c:choose>
-                    </td>
-                    <td>
-                        <c:if test="${not group.active}">
-                            <span>Not active</span>
-                            <spring:message code="label_request_vp_inactive_institute" var="disabledTitle" />
-                            <span title="${disabledTitle}" rel="tooltip"> <i class="icon-info-sign icon-large"
-                                style="margin-left: 5px; cursor: help;" />
-                            </span>
-                        </c:if>
-                    </td>
-                </tr>
+                            </li>
+                        </c:when>
+                        <c:otherwise>
+                            <li class="inactive">
+                                <c:out value="${group.institute.name}" />
+                            </li>
+                        </c:otherwise>
+                    </c:choose>
             </c:forEach>
-        </table>
+        </ul>
+
+        <p><spring:message code="label_request_vp_inactive_institutes" /></p>
+    </div>
 </html>
