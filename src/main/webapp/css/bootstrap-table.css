@@ -122,6 +122,10 @@ th.sortable a {
     padding: 8px;
 }
 
+th.sortable a:hover {
+    text-decoration: none;
+}
+
 th.sortable i {
     float: right;
     visibility: hidden;

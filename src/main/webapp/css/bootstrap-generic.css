@@ -32,6 +32,11 @@
     color: inherit;
 }
 
+a:hover [class^="icon-"]:before,
+a:hover [class*=" icon-"]:before {
+    color:#005580;
+}
+
 a[rel="tooltip"]:hover {
     text-decoration: none;
 }
