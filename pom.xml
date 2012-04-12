@@ -639,7 +639,7 @@
                                 <jsSourceFile>jquery/jquery-autoSuggest.js</jsSourceFile>
                                 <jsSourceFile>jquery/jquery-socket-1.0a.js</jsSourceFile>
                                 <jsSourceFile>jquery/dropdown-reload.js</jsSourceFile>
-                                <jsSourceFile>datepicker/datepicker.js</jsSourceFile>
+                                <jsSourceFile>datepicker/bootstrap-datepicker.js</jsSourceFile>
                                 <jsSourceFile>main.js</jsSourceFile>
                             </jsSourceFiles>
                             <jsFinalFile>script.js</jsFinalFile>
