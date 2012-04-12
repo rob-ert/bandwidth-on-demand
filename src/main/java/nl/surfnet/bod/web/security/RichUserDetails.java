@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.web.security.Security.RoleEnum;
 
@@ -228,6 +229,21 @@ public class RichUserDetails implements UserDetails {
     }
 
     return foundRole;
+  }
+
+  public void switchToManagerRoleByPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
+    BodRole managerRole = null;
+
+    for (BodRole bodRole : getAllBodRoles()) {
+      if ((bodRole.getRole() == RoleEnum.ICT_MANAGER)
+          && (physicalResourceGroup.getId().equals(bodRole.getPhysicalResourceGroupId()))) {
+
+        managerRole = bodRole;
+        break;
+      }
+    }
+
+    switchRoleTo(managerRole);
   }
 
   public void switchRoleById(Long bodRoleId) {

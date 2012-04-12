@@ -80,14 +80,13 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   public static final String MODEL_KEY = "virtualPort";
   public static final String PAGE_URL = "/manager/virtualports";
 
-  private final Function<VirtualPort, VirtualPortView> toVitualPortView =
-      new Function<VirtualPort, VirtualPortView>() {
-        @Override
-        public VirtualPortView apply(VirtualPort port) {
-          instituteService.fillInstituteForPhysicalResourceGroup(port.getPhysicalResourceGroup());
-          return new VirtualPortView(port);
-        }
-      };
+  private final Function<VirtualPort, VirtualPortView> toVitualPortView = new Function<VirtualPort, VirtualPortView>() {
+    @Override
+    public VirtualPortView apply(VirtualPort port) {
+      instituteService.fillInstituteForPhysicalResourceGroup(port.getPhysicalResourceGroup());
+      return new VirtualPortView(port);
+    }
+  };
 
   @Autowired
   private VirtualPortService virtualPortService;
@@ -146,6 +145,8 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
       return "redirect:/manager/virtualports";
     }
 
+    // Switch to related manager role
+    Security.getUserDetails().switchToManagerRoleByPhysicalResourceGroup(requestLink.getPhysicalResourceGroup());
     instituteService.fillInstituteForPhysicalResourceGroup(requestLink.getPhysicalResourceGroup());
 
     VirtualPort virtualPort = new VirtualPort();
