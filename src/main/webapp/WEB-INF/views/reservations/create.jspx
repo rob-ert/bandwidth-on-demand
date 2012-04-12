@@ -23,13 +23,41 @@
 
                 <field:input field="name" id="name" labelCode="reservation_name" cssClass="input-xlarge" />
 
-                <field:select field="sourcePort" id="sourcePort" labelCode="reservation_sourcePort"
-                    items="${virtualPorts}" itemLabel="userLabel" itemValue="id" path="/reservations" cssClass="input-xlarge"
-                    create="false" />
+                <div class="control-group">
+                    <label class="control-label"><spring:message code="label_reservation_sourceport" /></label>
+                    <div class="controls">
+                        <select id="_sourcePort" name="sourcePort" class="input-xlarge" data-component="bandwidth-selector-source">
+                            <c:forEach var="vp" items="${virtualPorts}">
+                                <c:choose>
+                                    <c:when test="${reservation.sourcePort.id eq vp.id}">
+                                        <option value="${vp.id}" data-bandwidth-max="${vp.maxBandwidth}" selected="selected"><c:out value="${vp.userLabel}" /></option>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <option value="${vp.id}" data-bandwidth-max="${vp.maxBandwidth}"><c:out value="${vp.userLabel}" /></option>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:forEach>
+                        </select>
+                    </div>
+                </div>
 
-                <field:select field="destinationPort" id="destinationPort" labelCode="reservation_destinationPort"
-                    items="${virtualPorts}" itemLabel="userLabel" itemValue="id" path="/reservations" cssClass="input-xlarge"
-                    create="false" />
+                <div class="control-group">
+                    <label class="control-label"><spring:message code="label_reservation_destinationport" /></label>
+                    <div class="controls">
+                        <select id="_destinationPort" name="destinationPort" class="input-xlarge" data-component="bandwidth-selector-destination">
+                            <c:forEach var="vp" items="${virtualPorts}">
+                                <c:choose>
+                                    <c:when test="${reservation.destinationPort.id eq vp.id}">
+                                        <option value="${vp.id}" data-bandwidth-max="${vp.maxBandwidth}" selected="selected"><c:out value="${vp.userLabel}" /></option>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <option value="${vp.id}" data-bandwidth-max="${vp.maxBandwidth}"><c:out value="${vp.userLabel}" /></option>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:forEach>
+                        </select>
+                    </div>
+                </div>
 
                 <div class="control-group">
                     <label class="control-label"><spring:message code="label_reservation_startdate" /></label>
@@ -77,13 +105,7 @@
                     </div>
                 </div>
 
-                <c:set var="errors">
-                    <sform:errors path="bandwidth" />
-                </c:set>
-                <c:if test="${not empty errors}">
-                    <c:set var="error_css" value="error" />
-                </c:if>
-                <div class="control-group ${error_css}">
+                <div class="control-group" data-component="bandwidth-selector">
                     <label for="_bandwidth_id" class="control-label"><spring:message code="label_reservation_bandwidth" /></label>
                     <div class="controls">
                         <div class="input-append">
@@ -91,23 +113,12 @@
                         </div>
                         <span class="help-inline">
                             <div class="btn-group">
-                              <button class="btn btn-mini" data-bandwidth="10">Low</button>
-                              <button class="btn btn-mini" data-bandwidth="50">Med</button>
-                              <button class="btn btn-mini" data-bandwidth="100">High</button>
+                              <button class="btn btn-mini" data-bandwidth-multiplier="0.25">Low</button>
+                              <button class="btn btn-mini active" data-bandwidth-multiplier="0.5">Med</button>
+                              <button class="btn btn-mini" data-bandwidth-multiplier="1">High</button>
                             </div>
                         </span>
                     </div>
-
-                            <!-- <span class="bandwidth-tool"> <a href="#" id="bandwidthQuater"
-                                title="Bandwidth to a quater" rel="tooltip" data-placement="left"><img
-                                    src="${imgQuater}" height="28" /></a> <a href="#" id="bandwidthHalf"
-                                title="Bandwidth to a half" rel="tooltip"><img src="${imgHalf}" height="28" /></a> <a
-                                href="#" id="bandwidthFull" title="Bandwidth to full" rel="tooltip"
-                                data-placement="right"><img src="${imgFull}" height="28" /></a>
-                            </span>-->
-                            <sform:errors cssClass="help-inline" id="_bandwidth_error_id" path="bandwidth"
-                                delimiter=", " />
-                        <!-- <span class="help-block">Specified in Mbit/s</span>-->
                 </div>
             </form:create>
         </div>

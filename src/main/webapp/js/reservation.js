@@ -1,5 +1,4 @@
 $(function() {
-  var groupInJson;
   $("#_virtualresourcegroup").dropdownReload(
     dataUrl,
     ["#_sourcePort", "#_destinationPort"],
@@ -11,68 +10,6 @@ $(function() {
       displayProp: "userLabel"
     }
   );
-
-  $("#bandwidthQuater").click(function() {setQuaterBandwidth(); return false;});
-  $("#bandwidthHalf").click(function() {setHalfBandwidth(); return false;});
-  $("#bandwidthFull").click(function() {setFullBandwidth(); return false;});
-
-  $("#_sourcePort,#_destinationPort").change(function(object) {
-    setHalfBandwidth();
-  });
-
-  $("#_bandwidth_id").change(function() {
-    bandwidthChanged();
-  });
-
-  function setFullBandwidth() {
-    resetBandwidthSelection();
-    setBandwidthDividedBy(1);
-    $("#bandwidthFull").children().addClass("active");
-  }
-  function setHalfBandwidth() {
-    resetBandwidthSelection();
-    setBandwidthDividedBy(2);
-    $("#bandwidthHalf").children().addClass("active");
-  }
-  function setQuaterBandwidth() {
-    resetBandwidthSelection();
-    setBandwidthDividedBy(4);
-    $("#bandwidthQuater").children().addClass("active");
-  }
-  function resetBandwidthSelection() {
-    $("#bandwidthHalf").children().removeClass("active");
-    $("#bandwidthQuater").children().removeClass("active");
-    $("#bandwidthFull").children().removeClass("active");
-  }
-  function setBandwidthDividedBy(divider) {
-    $("#_bandwidth_id").val(getMaxBandwidth() / divider);
-  }
-  function getMaxBandwidth() {
-    sourceBandwidth = groupInJson[$("#_sourcePort").prop('selectedIndex')].maxBandwidth;
-    destinationBandwidth = groupInJson[$("#_destinationPort").prop('selectedIndex')].maxBandwidth;
-    return Math.min(sourceBandwidth, destinationBandwidth);
-  }
-  function bandwidthChanged() {
-    resetBandwidthSelection();
-
-    bandwidth = $("#_bandwidth_id").val();
-    if (getMaxBandwidth() == bandwidth) {
-      setFullBandwidth();
-    }
-    if (getMaxBandwidth() / 2 == bandwidth) {
-      setHalfBandwidth();
-    }
-    if (getMaxBandwidth() / 4 == bandwidth) {
-      setQuaterBandwidth();
-    }
-  }
-  function initBandwidthSelection() {
-    $.getJSON(dataUrl.replace("{}", $("#_virtualresourcegroup").val()), function(data) {
-        groupInJson = data;
-        bandwidthChanged();
-    });
-  }
-  initBandwidthSelection();
 
   var $startTime = $("#_startTime_id"),
       $startDate = $("#_startDate_id"),
