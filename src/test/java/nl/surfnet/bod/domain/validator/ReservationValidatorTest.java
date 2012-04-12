@@ -123,7 +123,7 @@ public class ReservationValidatorTest {
     subject.validate(reservation, errors);
 
     assertTrue(errors.hasErrors());
-    assertThat(errors.getGlobalError().getCode(), containsString("validation.reservation.sameports"));
+    assertThat(errors.getFieldErrors("destinationPort").get(0).getCode(), containsString("validation.reservation.sameports"));
   }
 
   @Test
