@@ -18,38 +18,64 @@
             <form:create id="fc_reservation" modelAttribute="reservation" path="/reservations">
 
                 <field:select field="virtualResourceGroup" id="virtualresourcegroup" labelCode="virtualresourcegroup"
-                    itemLabel="name" itemValue="id" items="${virtualResourceGroups}" path="/reservations"
-                    required="true" create="false" showSingle="true" />
+                    itemLabel="name" itemValue="id" items="${virtualResourceGroups}" path="/reservations" cssClass="input-xlarge"
+                    create="false" showSingle="true" />
 
-                <field:input field="name" id="name" labelCode="reservation_name" />
+                <field:input field="name" id="name" labelCode="reservation_name" cssClass="input-xlarge" />
 
                 <field:select field="sourcePort" id="sourcePort" labelCode="reservation_sourcePort"
-                    items="${virtualPorts}" itemLabel="userLabel" itemValue="id" path="/reservations" required="true"
+                    items="${virtualPorts}" itemLabel="userLabel" itemValue="id" path="/reservations" cssClass="input-xlarge"
                     create="false" />
 
                 <field:select field="destinationPort" id="destinationPort" labelCode="reservation_destinationPort"
-                    items="${virtualPorts}" itemLabel="userLabel" itemValue="id" path="/reservations" required="true"
+                    items="${virtualPorts}" itemLabel="userLabel" itemValue="id" path="/reservations" cssClass="input-xlarge"
                     create="false" />
 
                 <div class="control-group">
                     <label class="control-label"><spring:message code="label_reservation_startdate" /></label>
                     <div class="controls">
-                        <div class="inline-inputs">
-					   		<sform:input id="_startDate_id" path="startDate" type="date" />
-							<span class="help-inline">
-    							<spring:message code="label_reservation_now"  />
-    							<input id="now_chk" name="now" type="checkbox" onselect="toggleStart" class="inline" style="margin-left: 5px;"/>
+                        <div class="input-append">
+					   		<sform:input id="_startDate_id" path="startDate" cssClass="input-date" />
+                            <span class="add-on"><spring:message code="help_generic_dateformat" /></span>
+                            <span class="help-inline">
+                                <label class="checkbox inline">
+                                    <input id="now_chk" name="now" type="checkbox" onselect="toggleStart" />
+                                    <spring:message code="label_reservation_now"  />
+                                </label>
 							</span>
 						</div>
-            			<span class="help-block"><spring:message code="help_generic_dateformat" /></span>
 	                 </div>
                 </div>
                  
-                <field:input type="time" field="startTime" id="startTime" labelCode="reservation_startTime"
-	                    required="false" />
+                <div class="control-group">
+                    <label class="control-label"><spring:message code="label_reservation_starttime" /></label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <sform:input id="_startTime_id" path="startTime" cssClass="input-time" />
+                            <span class="add-on">hh:mm</span>
+                        </div>
+                    </div>
+                </div>
 
-                <field:input type="date" field="endDate" id="endDate" labelCode="reservation_endDate" helpMessageCode="generic_dateformat" />
-                <field:input type="time" field="endTime" id="endTime" labelCode="reservation_endTime" />
+                <div class="control-group">
+                    <label class="control-label"><spring:message code="label_reservation_enddate" /></label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <sform:input id="_endDate_id" path="endDate" cssClass="input-date" />
+                            <span class="add-on"><spring:message code="help_generic_dateformat" /></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label"><spring:message code="label_reservation_endtime" /></label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <sform:input id="_startTime_id" path="endTime" cssClass="input-time" />
+                            <span class="add-on">hh:mm</span>
+                        </div>
+                    </div>
+                </div>
 
                 <c:set var="errors">
                     <sform:errors path="bandwidth" />

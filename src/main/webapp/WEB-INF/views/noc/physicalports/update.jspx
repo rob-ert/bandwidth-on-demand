@@ -12,7 +12,7 @@
         <field:input field="managerLabel" id="c_PhysicalPort_managerlabel" />
 
         <field:select field="physicalResourceGroup" id="c_PhysicalPort_physicalResourceGroup" itemValue="id"
-            items="${physicalResourceGroupList}" path="/noc/physicalresourcegroups" required="false" />
+            items="${physicalResourceGroupList}" path="/noc/physicalresourcegroups" />
 
     </form:update>
 
