@@ -100,12 +100,14 @@
                 </div>
             </nav>
 
-            <c:forEach items="${infoMessages}" var="infoMessage">
-                <div class="alert alert-info">
-                    <a class="close" data-dismiss="alert">&amp;times;</a>
-                    <c:out value="${infoMessage}" escapeXml="false"/>
-                </div>
-            </c:forEach>
+            <div id="alerts">
+                <c:forEach items="${infoMessages}" var="infoMessage">
+                    <div class="alert alert-info">
+                        <a class="close" data-dismiss="alert">&amp;times;</a>
+                        <c:out value=" ${infoMessage}" escapeXml="false"/>
+                    </div>
+                </c:forEach>
+            </div>
 
             <tiles:insertAttribute name="body" />
 
