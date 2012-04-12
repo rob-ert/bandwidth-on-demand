@@ -23,7 +23,11 @@
 
                 <field:input field="name" id="name" labelCode="reservation_name" cssClass="input-xlarge" />
 
-                <div class="control-group">
+                <c:set var="errors_sourcePort"><sform:errors path="sourcePort" /></c:set>
+                <c:if test="${not empty errors_sourcePort}">
+                    <c:set var="error_sourcePort_css" value=" error" />
+                </c:if>
+                <div class="control-group${error_sourcePort_css}">
                     <label class="control-label"><spring:message code="label_reservation_sourceport" /></label>
                     <div class="controls">
                         <select id="_sourcePort" name="sourcePort" class="input-xlarge" data-component="bandwidth-selector-source">
@@ -38,10 +42,15 @@
                                 </c:choose>
                             </c:forEach>
                         </select>
+                        <sform:errors cssClass="help-block" id="_sourcePort_error_id" path="sourcePort" delimiter=", " />
                     </div>
                 </div>
 
-                <div class="control-group">
+                <c:set var="errors_destinationPort"><sform:errors path="destinationPort" /></c:set>
+                <c:if test="${not empty errors_destinationPort}">
+                    <c:set var="error_destinationPort_css" value=" error" />
+                </c:if>
+                <div class="control-group${error_destinationPort_css}">
                     <label class="control-label"><spring:message code="label_reservation_destinationport" /></label>
                     <div class="controls">
                         <select id="_destinationPort" name="destinationPort" class="input-xlarge" data-component="bandwidth-selector-destination">
@@ -56,6 +65,7 @@
                                 </c:choose>
                             </c:forEach>
                         </select>
+                        <sform:errors cssClass="help-block" id="_destinationPort_error_id" path="destinationPort" delimiter=", " />
                     </div>
                 </div>
 
@@ -65,7 +75,7 @@
                         <div class="input-append">
 					   		<sform:input id="_startDate_id" path="startDate" cssClass="input-date-with-time" />
                             <span class="add-on"><spring:message code="help_generic_dateformat" /></span>
-
+                            <c:out value=" " />
                             <sform:input id="_startTime_id" path="startTime" cssClass="input-time-with-date" />
                             <span class="add-on"><spring:message code="help_generic_timeformat" /></span>
 
@@ -89,7 +99,7 @@
                         <div class="input-append">
                             <sform:input id="_endDate_id" path="endDate" cssClass="input-date-with-time" />
                             <span class="add-on"><spring:message code="help_generic_dateformat" /></span>
-
+                            <c:out value=" " />
                             <sform:input id="_endTime_id" path="endTime" cssClass="input-time-with-date" />
                             <span class="add-on"><spring:message code="help_generic_timeformat" /></span>
                         </div>

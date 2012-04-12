@@ -35,15 +35,12 @@
             <h1><spring:message code="entity_update" arguments="${label}" /></h1>
             <div class="content">
                 <form:form action="${form_url}" method="PUT" modelAttribute="${modelAttribute}" enctype="${enctype}" cssClass="form form-horizontal">
+
                     <c:set var="errors"><form:errors /></c:set>
                     <c:if test="${not empty errors}">
-                        <div class="row">
-                            <div class="span10">
-                                <div class="alert-message error" data-alert="true">
-                                    <a class="close" href="#">&amp;times;</a>
-                                    <form:errors cssClass="errors" delimiter="&lt;p/&gt;" element="p" />
-                                </div>
-                            </div>
+                        <div class="alert alert-error">
+                            <a class="close" href="#" data-dismiss="alert">&amp;times;</a>
+                            <form:errors delimiter="; " />
                         </div>
                     </c:if>
 

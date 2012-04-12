@@ -81,9 +81,9 @@ public class ReservationValidator implements Validator {
     }
 
     if (sourcePort.equals(destinationPort)) {
-      errors.reject("validation.reservation.sameports", "Source and Destination port should be different");
       errors.rejectValue("sourcePort", "", "");
-      errors.rejectValue("destinationPort", "", "");
+      errors.rejectValue("destinationPort", "validation.reservation.sameports",
+          "Source and Destination port should be different");
     }
 
     String groupNameOfSource = sourcePort.getVirtualResourceGroup().getSurfconextGroupId();
@@ -91,7 +91,8 @@ public class ReservationValidator implements Validator {
     String groupName = reservation.getVirtualResourceGroup().getSurfconextGroupId();
 
     if (!groupNameOfSource.equals(groupNameOfDestination) || !groupName.equals(groupNameOfSource)) {
-      errors.reject("validation.reservation.security", "Ports are not in the same virtualResourceGroup");
+      errors.rejectValue("sourcePort", "", "");
+      errors.rejectValue("destinationPort", "validation.reservation.security", "Ports are not in the same virtualResourceGroup");
     }
 
     if (!Security.getUserDetails().getUserGroupIds().contains(groupNameOfSource)) {
@@ -109,7 +110,6 @@ public class ReservationValidator implements Validator {
    *          {@link Reservation}
    */
   private void validateStartAndEndDate(Errors errors, Reservation reservation) {
-
     boolean basicValid = true;
     if (reservation.getEndDate() == null) {
       errors.rejectValue("endDate", "validation.not.empty");
