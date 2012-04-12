@@ -71,6 +71,8 @@ public class ActivationEmailController {
       return "index";
     }
 
+    Security.getUserDetails().switchToManagerRoleByPhysicalResourceGroup(physicalResourceGroup);
+
     if (link.isActivated()) {
       log.info("Link [{}] already activated on: {}", link.getUuid(), link.getActivationDateTime());
       return "manager/linkActive";
@@ -97,8 +99,8 @@ public class ActivationEmailController {
     ActivationEmailLink<PhysicalResourceGroup> activationLink = physicalResourceGroupService
         .sendActivationRequest(foundPhysicalResourceGroup);
 
-    WebUtils.addInfoMessage(model, "An activation email for Physcial Resource Group %s was sent to %s",
-        activationLink.getSourceObject().getName(), activationLink.getToEmail());
+    WebUtils.addInfoMessage(model, "An activation email for Physcial Resource Group %s was sent to %s", activationLink
+        .getSourceObject().getName(), activationLink.getToEmail());
 
     return "manager/index";
   }

@@ -32,15 +32,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.ActivationEmailLink;
+import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.ActivationEmailLinkFactory;
+import nl.surfnet.bod.support.BodRoleFactory;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,6 +54,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.Lists;
 
 @SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)
@@ -89,6 +95,23 @@ public class ActivationEmailControllerTest {
     assertThat(model.asMap(), hasEntry("physicalResourceGroup", Object.class.cast(link.getSourceObject())));
 
     verify(physicalResourceGroupServiceMock, times(1)).activate(any((ActivationEmailLink.class)));
+  }
+
+  @Test
+  public void shouldSwitchToCorrectManagerRole() {
+    BodRole correctRole = new BodRoleFactory().setPhysicalResourceGroup((PhysicalResourceGroup) link.getSourceObject())
+        .setRole(RoleEnum.ICT_MANAGER).create();
+    BodRole wrongRole = new BodRoleFactory().create();
+
+    RichUserDetails userDetails = Security.getUserDetails();
+    userDetails.addBodRoles(Lists.newArrayList(correctRole, wrongRole));
+    userDetails.setSelectedRole(wrongRole);
+
+    when(physicalResourceGroupServiceMock.findActivationLink("1234567890")).thenReturn(link);
+
+    subject.activateEmail("1234567890", model);
+
+    assertThat(userDetails.getSelectedRole(), is(correctRole));
   }
 
   @Test
