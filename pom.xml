@@ -622,13 +622,8 @@
                         <configuration>
                             <cssSourceDir>css</cssSourceDir>
                             <cssSourceIncludes>
-                                <cssSourceInclude>components/*.css</cssSourceInclude>
-                                <cssSourceInclude>components-bootstrap/*.css</cssSourceInclude>
+                                <cssSourceInclude>*.css</cssSourceInclude>
                             </cssSourceIncludes>
-                            <cssSourceFiles>
-                                <cssSourceFile>layout.css</cssSourceFile>
-                                <cssSourceFile>generic.css</cssSourceFile>
-                            </cssSourceFiles>
                             <cssFinalFile>style.css</cssFinalFile>
 
                             <jsSourceDir>js</jsSourceDir>
