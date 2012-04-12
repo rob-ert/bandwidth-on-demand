@@ -1,0 +1,53 @@
+.view-source-button {
+    position: absolute;
+    bottom: 0;
+    right: 3px;
+    font-size: 10px;
+    opacity: 0.5;
+}
+
+#source-code {
+    z-index: 7000;
+    display: none;
+    text-align: left;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.8);
+}
+#source-code:target {
+    display:block;
+}
+#source-code pre {
+    padding: 20px;
+    font: 14px/1.6 Monaco,Courier,MonoSpace;
+    margin: 50px auto;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    width: 80%;
+    height: 80%;
+    overflow: auto
+}
+#source-code pre a, #source-code pre a span {
+    text-decoration :none;
+    color: #0cf !important
+}
+#x {
+    position: fixed;
+    top: 10%;
+    left: 10%;
+}
+
+.str{color:#61ff74}
+.kwd{color:white}
+.com{color:white}
+.typ{color:#f1915d}
+.lit{color:white}
+.pun{color:white}
+.pln{color:#ffef97}
+.tag{color:#ffab58}
+.atn{color:#fabb4e}
+.atv{color:#ffd996}
+.dec{color:red}
