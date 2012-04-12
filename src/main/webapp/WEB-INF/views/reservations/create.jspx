@@ -118,7 +118,7 @@
                     <label for="_bandwidth_id" class="control-label"><spring:message code="label_reservation_bandwidth" /></label>
                     <div class="controls">
                         <div class="input-append">
-                            <sform:input id="_bandwidth_id" path="bandwidth" cssClass="input-mini" /><span class="add-on">Mbit/s</span>
+                            <sform:input id="_bandwidth_id" path="bandwidth" cssClass="input-mini" /><span class="add-on"><spring:message code="label_bandwidth_unit" /></span>
                         </div>
                         <span class="help-inline">
                             <div class="btn-group">

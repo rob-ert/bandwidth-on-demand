@@ -75,7 +75,8 @@
                         </table:rowDetailsColumn>
                         <table:column item="${item}" property="name" />
                         <table:column item="${item}" property="virtualResourceGroup" />
-                        <table:column item="${item}" property="bandwidth" append="Mbit/s" />
+                        <spring:message code="label_bandwidth_unit" var="mbit_label" />
+                        <table:column item="${item}" property="bandwidth" append="${mbit_label}" />
                         <table:column item="${item}" property="startDateTime" />
                         <table:column item="${item}" property="endDateTime" />
                         <table:column item="${item}" property="status" />

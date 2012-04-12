@@ -48,7 +48,7 @@
                 <label class="control-label"><spring:message code="label_request_vp_bandwidth" /></label>
                 <div class="controls">
                     <div class="input-append">
-                        <form:input path="bandwidth" cssClass="input-medium" /><span class="add-on">Mbit/s</span>
+                        <form:input path="bandwidth" cssClass="input-medium" /><span class="add-on"><spring:message code="label_bandwidth_unit" /></span>
                     </div>
                     <form:errors cssClass="help-inline" id="_message_error_id" path="bandwidth" delimiter=", " />
                 </div>
