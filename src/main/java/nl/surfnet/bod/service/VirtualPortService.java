@@ -112,11 +112,16 @@ public class VirtualPortService {
 
   private Specification<VirtualPort> specificationForManager(final RichUserDetails manager) {
     return new Specification<VirtualPort>() {
+
+      Long prgId = manager.getSelectedRole().getPhysicalResourceGroupId();
+
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
           CriteriaBuilder cb) {
-        return cb.and(root.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
-            .get(PhysicalResourceGroup_.adminGroup).in(manager.getUserGroupIds()));
+        return cb.and(cb
+            .equal(
+                root.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
+                    .get(PhysicalResourceGroup_.id), prgId));
       }
     };
   }
@@ -141,10 +146,6 @@ public class VirtualPortService {
 
   public List<VirtualPort> findEntriesForManager(RichUserDetails manager, int firstResult, int maxResults, Sort sort) {
     checkNotNull(manager);
-
-    if (manager.getUserGroups().isEmpty()) {
-      return Collections.emptyList();
-    }
 
     return virtualPortRepo.findAll(specificationForManager(manager),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
