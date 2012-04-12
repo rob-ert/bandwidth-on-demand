@@ -28,6 +28,8 @@
     <body>
         <div class="wrapper">
             <header>
+                <spring:url value="/" var="home_url" />
+                <a href="${home_url}">Home</a>
                 <h1>${app_name}</h1>
             </header>
             
