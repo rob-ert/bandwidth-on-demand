@@ -80,7 +80,7 @@ public class RichUserDetailsTest {
     BodRole role2 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).create();
 
     RichUserDetails userDetails = new RichUserDetailsFactory().create();
-    userDetails.setBodRoles(Lists.newArrayList(role1, role2));
+    userDetails.addBodRoles(Lists.newArrayList(role1, role2));
     userDetails.setSelectedRole(role1);
 
     assertThat(userDetails.getSelectedRole(), is(role1));
@@ -99,7 +99,7 @@ public class RichUserDetailsTest {
     BodRole role2 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).create();
 
     RichUserDetails userDetails = new RichUserDetailsFactory().create();
-    userDetails.setBodRoles(Lists.newArrayList(role1, role2));
+    userDetails.addBodRoles(Lists.newArrayList(role1, role2));
     userDetails.setSelectedRole(role1);
 
     assertThat(userDetails.getSelectedRole(), is(role1));
@@ -118,8 +118,8 @@ public class RichUserDetailsTest {
     BodRole role3 = new BodRoleFactory().setRole(Security.RoleEnum.ICT_MANAGER).create();
     BodRole role4 = new BodRoleFactory().setRole(Security.RoleEnum.USER).create();
 
-    RichUserDetails userDetails = new RichUserDetailsFactory().setSelectedRole(null).create();
-    userDetails.setBodRoles(Lists.newArrayList(role4, role3, role2, role1));
+    RichUserDetails userDetails = new RichUserDetailsFactory().create();
+    userDetails.addBodRoles(Lists.newArrayList(role4, role3, role2, role1));
 
     userDetails.switchRoleTo(role3);
     assertThat(userDetails.getSelectedRole(), is(role3));
@@ -148,7 +148,7 @@ public class RichUserDetailsTest {
     BodRole role4 = new BodRoleFactory().setRole(Security.RoleEnum.USER).setPhysicalResourceGroup(firstGroup).create();
 
     RichUserDetails userDetails = new RichUserDetailsFactory().setSelectedRole(null).create();
-    userDetails.setBodRoles(Lists.newArrayList(role4, role3, role2, role1));
+    userDetails.addBodRoles(Lists.newArrayList(role4, role3, role2, role1));
 
     userDetails.switchRoleTo(role1);
     assertThat(userDetails.getSelectedRole(), is(role1));

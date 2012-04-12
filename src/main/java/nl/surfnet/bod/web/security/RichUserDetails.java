@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.UserGroup;
@@ -35,6 +36,7 @@ import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.slf4j.Logger;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.CollectionUtils;
 
@@ -42,8 +44,10 @@ import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 
 @SuppressWarnings("serial")
 public class RichUserDetails implements UserDetails {
@@ -63,8 +67,8 @@ public class RichUserDetails implements UserDetails {
   private final String displayName;
   private final String email;
   private final Collection<UserGroup> userGroups;
-  private Collection<GrantedAuthority> authorities;
-  private List<BodRole> bodRoles = Lists.newArrayList();
+  private Set<GrantedAuthority> authorities = Sets.newHashSet();
+  private Set<BodRole> bodRoles = Sets.newHashSet();
   private BodRole selectedRole;
 
   public RichUserDetails(String username, String displayName, String email, Collection<UserGroup> userGroups) {
@@ -129,8 +133,41 @@ public class RichUserDetails implements UserDetails {
     return true;
   }
 
+  /**
+   * Adds a {@link BodRole} for the user
+   * 
+   * @param role
+   *          BodRole to add
+   * @see #addBodRoles(Collection)
+   */
+  public void addBodRole(BodRole role) {
+    addBodRoles(Lists.newArrayList(role));
+  }
+
+  /**
+   * Adds a {@link BodRole} for the user and mutates the related
+   * {@link #authorities}
+   * 
+   * @param roles
+   *          Collection of BodRole
+   */
+  public void addBodRoles(Collection<BodRole> roles) {
+
+    if (roles == null) {
+      return;
+    }
+
+    this.bodRoles.addAll(roles);
+
+    this.bodRoles.remove(null);
+
+    for (BodRole bodRole : this.bodRoles) {
+      authorities.add(new GrantedAuthorityImpl(bodRole.getRoleName()));
+    }
+  }
+
   public List<BodRole> getBodRoles() {
-    return bodRoles;
+    return SORT_BY_SORT_ORDER_AND_INSTITUTE_NAME.sortedCopy(bodRoles);
   }
 
   /**
@@ -138,21 +175,13 @@ public class RichUserDetails implements UserDetails {
    * @return All {@link #bodRoles} and the {@link #selectedRole} if not null
    */
   public List<BodRole> getAllBodRoles() {
-    ArrayList<BodRole> allRoles = Lists.newArrayList();
-
-    allRoles.addAll(bodRoles);
+    ArrayList<BodRole> allRoles = Lists.newArrayList(getBodRoles());
 
     if (selectedRole != null) {
       allRoles.add(selectedRole);
     }
 
     return allRoles;
-  }
-
-  public void setBodRoles(List<BodRole> roles) {
-    this.bodRoles = roles;
-
-    sortRoles();
   }
 
   public void setSelectedRole(BodRole role) {
@@ -165,17 +194,13 @@ public class RichUserDetails implements UserDetails {
 
   @Override
   public Collection<GrantedAuthority> getAuthorities() {
-    return authorities;
-  }
-
-  public void setAuthorities(List<GrantedAuthority> authorities) {
-    this.authorities = authorities;
+    return ImmutableList.copyOf(authorities);
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("nameId", getNameId()).add("displayName", getDisplayName())
-        .add("bodRoles", bodRoles).toString();
+        .add("bodRoles", bodRoles).add("selectedRole", selectedRole).toString();
   }
 
   public BodRole findBodRoleById(final Long bodRoleId) {
@@ -185,7 +210,7 @@ public class RichUserDetails implements UserDetails {
     Collection<BodRole> filteredRoles = Collections2.filter(bodRoles, new Predicate<BodRole>() {
       @Override
       public boolean apply(BodRole input) {
-        return input.getId() == bodRoleId;
+        return input.getId().equals(bodRoleId);
       }
     });
 
@@ -203,7 +228,7 @@ public class RichUserDetails implements UserDetails {
     return foundRole;
   }
 
-  BodRole findFirstBodRoleByRole(RoleEnum role) {
+  public BodRole findFirstBodRoleByRole(RoleEnum role) {
     BodRole foundRole = null;
 
     for (BodRole bodRole : getAllBodRoles()) {
@@ -236,27 +261,6 @@ public class RichUserDetails implements UserDetails {
 
     bodRoles.remove(bodRole);
     selectedRole = bodRole;
-
-    sortRoles();
-  }
-
-  private void sortRoles() {
-    bodRoles = SORT_BY_SORT_ORDER_AND_INSTITUTE_NAME.sortedCopy(bodRoles);
-  }
-
-  public void switchRoleToUser() {
-    BodRole userRole = findFirstBodRoleByRole(RoleEnum.USER);
-    switchRoleTo(userRole);
-  }
-
-  public void switchRoleToNocEngineer() {
-    BodRole nocRole = findFirstBodRoleByRole(RoleEnum.NOC_ENGINEER);
-    switchRoleTo(nocRole);
-  }
-
-  public void switchRoleToFirstManager() {
-    BodRole managerRole = findFirstBodRoleByRole(RoleEnum.ICT_MANAGER);
-    switchRoleTo(managerRole);
   }
 
 }

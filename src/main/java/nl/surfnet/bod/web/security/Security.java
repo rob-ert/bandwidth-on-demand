@@ -108,6 +108,21 @@ public final class Security {
     return getUserDetails().findFirstBodRoleByRole(RoleEnum.USER) != null;
   }
 
+  public void switchRoleToUser() {
+    BodRole userRole = getUserDetails().findFirstBodRoleByRole(RoleEnum.USER);
+    getUserDetails().switchRoleTo(userRole);
+  }
+
+  public void switchRoleToNocEngineer() {
+    BodRole nocRole = getUserDetails().findFirstBodRoleByRole(RoleEnum.NOC_ENGINEER);
+    getUserDetails().switchRoleTo(nocRole);
+  }
+
+  public void switchRoleToFirstManager() {
+    BodRole managerRole = getUserDetails().findFirstBodRoleByRole(RoleEnum.ICT_MANAGER);
+    getUserDetails().switchRoleTo(managerRole);
+  }
+
   public static boolean isUserMemberOf(String groupId) {
     return getUserDetails().getUserGroupIds().contains(groupId);
   }

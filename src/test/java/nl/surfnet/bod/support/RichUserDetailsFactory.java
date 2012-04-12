@@ -30,9 +30,6 @@ import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
-
 import com.google.common.collect.Lists;
 
 public class RichUserDetailsFactory {
@@ -43,13 +40,13 @@ public class RichUserDetailsFactory {
   private String displayName = "Truus Visscher";
   private String email = "truus@example.com";
   private Collection<UserGroup> userGroups = Lists.newArrayList();
-  private BodRole selectedRole = new BodRoleFactory().create();
-  private List<BodRole> bodRoles = Lists.newArrayList(selectedRole);
+  private BodRole selectedRole = null;
+  private List<BodRole> bodRoles = Lists.newArrayList();
 
   public RichUserDetails create() {
 
     RichUserDetails userDetails = new RichUserDetails(username, displayName, email, userGroups);
-    userDetails.setBodRoles(bodRoles);
+    userDetails.addBodRoles(bodRoles);
     userDetails.switchRoleTo(selectedRole);
 
     return userDetails;

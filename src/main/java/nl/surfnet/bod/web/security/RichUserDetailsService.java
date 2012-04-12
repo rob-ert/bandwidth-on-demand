@@ -23,7 +23,6 @@ package nl.surfnet.bod.web.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -40,8 +39,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.CollectionUtils;
@@ -79,24 +76,12 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
     RichUserDetails userDetails = new RichUserDetails(principal.getNameId(), principal.getDisplayName(),
         principal.getEmail(), groups);
 
-    userDetails.setBodRoles(determineRoles(userDetails.getUserGroups()));
+    userDetails.addBodRoles(determineRoles(userDetails.getUserGroups()));
 
     userDetails.switchRoleTo(CollectionUtils.isEmpty(userDetails.getBodRoles()) ? null : userDetails.getBodRoles().get(
         0));
 
-    userDetails.setAuthorities(determineAuthorities(userDetails.getAllBodRoles()));
-
     return userDetails;
-  }
-
-  private List<GrantedAuthority> determineAuthorities(List<BodRole> bodRoles) {
-    HashSet<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
-
-    for (BodRole bodRole : bodRoles) {
-      authorities.add(new GrantedAuthorityImpl(bodRole.getRoleName()));
-    }
-
-    return Lists.newArrayList(authorities);
   }
 
   /**
@@ -116,8 +101,6 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
       roles.addAll(determineManagerRole(userGroup));
       roles.add(determineUserRole(userGroup));
     }
-
-    roles.remove(null);
 
     return Lists.newArrayList(roles);
   }

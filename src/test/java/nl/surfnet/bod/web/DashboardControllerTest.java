@@ -36,8 +36,6 @@ import nl.surfnet.bod.web.security.Security;
 import org.junit.Test;
 import org.springframework.ui.Model;
 
-import com.google.common.collect.Lists;
-
 public class DashboardControllerTest {
 
   private DashboardController subject = new DashboardController();
@@ -79,7 +77,7 @@ public class DashboardControllerTest {
   public void aNoBodyShouldGoTo() {
     RichUserDetails user = new RichUserDetailsFactory().create();
 
-    user.setBodRoles(new ArrayList<BodRole>());
+    user.addBodRoles(new ArrayList<BodRole>());
     user.setSelectedRole(null);
 
     Security.setUserDetails(user);

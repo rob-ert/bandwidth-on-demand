@@ -87,7 +87,8 @@ public final class WebUtils {
    * @return The user selected PhysicalResourceGroupId
    */
   public static Long getSelectedPhysicalResourceGroupId() {
-    return Security.getUserDetails().getSelectedRole().getPhysicalResourceGroupId();
+    return Security.getUserDetails().getSelectedRole() == null ? null : Security.getUserDetails().getSelectedRole()
+        .getPhysicalResourceGroupId();
   }
 
   /**
