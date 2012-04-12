@@ -190,10 +190,10 @@ public class ReservationService {
         return cb.and(cb.or(
             cb.equal(
                 root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort)
-                    .get(PhysicalPort_.physicalResourceGroup).get("id"), prgId),
+                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId),
             cb.equal(
                 root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort)
-                    .get(PhysicalPort_.physicalResourceGroup).get("id"), prgId)));
+                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId)));
       }
     };
   }
