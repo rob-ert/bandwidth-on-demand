@@ -63,7 +63,7 @@ header a:hover {
     display: table;
 }
 
-.form p {
+.form > p {
     margin: 0 0 1em 3em;
 }
 
