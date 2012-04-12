@@ -12,6 +12,7 @@
         <link rel="stylesheet" href="css/components-bootstrap/generic.css">
         <link rel="stylesheet" href="css/components-bootstrap/navbar.css">
         <link rel="stylesheet" href="css/components-bootstrap/table.css">
+        <link rel="stylesheet" href="css/components-bootstrap/form.css">
         <link rel="stylesheet" href="css/components-bootstrap/pagination.css">
         <link rel="stylesheet" href="css/components-bootstrap/dropdown.css">
         <link rel="stylesheet" href="css/components-bootstrap/alert.css">
@@ -283,6 +284,15 @@
                             <option>Unallocated</option>
                         </select>
                         <button type="submit" class="btn">Filter</button>
+                        <label class="radio inline">
+                            <input type="radio" name="show" value="used"> Show used
+                        </label>
+                        <label class="radio inline">
+                            <input type="radio" name="show" value="used"> Show all
+                        </label>
+                        <label class="checkbox inline">
+                            <input type="checkbox" value="toggle"> Toggle
+                        </label>
                     </form>
 
                     <!-- b:table b:table-bordered b:table-striped -->
