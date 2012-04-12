@@ -113,6 +113,17 @@ section h2 {
     margin-bottom: 1.5em;
 }
 
+.tasks li a {
+    width: 160px;
+    text-align: left;
+}
+
+/* Misc. */
+
+.actions button + a {
+    margin-left: 15px;
+}
+
 .smiley {
     font-size: 150px;
     font-weight: bold;

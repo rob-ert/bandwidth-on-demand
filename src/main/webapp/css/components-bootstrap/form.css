@@ -39,3 +39,7 @@
 input[disabled] + .add-on {
     color: #CCC;
 }
+
+select.input-xlarge {
+    width: 280px;
+}
