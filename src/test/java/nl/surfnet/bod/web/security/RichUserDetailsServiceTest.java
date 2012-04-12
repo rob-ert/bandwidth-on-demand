@@ -55,7 +55,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RichUserDetailsServiceTest {

@@ -2,7 +2,6 @@ package nl.surfnet.bod.web;
 
 import javax.servlet.http.HttpServletRequest;
 
-import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -29,8 +28,7 @@ public class SwitchRoleController {
     RichUserDetails userDetails = Security.getUserDetails();
 
     if (StringUtils.hasText(roleId)) {
-      BodRole bodRole = userDetails.findBodRoleById(Long.valueOf(roleId));
-      userDetails.switchRoleTo(bodRole);
+      userDetails.switchRoleTo(Long.valueOf(roleId));
     }
 
     return userDetails.getSelectedRole().getRole().getViewName();

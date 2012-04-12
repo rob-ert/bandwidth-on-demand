@@ -134,17 +134,6 @@ public class RichUserDetails implements UserDetails {
   }
 
   /**
-   * Adds a {@link BodRole} for the user
-   * 
-   * @param role
-   *          BodRole to add
-   * @see #addBodRoles(Collection)
-   */
-  public void addBodRole(BodRole role) {
-    addBodRoles(Lists.newArrayList(role));
-  }
-
-  /**
    * Adds a {@link BodRole} for the user and mutates the related
    * {@link #authorities}
    * 
@@ -239,6 +228,11 @@ public class RichUserDetails implements UserDetails {
     }
 
     return foundRole;
+  }
+
+  public void switchRoleTo(Long bodRoleId) {
+    BodRole bodRole = findBodRoleById(bodRoleId);
+    switchRoleTo(bodRole);
   }
 
   /**
