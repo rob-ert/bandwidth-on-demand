@@ -230,7 +230,7 @@ public class RichUserDetails implements UserDetails {
     return foundRole;
   }
 
-  public void switchRoleTo(Long bodRoleId) {
+  public void switchRoleById(Long bodRoleId) {
     BodRole bodRole = findBodRoleById(bodRoleId);
     switchRoleTo(bodRole);
   }

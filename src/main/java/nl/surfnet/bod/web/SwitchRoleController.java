@@ -28,7 +28,7 @@ public class SwitchRoleController {
     RichUserDetails userDetails = Security.getUserDetails();
 
     if (StringUtils.hasText(roleId)) {
-      userDetails.switchRoleTo(Long.valueOf(roleId));
+      userDetails.switchRoleById(Long.valueOf(roleId));
     }
 
     return userDetails.getSelectedRole().getRole().getViewName();
