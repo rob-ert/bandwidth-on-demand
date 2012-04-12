@@ -35,6 +35,6 @@
             </c:otherwise>
         </c:choose>
     
-        <th class="${styleClass} ${headClass}"><a href="${sortLink}"><c:out value="${name}"/></a></th>
+        <th class="${styleClass} ${headClass}"><a href="${sortLink}"><i class="icon-resize-vertical"><!--  --></i><c:out value="${name}"/></a></th>
     </c:if>
 </jsp:root>
