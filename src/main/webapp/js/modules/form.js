@@ -12,7 +12,6 @@ app.form = function(){
 
         initUserSelection();
         initFormLinks();
-        initPopovers();
         initBandwidthSelector();
 
     };
@@ -73,14 +72,6 @@ app.form = function(){
             event.preventDefault();
 
         })
-
-    };
-
-    var initPopovers = function() {
-
-        $('[rel="popover"]').popover({
-            placement: 'top'
-        });
 
     };
 

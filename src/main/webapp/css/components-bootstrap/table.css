@@ -38,12 +38,8 @@
     text-align: center;
 }
 
-.table a {
+.table a[rel="tooltip"] {
     margin: 0 5px;
-}
-
-.table a:hover {
-    text-decoration: none;
 }
 
 /* sortable table headers */

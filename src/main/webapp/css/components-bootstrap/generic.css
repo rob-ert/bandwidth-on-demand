@@ -31,3 +31,8 @@
     font-size: 13px;
     color: inherit;
 }
+
+a[rel="tooltip"]:hover {
+    text-decoration: none;
+}
+

@@ -16,6 +16,8 @@
         <link rel="stylesheet" href="css/components-bootstrap/dropdown.css">
         <link rel="stylesheet" href="css/components-bootstrap/alert.css">
         <link rel="stylesheet" href="css/components-bootstrap/button.css">
+        <link rel="stylesheet" href="css/components-bootstrap/popover.css">
+        <link rel="stylesheet" href="css/components-bootstrap/tooltip.css">
 
         <link rel="stylesheet" href="css/font-awesome.css">
 
@@ -214,6 +216,44 @@
                     </div>
 
                 </div>
+            </section>
+
+            <section>
+
+                <h2>Tooltips</h2>
+
+                <div class="content">
+
+                    <h3>Tooltip (default/black)</h3>
+
+                    <a rel="tooltip" href="#" data-original-title="Edit object">
+                        <i class="icon-pencil"></i>
+                    </a>
+
+                    <h3>Tooltip (success/green)</h3>
+
+                    <a rel="tooltip" data-type="success" href="#" data-original-title="Tooltip message">
+                        <i class="icon-plus"></i>
+                    </a>
+
+                    <h3>Tooltip (info/blue)</h3>
+
+                    <p>This <a rel="tooltip" data-type="info" href="#" data-original-title="Tooltip message">tooltip</a> is in a sentence.</p>
+
+                    <h3>Popover (default)</h3>
+
+                    <a rel="popover" class="badge badge-success" href="#" data-original-title="Content title" data-content="And here's some amazing content. It's very engaging. right?">?</a>
+
+                    <h3>Popover (success/green)</h3>
+
+                    <a rel="popover" data-type="success" class="badge badge-success" href="#" data-content="And here's some amazing content. It's very engaging. right?">?</a>
+
+                    <h3>Popover (success/blue)</h3>
+
+                    <a rel="popover" data-type="info" class="badge badge-info" href="#" data-content="And here's some amazing content. It's very engaging. right?">?</a>
+
+                </div>
+
             </section>
 
             <section>
@@ -524,6 +564,7 @@
         <script src="js/jquery/jquery-1.7.2.min.js"></script>
         <script src="js/bootstrap/bootstrap-2.0.2.min.js"></script>
         <script src="js/main.js"></script>
+        <script src="js/modules/global.js"></script>
         <script src="js/modules/table.js"></script>
         <script src="js/modules/form.js"></script>
         <script src="js/modules/message.js"></script>
