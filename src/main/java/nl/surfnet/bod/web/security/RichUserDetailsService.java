@@ -101,6 +101,8 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
       roles.addAll(determineManagerRole(userGroup));
       roles.add(determineUserRole(userGroup));
     }
+    
+    roles.remove(null);
 
     return Lists.newArrayList(roles);
   }
