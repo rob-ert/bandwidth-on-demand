@@ -113,7 +113,7 @@ public class VirtualPortService {
   private Specification<VirtualPort> specificationForManager(final RichUserDetails manager) {
     return new Specification<VirtualPort>() {
 
-      Long prgId = manager.getSelectedRole().getPhysicalResourceGroupId();
+      private Long prgId = manager.getSelectedRole().getPhysicalResourceGroupId();
 
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
