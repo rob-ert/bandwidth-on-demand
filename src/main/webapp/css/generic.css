@@ -127,7 +127,7 @@ section h2 {
 
 /* Misc. */
 
-.actions button + a {
+.actions .btn + a {
     margin-left: 15px;
 }
 
