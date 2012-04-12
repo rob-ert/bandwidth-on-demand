@@ -63,6 +63,10 @@ header a:hover {
     display: table;
 }
 
+.form p {
+    margin: 0 0 1em 3em;
+}
+
 /* content */
 
 section,
@@ -85,24 +89,38 @@ section h2 {
     margin-bottom: 1em;
 }
 
-.dl {
-    margin-left: 40px;
+.ul {
+    list-style: none;
 }
 
-.dl dt {
+.dl,
+.ul {
+    margin-left: 3em;
+}
+
+.ul li {
+    font-weight: bold;
+    margin-bottom: 1em;
+}
+
+.dl dt,
+.ul li {
     font-size: 15px;
 }
 
-.dl dt:before {
+.dl dt:before,
+.ul li:before {
     content: "• ";
     color: #0088CC;
 }
 
-.dl dt.inactive:before {
+.dl dt.inactive:before,
+.ul li.inactive:before {
     color: #333;
 }
 
-.dl dt i {
+.dl dt i,
+.ul li i {
     margin-left: 1em;
 }
 
