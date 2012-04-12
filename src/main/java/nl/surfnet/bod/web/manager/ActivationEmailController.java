@@ -71,8 +71,6 @@ public class ActivationEmailController {
       return "index";
     }
 
-    Security.getUserDetails().switchToManagerRoleByPhysicalResourceGroup(physicalResourceGroup);
-
     if (link.isActivated()) {
       log.info("Link [{}] already activated on: {}", link.getUuid(), link.getActivationDateTime());
       return "manager/linkActive";
@@ -84,11 +82,14 @@ public class ActivationEmailController {
     }
     else if (link.isValid()) {
       physicalResourceGroupService.activate(link);
+      
+      Security.getUserDetails().switchToManagerRoleByPhysicalResourceGroup(physicalResourceGroup);
       return "manager/emailConfirmed";
     }
 
     log.warn("Link [{}} for physical resource group [{}] was not valid", link.getUuid(),
         physicalResourceGroup.getName());
+    
     return "manager/linkNotValid";
   }
 
