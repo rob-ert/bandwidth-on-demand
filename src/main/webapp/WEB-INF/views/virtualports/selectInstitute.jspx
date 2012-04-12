@@ -15,10 +15,10 @@
                                     <spring:param name="id" value="${group.id}" />
                                     <spring:param name="team" value="${teamUrn}" />
                                 </spring:url>
-                                <a href="${requestUrl}">${group.institute.name} (${group.institute.shortName})</a>
+                                <a href="${requestUrl}">${group.institute.name}</a>
                             </c:when>
                             <c:otherwise>
-                                ${group.institute.name} (${group.institute.shortName})
+                                ${group.institute.name}
                             </c:otherwise>
                         </c:choose>
                     </td>

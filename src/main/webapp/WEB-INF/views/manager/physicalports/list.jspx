@@ -12,7 +12,7 @@
             <thead>
                 <tr>
                     <table:sortableHeader name="Label" property="managerLabel" />
-                    <table:sortableHeader name="Network Element Id" property="networkElementPk" />
+                    <table:sortableHeader name="Network Element ID" property="networkElementPk" />
                     <th># of Virtual Ports</th>
                     <table:actionsHeader />
                 </tr>

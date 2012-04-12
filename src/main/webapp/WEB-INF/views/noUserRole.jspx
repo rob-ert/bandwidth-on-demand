@@ -8,7 +8,7 @@
     <div class="hero-unit">
         <h1>Choose your team</h1>
         
-        <p>Select your collaboration team and ask an ICT manager of an institute for virtual ports.</p>
+        <p>Select your collaboration team and ask an BoD administrator of an institute for virtual ports.</p>
 
         <ul>
             <c:forEach var="group" items="${userGroups}">
