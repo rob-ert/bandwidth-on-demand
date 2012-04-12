@@ -17,11 +17,19 @@
 }
 
 .input-date {
-    width: 186px;
+    width: 188px;
 }
 
 .input-time {
     width: 219px;
+}
+
+.input-date-with-time {
+    width: 80px;
+}
+
+.input-time-with-date {
+    width: 45px;
 }
 
 .add-on {
