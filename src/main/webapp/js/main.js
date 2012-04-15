@@ -10,7 +10,7 @@ app.register = function(module) {
 
 app.bootstrap = function() {
 
-    app.modules.forEach(function(module) {
+    $.each(app.modules, function(i, module) {
         if(typeof module.init === 'function') {
             module.init.call(module);
         }

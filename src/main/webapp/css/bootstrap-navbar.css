@@ -6,6 +6,7 @@
 
 .navbar-inner {
     background-image: none;
+    filter: none;
     padding-left: 0;
     box-shadow: none;
     border-radius: 8px;

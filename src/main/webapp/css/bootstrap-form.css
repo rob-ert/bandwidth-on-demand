@@ -48,3 +48,7 @@ select.input-xlarge {
 .radio.inline + .checkbox.inline {
     margin-left: 10px;
 }
+
+.form-horizontal .controls {
+    *margin-left: 0; /* IE7-only hack */
+}
