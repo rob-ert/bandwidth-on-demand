@@ -114,10 +114,14 @@ app.form = function(){
     }
 
     var initDatepickers = function() {
-        $(".input-datepicker").datepicker({
-            format: 'yyyy-mm-dd',
-            autoclose: true
-        });
+
+        var datepickers = $(".input-datepicker");
+        if(datepickers.length) {
+            $(".input-datepicker").datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true
+            });
+        }
     }
 
     var initStartNow = function() {
