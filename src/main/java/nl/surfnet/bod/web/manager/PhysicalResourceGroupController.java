@@ -95,8 +95,8 @@ public class PhysicalResourceGroupController {
   @RequestMapping(method = RequestMethod.GET)
   protected String list(Model model) {
     Long groupId = WebUtils.getSelectedPhysicalResourceGroupId();
-    if (groupId == null) {
 
+    if (groupId != null) {
       model.addAttribute(WebUtils.DATA_LIST, Lists.newArrayList(physicalResourceGroupService.find(groupId)));
     }
     return "manager/physicalresourcegroups/list";
