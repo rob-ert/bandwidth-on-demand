@@ -42,9 +42,9 @@
                 <form:errors path="bandwidth" />
             </c:set>
             <c:if test="${not empty errors}">
-                <c:set var="error_css" value="error" />
+                <c:set var="error_bandwidth_css" value=" error" />
             </c:if>
-            <div class="control-group ${error_css}">
+            <div class="control-group${error_bandwidth_css}">
                 <label class="control-label"><spring:message code="label_request_vp_bandwidth" /></label>
                 <div class="controls">
                     <div class="input-append">
@@ -58,9 +58,9 @@
                 <form:errors path="message" />
             </c:set>
             <c:if test="${not empty errors}">
-                <c:set var="error_css" value="error" />
+                <c:set var="error_motivation_css" value=" error" />
             </c:if>
-            <div class="control-group ${error_css}">
+            <div class="control-group${error_motivation_css}">
                 <label class="control-label"><spring:message code="label_request_vp_message" /></label>
                 <div class="controls">
                     <form:textarea path="message" rows="5" cssClass="xlarge" />
