@@ -57,6 +57,10 @@ app.form = function(){
 
     var initBandwidthSelector = function() {
 
+        if(!$('[data-component="bandwidth-selector"]').length) {
+            return;
+        }
+
         var selectedValues,
             input = $('[data-component="bandwidth-selector"] input'),
             bandwidth = parseInt(input.val());
