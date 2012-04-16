@@ -47,13 +47,11 @@ import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.manager.PhysicalPortController.PhysicalPortView;
 import nl.surfnet.bod.web.manager.PhysicalPortController.UpdateManagerLabelCommand;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.VirtualPortJsonView;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -83,7 +81,7 @@ public class PhysicalPortControllerTest {
   private VirtualPortService virtualPortServiceMock;
 
   @Mock
-  InstituteService instituteService;
+  private InstituteService instituteService;
 
   private RichUserDetails user;
 
@@ -139,28 +137,6 @@ public class PhysicalPortControllerTest {
 
     assertThat(portList.size(), is(1));
     assertThat(portList.get(0).getId(), is(portOne.getId()));
-  }
-
-  @Test
-  public void listVirtualPortsForPhysicalPortInJson() {
-    PhysicalPort port = new PhysicalPortFactory().create();
-
-    when(physicalPortServiceMock.find(101L)).thenReturn(port);
-    when(virtualPortServiceMock.findAllForPhysicalPort(port)).thenReturn(
-        Lists.newArrayList(new VirtualPortFactory().setManagerLabel("manager label").create()));
-
-    Collection<VirtualPortJsonView> portsViews = subject.listVirtualPortsJson(101L);
-
-    assertThat(portsViews, hasSize(1));
-    assertThat(portsViews.iterator().next().getManagerLabel(), is("manager label"));
-  }
-
-  @Test
-  public void listVirtualPortsForPhysicalPortInJsonForNonExistingId() {
-    when(physicalPortServiceMock.find(101L)).thenReturn(null);
-    when(virtualPortServiceMock.findAllForPhysicalPort(null)).thenThrow(new NullPointerException());
-
-    subject.listVirtualPortsJson(101L);
   }
 
   @Test

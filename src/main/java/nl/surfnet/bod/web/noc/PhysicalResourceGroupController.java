@@ -21,30 +21,19 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.UPDATE;
-import static nl.surfnet.bod.web.WebUtils.addInfoMessage;
+import static nl.surfnet.bod.web.WebUtils.*;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.web.AbstractSortableListController;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.view.PhysicalPortJsonView;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -54,15 +43,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
@@ -110,23 +94,6 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
     model.addAttribute(MODEL_KEY, new PhysicalResourceGroupCommand());
 
     return PAGE_URL + CREATE;
-  }
-
-  @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET, produces = "application/json")
-  @ResponseBody
-  public Collection<PhysicalPortJsonView> listPortsJson(@PathVariable Long id) {
-    PhysicalResourceGroup group = physicalResourceGroupService.find(id);
-
-    if (group == null) {
-      return Collections.emptyList();
-    }
-
-    return Collections2.transform(group.getPhysicalPorts(), new Function<PhysicalPort, PhysicalPortJsonView>() {
-      @Override
-      public PhysicalPortJsonView apply(PhysicalPort port) {
-        return new PhysicalPortJsonView(port);
-      }
-    });
   }
 
   @RequestMapping(method = RequestMethod.PUT)

@@ -22,7 +22,6 @@
 package nl.surfnet.bod.web.manager;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
@@ -35,21 +34,17 @@ import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.AbstractSortableListController;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.VirtualPortJsonView;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 
 @Controller("managerPhysicalPortController")
@@ -103,24 +98,6 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     physicalPortService.update(port);
 
     return "redirect:physicalports";
-  }
-
-  @RequestMapping(value = "/{id}/virtualports", method = RequestMethod.GET, produces = "application/json")
-  @ResponseBody
-  public Collection<VirtualPortJsonView> listVirtualPortsJson(@PathVariable Long id) {
-    PhysicalPort physicalPort = physicalPortService.find(id);
-
-    if (physicalPort == null) {
-      return Collections.emptyList();
-    }
-
-    return Collections2.transform(virtualPortService.findAllForPhysicalPort(physicalPort),
-        new Function<VirtualPort, VirtualPortJsonView>() {
-          @Override
-          public VirtualPortJsonView apply(VirtualPort port) {
-            return new VirtualPortJsonView(port);
-          }
-        });
   }
 
   @Override

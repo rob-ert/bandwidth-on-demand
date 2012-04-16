@@ -21,27 +21,15 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.UPDATE;
+import static nl.surfnet.bod.web.WebUtils.*;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.ReservationService;
@@ -50,7 +38,6 @@ import nl.surfnet.bod.web.AbstractSortableListController;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortView;
 import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.ReservationView;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
@@ -64,11 +51,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -230,25 +215,6 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
         virtualPort.getManagerLabel());
 
     return "redirect:" + PAGE_URL;
-  }
-
-  @RequestMapping(value = "{portId}/reservations", method = RequestMethod.GET, produces = "application/json")
-  @ResponseBody
-  public Collection<ReservationView> listReservationsForPort(@PathVariable Long portId) {
-    VirtualPort port = virtualPortService.find(portId);
-
-    if (port == null || Security.managerMayNotEdit(port)) {
-      return Collections.emptyList();
-    }
-
-    Collection<Reservation> reservations = reservationService.findByVirtualPort(port);
-
-    return Collections2.transform(reservations, new Function<Reservation, ReservationView>() {
-      @Override
-      public ReservationView apply(Reservation reservation) {
-        return new ReservationView(reservation);
-      }
-    });
   }
 
   @Override

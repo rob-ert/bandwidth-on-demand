@@ -23,12 +23,7 @@ package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -37,21 +32,17 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
-import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.noc.PhysicalResourceGroupController.PhysicalResourceGroupCommand;
-import nl.surfnet.bod.web.view.PhysicalPortJsonView;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,28 +82,6 @@ public class PhysicalResourceGroupControllerTest {
 
     assertThat(model.asMap(), hasEntry("list", Object.class.cast(groups)));
     assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
-  }
-
-  @Test
-  public void listPortsForNonExistingGroup() {
-    when(physicalResourceGroupServiceMock.find(12L)).thenReturn(null);
-
-    Collection<PhysicalPortJsonView> ports = subject.listPortsJson(12L);
-
-    assertThat(ports, hasSize(0));
-  }
-
-  @Test
-  public void listPortsForGroup() {
-    PhysicalPort port1 = new PhysicalPortFactory().create();
-    PhysicalPort port2 = new PhysicalPortFactory().create();
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().addPhysicalPort(port1, port2).create();
-
-    when(physicalResourceGroupServiceMock.find(12L)).thenReturn(group);
-
-    Collection<PhysicalPortJsonView> ports = subject.listPortsJson(12L);
-
-    assertThat(ports, hasSize(2));
   }
 
   @Test
