@@ -14,6 +14,7 @@ app.form = function(){
         initBandwidthSelector();
         initDatepickers();
         initStartNow();
+        initAutoSuggest();
 
     };
 
@@ -147,6 +148,46 @@ app.form = function(){
                 timeInput.val('').prop('disabled', true);
             }
         });
+    }
+
+    var initAutoSuggest = function() {
+
+        var asElements = $('[data-component="autoSuggest"]');
+
+        asElements.each(function(i, asElement) {
+
+            var setup_done = false;
+
+            var element = $(asElement),
+                url = element.attr('data-suggestUrl'),
+                preFillId = element.attr('data-preFillId'),
+                preFillName = element.attr('data-preFillName'),
+                inputName = element.attr('name');
+
+            element.autoSuggest(url, {
+                selectedValuesProp: 'id',
+                searchObjProps: 'name',
+                selectedItemProp: 'name',
+                startText: '',
+                preFill: [{id:preFillId, name:preFillName}],
+                selectionLimit: 1,
+                inputName: 'instituteId',
+                selectionAdded: function() {
+                    $('input[name="'+inputName+'"]').hide();
+                    if (setup_done) $("#_adminGroup_id").focus();
+                },
+                selectionRemoved: function(elem) {
+                    elem.remove();
+                    $('input[name="'+inputName+'"]').show();
+                    $("input[name='instituteId']").val('');
+                },
+                end: function() {
+                    setup_done = true;
+                }
+            });
+
+        })
+
     }
 
     return {

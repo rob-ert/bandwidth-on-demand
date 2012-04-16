@@ -19,6 +19,7 @@
         <link rel="stylesheet" href="css/layout.css">
         <link rel="stylesheet" href="css/generic.css">
         <link rel="stylesheet" href="css/component-userbox.css">
+        <link rel="stylesheet" href="css/components/autoSuggest.css">
 
         <!--[if lt IE 9]>
         <script src="js/tools/html5shiv.js"></script>
@@ -170,6 +171,19 @@
                                     </div>
 
                                     <div class="control-group">
+                                        <label class="control-label">Text input (w/ auto-suggest)</label>
+                                        <div class="controls">
+                                            <input
+                                                name="${input_search_name}"
+                                                type="text"
+                                                data-component="autoSuggest"
+                                                data-prefillId=""
+                                                data-prefillName=""
+                                                data-suggestUrl="stub.autosuggest.json"  />
+                                        </div>
+                                    </div>
+
+                                    <div class="control-group">
                                         <label class="control-label">Text input (date + datepicker)</label>
                                         <div class="controls">
                                             <div class="input-append">
@@ -288,5 +302,6 @@
         <script src="js/modules/global.js"></script>
         <script src="js/modules/form.js"></script>
         <script src="js/datepicker/bootstrap-datepicker.js"></script>
+        <script src="js/jquery/jquery-autoSuggest.js"></script>
     </body>
 </html>
