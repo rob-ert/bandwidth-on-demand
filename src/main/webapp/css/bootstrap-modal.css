@@ -1,0 +1,16 @@
+.modal-header {
+    background-color: #4fb3cf;
+    color: #FFF;
+}
+
+.modal-body .icon-exclamation-sign:before {
+    color: #B94A48;
+    font-size: 50px;
+    float: left;
+    margin-top: 20px;
+    margin-left: 5px;
+}
+
+.modal-body p {
+    margin-left: 60px;
+}

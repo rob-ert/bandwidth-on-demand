@@ -75,6 +75,10 @@ footer {
     border-radius: 8px;
 }
 
+.section-modal {
+    background-color: #FFF;
+}
+
 section h1,
 section h2 {
     background-color: #4fb3cf;
