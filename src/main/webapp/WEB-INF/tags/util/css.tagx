@@ -24,6 +24,7 @@
             <bod:css value="/resources/css/layout.css" />
             <bod:css value="/resources/css/generic.css" />
             <bod:css value="/resources/css/component-userbox.css" />
+            <bod:css value="/resources/css/components/autoSuggest.css" />
         </c:when>
         <c:otherwise>
             <bod:css value="/resources/css/style.min.css" />

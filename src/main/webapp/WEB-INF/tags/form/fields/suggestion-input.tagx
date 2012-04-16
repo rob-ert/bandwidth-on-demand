@@ -30,45 +30,27 @@
 		<c:set var="error_css" value=" error" />
 	</c:if>
 
-	<div class="control-group${error_css}">
+    <c:if test="${preFillId == 0 }">
+   		<c:set var="preFillId" value=""/>
+   	</c:if>
+
+    <spring:url value="${suggestionUrl}" var="json_suggest_url" />
+
+	<div class="control-group ${error_css}">
 		<label for="_${sec_field}_id" class="control-label"><spring:message code="label_${fn:toLowerCase(labelCode)}" /></label>
 
 		<div class="controls">
-			<input id="_${sec_field}_id" name="${input_search_name}" type="text" />
-			<form:errors cssClass="help-block" id="_${sec_field}_error_id"
+			<input
+                id="_${sec_field}_id"
+                name="${input_search_name}"
+                type="text"
+                data-component="autoSuggest"
+                data-prefillId="${preFillId}"
+                data-prefillName="${preFillName}"
+                data-suggestUrl="${json_suggest_url}"  />
+			<form:errors cssClass="help-inline" id="_${sec_field}_error_id"
 				path="instituteId" />
 		</div>
 	</div>
-	<spring:url value="${suggestionUrl}" var="json_suggest_url" />
 
-	<c:if test="${preFillId == 0 }">
-		<c:set var="preFillId" value=""/>
-	</c:if>
-	 	
-	<script type="text/javascript">
-          $(function() {
-             var setup_done = false;
-             $("#_${sec_field}_id").autoSuggest('${json_suggest_url}', {
-               selectedValuesProp: 'id',
-               searchObjProps: 'name',
-               selectedItemProp: 'name',
-               startText: '',
-               preFill: [{id:'${preFillId}', name:'${preFillName}'}],
-               selectionLimit: 1,
-               inputName: 'instituteId',
-               selectionAdded: function(elem) {
-                 $("input[name='${input_search_name}']").hide();
-                 if (setup_done) $("#_adminGroup_id").focus();
-               },
-               selectionRemoved: function(elem) {
-                 elem.remove();
-                 $("input[name='${input_search_name}']").show();
-                 $("input[name='instituteId']").val('');
-               },
-               end: function() {
-                 setup_done = true;
-               }
-             }); 
-          });
-    </script>
 </jsp:root>
