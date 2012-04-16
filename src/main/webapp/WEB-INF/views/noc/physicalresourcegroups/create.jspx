@@ -9,8 +9,23 @@
 
     <form:create id="fc_PhysicalResourceGroup" modelAttribute="physicalResourceGroupCommand" path="/noc/physicalresourcegroups">
          
+         <!-- 
         <field:suggestion-input field="instituteId" labelCode="physicalresourcegroup_instituteName"
             suggestionUrl="/institutes" preFillId="${physicalResourceGroupCommand.instituteId}" preFillName="${physicalResourceGroupCommand.institute.name}"/>
+ 		--> 		
+ 			<spring:url value="/institutes" var="institutesUrl" /> 
+			<div class="control-group">
+	             <label class="control-label"><spring:message code="label_physicalresourcegroup_institutename"/></label>
+	             <div class="controls">
+	                 <input 
+	                 	name="instituteName"
+	                     type="text"
+	                     data-component="autoSuggest"
+	                     data-prefillId="${physicalResourceGroupCommand.instituteId}"
+	                     data-prefillName="${physicalResourceGroupCommand.institute.name}"
+	                     data-suggestUrl="${institutesUrl}"  />
+	             </div>
+        </div>
 
         <field:input field="adminGroup" id="adminGroup" labelCode="physicalresourcegroup_adminGroup"
             helpMessageCode="physicalresourcegroup_adminGroup" />
