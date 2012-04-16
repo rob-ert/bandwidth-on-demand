@@ -125,12 +125,14 @@ app.form = function(){
     }
 
     var initStartNow = function() {
-        var dateInput = $('[data-component="start-now"] :text').eq(0),
-            timeInput = $('[data-component="start-now"] :text').eq(1),
-            date = dateInput.val(),
-            time = timeInput.val();
+        var date,
+            time;
 
         $('[data-component="start-now"] :checkbox').on('click', function(event) {
+            var inputs = $('[data-component="start-now"] :text'),
+                dateInput = inputs.eq(0),
+                timeInput = inputs.eq(1);
+
             if (dateInput.prop('disabled')) {
                 dateInput.val(date);
                 timeInput.val(time);
