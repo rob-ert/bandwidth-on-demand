@@ -5,6 +5,7 @@ app.form = function(){
     var init = function() {
 
         initEventHandlers();
+        initPlugins();
 
     };
 
@@ -12,9 +13,14 @@ app.form = function(){
 
         initFormLinks();
         initBandwidthSelector();
+        initStartNow();
+
+    };
+
+    var initPlugins = function() {
+
         initDropDownReload();
         initDatepickers();
-        initStartNow();
         initAutoSuggest();
 
     };

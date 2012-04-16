@@ -5,12 +5,18 @@ app.global = function() {
     var init = function() {
 
         initEventHandlers();
+        initPlugins();
 
     };
 
     var initEventHandlers = function() {
 
         initUserSelection();
+
+    };
+
+    var initPlugins = function() {
+
         initTooltips();
         initPopovers();
 
