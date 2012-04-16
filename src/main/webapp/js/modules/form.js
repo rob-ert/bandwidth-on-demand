@@ -14,6 +14,7 @@ app.form = function(){
         initFormLinks();
         initBandwidthSelector();
         initDatepickers();
+        initStartNow();
 
     };
 
@@ -138,6 +139,31 @@ app.form = function(){
         $(".input-datepicker").datepicker({
             format: 'yyyy-mm-dd',
             autoclose: true
+        });
+    }
+
+    var initStartNow = function() {
+        var dateInput = $('[data-component="start-now"] :text').eq(0),
+            timeInput = $('[data-component="start-now"] :text').eq(1),
+            date = dateInput.val(),
+            time = timeInput.val();
+
+        $('[data-component="start-now"] :checkbox').on('click', function(event) {
+            if (dateInput.prop('disabled')) {
+                dateInput.val(date);
+                timeInput.val(time);
+                dateInput.prop('disabled', false);
+                timeInput.prop('disabled', false);
+            } else {
+                date = dateInput.val();
+                time = timeInput.val();
+
+                dateInput.val('');
+                timeInput.val('');
+
+                dateInput.prop('disabled', true);
+                timeInput.prop('disabled', true);
+            }
         });
     }
 

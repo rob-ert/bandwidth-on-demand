@@ -69,11 +69,11 @@
                     </div>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group" data-component="start-now">
                     <label class="control-label"><spring:message code="label_reservation_startdate" /></label>
                     <div class="controls">
                         <div class="input-append">
-					   		<sform:input id="_startDate_id" path="startDate" cssClass="input-date-with-time" />
+					   		<sform:input id="_startDate_id" path="startDate" cssClass="input-date-with-time input-datepicker" />
                             <span class="add-on"><spring:message code="help_generic_dateformat" /></span>
                             <c:out value=" " />
                             <sform:input id="_startTime_id" path="startTime" cssClass="input-time-with-date" />
@@ -97,7 +97,7 @@
                     <label class="control-label"><spring:message code="label_reservation_enddate" /></label>
                     <div class="controls">
                         <div class="input-append">
-                            <sform:input id="_endDate_id" path="endDate" cssClass="input-date-with-time" />
+                            <sform:input id="_endDate_id" path="endDate" cssClass="input-date-with-time input-datepicker" />
                             <span class="add-on"><spring:message code="help_generic_dateformat" /></span>
                             <c:out value=" " />
                             <sform:input id="_endTime_id" path="endTime" cssClass="input-time-with-date" />

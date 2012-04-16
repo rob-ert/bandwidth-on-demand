@@ -166,15 +166,10 @@
                                     </div>
 
                                     <div class="control-group">
-                                        <label class="control-label">Text input (date + now)</label>
+                                        <label class="control-label">Text input (date + datepicker)</label>
                                         <div class="controls">
                                             <div class="input-append">
                                                 <input type="text" class="input-date input-datepicker"><span class="add-on">yyyy-mm-dd</span>
-                                                <span class="help-inline">
-                                                    <label class="checkbox inline">
-                                                        <input type="checkbox" value="now"> now
-                                                    </label>
-                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -197,12 +192,17 @@
                                         </div>
                                     </div>
 
-                                    <div class="control-group">
+                                    <div class="control-group" data-component="start-now">
                                         <label class="control-label">Text input (date + time)</label>
                                         <div class="controls">
                                             <div class="input-append">
-                                                <input type="text" class="input-date-with-time"><span class="add-on">yyyy-mm-dd</span>
-                                                <input type="text" class="input-time-with-date"><span class="add-on">hh:mm</span>
+                                                <input type="text" class="input-date-with-time" value="2013-12-31"><span class="add-on">yyyy-mm-dd</span>
+                                                <input type="text" class="input-time-with-date" value="12:01"><span class="add-on">hh:mm</span>
+                                                <span class="help-inline">
+                                                    <label class="checkbox inline">
+                                                        <input type="checkbox" value="now"> now
+                                                    </label>
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
