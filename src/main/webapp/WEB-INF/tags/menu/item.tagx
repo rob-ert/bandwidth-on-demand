@@ -21,7 +21,7 @@
         <spring:url value="${url}" var="menu_item_url" />
 
         <li id="${fn:escapeXml(id)}" class="${active_menu eq menu ? 'active' : ''}">
-            <a href="${menu_item_url}" title="${fn:escapeXml(label)}">
+            <a href="${menu_item_url}">
                 <c:out value="${label}" />
             </a>
         </li>

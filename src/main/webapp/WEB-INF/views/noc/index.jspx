@@ -20,7 +20,7 @@
                 <spring:url var="user_url" value="/" />
                 <div class="content">
                     <ul class="tasks">
-                        <li><a class="btn btn-primary" href="${create_prg_url}"><i class="icon-plus"><!--  --></i> Add Institute</a></li>
+                        <li><a class="btn btn-primary" href="${create_prg_url}"><i class="icon-plus"><!--  --></i> <spring:message code="label_action_add_institute" /></a></li>
                     </ul>
                 </div>
             </section>

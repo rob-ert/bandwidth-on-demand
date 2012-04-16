@@ -69,7 +69,12 @@
                     </div>
                 </div>
 
-                <div class="control-group" data-component="start-now">
+                <c:set var="errors_start_date"><sform:errors path="startDate" /></c:set>
+                <c:set var="errors_start_time"><sform:errors path="startTime" /></c:set>
+                <c:if test="${not empty errors_start_time or not empty errors_start_date}">
+                    <c:set var="error_start_css" value=" error" />
+                </c:if>
+                <div class="control-group${error_start_css}" data-component="start-now">
                     <label class="control-label"><spring:message code="label_reservation_startdate" /></label>
                     <div class="controls">
                         <div class="input-append">
@@ -86,14 +91,17 @@
                                 </label>
 							</span>
 						</div>
+                        <sform:errors cssClass="help-block" id="_end_error_id" path="startDate" delimiter=", " />
+                        <sform:errors cssClass="help-block" id="_end_error_id" path="startTime" delimiter=", " />
 	                 </div>
                 </div>
                  
-                <c:set var="errors_endTime"><sform:errors path="endTime" /></c:set>
-                <c:if test="${not empty errors_endTime}">
-                    <c:set var="error_endTime_css" value=" error" />
+                <c:set var="errors_end_date"><sform:errors path="endDate" /></c:set>
+                <c:set var="errors_end_time"><sform:errors path="endTime" /></c:set>
+                <c:if test="${not empty errors_end_time or not empty errors_end_date}">
+                    <c:set var="error_end_css" value=" error" />
                 </c:if>
-                <div class="control-group${error_endTime_css}">
+                <div class="control-group${error_end_css}">
                     <label class="control-label"><spring:message code="label_reservation_enddate" /></label>
                     <div class="controls">
                         <div class="input-append">
@@ -103,7 +111,8 @@
                             <sform:input id="_endTime_id" path="endTime" cssClass="input-time-with-date" />
                             <span class="add-on"><spring:message code="help_generic_timeformat" /></span>
                         </div>
-                        <sform:errors cssClass="help-block" id="_endTime_error_id" path="endTime" delimiter=", " />
+                        <sform:errors cssClass="help-block" id="_end_error_id" path="endDate" delimiter=", " />
+                        <sform:errors cssClass="help-block" id="_end_error_id" path="endTime" delimiter=", " />
                     </div>
                 </div>
 

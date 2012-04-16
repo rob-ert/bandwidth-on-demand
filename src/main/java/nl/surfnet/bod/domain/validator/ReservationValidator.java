@@ -134,22 +134,33 @@ public class ReservationValidator implements Validator {
     LocalDate maxFutureDate = today.plus(MAX_PERIOD_AWAY);
     LocalTime now = LocalTime.now();
 
+    boolean datesValid = true;
+
     if (startDate.isBefore(today)) {
       errors.rejectValue("startDate", "validation.reservation.startdate.past");
+      datesValid = false;
     }
     if (startDate.isEqual(today) && startTime.isBefore(now)) {
       errors.rejectValue("startTime", "validation.reservation.startdate.past");
+      datesValid = false;
     }
     if (startDate.isAfter(maxFutureDate)) {
       errors.rejectValue("startDate", "validation.reservation.startdate.maxFuture",
           new Object[] { MAX_PERIOD_AWAY.toString(PERIOD_FORMATTER) }, "Start date to far away");
+      datesValid = false;
     }
 
     if (endDate.isBefore(startDate)) {
       errors.rejectValue("endDate", "validation.reservation.enddate.before.start");
+      datesValid = false;
     }
     if (datesAreOnSameDay(startDate, endDate) && endTime.isBefore(startTime)) {
       errors.rejectValue("endTime", "validation.reservation.endtime.before.start");
+      datesValid = false;
+    }
+
+    if (!datesValid) {
+      return;
     }
 
     DateTime startDateTime = startDate.toDateTime(startTime);

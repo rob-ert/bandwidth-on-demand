@@ -18,16 +18,14 @@
         <div class="span4">
             <section>
                 <h2>Common tasks</h2>
-                <spring:url var="noc_url" value="/noc" />
-                <spring:url var="manager_url" value="/manager" />
                 <spring:url var="reservation_url" value="/reservations/create" />
                 <spring:url var="request_url" value="/request" />
 
                 <div class="content">
                     <ul class="tasks">
                         <sec:authorize access="hasRole('USER')">
-                            <li><a class="btn btn-primary" href="${reservation_url}"><i class="icon-plus"><!--  --></i> New Reservation</a></li>
-                            <li><a href="${request_url}" class="btn btn-primary"><i class="icon-plus"><!--  --></i> Request a Virtual Port</a></li>
+                            <li><a class="btn btn-primary" href="${reservation_url}"><i class="icon-plus"><!--  --></i> <spring:message code="label_action_add_reservation" /></a></li>
+                            <li><a href="${request_url}" class="btn btn-primary"><i class="icon-plus"><!--  --></i> <spring:message code="label_action_request_vp"/></a></li>
                         </sec:authorize>
                     </ul>
                 </div>

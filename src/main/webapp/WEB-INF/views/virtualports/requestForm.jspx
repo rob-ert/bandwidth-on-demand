@@ -50,7 +50,7 @@
                     <div class="input-append">
                         <form:input path="bandwidth" cssClass="input-medium" /><span class="add-on"><spring:message code="label_bandwidth_unit" /></span>
                     </div>
-                    <form:errors cssClass="help-inline" id="_message_error_id" path="bandwidth" delimiter=", " />
+                    <form:errors cssClass="help-block" id="_message_error_id" path="bandwidth" delimiter=", " />
                 </div>
             </div>
 
@@ -64,8 +64,10 @@
                 <label class="control-label"><spring:message code="label_request_vp_message" /></label>
                 <div class="controls">
                     <form:textarea path="message" rows="5" cssClass="xlarge" />
-                    <form:errors cssClass="help-inline" id="_message_error_id" path="message" delimiter=", " />
-                    <span class="help-block"><spring:message code="label_request_vp_message_help" /></span>
+                    <spring:message code="label_request_vp_message_help" var="help_msg" />
+                    <c:out value=" " />
+                    <a rel="popover" data-type="success" class="badge badge-success" href="#" data-content="${help_msg}">?</a>
+                    <form:errors cssClass="help-block" id="_message_error_id" path="message" delimiter=", " />
                 </div>
             </div>
             <form:hidden path="physicalResourceGroupId" />

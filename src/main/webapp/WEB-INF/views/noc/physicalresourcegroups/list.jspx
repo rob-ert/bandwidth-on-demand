@@ -13,7 +13,7 @@
                     <table:rowDetailsHeader />
                     <th><spring:message code="label_physicalresourcegroup_name" /></th>
                     <table:sortableHeader labelCode="label_physicalresourcegroup_manageremail" property="managerEmail" />
-                    <table:sortableHeader labelCode="label_physicalresourcegroup_active" property="active" styleClass="cw65 center" />
+                    <table:sortableHeader labelCode="label_physicalresourcegroup_active" property="active" styleClass="cw75 center" />
                     <th><spring:message code="label_physicalresourcegroup_physicalportcount" /></th>
                     <table:actionsHeader />
                 </tr>
