@@ -63,13 +63,14 @@
                     </c:when>
                     <c:otherwise>
                         <form:input id="_${sec_field}_id" path="${sec_field}" disabled="${disabled}" type="${fn:escapeXml(type)}" cssClass="${cssClass}"/>
-                        <form:errors cssClass="help-block" id="_${sec_field}_error_id" path="${sec_field}" delimiter=", " />
                     </c:otherwise>
                 </c:choose>
                 <c:if test="${not empty helpMessageCode}">
                     <spring:message code="help_${fn:toLowerCase(helpMessageCode)}" var="help_message" />
-                    <span class="help-block">${help_message}</span>
+                    <c:out value=" " />
+                    <a rel="popover" data-type="success" class="badge badge-success" href="#" data-content="${help_message}">?</a>
                 </c:if>
+                <form:errors cssClass="help-block" id="_${sec_field}_error_id" path="${sec_field}" delimiter=", " />
             </div>
         </div>
     </c:if>

@@ -27,15 +27,15 @@
 		<form:errors path="${sec_field}" />
 	</c:set>
 	<c:if test="${not empty errors}">
-		<c:set var="error_css" value="error" />
+		<c:set var="error_css" value=" error" />
 	</c:if>
 
-	<div class="control-group ${error_css}">
+	<div class="control-group${error_css}">
 		<label for="_${sec_field}_id" class="control-label"><spring:message code="label_${fn:toLowerCase(labelCode)}" /></label>
 
 		<div class="controls">
 			<input id="_${sec_field}_id" name="${input_search_name}" type="text" />
-			<form:errors cssClass="help-inline" id="_${sec_field}_error_id"
+			<form:errors cssClass="help-block" id="_${sec_field}_error_id"
 				path="instituteId" />
 		</div>
 	</div>
