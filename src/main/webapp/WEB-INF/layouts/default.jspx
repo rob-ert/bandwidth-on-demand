@@ -52,10 +52,11 @@
                 <a href="${logoutUrl}" class="logout">Logout <i class="icon-signout"><!-- --></i></a>
                 
                 <br/>
-                <div class="dropdown dropdown-disabled">                    
+                <div class="dropdown dropdown-disabled">
+                    <sec:authentication property="principal.bodRoles" var="bodRoles"/>
                     <sec:authentication property="principal.selectedRole" var="selectedRole" />
                     <c:choose>
-                        <c:when test="${not empty selectedRole}">
+                        <c:when test="${not empty bodRoles}">                            
                             <spring:message code="role_class_${selectedRole.roleName}" var="s_role_class"/>
                             <div class="dropdown-toggle ${s_role_class}" data-toggle="dropdown">
                                 <div class="user">
@@ -66,29 +67,40 @@
                                     <b class="caret"><!--  --></b>
                                 </div>
                                 <spring:url value="/switchrole" var="postUrl" />
-                                <sec:authentication property="principal.bodRoles" var="bodRoles"/>
                                 <form action="${postUrl}" method="POST" class="dropdown-menu">
                                     <ul>
                                         <c:forEach items="${bodRoles}" var="bodRole">
                                             <spring:message  code="role_class_${bodRole.roleName}" var="role_class"/>
-    			                        	         <li class="${role_class}" data-roleId="${bodRole.id}">
-	                                                <div class="user">
-	                                                    <spring:message code="role_${bodRole.roleName}"/>
-	                                                    <c:if test="${not empty bodRole.instituteName}">
-	                                                        <br/><c:out value="${bodRole.instituteName}"/>
-	                                                    </c:if>
-	        		                      			</div>
-    	       		                              </li>
+    			                        	<li class="${role_class}" data-roleId="${bodRole.id}">
+                                                <div class="user">
+                                                    <spring:message code="role_${bodRole.roleName}"/>
+                                                    <c:if test="${not empty bodRole.instituteName}">
+                                                        <br/><c:out value="${bodRole.instituteName}"/>
+                                                    </c:if>
+        		                      			</div>
+    	       		                        </li>
                                         </c:forEach>
                                     </ul>
                                 </form>
                             </div>
                         </c:when>
                         <c:otherwise>
-                            <spring:message  code="role_class_DEFAULT" var="role_class"/>
-                            <div class="dropdown-toggle ${role_class}" >
-                                <div class="user"><spring:message  code="role_DEFAULT"/></div>
-                            </div>
+                        	  <c:choose>	
+                        	  	<c:when test="${not empty selectedRole}">
+                        	  		 <div class="user">
+		                        	 	<spring:message code="role_${selectedRole.roleName}"/>
+		                              <c:if test="${not empty selectedRole.instituteName}">
+		                              	<br/><c:out value="${selectedRole.instituteName}"/>
+	                              	</c:if>
+	                               </div>
+                        	  	</c:when>
+                        	  	<c:otherwise>
+	                        	  	<spring:message  code="role_class_DEFAULT" var="role_class"/>
+	                            	<div class="dropdown-toggle ${role_class}" >
+	                                <div class="user"><spring:message  code="role_DEFAULT"/></div>
+	                             </div>
+                        	  	</c:otherwise>
+                        	 </c:choose>
                         </c:otherwise>
     				</c:choose>
                 </div>
