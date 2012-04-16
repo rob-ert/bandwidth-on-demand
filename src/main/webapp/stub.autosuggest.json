@@ -1,1 +1,322 @@
-[{"id":1,"name":"Mock_Klantnaam","shortName":"Mock_klantafkorting"},{"id":691,"name":"Amarantis Onderwijsgroep","shortName":"AMARANTIS"},{"id":437,"name":"AMC","shortName":"AMC"},{"id":699,"name":"Amphia Ziekenhuis","shortName":"AMPHIA"},{"id":566,"name":"AZM","shortName":"AZM"},{"id":448,"name":"Centrum voor Wiskunde en Informatica","shortName":"CWI"},{"id":620,"name":"De Kempel","shortName":"KEMPEL"},{"id":449,"name":"Design Academy","shortName":"DESIGNACADEMY"},{"id":570,"name":"Erasmus MC","shortName":"ERASMUSMC"},{"id":458,"name":"Erasmus Universiteit","shortName":"EUR"},{"id":459,"name":"FOM Bureau","shortName":"FOM"},{"id":606,"name":"FOM-instituut voor Atoom- en Molecuulfysica","shortName":"AMOLF"},{"id":682,"name":"Gemeente Bibliotheek Utrecht","shortName":"GBU"},{"id":714,"name":"Gereformeerde Hogeschool","shortName":"GH"},{"id":611,"name":"Grafisch Lyceum Rotterdam","shortName":"GLR"},{"id":463,"name":"Grafisch Lyceum Utrecht","shortName":"GLU"},{"id":464,"name":"Hogeschool Arnhem Nijmegen","shortName":"HAN"},{"id":628,"name":"Hogeschool Domstad","shortName":"DOMSTAD"},{"id":473,"name":"Hogeschool Rotterdam","shortName":"HRO"},{"id":477,"name":"Hogeschool van Amsterdam","shortName":"HVA"},{"id":558,"name":"Hogeschool Windesheim","shortName":"WINDESHEIM"},{"id":482,"name":"Infrastructure Hydraulics Environment","shortName":"IHE"},{"id":489,"name":"KNMI","shortName":"KNMI"},{"id":487,"name":"Koninklijk Instituut voor de Marine","shortName":"KIM"},{"id":622,"name":"Koninklijke Academie van Beeldende Kunsten","shortName":"KABK"},{"id":488,"name":"Koninklijke Militaire Academie","shortName":"KMA"},{"id":576,"name":"Leids Universitair Medisch Centrum","shortName":"LUMC"},{"id":629,"name":"Marnix Academie","shortName":"HSMARNIX"},{"id":499,"name":"Max Planck Institute","shortName":"MPI"},{"id":497,"name":"MediaPlaza (GigaPort aansluiting)","shortName":"MEDIAPLAZA"},{"id":603,"name":"Medisch Centrum Leeuwarden","shortName":"ZNB"},{"id":498,"name":"Meteoconsult","shortName":"METEOCON"},{"id":712,"name":"Ministerie van OC&W","shortName":"MIN.OCW"},{"id":667,"name":"mobilander","shortName":"MOBILANDER"},{"id":617,"name":"Mondriaan Onderwijsgroep","shortName":"MONDRIAAN"},{"id":505,"name":"Nationale Hogeschool voor Toerisme en Verkeer","shortName":"NHTV"},{"id":625,"name":"NEM Eindhoven (studentenhuisvester)","shortName":"NEMEINDHOVEN"},{"id":680,"name":"Omroep Brabant Mediafaciliteiten","shortName":"RTVOBM"},{"id":694,"name":"Omroep West","shortName":"OMROEPWEST"},{"id":516,"name":"Openbare Bibliotheek Amsterdam","shortName":"OBA"},{"id":693,"name":"Planbureau voor de Leefomgeving","shortName":"PBL"},{"id":612,"name":"Politieacademie","shortName":"LSOP"},{"id":653,"name":"Publieke Omroep Internet Services","shortName":"OMROEP"},{"id":491,"name":"Radboud Universiteit Nijmegen","shortName":"RU"},{"id":692,"name":"Rijksmuseum Amsterdam","shortName":"RIJKSMUSEUM"},{"id":523,"name":"Rijnhuizen Instituut (FOM)","shortName":"RIJNH"},{"id":524,"name":"RIVM","shortName":"RIVM"},{"id":528,"name":"ROC Midden Nederland","shortName":"ROCMN"},{"id":526,"name":"ROC Nijmegen","shortName":"ROC-NIJMEGEN"},{"id":665,"name":"ROC van Amsterdam","shortName":"ROCVA"},{"id":582,"name":"Roosevelt Academy","shortName":"ROOSEVELT"},{"id":677,"name":"RTV Rijnmond","shortName":"RTVRIJNMOND"},{"id":702,"name":"Simac ICT","shortName":"SIMAC"},{"id":531,"name":"Stadsbibliotheek Maastricht","shortName":"SBM"},{"id":530,"name":"Stichting Academisch Rekencentrum Amsterdam","shortName":"SARA"},{"id":627,"name":"Telecom Utrecht (OSP)","shortName":"ICONNEXT"},{"id":688,"name":"trimbos instituut","shortName":"TRIMBOS"},{"id":546,"name":"UMC St Radboud","shortName":"UMCN"},{"id":440,"name":"Universitair Medisch Centrum Groningen","shortName":"UMCG"},{"id":588,"name":"Universitair Medisch Centrum Utrecht","shortName":"UMCU"},{"id":547,"name":"Universiteit Maastricht","shortName":"UNIMAAS"},{"id":552,"name":"Universiteit van Amsterdam","shortName":"UVA"},{"id":553,"name":"Universiteit voor Humanistiek","shortName":"UVH"},{"id":591,"name":"VUMC","shortName":"VUMC"}]
+[
+    {
+        "id":1,
+        "name":"Mock_Klantnaam",
+        "shortName":"Mock_klantafkorting"
+    },
+    {
+        "id":691,
+        "name":"Amarantis Onderwijsgroep",
+        "shortName":"AMARANTIS"
+    },
+    {
+        "id":437,
+        "name":"AMC",
+        "shortName":"AMC"
+    },
+    {
+        "id":699,
+        "name":"Amphia Ziekenhuis",
+        "shortName":"AMPHIA"
+    },
+    {
+        "id":566,
+        "name":"AZM",
+        "shortName":"AZM"
+    },
+    {
+        "id":448,
+        "name":"Centrum voor Wiskunde en Informatica",
+        "shortName":"CWI"
+    },
+    {
+        "id":620,
+        "name":"De Kempel",
+        "shortName":"KEMPEL"
+    },
+    {
+        "id":449,
+        "name":"Design Academy",
+        "shortName":"DESIGNACADEMY"
+    },
+    {
+        "id":570,
+        "name":"Erasmus MC",
+        "shortName":"ERASMUSMC"
+    },
+    {
+        "id":458,
+        "name":"Erasmus Universiteit",
+        "shortName":"EUR"
+    },
+    {
+        "id":459,
+        "name":"FOM Bureau",
+        "shortName":"FOM"
+    },
+    {
+        "id":606,
+        "name":"FOM-instituut voor Atoom- en Molecuulfysica",
+        "shortName":"AMOLF"
+    },
+    {
+        "id":682,
+        "name":"Gemeente Bibliotheek Utrecht",
+        "shortName":"GBU"
+    },
+    {
+        "id":714,
+        "name":"Gereformeerde Hogeschool",
+        "shortName":"GH"
+    },
+    {
+        "id":611,
+        "name":"Grafisch Lyceum Rotterdam",
+        "shortName":"GLR"
+    },
+    {
+        "id":463,
+        "name":"Grafisch Lyceum Utrecht",
+        "shortName":"GLU"
+    },
+    {
+        "id":464,
+        "name":"Hogeschool Arnhem Nijmegen",
+        "shortName":"HAN"
+    },
+    {
+        "id":628,
+        "name":"Hogeschool Domstad",
+        "shortName":"DOMSTAD"
+    },
+    {
+        "id":473,
+        "name":"Hogeschool Rotterdam",
+        "shortName":"HRO"
+    },
+    {
+        "id":477,
+        "name":"Hogeschool van Amsterdam",
+        "shortName":"HVA"
+    },
+    {
+        "id":558,
+        "name":"Hogeschool Windesheim",
+        "shortName":"WINDESHEIM"
+    },
+    {
+        "id":482,
+        "name":"Infrastructure Hydraulics Environment",
+        "shortName":"IHE"
+    },
+    {
+        "id":489,
+        "name":"KNMI",
+        "shortName":"KNMI"
+    },
+    {
+        "id":487,
+        "name":"Koninklijk Instituut voor de Marine",
+        "shortName":"KIM"
+    },
+    {
+        "id":622,
+        "name":"Koninklijke Academie van Beeldende Kunsten",
+        "shortName":"KABK"
+    },
+    {
+        "id":488,
+        "name":"Koninklijke Militaire Academie",
+        "shortName":"KMA"
+    },
+    {
+        "id":576,
+        "name":"Leids Universitair Medisch Centrum",
+        "shortName":"LUMC"
+    },
+    {
+        "id":629,
+        "name":"Marnix Academie",
+        "shortName":"HSMARNIX"
+    },
+    {
+        "id":499,
+        "name":"Max Planck Institute",
+        "shortName":"MPI"
+    },
+    {
+        "id":497,
+        "name":"MediaPlaza (GigaPort aansluiting)",
+        "shortName":"MEDIAPLAZA"
+    },
+    {
+        "id":603,
+        "name":"Medisch Centrum Leeuwarden",
+        "shortName":"ZNB"
+    },
+    {
+        "id":498,
+        "name":"Meteoconsult",
+        "shortName":"METEOCON"
+    },
+    {
+        "id":712,
+        "name":"Ministerie van OC&W",
+        "shortName":"MIN.OCW"
+    },
+    {
+        "id":667,
+        "name":"mobilander",
+        "shortName":"MOBILANDER"
+    },
+    {
+        "id":617,
+        "name":"Mondriaan Onderwijsgroep",
+        "shortName":"MONDRIAAN"
+    },
+    {
+        "id":505,
+        "name":"Nationale Hogeschool voor Toerisme en Verkeer",
+        "shortName":"NHTV"
+    },
+    {
+        "id":625,
+        "name":"NEM Eindhoven (studentenhuisvester)",
+        "shortName":"NEMEINDHOVEN"
+    },
+    {
+        "id":680,
+        "name":"Omroep Brabant Mediafaciliteiten",
+        "shortName":"RTVOBM"
+    },
+    {
+        "id":694,
+        "name":"Omroep West",
+        "shortName":"OMROEPWEST"
+    },
+    {
+        "id":516,
+        "name":"Openbare Bibliotheek Amsterdam",
+        "shortName":"OBA"
+    },
+    {
+        "id":693,
+        "name":"Planbureau voor de Leefomgeving",
+        "shortName":"PBL"
+    },
+    {
+        "id":612,
+        "name":"Politieacademie",
+        "shortName":"LSOP"
+    },
+    {
+        "id":653,
+        "name":"Publieke Omroep Internet Services",
+        "shortName":"OMROEP"
+    },
+    {
+        "id":491,
+        "name":"Radboud Universiteit Nijmegen",
+        "shortName":"RU"
+    },
+    {
+        "id":692,
+        "name":"Rijksmuseum Amsterdam",
+        "shortName":"RIJKSMUSEUM"
+    },
+    {
+        "id":523,
+        "name":"Rijnhuizen Instituut (FOM)",
+        "shortName":"RIJNH"
+    },
+    {
+        "id":524,
+        "name":"RIVM",
+        "shortName":"RIVM"
+    },
+    {
+        "id":528,
+        "name":"ROC Midden Nederland",
+        "shortName":"ROCMN"
+    },
+    {
+        "id":526,
+        "name":"ROC Nijmegen",
+        "shortName":"ROC-NIJMEGEN"
+    },
+    {
+        "id":665,
+        "name":"ROC van Amsterdam",
+        "shortName":"ROCVA"
+    },
+    {
+        "id":582,
+        "name":"Roosevelt Academy",
+        "shortName":"ROOSEVELT"
+    },
+    {
+        "id":677,
+        "name":"RTV Rijnmond",
+        "shortName":"RTVRIJNMOND"
+    },
+    {
+        "id":702,
+        "name":"Simac ICT",
+        "shortName":"SIMAC"
+    },
+    {
+        "id":531,
+        "name":"Stadsbibliotheek Maastricht",
+        "shortName":"SBM"
+    },
+    {
+        "id":530,
+        "name":"Stichting Academisch Rekencentrum Amsterdam",
+        "shortName":"SARA"
+    },
+    {
+        "id":627,
+        "name":"Telecom Utrecht (OSP)",
+        "shortName":"ICONNEXT"
+    },
+    {
+        "id":688,
+        "name":"trimbos instituut",
+        "shortName":"TRIMBOS"
+    },
+    {
+        "id":546,
+        "name":"UMC St Radboud",
+        "shortName":"UMCN"
+    },
+    {
+        "id":440,
+        "name":"Universitair Medisch Centrum Groningen",
+        "shortName":"UMCG"
+    },
+    {
+        "id":588,
+        "name":"Universitair Medisch Centrum Utrecht",
+        "shortName":"UMCU"
+    },
+    {
+        "id":547,
+        "name":"Universiteit Maastricht",
+        "shortName":"UNIMAAS"
+    },
+    {
+        "id":552,
+        "name":"Universiteit van Amsterdam",
+        "shortName":"UVA"
+    },
+    {
+        "id":553,
+        "name":"Universiteit voor Humanistiek",
+        "shortName":"UVH"
+    },
+    {
+        "id":591,
+        "name":"VUMC",
+        "shortName":"VUMC"
+    }
+]
