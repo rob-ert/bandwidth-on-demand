@@ -11,7 +11,7 @@
             <thead>
                 <tr>
                     <table:sortableHeader labelCode="label_virtualport_userlabel" property="userLabel"/>
-                    <table:sortableHeader labelCode="label_virtualport_max_bandwidth" property="maxBandwidth"/>
+                    <table:sortableHeader labelCode="label_virtualport_maxbandwidth" property="maxBandwidth"/>
                     <table:sortableHeader labelCode="label_virtualresourcegroup" property="virtualResourceGroup"/>
                     <table:actionsHeader />
                 </tr>
