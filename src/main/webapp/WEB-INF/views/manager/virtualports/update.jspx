@@ -12,7 +12,7 @@
         <div class="span8">
             <form:update id="fc_VirtualPort" modelAttribute="virtualPortUpdateCommand" path="/manager/virtualports">
                 <field:input field="managerLabel" id="name" labelCode="virtualport_name" />
-                <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_max_bandwidth" />
+                <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_maxbandwidth" />
                 <field:input field="vlanId" id="vlanId" labelCode="virtualport_vlan_id" />
 
                 <field:select items="${virtualResourceGroups}" field="virtualResourceGroup"
