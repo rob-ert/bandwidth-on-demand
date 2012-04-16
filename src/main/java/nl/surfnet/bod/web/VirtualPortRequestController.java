@@ -179,7 +179,7 @@ public class VirtualPortRequestController {
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_send", prg.getInstitute()
         .getName());
 
-    // in case a new vrg was created make sure the user sees it, but prevent unnessary switching of roles    
+    // in case a new vrg was created make sure the user sees it, but prevent unnecessary switching of roles    
     if (Security.getUserDetails().getSelectedRole() == null) {
       SecurityContextHolder.clearContext();
     }

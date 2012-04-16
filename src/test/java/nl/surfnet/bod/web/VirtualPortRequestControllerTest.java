@@ -26,6 +26,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -36,6 +38,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 import java.util.List;
+
+import junit.framework.Assert;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
@@ -56,6 +60,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.MessageSource;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BeanPropertyBindingResult;
 
 import com.google.common.collect.Lists;
@@ -256,6 +261,56 @@ public class VirtualPortRequestControllerTest {
     String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
 
     assertThat(page, is("redirect:/"));
+
+    verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
+    verify(virtualPortServiceMock).requestNewVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
+        eq(1111), eq("I want!"));
+  }
+
+  @Test
+  public void doNotSwitchRoleWhenUserHasSelectedRole() {
+    ModelStub model = new ModelStub();
+    PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().setActive(true).create();
+
+    RequestCommand command = new RequestCommand(pGroup);
+    command.setPhysicalResourceGroupId(2L);
+    command.setUserGroupId("urn:user-group");
+    command.setBandwidth(1111);
+    command.setMessage("I want!");
+
+    when(virtualResourceGroupServiceMock.findBySurfconextGroupId("urn:user-group")).thenReturn(null);
+    when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
+
+    // Give user a selectedRole
+    user.setSelectedRole(new BodRoleFactory().create());
+    String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
+
+    assertThat("Context should not be cleared", SecurityContextHolder.getContext().getAuthentication(), notNullValue());
+
+    verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
+    verify(virtualPortServiceMock).requestNewVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
+        eq(1111), eq("I want!"));
+  }
+
+  @Test
+  public void doSwitchRoleWhenUserHasNoSelectedRole() {
+    ModelStub model = new ModelStub();
+    PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().setActive(true).create();
+
+    RequestCommand command = new RequestCommand(pGroup);
+    command.setPhysicalResourceGroupId(2L);
+    command.setUserGroupId("urn:user-group");
+    command.setBandwidth(1111);
+    command.setMessage("I want!");
+
+    when(virtualResourceGroupServiceMock.findBySurfconextGroupId("urn:user-group")).thenReturn(null);
+    when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
+
+    // Give user a selectedRole
+    user.setSelectedRole(null);
+    String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
+
+    assertThat("Context should not be cleared", SecurityContextHolder.getContext().getAuthentication(), nullValue());
 
     verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
     verify(virtualPortServiceMock).requestNewVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
