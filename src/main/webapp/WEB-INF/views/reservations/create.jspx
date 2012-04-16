@@ -11,7 +11,6 @@
     <spring:url value="/resources/images/full.png" var="imgFull" />
     <spring:url value="/resources/images/half.png" var="imgHalf" />
     <spring:url value="/resources/images/quater.png" var="imgQuater" />
-    <spring:url var="reservation_js" value="/resources/js/reservation.js" />
 
     <div class="row">
         <div class="span8">
@@ -95,7 +94,7 @@
                         <sform:errors cssClass="help-block" id="_end_error_id" path="startTime" delimiter=", " />
 	                 </div>
                 </div>
-                 
+
                 <c:set var="errors_end_date"><sform:errors path="endDate" /></c:set>
                 <c:set var="errors_end_time"><sform:errors path="endTime" /></c:set>
                 <c:if test="${not empty errors_end_time or not empty errors_end_date}">
@@ -155,8 +154,4 @@
             </section>
         </div>
     </div>
-    <script type="text/javascript">
-	    var dataUrl = "${vpUrl}";
-    </script>
-    <script src="${reservation_js}" type="text/javascript"><!-- needed --></script>
 </html>
