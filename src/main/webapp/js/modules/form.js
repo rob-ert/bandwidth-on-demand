@@ -127,8 +127,13 @@ app.form = function(){
 
     var initDropDownReload = function() {
 
-        var dropdown = $('[data-component="team-selector"]'),
-            url = dropdown.attr('data-url');
+        var dropdown = $('[data-component="team-selector"]');
+
+        if(!dropdown.length) {
+            return;
+        }
+
+        var url = dropdown.attr('data-url');
 
         dropdown.dropdownReload(
             url,
