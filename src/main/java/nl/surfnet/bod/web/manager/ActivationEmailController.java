@@ -82,14 +82,17 @@ public class ActivationEmailController {
     }
     else if (link.isValid()) {
       physicalResourceGroupService.activate(link);
-      
+
+      // TODO Roles shoud be reload here, in case the user just has become a
+      // manager by activation of the link
       Security.getUserDetails().switchToManagerRoleByPhysicalResourceGroup(physicalResourceGroup);
+
       return "manager/emailConfirmed";
     }
 
     log.warn("Link [{}} for physical resource group [{}] was not valid", link.getUuid(),
         physicalResourceGroup.getName());
-    
+
     return "manager/linkNotValid";
   }
 
