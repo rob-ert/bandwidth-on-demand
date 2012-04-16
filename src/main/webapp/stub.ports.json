@@ -1,0 +1,18 @@
+[
+    {
+        "managerLabel":"FOO-23",
+        "userLabel":"FOO-23",
+        "maxBandwidth":600,
+        "vlanId":34,
+        "virtualResourceGroupName":"users-klimaat",
+        "id":6
+    },
+    {
+        "managerLabel":"my label",
+        "userLabel":"my new label",
+        "maxBandwidth":500,
+        "vlanId":null,
+        "virtualResourceGroupName":"users-klimaat",
+        "id":13
+    }
+]

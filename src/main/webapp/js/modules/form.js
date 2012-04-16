@@ -12,6 +12,7 @@ app.form = function(){
 
         initFormLinks();
         initBandwidthSelector();
+        initDropDownReload();
         initDatepickers();
         initStartNow();
         initAutoSuggest();
@@ -115,6 +116,25 @@ app.form = function(){
         });
 
         activateBandwidthButton(bandwidth / getMaxBandwidth());
+
+    }
+
+    var initDropDownReload = function() {
+
+        var dropdown = $('[data-component="team-selector"]'),
+            url = dropdown.attr('data-url');
+
+        dropdown.dropdownReload(
+            url,
+            $('[data-component="bandwidth-selector-source"]'),
+            {
+                afterReload: function(data) {
+                    groupInJson = data;
+                    $('[data-component="bandwidth-selector"] button').eq(1).trigger('click');
+                },
+                displayProp: "userLabel"
+            }
+        );
 
     }
 
