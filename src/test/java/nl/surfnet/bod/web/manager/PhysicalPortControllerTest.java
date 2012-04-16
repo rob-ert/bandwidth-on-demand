@@ -37,12 +37,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.support.BodRoleFactory;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
@@ -52,6 +54,7 @@ import nl.surfnet.bod.web.manager.PhysicalPortController.PhysicalPortView;
 import nl.surfnet.bod.web.manager.PhysicalPortController.UpdateManagerLabelCommand;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -98,6 +101,9 @@ public class PhysicalPortControllerTest {
   public void listPorts() {
     Model model = new ModelStub();
 
+    BodRole managerRole = new BodRoleFactory().setRole(RoleEnum.ICT_MANAGER)
+        .setPhysicalResourceGroup(physicalResourceGroup).create();
+    user.setSelectedRole(managerRole);
     when(physicalResourceGroupService.find(anyLong())).thenReturn(physicalResourceGroup);
 
     when(
