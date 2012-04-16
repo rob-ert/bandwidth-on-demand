@@ -6,7 +6,7 @@ import javax.servlet.jsp.JspException;
 
 public class ScriptTag extends BodTagSupport {
 
-  private static final String TEMPLATE = "<script src=\"%s\" type=\"text/javascript\"></script>";
+  private static final String TEMPLATE = "<script src=\"%s\"></script>";
 
   private String value;
 
