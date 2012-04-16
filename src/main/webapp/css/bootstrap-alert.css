@@ -4,8 +4,9 @@
     font-style: normal;
     display: inline-block;
     text-decoration: inherit;
-    content: "\f071"; /* icon-warning-sign */
+    content: "\f06a"; /* icon-exclamation-sign */
     font-size: 18px;
+    margin-right: 1em;
 }
 
 .alert-success:before {
@@ -14,4 +15,22 @@
 
 .alert-info:before {
     content: "\f05a"; /* icon-info-sign */
+}
+
+.alert {
+    border-color: #C09853;
+}
+
+.alert-error {
+    border-color: #B94A48;
+}
+
+.alert-success {
+    border-color: #489406;
+    background-color: #edffde;
+}
+
+.alert-info {
+    border-color: #4FB3CF;
+    color: #0088CC;
 }
