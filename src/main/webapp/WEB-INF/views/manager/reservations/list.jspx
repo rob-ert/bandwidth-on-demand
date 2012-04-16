@@ -11,12 +11,12 @@
             <thead>
                 <tr>
                     <table:rowDetailsHeader />
-                    <table:sortableHeader property="name" name="Label" />
-                    <table:sortableHeader property="virtualResourceGroup" name="Team" />
-                    <table:sortableHeader property="bandwidth" name="Bandwidth" />
-                    <table:sortableHeader property="startDateTime" name="Starts" />
-                    <table:sortableHeader property="endDateTime" name="Ends" />
-                    <table:sortableHeader property="status" name="Status" />
+                    <table:sortableHeader property="name" labelCode="label_reservation_name" />
+                    <table:sortableHeader property="virtualResourceGroup" labelCode="label_virtualresourcegroup" />
+                    <table:sortableHeader property="bandwidth" labelCode="label_reservation_bandwidth" />
+                    <table:sortableHeader property="startDateTime" labelCode="label_reservation_start" />
+                    <table:sortableHeader property="endDateTime" labelCode="label_reservation_end" />
+                    <table:sortableHeader property="status" labelCode="label_reservation_status" />
                 </tr>
             </thead>
             <tbody>

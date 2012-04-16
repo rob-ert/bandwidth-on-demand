@@ -10,9 +10,9 @@
         <table:table items="${list}" labelPluralCode="label_virtualport_plural">
             <thead>
                 <tr>
-                    <table:sortableHeader name="Label" property="userLabel"/>
-                    <table:sortableHeader name="Max. Bandwidth" property="maxBandwidth"/>
-                    <table:sortableHeader name="Team" property="virtualResourceGroup"/>
+                    <table:sortableHeader labelCode="label_virtualport_userlabel" property="userLabel"/>
+                    <table:sortableHeader labelCode="label_virtualport_max_bandwidth" property="maxBandwidth"/>
+                    <table:sortableHeader labelCode="label_virtualresourcegroup" property="virtualResourceGroup"/>
                     <table:actionsHeader />
                 </tr>
             </thead>

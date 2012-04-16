@@ -11,8 +11,8 @@
         <table:table items="${list}" labelPluralCode="label_physicalport_plural">
             <thead>
                 <tr>
-                    <table:sortableHeader name="Label" property="managerLabel" />
-                    <table:sortableHeader name="Network Element ID" property="networkElementPk" />
+                    <table:sortableHeader labelCode="label_physicalport_managerlabel" property="managerLabel" />
+                    <table:sortableHeader labelCode="label_physicalport_networkelementpk" property="networkElementPk" />
                     <th># of Virtual Ports</th>
                     <table:actionsHeader />
                 </tr>

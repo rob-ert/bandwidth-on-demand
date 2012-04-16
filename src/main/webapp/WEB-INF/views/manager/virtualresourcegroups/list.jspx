@@ -12,9 +12,9 @@
             <thead>
                 <tr>
                     <table:rowDetailsHeader />
-                    <table:sortableHeader property="name" name="Label" />
-                    <table:sortableHeader property="description" name="Description" />
-                    <th># of Virtual Ports</th>
+                    <table:sortableHeader property="name" labelCode="label_virtualresourcegroup_name" />
+                    <table:sortableHeader property="description" labelCode="label_virtualresourcegroup_description" />
+                    <th><spring:message code="label_virtualresourcegroup_virtualportcount" /></th>
                     <table:actionsHeader />
                 </tr>
             </thead>
