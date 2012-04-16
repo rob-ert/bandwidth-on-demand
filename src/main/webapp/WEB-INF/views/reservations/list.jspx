@@ -7,12 +7,18 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
+    <spring:url value="/push" var="pushUrl" />
+    <spring:url value="/reservations/filter/" var="filterUrl" />
+
     <page:list id="pl_reservation" path="/reservations">
         <div class="form-inline">
            <label>Reservation Filter</label><c:out value=" " />
            <sform:select id="filter" path="filterSelect.id" items="${filterList}" itemLabel="label" itemValue="id" cssClass="input-medium" />
         </div>
-        <table:table items="${list}" labelPluralCode="label_reservation_plural">
+        <table:table-reservation
+            items="${list}"
+            labelPluralCode="label_reservation_plural"
+            pushUrl="${pushUrl}">
             <thead>
                 <tr>
                     <table:rowDetailsHeader />
@@ -86,53 +92,7 @@
                     </tr>
                 </c:forEach>
             </tbody>
-        </table:table>
+        </table:table-reservation>
     </page:list>
 
-    <spring:url value="/push" var="pushUrl" />
- 	<spring:url value="/reservations/filter/" var="filterUrl" />
-
-    <script type="text/javascript">
-        $(function() {
-            setTimeout(function() { startPushConnection(); }, 100);
-            function startPushConnection() {
-                $.socket("${pushUrl}", {
-                    transports: "longpoll"
-               })
-               .open(function() { })
-               .message(function(data) {
-                   processEvent(data);
-               })
-               .close(function() { });
-            };
-
-            function processEvent(event) {
-                app.message.showInfo(event["message"]);
-                updateReservationRow(event["id"], event["status"]);
-            }
-
-            function updateReservationRow(id, newStatus) {
-                var statusIndex = 3;
-                var row = $('a[href$="id=' + id + '"]').closest("tr");
-                row.addClass("highlight");
-                $(row.children()[statusIndex]).animate(
-                    {opacity: 0},
-                    1000,
-                    function() {
-                        $(this).text(newStatus);
-                        $(this).animate({opacity: 1}, 1000,
-                          function () {
-                            row.removeClass("highlight");
-                          }
-                        );
-                    }
-                );
-            }
-
-            // Do new get based on selected item
-            $("#filter").change(function() {
-                window.location = "${filterUrl}" + $(this).val();
-            });
-        })
-    </script>
 </html>

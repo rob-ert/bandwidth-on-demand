@@ -16,6 +16,7 @@
             <bod:script value="/resources/js/modules/form.js" />
             <bod:script value="/resources/js/modules/message.js"  />
             <bod:script value="/resources/js/modules/table.js" />
+            <bod:script value="/resources/js/modules/reservation.js" />
             <bod:script value="/resources/js/jquery/dropdown-reload.js" />
             <bod:script value="/resources/js/jquery/jquery-autoSuggest.js" />
             <bod:script value="/resources/js/jquery/jquery-socket-1.0a.js" />
