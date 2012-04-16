@@ -57,6 +57,9 @@ public class Environment {
   @Value("${bod.development}")
   private boolean development;
 
+  @Value("${google.analytics.code}")
+  private String googleAnalyticsCode;
+
   public Environment() {
   }
 
@@ -117,6 +120,14 @@ public class Environment {
 
   public void setDevelopment(boolean development) {
     this.development = development;
+  }
+
+  public String getGoogleAnalyticsCode() {
+    return googleAnalyticsCode;
+  }
+
+  public void setGoogleAnalyticsCode(String googleAnalyticsCode) {
+    this.googleAnalyticsCode = googleAnalyticsCode;
   }
 
 }
