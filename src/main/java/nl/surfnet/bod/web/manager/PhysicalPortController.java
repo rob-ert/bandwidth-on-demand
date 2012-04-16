@@ -107,8 +107,13 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
   @Override
   protected long count() {
-    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(WebUtils
-        .getSelectedPhysicalResourceGroupId());
+    Long groupId = WebUtils.getSelectedPhysicalResourceGroupId();
+
+    if (groupId == null) {
+      return 0;
+    }
+
+    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(groupId);
     return physicalPortService.countAllocatedForPhysicalResourceGroup(physicalResourceGroup);
   }
 
@@ -204,13 +209,17 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
   @Override
   protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(WebUtils
-        .getSelectedPhysicalResourceGroupId());
+
+    Long groupId = WebUtils.getSelectedPhysicalResourceGroupId();
+    if (groupId == null) {
+      return Lists.newArrayList();
+    }
+
+    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(groupId);
 
     List<PhysicalPort> list = physicalPortService.findAllocatedEntriesForPhysicalResourceGroup(physicalResourceGroup,
         firstPage, maxItems, sort);
 
     return Lists.transform(list, toView);
   }
-
 }

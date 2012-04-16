@@ -44,16 +44,19 @@ public class DashboardController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(RedirectAttributes model) {
-    
-    PhysicalResourceGroup group = physicalResourceGroupService.find(WebUtils.getSelectedPhysicalResourceGroupId());
 
-    if (!group.isActive()) {
-      WebUtils.addInfoMessage(model,
-          createNewActivationLinkForm(new Object[] {
-              environment.getExternalBodUrl() + ActivationEmailController.ACTIVATION_MANAGER_PATH,
-              group.getId().toString() }));
+    Long groupId = WebUtils.getSelectedPhysicalResourceGroupId();
 
-      return "redirect:manager/physicalresourcegroups/edit?id=" + group.getId();
+    if (groupId != null) {
+      PhysicalResourceGroup group = physicalResourceGroupService.find(groupId);
+
+      if (!group.isActive()) {
+        WebUtils.addInfoMessage(model, createNewActivationLinkForm(new Object[] {
+            environment.getExternalBodUrl() + ActivationEmailController.ACTIVATION_MANAGER_PATH,
+            group.getId().toString() }));
+
+        return "redirect:manager/physicalresourcegroups/edit?id=" + group.getId();
+      }
     }
 
     return "manager/index";
