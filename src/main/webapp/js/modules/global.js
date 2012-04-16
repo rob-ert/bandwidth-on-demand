@@ -45,7 +45,6 @@ app.global = function() {
     var initTooltips = function() {
 
        	$('[rel="tooltip"]').tooltip({
-            delay: 500,
             placement: _placement
         });
 
