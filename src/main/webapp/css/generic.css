@@ -38,35 +38,6 @@ header a:hover {
     color: transparent;
 }
 
-/* forms + form-like sections */
-
-.form {
-    background-color: #FFF;
-    border: 1px solid #BFBFBF;
-    max-width: 600px;
-}
-
-.form .message {
-    background-color: #cae8f0;
-    padding: 0.4em 40px;
-    margin-bottom: 1em;
-}
-
-.form .message h3,
-.form .message p {
-    margin-bottom: 0;
-}
-
-.form:after {
-    clear: both;
-    content: "";
-    display: table;
-}
-
-.form > p {
-    margin: 0 0 1em 3em;
-}
-
 /* content */
 
 section,
