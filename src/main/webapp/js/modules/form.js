@@ -14,6 +14,7 @@ app.form = function(){
         initFormLinks();
         initBandwidthSelector();
         initStartNow();
+        initReservationFilter();
 
     };
 
@@ -218,6 +219,16 @@ app.form = function(){
             });
 
         })
+
+    }
+
+    var initReservationFilter = function() {
+
+        // Do new get based on selected item
+        $('[data-component="reservation-filter"] select').change(function(event) {
+            var element = $(event.target);
+            window.location.href = element.closest('form').attr('action') + element.val();
+        });
 
     }
 
