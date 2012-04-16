@@ -132,25 +132,19 @@ app.form = function(){
         var date,
             time;
 
-        $('[data-component="start-now"] :checkbox').on('click', function(event) {
+        $('[data-component="start-now"] :checkbox').on('click', function() {
             var inputs = $('[data-component="start-now"] :text'),
                 dateInput = inputs.eq(0),
                 timeInput = inputs.eq(1);
 
             if (dateInput.prop('disabled')) {
-                dateInput.val(date);
-                timeInput.val(time);
-                dateInput.prop('disabled', false);
-                timeInput.prop('disabled', false);
+                dateInput.val(date).prop('disabled', false);
+                timeInput.val(time).prop('disabled', false);
             } else {
                 date = dateInput.val();
                 time = timeInput.val();
-
-                dateInput.val('');
-                timeInput.val('');
-
-                dateInput.prop('disabled', true);
-                timeInput.prop('disabled', true);
+                dateInput.val('').prop('disabled', true);
+                timeInput.val('').prop('disabled', true);
             }
         });
     }
