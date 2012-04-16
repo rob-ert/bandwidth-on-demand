@@ -22,6 +22,7 @@
 package nl.surfnet.bod.web;
 
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,15 +39,15 @@ public class DashboardController {
     model.addAttribute("userGroups", Security.getUserDetails().getUserGroups());
 
     if (Security.isSelectedNocRole()) {
-      return "redirect:noc";
+      return RoleEnum.NOC_ENGINEER.getViewName();
     }
 
     if (Security.isSelectedManagerRole()) {
-      return "redirect:manager";
+      return RoleEnum.ICT_MANAGER.getViewName();
     }
 
     if (Security.isSelectedUserRole()) {
-      return "index";
+      return RoleEnum.USER.getViewName();
     }
 
     return "noUserRole";
