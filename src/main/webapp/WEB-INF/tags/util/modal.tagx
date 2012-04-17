@@ -21,7 +21,7 @@
                 </p>
             </div>
             <div class="actions">
-                <jsp:body />
+                <jsp:doBody />
             </div>
         </div>
     </c:if>

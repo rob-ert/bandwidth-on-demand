@@ -2,22 +2,60 @@
     xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
     xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
 
-    <jsp:directive.page contentType="text/html;charset=UTF-8" />
-    <jsp:output omit-xml-declaration="yes" />
+<jsp:directive.page contentType="text/html;charset=UTF-8" />
+<jsp:output omit-xml-declaration="yes" />
 
-    <div class="hero-unit">
-        <h1>Choose your team</h1>
-        
-        <p>Select your collaboration team and ask an BoD administrator of an institute for virtual ports.</p>
+<c:choose>
+    <c:when test="${empty userGroups}">
+        <util:modal titleCode="error_nosurfconextgroups_title" messageCode="error_nosurfconextgroups_description">
+            <a href="https://teams.surfconext.nl/" class="btn btn-primary"><i class="icon-external-link"><!--  --></i> Create a SURFconext team</a>
+        </util:modal>
+    </c:when>
 
-        <ul>
-            <c:forEach var="group" items="${userGroups}">
-                <spring:url value="/request" var="url" >
-                    <spring:param value="${group.id}" name="team" />
-                </spring:url>
-                <li><a href="${url}"><c:out value="${group.name}" /></a> - <i><c:out value="${group.description}" /></i></li>
-            </c:forEach>
-        </ul>
-    </div>
+    <c:otherwise>
+        <div class="row">
+            <div class="span8">
+                <section>
+                    <h1>Choose your team</h1>
+                    <div class="content">
 
+                        <div class="form">
+                            <div class="message">
+                                <h3>Your teams</h3>
+                            </div>
+
+                            <dl class="dl">
+                                <c:forEach var="group" items="${userGroups}">
+                                    <spring:url value="/request" var="url">
+                                        <spring:param value="${group.id}" name="team" />
+                                    </spring:url>
+                                    <dt>
+                                        <a href="${url}"><c:out value="${group.name}" /></a>
+                                    </dt>
+                                    <dd>
+                                        <c:out value="${group.description}" />
+                                    </dd>
+                                </c:forEach>
+                            </dl>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class="span4">
+                <section>
+                    <h2>
+                        <spring:message code="label_help_text_header" />
+                    </h2>
+                    <div class="content-dense">
+                        <h3>Select team</h3>
+                        <p>Before you can make reservations you have to indicate which team you would like to use. All your available teams are displayed</p>
+                        <h3>Request a port</h3>
+                        <p>After you have selected your team you should request a virtual port from any of the
+                            available institutes. This step follows automatically after you have selected your team.</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </c:otherwise>
+</c:choose>
 </html>
