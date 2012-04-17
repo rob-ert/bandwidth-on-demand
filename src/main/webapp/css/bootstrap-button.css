@@ -13,3 +13,8 @@
 	color: #fff;
 	background-color: #0381a4;
 }
+
+.btn:hover [class^="icon-"]:before,
+.btn:hover [class*=" icon-"]:before {
+    color: inherit;
+}
