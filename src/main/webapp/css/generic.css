@@ -125,15 +125,3 @@ section h2 {
 .actions .btn + a {
     margin-left: 15px;
 }
-
-.smiley {
-    font-size: 150px;
-    font-weight: bold;
-    text-align: center;
-    margin: 90px 0 60px 0;
-    -webkit-transform: rotate(90deg);
-    -moz-transform: rotate(90deg);
-    -ms-transform: rotate(90deg);
-    -o-transform: rotate(90deg);
-    transform: rotate(90deg);
-}

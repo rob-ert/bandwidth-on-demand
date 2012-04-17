@@ -42,4 +42,9 @@ public class AdminController {
 
     return "redirect:" + request.getHeader("Referer");
   }
+
+  @RequestMapping(value = "error", method = RequestMethod.GET)
+  public String error() {
+    throw new RuntimeException("Something went wrong on purpose");
+  }
 }

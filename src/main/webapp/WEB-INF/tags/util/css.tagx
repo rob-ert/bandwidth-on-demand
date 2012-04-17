@@ -6,10 +6,10 @@
 
     <bod:env property="development" var="dev" />
 
-    <bod:css value="/resources/css/bootstrap-2.0.2.min.css" />
-    <bod:css value="/resources/css/font-awesome.css" />
     <c:choose>
         <c:when test="${dev}">
+            <bod:css value="/resources/css/bootstrap-2.0.2.min.css" />
+            <bod:css value="/resources/css/font-awesome.css" />
             <bod:css value="/resources/css/bootstrap-alert.css" />
             <bod:css value="/resources/css/bootstrap-button.css" />
             <bod:css value="/resources/css/bootstrap-datepicker.css" />
@@ -21,6 +21,7 @@
             <bod:css value="/resources/css/bootstrap-popover.css" />
             <bod:css value="/resources/css/bootstrap-table.css" />
             <bod:css value="/resources/css/bootstrap-tooltip.css" />
+            <bod:css value="/resources/css/bootstrap-modal.css" />
             <bod:css value="/resources/css/layout.css" />
             <bod:css value="/resources/css/generic.css" />
             <bod:css value="/resources/css/component-userbox.css" />
