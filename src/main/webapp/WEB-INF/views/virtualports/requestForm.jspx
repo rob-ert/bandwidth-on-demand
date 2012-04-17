@@ -74,7 +74,9 @@
 
             <div class="actions">
                 <spring:message code="label_request_vp_send_request" var="submitText" />
+                <spring:url value="/" var="cancel_url" />
                 <input class="btn btn-primary" type="submit" value="${submitText}" />
+                <a href="${cancel_url}"><spring:message code="button_cancel" /></a>
             </div>
         </fieldset>
     </form:form>
