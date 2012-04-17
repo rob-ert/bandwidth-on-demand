@@ -2,17 +2,24 @@
 <html xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
     xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields">
 
-    <jsp:directive.page contentType="text/html;charset=UTF-8" />
-    <jsp:output omit-xml-declaration="yes" />
+<jsp:directive.page contentType="text/html;charset=UTF-8" />
+<jsp:output omit-xml-declaration="yes" />
 
-    <page:list id="groups" items="${groups}" singleLabelCode="Group" pluralLabelCode="Groups">
-        <ul>
+<page:list id="groups" items="${groups}" singleLabelCode="Group" pluralLabelCode="Groups">
+    <div class="form">
+        <div class="message">
+            <h3>Your groups</h3>
+        </div>
+        <dl class="dl">
             <c:forEach var="group" items="${groups}">
-                <li>
-                    <strong>${group.name}</strong>, <code>${group.id}</code><br/>
-                    ${group.description}
-                </li>
+                <dt>
+                    ${group.name} (${group.description})
+                </dt>
+                <dd>
+                    ${group.id}
+                </dd>
             </c:forEach>
-        </ul>
-    </page:list>
+        </dl>
+    </div>
+</page:list>
 </html>
