@@ -26,11 +26,11 @@
                     <p>Select the institute you want to connect to from the list with with institutes that offer bandwidth
                         on demand.</p>
                     <h3>Fill in your request</h3>
-                    <p>Specify the minimum required bandwidth and a reason why you need the virtual port. If you are a
-                        member of multiple virtual user groups you also need to specify for which group you need the port.</p>
+                    <p>Specify the minimum required bandwidth and a motivation why you need the virtual port. If you are a
+                        member of multiple teams you also need to specify for which team you need the port.</p>
                     <h3>Send email</h3>
                     <p>An email will be sent to the institute with your request. If the institute honors your request the
-                        virtual port will show up in your virtual resource group.</p>
+                        virtual port will show up in your virtual ports overview.</p>
                 </div>
             </section>
         </div>

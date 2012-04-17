@@ -22,6 +22,7 @@
                     <output><c:out value="${user.displayName}" /> (<c:out value="${user.email}" />)</output>
                 </div>
             </div>
+
             <div class="control-group">
                 <label class="control-label"><spring:message code="label_request_vp_virtual_user_group" /></label>
                 <div class="controls">
@@ -38,6 +39,10 @@
                 </div>
             </div>
 
+            <div class="message">
+                <h3>Message</h3>
+            </div>
+
             <c:set var="errors">
                 <form:errors path="bandwidth" />
             </c:set>
@@ -48,8 +53,11 @@
                 <label class="control-label"><spring:message code="label_request_vp_bandwidth" /></label>
                 <div class="controls">
                     <div class="input-append">
-                        <form:input path="bandwidth" cssClass="input-medium" /><span class="add-on"><spring:message code="label_bandwidth_unit" /></span>
+                        <form:input path="bandwidth" cssClass="input-medium" cssStyle="width: 163px" /><span class="add-on"><spring:message code="label_bandwidth_unit" /></span>
                     </div>
+                    <c:out value=" " />
+                    <spring:message code="label_request_vp_bandwidth_help" var="help_bandwidth_msg" />
+                    <a rel="popover" data-type="success" class="badge badge-success" href="#" data-content="${help_bandwidth_msg}">?</a>
                     <form:errors cssClass="help-block" id="_message_error_id" path="bandwidth" delimiter=", " />
                 </div>
             </div>
@@ -64,9 +72,9 @@
                 <label class="control-label"><spring:message code="label_request_vp_message" /></label>
                 <div class="controls">
                     <form:textarea path="message" rows="5" cssClass="xlarge" />
-                    <spring:message code="label_request_vp_message_help" var="help_msg" />
+                    <spring:message code="label_request_vp_motivation_help" var="help_motivation_msg" />
                     <c:out value=" " />
-                    <a rel="popover" data-type="success" class="badge badge-success" href="#" data-content="${help_msg}">?</a>
+                    <a rel="popover" data-type="success" class="badge badge-success" href="#" data-content="${help_motivation_msg}">?</a>
                     <form:errors cssClass="help-block" id="_message_error_id" path="message" delimiter=", " />
                 </div>
             </div>
