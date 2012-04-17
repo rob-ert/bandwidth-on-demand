@@ -13,8 +13,8 @@
             <thead>
                 <tr>
                     <table:rowDetailsHeader render="${not show_unallocated}" />
-                    <table:sortableHeader labelCode="label_physicalport_noclabel" property="nocLabel" />
-                    <table:sortableHeader labelCode="label_physicalport_networkelementpk" property="networkElementPk" />
+                    <table:sortableHeader labelCode="label_physicalport_noclabel" property="nocLabel" sortable="${not show_unallocated}" />
+                    <table:sortableHeader labelCode="label_physicalport_networkelementpk" property="networkElementPk" sortable="${not show_unallocated}" />
                     <table:sortableHeader labelCode="label_physicalresourcegroup" property="physicalResourceGroup" render="${not show_unallocated}" />
                     <table:actionsHeader />
                 </tr>
