@@ -1,36 +1,79 @@
 <html xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
-    xmlns:sec="http://www.springframework.org/security/tags" xmlns:jsp="http://java.sun.com/JSP/Page">
+    xmlns:table="urn:jsptagdir:/WEB-INF/tags/table" xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions" xmlns:sec="http://www.springframework.org/security/tags"
+    xmlns:jsp="http://java.sun.com/JSP/Page">
 
-    <jsp:directive.page contentType="text/html;charset=UTF-8" />
-    <jsp:output omit-xml-declaration="yes" />
+<jsp:directive.page contentType="text/html;charset=UTF-8" />
+<jsp:output omit-xml-declaration="yes" />
 
-    <spring:message var="app_name" code="application_name" htmlEscape="false" />
+<spring:message var="app_name" code="application_name" htmlEscape="false" />
 
-    <div class="row">
-        <div class="span8">
-            <div class="hero-unit">
-                <h1>Welcome User</h1>
-                <p>Welcome to SURFnet's ${app_name} user interface.</p>
-                <p>Manage your bandwidth on demand reservations and virtual ports by
-                selecting a task in the menu.</p>
-            </div>
-        </div>
-        <div class="span4">
-            <section>
-                <h2>Common tasks</h2>
-                <spring:url var="reservation_url" value="/reservations/create" />
-                <spring:url var="request_url" value="/request" />
-
-                <div class="content">
-                    <ul class="tasks">
-                        <sec:authorize access="hasRole('USER')">
-                            <li><a class="btn btn-primary" href="${reservation_url}"><i class="icon-plus"><!--  --></i> <spring:message code="label_action_add_reservation" /></a></li>
-                            <li><a href="${request_url}" class="btn btn-primary"><i class="icon-plus"><!--  --></i> <spring:message code="label_action_request_vp"/></a></li>
-                        </sec:authorize>
-                    </ul>
+<div class="row">
+    <div class="span8">
+        <section>
+            <h1>
+                Your team
+                <c:if test="${fn:length(teams) > 1}">s</c:if>
+            </h1>
+            <div class="content">
+                <div class="form-inline">
+                    <label class="radio">
+                        <input type="radio" name="show" value="used" checked="true" />
+                        Show used
+                    </label>
+                    <c:out value=" " />
+                    <label class="radio">
+                        <input type="radio" name="show" value="all" />
+                        Show all
+                    </label>
                 </div>
-            </section>
-        </div>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th><spring:message code="label_virtualresourcegroup" /></th>
+                            <th># of Ports</th>
+                            <th>Reservations</th>
+                            <table:actionsHeader />
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach items="${teams}" var="team">
+                            <tr>
+                                <table:column item="${team}" property="name" />
+                                <table:column item="${team}" property="numberOfPorts" />
+                                <table:column item="${team}" property="reservations" />
+                                <td class="center">
+                                    <spring:url value="/reservations/create" var="new_res_url">
+                                    </spring:url>
+                                    <spring:url value="/request" var="new_vp_url">
+                                        <spring:param name="team" value="${team.surfconextGroupId}" />
+                                    </spring:url>
+                                    <a href="${new_res_url}" rel="tooltip" title="New Reservation" data-type="info"><i class="icon-plus"><!--  --></i></a>
+                                    <c:out value=" " />
+                                    <a href="${new_vp_url}" rel="tooltip" title="Request a Virtual Port" data-type="info"><i class="icon-envelope"><!--  --></i></a>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
+    <div class="span4">
+        <section>
+            <h2>Welcome to ${app_name}</h2>
+            <spring:url var="reservation_url" value="/reservations/create" />
+            <spring:url var="request_url" value="/request" />
+
+            <div class="content-dense">
+                <h3>New Reservation</h3>
+                <p>Click on the <i class="icon-plus"><!--  --></i> icon behind one of your teams to make a reservation.</p>
+
+                <h3>Request a Virtual Port</h3>
+                <p>Click on the <i class="icon-envelope"> <!--  --></i> icon behind one of your teams to request a virtual port.<br/> If the team is not in the list select the 'Show all' radio button.</p>
+            </div>
+        </section>
+    </div>
+</div>
 
 </html>

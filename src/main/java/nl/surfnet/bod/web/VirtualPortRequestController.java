@@ -23,7 +23,6 @@ package nl.surfnet.bod.web;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -49,9 +48,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 
@@ -74,23 +71,6 @@ public class VirtualPortRequestController {
   private VirtualPortService virtualPortService;
   @Autowired
   private MessageSource messageSource;
-
-  @RequestMapping(method = RequestMethod.GET)
-  public String selectTeam(Model model) {
-    List<UserGroupView> groups = Ordering.natural().sortedCopy(
-        Collections2.transform(Security.getUserDetails().getUserGroups(),
-        new Function<UserGroup, UserGroupView>() {
-          @Override
-          public UserGroupView apply(UserGroup userGroup) {
-            boolean exists = virtualResourceGroupService.findBySurfconextGroupId(userGroup.getId()) != null;
-            return new UserGroupView(userGroup, exists);
-          }
-        }));
-
-    model.addAttribute("userGroups", groups);
-
-    return "virtualports/selectTeam";
-  }
 
   @RequestMapping(method = RequestMethod.GET, params = "team")
   public String selectInstitute(@RequestParam(value = "team") String teamUrn, Model model) {
@@ -179,11 +159,11 @@ public class VirtualPortRequestController {
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_send", prg.getInstitute()
         .getName());
 
-    // in case a new vrg was created make sure the user sees it, but prevent unnecessary switching of roles    
+    // in case a new vrg was created make sure the user sees it, but prevent unnecessary switching of roles
     if (Security.getUserDetails().getSelectedRole() == null) {
       SecurityContextHolder.clearContext();
     }
-    
+
     return "redirect:/";
   }
 
@@ -237,39 +217,4 @@ public class VirtualPortRequestController {
     }
   }
 
-  public static class UserGroupView implements Comparable<UserGroupView> {
-    private final String id;
-    private final String name;
-    private final String description;
-    private final boolean existing;
-
-    public UserGroupView(UserGroup group, boolean existing) {
-      this.id = group.getId();
-      this.name = group.getName();
-      this.description = group.getDescription();
-      this.existing = existing;
-    }
-
-    public String getId() {
-      return id;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public boolean isExisting() {
-      return existing;
-    }
-
-    public String getDescription() {
-      return description;
-    }
-
-    @Override
-    public int compareTo(UserGroupView other) {
-      return this.getName().compareTo(other.getName());
-    }
-
-  }
 }

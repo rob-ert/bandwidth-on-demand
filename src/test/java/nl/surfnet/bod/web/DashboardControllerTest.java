@@ -22,63 +22,48 @@
 package nl.surfnet.bod.web;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.support.BodRoleFactory;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.web.DashboardController.TeamView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.ui.Model;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
+@RunWith(MockitoJUnitRunner.class)
 public class DashboardControllerTest {
 
-  private DashboardController subject = new DashboardController();
+  @InjectMocks
+  private DashboardController subject;
+
+  @Mock
+  private VirtualResourceGroupService virtualResourceGroupServiceMock;
 
   @Test
-  public void aNocEngineerShouldBeRedirectToNocPage() {
-    RichUserDetails user = new RichUserDetailsFactory().addNocRole().create();
-    Security.setUserDetails(user);
-    Model model = new ModelStub();
-
-    String page = subject.index(model);
-
-    assertThat(page, is("redirect:noc"));
-  }
-
-  @Test
-  public void aIctManagerShouldBeRedirectToManagerPage() {
-    RichUserDetails user = new RichUserDetailsFactory().addManagerRole().create();
-    Security.setUserDetails(user);
-    Model model = new ModelStub();
-
-    String page = subject.index(model);
-
-    assertThat(page, is("redirect:manager"));
-  }
-
-  @Test
-  public void aUserShouldGoToIndex() {
-    RichUserDetails user = new RichUserDetailsFactory().addUserRole().create();
-    Security.setUserDetails(user);
-    Model model = new ModelStub();
-
-    String page = subject.index(model);
-
-    assertThat(page, is("index"));
-  }
-
-  @Test
-  public void aNoBodyShouldGoTo() {
+  public void whenUserHasNoVirtualResourceGroupsShouldGoToSpecialView() {
     RichUserDetails user = new RichUserDetailsFactory().create();
-
-    user.addBodRoles(new ArrayList<BodRole>());
-    user.setSelectedRole(null);
 
     Security.setUserDetails(user);
     Model model = new ModelStub();
@@ -87,6 +72,54 @@ public class DashboardControllerTest {
 
     assertThat(page, is("noUserRole"));
     assertThat(model.asMap(), hasKey("userGroups"));
+  }
+
+  @Test
+  public void showDashboardForUser() {
+    BodRole selectedRole = new BodRoleFactory().setRole(RoleEnum.USER).create();
+    RichUserDetails user = new RichUserDetailsFactory().setSelectedRole(selectedRole).create();
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
+
+    Security.setUserDetails(user);
+    Model model = new ModelStub();
+
+    when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(ImmutableList.of(vrg));
+
+    String page = subject.index(model);
+
+    assertThat(page, is("index"));
+    assertThat(model.asMap(), hasKey("teams"));
+    assertThat(model.asMap(), hasKey("userGroups"));
+  }
+
+  @Test
+  public void groupsShouldBeSorted() {
+    BodRole selectedRole = new BodRoleFactory().setRole(RoleEnum.USER).create();
+    RichUserDetails user = new RichUserDetailsFactory().setSelectedRole(selectedRole).create();
+    VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().setName("A").create();
+    VirtualResourceGroup vrg2 = new VirtualResourceGroupFactory().setName("B").create();
+    VirtualResourceGroup vrg3 = new VirtualResourceGroupFactory().setName("C").create();
+    VirtualResourceGroup vrg4 = new VirtualResourceGroupFactory().setName("D").create();
+
+    Security.setUserDetails(user);
+    Model model = new ModelStub();
+
+    when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(ImmutableList.of(vrg4, vrg1, vrg2, vrg3));
+
+    String page = subject.index(model);
+
+    assertThat(page, is("index"));
+    assertThat(model.asMap(), hasKey("teams"));
+    assertThat(model.asMap(), hasKey("userGroups"));
+    List<TeamView> teams = (List<TeamView>) model.asMap().get("teams");
+
+    assertThat(Lists.transform(teams, new Function<TeamView, String>() {
+      @Override
+      public String apply(TeamView team) {
+        return team.getName();
+      }
+    }), contains("A", "B", "C", "D"));
+
   }
 
 }

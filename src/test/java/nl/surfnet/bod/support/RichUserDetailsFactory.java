@@ -44,7 +44,6 @@ public class RichUserDetailsFactory {
   private List<BodRole> bodRoles = Lists.newArrayList();
 
   public RichUserDetails create() {
-
     RichUserDetails userDetails = new RichUserDetails(username, displayName, email, userGroups);
     userDetails.addBodRoles(bodRoles);
     userDetails.switchRoleTo(selectedRole);

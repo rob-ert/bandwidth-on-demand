@@ -24,12 +24,7 @@ package nl.surfnet.bod.web.security;
 import java.util.Collection;
 import java.util.Collections;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 
 import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,7 +38,7 @@ import com.google.common.collect.Iterables;
 public final class Security {
 
   public enum RoleEnum {
-    NOC_ENGINEER("redirect:noc", 1), ICT_MANAGER("redirect:manager", 2), USER("index", 3);
+    NOC_ENGINEER("redirect:noc", 1), ICT_MANAGER("redirect:manager", 2), USER("redirect:user", 3);
 
     private String viewName;
     private int sortOrder;
@@ -172,7 +167,7 @@ public final class Security {
 
   /**
    * Set the current logged in user. (Should only be used from tests).
-   * 
+   *
    * @param richUserDetails
    *          the user details
    */

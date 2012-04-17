@@ -21,35 +21,86 @@
  */
 package nl.surfnet.bod.web;
 
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.security.Security.RoleEnum;
+import java.util.List;
 
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.web.security.Security;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@RequestMapping("/")
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Ordering;
+
+@RequestMapping("/user")
 @Controller
 public class DashboardController {
 
+  @Autowired
+  private VirtualResourceGroupService virtualResourceGroupService;
+
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
-
     model.addAttribute("userGroups", Security.getUserDetails().getUserGroups());
 
-    if (Security.isSelectedNocRole()) {
-      return RoleEnum.NOC_ENGINEER.getViewName();
+    if (!Security.hasUserRole()) {
+      return "noUserRole";
     }
 
-    if (Security.isSelectedManagerRole()) {
-      return RoleEnum.ICT_MANAGER.getViewName();
+    model.addAttribute("teams", getTeamViews());
+
+    return "index";
+  }
+
+  private List<TeamView> getTeamViews() {
+    return Ordering.natural().sortedCopy(
+        Collections2.transform(virtualResourceGroupService.findAllForUser(Security.getUserDetails()),
+            new Function<VirtualResourceGroup, TeamView>() {
+              @Override
+              public TeamView apply(VirtualResourceGroup group) {
+                return new TeamView(group);
+              }
+            }));
+  }
+
+  public static class TeamView implements Comparable<TeamView> {
+    private final String name;
+    private final int numberOfPorts;
+    private final String surfconextGroupId;
+    private final int reservations;
+
+    public TeamView(VirtualResourceGroup group) {
+      this.name = group.getName();
+      this.numberOfPorts = group.getVirtualPortCount();
+      this.surfconextGroupId = group.getSurfconextGroupId();
+      this.reservations = 5;
     }
 
-    if (Security.isSelectedUserRole()) {
-      return RoleEnum.USER.getViewName();
+    public String getName() {
+      return name;
     }
 
-    return "noUserRole";
+    public int getNumberOfPorts() {
+      return numberOfPorts;
+    }
+
+    public int getReservations() {
+      return reservations;
+    }
+
+    public String getSurfconextGroupId() {
+      return surfconextGroupId;
+    }
+
+    @Override
+    public int compareTo(TeamView other) {
+      return this.getName().compareTo(other.getName());
+    }
+
   }
 }

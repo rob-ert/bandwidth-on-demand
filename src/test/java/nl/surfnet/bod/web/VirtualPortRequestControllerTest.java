@@ -22,12 +22,7 @@
 package nl.surfnet.bod.web;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -37,9 +32,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
-import java.util.List;
-
-import junit.framework.Assert;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
@@ -49,7 +41,6 @@ import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.VirtualPortRequestController.RequestCommand;
-import nl.surfnet.bod.web.VirtualPortRequestController.UserGroupView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -93,20 +84,6 @@ public class VirtualPortRequestControllerTest {
     user = new RichUserDetailsFactory().addUserGroup(group3).addUserGroup(group1).addUserGroup(group2).create();
 
     Security.setUserDetails(user);
-  }
-
-  @Test
-  public void findAllTeamsShouldBeSorted() {
-    ModelStub model = new ModelStub();
-
-    subject.selectTeam(model);
-
-    List<UserGroupView> groups = (List<UserGroupView>) model.asMap().get("userGroups");
-
-    assertThat(groups, hasSize(3));
-    assertThat(groups.get(0).getName(), is("A"));
-    assertThat(groups.get(1).getName(), is("B"));
-    assertThat(groups.get(2).getName(), is("C"));
   }
 
   @SuppressWarnings("unchecked")
