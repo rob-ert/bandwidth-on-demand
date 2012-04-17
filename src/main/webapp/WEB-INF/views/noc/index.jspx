@@ -6,21 +6,22 @@
 
     <div class="row">
         <div class="span8">
-            <div class="hero-unit">
-                <h1>Welcome NOC engineer</h1>
-                <p>Welcome to SURFnet's Bandwidth on Demand user interface.</p>
-                <p>Please select the task you want to perform as NOC engineer.</p>
-            </div>
+            <section>
+                <h1>Welcome NOC Engineer</h1>
+                <div class="content">
+                    <h3>Welcome to SURFnet's Bandwidth on Demand user interface.</h3>
+                </div>
+            </section>
         </div>
         <div class="span4">
             <section>
                 <h1>Common tasks</h1>
                 <spring:url var="create_prg_url" value="/noc/physicalresourcegroups/create" />
-                <spring:url var="manager_url" value="/manager" />
-                <spring:url var="user_url" value="/" />
+                <spring:url var="create_pp_url" value="/noc/physicalports/free" />
                 <div class="content">
                     <ul class="tasks">
                         <li><a class="btn btn-primary" href="${create_prg_url}"><i class="icon-plus"><!--  --></i> <spring:message code="label_action_add_institute" /></a></li>
+                        <li><a class="btn btn-primary" href="${create_pp_url}"><i class="icon-plus"><!--  --></i> <spring:message code="label_action_add_physicalport" /></a></li>
                     </ul>
                 </div>
             </section>
