@@ -159,3 +159,9 @@ th.sortable.headerSortDown:hover i:before {
 th.sortable.headerSortUp:hover i:before {
     content: "\f078";
 }
+
+/* table with teams on user dashboard */
+
+tr.new {
+	display: none;
+}

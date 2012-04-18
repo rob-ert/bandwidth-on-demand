@@ -24,18 +24,17 @@ package nl.surfnet.bod.web;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 
 import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.BodRoleFactory;
-import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.DashboardController.TeamView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -89,29 +88,36 @@ public class DashboardControllerTest {
 
     assertThat(page, is("index"));
     assertThat(model.asMap(), hasKey("teams"));
-    assertThat(model.asMap(), hasKey("userGroups"));
   }
 
   @Test
   public void groupsShouldBeSorted() {
     BodRole selectedRole = new BodRoleFactory().setRole(RoleEnum.USER).create();
-    RichUserDetails user = new RichUserDetailsFactory().setSelectedRole(selectedRole).create();
-    VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().setName("A").create();
-    VirtualResourceGroup vrg2 = new VirtualResourceGroupFactory().setName("B").create();
-    VirtualResourceGroup vrg3 = new VirtualResourceGroupFactory().setName("C").create();
-    VirtualResourceGroup vrg4 = new VirtualResourceGroupFactory().setName("D").create();
+
+    UserGroup userGroup1 = new UserGroupFactory().setName("A").setId("urn:a").create();
+    UserGroup userGroup2 = new UserGroupFactory().setName("B").setId("urn:b").create();
+    UserGroup userGroup3 = new UserGroupFactory().setName("C").setId("urn:c").create();
+    UserGroup userGroup4 = new UserGroupFactory().setName("D").setId("urn:d").create();
+
+    RichUserDetails user = new RichUserDetailsFactory().setSelectedRole(selectedRole)
+        .addUserGroup(userGroup1, userGroup2, userGroup3, userGroup4).create();
+
+    VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().setName("A").setSurfconextGroupId("urn:a").create();
+    VirtualResourceGroup vrg2 = new VirtualResourceGroupFactory().setName("B").setSurfconextGroupId("urn:b").create();
+    VirtualResourceGroup vrg3 = new VirtualResourceGroupFactory().setName("C").setSurfconextGroupId("urn:c").create();
 
     Security.setUserDetails(user);
     Model model = new ModelStub();
 
-    when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(ImmutableList.of(vrg4, vrg1, vrg2, vrg3));
+    when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(ImmutableList.of(vrg3, vrg1, vrg2));
 
     String page = subject.index(model);
 
     assertThat(page, is("index"));
     assertThat(model.asMap(), hasKey("teams"));
-    assertThat(model.asMap(), hasKey("userGroups"));
     List<TeamView> teams = (List<TeamView>) model.asMap().get("teams");
+
+    assertThat(teams, hasSize(4));
 
     assertThat(Lists.transform(teams, new Function<TeamView, String>() {
       @Override

@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.support;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -85,8 +86,9 @@ public class RichUserDetailsFactory {
     return this;
   }
 
-  public RichUserDetailsFactory addUserGroup(UserGroup userGroup) {
-    userGroups.add(userGroup);
+  public RichUserDetailsFactory addUserGroup(UserGroup... users) {
+    this.userGroups.addAll(Arrays.asList(users));
+
     return this;
   }
 

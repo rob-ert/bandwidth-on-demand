@@ -12,13 +12,12 @@
     <div class="span8">
         <section>
             <h1>
-                Your team
-                <c:if test="${fn:length(teams) > 1}">s</c:if>
+                Your teams
             </h1>
             <div class="content">
-                <div class="form-inline">
+                <div class="form-inline" data-component="teams-filter">
                     <label class="radio">
-                        <input type="radio" name="show" value="used" checked="true" />
+                        <input type="radio" name="show" value="existing" checked="true" />
                         Show used
                     </label>
                     <c:out value=" " />
@@ -27,29 +26,61 @@
                         Show all
                     </label>
                 </div>
+
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th><spring:message code="label_virtualresourcegroup" /></th>
-                            <th># of Ports</th>
-                            <th>Reservations</th>
+                            <th class="center cw75"># of Ports</th>
+                            <th class="center cw75">Reservations</th>
                             <table:actionsHeader />
                         </tr>
                     </thead>
                     <tbody>
                         <c:forEach items="${teams}" var="team">
-                            <tr>
+                            <c:choose>
+                                <c:when test="${team.existing}">
+                                    <c:set value="existing" var="row_css" />
+                                </c:when>
+                                <c:otherwise>
+                                    <c:set value="new" var="row_css" />
+                                </c:otherwise>
+                            </c:choose>
+                            <tr class="${row_css}">
                                 <table:column item="${team}" property="name" />
-                                <table:column item="${team}" property="numberOfPorts" />
-                                <table:column item="${team}" property="reservations" />
+
                                 <td class="center">
-                                    <spring:url value="/reservations/create" var="new_res_url">
-                                    </spring:url>
+                                    <c:choose>
+                                        <c:when test="${team.existing}">
+                                            <c:out value="${team.numberOfPorts}"/>
+                                        </c:when>
+                                        <c:otherwise>
+                                            -
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+
+                                <td class="center">
+                                    <c:choose>
+                                        <c:when test="${team.existing}">
+                                            <c:out value="${team.reservations}"/>
+                                        </c:when>
+                                        <c:otherwise>
+                                            -
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+
+                                <td class="center">
+                                    <c:if test="${team.existing}">
+                                        <spring:url value="/reservations/create" var="new_res_url">
+                                        </spring:url>
+                                        <a href="${new_res_url}" rel="tooltip" title="New Reservation" data-type="info"><i class="icon-plus"><!--  --></i></a>
+                                        <c:out value=" " />
+                                    </c:if>
                                     <spring:url value="/request" var="new_vp_url">
                                         <spring:param name="team" value="${team.surfconextGroupId}" />
                                     </spring:url>
-                                    <a href="${new_res_url}" rel="tooltip" title="New Reservation" data-type="info"><i class="icon-plus"><!--  --></i></a>
-                                    <c:out value=" " />
                                     <a href="${new_vp_url}" rel="tooltip" title="Request a Virtual Port" data-type="info"><i class="icon-envelope"><!--  --></i></a>
                                 </td>
                             </tr>
