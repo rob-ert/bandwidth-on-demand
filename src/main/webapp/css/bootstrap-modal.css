@@ -9,12 +9,19 @@
     -moz-border-radius-topright: 4px;
 }
 
-.modal-body .icon-exclamation-sign:before {
-    color: #B94A48;
+.modal-body [class*="icon-"]:before  {
     font-size: 50px;
     float: left;
     margin-top: 20px;
     margin-left: 5px;
+}
+
+.modal-body .icon-exclamation-sign:before {
+    color: #B94A48;
+}
+
+.modal-body .icon-ok-sign:before {
+    color: green;
 }
 
 .modal-body p {
