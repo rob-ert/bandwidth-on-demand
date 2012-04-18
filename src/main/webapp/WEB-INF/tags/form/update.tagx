@@ -13,6 +13,7 @@
     <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
     <jsp:directive.attribute name="noLabel" type="java.lang.Boolean" required="false" rtexprvalue="true" description="If form should have a title (default true)" />
     <jsp:directive.attribute name="openPane" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Control if the title pane is opened or closed by default (default: true)" />
+    <jsp:directive.attribute name="cancelUrl" type="java.lang.String" required="false" rtexprvalue="true" description="Optional cancel url" />
 
     <c:if test="${empty render or render}">
         <c:if test="${empty label}">
@@ -51,7 +52,10 @@
                             <spring:message code="button_save" var="save_button" htmlEscape="false" />
                             <input id="proceed" type="submit" value="${fn:escapeXml(save_button)}" class="btn btn-primary" />
                             <c:out value=" " />
-                            <a href="${form_url}"><spring:message code="button_cancel" /></a>
+                            <c:if test="${empty cancelUrl}">
+                            		<c:set var="cancelUrl" value="${form_url}"/>
+                            </c:if>
+                            <a href="${cancelUrl}"><spring:message code="button_cancel" /></a>
                         </div>
                     </fieldset>
 

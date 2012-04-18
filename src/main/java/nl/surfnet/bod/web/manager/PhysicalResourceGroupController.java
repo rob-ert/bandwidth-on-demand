@@ -39,8 +39,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.collect.Lists;
-
 @Controller("managerPhysicalResourceGroupController")
 @RequestMapping("/manager/physicalresourcegroups")
 public class PhysicalResourceGroupController {
@@ -68,7 +66,7 @@ public class PhysicalResourceGroupController {
 
     PhysicalResourceGroup group = physicalResourceGroupService.find(command.getId());
     if (group == null || !Security.managerMayEdit(group)) {
-      return "redirect:physicalresourcegroups";
+      return "redirect:manager/index";
     }
 
     if (result.hasErrors()) {
@@ -85,21 +83,12 @@ public class PhysicalResourceGroupController {
           group.getManagerEmail());
     }
 
-    return "redirect:physicalresourcegroups";
+    model.addAttribute("prg", group);
+    return "manager/index";
   }
 
   private boolean emailChanged(PhysicalResourceGroup group, UpdateEmailCommand command) {
     return group.getManagerEmail() == null || !group.getManagerEmail().equals(command.getManagerEmail());
-  }
-
-  @RequestMapping(method = RequestMethod.GET)
-  protected String list(Model model) {
-    Long groupId = WebUtils.getSelectedPhysicalResourceGroupId();
-
-    if (groupId != null) {
-      model.addAttribute(WebUtils.DATA_LIST, Lists.newArrayList(physicalResourceGroupService.find(groupId)));
-    }
-    return "manager/physicalresourcegroups/list";
   }
 
   public static final class UpdateEmailCommand {

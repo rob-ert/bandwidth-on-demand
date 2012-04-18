@@ -10,8 +10,9 @@
 
         <div class="span8">
 
+			<spring:url value="/manager" var ="cancelUrl"/>
             <form:update id="fc_PhysicalResourceGroup" modelAttribute="updateEmailCommand"
-                path="/manager/physicalresourcegroups" noLabel="true">
+                path="/manager/physicalresourcegroups" noLabel="true" cancelUrl="${cancelUrl}">
                 <c:set var="errors">
                     <sform:errors path="managerEmail" />
                 </c:set>
