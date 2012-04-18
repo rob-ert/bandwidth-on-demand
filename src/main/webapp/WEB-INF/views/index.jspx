@@ -72,7 +72,7 @@
                                 </td>
 
                                 <td class="center">
-                                    <c:if test="${team.existing}">
+                                    <c:if test="${team.existing and team.numberOfPorts > 1}">
                                         <spring:url value="/reservations/create" var="new_res_url">
                                         </spring:url>
                                         <a href="${new_res_url}" rel="tooltip" title="New Reservation" data-type="info"><i class="icon-plus"><!--  --></i></a>
