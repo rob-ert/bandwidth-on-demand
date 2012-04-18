@@ -41,3 +41,8 @@ a[rel="tooltip"]:hover {
     text-decoration: none;
 }
 
+/* Overwrite for the datepicker + dropdown combo width (otherwise 100%) */
+
+.datepicker.dropdown-menu {
+    width: auto;
+}
