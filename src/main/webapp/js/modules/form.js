@@ -131,9 +131,17 @@ app.form = function(){
 
         var dropdown = $('[data-component="team-selector"]');
 
-        if(!dropdown.length) {
-            return;
+        if(dropdown.length) {
+
+            app.loadPlugin(!$.fn.dropdownReload, app.plugins.jquery.dropdownReload, attachDropdownReloadPlugin);
+
         }
+
+    }
+
+    var attachDropdownReloadPlugin = function() {
+
+        var dropdown = $('[data-component="team-selector"]');
 
         var url = dropdown.attr('data-url');
 
