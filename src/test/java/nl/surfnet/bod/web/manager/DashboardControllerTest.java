@@ -70,7 +70,7 @@ public class DashboardControllerTest {
 
     when(physicalResourceGroupServiceMock.find(physicalResourceGroup.getId())).thenReturn(physicalResourceGroup);
 
-    String page = subject.index(model);
+    String page = subject.index(model, model);
 
     assertThat(page, startsWith("redirect:"));
     assertThat(page, endsWith("id=101"));
@@ -89,7 +89,7 @@ public class DashboardControllerTest {
 
     when(physicalResourceGroupServiceMock.find(physicalResourceGroup.getId())).thenReturn(physicalResourceGroup);
 
-    String page = subject.index(model);
+    String page = subject.index(model, model);
 
     assertThat(page, is("manager/index"));
   }

@@ -29,6 +29,7 @@ import nl.surfnet.bod.web.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -47,7 +48,7 @@ public class DashboardController {
   private MessageSource messageSource;
 
   @RequestMapping(method = RequestMethod.GET)
-  public String index(RedirectAttributes model) {
+  public String index(Model model, RedirectAttributes redirectAttribs) {
 
     Long groupId = WebUtils.getSelectedPhysicalResourceGroupId();
 
@@ -57,12 +58,15 @@ public class DashboardController {
       if (!group.isActive()) {
         String successMessage = WebUtils.getMessage(messageSource, "info_activation_request_send", group.getName(),
             group.getManagerEmail());
-        WebUtils.addInfoMessage(model, createNewActivationLinkForm(new Object[] {
-            environment.getExternalBodUrl() + ActivationEmailController.ACTIVATION_MANAGER_PATH,
-            group.getId().toString(), successMessage }));
+        WebUtils.addInfoMessage(redirectAttribs,
+            createNewActivationLinkForm(new Object[] {
+                environment.getExternalBodUrl() + ActivationEmailController.ACTIVATION_MANAGER_PATH,
+                group.getId().toString(), successMessage }));
 
         return "redirect:manager/physicalresourcegroups/edit?id=" + group.getId();
       }
+
+      model.addAttribute("prg", group);
     }
 
     return "manager/index";
