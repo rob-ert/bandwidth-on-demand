@@ -18,7 +18,18 @@ app.bootstrap = function() {
 
 }
 
-$(function() {
-    var go = app.bootstrap();
+app.loadPlugin = function(condition, url, callback) {
 
-});
+    if(condition) {
+
+        $.getScript(url, callback);
+
+    } else {
+
+        callback.call();
+
+    }
+
+}
+
+$(app.bootstrap);
