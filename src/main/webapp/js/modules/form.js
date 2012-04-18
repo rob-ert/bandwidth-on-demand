@@ -81,7 +81,7 @@ app.form = function(){
             $('[data-component="bandwidth-selector-source"]').each(function(i, element) {
                 selectedValues.push(parseInt($(element).find('option:selected').attr('data-bandwidth-max')));
             });
-            return Math.max.apply(null, selectedValues);
+            return Math.min.apply(null, selectedValues);
         }
 
         var activateBandwidthButton = function(multiplier) {
