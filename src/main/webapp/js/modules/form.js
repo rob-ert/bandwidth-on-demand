@@ -153,13 +153,22 @@ app.form = function(){
 
     var initDatepickers = function() {
 
-        var datepickers = $(".input-datepicker");
+        var datepickers = $('.input-datepicker');
+
         if(datepickers.length) {
-            $(".input-datepicker").datepicker({
-                format: 'yyyy-mm-dd',
-                autoclose: true
-            });
+
+            app.loadPlugin(!$.fn.datepicker, app.plugins.jquery.datepicker, attachDatepickerPlugin);
+
         }
+    }
+
+    var attachDatepickerPlugin = function() {
+
+        $('.input-datepicker').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true
+        });
+
     }
 
     var initStartNow = function() {

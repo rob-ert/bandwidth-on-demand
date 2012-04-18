@@ -18,7 +18,6 @@
             <bod:script value="/resources/js/modules/table.js" />
             <bod:script value="/resources/js/modules/reservation.js" />
             <bod:script value="/resources/js/jquery/dropdown-reload.js" />
-            <bod:script value="/resources/js/datepicker/bootstrap-datepicker.js" />
         </c:when>
         <c:otherwise>
             <bod:script value="/resources/js/script.min.js" />
@@ -27,12 +26,14 @@
 
     <spring:url var="url_plugin_socket" value="/resources/js/jquery/jquery-socket-1.0a.js"/>
     <spring:url var="url_plugin_autoSuggest" value="/resources/js/jquery/jquery-autoSuggest.js"/>
+    <spring:url var="url_plugin_datepicker" value="/resources/js/datepicker/bootstrap-datepicker.js"/>
 
     <script>
         app.plugins = {
             jquery: {
                 socket: '<c:out value="${url_plugin_socket}"/>',
-                autoSuggest: '<c:out value="${url_plugin_autoSuggest}"/>'
+                autoSuggest: '<c:out value="${url_plugin_autoSuggest}"/>',
+                datepicker: '<c:out value="${url_plugin_datepicker}"/>'
             }
         }
     </script>
