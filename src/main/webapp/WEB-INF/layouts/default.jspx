@@ -20,9 +20,14 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
+        <title><spring:message code="welcome_h3" arguments="${app_name}" /></title>
+
         <util:css />
 
-        <title><spring:message code="welcome_h3" arguments="${app_name}" /></title>
+        <![CDATA[<!--[if lt IE 9]>]]>
+        <bod:script value="/resources/js/tools/html5shiv.js" />
+        <![CDATA[<![endif]-->]]>
+
     </head>
 
     <body>
