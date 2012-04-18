@@ -187,7 +187,17 @@ app.form = function(){
 
         var asElements = $('[data-component="autoSuggest"]');
 
-        asElements.each(function(i, asElement) {
+        if(asElements.length) {
+
+            app.loadPlugin(!$.fn.autoSuggest, app.plugins.jquery.autoSuggest, attachAutoSuggestPlugin);
+
+        }
+
+    }
+
+    var attachAutoSuggestPlugin = function() {
+
+        $('[data-component="autoSuggest"]').each(function(i, asElement) {
 
             var setup_done = false;
 
