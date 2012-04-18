@@ -7,20 +7,32 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <spring:url value="/virtualresourcegroups/{}/ports" var="vpUrl" />
-    <spring:url value="/resources/images/full.png" var="imgFull" />
-    <spring:url value="/resources/images/half.png" var="imgHalf" />
-    <spring:url value="/resources/images/quater.png" var="imgQuater" />
-
     <div class="row">
         <div class="span8">
             <form:create id="fc_reservation" modelAttribute="reservation" path="/reservations">
 
-                <field:select field="virtualResourceGroup" id="virtualresourcegroup" labelCode="virtualresourcegroup"
-                    itemLabel="name" itemValue="id" items="${virtualResourceGroups}" path="/reservations" cssClass="input-xlarge"
-                    create="false" showSingle="true" />
-
                 <field:input field="name" id="name" labelCode="reservation_name" cssClass="input-xlarge" />
+
+                <div class="control-group">
+                    <label class="control-label"><spring:message code="label_virtualresourcegroup" /></label>
+                    <div class="controls">
+                        <c:choose>
+                            <c:when test="${fn:length(virtualResourceGroups) == 1}">
+                                <spring:eval expression="virtualResourceGroups[0]" var="group" />
+                                <output><c:out value="${group.name}" /></output>
+                                <input type="hidden" value="${group.id}" name="virtualResourceGroup"  />
+                            </c:when>
+                            <c:otherwise>
+                                <spring:url value="/virtualresourcegroups/{}/ports" var="data_url" />
+                                <select data-component="team-selector" data-url="${data_url}" class="input-xlarge" name="virtualResourceGroup">
+                                    <c:forEach items="${virtualResourceGroups}" var="group">
+                                        <option value="${group.id}"><c:out value="${group.name}" /></option>
+                                    </c:forEach>
+                                </select>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </div>
 
                 <c:set var="errors_sourcePort"><sform:errors path="sourcePort" /></c:set>
                 <c:if test="${not empty errors_sourcePort}">
@@ -52,7 +64,7 @@
                 <div class="control-group${error_destinationPort_css}">
                     <label class="control-label"><spring:message code="label_reservation_destinationport" /></label>
                     <div class="controls">
-                        <select id="_destinationPort" name="destinationPort" class="input-xlarge" data-component="bandwidth-selector-destination">
+                        <select id="_destinationPort" name="destinationPort" class="input-xlarge" data-component="bandwidth-selector-source">
                             <c:forEach var="vp" items="${virtualPorts}">
                                 <c:choose>
                                     <c:when test="${reservation.destinationPort.id eq vp.id}">
