@@ -30,6 +30,7 @@ import nl.surfnet.bod.web.security.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,6 +48,9 @@ public class ActivationEmailController {
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
+
+  @Autowired
+  private MessageSource messageSource;
 
   @RequestMapping(value = "/{uuid}", method = RequestMethod.GET)
   public String activateEmail(@PathVariable String uuid, Model uiModel) {
@@ -66,17 +70,17 @@ public class ActivationEmailController {
     if (!Security.isManagerMemberOf(physicalResourceGroup)) {
       WebUtils.addInfoMessage(uiModel, "User %s is not allowed to activate physical resource group %s", Security
           .getUserDetails().getDisplayName(), physicalResourceGroup.getName());
-      log.info("Manager [{}] has no right to access physical resourcegroup: {}", Security.getUserDetails()
+      log.debug("Manager [{}] has no right to access physical resourcegroup: {}", Security.getUserDetails()
           .getUsername(), physicalResourceGroup.getName());
       return "index";
     }
 
     if (link.isActivated()) {
-      log.info("Link [{}] already activated on: {}", link.getUuid(), link.getActivationDateTime());
+      log.debug("Link [{}] already activated on: {}", link.getUuid(), link.getActivationDateTime());
       return "manager/linkActive";
     }
     else if (!link.getSourceObject().getManagerEmail().equals(link.getToEmail())) {
-      log.info("Email address [{}] of physical resource group [{}] differs from the link [{}]", new Object[] {
+      log.debug("Email address [{}] of physical resource group [{}] differs from the link [{}]", new Object[] {
           physicalResourceGroup.getManagerEmail(), link.getSourceObject().getName(), link.getToEmail() });
       return "manager/linkChanged";
     }
@@ -90,7 +94,7 @@ public class ActivationEmailController {
       return "manager/emailConfirmed";
     }
 
-    log.warn("Link [{}} for physical resource group [{}] was not valid", link.getUuid(),
+    log.debug("Link [{}} for physical resource group [{}] was not valid", link.getUuid(),
         physicalResourceGroup.getName());
 
     return "manager/linkNotValid";
@@ -103,8 +107,8 @@ public class ActivationEmailController {
     ActivationEmailLink<PhysicalResourceGroup> activationLink = physicalResourceGroupService
         .sendActivationRequest(foundPhysicalResourceGroup);
 
-    WebUtils.addInfoMessage(model, "An activation email for Physcial Resource Group %s was sent to %s", activationLink
-        .getSourceObject().getName(), activationLink.getToEmail());
+    WebUtils.addInfoMessage(model, messageSource, "info_activation_request_send", activationLink.getSourceObject()
+        .getName(), activationLink.getToEmail());
 
     return "manager/index";
   }

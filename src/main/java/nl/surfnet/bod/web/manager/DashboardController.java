@@ -27,6 +27,7 @@ import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,6 +43,9 @@ public class DashboardController {
   @Autowired
   private Environment environment;
 
+  @Autowired
+  private MessageSource messageSource;
+
   @RequestMapping(method = RequestMethod.GET)
   public String index(RedirectAttributes model) {
 
@@ -51,9 +55,11 @@ public class DashboardController {
       PhysicalResourceGroup group = physicalResourceGroupService.find(groupId);
 
       if (!group.isActive()) {
+        String successMessage = WebUtils.getMessage(messageSource, "info_activation_request_send", group.getName(),
+            group.getManagerEmail());
         WebUtils.addInfoMessage(model, createNewActivationLinkForm(new Object[] {
             environment.getExternalBodUrl() + ActivationEmailController.ACTIVATION_MANAGER_PATH,
-            group.getId().toString() }));
+            group.getId().toString(), successMessage }));
 
         return "redirect:manager/physicalresourcegroups/edit?id=" + group.getId();
       }
@@ -64,6 +70,7 @@ public class DashboardController {
 
   String createNewActivationLinkForm(Object... args) {
     return String.format("Your Physical Resource Group is not activated yet, please do so now. "
-        + "<a href=\"%s?id=%s\" class=\"btn\" data-form=\"true\">Resend email</a>", args);
+        + "<a href=\"%s?id=%s\" class=\"btn btn-primary\" data-form=\"true\" data-success=\"%s\">Resend email</a>",
+        args);
   }
 }

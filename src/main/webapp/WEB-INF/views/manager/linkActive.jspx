@@ -2,15 +2,12 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:sec="http://www.springframework.org/security/tags"
     xmlns:jsp="http://java.sun.com/JSP/Page">
 
-    <jsp:directive.page contentType="text/html;charset=UTF-8" />
-    <jsp:output omit-xml-declaration="yes" />
+<jsp:directive.page contentType="text/html;charset=UTF-8" />
+<jsp:output omit-xml-declaration="yes" />
 
-    <div class="hero-unit">
-        <h1>Link is already activated</h1>
-        <p>
-            The email address '<i><c:out value="${link.toEmail}" /></i>' was already activated for Physical Resource Group
-            '<i><c:out value="${physicalResourceGroup.name}" /></i>' on <i><spring:eval expression="link.activationDateTime" /></i>.
-        </p>
-    </div>
+<spring:message code="info_activation_request_activated_message"
+    arguments="'${link.toEmail}', '${physicalResourceGroup.name}', '${link.activationDateTime}'" var="message" />
+
+<util:modal titleCode="info_activation_request_activated_title" messageCode="${message}" />
 
 </html>

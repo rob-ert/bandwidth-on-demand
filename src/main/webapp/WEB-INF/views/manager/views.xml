@@ -9,18 +9,22 @@
 
     <definition extends="manager" name="manager/emailConfirmed">
         <put-attribute name="body" value="/WEB-INF/views/manager/emailConfirmed.jspx" />
+        <put-attribute name="active_menu" value="overview" cascade="true" />
     </definition>
 
     <definition extends="manager" name="manager/linkNotValid">
         <put-attribute name="body" value="/WEB-INF/views/manager/linkNotValid.jspx" />
+        <put-attribute name="active_menu" value="overview" cascade="true" />
     </definition>
     
     <definition extends="manager" name="manager/linkActive">
         <put-attribute name="body" value="/WEB-INF/views/manager/linkActive.jspx" />
+        <put-attribute name="active_menu" value="overview" cascade="true" />
     </definition>
     
     <definition extends="manager" name="manager/linkChanged">
         <put-attribute name="body" value="/WEB-INF/views/manager/linkChanged.jspx" />
+        <put-attribute name="active_menu" value="overview" cascade="true" />
     </definition>
 
 </tiles-definitions>

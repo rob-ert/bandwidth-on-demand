@@ -27,20 +27,20 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Locale;
+
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.support.ActivationEmailLinkFactory;
-import nl.surfnet.bod.support.BodRoleFactory;
-import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -52,6 +52,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.MessageSource;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -66,13 +67,12 @@ public class ActivationEmailControllerTest {
 
   @Mock
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
-
   @Mock
   private ActivationEmailLink<PhysicalResourceGroup> linkMock;
-
-  @SuppressWarnings("unused")
   @Mock
-  private InstituteService instituteService;
+  private InstituteService instituteServiceMock;
+  @Mock
+  private MessageSource messageSourceMock;
 
   private ActivationEmailLink<PhysicalResourceGroup> link = new ActivationEmailLinkFactory<PhysicalResourceGroup>()
       .create();
@@ -99,7 +99,7 @@ public class ActivationEmailControllerTest {
 
   @Test
   public void shouldSwitchToCorrectManagerRole() {
-    BodRole correctRole = new BodRoleFactory().setPhysicalResourceGroup((PhysicalResourceGroup) link.getSourceObject())
+    BodRole correctRole = new BodRoleFactory().setPhysicalResourceGroup(link.getSourceObject())
         .setRole(RoleEnum.ICT_MANAGER).create();
     BodRole wrongRole = new BodRoleFactory().create();
 
@@ -158,17 +158,15 @@ public class ActivationEmailControllerTest {
     when(linkMock.getToEmail()).thenReturn(physicalResourceGroup.getManagerEmail());
     when(linkMock.getSourceObject()).thenReturn(physicalResourceGroup);
     when(physicalResourceGroupServiceMock.sendActivationRequest(physicalResourceGroup)).thenReturn(linkMock);
+    when(messageSourceMock.getMessage(eq("info_activation_request_send"), any(Object[].class), any(Locale.class))).thenReturn(
+        "Yes we got message..");
 
     subject.create(physicalResourceGroup, redirectAttributesMock);
 
     verify(physicalResourceGroupServiceMock).sendActivationRequest(physicalResourceGroup);
 
-    // The create model will cast the RedirectAttributes to a Model, so to
-    // verify we also need to cast to Model
-    assertThat(WebUtils.getFirstInfoMessage(((Model) redirectAttributesMock)),
-        containsString(physicalResourceGroup.getName()));
-    assertThat(WebUtils.getFirstInfoMessage(((Model) redirectAttributesMock)),
-        containsString(physicalResourceGroup.getManagerEmail()));
+    String message = WebUtils.getFirstInfoMessage(((Model) redirectAttributesMock));
+    assertThat(message, is("Yes we got message.."));
   }
 
   @Test

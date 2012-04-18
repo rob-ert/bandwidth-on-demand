@@ -22,11 +22,7 @@
 package nl.surfnet.bod.web.manager;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -45,9 +41,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.MessageSource;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DashboardControllerTest {
@@ -59,7 +54,9 @@ public class DashboardControllerTest {
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
 
   @Mock
-  private Environment environment;
+  private Environment environmentMock;
+  @Mock
+  private MessageSource messageSourceMock;
 
   @Test
   public void managerWhithInactivePhysicalResourceGroupsShouldGetRedirected() {
@@ -99,11 +96,11 @@ public class DashboardControllerTest {
 
   @Test
   public void shouldCreateNewLinkForm() {
-
     PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
+
     String linkForm = subject.createNewActivationLinkForm(new Object[] {
-        environment.getExternalBodUrl() + ActivationEmailController.ACTIVATION_MANAGER_PATH,
-        physicalResourceGroup.getId().toString() });
+        environmentMock.getExternalBodUrl() + ActivationEmailController.ACTIVATION_MANAGER_PATH,
+        physicalResourceGroup.getId().toString(), "Yes new email was sent" });
 
     assertThat(linkForm, containsString(physicalResourceGroup.getId().toString()));
     assertThat(linkForm, containsString(ActivationEmailController.ACTIVATION_MANAGER_PATH));

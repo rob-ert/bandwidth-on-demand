@@ -1,21 +1,26 @@
 <html xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
     xmlns:sec="http://www.springframework.org/security/tags" xmlns:jsp="http://java.sun.com/JSP/Page"
-    xmlns:form="urn:jsptagdir:/WEB-INF/tags/form"  xmlns:sform="http://www.springframework.org/tags/form">
+    xmlns:form="urn:jsptagdir:/WEB-INF/tags/form" xmlns:sform="http://www.springframework.org/tags/form">
 
-    <jsp:directive.page contentType="text/html;charset=UTF-8" />
-    <jsp:output omit-xml-declaration="yes" />
+<jsp:directive.page contentType="text/html;charset=UTF-8" />
+<jsp:output omit-xml-declaration="yes" />
 
-    <div class="hero-unit">
-        <h1>Link is not valid anymore</h1>
+<spring:message code="info_activation_request_notvalid_message" arguments="'${link.expirationDateTime}'" var="msg"
+    htmlEscape="false" />
 
-        <p>The activation link is not valid anymore, it has expired on '<i><spring:eval expression="link.expirationDateTime"/></i>'.</p>
+<util:modal titleCode="info_activation_request_notvalid_title" messageCode="${msg}">
 
-        <p>You can request a new link which will be sent by e-mail.</p>
+    <spring:url value="/manager/activate" var="url">
+        <spring:param name="id" value="${physicalResourceGroup.id}" />
+    </spring:url>
 
-       <sform:form modelAttribute="physicalResourceGroup" method="POST" action="${formUrl}">
-            <sform:hidden path="id" />
-            <input type="submit" value="Request new link" class="btn primary large" />
-        </sform:form>
-    </div>
+    <spring:message code="info_activation_request_send"
+        arguments="'${physicalResourceGroup.name}', '${physicalResourceGroup.managerEmail}'" var="success_msg" />
+
+    <a href="${url}" data-form="true" data-success="${success_msg}" class="btn btn-primary">
+        <spring:message code="action_activation_request_new" />
+    </a>
+
+</util:modal>
 
 </html>
