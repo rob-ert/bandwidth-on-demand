@@ -63,7 +63,11 @@
                                 <td class="center">
                                     <c:choose>
                                         <c:when test="${team.existing}">
-                                            <c:out value="${team.reservations}"/>
+                                            <c:out value="${team.activeReservations}"/>
+                                            /
+                                            <c:out value="${team.scheduledReservations}"/>
+                                            /
+                                            <c:out value="${team.totalReservations}"/>
                                         </c:when>
                                         <c:otherwise>
                                             -

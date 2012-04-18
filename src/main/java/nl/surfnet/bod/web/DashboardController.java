@@ -26,6 +26,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.security.Security;
 
@@ -48,6 +49,9 @@ public class DashboardController {
 
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
+
+  @Autowired
+  private ReservationService reservationService;
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
@@ -82,7 +86,10 @@ public class DashboardController {
         new Function<VirtualResourceGroup, TeamView>() {
           @Override
           public TeamView apply(VirtualResourceGroup group) {
-            return new TeamView(group);
+            long total = reservationService.countForVirtualResourceGroup(group);
+            long scheduled = reservationService.countScheduledReservationForVirtualResourceGroup(group);
+            long active = reservationService.countActiveReservationForVirtualResourceGroup(group);
+            return new TeamView(group, active, scheduled, total);
           }
         });
 
@@ -110,24 +117,30 @@ public class DashboardController {
 
   public static class TeamView implements Comparable<TeamView> {
     private final String name;
-    private final int numberOfPorts;
+    private final long numberOfPorts;
+    private final long totalReservations;
+    private final long scheduledReservations;
+    private final long activeReservations;
     private final String surfconextGroupId;
-    private final int reservations;
     private final boolean existing;
 
     public TeamView(UserGroup group) {
       this.name = group.getName();
       this.surfconextGroupId = group.getId();
       this.numberOfPorts = 0;
-      this.reservations = 0;
+      this.totalReservations = 0;
+      this.scheduledReservations = 0;
+      this.activeReservations = 0;
       this.existing = false;
     }
 
-    public TeamView(VirtualResourceGroup group) {
+    public TeamView(VirtualResourceGroup group, long activeReservations, long scheduledReservations, long totalReservations) {
       this.name = group.getName();
       this.numberOfPorts = group.getVirtualPortCount();
       this.surfconextGroupId = group.getSurfconextGroupId();
-      this.reservations = 5;
+      this.totalReservations = totalReservations;
+      this.scheduledReservations = scheduledReservations;
+      this.activeReservations = activeReservations;
       this.existing = true;
     }
 
@@ -135,25 +148,33 @@ public class DashboardController {
       return name;
     }
 
-    public int getNumberOfPorts() {
+    public long getNumberOfPorts() {
       return numberOfPorts;
-    }
-
-    public int getReservations() {
-      return reservations;
     }
 
     public String getSurfconextGroupId() {
       return surfconextGroupId;
     }
 
+    public boolean isExisting() {
+      return existing;
+    }
+
+    public long getTotalReservations() {
+      return totalReservations;
+    }
+
+    public long getScheduledReservations() {
+      return scheduledReservations;
+    }
+
+    public long getActiveReservations() {
+      return activeReservations;
+    }
+
     @Override
     public int compareTo(TeamView other) {
       return this.getName().compareTo(other.getName());
-    }
-
-    public boolean isExisting() {
-      return existing;
     }
 
   }

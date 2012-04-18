@@ -40,14 +40,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.PhysicalPort_;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.Reservation_;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPort_;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -87,7 +80,7 @@ public class ReservationService {
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   * 
+   *
    * @param reservation
    * @return
    */
@@ -161,7 +154,7 @@ public class ReservationService {
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   * 
+   *
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -179,6 +172,16 @@ public class ReservationService {
 
   public long countForManager(final RichUserDetails manager) {
     return reservationRepo.count(forManager(manager));
+  }
+
+  private Specification<Reservation> forVirtualResourceGroup(final VirtualResourceGroup vrg) {
+    return new Specification<Reservation>() {
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.equal(root.get(Reservation_.virtualResourceGroup), vrg);
+      }
+
+    };
   }
 
   private Specification<Reservation> forManager(final RichUserDetails manager) {
@@ -204,6 +207,15 @@ public class ReservationService {
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         return cb.and(root.get(Reservation_.virtualResourceGroup).get(VirtualResourceGroup_.surfconextGroupId)
             .in(user.getUserGroupIds()));
+      }
+    };
+  }
+
+  private Specification<Reservation> forStatus(final ReservationStatus status) {
+    return new Specification<Reservation>() {
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.equal(root.get(Reservation_.status), status);
       }
     };
   }
@@ -260,6 +272,26 @@ public class ReservationService {
     return reservationRepo.count(specFilteredReservationsForUser(filter, Security.getUserDetails()));
   }
 
+  public long countForVirtualResourceGroup(VirtualResourceGroup vrg) {
+    return reservationRepo.count(forVirtualResourceGroup(vrg));
+  }
+
+  public long countScheduledReservationForVirtualResourceGroup(VirtualResourceGroup vrg) {
+    return countForVirtualResourceGroup(vrg, SCHEDULED);
+  }
+
+  public long countActiveReservationForVirtualResourceGroup(VirtualResourceGroup vrg) {
+    return countForVirtualResourceGroup(vrg, RUNNING);
+  }
+
+  private long countForVirtualResourceGroup(VirtualResourceGroup vrg, ReservationStatus status) {
+    Specification<Reservation> spec = Specifications
+        .where(forVirtualResourceGroup(vrg))
+        .and(forStatus(status));
+
+    return reservationRepo.count(spec);
+  }
+
   public List<Double> findUniqueYearsFromReservations() {
 
     // FIXME Franky add userDetails to query
@@ -277,7 +309,7 @@ public class ReservationService {
 
   /**
    * Asynchronous {@link Reservation} creator.
-   * 
+   *
    */
   private final class ReservationSubmitter implements Runnable {
     private final Reservation reservation;

@@ -33,6 +33,7 @@ import java.util.List;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.DashboardController.TeamView;
@@ -59,6 +60,8 @@ public class DashboardControllerTest {
 
   @Mock
   private VirtualResourceGroupService virtualResourceGroupServiceMock;
+  @Mock
+  private ReservationService reservationServiceMock;
 
   @Test
   public void whenUserHasNoVirtualResourceGroupsShouldGoToSpecialView() {
