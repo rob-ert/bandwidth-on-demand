@@ -162,6 +162,10 @@ th.sortable.headerSortUp:hover i:before {
 
 /* table with teams on user dashboard */
 
-tr.new {
-	display: none;
+.table-striped tbody tr.existing.odd td {
+    background-color: #FFFFFF;
+}
+
+.table-striped tbody tr.existing.even td {
+    background-color: #EBEBEB;
 }

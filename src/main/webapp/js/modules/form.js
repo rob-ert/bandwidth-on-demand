@@ -15,7 +15,6 @@ app.form = function(){
         initBandwidthSelector();
         initStartNow();
         initReservationFilter();
-        initTeamsFilter();
 
     };
 
@@ -263,20 +262,6 @@ app.form = function(){
             window.location.href = element.closest('form').attr('action') + element.val();
         });
 
-    }
-
-    var initTeamsFilter = function() {
-
-        $('[data-component="teams-filter"] :radio').on('change', function(event) {
-            var component = $('[data-component="teams-filter"]'),
-                selectedRadio = component.find(":radio:checked");
-
-            if (selectedRadio.val() === "all") {
-                component.siblings("table").find("tr.new").css('display', 'table-row');
-            } else {
-                component.siblings("table").find("tr.new").css('display', 'none');
-            }
-        })
     }
 
     return {
