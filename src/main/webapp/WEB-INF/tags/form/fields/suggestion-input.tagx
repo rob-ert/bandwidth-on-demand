@@ -4,16 +4,11 @@
 	xmlns:form="http://www.springframework.org/tags/form"
 	xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
 
-	<jsp:directive.attribute name="field" type="java.lang.String"
-		required="true" rtexprvalue="true" />
-	<jsp:directive.attribute name="labelCode" type="java.lang.String"
-		required="false" rtexprvalue="true" />
-	<jsp:directive.attribute name="suggestionUrl" type="java.lang.String"
-		required="true" rtexprvalue="true" />
-	<jsp:directive.attribute name="preFillId" type="java.lang.Long"
-		required="true" rtexprvalue="true" />
-	<jsp:directive.attribute name="preFillName" type="java.lang.String"
-		required="true" rtexprvalue="true" />
+	<jsp:directive.attribute name="field" type="java.lang.String" required="true" rtexprvalue="true" />
+	<jsp:directive.attribute name="labelCode" type="java.lang.String" required="false" rtexprvalue="true" />
+	<jsp:directive.attribute name="suggestionUrl" type="java.lang.String" required="true" rtexprvalue="true" />
+	<jsp:directive.attribute name="preFillId" type="java.lang.Long" required="true" rtexprvalue="true" />
+	<jsp:directive.attribute name="preFillName" type="java.lang.String" required="true" rtexprvalue="true" />
 
 	<jsp:output omit-xml-declaration="yes" />
 
@@ -36,7 +31,8 @@
 
     <spring:url value="${suggestionUrl}" var="json_suggest_url" />
 
-	<div class="control-group ${error_css}">
+
+	<div class="control-group${error_css}">
 		<label for="_${sec_field}_id" class="control-label"><spring:message code="label_${fn:toLowerCase(labelCode)}" /></label>
 
 		<div class="controls">
