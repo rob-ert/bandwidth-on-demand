@@ -18,9 +18,8 @@ public class DetermineRoleControllerTest {
   public void aNocEngineerShouldBeRedirectToNocPage() {
     RichUserDetails user = new RichUserDetailsFactory().addNocRole().create();
     Security.setUserDetails(user);
-    Model model = new ModelStub();
 
-    String page = subject.index(model);
+    String page = subject.index();
 
     assertThat(page, is("redirect:noc"));
   }
@@ -29,9 +28,8 @@ public class DetermineRoleControllerTest {
   public void aIctManagerShouldBeRedirectToManagerPage() {
     RichUserDetails user = new RichUserDetailsFactory().addManagerRole().create();
     Security.setUserDetails(user);
-    Model model = new ModelStub();
 
-    String page = subject.index(model);
+    String page = subject.index();
 
     assertThat(page, is("redirect:manager"));
   }
@@ -40,9 +38,8 @@ public class DetermineRoleControllerTest {
   public void aUserShouldGoToIndex() {
     RichUserDetails user = new RichUserDetailsFactory().addUserRole().create();
     Security.setUserDetails(user);
-    Model model = new ModelStub();
 
-    String page = subject.index(model);
+    String page = subject.index();
 
     assertThat(page, is("redirect:user"));
   }
