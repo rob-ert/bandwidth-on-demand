@@ -78,8 +78,15 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
 
     userDetails.addBodRoles(determineRoles(userDetails.getUserGroups()));
 
-    userDetails.switchRoleTo(CollectionUtils.isEmpty(userDetails.getBodRoles()) ? null : userDetails.getBodRoles().get(
-        0));
+    // If there is still a role selected, switch to it
+    if (userDetails.getSelectedRole() != null) {
+      userDetails.switchRoleTo(userDetails.getSelectedRole());
+    }
+    // if not, just switch to the first role
+    else {
+      userDetails.switchRoleTo(CollectionUtils.isEmpty(userDetails.getBodRoles()) ? null : userDetails.getBodRoles()
+          .get(0));
+    }
 
     return userDetails;
   }
@@ -101,7 +108,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
       roles.addAll(determineManagerRole(userGroup));
       roles.add(determineUserRole(userGroup));
     }
-    
+
     roles.remove(null);
 
     return Lists.newArrayList(roles);
