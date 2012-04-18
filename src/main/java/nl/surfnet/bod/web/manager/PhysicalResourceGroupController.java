@@ -83,8 +83,8 @@ public class PhysicalResourceGroupController {
           group.getManagerEmail());
     }
 
-    model.addAttribute("prg", group);
-    return "manager/index";
+    redirectAttributes.addFlashAttribute("prg", group);
+    return "redirect:/manager";
   }
 
   private boolean emailChanged(PhysicalResourceGroup group, UpdateEmailCommand command) {
