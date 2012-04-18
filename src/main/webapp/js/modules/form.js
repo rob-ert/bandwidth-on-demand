@@ -133,15 +133,15 @@ app.form = function(){
 
         if(dropdown.length) {
 
-            app.loadPlugin(!$.fn.dropdownReload, app.plugins.jquery.dropdownReload, attachDropdownReloadPlugin);
+            app.loadPlugin(!$.fn.dropdownReload, app.plugins.jquery.dropdownReload, function() {
+                attachDropdownReloadPlugin(dropdown);
+            });
 
         }
 
     }
 
-    var attachDropdownReloadPlugin = function() {
-
-        var dropdown = $('[data-component="team-selector"]');
+    var attachDropdownReloadPlugin = function(dropdown) {
 
         var url = dropdown.attr('data-url');
 
@@ -165,14 +165,16 @@ app.form = function(){
 
         if(datepickers.length) {
 
-            app.loadPlugin(!$.fn.datepicker, app.plugins.jquery.datepicker, attachDatepickerPlugin);
+            app.loadPlugin(!$.fn.datepicker, app.plugins.jquery.datepicker, function() {
+                attachDatepickerPlugin(datepickers);
+            });
 
         }
     }
 
-    var attachDatepickerPlugin = function() {
+    var attachDatepickerPlugin = function(datepickers) {
 
-        $('.input-datepicker').datepicker({
+        datepickers.datepicker({
             format: 'yyyy-mm-dd',
             autoclose: true
         });
@@ -206,15 +208,17 @@ app.form = function(){
 
         if(asElements.length) {
 
-            app.loadPlugin(!$.fn.autoSuggest, app.plugins.jquery.autoSuggest, attachAutoSuggestPlugin);
+            app.loadPlugin(!$.fn.autoSuggest, app.plugins.jquery.autoSuggest, function() {
+                attachAutoSuggestPlugin(asElements);
+            });
 
         }
 
     }
 
-    var attachAutoSuggestPlugin = function() {
+    var attachAutoSuggestPlugin = function(asElements) {
 
-        $('[data-component="autoSuggest"]').each(function(i, asElement) {
+        asElements.each(function(i, asElement) {
 
             var setup_done = false;
 
