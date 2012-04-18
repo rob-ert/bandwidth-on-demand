@@ -2,53 +2,78 @@ var app = app || {};
 
 app.reservation = function() {
 
+    var table, url;
+
     var init = function() {
 
-        var table = $('[data-component="reservation"]');
+        table = $('[data-component="reservation"]');
+        url = table.attr('data-url');
 
-        if(table.length) {
-            var url = table.attr('data-url');
-            setTimeout(function() {
-                startPushConnection(url);
-            }, 100);
+        if(table.length && url) {
+
+            app.loadPlugin(!$.socket, app.plugins.jquery.socket, startPushConnection);
+
         }
 
-    }
+    };
 
-    function startPushConnection(url) {
+    var startPushConnection = function() {
+
+        /* dev/stub code */
+        if(url.indexOf('stub') !== -1) {
+            setTimeout(function() {
+                $.getJSON(url, processEvent);
+            }, 1000)
+            return;
+        }
+        /* dev/stub code */
 
         $.socket(url, {
             transports: "longpoll"
-       })
-       .open(function() { })
-       .message(function(data) {
-           processEvent(data);
-       })
-       .close(function() { });
+        })
+        .open(function(){})
+        .message(function(data) {
+            processEvent(data);
+        })
+        .close(function(){});
+
     };
 
-    function processEvent(event) {
-        app.message.showInfo(event["message"]);
-        updateReservationRow(event["id"], event["status"]);
-    }
+    var processEvent = function(event) {
 
-    function updateReservationRow(id, newStatus) {
-        var statusIndex = 3;
-        var row = $('a[href$="id=' + id + '"]').closest("tr");
-        row.addClass("highlight");
-        $(row.children()[statusIndex]).animate(
-            {opacity: 0},
+        app.message.showInfo(event.message);
+        updateReservationRow(event.id, event.status);
+
+    };
+
+    var updateReservationRow = function(id, newStatus) {
+
+        var row = $('tr[data-reservationId="'+id+'"]'),
+            cell = row.find('td').eq(3).wrapInner('<span></span>'),
+            span = cell.find('span');
+
+        cell.css({
+            overflow: 'hidden'
+        })
+
+        span.delay(500).animate(
+            {
+                opacity: 0,
+                marginLeft: -130
+            },
             1000,
             function() {
-                $(this).text(newStatus);
-                $(this).animate({opacity: 1}, 1000,
-                  function () {
-                    row.removeClass("highlight");
-                  }
+                span.text(newStatus);
+                span.animate(
+                    {
+                        opacity: 1,
+                        marginLeft: 0
+                    },
+                    1000
                 );
             }
         );
-    }
+    };
 
     return {
         init: init

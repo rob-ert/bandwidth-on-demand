@@ -33,7 +33,7 @@
             </thead>
             <tbody>
                  <c:forEach items="${list}" var="item">
-                    <tr class="rowdetails">
+                    <tr class="rowdetails" data-reservationId="${item.id}">
                         <table:rowDetailsColumn>
                             <div class="row-fluid">
                                 <div class="span6">
