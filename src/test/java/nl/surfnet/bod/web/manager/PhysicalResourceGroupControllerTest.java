@@ -35,6 +35,7 @@ import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.manager.PhysicalResourceGroupController.UpdateEmailCommand;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -77,7 +78,7 @@ public class PhysicalResourceGroupControllerTest {
         requestAttributes);
 
     assertThat(requestAttributes.getFlashAttributes(), hasKey("infoMessages"));
-    assertThat(page, is("redirect:physicalresourcegroups"));
+    assertThat(page, is("manager/index"));
     assertThat(group.getManagerEmail(), is(command.getManagerEmail()));
     verify(physicalResourceGroupServiceMock).sendActivationRequest(group);
   }
@@ -97,7 +98,7 @@ public class PhysicalResourceGroupControllerTest {
     String page = subject.update(command, new BeanPropertyBindingResult(command, "updateEmailCommand"), model,
         redirectAttributes);
 
-    assertThat(page, is("redirect:physicalresourcegroups"));
+    assertThat(page, is("redirect:manager/index"));
 
     verify(physicalResourceGroupServiceMock, never()).sendActivationRequest(group);
   }
@@ -117,7 +118,7 @@ public class PhysicalResourceGroupControllerTest {
     String page = subject.update(command, new BeanPropertyBindingResult(command, "updateEmailCommand"), model,
         redirectAttributes);
 
-    assertThat(page, is("redirect:physicalresourcegroups"));
+    assertThat(page, is("manager/index"));
 
     verify(physicalResourceGroupServiceMock, never()).sendActivationRequest(group);
   }
@@ -135,7 +136,7 @@ public class PhysicalResourceGroupControllerTest {
     String page = subject.update(command, new BeanPropertyBindingResult(command, "updateEmailCommand"), model,
         redirectAttributes);
 
-    assertThat(page, is("redirect:physicalresourcegroups"));
+    assertThat(page, is("redirect:manager/index"));
 
     verify(physicalResourceGroupServiceMock, never()).sendActivationRequest(any(PhysicalResourceGroup.class));
   }
