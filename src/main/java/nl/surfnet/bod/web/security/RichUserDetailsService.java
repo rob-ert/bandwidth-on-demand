@@ -83,9 +83,8 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
       userDetails.switchRoleTo(userDetails.getSelectedRole());
     }
     // if not, just switch to the first role
-    else {
-      userDetails.switchRoleTo(CollectionUtils.isEmpty(userDetails.getBodRoles()) ? null : userDetails.getBodRoles()
-          .get(0));
+    else if (!CollectionUtils.isEmpty(userDetails.getBodRoles())) {
+      userDetails.switchRoleTo(userDetails.getBodRoles().get(0));
     }
 
     return userDetails;
