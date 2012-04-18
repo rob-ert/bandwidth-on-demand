@@ -31,12 +31,13 @@ app.form = function(){
 
         $('a[data-form]').on('click', function(event) {
 
-            var errorMessage = 'Sorry, action failed.';
+            var errorMessage = 'Sorry, action failed.',
+                successMessage = $(this).attr('data-success');
 
             var post = function(url, data) {
                 $.post(url, data)
                 .success(function() {
-                    window.location.reload(true);
+                    successMessage ? app.message.showInfo(successMessage) : window.location.reload(true);
                 })
                 .error(function() {
                     alert(errorMessage);
