@@ -35,7 +35,7 @@ import nl.surfnet.bod.pages.manager.ListReservationPage;
 import nl.surfnet.bod.pages.manager.ListVirtualPortPage;
 import nl.surfnet.bod.pages.manager.ListVirtualResourceGroupPage;
 import nl.surfnet.bod.pages.manager.NewVirtualPortPage;
-import nl.surfnet.bod.pages.noc.OverviewPage;
+import nl.surfnet.bod.pages.noc.NocOverviewPage;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -51,8 +51,8 @@ public class BodManagerWebDriver {
     this.driver = driver;
   }
   
-  public void managerOverviewFromNocOverview() {
-    OverviewPage page = OverviewPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+  public void switchRoleManager() {
+    NocOverviewPage page = NocOverviewPage.get(driver, BodWebDriver.URL_UNDER_TEST);
     
     page.clickSwitchRole("BoD Administrator");
   }

@@ -60,7 +60,11 @@ public class AbstractListPage extends AbstractPage {
   }
 
   protected void editRow(String... fields) {
-    findRow(fields).findElement(By.cssSelector("a[alt~=Update]")).click();
+    editForIcon("icon-pencil", fields);
+  }
+
+  protected void editForIcon(String icon, String... fields) {
+    findRow(fields).findElement(By.cssSelector("a i[class~=" + icon + "]")).click();
   }
 
   public WebElement findRow(String... fields) {

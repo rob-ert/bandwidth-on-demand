@@ -46,8 +46,8 @@ public class ListUnallocatedPortsPage extends AbstractListPage {
     return page;
   }
 
-  public EditPhysicalPortPage edit(String networkElementPk) {
-    editRow(networkElementPk);
+  public EditPhysicalPortPage edit(String networkElementPk) {        
+    editForIcon("icon-resize-small", networkElementPk);
 
     return EditPhysicalPortPage.get(driver);
   }

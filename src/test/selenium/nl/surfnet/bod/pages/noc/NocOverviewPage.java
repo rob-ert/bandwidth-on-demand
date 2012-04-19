@@ -5,15 +5,15 @@ import org.openqa.selenium.support.PageFactory;
 
 import nl.surfnet.bod.pages.AbstractPage;
 
-public class OverviewPage extends AbstractPage {
+public class NocOverviewPage extends AbstractPage {
 
-  private OverviewPage(RemoteWebDriver driver) {
+  private NocOverviewPage(RemoteWebDriver driver) {
     super(driver);
   }
   
-  public static OverviewPage get(RemoteWebDriver driver, String urlUnderTest) {
+  public static NocOverviewPage get(RemoteWebDriver driver, String urlUnderTest) {
     driver.get(urlUnderTest + "/noc");
-    OverviewPage page = new OverviewPage(driver);
+    NocOverviewPage page = new NocOverviewPage(driver);
     PageFactory.initElements(driver, page);
     
     return page;

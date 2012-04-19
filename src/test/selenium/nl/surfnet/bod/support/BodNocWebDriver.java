@@ -38,7 +38,7 @@ public class BodNocWebDriver {
   }
 
   /* **************************************** */
-  /*        Physical Resource Group           */
+  /* Physical Resource Group */
   /* **************************************** */
 
   public void createNewPhysicalResourceGroup(String institute, String adminGroup, String email) {
@@ -49,7 +49,7 @@ public class BodNocWebDriver {
 
     page.save();
   }
-  
+
   public void deletePhysicalResourceGroup(String institute) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
@@ -91,14 +91,15 @@ public class BodNocWebDriver {
   }
 
   /* ******************************************** */
-  /*                Physical ports                */
+  /* Physical ports */
   /* ******************************************** */
 
   public void linkPhysicalPort(String networkElementPk, String nocLabel, String physicalResourceGroup) {
     linkPhysicalPort(networkElementPk, nocLabel, "", physicalResourceGroup);
   }
 
-  public void linkPhysicalPort(String networkElementPk, String nocLabel, String managerLabel, String physicalResourceGroup) {
+  public void linkPhysicalPort(String networkElementPk, String nocLabel, String managerLabel,
+      String physicalResourceGroup) {
     ListUnallocatedPortsPage listPage = ListUnallocatedPortsPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
     EditPhysicalPortPage editPage = listPage.edit(networkElementPk);
@@ -133,11 +134,17 @@ public class BodNocWebDriver {
   }
 
   public void gotoEditPhysicalPortAndVerifyManagerLabel(String networkElementPk, String managerLabel) {
-    ListAllocatedPortsPage listPage = ListAllocatedPortsPage.get(driver);
+    ListAllocatedPortsPage listPage = ListAllocatedPortsPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
     EditPhysicalPortPage editPage = listPage.edit(networkElementPk);
 
     assertThat(editPage.getManagerLabel(), is(managerLabel));
+  }
+
+  public void switchRoleNoc() {
+    NocOverviewPage page = NocOverviewPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+
+    page.clickSwitchRole("NOC Engineer");
   }
 
 }
