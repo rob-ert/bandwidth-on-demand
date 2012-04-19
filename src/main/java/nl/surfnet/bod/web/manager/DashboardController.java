@@ -50,10 +50,4 @@ public class DashboardController {
 
     return "manager/index";
   }
-
-  String createNewActivationLinkForm(Object... args) {
-    return String.format("Your Physical Resource Group is not activated yet, please do so now. "
-        + "<a href=\"%s?id=%s\" class=\"btn btn-primary\" data-form=\"true\" data-success=\"%s\">Resend email</a>",
-        args);
-  }
 }

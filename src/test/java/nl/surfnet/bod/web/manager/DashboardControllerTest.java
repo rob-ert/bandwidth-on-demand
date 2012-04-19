@@ -22,7 +22,9 @@
 package nl.surfnet.bod.web.manager;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -31,8 +33,6 @@ import nl.surfnet.bod.support.BodRoleFactory;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -41,7 +41,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.MessageSource;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -53,34 +52,9 @@ public class DashboardControllerTest {
   @Mock
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
 
-  @Mock
-  private Environment environmentMock;
-  @Mock
-  private MessageSource messageSourceMock;
-
   @Test
-  public void managerWhithInactivePhysicalResourceGroupsShouldGetRedirected() {
-    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setId(101L).setActive(false)
-        .create();
-
-    BodRole selectedRole = new BodRoleFactory().setPhysicalResourceGroup(physicalResourceGroup).create();
-    RichUserDetails user = new RichUserDetailsFactory().setSelectedRole(selectedRole).create();
-    Security.setUserDetails(user);
-    RedirectAttributes model = new ModelStub();
-
-    when(physicalResourceGroupServiceMock.find(physicalResourceGroup.getId())).thenReturn(physicalResourceGroup);
-
-    String page = subject.index(model, model);
-
-    assertThat(page, startsWith("redirect:"));
-    assertThat(page, endsWith("id=101"));
-    assertThat(model.getFlashAttributes(), hasKey(WebUtils.INFO_MESSAGES_KEY));
-  }
-
-  @Test
-  public void managerWhithActivePhysicalResourceGroupShouldGoToIndex() {
-    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setActive(true).create();
-
+  public void shouldAddPrgToModel() {
+    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setId(101L).create();
     BodRole selectedRole = new BodRoleFactory().setPhysicalResourceGroup(physicalResourceGroup).create();
     RichUserDetails user = new RichUserDetailsFactory().setSelectedRole(selectedRole).create();
 
@@ -89,21 +63,23 @@ public class DashboardControllerTest {
 
     when(physicalResourceGroupServiceMock.find(physicalResourceGroup.getId())).thenReturn(physicalResourceGroup);
 
-    String page = subject.index(model, model);
+    String page = subject.index(model);
 
+    assertThat((PhysicalResourceGroup) model.asMap().get("prg"), is(physicalResourceGroup));
     assertThat(page, is("manager/index"));
   }
 
   @Test
-  public void shouldCreateNewLinkForm() {
-    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
+  public void shouldAddNullPrgToModel() {
+    BodRole selectedRole = new BodRoleFactory().create();
+    RichUserDetails user = new RichUserDetailsFactory().setSelectedRole(selectedRole).create();
 
-    String linkForm = subject.createNewActivationLinkForm(new Object[] {
-        environmentMock.getExternalBodUrl() + ActivationEmailController.ACTIVATION_MANAGER_PATH,
-        physicalResourceGroup.getId().toString(), "Yes new email was sent" });
+    Security.setUserDetails(user);
+    RedirectAttributes model = new ModelStub();
 
-    assertThat(linkForm, containsString(physicalResourceGroup.getId().toString()));
-    assertThat(linkForm, containsString(ActivationEmailController.ACTIVATION_MANAGER_PATH));
+    String page = subject.index(model);
+
+    assertThat((PhysicalResourceGroup) model.asMap().get("prg"), nullValue());
+    assertThat(page, is("manager/index"));
   }
-
 }
