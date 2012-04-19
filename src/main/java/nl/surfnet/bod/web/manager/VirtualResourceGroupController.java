@@ -34,6 +34,7 @@ import nl.surfnet.bod.web.AbstractSortableListController;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,7 +59,10 @@ public class VirtualResourceGroupController extends AbstractSortableListControll
 
     uiModel.asMap().clear();
     uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());
-
+    
+  //Force refresh of roles, a role should possibly be removed
+    SecurityContextHolder.clearContext();
+    
     return "redirect:";
   }
 

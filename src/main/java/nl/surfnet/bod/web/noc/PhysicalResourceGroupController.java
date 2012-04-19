@@ -40,6 +40,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -85,6 +86,9 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
 
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_activation_request_send",
         physicalResourceGroup.getName(), physicalResourceGroup.getManagerEmail());
+
+    // Force refresh of roles
+    SecurityContextHolder.clearContext();
 
     return "redirect:" + PAGE_URL;
   }
@@ -146,6 +150,9 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
     uiModel.asMap().clear();
 
     uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());
+
+    // Force refresh of roles
+    SecurityContextHolder.clearContext();
 
     return "redirect:";
   }
@@ -212,7 +219,7 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
      * Copies fields this command object to the given domainOjbect. Only the
      * fields that can be changed in the UI will be copied. Determines if the
      * {@link #managerEmail} has changed.
-     *
+     * 
      * @param physicalResourceGroup
      *          The {@link PhysicalResourceGroup} the copy the field to.
      */
