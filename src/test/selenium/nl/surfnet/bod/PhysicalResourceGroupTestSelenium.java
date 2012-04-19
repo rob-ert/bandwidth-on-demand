@@ -36,9 +36,7 @@ public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
     getNocDriver().createNewPhysicalResourceGroup(institute, ICT_MANAGERS_GROUP, initialEmail);
 
     getNocDriver().verifyGroupWasCreated(institute, ICT_MANAGERS_GROUP, initialEmail);
-
-    getWebDriver().refreshGroups();
-
+    
     getWebDriver().verifyLastEmailRecipient(initialEmail);
 
     getWebDriver().clickLinkInLastEmail();

@@ -212,11 +212,7 @@ public class BodWebDriver {
 
     page.save();
   }
-
-  public void refreshGroups() {
-    driver.get(URL_UNDER_TEST + "shibboleth/refresh");
-  }
-
+ 
   public void editVirtualPort(String oldLabel, String newLabel) {
     ListVirtualPortPage listPage = ListVirtualPortPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 

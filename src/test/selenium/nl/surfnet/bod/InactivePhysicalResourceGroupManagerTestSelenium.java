@@ -34,7 +34,6 @@ public class InactivePhysicalResourceGroupManagerTestSelenium extends TestExtern
   @Before
   public void setup() {
     getNocDriver().createNewPhysicalResourceGroup("SURFnet bv", ICT_MANAGERS_GROUP, WRONG_EMAIL);
-    getWebDriver().refreshGroups();
   }
 
   @Test

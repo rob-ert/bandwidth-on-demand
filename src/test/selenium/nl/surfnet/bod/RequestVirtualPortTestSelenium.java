@@ -35,8 +35,7 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
     getNocDriver().createNewPhysicalResourceGroup("SURFnet bv", ICT_MANAGERS_GROUP, "test@test.nl");
     getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, "Request a virtual port", "SURFnet bv");
     getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK_2, "Request a virtual port", "2COLLEGE");
-
-    getWebDriver().refreshGroups();
+    
     getWebDriver().clickLinkInLastEmail();
   }
 
