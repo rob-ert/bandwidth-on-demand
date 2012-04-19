@@ -76,7 +76,7 @@ app.table = function(){
 
             // Initial state
             tableStripeFix(table, showAll);
-            rows.find('td:first-child').wrapInner('<span></span>');
+            rows.find('td').wrapInner('<span></span>');
             rows.css({ display: showAll ? 'table-row' : 'none' }).find('span').css({opacity: showAll ? 1 : 0});
 
             component.find(':radio').on('change', function() {

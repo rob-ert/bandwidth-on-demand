@@ -26,7 +26,14 @@
                                 <spring:url value="/virtualresourcegroups/{}/ports" var="data_url" />
                                 <select data-component="team-selector" data-url="${data_url}" class="input-xlarge" name="virtualResourceGroup">
                                     <c:forEach items="${virtualResourceGroups}" var="group">
-                                        <option value="${group.id}"><c:out value="${group.name}" /></option>
+                                        <c:choose>
+                                            <c:when test="${reservation.virtualResourceGroup.id eq group.id}">
+                                                <option value="${group.id}" selected="true"><c:out value="${group.name}" /></option>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <option value="${group.id}"><c:out value="${group.name}" /></option>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </c:forEach>
                                 </select>
                             </c:otherwise>

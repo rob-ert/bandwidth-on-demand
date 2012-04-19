@@ -2,18 +2,14 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:sec="http://www.springframework.org/security/tags"
     xmlns:jsp="http://java.sun.com/JSP/Page">
 
-    <jsp:directive.page contentType="text/html;charset=UTF-8" />
-    <jsp:output omit-xml-declaration="yes" />
+<jsp:directive.page contentType="text/html;charset=UTF-8" />
+<jsp:output omit-xml-declaration="yes" />
 
-    <div class="hero-unit">
-        <h1><c:out value="${message.header}" /></h1>
-        <p>
-            <c:out value="${message.paragraph}" />
-        </p>
-        <br/>
-		<c:if test="${not empty message.url}">
-            <spring:url var="url" value="${message.url}" />
-    		<a href="${url}" class="btn primary large"> <c:out value="${message.urlText}" /></a>
-        </c:if>
-    </div>
+<util:modal messageCode="${message.message}" titleCode="${message.header}">
+    <c:if test="${not empty message.hrefButton}">
+        <spring:url var="url" value="${message.hrefButton}" />
+        <a href="${url}" class="btn btn-primary"> <c:out value="${message.textButton}" /></a>
+    </c:if>
+</util:modal>
+
 </html>

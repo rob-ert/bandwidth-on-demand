@@ -116,6 +116,7 @@ public class DashboardController {
   }
 
   public static class TeamView implements Comparable<TeamView> {
+    private final Long id;
     private final String name;
     private final long numberOfPorts;
     private final long totalReservations;
@@ -125,6 +126,7 @@ public class DashboardController {
     private final boolean existing;
 
     public TeamView(UserGroup group) {
+      this.id = null;
       this.name = group.getName();
       this.surfconextGroupId = group.getId();
       this.numberOfPorts = 0;
@@ -135,6 +137,7 @@ public class DashboardController {
     }
 
     public TeamView(VirtualResourceGroup group, long activeReservations, long scheduledReservations, long totalReservations) {
+      this.id = group.getId();
       this.name = group.getName();
       this.numberOfPorts = group.getVirtualPortCount();
       this.surfconextGroupId = group.getSurfconextGroupId();
@@ -175,6 +178,10 @@ public class DashboardController {
     @Override
     public int compareTo(TeamView other) {
       return this.getName().compareTo(other.getName());
+    }
+
+    public Long getId() {
+      return id;
     }
 
   }

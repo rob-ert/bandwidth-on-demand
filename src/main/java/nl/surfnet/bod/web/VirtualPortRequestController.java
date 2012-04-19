@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.web;
 
+import static nl.surfnet.bod.util.Orderings.prgNameOrdering;
+
 import java.util.Collection;
 import java.util.Collections;
 
@@ -50,18 +52,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Ordering;
 
 @Controller
 @RequestMapping("/request")
 public class VirtualPortRequestController {
-
-  private static final Ordering<PhysicalResourceGroup> PRG_ORDERING = new Ordering<PhysicalResourceGroup>() {
-    @Override
-    public int compare(PhysicalResourceGroup left, PhysicalResourceGroup right) {
-      return left.getName().compareTo(right.getName());
-    }
-  };
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
@@ -76,7 +70,7 @@ public class VirtualPortRequestController {
   public String selectInstitute(@RequestParam(value = "team") String teamUrn, Model model) {
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllWithPorts();
 
-    model.addAttribute("physicalResourceGroups", PRG_ORDERING.sortedCopy(groups));
+    model.addAttribute("physicalResourceGroups", prgNameOrdering().sortedCopy(groups));
     model.addAttribute("teamUrn", teamUrn);
 
     return "virtualports/selectInstitute";

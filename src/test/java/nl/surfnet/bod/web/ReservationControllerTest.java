@@ -22,12 +22,7 @@
 package nl.surfnet.bod.web;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -40,11 +35,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.ReservationFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
@@ -93,15 +84,13 @@ public class ReservationControllerTest {
 
   @Test
   public void newReservationShouldHaveDefaults() {
-
     VirtualPort sourcePort = new VirtualPortFactory().setMaxBandwidth(8000).create();
     VirtualPort destPort = new VirtualPortFactory().setMaxBandwidth(4000).create();
     VirtualResourceGroup group = new VirtualResourceGroupFactory().addVirtualPorts(sourcePort, destPort).create();
 
     when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(Lists.newArrayList(group));
 
-    subject.populateVirtualPorts(model);
-    subject.createForm(model);
+    subject.createForm(null, model);
 
     assertThat(model.asMap(), hasKey("reservation"));
     assertThat(model.asMap(), hasKey("virtualPorts"));
@@ -116,28 +105,28 @@ public class ReservationControllerTest {
   }
 
   @Test
-  public void reservationEmptyPorts() {
+  public void createFormWithoutAnyGroupsShouldGiveSpecialPage() {
     when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(
         Collections.<VirtualResourceGroup> emptyList());
 
-    subject.populateVirtualPorts(model);
-    subject.createForm(model);
+    String page = subject.createForm(null, model);
 
-    assertThat(model.asMap(), hasKey(ReservationController.MODEL_KEY));
-    assertThat(model.asMap(), hasKey("virtualPorts"));
-    assertThat(model.asMap(), hasKey("virtualResourceGroups"));
-
-    Reservation reservation = (Reservation) model.asMap().get("reservation");
-    assertThat(reservation.getStartDateTime(), not(nullValue()));
-    assertThat(reservation.getEndDateTime(), not(nullValue()));
-    assertThat(reservation.getSourcePort(), nullValue());
-    assertThat(reservation.getDestinationPort(), nullValue());
-    assertThat(reservation.getBandwidth(), nullValue());
+    assertThat(page, is("message"));
+    assertThat(model.asMap(), hasKey(MessageView.MODEL_KEY));
   }
 
   @Test
   public void reservationShouldHaveDefaultDuration() {
-    subject.createForm(model);
+    VirtualResourceGroup group = new VirtualResourceGroupFactory()
+      .addVirtualPorts(
+          new VirtualPortFactory().create(),
+          new VirtualPortFactory().create())
+      .create();
+
+    when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(Lists.newArrayList(group));
+
+    subject.createForm(null, model);
+
     Reservation reservation = (Reservation) model.asMap().get(ReservationController.MODEL_KEY);
 
     Period period = new Period(reservation.getStartDateTime().toDate().getTime(), reservation.getEndDateTime().toDate()
@@ -149,7 +138,6 @@ public class ReservationControllerTest {
 
   @Test
   public void listShouldSetListOnModel() {
-    Model model = new ModelStub();
     Reservation reservation = new ReservationFactory().setStartDateTime(LocalDateTime.now().plusDays(1)).create();
 
     when(
@@ -168,7 +156,6 @@ public class ReservationControllerTest {
 
   @Test
   public void listWithNonExistingSortProperty() {
-    Model model = new ModelStub();
     Reservation reservation = new ReservationFactory().create();
 
     when(
@@ -188,32 +175,21 @@ public class ReservationControllerTest {
 
   @Test
   public void lessThenTwoVirtualPortsShouldShowInfoMessage() {
-    when(messageSource.getMessage("info_reservation_need_two_virtual_ports", null, LocaleContextHolder.getLocale()))
+    VirtualResourceGroup group = new VirtualResourceGroupFactory()
+    .addVirtualPorts(
+        new VirtualPortFactory().create())
+    .create();
+
+    when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(Lists.newArrayList(group));
+    when(messageSource.getMessage("info_reservation_need_two_virtual_ports_message", null, LocaleContextHolder.getLocale()))
         .thenReturn(INFO_AT_LEAST_TWO_PORTS);
 
-    model.addAttribute("virtualPorts", Collections.emptyList());
-
-    String view = subject.createForm(model);
+    String view = subject.createForm(null, model);
 
     assertThat(model.asMap().containsKey(MessageView.MODEL_KEY), is(true));
-    assertThat(((MessageView) model.asMap().get(MessageView.MODEL_KEY)).getParagraph(),
+    assertThat(((MessageView) model.asMap().get(MessageView.MODEL_KEY)).getMessage(),
         containsString(INFO_AT_LEAST_TWO_PORTS));
     assertThat(view, is(MessageView.PAGE_URL));
-  }
-
-  @Test
-  public void twoVirtualPortsOrMoreShouldNotShowInfoMessage() {
-    VirtualPort sourcePort = new VirtualPortFactory().setMaxBandwidth(8000).create();
-    VirtualPort destPort = new VirtualPortFactory().setMaxBandwidth(4000).create();
-    model.addAttribute("virtualPorts", Lists.newArrayList(sourcePort, destPort));
-
-    when(messageSource.getMessage("info_reservation_need_two_virtual_ports", null, LocaleContextHolder.getLocale()))
-        .thenReturn(INFO_AT_LEAST_TWO_PORTS);
-
-    String view = subject.createForm(model);
-
-    assertThat(model.asMap().containsKey(MessageView.MODEL_KEY), is(false));
-    assertThat(view, is(ReservationController.PAGE_URL + WebUtils.CREATE));
   }
 
 }

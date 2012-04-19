@@ -27,55 +27,44 @@ public class MessageView {
   public static final String PAGE_URL = "message";
   public static final String MODEL_KEY = "message";
 
-  private String header;
-  private String paragraph;
-  private String url;
-  private String urlText;
+  private final String header;
+  private final String message;
+  private String textButton;
+  private String hrefButton;
 
-  public static MessageView createInfoMessage(MessageSource messageSource, String messageKey) {
-    MessageView messageView = new MessageView();
+  public MessageView(String header, String message) {
+    this.header = header;
+    this.message = message;
+  }
 
-    messageView.header = WebUtils.getMessage(messageSource, "message_info");
-    messageView.paragraph = WebUtils.getMessage(messageSource, messageKey);
+  public static MessageView createInfoMessage(MessageSource messageSource, String titleKey, String messageKey) {
+    String title = WebUtils.getMessage(messageSource, titleKey);
+    String message = WebUtils.getMessage(messageSource, messageKey);
+
+    MessageView messageView = new MessageView(title, message);
 
     return messageView;
   }
 
-  public static MessageView createWarningMessage(MessageSource messageSource, String messageKey) {
-    MessageView messageView = new MessageView();
-
-    messageView.header = WebUtils.getMessage(messageSource, "message_warn");
-    messageView.paragraph = WebUtils.getMessage(messageSource, messageKey);
-
-    return messageView;
+  public void addButton(String text, String url) {
+    this.textButton = text;
+    this.hrefButton = url;
   }
 
   public String getHeader() {
     return header;
   }
 
-  public void setHeader(String header) {
-    this.header = header;
+  public String getMessage() {
+    return message;
   }
 
-  public String getParagraph() {
-    return paragraph;
+  public String getTextButton() {
+    return textButton;
   }
 
-  public String getUrl() {
-    return url;
-  }
-
-  public void setUrl(String url) {
-    this.url = url;
-  }
-
-  public String getUrlText() {
-    return urlText;
-  }
-
-  public void setUrlText(String urlText) {
-    this.urlText = urlText;
+  public String getHrefButton() {
+    return hrefButton;
   }
 
 }

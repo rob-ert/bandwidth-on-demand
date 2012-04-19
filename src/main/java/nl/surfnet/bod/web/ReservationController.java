@@ -21,10 +21,11 @@
  */
 package nl.surfnet.bod.web;
 
+import static nl.surfnet.bod.util.Orderings.vpUserLabelOrdering;
+import static nl.surfnet.bod.util.Orderings.vrgNameOrdering;
 import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -49,7 +50,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -72,7 +72,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
   static final String MODEL_KEY = "reservation";
 
-  static final Function<Reservation, ReservationView> TO_RESERVATION_VIEW = new Function<Reservation, ReservationView>() {
+  private static final Function<Reservation, ReservationView> TO_RESERVATION_VIEW = new Function<Reservation, ReservationView>() {
     @Override
     public ReservationView apply(Reservation reservation) {
       return new ReservationView(reservation);
@@ -81,15 +81,12 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
   @Autowired
   private ReservationService reservationService;
-
   @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
-
-  @Autowired
-  private MessageSource messageSource;
-
   @Autowired
   private ReservationFilterViewFactory reservationFilterViewFactory;
+  @Autowired
+  private MessageSource messageSource;
 
   private ReservationValidator reservationValidator = new ReservationValidator();
 
@@ -102,7 +99,9 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
     if (bindingResult.hasErrors()) {
       model.addAttribute(MODEL_KEY, reservation);
-      model.addAttribute("virtualPorts", reservation.getVirtualResourceGroup().getVirtualPorts());
+      model.addAttribute("virtualResourceGroups", findVirtualResourceGroups());
+      model.addAttribute("virtualPorts",
+          vpUserLabelOrdering().sortedCopy(reservation.getVirtualResourceGroup().getVirtualPorts()));
 
       return PAGE_URL + CREATE;
     }
@@ -116,21 +115,36 @@ public class ReservationController extends AbstractSortableListController<Reserv
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
-  public String createForm(final Model model) {
-    Collection<VirtualPort> ports = WebUtils.getAttributeFromModel("virtualPorts", model, Collections.<VirtualPort>emptyList());
+  public String createForm(@RequestParam(value = "vrg", required = false) Long virtualResourceGroupId, Model model) {
+    Collection<VirtualResourceGroup> vrgs = findVirtualResourceGroups();
 
-    model.addAttribute(MODEL_KEY, createDefaultReservation(ports));
-
-    if (CollectionUtils.isEmpty(ports) || ports.size() <= 1) {
-      MessageView message = MessageView.createInfoMessage(messageSource, "info_reservation_need_two_virtual_ports");
-      message.setHeader(String.format("You have %d Virtual Port%s", ports.size(), ports.isEmpty() ? "s" : ""));
-      message.setUrl("/request");
-      message.setUrlText("Request a Virtual Port");
+    if (vrgs.isEmpty()) {
+      MessageView message = MessageView.createInfoMessage(messageSource,
+          "info_reservation_need_two_virtual_ports_title", "info_reservation_need_two_virtual_ports_message");
+      message.addButton(WebUtils.getMessage(messageSource, "menu_overview_label"), "/user");
 
       model.addAttribute(MessageView.MODEL_KEY, message);
 
       return MessageView.PAGE_URL;
     }
+
+    Reservation defaultReservation = null;
+
+    if (virtualResourceGroupId != null) {
+      VirtualResourceGroup vrg = virtualResourceGroupService.find(virtualResourceGroupId);
+      if (vrg != null && Security.isUserMemberOf(vrg)) {
+        defaultReservation = createDefaultReservation(vrg);
+      }
+    }
+
+    if (defaultReservation == null) {
+      defaultReservation = createDefaultReservation(Iterables.get(vrgs, 0));
+    }
+
+    model.addAttribute(MODEL_KEY, defaultReservation);
+    model.addAttribute("virtualResourceGroups", vrgs);
+    model.addAttribute("virtualPorts",
+        vpUserLabelOrdering().sortedCopy(defaultReservation.getVirtualResourceGroup().getVirtualPorts()));
 
     return PAGE_URL + CREATE;
   }
@@ -165,23 +179,16 @@ public class ReservationController extends AbstractSortableListController<Reserv
     return "redirect:/" + PAGE_URL;
   }
 
-  @ModelAttribute
-  public void populateVirtualPorts(Model model) {
+  private List<VirtualResourceGroup> findVirtualResourceGroups() {
     RichUserDetails user = Security.getUserDetails();
 
-    Collection<VirtualResourceGroup> groups = Collections2.filter(virtualResourceGroupService.findAllForUser(user),
-        new Predicate<VirtualResourceGroup>() {
+    return vrgNameOrdering().sortedCopy(
+        Collections2.filter(virtualResourceGroupService.findAllForUser(user), new Predicate<VirtualResourceGroup>() {
           @Override
           public boolean apply(VirtualResourceGroup group) {
             return group.getVirtualPorts().size() > 1;
           }
-        });
-
-    Collection<VirtualPort> ports = groups.isEmpty() ? Collections.<VirtualPort> emptyList() : groups.iterator().next()
-        .getVirtualPorts();
-
-    model.addAttribute("virtualResourceGroups", groups);
-    model.addAttribute("virtualPorts", ports);
+        }));
   }
 
   @ModelAttribute
@@ -252,7 +259,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
     return reservationViews;
   }
 
-  private Reservation createDefaultReservation(Collection<VirtualPort> ports) {
+  private Reservation createDefaultReservation(VirtualResourceGroup vrg) {
     LocalDateTime inFifteenMinutes = LocalDateTime.now().plusMinutes(15);
 
     Reservation reservation = new Reservation();
@@ -261,9 +268,10 @@ public class ReservationController extends AbstractSortableListController<Reserv
     LocalDateTime reservationEnd = reservation.getStartDateTime().plus(DEFAULT_RESERVATON_DURATION);
     reservation.setEndDateTime(reservationEnd);
 
-    VirtualPort sourcePort = Iterables.get(ports, 0, null);
-    VirtualPort destPort = Iterables.get(ports, 1, null);
+    VirtualPort sourcePort = Iterables.get(vrg.getVirtualPorts(), 0, null);
+    VirtualPort destPort = Iterables.get(vrg.getVirtualPorts(), 1, null);
 
+    reservation.setVirtualResourceGroup(vrg);
     reservation.setSourcePort(sourcePort);
     reservation.setDestinationPort(destPort);
 

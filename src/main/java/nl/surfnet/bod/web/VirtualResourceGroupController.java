@@ -21,12 +21,13 @@
  */
 package nl.surfnet.bod.web;
 
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.VirtualPortJsonView;
 
@@ -38,7 +39,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 
 @Controller
 @RequestMapping("/virtualresourcegroups")
@@ -49,18 +50,19 @@ public class VirtualResourceGroupController {
 
   @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET, produces = "application/json")
   @ResponseBody
-  public Collection<VirtualPortJsonView> listForVirtualResourceGroup(@PathVariable Long id) {
+  public List<VirtualPortJsonView> listForVirtualResourceGroup(@PathVariable Long id) {
     VirtualResourceGroup group = virtualResourceGroupService.find(id);
 
     if (group == null || Security.isUserNotMemberOf(group.getSurfconextGroupId())) {
       return Collections.emptyList();
     }
 
-    return Collections2.transform(group.getVirtualPorts(), new Function<VirtualPort, VirtualPortJsonView>() {
-      @Override
-      public VirtualPortJsonView apply(VirtualPort port) {
-        return new VirtualPortJsonView(port);
-      }
-    });
+    return Lists.transform(Orderings.vpUserLabelOrdering().sortedCopy(group.getVirtualPorts()),
+        new Function<VirtualPort, VirtualPortJsonView>() {
+          @Override
+          public VirtualPortJsonView apply(VirtualPort port) {
+            return new VirtualPortJsonView(port);
+          }
+        });
   }
 }
