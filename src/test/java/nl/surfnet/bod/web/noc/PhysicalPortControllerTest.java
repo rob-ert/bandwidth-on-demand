@@ -24,14 +24,12 @@ package nl.surfnet.bod.web.noc;
 import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -79,7 +77,8 @@ public class PhysicalPortControllerTest {
   public void listAllPortsShouldSetPortsAndMaxPages() {
     Model model = new ModelStub();
     List<PhysicalPort> ports = Lists.newArrayList(new PhysicalPortFactory().create());
-    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), org.mockito.Matchers.any(Sort.class))).thenReturn(ports);
+    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), org.mockito.Matchers.any(Sort.class)))
+        .thenReturn(ports);
 
     subject.list(1, null, null, model);
 
@@ -91,7 +90,8 @@ public class PhysicalPortControllerTest {
   public void listAllPortsWithoutAPageParam() {
     Model model = new ModelStub();
     List<PhysicalPort> ports = Lists.newArrayList(new PhysicalPortFactory().create());
-    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), org.mockito.Matchers.any(Sort.class))).thenReturn(ports);
+    when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), org.mockito.Matchers.any(Sort.class)))
+        .thenReturn(ports);
 
     subject.list(null, null, null, model);
 
@@ -131,8 +131,9 @@ public class PhysicalPortControllerTest {
     PhysicalPort port = new PhysicalPortFactory().create();
     BindingResult result = new BeanPropertyBindingResult(port, "physicalPort");
 
-    when(messageSource.getMessage(anyString(), isNull(Object[].class), org.mockito.Matchers.any(Locale.class)))
-        .thenReturn("{} {}");
+    when(
+        messageSource.getMessage(anyString(), org.mockito.Matchers.any(Object[].class),
+            org.mockito.Matchers.any(Locale.class))).thenReturn("Flash message");
     when(physicalPortServiceMock.findByNetworkElementPk(port.getNetworkElementPk())).thenReturn(port);
 
     String page = subject.update(new CreatePhysicalPortCommand(port), result, model, model);
@@ -142,8 +143,7 @@ public class PhysicalPortControllerTest {
 
     @SuppressWarnings("unchecked")
     String flashMessage = ((List<String>) model.getFlashAttributes().get("infoMessages")).get(0);
-    assertThat(flashMessage, containsString(port.getNocLabel()));
-    assertThat(flashMessage, containsString(port.getPhysicalResourceGroup().getInstitute().getName()));
+    assertThat(flashMessage, is("Flash message"));
 
     verify(physicalPortServiceMock).save(port);
   }

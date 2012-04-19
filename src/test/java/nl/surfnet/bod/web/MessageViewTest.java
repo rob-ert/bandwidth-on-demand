@@ -23,7 +23,11 @@ package nl.surfnet.bod.web;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
+
+import java.util.Locale;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +35,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MessageViewTest {
@@ -48,8 +51,8 @@ public class MessageViewTest {
 
   @Before
   public void setUp() {
-    when(messageSource.getMessage("message_info", null, LocaleContextHolder.getLocale())).thenReturn(INFO_VALUE);
-    when(messageSource.getMessage(MESSAGE_KEY, null, LocaleContextHolder.getLocale())).thenReturn(MESSAGE_VALUE);
+    when(messageSource.getMessage(eq("message_info"), any(Object[].class), any(Locale.class))).thenReturn(INFO_VALUE);
+    when(messageSource.getMessage(eq(MESSAGE_KEY), any(Object[].class), any(Locale.class))).thenReturn(MESSAGE_VALUE);
   }
 
   @Test

@@ -27,7 +27,6 @@ import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -97,8 +96,8 @@ public class PhysicalResourceGroupControllerTest {
     PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(
         changedGroup);
 
-    when(messageSourceMock.getMessage(eq("info_activation_request_send"), isNull(Object[].class), any(Locale.class)))
-        .thenReturn("SEND %s %s");
+    when(messageSourceMock.getMessage(eq("info_activation_request_send"), any(Object[].class), any(Locale.class)))
+        .thenReturn("SEND");
     when(physicalResourceGroupServiceMock.find(1L)).thenReturn(group);
 
     String page = subject.update(command, new BeanPropertyBindingResult(changedGroup,
@@ -106,7 +105,6 @@ public class PhysicalResourceGroupControllerTest {
 
     assertThat(page, is("redirect:physicalresourcegroups"));
     assertThat(WebUtils.getFirstInfoMessage(redirectAttribs), containsString("SEND"));
-    assertThat(WebUtils.getFirstInfoMessage(redirectAttribs), containsString("new@example.com"));
 
     verify(physicalResourceGroupServiceMock).sendActivationRequest(any(PhysicalResourceGroup.class));
   }

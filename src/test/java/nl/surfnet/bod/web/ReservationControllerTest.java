@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -50,7 +51,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.ui.Model;
@@ -181,7 +181,7 @@ public class ReservationControllerTest {
     .create();
 
     when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(Lists.newArrayList(group));
-    when(messageSource.getMessage("info_reservation_need_two_virtual_ports_message", null, LocaleContextHolder.getLocale()))
+    when(messageSource.getMessage(eq("info_reservation_need_two_virtual_ports_message"), any(Object[].class), any(Locale.class)))
         .thenReturn(INFO_AT_LEAST_TWO_PORTS);
 
     String view = subject.createForm(null, model);

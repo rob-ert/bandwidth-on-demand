@@ -158,7 +158,7 @@ public class VirtualPortRequestController {
       SecurityContextHolder.clearContext();
     }
 
-    return "redirect:/";
+    return "redirect:/user";
   }
 
   public static class RequestCommand {

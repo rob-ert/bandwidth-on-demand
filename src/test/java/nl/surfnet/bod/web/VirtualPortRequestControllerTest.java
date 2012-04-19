@@ -216,7 +216,7 @@ public class VirtualPortRequestControllerTest {
 
     String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
 
-    assertThat(page, is("redirect:/"));
+    assertThat(page, is("redirect:/user"));
 
     verify(virtualPortServiceMock).requestNewVirtualPort(user, vGroup, pGroup, 1000, "message");
   }
@@ -237,7 +237,7 @@ public class VirtualPortRequestControllerTest {
 
     String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
 
-    assertThat(page, is("redirect:/"));
+    assertThat(page, is("redirect:/user"));
 
     verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
     verify(virtualPortServiceMock).requestNewVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
