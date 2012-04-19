@@ -35,17 +35,17 @@ import com.google.common.collect.Lists;
 public class AbstractPage {
 
   protected final RemoteWebDriver driver;
-  
+
   @FindBy(id = "alerts")
   private WebElement messagesDiv;
 
-  @FindBy(css=".user-box .dropdown-toggle")
+  @FindBy(css = ".user-box .dropdown-toggle")
   private WebElement userBox;
-  
+
   public AbstractPage(RemoteWebDriver driver) {
     this.driver = driver;
   }
-  
+
   public List<String> getInfoMessages() {
     List<WebElement> messageDivs = messagesDiv.findElements(By.className("alert-info"));
     return Lists.transform(messageDivs, new Function<WebElement, String>() {
@@ -55,10 +55,10 @@ public class AbstractPage {
       }
     });
   }
-  
+
   public void clickSwitchRole(String roleName) {
     userBox.click();
-    
+
     List<WebElement> roles = userBox.findElements(By.tagName("li"));
     for (WebElement role : roles) {
       if (role.getText().contains(roleName)) {
@@ -66,7 +66,7 @@ public class AbstractPage {
         return;
       }
     }
-    
+
     throw new NoSuchElementException("Could not find role with name " + roleName);
   }
 }

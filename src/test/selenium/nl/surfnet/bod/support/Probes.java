@@ -34,4 +34,8 @@ public class Probes {
   public void assertTextPresent(By locator, String textPresent) {
     new Poller().check(new TextOnPageProbe(webDriver, locator, textPresent));
   }
+
+  public void assertTextNotPresent(By locator, String textPresent) {
+    new Poller().check(new TextNotOnPageProbe(webDriver, locator, textPresent));
+  }
 }

@@ -45,6 +45,10 @@ public abstract class TestExternalSupport {
     return webDriver;
   }
 
+  protected BodUserWebDriver getUserDriver() {
+    return webDriver.getUserDriver();
+  }
+
   protected BodManagerWebDriver getManagerDriver() {
     return webDriver.getManagerDriver();
   }

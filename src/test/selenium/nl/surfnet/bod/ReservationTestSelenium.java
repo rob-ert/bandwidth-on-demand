@@ -39,16 +39,16 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getNocDriver().createNewPhysicalResourceGroup(INSTITUTE_NAME, ICT_MANAGERS_GROUP, "test@example.com");
     getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, "First port", INSTITUTE_NAME);
     getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK_2, "Second port", INSTITUTE_NAME);
-    
+
     getWebDriver().clickLinkInLastEmail();
 
-    getWebDriver().requestVirtualPort("selenium-users");
-    getWebDriver().selectInstituteAndRequest(INSTITUTE_NAME, 1200, "port 1");
+    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().selectInstituteAndRequest(INSTITUTE_NAME, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("First port");
 
-    getWebDriver().requestVirtualPort("selenium-users");
-    getWebDriver().selectInstituteAndRequest(INSTITUTE_NAME, 1200, "port 2");
+    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().selectInstituteAndRequest(INSTITUTE_NAME, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("Second port");
   }
@@ -61,15 +61,15 @@ public class ReservationTestSelenium extends TestExternalSupport {
     LocalTime startTime = LocalTime.now().plusHours(1);
     LocalTime endTime = LocalTime.now();
 
-    getWebDriver().createNewReservation(startDate, endDate, startTime, endTime);
+    getUserDriver().createNewReservation(startDate, endDate, startTime, endTime);
 
-    getWebDriver().verifyReservationWasCreated(startDate, endDate, startTime, endTime, creationDateTime);
+    getUserDriver().verifyReservationWasCreated(startDate, endDate, startTime, endTime, creationDateTime);
 
     getManagerDriver().verifyReservationExists(startDate, endDate, startTime, endTime, creationDateTime);
 
-    getWebDriver().cancelReservation(startDate, endDate, startTime, endTime);
+    getUserDriver().cancelReservation(startDate, endDate, startTime, endTime);
 
-    getWebDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);
+    getUserDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);
   }
 
   @After

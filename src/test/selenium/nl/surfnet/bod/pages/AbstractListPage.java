@@ -24,6 +24,8 @@ package nl.surfnet.bod.pages;
 import java.util.Arrays;
 import java.util.List;
 
+import nl.surfnet.bod.support.Probes;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
@@ -39,8 +41,11 @@ public class AbstractListPage extends AbstractPage {
   @FindBy(css = "table.table tbody")
   private WebElement table;
 
+  private final Probes probes;
+
   public AbstractListPage(RemoteWebDriver driver) {
     super(driver);
+    probes = new Probes(driver);
   }
 
   public String getTable() {
@@ -57,6 +62,9 @@ public class AbstractListPage extends AbstractPage {
     WebElement deleteButton = row.findElement(By.cssSelector(String.format("a i[class~=%s]", icon)));
     deleteButton.click();
     driver.switchTo().alert().accept();
+
+    // wait for the reload, row should be gone..
+    probes.assertTextNotPresent(By.cssSelector("table.table tbody"), fields[0]);
   }
 
   protected void editRow(String... fields) {
@@ -75,7 +83,6 @@ public class AbstractListPage extends AbstractPage {
         return row;
       }
     }
-
     throw new NoSuchElementException(String.format("row with fields '%s' not found in rows: '%s'",
         Joiner.on(',').join(fields), Joiner.on(" | ").join(rows)));
   }

@@ -26,15 +26,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.pages.manager.EditPhysicalPortPage;
-import nl.surfnet.bod.pages.manager.EditPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.manager.EditVirtualPortPage;
-import nl.surfnet.bod.pages.manager.ListPhysicalPortsPage;
-import nl.surfnet.bod.pages.manager.ListPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.manager.ListReservationPage;
-import nl.surfnet.bod.pages.manager.ListVirtualPortPage;
-import nl.surfnet.bod.pages.manager.ListVirtualResourceGroupPage;
-import nl.surfnet.bod.pages.manager.NewVirtualPortPage;
+import nl.surfnet.bod.pages.manager.*;
+import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.noc.NocOverviewPage;
 
 import org.joda.time.LocalDate;
@@ -49,12 +42,6 @@ public class BodManagerWebDriver {
 
   public BodManagerWebDriver(RemoteWebDriver driver) {
     this.driver = driver;
-  }
-  
-  public void switchRoleManager() {
-    NocOverviewPage page = NocOverviewPage.get(driver, BodWebDriver.URL_UNDER_TEST);
-    
-    page.clickSwitchRole("BoD Administrator");
   }
 
   public void verifyManagerLabelChanged(String networkElementPk, String managerLabel) {
@@ -202,10 +189,18 @@ public class BodManagerWebDriver {
     page.findRow(fields);
   }
 
-  public void showPhysicalResourceGroupDetailViewAndVerify(String name, String networkElementPk) {
-    ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+  public void switchToNoc() {
+    swithTo("NOC Engineer");
+  }
 
-    page.showDetailViewForRowAndVerify(name, networkElementPk);
+  public void switchToUser() {
+    swithTo("BoD User");
+  }
+
+  private void swithTo(String role) {
+    NocOverviewPage page = NocOverviewPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+
+    page.clickSwitchRole(role);
   }
 
 }

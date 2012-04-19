@@ -21,12 +21,10 @@
  */
 package nl.surfnet.bod.support;
 
-import static junit.framework.Assert.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.pages.noc.*;
 
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class BodNocWebDriver {
@@ -64,30 +62,19 @@ public class BodNocWebDriver {
     editPage.save();
   }
 
-  public void verifyGroupWasCreated(String institute, String adminGroup, String email) {
-    verifyGroupExists(institute, adminGroup, email, "FALSE");
+  public void verifyGroupWasCreated(String institute, String email) {
+    verifyGroupExists(institute, email, false);
   }
 
-  public void verifyGroupExists(String institute, String adminGroup, String email, String status) {
+  public void verifyGroupExists(String institute, String email, boolean active) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
-    page.findRow(institute, adminGroup, email, status);
+    // TODO check for icon icon-ban-circle
+    page.findRow(institute, email);
   }
 
-  public void verifyGroupWasDeleted(String institute, String adminGroup, String email) {
-    ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver);
-
-    try {
-      page.findRow(institute, adminGroup, email);
-      fail("The physical resource group was not deleted");
-    }
-    catch (NoSuchElementException e) {
-      // expected
-    }
-  }
-
-  public void verifyPhysicalResourceGroupIsActive(String institute, String adminGroup, String email) {
-    verifyGroupExists(institute, adminGroup, email, "TRUE");
+  public void verifyPhysicalResourceGroupIsActive(String institute, String email) {
+    verifyGroupExists(institute, email, true);
   }
 
   /* ******************************************** */
@@ -121,18 +108,6 @@ public class BodNocWebDriver {
     page.unlinkPhysicalPort(networkElementPk);
   }
 
-  public void verifyPhysicalPortWasUnlinked(String networkElementPk) {
-    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver);
-
-    try {
-      page.findRow(networkElementPk);
-      fail("The physical port was not unlinked");
-    }
-    catch (NoSuchElementException e) {
-      // expected
-    }
-  }
-
   public void gotoEditPhysicalPortAndVerifyManagerLabel(String networkElementPk, String managerLabel) {
     ListAllocatedPortsPage listPage = ListAllocatedPortsPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
@@ -141,10 +116,18 @@ public class BodNocWebDriver {
     assertThat(editPage.getManagerLabel(), is(managerLabel));
   }
 
-  public void switchRoleNoc() {
+  public void switchToManager() {
+    switchTo("BoD Administrator");
+  }
+
+  public void switchToUser() {
+    switchTo("BoD User");
+  }
+
+  private void switchTo(String role) {
     NocOverviewPage page = NocOverviewPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
-    page.clickSwitchRole("NOC Engineer");
+    page.clickSwitchRole(role);
   }
 
 }

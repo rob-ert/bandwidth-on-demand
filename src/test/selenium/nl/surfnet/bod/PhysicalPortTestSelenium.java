@@ -48,29 +48,17 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
 
     getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(NETWORK_ELEMENT_PK, managerLabel1);
 
-    getManagerDriver().switchRoleManager();
+    getNocDriver().switchToManager();
 
     getManagerDriver().changeManagerLabelOfPhyiscalPort(NETWORK_ELEMENT_PK, managerLabel2);
 
     getManagerDriver().verifyManagerLabelChanged(NETWORK_ELEMENT_PK, managerLabel2);
 
-    getNocDriver().switchRoleNoc();
+    getManagerDriver().switchToNoc();
 
-    
-    
     getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(NETWORK_ELEMENT_PK, managerLabel2);
 
-    getManagerDriver().switchRoleManager();
-
-    getManagerDriver().verifyPhysicalResourceGroupExists("2COLLEGE");
-
-    getManagerDriver().showPhysicalResourceGroupDetailViewAndVerify("2COLLEGE", managerLabel2);
-
-    getNocDriver().switchRoleNoc();
-
     getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
-
-    getNocDriver().verifyPhysicalPortWasUnlinked(NETWORK_ELEMENT_PK);
   }
 
   @After

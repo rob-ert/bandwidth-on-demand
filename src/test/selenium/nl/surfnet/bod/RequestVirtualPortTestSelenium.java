@@ -35,17 +35,21 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
     getNocDriver().createNewPhysicalResourceGroup("SURFnet bv", ICT_MANAGERS_GROUP, "test@test.nl");
     getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, "Request a virtual port", "SURFnet bv");
     getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK_2, "Request a virtual port", "2COLLEGE");
-    
+
     getWebDriver().clickLinkInLastEmail();
   }
 
   @Test
   public void requestAVirtualPort() {
-    getWebDriver().requestVirtualPort("selenium-users");
+    getManagerDriver().switchToUser();
 
-    getWebDriver().verifyRequestVirtualPortInstituteInactive("2COLLEGE");
+    getUserDriver().requestVirtualPort("selenium-users");
 
-    getWebDriver().selectInstituteAndRequest("SURFnet bv", 1200, "I would like to have a new port");
+    getUserDriver().verifyRequestVirtualPortInstituteInactive("2COLLEGE");
+
+    getUserDriver().selectInstituteAndRequest("SURFnet bv", 1200, "I would like to have a new port");
+
+    getUserDriver().switchToManager();
 
     getManagerDriver().verifyVirtualResourceGroupExists("selenium-users");
 
@@ -65,15 +69,17 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
     // physical resource group should have one physical port
     getManagerDriver().verifyPhysicalResourceGroupExists("SURFnet bv", "test@test.nl", "1");
 
-    getManagerDriver().showPhysicalResourceGroupDetailViewAndVerify("SURFnet bv", NETWORK_ELEMENT_PK);
-
     getManagerDriver().editVirtualPort("Your vport", "Edited vport", 1000, "20");
 
     getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "20");
 
-    getWebDriver().editVirtualPort("Edited vport", "User label");
+    getManagerDriver().switchToUser();
 
-    getWebDriver().verifyVirtualPortExists("User label", "1000", "selenium-users");
+    getUserDriver().editVirtualPort("Edited vport", "User label");
+
+    getUserDriver().verifyVirtualPortExists("User label", "1000", "selenium-users");
+
+    getUserDriver().switchToManager();
 
     getManagerDriver().deleteVirtualPort("Edited vport");
 
