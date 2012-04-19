@@ -39,12 +39,12 @@ public class InactivePhysicalResourceGroupManagerTestSelenium extends TestExtern
 
   @Test
   public void anInactivePhysicalResourceGroupShouldGiveARedirectForManager() throws Exception {
-    getManagerDriver().managerDashboard();
+    getManagerDriver().managerOverviewFromNocOverview();
 
     getManagerDriver().verifyOnEditPhysicalResourceGroupPage(WRONG_EMAIL);
   }
 
-  @After
+   @After
   public void teardown() {
     getNocDriver().deletePhysicalResourceGroup("SURFnet bv");
   }

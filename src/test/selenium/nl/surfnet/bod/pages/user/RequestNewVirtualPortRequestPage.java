@@ -36,8 +36,12 @@ public class RequestNewVirtualPortRequestPage extends AbstractFormPage {
   @FindBy(id = "bandwidth")
   private WebElement bandwidthInput;
 
+  public RequestNewVirtualPortRequestPage(RemoteWebDriver driver) {
+    super(driver);
+  }
+
   public static RequestNewVirtualPortRequestPage get(RemoteWebDriver driver) {
-    RequestNewVirtualPortRequestPage page = new RequestNewVirtualPortRequestPage();
+    RequestNewVirtualPortRequestPage page = new RequestNewVirtualPortRequestPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;

@@ -26,8 +26,12 @@ import org.openqa.selenium.support.PageFactory;
 
 public class EditVirtualPortPage extends NewVirtualPortPage {
 
+  public EditVirtualPortPage(RemoteWebDriver driver) {
+    super(driver);
+  }
+
   public static EditVirtualPortPage get(RemoteWebDriver driver) {
-    EditVirtualPortPage page = new EditVirtualPortPage();
+    EditVirtualPortPage page = new EditVirtualPortPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;

@@ -33,11 +33,12 @@ public class EditPhysicalResourceGroupPage extends AbstractFormPage {
   @FindBy(id = "_manageremail_id")
   private WebElement emailInput;
 
-  private EditPhysicalResourceGroupPage() {
+  private EditPhysicalResourceGroupPage(RemoteWebDriver driver) {
+    super(driver);
   }
 
   public static EditPhysicalResourceGroupPage get(RemoteWebDriver driver) {
-    EditPhysicalResourceGroupPage page = new EditPhysicalResourceGroupPage();
+    EditPhysicalResourceGroupPage page = new EditPhysicalResourceGroupPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;

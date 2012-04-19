@@ -36,13 +36,11 @@ import com.google.common.collect.Iterables;
 
 public class AbstractListPage extends AbstractPage {
 
-  protected final RemoteWebDriver driver;
-
-  @FindBy(css = "table.zebra-striped tbody")
+  @FindBy(css = "table.table tbody")
   private WebElement table;
 
   public AbstractListPage(RemoteWebDriver driver) {
-    this.driver = driver;
+    super(driver);
   }
 
   public String getTable() {
@@ -50,13 +48,13 @@ public class AbstractListPage extends AbstractPage {
   }
 
   public void delete(String... fields) {
-    deleteForIcon("icon-trash", fields);
+    deleteForIcon("icon-remove", fields);
   }
 
   protected void deleteForIcon(String icon, String... fields) {
     WebElement row = findRow(fields);
 
-    WebElement deleteButton = row.findElement(By.cssSelector(String.format("a[class~=%s]", icon)));
+    WebElement deleteButton = row.findElement(By.cssSelector(String.format("a i[class~=%s]", icon)));
     deleteButton.click();
     driver.switchTo().alert().accept();
   }

@@ -46,7 +46,8 @@ public class NewPhysicalResourceGroupPage extends AbstractFormPage {
   @FindBy(css = "input[name='managerEmail']")
   private WebElement managerEmailInput;
 
-  public NewPhysicalResourceGroupPage(WebDriver driver) {
+  public NewPhysicalResourceGroupPage(RemoteWebDriver driver) {
+    super(driver);
     this.probes = new Probes(driver);
   }
 

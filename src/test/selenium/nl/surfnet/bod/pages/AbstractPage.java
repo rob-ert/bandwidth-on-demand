@@ -22,19 +22,32 @@
 package nl.surfnet.bod.pages;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Uninterruptibles;
 
 public class AbstractPage {
 
-  @FindBy(id = "messages")
+  protected final RemoteWebDriver driver;
+  
+  @FindBy(id = "alerts")
   private WebElement messagesDiv;
 
+  @FindBy(css=".user-box .dropdown-toggle")
+  private WebElement userBox;
+  
+  public AbstractPage(RemoteWebDriver driver) {
+    this.driver = driver;
+  }
+  
   public List<String> getInfoMessages() {
     List<WebElement> messageDivs = messagesDiv.findElements(By.className("alert-message"));
     return Lists.transform(messageDivs, new Function<WebElement, String>() {
@@ -43,5 +56,19 @@ public class AbstractPage {
         return input.findElement(By.tagName("p")).getText();
       }
     });
+  }
+  
+  public void clickSwitchRole(String roleName) {
+    userBox.click();
+    
+    List<WebElement> roles = userBox.findElements(By.tagName("li"));
+    for (WebElement role : roles) {
+      if (role.getText().contains(roleName)) {
+        role.click();
+        return;
+      }
+    }
+    
+    throw new NoSuchElementException("Could not find role with name " + roleName);
   }
 }

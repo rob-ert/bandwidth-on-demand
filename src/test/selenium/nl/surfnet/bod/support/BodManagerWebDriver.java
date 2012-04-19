@@ -26,7 +26,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.pages.manager.*;
+import nl.surfnet.bod.pages.manager.EditPhysicalPortPage;
+import nl.surfnet.bod.pages.manager.EditPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.manager.EditVirtualPortPage;
+import nl.surfnet.bod.pages.manager.ListPhysicalPortsPage;
+import nl.surfnet.bod.pages.manager.ListPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.manager.ListReservationPage;
+import nl.surfnet.bod.pages.manager.ListVirtualPortPage;
+import nl.surfnet.bod.pages.manager.ListVirtualResourceGroupPage;
+import nl.surfnet.bod.pages.manager.NewVirtualPortPage;
+import nl.surfnet.bod.pages.noc.OverviewPage;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -41,8 +50,12 @@ public class BodManagerWebDriver {
   public BodManagerWebDriver(RemoteWebDriver driver) {
     this.driver = driver;
   }
-
-  public void managerDashboard() {
+  
+  public void managerOverviewFromNocOverview() {
+    OverviewPage page = OverviewPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    
+    page.clickSwitchRole("BoD Administrator");
+    
     driver.get(BodWebDriver.URL_UNDER_TEST + "manager");
   }
 

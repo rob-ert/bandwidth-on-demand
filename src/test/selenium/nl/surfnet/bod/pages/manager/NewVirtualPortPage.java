@@ -52,9 +52,13 @@ public class NewVirtualPortPage extends AbstractFormPage {
 
   @FindBy(id = "_virtualresourcegroup")
   private WebElement virtualResourceGroupSelect;
+  
+  public NewVirtualPortPage(RemoteWebDriver driver) {
+    super(driver);
+  }
 
   public static NewVirtualPortPage get(RemoteWebDriver driver) {
-    NewVirtualPortPage page = new NewVirtualPortPage();
+    NewVirtualPortPage page = new NewVirtualPortPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;

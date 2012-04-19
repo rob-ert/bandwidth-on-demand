@@ -33,8 +33,12 @@ public class EditPhysicalPortPage extends AbstractFormPage {
   @FindBy(id = "_managerLabel_id")
   private WebElement managerLabelInput;
 
+  public EditPhysicalPortPage(RemoteWebDriver driver) {
+    super(driver);
+  }
+  
   public static EditPhysicalPortPage get(RemoteWebDriver driver) {
-    EditPhysicalPortPage page = new EditPhysicalPortPage();
+    EditPhysicalPortPage page = new EditPhysicalPortPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;

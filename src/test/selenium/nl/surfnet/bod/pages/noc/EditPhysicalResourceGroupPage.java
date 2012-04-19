@@ -21,13 +21,12 @@
  */
 package nl.surfnet.bod.pages.noc;
 
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
 public class EditPhysicalResourceGroupPage extends NewPhysicalResourceGroupPage {
 
-  public EditPhysicalResourceGroupPage(WebDriver driver) {
+  public EditPhysicalResourceGroupPage(RemoteWebDriver driver) {
     super(driver);
   }
 

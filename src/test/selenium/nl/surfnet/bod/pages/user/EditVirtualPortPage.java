@@ -30,11 +30,15 @@ import org.openqa.selenium.support.PageFactory;
 
 public class EditVirtualPortPage extends AbstractFormPage {
 
+  public EditVirtualPortPage(RemoteWebDriver driver) {
+    super(driver);
+  }
+
   @FindBy(id = "_userLabel_id")
   private WebElement userLabelInput;
 
   public static EditVirtualPortPage get(RemoteWebDriver driver) {
-    EditVirtualPortPage page = new EditVirtualPortPage();
+    EditVirtualPortPage page = new EditVirtualPortPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;

@@ -19,28 +19,6 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-/**
- * The owner of the originaimport org.joda.time.LocalDate;
-l code is SURFnet BV.
- *
- * Portions created by the original owner are Copyright (C) 2011-2012 the
- * original owner. All Rights Reserved.
- *
- * Portions created by other contributors are Copyright (C) the contributor.
- * All Rights Reserved.
- *
- * Contributor(s):
- *   (Contributors insert name & email here)
- *
- * This file is part of the SURFnet7 Bandwidth on Demand software.
- *
- * The SURFnet7 Bandwidth on Demand software is free software: you can
- * redistribute it and/or modify it under the terms of the BSD license
- * included with this distribution.
- *
- * If the BSD license cannot be found with this distribution, it is available
- * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
- */
 package nl.surfnet.bod.pages.user;
 
 import nl.surfnet.bod.pages.AbstractFormPage;
@@ -79,13 +57,17 @@ public class NewReservationPage extends AbstractFormPage {
   @FindBy(id = "_startDate_error_id")
   private WebElement startDateError;
 
+  public NewReservationPage(RemoteWebDriver driver) {
+    super(driver);
+  }
+
   public static NewReservationPage get(RemoteWebDriver driver, String urlUnderTest) {
     driver.get(urlUnderTest + PAGE);
     return get(driver);
   }
 
   public static NewReservationPage get(RemoteWebDriver driver) {
-    NewReservationPage page = new NewReservationPage();
+    NewReservationPage page = new NewReservationPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;
