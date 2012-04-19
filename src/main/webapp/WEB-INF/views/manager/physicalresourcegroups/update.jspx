@@ -38,8 +38,8 @@
                     </div>
                 </div>
 
-                <field:display object="${physicalResourceGroup}" field="institute" labelCode="label_virtualport_maxbandwidth" />
-                <field:display object="${physicalResourceGroup}" field="adminGroup" labelCode="label_virtualport_maxbandwidth" />
+                <field:display object="${physicalResourceGroup}" field="institute" labelCode="label_physicalresourcegroup_name" />
+                <field:display object="${physicalResourceGroup}" field="adminGroup" labelCode="label_physicalresourcegroup_admingroup" />
 
             </form:update>
             
