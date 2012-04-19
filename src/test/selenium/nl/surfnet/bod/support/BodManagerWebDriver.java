@@ -55,8 +55,6 @@ public class BodManagerWebDriver {
     OverviewPage page = OverviewPage.get(driver, BodWebDriver.URL_UNDER_TEST);
     
     page.clickSwitchRole("BoD Administrator");
-    
-    driver.get(BodWebDriver.URL_UNDER_TEST + "manager");
   }
 
   public void verifyManagerLabelChanged(String networkElementPk, String managerLabel) {
@@ -89,7 +87,7 @@ public class BodManagerWebDriver {
     assertThat(email, is(expectedMailAdress));
 
     assertThat(page.getInfoMessages(), hasSize(1));
-    assertThat(page.getInfoMessages().get(0), containsString("Your Physical Resource Group is not activated"));
+    assertThat(page.getInfoMessages().get(0), containsString("Your institute is not activated"));
   }
 
   // public void createNewVirtualPort(String name, int maxBandwidth, String
