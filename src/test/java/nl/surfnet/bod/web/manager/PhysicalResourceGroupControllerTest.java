@@ -77,7 +77,7 @@ public class PhysicalResourceGroupControllerTest {
         requestAttributes);
 
     assertThat(requestAttributes.getFlashAttributes(), hasKey("infoMessages"));
-    assertThat(page, is("redirect:/manager/index"));
+    assertThat(page, is("redirect:/manager"));
     assertThat(group.getManagerEmail(), is(command.getManagerEmail()));
     verify(physicalResourceGroupServiceMock).sendActivationRequest(group);
   }
@@ -117,7 +117,7 @@ public class PhysicalResourceGroupControllerTest {
     String page = subject.update(command, new BeanPropertyBindingResult(command, "updateEmailCommand"), model,
         redirectAttributes);
 
-    assertThat(page, is("redirect:/manager/index"));
+    assertThat(page, is("redirect:/manager"));
 
     verify(physicalResourceGroupServiceMock, never()).sendActivationRequest(group);
   }
