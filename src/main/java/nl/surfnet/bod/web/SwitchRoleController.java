@@ -76,7 +76,7 @@ public class SwitchRoleController {
   }
 
   String createNewActivationLinkForm(Object... args) {
-    return String.format("Your Physical Resource Group is not activated yet, please do so now. "
+    return String.format(WebUtils.getMessage(messageSource, "info_physicalresourcegroup_not_activated")
         + "<a href=\"%s?id=%s\" class=\"btn btn-primary\" data-form=\"true\" data-success=\"%s\">Resend email</a>",
         args);
   }
