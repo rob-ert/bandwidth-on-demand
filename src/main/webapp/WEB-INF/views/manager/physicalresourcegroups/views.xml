@@ -4,12 +4,12 @@
 
     <definition extends="manager" name="manager/physicalresourcegroups/list">
         <put-attribute name="body" value="/WEB-INF/views/manager/physicalresourcegroups/list.jspx" />
-        <put-attribute name="active_menu" value="physicalresourcegroup" cascade="true" />
+        <put-attribute name="active_menu" value="overview" cascade="true" />
     </definition>
     
     <definition extends="manager" name="manager/physicalresourcegroups/update">
         <put-attribute name="body" value="/WEB-INF/views/manager/physicalresourcegroups/update.jspx" />
-        <put-attribute name="active_menu" value="physicalresourcegroup" cascade="true" />
+        <put-attribute name="active_menu" value="overview" cascade="true" />
     </definition>
 
 </tiles-definitions>
