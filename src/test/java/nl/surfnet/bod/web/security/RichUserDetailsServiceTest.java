@@ -22,7 +22,10 @@
 package nl.surfnet.bod.web.security;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -111,10 +114,10 @@ public class RichUserDetailsServiceTest {
     assertThat(userDetails.getAuthorities(), hasSize(2));
 
     assertThat(userDetails.getAuthorities(),
-        hasItem(Matchers.<GrantedAuthority> hasProperty("authority", is(RoleEnum.NOC_ENGINEER.name()))));
+        Matchers.<GrantedAuthority> hasItem(hasProperty("authority", is(RoleEnum.NOC_ENGINEER.name()))));
 
     assertThat(userDetails.getAuthorities(),
-        hasItem(Matchers.<GrantedAuthority> hasProperty("authority", is(RoleEnum.USER.name()))));
+        Matchers.<GrantedAuthority> hasItem(hasProperty("authority", is(RoleEnum.USER.name()))));
   }
 
   @Test
@@ -132,9 +135,9 @@ public class RichUserDetailsServiceTest {
 
     assertThat(userDetails.getAuthorities(), hasSize(2));
     assertThat(userDetails.getAuthorities(),
-        hasItem(Matchers.<GrantedAuthority> hasProperty("authority", is(RoleEnum.ICT_MANAGER.name()))));
+        Matchers.<GrantedAuthority>hasItem(hasProperty("authority", is(RoleEnum.ICT_MANAGER.name()))));
     assertThat(userDetails.getAuthorities(),
-        hasItem(Matchers.<GrantedAuthority> hasProperty("authority", is(RoleEnum.USER.name()))));
+        Matchers.<GrantedAuthority>hasItem(hasProperty("authority", is(RoleEnum.USER.name()))));
   }
 
   @Test
