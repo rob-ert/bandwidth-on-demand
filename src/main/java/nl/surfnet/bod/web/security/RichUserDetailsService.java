@@ -21,10 +21,9 @@
  */
 package nl.surfnet.bod.web.security;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -41,12 +40,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.util.CollectionUtils;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public class RichUserDetailsService implements AuthenticationUserDetailsService {
 
@@ -73,19 +72,10 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
 
     updateVirtualResourceGroups(groups);
 
+    Collection<BodRole> roles = determineRoles(groups);
+
     RichUserDetails userDetails = new RichUserDetails(principal.getNameId(), principal.getDisplayName(),
-        principal.getEmail(), groups);
-
-    userDetails.addBodRoles(determineRoles(userDetails.getUserGroups()));
-
-    // If there is still a role selected, switch to it
-    if (userDetails.getSelectedRole() != null) {
-      userDetails.switchRoleTo(userDetails.getSelectedRole());
-    }
-    // if not, just switch to the first role
-    else if (!CollectionUtils.isEmpty(userDetails.getBodRoles())) {
-      userDetails.switchRoleTo(userDetails.getBodRoles().get(0));
-    }
+        principal.getEmail(), groups, roles);
 
     return userDetails;
   }
@@ -93,57 +83,50 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
   /**
    * Determines for which userGroups there is a {@link PhysicalResourceGroup}
    * related and creates a {@link BodRole} based on that information.
-   * 
+   *
    * @param Collection
    *          <UserGroup> groups to process
    * @return List<BodRole> List with roles sorted on the roleName
    */
-  List<BodRole> determineRoles(Collection<UserGroup> userGroups) {
+  Collection<BodRole> determineRoles(Collection<UserGroup> userGroups) {
+    Collection<BodRole> roles = Lists.newArrayList();
 
-    Set<BodRole> roles = Sets.newHashSet();
+    roles.addAll(determineNocRole(userGroups));
+    roles.addAll(determineUserRole(userGroups));
+    roles.addAll(determineManagerRoles(userGroups));
 
-    for (UserGroup userGroup : userGroups) {
-      roles.add(determineNocRole(userGroup));
-      roles.addAll(determineManagerRole(userGroup));
-      roles.add(determineUserRole(userGroup));
-    }
-
-    roles.remove(null);
-
-    return Lists.newArrayList(roles);
+    return roles;
   }
 
-  private BodRole determineNocRole(UserGroup userGroup) {
-    BodRole nocRole = null;
-
-    if (isNocEngineerGroup(Lists.newArrayList(userGroup))) {
-      nocRole = new BodRole(userGroup, Security.RoleEnum.NOC_ENGINEER);
-    }
-
-    return nocRole;
+  private Collection<BodRole> determineNocRole(Collection<UserGroup> userGroups) {
+    return isNocEngineerGroup(userGroups) ? ImmutableList.of(BodRole.createNocEngineer()) : Collections
+        .<BodRole> emptyList();
   }
 
-  private List<BodRole> determineManagerRole(UserGroup userGroup) {
-    List<BodRole> managerRoles = new ArrayList<BodRole>();
-    for (PhysicalResourceGroup physicalResourceGroup : physicalResourceGroupService.findByAdminGroup(userGroup.getId())) {
+  private Collection<BodRole> determineManagerRoles(Collection<UserGroup> userGroups) {
+    Collection<UserGroup> managerUserGroups = Collections2.filter(userGroups, new Predicate<UserGroup>() {
+      @Override
+      public boolean apply(UserGroup userGroup) {
+        return isIctManager(userGroup);
+      }
+    });
 
-      if (physicalResourceGroup != null) {
-        if (isIctManager(userGroup)) {
-          managerRoles.add(new BodRole(userGroup, Security.RoleEnum.ICT_MANAGER, physicalResourceGroup));
-        }
+    Collection<BodRole> roles = Lists.newArrayList();
+
+    for (UserGroup userGroup : managerUserGroups) {
+      List<PhysicalResourceGroup> prgs = physicalResourceGroupService.findByAdminGroup(userGroup.getId());
+      for (PhysicalResourceGroup prg : prgs) {
+        roles.add(BodRole.createManager(prg));
       }
     }
-    return managerRoles;
+
+    return roles;
   }
 
-  private BodRole determineUserRole(UserGroup userGroup) {
-    BodRole userRole = null;
+  private Collection<BodRole> determineUserRole(Collection<UserGroup> userGroups) {
+    BodRole userRole = isUser(userGroups) ? BodRole.createUser() : BodRole.createNewUser();
 
-    if (isUser(Lists.newArrayList(userGroup))) {
-      userRole = new BodRole(userGroup, Security.RoleEnum.USER);
-    }
-
-    return userRole;
+    return ImmutableList.of(userRole);
   }
 
   private void updateVirtualResourceGroups(Collection<UserGroup> userGroups) {

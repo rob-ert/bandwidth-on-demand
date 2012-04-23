@@ -44,7 +44,6 @@ import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.support.BodRoleFactory;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
@@ -54,7 +53,6 @@ import nl.surfnet.bod.web.manager.PhysicalPortController.PhysicalPortView;
 import nl.surfnet.bod.web.manager.PhysicalPortController.UpdateManagerLabelCommand;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -92,7 +90,10 @@ public class PhysicalPortControllerTest {
 
   @Before
   public void setAuthenticatedUser() {
-    user = new RichUserDetailsFactory().addUserGroup("urn:manager-group").create();
+
+    BodRole managerRole = BodRole.createManager(physicalResourceGroup);
+
+    user = new RichUserDetailsFactory().addUserGroup("urn:manager-group").addBodRoles(managerRole).create();
     Security.setUserDetails(user);
   }
 
@@ -101,9 +102,6 @@ public class PhysicalPortControllerTest {
   public void listPorts() {
     Model model = new ModelStub();
 
-    BodRole managerRole = new BodRoleFactory().setRole(RoleEnum.ICT_MANAGER)
-        .setPhysicalResourceGroup(physicalResourceGroup).create();
-    user.setSelectedRole(managerRole);
     when(physicalResourceGroupService.find(anyLong())).thenReturn(physicalResourceGroup);
 
     when(

@@ -24,12 +24,10 @@ package nl.surfnet.bod.web.manager;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.support.BodRoleFactory;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -54,11 +52,13 @@ public class DashboardControllerTest {
 
   @Test
   public void shouldAddPrgToModel() {
-    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setId(101L).create();
-    BodRole selectedRole = new BodRoleFactory().setPhysicalResourceGroup(physicalResourceGroup).create();
-    RichUserDetails user = new RichUserDetailsFactory().setSelectedRole(selectedRole).create();
+    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
+    BodRole selectedRole = BodRole.createManager(physicalResourceGroup);
+    RichUserDetails user = new RichUserDetailsFactory().addBodRoles(selectedRole).create();
 
     Security.setUserDetails(user);
+    Security.switchToManager(physicalResourceGroup);
+
     RedirectAttributes model = new ModelStub();
 
     when(physicalResourceGroupServiceMock.find(physicalResourceGroup.getId())).thenReturn(physicalResourceGroup);
@@ -71,10 +71,12 @@ public class DashboardControllerTest {
 
   @Test
   public void shouldAddNullPrgToModel() {
-    BodRole selectedRole = new BodRoleFactory().create();
-    RichUserDetails user = new RichUserDetailsFactory().setSelectedRole(selectedRole).create();
+    BodRole selectedRole = BodRole.createUser();
+    RichUserDetails user = new RichUserDetailsFactory().addBodRoles(selectedRole).create();
 
     Security.setUserDetails(user);
+    Security.switchToUser();
+
     RedirectAttributes model = new ModelStub();
 
     String page = subject.index(model);

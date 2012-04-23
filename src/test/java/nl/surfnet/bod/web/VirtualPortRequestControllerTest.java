@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 
+import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -81,7 +82,8 @@ public class VirtualPortRequestControllerTest {
     UserGroup group2 = new UserGroupFactory().setName("B").create();
     UserGroup group3 = new UserGroupFactory().setName("C").create();
 
-    user = new RichUserDetailsFactory().addUserGroup(group3).addUserGroup(group1).addUserGroup(group2).create();
+    user = new RichUserDetailsFactory().addBodRoles(BodRole.createUser()).addUserGroup(group3).addUserGroup(group1)
+        .addUserGroup(group2).create();
 
     Security.setUserDetails(user);
   }
@@ -246,6 +248,7 @@ public class VirtualPortRequestControllerTest {
 
   @Test
   public void doNotSwitchRoleWhenUserHasSelectedRole() {
+
     ModelStub model = new ModelStub();
     PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().setActive(true).create();
 
@@ -258,9 +261,7 @@ public class VirtualPortRequestControllerTest {
     when(virtualResourceGroupServiceMock.findBySurfconextGroupId("urn:user-group")).thenReturn(null);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
 
-    // Give user a selectedRole
-    user.setSelectedRole(new BodRoleFactory().create());
-    String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
+    subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
 
     assertThat("Context should not be cleared", SecurityContextHolder.getContext().getAuthentication(), notNullValue());
 
@@ -271,6 +272,10 @@ public class VirtualPortRequestControllerTest {
 
   @Test
   public void doSwitchRoleWhenUserHasNoSelectedRole() {
+    user = new RichUserDetailsFactory().addBodRoles(BodRole.createNewUser())
+        .addUserGroup(new UserGroupFactory().setId("urn:user-group").create()).create();
+    Security.setUserDetails(user);
+
     ModelStub model = new ModelStub();
     PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().setActive(true).create();
 
@@ -283,9 +288,7 @@ public class VirtualPortRequestControllerTest {
     when(virtualResourceGroupServiceMock.findBySurfconextGroupId("urn:user-group")).thenReturn(null);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
 
-    // Give user a selectedRole
-    user.setSelectedRole(null);
-    String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
+    subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
 
     assertThat("Context should not be cleared", SecurityContextHolder.getContext().getAuthentication(), nullValue());
 

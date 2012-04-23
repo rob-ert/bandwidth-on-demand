@@ -40,7 +40,7 @@ public class SwitchRoleController {
     RichUserDetails userDetails = Security.getUserDetails();
 
     if (StringUtils.hasText(roleId)) {
-      userDetails.switchRoleById(Long.valueOf(roleId));
+      userDetails.switchToRoleById(Long.valueOf(roleId));
     }
 
     return determineViewNameAndAddAttributes(userDetails.getSelectedRole(), redirectAttribs);
@@ -77,7 +77,7 @@ public class SwitchRoleController {
 
   String createNewActivationLinkForm(Object... args) {
     return String.format(WebUtils.getMessage(messageSource, "info_physicalresourcegroup_not_activated")
-        + "<a href=\"%s?id=%s\" class=\"btn btn-primary\" data-form=\"true\" data-success=\"%s\">Resend email</a>",
+        + " <a href=\"%s?id=%s\" class=\"btn btn-primary\" data-form=\"true\" data-success=\"%s\">Resend email</a>",
         args);
   }
 }

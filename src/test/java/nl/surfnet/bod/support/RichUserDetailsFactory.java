@@ -29,7 +29,6 @@ import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
 
 import com.google.common.collect.Lists;
 
@@ -41,43 +40,37 @@ public class RichUserDetailsFactory {
   private String displayName = "Truus Visscher";
   private String email = "truus@example.com";
   private Collection<UserGroup> userGroups = Lists.newArrayList();
-  private BodRole selectedRole = null;
   private List<BodRole> bodRoles = Lists.newArrayList();
 
   public RichUserDetails create() {
-    RichUserDetails userDetails = new RichUserDetails(username, displayName, email, userGroups);
-    userDetails.addBodRoles(bodRoles);
-    userDetails.switchRoleTo(selectedRole);
+    if (bodRoles.isEmpty()) {
+      // should always have one role
+      bodRoles.add(BodRole.createNewUser());
+    }
+
+    RichUserDetails userDetails = new RichUserDetails(username, displayName, email, userGroups, bodRoles);
 
     return userDetails;
   }
 
   public RichUserDetailsFactory addUserRole() {
-    BodRole userRole = new BodRole(new UserGroupFactory().setId("urn:user").create(), Security.RoleEnum.USER);
+    BodRole userRole = BodRole.createUser();
     bodRoles.add(userRole);
-
-    selectedRole = userRole;
-
     return this;
   }
 
   public RichUserDetailsFactory addNocRole() {
-    BodRole nocRole = new BodRole(new UserGroupFactory().setId("urn:noc").create(), Security.RoleEnum.NOC_ENGINEER);
+    BodRole nocRole = BodRole.createNocEngineer();
     bodRoles.add(nocRole);
-
-    selectedRole = nocRole;
     return this;
   }
 
   public RichUserDetailsFactory addManagerRole() {
-    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setAdminGroup(MANAGER_GROUP_ID)
-        .create();
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setAdminGroup(MANAGER_GROUP_ID).create();
 
-    BodRole managerRole = new BodRole(new UserGroupFactory().setId(MANAGER_GROUP_ID).create(),
-        Security.RoleEnum.ICT_MANAGER, physicalResourceGroup);
+    BodRole managerRole = BodRole.createManager(prg);
     bodRoles.add(managerRole);
 
-    selectedRole = managerRole;
     return this;
   }
 
@@ -107,8 +100,9 @@ public class RichUserDetailsFactory {
     return this;
   }
 
-  public RichUserDetailsFactory setSelectedRole(BodRole selectedRole) {
-    this.selectedRole = selectedRole;
+  public RichUserDetailsFactory addBodRoles(BodRole... roles) {
+    this.bodRoles.addAll(Arrays.asList(roles));
+
     return this;
   }
 

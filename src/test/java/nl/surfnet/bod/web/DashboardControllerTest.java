@@ -35,11 +35,13 @@ import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.support.ModelStub;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.UserGroupFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.DashboardController.TeamView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,7 +66,7 @@ public class DashboardControllerTest {
   private ReservationService reservationServiceMock;
 
   @Test
-  public void whenUserHasNoVirtualResourceGroupsShouldGoToSpecialView() {
+  public void whenUserHasNoUserRoleShouldGoToSpecialView() {
     RichUserDetails user = new RichUserDetailsFactory().create();
 
     Security.setUserDetails(user);
@@ -77,9 +79,23 @@ public class DashboardControllerTest {
   }
 
   @Test
+  public void whenUserHasNewUserRoleShouldGoToSpecialView() {
+    BodRole selectedRole = BodRole.createNewUser();
+    RichUserDetails user = new RichUserDetailsFactory().addBodRoles(selectedRole).create();
+
+    Security.setUserDetails(user);
+    Model model = new ModelStub();
+
+    String page = subject.index(model);
+
+    assertThat(page, is("noUserRole"));
+    assertThat(model.asMap(), hasKey("userGroups"));
+  }
+
+  @Test
   public void showDashboardForUser() {
-    BodRole selectedRole = new BodRoleFactory().setRole(RoleEnum.USER).create();
-    RichUserDetails user = new RichUserDetailsFactory().setSelectedRole(selectedRole).create();
+    BodRole selectedRole = BodRole.createUser();
+    RichUserDetails user = new RichUserDetailsFactory().addBodRoles(selectedRole).create();
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
 
     Security.setUserDetails(user);
@@ -91,18 +107,20 @@ public class DashboardControllerTest {
 
     assertThat(page, is("index"));
     assertThat(model.asMap(), hasKey("teams"));
+    List<TeamView> views = (List<TeamView>) model.asMap().get("teams");
+    assertThat(views, hasSize(1));
   }
 
   @Test
   public void groupsShouldBeSorted() {
-    BodRole selectedRole = new BodRoleFactory().setRole(RoleEnum.USER).create();
+    BodRole selectedRole = BodRole.createUser();
 
     UserGroup userGroup1 = new UserGroupFactory().setName("A").setId("urn:a").create();
     UserGroup userGroup2 = new UserGroupFactory().setName("B").setId("urn:b").create();
     UserGroup userGroup3 = new UserGroupFactory().setName("C").setId("urn:c").create();
     UserGroup userGroup4 = new UserGroupFactory().setName("D").setId("urn:d").create();
 
-    RichUserDetails user = new RichUserDetailsFactory().setSelectedRole(selectedRole)
+    RichUserDetails user = new RichUserDetailsFactory().addBodRoles(selectedRole)
         .addUserGroup(userGroup1, userGroup2, userGroup3, userGroup4).create();
 
     VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().setName("A").setSurfconextGroupId("urn:a").create();

@@ -11,7 +11,6 @@ import javax.servlet.http.HttpSession;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.support.BodRoleFactory;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -41,7 +40,7 @@ public class SwitchRoleControllerTest {
 
   @Mock
   private HttpSession mockSession;
-  
+
   @Mock
   private MessageSource messageSourceMock;
 
@@ -62,8 +61,10 @@ public class SwitchRoleControllerTest {
   @Test
   public void testSwitchRoleWithActivePrg() {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(101L).setActive(true).create();
-    BodRole role = new BodRoleFactory().setPhysicalResourceGroup(group).create();
-    user.setSelectedRole(role);
+    BodRole role = BodRole.createManager(group);
+
+    user = new RichUserDetailsFactory().addBodRoles(role).create();
+    Security.setUserDetails(user);
 
     when(physicalResourceGroupService.find(group.getId())).thenReturn(group);
 
@@ -71,14 +72,16 @@ public class SwitchRoleControllerTest {
     Model redirectAttribs = new ModelStub();
     String view = subject.switchRole(String.valueOf(role.getId()), uiModel, (RedirectAttributes) redirectAttribs);
 
-     assertThat(view, is(role.getRole().getViewName()));     
+    assertThat(view, is(role.getRole().getViewName()));
   }
-  
+
   @Test
   public void testSwitchRoleWithNotActivePrg() {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(101L).create();
-    BodRole role = new BodRoleFactory().setPhysicalResourceGroup(group).create();
-    user.setSelectedRole(role);
+    BodRole role = BodRole.createManager(group);
+
+    user = new RichUserDetailsFactory().addBodRoles(role).create();
+    Security.setUserDetails(user);
 
     when(physicalResourceGroupService.find(group.getId())).thenReturn(group);
 
@@ -86,7 +89,7 @@ public class SwitchRoleControllerTest {
     Model redirectAttribs = new ModelStub();
     String view = subject.switchRole(String.valueOf(role.getId()), uiModel, (RedirectAttributes) redirectAttribs);
 
-     assertThat(view, is("redirect:manager/physicalresourcegroups/edit?id="+ group.getId()));     
+    assertThat(view, is("redirect:manager/physicalresourcegroups/edit?id=" + group.getId()));
   }
 
   @Test

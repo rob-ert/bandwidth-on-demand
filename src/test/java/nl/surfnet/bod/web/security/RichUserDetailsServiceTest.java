@@ -22,29 +22,21 @@
 package nl.surfnet.bod.web.security;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
+import java.util.Collection;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.service.GroupService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.InstituteFactory;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.UserGroupFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,9 +44,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RichUserDetailsServiceTest {
@@ -74,17 +70,19 @@ public class RichUserDetailsServiceTest {
   }
 
   @Test
-  public void aNobody() {
+  public void userWithoutTeamsShouldGetUserAuthority() {
     RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
         "urn:alanvdam", "Alan van Dam", "alan@test.com"), "N/A"));
 
     assertThat(userDetails.getNameId(), is("urn:alanvdam"));
     assertThat(userDetails.getDisplayName(), is("Alan van Dam"));
-    assertThat(userDetails.getAuthorities(), hasSize(0));
+
+    assertThat(userDetails.getAuthorities(), hasSize(1));
+    assertThat(Iterables.getOnlyElement(userDetails.getAuthorities()).getAuthority(), is(RoleEnum.USER.name()));
   }
 
   @Test
-  public void aNormalUser() {
+  public void aUserWithOneTeamShouldGetTheUserAuthority() {
     ImmutableList<UserGroup> userGroups = listOf(new UserGroupFactory().setId("urn:klimaat-onderzoekers").create());
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(userGroups);
     when(vrgServiceMock.findByUserGroups(userGroups)).thenReturn(listOf(new VirtualResourceGroupFactory().create()));
@@ -94,12 +92,13 @@ public class RichUserDetailsServiceTest {
 
     assertThat(userDetails.getNameId(), is("urn:alanvdam"));
     assertThat(userDetails.getDisplayName(), is("Alan van Dam"));
+
     assertThat(userDetails.getAuthorities(), hasSize(1));
     assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is(Security.RoleEnum.USER.name()));
   }
 
   @Test
-  public void aNocEngineer() {
+  public void aNocEngineerShouldGetAuthoritiesNocAndUser() {
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(
         listOf(new UserGroupFactory().setId("urn:noc-engineer").create()));
 
@@ -107,25 +106,35 @@ public class RichUserDetailsServiceTest {
 
     assertThat(userDetails.getNameId(), is("urn:alanvdam"));
     assertThat(userDetails.getDisplayName(), is("Alan van Dam"));
-    assertThat(userDetails.getAuthorities(), hasSize(1));
-    assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is(Security.RoleEnum.NOC_ENGINEER.name()));
+
+    assertThat(userDetails.getBodRoles(), hasSize(2));
+    assertThat(userDetails.getAuthorities(), hasSize(2));
+
+    assertThat(userDetails.getAuthorities(),
+        hasItem(Matchers.<GrantedAuthority> hasProperty("authority", is(RoleEnum.NOC_ENGINEER.name()))));
+
+    assertThat(userDetails.getAuthorities(),
+        hasItem(Matchers.<GrantedAuthority> hasProperty("authority", is(RoleEnum.USER.name()))));
   }
 
   @Test
-  public void aIctManager() {
+  public void aManagerShouldGetAuthoritiesManagerAndUser() {
     UserGroup userGroup = new UserGroupFactory().setId("urn:ict-manager").create();
 
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(listOf(userGroup));
-    
+
     when(prgServiceMock.hasRelatedPhysicalResourceGroup(userGroup)).thenReturn(true);
-    
+
     when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(
         listOf(new PhysicalResourceGroupFactory().create()));
 
     RichUserDetails userDetails = subject.loadUserDetails(createToken("urn:alanvdam"));
 
-    assertThat(userDetails.getAuthorities(), hasSize(1));
-    assertThat(userDetails.getAuthorities().iterator().next().getAuthority(), is(Security.RoleEnum.ICT_MANAGER.name()));
+    assertThat(userDetails.getAuthorities(), hasSize(2));
+    assertThat(userDetails.getAuthorities(),
+        hasItem(Matchers.<GrantedAuthority> hasProperty("authority", is(RoleEnum.ICT_MANAGER.name()))));
+    assertThat(userDetails.getAuthorities(),
+        hasItem(Matchers.<GrantedAuthority> hasProperty("authority", is(RoleEnum.USER.name()))));
   }
 
   @Test
@@ -149,23 +158,6 @@ public class RichUserDetailsServiceTest {
   }
 
   @Test
-  public void shouldAddRole() {
-    UserGroup userGroup = new UserGroupFactory().setId("urn:nameGroup").setName("new name").create();
-
-    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
-
-    when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(listOf(userGroup));
-    when(prgServiceMock.hasRelatedPhysicalResourceGroup(userGroup)).thenReturn(true);
-    when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg));
-
-    RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
-        "urn:alanvdam", "Alan van Dam", "alan@test.com"), "N/A"));
-
-    assertThat(userDetails.getSelectedRole(), notNullValue());
-    assertThat(userDetails.getBodRoles(), hasSize(0));
-  }
-
-  @Test
   public void shouldSetDefaultSelectedRole() {
     UserGroup userGroup = new UserGroupFactory().setId("urn:nameGroup").setName("new name").create();
 
@@ -178,8 +170,8 @@ public class RichUserDetailsServiceTest {
     RichUserDetails userDetails = subject.loadUserDetails(new PreAuthenticatedAuthenticationToken(new RichPrincipal(
         "urn:alanvdam", "Alan van Dam", "alan@test.com"), "N/A"));
 
-    assertThat(userDetails.getSelectedRole(), notNullValue());
-
+    assertThat(userDetails.getBodRoles(), hasSize(2));
+    assertThat(userDetails.getSelectedRole().getRole(), is(RoleEnum.ICT_MANAGER));
   }
 
   @Test
@@ -195,35 +187,30 @@ public class RichUserDetailsServiceTest {
     // Force role Manager
     when(prgServiceMock.hasRelatedPhysicalResourceGroup(userGroup)).thenReturn(true);
 
-    List<BodRole> roles = subject.determineRoles(userDetails.getUserGroups());
+    Collection<BodRole> roles = subject.determineRoles(userDetails.getUserGroups());
 
-    assertThat(roles, hasSize(1));
-    BodRole bodRole = roles.get(0);
+    assertThat(roles, hasSize(2));
 
-    assertThat(bodRole.getGroupId(), is(userGroup.getId()));
-    assertThat(bodRole.getGroupName(), is(userGroup.getName()));
-    assertThat(bodRole.getGroupDescription(), is(userGroup.getDescription()));
-    assertThat(bodRole.getInstituteId(), is(institute.getId()));
-    assertThat(bodRole.getInstituteName(), is(institute.getName()));
-    assertThat(bodRole.getRoleName(), is(Security.RoleEnum.ICT_MANAGER.name()));
+    BodRole managerRole = Iterables.find(roles, new Predicate<BodRole>() {
+      @Override
+      public boolean apply(BodRole role) {
+        return role.getRole() == RoleEnum.ICT_MANAGER;
+      }
+    });
+
+    assertThat(managerRole.getInstituteName(), is(institute.getName()));
+    assertThat(managerRole.getPhysicalResourceGroupId(), is(prg.getId()));
   }
 
   @Test
   public void shouldBeNocRole() {
     UserGroup userGroup = new UserGroupFactory().setId(subject.getNocEngineerGroupId()).setName("new name").create();
 
-    List<BodRole> roles = subject.determineRoles(listOf(userGroup));
-    assertThat(roles, hasSize(1));
+    Collection<BodRole> roles = subject.determineRoles(listOf(userGroup));
 
-    assertThat(Security.RoleEnum.NOC_ENGINEER, is(roles.get(0).getRole()));
-  }
-
-  @Test
-  public void shouldNotBeNocRole() {
-    UserGroup userGroup = new UserGroupFactory().setId("nonoc").setName("new name").create();
-
-    List<BodRole> roles = subject.determineRoles(listOf(userGroup));
-    assertThat(roles, hasSize(0));
+    assertThat(roles, hasSize(2));
+    assertThat(roles, Matchers.<BodRole> hasItems(hasProperty("role", is(RoleEnum.NOC_ENGINEER))));
+    assertThat(roles, Matchers.<BodRole> hasItems(hasProperty("role", is(RoleEnum.NEW_USER))));
   }
 
   @Test
@@ -234,40 +221,25 @@ public class RichUserDetailsServiceTest {
     when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg));
     when(prgServiceMock.hasRelatedPhysicalResourceGroup(userGroup)).thenReturn(true);
 
-    List<BodRole> roles = subject.determineRoles(listOf(userGroup));
-    assertThat(roles, hasSize(1));
+    Collection<BodRole> roles = subject.determineRoles(listOf(userGroup));
 
-    assertThat(Security.RoleEnum.ICT_MANAGER, is(roles.get(0).getRole()));
-  }
+    assertThat(roles, hasSize(2));
 
-  @Test
-  public void shouldNotBeManagerRole() {
-    UserGroup userGroup = new UserGroupFactory().setName("new name").create();
-
-    List<BodRole> roles = subject.determineRoles(listOf(userGroup));
-    assertThat(roles, hasSize(0));
-
+    assertThat(roles, Matchers.<BodRole> hasItems(hasProperty("role", is(RoleEnum.ICT_MANAGER))));
+    assertThat(roles, Matchers.<BodRole> hasItems(hasProperty("role", is(RoleEnum.NEW_USER))));
   }
 
   @Test
   public void shouldBeUserRole() {
     UserGroup userGroup = new UserGroupFactory().setName("new name").create();
-
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
+
     when(vrgServiceMock.findByUserGroups(listOf(userGroup))).thenReturn(listOf(vrg));
-    List<BodRole> roles = subject.determineRoles(listOf(userGroup));
+
+    Collection<BodRole> roles = subject.determineRoles(listOf(userGroup));
 
     assertThat(roles, hasSize(1));
-    assertThat(Security.RoleEnum.USER, is(roles.get(0).getRole()));
-  }
-
-  @Test
-  public void shouldNotBeUserRole() {
-    UserGroup userGroup = new UserGroupFactory().create();
-
-    List<BodRole> roles = subject.determineRoles(listOf(userGroup));
-
-    assertThat(roles, hasSize(0));
+    assertThat(Security.RoleEnum.USER, is(Iterables.getOnlyElement(roles).getRole()));
   }
 
   @Test
@@ -277,12 +249,12 @@ public class RichUserDetailsServiceTest {
     VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().create();
     VirtualResourceGroup vrg2 = new VirtualResourceGroupFactory().create();
 
-    when(vrgServiceMock.findByUserGroups(listOf(userGroup1))).thenReturn(listOf(vrg1));
-    when(vrgServiceMock.findByUserGroups(listOf(userGroup2))).thenReturn(listOf(vrg2));
-    List<BodRole> roles = subject.determineRoles(listOf(userGroup1, userGroup2));
+    when(vrgServiceMock.findByUserGroups(anyCollection())).thenReturn(listOf(vrg1, vrg2));
+
+    Collection<BodRole> roles = subject.determineRoles(listOf(userGroup1, userGroup2));
 
     assertThat(roles, hasSize(1));
-    assertThat(Security.RoleEnum.USER, is(roles.get(0).getRole()));
+    assertThat(Iterables.getOnlyElement(roles).getRole(), is(Security.RoleEnum.USER));
   }
 
   @Test
@@ -294,16 +266,21 @@ public class RichUserDetailsServiceTest {
     when(prgServiceMock.findByAdminGroup(userGroup.getId())).thenReturn(listOf(prg1, prg2));
     when(prgServiceMock.hasRelatedPhysicalResourceGroup(userGroup)).thenReturn(true);
 
-    List<BodRole> roles = subject.determineRoles(listOf(userGroup));
-    assertThat(roles, hasSize(2));
+    Collection<BodRole> roles = subject.determineRoles(listOf(userGroup));
 
-    assertThat(roles.get(0).getRole(), is(Security.RoleEnum.ICT_MANAGER));
-    assertThat(roles.get(1).getRole(), is((Security.RoleEnum.ICT_MANAGER)));
-    
-    //Different institutes
-    assertThat(roles.get(0).getInstituteId(), not(roles.get(1).getInstituteId()));
+    assertThat(roles, hasSize(3));
+
+    Collection<BodRole> managerRoles = Collections2.filter(roles, new Predicate<BodRole>() {
+      @Override
+      public boolean apply(BodRole role) {
+        return role.getRole() == RoleEnum.ICT_MANAGER;
+      }
+    });
+    assertThat(managerRoles, hasSize(2));
+
+    assertThat(Iterables.get(managerRoles, 0).getPhysicalResourceGroupId(), not(Iterables.get(managerRoles, 1)
+        .getPhysicalResourceGroupId()));
   }
-
 
   private static <E> ImmutableList<E> listOf(E... elements) {
     return ImmutableList.copyOf(elements);

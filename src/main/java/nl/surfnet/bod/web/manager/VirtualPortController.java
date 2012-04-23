@@ -32,7 +32,6 @@ import javax.validation.constraints.NotNull;
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.InstituteService;
-import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.AbstractSortableListController;
 import nl.surfnet.bod.web.WebUtils;
@@ -83,9 +82,6 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   private VirtualPortValidator virtualPortValidator;
 
   @Autowired
-  private ReservationService reservationService;
-
-  @Autowired
   private MessageSource messageSource;
 
   @RequestMapping(method = RequestMethod.POST)
@@ -122,16 +118,16 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
     if (requestLink == null) {
       WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualportrequestlink_notvalid");
-      return "redirect:/manager/virtualports";
+      return "redirect:/";
     }
 
     if (!Security.isManagerMemberOf(requestLink.getPhysicalResourceGroup())) {
       WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualportrequestlink_notmanager");
-      return "redirect:/manager/virtualports";
+      return "redirect:/";
     }
 
-    // Switch to related manager role
-    Security.getUserDetails().switchToManagerRoleByPhysicalResourceGroup(requestLink.getPhysicalResourceGroup());
+    Security.switchToManager(requestLink.getPhysicalResourceGroup());
+
     instituteService.fillInstituteForPhysicalResourceGroup(requestLink.getPhysicalResourceGroup());
 
     VirtualPort virtualPort = new VirtualPort();

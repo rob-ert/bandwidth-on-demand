@@ -38,7 +38,7 @@ import com.google.common.collect.Iterables;
 public final class Security {
 
   public enum RoleEnum {
-    NOC_ENGINEER("redirect:noc", 1), ICT_MANAGER("redirect:manager", 2), USER("redirect:user", 3);
+    NOC_ENGINEER("redirect:noc", 1), ICT_MANAGER("redirect:manager", 2), USER("redirect:user", 3), NEW_USER("redirect:user", 4);
 
     private String viewName;
     private int sortOrder;
@@ -91,31 +91,20 @@ public final class Security {
     return selectedRole != null ? selectedRole.getRole() == RoleEnum.NOC_ENGINEER : false;
   }
 
-  public static boolean hasNocEngineerRole() {
-    return getUserDetails().findFirstBodRoleByRole(RoleEnum.NOC_ENGINEER) != null;
-  }
-
-  public static boolean hasIctManagerRole() {
-    return getUserDetails().findFirstBodRoleByRole(RoleEnum.ICT_MANAGER) != null;
-  }
-
   public static boolean hasUserRole() {
-    return getUserDetails().findFirstBodRoleByRole(RoleEnum.USER) != null;
+    return getUserDetails().hasUserRole();
   }
 
-  public void switchRoleToUser() {
-    BodRole userRole = getUserDetails().findFirstBodRoleByRole(RoleEnum.USER);
-    getUserDetails().switchRoleTo(userRole);
+  public static void switchToUser() {
+    getUserDetails().switchToUser();
   }
 
-  public void switchRoleToNocEngineer() {
-    BodRole nocRole = getUserDetails().findFirstBodRoleByRole(RoleEnum.NOC_ENGINEER);
-    getUserDetails().switchRoleTo(nocRole);
+  public static void switchToManager(PhysicalResourceGroup prg) {
+    getUserDetails().switchToManager(prg);
   }
 
-  public void switchRoleToFirstManager() {
-    BodRole managerRole = getUserDetails().findFirstBodRoleByRole(RoleEnum.ICT_MANAGER);
-    getUserDetails().switchRoleTo(managerRole);
+  public static void switchToNocEngineer() {
+    getUserDetails().trySwitchToNoc();
   }
 
   public static boolean isUserMemberOf(String groupId) {

@@ -24,59 +24,49 @@ package nl.surfnet.bod.web.security;
 import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Lists.newArrayList;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.web.security.Security.RoleEnum;
 
-import org.slf4j.Logger;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.util.CollectionUtils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
 @SuppressWarnings("serial")
 public class RichUserDetails implements UserDetails {
 
-  private static final Ordering<BodRole> SORT_BY_SORT_ORDER_AND_INSTITUTE_NAME = Ordering
-      .from(new Comparator<BodRole>() {
-        @Override
-        public int compare(BodRole role1, BodRole role2) {
-          return (String.valueOf(role1.getRole().getSortOrder()) + role1.getInstituteName()).compareTo(String
-              .valueOf(role2.getRole().getSortOrder()) + role2.getInstituteName());
-        }
-      });
-
-  private final Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
-
   private final String username;
   private final String displayName;
   private final String email;
   private final Collection<UserGroup> userGroups;
-  private Set<GrantedAuthority> authorities = Sets.newHashSet();
-  private Set<BodRole> bodRoles = Sets.newHashSet();
+  private final List<BodRole> bodRoles;
+
   private BodRole selectedRole;
 
-  public RichUserDetails(String username, String displayName, String email, Collection<UserGroup> userGroups) {
+  public RichUserDetails(String username, String displayName, String email, Collection<UserGroup> userGroups,
+      Collection<BodRole> roles) {
     this.username = username;
     this.displayName = displayName;
     this.userGroups = userGroups;
     this.email = email;
+
+    bodRoles = Orderings.bodRoleOrdering().sortedCopy(roles);
+
+    switchToRole(bodRoles.get(0));
   }
 
   @Override
@@ -134,48 +124,17 @@ public class RichUserDetails implements UserDetails {
     return true;
   }
 
-  /**
-   * Adds a {@link BodRole} for the user and mutates the related
-   * {@link #authorities}
-   * 
-   * @param roles
-   *          Collection of BodRole
-   */
-  public void addBodRoles(Collection<BodRole> roles) {
-
-    if (roles == null) {
-      return;
-    }
-
-    this.bodRoles.addAll(roles);
-
-    this.bodRoles.remove(null);
-
-    for (BodRole bodRole : this.bodRoles) {
-      authorities.add(new GrantedAuthorityImpl(bodRole.getRoleName()));
-    }
+  public List<BodRole> getSelectableRoles() {
+    return Lists.newArrayList(Iterables.filter(bodRoles, new Predicate<BodRole>() {
+      @Override
+      public boolean apply(BodRole role) {
+        return !role.equals(selectedRole);
+      }
+    }));
   }
 
   public List<BodRole> getBodRoles() {
-    return SORT_BY_SORT_ORDER_AND_INSTITUTE_NAME.sortedCopy(bodRoles);
-  }
-
-  /**
-   * 
-   * @return All {@link #bodRoles} and the {@link #selectedRole} if not null
-   */
-  public List<BodRole> getAllBodRoles() {
-    ArrayList<BodRole> allRoles = Lists.newArrayList(getBodRoles());
-
-    if (selectedRole != null) {
-      allRoles.add(selectedRole);
-    }
-
-    return allRoles;
-  }
-
-  public void setSelectedRole(BodRole role) {
-    this.selectedRole = role;
+    return bodRoles;
   }
 
   public BodRole getSelectedRole() {
@@ -184,57 +143,39 @@ public class RichUserDetails implements UserDetails {
 
   @Override
   public Collection<GrantedAuthority> getAuthorities() {
-    return ImmutableList.copyOf(authorities);
-  }
-
-  @Override
-  public String toString() {
-    return Objects.toStringHelper(this).add("nameId", getNameId()).add("displayName", getDisplayName())
-        .add("bodRoles", bodRoles).add("selectedRole", selectedRole).toString();
-  }
-
-  public BodRole findBodRoleById(final Long bodRoleId) {
-
-    BodRole foundRole = null;
-
-    Collection<BodRole> filteredRoles = Collections2.filter(bodRoles, new Predicate<BodRole>() {
+    return Sets.newHashSet(Collections2.transform(bodRoles, new Function<BodRole, GrantedAuthority>() {
       @Override
-      public boolean apply(BodRole input) {
-        return input.getId().equals(bodRoleId);
+      public GrantedAuthority apply(BodRole role) {
+        if (role.getRole() == RoleEnum.NEW_USER) {
+          return new GrantedAuthorityImpl(RoleEnum.USER.name());
+        }
+        return new GrantedAuthorityImpl(role.getRoleName());
+      }
+    }));
+  }
+
+  private BodRole findBodRoleById(final Long bodRoleId) {
+    return Iterables.find(bodRoles, new Predicate<BodRole>() {
+      @Override
+      public boolean apply(BodRole bodRole) {
+        return bodRole.getId().equals(bodRoleId);
       }
     });
-
-    if (!CollectionUtils.isEmpty(filteredRoles)) {
-      if (filteredRoles.size() == 1) {
-        foundRole = filteredRoles.iterator().next();
-      }
-      else {
-        throw new IllegalStateException("Multiple BodRoles found, while one expected for id: " + bodRoleId);
-      }
-    }
-    else {
-      log.warn("No role to switch to for id: {} ", bodRoleId);
-    }
-    return foundRole;
   }
 
-  public BodRole findFirstBodRoleByRole(RoleEnum role) {
-    BodRole foundRole = null;
-
-    for (BodRole bodRole : getAllBodRoles()) {
-      if (bodRole.getRole() == role) {
-        foundRole = bodRole;
-        break;
+  private BodRole findFirstBodRoleByRole(final RoleEnum role) {
+    return Iterables.find(bodRoles, new Predicate<BodRole>() {
+      @Override
+      public boolean apply(BodRole bodRole) {
+        return bodRole.getRole() == role;
       }
-    }
-
-    return foundRole;
+    }, null);
   }
 
-  public void switchToManagerRoleByPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
+  public void switchToManager(PhysicalResourceGroup physicalResourceGroup) {
     BodRole managerRole = null;
 
-    for (BodRole bodRole : getAllBodRoles()) {
+    for (BodRole bodRole : bodRoles) {
       if ((bodRole.getRole() == RoleEnum.ICT_MANAGER)
           && (physicalResourceGroup.getId().equals(bodRole.getPhysicalResourceGroupId()))) {
 
@@ -243,34 +184,46 @@ public class RichUserDetails implements UserDetails {
       }
     }
 
-    switchRoleTo(managerRole);
+    switchToRole(managerRole);
   }
 
-  public void switchRoleById(Long bodRoleId) {
+  public void switchToRoleById(Long bodRoleId) {
     BodRole bodRole = findBodRoleById(bodRoleId);
-    switchRoleTo(bodRole);
+    switchToRole(bodRole);
   }
 
-  /**
-   * Switches the BodRole to the given role. Adds the previous selected rol back
-   * to the list of roles and removes the newly selected role from the list. In
-   * case the given roll is null, no actions are performed.
-   * 
-   * @param bodRole
-   *          The role to switch to
-   */
-  public void switchRoleTo(BodRole bodRole) {
+  private void switchToRole(BodRole bodRole) {
+    Preconditions.checkNotNull(bodRole);
 
-    if (bodRole == null) {
-      return;
-    }
-
-    if ((selectedRole != null) && (!bodRoles.contains(selectedRole))) {
-      bodRoles.add(selectedRole);
-    }
-
-    bodRoles.remove(bodRole);
     selectedRole = bodRole;
   }
+
+  public void trySwitchToNoc() {
+    BodRole nocRole = findFirstBodRoleByRole(RoleEnum.NOC_ENGINEER);
+    if (nocRole != null) {
+      switchToRole(nocRole);
+    }
+  }
+
+  public void switchToUser() {
+    BodRole userRole = findFirstBodRoleByRole(RoleEnum.USER);
+
+    if (userRole == null) {
+      userRole = findFirstBodRoleByRole(RoleEnum.NEW_USER);
+    }
+
+    switchToRole(userRole);
+  }
+
+  public boolean hasUserRole() {
+    return findFirstBodRoleByRole(RoleEnum.USER) != null;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this).add("nameId", getNameId()).add("displayName", getDisplayName())
+        .add("bodRoles", bodRoles).add("selectedRole", selectedRole).toString();
+  }
+
 
 }

@@ -42,7 +42,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class ActivationEmailController {
 
   public static final String ACTIVATION_MANAGER_PATH = "/manager/activate";
-  private static final String MODEL_KEY = "link";
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -57,47 +56,43 @@ public class ActivationEmailController {
     ActivationEmailLink<PhysicalResourceGroup> link = physicalResourceGroupService.findActivationLink(uuid);
 
     if (link == null) {
-      return "index";
+      return "redirect:/";
     }
 
-    uiModel.addAttribute(MODEL_KEY, link);
     PhysicalResourceGroup physicalResourceGroup = link.getSourceObject();
-    if (physicalResourceGroup == null) {
-      return "index";
-    }
 
-    uiModel.addAttribute("physicalResourceGroup", physicalResourceGroup);
     if (!Security.isManagerMemberOf(physicalResourceGroup)) {
       WebUtils.addInfoMessage(uiModel, "User %s is not allowed to activate physical resource group %s", Security
           .getUserDetails().getDisplayName(), physicalResourceGroup.getName());
+
       log.debug("Manager [{}] has no right to access physical resourcegroup: {}", Security.getUserDetails()
           .getUsername(), physicalResourceGroup.getName());
-      return "index";
+
+      return "redirect:/";
     }
 
+    uiModel.addAttribute("link", link);
+    uiModel.addAttribute("physicalResourceGroup", physicalResourceGroup);
+
+    Security.switchToManager(physicalResourceGroup);
+
     if (link.isActivated()) {
-      log.debug("Link [{}] already activated on: {}", link.getUuid(), link.getActivationDateTime());
       return "manager/linkActive";
     }
-    else if (!link.getSourceObject().getManagerEmail().equals(link.getToEmail())) {
-      log.debug("Email address [{}] of physical resource group [{}] differs from the link [{}]", new Object[] {
-          physicalResourceGroup.getManagerEmail(), link.getSourceObject().getName(), link.getToEmail() });
+    else if (emailHasChanged(link)) {
       return "manager/linkChanged";
     }
     else if (link.isValid()) {
       physicalResourceGroupService.activate(link);
 
-      // TODO Roles shoud be reload here, in case the user just has become a
-      // manager by activation of the link
-      Security.getUserDetails().switchToManagerRoleByPhysicalResourceGroup(physicalResourceGroup);
-
       return "manager/emailConfirmed";
     }
 
-    log.debug("Link [{}} for physical resource group [{}] was not valid", link.getUuid(),
-        physicalResourceGroup.getName());
-
     return "manager/linkNotValid";
+  }
+
+  private boolean emailHasChanged(ActivationEmailLink<PhysicalResourceGroup> link) {
+    return !link.getSourceObject().getManagerEmail().equals(link.getToEmail());
   }
 
   @RequestMapping(method = RequestMethod.POST)

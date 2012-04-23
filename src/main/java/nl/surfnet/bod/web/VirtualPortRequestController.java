@@ -139,12 +139,14 @@ public class VirtualPortRequestController {
     }
 
     VirtualResourceGroup vrg = virtualResourceGroupService.findBySurfconextGroupId(userGroup.getId());
+    boolean shouldClearSecurityContext = false;
     if (vrg == null) {
       vrg = new VirtualResourceGroup();
       vrg.setName(userGroup.getName());
       vrg.setSurfconextGroupId(userGroup.getId());
       vrg.setDescription(userGroup.getDescription());
       virtualResourceGroupService.save(vrg);
+      shouldClearSecurityContext = true;
     }
 
     virtualPortService.requestNewVirtualPort(Security.getUserDetails(), vrg, prg, requestCommand.getBandwidth(),
@@ -153,8 +155,9 @@ public class VirtualPortRequestController {
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_send", prg.getInstitute()
         .getName());
 
-    // in case a new vrg was created make sure the user sees it, but prevent unnecessary switching of roles
-    if (Security.getUserDetails().getSelectedRole() == null) {
+    // in case a new vrg was created and the user has no user role, clear the security context
+    // prevent switching to a different role when it is not needed
+    if (shouldClearSecurityContext && !Security.hasUserRole()) {
       SecurityContextHolder.clearContext();
     }
 

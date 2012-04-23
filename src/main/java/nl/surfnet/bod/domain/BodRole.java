@@ -14,34 +14,42 @@ import com.google.common.base.Objects;
  * {@link Security.RoleEnum#USER} are prevented even if the are related to
  * different groups. Multiple {@link RoleEnum#ICT_MANAGER} roles are allowed, as
  * long as they are related to different {@link #instituteId}s.
- * 
+ *
  * @author Franky
- * 
+ *
  */
-public class BodRole {
+public final class BodRole {
 
   private static final AtomicLong COUNTER = new AtomicLong();
 
   private final Long id;
-  private final String groupId;
-  private final String groupName;
-  private final String groupDescription;
   private final RoleEnum role;
-  private Long instituteId;
   private String instituteName;
   private Long physicalResourceGroupId;
 
-  public BodRole(UserGroup userGroup, Security.RoleEnum role) {
+  public static BodRole createNewUser() {
+    return new BodRole(RoleEnum.NEW_USER);
+  }
+
+  public static BodRole createUser() {
+    return new BodRole(RoleEnum.USER);
+  }
+
+  public static BodRole createNocEngineer() {
+    return new BodRole(RoleEnum.NOC_ENGINEER);
+  }
+
+  public static BodRole createManager(PhysicalResourceGroup prg) {
+    return new BodRole(RoleEnum.ICT_MANAGER, prg);
+  }
+
+  private BodRole(Security.RoleEnum role) {
     this.id = COUNTER.incrementAndGet();
-    this.groupId = userGroup.getId();
-    this.groupName = userGroup.getName();
-    this.groupDescription = userGroup.getDescription();
     this.role = role;
   }
 
-  public BodRole(UserGroup userGroup, Security.RoleEnum role, PhysicalResourceGroup physicalResourceGroup) {
-    this(userGroup, role);
-    this.instituteId = physicalResourceGroup.getInstituteId();
+  private BodRole(Security.RoleEnum role, PhysicalResourceGroup physicalResourceGroup) {
+    this(role);
     this.instituteName = physicalResourceGroup.getName();
     this.physicalResourceGroupId = physicalResourceGroup.getId();
   }
@@ -54,24 +62,8 @@ public class BodRole {
     return instituteName;
   }
 
-  public Long getInstituteId() {
-    return instituteId;
-  }
-
   public Long getPhysicalResourceGroupId() {
     return physicalResourceGroupId;
-  }
-
-  public String getGroupId() {
-    return groupId;
-  }
-
-  public String getGroupName() {
-    return groupName;
-  }
-
-  public String getGroupDescription() {
-    return groupDescription;
   }
 
   public String getRoleName() {
@@ -89,10 +81,10 @@ public class BodRole {
     }
 
     if (obj instanceof BodRole) {
-      BodRole bodRole = (BodRole) obj;
+      BodRole other = (BodRole) obj;
 
-      return Objects.equal(this.role, bodRole.getRole())
-          && Objects.equal(this.physicalResourceGroupId, bodRole.getPhysicalResourceGroupId());
+      return Objects.equal(this.role, other.getRole())
+          && Objects.equal(this.physicalResourceGroupId, other.getPhysicalResourceGroupId());
     }
     else {
       return false;
@@ -106,9 +98,7 @@ public class BodRole {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("id", id).add("groupId", groupId).add("groupName", groupName)
-        .add("groupDescription", groupDescription).add("role", role).add("instituteId", instituteId)
+    return Objects.toStringHelper(this).add("id", id).add("role", role)
         .add("instituteName", instituteName).add("physicalResourceGroupId", physicalResourceGroupId).toString();
   }
-
 }

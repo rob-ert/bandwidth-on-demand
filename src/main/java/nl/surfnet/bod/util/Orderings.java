@@ -1,5 +1,6 @@
 package nl.surfnet.bod.util;
 
+import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -29,6 +30,14 @@ public final class Orderings {
     }
   };
 
+  private static final Ordering<BodRole> ROLE_ORDERING = new Ordering<BodRole>() {
+        @Override
+        public int compare(BodRole role1, BodRole role2) {
+          return (String.valueOf(role1.getRole().getSortOrder()) + role1.getInstituteName()).compareTo(String
+              .valueOf(role2.getRole().getSortOrder()) + role2.getInstituteName());
+        }
+  };
+
   private Orderings() {
   }
 
@@ -42,5 +51,9 @@ public final class Orderings {
 
   public static Ordering<PhysicalResourceGroup> prgNameOrdering() {
     return PRG_ORDERING;
+  }
+
+  public static Ordering<BodRole> bodRoleOrdering() {
+    return ROLE_ORDERING;
   }
 }
