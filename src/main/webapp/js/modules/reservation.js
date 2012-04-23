@@ -49,7 +49,7 @@ app.reservation = function() {
     var updateReservationRow = function(id, newStatus) {
 
         var row = $('tr[data-reservationId="'+id+'"]'),
-            cell = row.find('td').eq(3).wrapInner('<span></span>'),
+            cell = row.find('td').eq(6).wrapInner('<span></span>'),
             span = cell.find('span');
 
         cell.css({
