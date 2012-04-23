@@ -48,6 +48,17 @@ public final class BodRole {
   private String instituteName;
   private Long physicalResourceGroupId;
 
+  private BodRole(Security.RoleEnum role) {
+    this.id = COUNTER.incrementAndGet();
+    this.role = role;
+  }
+
+  private BodRole(Security.RoleEnum role, PhysicalResourceGroup physicalResourceGroup) {
+    this(role);
+    this.instituteName = physicalResourceGroup.getName();
+    this.physicalResourceGroupId = physicalResourceGroup.getId();
+  }
+
   public static BodRole createNewUser() {
     return new BodRole(RoleEnum.NEW_USER);
   }
@@ -62,17 +73,6 @@ public final class BodRole {
 
   public static BodRole createManager(PhysicalResourceGroup prg) {
     return new BodRole(RoleEnum.ICT_MANAGER, prg);
-  }
-
-  private BodRole(Security.RoleEnum role) {
-    this.id = COUNTER.incrementAndGet();
-    this.role = role;
-  }
-
-  private BodRole(Security.RoleEnum role, PhysicalResourceGroup physicalResourceGroup) {
-    this(role);
-    this.instituteName = physicalResourceGroup.getName();
-    this.physicalResourceGroupId = physicalResourceGroup.getId();
   }
 
   public Long getId() {
