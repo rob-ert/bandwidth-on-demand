@@ -85,7 +85,7 @@
                         <table:column item="${item}" property="bandwidth" append="${mbit_label}" />
                         <table:column item="${item}" property="startDateTime" />
                         <table:column item="${item}" property="endDateTime" />
-                        <table:column item="${item}" property="status" />
+                        <table:column item="${item}" property="status" styleClass="status" />
                         <table:actionsColumn item="${item}" update="false"
                             delete="${not (item.status eq 'CANCELLED' or item.status eq 'FAILED' or item.status eq 'SUCCEEDED')}" deleteLabelCode="label_cancel"
                             path="/reservations" labelCode="label_reservation" />
