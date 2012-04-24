@@ -82,7 +82,7 @@ public interface EndPoint {
           asyncContext.complete();
         }
         catch (IOException e) {
-          e.printStackTrace();
+          logger.warn("Could not sent async message", e);
         }
       }
       else {
