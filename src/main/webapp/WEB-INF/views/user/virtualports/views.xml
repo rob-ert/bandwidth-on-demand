@@ -2,25 +2,25 @@
 <!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN" "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
 <tiles-definitions>
     <definition extends="default" name="virtualports/list">
-        <put-attribute name="body" value="/WEB-INF/views/virtualports/list.jspx" />
+        <put-attribute name="body" value="/WEB-INF/views/user/virtualports/list.jspx" />
         <put-attribute name="active_menu" value="virtualport" cascade="true" />
     </definition>
 
     <definition extends="default" name="requestVirtualPortLayout">
-        <put-attribute name="body" value="/WEB-INF/views/virtualports/requestLayout.jspx" />
+        <put-attribute name="body" value="/WEB-INF/views/user/virtualports/requestLayout.jspx" />
         <put-attribute name="active_menu" value="virtualport" cascade="true" />
     </definition>
 
     <definition extends="requestVirtualPortLayout" name="virtualports/selectInstitute">
-        <put-attribute name="requestBody" value="/WEB-INF/views/virtualports/selectInstitute.jspx" cascade="true" />
+        <put-attribute name="requestBody" value="/WEB-INF/views/user/virtualports/selectInstitute.jspx" cascade="true" />
     </definition>
 
     <definition extends="requestVirtualPortLayout" name="virtualports/requestform">
-        <put-attribute name="requestBody" value="/WEB-INF/views/virtualports/requestForm.jspx" cascade="true" />
+        <put-attribute name="requestBody" value="/WEB-INF/views/user/virtualports/requestForm.jspx" cascade="true" />
     </definition>
 
     <definition extends="default" name="virtualports/update">
-        <put-attribute name="body" value="/WEB-INF/views/virtualports/update.jspx" />
+        <put-attribute name="body" value="/WEB-INF/views/user/virtualports/update.jspx" />
         <put-attribute name="active_menu" value="virtualport" cascade="true" />
     </definition>
 

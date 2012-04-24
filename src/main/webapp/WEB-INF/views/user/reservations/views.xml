@@ -2,11 +2,11 @@
 <!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN" "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
 <tiles-definitions>
     <definition extends="default" name="reservations/list">
-        <put-attribute name="body" value="/WEB-INF/views/reservations/list.jspx" />
+        <put-attribute name="body" value="/WEB-INF/views/user/reservations/list.jspx" />
         <put-attribute name="active_menu" value="reservation" cascade="true" />
     </definition>
         <definition extends="default" name="reservations/create">
-        <put-attribute name="body" value="/WEB-INF/views/reservations/create.jspx" />
+        <put-attribute name="body" value="/WEB-INF/views/user/reservations/create.jspx" />
         <put-attribute name="active_menu" value="reservation" cascade="true" />
     </definition>    
 </tiles-definitions>

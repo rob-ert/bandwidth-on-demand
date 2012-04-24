@@ -27,7 +27,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.web.ReservationController;
+import nl.surfnet.bod.web.user.ReservationController;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.ReadablePeriod;

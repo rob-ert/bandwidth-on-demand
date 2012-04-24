@@ -19,10 +19,15 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.web;
+package nl.surfnet.bod.web.user;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -36,7 +41,13 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.support.ModelStub;
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.web.MessageView;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;

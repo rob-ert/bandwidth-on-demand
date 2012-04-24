@@ -19,7 +19,7 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.web;
+package nl.surfnet.bod.web.user;
 
 import static nl.surfnet.bod.util.Orderings.prgNameOrdering;
 
@@ -35,6 +35,7 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.Security;
 
 import org.hibernate.validator.constraints.NotEmpty;

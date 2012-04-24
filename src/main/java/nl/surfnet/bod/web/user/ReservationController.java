@@ -19,11 +19,19 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.web;
+package nl.surfnet.bod.web.user;
 
 import static nl.surfnet.bod.util.Orderings.vpUserLabelOrdering;
 import static nl.surfnet.bod.util.Orderings.vrgNameOrdering;
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.CREATE;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
+import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
 
 import java.util.Collection;
 import java.util.List;
@@ -37,6 +45,9 @@ import nl.surfnet.bod.domain.validator.ReservationValidator;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
+import nl.surfnet.bod.web.AbstractSortableListController;
+import nl.surfnet.bod.web.MessageView;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
@@ -51,7 +62,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;

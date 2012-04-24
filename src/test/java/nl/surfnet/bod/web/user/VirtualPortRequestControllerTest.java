@@ -19,10 +19,14 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.web;
+package nl.surfnet.bod.web.user;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -40,10 +44,15 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.*;
-import nl.surfnet.bod.web.VirtualPortRequestController.RequestCommand;
+import nl.surfnet.bod.support.InstituteFactory;
+import nl.surfnet.bod.support.ModelStub;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.UserGroupFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.user.VirtualPortRequestController.RequestCommand;
 
 import org.junit.Before;
 import org.junit.Test;
