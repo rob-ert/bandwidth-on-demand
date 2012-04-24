@@ -376,7 +376,7 @@ class NbiOpenDracWsClient implements NbiClient {
       start.setTime(reservation.getStartDateTime().toDate());
     }
     else {
-      log.info("No startTime specified, using now: {0}", start);
+      log.info("No startTime specified, using now: {}", start);
       //Update reservation
       reservation.setStartDateTime(LocalDateTime.fromCalendarFields(start));
     }
