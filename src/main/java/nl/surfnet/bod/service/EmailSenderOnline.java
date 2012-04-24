@@ -98,7 +98,7 @@ public class EmailSenderOnline implements EmailSender {
     SimpleMailMessage mail = new MailMessageBuilder()
         .withTo(requestLink.getPhysicalResourceGroup().getManagerEmail())
         .withReplyTo(from.getEmail())
-        .withSubject(VirtualPortRequestMail.subject(requestLink.getPhysicalResourceGroup().getInstitute().getName()))
+        .withSubject(VirtualPortRequestMail.subject(from))
         .withBodyText(VirtualPortRequestMail.body(from, requestLink, link))
         .create();
 

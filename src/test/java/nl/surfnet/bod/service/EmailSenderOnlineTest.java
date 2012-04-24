@@ -35,11 +35,7 @@ import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.support.ActivationEmailLinkFactory;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.junit.Before;
@@ -112,7 +108,8 @@ public class EmailSenderOnlineTest {
 
     assertThat(message.getReplyTo(), is(user.getEmail()));
     assertThat(message.getTo()[0], is(pGroup.getManagerEmail()));
-    assertThat(message.getText(), containsString("Physical Resource Group: " + pGroup.getInstitute().getName()));
+    assertThat(message.getSubject(), containsString(user.getDisplayName()));
+    assertThat(message.getText(), containsString("Institute: " + pGroup.getInstitute().getName()));
     assertThat(message.getText(), containsString("Reason: " + requestMessage));
     assertThat(message.getText(), containsString("Bandwidth: " + bandwidth));
   }
