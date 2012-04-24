@@ -41,7 +41,6 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSortableListController;
 
@@ -69,9 +68,6 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
   @Autowired
   private PhysicalPortService physicalPortService;
-
-  @Autowired
-  private VirtualPortService virutalPortService;
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
@@ -147,7 +143,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   *
+   * 
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
