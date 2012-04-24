@@ -5,18 +5,18 @@
 <jsp:directive.page contentType="text/html;charset=UTF-8" />
 <jsp:output omit-xml-declaration="yes" />
 
-<page:list id="groups" items="${groups}" singleLabelCode="Group" pluralLabelCode="Groups">
+<page:list id="groups" items="${teams}" singleLabelCode="SURFconext Team" pluralLabelCode="SURFconext Teams">
     <div class="form">
         <div class="message">
-            <h3>Your groups</h3>
+            <h3>Your SURFconext teams</h3>
         </div>
         <dl class="dl">
-            <c:forEach var="group" items="${groups}">
+            <c:forEach var="team" items="${teams}">
                 <dt>
-                    ${group.name} (${group.description})
+                    ${team.name} (${team.description})
                 </dt>
                 <dd>
-                    ${group.id}
+                    ${team.id}
                 </dd>
             </c:forEach>
         </dl>

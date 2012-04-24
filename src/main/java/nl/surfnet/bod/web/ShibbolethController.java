@@ -29,24 +29,23 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/shibboleth")
 public class ShibbolethController {
 
-  @RequestMapping("/groups")
+  @RequestMapping("/teams")
   public String list(final Model uiModel) {
-    uiModel.addAttribute("groups", Security.getUserDetails().getUserGroups());
+    uiModel.addAttribute("teams", Security.getUserDetails().getUserGroups());
 
-    return "shibboleth/groups";
+    return "shibboleth/teams";
   }
 
-  @RequestMapping("/refresh")
+  @RequestMapping("/shibboleth/refresh")
   public String refreshGroups() {
     SecurityContextHolder.clearContext();
 
     return "redirect:/";
   }
 
-  @RequestMapping("/info")
+  @RequestMapping("/shibboleth/info")
   public String info() {
     return "shibboleth/info";
   }

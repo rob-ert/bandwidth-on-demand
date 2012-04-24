@@ -47,8 +47,8 @@ public class ShibbolethControllerTest {
 
     subject.list(model);
 
-    assertThat(model.asMap(), hasKey("groups"));
-    assertThat((Collection<UserGroup>) model.asMap().get("groups"), hasSize(1));
+    assertThat(model.asMap(), hasKey("teams"));
+    assertThat((Collection<UserGroup>) model.asMap().get("teams"), hasSize(1));
   }
 
 }
