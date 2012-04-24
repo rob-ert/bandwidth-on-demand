@@ -25,7 +25,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.web.AbstractSortableListController;
+import nl.surfnet.bod.web.base.AbstractSortableListController;
 import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;

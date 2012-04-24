@@ -29,6 +29,7 @@ import java.util.List;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.web.base.AbstractSortableListController;
 import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;

@@ -30,7 +30,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.web.AbstractSortableListController;
+import nl.surfnet.bod.web.base.AbstractSortableListController;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
