@@ -40,16 +40,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(ReservationController.PAGE_URL)
 public class ReservationController extends AbstractFilteredReservationController {
 
-  public static final String PAGE_URL = "/manager/reservations";
-  
+  public static final String PAGE_URL = "manager/reservations";
+
   @Override
   protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
-    model.addAttribute("maxPages", WebUtils.calculateMaxPages(reservationService.countForFilterAndManager(filter)));
+    model.addAttribute("maxPages",
+        WebUtils.calculateMaxPages(reservationService.countForFilterAndManager(Security.getUserDetails(), filter)));
 
-    List<ReservationView> reservationViews = transformReservationToReservationView(reservationService.findEntriesForManagerUsingFilter(
-        Security.getUserDetails(), filter, firstPage, maxItems, sort));
+    List<ReservationView> reservationViews = transformReservationToReservationView(reservationService
+        .findEntriesForManagerUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems, sort));
 
     return reservationViews;
   }

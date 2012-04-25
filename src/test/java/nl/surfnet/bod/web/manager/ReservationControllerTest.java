@@ -22,14 +22,10 @@
 package nl.surfnet.bod.web.manager;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasKey;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
-
-import java.util.List;
-
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ModelStub;

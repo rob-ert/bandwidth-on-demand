@@ -228,9 +228,9 @@ public class ReservationService {
   }
 
   private Specification<Reservation> specFilteredReservationsForManager(final ReservationFilterView filter,
-      final RichUserDetails user) {
+      final RichUserDetails manager) {
 
-    return Specifications.where(specFilteredReservations(filter)).and(forManager(user));
+    return Specifications.where(specFilteredReservations(filter)).and(forManager(manager));
   }
 
   private Specification<Reservation> specFilteredReservations(final ReservationFilterView filter) {
@@ -281,12 +281,12 @@ public class ReservationService {
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
-  public long countForFilterAndCurrentUser(ReservationFilterView filter) {
-    return reservationRepo.count(specFilteredReservationsForUser(filter, Security.getUserDetails()));
+  public long countForFilterAndUser(RichUserDetails user, ReservationFilterView filter) {
+    return reservationRepo.count(specFilteredReservationsForUser(filter, user));
   }
 
-  public long countForFilterAndManager(ReservationFilterView filter) {
-    return reservationRepo.count(specFilteredReservationsForManager(filter, Security.getUserDetails()));
+  public long countForFilterAndManager(RichUserDetails manager, ReservationFilterView filter) {
+    return reservationRepo.count(specFilteredReservationsForManager(filter, manager));
   }
 
   public long countAllEntriesUsingFilter(final ReservationFilterView filter) {
