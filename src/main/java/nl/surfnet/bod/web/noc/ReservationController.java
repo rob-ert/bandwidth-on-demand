@@ -62,10 +62,9 @@ public class ReservationController extends AbstractSortableListController<Reserv
   public static final String FILTER_ELAPSED_PERIOD = "elapsed";
 
   static final String PAGE_URL = "noc/reservations";
-
   static final String MODEL_KEY = "reservation";
 
-  private static final Function<Reservation, ReservationView> TO_RESERVATION_VIEW = new Function<Reservation, ReservationView>() {
+   static final Function<Reservation, ReservationView> TO_RESERVATION_VIEW = new Function<Reservation, ReservationView>() {
     @Override
     public ReservationView apply(Reservation reservation) {
       return new ReservationView(reservation);
@@ -137,7 +136,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
       @RequestParam(value = "sort", required = false) String sort,
       @RequestParam(value = "order", required = false) String order, @PathVariable(value = "filterId") String filterId,
       Model model) {
-
+    
     ReservationFilterView reservationFilter = reservationFilterViewFactory.create(filterId);
     model.addAttribute(FILTER_SELECT, reservationFilter);
 
@@ -171,5 +170,6 @@ public class ReservationController extends AbstractSortableListController<Reserv
   protected long count() {
     throw new UnsupportedOperationException("Only filtered lists are supported");
   }
+
 
 }

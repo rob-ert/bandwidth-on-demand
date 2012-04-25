@@ -42,9 +42,9 @@ import com.google.common.base.Objects;
 /**
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
- *
+ * 
  * @author Franky
- *
+ * 
  */
 @Entity
 public class Reservation {
@@ -150,7 +150,7 @@ public class Reservation {
   }
 
   /**
-   *
+   * 
    * @return LocalTime the time part of the {@link #startDateTime}
    */
   public LocalTime getStartTime() {
@@ -159,7 +159,7 @@ public class Reservation {
 
   /**
    * Sets the time part of the {@link #startDateTime}
-   *
+   * 
    * @param startTime
    */
   public void setStartTime(LocalTime startTime) {
@@ -187,7 +187,7 @@ public class Reservation {
   }
 
   /**
-   *
+   * 
    * @return LocalDate The date part of the {@link #getStartDateTime()}
    */
   public LocalDate getStartDate() {
@@ -196,7 +196,7 @@ public class Reservation {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   *
+   * 
    * @param startDate
    */
   public void setStartDate(LocalDate startDate) {
@@ -216,7 +216,7 @@ public class Reservation {
   }
 
   /**
-   *
+   * 
    * @return LocalDate the date part of the {@link #endDateTime}
    */
   public LocalDate getEndDate() {
@@ -225,7 +225,7 @@ public class Reservation {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   *
+   * 
    * @param endDate
    */
   public void setEndDate(LocalDate endDate) {
@@ -244,7 +244,7 @@ public class Reservation {
   }
 
   /**
-   *
+   * 
    * @return LocalTime The time part of the {@link #endDateTime}
    */
   public LocalTime getEndTime() {
@@ -253,7 +253,7 @@ public class Reservation {
 
   /**
    * Sets the time part of the {@link #endDateTime}
-   *
+   * 
    * @param endTime
    */
   public void setEndTime(LocalTime endTime) {
@@ -331,4 +331,31 @@ public class Reservation {
     this.name = name;
   }
 
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(id, name, virtualResourceGroup, status, failedMessage, sourcePort, destinationPort,
+        startDateTime, endDateTime, userCreated, bandwidth, creationDateTime);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj instanceof Reservation) {
+      Reservation res = (Reservation) obj;
+
+      return Objects.equal(this.id, res.id) && Objects.equal(this.name, res.name)
+          && Objects.equal(this.virtualResourceGroup, res.virtualResourceGroup)
+          && Objects.equal(this.status, res.status) && Objects.equal(this.failedMessage, res.failedMessage)
+          && Objects.equal(this.sourcePort, res.sourcePort) && Objects.equal(this.destinationPort, res.destinationPort)
+          && Objects.equal(this.startDateTime, res.startDateTime) && Objects.equal(this.endDateTime, res.endDateTime)
+          && Objects.equal(this.userCreated, res.userCreated) && Objects.equal(this.bandwidth, res.bandwidth)
+          && Objects.equal(this.creationDateTime, res.creationDateTime);
+    }
+    else {
+      return false;
+    }
+  }
 }

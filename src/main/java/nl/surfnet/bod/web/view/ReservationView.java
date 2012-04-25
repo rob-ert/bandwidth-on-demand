@@ -27,6 +27,8 @@ import nl.surfnet.bod.domain.ReservationStatus;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.LocalDateTime;
 
+import com.google.common.base.Objects;
+
 public class ReservationView {
   private final Long id;
   private final String name;
@@ -111,4 +113,36 @@ public class ReservationView {
   public String getName() {
     return name;
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj instanceof ReservationView) {
+      ReservationView resView = (ReservationView) obj;
+
+      return Objects.equal(this.id, resView.id) && Objects.equal(this.name, resView.name)
+          && Objects.equal(this.virtualResourceGroup, resView.virtualResourceGroup)
+          && Objects.equal(this.status, resView.status) && Objects.equal(this.failedMessage, resView.failedMessage)
+          && Objects.equal(this.sourcePort, resView.sourcePort)
+          && Objects.equal(this.destinationPort, resView.destinationPort)
+          && Objects.equal(this.startDateTime, resView.startDateTime)
+          && Objects.equal(this.endDateTime, resView.endDateTime)
+          && Objects.equal(this.userCreated, resView.userCreated) && Objects.equal(this.bandwidth, resView.bandwidth)
+          && Objects.equal(this.creationDateTime, resView.creationDateTime)
+          && Objects.equal(this.reservationId, resView.reservationId);
+    }
+    else {
+      return false;
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(id, virtualResourceGroup, sourcePort, destinationPort, status, failedMessage,
+        startDateTime, endDateTime, bandwidth, userCreated, reservationId, creationDateTime, name);
+  }
+
 }
