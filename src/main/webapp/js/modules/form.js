@@ -83,10 +83,14 @@ app.form = function(){
             return Math.min.apply(null, selectedValues);
         }
 
-        var activateBandwidthButton = function(multiplier) {
+        var calculateBandwidth = function(multiplier) {
+            return Math.floor(getMaxBandwidth() * multiplier);
+        }
+
+        var activateBandwidthButton = function() {
 
             $('[data-component="bandwidth-selector"] button').each(function(i, element) {
-                if(parseFloat(element.getAttribute('data-bandwidth-multiplier')) === multiplier) {
+                if(calculateBandwidth(parseFloat(element.getAttribute('data-bandwidth-multiplier'))) === bandwidth) {
                     $(element).addClass('active');
                 } else {
                     $(element).removeClass('active');
@@ -97,7 +101,7 @@ app.form = function(){
 
         $('[data-component="bandwidth-selector"] input').on('change', function(event) {
 
-            bandwidth = parseFloat(event.target.value);
+            bandwidth = parseInt(event.target.value);
 
             activateBandwidthButton(bandwidth / getMaxBandwidth());
 
@@ -111,9 +115,9 @@ app.form = function(){
 
             if(event.clientX === 0) { return; } // For some weird reason, this 'click' event was also fired on change of the input...?!
 
-            bandwidth = getMaxBandwidth() * parseFloat(event.target.getAttribute('data-bandwidth-multiplier'));
+            bandwidth = calculateBandwidth(parseFloat(event.target.getAttribute('data-bandwidth-multiplier')));
 
-            input.val(bandwidth).trigger('change');
+            input.val(Math.floor(bandwidth)).trigger('change');
 
         });
 
@@ -123,7 +127,7 @@ app.form = function(){
 
         });
 
-        activateBandwidthButton(bandwidth / getMaxBandwidth());
+        activateBandwidthButton();
 
     }
 
