@@ -123,7 +123,7 @@ public class ReservationView {
     if (obj instanceof ReservationView) {
       ReservationView resView = (ReservationView) obj;
 
-      return Objects.equal(this.id, resView.id) && Objects.equal(this.name, resView.name)
+      return Objects.equal(this.id, resView.id)
           && Objects.equal(this.virtualResourceGroup, resView.virtualResourceGroup)
           && Objects.equal(this.status, resView.status) && Objects.equal(this.failedMessage, resView.failedMessage)
           && Objects.equal(this.sourcePort, resView.sourcePort)
@@ -132,7 +132,7 @@ public class ReservationView {
           && Objects.equal(this.endDateTime, resView.endDateTime)
           && Objects.equal(this.userCreated, resView.userCreated) && Objects.equal(this.bandwidth, resView.bandwidth)
           && Objects.equal(this.creationDateTime, resView.creationDateTime)
-          && Objects.equal(this.reservationId, resView.reservationId);
+          && Objects.equal(this.reservationId, resView.reservationId) && Objects.equal(this.name, resView.name);
     }
     else {
       return false;

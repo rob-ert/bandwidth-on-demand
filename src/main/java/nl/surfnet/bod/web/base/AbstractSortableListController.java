@@ -104,7 +104,14 @@ public abstract class AbstractSortableListController<T> {
 
   private boolean doesPropertyExist(String order) {
     try {
-      ParameterizedType type = (ParameterizedType) getClass().getGenericSuperclass();
+      ParameterizedType type;
+      if (getClass().getGenericSuperclass() instanceof ParameterizedType) {
+        type = (ParameterizedType) getClass().getGenericSuperclass();
+      }
+      else {
+        type = (ParameterizedType) getClass().getSuperclass().getGenericSuperclass();
+      }
+
       BeanInfo beanInfo = Introspector.getBeanInfo(((Class<?>) type.getActualTypeArguments()[0]));
 
       for (PropertyDescriptor property : beanInfo.getPropertyDescriptors()) {

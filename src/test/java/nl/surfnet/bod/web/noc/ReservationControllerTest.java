@@ -74,9 +74,9 @@ public class ReservationControllerTest {
 
   @Test
   public void shouldHaveMaxPageOnModel() {
-    subject.list(page, "sort", "order", filter2012.getId(), model);
+    subject.list(page, "id", "asc", filter2012.getId(), model);
 
-    assertThat((Integer) model.asMap().get("maxPages"), is((WebUtils.calculateMaxPages(size))));
+    assertThat((Integer) model.asMap().get("maxPages"), is(Integer.valueOf(WebUtils.calculateMaxPages(size.longValue()))));
   }
 
 }
