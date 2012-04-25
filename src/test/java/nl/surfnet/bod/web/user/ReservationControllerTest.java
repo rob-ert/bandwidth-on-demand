@@ -152,7 +152,7 @@ public class ReservationControllerTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(LocalDateTime.now().plusDays(1)).create();
 
     when(
-        reservationServiceMock.findReservationsEntriesForUserUsingFilter(any(RichUserDetails.class),
+        reservationServiceMock.findEntriesForUserUsingFilter(any(RichUserDetails.class),
             any(ReservationFilterView.class), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
         Lists.newArrayList(reservation));
 
@@ -170,7 +170,7 @@ public class ReservationControllerTest {
     Reservation reservation = new ReservationFactory().create();
 
     when(
-        reservationServiceMock.findReservationsEntriesForUserUsingFilter(any(RichUserDetails.class),
+        reservationServiceMock.findEntriesForUserUsingFilter(any(RichUserDetails.class),
             any(ReservationFilterView.class), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
         Lists.newArrayList(reservation));
     subject.list(1, "nonExistingProperty", "nonExistingDirection", model);

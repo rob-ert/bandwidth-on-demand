@@ -76,7 +76,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 @RequestMapping(ReservationController.PAGE_URL)
-@Controller
+@Controller(value = "userReservationController")
 public class ReservationController extends AbstractSortableListController<ReservationView> {
 
   public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
@@ -242,7 +242,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
    *          {@link WebUtils#DATA_LIST}
    * @param request
    * @return
-   */
+   */  
   @RequestMapping(value = "/filter/{filterId}", method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
@@ -266,7 +266,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
     model.addAttribute("maxPages", WebUtils.calculateMaxPages(reservationService.countForFilterAndCurrentUser(filter)));
 
     List<ReservationView> reservationViews = Lists.transform(reservationService
-        .findReservationsEntriesForUserUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems, sort),
+        .findEntriesForUserUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems, sort),
         TO_RESERVATION_VIEW);
 
     model.addAttribute(WebUtils.DATA_LIST, reservationViews);
@@ -299,7 +299,7 @@ public class ReservationController extends AbstractSortableListController<Reserv
 
   @Override
   protected long count() {
-    return reservationService.count();
+    return reservationService.countForUser(Security.getUserDetails());
   }
 
 }

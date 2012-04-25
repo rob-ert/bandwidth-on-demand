@@ -83,7 +83,7 @@ public final class WebUtils {
   }
 
   /**
-   *
+   * 
    * @return The user selected PhysicalResourceGroupId
    */
   public static Long getSelectedPhysicalResourceGroupId() {
@@ -94,7 +94,7 @@ public final class WebUtils {
   /**
    * Adds an infoMessage, depending on the type of {@link Model} it will will
    * survive a redirect.
-   *
+   * 
    * @param model
    *          Model to add the message to
    * @param message
@@ -144,7 +144,7 @@ public final class WebUtils {
    * Html escapes the argument and replaces them with the parameter placeholders
    * in the message. The parameter placeholders can be either "{}" or the
    * regular {@link String#format(String, Object...)} placeholders.
-   *
+   * 
    * @param message
    *          The message to parse
    * @param args
@@ -192,5 +192,9 @@ public final class WebUtils {
 
   public static String getMessage(MessageSource messageSource, String key, String... args) {
     return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());
+  }
+
+  public static boolean not(boolean expression) {
+    return !expression;
   }
 }

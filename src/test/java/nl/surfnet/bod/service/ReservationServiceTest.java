@@ -111,7 +111,7 @@ public class ReservationServiceTest {
     RichUserDetails richUserDetailsWithoutGroups = new RichUserDetailsFactory().create();
     Security.setUserDetails(richUserDetailsWithoutGroups);
 
-    long count = subject.count();
+    long count = subject.countForUser(richUserDetailsWithoutGroups);
 
     assertThat(count, is(0L));
   }
@@ -123,7 +123,7 @@ public class ReservationServiceTest {
 
     when(reservationRepoMock.count(any(Specification.class))).thenReturn(5L);
 
-    long count = subject.count();
+    long count = subject.countForUser(richUserDetailsWithGroups);
 
     assertThat(count, is(5L));
   }

@@ -80,7 +80,7 @@ public class ReservationService {
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   *
+   * 
    * @param reservation
    * @return
    */
@@ -118,9 +118,7 @@ public class ReservationService {
     return reservationRepo.findBySourcePortOrDestinationPort(port, port);
   }
 
-  public long count() {
-    final RichUserDetails user = Security.getUserDetails();
-
+  public long countForUser(RichUserDetails user) {
     if (user.getUserGroups().isEmpty()) {
       return 0;
     }
@@ -154,7 +152,7 @@ public class ReservationService {
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   *
+   * 
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -237,12 +235,18 @@ public class ReservationService {
   private Specification<Reservation> specFilteredReservationsForUser(final ReservationFilterView filter,
       final RichUserDetails user) {
 
+    return Specifications.where(specFilteredReservations(filter)).and(forCurrentUser(user));
+  }
+
+  private Specification<Reservation> specFilteredReservations(final ReservationFilterView filter) {
+    Specification<Reservation> specficiation = null;
+
     Specification<Reservation> filterSpecOnStart = new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         return cb.between(root.get(Reservation_.startDateTime), filter.getStart(), filter.getEnd());
       }
-    };
+    }; 
 
     Specification<Reservation> filterSpecOnEnd = new Specification<Reservation>() {
       @Override
@@ -252,24 +256,35 @@ public class ReservationService {
       }
     };
 
-    if (filter.isFilterOnReservationEndOnly()) {
-      return Specifications.where(filterSpecOnEnd).and(forCurrentUser(user));
+    specficiation = filterSpecOnEnd;
+
+    if (!filter.isFilterOnReservationEndOnly()) {
+      specficiation = Specifications.where(filterSpecOnEnd).or(filterSpecOnStart);
     }
-    else {
-      return Specifications.where(filterSpecOnEnd).or(filterSpecOnStart).and(forCurrentUser(user));
-    }
+
+    return specficiation;
   }
 
-  public List<Reservation> findReservationsEntriesForUserUsingFilter(final RichUserDetails user,
+  public List<Reservation> findEntriesForUserUsingFilter(final RichUserDetails user,
       final ReservationFilterView filter, int firstResult, int maxResults, Sort sort) {
 
     return reservationRepo.findAll(specFilteredReservationsForUser(filter, user),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+  }
 
+  public List<Reservation> findAllEntriesUsingFilter(final ReservationFilterView filter, int firstResult,
+      int maxResults, Sort sort) {
+
+    return reservationRepo.findAll(specFilteredReservations(filter),
+        new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
   public long countForFilterAndCurrentUser(ReservationFilterView filter) {
     return reservationRepo.count(specFilteredReservationsForUser(filter, Security.getUserDetails()));
+  }
+
+  public long countAllEntriesUsingFilter(final ReservationFilterView filter) {
+    return reservationRepo.count(specFilteredReservations(filter));
   }
 
   public long countForVirtualResourceGroup(VirtualResourceGroup vrg) {
@@ -285,9 +300,7 @@ public class ReservationService {
   }
 
   private long countForVirtualResourceGroup(VirtualResourceGroup vrg, ReservationStatus status) {
-    Specification<Reservation> spec = Specifications
-        .where(forVirtualResourceGroup(vrg))
-        .and(forStatus(status));
+    Specification<Reservation> spec = Specifications.where(forVirtualResourceGroup(vrg)).and(forStatus(status));
 
     return reservationRepo.count(spec);
   }
@@ -309,7 +322,7 @@ public class ReservationService {
 
   /**
    * Asynchronous {@link Reservation} creator.
-   *
+   * 
    */
   private final class ReservationSubmitter implements Runnable {
     private final Reservation reservation;
@@ -338,6 +351,10 @@ public class ReservationService {
 
   public List<Reservation> findReservationWithStatus(ReservationStatus... statuses) {
     return reservationRepo.findByStatusIn(Arrays.asList(statuses));
+  }
+
+  public long count() {
+    return reservationRepo.count();
   }
 
 }
