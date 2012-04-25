@@ -34,10 +34,12 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ReservationFilterView;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -58,7 +60,13 @@ public class ReservationControllerTest {
   @Mock
   private ReservationService reservationServiceMock;
 
+  @Mock
+  private ReservationFilterViewFactory reservationFilterViewFactoryMock;
+
   private final RichUserDetails manager = new RichUserDetailsFactory().create();
+
+  private ReservationFilterView filter = new ReservationFilterViewFactory()
+      .create(ReservationFilterViewFactory.COMMING);
 
   @Before
   public void login() {
@@ -71,15 +79,18 @@ public class ReservationControllerTest {
 
     Reservation reservation = new ReservationFactory().create();
 
-    when(
-        reservationServiceMock.findEntriesForManager(eq(manager), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE),
-            any(Sort.class))).thenReturn(Lists.newArrayList(reservation));
+    when(reservationFilterViewFactoryMock.create(filter.getId())).thenReturn(filter);
 
-    subject.list(null, null, null, model);
+    when(
+        reservationServiceMock.findEntriesForManagerUsingFilter(eq(manager), eq(filter), eq(0),
+            eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(Lists.newArrayList(reservation));
+
+    subject.list(0, "id", "asc", filter.getId(), model);
 
     assertThat(model.asMap(), hasKey("list"));
 
-    assertThat(((List<Reservation>) model.asMap().get("list")), contains(reservation));
+    // TODO move to abstractReservationController
+    // assertThat(((List<Reservation>) model.asMap().get("list")),
+    // contains(reservation));
   }
-
 }

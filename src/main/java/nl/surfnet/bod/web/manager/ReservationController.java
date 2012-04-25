@@ -21,44 +21,42 @@
  */
 package nl.surfnet.bod.web.manager;
 
+import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
+
 import java.util.List;
 
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ReservationFilterView;
+import nl.surfnet.bod.web.view.ReservationView;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller("managerReservationController")
-@RequestMapping("/manager/reservations")
-public class ReservationController extends AbstractSortableListController<Reservation> {
+@RequestMapping(ReservationController.PAGE_URL)
+public class ReservationController extends AbstractFilteredReservationController {
 
-  @Autowired
-  private ReservationService reservationService;
-
+  public static final String PAGE_URL = "/manager/reservations";
+  
   @Override
-  protected List<Reservation> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return reservationService.findEntriesForManager(Security.getUserDetails(), firstPage, maxItems, sort);
-  }
+  protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
+    ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
-  @Override
-  public long count() {
-    return reservationService.countForManager(Security.getUserDetails());
-  }
+    model.addAttribute("maxPages", WebUtils.calculateMaxPages(reservationService.countForFilterAndManager(filter)));
 
-  @Override
-  public String defaultSortProperty() {
-    return "name";
+    List<ReservationView> reservationViews = transformReservationToReservationView(reservationService.findEntriesForManagerUsingFilter(
+        Security.getUserDetails(), filter, firstPage, maxItems, sort));
+
+    return reservationViews;
   }
 
   @Override
   public String listUrl() {
-    return "manager/reservations/list";
+    return PAGE_URL + WebUtils.LIST;
   }
 
 }

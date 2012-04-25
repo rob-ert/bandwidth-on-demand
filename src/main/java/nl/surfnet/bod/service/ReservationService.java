@@ -161,17 +161,6 @@ public class ReservationService {
     return reservationRepo.findAll(specReservationsToPoll(dateTime));
   }
 
-  public List<Reservation> findEntriesForManager(final RichUserDetails manager, int firstResult, int maxResults,
-      Sort sort) {
-
-    return reservationRepo.findAll(forManager(manager), new PageRequest(firstResult / maxResults, maxResults, sort))
-        .getContent();
-  }
-
-  public long countForManager(final RichUserDetails manager) {
-    return reservationRepo.count(forManager(manager));
-  }
-
   private Specification<Reservation> forVirtualResourceGroup(final VirtualResourceGroup vrg) {
     return new Specification<Reservation>() {
       @Override
@@ -238,6 +227,12 @@ public class ReservationService {
     return Specifications.where(specFilteredReservations(filter)).and(forCurrentUser(user));
   }
 
+  private Specification<Reservation> specFilteredReservationsForManager(final ReservationFilterView filter,
+      final RichUserDetails user) {
+
+    return Specifications.where(specFilteredReservations(filter)).and(forManager(user));
+  }
+
   private Specification<Reservation> specFilteredReservations(final ReservationFilterView filter) {
     Specification<Reservation> specficiation = null;
 
@@ -246,7 +241,7 @@ public class ReservationService {
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         return cb.between(root.get(Reservation_.startDateTime), filter.getStart(), filter.getEnd());
       }
-    }; 
+    };
 
     Specification<Reservation> filterSpecOnEnd = new Specification<Reservation>() {
       @Override
@@ -272,6 +267,13 @@ public class ReservationService {
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
+  public List<Reservation> findEntriesForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter,
+      int firstResult, int maxResults, Sort sort) {
+
+    return reservationRepo.findAll(specFilteredReservationsForManager(filter, manager),
+        new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+  }
+
   public List<Reservation> findAllEntriesUsingFilter(final ReservationFilterView filter, int firstResult,
       int maxResults, Sort sort) {
 
@@ -281,6 +283,10 @@ public class ReservationService {
 
   public long countForFilterAndCurrentUser(ReservationFilterView filter) {
     return reservationRepo.count(specFilteredReservationsForUser(filter, Security.getUserDetails()));
+  }
+
+  public long countForFilterAndManager(ReservationFilterView filter) {
+    return reservationRepo.count(specFilteredReservationsForManager(filter, Security.getUserDetails()));
   }
 
   public long countAllEntriesUsingFilter(final ReservationFilterView filter) {

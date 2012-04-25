@@ -61,7 +61,7 @@ public class ReservationControllerTest {
     reservationsFor2012.addAll(reservations);
     size = new Integer(reservationsFor2012.size());
 
-    reservationViewsFor2012.addAll(Lists.transform(reservationsFor2012, ReservationController.TO_RESERVATION_VIEW));
+    reservationViewsFor2012.addAll(subject.transformReservationToReservationView(reservationsFor2012));
 
     when(reservationFilterViewFactoryMock.create(filter2012.getId())).thenReturn(filter2012);
 

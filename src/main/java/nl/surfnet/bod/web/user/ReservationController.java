@@ -65,14 +65,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller(value = "userReservationController")
 public class ReservationController extends AbstractFilteredReservationController {
 
   public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
-  
+
   static final String PAGE_URL = "reservations";
 
   static final String MODEL_KEY = "reservation";
@@ -192,11 +191,8 @@ public class ReservationController extends AbstractFilteredReservationController
 
     model.addAttribute("maxPages", WebUtils.calculateMaxPages(reservationService.countForFilterAndCurrentUser(filter)));
 
-    List<ReservationView> reservationViews = Lists.transform(
-        reservationService.findEntriesForUserUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems, sort),
-        TO_RESERVATION_VIEW);
-
-    return reservationViews;
+    return transformReservationToReservationView(reservationService.findEntriesForUserUsingFilter(
+        Security.getUserDetails(), filter, firstPage, maxItems, sort));
   }
 
   private Reservation createDefaultReservation(VirtualResourceGroup vrg) {

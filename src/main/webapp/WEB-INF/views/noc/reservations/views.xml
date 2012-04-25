@@ -3,7 +3,7 @@
 <tiles-definitions>
 
     <definition extends="noc" name="noc/reservations/list">
-        <put-attribute name="body" value="/WEB-INF/views/noc/reservations/list.jspx" />
+        <put-attribute name="body" value="/WEB-INF/views/reservations/list.jspx" />
         <put-attribute name="active_menu" value="reservations" cascade="true" />
     </definition>
     

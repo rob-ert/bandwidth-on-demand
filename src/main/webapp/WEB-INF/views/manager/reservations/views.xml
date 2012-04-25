@@ -3,7 +3,7 @@
 <tiles-definitions>
 
     <definition extends="manager" name="manager/reservations/list">
-        <put-attribute name="body" value="/WEB-INF/views/manager/reservations/list.jspx" />
+        <put-attribute name="body" value="/WEB-INF/views/reservations/list.jspx" />
         <put-attribute name="active_menu" value="reservation" cascade="true" />
     </definition>
     
