@@ -36,7 +36,7 @@ import com.google.common.collect.Lists;
  * @author Franky
  * 
  */
-public abstract class FilteredReservationController extends AbstractSortableListController<ReservationView> {
+public abstract class AbstractFilteredReservationController extends AbstractSortableListController<ReservationView> {
 
   protected static final String MODEL_KEY = "reservation";
 

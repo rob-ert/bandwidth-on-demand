@@ -76,7 +76,21 @@ public class ReservationControllerTest {
   public void shouldHaveMaxPageOnModel() {
     subject.list(page, "id", "asc", filter2012.getId(), model);
 
-    assertThat((Integer) model.asMap().get("maxPages"), is(Integer.valueOf(WebUtils.calculateMaxPages(size.longValue()))));
+    assertThat((Integer) model.asMap().get("maxPages"),
+        is(Integer.valueOf(WebUtils.calculateMaxPages(size.longValue()))));
   }
 
+  @Test
+  public void defaultListViewShouldRedirectToDefaultFilterView() {
+    String viewName = subject.list(page, "id", "asc", model);
+
+    assertThat(viewName, is("redirect:/noc/reservations/filter/" + ReservationFilterViewFactory.COMMING));
+  }
+
+  @Test
+  public void filteredViewShouldRedirectToListView() {
+    String viewName = subject.list(page, "id", "asc", filter2012.getId(), model);
+
+    assertThat(viewName, is(subject.listUrl()));
+  }
 }

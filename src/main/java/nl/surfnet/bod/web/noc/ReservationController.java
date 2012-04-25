@@ -27,7 +27,7 @@ import static nl.surfnet.bod.web.WebUtils.LIST;
 import java.util.List;
 
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.FilteredReservationController;
+import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
@@ -42,7 +42,7 @@ import com.google.common.collect.Lists;
 
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller(value = "nocReservationController")
-public class ReservationController extends FilteredReservationController {
+public class ReservationController extends AbstractFilteredReservationController {
 
   public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
   public static final String FILTER_COMMING_PERIOD = "comming";

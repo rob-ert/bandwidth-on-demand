@@ -43,6 +43,7 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
@@ -84,6 +85,9 @@ public class ReservationControllerTest {
 
   @Mock
   private MessageSource messageSource;
+
+  @Mock
+  private ReservationFilterViewFactory reservationFilterViewFactoryMock;
 
   private RichUserDetails user = new RichUserDetailsFactory().create();
   private Model model = new ModelStub();
@@ -128,11 +132,8 @@ public class ReservationControllerTest {
 
   @Test
   public void reservationShouldHaveDefaultDuration() {
-    VirtualResourceGroup group = new VirtualResourceGroupFactory()
-      .addVirtualPorts(
-          new VirtualPortFactory().create(),
-          new VirtualPortFactory().create())
-      .create();
+    VirtualResourceGroup group = new VirtualResourceGroupFactory().addVirtualPorts(new VirtualPortFactory().create(),
+        new VirtualPortFactory().create()).create();
 
     when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(Lists.newArrayList(group));
 
@@ -151,29 +152,33 @@ public class ReservationControllerTest {
   public void listShouldSetListOnModel() {
     Reservation reservation = new ReservationFactory().setStartDateTime(LocalDateTime.now().plusDays(1)).create();
 
+    ReservationFilterView filter2012 = new ReservationFilterViewFactory().create("2012");
+    when(reservationFilterViewFactoryMock.create(filter2012.getId())).thenReturn(filter2012);
+
     when(
         reservationServiceMock.findEntriesForUserUsingFilter(any(RichUserDetails.class),
             any(ReservationFilterView.class), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
         Lists.newArrayList(reservation));
 
-    subject.list(1, null, null, model);
+    subject.list(0, "name", "asc", "2012", model);
 
     assertThat(model.asMap(), hasKey("list"));
     assertThat(model.asMap(), hasKey("sortProperty"));
     assertThat(model.asMap(), hasKey("sortDirection"));
-
-    assertThat(((List<?>) model.asMap().get("list")), hasSize(1));
   }
 
   @Test
   public void listWithNonExistingSortProperty() {
     Reservation reservation = new ReservationFactory().create();
 
+    ReservationFilterView filter2012 = new ReservationFilterViewFactory().create("2012");
+    when(reservationFilterViewFactoryMock.create(filter2012.getId())).thenReturn(filter2012);
+
     when(
         reservationServiceMock.findEntriesForUserUsingFilter(any(RichUserDetails.class),
             any(ReservationFilterView.class), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
         Lists.newArrayList(reservation));
-    subject.list(1, "nonExistingProperty", "nonExistingDirection", model);
+    subject.list(1, "nonExistingProperty", "nonExistingDirection", "2012", model);
 
     assertThat(model.asMap(), hasKey("list"));
     assertThat(model.asMap(), hasKey("sortProperty"));
@@ -186,14 +191,13 @@ public class ReservationControllerTest {
 
   @Test
   public void lessThenTwoVirtualPortsShouldShowInfoMessage() {
-    VirtualResourceGroup group = new VirtualResourceGroupFactory()
-    .addVirtualPorts(
-        new VirtualPortFactory().create())
-    .create();
+    VirtualResourceGroup group = new VirtualResourceGroupFactory().addVirtualPorts(new VirtualPortFactory().create())
+        .create();
 
     when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(Lists.newArrayList(group));
-    when(messageSource.getMessage(eq("info_reservation_need_two_virtual_ports_message"), any(Object[].class), any(Locale.class)))
-        .thenReturn(INFO_AT_LEAST_TWO_PORTS);
+    when(
+        messageSource.getMessage(eq("info_reservation_need_two_virtual_ports_message"), any(Object[].class),
+            any(Locale.class))).thenReturn(INFO_AT_LEAST_TWO_PORTS);
 
     String view = subject.createForm(null, model);
 
