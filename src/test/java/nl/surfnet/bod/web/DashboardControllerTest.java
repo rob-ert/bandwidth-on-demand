@@ -35,10 +35,7 @@ import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.UserGroupFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.DashboardController.TeamView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -93,9 +90,8 @@ public class DashboardControllerTest {
   }
 
   @Test
-  public void showDashboardForUser() {
-    BodRole selectedRole = BodRole.createUser();
-    RichUserDetails user = new RichUserDetailsFactory().addBodRoles(selectedRole).create();
+  public void showDashboardForUserWhichCanNotCreateReservations() {
+    RichUserDetails user = new RichUserDetailsFactory().addUserRole().create();
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
 
     Security.setUserDetails(user);
@@ -106,9 +102,34 @@ public class DashboardControllerTest {
     String page = subject.index(model);
 
     assertThat(page, is("index"));
+
+    assertThat(model.asMap(), hasKey("canCreateReservation"));
     assertThat(model.asMap(), hasKey("teams"));
+
+    Boolean canCreate = (Boolean) model.asMap().get("canCreateReservation");
+    assertThat(canCreate, is(false));
+
     List<TeamView> views = (List<TeamView>) model.asMap().get("teams");
     assertThat(views, hasSize(1));
+  }
+
+  @Test
+  public void showDashboardForUserWhichCanCreateReservations() {
+    RichUserDetails user = new RichUserDetailsFactory().addUserRole().create();
+    VirtualResourceGroup vrgWithPorts = new VirtualResourceGroupFactory().addVirtualPorts(new VirtualPortFactory().create(),
+        new VirtualPortFactory().create()).create();
+
+    Security.setUserDetails(user);
+    Model model = new ModelStub();
+
+    when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(ImmutableList.of(vrgWithPorts));
+
+    subject.index(model);
+
+    assertThat(model.asMap(), hasKey("canCreateReservation"));
+
+    Boolean canCreate = (Boolean) model.asMap().get("canCreateReservation");
+    assertThat(canCreate, is(true));
   }
 
   @Test

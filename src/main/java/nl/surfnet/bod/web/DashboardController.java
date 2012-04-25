@@ -63,7 +63,15 @@ public class DashboardController {
       return "noUserRole";
     }
 
-    model.addAttribute("teams", getTeamViews(userGroups));
+    List<TeamView> views = getTeamViews(userGroups);
+
+    model.addAttribute("teams", views);
+    model.addAttribute("canCreateReservation", Iterables.any(views, new Predicate<TeamView>() {
+      @Override
+      public boolean apply(TeamView input) {
+        return input.isExisting() && input.getNumberOfPorts() > 1;
+      }
+    }));
 
     return "index";
   }
@@ -71,46 +79,35 @@ public class DashboardController {
   private List<TeamView> getTeamViews(Collection<UserGroup> userGroups) {
     Collection<VirtualResourceGroup> vrgs = virtualResourceGroupService.findAllForUser(Security.getUserDetails());
 
-    final Collection<String> existingIds = Lists.newArrayList(
-        Collections2.transform(
-          vrgs,
-          new Function<VirtualResourceGroup, String>() {
-            @Override
-            public String apply(VirtualResourceGroup group) {
-              return group.getSurfconextGroupId();
-            }
-          }
-        ));
-
-    Collection<TeamView> existingTeams = Collections2.transform(vrgs,
-        new Function<VirtualResourceGroup, TeamView>() {
+    final Collection<String> existingIds = Lists.newArrayList(Collections2.transform(vrgs,
+        new Function<VirtualResourceGroup, String>() {
           @Override
-          public TeamView apply(VirtualResourceGroup group) {
-            long total = reservationService.countForVirtualResourceGroup(group);
-            long scheduled = reservationService.countScheduledReservationForVirtualResourceGroup(group);
-            long active = reservationService.countActiveReservationForVirtualResourceGroup(group);
-            return new TeamView(group, active, scheduled, total);
+          public String apply(VirtualResourceGroup group) {
+            return group.getSurfconextGroupId();
           }
-        });
+        }));
 
+    Collection<TeamView> existingTeams = Collections2.transform(vrgs, new Function<VirtualResourceGroup, TeamView>() {
+      @Override
+      public TeamView apply(VirtualResourceGroup group) {
+        long total = reservationService.countForVirtualResourceGroup(group);
+        long scheduled = reservationService.countScheduledReservationForVirtualResourceGroup(group);
+        long active = reservationService.countActiveReservationForVirtualResourceGroup(group);
+        return new TeamView(group, active, scheduled, total);
+      }
+    });
 
-    Collection<TeamView> newTeams =
-        Collections2.transform(
-            Collections2.filter(userGroups,
-                new Predicate<UserGroup>() {
-                  @Override
-                  public boolean apply(UserGroup group) {
-                    return !existingIds.contains(group.getId());
-                  }
-                }
-            ),
-            new Function<UserGroup, TeamView>() {
-              @Override
-              public TeamView apply(UserGroup group) {
-                return new TeamView(group);
-              }
-            }
-        );
+    Collection<TeamView> newTeams = Collections2.transform(Collections2.filter(userGroups, new Predicate<UserGroup>() {
+      @Override
+      public boolean apply(UserGroup group) {
+        return !existingIds.contains(group.getId());
+      }
+    }), new Function<UserGroup, TeamView>() {
+      @Override
+      public TeamView apply(UserGroup group) {
+        return new TeamView(group);
+      }
+    });
 
     return Ordering.natural().sortedCopy(Iterables.concat(existingTeams, newTeams));
   }
@@ -136,7 +133,8 @@ public class DashboardController {
       this.existing = false;
     }
 
-    public TeamView(VirtualResourceGroup group, long activeReservations, long scheduledReservations, long totalReservations) {
+    public TeamView(VirtualResourceGroup group, long activeReservations, long scheduledReservations,
+        long totalReservations) {
       this.id = group.getId();
       this.name = group.getName();
       this.numberOfPorts = group.getVirtualPortCount();

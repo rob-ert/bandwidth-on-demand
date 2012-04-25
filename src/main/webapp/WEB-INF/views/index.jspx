@@ -99,11 +99,16 @@
         <section>
             <h2>Welcome to ${app_name}</h2>
             <spring:url var="reservation_url" value="/reservations/create" />
-            <spring:url var="request_url" value="/request" />
 
             <div class="content-dense">
                 <h3>New Reservation</h3>
-                <p>Click on the <i class="icon-plus"><!--  --></i> icon behind one of your teams to make a reservation.</p>
+                <p>Click on the <i class="icon-plus"><!--  --></i> icon behind one of your teams to make a reservation for that team.</p>
+
+                <c:if test="${canCreateReservation}">
+                    <ul class="tasks">
+                        <li><a href="${reservation_url}" class="btn btn-primary"><i class="icon-plus"><!--  --></i> <spring:message code="label_action_add_reservation" /></a></li>
+                    </ul>
+                </c:if>
 
                 <h3>Request a Virtual Port</h3>
                 <p>Click on the <i class="icon-envelope"> <!--  --></i> icon behind one of your teams to request a virtual port.<br/> If the team is not in the list select the 'Show all' radio button.</p>
