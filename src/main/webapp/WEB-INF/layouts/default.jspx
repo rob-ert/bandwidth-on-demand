@@ -4,17 +4,17 @@
     xmlns:bod="BodTags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util">
 
     <jsp:output doctype-root-element="HTML" doctype-system="about:legacy-compat" />
-    
+
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:directive.page pageEncoding="UTF-8" />
-    
+
     <spring:message code="application_name" var="app_name" />
     <spring:url var="banner" value="/resources/images/surfnet_logo.gif" />
     <spring:url var="home" value="/" />
-    
+
     <spring:message code="button_home" var="home_label" />
     <spring:message var="app_name" code="application_name" />
-    
+
     <bod:env property="development" var="dev" />
 
     <head>
@@ -37,7 +37,7 @@
                 <a href="${home_url}">Home</a>
                 <h1>${app_name}</h1>
             </header>
-            
+
             <section class="user-box content-dense">
                 <span class="user-name">
                     <sec:authentication property="principal.displayName"/>
@@ -55,7 +55,7 @@
 
             	<spring:url value="/switchrole/logout" var="logoutUrl" />
                 <a href="${logoutUrl}" class="logout"><spring:message code="global_menu_logout" /><c:out value=" "/><i class="icon-signout"><!-- --></i></a>
-                
+
                 <div class="dropdown dropdown-disabled">
                     <sec:authentication property="principal.selectableRoles" var="bodRoles"/>
                     <sec:authentication property="principal.selectedRole" var="selectedRole" />
@@ -82,15 +82,15 @@
                                             <c:if test="${not empty bodRole.instituteName}">
                                                 <br/><c:out value="${bodRole.instituteName}"/>
                                             </c:if>
-	                      			    </div>
-   		                            </li>
+                                        </div>
+                                    </li>
                                 </c:forEach>
                             </ul>
                         </form>
                     </div>
                 </div>
             </section>
-            
+
             <nav class="navbar">
                 <div class="navbar-inner">
                     <div class="container">
