@@ -4,7 +4,7 @@
 <jsp:directive.page contentType="text/html;charset=UTF-8" />
 <jsp:output omit-xml-declaration="yes" />
 
-<util:modal titleCode="error_uncaughtexception_title" messageCode="error_uncaughtexception_problemdescription" />
+<util:modal titleCode="error_uncaughtexception_title" messageCode="error_uncaughtexception_problemdescription" type="error" />
 
 <bod:env property="development" var="dev" />
 

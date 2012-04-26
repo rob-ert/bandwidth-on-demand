@@ -5,6 +5,6 @@
 <jsp:directive.page contentType="text/html;charset=UTF-8" />
 <jsp:output omit-xml-declaration="yes" />
 
-<util:modal titleCode="error_resourcenotfound_title" messageCode="error_resourcenotfound_problemdescription" />
+<util:modal titleCode="error_resourcenotfound_title" messageCode="error_resourcenotfound_problemdescription" type="error" />
 
 </html>

@@ -7,6 +7,6 @@
 
     <spring:message code="info_activation_request_confirmed_message" arguments="${link.toEmail}, ${physicalResourceGroup.name}" var="msg" />
 
-    <util:modal titleCode="info_activation_request_confirmed_title" messageCode="${msg}" type="info" />
+    <util:modal titleCode="info_activation_request_confirmed_title" messageCode="${msg}" type="success" />
 
 </html>
