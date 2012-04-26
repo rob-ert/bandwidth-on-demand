@@ -9,8 +9,8 @@
     <form:update id="fc_VirtualPort" modelAttribute="updateUserLabelCommand" path="/virtualports">
 
         <field:input field="userLabel" id="name" labelCode="virtualport_name" />
-        
-        <field:display object="${virtualPort}" field="maxBandwidth" labelCode="label_virtualport_max_bandwidth" />
+
+        <field:display object="${virtualPort}" field="maxBandwidth" labelCode="label_virtualport_maxbandwidth" />
         <field:display object="${virtualPort}" field="vlanId" labelCode="label_virtualport_vlan_id" />
         <field:display object="${virtualPort}" field="virtualResourceGroup" labelCode="label_virtualresourcegroup" />
 
