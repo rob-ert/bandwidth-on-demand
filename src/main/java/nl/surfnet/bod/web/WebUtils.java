@@ -23,9 +23,12 @@ package nl.surfnet.bod.web;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import nl.surfnet.bod.web.security.Security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.ui.Model;
@@ -60,6 +63,8 @@ public final class WebUtils {
 
   static final String PARAM_MARKUP_START = "<b>";
   static final String PARAM_MARKUP_END = "</b>";
+
+  private static final Logger log = LoggerFactory.getLogger(WebUtils.class);
 
   private WebUtils() {
   }
@@ -196,5 +201,25 @@ public final class WebUtils {
 
   public static boolean not(boolean expression) {
     return !expression;
+  }
+
+  /**
+   * Places the {@link RedirectAttributes#getFlashAttributes()} again on the
+   * given redirectAttributes. This way the flashAttributes can survive multiple
+   * redirects.
+   * 
+   * @param redirectAttribs
+   *          FlashAttributes wil be take from this and put on it again.
+   */
+  public static void copyFlashAttributes(RedirectAttributes redirectAttribs) {
+
+    if (redirectAttribs != null) {
+      for (Entry<String, ?> entry : redirectAttribs.getFlashAttributes().entrySet()) {
+        redirectAttribs.addFlashAttribute(entry.getKey(), entry.getValue());
+      }
+    }
+    else {
+      log.info("No redirectAttribs copied, was null");
+    }
   }
 }
