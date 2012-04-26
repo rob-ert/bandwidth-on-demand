@@ -38,8 +38,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.google.common.collect.Lists;
-
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller(value = "nocReservationController")
 public class ReservationController extends AbstractFilteredReservationController {
