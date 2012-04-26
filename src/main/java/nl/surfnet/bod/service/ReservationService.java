@@ -134,13 +134,24 @@ public class ReservationService {
     return reservationRepo.save(reservation);
   }
 
+  /**
+   * Cancels a reservation if the current user has the correct role and the
+   * reservation is allowed to be deleted depending on its state. Updates the
+   * state of the reservation.
+   * 
+   * @param reservation
+   *          {@link Reservation} to delete
+   * @return true if the reservation was canceld, false otherwise.
+   */
   public boolean cancel(Reservation reservation) {
-    if (reservation.getStatus() == RUNNING || reservation.getStatus() == SCHEDULED) {
+    if (Security.isSelectedUserRole() && reservation.getStatus().isDeleteAllowed()) {
       reservation.setStatus(CANCELLED);
       nbiClient.cancelReservation(reservation.getReservationId());
       reservationRepo.save(reservation);
-
       return true;
+    }
+    else {
+      log.info("Not allowed to cancel reservation {}", reservation.getName());
     }
     return false;
   }

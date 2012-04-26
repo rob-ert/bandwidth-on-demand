@@ -21,8 +21,10 @@
  */
 package nl.surfnet.bod.web.view;
 
+import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.web.security.Security;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.LocalDateTime;
@@ -112,6 +114,16 @@ public class ReservationView {
 
   public String getName() {
     return name;
+  }
+
+  /**
+   * Only a userRole is allowed to delete a {@link Reservation} when it has a
+   * certain state.
+   * 
+   * @return true When deletion of a Reservation is allowed
+   */
+  public boolean isDeleteAllowedForSelectedRole() {
+    return status.isDeleteAllowed() && Security.isSelectedUserRole();
   }
 
   @Override
