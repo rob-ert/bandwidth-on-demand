@@ -8,7 +8,7 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <spring:url value="/push" var="pushUrl" />
-    <spring:url value="/noc/reservations/filter/" var="filterUrl" />
+    <spring:url value="" var="filterUrl" />
 
     <page:list id="pl_reservation" path="/reservations">
         <form class="form-inline" action="${filterUrl}" data-component="reservation-filter">
@@ -87,12 +87,11 @@
                         <table:column item="${item}" property="endDateTime" />
                         <table:column item="${item}" property="status" styleClass="status" />
                         <table:actionsColumn item="${item}" update="false"
-                            delete="${not (item.status eq 'CANCELLED' or item.status eq 'FAILED' or item.status eq 'SUCCEEDED')}" deleteLabelCode="label_cancel"
+                            delete="${item.deleteAllowedForSelectedRole}" deleteLabelCode="label_cancel"
                             path="/reservations" labelCode="label_reservation" />
                     </tr>
                 </c:forEach>
             </tbody>
         </table:table-reservation>
     </page:list>
-
 </html>
