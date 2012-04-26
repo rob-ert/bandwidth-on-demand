@@ -47,6 +47,7 @@
             </spring:url>
             <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true" data-confirm="Are you sure?"><i class="${deleteIcon}"><!--  --></i></a>
         </c:if>
+        <jsp:doBody />
     </td>
     
 </jsp:root>

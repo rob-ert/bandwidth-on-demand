@@ -21,15 +21,7 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.UPDATE;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -58,6 +50,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 
 @Controller
 @RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
@@ -75,8 +68,55 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   @Autowired
   private MessageSource messageSource;
 
+  @RequestMapping(value = "add", method = RequestMethod.GET)
+  public String addPhysicalPortForm(@RequestParam(value = "prg") Long prgId, Model model) {
+    PhysicalResourceGroup prg = physicalResourceGroupService.find(prgId);
+    if (prg == null) {
+      return "redirect:/";
+    }
+
+    Collection<PhysicalPort> unallocatedPorts = physicalPortService.findUnallocated();
+
+    AddPhysicalPortCommand addCommand = new AddPhysicalPortCommand();
+    addCommand.setPhysicalResourceGroup(prg);
+    PhysicalPort port = Iterables.get(unallocatedPorts, 0);
+    addCommand.setNetworkElementPk(port.getNetworkElementPk());
+    addCommand.setNocLabel(port.getNocLabel());
+    addCommand.setManagerLabel(port.hasManagerLabel() ? port.getManagerLabel() : "");
+
+    model.addAttribute("addPhysicalPortCommand", addCommand);
+    model.addAttribute("unallocatedPhysicalPorts", unallocatedPorts);
+
+    return "physicalports/addPhysicalPort";
+  }
+
+  @RequestMapping(value = "add", method = RequestMethod.POST)
+  public String addPhysicalPort(@Valid AddPhysicalPortCommand addCommand, BindingResult result,
+      RedirectAttributes redirectAttributes, Model model) {
+
+    if (result.hasErrors()) {
+      model.addAttribute("addPhysicalPortCommand", addCommand);
+      model.addAttribute("unallocatedPhysicalPorts", physicalPortService.findUnallocated());
+      return "physicalports/addPhysicalPort";
+    }
+
+    PhysicalPort port = physicalPortService.findByNetworkElementPk(addCommand.getNetworkElementPk());
+    if (!Strings.isNullOrEmpty(addCommand.getManagerLabel())) {
+      port.setManagerLabel(addCommand.getManagerLabel());
+    }
+    port.setNocLabel(addCommand.getNocLabel());
+    port.setPhysicalResourceGroup(addCommand.getPhysicalResourceGroup());
+
+    physicalPortService.save(port);
+
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_physicalport_added", port.getNocLabel(),
+        port.getPhysicalResourceGroup().getName());
+
+    return "redirect:/noc/physicalresourcegroups";
+  }
+
   @RequestMapping(method = RequestMethod.PUT)
-  public String update(@Valid CreatePhysicalPortCommand command, final BindingResult result, final Model model,
+  public String update(@Valid CreatePhysicalPortCommand command, BindingResult result, Model model,
       final RedirectAttributes redirectAttributes) {
 
     if (result.hasErrors()) {
@@ -96,7 +136,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     model.asMap().clear();
 
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_physicalport_updated", portToSave.getNocLabel(),
-        portToSave.getPhysicalResourceGroup().getInstitute().getName());
+        portToSave.getPhysicalResourceGroup().getName());
 
     return "redirect:physicalports";
   }
@@ -143,7 +183,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   * 
+   *
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
@@ -169,6 +209,51 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   @Override
   protected String defaultSortProperty() {
     return "nocLabel";
+  }
+
+  public static final class AddPhysicalPortCommand {
+    @NotNull
+    private PhysicalResourceGroup physicalResourceGroup;
+    @NotEmpty
+    private String networkElementPk;
+    @NotEmpty
+    private String nocLabel;
+    private String managerLabel;
+
+    public AddPhysicalPortCommand() {
+    }
+
+    public PhysicalResourceGroup getPhysicalResourceGroup() {
+      return physicalResourceGroup;
+    }
+
+    public void setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
+      this.physicalResourceGroup = physicalResourceGroup;
+    }
+
+    public String getNetworkElementPk() {
+      return networkElementPk;
+    }
+
+    public void setNetworkElementPk(String networkElementPk) {
+      this.networkElementPk = networkElementPk;
+    }
+
+    public String getNocLabel() {
+      return nocLabel;
+    }
+
+    public void setNocLabel(String nocLabel) {
+      this.nocLabel = nocLabel;
+    }
+
+    public String getManagerLabel() {
+      return managerLabel;
+    }
+
+    public void setManagerLabel(String managerLabel) {
+      this.managerLabel = managerLabel;
+    }
   }
 
   public static final class CreatePhysicalPortCommand {

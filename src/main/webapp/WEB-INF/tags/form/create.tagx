@@ -8,6 +8,7 @@
     <jsp:directive.attribute name="path" type="java.lang.String" required="true" rtexprvalue="true" description="Specify the relative URL path (wit leading /)" />
     <jsp:directive.attribute name="multipart" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if this is a multipart form (default: false)" />
     <jsp:directive.attribute name="label" type="java.lang.String" required="false" rtexprvalue="true" description="The label used for this object, will default to a message bundle if not supplied" />
+    <jsp:directive.attribute name="fullLabel" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
     <jsp:directive.attribute name="openPane" type="java.lang.Boolean" required="false" rtexprvalue="true" description="Control if the title pane is opened or closed by default (default: true)" />
 
@@ -24,7 +25,16 @@
         <spring:url value="${path}" var="form_url" />
 
         <section>
-            <h1><spring:message code="entity_create" arguments="${label}" /></h1>
+            <h1>
+                <c:choose>
+                    <c:when test="${not empty fullLabel}">
+                        <spring:message code="${fullLabel}" />
+                    </c:when>
+                    <c:otherwise>
+                        <spring:message code="entity_create" arguments="${label}" />
+                    </c:otherwise>
+                </c:choose>
+            </h1>
             <div class="content">
 
                 <form:form action="${form_url}" method="POST" modelAttribute="${modelAttribute}" enctype="${enctype}" cssClass="form form-horizontal">

@@ -15,6 +15,7 @@ app.form = function(){
         initBandwidthSelector();
         initStartNow();
         initReservationFilter();
+        initPhysicalPortSelector();
 
     };
 
@@ -266,6 +267,14 @@ app.form = function(){
             window.location.href = element.closest('form').attr('action') + element.val();
         });
 
+    }
+
+    var initPhysicalPortSelector = function() {
+        $('[data-component="physicalport-selector"]').on('change', function() {
+            var selected = $(this).find('option:selected');
+            $("#_nocLabel_id").val(selected.attr("data-noclabel"));
+            $("#_managerLabel_id").val(selected.attr("data-managerlabel"));
+        });
     }
 
     return {

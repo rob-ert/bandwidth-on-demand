@@ -40,10 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
+import com.google.common.base.*;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
@@ -54,6 +51,7 @@ class NbiOfflineClient implements NbiClient {
     public PhysicalPort apply(NbiPort nbiPort) {
       PhysicalPort physicalPort = new PhysicalPort();
       physicalPort.setNocLabel("Mock_" + nbiPort.getName());
+      physicalPort.setManagerLabel(nbiPort.getUserLabel().orNull());
       physicalPort.setNetworkElementPk(nbiPort.getId());
 
       return physicalPort;
@@ -72,21 +70,21 @@ class NbiOfflineClient implements NbiClient {
   public NbiOfflineClient() {
     ports.add(new NbiPort("Ut002A_OME01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-1-1-4"));
     ports.add(new NbiPort("Ut002A_OME01_ETH-1-2-4", "00-1B-25-2D-DA-65_ETH-1-2-4"));
-    ports.add(new NbiPort("ETH10G-1-13-1", "00-21-E1-D6-D6-70_ETH10G-1-13-1"));
-    ports.add(new NbiPort("ETH10G-1-13-2", "00-21-E1-D6-D6-70_ETH10G-1-13-2"));
-    ports.add(new NbiPort("ETH-1-13-4", "00-21-E1-D6-D5-DC_ETH-1-13-4"));
+    ports.add(new NbiPort("ETH10G-1-13-1", "00-21-E1-D6-D6-70_ETH10G-1-13-1", "Poort 1de verdieping toren1a"));
+    ports.add(new NbiPort("ETH10G-1-13-2", "00-21-E1-D6-D6-70_ETH10G-1-13-2", "Poort 2de verdieping toren1b"));
+    ports.add(new NbiPort("ETH-1-13-4", "00-21-E1-D6-D5-DC_ETH-1-13-4", "Poort 3de verdieping toren1c"));
     ports.add(new NbiPort("ETH10G-1-13-2", "00-21-E1-D6-D5-DC_ETH10G-1-13-5"));
     ports.add(new NbiPort("ETH10G-1-5-1", "00-20-D8-DF-33-8B_ETH10G-1-5-1"));
-    ports.add(new NbiPort("OME0039_OC12-1-12-1", "00-21-E1-D6-D6-70_OC12-1-12-1"));
-    ports.add(new NbiPort("WAN-1-4-102", "00-20-D8-DF-33-86_WAN-1-4-102"));
+    ports.add(new NbiPort("OME0039_OC12-1-12-1", "00-21-E1-D6-D6-70_OC12-1-12-1", "Poort 4de verdieping toren1a"));
+    ports.add(new NbiPort("WAN-1-4-102", "00-20-D8-DF-33-86_WAN-1-4-102", "Poort 5de verdieping toren1a"));
     ports.add(new NbiPort("ETH-1-3-1", "00-21-E1-D6-D6-70_ETH-1-3-1"));
-    ports.add(new NbiPort("ETH-1-1-1", "00-21-E1-D6-D5-DC_ETH-1-1-1"));
-    ports.add(new NbiPort("ETH-1-2-3", "00-20-D8-DF-33-8B_ETH-1-2-3"));
+    ports.add(new NbiPort("ETH-1-1-1", "00-21-E1-D6-D5-DC_ETH-1-1-1", "Poort 1de verdieping toren2"));
+    ports.add(new NbiPort("ETH-1-2-3", "00-20-D8-DF-33-8B_ETH-1-2-3", "Poort 2de verdieping toren2"));
     ports.add(new NbiPort("WAN-1-4-101", "00-20-D8-DF-33-86_WAN-1-4-101"));
     ports.add(new NbiPort("ETH-1-1-2", "00-21-E1-D6-D5-DC_ETH-1-1-2"));
-    ports.add(new NbiPort("OME0039_OC12-1-12-2", "00-21-E1-D6-D6-70_OC12-1-12-2"));
-    ports.add(new NbiPort("ETH-1-13-5", "00-21-E1-D6-D5-DC_ETH-1-13-5"));
-    ports.add(new NbiPort("ETH10G-1-13-3", "00-21-E1-D6-D5-DC_ETH10G-1-13-3"));
+    ports.add(new NbiPort("OME0039_OC12-1-12-2", "00-21-E1-D6-D6-70_OC12-1-12-2", "Poort 3de verdieping toren2"));
+    ports.add(new NbiPort("ETH-1-13-5", "00-21-E1-D6-D5-DC_ETH-1-13-5", "Poort 4de verdieping toren3"));
+    ports.add(new NbiPort("ETH10G-1-13-3", "00-21-E1-D6-D5-DC_ETH10G-1-13-3", "Poort 4de verdieping toren3"));
     ports.add(new NbiPort("Asd001A_OME3T_ETH-1-1-1", "00-20-D8-DF-33-59_ETH-1-1-1"));
   }
 
@@ -173,12 +171,21 @@ class NbiOfflineClient implements NbiClient {
 
   private static final class NbiPort {
     private final String name;
+    private final Optional<String> userLabel;
     private final String id;
 
     public NbiPort(String name, String id) {
       this.name = name;
       this.id = id;
+      this.userLabel = Optional.absent();
     }
+
+    public NbiPort(String name, String id, String userLabel) {
+      this.name = name;
+      this.id = id;
+      this.userLabel = Optional.of(userLabel);
+    }
+
 
     public String getName() {
       return name;
@@ -186,6 +193,10 @@ class NbiOfflineClient implements NbiClient {
 
     public String getId() {
       return id;
+    }
+
+    public Optional<String> getUserLabel() {
+      return userLabel;
     }
   }
 

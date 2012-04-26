@@ -15,4 +15,8 @@
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/update.jspx" />
         <put-attribute name="active_menu" value="physicalport" cascade="true" />
     </definition>
+    <definition extends="noc" name="physicalports/addPhysicalPort">
+        <put-attribute name="body" value="/WEB-INF/views/noc/physicalports/addPhysicalPort.jspx" />
+        <put-attribute name="active_menu" value="physicalport_free" cascade="true" />
+    </definition>
 </tiles-definitions>

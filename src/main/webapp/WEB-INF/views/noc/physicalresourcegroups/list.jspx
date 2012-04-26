@@ -14,8 +14,8 @@
                     <th><spring:message code="label_physicalresourcegroup_name" /></th>
                     <table:sortableHeader labelCode="label_physicalresourcegroup_manageremail" property="managerEmail" />
                     <table:sortableHeader labelCode="label_physicalresourcegroup_active" property="active" styleClass="cw75 center" />
-                    <th><spring:message code="label_physicalresourcegroup_physicalportcount" /></th>
-                    <table:actionsHeader />
+                    <th class="cw65"><spring:message code="label_physicalresourcegroup_physicalportcount" /></th>
+                    <table:actionsHeader styleClass="cw75 center small" />
                 </tr>
             </thead>
             <tbody>
@@ -31,7 +31,12 @@
                         <table:column item="${item}" property="managerEmail"/>
                         <table:column item="${item}" property="active" type="boolean" styleClass="center" />
                         <table:column item="${item}" property="physicalPortCount" />
-                        <table:actionsColumn item="${item}" path="/noc/physicalresourcegroups" labelCode="label_physicalresourcegroup" />
+                        <table:actionsColumn item="${item}" path="/noc/physicalresourcegroups" labelCode="label_physicalresourcegroup">
+                            <spring:url var="add_url" value="/noc/physicalports/add">
+                                <spring:param name="prg" value="${item.id}" />
+                            </spring:url>
+                            <a href="${add_url}" rel="tooltip" data-type="info" title="Allocate a physical port" ><i class="icon-resize-small"><!--  --></i></a>
+                        </table:actionsColumn>
                     </tr>
                 </c:forEach>
             </tbody>

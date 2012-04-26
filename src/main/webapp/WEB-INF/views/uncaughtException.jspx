@@ -11,6 +11,7 @@
 <c:if test="${dev}">
     <div class="stacktrace">
         <h1>${exception.message}</h1>
+        <h2>${exception.class.name}</h2>
         <c:forEach items="${exception.stackTrace}" var="trace">
             <c:out value="${trace}" />
             <br />
