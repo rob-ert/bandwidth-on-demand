@@ -46,4 +46,19 @@ public class ReservationStatusTest {
     assertThat(ReservationStatus.RUNNING.isEndState(), is(false));
   }
 
+  @Test
+  public void forTheseStatesShouldDeletionBeAllowed() {
+    assertThat(ReservationStatus.PREPARING.isDeleteAllowed(), is(true));
+    assertThat(ReservationStatus.REQUESTED.isDeleteAllowed(), is(true));
+    assertThat(ReservationStatus.RUNNING.isDeleteAllowed(), is(true));
+    assertThat(ReservationStatus.SCHEDULED.isDeleteAllowed(), is(true));
+  }
+
+  @Test
+  public void forTheseStateShouldDeletionNotBeAllowed() {
+    assertThat(ReservationStatus.CANCELLED.isDeleteAllowed(), is(false));
+    assertThat(ReservationStatus.FAILED.isDeleteAllowed(), is(false));
+    assertThat(ReservationStatus.SUCCEEDED.isDeleteAllowed(), is(false));
+  }
+
 }

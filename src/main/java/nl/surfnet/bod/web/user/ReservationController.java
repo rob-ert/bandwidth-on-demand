@@ -159,7 +159,7 @@ public class ReservationController extends AbstractFilteredReservationController
 
     Reservation reservation = reservationService.find(id);
 
-    boolean result = reservationService.cancel(reservation);
+    boolean result = reservationService.cancel(reservation, Security.getUserDetails());
 
     if (result) {
       WebUtils.addInfoMessage(redirectAttributes, "A reservation for %s has been cancelled.", reservation

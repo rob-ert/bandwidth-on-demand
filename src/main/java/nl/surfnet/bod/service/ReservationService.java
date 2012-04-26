@@ -143,8 +143,8 @@ public class ReservationService {
    *          {@link Reservation} to delete
    * @return true if the reservation was canceld, false otherwise.
    */
-  public boolean cancel(Reservation reservation) {
-    if (Security.isSelectedUserRole() && reservation.getStatus().isDeleteAllowed()) {
+  public boolean cancel(Reservation reservation, RichUserDetails user) {
+    if (user.isSelectedUserRole() && reservation.getStatus().isDeleteAllowed()) {
       reservation.setStatus(CANCELLED);
       nbiClient.cancelReservation(reservation.getReservationId());
       reservationRepo.save(reservation);

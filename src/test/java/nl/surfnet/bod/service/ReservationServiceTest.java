@@ -25,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -50,6 +51,7 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.LocalDateTime;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -193,16 +195,53 @@ public class ReservationServiceTest {
 
   @Test
   public void cancelAReservationShouldChangeItsStatus() {
+    RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole().create();
+
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
-    subject.cancel(reservation);
+
+    Assert.assertTrue(subject.cancel(reservation, richUserDetails));
     assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
     verify(reservationRepoMock).save(reservation);
   }
 
   @Test
+  public void cancelAReservationAsAManagerShouldNotChangeItsStatus() {
+    RichUserDetails richUserDetails = new RichUserDetailsFactory().addManagerRole().create();
+
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
+
+    Assert.assertFalse(subject.cancel(reservation, richUserDetails));
+    assertThat(reservation.getStatus(), is(ReservationStatus.SCHEDULED));
+    verify(reservationRepoMock, never()).save(reservation);
+  }
+
+  @Test
+  public void cancelAReservationAsANocShouldNotChangeItsStatus() {
+    RichUserDetails richUserDetails = new RichUserDetailsFactory().addNocRole().create();
+
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
+
+    Assert.assertFalse(subject.cancel(reservation, richUserDetails));
+    assertThat(reservation.getStatus(), is(ReservationStatus.SCHEDULED));
+    verify(reservationRepoMock, never()).save(reservation);
+  }
+  
+  @Test
+  public void cancelAReservationWithStatusFAILEDShouldNotChangeItsStatus() {
+    RichUserDetails richUserDetails = new RichUserDetailsFactory().create();
+
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).create();
+
+    Assert.assertFalse(subject.cancel(reservation, richUserDetails));
+    assertThat(reservation.getStatus(), is(ReservationStatus.FAILED));
+    verify(reservationRepoMock, never()).save(reservation);
+  }
+  
+
+  @Test
   public void cancelAFailedReservationShouldNotChangeItsStatus() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).create();
-    subject.cancel(reservation);
+    subject.cancel(reservation, Security.getUserDetails());
     assertThat(reservation.getStatus(), is(ReservationStatus.FAILED));
     verifyZeroInteractions(reservationRepoMock);
   }

@@ -38,7 +38,8 @@ import com.google.common.collect.Iterables;
 public final class Security {
 
   public enum RoleEnum {
-    NOC_ENGINEER("redirect:noc", 1), ICT_MANAGER("redirect:manager", 2), USER("redirect:user", 3), NEW_USER("redirect:user", 4);
+    NOC_ENGINEER("redirect:noc", 1), ICT_MANAGER("redirect:manager", 2), USER("redirect:user", 3), NEW_USER(
+        "redirect:user", 4);
 
     private String viewName;
     private int sortOrder;
@@ -76,25 +77,6 @@ public final class Security {
     }, null);
   }
 
-  public static boolean isSelectedUserRole() {
-    BodRole selectedRole = getUserDetails().getSelectedRole();
-    return selectedRole != null ? selectedRole.getRole() == RoleEnum.USER : false;
-  }
-
-  public static boolean isSelectedManagerRole() {
-    BodRole selectedRole = getUserDetails().getSelectedRole();
-    return selectedRole != null ? selectedRole.getRole() == RoleEnum.ICT_MANAGER : false;
-  }
-
-  public static boolean isSelectedNocRole() {
-    BodRole selectedRole = getUserDetails().getSelectedRole();
-    return selectedRole != null ? selectedRole.getRole() == RoleEnum.NOC_ENGINEER : false;
-  }
-
-  public static boolean hasUserRole() {
-    return getUserDetails().hasUserRole();
-  }
-
   public static void switchToUser() {
     getUserDetails().switchToUser();
   }
@@ -113,6 +95,22 @@ public final class Security {
 
   public static boolean isUserNotMemberOf(String groupId) {
     return !isUserMemberOf(groupId);
+  }
+
+  public static boolean isSelectedUserRole() {
+    return getUserDetails().isSelectedUserRole();
+  }
+
+  public static boolean isSelectedManagerRole() {
+    return getUserDetails().isSelectedManagerRole();
+  }
+
+  public static boolean isSelectedNocRole() {
+    return getUserDetails().isSelectedNocRole();
+  }
+
+  public static boolean hasUserRole() {
+    return getUserDetails().hasUserRole();
   }
 
   public static boolean isUserMemberOf(VirtualResourceGroup group) {
@@ -156,7 +154,7 @@ public final class Security {
 
   /**
    * Set the current logged in user. (Should only be used from tests).
-   *
+   * 
    * @param richUserDetails
    *          the user details
    */

@@ -172,6 +172,18 @@ public class RichUserDetails implements UserDetails {
     }, null);
   }
 
+  public boolean isSelectedUserRole() {
+    return selectedRole != null ? selectedRole.getRole() == RoleEnum.USER : false;
+  }
+
+  public boolean isSelectedManagerRole() {
+    return selectedRole != null ? selectedRole.getRole() == RoleEnum.ICT_MANAGER : false;
+  }
+
+  public boolean isSelectedNocRole() {
+    return selectedRole != null ? selectedRole.getRole() == RoleEnum.NOC_ENGINEER : false;
+  }
+
   public void switchToManager(PhysicalResourceGroup physicalResourceGroup) {
     BodRole managerRole = null;
 
@@ -224,6 +236,5 @@ public class RichUserDetails implements UserDetails {
     return Objects.toStringHelper(this).add("nameId", getNameId()).add("displayName", getDisplayName())
         .add("bodRoles", bodRoles).add("selectedRole", selectedRole).toString();
   }
-
 
 }
