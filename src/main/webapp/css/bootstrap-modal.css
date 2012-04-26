@@ -16,12 +16,16 @@
     margin-left: 5px;
 }
 
-.modal-body .icon-exclamation-sign:before {
+.modal-body .icon-remove-sign:before {
     color: #B94A48;
 }
 
 .modal-body .icon-ok-sign:before {
     color: green;
+}
+
+.modal-body .icon-exclamation-sign:before {
+    color: #C09853;
 }
 
 .modal-body p {
@@ -31,8 +35,8 @@
 }
 
 .modal-relative {
-	position: relative;
-	left: auto;
-	top: auto;
-	margin: 80px auto;
+    position: relative;
+    left: auto;
+    top: auto;
+    margin: 80px auto;
 }

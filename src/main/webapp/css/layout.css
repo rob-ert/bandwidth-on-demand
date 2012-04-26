@@ -10,7 +10,7 @@ header {
 }
 
 footer {
-	margin: 10px 0;
+    margin: 10px 0;
 }
 
 section {
@@ -26,7 +26,7 @@ section {
 }
 
 .content-some-dense {
-	padding: 10px 20px 10px 20px;
+    padding: 10px 20px 10px 20px;
 }
 
 .content-dense {
@@ -42,7 +42,7 @@ section {
 }
 
 .actions {
-	float: right;
-	margin: 0 20px 20px 0;
+    float: right;
+    margin: 0 20px 20px 0;
 }
 
