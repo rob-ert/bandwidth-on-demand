@@ -21,10 +21,8 @@
  */
 package nl.surfnet.bod.web.view;
 
-import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
@@ -123,8 +121,8 @@ public class ReservationView {
    * 
    * @return true When deletion of a Reservation is allowed
    */
-  public boolean isDeleteAllowedForSelectedRole(RichUserDetails user) {
-    return status.isDeleteAllowed() && user.isSelectedUserRole();
+  public boolean isDeleteAllowedForSelectedRole() {
+    return status.isDeleteAllowed() && Security.isSelectedUserRole();
   }
 
   @Override
