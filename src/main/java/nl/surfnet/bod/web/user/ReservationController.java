@@ -105,7 +105,7 @@ public class ReservationController extends AbstractFilteredReservationController
     WebUtils.addInfoMessage(redirectAttributes, "A new reservation for %s has been requested.", reservation
         .getVirtualResourceGroup().getName());
 
-    return "redirect:" + PAGE_URL;
+    return getDefaultFilterUrl();
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
@@ -170,7 +170,7 @@ public class ReservationController extends AbstractFilteredReservationController
           .getVirtualResourceGroup().getName());
     }
 
-    return "redirect:/" + PAGE_URL;
+    return getDefaultFilterUrl();
   }
 
   private List<VirtualResourceGroup> findVirtualResourceGroups() {
