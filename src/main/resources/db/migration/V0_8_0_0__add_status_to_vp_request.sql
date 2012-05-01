@@ -1,0 +1,1 @@
+ALTER TABLE virtual_port_request_link add column status varchar(100) NOT NULL default 'PENDING';

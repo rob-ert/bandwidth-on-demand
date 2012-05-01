@@ -21,30 +21,22 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.UPDATE;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collections;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.base.MessageView;
 import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortView;
 import nl.surfnet.bod.web.security.Security;
 
@@ -95,29 +87,30 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   private MessageSource messageSource;
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid VirtualPort virtualPort, BindingResult result, Model model,
+  public String create(@Valid CreateVirtualPortCommand createCommand, BindingResult result, Model model,
       RedirectAttributes redirectAttributes) {
 
-    virtualPortValidator.validate(virtualPort, result);
+    VirtualPort port = createCommand.getPort();
+    virtualPortValidator.validate(port, result);
 
     if (result.hasErrors()) {
-      instituteService.fillInstituteForPhysicalResourceGroup(virtualPort.getPhysicalResourceGroup());
+      instituteService.fillInstituteForPhysicalResourceGroup(createCommand.getPhysicalResourceGroup());
 
-      model.addAttribute(MODEL_KEY, virtualPort);
-      model.addAttribute("physicalPorts", virtualPort.getPhysicalResourceGroup() == null ? Collections.emptyList()
-          : virtualPort.getPhysicalResourceGroup().getPhysicalPorts());
-      model.addAttribute("virtualResourceGroups", ImmutableList.of(virtualPort.getVirtualResourceGroup()));
-      model.addAttribute("physicalResourceGroups", ImmutableList.of(virtualPort.getPhysicalResourceGroup()));
+      model.addAttribute("createVirtualPortCommand", createCommand);
+      model.addAttribute("physicalPorts", createCommand.getPhysicalResourceGroup() == null ? Collections.emptyList()
+          : port.getPhysicalResourceGroup().getPhysicalPorts());
+      model.addAttribute("virtualResourceGroups", ImmutableList.of(port.getVirtualResourceGroup()));
+      model.addAttribute("physicalResourceGroups", ImmutableList.of(port.getPhysicalResourceGroup()));
 
       return PAGE_URL + CREATE;
     }
 
     model.asMap().clear();
 
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_created",
-        virtualPort.getManagerLabel());
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_created", port.getManagerLabel());
 
-    virtualPortService.save(virtualPort);
+    virtualPortService.save(port);
+    virtualPortService.requestLinkApproved(createCommand.getVirtualPortRequestLink());
 
     return "redirect:" + PAGE_URL;
   }
@@ -138,14 +131,21 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
     Security.switchToManager(requestLink.getPhysicalResourceGroup());
 
+    if (!requestLink.isPending()) {
+      MessageView message = MessageView.createInfoMessage(messageSource,
+          "info_virtualportrequest_already_processed_title", "info_virtualportrequest_already_processed_message",
+          requestLink.getVirtualResourceGroup().getName());
+
+      model.addAttribute(MessageView.MODEL_KEY, message);
+
+      return MessageView.PAGE_URL;
+    }
+
     instituteService.fillInstituteForPhysicalResourceGroup(requestLink.getPhysicalResourceGroup());
 
-    VirtualPort virtualPort = new VirtualPort();
-    virtualPort.setVirtualResourceGroup(requestLink.getVirtualResourceGroup());
-    virtualPort.setMaxBandwidth(requestLink.getMinBandwidth());
-    virtualPort.setPhysicalPort(Iterables.get(requestLink.getPhysicalResourceGroup().getPhysicalPorts(), 0));
+    CreateVirtualPortCommand command = new CreateVirtualPortCommand(requestLink);
 
-    model.addAttribute(MODEL_KEY, virtualPort);
+    model.addAttribute("createVirtualPortCommand", command);
     model.addAttribute("physicalPorts", requestLink.getPhysicalResourceGroup().getPhysicalPorts());
     model.addAttribute("virtualResourceGroups", ImmutableList.of(requestLink.getVirtualResourceGroup()));
     model.addAttribute("physicalResourceGroups", ImmutableList.of(requestLink.getPhysicalResourceGroup()));
@@ -254,12 +254,112 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     return super.translateSortProperty(sortProperty);
   }
 
+  public static final class CreateVirtualPortCommand {
+
+    @NotNull
+    private VirtualPortRequestLink virtualPortRequestLink;
+    @NotEmpty
+    private String managerLabel;
+    @NotNull
+    @Min(value = 1)
+    private Integer maxBandwidth;
+    @Range(min = 1, max = 4095)
+    private Integer vlanId;
+    @NotNull
+    private PhysicalPort physicalPort;
+    @NotNull
+    private VirtualResourceGroup virtualResourceGroup;
+    @NotNull
+    private PhysicalResourceGroup physicalResourceGroup;
+
+    public CreateVirtualPortCommand() {
+    }
+
+    public CreateVirtualPortCommand(VirtualPortRequestLink link) {
+      this.virtualPortRequestLink = link;
+      this.virtualResourceGroup = link.getVirtualResourceGroup();
+      this.physicalResourceGroup = link.getPhysicalResourceGroup();
+      this.physicalPort = Iterables.get(link.getPhysicalResourceGroup().getPhysicalPorts(), 0);
+      this.managerLabel = "";
+      this.maxBandwidth = link.getMinBandwidth();
+    }
+
+    public VirtualPort getPort() {
+      VirtualPort port = new VirtualPort();
+      port.setManagerLabel(managerLabel);
+      port.setMaxBandwidth(maxBandwidth);
+      port.setVlanId(vlanId);
+      port.setPhysicalPort(physicalPort);
+      port.setVirtualResourceGroup(virtualResourceGroup);
+
+      return port;
+    }
+
+    public VirtualPortRequestLink getVirtualPortRequestLink() {
+      return virtualPortRequestLink;
+    }
+
+    public void setVirtualPortRequestLink(VirtualPortRequestLink virtualPortRequestLink) {
+      this.virtualPortRequestLink = virtualPortRequestLink;
+    }
+
+    public String getManagerLabel() {
+      return managerLabel;
+    }
+
+    public void setManagerLabel(String managerLabel) {
+      this.managerLabel = managerLabel;
+    }
+
+    public Integer getMaxBandwidth() {
+      return maxBandwidth;
+    }
+
+    public void setMaxBandwidth(Integer maxBandwidth) {
+      this.maxBandwidth = maxBandwidth;
+    }
+
+    public Integer getVlanId() {
+      return vlanId;
+    }
+
+    public void setVlanId(Integer vlanId) {
+      this.vlanId = vlanId;
+    }
+
+    public PhysicalPort getPhysicalPort() {
+      return physicalPort;
+    }
+
+    public void setPhysicalPort(PhysicalPort physicalPort) {
+      this.physicalPort = physicalPort;
+    }
+
+    public VirtualResourceGroup getVirtualResourceGroup() {
+      return virtualResourceGroup;
+    }
+
+    public void setVirtualResourceGroup(VirtualResourceGroup virtualResourceGroup) {
+      this.virtualResourceGroup = virtualResourceGroup;
+    }
+
+    public PhysicalResourceGroup getPhysicalResourceGroup() {
+      return physicalResourceGroup;
+    }
+
+    public void setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
+      this.physicalResourceGroup = physicalResourceGroup;
+    }
+
+  }
+
   public static final class VirtualPortUpdateCommand {
     private Long id;
     private Integer version;
     @NotEmpty
     private String managerLabel;
     @NotNull
+    @Min(value = 1)
     private Integer maxBandwidth;
     @Range(min = 1, max = 4095)
     private Integer vlanId;

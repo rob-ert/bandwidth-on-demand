@@ -23,17 +23,13 @@ package nl.surfnet.bod.domain;
 
 import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Version;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
 import org.joda.time.LocalDateTime;
+
+import com.google.common.base.Objects;
 
 @Entity
 public class VirtualPortRequestLink {
@@ -62,6 +58,9 @@ public class VirtualPortRequestLink {
   @NotNull
   @ManyToOne
   private PhysicalResourceGroup physicalResourceGroup;
+
+  @Enumerated(EnumType.STRING)
+  private RequestStatus status = RequestStatus.PENDING;
 
   private String message;
 
@@ -138,4 +137,33 @@ public class VirtualPortRequestLink {
   public void setRequestor(String requestor) {
     this.requestor = requestor;
   }
+
+  public RequestStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(RequestStatus status) {
+    this.status = status;
+  }
+
+  public enum RequestStatus {
+    PENDING, APPROVED, DECLINED
+  }
+
+  public boolean isPending() {
+    return status == RequestStatus.PENDING;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(VirtualPortRequestLink.class)
+        .add("id", id)
+        .add("uuid", uuid)
+        .add("virtualResourceGroup", virtualResourceGroup)
+        .add("physicalResourceGroup", physicalResourceGroup)
+        .toString();
+  }
+
+
+
 }

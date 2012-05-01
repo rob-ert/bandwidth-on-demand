@@ -21,8 +21,13 @@
  */
 package nl.surfnet.bod.web.manager;
 
+import java.util.Collection;
+
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,19 +39,26 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller("managerDashboardController")
 @RequestMapping("/manager")
 public class DashboardController {
+
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
 
+  @Autowired
+  private VirtualPortService virtualPortService;
+
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
-
     Long groupId = WebUtils.getSelectedPhysicalResourceGroupId();
 
-    if (groupId != null) {
-      PhysicalResourceGroup group = physicalResourceGroupService.find(groupId);
-
-      model.addAttribute("prg", group);
+    if (groupId == null) {
+      return "redirect:/";
     }
+
+    PhysicalResourceGroup group = physicalResourceGroupService.find(groupId);
+    Collection<VirtualPortRequestLink> requests = virtualPortService.findPendingRequests(group);
+
+    model.addAttribute("prg", group);
+    model.addAttribute("requests", Orderings.vpRequestLinkOrdring().sortedCopy(requests));
 
     return "manager/index";
   }

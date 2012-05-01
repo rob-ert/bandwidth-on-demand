@@ -74,6 +74,12 @@ public class RichUserDetailsFactory {
     return this;
   }
 
+  public RichUserDetailsFactory addManagerRole(PhysicalResourceGroup group) {
+    bodRoles.add(BodRole.createManager(group));
+
+    return this;
+  }
+
   public RichUserDetailsFactory addUserGroup(String groupId) {
     userGroups.add(new UserGroupFactory().setId(groupId).create());
     return this;

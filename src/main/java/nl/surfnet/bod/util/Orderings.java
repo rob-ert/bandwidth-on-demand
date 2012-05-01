@@ -21,10 +21,7 @@
  */
 package nl.surfnet.bod.util;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 
 import com.google.common.collect.Ordering;
 
@@ -52,11 +49,18 @@ public final class Orderings {
   };
 
   private static final Ordering<BodRole> ROLE_ORDERING = new Ordering<BodRole>() {
-        @Override
-        public int compare(BodRole role1, BodRole role2) {
-          return (String.valueOf(role1.getRole().getSortOrder()) + role1.getInstituteName()).compareTo(String
-              .valueOf(role2.getRole().getSortOrder()) + role2.getInstituteName());
-        }
+    @Override
+    public int compare(BodRole role1, BodRole role2) {
+      return (String.valueOf(role1.getRole().getSortOrder()) + role1.getInstituteName()).compareTo(String.valueOf(role2
+          .getRole().getSortOrder()) + role2.getInstituteName());
+    }
+  };
+
+  private static final Ordering<VirtualPortRequestLink> VP_REQUEST_LINK_ORDERING = new Ordering<VirtualPortRequestLink>() {
+    @Override
+    public int compare(VirtualPortRequestLink left, VirtualPortRequestLink right) {
+      return left.getRequestDateTime().compareTo(right.getRequestDateTime());
+    }
   };
 
   private Orderings() {
@@ -76,5 +80,9 @@ public final class Orderings {
 
   public static Ordering<BodRole> bodRoleOrdering() {
     return ROLE_ORDERING;
+  }
+
+  public static Ordering<VirtualPortRequestLink> vpRequestLinkOrdring() {
+    return VP_REQUEST_LINK_ORDERING;
   }
 }

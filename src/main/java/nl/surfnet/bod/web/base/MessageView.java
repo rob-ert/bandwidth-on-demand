@@ -39,9 +39,9 @@ public class MessageView {
     this.message = message;
   }
 
-  public static MessageView createInfoMessage(MessageSource messageSource, String titleKey, String messageKey) {
-    String title = WebUtils.getMessage(messageSource, titleKey);
-    String message = WebUtils.getMessage(messageSource, messageKey);
+  public static MessageView createInfoMessage(MessageSource messageSource, String titleKey, String messageKey, String... args) {
+    String title = WebUtils.getMessage(messageSource, titleKey, args);
+    String message = WebUtils.getMessage(messageSource, messageKey, args);
 
     MessageView messageView = new MessageView(title, message);
 

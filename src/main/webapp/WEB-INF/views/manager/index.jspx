@@ -1,43 +1,70 @@
-<html xmlns:spring="http://www.springframework.org/tags"
-	xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
-	xmlns:sec="http://www.springframework.org/security/tags"
-	xmlns:jsp="http://java.sun.com/JSP/Page"
-	xmlns:c="http://java.sun.com/jsp/jstl/core">
-	
-	<jsp:directive.page contentType="text/html;charset=UTF-8" />
-	<jsp:output omit-xml-declaration="yes" />
+<html xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
+    xmlns:sec="http://www.springframework.org/security/tags" xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:table="urn:jsptagdir:/WEB-INF/tags/table" xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-	<spring:message var="app_name" code="application_name" htmlEscape="false" />
-	<div class="row">
-		<div class="span8">
-			<section>
-				<h2>Institute</h2>				
-				<div class="content">
-						<spring:url value="manager/physicalresourcegroups/edit" var="edit_prg_url">
-							<spring:param name="id" value="${prg.id}" />
-						</spring:url>
-							<c:out value="${prg.name}"/>
-							<c:out value=" (${prg.managerEmail}) "/>
-							<a href="${edit_prg_url}" rel="tooltip" title="Edit institute" data-type="info"><i class="icon-pencil"><!--  --></i></a>						    
-				</div>
-			</section>
-		</div>
-		<div class="span4">
-			<section>
-				<h2>Welcome to ${app_name}</h2>
-				<div class="content-dense">
-					<sec:authentication property="principal.selectedRole"
-						var="selectedRole" />
-					<h3>Institute</h3>
-					<p>
-						At this moment you are logged into this application as the <strong><spring:message code="role_${selectedRole.roleName}" /></strong>
-						 of the institute shown on this page.
-					</p>
-					<p>
-						Click on the <i class="icon-pencil"><!--  --></i> icon behind the institute to make changes.
-					</p>
-				</div>
-			</section>
-		</div>
-	</div>
+<jsp:directive.page contentType="text/html;charset=UTF-8" />
+<jsp:output omit-xml-declaration="yes" />
+
+<spring:message var="app_name" code="application_name" htmlEscape="false" />
+<div class="row">
+    <div class="span8">
+        <section>
+            <h2>Institute</h2>
+            <div class="content">
+                <spring:url value="manager/physicalresourcegroups/edit" var="edit_prg_url">
+                    <spring:param name="id" value="${prg.id}" />
+                </spring:url>
+                <c:out value="${prg.name}" />
+                <c:out value=" (${prg.managerEmail}) " />
+                <a href="${edit_prg_url}" rel="tooltip" title="Edit institute" data-type="info">
+                    <i class="icon-pencil"> <!--  --></i>
+                </a>
+            </div>
+        </section>
+        <section>
+            <h2>Pending Virtual Port Requests</h2>
+            <div class="content">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th>Motivation</th>
+                            <th>Requested</th>
+                            <table:actionsHeader />
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach items="${requests}" var="request">
+                            <tr>
+                                <td><c:out value="${request.virtualResourceGroup.name}" /></td>
+                                <td><c:out value="${request.message}" /></td>
+                                <td><spring:eval expression="request.requestDateTime" /></td>
+                                <table:actionsColumn labelCode="" item="${request}" delete="false" update="false">
+                                    <spring:url value="/manager/virtualports/create/${request.uuid}" var="requestUrl" />
+                                    <a href="${requestUrl}" rel="tooltip" title="New Virtual Port Request" data-type="info"><i class="icon-plus"><!--  --></i></a>
+                                </table:actionsColumn>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+    <div class="span4">
+        <section>
+            <h2>Welcome to ${app_name}</h2>
+            <div class="content-dense">
+                <sec:authentication property="principal.selectedRole" var="selectedRole" />
+                <h3>Institute</h3>
+                <p>
+                    At this moment you are logged into this application as the <strong><spring:message
+                            code="role_${selectedRole.roleName}" /></strong> of the institute shown on this page.
+                </p>
+                <p>
+                    Click on the <i class="icon-pencil"><!--  --></i> icon behind the institute to make changes.
+                </p>
+            </div>
+        </section>
+    </div>
+</div>
 </html>

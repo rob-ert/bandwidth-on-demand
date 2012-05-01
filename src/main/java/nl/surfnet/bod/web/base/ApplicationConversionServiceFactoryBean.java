@@ -21,11 +21,7 @@
  */
 package nl.surfnet.bod.web.base;
 
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -75,6 +71,15 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
       @Override
       public PhysicalPort convert(final Long id) {
         return physicalPortService.find(id);
+      }
+    };
+  }
+
+  public Converter<Long, VirtualPortRequestLink> getIdToVirtualPortRequestLinkConverter() {
+    return new Converter<Long, VirtualPortRequestLink>() {
+      @Override
+      public VirtualPortRequestLink convert(final Long id) {
+        return virtualPortService.findRequest(id);
       }
     };
   }
@@ -133,6 +138,15 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
     };
   }
 
+  public Converter<String, VirtualPortRequestLink> getStringToVirtualPortRequestLinkConverter() {
+    return new Converter<String, VirtualPortRequestLink>() {
+      @Override
+      public VirtualPortRequestLink convert(String id) {
+        return getObject().convert(getObject().convert(id, Long.class), VirtualPortRequestLink.class);
+      }
+    };
+  }
+
   public Converter<VirtualResourceGroup, String> getVirtualResourceGroupToStringConverter() {
     return new Converter<VirtualResourceGroup, String>() {
       @Override
@@ -180,24 +194,28 @@ public class ApplicationConversionServiceFactoryBean extends FormattingConversio
 
   public void installLabelConverters(final FormatterRegistry registry) {
     // physical ports
-    registry.addConverter(getPhysicalPortToStringConverter());
-    registry.addConverter(getStringToPhysicalPortConverter());
     registry.addConverter(getIdToPhysicalPortConverter());
+    registry.addConverter(getStringToPhysicalPortConverter());
+    registry.addConverter(getPhysicalPortToStringConverter());
 
     // physical resource groups
-    registry.addConverter(getPhysicalResourceGroupToStringConverter());
-    registry.addConverter(getStringToPhysicalResourceGroupConverter());
     registry.addConverter(getIdToPhysicalResourceGroupConverter());
+    registry.addConverter(getStringToPhysicalResourceGroupConverter());
+    registry.addConverter(getPhysicalResourceGroupToStringConverter());
 
     // virtual resource groups
-    registry.addConverter(getVirtualResourceGroupToStringConverter());
-    registry.addConverter(getStringToVirtualResourceGroupConverter());
     registry.addConverter(getIdToVirtualResourceGroupConverter());
+    registry.addConverter(getStringToVirtualResourceGroupConverter());
+    registry.addConverter(getVirtualResourceGroupToStringConverter());
 
     // virtual ports
-    registry.addConverter(getVirtualPortToStringConverter());
-    registry.addConverter(getStringToVirtualPortConverter());
     registry.addConverter(getIdToVirtualPortConverter());
+    registry.addConverter(getStringToVirtualPortConverter());
+    registry.addConverter(getVirtualPortToStringConverter());
+
+    // virtual port request links
+    registry.addConverter(getIdToVirtualPortRequestLinkConverter());
+    registry.addConverter(getStringToVirtualPortRequestLinkConverter());
 
     // Institute
     registry.addConverter(getInstituteToStringConverter());

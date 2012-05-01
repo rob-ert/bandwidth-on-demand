@@ -22,13 +22,7 @@
 package nl.surfnet.bod.domain;
 
 import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Version;
+import javax.persistence.*;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -98,17 +92,6 @@ public class PhysicalPort {
     this.networkElementPk = networkElementPk;
   }
 
-  @Override
-  public String toString() {
-    return Objects.toStringHelper(PhysicalPort.class)
-        .add("id", id)
-        .add("nocLabel", nocLabel)
-        .add("managerLabel", managerLabel)
-        .add("networkElementPk", networkElementPk)
-        .add("physicalResourceGroup", physicalResourceGroup)
-        .toString();
-  }
-
   public String getManagerLabel() {
     return Strings.emptyToNull(managerLabel) == null ? nocLabel : managerLabel;
   }
@@ -125,4 +108,14 @@ public class PhysicalPort {
     return getPhysicalResourceGroup() != null;
   }
 
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(PhysicalPort.class)
+        .add("id", id)
+        .add("nocLabel", nocLabel)
+        .add("managerLabel", managerLabel)
+        .add("networkElementPk", networkElementPk)
+        .add("physicalResourceGroup", physicalResourceGroup)
+        .toString();
+  }
 }

@@ -36,9 +36,11 @@ import java.util.Collection;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
-import nl.surfnet.bod.service.*;
+import nl.surfnet.bod.service.InstituteService;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.manager.VirtualPortController.CreateVirtualPortCommand;
 import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortUpdateCommand;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -52,6 +54,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 
 import com.google.common.collect.Lists;
 
@@ -68,31 +71,20 @@ public class VirtualPortControllerTest {
   private InstituteService instituteServiceMock;
 
   @Mock
-  private PhysicalResourceGroupService physicalResourceGroupServiceMock;
-
-  @Mock
-  private PhysicalPortService physicalPortServiceMock;
-
-  @Mock
-  private ReservationService reservationsServiceMock;
-
-  @SuppressWarnings("unused")
-  @Mock
   private VirtualPortValidator virtualPortValidatorMock;
 
-  @SuppressWarnings("unused")
   @Mock
   private MessageSource messageSourceMock;
 
   private RichUserDetails user;
-  private PhysicalPort port;
+  private PhysicalPort physicalPort;
   private PhysicalResourceGroup prg;
   private BodRole managerRole;
 
   @Before
   public void login() {
-    port = new PhysicalPortFactory().create();
-    prg = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").addPhysicalPort(port).create();
+    physicalPort = new PhysicalPortFactory().create();
+    prg = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").addPhysicalPort(physicalPort).create();
 
     managerRole = BodRole.createManager(prg);
     user = new RichUserDetailsFactory().addBodRoles(BodRole.createUser(), managerRole).addUserGroup("urn:manager-group").create();
@@ -151,8 +143,8 @@ public class VirtualPortControllerTest {
   @Test
   public void createWithIllegalPhysicalResourceGroupShouldRedirect() {
     ModelStub model = new ModelStub();
-    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group-wrong").create();
-    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(prg).create();
+    PhysicalResourceGroup wrongPrg = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group-wrong").create();
+    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(wrongPrg).create();
 
     when(virtualPortServiceMock.findRequest("1234567890")).thenReturn(link);
 
@@ -162,20 +154,22 @@ public class VirtualPortControllerTest {
   }
 
   @Test
-  public void createShouldVirtualPortModel() {
+  public void createShouldAddCreateCommandToModel() {
     ModelStub model = new ModelStub();
-
     VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(prg).create();
 
     when(virtualPortServiceMock.findRequest("1234567890")).thenReturn(link);
 
     subject.createForm("1234567890", model, model);
 
-    VirtualPort vport = (VirtualPort) model.asMap().get("virtualPort");
-    assertThat(vport.getVirtualResourceGroup(), is(link.getVirtualResourceGroup()));
-    assertThat(vport.getPhysicalPort(), is(port));
-    assertThat(vport.getPhysicalResourceGroup(), is(prg));
-    assertThat(vport.getMaxBandwidth(), is(link.getMinBandwidth()));
+    CreateVirtualPortCommand command = (CreateVirtualPortCommand) model.asMap().get("createVirtualPortCommand");
+    assertThat(command.getVirtualResourceGroup(), is(link.getVirtualResourceGroup()));
+    assertThat(command.getPhysicalPort(), is(physicalPort));
+    assertThat(command.getPhysicalResourceGroup(), is(prg));
+    assertThat(command.getMaxBandwidth(), is(link.getMinBandwidth()));
+    assertThat(command.getVirtualPortRequestLink(), is(link));
+
+    verify(instituteServiceMock).fillInstituteForPhysicalResourceGroup(prg);
   }
 
   @Test
@@ -190,6 +184,19 @@ public class VirtualPortControllerTest {
     subject.createForm("1234567890", model, model);
 
     assertThat(user.getSelectedRole(), is(managerRole));
+  }
+
+  @Test
+  public void whenAPortIsCreatedLinkShouldChangeStatus() {
+    ModelStub model = new ModelStub();
+    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(prg).create();
+    CreateVirtualPortCommand command = new CreateVirtualPortCommand(link);
+    BindingResult result = new BeanPropertyBindingResult(command, "createVirtualPortCommand");
+
+    subject.create(command, result, model, model);
+
+    verify(virtualPortServiceMock).save(any(VirtualPort.class));
+    verify(virtualPortServiceMock).requestLinkApproved(link);
   }
 
 }

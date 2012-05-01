@@ -24,19 +24,13 @@ package nl.surfnet.bod.domain;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Transient;
-import javax.persistence.Version;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
+
+import com.google.common.base.Objects;
 
 @Entity
 public class PhysicalResourceGroup {
@@ -158,14 +152,12 @@ public class PhysicalResourceGroup {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("Id: ").append(getId()).append(", ");
-    sb.append("InstituteId: ").append(getInstituteId()).append(", ");
-    sb.append("Admin group: ").append(getAdminGroup()).append(", ");
-    sb.append("Manager email: ").append(getManagerEmail()).append(", ");
-    sb.append("Active: ").append(isActive()).append(", ");
-    sb.append("Version: ").append(getVersion());
-
-    return sb.toString();
+    return Objects.toStringHelper(PhysicalResourceGroup.class)
+      .add("id", id)
+      .add("instituteId", instituteId)
+      .add("adminGroup: ", adminGroup)
+      .add("managerEmail", managerEmail)
+      .add("active", active)
+      .add("version", version).toString();
   }
 }

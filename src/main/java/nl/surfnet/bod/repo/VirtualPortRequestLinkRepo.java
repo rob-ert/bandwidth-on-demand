@@ -21,7 +21,11 @@
  */
 package nl.surfnet.bod.repo;
 
+import java.util.List;
+
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -32,4 +36,6 @@ public interface VirtualPortRequestLinkRepo extends JpaSpecificationExecutor<Vir
     JpaRepository<VirtualPortRequestLink, Long> {
 
   VirtualPortRequestLink findByUuid(String uuid);
+
+  List<VirtualPortRequestLink> findByPhysicalResourceGroupAndStatus(PhysicalResourceGroup prg, RequestStatus status);
 }
