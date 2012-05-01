@@ -37,6 +37,15 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
   }
 
   @Test
+  public void allocatePhysicalPortFromInstitutePage() {
+    getNocDriver().addPhysicalPortToInstitute(groupName, "Mock_ETH10G-1-13-1", "NOC label");
+
+    getNocDriver().verifyPhysicalPortWasAllocated(NETWORK_ELEMENT_PK, "NOC label");
+
+    getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
+  }
+
+  @Test
   public void createRenameAndDeleteAPhysicalPort() {
     String nocLabel = "My Selenium Port (Noc)";
     String managerLabel1 = "My Selenium Port (Manager 1st)";
@@ -65,4 +74,5 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
   public void teardown() {
     getNocDriver().deletePhysicalResourceGroup(groupName);
   }
+
 }

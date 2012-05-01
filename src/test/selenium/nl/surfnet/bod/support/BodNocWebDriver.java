@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.support;
 
+import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.pages.noc.*;
@@ -40,7 +41,7 @@ public class BodNocWebDriver {
   /* **************************************** */
 
   public void createNewPhysicalResourceGroup(String institute, String adminGroup, String email) {
-    NewPhysicalResourceGroupPage page = NewPhysicalResourceGroupPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    NewPhysicalResourceGroupPage page = NewPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
     page.sendInstitute(institute);
     page.sendAdminGroup(adminGroup);
     page.sendEmail(email);
@@ -49,7 +50,7 @@ public class BodNocWebDriver {
   }
 
   public void deletePhysicalResourceGroup(String institute) {
-    ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
 
     page.delete(institute);
   }
@@ -97,19 +98,19 @@ public class BodNocWebDriver {
   }
 
   public void verifyPhysicalPortWasAllocated(String networkElementPk, String nocLabel) {
-    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
 
     page.findRow(networkElementPk, nocLabel);
   }
 
   public void unlinkPhysicalPort(String networkElementPk) {
-    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
 
     page.unlinkPhysicalPort(networkElementPk);
   }
 
   public void gotoEditPhysicalPortAndVerifyManagerLabel(String networkElementPk, String managerLabel) {
-    ListAllocatedPortsPage listPage = ListAllocatedPortsPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    ListAllocatedPortsPage listPage = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
 
     EditPhysicalPortPage editPage = listPage.edit(networkElementPk);
 
@@ -125,9 +126,18 @@ public class BodNocWebDriver {
   }
 
   private void switchTo(String role) {
-    NocOverviewPage page = NocOverviewPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    NocOverviewPage page = NocOverviewPage.get(driver, URL_UNDER_TEST);
 
     page.clickSwitchRole(role);
   }
 
+  public void addPhysicalPortToInstitute(String groupName, String port, String nocLabel) {
+    ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
+
+    AddPhysicalPortPage addPage = page.addPhysicalPort(groupName);
+    addPage.selectPort(port);
+    addPage.sendNocLabel(nocLabel);
+
+    addPage.save();
+  }
 }

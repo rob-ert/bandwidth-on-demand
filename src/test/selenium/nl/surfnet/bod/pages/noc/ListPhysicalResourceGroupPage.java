@@ -52,4 +52,10 @@ public class ListPhysicalResourceGroupPage extends AbstractListPage {
     return EditPhysicalResourceGroupPage.get(driver);
   }
 
+  public AddPhysicalPortPage addPhysicalPort(String groupName) {
+    clickRowIcon("icon-resize-small", groupName);
+
+    return AddPhysicalPortPage.get(driver);
+  }
+
 }
