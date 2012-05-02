@@ -196,7 +196,7 @@ public class VirtualPortControllerTest {
     subject.create(command, result, model, model);
 
     verify(virtualPortServiceMock).save(any(VirtualPort.class));
-    verify(virtualPortServiceMock).requestLinkApproved(link);
+    verify(virtualPortServiceMock).requestLinkApproved(eq(link), any(VirtualPort.class));
   }
 
 }

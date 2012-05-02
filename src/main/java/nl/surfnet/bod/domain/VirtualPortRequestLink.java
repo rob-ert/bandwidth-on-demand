@@ -27,6 +27,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.LocalDateTime;
 
 import com.google.common.base.Objects;
@@ -45,7 +46,17 @@ public class VirtualPortRequestLink {
   @Column(nullable = false)
   private String uuid = UUID.randomUUID().toString();;
 
-  private String requestor;
+  @NotEmpty
+  @Column(nullable = false)
+  private String requestorName;
+
+  @NotEmpty
+  @Column(nullable = false)
+  private String requestorEmail;
+
+  @NotEmpty
+  @Column(nullable = false)
+  private String requestorUrn;
 
   @NotNull
   @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
@@ -130,12 +141,12 @@ public class VirtualPortRequestLink {
     this.minBandwidth = minBandwidth;
   }
 
-  public String getRequestor() {
-    return requestor;
+  public String getRequestorUrn() {
+    return requestorUrn;
   }
 
-  public void setRequestor(String requestor) {
-    this.requestor = requestor;
+  public void setRequestorUrn(String requestorUrn) {
+    this.requestorUrn = requestorUrn;
   }
 
   public RequestStatus getStatus() {
@@ -162,6 +173,22 @@ public class VirtualPortRequestLink {
         .add("virtualResourceGroup", virtualResourceGroup)
         .add("physicalResourceGroup", physicalResourceGroup)
         .toString();
+  }
+
+  public String getRequestorName() {
+    return requestorName;
+  }
+
+  public void setRequestorName(String requestorName) {
+    this.requestorName = requestorName;
+  }
+
+  public String getRequestorEmail() {
+    return requestorEmail;
+  }
+
+  public void setRequestorEmail(String requestorEmail) {
+    this.requestorEmail = requestorEmail;
   }
 
 

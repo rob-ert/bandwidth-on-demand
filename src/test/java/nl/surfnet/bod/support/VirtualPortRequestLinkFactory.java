@@ -32,7 +32,9 @@ public class VirtualPortRequestLinkFactory {
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
   private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
   private LocalDateTime requestDateTime = LocalDateTime.now();
-  private String requestor = "urn:truusvisscher";
+  private String requestorUrn = "urn:truusvisscher";
+  private String requestorName = "Truus Visscher";
+  private String requestorEmail = "truus@visscher.nl";
   private String uuid;
   private String message = "I would like to have a new virtual port to do my work.";
   private Integer minBandwidth = 1000;
@@ -43,7 +45,10 @@ public class VirtualPortRequestLinkFactory {
     link.setVirtualResourceGroup(virtualResourceGroup);
     link.setPhysicalResourceGroup(physicalResourceGroup);
     link.setRequestDateTime(requestDateTime);
-    link.setRequestor(requestor);
+    link.setRequestorUrn(requestorUrn);
+    link.setRequestorEmail(requestorEmail);
+    link.setRequestorName(requestorName);
+
     if (uuid != null) {
       link.setUuid(uuid);
     }

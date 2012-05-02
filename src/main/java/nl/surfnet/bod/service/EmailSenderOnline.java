@@ -29,9 +29,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.service.Emails.ActivationEmail;
 import nl.surfnet.bod.service.Emails.ErrorMail;
+import nl.surfnet.bod.service.Emails.VirtualPortRequestApprovedMail;
 import nl.surfnet.bod.service.Emails.VirtualPortRequestMail;
 import nl.surfnet.bod.web.manager.ActivationEmailController;
 import nl.surfnet.bod.web.manager.VirtualPortController;
@@ -116,6 +118,17 @@ public class EmailSenderOnline implements EmailSender {
     send(mail);
   }
 
+  @Override
+  public void sendVirtualPortRequestApprovedMail(VirtualPortRequestLink link, VirtualPort port) {
+    SimpleMailMessage mail = new MailMessageBuilder()
+      .withTo(link.getRequestorName(), link.getRequestorEmail())
+      .withSubject(VirtualPortRequestApprovedMail.subject(port))
+      .withBodyText(VirtualPortRequestApprovedMail.body(link, port))
+      .create();
+
+    send(mail);
+  }
+
   private URL generateActivationUrl(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
     try {
       return new URL(String.format(externalBodUrl + "%s/%s", ActivationEmailController.ACTIVATION_MANAGER_PATH,
@@ -157,7 +170,7 @@ public class EmailSenderOnline implements EmailSender {
       Preconditions.checkState(Strings.emptyToNull(text) != null);
 
       SimpleMailMessage mailMessage = new SimpleMailMessage();
-      mailMessage.setFrom(fromAddress);
+      mailMessage.setFrom(String.format("Bandwidth on Demand <%s>", fromAddress));
       mailMessage.setTo(to);
       mailMessage.setReplyTo(replyTo);
       mailMessage.setSubject(subject);
@@ -177,6 +190,11 @@ public class EmailSenderOnline implements EmailSender {
 
     public MailMessageBuilder withTo(String t) {
       this.to = t;
+      return this;
+    }
+
+    public MailMessageBuilder withTo(String name, String email) {
+      this.to = String.format("%s <%s>", name, email);
       return this;
     }
 

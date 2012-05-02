@@ -173,7 +173,9 @@ public class VirtualPortService {
     link.setPhysicalResourceGroup(pGroup);
     link.setMinBandwidth(minBandwidth);
     link.setMessage(message);
-    link.setRequestor(user.getUsername());
+    link.setRequestorEmail(user.getEmail());
+    link.setRequestorName(user.getDisplayName());
+    link.setRequestorUrn(user.getUsername());
     link.setRequestDateTime(LocalDateTime.now());
 
     virtualPortRequestLinkRepo.save(link);
@@ -189,9 +191,10 @@ public class VirtualPortService {
     return virtualPortRequestLinkRepo.findByUuid(uuid);
   }
 
-  public void requestLinkApproved(VirtualPortRequestLink link) {
+  public void requestLinkApproved(VirtualPortRequestLink link, VirtualPort port) {
     link.setStatus(RequestStatus.APPROVED);
     virtualPortRequestLinkRepo.save(link);
+    emailSender.sendVirtualPortRequestApprovedMail(link, port);
   }
 
   public VirtualPortRequestLink findRequest(Long id) {

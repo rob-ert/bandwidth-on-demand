@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
@@ -35,5 +36,7 @@ public interface EmailSender {
   void sendActivationMail(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink);
 
   void sendVirtualPortRequestMail(RichUserDetails from, VirtualPortRequestLink link);
+
+  void sendVirtualPortRequestApprovedMail(VirtualPortRequestLink link, VirtualPort port);
 
 }

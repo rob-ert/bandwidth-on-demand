@@ -2,6 +2,7 @@ package nl.surfnet.bod.service;
 
 import javax.servlet.http.HttpServletRequest;
 
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
@@ -13,14 +14,14 @@ import com.google.common.base.Throwables;
 public final class Emails {
 
   private static final String FOOTER = //
-      "Kind regards,\n" //
-    + "The Bandwidth on Demand Application team";
+  "Kind regards,\n" //
+      + "The Bandwidth on Demand Application team";
 
   public static class ActivationEmail {
     private static final String ACTIVATION_BODY = //
-        "Dear ICT Administrator,\n\n" //
-      + "Please click the link to activate the email address for institute: %s\n\n" //
-      + FOOTER;
+    "Dear ICT Administrator,\n\n" //
+        + "Please click the link to activate the email address for institute: %s\n\n" //
+        + FOOTER;
 
     public static String body(String link) {
       return String.format(ACTIVATION_BODY, link);
@@ -33,21 +34,19 @@ public final class Emails {
 
   public static class VirtualPortRequestMail {
     private static final String VIRTUAL_PORT_REQUEST_BODY = //
-        "Dear ICT Administrator,\n\n" //
-      + "You have received a new Virtual Port Request.\n\n" //
-      + "From: %s (%s)\n" //
-      + "Team: %s\n" //
-      + "Minimum Bandwidth: %d Mbit/s\n" //
-      + "Reason: %s\n" //
-      + "Institute: %s\n\n" //
-      + "Click on the following link %s to create the virtual port.\n\n" //
-      + FOOTER;
+    "Dear ICT Administrator,\n\n" //
+        + "You have received a new Virtual Port Request.\n\n" //
+        + "From: %s (%s)\n" //
+        + "Team: %s\n" //
+        + "Minimum Bandwidth: %d Mbit/s\n" //
+        + "Reason: %s\n" //
+        + "Institute: %s\n\n" //
+        + "Click on the following link %s to create the virtual port.\n\n" //
+        + FOOTER;
 
     public static String body(RichUserDetails from, VirtualPortRequestLink requestLink, String link) {
-      return String.format(
-          VIRTUAL_PORT_REQUEST_BODY,
-          from.getDisplayName(), from.getEmail(), requestLink.getVirtualResourceGroup().getName(),
-          requestLink.getMinBandwidth(), requestLink.getMessage(), requestLink
+      return String.format(VIRTUAL_PORT_REQUEST_BODY, from.getDisplayName(), from.getEmail(), requestLink
+          .getVirtualResourceGroup().getName(), requestLink.getMinBandwidth(), requestLink.getMessage(), requestLink
           .getPhysicalResourceGroup().getInstitute().getName(), link);
     }
 
@@ -56,29 +55,41 @@ public final class Emails {
     }
   }
 
+  public static final class VirtualPortRequestApprovedMail {
+    private static final String BODY = //
+    "Dear %s,\n\n" //
+        + "Your Request for a Virtual Port from %s for your team %s has been approved.\n" //
+        + "The Virtual Port is now available with the name '%s'. It has a max. bandwidth of %d Mbit/s.\n\n" //
+        + FOOTER;
+
+    public static String body(VirtualPortRequestLink link, VirtualPort port) {
+      return String.format(BODY, link.getRequestorName(), link.getPhysicalResourceGroup().getName(), link
+          .getVirtualResourceGroup().getName(), port.getUserLabel(), port.getMaxBandwidth());
+    }
+
+    public static String subject(VirtualPort port) {
+      return String.format("[BoD] Virtual Port %s created", port.getUserLabel());
+    }
+  }
+
   public static class ErrorMail {
     private static final String ERROR_MAIL_BODY = //
-        "Dear BoD Team,\n\n" //
-      + "An exception occured.\n\n" //
-      + "User: %s (%s)\n" //
-      + "Username: %s\n" //
-      + "Request: %s (%s)\n" //
-      + "Around: %s\n" //
-      + "Stacktrace:\n%s\n\n"
-      + FOOTER;
+    "Dear BoD Team,\n\n" //
+        + "An exception occured.\n\n" //
+        + "User: %s (%s)\n" //
+        + "Username: %s\n" //
+        + "Request: %s (%s)\n" //
+        + "Around: %s\n" //
+        + "Stacktrace:\n%s\n\n" + FOOTER;
 
     public static String subject(String envUrl, Throwable throwable) {
       return String.format("[Exception on %s] %s", envUrl, throwable.getMessage());
     }
 
     public static String body(RichUserDetails user, Throwable throwable, HttpServletRequest request) {
-      return String.format(ERROR_MAIL_BODY,
-          user.getDisplayName(),
-          user.getEmail(),
-          user.getUsername(),
-          request.getRequestURL().append(request.getQueryString() != null ? "?" + request.getQueryString() : "").toString(),
-          request.getMethod(),
-          DateTimeFormat.mediumDateTime().print(DateTime.now()),
+      return String.format(ERROR_MAIL_BODY, user.getDisplayName(), user.getEmail(), user.getUsername(), request
+          .getRequestURL().append(request.getQueryString() != null ? "?" + request.getQueryString() : "").toString(),
+          request.getMethod(), DateTimeFormat.mediumDateTime().print(DateTime.now()),
           Throwables.getStackTraceAsString(throwable));
     }
   }

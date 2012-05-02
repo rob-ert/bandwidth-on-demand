@@ -83,7 +83,7 @@ public class EmailSenderOnlineTest {
 
     assertThat(message.getTo().length, is(1));
     assertThat(message.getTo()[0], is(activationEmailLink.getSourceObject().getManagerEmail()));
-    assertThat(message.getFrom(), is("test@example.com"));
+    assertThat(message.getFrom(), containsString("test@example.com"));
     assertThat(message.getBcc(), nullValue());
     assertThat(message.getCc(), nullValue());
     assertThat(message.getReplyTo(), nullValue());
