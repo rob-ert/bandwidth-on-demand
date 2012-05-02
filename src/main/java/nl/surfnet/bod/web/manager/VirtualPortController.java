@@ -107,10 +107,10 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
     model.asMap().clear();
 
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_created", port.getManagerLabel());
-
     virtualPortService.save(port);
     virtualPortService.requestLinkApproved(createCommand.getVirtualPortRequestLink(), port);
+
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_created", port.getManagerLabel());
 
     return "redirect:" + PAGE_URL;
   }
