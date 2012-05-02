@@ -49,7 +49,7 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
     getUserDriver().selectInstituteAndRequest("SURFnet bv", 1200, "I would like to have a new port");
 
-    getUserDriver().switchToManager();
+    getUserDriver().switchToManager("SURFnet");
 
     getManagerDriver().verifyVirtualResourceGroupExists("selenium-users");
 
@@ -59,19 +59,29 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
     getManagerDriver().createVirtualPort("Your vport");
 
-    getManagerDriver().verifyVirtualPortExists("Your vport", "SURFnet bv", "selenium-users", "1200");
+    getManagerDriver().verifyVirtualPortExists("Your vport", "selenium-users", "1200");
+
+    // requester has email about port creation
+    getWebDriver().verifyLastEmailRecipient("Selenium Test User <selenium@test.com>");
+
+    getManagerDriver().switchToUser();
+
+    getWebDriver().clickLinkInBeforeLastEmail();
+
+    // should be manager again and have a message link is already used
+    getWebDriver().verifyPageHasMessage("already processed");
 
     // virtual resource group should have one virtual port now
     getManagerDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
-
-    getManagerDriver().showVirtualResourceGroupDetailViewAndVerify("selenium-users", "Your vport");
 
     // physical resource group should have one physical port
     getManagerDriver().verifyPhysicalResourceGroupExists("SURFnet bv", "test@test.nl", "1");
 
     getManagerDriver().editVirtualPort("Your vport", "Edited vport", 1000, "20");
 
-    getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "20");
+    getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "selenium-users");
+
+    // check row details... TODO
 
     getManagerDriver().switchToUser();
 
@@ -79,11 +89,9 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
     getUserDriver().verifyVirtualPortExists("User label", "1000", "selenium-users");
 
-    getUserDriver().switchToManager();
+    getUserDriver().switchToManager("SURFnet");
 
-    getManagerDriver().deleteVirtualPort("Edited vport");
-
-    getManagerDriver().verifyVirtualPortWasDeleted("Edited vport");
+    getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "selenium-users");
   }
 
   @After

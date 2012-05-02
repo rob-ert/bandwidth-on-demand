@@ -56,17 +56,25 @@ public class AbstractPage {
     });
   }
 
-  public void clickSwitchRole(String roleName) {
+  public void clickSwitchRole(String... roleNames) {
     userBox.click();
 
     List<WebElement> roles = userBox.findElements(By.tagName("li"));
     for (WebElement role : roles) {
-      if (role.getText().contains(roleName)) {
-        role.click();
-        return;
+        if (containsAll(role.getText(), roleNames)) {
+          role.click();
+          return;
+        }
+    }
+    throw new NoSuchElementException("Could not find role with name " + roleNames);
+  }
+
+  private boolean containsAll(String input, String[] needles) {
+    for (String needle: needles) {
+      if (!input.contains(needle)) {
+        return false;
       }
     }
-
-    throw new NoSuchElementException("Could not find role with name " + roleName);
+    return true;
   }
 }

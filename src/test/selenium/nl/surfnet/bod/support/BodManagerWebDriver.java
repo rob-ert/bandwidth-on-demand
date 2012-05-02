@@ -22,6 +22,7 @@
 package nl.surfnet.bod.support;
 
 import static junit.framework.Assert.fail;
+import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
@@ -59,7 +60,7 @@ public class BodManagerWebDriver {
   }
 
   public void changeManagerLabelOfPhyiscalPort(String networkElementPk, String managerLabel) {
-    ListPhysicalPortsPage page = ListPhysicalPortsPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    ListPhysicalPortsPage page = ListPhysicalPortsPage.get(driver, URL_UNDER_TEST);
 
     EditPhysicalPortPage editPage = page.edit(networkElementPk);
 
@@ -77,28 +78,14 @@ public class BodManagerWebDriver {
     assertThat(page.getInfoMessages().get(0), containsString("Your institute is not activated"));
   }
 
-  // public void createNewVirtualPort(String name, int maxBandwidth, String
-  // virtualResourceGroup, String physicalResourceGroup, String physicalPort) {
-  // NewVirtualPortPage page = NewVirtualPortPage.get(driver,
-  // BodWebDriver.URL_UNDER_TEST);
-  //
-  // page.sendName(name);
-  // page.sendMaxBandwidth(maxBandwidth);
-  // page.selectVirtualResourceGroup(virtualResourceGroup);
-  // page.selectPhysicalResourceGroup(physicalResourceGroup);
-  // page.selectPhysicalPort(physicalPort);
-  //
-  // page.save();
-  // }
-
   public void verifyVirtualPortExists(String... fields) {
-    ListVirtualPortPage page = ListVirtualPortPage.get(driver);
+    ListVirtualPortPage page = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
 
     page.findRow(fields);
   }
 
   public void deleteVirtualPort(String name) {
-    ListVirtualPortPage page = ListVirtualPortPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    ListVirtualPortPage page = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
 
     page.delete(name);
   }
@@ -116,13 +103,13 @@ public class BodManagerWebDriver {
   }
 
   public void deleteVirtualResourceGroup(String vrgName) {
-    ListVirtualResourceGroupPage page = ListVirtualResourceGroupPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    ListVirtualResourceGroupPage page = ListVirtualResourceGroupPage.get(driver, URL_UNDER_TEST);
 
     page.delete(vrgName);
   }
 
   public void verifyVirtualResourceGroupExists(String... fields) {
-    ListVirtualResourceGroupPage page = ListVirtualResourceGroupPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    ListVirtualResourceGroupPage page = ListVirtualResourceGroupPage.get(driver, URL_UNDER_TEST);
     page.findRow(fields);
   }
 
@@ -148,7 +135,7 @@ public class BodManagerWebDriver {
   }
 
   public void editVirtualPort(String orignalName, String newName, int bandwidth, String vlanId) {
-    ListVirtualPortPage listPage = ListVirtualPortPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    ListVirtualPortPage listPage = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
 
     EditVirtualPortPage editPage = listPage.edit(orignalName);
 
@@ -161,7 +148,7 @@ public class BodManagerWebDriver {
 
   public void verifyReservationExists(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
       LocalDateTime creationDateTime) {
-    ListReservationPage page = ListReservationPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
     String start = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
     String end = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
@@ -177,14 +164,8 @@ public class BodManagerWebDriver {
     page.save();
   }
 
-  public void showVirtualResourceGroupDetailViewAndVerify(String name, String content) {
-    ListVirtualResourceGroupPage page = ListVirtualResourceGroupPage.get(driver, BodWebDriver.URL_UNDER_TEST);
-
-    page.showDetailViewForRowAndVerify(name, content);
-  }
-
   public void verifyPhysicalResourceGroupExists(String... fields) {
-    ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
 
     page.findRow(fields);
   }
@@ -194,11 +175,11 @@ public class BodManagerWebDriver {
   }
 
   public void switchToUser() {
-    swithTo("BoD User");
+    swithTo("User");
   }
 
   private void swithTo(String role) {
-    NocOverviewPage page = NocOverviewPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    NocOverviewPage page = NocOverviewPage.get(driver, URL_UNDER_TEST);
 
     page.clickSwitchRole(role);
   }

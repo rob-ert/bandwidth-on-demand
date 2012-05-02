@@ -40,4 +40,8 @@ public class UserOverviewPage extends AbstractPage {
     return page;
   }
 
+  public void selectInstitute(String team) {
+    driver.findElementByPartialLinkText(team).click();
+  }
+
 }

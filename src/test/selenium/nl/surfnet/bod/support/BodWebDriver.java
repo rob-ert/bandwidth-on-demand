@@ -32,7 +32,9 @@ import javax.mail.internet.MimeMessage;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
 import com.google.common.io.Files;
@@ -117,16 +119,15 @@ public class BodWebDriver {
     return mails[mails.length - 1];
   }
 
+  private MimeMessage getBeforeLastEmail() {
+    MimeMessage[] mails = mailServer.getReceivedMessages();
+    return mails[mails.length - 2];
+  }
+
   public void verifyLastEmailRecipient(String to) {
     MimeMessage lastMail = getLastEmail();
 
     assertThat(GreenMailUtil.getHeaders(lastMail), containsString("To: " + to));
-  }
-
-  public void clickLinkInLastEmail() {
-    String body = GreenMailUtil.getBody(getLastEmail());
-
-    driver.get(extractLink(body));
   }
 
   private String extractLink(String message) {
@@ -139,6 +140,25 @@ public class BodWebDriver {
     }
 
     throw new AssertionError("Could not find link in message");
+  }
+
+  public void clickLinkInLastEmail() {
+    clickLinkInMail(getLastEmail());
+  }
+
+  public void clickLinkInBeforeLastEmail() {
+    clickLinkInMail(getBeforeLastEmail());
+  }
+
+  private void clickLinkInMail(MimeMessage email) {
+    String body = GreenMailUtil.getBody(email);
+    driver.get(extractLink(body));
+  }
+
+  public void verifyPageHasMessage(String text) {
+    WebElement modal = driver.findElement(By.className("modal-body"));
+
+    assertThat(modal.getText(), containsString(text));
   }
 
 }

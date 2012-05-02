@@ -21,14 +21,12 @@
  */
 package nl.surfnet.bod.pages.user;
 
-import nl.surfnet.bod.pages.AbstractListPage;
+import nl.surfnet.bod.pages.AbstractPage;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
-public class RequestNewVirtualPortSelectInstitutePage extends AbstractListPage {
+public class RequestNewVirtualPortSelectInstitutePage extends AbstractPage {
 
   private RequestNewVirtualPortSelectInstitutePage(RemoteWebDriver driver) {
     super(driver);
@@ -42,16 +40,9 @@ public class RequestNewVirtualPortSelectInstitutePage extends AbstractListPage {
   }
 
   public RequestNewVirtualPortRequestPage selectInstitute(String institute) {
-    WebElement row = findRow(institute);
-
-    row.findElement(By.tagName("a")).click();
+    driver.findElementByLinkText(institute).click();
 
     return RequestNewVirtualPortRequestPage.get(driver);
-  }
-
-  @Override
-  public void delete(String... fields) {
-    throw new UnsupportedOperationException("Can not delete...");
   }
 
 }

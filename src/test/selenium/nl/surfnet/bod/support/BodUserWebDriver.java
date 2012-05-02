@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.support;
 
+import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -30,6 +31,7 @@ import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
+import org.junit.Assert;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -42,8 +44,7 @@ public class BodUserWebDriver {
   }
 
   public void requestVirtualPort(String team) {
-    RequestNewVirtualPortSelectTeamPage page = RequestNewVirtualPortSelectTeamPage.get(driver,
-        BodWebDriver.URL_UNDER_TEST);
+    UserOverviewPage page = UserOverviewPage.get(driver, URL_UNDER_TEST);
 
     page.selectInstitute(team);
   }
@@ -72,7 +73,7 @@ public class BodUserWebDriver {
   }
 
   public void cancelReservation(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
-    ListReservationPage page = ListReservationPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
     page.deleteByDates(startDate, endDate, startTime, endTime);
   }
@@ -97,12 +98,16 @@ public class BodUserWebDriver {
   public void verifyRequestVirtualPortInstituteInactive(String instituteName) {
     RequestNewVirtualPortSelectInstitutePage page = RequestNewVirtualPortSelectInstitutePage.get(driver);
 
-    WebElement row = page.findRow(instituteName);
-    assertThat(row.getText(), containsString("Not active"));
+    try {
+      page.selectInstitute(instituteName);
+      Assert.fail("Found a link for institute " + instituteName);
+    } catch (org.openqa.selenium.NoSuchElementException e) {
+      // expected
+    }
   }
 
   public void createNewReservation(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
-    NewReservationPage page = NewReservationPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    NewReservationPage page = NewReservationPage.get(driver, URL_UNDER_TEST);
 
     page.sendStartDate(startDate);
     page.sendStartTime(startTime);
@@ -114,7 +119,7 @@ public class BodUserWebDriver {
   }
 
   public void editVirtualPort(String oldLabel, String newLabel) {
-    ListVirtualPortPage listPage = ListVirtualPortPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+    ListVirtualPortPage listPage = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
 
     EditVirtualPortPage editPage = listPage.edit(oldLabel);
     editPage.sendUserLabel(newLabel);
@@ -122,7 +127,7 @@ public class BodUserWebDriver {
   }
 
   public void verifyVirtualPortExists(String... fields) {
-    ListVirtualPortPage listPage = ListVirtualPortPage.get(driver);
+    ListVirtualPortPage listPage = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
 
     listPage.findRow(fields);
   }
@@ -131,12 +136,12 @@ public class BodUserWebDriver {
     switchTo("NOC Engineer");
   }
 
-  public void switchToManager() {
-    switchTo("BoD Manager");
+  public void switchToManager(String manager) {
+    switchTo("BoD Administrator", manager);
   }
 
-  private void switchTo(String role) {
-    UserOverviewPage page = UserOverviewPage.get(driver, BodWebDriver.URL_UNDER_TEST);
+  private void switchTo(String... role) {
+    UserOverviewPage page = UserOverviewPage.get(driver, URL_UNDER_TEST);
 
     page.clickSwitchRole(role);
   }
