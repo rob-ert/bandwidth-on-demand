@@ -38,5 +38,5 @@ public interface ReservationRepo extends JpaSpecificationExecutor<Reservation>, 
   List<Reservation> findByStatusIn(Collection<ReservationStatus> reservationStates);
 
   List<Reservation> findBySourcePortOrDestinationPort(VirtualPort sourcePort, VirtualPort destinationPort);
-  
+
 }

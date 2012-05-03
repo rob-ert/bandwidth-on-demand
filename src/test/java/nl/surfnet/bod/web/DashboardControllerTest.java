@@ -26,14 +26,18 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.DashboardController.TeamView;
@@ -61,12 +65,15 @@ public class DashboardControllerTest {
   private VirtualResourceGroupService virtualResourceGroupServiceMock;
   @Mock
   private ReservationService reservationServiceMock;
+  @Mock
+  private VirtualPortService virtualPortServiceMock;
+  @Mock
+  private InstituteService instituteServiceMock;
 
   @Test
   public void whenUserHasNoUserRoleShouldGoToSpecialView() {
-    RichUserDetails user = new RichUserDetailsFactory().create();
+    Security.setUserDetails(new RichUserDetailsFactory().create());
 
-    Security.setUserDetails(user);
     Model model = new ModelStub();
 
     String page = subject.index(model);
@@ -91,10 +98,11 @@ public class DashboardControllerTest {
 
   @Test
   public void showDashboardForUserWhichCanNotCreateReservations() {
-    RichUserDetails user = new RichUserDetailsFactory().addUserRole().create();
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
 
+    RichUserDetails user = new RichUserDetailsFactory().addUserRole().create();
     Security.setUserDetails(user);
+
     Model model = new ModelStub();
 
     when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(ImmutableList.of(vrg));
@@ -111,15 +119,18 @@ public class DashboardControllerTest {
 
     List<TeamView> views = (List<TeamView>) model.asMap().get("teams");
     assertThat(views, hasSize(1));
+
+    verify(reservationServiceMock).countActiveReservationForVirtualResourceGroup(vrg);
   }
 
   @Test
   public void showDashboardForUserWhichCanCreateReservations() {
-    RichUserDetails user = new RichUserDetailsFactory().addUserRole().create();
     VirtualResourceGroup vrgWithPorts = new VirtualResourceGroupFactory().addVirtualPorts(new VirtualPortFactory().create(),
         new VirtualPortFactory().create()).create();
 
+    RichUserDetails user = new RichUserDetailsFactory().addUserRole().create();
     Security.setUserDetails(user);
+
     Model model = new ModelStub();
 
     when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(ImmutableList.of(vrgWithPorts));
@@ -134,21 +145,19 @@ public class DashboardControllerTest {
 
   @Test
   public void groupsShouldBeSorted() {
-    BodRole selectedRole = BodRole.createUser();
-
     UserGroup userGroup1 = new UserGroupFactory().setName("A").setId("urn:a").create();
     UserGroup userGroup2 = new UserGroupFactory().setName("B").setId("urn:b").create();
     UserGroup userGroup3 = new UserGroupFactory().setName("C").setId("urn:c").create();
     UserGroup userGroup4 = new UserGroupFactory().setName("D").setId("urn:d").create();
 
-    RichUserDetails user = new RichUserDetailsFactory().addBodRoles(selectedRole)
-        .addUserGroup(userGroup1, userGroup2, userGroup3, userGroup4).create();
-
     VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().setName("A").setSurfconextGroupId("urn:a").create();
     VirtualResourceGroup vrg2 = new VirtualResourceGroupFactory().setName("B").setSurfconextGroupId("urn:b").create();
     VirtualResourceGroup vrg3 = new VirtualResourceGroupFactory().setName("C").setSurfconextGroupId("urn:c").create();
 
+    RichUserDetails user = new RichUserDetailsFactory().addUserRole()
+        .addUserGroup(userGroup1, userGroup2, userGroup3, userGroup4).create();
     Security.setUserDetails(user);
+
     Model model = new ModelStub();
 
     when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(ImmutableList.of(vrg3, vrg1, vrg2));
@@ -167,7 +176,27 @@ public class DashboardControllerTest {
         return team.getName();
       }
     }), contains("A", "B", "C", "D"));
+  }
 
+  @Test
+  public void overviewShouldShowVirutalPortRequests() {
+    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().create();
+
+    RichUserDetails user = new RichUserDetailsFactory().addUserRole().create();
+    Security.setUserDetails(user);
+
+    Model model = new ModelStub();
+
+    when(virtualPortServiceMock.findPendingRequests(user.getUserGroups())).thenReturn(ImmutableList.of(link));
+
+    String page = subject.index(model);
+
+    assertThat(page, is("index"));
+    assertThat(model.asMap(), hasKey("requests"));
+    List<VirtualPortRequestLink> requests = (List<VirtualPortRequestLink>) model.asMap().get("requests");
+    assertThat(requests, contains(link));
+
+    verify(instituteServiceMock).fillInstituteForPhysicalResourceGroup(link.getPhysicalResourceGroup());
   }
 
 }

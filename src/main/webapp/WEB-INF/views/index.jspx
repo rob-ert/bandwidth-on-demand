@@ -11,9 +11,7 @@
 <div class="row">
     <div class="span8">
         <section>
-            <h1>
-                Your teams
-            </h1>
+            <h1>Your teams</h1>
             <div class="content">
                 <div class="form-inline" data-component="teams-filter">
                     <label class="radio">
@@ -47,6 +45,7 @@
                                 </c:otherwise>
                             </c:choose>
                             <tr class="${row_css}">
+
                                 <table:column item="${team}" property="name" />
 
                                 <td class="center">
@@ -94,6 +93,33 @@
                 </table>
             </div>
         </section>
+        <c:if test="${not requests.isEmpty()}">
+            <section>
+                <h2>Your Teams Pending Virtual Port Requests</h2>
+                <div class="content">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Team</th>
+                                <th>Institute</th>
+                                <th>Requestor</th>
+                                <th>Requested</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="request" items="${requests}">
+                                <tr>
+                                    <td>${request.virtualResourceGroup.name}</td>
+                                    <td>${request.physicalResourceGroup.name}</td>
+                                    <td>${request.requestorName}</td>
+                                    <td><spring:eval expression="request.requestDateTime" /></td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </c:if>
     </div>
     <div class="span4">
         <section>
