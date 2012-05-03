@@ -10,20 +10,22 @@
     <div class="row">
 
         <div class="span8">
-            <form:create id="fc_virtualport" modelAttribute="createVirtualPortCommand" path="/manager/virtualports">
+            <form:create id="fc_virtualport" modelAttribute="virtualPortCreateCommand" path="/manager/virtualports">
                 <div class="message"><h3>Request details</h3></div>
 
                 <div class="control-group">
                     <label class="control-label">From</label>
                     <div class="controls">
-                        <output><c:out value="${createVirtualPortCommand.virtualPortRequestLink.requestorName} (${createVirtualPortCommand.virtualPortRequestLink.requestorEmail})" /></output>
+                        <output><c:out value="${virtualPortCreateCommand.virtualPortRequestLink.requestorName} (${virtualPortCreateCommand.virtualPortRequestLink.requestorEmail})" /></output>
                     </div>
                 </div>
 
-                <field:display labelCode="Motivation" object="${createVirtualPortCommand.virtualPortRequestLink}" field="message" />
-                <field:display labelCode="Requested" object="${createVirtualPortCommand.virtualPortRequestLink}" field="requestDateTime" />
+                <field:display labelCode="Requested" object="${virtualPortCreateCommand.virtualPortRequestLink}" field="requestorName" />
 
-                <input type="hidden" name="virtualPortRequestLink" value="${createVirtualPortCommand.virtualPortRequestLink.id}" />
+                <field:display labelCode="Motivation" object="${virtualPortCreateCommand.virtualPortRequestLink}" field="message" />
+                <field:display labelCode="Requested" object="${virtualPortCreateCommand.virtualPortRequestLink}" field="requestDateTime" />
+
+                <input type="hidden" name="virtualPortRequestLink" value="${virtualPortCreateCommand.virtualPortRequestLink.id}" />
 
                 <div class="message"><h3>Virtual Port details</h3></div>
 
