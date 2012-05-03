@@ -12,8 +12,9 @@
             <thead>
                 <tr>
                     <table:sortableHeader labelCode="label_physicalport_managerlabel" property="managerLabel" />
-                    <table:sortableHeader labelCode="label_physicalport_networkelementpk" property="networkElementPk" />
+                    <table:sortableHeader labelCode="label_physicalport_portid" property="portId" />
                     <th># of Virtual Ports</th>
+                    <table:sortableHeader labelCode="label_physicalport_networkelementpk" property="networkElementPk" />
                     <table:actionsHeader />
                 </tr>
             </thead>
@@ -21,8 +22,9 @@
                 <c:forEach items="${list}" var="item">
                     <tr>
                         <table:column item="${item}" property="managerLabel" />
-                        <table:column item="${item}" property="networkElementPk" />
+                        <table:column item="${item}" property="portId" />
                         <table:column item="${item}" property="numberOfVirtualPorts" />
+                        <table:column item="${item}" property="networkElementPk" />
                         <table:actionsColumn item="${item}" delete="false" path="/manager/physicalports" labelCode="label_physicalport" />
                     </tr>
                 </c:forEach>

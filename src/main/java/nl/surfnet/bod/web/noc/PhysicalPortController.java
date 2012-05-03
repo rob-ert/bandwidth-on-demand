@@ -264,6 +264,9 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     private String nocLabel;
     private String managerLabel;
     private Integer version;
+    
+    @NotEmpty
+    private String portId;
 
     public CreatePhysicalPortCommand() {
     }
@@ -274,6 +277,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
       this.nocLabel = port.getNocLabel();
       this.managerLabel = port.hasManagerLabel() ? port.getManagerLabel() : "";
       this.version = port.getVersion();
+      this.portId = port.getPortId();
     }
 
     public String getNetworkElementPk() {
@@ -314,6 +318,14 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     public void setVersion(Integer version) {
       this.version = version;
+    }
+
+    public String getPortId() {
+      return portId;
+    }
+
+    public void setPortId(String portId) {
+      this.portId = portId;
     }
 
   }

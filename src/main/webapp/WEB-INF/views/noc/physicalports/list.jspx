@@ -14,8 +14,9 @@
                 <tr>
                     <table:rowDetailsHeader render="${not show_unallocated}" />
                     <table:sortableHeader labelCode="label_physicalport_noclabel" property="nocLabel" sortable="${not show_unallocated}" />
-                    <table:sortableHeader labelCode="label_physicalport_networkelementpk" property="networkElementPk" sortable="${not show_unallocated}" />
+                    <table:sortableHeader labelCode="label_physicalport_portid" property="portId" sortable="${not show_unallocated}" />
                     <table:sortableHeader labelCode="label_physicalresourcegroup" property="physicalResourceGroup" render="${not show_unallocated}" />
+                    <table:sortableHeader labelCode="label_physicalport_networkelementpk" property="networkElementPk" sortable="${not show_unallocated}" />
                     <table:actionsHeader />
                 </tr>
             </thead>
@@ -29,8 +30,9 @@
                             </dl>
                         </table:rowDetailsColumn>
                         <table:column item="${item}" property="nocLabel" />
-                        <table:column item="${item}" property="networkElementPk" />
+                        <table:column item="${item}" property="portId" />
                         <table:column item="${item}" property="physicalResourceGroup" render="${not show_unallocated}" />
+                        <table:column item="${item}" property="networkElementPk" />
                         <table:actionsColumn item="${item}"
                             delete="${not show_unallocated}" deleteIcon="icon-resize-full" deleteLabelCode="label_unallocate"
                             updateIcon="${show_unallocated ? 'icon-resize-small' : ''}" updateLabelCode="${show_unallocated ? 'label_allocate' : ''}"

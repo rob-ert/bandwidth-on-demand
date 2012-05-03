@@ -44,6 +44,10 @@ public class PhysicalPort {
   private String nocLabel;
 
   private String managerLabel;
+  
+  @NotEmpty
+  @Column(nullable = false)
+  private String portId;
 
   @Nullable
   @Column(unique = true, nullable = false)
@@ -108,6 +112,14 @@ public class PhysicalPort {
     return getPhysicalResourceGroup() != null;
   }
 
+  public String getPortId() {
+    return portId;
+  }
+
+  public void setPortId(String portId) {
+    this.portId = portId;
+  }
+
   @Override
   public String toString() {
     return Objects.toStringHelper(PhysicalPort.class)
@@ -116,6 +128,7 @@ public class PhysicalPort {
         .add("managerLabel", managerLabel)
         .add("networkElementPk", networkElementPk)
         .add("physicalResourceGroup", physicalResourceGroup)
+        .add("portId", portId)
         .toString();
   }
 }

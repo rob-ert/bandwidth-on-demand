@@ -166,6 +166,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     private final PhysicalResourceGroup physicalResourceGroup;
     private final String networkElementPk;
     private final Collection<VirtualPort> virtualPorts;
+    private final String portId;
 
     public PhysicalPortView(PhysicalPort port, Collection<VirtualPort> virtualPorts) {
       this.id = port.getId();
@@ -174,6 +175,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
       this.networkElementPk = port.getNetworkElementPk();
       this.physicalResourceGroup = port.getPhysicalResourceGroup();
       this.virtualPorts = virtualPorts;
+      this.portId = port.getPortId();
     }
 
     public String getNetworkElementPk() {
@@ -198,6 +200,10 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     public String getNocLabel() {
       return nocLabel;
+    }
+
+    public String getPortId() {
+      return portId;
     }
 
   }

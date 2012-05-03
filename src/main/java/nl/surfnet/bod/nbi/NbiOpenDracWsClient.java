@@ -45,6 +45,7 @@ import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingServiceFault;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingService_v30Stub;
 
+import org.apache.commons.codec.binary.StringUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.Security;
@@ -475,9 +476,14 @@ class NbiOpenDracWsClient implements NbiClient {
 
   private PhysicalPort getPhysicalPort(final EndpointT endpoint) {
     final PhysicalPort port = new PhysicalPort();
-    port.setNocLabel(endpoint.getTna());
-    port.setManagerLabel(endpoint.getUserLabel());
+    if(endpoint.getUserLabel() == null || endpoint.getUserLabel().isEmpty()){
+      port.setNocLabel(endpoint.getTna());  
+    }
+    else {
+      port.setNocLabel(endpoint.getUserLabel());
+    }
     port.setNetworkElementPk(endpoint.getId());
+    port.setPortId(endpoint.getTna());
 
     return port;
   }

@@ -231,6 +231,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     portToEnrich.setVersion(dataPort.getVersion());
     portToEnrich.setNocLabel(dataPort.getNocLabel());
     portToEnrich.setManagerLabel(dataPort.getManagerLabel());
+    portToEnrich.setPortId(dataPort.getPortId());
   }
 
 }
