@@ -6,7 +6,9 @@
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-
+    
+    <c:set var="cancelPath" value="${pageContext.request.contextPath}/noc/physicalresourcegroups" scope="request"/>
+    
     <form:create id="fc_PhysicalPort" modelAttribute="addPhysicalPortCommand" path="/noc/physicalports/add" fullLabel="Allocate a Physical Port">
         <div class="control-group">
             <label class="control-label">Institute</label>
@@ -15,7 +17,6 @@
             </div>
         </div>
         <input type="hidden" name="physicalResourceGroup" value="${addPhysicalPortCommand.physicalResourceGroup.id}" />
-
         <div class="control-group">
             <label class="control-label">Unallocated ports</label>
             <div class="controls">
@@ -35,9 +36,9 @@
             </div>
         </div>
 
+        <field:input field="portId" id="portId" labelCode="physicalport_portid" />
         <field:input field="nocLabel" id="nocLabel" labelCode="physicalport_nocLabel" />
         <field:input field="managerLabel" id="managerLabel" labelCode="physicalport_managerLabel"/>
-
     </form:create>
 
 </html>

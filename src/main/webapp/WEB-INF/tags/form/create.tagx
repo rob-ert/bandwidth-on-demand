@@ -52,15 +52,20 @@
 
                         <div class="actions">
                             <spring:message code="button_save" var="save_button" htmlEscape="false" />
-
                             <input type="submit" value="${fn:escapeXml(save_button)}" class="btn btn-primary" />
                             <c:out value=" " />
-                            <a href="${form_url}"><spring:message code="button_cancel" /></a>
+                            <c:choose>
+                                <c:when test="${not empty cancelPath}">
+                                    <a href="${cancelPath}"><spring:message code="button_cancel" /></a>
+                                </c:when>
+                                <c:otherwise>
+                                     <a href="${form_url}"><spring:message code="button_cancel" /></a>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                     </fieldset>
                 </form:form>
             </div>
         </section>
-
     </c:if>
 </jsp:root>

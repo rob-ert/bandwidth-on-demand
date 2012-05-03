@@ -106,6 +106,8 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     }
     port.setNocLabel(addCommand.getNocLabel());
     port.setPhysicalResourceGroup(addCommand.getPhysicalResourceGroup());
+    port.setManagerLabel(addCommand.getManagerLabel());
+    port.setPortId(addCommand.getPortId());
 
     physicalPortService.save(port);
 
@@ -219,6 +221,9 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     @NotEmpty
     private String nocLabel;
     private String managerLabel;
+    
+    @NotEmpty
+    private String portId;
 
     public AddPhysicalPortCommand() {
     }
@@ -253,6 +258,31 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     public void setManagerLabel(String managerLabel) {
       this.managerLabel = managerLabel;
+    }
+
+    public String getPortId() {
+      return portId;
+    }
+
+    public void setPortId(String portId) {
+      this.portId = portId;
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder builder = new StringBuilder();
+      builder.append("AddPhysicalPortCommand [physicalResourceGroup=");
+      builder.append(physicalResourceGroup);
+      builder.append(", networkElementPk=");
+      builder.append(networkElementPk);
+      builder.append(", nocLabel=");
+      builder.append(nocLabel);
+      builder.append(", managerLabel=");
+      builder.append(managerLabel);
+      builder.append(", portId=");
+      builder.append(portId);
+      builder.append("]");
+      return builder.toString();
     }
   }
 
