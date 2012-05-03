@@ -25,9 +25,13 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,10 +52,16 @@ import com.google.common.collect.Ordering;
 public class DashboardController {
 
   @Autowired
+  private VirtualPortService virtualPortService;
+
+  @Autowired
   private VirtualResourceGroupService virtualResourceGroupService;
 
   @Autowired
   private ReservationService reservationService;
+
+  @Autowired
+  private InstituteService instituteService;
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
@@ -65,6 +75,17 @@ public class DashboardController {
 
     List<TeamView> views = getTeamViews(userGroups);
 
+    model.addAttribute(
+        "requests",
+        Orderings.vpRequestLinkOrdring().sortedCopy(
+            Collections2.transform(virtualPortService.findPendingRequests(userGroups),
+                new Function<VirtualPortRequestLink, VirtualPortRequestLink>() {
+                  @Override
+                  public VirtualPortRequestLink apply(VirtualPortRequestLink input) {
+                    instituteService.fillInstituteForPhysicalResourceGroup(input.getPhysicalResourceGroup());
+                    return input;
+                  }
+                })));
     model.addAttribute("teams", views);
     model.addAttribute("canCreateReservation", Iterables.any(views, new Predicate<TeamView>() {
       @Override

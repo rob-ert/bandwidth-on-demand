@@ -40,7 +40,7 @@ import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.manager.VirtualPortController.CreateVirtualPortCommand;
+import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortCreateCommand;
 import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortUpdateCommand;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -162,7 +162,7 @@ public class VirtualPortControllerTest {
 
     subject.createForm("1234567890", model, model);
 
-    CreateVirtualPortCommand command = (CreateVirtualPortCommand) model.asMap().get("createVirtualPortCommand");
+    VirtualPortCreateCommand command = (VirtualPortCreateCommand) model.asMap().get("virtualPortCreateCommand");
     assertThat(command.getVirtualResourceGroup(), is(link.getVirtualResourceGroup()));
     assertThat(command.getPhysicalPort(), is(physicalPort));
     assertThat(command.getPhysicalResourceGroup(), is(prg));
@@ -190,7 +190,7 @@ public class VirtualPortControllerTest {
   public void whenAPortIsCreatedLinkShouldChangeStatus() {
     ModelStub model = new ModelStub();
     VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(prg).create();
-    CreateVirtualPortCommand command = new CreateVirtualPortCommand(link);
+    VirtualPortCreateCommand command = new VirtualPortCreateCommand(link);
     BindingResult result = new BeanPropertyBindingResult(command, "createVirtualPortCommand");
 
     subject.create(command, result, model, model);

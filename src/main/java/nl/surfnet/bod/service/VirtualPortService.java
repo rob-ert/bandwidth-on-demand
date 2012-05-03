@@ -47,6 +47,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+
 @Service
 @Transactional
 public class VirtualPortService {
@@ -182,7 +185,6 @@ public class VirtualPortService {
     emailSender.sendVirtualPortRequestMail(Security.getUserDetails(), link);
   }
 
-
   public Collection<VirtualPortRequestLink> findPendingRequests(PhysicalResourceGroup prg) {
     return virtualPortRequestLinkRepo.findByPhysicalResourceGroupAndStatus(prg, RequestStatus.PENDING);
   }
@@ -201,4 +203,13 @@ public class VirtualPortService {
     return virtualPortRequestLinkRepo.findOne(id);
   }
 
+  public Collection<VirtualPortRequestLink> findPendingRequests(Collection<UserGroup> userGroups) {
+    return virtualPortRequestLinkRepo.findByVirtualResourceGroupSurfconextGroupIdInAndStatus(
+        Collections2.transform(userGroups, new Function<UserGroup, String>() {
+          @Override
+          public String apply(UserGroup group) {
+            return group.getId();
+          }
+        }), RequestStatus.PENDING);
+  }
 }

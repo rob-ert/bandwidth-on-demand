@@ -28,7 +28,7 @@
                     <thead>
                         <tr>
                             <th>Team</th>
-                            <th>Motivation</th>
+                            <th>Who</th>
                             <th>Requested</th>
                             <table:actionsHeader />
                         </tr>
@@ -37,7 +37,7 @@
                         <c:forEach items="${requests}" var="request">
                             <tr>
                                 <td><c:out value="${request.virtualResourceGroup.name}" /></td>
-                                <td><c:out value="${request.message}" /></td>
+                                <td><c:out value="${request.requestorName}" /></td>
                                 <td><spring:eval expression="request.requestDateTime" /></td>
                                 <table:actionsColumn labelCode="" item="${request}" delete="false" update="false">
                                     <spring:url value="/manager/virtualports/create/${request.uuid}" var="requestUrl" />

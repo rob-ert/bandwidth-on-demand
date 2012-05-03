@@ -87,7 +87,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   private MessageSource messageSource;
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid CreateVirtualPortCommand createCommand, BindingResult result, Model model,
+  public String create(@Valid VirtualPortCreateCommand createCommand, BindingResult result, Model model,
       RedirectAttributes redirectAttributes) {
 
     VirtualPort port = createCommand.getPort();
@@ -96,7 +96,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     if (result.hasErrors()) {
       instituteService.fillInstituteForPhysicalResourceGroup(createCommand.getPhysicalResourceGroup());
 
-      model.addAttribute("createVirtualPortCommand", createCommand);
+      model.addAttribute("virtualPortCreateCommand", createCommand);
       model.addAttribute("physicalPorts", createCommand.getPhysicalResourceGroup() == null ? Collections.emptyList()
           : port.getPhysicalResourceGroup().getPhysicalPorts());
       model.addAttribute("virtualResourceGroups", ImmutableList.of(port.getVirtualResourceGroup()));
@@ -143,9 +143,9 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
     instituteService.fillInstituteForPhysicalResourceGroup(requestLink.getPhysicalResourceGroup());
 
-    CreateVirtualPortCommand command = new CreateVirtualPortCommand(requestLink);
+    VirtualPortCreateCommand command = new VirtualPortCreateCommand(requestLink);
 
-    model.addAttribute("createVirtualPortCommand", command);
+    model.addAttribute("virtualPortCreateCommand", command);
     model.addAttribute("physicalPorts", requestLink.getPhysicalResourceGroup().getPhysicalPorts());
     model.addAttribute("virtualResourceGroups", ImmutableList.of(requestLink.getVirtualResourceGroup()));
     model.addAttribute("physicalResourceGroups", ImmutableList.of(requestLink.getPhysicalResourceGroup()));
@@ -254,10 +254,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     return super.translateSortProperty(sortProperty);
   }
 
-  public static final class CreateVirtualPortCommand {
-
-    @NotNull
-    private VirtualPortRequestLink virtualPortRequestLink;
+  public static class VirtualPortCommand {
     @NotEmpty
     private String managerLabel;
     @NotNull
@@ -272,35 +269,18 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     @NotNull
     private PhysicalResourceGroup physicalResourceGroup;
 
-    public CreateVirtualPortCommand() {
+    public VirtualPortCommand() {
     }
 
-    public CreateVirtualPortCommand(VirtualPortRequestLink link) {
-      this.virtualPortRequestLink = link;
-      this.virtualResourceGroup = link.getVirtualResourceGroup();
-      this.physicalResourceGroup = link.getPhysicalResourceGroup();
-      this.physicalPort = Iterables.get(link.getPhysicalResourceGroup().getPhysicalPorts(), 0);
-      this.managerLabel = "";
-      this.maxBandwidth = link.getMinBandwidth();
-    }
-
-    public VirtualPort getPort() {
-      VirtualPort port = new VirtualPort();
-      port.setManagerLabel(managerLabel);
-      port.setMaxBandwidth(maxBandwidth);
-      port.setVlanId(vlanId);
-      port.setPhysicalPort(physicalPort);
-      port.setVirtualResourceGroup(virtualResourceGroup);
-
-      return port;
-    }
-
-    public VirtualPortRequestLink getVirtualPortRequestLink() {
-      return virtualPortRequestLink;
-    }
-
-    public void setVirtualPortRequestLink(VirtualPortRequestLink virtualPortRequestLink) {
-      this.virtualPortRequestLink = virtualPortRequestLink;
+    public VirtualPortCommand(String managerLabel, Integer maxBandwidth, Integer vlanId,
+        PhysicalResourceGroup physicalResourceGroup, PhysicalPort physicalPort,
+        VirtualResourceGroup virtualResourceGroup) {
+      this.managerLabel = managerLabel;
+      this.maxBandwidth = maxBandwidth;
+      this.vlanId = vlanId;
+      this.physicalPort = physicalPort;
+      this.physicalResourceGroup = physicalResourceGroup;
+      this.virtualResourceGroup = virtualResourceGroup;
     }
 
     public String getManagerLabel() {
@@ -350,38 +330,53 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     public void setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
       this.physicalResourceGroup = physicalResourceGroup;
     }
-
   }
 
-  public static final class VirtualPortUpdateCommand {
+  public static final class VirtualPortCreateCommand extends VirtualPortCommand {
+    @NotNull
+    private VirtualPortRequestLink virtualPortRequestLink;
+
+    public VirtualPortCreateCommand() {
+    }
+
+    public VirtualPortCreateCommand(VirtualPortRequestLink link) {
+      super("", link.getMinBandwidth(), null, link.getPhysicalResourceGroup(), Iterables.get(link
+          .getPhysicalResourceGroup().getPhysicalPorts(), 0), link.getVirtualResourceGroup());
+      this.virtualPortRequestLink = link;
+    }
+
+    public VirtualPort getPort() {
+      VirtualPort port = new VirtualPort();
+      port.setManagerLabel(getManagerLabel());
+      port.setMaxBandwidth(getMaxBandwidth());
+      port.setVlanId(getVlanId());
+      port.setPhysicalPort(getPhysicalPort());
+      port.setVirtualResourceGroup(getVirtualResourceGroup());
+
+      return port;
+    }
+
+    public VirtualPortRequestLink getVirtualPortRequestLink() {
+      return virtualPortRequestLink;
+    }
+
+    public void setVirtualPortRequestLink(VirtualPortRequestLink virtualPortRequestLink) {
+      this.virtualPortRequestLink = virtualPortRequestLink;
+    }
+  }
+
+  public static final class VirtualPortUpdateCommand extends VirtualPortCommand {
     private Long id;
     private Integer version;
-    @NotEmpty
-    private String managerLabel;
-    @NotNull
-    @Min(value = 1)
-    private Integer maxBandwidth;
-    @Range(min = 1, max = 4095)
-    private Integer vlanId;
-    @NotNull
-    private PhysicalPort physicalPort;
-    @NotNull
-    private VirtualResourceGroup virtualResourceGroup;
-    @NotNull
-    private PhysicalResourceGroup physicalResourceGroup;
 
     public VirtualPortUpdateCommand() {
     }
 
     public VirtualPortUpdateCommand(VirtualPort port) {
+      super(port.getManagerLabel(), port.getMaxBandwidth(), port.getVlanId(), port.getPhysicalResourceGroup(), port
+          .getPhysicalPort(), port.getVirtualResourceGroup());
       this.id = port.getId();
       this.version = port.getVersion();
-      this.managerLabel = port.getManagerLabel();
-      this.maxBandwidth = port.getMaxBandwidth();
-      this.vlanId = port.getVlanId();
-      this.physicalResourceGroup = port.getPhysicalResourceGroup();
-      this.physicalPort = port.getPhysicalPort();
-      this.virtualResourceGroup = port.getVirtualResourceGroup();
     }
 
     public Long getId() {
@@ -398,54 +393,6 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
     public void setVersion(Integer version) {
       this.version = version;
-    }
-
-    public String getManagerLabel() {
-      return managerLabel;
-    }
-
-    public void setManagerLabel(String managerLabel) {
-      this.managerLabel = managerLabel;
-    }
-
-    public Integer getMaxBandwidth() {
-      return maxBandwidth;
-    }
-
-    public void setMaxBandwidth(Integer maxBandwidth) {
-      this.maxBandwidth = maxBandwidth;
-    }
-
-    public Integer getVlanId() {
-      return vlanId;
-    }
-
-    public void setVlanId(Integer vlanId) {
-      this.vlanId = vlanId;
-    }
-
-    public PhysicalPort getPhysicalPort() {
-      return physicalPort;
-    }
-
-    public void setPhysicalPort(PhysicalPort physicalPort) {
-      this.physicalPort = physicalPort;
-    }
-
-    public VirtualResourceGroup getVirtualResourceGroup() {
-      return virtualResourceGroup;
-    }
-
-    public void setVirtualResourceGroup(VirtualResourceGroup virtualResourceGroup) {
-      this.virtualResourceGroup = virtualResourceGroup;
-    }
-
-    public PhysicalResourceGroup getPhysicalResourceGroup() {
-      return physicalResourceGroup;
-    }
-
-    public void setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
-      this.physicalResourceGroup = physicalResourceGroup;
     }
   }
 
