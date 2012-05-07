@@ -25,10 +25,10 @@
                         <c:set var="managerLabel" value="${port.hasManagerLabel() ? port.managerLabel : ''}" />
                         <c:choose>
                             <c:when test="${addPhysicalPortCommand.networkElementPk eq port.networkElementPk}">
-                                <option value="${port.networkElementPk}" data-noclabel="${port.nocLabel}" data-managerlabel="${managerLabel}" selected="true">${port.nocLabel}</option>
+                                <option value="${port.networkElementPk}" data-noclabel="${port.nocLabel}" data-portid="${port.portId}" selected="true">${port.nocLabel}</option>
                             </c:when>
                             <c:otherwise>
-                                <option value="${port.networkElementPk}" data-noclabel="${port.nocLabel}" data-managerlabel="${managerLabel}">${port.nocLabel}</option>
+                                <option value="${port.networkElementPk}" data-noclabel="${port.nocLabel}" data-portid="${port.portId}">${port.nocLabel}</option>
                             </c:otherwise>
                         </c:choose>
                     </c:forEach>

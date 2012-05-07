@@ -274,7 +274,7 @@ app.form = function(){
         $('[data-component="physicalport-selector"]').on('change', function() {
             var selected = $(this).find('option:selected');
             $("#_nocLabel_id").val(selected.attr("data-noclabel"));
-            $("#_managerLabel_id").val(selected.attr("data-managerlabel"));
+            $("#_portId_id").val(selected.attr("data-portid"));
         });
     }
 
