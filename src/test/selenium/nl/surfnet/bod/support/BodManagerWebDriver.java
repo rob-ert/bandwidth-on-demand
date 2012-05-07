@@ -164,6 +164,15 @@ public class BodManagerWebDriver {
     page.save();
   }
 
+  public void declineVirtualPort(String message) {
+    NewVirtualPortPage page = NewVirtualPortPage.get(driver);
+
+    page.decline();
+    page.sendDeclineMessage(message);
+
+    page.save();
+  }
+
   public void verifyPhysicalResourceGroupExists(String... fields) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
 

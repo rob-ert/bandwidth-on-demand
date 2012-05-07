@@ -41,10 +41,10 @@
                         <c:choose>
                                 <c:when test="${virtualPortCreateCommand.acceptOrDecline eq 'accept'}">
                                     <label class="radio inline">
-                                        Accept<input type="radio" name="acceptOrDecline" value="accept" checked="true" />
+                                        Accept<input type="radio" name="acceptOrDecline" value="accept" checked="true" id="_accept"/>
                                     </label>
                                     <label class="radio inline">
-                                        Decline<input type="radio" name="acceptOrDecline" value="decline" />
+                                        Decline<input type="radio" name="acceptOrDecline" value="decline" id="_decline" />
                                     </label>
                                 </c:when>
                                 <c:otherwise>
@@ -74,7 +74,7 @@
                 <div class="control-group${error_motivation_css}">
                     <label class="control-label">Explanation</label>
                     <div class="controls">
-                        <sform:textarea path="declineMessage" rows="5" cssClass="xlarge" />
+                        <sform:textarea path="declineMessage" rows="5" cssClass="xlarge" id="_declineMessage" />
                         <c:out value=" " />
                         <a rel="popover" data-type="success" class="badge badge-success" href="#"
                             data-content="This message will be send to the requestor.">?</a>

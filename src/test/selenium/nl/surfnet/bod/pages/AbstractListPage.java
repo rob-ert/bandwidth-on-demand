@@ -23,6 +23,7 @@ package nl.surfnet.bod.pages;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import nl.surfnet.bod.support.Probes;
 
@@ -35,13 +36,14 @@ import org.openqa.selenium.support.FindBy;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.util.concurrent.Uninterruptibles;
 
 public class AbstractListPage extends AbstractPage {
 
+  protected final Probes probes;
+
   @FindBy(css = "table.table tbody")
   private WebElement table;
-
-  private final Probes probes;
 
   public AbstractListPage(RemoteWebDriver driver) {
     super(driver);
@@ -64,7 +66,7 @@ public class AbstractListPage extends AbstractPage {
     driver.switchTo().alert().accept();
 
     // wait for the reload, row should be gone..
-    probes.assertTextNotPresent(By.cssSelector("table.table tbody"), fields[0]);
+    Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
   }
 
   protected void editRow(String... fields) {

@@ -52,7 +52,16 @@ public class NewVirtualPortPage extends AbstractFormPage {
 
   @FindBy(id = "_virtualresourcegroup")
   private WebElement virtualResourceGroupSelect;
-  
+
+  @FindBy(id = "_accept")
+  private WebElement acceptRadio;
+
+  @FindBy(id = "_decline")
+  private WebElement declineRadio;
+
+  @FindBy(id = "_declineMessage")
+  private WebElement declineMessageTextArea;
+
   public NewVirtualPortPage(RemoteWebDriver driver) {
     super(driver);
   }
@@ -117,6 +126,19 @@ public class NewVirtualPortPage extends AbstractFormPage {
   public Integer getBandwidth() {
     String maxBandwidth = maxBandwidthInput.getAttribute("value");
     return Strings.emptyToNull(maxBandwidth) == null ? 0 : Integer.valueOf(maxBandwidth);
+  }
+
+  public void accept() {
+    acceptRadio.click();
+  }
+
+  public void decline() {
+    declineRadio.click();
+  }
+
+  public void sendDeclineMessage(String message) {
+    declineMessageTextArea.clear();
+    declineMessageTextArea.sendKeys(message);
   }
 
 }

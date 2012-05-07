@@ -66,6 +66,10 @@ public class PhysicalResourceGroup {
   @OneToMany(mappedBy = "physicalResourceGroup", cascade = CascadeType.REMOVE)
   private Collection<PhysicalPort> physicalPorts;
 
+  @SuppressWarnings("unused")
+  @OneToMany(mappedBy = "physicalResourceGroup", cascade = CascadeType.REMOVE)
+  private Collection<VirtualPortRequestLink> virtualPortRequestLinks;
+
   public Long getId() {
     return this.id;
   }

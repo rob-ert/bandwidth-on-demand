@@ -21,15 +21,20 @@
  */
 package nl.surfnet.bod.support;
 
+import static junit.framework.Assert.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.openqa.selenium.By;
@@ -37,6 +42,8 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Ordering;
 import com.google.common.io.Files;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
@@ -115,19 +122,53 @@ public class BodWebDriver {
   }
 
   private MimeMessage getLastEmail() {
-    MimeMessage[] mails = mailServer.getReceivedMessages();
-    return mails[mails.length - 1];
+    List<MimeMessage> mails = getMailsSortedByDate();
+
+    return Iterables.getLast(mails);
+  }
+
+  private List<MimeMessage> getMailsSortedByDate() {
+    Ordering<MimeMessage> mailMessageOrdering = new Ordering<MimeMessage>() {
+      private DateTimeFormatter dateParser = DateTimeFormat.forPattern("EEE, d MMM yyyy HH:mm:ss Z '(CEST)'");
+
+      @Override
+      public int compare(MimeMessage left, MimeMessage right) {
+        return getDateTime(left).compareTo(getDateTime(right));
+      }
+
+      private DateTime getDateTime(MimeMessage message) {
+        try {
+          return dateParser.parseDateTime(message.getHeader("Date")[0]);
+        }
+        catch (MessagingException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    };
+
+    return mailMessageOrdering.sortedCopy(Arrays.asList(mailServer.getReceivedMessages()));
   }
 
   private MimeMessage getBeforeLastEmail() {
-    MimeMessage[] mails = mailServer.getReceivedMessages();
-    return mails[mails.length - 2];
+    List<MimeMessage> mails = getMailsSortedByDate();
+    return mails.get(mails.size() - 2);
   }
 
   public void verifyLastEmailRecipient(String to) {
     MimeMessage lastMail = getLastEmail();
 
     assertThat(GreenMailUtil.getHeaders(lastMail), containsString("To: " + to));
+  }
+
+  public void verifyLastEmailSubjectContains(String subject) {
+    MimeMessage lastEmail = getLastEmail();
+
+    try {
+      assertThat(lastEmail.getSubject(), containsString(subject));
+    }
+    catch (MessagingException e) {
+      fail(e.getMessage());
+    }
   }
 
   private String extractLink(String message) {
@@ -139,7 +180,7 @@ public class BodWebDriver {
       return matcher.group(1);
     }
 
-    throw new AssertionError("Could not find link in message");
+    throw new AssertionError("Could not find link in message: " + message);
   }
 
   public void clickLinkInLastEmail() {

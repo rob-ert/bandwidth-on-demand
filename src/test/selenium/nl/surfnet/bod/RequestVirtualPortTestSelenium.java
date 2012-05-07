@@ -40,6 +40,25 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
   }
 
   @Test
+  public void requestAVirtualPortAndDecline() {
+    getManagerDriver().switchToUser();
+
+    getUserDriver().requestVirtualPort("selenium-users");
+
+    getUserDriver().selectInstituteAndRequest("SURFnet bv", 1000, "Doe mijn een nieuw poort...");
+
+    getUserDriver().switchToManager("SURFnet");
+
+    getWebDriver().clickLinkInLastEmail();
+
+    getManagerDriver().declineVirtualPort("Sorry but I cannot accept your request.");
+
+    getWebDriver().verifyLastEmailRecipient("Selenium Test User <selenium@test.com>");
+
+    getWebDriver().verifyLastEmailSubjectContains("declined");
+  }
+
+  @Test
   public void requestAVirtualPort() {
     getManagerDriver().switchToUser();
 
@@ -80,8 +99,6 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
     getManagerDriver().editVirtualPort("Your vport", "Edited vport", 1000, "20");
 
     getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "selenium-users");
-
-    // check row details... TODO
 
     getManagerDriver().switchToUser();
 
