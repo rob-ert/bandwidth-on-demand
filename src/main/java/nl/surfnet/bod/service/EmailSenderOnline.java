@@ -119,7 +119,7 @@ public class EmailSenderOnline implements EmailSender {
   }
 
   @Override
-  public void sendVirtualPortRequestApprovedMail(VirtualPortRequestLink link, VirtualPort port) {
+  public void sendVirtualPortRequestApproveMail(VirtualPortRequestLink link, VirtualPort port) {
     SimpleMailMessage mail = new MailMessageBuilder()
       .withTo(link.getRequestorName(), link.getRequestorEmail())
       .withSubject(VirtualPortRequestApprovedMail.subject(port))
@@ -127,6 +127,12 @@ public class EmailSenderOnline implements EmailSender {
       .create();
 
     send(mail);
+  }
+
+  @Override
+  public void sendVirtualPortRequestDeclineMail(VirtualPortRequestLink link, String declineMessage) {
+    // TODO Auto-generated method stub
+
   }
 
   private URL generateActivationUrl(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {

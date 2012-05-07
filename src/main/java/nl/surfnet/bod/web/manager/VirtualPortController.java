@@ -90,19 +90,20 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   public String create(@Valid VirtualPortCreateCommand createCommand, BindingResult result, Model model,
       RedirectAttributes redirectAttributes) {
 
+    if (createCommand.getAcceptOrDecline().equals("decline")) {
+      if (result.hasFieldErrors("declineMessage")) {
+        return createFormWithErrors(createCommand, model);
+      }
+
+      virtualPortService.requestLinkDeclined(createCommand.getVirtualPortRequestLink(), createCommand.getDeclineMessage());
+
+      return "redirect:" + PAGE_URL;
+    }
+
     VirtualPort port = createCommand.getPort();
     virtualPortValidator.validate(port, result);
-
-    if (result.hasErrors()) {
-      instituteService.fillInstituteForPhysicalResourceGroup(createCommand.getPhysicalResourceGroup());
-
-      model.addAttribute("virtualPortCreateCommand", createCommand);
-      model.addAttribute("physicalPorts", createCommand.getPhysicalResourceGroup() == null ? Collections.emptyList()
-          : port.getPhysicalResourceGroup().getPhysicalPorts());
-      model.addAttribute("virtualResourceGroups", ImmutableList.of(port.getVirtualResourceGroup()));
-      model.addAttribute("physicalResourceGroups", ImmutableList.of(port.getPhysicalResourceGroup()));
-
-      return PAGE_URL + CREATE;
+    if (result.hasErrors() && !declineMessageIsOnlyError(result)) {
+      return createFormWithErrors(createCommand, model);
     }
 
     model.asMap().clear();
@@ -113,6 +114,22 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_created", port.getManagerLabel());
 
     return "redirect:" + PAGE_URL;
+  }
+
+  private boolean declineMessageIsOnlyError(BindingResult result) {
+    return result.getErrorCount() == 1 && result.hasFieldErrors("declineMessage");
+  }
+
+  private String createFormWithErrors(VirtualPortCreateCommand command, Model model) {
+    instituteService.fillInstituteForPhysicalResourceGroup(command.getPhysicalResourceGroup());
+
+    model.addAttribute("virtualPortCreateCommand", command);
+    model.addAttribute("physicalPorts", command.getPhysicalResourceGroup() == null ? Collections.emptyList()
+        : command.getPhysicalResourceGroup().getPhysicalPorts());
+    model.addAttribute("virtualResourceGroups", ImmutableList.of(command.getVirtualResourceGroup()));
+    model.addAttribute("physicalResourceGroups", ImmutableList.of(command.getPhysicalResourceGroup()));
+
+    return PAGE_URL + CREATE;
   }
 
   @RequestMapping(value = "/create/{uuid}", method = RequestMethod.GET)
@@ -335,6 +352,10 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   public static final class VirtualPortCreateCommand extends VirtualPortCommand {
     @NotNull
     private VirtualPortRequestLink virtualPortRequestLink;
+    @NotEmpty
+    private String declineMessage;
+    @NotEmpty
+    private String acceptOrDecline = "accept";
 
     public VirtualPortCreateCommand() {
     }
@@ -362,6 +383,22 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
     public void setVirtualPortRequestLink(VirtualPortRequestLink virtualPortRequestLink) {
       this.virtualPortRequestLink = virtualPortRequestLink;
+    }
+
+    public String getDeclineMessage() {
+      return declineMessage;
+    }
+
+    public void setDeclineMessage(String declineExplanation) {
+      this.declineMessage = declineExplanation;
+    }
+
+    public String getAcceptOrDecline() {
+      return acceptOrDecline;
+    }
+
+    public void setAcceptOrDecline(String acceptOrDecline) {
+      this.acceptOrDecline = acceptOrDecline;
     }
   }
 

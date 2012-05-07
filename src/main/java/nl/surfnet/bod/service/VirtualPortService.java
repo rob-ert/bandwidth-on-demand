@@ -196,7 +196,7 @@ public class VirtualPortService {
   public void requestLinkApproved(VirtualPortRequestLink link, VirtualPort port) {
     link.setStatus(RequestStatus.APPROVED);
     virtualPortRequestLinkRepo.save(link);
-    emailSender.sendVirtualPortRequestApprovedMail(link, port);
+    emailSender.sendVirtualPortRequestApproveMail(link, port);
   }
 
   public VirtualPortRequestLink findRequest(Long id) {
@@ -211,5 +211,11 @@ public class VirtualPortService {
             return group.getId();
           }
         }), RequestStatus.PENDING);
+  }
+
+  public void requestLinkDeclined(VirtualPortRequestLink link, String declineMessage) {
+    link.setStatus(RequestStatus.DECLINED);
+    virtualPortRequestLinkRepo.save(link);
+    emailSender.sendVirtualPortRequestDeclineMail(link, declineMessage);
   }
 }

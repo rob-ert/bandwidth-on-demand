@@ -37,6 +37,8 @@ public interface EmailSender {
 
   void sendVirtualPortRequestMail(RichUserDetails from, VirtualPortRequestLink link);
 
-  void sendVirtualPortRequestApprovedMail(VirtualPortRequestLink link, VirtualPort port);
+  void sendVirtualPortRequestApproveMail(VirtualPortRequestLink link, VirtualPort port);
+
+  void sendVirtualPortRequestDeclineMail(VirtualPortRequestLink link, String declineMessage);
 
 }

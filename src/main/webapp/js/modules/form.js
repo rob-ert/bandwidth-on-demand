@@ -16,6 +16,7 @@ app.form = function(){
         initStartNow();
         initReservationFilter();
         initPhysicalPortSelector();
+        initAcceptDeclineSelector();
 
     };
 
@@ -275,6 +276,26 @@ app.form = function(){
             $("#_nocLabel_id").val(selected.attr("data-noclabel"));
             $("#_managerLabel_id").val(selected.attr("data-managerlabel"));
         });
+    }
+
+    var initAcceptDeclineSelector = function() {
+        var component = $('[data-component="accept-decline-selector"]');
+
+        if (component.length) {
+            var acceptLabel = component.attr('data-accept');
+            var declineLabel = component.attr('data-decline');
+            var submitButton = $('input[type="submit"]');
+
+            component.find(':radio').on('change', function() {
+                $('#accept-form').toggle();
+                $('#decline-form').toggle();
+                submitButton.val(submitButton.val() === declineLabel ? acceptLabel : declineLabel);
+            });
+
+            var state = component.find(':radio:checked').val();
+            $('#' + (state === 'accept' ? 'decline' : 'accept') + '-form').toggle();
+            submitButton.val(eval(state+'Label'));
+        }
     }
 
     return {

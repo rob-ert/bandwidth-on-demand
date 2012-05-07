@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <html xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields"
     xmlns:form="urn:jsptagdir:/WEB-INF/tags/form" xmlns:jsp="http://java.sun.com/JSP/Page"
-    xmlns:forms="http://www.springframework.org/tags/form" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:sform="http://www.springframework.org/tags/form" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:spring="http://www.springframework.org/tags" xmlns:bodfn="BodTags">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
@@ -11,7 +11,7 @@
 
         <div class="span8">
             <form:create id="fc_virtualport" modelAttribute="virtualPortCreateCommand" path="/manager/virtualports">
-                <div class="message"><h3>Request details</h3></div>
+                <div class="message"><h3>Request Details</h3></div>
 
                 <div class="control-group">
                     <label class="control-label">From</label>
@@ -35,25 +35,73 @@
                 </div>
                 <field:display labelCode="Requested" object="${virtualPortCreateCommand.virtualPortRequestLink}" field="requestDateTime" />
 
+                <div class="control-group" data-component="accept-decline-selector" data-accept="Accept" data-decline="Decline">
+                    <label class="control-label">Accept or Decline</label>
+                    <div class="controls">
+                        <c:choose>
+                                <c:when test="${virtualPortCreateCommand.acceptOrDecline eq 'accept'}">
+                                    <label class="radio inline">
+                                        Accept<input type="radio" name="acceptOrDecline" value="accept" checked="true" />
+                                    </label>
+                                    <label class="radio inline">
+                                        Decline<input type="radio" name="acceptOrDecline" value="decline" />
+                                    </label>
+                                </c:when>
+                                <c:otherwise>
+                                    <label class="radio inline">
+                                        Accept<input type="radio" name="acceptOrDecline" value="accept" />
+                                    </label>
+                                    <label class="radio inline">
+                                        Decline<input type="radio" name="acceptOrDecline" value="decline" checked="true" />
+                                    </label>
+                                </c:otherwise>
+                            </c:choose>
+                    </div>
+                </div>
+
                 <input type="hidden" name="virtualPortRequestLink" value="${virtualPortCreateCommand.virtualPortRequestLink.id}" />
 
-                <div class="message"><h3>Virtual Port details</h3></div>
+            <fieldset id="decline-form">
+                <div class="message">
+                    <h3>Decline Explanation</h3>
+                </div>
+                <c:set var="errors">
+                    <sform:errors path="declineMessage" />
+                </c:set>
+                <c:if test="${not empty errors}">
+                    <c:set var="error_motivation_css" value=" error" />
+                </c:if>
+                <div class="control-group${error_motivation_css}">
+                    <label class="control-label">Explanation</label>
+                    <div class="controls">
+                        <sform:textarea path="declineMessage" rows="5" cssClass="xlarge" />
+                        <c:out value=" " />
+                        <a rel="popover" data-type="success" class="badge badge-success" href="#"
+                            data-content="This message will be send to the requestor.">?</a>
+                        <sform:errors cssClass="help-block" id="_declineMessage_error_id" path="declineMessage" delimiter=", " />
+                    </div>
+                </div>
+            </fieldset>
 
-                <field:input field="managerLabel" id="name" labelCode="virtualport_name" />
-                <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_maxbandwidth" />
-                <field:input field="vlanId" id="vlanId" labelCode="virtualport_vlan_id" />
+            <fieldset id="accept-form">
+                    <div class="message"><h3>Virtual Port Details</h3></div>
 
-                <field:select items="${virtualResourceGroups}" field="virtualResourceGroup"
-                    labelCode="virtualresourcegroup" id="virtualresourcegroup" itemValue="id"
-                    path="/manager/virtualresourcegroups" showSingle="true" />
+                    <field:input field="managerLabel" id="name" labelCode="virtualport_name" />
+                    <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_maxbandwidth" />
+                    <field:input field="vlanId" id="vlanId" labelCode="virtualport_vlan_id" />
 
-                <field:select items="${physicalResourceGroups}" id="physicalResourceGroup"
-                    labelCode="physicalresourcegroup" itemValue="id" field="physicalResourceGroup"
-                    path="/noc/physicalresourcegroups" create="false" showSingle="true" />
+                    <field:select items="${virtualResourceGroups}" field="virtualResourceGroup"
+                        labelCode="virtualresourcegroup" id="virtualresourcegroup" itemValue="id"
+                        path="/manager/virtualresourcegroups" showSingle="true" />
 
-                <field:select items="${physicalPorts}" id="physicalPort" labelCode="physicalport" itemValue="id"
-                    itemLabel="managerLabel" field="physicalPort" path="/manager/virtualports" create="false"
-                    showSingle="true" />
+                    <field:select items="${physicalResourceGroups}" id="physicalResourceGroup"
+                        labelCode="physicalresourcegroup" itemValue="id" field="physicalResourceGroup"
+                        path="/noc/physicalresourcegroups" create="false" showSingle="true" />
+
+                    <field:select items="${physicalPorts}" id="physicalPort" labelCode="physicalport" itemValue="id"
+                        itemLabel="managerLabel" field="physicalPort" path="/manager/virtualports" create="false"
+                        showSingle="true" />
+                </fieldset>
 
             </form:create>
         </div>
