@@ -14,13 +14,13 @@ import com.google.common.base.Throwables;
 public final class Emails {
 
   private static final String FOOTER = //
-  "Kind regards,\n" //
+      "\n\nKind regards,\n" //
       + "The Bandwidth on Demand Application team";
 
   public static class ActivationEmail {
     private static final String ACTIVATION_BODY = //
     "Dear ICT Administrator,\n\n" //
-        + "Please click the link to activate the email address for institute: %s\n\n" //
+        + "Please click the link to activate the email address for institute: %s" //
         + FOOTER;
 
     public static String body(String link) {
@@ -41,7 +41,7 @@ public final class Emails {
         + "Minimum Bandwidth: %d Mbit/s\n" //
         + "Reason: %s\n" //
         + "Institute: %s\n\n" //
-        + "Click on the following link %s to create the virtual port.\n\n" //
+        + "Click on the following link %s to create the virtual port." //
         + FOOTER;
 
     public static String body(RichUserDetails from, VirtualPortRequestLink requestLink, String link) {
@@ -55,11 +55,11 @@ public final class Emails {
     }
   }
 
-  public static final class VirtualPortRequestApprovedMail {
+  public static final class VirtualPortRequestApproveMail {
     private static final String BODY = //
     "Dear %s,\n\n" //
         + "Your Request for a Virtual Port from %s for your team %s has been approved.\n" //
-        + "The Virtual Port is now available with the name '%s'. It has a max. bandwidth of %d Mbit/s.\n\n" //
+        + "The Virtual Port is now available with the name '%s'. It has a max. bandwidth of %d Mbit/s." //
         + FOOTER;
 
     public static String body(VirtualPortRequestLink link, VirtualPort port) {
@@ -72,6 +72,24 @@ public final class Emails {
     }
   }
 
+  public static class VirtualPortRequestDeclineMail {
+    private static final String BODY = //
+        "Dear %s,\n\n" //
+        + "You Request for a Virtual Port from %s for your team %s has been declined.\n" //
+        + "The reason the BoD Administrator gave:\n%s"
+        + FOOTER;
+
+    public static String subject() {
+      return "[BoD] Your Virtual Port Request has been declined";
+    }
+
+    public static String body(VirtualPortRequestLink link, String message) {
+      return String.format(BODY,
+          link.getRequestorName(), link.getPhysicalResourceGroup().getName(), link.getVirtualResourceGroup().getName(),
+          message);
+    }
+  }
+
   public static class ErrorMail {
     private static final String ERROR_MAIL_BODY = //
     "Dear BoD Team,\n\n" //
@@ -80,7 +98,7 @@ public final class Emails {
         + "Username: %s\n" //
         + "Request: %s (%s)\n" //
         + "Around: %s\n" //
-        + "Stacktrace:\n%s\n\n" + FOOTER;
+        + "Stacktrace:\n%s" + FOOTER;
 
     public static String subject(String envUrl, Throwable throwable) {
       return String.format("[Exception on %s] %s", envUrl, throwable.getMessage());

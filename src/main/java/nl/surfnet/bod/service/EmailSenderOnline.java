@@ -33,7 +33,8 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.service.Emails.ActivationEmail;
 import nl.surfnet.bod.service.Emails.ErrorMail;
-import nl.surfnet.bod.service.Emails.VirtualPortRequestApprovedMail;
+import nl.surfnet.bod.service.Emails.VirtualPortRequestApproveMail;
+import nl.surfnet.bod.service.Emails.VirtualPortRequestDeclineMail;
 import nl.surfnet.bod.service.Emails.VirtualPortRequestMail;
 import nl.surfnet.bod.web.manager.ActivationEmailController;
 import nl.surfnet.bod.web.manager.VirtualPortController;
@@ -122,8 +123,8 @@ public class EmailSenderOnline implements EmailSender {
   public void sendVirtualPortRequestApproveMail(VirtualPortRequestLink link, VirtualPort port) {
     SimpleMailMessage mail = new MailMessageBuilder()
       .withTo(link.getRequestorName(), link.getRequestorEmail())
-      .withSubject(VirtualPortRequestApprovedMail.subject(port))
-      .withBodyText(VirtualPortRequestApprovedMail.body(link, port))
+      .withSubject(VirtualPortRequestApproveMail.subject(port))
+      .withBodyText(VirtualPortRequestApproveMail.body(link, port))
       .create();
 
     send(mail);
@@ -131,8 +132,13 @@ public class EmailSenderOnline implements EmailSender {
 
   @Override
   public void sendVirtualPortRequestDeclineMail(VirtualPortRequestLink link, String declineMessage) {
-    // TODO Auto-generated method stub
+    SimpleMailMessage mail = new MailMessageBuilder()
+      .withTo(link.getRequestorName(), link.getRequestorEmail())
+      .withSubject(VirtualPortRequestDeclineMail.subject())
+      .withBodyText(VirtualPortRequestDeclineMail.body(link, declineMessage))
+      .create();
 
+    send(mail);
   }
 
   private URL generateActivationUrl(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
