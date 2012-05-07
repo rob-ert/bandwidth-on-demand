@@ -88,9 +88,11 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     AddPhysicalPortCommand addCommand = new AddPhysicalPortCommand();
     addCommand.setPhysicalResourceGroup(prg);
     PhysicalPort port = Iterables.get(unallocatedPorts, 0);
+    
     addCommand.setNetworkElementPk(port.getNetworkElementPk());
     addCommand.setNocLabel(port.getNocLabel());
     addCommand.setManagerLabel(port.hasManagerLabel() ? port.getManagerLabel() : "");
+    addCommand.setPortId(port.getPortId());
 
     model.addAttribute("addPhysicalPortCommand", addCommand);
     model.addAttribute("unallocatedPhysicalPorts", unallocatedPorts);
