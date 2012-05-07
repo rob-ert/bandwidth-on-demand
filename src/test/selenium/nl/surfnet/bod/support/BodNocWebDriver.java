@@ -131,11 +131,11 @@ public class BodNocWebDriver {
     page.clickSwitchRole(role);
   }
 
-  public void addPhysicalPortToInstitute(String groupName, String port, String nocLabel) {
+  public void addPhysicalPortToInstitute(String groupName, String nocLabel, final String portLabel) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
 
     AddPhysicalPortPage addPage = page.addPhysicalPort(groupName);
-    addPage.selectPort(port);
+    addPage.selectPort(portLabel);
     addPage.sendNocLabel(nocLabel);
 
     addPage.save();

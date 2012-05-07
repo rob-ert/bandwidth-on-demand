@@ -116,7 +116,12 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     }
     port.setNocLabel(addCommand.getNocLabel());
     port.setPhysicalResourceGroup(addCommand.getPhysicalResourceGroup());
-    port.setManagerLabel(addCommand.getManagerLabel());
+    if (addCommand.getManagerLabel() == null || addCommand.getManagerLabel().isEmpty()) {
+      port.setManagerLabel(null);
+    }
+    else {
+      port.setManagerLabel(addCommand.getManagerLabel());
+    }
     port.setPortId(addCommand.getPortId());
 
     physicalPortService.save(port);

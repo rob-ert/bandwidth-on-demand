@@ -38,7 +38,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
 
   @Test
   public void allocatePhysicalPortFromInstitutePage() {
-    getNocDriver().addPhysicalPortToInstitute(groupName, "Mock_ETH10G-1-13-1", "NOC label");
+    getNocDriver().addPhysicalPortToInstitute(groupName, "NOC label", "Mock_Poort 1de verdieping toren1a");
 
     getNocDriver().verifyPhysicalPortWasAllocated(NETWORK_ELEMENT_PK, "NOC label");
 
