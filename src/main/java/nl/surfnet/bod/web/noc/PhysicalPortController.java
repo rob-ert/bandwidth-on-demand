@@ -21,7 +21,15 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.UPDATE;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 import java.util.Collection;
 import java.util.List;
@@ -120,7 +128,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid CreatePhysicalPortCommand command, BindingResult result, Model model,
       final RedirectAttributes redirectAttributes) {
-
+    
     if (result.hasErrors()) {
       model.addAttribute(MODEL_KEY, command);
       return PAGE_URL + UPDATE;
@@ -129,6 +137,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     PhysicalPort portToSave = physicalPortService.findByNetworkElementPk(command.getNetworkElementPk());
     portToSave.setPhysicalResourceGroup(command.getPhysicalResourceGroup());
     portToSave.setNocLabel(command.getNocLabel());
+    portToSave.setPortId(command.getPortId());
     if (Strings.emptyToNull(command.getManagerLabel()) != null) {
       portToSave.setManagerLabel(command.getManagerLabel());
     }
@@ -356,6 +365,25 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     public void setPortId(String portId) {
       this.portId = portId;
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder builder = new StringBuilder();
+      builder.append("CreatePhysicalPortCommand [networkElementPk=");
+      builder.append(networkElementPk);
+      builder.append(", physicalResourceGroup=");
+      builder.append(physicalResourceGroup);
+      builder.append(", nocLabel=");
+      builder.append(nocLabel);
+      builder.append(", managerLabel=");
+      builder.append(managerLabel);
+      builder.append(", version=");
+      builder.append(version);
+      builder.append(", portId=");
+      builder.append(portId);
+      builder.append("]");
+      return builder.toString();
     }
 
   }
