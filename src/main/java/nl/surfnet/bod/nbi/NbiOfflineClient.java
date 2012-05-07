@@ -50,9 +50,9 @@ class NbiOfflineClient implements NbiClient {
     @Override
     public PhysicalPort apply(NbiPort nbiPort) {
       PhysicalPort physicalPort = new PhysicalPort();
-      physicalPort.setNocLabel("Mock_" + nbiPort.getName());
-      physicalPort.setManagerLabel(nbiPort.getUserLabel().orNull());
       physicalPort.setNetworkElementPk(nbiPort.getId());
+      physicalPort.setPortId("Mock_" + nbiPort.getName());
+      physicalPort.setNocLabel(nbiPort.getUserLabel().or(nbiPort.getName()));
 
       return physicalPort;
     }
