@@ -765,7 +765,7 @@
                                 </connector>
                             </connectors>
                             <contextHandlers>
-                                <contextHandler implementation="org.mortbay.jetty.webapp.WebAppContext">
+                                <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
                                   <war>/home/alan/sos-server-0.1.0-SNAPSHOT.war</war>
                                   <contextPath>/sos</contextPath>
                                 </contextHandler>
