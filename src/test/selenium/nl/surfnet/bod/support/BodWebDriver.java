@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.containsString;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -129,7 +130,8 @@ public class BodWebDriver {
 
   private List<MimeMessage> getMailsSortedByDate() {
     Ordering<MimeMessage> mailMessageOrdering = new Ordering<MimeMessage>() {
-      private DateTimeFormatter dateParser = DateTimeFormat.forPattern("EEE, d MMM yyyy HH:mm:ss Z '(CEST)'");
+      private DateTimeFormatter dateParser = DateTimeFormat.forPattern("EEE, d MMM yyyy HH:mm:ss Z '(CEST)'")
+          .withLocale(Locale.ENGLISH);
 
       @Override
       public int compare(MimeMessage left, MimeMessage right) {
