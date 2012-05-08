@@ -45,7 +45,6 @@ import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingServiceFault;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingService_v30Stub;
 
-import org.apache.commons.codec.binary.StringUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.Security;
@@ -377,9 +376,10 @@ class NbiOpenDracWsClient implements NbiClient {
       start.setTime(reservation.getStartDateTime().toDate());
     }
     else {
-      log.info("No startTime specified, using now: {}", start);
       //Update reservation
       reservation.setStartDateTime(LocalDateTime.fromCalendarFields(start));
+      
+      log.info("No startTime specified, using now: {}", reservation.getStartDateTime());
     }
     schedule.setStartTime(start);
 
