@@ -129,11 +129,15 @@ class NbiOfflineClient implements NbiClient {
   @Override
   public ReservationStatus getReservationStatus(String scheduleId) {
     ReservationStatus currentStatus = scheduleIds.get(scheduleId);
-    if (random.nextInt(20) < 2) {
-      ReservationStatus nextStatus = getNextStatus(currentStatus);
-      scheduleIds.put(scheduleId, nextStatus);
-      return nextStatus;
+
+    if (currentStatus.isTransitionState()) {
+      if (random.nextInt(20) < 2) {
+        ReservationStatus nextStatus = getNextStatus(currentStatus);
+        scheduleIds.put(scheduleId, nextStatus);
+        currentStatus = nextStatus;
+      }
     }
+
     return currentStatus;
   }
 
