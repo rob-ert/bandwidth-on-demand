@@ -36,6 +36,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.repo.ReservationRepo;
 
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +89,6 @@ class NbiOfflineClient implements NbiClient {
     ports.add(new NbiPort("Asd001A_OME3T_ETH-1-1-1", "00-20-D8-DF-33-59_ETH-1-1-1"));
   }
 
-
   @SuppressWarnings("unused")
   @PostConstruct
   private void init() {
@@ -112,6 +112,12 @@ class NbiOfflineClient implements NbiClient {
   @Override
   public Reservation createReservation(Reservation reservation) {
     final String scheduleId = "SCHEDULE-" + System.currentTimeMillis();
+
+    if (reservation.getStartDateTime() == null) {
+      reservation.setStartDateTime(LocalDateTime.now());
+      log.info("No startTime specified, using now: {}", reservation.getStartDateTime());
+    }
+
     scheduleIds.put(scheduleId, SCHEDULED);
 
     reservation.setReservationId(scheduleId);
@@ -185,7 +191,6 @@ class NbiOfflineClient implements NbiClient {
       this.id = id;
       this.userLabel = Optional.of(userLabel);
     }
-
 
     public String getName() {
       return name;
