@@ -239,6 +239,7 @@ app.form = function(){
                 searchObjProps: 'name',
                 selectedItemProp: 'name',
                 startText: '',
+                neverSubmit: true,
                 preFill: [{id:preFillId, name:preFillName}],
                 selectionLimit: 1,
                 inputName: 'instituteId',
