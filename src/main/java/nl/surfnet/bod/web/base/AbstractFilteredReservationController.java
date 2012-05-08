@@ -37,6 +37,7 @@ import com.google.common.collect.Lists;
  * 
  */
 public abstract class AbstractFilteredReservationController extends AbstractSortableListController<ReservationView> {
+  private static final String DEFAULT_FILTER_ID = ReservationFilterViewFactory.COMMING;
 
   private static final Function<Reservation, ReservationView> TO_RESERVATION_VIEW = new Function<Reservation, ReservationView>() {
     @Override
@@ -59,11 +60,18 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
   }
 
   /**
-   * Selects a default filter, never show all reservations at once....
+   * Selects a default filter when no filter is selected yet, never show all
+   * reservations at once....
    */
   @Override
   public String list(Integer page, String sort, String order, Model model) {
-    return getDefaultFilterUrl();
+    String filterName = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
+
+    if (!StringUtils.hasText(filterName)) {
+      filterName = DEFAULT_FILTER_ID;
+    }
+
+    return list(page, sort, order, filterName, model);
   }
 
   /**
@@ -102,11 +110,6 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
     return listUrl();
   }
 
-  protected String getDefaultFilterUrl() {
-    return "redirect:/" + StringUtils.delete(listUrl(), WebUtils.LIST) + "/filter/"
-        + ReservationFilterViewFactory.COMMING;
-  }
-
   @Override
   protected long count() {
     throw new UnsupportedOperationException("Only filtered lists are supported");
@@ -118,7 +121,7 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
     model.addAttribute(FILTER_LIST, determineFilters());
   }
 
-  //TODO make protected
+  // TODO make protected
   public List<ReservationView> transformReservationToReservationView(List<Reservation> reservationsToTransform) {
     return Lists.transform(reservationsToTransform, TO_RESERVATION_VIEW);
   }

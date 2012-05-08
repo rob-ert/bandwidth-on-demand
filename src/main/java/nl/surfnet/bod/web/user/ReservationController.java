@@ -85,7 +85,9 @@ public class ReservationController extends AbstractFilteredReservationController
   private ReservationValidator reservationValidator = new ReservationValidator();
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(@Valid Reservation reservation, BindingResult bindingResult, Model model,
+  public String create(@Valid Reservation reservation, @RequestParam(value = PAGE_KEY, required = false) Integer page,
+      @RequestParam(value = "sort", required = false) String sort,
+      @RequestParam(value = "order", required = false) String order, BindingResult bindingResult, Model model,
       RedirectAttributes redirectAttributes) {
     reservation.setUserCreated(Security.getUserDetails().getNameId());
 
@@ -105,7 +107,7 @@ public class ReservationController extends AbstractFilteredReservationController
     WebUtils.addInfoMessage(redirectAttributes, "A new reservation for %s has been requested.", reservation
         .getVirtualResourceGroup().getName());
 
-    return getDefaultFilterUrl();
+    return list(page, sort, order, model);
   }
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
@@ -155,7 +157,8 @@ public class ReservationController extends AbstractFilteredReservationController
 
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
   public String delete(@RequestParam(ID_KEY) Long id, @RequestParam(value = PAGE_KEY, required = false) Integer page,
-      RedirectAttributes redirectAttributes) {
+      @RequestParam(value = "sort", required = false) String sort,
+      @RequestParam(value = "order", required = false) String order, Model model, RedirectAttributes redirectAttributes) {
 
     Reservation reservation = reservationService.find(id);
 
@@ -170,7 +173,7 @@ public class ReservationController extends AbstractFilteredReservationController
           .getVirtualResourceGroup().getName());
     }
 
-    return getDefaultFilterUrl();
+    return list(page, sort, order, model);
   }
 
   private List<VirtualResourceGroup> findVirtualResourceGroups() {

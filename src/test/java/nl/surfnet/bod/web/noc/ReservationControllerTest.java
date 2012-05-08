@@ -84,7 +84,7 @@ public class ReservationControllerTest {
   public void defaultListViewShouldRedirectToDefaultFilterView() {
     String viewName = subject.list(page, "id", "asc", model);
 
-    assertThat(viewName, is("redirect:/noc/reservations/filter/" + ReservationFilterViewFactory.COMMING));
+    assertThat(viewName, is(subject.listUrl()));
   }
 
   @Test
