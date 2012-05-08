@@ -30,6 +30,8 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 public class AbstractPage {
@@ -61,16 +63,23 @@ public class AbstractPage {
 
     List<WebElement> roles = userBox.findElements(By.tagName("li"));
     for (WebElement role : roles) {
-        if (containsAll(role.getText(), roleNames)) {
-          role.click();
-          return;
-        }
+      if (containsAll(role.getText(), roleNames)) {
+        role.click();
+        return;
+      }
     }
-    throw new NoSuchElementException("Could not find role with name " + roleNames);
+
+    throw new NoSuchElementException("Could not find role with name " + Joiner.on(", ").join(roleNames) + " in "
+        + Joiner.on(", ").join(Iterables.transform(roles, new Function<WebElement, String>() {
+          @Override
+          public String apply(WebElement input) {
+            return input.getText();
+          }
+        })));
   }
 
   private boolean containsAll(String input, String[] needles) {
-    for (String needle: needles) {
+    for (String needle : needles) {
       if (!input.contains(needle)) {
         return false;
       }
