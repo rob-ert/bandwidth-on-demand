@@ -14,6 +14,7 @@
         <selenium.version>2.20.0</selenium.version>
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:8888/bod</selenium.test.url>
+        <sos.version>0.1.0</sos.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <scm>
@@ -685,6 +686,10 @@
                                     <name>external.bod.url</name>
                                     <value>http://localhost:8083/bod</value>
                                 </systemProperty>
+                                <systemProperty>
+                                    <name>os.url</name>
+                                    <value>http://localhost:8081</value>
+                                </systemProperty>
                             </systemProperties>
                             <systemPropertiesFile>src/test/resources/bod-selenium.properties</systemPropertiesFile>
                             <scanIntervalSeconds>0</scanIntervalSeconds>
@@ -747,6 +752,25 @@
                         </executions>
                     </plugin>
                     <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>wagon-maven-plugin</artifactId>
+                        <version>1.0-beta-3</version>
+                        <executions>
+                            <execution>
+                                <id>download-sos-server</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>download-single</goal>
+                                </goals>
+                                <configuration>
+                                    <url>https://atlas.dlp.surfnet.nl</url>
+                                    <fromFile>nexus/service/local/repositories/releases/content/nl/surfnet/sos-server/${sos.version}/sos-server-${sos.version}.war</fromFile>
+                                    <toDir>${project.build.directory}/sos-server</toDir>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>org.mortbay.jetty</groupId>
                         <artifactId>jetty-maven-plugin</artifactId>
                         <version>${jetty.version}</version>
@@ -769,7 +793,7 @@
                             </connectors>
                             <contextHandlers>
                                 <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
-                                  <war>/home/alan/sos-server-0.1.0-SNAPSHOT.war</war>
+                                  <war>${project.build.directory}/sos-server/sos-server-${sos.version}.war</war>
                                   <contextPath>/sos</contextPath>
                                 </contextHandler>
                             </contextHandlers>
