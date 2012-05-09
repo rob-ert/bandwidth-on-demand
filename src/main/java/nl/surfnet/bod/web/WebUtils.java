@@ -61,10 +61,10 @@ public final class WebUtils {
 
   public static final String INFO_MESSAGES_KEY = "infoMessages";
 
-  static final String PARAM_MARKUP_START = "<b>";
-  static final String PARAM_MARKUP_END = "</b>";
+  protected static final String PARAM_MARKUP_START = "<b>";
+  protected static final String PARAM_MARKUP_END = "</b>";
 
-  private static final Logger log = LoggerFactory.getLogger(WebUtils.class);
+  private static Logger log = LoggerFactory.getLogger(WebUtils.class);
 
   private WebUtils() {
   }
@@ -88,7 +88,7 @@ public final class WebUtils {
   }
 
   /**
-   * 
+   *
    * @return The user selected PhysicalResourceGroupId
    */
   public static Long getSelectedPhysicalResourceGroupId() {
@@ -99,7 +99,7 @@ public final class WebUtils {
   /**
    * Adds an infoMessage, depending on the type of {@link Model} it will will
    * survive a redirect.
-   * 
+   *
    * @param model
    *          Model to add the message to
    * @param message
@@ -149,7 +149,7 @@ public final class WebUtils {
    * Html escapes the argument and replaces them with the parameter placeholders
    * in the message. The parameter placeholders can be either "{}" or the
    * regular {@link String#format(String, Object...)} placeholders.
-   * 
+   *
    * @param message
    *          The message to parse
    * @param args
@@ -207,7 +207,7 @@ public final class WebUtils {
    * Places the {@link RedirectAttributes#getFlashAttributes()} again on the
    * given redirectAttributes. This way the flashAttributes can survive multiple
    * redirects.
-   * 
+   *
    * @param redirectAttribs
    *          FlashAttributes wil be take from this and put on it again.
    */

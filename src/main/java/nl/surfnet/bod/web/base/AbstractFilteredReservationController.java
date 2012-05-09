@@ -1,10 +1,6 @@
 package nl.surfnet.bod.web.base;
 
-import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
-import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.List;
 
@@ -19,22 +15,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 /**
  * Base controller for filtering and sorting {@link Reservation}s.
- * 
+ *
  * @see AbstractSortableListController
- * 
+ *
  * @author Franky
- * 
+ *
  */
 public abstract class AbstractFilteredReservationController extends AbstractSortableListController<ReservationView> {
   private static final String DEFAULT_FILTER_ID = ReservationFilterViewFactory.COMMING;
@@ -46,8 +38,7 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
     }
   };
 
-  protected static final String FILTER_URL = "filter/";
-  protected static final String MODEL_KEY = "reservation";
+  private static final String FILTER_URL = "filter/";
 
   @Autowired
   protected ReservationService reservationService;
@@ -79,7 +70,7 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
    * Retrieves a list and filters by applying the filter specified by the
    * filterId. After the user selects a filter a new Http get with the selected
    * filterId can be performed.
-   * 
+   *
    * @param page
    *          StartPage
    * @param sort
