@@ -21,33 +21,56 @@
                 </a>
             </div>
         </section>
+        <c:if test="${not empty requests}">
+	        <section>
+	            <h2>Pending Virtual Port Requests</h2>
+	            <div class="content">
+	                <table class="table table-bordered table-striped">
+	                    <thead>
+	                        <tr>
+	                            <th>Team</th>
+	                            <th>Who</th>
+	                            <th>Requested</th>
+	                            <table:actionsHeader />
+	                        </tr>
+	                    </thead>
+	                    <tbody>
+	                        <c:forEach items="${requests}" var="request">
+	                            <tr>
+	                                <td><c:out value="${request.virtualResourceGroup.name}" /></td>
+	                                <td><c:out value="${request.requestorName}" /></td>
+	                                <td><spring:eval expression="request.requestDateTime" /></td>
+	                                <table:actionsColumn labelCode="" item="${request}" delete="false" update="false">
+	                                    <spring:url value="/manager/virtualports/create/${request.uuid}" var="requestUrl" />
+	                                    <a href="${requestUrl}" rel="tooltip" title="New Virtual Port Request" data-type="info"><i class="icon-plus"><!--  --></i></a>
+	                                </table:actionsColumn>
+	                            </tr>
+	                        </c:forEach>
+	                    </tbody>
+	                </table>
+	            </div>
+	        </section>
+        </c:if>
         <section>
-            <h2>Pending Virtual Port Requests</h2>
-            <div class="content">
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>Team</th>
-                            <th>Who</th>
-                            <th>Requested</th>
-                            <table:actionsHeader />
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach items="${requests}" var="request">
-                            <tr>
-                                <td><c:out value="${request.virtualResourceGroup.name}" /></td>
-                                <td><c:out value="${request.requestorName}" /></td>
-                                <td><spring:eval expression="request.requestDateTime" /></td>
-                                <table:actionsColumn labelCode="" item="${request}" delete="false" update="false">
-                                    <spring:url value="/manager/virtualports/create/${request.uuid}" var="requestUrl" />
-                                    <a href="${requestUrl}" rel="tooltip" title="New Virtual Port Request" data-type="info"><i class="icon-plus"><!--  --></i></a>
-                                </table:actionsColumn>
-                            </tr>
-                        </c:forEach>
-                    </tbody>
-                </table>
-            </div>
+	        	<h2>Statistics</h2>
+	        <div class="content">
+	        		<table class="table table-bordered table-striped">
+	        			<thead>
+	        				<tr>
+	        					<th># Virtual ports</th>
+	        					<th># Active reservations</th>
+	        					<th>#Future reservations</th>	        					
+	        				</tr>
+	        			</thead>
+	        			<tbody>
+		        			<tr>
+		        				<td>3</td>
+		        				<td>2</td>
+		        				<td>98</td>
+		        			</tr>
+	        			</tbody>
+	        		</table>
+	        </div>        
         </section>
     </div>
     <div class="span4">
@@ -62,6 +85,23 @@
                 </p>
                 <p>
                     Click on the <i class="icon-pencil"><!--  --></i> icon behind the institute to make changes.
+                </p>
+                <c:if test="${not empty requests}">
+	                <h3>Pending Virtual Port Requests</h3>
+	                <p>
+	                    If there are any pending requests for a virtual port which require your reaction they are displayed in this section. 
+	                </p>
+	                <p>
+	                    Click on the <i class="icon-plus"><!--  --></i> icon behind a request in the table to process it.
+	                </p>
+	            </c:if>
+                <h3>Statistics</h3>
+                <p>
+                     The most relevant statistics related to the <strong>${selectedRole.instituteName }</strong> are shown here. Sequentially you will find the amount of Virtual ports,
+                     the number of currently active reservations and the amount of future reservations.  
+                </p>
+                <p>
+                    Click on the number to navigate to the related page.
                 </p>
             </div>
         </section>
