@@ -33,8 +33,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+import java.util.Locale;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -44,6 +48,7 @@ import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortCreateCommand
 import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortUpdateCommand;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -79,15 +84,21 @@ public class VirtualPortControllerTest {
   private RichUserDetails user;
   private PhysicalPort physicalPort;
   private PhysicalResourceGroup prg;
-  private BodRole managerRole;
 
   @Before
   public void login() {
     physicalPort = new PhysicalPortFactory().create();
     prg = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group").addPhysicalPort(physicalPort).create();
 
-    managerRole = BodRole.createManager(prg);
-    user = new RichUserDetailsFactory().addBodRoles(BodRole.createUser(), managerRole).addUserGroup("urn:manager-group").create();
+    when(messageSourceMock.getMessage(eq("info_virtualport_updated"), any(Object[].class), any(Locale.class)))
+        .thenReturn("Updated");
+    when(
+        messageSourceMock.getMessage(eq("info_virtualportrequestlink_notmanager"), any(Object[].class),
+            any(Locale.class))).thenReturn("Not Manager");
+    when(messageSourceMock.getMessage(eq("info_virtualport_created"), any(Object[].class), any(Locale.class)))
+        .thenReturn("Created");
+
+    user = new RichUserDetailsFactory().addManagerRole(prg).addUserRole().addUserGroup("urn:manager-group").create();
     Security.setUserDetails(user);
   }
 
@@ -97,8 +108,8 @@ public class VirtualPortControllerTest {
     ModelStub model = new ModelStub();
 
     when(
-        virtualPortServiceMock.findEntriesForManager(eq(user), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE),
-            any(Sort.class))).thenReturn(Lists.newArrayList(new VirtualPortFactory().create()));
+        virtualPortServiceMock.findEntriesForManager(eq(user), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class)))
+        .thenReturn(Lists.newArrayList(new VirtualPortFactory().create()));
 
     subject.list(1, null, null, model);
 
@@ -143,7 +154,8 @@ public class VirtualPortControllerTest {
   @Test
   public void createWithIllegalPhysicalResourceGroupShouldRedirect() {
     ModelStub model = new ModelStub();
-    PhysicalResourceGroup wrongPrg = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group-wrong").create();
+    PhysicalResourceGroup wrongPrg = new PhysicalResourceGroupFactory().setAdminGroup("urn:manager-group-wrong")
+        .create();
     VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(wrongPrg).create();
 
     when(virtualPortServiceMock.findRequest("1234567890")).thenReturn(link);
@@ -183,7 +195,7 @@ public class VirtualPortControllerTest {
 
     subject.createForm("1234567890", model, model);
 
-    assertThat(user.getSelectedRole(), is(managerRole));
+    assertThat(user.getSelectedRole().getRole(), is(RoleEnum.ICT_MANAGER));
   }
 
   @Test

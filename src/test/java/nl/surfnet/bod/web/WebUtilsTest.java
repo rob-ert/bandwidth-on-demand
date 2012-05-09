@@ -99,10 +99,9 @@ public class WebUtilsTest {
     assertThat(messages.get(1), is("SecondMessage"));
   }
 
-  @Test
-  public void shouldAddNullMessages() {
+  @Test(expected = NullPointerException.class)
+  public void shouldNotAddNullMessages() {
     WebUtils.addInfoMessage(model, null, emptyArgs);
-    WebUtils.addInfoMessage(redirectModel, null, emptyArgs);
   }
 
   @Test

@@ -21,7 +21,6 @@
  */
 package nl.surfnet.bod.web;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -36,6 +35,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.HtmlUtils;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 public final class WebUtils {
@@ -157,19 +157,18 @@ public final class WebUtils {
    * @return Formatted string, with the arguments html escaped.
    */
   public static String formatAndEscapeMessage(String message, String... args) {
-    if (message != null) {
-      // Enable replacement by log and spring convention
-      message = StringUtils.replace(message, "{}", "%s");
-      message = StringUtils.replace(message, "%s", PARAM_MARKUP_START + "%s" + PARAM_MARKUP_END);
+    Preconditions.checkNotNull(message);
 
-      ArrayList<String> escapedArgs = Lists.newArrayList();
-      for (String arg : args) {
-        escapedArgs.add(HtmlUtils.htmlEscape(arg));
-      }
-      return String.format(message, escapedArgs.toArray());
+    // Enable replacement by log and spring convention
+    String replacingMessage = StringUtils.replace(message, "{}", "%s");
+    replacingMessage = StringUtils.replace(replacingMessage, "%s", PARAM_MARKUP_START + "%s" + PARAM_MARKUP_END);
+
+    List<String> escapedArgs = Lists.newArrayList();
+    for (String arg : args) {
+      escapedArgs.add(HtmlUtils.htmlEscape(arg));
     }
 
-    return "";
+    return String.format(replacingMessage, escapedArgs.toArray());
   }
 
   static void addMessage(RedirectAttributes model, String message) {

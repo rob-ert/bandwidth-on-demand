@@ -22,11 +22,7 @@
 package nl.surfnet.bod.web.user;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -36,6 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+import java.util.Locale;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -44,12 +41,7 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.InstituteFactory;
-import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.UserGroupFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.user.VirtualPortRequestController.RequestCommand;
@@ -79,7 +71,6 @@ public class VirtualPortRequestControllerTest {
   @Mock
   private VirtualResourceGroupService virtualResourceGroupServiceMock;
 
-  @SuppressWarnings("unused")
   @Mock
   private MessageSource messageSourceMock;
 
@@ -91,10 +82,16 @@ public class VirtualPortRequestControllerTest {
     UserGroup group2 = new UserGroupFactory().setName("B").create();
     UserGroup group3 = new UserGroupFactory().setName("C").create();
 
-    user = new RichUserDetailsFactory().addBodRoles(BodRole.createUser()).addUserGroup(group3).addUserGroup(group1)
-        .addUserGroup(group2).create();
-
+    user = new RichUserDetailsFactory().addUserRole().addUserGroup(group3).addUserGroup(group1).addUserGroup(group2)
+        .create();
     Security.setUserDetails(user);
+
+    when(
+        messageSourceMock.getMessage(eq("info_virtualport_request_invalid_group"), any(Object[].class),
+            any(Locale.class))).thenReturn("Invalid");
+    when(
+        messageSourceMock.getMessage(eq("info_virtualport_request_send"), any(Object[].class),
+            any(Locale.class))).thenReturn("Send");
   }
 
   @SuppressWarnings("unchecked")
