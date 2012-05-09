@@ -12,6 +12,7 @@
     <jsp:directive.attribute name="labelCode" type="java.lang.String" required="true" rtexprvalue="true" />
     <jsp:directive.attribute name="updateLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="successMessageCode" type="java.lang.String" required="false" rtexprvalue="true" />    
 
     <c:if test="${empty idFieldName}">
         <c:set var="idFieldName" value="id" />
@@ -28,7 +29,7 @@
     <c:if test="${empty deleteLabelCode}">
         <c:set var="deleteLabelCode" value="entity_delete" />
     </c:if>
-
+    
     <spring:message code="${labelCode}" var="label" />
 
     <td class="center">
@@ -45,9 +46,17 @@
                 <spring:param name="_method" value="DELETE" />
                 <spring:param name="id" value="${item[idFieldName]}" />
             </spring:url>
-            <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true" data-confirm="Are you sure?"><i class="${deleteIcon}"><!--  --></i></a>
+            
+            <c:choose>
+            		<c:when test="${not empty successMessageCode}">
+            			<spring:message code="${successMessageCode}" arguments="${item['name']}"  var="successMessage" />
+	            		<a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true" data-confirm="Are you sure?" data-success="${successMessage}"><i class="${deleteIcon}"><!--  --></i></a>
+	            </c:when>
+	            <c:otherwise>
+	            		<a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true" data-confirm="Are you sure?"><i class="${deleteIcon}"><!--  --></i></a>
+	            </c:otherwise>
+            </c:choose>
         </c:if>
         <jsp:doBody />
-    </td>
-    
+    </td>    
 </jsp:root>
