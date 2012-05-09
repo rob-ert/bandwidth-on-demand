@@ -67,6 +67,6 @@ public class DashboardController {
   }
 
   private ManagerStatisticsView determineStatistics() {
-    return new ManagerStatisticsView(3, 6, 103);
+    return new ManagerStatisticsView(3, 4, 6, 103, 2);
   }
 }

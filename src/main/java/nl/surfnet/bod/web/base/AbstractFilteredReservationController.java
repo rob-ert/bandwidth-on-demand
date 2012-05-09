@@ -29,7 +29,7 @@ import com.google.common.collect.Lists;
  *
  */
 public abstract class AbstractFilteredReservationController extends AbstractSortableListController<ReservationView> {
-  private static final String DEFAULT_FILTER_ID = ReservationFilterViewFactory.COMMING;
+  private static final String DEFAULT_FILTER_ID = ReservationFilterViewFactory.COMING;
 
   private static final Function<Reservation, ReservationView> TO_RESERVATION_VIEW = new Function<Reservation, ReservationView>() {
     @Override
@@ -125,7 +125,7 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
     List<ReservationFilterView> filterViews = Lists.newArrayList();
 
     // Coming period
-    filterViews.add(reservationFilterViewFactory.create(nl.surfnet.bod.support.ReservationFilterViewFactory.COMMING));
+    filterViews.add(reservationFilterViewFactory.create(nl.surfnet.bod.support.ReservationFilterViewFactory.COMING));
 
     // Elapsed period
     filterViews.add(reservationFilterViewFactory.create(nl.surfnet.bod.support.ReservationFilterViewFactory.ELAPSED));

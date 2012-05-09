@@ -70,9 +70,9 @@ public class ReservationFilterViewFactoryTest {
 
   @Test
   public void testCreateCommingPeriodFilter() {
-    ReservationFilterView commingPeriodFilter = subject.create(ReservationFilterViewFactory.COMMING);
+    ReservationFilterView commingPeriodFilter = subject.create(ReservationFilterViewFactory.COMING);
 
-    assertThat(commingPeriodFilter.getId(), is(ReservationFilterViewFactory.COMMING));
+    assertThat(commingPeriodFilter.getId(), is(ReservationFilterViewFactory.COMING));
   }
 
   @Test

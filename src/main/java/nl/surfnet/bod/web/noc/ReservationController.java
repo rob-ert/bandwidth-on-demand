@@ -31,8 +31,6 @@ import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
-import org.joda.time.Hours;
-import org.joda.time.ReadablePeriod;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,10 +39,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller(value = "nocReservationController")
 public class ReservationController extends AbstractFilteredReservationController {
-
-  public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
-  public static final String FILTER_COMMING_PERIOD = "comming";
-  public static final String FILTER_ELAPSED_PERIOD = "elapsed";
 
   static final String PAGE_URL = "noc/reservations";
 

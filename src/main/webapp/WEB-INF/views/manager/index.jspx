@@ -52,8 +52,7 @@
 											var="requestUrl" />
 										<a href="${requestUrl}" rel="tooltip"
 											title="New Virtual Port Request" data-type="info"><i
-											class="icon-plus">
-												<!--  -->
+											class="icon-plus"> <!--  -->
 										</i></a>
 									</table:actionsColumn>
 								</tr>
@@ -66,31 +65,93 @@
 		<section>
 			<h2>Statistics</h2>
 			<div class="content">
-				<spring:url value="manager/virtualports" var="vpUrl" />
-				<spring:url value="manager/reservations/filter/comming"
-					var="futureReservationUrl" />
-				<spring:url value="manager/reservations/filter/active"
-					var="activeReservationUrl" />
+				<spring:url value="${stats.ppsUrl}" var="ppsUrl" />
+				<spring:url value="${stats.vpsUrl}" var="vpsUrl" />
+				<spring:url value="${stats.elapsedReservationsUrl}"
+					var="elapsedReservationsUrl" />
+				<spring:url value="${stats.activeReservationsUrl}"
+					var="activeReservationsUrl" />
+				<spring:url value="${stats.comingReservationsUrl}"
+					var="comingReservationsUrl" />
+
+<!-- 
+				<dl>
+					<dt># Physical ports</dt>
+					<dd>
+						<a href="${ppsUrl}" rel="tooltip" title="Physical Ports"
+							data-type="info"> <c:out value="${stats.physicalPortsAmount}" />
+						</a>
+					</dd>
+					<dt># Virtual ports</dt>
+					<dd>
+						<a href="${vpsUrl}" rel="tooltip" title="Virtual Ports"
+							data-type="info"> <c:out value="${stats.virtualPortsAmount}" />
+						</a>
+					</dd>
+					<dt># Elapsed reservations</dt>
+					<dd>
+						<a href="${elapsedReservationsUrl}" rel="tooltip"
+							title="Elapsed Reservations" data-type="info"> <c:out
+								value="${stats.elapsedReservationsAmount}" />
+						</a>
+					</dd>
+					<dt># Active reservations</dt>
+					<dd>
+						<a href="${activeReservationsUrl}" rel="tooltip"
+							title="Active Reservations" data-type="info"> <c:out
+								value="${stats.activeReservationsAmount}" />
+						</a>
+					</dd>
+					<dt># Coming reservations</dt>
+					<dd>
+						<a href="${comingReservationsUrl}" rel="tooltip"
+							title="Coming Reservations" data-type="info"> <c:out
+								value="${stats.comingReservationsAmount}" />
+						</a>
+					</dd>
+				</dl>
+ -->
+
 				<table class="table table-bordered table-striped">
 					<thead>
 						<tr>
-							<th># Virtual ports</th>
-							<th># Active reservations</th>
-							<th># Future reservations</th>
+							<th>Item</th>
+							<th>Amount</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
-							<td><a href="${vpUrl}" rel="tooltip" title="Virtual Ports"
-								data-type="info"> <c:out value="${stats.virtualPortAmount}" />
+							<td>Physical ports</td>
+							<td><a href="${ppsUrl}" rel="tooltip" title="Physical Ports"
+								data-type="info"> <c:out
+										value="${stats.physicalPortsAmount}" />
 							</a></td>
-							<td><a href="${futureReservationUrl}" rel="tooltip"
+						</tr>
+						<tr>
+							<td>Virtual ports</td>
+							<td><a href="${vpsUrl}" rel="tooltip" title="Virtual Ports"
+								data-type="info"> <c:out value="${stats.virtualPortsAmount}" />
+							</a></td>
+						</tr>
+						<tr>
+							<td>Elapsed reservations</td>
+							<td><a href="${elapsedReservationsUrl}" rel="tooltip"
+								title="Elapsed Reservations" data-type="info"> <c:out
+										value="${stats.elapsedReservationsAmount}" />
+							</a></td>
+						</tr>
+						<tr>
+							<td>Active reservations</td>
+							<td><a href="${activeReservationsUrl}" rel="tooltip"
 								title="Active Reservations" data-type="info"> <c:out
-										value="${stats.activeReservationAmount}" />
+										value="${stats.activeReservationsAmount}" />
 							</a></td>
-							<td><a href="${activeReservationUrl}" rel="tooltip"
-								title="Future Reservation" data-type="info"> <c:out
-										value="${stats.futureReservationAmount}" />
+						</tr>
+						<tr>
+							<td>Coming reservations</td>
+							<td><a href="${comingReservationsUrl}" rel="tooltip"
+								title="Coming Reservations" data-type="info"> <c:out
+										value="${stats.comingReservationsAmount}" />
 							</a></td>
 						</tr>
 					</tbody>
@@ -111,8 +172,7 @@
 					on this page.
 				</p>
 				<p>
-					Click on the <i class="icon-pencil">
-						<!--  -->
+					Click on the <i class="icon-pencil"> <!--  -->
 					</i> icon behind the institute to make changes.
 				</p>
 				<c:if test="${not empty requests}">
@@ -120,17 +180,17 @@
 					<p>If there are any pending requests for a virtual port which
 						require your reaction they are displayed in this section.</p>
 					<p>
-						Click on the <i class="icon-plus">
-							<!--  -->
+						Click on the <i class="icon-plus"> <!--  -->
 						</i> icon behind a request in the table to process it.
 					</p>
 				</c:if>
 				<h3>Statistics</h3>
 				<p>
-					The most relevant statistics related to the <strong>${selectedRole.instituteName
-						}</strong> are shown here. Sequentially you will find the amount of Virtual
-					ports, the number of currently active reservations and the amount
-					of reservations for the coming period.
+					The most relevant statistics related to the <strong>${selectedRole.instituteName}</strong>
+					are shown here. Sequentially you will find the amount of physical
+					and virtual ports, the number of elapsed reservation, the currently
+					active reservations and the amount of reservations for the coming
+					period.
 				</p>
 				<p>You can navigate to the related page by clicking on the
 					number.</p>

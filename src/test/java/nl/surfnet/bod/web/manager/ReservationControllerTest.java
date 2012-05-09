@@ -62,7 +62,7 @@ public class ReservationControllerTest {
   private final RichUserDetails manager = new RichUserDetailsFactory().create();
 
   private ReservationFilterView filter = new ReservationFilterViewFactory()
-      .create(ReservationFilterViewFactory.COMMING);
+      .create(ReservationFilterViewFactory.COMING);
 
   @Before
   public void login() {

@@ -38,8 +38,9 @@ public class ReservationFilterViewFactory {
 
   public static final ReadablePeriod DEFAULT_FILTER_INTERVAL = Months.FOUR;
 
-  public static final String COMMING = "comming";
+  public static final String COMING = "coming";
   public static final String ELAPSED = "elapsed";
+  public static final String ACTIVE = "active";
 
   public ReservationFilterView create(String id) {
 
@@ -54,11 +55,17 @@ public class ReservationFilterViewFactory {
         return new ReservationFilterView(ELAPSED, String.format("Now - %d months",
             DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, true);
       }
-      else {
-          return new ReservationFilterView(COMMING, String.format("Now + %d months",
-              DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, false);
-        }
+      else if (COMING.equals(id)) {
+        return new ReservationFilterView(COMING, String.format("Now + %d months",
+            DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, false);
       }
+      else if (ACTIVE.equals(id)) {
+        throw new UnsupportedOperationException("No filter for ACTIVE defined");
+      }
+      else {
+        throw new IllegalArgumentException("No filter related to: " + id);
+      }
+    }
   }
 
   public List<ReservationFilterView> create(List<Double> reservationYears) {

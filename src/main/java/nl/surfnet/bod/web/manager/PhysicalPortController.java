@@ -48,8 +48,10 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 @Controller("managerPhysicalPortController")
-@RequestMapping("/manager/physicalports")
+@RequestMapping(PhysicalPortController.PAGE_URL)
 public class PhysicalPortController extends AbstractSortableListController<PhysicalPortController.PhysicalPortView> {
+
+  public static final String PAGE_URL = "/manager/physicalports";
 
   @Autowired
   private PhysicalPortService physicalPortService;

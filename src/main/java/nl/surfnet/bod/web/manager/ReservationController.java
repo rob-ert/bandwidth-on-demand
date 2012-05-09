@@ -25,6 +25,7 @@ import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 
 import java.util.List;
 
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
 import nl.surfnet.bod.web.security.Security;
@@ -41,6 +42,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ReservationController extends AbstractFilteredReservationController {
 
   public static final String PAGE_URL = "manager/reservations";
+  public static final String ELAPSED_URL = PAGE_URL + "/" + FILTER_URL + ReservationFilterViewFactory.ELAPSED;
+  public static final String ACTIVE_URL = PAGE_URL + "/" + FILTER_URL + ReservationFilterViewFactory.ACTIVE;
+  public static final String COMING_URL = PAGE_URL + "/" + FILTER_URL + ReservationFilterViewFactory.COMING;
 
   @Override
   protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
