@@ -21,11 +21,13 @@
  */
 package nl.surfnet.bod.pages.noc;
 
+import java.util.List;
+
 import nl.surfnet.bod.pages.AbstractFormPage;
 import nl.surfnet.bod.support.Probes;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
@@ -65,8 +67,15 @@ public class NewPhysicalResourceGroupPage extends AbstractFormPage {
 
     probes.assertTextPresent(By.className("as-results"), institute);
 
-    instituteInput.sendKeys("\t");
-    instituteInput.sendKeys("\n");
+    List<WebElement> results = driver.findElement(By.className("as-list")).findElements(By.className("as-result-item"));
+    for (WebElement result : results) {
+      if (result.getText().equals(institute)) {
+        result.click();
+        return;
+      }
+    }
+
+    throw new NoSuchElementException("Could not find institute for name " + institute);
   }
 
   public void sendAdminGroup(String adminGroup) {
