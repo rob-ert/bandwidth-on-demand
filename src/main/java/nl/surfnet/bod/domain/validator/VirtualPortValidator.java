@@ -72,12 +72,16 @@ public class VirtualPortValidator implements Validator {
   private void validateUniquenessOfName(VirtualPort virtualPort, Errors errors) {
     VirtualPort existingVirtualPort = virtualPortService.findByManagerLabel(virtualPort.getManagerLabel());
 
-    if (existingVirtualPort != null) {
-      if (!validatorHelper.validateNameUniqueness(virtualPort.getId() == existingVirtualPort.getId(), virtualPort
-          .getManagerLabel().equalsIgnoreCase(existingVirtualPort.getManagerLabel()), virtualPort.getId() != null)) {
+    if (existingVirtualPort != null && labelsAreNotUnique(virtualPort, existingVirtualPort)) {
         errors.rejectValue("managerLabel", "validation.not.unique");
-      }
     }
+  }
+
+  private boolean labelsAreNotUnique(VirtualPort virtualPort, VirtualPort existingVirtualPort) {
+    return !validatorHelper.validateNameUniqueness(
+        virtualPort.getId() == existingVirtualPort.getId(),
+        virtualPort.getManagerLabel().equalsIgnoreCase(existingVirtualPort.getManagerLabel()),
+        virtualPort.getId() != null);
   }
 
   private void validateBandwidth(VirtualPort virtualPort, Errors errors) {

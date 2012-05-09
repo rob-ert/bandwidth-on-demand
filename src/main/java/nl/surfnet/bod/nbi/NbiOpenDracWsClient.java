@@ -56,6 +56,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.CompletionResponseDocument;
@@ -269,71 +270,39 @@ class NbiOpenDracWsClient implements NbiClient {
 
   }
 
-  private static final class OpenDracStatusTranslator {
-    private static Logger logger = LoggerFactory.getLogger(OpenDracStatusTranslator.class);
+  protected static final class OpenDracStatusTranslator {
+    private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationResultTranslations =
+        new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
+          .put(ValidReservationScheduleCreationResultT.FAILED, FAILED)
+          .put(ValidReservationScheduleCreationResultT.SUCCEEDED, SCHEDULED)
+          .put(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, SCHEDULED)
+          .put(ValidReservationScheduleCreationResultT.UNKNOWN, FAILED)
+          .build();
+
+    private static ImmutableMap<ValidReservationScheduleStatusT.Enum, ReservationStatus> scheduleStatusTranslations =
+        new ImmutableMap.Builder<ValidReservationScheduleStatusT.Enum, ReservationStatus>()
+          .put(ValidReservationScheduleStatusT.CONFIRMATION_PENDING, PREPARING)
+          .put(ValidReservationScheduleStatusT.CONFIRMATION_TIMED_OUT, FAILED)
+          .put(ValidReservationScheduleStatusT.CONFIRMATION_CANCELLED, CANCELLED)
+          .put(ValidReservationScheduleStatusT.EXECUTION_PENDING, SCHEDULED)
+          .put(ValidReservationScheduleStatusT.EXECUTION_IN_PROGRESS, RUNNING)
+          .put(ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED, SUCCEEDED)
+          .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED, FAILED)
+          .put(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, FAILED)
+          .put(ValidReservationScheduleStatusT.EXECUTION_FAILED, FAILED)
+          .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED, CANCELLED)
+          .put(ValidReservationScheduleStatusT.EXECUTION_CANCELLED, CANCELLED)
+          .build();
 
     private OpenDracStatusTranslator() {
     }
 
     public static ReservationStatus translate(ValidReservationScheduleCreationResultT.Enum status) {
-      if (status == ValidReservationScheduleCreationResultT.FAILED) {
-        return FAILED;
-      }
-      else if (status == ValidReservationScheduleCreationResultT.SUCCEEDED) {
-        return SCHEDULED;
-      }
-      else if (status == ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY) {
-        return SCHEDULED;
-      }
-      else if (status == ValidReservationScheduleCreationResultT.UNKNOWN) {
-        return FAILED;
-      }
-      else {
-        logger.error("Could not translate status: " + status);
-        throw new RuntimeException("Could not translate status: " + status);
-      }
+      return creationResultTranslations.get(status);
     }
 
     public static ReservationStatus translate(ValidReservationScheduleStatusT.Enum status) {
-      if (status == ValidReservationScheduleStatusT.CONFIRMATION_PENDING) {
-        return PREPARING;
-      }
-      else if (status == ValidReservationScheduleStatusT.CONFIRMATION_TIMED_OUT) {
-        return FAILED;
-      }
-      else if (status == ValidReservationScheduleStatusT.CONFIRMATION_CANCELLED) {
-        return CANCELLED;
-      }
-      else if (status == ValidReservationScheduleStatusT.EXECUTION_PENDING) {
-        return SCHEDULED;
-      }
-      else if (status == ValidReservationScheduleStatusT.EXECUTION_IN_PROGRESS) {
-        return RUNNING;
-      }
-      else if (status == ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED) {
-        return SUCCEEDED;
-      }
-      else if (status == ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED) {
-        // An OpenDRAC service can be partially successful, a single schedule
-        // not (thats a reservation in BoD context).
-        return FAILED;
-      }
-      else if (status == ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT) {
-        return FAILED;
-      }
-      else if (status == ValidReservationScheduleStatusT.EXECUTION_FAILED) {
-        return FAILED;
-      }
-      else if (status == ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED) {
-        return CANCELLED;
-      }
-      else if (status == ValidReservationScheduleStatusT.EXECUTION_CANCELLED) {
-        return CANCELLED;
-      }
-      else {
-        logger.error("Could not translate status: " + status);
-        throw new RuntimeException("Could not translate status: " + status);
-      }
+      return scheduleStatusTranslations.get(status);
     }
   }
 
@@ -365,12 +334,12 @@ class NbiOpenDracWsClient implements NbiClient {
 
     schedule.setIsRecurring(false);
     schedule.setPath(createPath(reservation));
-    schedule.setUserInfo(createUser(reservation));
+    schedule.setUserInfo(createUser());
 
     return requestDocument;
   }
 
-  private UserInfoT createUser(final Reservation reservation) {
+  private UserInfoT createUser() {
     final UserInfoT userInfo = UserInfoT.Factory.newInstance();
     userInfo.setBillingGroup(billingGroupName);
     userInfo.setSourceEndpointResourceGroup(resourceGroupName);

@@ -52,8 +52,7 @@ public class EnvironmentTag extends BodTagSupport {
   private Environment getEnvironment() {
     WebApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(getPageContext()
         .getServletContext());
-    Environment env = applicationContext.getBean(Environment.class);
-    return env;
+    return applicationContext.getBean(Environment.class);
   }
 
   public String getProperty() {
