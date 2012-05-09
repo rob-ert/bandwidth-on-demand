@@ -121,7 +121,7 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
 
     model.addAttribute(FILTER_LIST, determineFilters());
 
-    //Remove this list part of the url
+    //Remove the [list] part of the url
     model.addAttribute("baseFilterUrl", StringUtils.delete(listUrl(), WebUtils.LIST) + "/" + FILTER_URL);
   }
 
