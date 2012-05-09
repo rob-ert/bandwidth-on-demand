@@ -88,7 +88,7 @@
                         <table:column item="${item}" property="status" styleClass="status" />
                         <table:actionsColumn item="${item}" update="false"
                             delete="${item.deleteAllowedForSelectedRole}" deleteLabelCode="label_cancel"
-                            path="/reservations" labelCode="label_reservation" successMessageCode="info_cancel_success"/>
+                            path="/reservations" labelCode="label_reservation"/>
                     </tr>
                 </c:forEach>
             </tbody>
