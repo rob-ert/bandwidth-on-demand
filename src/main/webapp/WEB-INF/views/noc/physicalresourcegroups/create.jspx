@@ -8,12 +8,13 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <form:create id="fc_PhysicalResourceGroup" modelAttribute="physicalResourceGroupCommand" path="/noc/physicalresourcegroups">
-         
+
         <field:suggestion-input field="instituteId" labelCode="physicalresourcegroup_instituteName"
             suggestionUrl="/institutes" preFillId="${physicalResourceGroupCommand.instituteId}" preFillName="${physicalResourceGroupCommand.institute.name}"/>
+
         <field:input field="adminGroup" id="adminGroup" labelCode="physicalresourcegroup_adminGroup"
             helpMessageCode="physicalresourcegroup_adminGroup" />
-            
+
          <field:input field="managerEmail" id="managerEmail" labelCode="physicalresourcegroup_managerEmail"
             helpMessageCode="physicalresourcegroup_managerEmail" />
 
