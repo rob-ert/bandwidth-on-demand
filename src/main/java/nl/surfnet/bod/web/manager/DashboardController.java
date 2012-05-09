@@ -29,6 +29,7 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.view.ManagerStatisticsView;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -60,6 +61,12 @@ public class DashboardController {
     model.addAttribute("prg", group);
     model.addAttribute("requests", Orderings.vpRequestLinkOrdring().sortedCopy(requests));
 
+    model.addAttribute("stats", determineStatistics());
+
     return "manager/index";
+  }
+
+  private ManagerStatisticsView determineStatistics() {
+    return new ManagerStatisticsView(3, 6, 103);
   }
 }
