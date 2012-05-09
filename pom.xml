@@ -763,7 +763,7 @@
                                     <goal>download-single</goal>
                                 </goals>
                                 <configuration>
-                                    <url>https://atlas.dlp.surfnet.nl</url>
+                                    <url>http://atlas.dlp.surfnet.nl</url>
                                     <fromFile>nexus/service/local/repositories/releases/content/nl/surfnet/sos-server/${sos.version}/sos-server-${sos.version}.war</fromFile>
                                     <toDir>${project.build.directory}/sos-server</toDir>
                                 </configuration>
