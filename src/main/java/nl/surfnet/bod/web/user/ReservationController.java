@@ -173,7 +173,8 @@ public class ReservationController extends AbstractFilteredReservationController
           .getVirtualResourceGroup().getName());
     }
 
-    return list(page, sort, order, model);
+    //Response is ignored, in js related to link
+    return "index";
   }
 
   private List<VirtualResourceGroup> findVirtualResourceGroups() {
