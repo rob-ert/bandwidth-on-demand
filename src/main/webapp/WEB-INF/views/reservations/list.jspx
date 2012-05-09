@@ -8,8 +8,8 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <spring:url value="/push" var="pushUrl" />
-    <spring:url value="/reservations/filter/" var="filterUrl" />
-
+    <spring:url value="/${baseFilterUrl}" var="filterUrl" />
+    
     <page:list id="pl_reservation" path="/reservations">
         <form class="form-inline" action="${filterUrl}" data-component="reservation-filter">
            <label>Reservation Filter</label><c:out value=" " />

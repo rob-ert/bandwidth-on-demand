@@ -46,6 +46,7 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
     }
   };
 
+  protected static final String FILTER_URL = "filter/";
   protected static final String MODEL_KEY = "reservation";
 
   @Autowired
@@ -93,7 +94,7 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
    * @param request
    * @return
    */
-  @RequestMapping(value = "filter/{filterId}", method = RequestMethod.GET)
+  @RequestMapping(value = FILTER_URL + "{filterId}", method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
       @RequestParam(value = "order", required = false) String order, @PathVariable(value = "filterId") String filterId,
@@ -119,6 +120,9 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
   protected void populateFilter(Model model) {
 
     model.addAttribute(FILTER_LIST, determineFilters());
+
+    //Remove this list part of the url
+    model.addAttribute("baseFilterUrl", StringUtils.delete(listUrl(), WebUtils.LIST) + "/" + FILTER_URL);
   }
 
   // TODO make protected
