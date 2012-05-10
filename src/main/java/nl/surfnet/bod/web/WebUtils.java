@@ -25,8 +25,6 @@ import java.util.List;
 
 import nl.surfnet.bod.web.security.Security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.ui.Model;
@@ -62,8 +60,6 @@ public final class WebUtils {
 
   protected static final String PARAM_MARKUP_START = "<b>";
   protected static final String PARAM_MARKUP_END = "</b>";
-
-  private static Logger log = LoggerFactory.getLogger(WebUtils.class);
 
   private WebUtils() {
   }

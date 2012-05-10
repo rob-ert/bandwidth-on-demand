@@ -80,14 +80,14 @@ public class ReservationService {
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   * 
+   *
    * @param reservation
    * @return
    */
   public Future<?> create(Reservation reservation) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
-    
+
     // Make sure reservations occur on whole minutes only
     if (reservation.getStartDateTime() != null) {
       reservation.setStartDateTime(reservation.getStartDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
@@ -135,7 +135,7 @@ public class ReservationService {
    * Cancels a reservation if the current user has the correct role and the
    * reservation is allowed to be deleted depending on its state. Updates the
    * state of the reservation.
-   * 
+   *
    * @param reservation
    *          {@link Reservation} to delete
    * @return true if the reservation was canceld, false otherwise.
@@ -160,7 +160,7 @@ public class ReservationService {
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   * 
+   *
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -341,7 +341,7 @@ public class ReservationService {
 
   /**
    * Asynchronous {@link Reservation} creator.
-   * 
+   *
    */
   private final class ReservationSubmitter implements Runnable {
     private final Reservation reservation;
@@ -372,8 +372,8 @@ public class ReservationService {
   public long count() {
     return reservationRepo.count();
   }
-  
-  public void flushRepo(){
+
+  public void flushRepo() {
     reservationRepo.flush();
   }
 

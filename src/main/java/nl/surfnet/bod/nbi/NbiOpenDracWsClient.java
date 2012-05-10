@@ -422,7 +422,7 @@ class NbiOpenDracWsClient implements NbiClient {
 
   private PhysicalPort getPhysicalPort(final EndpointT endpoint) {
     final PhysicalPort port = new PhysicalPort();
-    if(endpoint.getUserLabel() == null || endpoint.getUserLabel().isEmpty()){
+    if (endpoint.getUserLabel() == null || endpoint.getUserLabel().isEmpty()) {
       port.setNocLabel(endpoint.getTna());
     }
     else {

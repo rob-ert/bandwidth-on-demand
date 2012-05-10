@@ -27,7 +27,6 @@ import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 
 import org.joda.time.DurationFieldType;
-import org.joda.time.LocalDateTime;
 import org.joda.time.Months;
 import org.joda.time.ReadablePeriod;
 import org.springframework.stereotype.Component;
