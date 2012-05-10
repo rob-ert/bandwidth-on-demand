@@ -23,13 +23,18 @@ package nl.surfnet.bod.web;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+
+import java.util.List;
+
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
-import org.springframework.ui.Model;
+
+import com.google.common.collect.Lists;
 
 public class DetermineRoleControllerTest {
 
@@ -39,8 +44,9 @@ public class DetermineRoleControllerTest {
   public void aNocEngineerShouldBeRedirectToNocPage() {
     RichUserDetails user = new RichUserDetailsFactory().addNocRole().create();
     Security.setUserDetails(user);
+    ModelStub model = new ModelStub();
 
-    String page = subject.index();
+    String page = subject.index(model, model);
 
     assertThat(page, is("redirect:noc"));
   }
@@ -49,8 +55,9 @@ public class DetermineRoleControllerTest {
   public void aIctManagerShouldBeRedirectToManagerPage() {
     RichUserDetails user = new RichUserDetailsFactory().addManagerRole().create();
     Security.setUserDetails(user);
+    ModelStub model = new ModelStub();
 
-    String page = subject.index();
+    String page = subject.index(model, model);
 
     assertThat(page, is("redirect:manager"));
   }
@@ -59,10 +66,25 @@ public class DetermineRoleControllerTest {
   public void aUserShouldGoToIndex() {
     RichUserDetails user = new RichUserDetailsFactory().addUserRole().create();
     Security.setUserDetails(user);
+    ModelStub model = new ModelStub();
 
-    String page = subject.index();
+    String page = subject.index(model, model);
 
     assertThat(page, is("redirect:user"));
+  }
+
+  @Test
+  public void infoMessagesShouldBePreserved() {
+    RichUserDetails user = new RichUserDetailsFactory().addUserRole().create();
+    Security.setUserDetails(user);
+
+    ModelStub model = new ModelStub();
+    List<String> messages = Lists.newArrayList("First Message", "Second Messages");
+    model.addAttribute(WebUtils.INFO_MESSAGES_KEY, messages);
+
+    subject.index(model, model);
+
+    assertThat(model.getFlashAttributes(), Matchers.<String, Object>hasEntry(WebUtils.INFO_MESSAGES_KEY, messages));
   }
 
 }
