@@ -61,14 +61,18 @@ public class ReservationTestSelenium extends TestExternalSupport {
     LocalTime startTime = LocalTime.now().plusHours(1);
     LocalTime endTime = LocalTime.now();
 
+    getManagerDriver().switchToUser();
     getUserDriver().createNewReservation(startDate, endDate, startTime, endTime);
 
     getUserDriver().verifyReservationWasCreated(startDate, endDate, startTime, endTime);
 
+    getUserDriver().switchToManager(INSTITUTE_NAME);
     getManagerDriver().verifyReservationExists(startDate, endDate, startTime, endTime, creationDateTime);
     
+    getManagerDriver().verifyStatistics();
+    
     getManagerDriver().switchToUser();
-
+    
     getUserDriver().cancelReservation(startDate, endDate, startTime, endTime);
 
     getUserDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);

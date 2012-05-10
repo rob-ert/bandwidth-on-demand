@@ -156,6 +156,16 @@ public class BodManagerWebDriver {
     page.findRow(start, end);
   }
 
+  public void verifyStatistics() {
+    ManagerOverviewPage page = ManagerOverviewPage.get(driver, URL_UNDER_TEST);
+
+    page.findRow("Physical ports", "2");
+    page.findRow("Virtual ports", "2");
+    page.findRow("Elapsed reservations", "0");
+    page.findRow("Active reservations", "0");
+    page.findRow("Coming reservations", "1");
+  }
+
   public void createVirtualPort(String name) {
     NewVirtualPortPage page = NewVirtualPortPage.get(driver);
     page.sendName(name);

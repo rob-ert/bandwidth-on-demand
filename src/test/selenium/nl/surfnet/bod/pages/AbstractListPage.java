@@ -108,4 +108,15 @@ public class AbstractListPage extends AbstractPage {
 
     return true;
   }
+
+  /**
+   * Overrides the default selected table by the given one in case there are
+   * multiple tables on a page.
+   * 
+   * @param table
+   *          Table to set.
+   */
+  protected void setTable(WebElement table) {
+    this.table = table;
+  }
 }

@@ -21,15 +21,22 @@
  */
 package nl.surfnet.bod.pages.manager;
 
-import nl.surfnet.bod.pages.AbstractPage;
+import nl.surfnet.bod.pages.AbstractListPage;
 
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class ManagerOverviewPage extends AbstractPage {
+public class ManagerOverviewPage extends AbstractListPage {
 
+  @FindBy(id = "idStats")
+  private WebElement statsTable;
+  
   private ManagerOverviewPage(RemoteWebDriver driver) {
     super(driver);
+    
+    setTable(statsTable);    
   }
 
   public static ManagerOverviewPage get(RemoteWebDriver driver, String urlUnderTest) {
