@@ -70,8 +70,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   private MessageSource messageSource;
 
   @RequestMapping(value = "add", method = RequestMethod.GET)
-  public String addPhysicalPortForm(@RequestParam(value = "prg") Long prgId, Model model,
-      RedirectAttributes redirectAttrs) {
+  public String addPhysicalPortForm(@RequestParam(value = "prg") Long prgId, Model model, RedirectAttributes redirectAttrs) {
     PhysicalResourceGroup prg = physicalResourceGroupService.find(prgId);
     if (prg == null) {
       return "redirect:/";
@@ -117,15 +116,16 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     port.setPhysicalResourceGroup(addCommand.getPhysicalResourceGroup());
     if (addCommand.getManagerLabel() == null || addCommand.getManagerLabel().isEmpty()) {
       port.setManagerLabel(null);
-    } else {
+    }
+    else {
       port.setManagerLabel(addCommand.getManagerLabel());
     }
     port.setPortId(addCommand.getPortId());
 
     physicalPortService.save(port);
 
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_physicalport_added", port.getNocLabel(), port
-        .getPhysicalResourceGroup().getName());
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_physicalport_added", port.getNocLabel(),
+        port.getPhysicalResourceGroup().getName());
 
     return "redirect:/noc/physicalresourcegroups";
   }
@@ -173,7 +173,8 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     PhysicalPort port;
     try {
       port = physicalPortService.findByNetworkElementPk(networkElementPk);
-    } catch (IllegalStateException e) {
+    }
+    catch (IllegalStateException e) {
       return "redirect:";
     }
 
@@ -198,7 +199,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   * 
+   *
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
@@ -283,9 +284,13 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     @Override
     public String toString() {
-      return Objects.toStringHelper(this).add("networkElementPk", networkElementPk).add("portId", portId)
-          .add("nocLabel", nocLabel).add("managerLabel", managerLabel)
-          .add("physicalResourceGroup", physicalResourceGroup).toString();
+      return Objects.toStringHelper(this)
+          .add("networkElementPk", networkElementPk)
+          .add("portId", portId)
+          .add("nocLabel", nocLabel)
+          .add("managerLabel", managerLabel)
+          .add("physicalResourceGroup", physicalResourceGroup)
+          .toString();
     }
   }
 

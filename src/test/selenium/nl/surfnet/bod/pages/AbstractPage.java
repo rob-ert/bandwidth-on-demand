@@ -36,7 +36,7 @@ import com.google.common.collect.Lists;
 
 public class AbstractPage {
 
-  private final RemoteWebDriver driver;
+  protected final RemoteWebDriver driver;
 
   @FindBy(id = "alerts")
   private WebElement messagesDiv;
@@ -85,9 +85,5 @@ public class AbstractPage {
       }
     }
     return true;
-  }
-  
-  protected RemoteWebDriver getDriver() {
-    return driver;
   }
 }

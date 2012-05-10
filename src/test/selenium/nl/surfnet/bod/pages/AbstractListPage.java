@@ -40,7 +40,7 @@ import com.google.common.util.concurrent.Uninterruptibles;
 
 public class AbstractListPage extends AbstractPage {
 
-  private Probes probes;
+  protected final Probes probes;
 
   @FindBy(css = "table.table tbody")
   private WebElement table;
@@ -63,7 +63,7 @@ public class AbstractListPage extends AbstractPage {
 
     WebElement deleteButton = row.findElement(By.cssSelector(String.format("a i[class~=%s]", icon)));
     deleteButton.click();
-    getDriver().switchTo().alert().accept();
+    driver.switchTo().alert().accept();
 
     // wait for the reload, row should be gone..
     Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
@@ -101,19 +101,12 @@ public class AbstractListPage extends AbstractPage {
   public boolean containsAnyItems() {
     try {
       table.getText();
-    }  catch (NoSuchElementException e) {
+    }
+    catch (NoSuchElementException e) {
       return false;
     }
 
     return true;
-  }
-
-  protected Probes getProbes() {
-    return probes;
-  }
-
-  protected void setProbes(Probes probes) {
-    this.probes = probes;
   }
 
   /**

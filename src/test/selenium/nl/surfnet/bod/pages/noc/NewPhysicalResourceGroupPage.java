@@ -67,7 +67,7 @@ public class NewPhysicalResourceGroupPage extends AbstractFormPage {
 
     probes.assertTextPresent(By.className("as-results"), institute);
 
-    List<WebElement> results = getDriver().findElement(By.className("as-list")).findElements(By.className("as-result-item"));
+    List<WebElement> results = driver.findElement(By.className("as-list")).findElements(By.className("as-result-item"));
     for (WebElement result : results) {
       if (result.getText().equals(institute)) {
         result.click();

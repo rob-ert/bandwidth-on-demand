@@ -27,6 +27,7 @@ import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 
 import org.joda.time.DurationFieldType;
+import org.joda.time.LocalDateTime;
 import org.joda.time.Months;
 import org.joda.time.ReadablePeriod;
 import org.springframework.stereotype.Component;
@@ -49,17 +50,21 @@ public class ReservationFilterViewFactory {
       // If it is a number we assume it is a year
       Integer year = NumberUtils.parseNumber(id, Integer.class);
       return new ReservationFilterView(year);
-    } catch (IllegalArgumentException exc) {
+    }
+    catch (IllegalArgumentException exc) {
 
       if (ELAPSED.equals(id)) {
         return new ReservationFilterView(ELAPSED, String.format("Now - %d months",
             DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, true);
-      } else if (COMING.equals(id)) {
+      }
+      else if (COMING.equals(id)) {
         return new ReservationFilterView(COMING, String.format("Now + %d months",
             DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, false);
-      } else if (ACTIVE.equals(id)) {
+      }
+      else if (ACTIVE.equals(id)) {
         return new ReservationFilterView(ACTIVE, "Active", ReservationStatus.RUNNING);
-      } else {
+      }
+      else {
         throw new IllegalArgumentException("No filter related to: " + id);
       }
     }

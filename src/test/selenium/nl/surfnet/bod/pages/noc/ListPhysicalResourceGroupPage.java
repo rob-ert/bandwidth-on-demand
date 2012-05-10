@@ -49,13 +49,13 @@ public class ListPhysicalResourceGroupPage extends AbstractListPage {
   public EditPhysicalResourceGroupPage edit(String adminGroup) {
     editRow(adminGroup);
 
-    return EditPhysicalResourceGroupPage.get(getDriver());
+    return EditPhysicalResourceGroupPage.get(driver);
   }
 
   public AddPhysicalPortPage addPhysicalPort(String groupName) {
     clickRowIcon("icon-resize-small", groupName);
 
-    return AddPhysicalPortPage.get(getDriver());
+    return AddPhysicalPortPage.get(driver);
   }
 
 }

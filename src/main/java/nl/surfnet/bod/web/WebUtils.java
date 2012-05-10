@@ -87,7 +87,7 @@ public final class WebUtils {
   }
 
   /**
-   * 
+   *
    * @return The user selected PhysicalResourceGroupId
    */
   public static Long getSelectedPhysicalResourceGroupId() {
@@ -128,7 +128,7 @@ public final class WebUtils {
    * Html escapes the argument and replaces them with the parameter placeholders
    * in the message. The parameter placeholders can be either "{}" or the
    * regular {@link String#format(String, Object...)} placeholders.
-   * 
+   *
    * @param message
    *          The message to parse
    * @param args
@@ -156,7 +156,8 @@ public final class WebUtils {
 
     if (messages == null) {
       model.addFlashAttribute(INFO_MESSAGES_KEY, Lists.newArrayList(message));
-    } else {
+    }
+    else {
       messages.add(message);
     }
   }
@@ -166,7 +167,8 @@ public final class WebUtils {
     List<String> messages = (List<String>) model.asMap().get(INFO_MESSAGES_KEY);
     if (messages == null) {
       model.addAttribute(INFO_MESSAGES_KEY, Lists.newArrayList(message));
-    } else {
+    }
+    else {
       messages.add(message);
     }
   }

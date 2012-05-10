@@ -79,9 +79,11 @@ public class ActivationEmailController {
 
     if (link.isActivated()) {
       return "manager/linkActive";
-    } else if (emailHasChanged(link)) {
+    }
+    else if (emailHasChanged(link)) {
       return "manager/linkChanged";
-    } else if (link.isValid()) {
+    }
+    else if (link.isValid()) {
       physicalResourceGroupService.activate(link);
 
       return "manager/emailConfirmed";

@@ -87,7 +87,7 @@ public class ReservationService {
   public Future<?> create(Reservation reservation) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
-
+    
     // Make sure reservations occur on whole minutes only
     if (reservation.getStartDateTime() != null) {
       reservation.setStartDateTime(reservation.getStartDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
@@ -146,7 +146,8 @@ public class ReservationService {
       nbiClient.cancelReservation(reservation.getReservationId());
       reservationRepo.save(reservation);
       return true;
-    } else {
+    }
+    else {
       log.info("Not allowed to cancel reservation {}", reservation.getName());
     }
     return false;
@@ -260,7 +261,8 @@ public class ReservationService {
 
     if (filter.isFilterOnStatusOnly()) {
       specficiation = forStatus(filter.getStatus());
-    } else {
+    }
+    else {
       specficiation = filterSpecOnEnd;
 
       if (!filter.isFilterOnReservationEndOnly()) {
@@ -370,8 +372,8 @@ public class ReservationService {
   public long count() {
     return reservationRepo.count();
   }
-
-  public void flushRepo() {
+  
+  public void flushRepo(){
     reservationRepo.flush();
   }
 

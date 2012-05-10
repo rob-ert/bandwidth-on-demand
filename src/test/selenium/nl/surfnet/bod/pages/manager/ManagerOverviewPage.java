@@ -28,7 +28,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public final class ManagerOverviewPage extends AbstractListPage {
+public class ManagerOverviewPage extends AbstractListPage {
 
   @FindBy(id = "idStats")
   private WebElement statsTable;

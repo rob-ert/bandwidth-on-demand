@@ -141,7 +141,8 @@ public class BodWebDriver {
       private DateTime getDateTime(MimeMessage message) {
         try {
           return dateParser.parseDateTime(message.getHeader("Date")[0]);
-        }  catch (MessagingException e) {
+        }
+        catch (MessagingException e) {
           throw new RuntimeException(e);
         }
       }
@@ -166,7 +167,8 @@ public class BodWebDriver {
 
     try {
       assertThat(lastEmail.getSubject(), containsString(subject));
-    }  catch (MessagingException e) {
+    }
+    catch (MessagingException e) {
       fail(e.getMessage());
     }
   }

@@ -28,7 +28,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public final class EditPhysicalResourceGroupPage extends AbstractFormPage {
+public class EditPhysicalResourceGroupPage extends AbstractFormPage {
 
   @FindBy(id = "_manageremail_id")
   private WebElement emailInput;

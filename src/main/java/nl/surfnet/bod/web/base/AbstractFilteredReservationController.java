@@ -29,8 +29,6 @@ import com.google.common.collect.Lists;
  *
  */
 public abstract class AbstractFilteredReservationController extends AbstractSortableListController<ReservationView> {
-  protected static final String FILTER_URL = "filter/";
-  
   private static final String DEFAULT_FILTER_ID = ReservationFilterViewFactory.COMING;
 
   private static final Function<Reservation, ReservationView> TO_RESERVATION_VIEW = new Function<Reservation, ReservationView>() {
@@ -39,14 +37,14 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
       return new ReservationView(reservation);
     }
   };
- 
+
+  protected static final String FILTER_URL = "filter/";
 
   @Autowired
-  private ReservationService reservationService;
+  protected ReservationService reservationService;
 
   @Autowired
-  private ReservationFilterViewFactory reservationFilterViewFactory;
-  
+  protected ReservationFilterViewFactory reservationFilterViewFactory;
 
   @Override
   public String defaultSortProperty() {
@@ -139,10 +137,6 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
     filterViews.addAll(reservationFilterViewFactory.create(uniqueReservationYears));
 
     return filterViews;
-  }
-  
-  protected ReservationService getReservationService() {
-    return reservationService;
   }
 
 }

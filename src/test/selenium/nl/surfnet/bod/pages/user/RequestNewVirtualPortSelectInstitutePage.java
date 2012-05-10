@@ -26,7 +26,7 @@ import nl.surfnet.bod.pages.AbstractPage;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
-public final class RequestNewVirtualPortSelectInstitutePage extends AbstractPage {
+public class RequestNewVirtualPortSelectInstitutePage extends AbstractPage {
 
   private RequestNewVirtualPortSelectInstitutePage(RemoteWebDriver driver) {
     super(driver);
@@ -40,9 +40,9 @@ public final class RequestNewVirtualPortSelectInstitutePage extends AbstractPage
   }
 
   public RequestNewVirtualPortRequestPage selectInstitute(String institute) {
-    getDriver().findElementByLinkText(institute).click();
+    driver.findElementByLinkText(institute).click();
 
-    return RequestNewVirtualPortRequestPage.get(getDriver());
+    return RequestNewVirtualPortRequestPage.get(driver);
   }
 
 }

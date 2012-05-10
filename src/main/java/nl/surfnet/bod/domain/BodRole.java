@@ -35,9 +35,9 @@ import com.google.common.base.Objects;
  * {@link Security.RoleEnum#USER} are prevented even if the are related to
  * different groups. Multiple {@link RoleEnum#ICT_MANAGER} roles are allowed, as
  * long as they are related to different {@link #instituteId}s.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 public final class BodRole {
 
@@ -106,7 +106,8 @@ public final class BodRole {
 
       return Objects.equal(this.role, other.getRole())
           && Objects.equal(this.physicalResourceGroupId, other.getPhysicalResourceGroupId());
-    } else {
+    }
+    else {
       return false;
     }
   }
@@ -118,7 +119,7 @@ public final class BodRole {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("id", id).add("role", role).add("instituteName", instituteName)
-        .add("physicalResourceGroupId", physicalResourceGroupId).toString();
+    return Objects.toStringHelper(this).add("id", id).add("role", role)
+        .add("instituteName", instituteName).add("physicalResourceGroupId", physicalResourceGroupId).toString();
   }
 }

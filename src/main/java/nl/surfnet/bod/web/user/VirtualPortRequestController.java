@@ -104,7 +104,8 @@ public class VirtualPortRequestController {
   public Collection<VirtualResourceGroup> getVirtualResourceGroups(final String teamUrn) {
     if (Strings.emptyToNull(teamUrn) == null) {
       return virtualResourceGroupService.findAllForUser(Security.getUserDetails());
-    } else {
+    }
+    else {
       UserGroup userGroup = Security.getUserGroup(teamUrn);
 
       if (userGroup == null) {
@@ -155,8 +156,7 @@ public class VirtualPortRequestController {
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_send", prg.getInstitute()
         .getName());
 
-    // in case a new vrg was created and the user has no user role, clear the
-    // security context
+    // in case a new vrg was created and the user has no user role, clear the security context
     // prevent switching to a different role when it is not needed
     if (shouldClearSecurityContext && !Security.hasUserRole()) {
       SecurityContextHolder.clearContext();

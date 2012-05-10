@@ -21,18 +21,19 @@
  */
 package nl.surfnet.bod.domain.validator;
 
+
 /**
  * Placeholder for common validation logic, since spring data repositories can
  * not handle generics correctly.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 public class ValidatorHelper {
 
   /**
    * Validates the uniqueness of a name.
-   * 
+   *
    * @param userInputName
    *          String Name which was entered by the user
    * @param nameAlreadyExists
@@ -47,7 +48,8 @@ public class ValidatorHelper {
     if (isUpdate) {
       // Update
       valid = !(matchingNames && !matchingIds);
-    } else {
+    }
+    else {
       // Create
       valid = !matchingNames;
     }

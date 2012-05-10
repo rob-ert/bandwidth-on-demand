@@ -72,12 +72,14 @@ public class IddOfflineClient implements IddClient {
     return matchedKlant;
   }
 
+
   private Klanten[] extractKlantNamen(Message message) {
     Klantnamen result;
     try {
       result = (Klantnamen) message.getSOAPEnvelope().getFirstBody().getObjectValue(Klantnamen.class);
       return result.getKlantnamen();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       logger.error("Could not load the institutes", e);
       return new Klanten[] {};
     }
