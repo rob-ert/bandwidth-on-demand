@@ -23,6 +23,7 @@ package nl.surfnet.bod.support;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 
 import org.joda.time.LocalDateTime;
@@ -38,6 +39,7 @@ public class VirtualPortRequestLinkFactory {
   private String uuid;
   private String message = "I would like to have a new virtual port to do my work.";
   private Integer minBandwidth = 1000;
+  private RequestStatus status = RequestStatus.PENDING;
 
   public VirtualPortRequestLink create() {
     VirtualPortRequestLink link = new VirtualPortRequestLink();
@@ -54,6 +56,7 @@ public class VirtualPortRequestLinkFactory {
     }
     link.setMessage(message);
     link.setMinBandwidth(minBandwidth);
+    link.setStatus(status);
 
     return link;
   }
@@ -75,6 +78,11 @@ public class VirtualPortRequestLinkFactory {
 
   public VirtualPortRequestLinkFactory setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
     this.physicalResourceGroup = physicalResourceGroup;
+    return this;
+  }
+
+  public VirtualPortRequestLinkFactory setStatus(RequestStatus status) {
+    this.status = status;
     return this;
   }
 }

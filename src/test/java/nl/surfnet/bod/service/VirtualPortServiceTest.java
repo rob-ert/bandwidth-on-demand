@@ -32,13 +32,16 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
+import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -58,6 +61,12 @@ public class VirtualPortServiceTest {
 
   @Mock
   private VirtualPortRepo virtualPortRepoMock;
+
+  @Mock
+  private VirtualPortRequestLinkRepo virtualPortRequestLinkRepoMock;
+
+  @Mock
+  private EmailSender emailSenderMock;
 
   @Test
   public void countShouldCount() {
@@ -136,6 +145,54 @@ public class VirtualPortServiceTest {
     List<VirtualPort> ports = subject.findAllForUser(new RichUserDetailsFactory().addUserGroup("urn:mygroup").create());
 
     assertThat(ports, hasSize(1));
+  }
+
+  @Test
+  public void rqeuestNewVirtualPort() {
+    RichUserDetails user = new RichUserDetailsFactory().create();
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
+
+    ArgumentCaptor<VirtualPortRequestLink> request = ArgumentCaptor.forClass(VirtualPortRequestLink.class);
+
+    subject.requestNewVirtualPort(user, vrg, prg, 1000, "I would like to have this port, now");
+
+    verify(virtualPortRequestLinkRepoMock).save(request.capture());
+    VirtualPortRequestLink link = request.getValue();
+
+    verify(emailSenderMock).sendVirtualPortRequestMail(user, link);
+
+    assertThat(link.getMessage(), is("I would like to have this port, now"));
+    assertThat(link.getMinBandwidth(), is(1000));
+    assertThat(link.getRequestorEmail(), is(user.getEmail()));
+    assertThat(link.getRequestorName(), is(user.getDisplayName()));
+    assertThat(link.getPhysicalResourceGroup(), is(prg));
+    assertThat(link.getVirtualResourceGroup(), is(vrg));
+  }
+
+  @Test
+  public void linkApprovedShouldChangesStatusAndSentMail() {
+    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setStatus(RequestStatus.PENDING).create();
+    VirtualPort port = new VirtualPortFactory().create();
+
+    subject.requestLinkApproved(link, port);
+
+    assertThat(link.getStatus(), is(RequestStatus.APPROVED));
+
+    verify(virtualPortRequestLinkRepoMock).save(link);
+    verify(emailSenderMock).sendVirtualPortRequestApproveMail(link, port);
+  }
+
+  @Test
+  public void linkDeclinedShouldChangeStatusAndSendMail() {
+    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setStatus(RequestStatus.PENDING).create();
+
+    subject.requestLinkDeclined(link, "I don't like you");
+
+    assertThat(link.getStatus(), is(RequestStatus.DECLINED));
+
+    verify(virtualPortRequestLinkRepoMock).save(link);
+    verify(emailSenderMock).sendVirtualPortRequestDeclineMail(link, "I don't like you");
   }
 
 }

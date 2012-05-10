@@ -37,7 +37,6 @@ import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -182,7 +181,7 @@ public class VirtualPortService {
     link.setRequestDateTime(LocalDateTime.now());
 
     virtualPortRequestLinkRepo.save(link);
-    emailSender.sendVirtualPortRequestMail(Security.getUserDetails(), link);
+    emailSender.sendVirtualPortRequestMail(user, link);
   }
 
   public Collection<VirtualPortRequestLink> findPendingRequests(PhysicalResourceGroup prg) {
