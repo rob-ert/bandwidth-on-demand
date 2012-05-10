@@ -77,7 +77,7 @@ public class DashboardController {
     return "manager/index";
   }
 
-  private ManagerStatisticsView determineStatistics(RichUserDetails manager) {
+   ManagerStatisticsView determineStatistics(RichUserDetails manager) {
     ReservationFilterViewFactory reservationFilterViewFactory = new ReservationFilterViewFactory();
     PhysicalResourceGroup managerPrg = physicalResourceGroupService.find(manager.getSelectedRole()
         .getPhysicalResourceGroupId());
