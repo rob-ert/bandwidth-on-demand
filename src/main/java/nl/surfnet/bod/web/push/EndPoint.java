@@ -41,7 +41,7 @@ public interface EndPoint {
 
   void setAsyncContext(AsyncContext asyncContext);
 
-  public class LongPollEndPoint implements EndPoint {
+  class LongPollEndPoint implements EndPoint {
     private final Logger logger = LoggerFactory.getLogger(LongPollEndPoint.class);
 
     private AsyncContext asyncContext;
