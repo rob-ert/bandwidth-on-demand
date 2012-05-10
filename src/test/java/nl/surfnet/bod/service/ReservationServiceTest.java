@@ -253,6 +253,9 @@ public class ReservationServiceTest {
 
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
         .create();
+    
+    when(reservationRepoMock.save(reservation)).thenReturn(reservation);
+    
     subject.create(reservation);
 
     assertThat(reservation.getStartDateTime(), is(startDateTime.withSecondOfMinute(0).withMillisOfSecond(0)));
