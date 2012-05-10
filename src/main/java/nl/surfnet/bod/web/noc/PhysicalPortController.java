@@ -49,6 +49,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 
@@ -226,19 +227,19 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     return "nocLabel";
   }
 
-  public static final class AddPhysicalPortCommand {
+  public static class PhysicalPortCommand {
     @NotNull
     private PhysicalResourceGroup physicalResourceGroup;
     @NotEmpty
     private String networkElementPk;
     @NotEmpty
     private String nocLabel;
-    private String managerLabel;
-
     @NotEmpty
     private String portId;
 
-    public AddPhysicalPortCommand() {
+    private String managerLabel;
+
+    public PhysicalPortCommand() {
     }
 
     public PhysicalResourceGroup getPhysicalResourceGroup() {
@@ -263,14 +264,6 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     public void setNocLabel(String nocLabel) {
       this.nocLabel = nocLabel;
-    }
-
-    public String getManagerLabel() {
-      return managerLabel;
-    }
-
-    public void setManagerLabel(String managerLabel) {
-      this.managerLabel = managerLabel;
     }
 
     public String getPortId() {
@@ -281,78 +274,43 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
       this.portId = portId;
     }
 
-    @Override
-    public String toString() {
-      StringBuilder builder = new StringBuilder();
-      builder.append("AddPhysicalPortCommand [physicalResourceGroup=");
-      builder.append(physicalResourceGroup);
-      builder.append(", networkElementPk=");
-      builder.append(networkElementPk);
-      builder.append(", nocLabel=");
-      builder.append(nocLabel);
-      builder.append(", managerLabel=");
-      builder.append(managerLabel);
-      builder.append(", portId=");
-      builder.append(portId);
-      builder.append("]");
-      return builder.toString();
-    }
-  }
-
-  public static final class CreatePhysicalPortCommand {
-    private String networkElementPk;
-    @NotNull
-    private PhysicalResourceGroup physicalResourceGroup;
-    @NotEmpty
-    private String nocLabel;
-    private String managerLabel;
-    private Integer version;
-
-    @NotEmpty
-    private String portId;
-
-    public CreatePhysicalPortCommand() {
-    }
-
-    public CreatePhysicalPortCommand(PhysicalPort port) {
-      this.networkElementPk = port.getNetworkElementPk();
-      this.physicalResourceGroup = port.getPhysicalResourceGroup();
-      this.nocLabel = port.getNocLabel();
-      this.managerLabel = port.hasManagerLabel() ? port.getManagerLabel() : "";
-      this.version = port.getVersion();
-      this.portId = port.getPortId();
-    }
-
-    public String getNetworkElementPk() {
-      return networkElementPk;
-    }
-
-    public void setNetworkElementPk(String networkElementPk) {
-      this.networkElementPk = networkElementPk;
-    }
-
-    public PhysicalResourceGroup getPhysicalResourceGroup() {
-      return physicalResourceGroup;
-    }
-
-    public void setPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
-      this.physicalResourceGroup = physicalResourceGroup;
-    }
-
-    public String getNocLabel() {
-      return nocLabel;
-    }
-
-    public void setNocLabel(String nocLabel) {
-      this.nocLabel = nocLabel;
-    }
-
     public String getManagerLabel() {
       return managerLabel;
     }
 
     public void setManagerLabel(String managerLabel) {
       this.managerLabel = managerLabel;
+    }
+
+    @Override
+    public String toString() {
+      return Objects.toStringHelper(this)
+          .add("networkElementPk", networkElementPk)
+          .add("portId", portId)
+          .add("nocLabel", nocLabel)
+          .add("managerLabel", managerLabel)
+          .add("physicalResourceGroup", physicalResourceGroup)
+          .toString();
+    }
+  }
+
+  public static final class AddPhysicalPortCommand extends PhysicalPortCommand {
+
+  }
+
+  public static final class CreatePhysicalPortCommand extends PhysicalPortCommand {
+    private Integer version;
+
+    public CreatePhysicalPortCommand() {
+    }
+
+    public CreatePhysicalPortCommand(PhysicalPort port) {
+      setNetworkElementPk(port.getNetworkElementPk());
+      setPhysicalResourceGroup(port.getPhysicalResourceGroup());
+      setNocLabel(port.getNocLabel());
+      setManagerLabel(port.hasManagerLabel() ? port.getManagerLabel() : "");
+      setPortId(port.getPortId());
+      this.version = port.getVersion();
     }
 
     public Integer getVersion() {
@@ -361,33 +319,6 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     public void setVersion(Integer version) {
       this.version = version;
-    }
-
-    public String getPortId() {
-      return portId;
-    }
-
-    public void setPortId(String portId) {
-      this.portId = portId;
-    }
-
-    @Override
-    public String toString() {
-      StringBuilder builder = new StringBuilder();
-      builder.append("CreatePhysicalPortCommand [networkElementPk=");
-      builder.append(networkElementPk);
-      builder.append(", physicalResourceGroup=");
-      builder.append(physicalResourceGroup);
-      builder.append(", nocLabel=");
-      builder.append(nocLabel);
-      builder.append(", managerLabel=");
-      builder.append(managerLabel);
-      builder.append(", version=");
-      builder.append(version);
-      builder.append(", portId=");
-      builder.append(portId);
-      builder.append("]");
-      return builder.toString();
     }
 
   }
