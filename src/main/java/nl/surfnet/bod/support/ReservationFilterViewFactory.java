@@ -60,7 +60,10 @@ public class ReservationFilterViewFactory {
             DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, false);
       }
       else if (ACTIVE.equals(id)) {
-        throw new UnsupportedOperationException("No filter for ACTIVE defined");
+        //FIXME
+        return new ReservationFilterView(ELAPSED, String.format("Now - %d months",
+            DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, true);
+//        throw new UnsupportedOperationException("No filter for ACTIVE defined");
       }
       else {
         throw new IllegalArgumentException("No filter related to: " + id);

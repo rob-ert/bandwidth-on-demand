@@ -6,38 +6,39 @@ import nl.surfnet.bod.web.manager.VirtualPortController;
 
 public class ManagerStatisticsView {
 
-  private int virtualPortsAmount;
-  private int elapsedReservationsAmount;
-  private int activeReservationsAmount;
-  private int comingReservationsAmount;
-  private int physicalPortsAmount;
+  private long virtualPortsAmount;
+  private long elapsedReservationsAmount;
+  private long activeReservationsAmount;
+  private long comingReservationsAmount;
+  private long physicalPortsAmount;
 
-  public ManagerStatisticsView(int virtualPorts, int elapsedReservations, int activeReservations,
-      int comingReservations, int physicalPorts) {
-    this.elapsedReservationsAmount = elapsedReservations;
-    this.virtualPortsAmount = virtualPorts;
-    this.activeReservationsAmount = activeReservations;
-    this.comingReservationsAmount = comingReservations;
-    this.physicalPortsAmount = physicalPorts;
+  public ManagerStatisticsView(long countPhysicalPorts, long countVirtualPorts, long countElapsedReservations,
+      long countActiveReservations, long countComingReservations) {
+
+    this.physicalPortsAmount = countPhysicalPorts;
+    this.virtualPortsAmount = countVirtualPorts;
+    this.elapsedReservationsAmount = countElapsedReservations;
+    this.activeReservationsAmount = countActiveReservations;
+    this.comingReservationsAmount = countComingReservations;
   }
 
-  public int getVirtualPortsAmount() {
+  public long getVirtualPortsAmount() {
     return virtualPortsAmount;
   }
 
-  public int getElapsedReservationsAmount() {
+  public long getElapsedReservationsAmount() {
     return elapsedReservationsAmount;
   }
 
-  public int getActiveReservationsAmount() {
+  public long getActiveReservationsAmount() {
     return activeReservationsAmount;
   }
 
-  public int getComingReservationsAmount() {
+  public long getComingReservationsAmount() {
     return comingReservationsAmount;
   }
 
-  public int getPhysicalPortsAmount() {
+  public long getPhysicalPortsAmount() {
     return physicalPortsAmount;
   }
 

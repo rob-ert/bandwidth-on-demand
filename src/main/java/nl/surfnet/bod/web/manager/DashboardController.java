@@ -25,10 +25,15 @@ import java.util.Collection;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ManagerStatisticsView;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +52,12 @@ public class DashboardController {
   @Autowired
   private VirtualPortService virtualPortService;
 
+  @Autowired
+  private PhysicalPortService physicalPortService;
+
+  @Autowired
+  private ReservationService reservationService;
+
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
     Long groupId = WebUtils.getSelectedPhysicalResourceGroupId();
@@ -61,12 +72,30 @@ public class DashboardController {
     model.addAttribute("prg", group);
     model.addAttribute("requests", Orderings.vpRequestLinkOrdring().sortedCopy(requests));
 
-    model.addAttribute("stats", determineStatistics());
+    model.addAttribute("stats", determineStatistics(Security.getUserDetails()));
 
     return "manager/index";
   }
 
-  private ManagerStatisticsView determineStatistics() {
-    return new ManagerStatisticsView(3, 4, 6, 103, 2);
+  private ManagerStatisticsView determineStatistics(RichUserDetails manager) {
+    ReservationFilterViewFactory reservationFilterViewFactory = new ReservationFilterViewFactory();
+    PhysicalResourceGroup managerPrg = physicalResourceGroupService.find(manager.getSelectedRole()
+        .getPhysicalResourceGroupId());
+
+    long countPhysicalPorts = physicalPortService.countAllocatedForPhysicalResourceGroup(managerPrg);
+
+    long countVirtualPorts = virtualPortService.countForManager(manager);
+
+    long countElapsedReservations = reservationService.countForFilterAndManager(manager,
+        reservationFilterViewFactory.create(ReservationFilterViewFactory.ELAPSED));
+
+    long countActiveReservations = reservationService.countForFilterAndManager(manager,
+        reservationFilterViewFactory.create(ReservationFilterViewFactory.ACTIVE));
+
+    long countComingReservations = reservationService.countForFilterAndManager(manager,
+        reservationFilterViewFactory.create(ReservationFilterViewFactory.COMING));
+
+    return new ManagerStatisticsView(countPhysicalPorts, countVirtualPorts, countElapsedReservations,
+        countActiveReservations, countComingReservations);
   }
 }

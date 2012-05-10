@@ -38,7 +38,7 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
     }
   };
 
-  private static final String FILTER_URL = "filter/";
+  protected static final String FILTER_URL = "filter/";
 
   @Autowired
   protected ReservationService reservationService;
@@ -130,6 +130,8 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
     // Elapsed period
     filterViews.add(reservationFilterViewFactory.create(nl.surfnet.bod.support.ReservationFilterViewFactory.ELAPSED));
 
+    filterViews.add(reservationFilterViewFactory.create(ReservationFilterViewFactory.ACTIVE));
+    
     List<Double> uniqueReservationYears = reservationService.findUniqueYearsFromReservations();
 
     filterViews.addAll(reservationFilterViewFactory.create(uniqueReservationYears));
