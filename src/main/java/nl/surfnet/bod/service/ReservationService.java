@@ -290,7 +290,6 @@ public class ReservationService {
   }
 
   public long countForFilterAndUser(RichUserDetails user, ReservationFilterView filter) {
-    reservationRepo.flush();
     return reservationRepo.count(specFilteredReservationsForUser(filter, user));
   }
 
@@ -367,6 +366,10 @@ public class ReservationService {
 
   public long count() {
     return reservationRepo.count();
+  }
+  
+  public void flushRepo(){
+    reservationRepo.flush();
   }
 
 }

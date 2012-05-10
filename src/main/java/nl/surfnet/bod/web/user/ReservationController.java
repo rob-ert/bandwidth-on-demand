@@ -40,7 +40,6 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.ReservationValidator;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
 import nl.surfnet.bod.web.base.MessageView;
@@ -108,6 +107,7 @@ public class ReservationController extends AbstractFilteredReservationController
     WebUtils.addInfoMessage(redirectAttributes, "A new reservation for %s has been requested.", reservation
         .getVirtualResourceGroup().getName());
 
+    reservationService.flushRepo();
     return list(page, sort, order, model);
   }
 
@@ -194,6 +194,8 @@ public class ReservationController extends AbstractFilteredReservationController
   protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
+//    reservationService.flushRepo();
+    
     model.addAttribute("maxPages",
         WebUtils.calculateMaxPages(reservationService.countForFilterAndUser(Security.getUserDetails(), filter)));
 
