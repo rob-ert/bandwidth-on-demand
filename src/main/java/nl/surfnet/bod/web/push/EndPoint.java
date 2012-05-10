@@ -80,12 +80,10 @@ public interface EndPoint {
           writer.write(String.format(template, type, data, eventId.get()));
           writer.flush();
           asyncContext.complete();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
           logger.warn("Could not sent async message", e);
         }
-      }
-      else {
+      } else {
         logger.info("Could not send message to {}, {}", id, data);
       }
     }

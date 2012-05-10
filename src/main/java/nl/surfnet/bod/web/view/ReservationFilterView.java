@@ -90,8 +90,7 @@ public class ReservationFilterView {
     if (endInPast) {
       this.end = LocalDateTime.now();
       this.start = end.minus(period);
-    }
-    else {
+    } else {
       this.start = LocalDateTime.now();
       this.end = start.plus(period);
     }
@@ -144,8 +143,7 @@ public class ReservationFilterView {
       ReservationFilterView resFilterView = (ReservationFilterView) obj;
 
       return Objects.equal(this.id, resFilterView.id) && Objects.equal(this.label, resFilterView.label);
-    }
-    else {
+    } else {
       return false;
     }
   }

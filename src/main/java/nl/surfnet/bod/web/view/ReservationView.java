@@ -144,8 +144,7 @@ public class ReservationView {
           && Objects.equal(this.userCreated, resView.userCreated) && Objects.equal(this.bandwidth, resView.bandwidth)
           && Objects.equal(this.creationDateTime, resView.creationDateTime)
           && Objects.equal(this.reservationId, resView.reservationId) && Objects.equal(this.name, resView.name);
-    }
-    else {
+    } else {
       return false;
     }
   }

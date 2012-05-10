@@ -31,13 +31,12 @@ import org.openqa.selenium.support.PageFactory;
 public class ListVirtualResourceGroupPage extends AbstractListPage {
 
   private static final String PAGE =  "/manager/"  + VirtualResourceGroupController.PAGE_URL;
-  private final Probes probes;
-
+  
   public ListVirtualResourceGroupPage(RemoteWebDriver driver) {
     super(driver);
-    probes = new Probes(driver);
+    setProbes(new Probes(driver));
   }
-
+  
   public static ListVirtualResourceGroupPage get(RemoteWebDriver driver, String baseUrl) {
     driver.get(baseUrl + PAGE);
     return get(driver);

@@ -88,8 +88,7 @@ public class IddLiveClient implements IddClient {
       for (Klanten klant : klantnamen) {
         klantenCache.put((long) klant.getKlant_id(), klant);
       }
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       logger.error("Could not get the institutes from IDD", e);
       throw new RuntimeException(e);
     }

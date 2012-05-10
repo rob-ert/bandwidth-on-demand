@@ -171,8 +171,7 @@ public class Reservation {
 
     if (startDateTime == null) {
       startDateTime = new LocalDateTime(startTime);
-    }
-    else {
+    } else {
       startDateTime = startDateTime.withTime(startTime.getHourOfDay(), startTime.getMinuteOfHour(),
           startTime.getSecondOfMinute(), startTime.getMillisOfSecond());
     }
@@ -208,8 +207,7 @@ public class Reservation {
 
     if (startDateTime == null) {
       startDateTime = new LocalDateTime(startDate.toDate());
-    }
-    else {
+    } else {
       startDateTime = startDateTime
           .withDate(startDate.getYear(), startDate.getMonthOfYear(), startDate.getDayOfMonth());
     }
@@ -237,8 +235,7 @@ public class Reservation {
 
     if (endDateTime == null) {
       this.endDateTime = new LocalDateTime(endDate.toDate());
-    }
-    else {
+    } else {
       endDateTime = endDateTime.withDate(endDate.getYear(), endDate.getMonthOfYear(), endDate.getDayOfMonth());
     }
   }
@@ -265,8 +262,7 @@ public class Reservation {
 
     if (endDateTime == null) {
       this.endDateTime = new LocalDateTime(endTime);
-    }
-    else {
+    } else {
       endDateTime = endDateTime.withTime(endTime.getHourOfDay(), endTime.getMinuteOfHour(),
           endTime.getSecondOfMinute(), endTime.getMillisOfSecond());
     }
@@ -353,8 +349,7 @@ public class Reservation {
           && Objects.equal(this.startDateTime, res.startDateTime) && Objects.equal(this.endDateTime, res.endDateTime)
           && Objects.equal(this.userCreated, res.userCreated) && Objects.equal(this.bandwidth, res.bandwidth)
           && Objects.equal(this.creationDateTime, res.creationDateTime);
-    }
-    else {
+    } else {
       return false;
     }
   }

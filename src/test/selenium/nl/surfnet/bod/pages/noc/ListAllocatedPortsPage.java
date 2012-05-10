@@ -53,6 +53,6 @@ public class ListAllocatedPortsPage extends AbstractListPage {
   public EditPhysicalPortPage edit(String networkElementPk) {
     editRow(networkElementPk);
 
-    return EditPhysicalPortPage.get(driver);
+    return EditPhysicalPortPage.get(getDriver());
   }
 }

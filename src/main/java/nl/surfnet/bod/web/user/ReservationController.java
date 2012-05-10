@@ -102,12 +102,12 @@ public class ReservationController extends AbstractFilteredReservationController
       return PAGE_URL + CREATE;
     }
 
-    reservationService.create(reservation);
+    getReservationService().create(reservation);
 
     WebUtils.addInfoMessage(redirectAttributes, "A new reservation for %s has been requested.", reservation
         .getVirtualResourceGroup().getName());
 
-    reservationService.flushRepo();
+    getReservationService().flushRepo();
     return list(page, sort, order, model);
   }
 
@@ -161,20 +161,19 @@ public class ReservationController extends AbstractFilteredReservationController
       @RequestParam(value = "sort", required = false) String sort,
       @RequestParam(value = "order", required = false) String order, Model model, RedirectAttributes redirectAttributes) {
 
-    Reservation reservation = reservationService.find(id);
+    Reservation reservation = getReservationService().find(id);
 
-    boolean result = reservationService.cancel(reservation, Security.getUserDetails());
+    boolean result = getReservationService().cancel(reservation, Security.getUserDetails());
 
     if (result) {
       WebUtils.addInfoMessage(redirectAttributes, "A reservation for %s has been cancelled.", reservation
           .getVirtualResourceGroup().getName());
-    }
-    else {
+    } else {
       WebUtils.addInfoMessage(redirectAttributes, "A reservation for %s can NOT be cancelled.", reservation
           .getVirtualResourceGroup().getName());
     }
 
-    //Response is ignored, in js related to link
+    // Response is ignored, in js related to link
     return "index";
   }
 
@@ -194,12 +193,12 @@ public class ReservationController extends AbstractFilteredReservationController
   protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
-//    reservationService.flushRepo();
-    
-    model.addAttribute("maxPages",
-        WebUtils.calculateMaxPages(reservationService.countForFilterAndUser(Security.getUserDetails(), filter)));
+    // reservationService.flushRepo();
 
-    return transformReservationToReservationView(reservationService.findEntriesForUserUsingFilter(
+    model.addAttribute("maxPages",
+        WebUtils.calculateMaxPages(getReservationService().countForFilterAndUser(Security.getUserDetails(), filter)));
+
+    return transformReservationToReservationView(getReservationService().findEntriesForUserUsingFilter(
         Security.getUserDetails(), filter, firstPage, maxItems, sort));
   }
 

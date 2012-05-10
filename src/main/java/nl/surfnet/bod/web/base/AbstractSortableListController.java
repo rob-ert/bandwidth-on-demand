@@ -107,8 +107,7 @@ public abstract class AbstractSortableListController<T> {
       ParameterizedType type;
       if (getClass().getGenericSuperclass() instanceof ParameterizedType) {
         type = (ParameterizedType) getClass().getGenericSuperclass();
-      }
-      else {
+      } else {
         type = (ParameterizedType) getClass().getSuperclass().getGenericSuperclass();
       }
 
@@ -119,8 +118,7 @@ public abstract class AbstractSortableListController<T> {
           return true;
         }
       }
-    }
-    catch (IntrospectionException e) {
+    } catch (IntrospectionException e) {
       return false;
     }
 
@@ -134,8 +132,7 @@ public abstract class AbstractSortableListController<T> {
 
     try {
       return Direction.fromString(order);
-    }
-    catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
       return DEFAULT_SORT_DIRECTION;
     }
   }

@@ -27,7 +27,7 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
-public class UserOverviewPage extends AbstractListPage {
+public final class UserOverviewPage extends AbstractListPage {
 
   private UserOverviewPage(RemoteWebDriver driver) {
     super(driver);
@@ -43,9 +43,8 @@ public class UserOverviewPage extends AbstractListPage {
 
   public void selectInstitute(String team) {
     try {
-      driver.findElementByPartialLinkText(team).click();
-    }
-    catch (NoSuchElementException e) {
+      getDriver().findElementByPartialLinkText(team).click();
+    }  catch (NoSuchElementException e) {
       clickRowIcon("icon-envelope", team);
     }
   }

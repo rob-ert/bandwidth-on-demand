@@ -26,7 +26,7 @@ import nl.surfnet.bod.pages.AbstractPage;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
-public class NocOverviewPage extends AbstractPage {
+public final class NocOverviewPage extends AbstractPage {
 
   private NocOverviewPage(RemoteWebDriver driver) {
     super(driver);

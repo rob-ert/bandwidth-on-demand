@@ -85,9 +85,7 @@ public class EmailSenderOnline implements EmailSender {
     String bodyText = ActivationEmail.body(generateActivationUrl(activationEmailLink).toExternalForm());
     String subject = ActivationEmail.subject(activationEmailLink.getSourceObject().getName());
 
-    SimpleMailMessage mail = new MailMessageBuilder()
-        .withTo(activationEmailLink.getToEmail())
-        .withSubject(subject)
+    SimpleMailMessage mail = new MailMessageBuilder().withTo(activationEmailLink.getToEmail()).withSubject(subject)
         .withBodyText(bodyText).create();
 
     send(mail);
@@ -95,48 +93,38 @@ public class EmailSenderOnline implements EmailSender {
 
   @Override
   public void sendVirtualPortRequestMail(RichUserDetails from, VirtualPortRequestLink requestLink) {
-    String link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create/%s",
-        requestLink.getUuid());
+    String link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create/%s", requestLink.getUuid());
 
-    SimpleMailMessage mail = new MailMessageBuilder()
-        .withTo(requestLink.getPhysicalResourceGroup().getManagerEmail())
-        .withReplyTo(from.getEmail())
-        .withSubject(VirtualPortRequestMail.subject(from))
-        .withBodyText(VirtualPortRequestMail.body(from, requestLink, link))
-        .create();
+    SimpleMailMessage mail = new MailMessageBuilder().withTo(requestLink.getPhysicalResourceGroup().getManagerEmail())
+        .withReplyTo(from.getEmail()).withSubject(VirtualPortRequestMail.subject(from))
+        .withBodyText(VirtualPortRequestMail.body(from, requestLink, link)).create();
 
     send(mail);
   }
 
   @Override
   public void sendErrorMail(RichUserDetails user, Throwable throwable, HttpServletRequest request) {
-    SimpleMailMessage mail = new MailMessageBuilder()
-        .withTo(bodTeamMailAddress)
+    SimpleMailMessage mail = new MailMessageBuilder().withTo(bodTeamMailAddress)
         .withSubject(ErrorMail.subject(externalBodUrl, throwable))
-        .withBodyText(ErrorMail.body(user, throwable, request))
-        .create();
+        .withBodyText(ErrorMail.body(user, throwable, request)).create();
 
     send(mail);
   }
 
   @Override
   public void sendVirtualPortRequestApproveMail(VirtualPortRequestLink link, VirtualPort port) {
-    SimpleMailMessage mail = new MailMessageBuilder()
-      .withTo(link.getRequestorName(), link.getRequestorEmail())
-      .withSubject(VirtualPortRequestApproveMail.subject(port))
-      .withBodyText(VirtualPortRequestApproveMail.body(link, port))
-      .create();
+    SimpleMailMessage mail = new MailMessageBuilder().withTo(link.getRequestorName(), link.getRequestorEmail())
+        .withSubject(VirtualPortRequestApproveMail.subject(port))
+        .withBodyText(VirtualPortRequestApproveMail.body(link, port)).create();
 
     send(mail);
   }
 
   @Override
   public void sendVirtualPortRequestDeclineMail(VirtualPortRequestLink link, String declineMessage) {
-    SimpleMailMessage mail = new MailMessageBuilder()
-      .withTo(link.getRequestorName(), link.getRequestorEmail())
-      .withSubject(VirtualPortRequestDeclineMail.subject())
-      .withBodyText(VirtualPortRequestDeclineMail.body(link, declineMessage))
-      .create();
+    SimpleMailMessage mail = new MailMessageBuilder().withTo(link.getRequestorName(), link.getRequestorEmail())
+        .withSubject(VirtualPortRequestDeclineMail.subject())
+        .withBodyText(VirtualPortRequestDeclineMail.body(link, declineMessage)).create();
 
     send(mail);
   }
@@ -145,8 +133,7 @@ public class EmailSenderOnline implements EmailSender {
     try {
       return new URL(String.format(externalBodUrl + "%s/%s", ActivationEmailController.ACTIVATION_MANAGER_PATH,
           activationEmailLink.getUuid()));
-    }
-    catch (MalformedURLException e) {
+    } catch (MalformedURLException e) {
       throw new RuntimeException(e);
     }
   }

@@ -50,7 +50,7 @@ public class ListPhysicalPortsPage extends AbstractListPage {
   public EditPhysicalPortPage edit(String networkElementPk) {
     editRow(networkElementPk);
 
-    return EditPhysicalPortPage.get(driver);
+    return EditPhysicalPortPage.get(getDriver());
   }
 
   public void newVirtualPort(String networkElementPk) {
