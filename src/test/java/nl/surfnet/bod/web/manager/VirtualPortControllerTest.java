@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -209,6 +210,39 @@ public class VirtualPortControllerTest {
 
     verify(virtualPortServiceMock).save(any(VirtualPort.class));
     verify(virtualPortServiceMock).requestLinkApproved(eq(link), any(VirtualPort.class));
+  }
+
+  @Test
+  public void whenLinkIsApprovedDeclineMessageMayBeEmpty() {
+    ModelStub model = new ModelStub();
+    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(prg).create();
+    VirtualPortCreateCommand command = new VirtualPortCreateCommand(link);
+    BindingResult result = mock(BindingResult.class);
+
+    when(result.hasErrors()).thenReturn(true);
+    when(result.getErrorCount()).thenReturn(1);
+    when(result.hasFieldErrors("declineMessage")).thenReturn(true);
+
+    subject.create(command, result, model, model);
+
+    verify(virtualPortServiceMock).save(any(VirtualPort.class));
+    verify(virtualPortServiceMock).requestLinkApproved(eq(link), any(VirtualPort.class));
+  }
+
+  @Test
+  public void requestCanBeDeclined() {
+    ModelStub model = new ModelStub();
+    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(prg).create();
+    VirtualPortCreateCommand command = new VirtualPortCreateCommand(link);
+    command.setAcceptOrDecline("decline");
+    command.setDeclineMessage("Declined!");
+    BindingResult result = new BeanPropertyBindingResult(command, "createVirtualPortCommand");
+
+    String page = subject.create(command, result, model, model);
+
+    assertThat(page, is("redirect:/manager/virtualports"));
+
+    verify(virtualPortServiceMock).requestLinkDeclined(link, "Declined!");
   }
 
 }

@@ -92,7 +92,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
     if (createCommand.getAcceptOrDecline().equals("decline")) {
       if (result.hasFieldErrors("declineMessage")) {
-        return createFormWithErrors(createCommand, model);
+        return addCreateFormToModel(createCommand, model);
       }
 
       virtualPortService.requestLinkDeclined(createCommand.getVirtualPortRequestLink(), createCommand.getDeclineMessage());
@@ -103,7 +103,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     VirtualPort port = createCommand.getPort();
     virtualPortValidator.validate(port, result);
     if (result.hasErrors() && !declineMessageIsOnlyError(result)) {
-      return createFormWithErrors(createCommand, model);
+      return addCreateFormToModel(createCommand, model);
     }
 
     model.asMap().clear();
@@ -120,7 +120,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     return result.getErrorCount() == 1 && result.hasFieldErrors("declineMessage");
   }
 
-  private String createFormWithErrors(VirtualPortCreateCommand command, Model model) {
+  private String addCreateFormToModel(VirtualPortCreateCommand command, Model model) {
     instituteService.fillInstituteForPhysicalResourceGroup(command.getPhysicalResourceGroup());
 
     model.addAttribute("virtualPortCreateCommand", command);
@@ -158,14 +158,8 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
       return MessageView.PAGE_URL;
     }
 
-    instituteService.fillInstituteForPhysicalResourceGroup(requestLink.getPhysicalResourceGroup());
-
     VirtualPortCreateCommand command = new VirtualPortCreateCommand(requestLink);
-
-    model.addAttribute("virtualPortCreateCommand", command);
-    model.addAttribute("physicalPorts", requestLink.getPhysicalResourceGroup().getPhysicalPorts());
-    model.addAttribute("virtualResourceGroups", ImmutableList.of(requestLink.getVirtualResourceGroup()));
-    model.addAttribute("physicalResourceGroups", ImmutableList.of(requestLink.getPhysicalResourceGroup()));
+    addCreateFormToModel(command, model);
 
     return PAGE_URL + CREATE;
   }
