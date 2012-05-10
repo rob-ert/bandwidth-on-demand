@@ -64,24 +64,6 @@ public class WebUtilsTest {
   }
 
   @Test
-  public void shouldHaveReplacedPlaceholderWithNormalModel() {
-    WebUtils.addInfoMessage(model, message, messageArgs);
-
-    assertThat(WebUtils.getFirstInfoMessage(model), is(messageBase + messageArgWithMarkup));
-  }
-
-  @Test
-  public void shouldHaveAddedTwoMessagesWithNormalModel() {
-    WebUtils.addInfoMessage(model, message, messageArgs);
-    WebUtils.addInfoMessage(model, "SecondMessage", emptyArgs);
-
-    @SuppressWarnings("unchecked")
-    List<String> messages = (List<String>) model.asMap().get(WebUtils.INFO_MESSAGES_KEY);
-    assertThat(messages.get(0), is(messageBase + messageArgWithMarkup));
-    assertThat(messages.get(1), is("SecondMessage"));
-  }
-
-  @Test
   public void shouldHaveReplacedPlaceholderWithNormalRedirectModel() {
     WebUtils.addInfoMessage(redirectModel, message, messageArgs);
 
@@ -99,10 +81,6 @@ public class WebUtilsTest {
     assertThat(messages.get(1), is("SecondMessage"));
   }
 
-  @Test(expected = NullPointerException.class)
-  public void shouldNotAddNullMessages() {
-    WebUtils.addInfoMessage(model, null, emptyArgs);
-  }
 
   @Test
   public void shouldFormatMessage() {

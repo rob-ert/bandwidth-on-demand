@@ -36,6 +36,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @RequestMapping(ActivationEmailController.ACTIVATION_MANAGER_PATH)
 @Controller
@@ -52,7 +53,7 @@ public class ActivationEmailController {
   private MessageSource messageSource;
 
   @RequestMapping(value = "/{uuid}", method = RequestMethod.GET)
-  public String activateEmail(@PathVariable String uuid, Model uiModel) {
+  public String activateEmail(@PathVariable String uuid, Model model, RedirectAttributes redirectAttrs) {
     ActivationEmailLink<PhysicalResourceGroup> link = physicalResourceGroupService.findActivationLink(uuid);
 
     if (link == null) {
@@ -62,7 +63,7 @@ public class ActivationEmailController {
     PhysicalResourceGroup physicalResourceGroup = link.getSourceObject();
 
     if (!Security.isManagerMemberOf(physicalResourceGroup)) {
-      WebUtils.addInfoMessage(uiModel, "User %s is not allowed to activate physical resource group %s", Security
+      WebUtils.addInfoMessage(redirectAttrs, messageSource, "info_activation_request_notallowed", Security
           .getUserDetails().getDisplayName(), physicalResourceGroup.getName());
 
       log.debug("Manager [{}] has no right to access physical resourcegroup: {}", Security.getUserDetails()
@@ -71,8 +72,8 @@ public class ActivationEmailController {
       return "redirect:/";
     }
 
-    uiModel.addAttribute("link", link);
-    uiModel.addAttribute("physicalResourceGroup", physicalResourceGroup);
+    model.addAttribute("link", link);
+    model.addAttribute("physicalResourceGroup", physicalResourceGroup);
 
     Security.switchToManager(physicalResourceGroup);
 
@@ -96,14 +97,10 @@ public class ActivationEmailController {
   }
 
   @RequestMapping(method = RequestMethod.POST)
-  public String create(PhysicalResourceGroup physicalResourceGroup, final Model model) {
+  public String create(PhysicalResourceGroup physicalResourceGroup) {
     PhysicalResourceGroup foundPhysicalResourceGroup = physicalResourceGroupService.find(physicalResourceGroup.getId());
 
-    ActivationEmailLink<PhysicalResourceGroup> activationLink = physicalResourceGroupService
-        .sendActivationRequest(foundPhysicalResourceGroup);
-
-    WebUtils.addInfoMessage(model, messageSource, "info_activation_request_send", activationLink.getSourceObject()
-        .getName(), activationLink.getToEmail());
+    physicalResourceGroupService.sendActivationRequest(foundPhysicalResourceGroup);
 
     return "manager/index";
   }

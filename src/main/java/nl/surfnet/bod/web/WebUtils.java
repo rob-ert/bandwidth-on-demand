@@ -95,26 +95,6 @@ public final class WebUtils {
         .getPhysicalResourceGroupId();
   }
 
-  /**
-   * Adds an infoMessage, depending on the type of {@link Model} it will will
-   * survive a redirect.
-   *
-   * @param model
-   *          Model to add the message to
-   * @param message
-   *          Message to add
-   * @param messageArg
-   *          Arguments to parse into the message, using
-   *          {@link String#format(String, Object...)}
-   */
-  public static void addInfoMessage(Model model, String message, String... messageArgs) {
-    addMessage(model, formatAndEscapeMessage(message, messageArgs));
-  }
-
-  public static void addInfoMessage(Model model, MessageSource messageSource, String label, String... messageArgs) {
-    addInfoMessage(model, getMessage(messageSource, label, messageArgs));
-  }
-
   public static void addInfoMessage(RedirectAttributes model, MessageSource messageSource, String label,
       String... messageArgs) {
     addInfoMessage(model, getMessage(messageSource, label, messageArgs));

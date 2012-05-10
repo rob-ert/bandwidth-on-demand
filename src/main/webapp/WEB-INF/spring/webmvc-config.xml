@@ -21,7 +21,6 @@
     <mvc:default-servlet-handler />
 
     <!-- selects a static view for rendering without the need for an explicit controller -->
-    <mvc:view-controller path="/noc" view-name="noc/index" />
     <mvc:view-controller path="/uncaughtException" />
     <mvc:view-controller path="/resourceNotFound" />
     <mvc:view-controller path="/accessDenied" />

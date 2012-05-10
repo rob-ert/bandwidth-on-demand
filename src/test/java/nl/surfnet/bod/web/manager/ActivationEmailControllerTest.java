@@ -22,7 +22,6 @@
 package nl.surfnet.bod.web.manager;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
@@ -44,7 +43,6 @@ import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -55,8 +53,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.MessageSource;
-import org.springframework.ui.Model;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)
@@ -77,8 +73,6 @@ public class ActivationEmailControllerTest {
   private ActivationEmailLink<PhysicalResourceGroup> link;
   private PhysicalResourceGroup physicalResourceGroup;
 
-  private ModelStub model = new ModelStub();
-
   @Before
   public void setUp() {
     physicalResourceGroup = new PhysicalResourceGroupFactory().create();
@@ -94,7 +88,9 @@ public class ActivationEmailControllerTest {
   public void physicalResourceGroupShouldBeActivated() {
     when(physicalResourceGroupServiceMock.findActivationLink("1234567890")).thenReturn(link);
 
-    String page = subject.activateEmail("1234567890", model);
+    ModelStub model = new ModelStub();
+
+    String page = subject.activateEmail("1234567890", model, model);
 
     assertThat(page, is("manager/emailConfirmed"));
     assertThat(model.asMap(), hasEntry("physicalResourceGroup", Object.class.cast(link.getSourceObject())));
@@ -114,7 +110,8 @@ public class ActivationEmailControllerTest {
 
     when(physicalResourceGroupServiceMock.findActivationLink("1234567890")).thenReturn(link);
 
-    subject.activateEmail("1234567890", model);
+    ModelStub model = new ModelStub();
+    subject.activateEmail("1234567890", model, model);
 
     assertThat(user.getSelectedRole(), is(managerRole));
   }
@@ -127,7 +124,8 @@ public class ActivationEmailControllerTest {
 
     when(physicalResourceGroupServiceMock.findActivationLink("1234567890")).thenReturn(linkMock);
 
-    String page = subject.activateEmail("1234567890", new ModelStub());
+    ModelStub model = new ModelStub();
+    String page = subject.activateEmail("1234567890", model, model);
 
     verify(physicalResourceGroupServiceMock, times(0)).activate(any((ActivationEmailLink.class)));
     assertThat(page, is("manager/linkNotValid"));
@@ -137,7 +135,8 @@ public class ActivationEmailControllerTest {
   public void activationLinkIsNotValid() {
     when(physicalResourceGroupServiceMock.findActivationLink("1234567890")).thenReturn(null);
 
-    String page = subject.activateEmail("1234567890", new ModelStub());
+    ModelStub model = new ModelStub();
+    String page = subject.activateEmail("1234567890", model, model);
 
     verify(physicalResourceGroupServiceMock, times(0)).activate(any((ActivationEmailLink.class)));
 
@@ -150,7 +149,8 @@ public class ActivationEmailControllerTest {
     when(physicalResourceGroupServiceMock.findActivationLink("1234567890")).thenReturn(linkMock);
     when(linkMock.getSourceObject()).thenReturn(link.getSourceObject());
 
-    String page = subject.activateEmail("1234567890", new ModelStub());
+    ModelStub model = new ModelStub();
+    String page = subject.activateEmail("1234567890", model, model);
     verify(physicalResourceGroupServiceMock, times(0)).activate(any((ActivationEmailLink.class)));
     assertThat(page, is("manager/linkActive"));
   }
@@ -158,21 +158,15 @@ public class ActivationEmailControllerTest {
   @Test
   public void shouldRequestNewLink() {
     PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
-    RedirectAttributes redirectAttributesMock = new ModelStub();
 
     when(physicalResourceGroupServiceMock.find(anyLong())).thenReturn(physicalResourceGroup);
     when(linkMock.getToEmail()).thenReturn(physicalResourceGroup.getManagerEmail());
     when(linkMock.getSourceObject()).thenReturn(physicalResourceGroup);
     when(physicalResourceGroupServiceMock.sendActivationRequest(physicalResourceGroup)).thenReturn(linkMock);
-    when(messageSourceMock.getMessage(eq("info_activation_request_send"), any(Object[].class), any(Locale.class)))
-        .thenReturn("Yes we got message..");
 
-    subject.create(physicalResourceGroup, redirectAttributesMock);
+    subject.create(physicalResourceGroup);
 
     verify(physicalResourceGroupServiceMock).sendActivationRequest(physicalResourceGroup);
-
-    String message = WebUtils.getFirstInfoMessage(((Model) redirectAttributesMock));
-    assertThat(message, is("Yes we got message.."));
   }
 
   @Test
@@ -183,7 +177,8 @@ public class ActivationEmailControllerTest {
     when(linkMock.getToEmail()).thenReturn("link@surfnet.nl");
     when(linkMock.getSourceObject()).thenReturn(physicalResourceGroup);
 
-    String page = subject.activateEmail("1234567890", new ModelStub());
+    ModelStub model = new ModelStub();
+    String page = subject.activateEmail("1234567890", model, model);
 
     verify(physicalResourceGroupServiceMock, times(0)).activate(any((ActivationEmailLink.class)));
 
@@ -197,13 +192,13 @@ public class ActivationEmailControllerTest {
     when(physicalResourceGroupMock.getName()).thenReturn("prgOne");
     when(linkMock.getSourceObject()).thenReturn(physicalResourceGroupMock);
 
+    when(messageSourceMock.getMessage(eq("info_activation_request_notallowed"), any(Object[].class), any(Locale.class)))
+        .thenReturn("not allowed");
+
     when(physicalResourceGroupServiceMock.findActivationLink("1234567890")).thenReturn(linkMock);
 
-    String page = subject.activateEmail("1234567890", model);
-
-    assertThat(WebUtils.getFirstInfoMessage((Model) model), containsString(Security.getUserDetails().getDisplayName()));
-    assertThat(WebUtils.getFirstInfoMessage((Model) model), containsString("not allowed"));
-    assertThat(WebUtils.getFirstInfoMessage((Model) model), containsString("prgOne"));
+    ModelStub model = new ModelStub();
+    String page = subject.activateEmail("1234567890", model, model);
 
     verify(physicalResourceGroupServiceMock, times(0)).activate(any((ActivationEmailLink.class)));
     assertThat(page, is("redirect:/"));
