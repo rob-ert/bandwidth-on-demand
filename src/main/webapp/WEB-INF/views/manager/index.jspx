@@ -74,45 +74,7 @@
 				<spring:url value="${stats.comingReservationsUrl}"
 					var="comingReservationsUrl" />
 
-<!-- 
-				<dl>
-					<dt># Physical ports</dt>
-					<dd>
-						<a href="${ppsUrl}" rel="tooltip" title="Physical Ports"
-							data-type="info"> <c:out value="${stats.physicalPortsAmount}" />
-						</a>
-					</dd>
-					<dt># Virtual ports</dt>
-					<dd>
-						<a href="${vpsUrl}" rel="tooltip" title="Virtual Ports"
-							data-type="info"> <c:out value="${stats.virtualPortsAmount}" />
-						</a>
-					</dd>
-					<dt># Elapsed reservations</dt>
-					<dd>
-						<a href="${elapsedReservationsUrl}" rel="tooltip"
-							title="Elapsed Reservations" data-type="info"> <c:out
-								value="${stats.elapsedReservationsAmount}" />
-						</a>
-					</dd>
-					<dt># Active reservations</dt>
-					<dd>
-						<a href="${activeReservationsUrl}" rel="tooltip"
-							title="Active Reservations" data-type="info"> <c:out
-								value="${stats.activeReservationsAmount}" />
-						</a>
-					</dd>
-					<dt># Coming reservations</dt>
-					<dd>
-						<a href="${comingReservationsUrl}" rel="tooltip"
-							title="Coming Reservations" data-type="info"> <c:out
-								value="${stats.comingReservationsAmount}" />
-						</a>
-					</dd>
-				</dl>
- -->
-
-				<table class="table table-bordered table-striped">
+				<table id="idStats" class="table table-bordered table-striped">
 					<thead>
 						<tr>
 							<th>Item</th>
