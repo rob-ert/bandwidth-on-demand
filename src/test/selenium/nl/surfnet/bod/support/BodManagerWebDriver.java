@@ -152,9 +152,8 @@ public class BodManagerWebDriver {
 
     String start = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
     String end = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
-    String creation = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(creationDateTime);
 
-    page.findRow(start, end, creation);
+    page.findRow(start, end);
   }
 
   public void createVirtualPort(String name) {

@@ -21,12 +21,13 @@
  */
 package nl.surfnet.bod.pages.user;
 
-import nl.surfnet.bod.pages.AbstractPage;
+import nl.surfnet.bod.pages.AbstractListPage;
 
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
-public class UserOverviewPage extends AbstractPage {
+public class UserOverviewPage extends AbstractListPage {
 
   private UserOverviewPage(RemoteWebDriver driver) {
     super(driver);
@@ -41,7 +42,12 @@ public class UserOverviewPage extends AbstractPage {
   }
 
   public void selectInstitute(String team) {
-    driver.findElementByPartialLinkText(team).click();
+    try {
+      driver.findElementByPartialLinkText(team).click();
+    }
+    catch (NoSuchElementException e) {
+      clickRowIcon("icon-envelope", team);
+    }
   }
 
 }

@@ -40,6 +40,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.ReservationValidator;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
 import nl.surfnet.bod.web.base.MessageView;

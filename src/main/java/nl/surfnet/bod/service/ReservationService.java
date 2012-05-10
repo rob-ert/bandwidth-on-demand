@@ -93,10 +93,7 @@ public class ReservationService {
       reservation.setStartDateTime(reservation.getStartDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
     }
     reservation.setEndDateTime(reservation.getEndDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
-
-    reservationRepo.save(reservation);
-
-    return executorService.submit(new ReservationSubmitter(reservation));
+    return executorService.submit(new ReservationSubmitter(reservationRepo.save(reservation)));
   }
 
   public Reservation find(Long id) {
@@ -293,6 +290,7 @@ public class ReservationService {
   }
 
   public long countForFilterAndUser(RichUserDetails user, ReservationFilterView filter) {
+    reservationRepo.flush();
     return reservationRepo.count(specFilteredReservationsForUser(filter, user));
   }
 
@@ -353,10 +351,7 @@ public class ReservationService {
     @Override
     public void run() {
       Reservation createdReservation = nbiClient.createReservation(reservation);
-
-      update(createdReservation);
-
-      publishStatusChanged(createdReservation);
+      publishStatusChanged(update(createdReservation));
     }
 
     private void publishStatusChanged(Reservation newReservation) {
@@ -366,8 +361,8 @@ public class ReservationService {
     }
   }
 
-  public List<Reservation> findReservationWithStatus(ReservationStatus... statuses) {
-    return reservationRepo.findByStatusIn(Arrays.asList(statuses));
+  public List<Reservation> findReservationWithStatus(ReservationStatus... states) {
+    return reservationRepo.findByStatusIn(Arrays.asList(states));
   }
 
   public long count() {

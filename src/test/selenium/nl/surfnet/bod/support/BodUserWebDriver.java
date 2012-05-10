@@ -25,11 +25,16 @@ import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.user.*;
+import nl.surfnet.bod.pages.user.EditVirtualPortPage;
+import nl.surfnet.bod.pages.user.ListReservationPage;
+import nl.surfnet.bod.pages.user.ListVirtualPortPage;
+import nl.surfnet.bod.pages.user.NewReservationPage;
+import nl.surfnet.bod.pages.user.RequestNewVirtualPortRequestPage;
+import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectInstitutePage;
+import nl.surfnet.bod.pages.user.UserOverviewPage;
 
 import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.junit.Assert;
 import org.openqa.selenium.WebElement;
@@ -50,14 +55,13 @@ public class BodUserWebDriver {
   }
 
   public void verifyReservationWasCreated(LocalDate startDate, LocalDate endDate, LocalTime startTime,
-      LocalTime endTime, LocalDateTime creationDateTime) {
+      LocalTime endTime) {
     ListReservationPage page = ListReservationPage.get(driver);
 
     String start = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
     String end = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
-    String creation = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(creationDateTime);
 
-    WebElement row = page.findRow(start, end, creation);
+    WebElement row = page.findRow(start, end);
 
     assertThat(
         row.getText(),
