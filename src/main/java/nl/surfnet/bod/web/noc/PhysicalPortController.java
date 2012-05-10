@@ -21,15 +21,7 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.UPDATE;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -77,7 +69,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   private MessageSource messageSource;
 
   @RequestMapping(value = "add", method = RequestMethod.GET)
-  public String addPhysicalPortForm(@RequestParam(value = "prg") Long prgId, Model model) {
+  public String addPhysicalPortForm(@RequestParam(value = "prg") Long prgId, Model model, RedirectAttributes redirectAttrs) {
     PhysicalResourceGroup prg = physicalResourceGroupService.find(prgId);
     if (prg == null) {
       return "redirect:/";
@@ -85,10 +77,15 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     Collection<PhysicalPort> unallocatedPorts = physicalPortService.findUnallocated();
 
+    if (unallocatedPorts.isEmpty()) {
+      WebUtils.addInfoMessage(redirectAttrs, messageSource, "info_physicalport_nounallocated");
+      return "redirect:/noc/physicalresourcegroups";
+    }
+
     AddPhysicalPortCommand addCommand = new AddPhysicalPortCommand();
     addCommand.setPhysicalResourceGroup(prg);
     PhysicalPort port = Iterables.get(unallocatedPorts, 0);
-    
+
     addCommand.setNetworkElementPk(port.getNetworkElementPk());
     addCommand.setNocLabel(port.getNocLabel());
     addCommand.setManagerLabel(port.hasManagerLabel() ? port.getManagerLabel() : "");
@@ -135,7 +132,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   @RequestMapping(method = RequestMethod.PUT)
   public String update(@Valid CreatePhysicalPortCommand command, BindingResult result, Model model,
       final RedirectAttributes redirectAttributes) {
-    
+
     if (result.hasErrors()) {
       model.addAttribute(MODEL_KEY, command);
       return PAGE_URL + UPDATE;
@@ -237,7 +234,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     @NotEmpty
     private String nocLabel;
     private String managerLabel;
-    
+
     @NotEmpty
     private String portId;
 
@@ -310,7 +307,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     private String nocLabel;
     private String managerLabel;
     private Integer version;
-    
+
     @NotEmpty
     private String portId;
 

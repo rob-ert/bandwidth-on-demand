@@ -27,6 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -34,16 +35,22 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.PhysicalPortFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.noc.PhysicalPortController.CreatePhysicalPortCommand;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -56,6 +63,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -66,6 +74,9 @@ public class PhysicalPortControllerTest {
 
   @Mock
   private PhysicalPortService physicalPortServiceMock;
+
+  @Mock
+  private PhysicalResourceGroupService physicalResourceGroupServiceMock;
 
   @Mock
   private VirtualPortService virtualPortServiceMock;
@@ -161,4 +172,49 @@ public class PhysicalPortControllerTest {
     verify(physicalPortServiceMock, times(1)).delete(port);
   }
 
+  @Test
+  public void addPhysicalPortFormWithoutExistingPhysicalResourceGroup() {
+    ModelStub model = new ModelStub();
+
+    when(physicalResourceGroupServiceMock.find(1L)).thenReturn(null);
+
+    String page = subject.addPhysicalPortForm(1L, model, model);
+
+    assertThat(page, is("redirect:/"));
+  }
+
+  @Test
+  public void addPhysicalPortFormWithoutAnyUnallocatedPorts() {
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
+
+    ModelStub model = new ModelStub();
+
+    when(physicalResourceGroupServiceMock.find(1L)).thenReturn(prg);
+    when(physicalPortServiceMock.findUnallocated()).thenReturn(Collections.<PhysicalPort> emptyList());
+    when(messageSource.getMessage(eq("info_physicalport_nounallocated"), any(Object[].class), any(Locale.class)))
+        .thenReturn("no more ports");
+
+    String page = subject.addPhysicalPortForm(1L, model, model);
+
+    assertThat(page, is("redirect:/noc/physicalresourcegroups"));
+    assertThat(model.getFlashAttributes(),
+        Matchers.<String, Object> hasEntry(WebUtils.INFO_MESSAGES_KEY, Lists.newArrayList("no more ports")));
+  }
+
+  @Test
+  public void addPhysicalPortFormWithUnallocatedPorts() {
+    PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
+    PhysicalPort port = new PhysicalPortFactory().create();
+
+    ModelStub model = new ModelStub();
+
+    when(physicalResourceGroupServiceMock.find(1L)).thenReturn(prg);
+    when(physicalPortServiceMock.findUnallocated()).thenReturn(ImmutableList.of(port));
+
+    String page = subject.addPhysicalPortForm(1L, model, model);
+
+    assertThat(page, is("physicalports/addPhysicalPort"));
+    assertThat(model.asMap(), hasKey("addPhysicalPortCommand"));
+    assertThat(model.asMap(), hasKey("unallocatedPhysicalPorts"));
+  }
 }
