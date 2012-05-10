@@ -87,8 +87,6 @@ public class ReservationService {
   public Future<?> create(Reservation reservation) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
-
-    when(reservationRepo.save(reservation)).thenReturn(reservation);
     
     // Make sure reservations occur on whole minutes only
     if (reservation.getStartDateTime() != null) {
