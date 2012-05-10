@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.web.view;
 
+import nl.surfnet.bod.domain.ReservationStatus;
+
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
@@ -32,9 +34,9 @@ import com.google.common.base.Objects;
 
 /**
  * View object which holds filter related data regarding Reservations.
- *
+ * 
  * @author Franky
- *
+ * 
  */
 public class ReservationFilterView {
 
@@ -43,11 +45,13 @@ public class ReservationFilterView {
   private LocalDateTime start;
   private LocalDateTime end;
   private boolean filterOnReservationEndOnly;
+  private ReservationStatus status;
+  private boolean filterOnStatusOnly;
 
   /**
    * Constructs a filter for the given year. Filtering will take place both on
    * the start and end of Reservation
-   *
+   * 
    * @param year
    *          Year
    */
@@ -62,12 +66,13 @@ public class ReservationFilterView {
         .toLocalDateTime();
 
     filterOnReservationEndOnly = false;
+    filterOnStatusOnly = false;
   }
 
   /**
    * Constructs a filter for a given Period. Filtering will take place on the
    * end of Reservation only;
-   *
+   * 
    * @param id
    *          Id
    * @param label
@@ -92,7 +97,28 @@ public class ReservationFilterView {
     }
 
     filterOnReservationEndOnly = true;
+    filterOnStatusOnly = false;
+  }
 
+  /**
+   * Constructs a filter based on the specified {@link LocalDateTime}. The start
+   * of the filter will be start of the minute (e.g. seconds an millis to zero).
+   * The end of the filter wll be the next whole minute.
+   * 
+   * @param id
+   *          Id
+   * @param label
+   *          Label
+   * @param filterDateTime
+   *          timestamp to use
+   */
+  public ReservationFilterView(String id, String label, ReservationStatus status) {
+    this.id = id;
+    this.label = label;
+
+    this.status = status;
+
+    filterOnStatusOnly = true;
   }
 
   public String getId() {
@@ -132,8 +158,16 @@ public class ReservationFilterView {
     return end;
   }
 
+  public ReservationStatus getStatus() {
+    return status;
+  }
+
   public boolean isFilterOnReservationEndOnly() {
     return filterOnReservationEndOnly;
+  }
+
+  public boolean isFilterOnStatusOnly() {
+    return filterOnStatusOnly;
   }
 
   @Override

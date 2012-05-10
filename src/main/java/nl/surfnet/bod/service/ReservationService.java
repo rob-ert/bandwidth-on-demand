@@ -259,10 +259,15 @@ public class ReservationService {
       }
     };
 
-    specficiation = filterSpecOnEnd;
+    if (filter.isFilterOnStatusOnly()) {
+      specficiation = forStatus(filter.getStatus());
+    }
+    else {
+      specficiation = filterSpecOnEnd;
 
-    if (!filter.isFilterOnReservationEndOnly()) {
-      specficiation = Specifications.where(filterSpecOnEnd).or(filterSpecOnStart);
+      if (!filter.isFilterOnReservationEndOnly()) {
+        specficiation = Specifications.where(filterSpecOnEnd).or(filterSpecOnStart);
+      }
     }
 
     return specficiation;

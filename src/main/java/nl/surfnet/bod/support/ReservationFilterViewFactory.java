@@ -23,9 +23,11 @@ package nl.surfnet.bod.support;
 
 import java.util.List;
 
+import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 
 import org.joda.time.DurationFieldType;
+import org.joda.time.LocalDateTime;
 import org.joda.time.Months;
 import org.joda.time.ReadablePeriod;
 import org.springframework.stereotype.Component;
@@ -60,10 +62,7 @@ public class ReservationFilterViewFactory {
             DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, false);
       }
       else if (ACTIVE.equals(id)) {
-        //FIXME
-        return new ReservationFilterView(ELAPSED, String.format("Now - %d months",
-            DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, true);
-//        throw new UnsupportedOperationException("No filter for ACTIVE defined");
+        return new ReservationFilterView(ACTIVE, "Active", ReservationStatus.RUNNING);
       }
       else {
         throw new IllegalArgumentException("No filter related to: " + id);
