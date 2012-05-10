@@ -25,7 +25,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
-import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collection;
