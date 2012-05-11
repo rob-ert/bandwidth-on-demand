@@ -69,7 +69,12 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getUserDriver().switchToManager(INSTITUTE_NAME);
     getManagerDriver().verifyReservationExists(startDate, endDate, startTime, endTime, creationDateTime);
     
+    //Verify statistics for manager
     getManagerDriver().verifyStatistics();
+    
+    //Verify statistics for noc
+    getManagerDriver().switchToNoc();
+    getNocDriver().verifyStatistics();
     
     getManagerDriver().switchToUser();
     

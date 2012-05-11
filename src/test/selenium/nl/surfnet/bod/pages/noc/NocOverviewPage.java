@@ -21,12 +21,12 @@
  */
 package nl.surfnet.bod.pages.noc;
 
-import nl.surfnet.bod.pages.AbstractPage;
+import nl.surfnet.bod.pages.AbstractListPage;
 
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
-public class NocOverviewPage extends AbstractPage {
+public final class NocOverviewPage extends AbstractListPage {
 
   private NocOverviewPage(RemoteWebDriver driver) {
     super(driver);

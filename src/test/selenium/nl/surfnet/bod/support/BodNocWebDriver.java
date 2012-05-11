@@ -24,7 +24,14 @@ package nl.surfnet.bod.support;
 import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.pages.noc.*;
+import nl.surfnet.bod.pages.noc.AddPhysicalPortPage;
+import nl.surfnet.bod.pages.noc.EditPhysicalPortPage;
+import nl.surfnet.bod.pages.noc.EditPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.noc.ListAllocatedPortsPage;
+import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.noc.ListUnallocatedPortsPage;
+import nl.surfnet.bod.pages.noc.NewPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.noc.NocOverviewPage;
 
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -139,5 +146,14 @@ public class BodNocWebDriver {
     addPage.sendNocLabel(nocLabel);
 
     addPage.save();
+  }
+
+  public void verifyStatistics() {
+    NocOverviewPage page = NocOverviewPage.get(driver, URL_UNDER_TEST);
+
+    page.findRow("Physical ports", "2");
+    page.findRow("Elapsed reservations", "0");
+    page.findRow("Active reservations", "0");
+    page.findRow("Coming reservations", "1");
   }
 }
