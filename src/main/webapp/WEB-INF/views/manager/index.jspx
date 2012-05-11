@@ -74,11 +74,13 @@
 				<spring:url value="${stats.comingReservationsUrl}"
 					var="comingReservationsUrl" />
 
+				<sec:authentication property="principal.selectedRole"
+					var="selectedRole" />
 				<table id="idStats" class="table table-bordered table-striped">
 					<thead>
 						<tr>
 							<th>Item</th>
-							<th>Amount</th>
+							<th>Amount for ${selectedRole.instituteName}</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -125,8 +127,6 @@
 		<section>
 			<h2>Welcome to ${app_name}</h2>
 			<div class="content-dense">
-				<sec:authentication property="principal.selectedRole"
-					var="selectedRole" />
 				<h3>Institute</h3>
 				<p>
 					At this moment you are logged into this application as the <strong><spring:message

@@ -57,7 +57,7 @@ import com.google.common.collect.Iterables;
 @RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
 public class PhysicalPortController extends AbstractSortableListController<PhysicalPort> {
 
-  static final String PAGE_URL = "physicalports";
+  public static final String PAGE_URL = "physicalports";
   static final String MODEL_KEY = "createPhysicalPortCommand";
 
   @Autowired
