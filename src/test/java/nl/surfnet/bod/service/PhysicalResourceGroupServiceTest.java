@@ -22,8 +22,6 @@
 package nl.surfnet.bod.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
@@ -43,9 +41,7 @@ import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.UserGroupFactory;
-import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,10 +54,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PhysicalResourceGroupServiceTest {

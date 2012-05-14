@@ -56,9 +56,8 @@ public class InstituteIddService implements InstituteService {
     for (Klanten klant : klanten) {
       if (klant != null) {
         trimAttributes(klant);
-
         if (!(Strings.isNullOrEmpty(klant.getKlantnaam()) && (Strings.isNullOrEmpty(klant.getKlantafkorting())))) {
-          institutes.add(new Institute(new Long(klant.getKlant_id()), klant.getKlantnaam(), klant.getKlantafkorting()));
+          institutes.add(new Institute(Long.valueOf(klant.getKlant_id()), klant.getKlantnaam(), klant.getKlantafkorting()));
         }
       }
     }

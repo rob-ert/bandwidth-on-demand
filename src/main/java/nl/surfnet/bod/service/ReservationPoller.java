@@ -130,7 +130,7 @@ public class ReservationPoller {
         currentStatus = reservationService.getStatus(reservation);
         numberOfTries++;
 
-        if (startStatus != currentStatus) {
+        if (!currentStatus.equals(startStatus)) {
           reservation.setStatus(currentStatus);
           reservationService.update(reservation);
 
