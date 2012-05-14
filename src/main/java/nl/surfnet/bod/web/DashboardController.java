@@ -196,7 +196,12 @@ public class DashboardController {
 
     @Override
     public int compareTo(TeamView other) {
-      return this.getName().compareTo(other.getName());
+      if (this.equals(other)) {
+        return 0;
+      }
+      else {
+        return this.getName().compareTo(other.getName());
+      }
     }
 
     public Long getId() {
