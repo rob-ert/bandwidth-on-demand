@@ -26,9 +26,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -42,6 +49,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
@@ -55,9 +64,17 @@ public class BodWebDriver {
   public static final String URL_UNDER_TEST = withEndingSlash(System.getProperty("selenium.test.url",
       "http://localhost:8083/bod"));
 
+  public static final String DB_URL = "jdbc.jdbcUrl";
+  public static final String DB_USER = "jdbc.user";
+  public static final String DB_PASS = "jdbc.password";
+  public static final String DB_DRIVER_CLASS = "jdbc.driverClass";
+
   public static final DateTimeFormatter RESERVATION_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd H:mm");
 
   private static final int MAIL_SMTP_PORT = 4025;
+  private static final InputStream PROP_STREAM = BodWebDriver.class.getResourceAsStream("/bod-default.properties");
+
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private FirefoxDriver driver;
   private GreenMail mailServer;
@@ -66,11 +83,16 @@ public class BodWebDriver {
   private BodManagerWebDriver managerDriver;
   private BodNocWebDriver nocDriver;
 
+  private Properties props;
+
   private static String withEndingSlash(String path) {
     return path.endsWith("/") ? path : path + "/";
   }
 
   public synchronized void initializeOnce() {
+
+    clearDatabase();
+
     if (driver == null) {
       this.driver = new FirefoxDriver();
       this.driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
@@ -103,6 +125,55 @@ public class BodWebDriver {
     userDriver = new BodUserWebDriver(driver);
   }
 
+  private void clearDatabase() {
+
+    Connection connection = createDbConnection(getProperty(DB_URL), getProperty(DB_USER), getProperty(DB_PASS),
+        getProperty(DB_DRIVER_CLASS));
+
+    Statement statement = null;
+    try {
+      statement = connection.createStatement();
+      statement.executeUpdate("truncate physical_resource_group CASCADE;");
+
+      statement = connection.createStatement();
+      statement.executeUpdate("truncate virtual_resource_group CASCADE;");
+    }
+    catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+    finally {
+      try {
+        if (statement != null) {
+          statement.close();
+        }
+
+        if (connection != null) {
+          connection.close();
+        }
+      }
+      catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    log.info("Database cleared");
+
+  }
+
+  private String getProperty(String key) {
+
+    if (props == null) {
+      props = new Properties();
+      try {
+        props.load(PROP_STREAM);
+      }
+      catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    return props.getProperty(key);
+  }
+
   public BodManagerWebDriver getManagerDriver() {
     return managerDriver;
   }
@@ -113,6 +184,33 @@ public class BodWebDriver {
 
   public BodUserWebDriver getUserDriver() {
     return userDriver;
+  }
+
+  private Connection createDbConnection(String dbUrl, String dbUser, String dbPass, String dbDriverClass) {
+
+    Connection dbConnection = null;
+
+    try {
+      Class.forName(dbDriverClass).newInstance();
+    }
+    catch (InstantiationException e) {
+      throw new RuntimeException(e);
+    }
+    catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+    catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+
+    try {
+      dbConnection = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+    }
+    catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+
+    return dbConnection;
   }
 
   public void takeScreenshot(File screenshot) throws Exception {
