@@ -31,6 +31,7 @@ import nl.surfnet.bod.idd.generated.KsrLocator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -48,6 +49,7 @@ public class IddLiveClient implements IddClient {
 
   private final ConcurrentMap<Long, Klanten> klantenCache = Maps.newConcurrentMap();
 
+  @Autowired
   public IddLiveClient(@Value("${idd.user}") String username, @Value("${idd.password}") String password,
       @Value("${idd.url}") String endPoint) {
     this.username = username;
