@@ -33,8 +33,8 @@
 					</thead>
 					<tbody>
 						<tr>
-							<td>Physical ports</td>
-							<td><a href="${ppsUrl}" rel="tooltip" title="Physical Ports"
+							<td>Allocated physical ports</td>
+							<td><a href="${ppsUrl}" rel="tooltip" title="Allocated physical ports"
 								data-type="info"> <c:out
 										value="${stats.physicalPortsAmount}" />
 							</a></td>
@@ -78,8 +78,8 @@
                 </div>
                 <h3>Statistics</h3>
 				<p>
-					The most relevant statistics relevant for you are shown here. The total amounts for the complete BoD system are shown here. Sequentially
-					you will find the total amount of physical ports, elapsed reservation, currently active reservations and the amount of reservations for the coming
+					The most relevant statistics relevant for you are shown here. The total amounts for the <strong>complete BoD system</strong> are shown here. Sequentially
+					you will find the total amount of allocated physical ports, elapsed reservation, currently active reservations and the amount of reservations for the coming
 					period.
 				</p>
 				<p>You can navigate to the related page by clicking on the number.</p>
