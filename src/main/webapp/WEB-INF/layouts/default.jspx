@@ -1,6 +1,7 @@
 <html xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:spring="http://www.springframework.org/tags"
     xmlns:sec="http://www.springframework.org/security/tags" xmlns:menu="urn:jsptagdir:/WEB-INF/tags/menu"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:bod="BodTags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util">
 
     <jsp:output doctype-root-element="HTML" doctype-system="about:legacy-compat" />
@@ -53,7 +54,7 @@
                     </c:if>
                 </span>
 
-            	<spring:url value="/switchrole/logout" var="logoutUrl" />
+                <spring:url value="/switchrole/logout" var="logoutUrl" />
                 <a href="${logoutUrl}" class="logout"><spring:message code="global_menu_logout" /><c:out value=" "/><i class="icon-signout"><!-- --></i></a>
 
                 <div class="dropdown dropdown-disabled">
@@ -62,13 +63,19 @@
 
                     <!-- selected role -->
                     <spring:message code="role_class_${selectedRole.roleName}" var="s_role_class"/>
-                    <div class="dropdown-toggle ${s_role_class}" data-toggle="dropdown">
+                    <c:if test="${fn:length(bodRoles) > 0}">
+                        <c:set value="dropdown-toggle" var="dropdownClass" />
+                        <c:set value="dropdown" var="dataToggle" />
+                    </c:if>
+                    <div class="${dropdownClass} ${s_role_class}" data-toggle="${dataToggle}">
                         <div class="user">
                             <spring:message code="role_${selectedRole.roleName}"/>
                             <c:if test="${not empty selectedRole.instituteName}">
                                 <br/><c:out value="${selectedRole.instituteName}"/>
                             </c:if>
-                        	<b class="caret"><!--  --></b>
+                            <c:if test="${fn:length(bodRoles) > 0}">
+                                <b class="caret"><!--  --></b>
+                            </c:if>
                         </div>
 
                         <spring:url value="/switchrole" var="postUrl" />
