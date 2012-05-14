@@ -58,8 +58,8 @@ public final class WebUtils {
 
   public static final String INFO_MESSAGES_KEY = "infoMessages";
 
-  protected static final String PARAM_MARKUP_START = "<b>";
-  protected static final String PARAM_MARKUP_END = "</b>";
+  public static final String PARAM_MARKUP_START = "<b>";
+  public static final String PARAM_MARKUP_END = "</b>";
 
   private WebUtils() {
   }
