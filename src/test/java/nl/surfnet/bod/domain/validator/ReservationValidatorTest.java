@@ -140,10 +140,10 @@ public class ReservationValidatorTest {
 
   @Test
   public void aReservationShouldNotBeInThePast2() {
-    LocalDateTime THIRTY_PAST_MIDNIGHT = LocalDateTime.now().plusMinutes(30);
-    DateTimeUtils.setCurrentMillisFixed(THIRTY_PAST_MIDNIGHT.toDate().getTime());
+    LocalDateTime thirtyPastMidnight = LocalDateTime.now().plusMinutes(30);
+    DateTimeUtils.setCurrentMillisFixed(thirtyPastMidnight.toDate().getTime());
 
-    LocalDateTime fewMinutesAgo = THIRTY_PAST_MIDNIGHT.minusMinutes(20);
+    LocalDateTime fewMinutesAgo = thirtyPastMidnight.minusMinutes(20);
 
     Reservation reservation = new ReservationFactory().setStartDateTime(fewMinutesAgo).create();
     Errors errors = createErrorObject(reservation);
