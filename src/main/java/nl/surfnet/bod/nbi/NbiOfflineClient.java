@@ -89,6 +89,9 @@ class NbiOfflineClient implements NbiClient {
     ports.add(new NbiPort("Asd001A_OME3T_ETH-1-1-1", "00-20-D8-DF-33-59_ETH-1-1-1"));
   }
 
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(
+      value="UPM_UNCALLED_PRIVATE_METHOD", 
+      justification="Called by IoC container")
   @SuppressWarnings("unused")
   @PostConstruct
   private void init() {
