@@ -48,7 +48,7 @@ public class InstituteIddService implements InstituteService {
   public Collection<Institute> getInstitutes() {
     Collection<Klanten> klanten = iddClient.getKlanten();
 
-    return toInstitutes(klanten.toArray(new Klanten[0]));
+    return toInstitutes(klanten.toArray(new Klanten[klanten.size()]));
   }
 
   private Collection<Institute> toInstitutes(Klanten... klanten) {

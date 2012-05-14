@@ -128,7 +128,10 @@ class NbiOpenDracWsClient implements NbiClient {
           getSecurityDocument());
       log.info("Status: {}", response.getCompletionResponse().getResult());
     }
-    catch (Exception e) {
+    catch (RemoteException e) {
+      log.error("Error: ", e);
+    }
+    catch (ResourceAllocationAndSchedulingServiceFault e) {
       log.error("Error: ", e);
     }
   }

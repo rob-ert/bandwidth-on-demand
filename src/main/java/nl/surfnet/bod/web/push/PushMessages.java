@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.web.push;
 
+import java.io.IOException;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
@@ -85,7 +87,7 @@ public final class PushMessages {
       try {
         return JSON_MAPPER.writeValueAsString(toJsonObject);
       }
-      catch (Exception e) {
+      catch (IOException e) {
         return "{}";
       }
     }
