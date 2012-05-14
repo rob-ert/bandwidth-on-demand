@@ -32,11 +32,7 @@ import java.util.Collection;
 import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.support.MockHttpServer;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.springframework.core.io.ClassPathResource;
 
@@ -44,7 +40,7 @@ public class IddLiveClientTest {
 
   private static MockHttpServer server;
 
-  private IddLiveClient subject = new IddLiveClient();
+  private IddLiveClient subject;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -63,9 +59,7 @@ public class IddLiveClientTest {
 
   @Before
   public void setUp() {
-    subject.setEndPoint("http://localhost:8088/getKlant.php");
-    subject.setUsername("Donald");
-    subject.setPassword("secret");
+    subject = new IddLiveClient("Donald", "secret", "http://localhost:8088/getKlant.php");
 
     server.addResponse("/getKlant.php", new ClassPathResource("idd_response_with_5_klanten.xml"));
   }
@@ -103,7 +97,7 @@ public class IddLiveClientTest {
 
   @Test
   public void wrongPasswordShouldGiveException() {
-    subject.setUsername("wrong");
+    subject = new IddLiveClient("Wrong", "secret", "http://localhost:8088/getKlant.php");
     thrown.expect(RuntimeException.class);
     thrown.expectMessage(containsString("401"));
 

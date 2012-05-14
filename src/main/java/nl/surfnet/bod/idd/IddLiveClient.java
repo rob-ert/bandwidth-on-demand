@@ -42,16 +42,18 @@ public class IddLiveClient implements IddClient {
 
   private Logger logger = LoggerFactory.getLogger(IddLiveClient.class);
 
-  @Value("${idd.user}")
-  private String username;
-
-  @Value("${idd.password}")
-  private String password;
-
-  @Value("${idd.url}")
-  private String endPoint;
+  private final String username;
+  private final String password;
+  private final String endPoint;
 
   private final ConcurrentMap<Long, Klanten> klantenCache = Maps.newConcurrentMap();
+
+  public IddLiveClient(@Value("${idd.user}") String username, @Value("${idd.password}") String password,
+      @Value("${idd.url}") String endPoint) {
+    this.username = username;
+    this.password = password;
+    this.endPoint = endPoint;
+  }
 
   @Scheduled(fixedRate = 1000 * 60 * 60 * 8)
   public synchronized void refreshCache() {
@@ -90,7 +92,6 @@ public class IddLiveClient implements IddClient {
       }
     }
     catch (Exception e) {
-      logger.error("Could not get the institutes from IDD", e);
       throw new RuntimeException(e);
     }
   }
@@ -102,18 +103,6 @@ public class IddLiveClient implements IddClient {
     }
 
     return klantenCache.get(klantId);
-  }
-
-  protected void setUsername(String username) {
-    this.username = username;
-  }
-
-  protected void setPassword(String password) {
-    this.password = password;
-  }
-
-  protected void setEndPoint(String endPoint) {
-    this.endPoint = endPoint;
   }
 
 }
