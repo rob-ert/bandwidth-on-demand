@@ -101,7 +101,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     VirtualPort existingVirtualPort = virtualPortService.findByUserLabel(command.getUserLabel());
 
     if (existingVirtualPort != null && existingVirtualPort.getUserLabel().equalsIgnoreCase(command.getUserLabel())
-        && existingVirtualPort.getId() != command.getId()) {
+        && !existingVirtualPort.getId().equals(command.getId())) {
       errors.rejectValue("userLabel", "validation.not.unique");
     }
   }

@@ -79,7 +79,7 @@ public class VirtualPortValidator implements Validator {
 
   private boolean labelsAreNotUnique(VirtualPort virtualPort, VirtualPort existingVirtualPort) {
     return !validatorHelper.validateNameUniqueness(
-        virtualPort.getId() == existingVirtualPort.getId(),
+        existingVirtualPort.getId().equals(virtualPort.getId()),
         virtualPort.getManagerLabel().equalsIgnoreCase(existingVirtualPort.getManagerLabel()),
         virtualPort.getId() != null);
   }
