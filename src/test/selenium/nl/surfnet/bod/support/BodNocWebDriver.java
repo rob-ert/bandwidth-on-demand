@@ -151,7 +151,7 @@ public class BodNocWebDriver {
   public void verifyStatistics() {
     NocOverviewPage page = NocOverviewPage.get(driver, URL_UNDER_TEST);
 
-    page.findRow("Physical ports", "2");
+    page.findRow("Allocated physical ports", "2");
     page.findRow("Elapsed reservations", "0");
     page.findRow("Active reservations", "0");
     page.findRow("Coming reservations", "1");
