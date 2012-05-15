@@ -145,11 +145,25 @@ public class VirtualPort {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
-        .add("id", getId())
-        .add("managerLabel", getManagerLabel())
-        .add("maxBandwidth: ", getMaxBandwidth())
-        .add("physicalPort", physicalPort).toString();
+    StringBuilder builder = new StringBuilder();
+    builder.append("VirtualPort [id=");
+    builder.append(id);
+    builder.append(", version=");
+    builder.append(version);
+    builder.append(", managerLabel=");
+    builder.append(managerLabel);
+    builder.append(", userLabel=");
+    builder.append(userLabel);
+    builder.append(", virtualResourceGroup=");
+    builder.append(virtualResourceGroup);
+    builder.append(", physicalPort=");
+    builder.append(physicalPort);
+    builder.append(", maxBandwidth=");
+    builder.append(maxBandwidth);
+    builder.append(", vlanId=");
+    builder.append(vlanId);
+    builder.append("]");
+    return builder.toString();
   }
 
 }

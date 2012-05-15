@@ -24,6 +24,7 @@ package nl.surfnet.bod.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -31,6 +32,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -38,6 +41,7 @@ import java.util.concurrent.Future;
 import javax.persistence.EntityManager;
 
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationFlattened;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -225,7 +229,7 @@ public class ReservationServiceTest {
     assertThat(reservation.getStatus(), is(ReservationStatus.SCHEDULED));
     verify(reservationRepoMock, never()).save(reservation);
   }
-  
+
   @Test
   public void cancelAReservationWithStatusFAILEDShouldNotChangeItsStatus() {
     RichUserDetails richUserDetails = new RichUserDetailsFactory().create();
@@ -236,7 +240,6 @@ public class ReservationServiceTest {
     assertThat(reservation.getStatus(), is(ReservationStatus.FAILED));
     verify(reservationRepoMock, never()).save(reservation);
   }
-  
 
   @Test
   public void cancelAFailedReservationShouldNotChangeItsStatus() {
@@ -253,13 +256,30 @@ public class ReservationServiceTest {
 
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
         .create();
-    
+
     when(reservationRepoMock.save(reservation)).thenReturn(reservation);
-    
+
     subject.create(reservation);
 
     assertThat(reservation.getStartDateTime(), is(startDateTime.withSecondOfMinute(0).withMillisOfSecond(0)));
     assertThat(reservation.getEndDateTime(), is(endDateTime.withSecondOfMinute(0).withMillisOfSecond(0)));
+  }
+
+  @Test
+  public void transformToFlattenedReservations() {
+    final List<Reservation> reservations = new ArrayList<Reservation>() {
+      {
+        for (int i = 0; i < 10; i++) {
+          final Reservation reservation = new ReservationFactory().create();
+          reservation.setSourcePort(new VirtualPortFactory().create());
+          add(reservation);
+        }
+      }
+    };
+    final Collection<ReservationFlattened> flattenedReservations = subject.transformToFlattenedReservations(reservations);
+    assertNotNull(flattenedReservations);
+    assertEquals(10, flattenedReservations.size());
+    System.out.println(flattenedReservations);
   }
 
 }
