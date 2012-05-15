@@ -135,7 +135,7 @@ public class ReservationServiceTest {
     VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg1).create();
     VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg2).create();
 
-    Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg1).setSourcePort(source)
+    Reservation reservation = new ReservationFactory().setSourcePort(source)
         .setDestinationPort(destination).create();
 
     subject.create(reservation);
@@ -179,7 +179,7 @@ public class ReservationServiceTest {
     VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg1).create();
     VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg2).create();
 
-    Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg1).setSourcePort(source)
+    Reservation reservation = new ReservationFactory().setSourcePort(source)
         .setDestinationPort(destination).create();
 
     subject.update(reservation);
@@ -195,10 +195,11 @@ public class ReservationServiceTest {
   }
 
   @Test
-  public void cancelAReservationShouldChangeItsStatus() {
-    RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole().create();
-
+  public void cancelAReservationAsAUserInGroupShouldChangeItsStatus() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
+    RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole().//
+        addUserGroup(reservation.getVirtualResourceGroup().getSurfconextGroupId()).create();
+    Security.setUserDetails(richUserDetails);
 
     Assert.assertTrue(subject.cancel(reservation, richUserDetails));
     assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
@@ -206,7 +207,18 @@ public class ReservationServiceTest {
   }
 
   @Test
-  public void cancelAReservationAsAManagerShouldNotChangeItsStatus() {
+  public void cancelAReservationAsAUserNotInGroupShouldNotChangeItsStatus() {
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
+    RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole().create();
+    Security.setUserDetails(richUserDetails);
+
+    Assert.assertFalse(subject.cancel(reservation, richUserDetails));
+    assertThat(reservation.getStatus(), is(ReservationStatus.SCHEDULED));
+    verifyZeroInteractions(reservationRepoMock);
+  }
+
+  @Test
+  public void cancelAReservationAsAManagerShouldNotInPrgShouldNotChangeItsStatus() {
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addManagerRole().create();
 
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
@@ -214,6 +226,35 @@ public class ReservationServiceTest {
     Assert.assertFalse(subject.cancel(reservation, richUserDetails));
     assertThat(reservation.getStatus(), is(ReservationStatus.SCHEDULED));
     verify(reservationRepoMock, never()).save(reservation);
+  }
+
+  @Test
+  public void cancelAReservationAsAManagerInSourcePortPrgShouldChangeItsStatus() {
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
+
+    RichUserDetails richUserDetails = new RichUserDetailsFactory().addManagerRole().//
+        addUserGroup(reservation.getSourcePort().getPhysicalPort().getPhysicalResourceGroup().getAdminGroup()).create();
+    Security.setUserDetails(richUserDetails);
+
+    Assert.assertTrue(subject.cancel(reservation, richUserDetails));
+    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
+    verify(reservationRepoMock).save(reservation);
+  }
+
+  @Test
+  public void cancelAReservationAsAManagerInDestinationPortPrgShouldChangeItsStatus() {
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
+    reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup().setAdminGroup("urn:different");
+
+    RichUserDetails richUserDetails = new RichUserDetailsFactory().addManagerRole()
+        .//
+        addUserGroup(reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup().getAdminGroup())
+        .create();
+    Security.setUserDetails(richUserDetails);
+
+    Assert.assertTrue(subject.cancel(reservation, richUserDetails));
+    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
+    verify(reservationRepoMock).save(reservation);
   }
 
   @Test
@@ -273,7 +314,8 @@ public class ReservationServiceTest {
         }
       }
     };
-    final Collection<ReservationFlattened> flattenedReservations = subject.transformToFlattenedReservations(reservations);
+    final Collection<ReservationFlattened> flattenedReservations = subject
+        .transformToFlattenedReservations(reservations);
     assertNotNull(flattenedReservations);
     assertEquals(10, flattenedReservations.size());
     System.out.println(flattenedReservations);

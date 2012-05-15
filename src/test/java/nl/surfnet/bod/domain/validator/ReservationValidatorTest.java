@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static nl.surfnet.bod.support.ReservationFactory.SURF_CONEXT_GROUP_ID;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -45,7 +46,6 @@ import org.springframework.validation.Errors;
 
 public class ReservationValidatorTest {
 
-  private static final String GROUP_NAME = "urn:bandwidth-on-demand";
   private ReservationValidator subject;
   private LocalDateTime tomorrowNoon = LocalDateTime.now().plusDays(1).withHourOfDay(12).withMinuteOfHour(0)
       .withSecondOfMinute(0);
@@ -53,7 +53,7 @@ public class ReservationValidatorTest {
   @Before
   public void setUp() {
     subject = new ReservationValidator();
-    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(GROUP_NAME).create());
+    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(SURF_CONEXT_GROUP_ID).create());
   }
 
   @Test
@@ -82,7 +82,7 @@ public class ReservationValidatorTest {
   public void endDateMayBeOnStartDate() {
 
     Reservation reservation = new ReservationFactory().setStartDateTime(tomorrowNoon)
-        .setEndDateTime(tomorrowNoon.plusMinutes(10)).setSurfconextGroupId(GROUP_NAME).create();
+        .setEndDateTime(tomorrowNoon.plusMinutes(10)).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -106,7 +106,7 @@ public class ReservationValidatorTest {
   @Test
   public void whenEndAndStartDateAreOnTheSameDayStartTimeShouldBeBeforeEndTime2() {
     Reservation reservation = new ReservationFactory().setStartDateTime(tomorrowNoon)
-        .setEndDateTime(tomorrowNoon.plusHours(1)).setSurfconextGroupId(GROUP_NAME).create();
+        .setEndDateTime(tomorrowNoon.plusHours(1)).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -123,7 +123,8 @@ public class ReservationValidatorTest {
     subject.validate(reservation, errors);
 
     assertTrue(errors.hasErrors());
-    assertThat(errors.getFieldErrors("destinationPort").get(0).getCode(), containsString("validation.reservation.sameports"));
+    assertThat(errors.getFieldErrors("destinationPort").get(0).getCode(),
+        containsString("validation.reservation.sameports"));
   }
 
   @Test
@@ -169,7 +170,7 @@ public class ReservationValidatorTest {
   @Test
   public void reservationShouldBeLongerThan5Minutes() {
     Reservation reservation = new ReservationFactory().setStartDateTime(tomorrowNoon)
-        .setEndDateTime(tomorrowNoon.plusMinutes(3)).setSurfconextGroupId(GROUP_NAME).create();
+        .setEndDateTime(tomorrowNoon.plusMinutes(3)).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -185,7 +186,7 @@ public class ReservationValidatorTest {
     LocalDateTime endDateTime = startDateTime.plusDays(1).withHourOfDay(0).withMinuteOfHour(1);
 
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
-        .setSurfconextGroupId(GROUP_NAME).create();
+        .create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -200,7 +201,7 @@ public class ReservationValidatorTest {
     LocalDateTime endDateTime = startDateTime.plusYears(1).plusDays(1);
 
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
-        .setSurfconextGroupId(GROUP_NAME).create();
+        .create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -228,8 +229,7 @@ public class ReservationValidatorTest {
     VirtualPort sourcePort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
     VirtualPort destPort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
 
-    Reservation reservation = new ReservationFactory().setVirtualResourceGroup(vrg).setSourcePort(sourcePort)
-        .setDestinationPort(destPort).create();
+    Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort).create();
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);

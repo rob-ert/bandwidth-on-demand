@@ -34,7 +34,7 @@ import com.google.common.collect.Lists;
 
 public class RichUserDetailsFactory {
 
-  private static final String MANAGER_GROUP_ID = "urn:manager";
+  public static final String MANAGER_GROUP_ID = "urn:manager";
 
   private String username = "urn:guest:truus";
   private String displayName = "Truus Visscher";

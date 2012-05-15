@@ -44,7 +44,7 @@ public class ReservationViewJsonRenderTest {
     LocalDateTime startDateTime = new LocalDateTime(2009, 3, 23, 12, 0);
 
     ReservationView reservationView = new ReservationView(new ReservationFactory().setStartDateTime(startDateTime)
-        .create());
+        .create(), false);
     String json = mapper.writer().writeValueAsString(reservationView);
 
     assertThat(json, containsString("\"startDateTime\":\"2009-03-23 12:00\""));

@@ -54,7 +54,7 @@ public class ReservationController extends AbstractFilteredReservationController
         WebUtils.calculateMaxPages(getReservationService().countForFilterAndManager(Security.getUserDetails(), filter)));
 
     List<ReservationView> reservationViews = transformReservationToReservationView(getReservationService()
-        .findEntriesForManagerUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems, sort));
+        .findEntriesForManagerUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems, sort), Security.getUserDetails());
 
     return reservationViews;
   }

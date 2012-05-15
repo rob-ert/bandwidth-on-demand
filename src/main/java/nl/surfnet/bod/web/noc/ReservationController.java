@@ -29,6 +29,7 @@ import java.util.List;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
+import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
@@ -58,7 +59,7 @@ public class ReservationController extends AbstractFilteredReservationController
         WebUtils.calculateMaxPages(getReservationService().countAllEntriesUsingFilter((filter))));
 
     return transformReservationToReservationView(getReservationService().//
-        findAllEntriesUsingFilter(filter, firstPage, maxItems, sort));
+        findAllEntriesUsingFilter(filter, firstPage, maxItems, sort), Security.getUserDetails());
   }
 
 }

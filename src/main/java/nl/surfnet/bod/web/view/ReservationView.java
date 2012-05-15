@@ -23,7 +23,6 @@ package nl.surfnet.bod.web.view;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.web.security.Security;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.LocalDateTime;
@@ -46,8 +45,9 @@ public class ReservationView {
   private final String userCreated;
   private final String reservationId;
   private final LocalDateTime creationDateTime;
+  private final boolean deleteAllowed;
 
-  public ReservationView(Reservation reservation) {
+  public ReservationView(final Reservation reservation, final boolean deleteAllowed) {
     this.id = reservation.getId();
     this.virtualResourceGroup = reservation.getVirtualResourceGroup().getName();
     this.sourcePort = reservation.getSourcePort().getUserLabel();
@@ -61,6 +61,7 @@ public class ReservationView {
     this.reservationId = reservation.getReservationId();
     this.creationDateTime = reservation.getCreationDateTime();
     this.name = reservation.getName();
+    this.deleteAllowed = deleteAllowed;
   }
 
   public String getVirtualResourceGroup() {
@@ -115,14 +116,8 @@ public class ReservationView {
     return name;
   }
 
-  /**
-   * Only a userRole is allowed to delete a {@link Reservation} when it has a
-   * certain state.
-   * 
-   * @return true When deletion of a Reservation is allowed
-   */
-  public boolean isDeleteAllowedForSelectedRole() {
-    return status.isDeleteAllowed() && Security.isSelectedUserRole();
+  public boolean isDeleteAllowed() {
+    return deleteAllowed;
   }
 
   @Override

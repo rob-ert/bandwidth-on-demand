@@ -41,7 +41,6 @@ public class ReservationFactory {
   private static Long id = COUNTER.incrementAndGet();
   private Integer version;
   private String name;
-  private VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().create();
   private ReservationStatus status = ReservationStatus.SCHEDULED;
   private VirtualPort sourcePort;
   private VirtualPort destinationPort;
@@ -50,15 +49,16 @@ public class ReservationFactory {
   private String userCreated = "urn:truusvisscher";
   private Integer bandwidth = 10000;
   private String reservationId = "9" + String.valueOf(id);
-  private String surfconextGroupId;
   private String failedMessage;
+  private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().setSurfconextGroupId(SURF_CONEXT_GROUP_ID).create();
 
+  public final static String SURF_CONEXT_GROUP_ID = "urn:the:same";
+  
   public Reservation create() {
-    if (vrGroup != null) {
-      sourcePort = sourcePort == null ? new VirtualPortFactory().setVirtualResourceGroup(vrGroup).create() : sourcePort;
-      destinationPort = destinationPort == null ? new VirtualPortFactory().setVirtualResourceGroup(vrGroup).create()
-          : destinationPort;
-    }
+    sourcePort = sourcePort == null ? new VirtualPortFactory().setVirtualResourceGroup(virtualResourceGroup).create()
+        : sourcePort;
+    destinationPort = destinationPort == null ? new VirtualPortFactory().setVirtualResourceGroup(virtualResourceGroup)
+        .create() : destinationPort;
 
     Reservation reservation = new Reservation();
     reservation.setId(id);
@@ -67,17 +67,12 @@ public class ReservationFactory {
     reservation.setStatus(status);
     reservation.setSourcePort(sourcePort);
     reservation.setDestinationPort(destinationPort);
-    reservation.setVirtualResourceGroup(vrGroup);
     reservation.setStartDateTime(startDateTime);
     reservation.setEndDateTime(endDateTime);
     reservation.setUserCreated(userCreated);
     reservation.setBandwidth(bandwidth);
     reservation.setReservationId(reservationId);
     reservation.setFailedMessage(failedMessage);
-
-    if (!Strings.isNullOrEmpty(surfconextGroupId)) {
-      reservation.getVirtualResourceGroup().setSurfconextGroupId(surfconextGroupId);
-    }
 
     return reservation;
   }
@@ -99,11 +94,6 @@ public class ReservationFactory {
 
   public ReservationFactory setVersion(Integer version) {
     this.version = version;
-    return this;
-  }
-
-  public ReservationFactory setVirtualResourceGroup(VirtualResourceGroup vRGroup) {
-    this.vrGroup = vRGroup;
     return this;
   }
 
@@ -144,11 +134,6 @@ public class ReservationFactory {
 
   public ReservationFactory setReservationId(String reservationid) {
     this.reservationId = reservationid;
-    return this;
-  }
-
-  public ReservationFactory setSurfconextGroupId(String surfconextGroupId) {
-    this.surfconextGroupId = surfconextGroupId;
     return this;
   }
 

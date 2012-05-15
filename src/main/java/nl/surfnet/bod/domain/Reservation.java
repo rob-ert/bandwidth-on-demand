@@ -121,10 +121,6 @@ public class Reservation {
     return virtualResourceGroup;
   }
 
-  public void setVirtualResourceGroup(VirtualResourceGroup virtualResourceGroup) {
-    this.virtualResourceGroup = virtualResourceGroup;
-  }
-
   public ReservationStatus getStatus() {
     return status;
   }
@@ -139,6 +135,12 @@ public class Reservation {
 
   public void setSourcePort(VirtualPort sourcePort) {
     this.sourcePort = sourcePort;
+
+    if ((virtualResourceGroup != null) && (!virtualResourceGroup.equals(sourcePort.getVirtualResourceGroup()))) {
+      throw new IllegalStateException(
+          "Reservation contains a sourcePort and destinationPort from a different VirtualResourceGroup");
+    }
+    this.virtualResourceGroup = sourcePort.getVirtualResourceGroup();
   }
 
   public VirtualPort getDestinationPort() {
@@ -147,6 +149,12 @@ public class Reservation {
 
   public void setDestinationPort(VirtualPort destinationPort) {
     this.destinationPort = destinationPort;
+
+    if ((virtualResourceGroup != null) && (!virtualResourceGroup.equals(destinationPort.getVirtualResourceGroup()))) {
+      throw new IllegalStateException(
+          "Reservation contains a sourcePort and destinationPort from a different VirtualResourceGroup");
+    }
+    this.virtualResourceGroup = sourcePort.getVirtualResourceGroup();
   }
 
   /**

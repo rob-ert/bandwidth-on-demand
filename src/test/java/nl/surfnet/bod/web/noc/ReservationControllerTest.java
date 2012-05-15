@@ -14,6 +14,7 @@ import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
@@ -61,7 +62,8 @@ public class ReservationControllerTest {
     reservationsFor2012.addAll(reservations);
     size = new Integer(reservationsFor2012.size());
 
-    reservationViewsFor2012.addAll(subject.transformReservationToReservationView(reservationsFor2012));
+    reservationViewsFor2012.addAll(subject.transformReservationToReservationView(reservationsFor2012,
+        Security.getUserDetails()));
 
     when(reservationFilterViewFactoryMock.create(filter2012.getId())).thenReturn(filter2012);
 

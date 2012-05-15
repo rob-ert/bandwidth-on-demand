@@ -42,7 +42,16 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.PhysicalPort_;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationFlattened;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.Reservation_;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationFlattenedRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -167,9 +176,10 @@ public class ReservationService {
    * @return true if the reservation was canceld, false otherwise.
    */
   public boolean cancel(Reservation reservation, RichUserDetails user) {
-    if (user.isSelectedUserRole() && reservation.getStatus().isDeleteAllowed()) {
-      reservation.setStatus(CANCELLED);
+
+    if (isDeleteAllowedForUser(reservation, user)) {
       nbiClient.cancelReservation(reservation.getReservationId());
+      reservation.setStatus(CANCELLED);
       reservationRepo.save(reservation);
       return true;
     }
@@ -177,6 +187,44 @@ public class ReservationService {
       log.info("Not allowed to cancel reservation {}", reservation.getName());
     }
     return false;
+  }
+
+  /**
+   * A reservation is allowed to be delete for the following cases:
+   * <ul>
+   * <li>a manager may delete a reservation to minimal one of his ports</li>
+   * <li>or</li>
+   * <li>a user may delete a reservation if he is a member of the
+   * virtualResourceGroup of the reservation</li>
+   * <li>and</li>
+   * <li>the current status of the reservation must allow it</li>
+   * </ul>
+   * 
+   * @param reservation
+   *          {@link Reservation} to check
+   * @param user
+   *          {@link RichUserDetails} to check
+   * @return true if the reservation is allowed to be delete, false otherwise
+   */
+  public boolean isDeleteAllowedForUser(Reservation reservation, RichUserDetails user) {
+    boolean isAllowed = false;
+
+    if (!reservation.getStatus().isDeleteAllowed()) {
+      // No need to continue
+      return isAllowed;
+    }
+
+    if (user.isSelectedManagerRole()
+        && ((Security.isManagerMemberOf(reservation.getSourcePort().getPhysicalResourceGroup())//
+        || (Security.isManagerMemberOf(reservation.getDestinationPort().getPhysicalResourceGroup()))))) {
+      isAllowed = true;
+    }
+    else if ((user.isSelectedUserRole())//
+        && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
+      isAllowed = true;
+    }
+
+    return isAllowed;
   }
 
   public ReservationStatus getStatus(Reservation reservation) {
@@ -245,7 +293,7 @@ public class ReservationService {
     return new Specification<Reservation>() {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
-                                                              CriteriaBuilder cb) {
+          CriteriaBuilder cb) {
 
         return cb.and(
             cb.or(cb.equal(reservation.get(Reservation_.startDateTime), startOrEndDateTime),
@@ -256,13 +304,13 @@ public class ReservationService {
   }
 
   private Specification<Reservation> specFilteredReservationsForUser(final ReservationFilterView filter,
-                                                                     final RichUserDetails user) {
+      final RichUserDetails user) {
 
     return Specifications.where(specFilteredReservations(filter)).and(forCurrentUser(user));
   }
 
   private Specification<Reservation> specFilteredReservationsForManager(final ReservationFilterView filter,
-                                                                        final RichUserDetails manager) {
+      final RichUserDetails manager) {
 
     return Specifications.where(specFilteredReservations(filter)).and(forManager(manager));
   }
@@ -300,22 +348,21 @@ public class ReservationService {
   }
 
   public List<Reservation> findEntriesForUserUsingFilter(final RichUserDetails user,
-                                                         final ReservationFilterView filter, int firstResult,
-                                                         int maxResults, Sort sort) {
+      final ReservationFilterView filter, int firstResult, int maxResults, Sort sort) {
 
     return reservationRepo.findAll(specFilteredReservationsForUser(filter, user),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
   public List<Reservation> findEntriesForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter,
-                                                            int firstResult, int maxResults, Sort sort) {
+      int firstResult, int maxResults, Sort sort) {
 
     return reservationRepo.findAll(specFilteredReservationsForManager(filter, manager),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
   public List<Reservation> findAllEntriesUsingFilter(final ReservationFilterView filter, int firstResult,
-                                                     int maxResults, Sort sort) {
+      int maxResults, Sort sort) {
 
     return reservationRepo.findAll(specFilteredReservations(filter),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
@@ -373,8 +420,7 @@ public class ReservationService {
 
   @VisibleForTesting
   Collection<ReservationFlattened> transformToFlattenedReservations(final List<Reservation> reservations) {
-    return Collections2.transform(reservations,
-        TO_FLATTENED_RESERVATION);
+    return Collections2.transform(reservations, TO_FLATTENED_RESERVATION);
   }
 
   public void saveFlattenedReservations(final List<Reservation> reservations) {

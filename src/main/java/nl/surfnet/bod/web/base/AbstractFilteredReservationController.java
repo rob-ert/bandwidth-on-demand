@@ -1,6 +1,10 @@
 package nl.surfnet.bod.web.base;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
+import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
 
 import java.util.List;
 
@@ -8,6 +12,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
@@ -15,9 +20,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 /**
@@ -32,13 +40,6 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
   public static final String FILTER_URL = "filter/";
 
   private static final String DEFAULT_FILTER_ID = ReservationFilterViewFactory.COMING;
-
-  private static final Function<Reservation, ReservationView> TO_RESERVATION_VIEW = new Function<Reservation, ReservationView>() {
-    @Override
-    public ReservationView apply(Reservation reservation) {
-      return new ReservationView(reservation);
-    }
-  };
 
   @Autowired
   private ReservationService reservationService;
@@ -124,9 +125,25 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
     model.addAttribute("baseFilterUrl", StringUtils.delete(listUrl(), WebUtils.LIST) + "/" + FILTER_URL);
   }
 
-  // TODO make protected
-  public List<ReservationView> transformReservationToReservationView(List<Reservation> reservationsToTransform) {
-    return Lists.transform(reservationsToTransform, TO_RESERVATION_VIEW);
+  /**
+   * Transforms the given reservations to {@link ReservationView}s and
+   * determines if the reservation is allowed to be delete by the given user.
+   * 
+   * @param reservationsToTransform {@link Reservation}s to be transformed
+   * @param user {@link RichUserDetails} to check if this user is allowed to delete the reservation
+   * @return {@link List<ReservationView>} transformed reservations
+   */
+  public List<ReservationView> transformReservationToReservationView(List<Reservation> reservationsToTransform,
+      RichUserDetails user) {
+    List<ReservationView> reservationViews = Lists.newArrayList();
+
+    ReservationView reservationView = null;
+    for (Reservation reservation : reservationsToTransform) {
+      reservationView = new ReservationView(reservation, reservationService.isDeleteAllowedForUser(reservation, user));
+      reservationViews.add(reservationView);
+    }
+
+    return reservationViews;
   }
 
   private List<ReservationFilterView> determineFilters() {

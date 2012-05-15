@@ -35,11 +35,13 @@ public class ReservationViewTest {
 
   @Test
   public void reservationViewShouldShowUserLabel() {
-    VirtualPort sourcePort = new VirtualPortFactory().setManagerLabel("Label of boss").setUserLabel("My source label").create();
-    VirtualPort destPort = new VirtualPortFactory().setManagerLabel("Label of boss").setUserLabel("My dest label").create();
+    VirtualPort sourcePort = new VirtualPortFactory().setManagerLabel("Label of boss").setUserLabel("My source label")
+        .create();
+    VirtualPort destPort = new VirtualPortFactory().setManagerLabel("Label of boss").setUserLabel("My dest label")
+        .create();
     Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort).create();
 
-    ReservationView view = new ReservationView(reservation);
+    ReservationView view = new ReservationView(reservation, false);
 
     assertThat(view.getSourcePort(), is("My source label"));
     assertThat(view.getDestinationPort(), is("My dest label"));

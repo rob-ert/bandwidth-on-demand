@@ -45,7 +45,7 @@ public class VirtualPortFactory {
   private String userLabel = "A user virtual port " + id;;
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
   private PhysicalPort physicalPort = new PhysicalPortFactory().create();
-  private String physicalPortAdminGroup = "";
+  private String physicalPortAdminGroup = "urn:test:group";
   private Integer maxBandwidth = 10000;
   private Integer vlanId = null;
 
@@ -64,7 +64,7 @@ public class VirtualPortFactory {
 
     virtualPort.setPhysicalPort(physicalPort);
 
-    if (StringUtils.hasText(physicalPortAdminGroup)) {
+    if (physicalPort != null && StringUtils.hasText(physicalPortAdminGroup)) {
       physicalPort.getPhysicalResourceGroup().setAdminGroup(physicalPortAdminGroup);
     }
 

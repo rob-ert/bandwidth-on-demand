@@ -192,7 +192,7 @@ public class ReservationController extends AbstractFilteredReservationController
         WebUtils.calculateMaxPages(getReservationService().countForFilterAndUser(Security.getUserDetails(), filter)));
 
     return transformReservationToReservationView(getReservationService().findEntriesForUserUsingFilter(
-        Security.getUserDetails(), filter, firstPage, maxItems, sort));
+        Security.getUserDetails(), filter, firstPage, maxItems, sort),Security.getUserDetails());
   }
 
   private Reservation createDefaultReservation(VirtualResourceGroup vrg) {
@@ -207,7 +207,6 @@ public class ReservationController extends AbstractFilteredReservationController
     VirtualPort sourcePort = Iterables.get(vrg.getVirtualPorts(), 0, null);
     VirtualPort destPort = Iterables.get(vrg.getVirtualPorts(), 1, null);
 
-    reservation.setVirtualResourceGroup(vrg);
     reservation.setSourcePort(sourcePort);
     reservation.setDestinationPort(destPort);
 
