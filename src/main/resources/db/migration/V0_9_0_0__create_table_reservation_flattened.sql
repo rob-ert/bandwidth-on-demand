@@ -10,4 +10,3 @@ CREATE TABLE reservation_flattened
 WITH (
   OIDS=FALSE
 );
-ALTER TABLE reservation_flattened OWNER TO bod_user;
