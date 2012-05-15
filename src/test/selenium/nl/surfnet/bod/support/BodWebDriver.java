@@ -28,7 +28,6 @@ import static org.hamcrest.Matchers.containsString;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -75,6 +74,8 @@ public class BodWebDriver {
   private static final int MAIL_SMTP_PORT = 4025;
   private static final InputStream PROP_DEFAULT = BodWebDriver.class.getResourceAsStream("/bod-default.properties");
   private static final InputStream PROP_SELENIUM = BodWebDriver.class.getResourceAsStream("/bod-selenium.properties");
+
+  private static final String CLEAR_DATABASE_QUERY = "truncate physical_resource_group, virtual_resource_group, reservation_flattened CASCADE;";
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -135,10 +136,7 @@ public class BodWebDriver {
     Statement statement = null;
     try {
       statement = connection.createStatement();
-      statement.executeUpdate("truncate physical_resource_group CASCADE;");
-
-      statement = connection.createStatement();
-      statement.executeUpdate("truncate virtual_resource_group CASCADE;");
+      statement.executeUpdate(CLEAR_DATABASE_QUERY);
     }
     catch (SQLException e) {
       throw new RuntimeException(e);
