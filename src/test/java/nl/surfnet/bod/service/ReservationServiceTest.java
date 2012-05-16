@@ -24,13 +24,10 @@ package nl.surfnet.bod.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,12 +36,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationFlattened;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -86,7 +80,7 @@ public class ReservationServiceTest {
   private NbiClient nbiPortService;
 
   @Mock
-  private EntityManager entityManager;
+  private EntityManagerFactory entityManagerFactory;
 
   @Test
   public void whenTheUserHasNoGroupsTheReservationsShouldBeEmpty() {
@@ -152,6 +146,8 @@ public class ReservationServiceTest {
     final Reservation reservation = new ReservationFactory().create();
 
     final String reservationId = "SCHEDULE-" + System.currentTimeMillis();
+    EntityManager emMock = mock(EntityManager.class);
+    when(entityManagerFactory.createEntityManager()).thenReturn(emMock);
     when(reservationRepoMock.save(any(Reservation.class))).thenReturn(reservation);
     when(nbiPortService.createReservation((any(Reservation.class)))).thenAnswer(new Answer<Reservation>() {
       @Override
@@ -168,7 +164,8 @@ public class ReservationServiceTest {
 
     assertThat(reservation.getReservationId(), is(reservationId));
 
-    verify(reservationRepoMock, times(2)).save(reservation);
+    verify(emMock).merge(reservation);
+    verify(reservationRepoMock).save(reservation);
   }
 
   private void waitTillDone(Future<?> future) throws InterruptedException, ExecutionException {

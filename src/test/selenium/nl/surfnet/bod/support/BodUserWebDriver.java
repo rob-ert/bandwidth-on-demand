@@ -25,13 +25,7 @@ import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.user.EditVirtualPortPage;
-import nl.surfnet.bod.pages.user.ListReservationPage;
-import nl.surfnet.bod.pages.user.ListVirtualPortPage;
-import nl.surfnet.bod.pages.user.NewReservationPage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortRequestPage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectInstitutePage;
-import nl.surfnet.bod.pages.user.UserOverviewPage;
+import nl.surfnet.bod.pages.user.*;
 
 import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.LocalDate;
@@ -54,14 +48,14 @@ public class BodUserWebDriver {
     page.selectInstitute(team);
   }
 
-  public void verifyReservationWasCreated(LocalDate startDate, LocalDate endDate, LocalTime startTime,
+  public void verifyReservationWasCreated(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
       LocalTime endTime) {
     ListReservationPage page = ListReservationPage.get(driver);
 
     String start = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
     String end = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
 
-    WebElement row = page.findRow(start, end);
+    WebElement row = page.findRow(label, start, end);
 
     assertThat(
         row.getText(),
@@ -110,9 +104,10 @@ public class BodUserWebDriver {
     }
   }
 
-  public void createNewReservation(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+  public void createNewReservation(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
     NewReservationPage page = NewReservationPage.get(driver, URL_UNDER_TEST);
 
+    page.sendLabel(label);
     page.sendStartDate(startDate);
     page.sendStartTime(startTime);
     page.sendEndDate(endDate);

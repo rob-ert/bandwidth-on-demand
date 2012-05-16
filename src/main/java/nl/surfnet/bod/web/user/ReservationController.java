@@ -23,12 +23,7 @@ package nl.surfnet.bod.web.user;
 
 import static nl.surfnet.bod.util.Orderings.vpUserLabelOrdering;
 import static nl.surfnet.bod.util.Orderings.vrgNameOrdering;
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -107,7 +102,6 @@ public class ReservationController extends AbstractFilteredReservationController
     WebUtils.addInfoMessage(redirectAttributes, "A new reservation for %s has been requested.", reservation
         .getVirtualResourceGroup().getName());
 
-    getReservationService().flushRepo();
     return list(page, sort, order, model);
   }
 
@@ -193,8 +187,6 @@ public class ReservationController extends AbstractFilteredReservationController
   @Override
   protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-
-    // reservationService.flushRepo();
 
     model.addAttribute("maxPages",
         WebUtils.calculateMaxPages(getReservationService().countForFilterAndUser(Security.getUserDetails(), filter)));

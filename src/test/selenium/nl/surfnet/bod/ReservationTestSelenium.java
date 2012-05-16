@@ -55,29 +55,30 @@ public class ReservationTestSelenium extends TestExternalSupport {
 
   @Test
   public void createAndDeleteAReservation() {
-    LocalDateTime creationDateTime = LocalDateTime.now();
-    LocalDate startDate = LocalDate.now().plusDays(3);
-    LocalDate endDate = LocalDate.now().plusDays(5);
-    LocalTime startTime = LocalTime.now().plusHours(1);
-    LocalTime endTime = LocalTime.now();
+    final LocalDateTime creationDateTime = LocalDateTime.now();
+    final LocalDate startDate = LocalDate.now().plusDays(3);
+    final LocalDate endDate = LocalDate.now().plusDays(5);
+    final LocalTime startTime = LocalTime.now().plusHours(1);
+    final LocalTime endTime = LocalTime.now();
+    final String reservationLabel = "Selenium Reservation";
 
     getManagerDriver().switchToUser();
-    getUserDriver().createNewReservation(startDate, endDate, startTime, endTime);
+    getUserDriver().createNewReservation(reservationLabel, startDate, endDate, startTime, endTime);
 
-    getUserDriver().verifyReservationWasCreated(startDate, endDate, startTime, endTime);
+    getUserDriver().verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
 
     getUserDriver().switchToManager(INSTITUTE_NAME);
     getManagerDriver().verifyReservationExists(startDate, endDate, startTime, endTime, creationDateTime);
-    
-    //Verify statistics for manager
+
+    // Verify statistics for manager
     getManagerDriver().verifyStatistics();
-    
-    //Verify statistics for noc
+
+    // Verify statistics for noc
     getManagerDriver().switchToNoc();
     getNocDriver().verifyStatistics();
-    
+
     getManagerDriver().switchToUser();
-    
+
     getUserDriver().cancelReservation(startDate, endDate, startTime, endTime);
 
     getUserDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);

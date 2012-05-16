@@ -382,8 +382,10 @@ public class ReservationService {
 
     @Override
     public void run() {
-      Reservation createdReservation = nbiClient.createReservation(reservation);
-      publishStatusChanged(update(createdReservation));
+      Reservation reservationWithReservationId = nbiClient.createReservation(reservation);
+      // use a different entityManager to prevent stale object exception..
+      entityManagerFactory.createEntityManager().merge(reservationWithReservationId);
+      publishStatusChanged(reservationWithReservationId);
     }
 
     private void publishStatusChanged(Reservation newReservation) {
@@ -399,10 +401,6 @@ public class ReservationService {
 
   public long count() {
     return reservationRepo.count();
-  }
-
-  public void flushRepo() {
-    reservationRepo.flush();
   }
 
 }

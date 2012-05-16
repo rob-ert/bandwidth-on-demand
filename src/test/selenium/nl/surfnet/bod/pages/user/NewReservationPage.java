@@ -39,6 +39,9 @@ public class NewReservationPage extends AbstractFormPage {
   private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd");
   private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormat.forPattern("H:mm");
 
+  @FindBy(id = "_name_id")
+  private WebElement labelInput;
+
   @FindBy(id = "_startDate_id")
   private WebElement startDateInput;
 
@@ -104,6 +107,11 @@ public class NewReservationPage extends AbstractFormPage {
     }
 
     return startDateError.getText();
+  }
+
+  public void sendLabel(String label) {
+    labelInput.clear();
+    labelInput.sendKeys(label);
   }
 
 }
