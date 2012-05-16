@@ -8,7 +8,7 @@
 
     <c:choose>
         <c:when test="${dev}">
-            <bod:css value="/resources/css/bootstrap-2.0.2.min.css" />
+            <bod:css value="/resources/css/bootstrap-2.0.3.min.css" />
             <bod:css value="/resources/css/font-awesome.css" />
             <bod:css value="/resources/css/bootstrap-alert.css" />
             <bod:css value="/resources/css/bootstrap-button.css" />
