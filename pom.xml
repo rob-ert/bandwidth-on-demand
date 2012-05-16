@@ -737,26 +737,29 @@
                                     </excludes>
                                 </configuration>
                             </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>2.12</version>
+                        <configuration>
+                            <includes>
+                                <include>**/*TestSelenium.java</include>
+                            </includes>
+                            <systemProperties>
+                                <property>
+                                    <name>selenium.test.url</name>
+                                    <value>${selenium.test.url}</value>
+                                </property>
+                            </systemProperties>
+                        </configuration>
+                        <executions>
                             <execution>
-                                <id>selenium-test</id>
-                                <phase>integration-test</phase>
                                 <goals>
-                                    <goal>test</goal>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
                                 </goals>
-                                <configuration>
-                                    <excludes>
-                                        <exclude>none</exclude>
-                                    </excludes>
-                                    <includes>
-                                        <include>**/*TestSelenium.java</include>
-                                    </includes>
-                                    <systemProperties>
-                                        <property>
-                                            <name>selenium.test.url</name>
-                                            <value>${selenium.test.url}</value>
-                                        </property>
-                                    </systemProperties>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
