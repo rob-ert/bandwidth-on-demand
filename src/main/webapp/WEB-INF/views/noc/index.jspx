@@ -16,54 +16,54 @@
             <section>
             <h2>Statistics</h2>
             <div class="content">
-				<spring:url value="${stats.ppsUrl}" var="ppsUrl" />
-				<spring:url value="${stats.elapsedReservationsUrl}"
-					var="elapsedReservationsUrl" />
-				<spring:url value="${stats.activeReservationsUrl}"
-					var="activeReservationsUrl" />
-				<spring:url value="${stats.comingReservationsUrl}"
-					var="comingReservationsUrl" />
+                <spring:url value="${stats.ppsUrl}" var="ppsUrl" />
+                <spring:url value="${stats.elapsedReservationsUrl}"
+                    var="elapsedReservationsUrl" />
+                <spring:url value="${stats.activeReservationsUrl}"
+                    var="activeReservationsUrl" />
+                <spring:url value="${stats.comingReservationsUrl}"
+                    var="comingReservationsUrl" />
 
-				<table id="idStats" class="table table-bordered table-striped">
-					<thead>
-						<tr>
-							<th>Item</th>
-							<th>Total Amount for BoD</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>Allocated physical ports</td>
-							<td><a href="${ppsUrl}" rel="tooltip" title="Allocated physical ports"
-								data-type="info"> <c:out
-										value="${stats.physicalPortsAmount}" />
-							</a></td>
-						</tr>
-						<tr>
-							<td>Elapsed reservations</td>
-							<td><a href="${elapsedReservationsUrl}" rel="tooltip"
-								title="Elapsed Reservations" data-type="info"> <c:out
-										value="${stats.elapsedReservationsAmount}" />
-							</a></td>
-						</tr>
-						<tr>
-							<td>Active reservations</td>
-							<td><a href="${activeReservationsUrl}" rel="tooltip"
-								title="Active Reservations" data-type="info"> <c:out
-										value="${stats.activeReservationsAmount}" />
-							</a></td>
-						</tr>
-						<tr>
-							<td>Coming reservations</td>
-							<td><a href="${comingReservationsUrl}" rel="tooltip"
-								title="Coming Reservations" data-type="info"> <c:out
-										value="${stats.comingReservationsAmount}" />
-							</a></td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</section>
+                <table id="idStats" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Total Amount for BoD</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Allocated physical ports</td>
+                            <td><a href="${ppsUrl}" rel="tooltip" title="Allocated physical ports"
+                                data-type="info"> <c:out
+                                        value="${stats.physicalPortsAmount}" />
+                            </a></td>
+                        </tr>
+                        <tr>
+                            <td>Elapsed reservations</td>
+                            <td><a href="${elapsedReservationsUrl}" rel="tooltip"
+                                title="Elapsed Reservations" data-type="info"> <c:out
+                                        value="${stats.elapsedReservationsAmount}" />
+                            </a></td>
+                        </tr>
+                        <tr>
+                            <td>Active reservations</td>
+                            <td><a href="${activeReservationsUrl}" rel="tooltip"
+                                title="Active Reservations" data-type="info"> <c:out
+                                        value="${stats.activeReservationsAmount}" />
+                            </a></td>
+                        </tr>
+                        <tr>
+                            <td>Coming reservations</td>
+                            <td><a href="${comingReservationsUrl}" rel="tooltip"
+                                title="Coming Reservations" data-type="info"> <c:out
+                                        value="${stats.comingReservationsAmount}" />
+                            </a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
         </div>
         <div class="span4">
             <section>
