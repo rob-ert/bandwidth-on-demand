@@ -26,7 +26,6 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import nl.surfnet.bod.web.view.ReservationFilterView;
@@ -61,7 +60,7 @@ public class ReservationFilterViewFactoryTest {
     ReservationFilterView filter2011 = subject.create("2011");
     ReservationFilterView filter2012 = subject.create("2012");
 
-    ArrayList<Double> list = Lists.newArrayList(new Double("2011"), new Double("2012"));
+    List<Integer> list = Lists.newArrayList(Integer.valueOf("2011"), Integer.valueOf("2012"));
 
     List<ReservationFilterView> filterViews = subject.create(list);
     assertThat(filterViews, hasSize(2));

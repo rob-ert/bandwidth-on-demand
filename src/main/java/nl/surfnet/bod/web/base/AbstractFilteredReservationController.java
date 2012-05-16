@@ -140,7 +140,7 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
 
     filterViews.add(reservationFilterViewFactory.create(ReservationFilterViewFactory.ACTIVE));
 
-    List<Double> uniqueReservationYears = reservationService.findUniqueYearsFromReservations();
+    List<Integer> uniqueReservationYears = reservationService.findUniqueYearsFromReservations();
 
     filterViews.addAll(reservationFilterViewFactory.create(uniqueReservationYears));
 

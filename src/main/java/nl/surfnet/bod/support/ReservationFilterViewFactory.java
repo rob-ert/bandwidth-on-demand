@@ -69,12 +69,12 @@ public class ReservationFilterViewFactory {
     }
   }
 
-  public List<ReservationFilterView> create(List<Double> reservationYears) {
+  public List<ReservationFilterView> create(List<Integer> reservationYears) {
     List<ReservationFilterView> filterViews = Lists.newArrayList();
 
     // Years with reservations
-    for (Double year : reservationYears) {
-      filterViews.add(create(String.valueOf((year.intValue()))));
+    for (Integer year : reservationYears) {
+      filterViews.add(create(year.toString()));
     }
 
     return filterViews;

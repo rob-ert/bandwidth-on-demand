@@ -34,7 +34,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -61,7 +63,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 
 @Service
 @Transactional
@@ -91,6 +97,9 @@ public class ReservationService {
 
   @Autowired
   private EntityManagerFactory entityManagerFactory;
+
+  @PersistenceContext
+  private EntityManager entityManager;
 
   private ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -342,19 +351,24 @@ public class ReservationService {
     return reservationRepo.count(spec);
   }
 
-  public List<Double> findUniqueYearsFromReservations() {
-
-    // FIXME Franky add userDetails to query
-    final String queryString = "select distinct extract(year from start_date_time) startYear "
-        + "from reservation UNION select distinct extract(year from end_date_time) from reservation";
-
+  public List<Integer> findUniqueYearsFromReservations() {
+    // FIXME Franky add UserDetails to query
     @SuppressWarnings("unchecked")
-    List<Double> resultList = entityManagerFactory.createEntityManager().createNativeQuery(queryString).getResultList();
-    resultList.remove(null);
+    List<Double> dbYears = entityManager.createNativeQuery(
+        "select distinct extract(year from start_date_time) startYear "
+            + "from reservation UNION select distinct extract(year from end_date_time) from reservation")
+        .getResultList();
 
-    Collections.sort(resultList);
+    ImmutableList<Integer> years = FluentIterable.from(dbYears)
+      .filter(Predicates.notNull())
+      .transform(new Function<Double, Integer>() {
+          @Override
+          public Integer apply(Double d) {
+            return d.intValue();
+          }
+      }).toImmutableList();
 
-    return resultList;
+    return Ordering.natural().sortedCopy(years);
   }
 
   @VisibleForTesting
@@ -383,7 +397,7 @@ public class ReservationService {
     @Override
     public void run() {
       Reservation reservationWithReservationId = nbiClient.createReservation(reservation);
-      // use a different entityManager to prevent stale object exception..
+      // use a different entityManager to prevent stale object exceptions..
       entityManagerFactory.createEntityManager().merge(reservationWithReservationId);
       publishStatusChanged(reservationWithReservationId);
     }
