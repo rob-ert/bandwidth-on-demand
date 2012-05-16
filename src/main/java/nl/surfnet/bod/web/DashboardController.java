@@ -42,10 +42,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
+import com.google.common.collect.*;
 
 @RequestMapping("/user")
 @Controller
@@ -118,17 +115,18 @@ public class DashboardController {
       }
     });
 
-    Collection<TeamView> newTeams = Collections2.transform(Collections2.filter(userGroups, new Predicate<UserGroup>() {
-      @Override
-      public boolean apply(UserGroup group) {
-        return !existingIds.contains(group.getId());
-      }
-    }), new Function<UserGroup, TeamView>() {
-      @Override
-      public TeamView apply(UserGroup group) {
-        return new TeamView(group);
-      }
-    });
+    Collection<TeamView> newTeams = FluentIterable.from(userGroups)
+      .filter(new Predicate<UserGroup>() {
+        @Override
+        public boolean apply(UserGroup group) {
+          return !existingIds.contains(group.getId());
+        }
+      }).transform(new Function<UserGroup, TeamView>() {
+        @Override
+        public TeamView apply(UserGroup group) {
+          return new TeamView(group);
+        }
+      }).toImmutableList();
 
     return Ordering.natural().sortedCopy(Iterables.concat(existingTeams, newTeams));
   }
