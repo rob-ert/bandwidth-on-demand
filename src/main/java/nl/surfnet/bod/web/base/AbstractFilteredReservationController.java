@@ -22,11 +22,11 @@ import com.google.common.collect.Lists;
 
 /**
  * Base controller for filtering and sorting {@link Reservation}s.
- * 
+ *
  * @see AbstractSortableListController
- * 
+ *
  * @author Franky
- * 
+ *
  */
 public abstract class AbstractFilteredReservationController extends AbstractSortableListController<ReservationView> {
   public static final String FILTER_URL = "filter/";
@@ -78,7 +78,7 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
    * Retrieves a list and filters by applying the filter specified by the
    * filterId. After the user selects a filter a new Http get with the selected
    * filterId can be performed.
-   * 
+   *
    * @param page
    *          StartPage
    * @param sort
@@ -102,7 +102,7 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
     ReservationFilterView reservationFilter = reservationFilterViewFactory.create(filterId);
     model.addAttribute(FILTER_SELECT, reservationFilter);
 
-    Sort sortOptions = super.prepareSortOptions(sort, order, model);
+    Sort sortOptions = prepareSortOptions(sort, order, model);
     List<ReservationView> reservationViews = list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model);
 
     model.addAttribute(WebUtils.DATA_LIST, reservationViews);

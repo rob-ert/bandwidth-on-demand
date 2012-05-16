@@ -54,6 +54,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
+import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
@@ -75,7 +76,8 @@ public class BodWebDriver {
   private static final InputStream PROP_DEFAULT = BodWebDriver.class.getResourceAsStream("/bod-default.properties");
   private static final InputStream PROP_SELENIUM = BodWebDriver.class.getResourceAsStream("/bod-selenium.properties");
 
-  private static final String CLEAR_DATABASE_QUERY = "truncate physical_resource_group, virtual_resource_group, reservation_flattened CASCADE;";
+  private static final String CLEAR_DATABASE_QUERY =
+      "truncate physical_resource_group, virtual_resource_group, reservation_flattened CASCADE;";
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -93,7 +95,6 @@ public class BodWebDriver {
   }
 
   public synchronized void initializeOnce() {
-
     clearDatabase();
 
     if (driver == null) {
@@ -129,7 +130,6 @@ public class BodWebDriver {
   }
 
   private void clearDatabase() {
-
     Connection connection = createDbConnection(getProperty(DB_URL), getProperty(DB_USER), getProperty(DB_PASS),
         getProperty(DB_DRIVER_CLASS));
 

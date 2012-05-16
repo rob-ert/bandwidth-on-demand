@@ -26,7 +26,6 @@ import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,7 +47,6 @@ import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
-import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -69,11 +67,19 @@ import com.google.common.collect.Collections2;
 @Transactional
 public class ReservationService {
 
+  private static final Function<Reservation, ReservationFlattened> TO_FLATTENED_RESERVATION =
+      new Function<Reservation, ReservationFlattened>() {
+        @Override
+        public ReservationFlattened apply(Reservation reservation) {
+          return new ReservationFlattened(reservation);
+        }
+      };
+
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   @Autowired
   private ReservationRepo reservationRepo;
-  
+
   @Autowired
   private ReservationFlattenedRepo reservationFlattenedRepo;
 
@@ -88,16 +94,9 @@ public class ReservationService {
 
   private ExecutorService executorService = Executors.newCachedThreadPool();
 
-  private static final Function<Reservation, ReservationFlattened> TO_FLATTENED_RESERVATION = new Function<Reservation, ReservationFlattened>() {
-    @Override
-    public ReservationFlattened apply(Reservation reservation) {
-      return new ReservationFlattened(reservation);
-    }
-  };
-
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   * 
+   *
    * @param reservation
    * @return
    */
@@ -110,6 +109,7 @@ public class ReservationService {
       reservation.setStartDateTime(reservation.getStartDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
     }
     reservation.setEndDateTime(reservation.getEndDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
+
     return executorService.submit(new ReservationSubmitter(reservationRepo.save(reservation)));
   }
 
@@ -152,7 +152,7 @@ public class ReservationService {
    * Cancels a reservation if the current user has the correct role and the
    * reservation is allowed to be deleted depending on its state. Updates the
    * state of the reservation.
-   * 
+   *
    * @param reservation
    *          {@link Reservation} to delete
    * @return true if the reservation was canceld, false otherwise.
@@ -177,7 +177,7 @@ public class ReservationService {
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   * 
+   *
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -362,14 +362,14 @@ public class ReservationService {
     return Collections2.transform(reservations,
         TO_FLATTENED_RESERVATION);
   }
-  
+
   public void saveFlattenedReservations(final List<Reservation> reservations) {
     reservationFlattenedRepo.save(transformToFlattenedReservations(reservations));
   }
 
   /**
    * Asynchronous {@link Reservation} creator.
-   * 
+   *
    */
   private final class ReservationSubmitter implements Runnable {
     private final Reservation reservation;
