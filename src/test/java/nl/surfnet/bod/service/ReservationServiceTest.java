@@ -309,7 +309,6 @@ public class ReservationServiceTest {
       {
         for (int i = 0; i < 10; i++) {
           final Reservation reservation = new ReservationFactory().create();
-          reservation.setSourcePort(new VirtualPortFactory().create());
           add(reservation);
         }
       }

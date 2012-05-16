@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
@@ -151,13 +152,19 @@ public class ReservationTest {
 
   @Test(expected = IllegalStateException.class)
   public void sourcePortVirtualResourceGroupDiffersFromDestinationPortVirtualResourceGroup() {
-    VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:different").create();
+    VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().setSurfconextGroupId("urn:different")
+        .create();
+    VirtualPort port = new VirtualPortFactory().setVirtualResourceGroup(virtualResourceGroup).create();
+
     new ReservationFactory().setSourcePort(port).create();
   }
 
   @Test(expected = IllegalStateException.class)
   public void destinationPortVirtualResourceGroupDiffersFromSourcePortVirtualResourceGroup() {
-    VirtualPort port = new VirtualPortFactory().setPhysicalPortAdminGroup("urn:different").create();
+    VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().setSurfconextGroupId("urn:different")
+        .create();
+    VirtualPort port = new VirtualPortFactory().setVirtualResourceGroup(virtualResourceGroup).create();
+
     new ReservationFactory().setDestinationPort(port).create();
   }
 

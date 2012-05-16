@@ -33,11 +33,13 @@ import com.google.common.collect.Lists;
 
 public class VirtualResourceGroupFactory {
 
+  public static final String SURFCONEXT_GROUP_ID = "urn:bandwidth-on-demand";
+  
   private static final AtomicLong COUNTER = new AtomicLong();
 
-  private Long id = COUNTER.getAndIncrement();
+  private Long id = COUNTER.incrementAndGet();
   private Integer version;
-  private String surfconextGroupId = "urn:bandwidth-on-demand" + id;
+  private String surfconextGroupId = SURFCONEXT_GROUP_ID + id;
   private String name = "VRG " + id;
   private String description = "Some virtual resource group";
 

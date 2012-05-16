@@ -99,9 +99,12 @@ public class ReservationControllerTest {
 
   @Test
   public void newReservationShouldHaveDefaults() {
-    VirtualPort sourcePort = new VirtualPortFactory().setMaxBandwidth(8000).create();
-    VirtualPort destPort = new VirtualPortFactory().setMaxBandwidth(4000).create();
-    VirtualResourceGroup group = new VirtualResourceGroupFactory().addVirtualPorts(sourcePort, destPort).create();
+    VirtualResourceGroup group = new VirtualResourceGroupFactory().create();
+    VirtualPort sourcePort = new VirtualPortFactory().setMaxBandwidth(8000).setVirtualResourceGroup(group).create();
+    VirtualPort destPort = new VirtualPortFactory().setMaxBandwidth(4000).setVirtualResourceGroup(group).create();
+
+    // Make sure source and destination have some
+    group.setVirtualPorts(Lists.newArrayList(sourcePort, destPort));
 
     when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(Lists.newArrayList(group));
 
@@ -132,9 +135,12 @@ public class ReservationControllerTest {
 
   @Test
   public void reservationShouldHaveDefaultDuration() {
-    VirtualResourceGroup group = new VirtualResourceGroupFactory().addVirtualPorts(new VirtualPortFactory().create(),
-        new VirtualPortFactory().create()).create();
+    VirtualResourceGroup group = new VirtualResourceGroupFactory().create();
+    VirtualPort sourcePort = new VirtualPortFactory().setVirtualResourceGroup(group).create();
+    VirtualPort destPort = new VirtualPortFactory().setVirtualResourceGroup(group).create();
 
+    // Make sure source and destination have some
+    group.setVirtualPorts(Lists.newArrayList(sourcePort, destPort));
     when(virtualResourceGroupServiceMock.findAllForUser(user)).thenReturn(Lists.newArrayList(group));
 
     subject.createForm(null, model);

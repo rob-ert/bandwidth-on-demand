@@ -32,8 +32,6 @@ import nl.surfnet.bod.web.user.ReservationController;
 import org.joda.time.LocalDateTime;
 import org.joda.time.ReadablePeriod;
 
-import com.google.common.base.Strings;
-
 public class ReservationFactory {
 
   private static final AtomicLong COUNTER = new AtomicLong();
@@ -50,13 +48,13 @@ public class ReservationFactory {
   private Integer bandwidth = 10000;
   private String reservationId = "9" + String.valueOf(id);
   private String failedMessage;
-  private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().setSurfconextGroupId(SURF_CONEXT_GROUP_ID).create();
+  private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
 
-  public final static String SURF_CONEXT_GROUP_ID = "urn:the:same";
-  
   public Reservation create() {
+
     sourcePort = sourcePort == null ? new VirtualPortFactory().setVirtualResourceGroup(virtualResourceGroup).create()
         : sourcePort;
+    
     destinationPort = destinationPort == null ? new VirtualPortFactory().setVirtualResourceGroup(virtualResourceGroup)
         .create() : destinationPort;
 

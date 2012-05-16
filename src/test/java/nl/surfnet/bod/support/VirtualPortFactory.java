@@ -31,9 +31,9 @@ import org.springframework.util.StringUtils;
 
 /**
  * Factory for creation of {@link VirtualPort}
- *
+ * 
  * @author Franky
- *
+ * 
  */
 public class VirtualPortFactory {
 
@@ -43,12 +43,11 @@ public class VirtualPortFactory {
   private Integer version;
   private String managerLabel = "A virtual port " + id;
   private String userLabel = "A user virtual port " + id;;
-  private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
   private PhysicalPort physicalPort = new PhysicalPortFactory().create();
   private String physicalPortAdminGroup = "urn:test:group";
   private Integer maxBandwidth = 10000;
   private Integer vlanId = null;
-
+  private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
 
   public VirtualPort create() {
     VirtualPort virtualPort = new VirtualPort();
@@ -59,7 +58,6 @@ public class VirtualPortFactory {
     virtualPort.setUserLabel(userLabel);
     virtualPort.setMaxBandwidth(maxBandwidth);
     virtualPort.setVlanId(vlanId);
-
     virtualPort.setVirtualResourceGroup(virtualResourceGroup);
 
     virtualPort.setPhysicalPort(physicalPort);

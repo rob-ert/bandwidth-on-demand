@@ -113,6 +113,9 @@ public class ReservationServiceDbTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
         .setStatus(status).create();
 
+    //Force save of vrg only once, since they all use the same reference
+    reservation.getVirtualResourceGroup().setId(null);
+
     persistReservation(reservation);
 
     return reservation;
@@ -126,7 +129,6 @@ public class ReservationServiceDbTest {
     reservation.getSourcePort().getPhysicalPort().setId(null);
     physicalPortRepo.save(reservation.getSourcePort().getPhysicalPort());
 
-    reservation.getSourcePort().getVirtualResourceGroup().setId(null);
     virtualResourceGroupRepo.save(reservation.getSourcePort().getVirtualResourceGroup());
 
     reservation.getSourcePort().setId(null);
@@ -138,6 +140,8 @@ public class ReservationServiceDbTest {
 
     reservation.getDestinationPort().getPhysicalPort().setId(null);
     physicalPortRepo.save(reservation.getDestinationPort().getPhysicalPort());
+
+    virtualResourceGroupRepo.save(reservation.getDestinationPort().getVirtualResourceGroup());
 
     reservation.getDestinationPort().setId(null);
     virtualPortRepo.save(reservation.getDestinationPort());
