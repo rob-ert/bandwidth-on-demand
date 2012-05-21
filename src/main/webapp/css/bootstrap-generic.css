@@ -31,6 +31,13 @@
     font-size: 13px;
     color: inherit;
 }
+.disabled-icon {
+  display: inline-block;
+}
+.disabled-icon [class^="icon-"]:before,
+.disabled-icon [class*=" icon-"]:before {
+    color: gray;
+}
 
 a:hover [class^="icon-"]:before,
 a:hover [class*=" icon-"]:before {

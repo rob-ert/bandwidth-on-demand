@@ -46,7 +46,8 @@
     text-align: center;
 }
 
-.table a[rel="tooltip"] {
+.table a[rel="tooltip"],
+.table .disabled-icon {
     margin: 0 5px;
 }
 
