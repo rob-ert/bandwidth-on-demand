@@ -12,13 +12,17 @@
     <jsp:directive.attribute name="labelCode" type="java.lang.String" required="true" rtexprvalue="true" />
     <jsp:directive.attribute name="updateLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
-    <jsp:directive.attribute name="successMessageCode" type="java.lang.String" required="false" rtexprvalue="true" />    
+    <jsp:directive.attribute name="successMessageCode" type="java.lang.String" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="deleteEnabled" type="java.lang.Boolean" required="false" rtexprvalue="true" />
 
     <c:if test="${empty idFieldName}">
         <c:set var="idFieldName" value="id" />
     </c:if>
     <c:if test="${empty deleteIcon}">
         <c:set var="deleteIcon" value="icon-remove" />
+    </c:if>
+    <c:if test="${empty deleteEnabled}">
+      <c:set var="deleteEnabled" value="true"/>
     </c:if>
     <c:if test="${empty updateIcon}">
         <c:set var="updateIcon" value="icon-pencil" />
@@ -29,7 +33,7 @@
     <c:if test="${empty deleteLabelCode}">
         <c:set var="deleteLabelCode" value="entity_delete" />
     </c:if>
-    
+
     <spring:message code="${labelCode}" var="label" />
 
     <td class="center">
@@ -40,23 +44,29 @@
             </spring:url>
             <a href="${editUrl}" rel="tooltip" data-type="info" title="${edit_title}"><i class="${updateIcon}"><!--  --></i></a>
         </c:if>
+
         <c:if test="${empty delete or delete}">
             <spring:message code="${deleteLabelCode}" arguments="${label}" var="delete_title" />
-            <spring:url value="${path}/delete" var="deleteUrl">
+            <spring:url value="${path}/delete" var="deleteUrl" >
                 <spring:param name="_method" value="DELETE" />
                 <spring:param name="id" value="${item[idFieldName]}" />
             </spring:url>
-            
+
+            <spring:message code="${successMessageCode}" arguments="${item['name']}"  var="successMessage" />
             <c:choose>
-            		<c:when test="${not empty successMessageCode}">
-            			<spring:message code="${successMessageCode}" arguments="${item['name']}"  var="successMessage" />
-	            		<a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true" data-confirm="Are you sure?" data-success="${successMessage}"><i class="${deleteIcon}"><!--  --></i></a>
-	            </c:when>
-	            <c:otherwise>
-	            		<a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true" data-confirm="Are you sure?"><i class="${deleteIcon}"><!--  --></i></a>
-	            </c:otherwise>
+                <c:when test="${not empty successMessageCode and deleteEnabled}">
+                    <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true" data-confirm="Are you sure?" data-success="${successMessage}"><i class="${deleteIcon}"><!--  --></i></a>
+                </c:when>
+                <c:when test="${empty successMessageCode and deleteEnabled}">
+                  <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true" data-confirm="Are you sure?"><i class="${deleteIcon}"><!--  --></i></a>
+                </c:when>
+                <c:when test="${not deleteEnabled}">
+                  <span rel="tooltip" data-type="info" title="${delete_title}" class="disabled-icon">
+                    <i class="${deleteIcon}"><!--  --></i>
+                  </span>
+               </c:when>
             </c:choose>
         </c:if>
         <jsp:doBody />
-    </td>    
+    </td>
 </jsp:root>

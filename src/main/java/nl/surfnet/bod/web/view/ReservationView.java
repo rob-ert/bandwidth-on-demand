@@ -45,9 +45,9 @@ public class ReservationView {
   private final String userCreated;
   private final String reservationId;
   private final LocalDateTime creationDateTime;
-  private final boolean deleteAllowedForSelectedRole;
+  private final ElementActionView deleteActionView;
 
-  public ReservationView(final Reservation reservation, final boolean deleteAllowedForSelectedRole) {
+  public ReservationView(final Reservation reservation, final ElementActionView deleteActionView) {
     this.id = reservation.getId();
     this.virtualResourceGroup = reservation.getVirtualResourceGroup().getName();
     this.sourcePort = reservation.getSourcePort().getUserLabel();
@@ -61,7 +61,7 @@ public class ReservationView {
     this.reservationId = reservation.getReservationId();
     this.creationDateTime = reservation.getCreationDateTime();
     this.name = reservation.getName();
-    this.deleteAllowedForSelectedRole = deleteAllowedForSelectedRole;
+    this.deleteActionView = deleteActionView;
   }
 
   public String getVirtualResourceGroup() {
@@ -117,7 +117,11 @@ public class ReservationView {
   }
 
   public boolean isDeleteAllowedForSelectedRole() {
-    return deleteAllowedForSelectedRole;
+    return deleteActionView.isAllowed();
+  }
+
+  public String getDeleteReasonKey() {
+    return deleteActionView.getReasonKey();
   }
 
   @Override

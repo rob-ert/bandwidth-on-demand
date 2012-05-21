@@ -57,6 +57,7 @@ import nl.surfnet.bod.repo.ReservationFlattenedRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 
 import org.joda.time.LocalDateTime;
@@ -82,13 +83,13 @@ import com.google.common.collect.Ordering;
 @Transactional
 public class ReservationService {
 
-  private static final Function<Reservation, ReservationFlattened> TO_FLATTENED_RESERVATION =
-      new Function<Reservation, ReservationFlattened>() {
-        @Override
-        public ReservationFlattened apply(Reservation reservation) {
-          return new ReservationFlattened(reservation);
-        }
-      };
+  private static final Function<Reservation, ReservationFlattened> TO_FLATTENED_RESERVATION = //
+  new Function<Reservation, ReservationFlattened>() {
+    @Override
+    public ReservationFlattened apply(Reservation reservation) {
+      return new ReservationFlattened(reservation);
+    }
+  };
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -114,7 +115,7 @@ public class ReservationService {
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   *
+   * 
    * @param reservation
    * @return
    */
@@ -170,14 +171,14 @@ public class ReservationService {
    * Cancels a reservation if the current user has the correct role and the
    * reservation is allowed to be deleted depending on its state. Updates the
    * state of the reservation.
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to delete
    * @return true if the reservation was canceld, false otherwise.
    */
   public boolean cancel(Reservation reservation, RichUserDetails user) {
 
-    if (isDeleteAllowedForUser(reservation, user)) {
+    if (isDeleteAllowedForUser(reservation, user).isAllowed()) {
       nbiClient.cancelReservation(reservation.getReservationId());
       reservation.setStatus(CANCELLED);
       reservationRepo.save(reservation);
@@ -206,25 +207,23 @@ public class ReservationService {
    *          {@link RichUserDetails} to check
    * @return true if the reservation is allowed to be delete, false otherwise
    */
-  public boolean isDeleteAllowedForUser(Reservation reservation, RichUserDetails user) {
-    boolean isAllowed = false;
-
+  public ElementActionView isDeleteAllowedForUser(Reservation reservation, RichUserDetails user) {
     if (!reservation.getStatus().isDeleteAllowed()) {
       // No need to continue
-      return isAllowed;
+      return new ElementActionView(false, "reservation_state_transition_not_allowed");
     }
 
     if (user.isSelectedManagerRole()
         && ((Security.isManagerMemberOf(reservation.getSourcePort().getPhysicalResourceGroup())//
         || (Security.isManagerMemberOf(reservation.getDestinationPort().getPhysicalResourceGroup()))))) {
-      isAllowed = true;
+      return new ElementActionView(true);
     }
     else if ((user.isSelectedUserRole())//
         && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
-      isAllowed = true;
+      return new ElementActionView(true);
     }
 
-    return isAllowed;
+    return new ElementActionView(false, "delete_user_has_no_rights");
   }
 
   public ReservationStatus getStatus(Reservation reservation) {
@@ -234,7 +233,7 @@ public class ReservationService {
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   *
+   * 
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -406,14 +405,13 @@ public class ReservationService {
             + "from reservation UNION select distinct extract(year from end_date_time) from reservation")
         .getResultList();
 
-    ImmutableList<Integer> years = FluentIterable.from(dbYears)
-      .filter(Predicates.notNull())
-      .transform(new Function<Double, Integer>() {
+    ImmutableList<Integer> years = FluentIterable.from(dbYears).filter(Predicates.notNull())
+        .transform(new Function<Double, Integer>() {
           @Override
           public Integer apply(Double d) {
             return d.intValue();
           }
-      }).toImmutableList();
+        }).toImmutableList();
 
     return Ordering.natural().sortedCopy(years);
   }
@@ -429,7 +427,7 @@ public class ReservationService {
 
   /**
    * Asynchronous {@link Reservation} creator.
-   *
+   * 
    */
   private final class ReservationSubmitter implements Runnable {
     private final Reservation reservation;

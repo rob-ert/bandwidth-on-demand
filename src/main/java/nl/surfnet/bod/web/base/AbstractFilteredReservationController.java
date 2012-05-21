@@ -137,8 +137,8 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
       RichUserDetails user) {
     List<ReservationView> reservationViews = Lists.newArrayList();
 
-    ReservationView reservationView = null;
-    for (Reservation reservation : reservationsToTransform) {
+    ReservationView reservationView = null;    
+    for (Reservation reservation : reservationsToTransform) {      
       reservationView = new ReservationView(reservation, reservationService.isDeleteAllowedForUser(reservation, user));
       reservationViews.add(reservationView);
     }

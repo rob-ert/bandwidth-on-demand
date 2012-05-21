@@ -22,13 +22,17 @@
 package nl.surfnet.bod.web;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.isNull;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationView;
 
 import org.junit.Test;
@@ -45,10 +49,32 @@ public class ReservationViewTest {
         .setUserLabel("My dest label").create();
     Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort).create();
 
-    ReservationView view = new ReservationView(reservation, false);
+    ReservationView view = new ReservationView(reservation, new ElementActionView(false));
 
     assertThat(view.getSourcePort(), is("My source label"));
     assertThat(view.getDestinationPort(), is("My dest label"));
+  }
+
+  @Test
+  public void shouldShowDisallowedActionAndReason() {
+    Reservation reservation = new ReservationFactory().create();
+    ElementActionView disallowedAction = new ElementActionView(false, "too_hot_outside");
+
+    ReservationView reservationView = new ReservationView(reservation, disallowedAction);
+
+    assertThat(reservationView.isDeleteAllowedForSelectedRole(), is(false));
+    assertThat(reservationView.getDeleteReasonKey(), is("too_hot_outside"));
+  }
+
+  @Test
+  public void shouldShowAllowedActionNoReason() {
+    Reservation reservation = new ReservationFactory().create();
+    ElementActionView disallowedAction = new ElementActionView(true);
+
+    ReservationView reservationView = new ReservationView(reservation, disallowedAction);
+
+    assertThat(reservationView.isDeleteAllowedForSelectedRole(), is(true));
+    assertThat(reservationView.getDeleteReasonKey(), nullValue());
   }
 
 }
