@@ -42,10 +42,17 @@ import java.util.regex.Pattern;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.pages.user.ListReservationPage;
+
+import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -54,7 +61,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
-import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
@@ -76,8 +82,7 @@ public class BodWebDriver {
   private static final InputStream PROP_DEFAULT = BodWebDriver.class.getResourceAsStream("/bod-default.properties");
   private static final InputStream PROP_SELENIUM = BodWebDriver.class.getResourceAsStream("/bod-selenium.properties");
 
-  private static final String CLEAR_DATABASE_QUERY =
-      "truncate physical_resource_group, virtual_resource_group, reservation_flattened CASCADE;";
+  private static final String CLEAR_DATABASE_QUERY = "truncate physical_resource_group, virtual_resource_group, reservation_flattened CASCADE;";
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -303,6 +308,49 @@ public class BodWebDriver {
     WebElement modal = driver.findElement(By.className("modal-body"));
 
     assertThat(modal.getText(), containsString(text));
+  }
+
+  public void verifyReservationWasCreated(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
+      LocalTime endTime) {
+
+    verifyReservationIsCancellable(label, startDate, endDate, startTime, endTime);
+  }
+
+  public void verifyReservationIsCancellable(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
+      LocalTime endTime) {
+    WebElement row = findReservationRow(label, startDate, endDate, startTime, endTime);
+
+    try {
+      row.findElement(By.cssSelector("span [class~=disabled-icon]"));
+      assertThat("Reservation should not contain disabled Icon", false);
+    }
+    catch (NoSuchElementException e) {
+      // Expected
+    }
+  }
+
+  public void verifyReservationIsNotCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,
+      LocalTime startTime, LocalTime endTime) {
+
+    WebElement row = findReservationRow(reservationLabel, startDate, endDate, startTime, endTime);
+    row.findElement(By.cssSelector("span [class~=disabled-icon]"));
+  }
+
+  private WebElement findReservationRow(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
+      LocalTime endTime) {
+    ListReservationPage page = ListReservationPage.get(driver);
+
+    String start = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
+    String end = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
+
+    WebElement row = page.findRow(label, start, end);
+
+    assertThat(
+        row.getText(),
+        CombinableMatcher.<String> either(containsString(ReservationStatus.REQUESTED.name())).or(
+            containsString(ReservationStatus.SCHEDULED.name())));
+
+    return row;
   }
 
 }

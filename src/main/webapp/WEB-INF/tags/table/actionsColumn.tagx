@@ -52,9 +52,9 @@
                 <spring:param name="id" value="${item[idFieldName]}" />
             </spring:url>
 
-            <spring:message code="${successMessageCode}" arguments="${item['name']}"  var="successMessage" />
-            <c:choose>
+            <c:choose>                
                 <c:when test="${not empty successMessageCode and deleteEnabled}">
+                    <spring:message code="${successMessageCode}" arguments="${item['name']}"  var="successMessage" />
                     <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true" data-confirm="Are you sure?" data-success="${successMessage}"><i class="${deleteIcon}"><!--  --></i></a>
                 </c:when>
                 <c:when test="${empty successMessageCode and deleteEnabled}">

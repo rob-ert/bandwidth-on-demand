@@ -65,7 +65,7 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getManagerDriver().switchToUser();
     getUserDriver().createNewReservation(reservationLabel, startDate, endDate, startTime, endTime);
 
-    getUserDriver().verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
+    getWebDriver().verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
 
     getUserDriver().switchToManager(INSTITUTE_NAME);
     getManagerDriver().verifyReservationExists(startDate, endDate, startTime, endTime, creationDateTime);
@@ -83,6 +83,35 @@ public class ReservationTestSelenium extends TestExternalSupport {
 
     getUserDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);
   }
+  
+  @Test
+  public void cancelReservation() {
+    final LocalDate startDate = LocalDate.now().plusDays(3);
+    final LocalDate endDate = LocalDate.now().plusDays(5);
+    final LocalTime startTime = LocalTime.now().plusHours(1);
+    final LocalTime endTime = LocalTime.now();
+    final String reservationLabel = "Selenium Reservation";
+
+    //User, create reservation
+    getManagerDriver().switchToUser();
+    getUserDriver().createNewReservation(reservationLabel, startDate, endDate, startTime, endTime);
+    getWebDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
+
+    //Manager should also be able to cancel the reservation
+    getUserDriver().switchToManager(INSTITUTE_NAME);
+    getWebDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
+
+     //Noc should NOT be able to cancel the reservation
+    getManagerDriver().switchToNoc();
+    getWebDriver().verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime);
+
+    getManagerDriver().switchToUser();
+
+    getUserDriver().cancelReservation(startDate, endDate, startTime, endTime);
+    getUserDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);
+  }
+  
+  
 
   @After
   public void teardown() {

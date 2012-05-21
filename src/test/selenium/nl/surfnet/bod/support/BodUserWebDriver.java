@@ -31,6 +31,7 @@ import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.Assert;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -47,22 +48,7 @@ public class BodUserWebDriver {
 
     page.selectInstitute(team);
   }
-
-  public void verifyReservationWasCreated(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
-      LocalTime endTime) {
-    ListReservationPage page = ListReservationPage.get(driver);
-
-    String start = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
-    String end = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
-
-    WebElement row = page.findRow(label, start, end);
-
-    assertThat(
-        row.getText(),
-        CombinableMatcher.<String> either(containsString(ReservationStatus.REQUESTED.name())).or(
-            containsString(ReservationStatus.SCHEDULED.name())));
-  }
-
+  
   public void verifyReservationStartDateHasError(String string) {
     NewReservationPage page = NewReservationPage.get(driver);
     String error = page.getStartDateError();
@@ -99,12 +85,14 @@ public class BodUserWebDriver {
     try {
       page.selectInstitute(instituteName);
       Assert.fail("Found a link for institute " + instituteName);
-    } catch (org.openqa.selenium.NoSuchElementException e) {
+    }
+    catch (org.openqa.selenium.NoSuchElementException e) {
       // expected
     }
   }
 
-  public void createNewReservation(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+  public void createNewReservation(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
+      LocalTime endTime) {
     NewReservationPage page = NewReservationPage.get(driver, URL_UNDER_TEST);
 
     page.sendLabel(label);
@@ -144,5 +132,7 @@ public class BodUserWebDriver {
 
     page.clickSwitchRole(role);
   }
+
+  
 
 }

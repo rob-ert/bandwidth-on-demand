@@ -155,6 +155,7 @@ public class BodManagerWebDriver {
 
     page.findRow(start, end);
   }
+  
 
   public void verifyStatistics() {
     ManagerOverviewPage page = ManagerOverviewPage.get(driver, URL_UNDER_TEST);
