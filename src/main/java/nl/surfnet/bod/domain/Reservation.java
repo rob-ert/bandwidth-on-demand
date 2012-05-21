@@ -133,6 +133,16 @@ public class Reservation {
     return sourcePort;
   }
 
+  /**
+   * Sets the {@link #sourcePort} and the {@link #virtualResourceGroup} related
+   * to this port.
+   * 
+   * @param sourcePort
+   *          The source port to set
+   * @throws IllegalStateException
+   *           When the {@link #virtualResourceGroup} is already set and is not
+   *           equal to the one reference by the given port
+   */
   public void setSourcePort(VirtualPort sourcePort) {
     this.sourcePort = sourcePort;
 
@@ -140,13 +150,25 @@ public class Reservation {
       throw new IllegalStateException(
           "Reservation contains a sourcePort and destinationPort from a different VirtualResourceGroup");
     }
-    this.virtualResourceGroup = sourcePort.getVirtualResourceGroup();
+    else {
+      this.virtualResourceGroup = sourcePort.getVirtualResourceGroup();
+    }
   }
 
   public VirtualPort getDestinationPort() {
     return destinationPort;
   }
 
+  /**
+   * Sets the {@link #destinationPort} and the {@link #virtualResourceGroup}
+   * related to this port.
+   * 
+   * @param destinationPort
+   *          The destinationPort port to set
+   * @throws IllegalStateException
+   *           When the {@link #virtualResourceGroup} is already set and is not
+   *           equal to the one reference by the given port
+   */
   public void setDestinationPort(VirtualPort destinationPort) {
     this.destinationPort = destinationPort;
 
@@ -154,7 +176,9 @@ public class Reservation {
       throw new IllegalStateException(
           "Reservation contains a sourcePort and destinationPort from a different VirtualResourceGroup");
     }
-    this.virtualResourceGroup = sourcePort.getVirtualResourceGroup();
+    else {
+      this.virtualResourceGroup = destinationPort.getVirtualResourceGroup();
+    }
   }
 
   /**
