@@ -28,6 +28,7 @@ import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -39,6 +40,9 @@ public class ReservationStatusChangeListener implements ReservationListener {
   @Autowired
   private EndPoints connections;
 
+  @Autowired
+  private MessageSource messageSource;
+
   @PostConstruct
   public void registerListener() {
     reservationEventPublisher.addListener(this);
@@ -46,8 +50,7 @@ public class ReservationStatusChangeListener implements ReservationListener {
 
   @Override
   public void onStatusChange(ReservationStatusChangeEvent reservationStatusChangeEvent) {
-    PushMessage event = PushMessages.createMessage(reservationStatusChangeEvent);
-
+    PushMessage event = PushMessages.createMessage(reservationStatusChangeEvent, messageSource);
     connections.broadcast(event);
   }
 

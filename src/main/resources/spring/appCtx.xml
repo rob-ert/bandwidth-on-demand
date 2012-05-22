@@ -23,10 +23,11 @@
 
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
-	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
+    xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
         http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.1.xsd
@@ -34,25 +35,29 @@
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd
         http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
 
-	<context:component-scan base-package="nl.surfnet.bod">
-		<context:exclude-filter expression="org.springframework.stereotype.Controller" type="annotation" />
-	</context:component-scan>
+    <context:component-scan base-package="nl.surfnet.bod">
+        <context:exclude-filter expression="org.springframework.stereotype.Controller" type="annotation" />
+    </context:component-scan>
 
-	<task:annotation-driven />
-	<tx:annotation-driven mode="aspectj" transaction-manager="transactionManager" />
+    <task:annotation-driven />
+    <tx:annotation-driven mode="aspectj" transaction-manager="transactionManager" />
 
-	<bean
-		class="org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer"
-		id="propertyConfigurer">
-		<constructor-arg>
-			<bean class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
-				<property name="config">
-					<bean class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
-						<property name="algorithm" value="PBEWithMD5AndTripleDES" />
-						<property name="passwordEnvName" value="BOD_ENCRYPTION_PASSWORD" />
-					</bean>
-				</property>
-			</bean>
+    <bean class="org.springframework.context.support.ReloadableResourceBundleMessageSource" id="messageSource"
+        p:basenames="WEB-INF/i18n/messages,WEB-INF/i18n/application" p:fallbackToSystemLocale="false"
+        p:useCodeAsDefaultMessage="true" />
+
+    <bean
+        class="org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer"
+        id="propertyConfigurer">
+        <constructor-arg>
+            <bean class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+                <property name="config">
+                    <bean class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+                        <property name="algorithm" value="PBEWithMD5AndTripleDES" />
+                        <property name="passwordEnvName" value="BOD_ENCRYPTION_PASSWORD" />
+                    </bean>
+                </property>
+            </bean>
         </constructor-arg>
         <property name="ignoreResourceNotFound" value="true"/>
         <property name="locations">
@@ -62,9 +67,9 @@
             </list>
         </property>
         <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
-	</bean>
+    </bean>
 
-	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
       <property name="defaultEncoding" value="UTF-8" />
       <property name="host" value="${mail.host}" />
       <property name="port" value="${mail.port}" />
@@ -74,8 +79,8 @@
             <prop key="mail.debug">${mail.debug}</prop>
          </props>
         </property>
-	</bean>
-	
-	<!-- Enable switching between mock and real implementation -->
-	<bean id="emailSender" class="${mail.sender.class}"/>
+    </bean>
+
+    <!-- Enable switching between mock and real implementation -->
+    <bean id="emailSender" class="${mail.sender.class}"/>
 </beans>

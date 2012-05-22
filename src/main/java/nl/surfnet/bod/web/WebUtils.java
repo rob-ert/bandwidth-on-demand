@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.web;
 
+import java.util.Arrays;
 import java.util.List;
 
 import nl.surfnet.bod.web.security.Security;
@@ -28,11 +29,10 @@ import nl.surfnet.bod.web.security.Security;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.util.HtmlUtils;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 
 public final class WebUtils {
@@ -93,11 +93,35 @@ public final class WebUtils {
 
   public static void addInfoMessage(RedirectAttributes model, MessageSource messageSource, String label,
       String... messageArgs) {
-    addInfoMessage(model, getMessage(messageSource, label, messageArgs));
+    addMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs));
   }
 
-  public static void addInfoMessage(RedirectAttributes model, String message, String... messageArgs) {
-    addMessage(model, formatAndEscapeMessage(message, messageArgs));
+  public static void addInfoMessage(String extraHtml, RedirectAttributes model, MessageSource messageSource, String label,
+      String... messageArgs) {
+    addMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs) + " " + extraHtml);
+  }
+
+  public static void addInfoMessage(Model model, MessageSource messageSource, String label,
+      String... messageArgs) {
+    addMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs));
+  }
+
+  public static String getMessageWithBoldArguments(MessageSource messageSource, String label, String... messageArgs) {
+    return getMessage(messageSource, label, makeArgsDisplayBold(messageArgs));
+  }
+
+  public static String getMessage(MessageSource messageSource, String key, String... args) {
+    return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());
+  }
+
+  private static String[] makeArgsDisplayBold(String[] objects) {
+    return FluentIterable.from(Arrays.asList(objects))
+        .transform(new Function<String, String>() {
+          @Override
+          public String apply(String input) {
+            return String.format("<b>%s</b>", input);
+          }
+        }).toArray(String.class);
   }
 
   public static String getFirstInfoMessage(Model model) {
@@ -120,33 +144,7 @@ public final class WebUtils {
     return message;
   }
 
-  /**
-   * Html escapes the argument and replaces them with the parameter placeholders
-   * in the message. The parameter placeholders can be either "{}" or the
-   * regular {@link String#format(String, Object...)} placeholders.
-   *
-   * @param message
-   *          The message to parse
-   * @param args
-   *          Values the replace the placeholders with
-   * @return Formatted string, with the arguments html escaped.
-   */
-  public static String formatAndEscapeMessage(String message, String... args) {
-    Preconditions.checkNotNull(message);
-
-    // Enable replacement by log and spring convention
-    String replacingMessage = StringUtils.replace(message, "{}", "%s");
-    replacingMessage = StringUtils.replace(replacingMessage, "%s", PARAM_MARKUP_START + "%s" + PARAM_MARKUP_END);
-
-    List<String> escapedArgs = Lists.newArrayList();
-    for (String arg : args) {
-      escapedArgs.add(HtmlUtils.htmlEscape(arg));
-    }
-
-    return String.format(replacingMessage, escapedArgs.toArray());
-  }
-
-  static void addMessage(RedirectAttributes model, String message) {
+  private static void addMessage(RedirectAttributes model, String message) {
     @SuppressWarnings("unchecked")
     List<String> messages = (List<String>) model.getFlashAttributes().get(INFO_MESSAGES_KEY);
 
@@ -158,19 +156,16 @@ public final class WebUtils {
     }
   }
 
-  static void addMessage(Model model, String message) {
+  private static void addMessage(Model model, String message) {
     @SuppressWarnings("unchecked")
     List<String> messages = (List<String>) model.asMap().get(INFO_MESSAGES_KEY);
+
     if (messages == null) {
       model.addAttribute(INFO_MESSAGES_KEY, Lists.newArrayList(message));
     }
     else {
       messages.add(message);
     }
-  }
-
-  public static String getMessage(MessageSource messageSource, String key, String... args) {
-    return messageSource.getMessage(key, args, LocaleContextHolder.getLocale());
   }
 
   public static boolean not(boolean expression) {

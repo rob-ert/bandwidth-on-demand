@@ -29,16 +29,27 @@ import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
 
 public final class PushMessages {
 
   private PushMessages() {
   }
 
-  public static PushMessage createSimpleEvent(String groupId, String message) {
-    return new SimpleEvent(groupId, message);
+  public static PushMessage createMessage(ReservationStatusChangeEvent reservationStatusChangeEvent,
+      MessageSource messageSource) {
+
+    Reservation reservation = reservationStatusChangeEvent.getReservation();
+
+    String message = WebUtils.getMessageWithBoldArguments(messageSource, "info_reservation_statuschanged",
+        reservation.getName(), reservationStatusChangeEvent.getOldStatus().name(), reservation.getStatus().name());
+
+    if (reservation.getStatus().equals(ReservationStatus.FAILED) && reservation.getFailedMessage() != null) {
+      message += String.format(" Failed because '%s'.", reservation.getFailedMessage());
+    }
+
+    return new JsonMessageEvent(reservation.getVirtualResourceGroup().getSurfconextGroupId(), new JsonEvent(message,
+        reservation.getId(), reservation.getStatus().name()));
   }
 
   private static class JsonEvent {
@@ -92,45 +103,5 @@ public final class PushMessages {
       }
     }
 
-  }
-
-  public static final class SimpleEvent implements PushMessage {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    private String groupId;
-    private String message;
-
-    public SimpleEvent(String groupId, String message) {
-      this.groupId = groupId;
-      this.message = message;
-
-      log.debug("Created event for groupId [{}] with message [{}]", groupId, message);
-    }
-
-    @Override
-    public String getGroupId() {
-      return groupId;
-    }
-
-    @Override
-    public String getMessage() {
-      return message;
-    }
-
-  }
-
-  public static PushMessage createMessage(ReservationStatusChangeEvent reservationStatusChangeEvent) {
-    Reservation reservation = reservationStatusChangeEvent.getReservation();
-
-    String message = WebUtils.formatAndEscapeMessage("Status of a reservation for {} has changed from {} to {}.", reservation
-        .getVirtualResourceGroup().getName(), reservationStatusChangeEvent.getOldStatus().name(), reservation.getStatus()
-        .name());
-
-    if (reservation.getStatus().equals(ReservationStatus.FAILED) && reservation.getFailedMessage() != null) {
-      message += String.format(" Failed because '%s'.", reservation.getFailedMessage());
-    }
-
-    return new JsonMessageEvent(reservation.getVirtualResourceGroup().getSurfconextGroupId(), new JsonEvent(message,
-        reservation.getId(), reservation.getStatus().name()));
   }
 }

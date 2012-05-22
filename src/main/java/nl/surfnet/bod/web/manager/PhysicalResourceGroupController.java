@@ -31,6 +31,7 @@ import nl.surfnet.bod.web.security.Security;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -45,6 +46,9 @@ public class PhysicalResourceGroupController {
 
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
+
+  @Autowired
+  private MessageSource messageSource;
 
   @RequestMapping(value = "/edit", params = "id", method = RequestMethod.GET)
   public String updateForm(@RequestParam("id") final Long id, final Model model) {
@@ -79,11 +83,11 @@ public class PhysicalResourceGroupController {
       group.setManagerEmail(command.getManagerEmail());
       physicalResourceGroupService.sendActivationRequest(group);
 
-      WebUtils.addInfoMessage(redirectAttributes, "A new activation email request has been sent to {}",
-          group.getManagerEmail());
+      WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_activation_request_resend", group.getManagerEmail());
     }
 
     redirectAttributes.addFlashAttribute("prg", group);
+
     return "redirect:/manager";
   }
 

@@ -82,8 +82,8 @@ public class ReservationController extends AbstractFilteredReservationController
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid Reservation reservation, @RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order, BindingResult bindingResult, Model model,
-      RedirectAttributes redirectAttributes) {
+      @RequestParam(value = "order", required = false) String order, BindingResult bindingResult, Model model) {
+
     reservation.setUserCreated(Security.getUserDetails().getNameId());
 
     reservationValidator.validate(reservation, bindingResult);
@@ -99,7 +99,7 @@ public class ReservationController extends AbstractFilteredReservationController
 
     getReservationService().create(reservation);
 
-    WebUtils.addInfoMessage(redirectAttributes, "A new reservation for %s has been requested.", reservation
+    WebUtils.addInfoMessage(model, messageSource, "info_reservation_created", reservation.getName(), reservation
         .getVirtualResourceGroup().getName());
 
     return list(page, sort, order, model);
@@ -107,6 +107,7 @@ public class ReservationController extends AbstractFilteredReservationController
 
   @RequestMapping(value = CREATE, method = RequestMethod.GET)
   public String createForm(@RequestParam(value = "vrg", required = false) Long virtualResourceGroupId, Model model) {
+
     Collection<VirtualResourceGroup> vrgs = findVirtualResourceGroups();
 
     if (vrgs.isEmpty()) {
@@ -157,16 +158,7 @@ public class ReservationController extends AbstractFilteredReservationController
 
     Reservation reservation = getReservationService().find(id);
 
-    boolean result = getReservationService().cancel(reservation, Security.getUserDetails());
-
-    if (result) {
-      WebUtils.addInfoMessage(redirectAttributes, "A reservation for %s has been cancelled.", reservation
-          .getVirtualResourceGroup().getName());
-    }
-    else {
-      WebUtils.addInfoMessage(redirectAttributes, "A reservation for %s can NOT be cancelled.", reservation
-          .getVirtualResourceGroup().getName());
-    }
+    getReservationService().cancel(reservation, Security.getUserDetails());
 
     // Response is ignored, in js related to link
     return "index";

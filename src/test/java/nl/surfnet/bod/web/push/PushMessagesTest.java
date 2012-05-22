@@ -24,14 +24,24 @@ package nl.surfnet.bod.web.push;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Locale;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.junit.Test;
+import org.springframework.context.MessageSource;
 
 public class PushMessagesTest {
+
+  private MessageSource messageSourceMock = mock(MessageSource.class);
 
   @Test
   public void aReservationStatusChangedEventShouldHaveAJsonMessage() {
@@ -40,12 +50,13 @@ public class PushMessagesTest {
     ReservationStatusChangeEvent reservationStatusChangeEvent = new ReservationStatusChangeEvent(
         ReservationStatus.PREPARING, reservation);
 
-    PushMessage event = PushMessages.createMessage(reservationStatusChangeEvent);
+    when(messageSourceMock.getMessage(eq("info_reservation_statuschanged"), any(Object[].class), any(Locale.class)))
+        .thenReturn("Yes");
+
+    PushMessage event = PushMessages.createMessage(reservationStatusChangeEvent, messageSourceMock);
 
     assertThat(event.getMessage(), containsString("\"id\":54"));
-    assertThat(event.getMessage(), containsString("from <b>PREPARING</b> to <b>SCHEDULED</b>"));
-    assertThat(event.getMessage(), containsString("\"status\":\"SCHEDULED\""));
+    assertThat(event.getMessage(), containsString("Yes"));
     assertThat(event.getGroupId(), is(reservation.getVirtualResourceGroup().getSurfconextGroupId()));
   }
-
 }

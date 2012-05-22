@@ -82,13 +82,13 @@ public class SwitchRoleController {
       PhysicalResourceGroup group = physicalResourceGroupService.find(groupId);
 
       if (!group.isActive()) {
-        String successMessage = WebUtils.getMessage(messageSource, "info_activation_request_send", group.getName(),
-            group.getManagerEmail());
+        String successMessage = WebUtils.getMessageWithBoldArguments(messageSource, "info_activation_request_send",
+            group.getName(), group.getManagerEmail());
+        String newLinkButton = createNewActivationLinkForm(environment.getExternalBodUrl()
+            + ActivationEmailController.ACTIVATION_MANAGER_PATH, group.getId().toString(), successMessage);
 
-        WebUtils.addInfoMessage(redirectAttribs,
-            createNewActivationLinkForm(new Object[] {
-                environment.getExternalBodUrl() + ActivationEmailController.ACTIVATION_MANAGER_PATH,
-                group.getId().toString(), successMessage }));
+        WebUtils.addInfoMessage(newLinkButton, redirectAttribs, messageSource,
+            "info_physicalresourcegroup_not_activated");
 
         return "redirect:manager/physicalresourcegroups/edit?id=" + group.getId();
       }
@@ -97,8 +97,7 @@ public class SwitchRoleController {
   }
 
   String createNewActivationLinkForm(Object... args) {
-    return String.format(WebUtils.getMessage(messageSource, "info_physicalresourcegroup_not_activated")
-        + " <a href=\"%s?id=%s\" class=\"btn btn-primary\" data-form=\"true\" data-success=\"%s\">Resend email</a>",
-        args);
+    return String.format(
+        "<a href=\"%s?id=%s\" class=\"btn btn-primary\" data-form=\"true\" data-success=\"%s\">Resend email</a>", args);
   }
 }

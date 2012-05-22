@@ -21,22 +21,25 @@
  */
 package nl.surfnet.bod.web;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 
 import nl.surfnet.bod.support.ModelStub;
 
 import org.junit.Test;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-public class WebUtilsTest {
+import com.google.common.collect.Iterables;
 
-  private Model model = new ModelStub();
-  private RedirectAttributes redirectModel = new ModelStub();
+public class WebUtilsTest {
 
   private final String messageBase = "Test message ";
   private final String message = messageBase + "{}";
@@ -44,6 +47,8 @@ public class WebUtilsTest {
   private final String messageArgWithMarkup = WebUtils.PARAM_MARKUP_START + messageArg + WebUtils.PARAM_MARKUP_END;
   private final String[] messageArgs = { messageArg };
   private final String[] emptyArgs = new String[0];
+
+  private final MessageSource messageSourceMock = mock(MessageSource.class);
 
   @Test
   public void testSecondPage() {
@@ -64,60 +69,34 @@ public class WebUtilsTest {
   }
 
   @Test
-  public void shouldHaveReplacedPlaceholderWithNormalRedirectModel() {
-    WebUtils.addInfoMessage(redirectModel, message, messageArgs);
+  public void shouldAddFlashMessage() {
+    RedirectAttributes redirectModel = new ModelStub();
 
-    assertThat(WebUtils.getFirstInfoMessage(redirectModel), is(messageBase + messageArgWithMarkup));
+    when(
+        messageSourceMock.getMessage("info_message", new String[] { "<b>een</b>", "<b>twee</b>" },
+            LocaleContextHolder.getLocale())).thenReturn("YES");
+
+    WebUtils.addInfoMessage(redirectModel, messageSourceMock, "info_message", "een", "twee");
+
+    List<String> infoMessages = (List<String>) redirectModel.getFlashAttributes().get(WebUtils.INFO_MESSAGES_KEY);
+
+    assertThat(infoMessages, hasSize(1));
+    assertThat(Iterables.getOnlyElement(infoMessages), is("YES"));
   }
 
   @Test
-  public void shouldHaveAddedTwoMessagesWithRedirectModel() {
-    WebUtils.addInfoMessage(redirectModel, message, messageArgs);
-    WebUtils.addInfoMessage(redirectModel, "SecondMessage", emptyArgs);
+  public void shouldAddMessage() {
+    Model model = new ModelStub();
 
-    @SuppressWarnings("unchecked")
-    List<String> messages = (List<String>) redirectModel.getFlashAttributes().get(WebUtils.INFO_MESSAGES_KEY);
-    assertThat(messages.get(0), is(messageBase + messageArgWithMarkup));
-    assertThat(messages.get(1), is("SecondMessage"));
+    when(
+        messageSourceMock.getMessage("info_message", new String[] { "<b>een</b>", "<b>twee</b>" },
+            LocaleContextHolder.getLocale())).thenReturn("YES");
+
+    WebUtils.addInfoMessage(model, messageSourceMock, "info_message", "een", "twee");
+
+    List<String> infoMessages = (List<String>) model.asMap().get(WebUtils.INFO_MESSAGES_KEY);
+
+    assertThat(infoMessages, hasSize(1));
+    assertThat(Iterables.getOnlyElement(infoMessages), is("YES"));
   }
-
-
-  @Test
-  public void shouldFormatMessage() {
-    String formatAndEscapeMessage = WebUtils.formatAndEscapeMessage(message, messageArgs);
-
-    assertThat(formatAndEscapeMessage, is(messageBase + messageArgWithMarkup));
-  }
-
-  @Test
-  public void shouldNotEscapeMessage() {
-    String formatAndEscapeMessage = WebUtils.formatAndEscapeMessage("<p>", emptyArgs);
-
-    assertThat(formatAndEscapeMessage, is("<p>"));
-  }
-
-  @Test
-  public void shouldFormatAndNotEscapeMessageButArgs() {
-    String formatAndEscapeMessage = WebUtils.formatAndEscapeMessage("<p>%s</p>", "<b>");
-
-    assertThat(formatAndEscapeMessage, is("<p>" + WebUtils.PARAM_MARKUP_START + "&lt;b&gt;" + WebUtils.PARAM_MARKUP_END
-        + "</p>"));
-  }
-
-  @Test
-  public void shouldAddMessagToModel() {
-    WebUtils.addMessage(model, message);
-
-    assertThat(WebUtils.getFirstInfoMessage(model), is(message));
-    assertThat(WebUtils.getFirstInfoMessage(redirectModel), nullValue());
-  }
-
-  @Test
-  public void shouldAddMessagToRedirectModel() {
-    WebUtils.addMessage(redirectModel, message);
-
-    assertThat(WebUtils.getFirstInfoMessage(redirectModel), is(message));
-    assertThat(WebUtils.getFirstInfoMessage(model), nullValue());
-  }
-
 }

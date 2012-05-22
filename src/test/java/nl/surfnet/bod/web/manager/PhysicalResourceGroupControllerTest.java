@@ -42,6 +42,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.MessageSource;
 import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -55,6 +56,9 @@ public class PhysicalResourceGroupControllerTest {
   @Mock
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
 
+  @Mock
+  private MessageSource messageSourceMock;
+
   @Before
   public void loginUser() {
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:ict-manager").create());
@@ -67,7 +71,7 @@ public class PhysicalResourceGroupControllerTest {
 
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(1L).setManagerEmail("old@mail.com")
         .setAdminGroup("urn:ict-manager").create();
- 
+
     UpdateEmailCommand command = new PhysicalResourceGroupController.UpdateEmailCommand(group);
     command.setManagerEmail("new@mail.com");
 
