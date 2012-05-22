@@ -223,7 +223,7 @@ public class ReservationService {
       return new ElementActionView(true);
     }
 
-    return new ElementActionView(false, "delete_user_has_no_rights");
+    return new ElementActionView(false, "reservation_cancel_user_has_no_rights");
   }
 
   public ReservationStatus getStatus(Reservation reservation) {
