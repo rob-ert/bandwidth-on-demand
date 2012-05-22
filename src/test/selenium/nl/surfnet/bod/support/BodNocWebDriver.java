@@ -165,6 +165,6 @@ public class BodNocWebDriver {
 
     ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
-    page.verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime);
+    page.verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime, "no right to delete");
   }
 }

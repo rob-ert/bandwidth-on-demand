@@ -210,10 +210,17 @@ public class BodManagerWebDriver {
   public void verifyReservationWasCreated(String reservationLabel, LocalDate startDate, LocalDate endDate,
       LocalTime startTime, LocalTime endTime) {
 
-    nl.surfnet.bod.pages.manager.ListReservationPage page = nl.surfnet.bod.pages.manager.ListReservationPage.get(
-        driver, URL_UNDER_TEST);
+    ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
     page.verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
+  }
+
+  public void verifyReservationIsNotCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,
+      LocalTime startTime, LocalTime endTime) {
+
+    ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
+
+    page.verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime, "state cannot");
   }
 
 }

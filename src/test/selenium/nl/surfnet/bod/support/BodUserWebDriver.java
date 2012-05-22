@@ -147,6 +147,7 @@ public class BodUserWebDriver {
   public void verifyReservationWasCreated(String reservationLabel, LocalDate startDate, LocalDate endDate,
       LocalTime startTime, LocalTime endTime) {
     ListReservationPage page = ListReservationPage.get(driver);
+
     page.verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
   }
 

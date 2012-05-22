@@ -153,10 +153,14 @@ public class AbstractListPage extends AbstractPage {
   }
 
   public void verifyReservationIsNotCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,
-      LocalTime startTime, LocalTime endTime) {
+      LocalTime startTime, LocalTime endTime, String toolTipText) {
 
     WebElement row = verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
-    row.findElement(By.cssSelector("span.disabled-icon"));
+
+    WebElement deleteElement = row.findElement(By.cssSelector("span.disabled-icon"));
+    String deleteTooltip = deleteElement.getAttribute("data-original-title");
+    
+    assertThat(deleteTooltip, containsString(toolTipText));
   }
 
   private WebElement findReservationRow(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
