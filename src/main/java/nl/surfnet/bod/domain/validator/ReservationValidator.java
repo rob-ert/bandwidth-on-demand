@@ -110,18 +110,7 @@ public class ReservationValidator implements Validator {
    *          {@link Reservation}
    */
   private void validateStartAndEndDate(Errors errors, Reservation reservation) {
-    boolean basicValid = true;
-    if (reservation.getEndDate() == null) {
-      errors.rejectValue("endDate", "validation.not.empty");
-      basicValid = false;
-    }
-
-    if (reservation.getEndTime() == null) {
-      errors.rejectValue("endTime", "validation.not.empty");
-      basicValid = false;
-    }
-
-    if (!basicValid || reservation.getStartDateTime() == null) {
+    if (reservation.getEndDateTime() == null || reservation.getStartDateTime() == null) {
       return;
     }
 

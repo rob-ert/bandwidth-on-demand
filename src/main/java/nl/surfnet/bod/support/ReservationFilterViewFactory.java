@@ -51,7 +51,6 @@ public class ReservationFilterViewFactory {
       return new ReservationFilterView(year);
     }
     catch (IllegalArgumentException exc) {
-
       if (ELAPSED.equals(id)) {
         return new ReservationFilterView(ELAPSED, String.format("Now - %d months",
             DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, true);

@@ -1,0 +1,1 @@
+ALTER TABLE reservation ALTER COLUMN end_date_time DROP NOT NULL;

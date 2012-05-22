@@ -30,12 +30,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -102,16 +98,11 @@ public class ReservationService {
   @Autowired
   private NbiClient nbiClient;
 
-  @Autowired
-  private ReservationEventPublisher reservationEventPublisher;
-
-  @Autowired
-  private EntityManagerFactory entityManagerFactory;
-
   @PersistenceContext
   private EntityManager entityManager;
 
-  private ExecutorService executorService = Executors.newCachedThreadPool();
+  @Autowired
+  private ReservationToNbi reservationToNbi;
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
@@ -119,17 +110,31 @@ public class ReservationService {
    * @param reservation
    * @return
    */
-  public Future<?> create(Reservation reservation) {
+  public void create(Reservation reservation) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
 
-    // Make sure reservations occur on whole minutes only
+    fillStartTimeIfEmpty(reservation);
+    stripSecondsAndMillis(reservation);
+
+    reservationRepo.save(reservation);
+
+    reservationToNbi.submitNewReservation(reservation.getId());
+  }
+
+  private void fillStartTimeIfEmpty(Reservation reservation) {
+    if (reservation.getStartDateTime() == null) {
+      reservation.setStartDateTime(LocalDateTime.now().plusMinutes(1));
+    }
+  }
+
+  private void stripSecondsAndMillis(Reservation reservation) {
     if (reservation.getStartDateTime() != null) {
       reservation.setStartDateTime(reservation.getStartDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
     }
-    reservation.setEndDateTime(reservation.getEndDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
-
-    return executorService.submit(new ReservationSubmitter(reservationRepo.save(reservation)));
+    if (reservation.getEndDateTime() != null) {
+      reservation.setEndDateTime(reservation.getEndDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
+    }
   }
 
   public Reservation find(Long id) {
@@ -315,8 +320,6 @@ public class ReservationService {
   }
 
   private Specification<Reservation> specFilteredReservations(final ReservationFilterView filter) {
-    Specification<Reservation> specficiation = null;
-
     Specification<Reservation> filterSpecOnStart = new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -327,20 +330,21 @@ public class ReservationService {
     Specification<Reservation> filterSpecOnEnd = new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-
-        return cb.between(root.get(Reservation_.endDateTime), filter.getStart(), filter.getEnd());
+        return cb.or(
+            cb.isNull(root.get(Reservation_.endDateTime)),
+            cb.between(root.get(Reservation_.endDateTime), filter.getStart(), filter.getEnd()));
       }
     };
 
+    Specification<Reservation> specficiation = null;
     if (filter.isFilterOnStatusOnly()) {
       specficiation = forStatus(filter.getStatus());
     }
-    else {
+    else if (filter.isFilterOnReservationEndOnly()) {
       specficiation = filterSpecOnEnd;
-
-      if (!filter.isFilterOnReservationEndOnly()) {
-        specficiation = Specifications.where(filterSpecOnEnd).or(filterSpecOnStart);
-      }
+    }
+    else {
+      specficiation = Specifications.where(filterSpecOnEnd).or(filterSpecOnStart);
     }
 
     return specficiation;
@@ -423,34 +427,6 @@ public class ReservationService {
 
   public void saveFlattenedReservations(final List<Reservation> reservations) {
     reservationFlattenedRepo.save(transformToFlattenedReservations(reservations));
-  }
-
-  /**
-   * Asynchronous {@link Reservation} creator.
-   * 
-   */
-  private final class ReservationSubmitter implements Runnable {
-    private final Reservation reservation;
-    private final ReservationStatus originalStatus;
-
-    public ReservationSubmitter(Reservation reservation) {
-      this.reservation = reservation;
-      this.originalStatus = reservation.getStatus();
-    }
-
-    @Override
-    public void run() {
-      Reservation reservationWithReservationId = nbiClient.createReservation(reservation);
-      // use a different entityManager to prevent stale object exceptions..
-      entityManagerFactory.createEntityManager().merge(reservationWithReservationId);
-      publishStatusChanged(reservationWithReservationId);
-    }
-
-    private void publishStatusChanged(Reservation newReservation) {
-      ReservationStatusChangeEvent createEvent = new ReservationStatusChangeEvent(originalStatus, newReservation);
-
-      reservationEventPublisher.notifyListeners(createEvent);
-    }
   }
 
   public List<Reservation> findReservationWithStatus(ReservationStatus... states) {

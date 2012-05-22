@@ -34,19 +34,31 @@
   <logger name="org.springframework">
     <level value="WARN" />
   </logger>
-  
+
   <logger name="com.googlecode.ehcache">
     <level value="WARN" />
   </logger>
-  
+
   <logger name="com.googlecode.flyway">
     <level value="INFO" />
   </logger>
-   
+
   <logger name="nl.surfnet">
     <level value="INFO" />
   </logger>
-  
+
+  <!-- <logger name="nl.surfnet.bod.nbi">
+    <level value="DEBUG" />
+  </logger>
+
+  <logger name="org.hibernate.SQL">
+    <level value="DEBUG" />
+  </logger>
+
+  <logger name="org.hibernate.type">
+    <level value="TRACE" />
+  </logger>-->
+
   <!-- ======================= -->
   <!-- Setup the Root category -->
   <!-- ======================= -->

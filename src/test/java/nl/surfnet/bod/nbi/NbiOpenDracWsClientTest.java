@@ -22,7 +22,6 @@
 package nl.surfnet.bod.nbi;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
@@ -32,20 +31,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringServiceFault;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
-import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingServiceFault;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingService_v30Stub;
+import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 import org.apache.xmlbeans.XmlException;
-import org.joda.time.DateTimeUtils;
-import org.joda.time.Days;
-import org.joda.time.LocalDateTime;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,38 +70,31 @@ public class NbiOpenDracWsClientTest {
 
   private QueryEndpointResponseDocument endpointResponse;
 
-  private LocalDateTime start;
-
-  private Reservation reservation;
+  private VirtualPort sourcePort;
+  private VirtualPort destPort;
 
   @Before
-  public void init() {
+  public void init() throws Exception {
     subject.setPassword("292c2cdcb5f669a8");
 
-    try {
-      endpointsResponse = QueryEndpointsResponseDocument.Factory.parse(new File(
-          "src/test/resources/opendrac/queryEndpointsResponse.xml"));
+    endpointsResponse = QueryEndpointsResponseDocument.Factory.parse(new File(
+        "src/test/resources/opendrac/queryEndpointsResponse.xml"));
+    endpointResponse = QueryEndpointResponseDocument.Factory.parse(new File(
+        "src/test/resources/opendrac/queryEndpointResponse.xml"));
 
-      endpointResponse = QueryEndpointResponseDocument.Factory.parse(new File(
-          "src/test/resources/opendrac/queryEndpointResponse.xml"));
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
+    sourcePort = new VirtualPortFactory()
+        .setPhysicalPort(new PhysicalPortFactory().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4").create())
+        .setVirtualResourceGroup(vrg).create();
+    destPort = new VirtualPortFactory()
+        .setPhysicalPort(new PhysicalPortFactory().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4").create())
+        .setVirtualResourceGroup(vrg).create();
 
-      start = LocalDateTime.now();
-      LocalDateTime end = start.plus(Days.ONE);
-      reservation = new ReservationFactory().setStartDateTime(start).setEndDateTime(end).create();
-      // Set ports to mock values in xml
-      reservation.getSourcePort().getPhysicalPort().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4");
-      reservation.getDestinationPort().getPhysicalPort().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4");
+    when(networkingServiceMock.queryEndpoints(any(QueryEndpointsRequestDocument.class), any(SecurityDocument.class)))
+        .thenReturn(endpointsResponse);
 
-      when(networkingServiceMock.queryEndpoints(any(QueryEndpointsRequestDocument.class), any(SecurityDocument.class)))
-          .thenReturn(endpointsResponse);
-
-      when(networkingServiceMock.queryEndpoint(any(QueryEndpointRequestDocument.class), any(SecurityDocument.class)))
-          .thenReturn(endpointResponse);
-
-    }
-    catch (Exception e) {
-      Assert.fail(e.getMessage());
-    }
+    when(networkingServiceMock.queryEndpoint(any(QueryEndpointRequestDocument.class), any(SecurityDocument.class)))
+        .thenReturn(endpointResponse);
   }
 
   @Test
@@ -123,40 +111,17 @@ public class NbiOpenDracWsClientTest {
 
   @Test
   public void shouldCreateReservationWithGivenStartTime() throws Exception {
+    Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort).create();
+
     CreateReservationScheduleRequestDocument schedule = subject.createSchedule(reservation);
 
     assertThat(schedule.getCreateReservationScheduleRequest().getReservationSchedule().getStartTime().getTime(),
-        equalTo(start.toDate()));
-    assertThat(reservation.getStartDateTime(), equalTo(start));
+        is(reservation.getStartDateTime().toDate()));
   }
 
   @Test
-  public void shouldCreateReservationNow() throws Exception {
-    final int ACCURACY = 10000; 
-    DateTimeUtils.setCurrentMillisFixed(start.toDate().getTime());
-    try {
-      reservation.setStartDateTime(null);
-      
-      CreateReservationScheduleRequestDocument schedule = null;
-
-      schedule = subject.createSchedule(reservation);
-
-      // Accuracy of 10 seconds is enough
-      long scheduleStart = schedule.getCreateReservationScheduleRequest().getReservationSchedule().getStartTime()
-          .getTime().getTime() / ACCURACY;
-
-      assertThat(scheduleStart, equalTo(start.toDate().getTime() / ACCURACY));
-
-      // Reservation should be update with start
-      assertThat((reservation.getStartDateTime().toDate().getTime() / ACCURACY), equalTo(scheduleStart));
-    }
-    finally {
-      DateTimeUtils.setCurrentMillisSystem();
-    }
-  }
-
-  @Test
-  public void adfadf() throws XmlException, IOException, ResourceAllocationAndSchedulingServiceFault {
+  public void createReservationShouldFailWithMessage() throws Exception {
+    Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort).create();
     CreateReservationScheduleResponseDocument responseDocument = CreateReservationScheduleResponseDocument.Factory
         .parse(new File("src/test/resources/opendrac/createReservationScheduleResponse.xml"));
 
@@ -168,5 +133,16 @@ public class NbiOpenDracWsClientTest {
 
     assertThat(scheduledReservation.getStatus(), is(ReservationStatus.FAILED));
     assertThat(scheduledReservation.getFailedMessage(), is("No available bandwidth on source port"));
+  }
+
+  @Test
+  public void createReservationWithoutEndTime() throws Exception {
+    Reservation foreverReservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort)
+        .setEndDateTime(null).create();
+
+    CreateReservationScheduleRequestDocument schedule = subject.createSchedule(foreverReservation);
+
+    assertThat(schedule.getCreateReservationScheduleRequest().getReservationSchedule()
+        .getReservationOccurrenceDuration(), is(Integer.MAX_VALUE));
   }
 }

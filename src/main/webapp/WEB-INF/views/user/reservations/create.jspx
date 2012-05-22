@@ -96,7 +96,7 @@
                     <label class="control-label"><spring:message code="label_reservation_startdate" /></label>
                     <div class="controls">
                         <div class="input-append">
-					   		<sform:input id="_startDate_id" path="startDate" cssClass="input-date-with-time input-datepicker" />
+                            <sform:input id="_startDate_id" path="startDate" cssClass="input-date-with-time input-datepicker" />
                             <span class="add-on"><spring:message code="help_generic_dateformat" /></span>
                             <c:out value=" " />
                             <sform:input id="_startTime_id" path="startTime" cssClass="input-time-with-date" />
@@ -104,14 +104,14 @@
 
                             <span class="help-inline">
                                 <label class="checkbox inline">
-                                    <input id="now_chk" name="now" type="checkbox" onselect="toggleStart" />
+                                    <input id="now_chk" name="now" type="checkbox" />
                                     <spring:message code="label_reservation_now"  />
                                 </label>
-							</span>
-						</div>
+                            </span>
+                        </div>
                         <sform:errors cssClass="help-block" id="_end_error_id" path="startDate" delimiter=", " />
                         <sform:errors cssClass="help-block" id="_end_error_id" path="startTime" delimiter=", " />
-	                 </div>
+                    </div>
                 </div>
 
                 <c:set var="errors_end_date"><sform:errors path="endDate" /></c:set>
@@ -119,7 +119,7 @@
                 <c:if test="${not empty errors_end_time or not empty errors_end_date}">
                     <c:set var="error_end_css" value=" error" />
                 </c:if>
-                <div class="control-group${error_end_css}">
+                <div class="control-group${error_end_css}" data-component="start-now">
                     <label class="control-label"><spring:message code="label_reservation_enddate" /></label>
                     <div class="controls">
                         <div class="input-append">
@@ -128,6 +128,13 @@
                             <c:out value=" " />
                             <sform:input id="_endTime_id" path="endTime" cssClass="input-time-with-date" />
                             <span class="add-on"><spring:message code="help_generic_timeformat" /></span>
+
+                            <span class="help-inline">
+                                <label class="checkbox inline">
+                                    <input id="forever_chk" name="forever" type="checkbox" />
+                                    <spring:message code="label_reservation_forever"  />
+                                </label>
+                            </span>
                         </div>
                         <sform:errors cssClass="help-block" id="_end_error_id" path="endDate" delimiter=", " />
                         <sform:errors cssClass="help-block" id="_end_error_id" path="endTime" delimiter=", " />

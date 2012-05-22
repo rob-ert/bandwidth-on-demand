@@ -21,15 +21,7 @@
  */
 package nl.surfnet.bod.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Version;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
@@ -42,9 +34,9 @@ import com.google.common.base.Objects;
 /**
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 @Entity
 public class Reservation {
@@ -74,12 +66,9 @@ public class Reservation {
   @ManyToOne(optional = false)
   private VirtualPort destinationPort;
 
-  @Column(nullable = true)
   @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
   private LocalDateTime startDateTime;
 
-  @NotNull
-  @Column(nullable = false)
   @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
   private LocalDateTime endDateTime;
 
@@ -90,6 +79,7 @@ public class Reservation {
   @Column(nullable = false)
   private Integer bandwidth;
 
+  @Basic
   private String reservationId;
 
   @NotNull
@@ -182,7 +172,7 @@ public class Reservation {
   }
 
   /**
-   * 
+   *
    * @return LocalTime the time part of the {@link #startDateTime}
    */
   public LocalTime getStartTime() {
@@ -191,7 +181,7 @@ public class Reservation {
 
   /**
    * Sets the time part of the {@link #startDateTime}
-   * 
+   *
    * @param startTime
    */
   public void setStartTime(LocalTime startTime) {
@@ -219,7 +209,7 @@ public class Reservation {
   }
 
   /**
-   * 
+   *
    * @return LocalDate The date part of the {@link #getStartDateTime()}
    */
   public LocalDate getStartDate() {
@@ -228,7 +218,7 @@ public class Reservation {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   * 
+   *
    * @param startDate
    */
   public void setStartDate(LocalDate startDate) {
@@ -248,7 +238,7 @@ public class Reservation {
   }
 
   /**
-   * 
+   *
    * @return LocalDate the date part of the {@link #endDateTime}
    */
   public LocalDate getEndDate() {
@@ -257,7 +247,7 @@ public class Reservation {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   * 
+   *
    * @param endDate
    */
   public void setEndDate(LocalDate endDate) {
@@ -276,7 +266,7 @@ public class Reservation {
   }
 
   /**
-   * 
+   *
    * @return LocalTime The time part of the {@link #endDateTime}
    */
   public LocalTime getEndTime() {
@@ -285,7 +275,7 @@ public class Reservation {
 
   /**
    * Sets the time part of the {@link #endDateTime}
-   * 
+   *
    * @param endTime
    */
   public void setEndTime(LocalTime endTime) {
@@ -342,9 +332,16 @@ public class Reservation {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(Reservation.class).add("id", id).add("startDateTime", startDateTime)
-        .add("endDateTime", endDateTime).add("sourcePort", sourcePort).add("destinationPort", destinationPort)
-        .add("userCreated", userCreated).add("creationDT", creationDateTime).toString();
+    return Objects.toStringHelper(Reservation.class)
+        .add("id", id)
+        .add("reservationId", reservationId)
+        .add("startDateTime", startDateTime)
+        .add("endDateTime", endDateTime)
+        .add("sourcePort", sourcePort.getUserLabel())
+        .add("destinationPort", destinationPort.getUserLabel())
+        .add("userCreated", userCreated)
+        .add("creationDT", creationDateTime)
+        .toString();
   }
 
   public String getFailedMessage() {

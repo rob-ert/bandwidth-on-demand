@@ -21,22 +21,23 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.matchers.DateMatchers.isAfterNow;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -54,9 +55,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -73,14 +72,10 @@ public class ReservationServiceTest {
   @Mock
   private ReservationRepo reservationRepoMock;
 
-  @Mock
-  private ReservationEventPublisher reservationEventPublisherMock;
+  @Mock private ReservationToNbi reservationToNbiMock;
 
   @Mock
-  private NbiClient nbiPortService;
-
-  @Mock
-  private EntityManagerFactory entityManagerFactory;
+  private NbiClient nbiClientMock;
 
   @Test
   public void whenTheUserHasNoGroupsTheReservationsShouldBeEmpty() {
@@ -145,32 +140,22 @@ public class ReservationServiceTest {
   public void reserveSameVirtualResourceGroupsShouldBeFine() throws InterruptedException, ExecutionException {
     final Reservation reservation = new ReservationFactory().create();
 
-    final String reservationId = "SCHEDULE-" + System.currentTimeMillis();
-    EntityManager emMock = mock(EntityManager.class);
-    when(entityManagerFactory.createEntityManager()).thenReturn(emMock);
-    when(reservationRepoMock.save(any(Reservation.class))).thenReturn(reservation);
-    when(nbiPortService.createReservation((any(Reservation.class)))).thenAnswer(new Answer<Reservation>() {
-      @Override
-      public Reservation answer(InvocationOnMock invocation) throws Throwable {
-        reservation.setReservationId(reservationId);
-        reservation.setStatus(ReservationStatus.SUCCEEDED);
-        return reservation;
-      }
-    });
+    subject.create(reservation);
 
-    Future<?> future = subject.create(reservation);
-
-    waitTillDone(future);
-
-    assertThat(reservation.getReservationId(), is(reservationId));
-
-    verify(emMock).merge(reservation);
     verify(reservationRepoMock).save(reservation);
+    verify(reservationToNbiMock).submitNewReservation(reservation.getId());
   }
 
-  private void waitTillDone(Future<?> future) throws InterruptedException, ExecutionException {
-    future.get();
+  @Test
+  public void reserveShouldFillStartTime() {
+    final Reservation reservation = new ReservationFactory().setStartDateTime(null).create();
+
+    subject.create(reservation);
+
+    assertThat(reservation.getStartDateTime(), notNullValue());
+    assertThat(reservation.getStartDateTime(), isAfterNow());
   }
+
 
   @Test(expected = IllegalStateException.class)
   public void updatingDifferentVirtualResrouceGroupsShouldGiveAnIllegalStateException() {
@@ -201,9 +186,13 @@ public class ReservationServiceTest {
         addUserGroup(reservation.getVirtualResourceGroup().getSurfconextGroupId()).create();
     Security.setUserDetails(richUserDetails);
 
-    Assert.assertTrue(subject.cancel(reservation, richUserDetails));
+    boolean result = subject.cancel(reservation, richUserDetails);
+
+    assertThat(result, is(true));
     assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
+
     verify(reservationRepoMock).save(reservation);
+    verify(nbiClientMock).cancelReservation(reservation.getReservationId());
   }
 
   @Test
@@ -223,9 +212,13 @@ public class ReservationServiceTest {
 
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
 
-    Assert.assertFalse(subject.cancel(reservation, richUserDetails));
+    boolean result = subject.cancel(reservation, richUserDetails);
+
+    assertThat(result, is(false));
     assertThat(reservation.getStatus(), is(ReservationStatus.SCHEDULED));
+
     verify(reservationRepoMock, never()).save(reservation);
+    verify(nbiClientMock, never()).cancelReservation(any(String.class));
   }
 
   @Test

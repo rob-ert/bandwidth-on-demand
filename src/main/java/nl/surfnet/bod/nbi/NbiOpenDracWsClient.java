@@ -40,35 +40,16 @@ import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingServiceFault;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingService_v30Stub;
 
-import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.Security;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.SecurityDocument;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.UsernameToken;
-import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.EndpointT;
-import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointRequestDocument;
+import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.*;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointRequestDocument.QueryEndpointRequest;
-import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointResponseDocument;
-import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsRequestDocument;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsRequestDocument.QueryEndpointsRequest;
-import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsResponseDocument;
-import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.ValidEndpointsQueryTypeT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CancelReservationScheduleRequestDocument;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.*;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CancelReservationScheduleRequestDocument.CancelReservationScheduleRequest;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument.CreateReservationScheduleRequest;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleResponseDocument;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.PathRequestT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.QueryReservationScheduleRequestDocument;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.QueryReservationScheduleResponseDocument;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ReservationOccurrenceInfoT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ReservationScheduleRequestT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ReservationScheduleT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.UserInfoT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidProtectionTypeT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleCreationResultT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleStatusT;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleTypeT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -89,9 +70,10 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
  */
 class NbiOpenDracWsClient implements NbiClient {
 
-  public static final String ROUTING_ALGORITHM = "VCAT";
-  public static final String DEFAULT_VID = "Untagged";
-  public static final ValidProtectionTypeT.Enum DEFAULT_PROTECTIONTYPE = ValidProtectionTypeT.X_1_PLUS_1_PATH;
+  private static final String ROUTING_ALGORITHM = "VCAT";
+  private static final String DEFAULT_VID = "Untagged";
+  private static final ValidProtectionTypeT.Enum DEFAULT_PROTECTIONTYPE = ValidProtectionTypeT.X_1_PLUS_1_PATH;
+  private static final Minutes MAX_DURATION = Minutes.MAX_VALUE;
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -122,9 +104,7 @@ class NbiOpenDracWsClient implements NbiClient {
   @Value("${nbi.service.scheduling}")
   private String schedulingServiceUrl;
 
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(
-      value="UPM_UNCALLED_PRIVATE_METHOD", 
-      justification="Called by IoC container")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "Called by IoC container")
   @SuppressWarnings("unused")
   @PostConstruct
   private void init() {
@@ -155,7 +135,7 @@ class NbiOpenDracWsClient implements NbiClient {
     catch (ResourceAllocationAndSchedulingServiceFault e) {
       log.error("Error: ", e);
     }
-    
+
   }
 
   @Override
@@ -333,30 +313,23 @@ class NbiOpenDracWsClient implements NbiClient {
 
   CreateReservationScheduleRequestDocument createSchedule(final Reservation reservation)
       throws NetworkMonitoringServiceFault {
-    final CreateReservationScheduleRequestDocument requestDocument = CreateReservationScheduleRequestDocument.Factory
+
+    CreateReservationScheduleRequestDocument requestDocument = CreateReservationScheduleRequestDocument.Factory
         .newInstance();
 
-    final CreateReservationScheduleRequest request = requestDocument.addNewCreateReservationScheduleRequest();
-    final ReservationScheduleRequestT schedule = request.addNewReservationSchedule();
+    CreateReservationScheduleRequest request = requestDocument.addNewCreateReservationScheduleRequest();
+    ReservationScheduleRequestT schedule = request.addNewReservationSchedule();
 
     schedule.setName(reservation.getUserCreated() + "-" + System.currentTimeMillis());
     schedule.setType(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC);
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(reservation.getStartDateTime().toDate());
+    schedule.setStartTime(calendar);
 
-    final Calendar start = Calendar.getInstance();
-    if (reservation.getStartDateTime() != null) {
-      start.setTime(reservation.getStartDateTime().toDate());
-    }
-    else {
-      //Update reservation
-      reservation.setStartDateTime(LocalDateTime.fromCalendarFields(start));
-
-      log.info("No startTime specified, using now: {}", reservation.getStartDateTime());
-    }
-    schedule.setStartTime(start);
-
-    schedule.setReservationOccurrenceDuration(Minutes.minutesBetween(
-        LocalDateTime.fromCalendarFields(schedule.getStartTime()), reservation.getEndDateTime()).getMinutes());
-
+    Minutes duration = reservation.getEndDateTime() == null
+        ? MAX_DURATION
+        : Minutes.minutesBetween(reservation.getStartDateTime(), reservation.getEndDateTime());
+    schedule.setReservationOccurrenceDuration(duration.getMinutes());
     schedule.setIsRecurring(false);
     schedule.setPath(createPath(reservation));
     schedule.setUserInfo(createUser());

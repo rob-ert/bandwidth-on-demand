@@ -63,7 +63,7 @@ app.form = function(){
 
             event.preventDefault();
 
-        })
+        });
 
     };
 
@@ -188,23 +188,27 @@ app.form = function(){
     }
 
     var initStartNow = function() {
-        var date,
-            time;
 
-        $('[data-component="start-now"] :checkbox').on('click', function() {
-            var inputs = $('[data-component="start-now"] :text'),
+        $('[data-component="start-now"]').each(function(i, item) {
+
+            var component = $(item),
+                inputs = component.find(':text'),
                 dateInput = inputs.eq(0),
-                timeInput = inputs.eq(1);
-
-            if (dateInput.prop('disabled')) {
-                dateInput.val(date).prop('disabled', false);
-                timeInput.val(time).prop('disabled', false);
-            } else {
-                date = dateInput.val();
+                timeInput = inputs.eq(1),
+                date = dateInput.val(),
                 time = timeInput.val();
-                dateInput.val('').prop('disabled', true);
-                timeInput.val('').prop('disabled', true);
-            }
+
+            component.on('click', ':checkbox', function() {
+                if (dateInput.prop('disabled')) {
+                    dateInput.val(date).prop('disabled', false);
+                    timeInput.val(time).prop('disabled', false);
+                } else {
+                    date = dateInput.val();
+                    time = timeInput.val();
+                    dateInput.val('').prop('disabled', true);
+                    timeInput.val('').prop('disabled', true);
+                }
+            });
         });
     }
 
@@ -257,7 +261,7 @@ app.form = function(){
                 }
             });
 
-        })
+        });
 
     }
 
