@@ -310,7 +310,6 @@ public class ReservationServiceTest {
         .transformToFlattenedReservations(reservations);
     assertNotNull(flattenedReservations);
     assertEquals(10, flattenedReservations.size());
-    System.out.println(flattenedReservations);
   }
 
 }

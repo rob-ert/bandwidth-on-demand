@@ -21,9 +21,6 @@
  */
 package nl.surfnet.bod.domain;
 
-import javax.annotation.Nullable;
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -31,122 +28,91 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Version;
-import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.hibernate.validator.constraints.Range;
 import org.joda.time.LocalDateTime;
 
 @Entity
 public class ReservationFlattened {
 
-  // reservation
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
   @Version
-  private Integer version;
+  private int version;
 
-  private String name;
+  // /////////////////////
+  // reservation details
+  // /////////////////////
+  private final String name;
+  private final String failedMessage;
 
   @Enumerated(EnumType.STRING)
   private ReservationStatus status = ReservationStatus.REQUESTED;
 
-  private String failedMessage;
+  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
+  private final LocalDateTime startDateTime;
 
   @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
-  private LocalDateTime startDateTime;
+  private final LocalDateTime endDateTime;
 
   @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
-  private LocalDateTime endDateTime;
+  private final LocalDateTime creationDateTime;
 
-  @NotNull
-  @Column(nullable = false)
-  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
-  private LocalDateTime creationDateTime;
+  private final String userCreated;
+  private final int bandwidth;
+  private final  String reservationId;
 
-  @Column(nullable = false)
-  private String userCreated;
+  // ////////////
+  // source
+  // ////////////
+  private final String sourceManagerLabel;
+  private final String sourceUserLabel;
+  private final int sourceMaxBandwidth;
+  private final int sourceVlanId;
 
-  @NotNull
-  @Column(nullable = false)
-  private Integer bandwidth;
-
-  @Basic
-  private String reservationId;
-
-  // source vp
-  @NotEmpty
-  @Column(unique = true, nullable = false)
-  private String sourceManagerLabel;
-
-  @Column(unique = true)
-  private String sourceUserLabel;
-
-  @NotNull
-  @Column(nullable = false)
-  private Integer sourceMaxBandwidth;
-
-  @Range(min = 1, max = 4095)
-  private Integer sourceVlanId;
-
+  // /////////////////
   // destination
-  @NotEmpty
-  @Column(unique = true, nullable = false)
-  private String destinationManagerLabel;
+  // /////////////////
+  private final String destinationManagerLabel;
+  private final String destinationUserLabel;
+  private final int destinationMaxBandwidth;
+  private final int destinationVlanId;
 
-  @Column(unique = true)
-  private String destinationUserLabel;
+  private final String virtualResourceGroupName;
+  private final String virtualResourceGroupDescription;
+  private final String virtualResourceGroupSurfconextGroupId;
 
-  @NotNull
-  @Column(nullable = false)
-  private Integer destinationMaxBandwidth;
-
-  @Range(min = 1, max = 4095)
-  private Integer destinationVlanId;
-
-  @NotEmpty
-  @Column(nullable = false)
-  private String virtualResourceGroupName;
-
-  @Basic
-  private String virtualResourceGroupDescription;
-
-  @NotEmpty
-  @Column(unique = true, nullable = false)
-  private String virtualResourceGroupSurfconextGroupId;
-
-  // physical port destination
-  @NotEmpty
-  @Column(nullable = false)
-  private String ppDestinationNocLabel;
-
-  private String ppDestinationManagerLabel;
-
-  @NotEmpty
-  @Column(nullable = false)
-  private String ppDestinationPortId;
-
-  @Nullable
-  @Column(unique = true, nullable = false)
-  private String ppDestinationNetworkElementPk;
-
+  // ///////////////////////
   // physical port source
-  @NotEmpty
-  @Column(nullable = false)
-  private String ppSourceNocLabel;
+  // ///////////////////////
+  private final String physicalPortSourceNocLabel;
+  private final String physicalPortSourceManagerLabel;
+  private final String physicalPortSourcePortId;
+  private final String physicalPortSourceNetworkElementPk;
 
-  private String ppSourceManagerLabel;
+  // ///////////////////////////
+  // physical port destination
+  // ///////////////////////////
+  private final String physicalPortDestinationNocLabel;
+  private final String physicalPortDestinationManagerLabel;
+  private final String physicalPortDestinationPortId;
+  private final String physicalPortDestinationNetworkElementPk;
 
-  @NotEmpty
-  @Column(nullable = false)
-  private String ppSourcePortId;
+  // //////////////////////////////////
+  // physical resource group source
+  // //////////////////////////////////
+  private final long physicalResourceGroupSourceInstituteId;
+  private final String physicalResourceGroupSourceAdminGroupName;
+  private final String physicalResourceGroupSourceManagerEmail;
 
-  @Nullable
-  @Column(unique = true, nullable = false)
-  private String ppSourceNetworkElementPk;
+  // ///////////////////////////////////////
+  // physical resource group destination
+  // ///////////////////////////////////////
+  private final long physicalResourceGroupDestinationInstituteId;
+  private final String physicalResourceGroupDestinationAdminGroupName;
+  private final String physicalResourceGroupDestinationManagerEmail;
 
   public ReservationFlattened(final Reservation reservation) {
     super();
@@ -159,14 +125,15 @@ public class ReservationFlattened {
     this.endDateTime = reservation.getEndDateTime();
     this.failedMessage = reservation.getFailedMessage();
     this.name = reservation.getName();
-    this.ppDestinationManagerLabel = reservation.getDestinationPort().getPhysicalPort().getManagerLabel();
-    this.ppDestinationNetworkElementPk = reservation.getDestinationPort().getPhysicalPort().getNetworkElementPk();
-    this.ppDestinationNocLabel = reservation.getDestinationPort().getPhysicalPort().getNocLabel();
-    this.ppDestinationPortId = reservation.getDestinationPort().getPhysicalPort().getPortId();
-    this.ppSourceManagerLabel = reservation.getSourcePort().getPhysicalPort().getManagerLabel();
-    this.ppSourceNetworkElementPk = reservation.getDestinationPort().getPhysicalPort().getNetworkElementPk();
-    this.ppSourceNocLabel = reservation.getDestinationPort().getPhysicalPort().getNocLabel();
-    this.ppSourcePortId = reservation.getDestinationPort().getPhysicalPort().getPortId();
+    this.physicalPortDestinationManagerLabel = reservation.getDestinationPort().getPhysicalPort().getManagerLabel();
+    this.physicalPortDestinationNetworkElementPk = reservation.getDestinationPort().getPhysicalPort()
+        .getNetworkElementPk();
+    this.physicalPortDestinationNocLabel = reservation.getDestinationPort().getPhysicalPort().getNocLabel();
+    this.physicalPortDestinationPortId = reservation.getDestinationPort().getPhysicalPort().getPortId();
+    this.physicalPortSourceManagerLabel = reservation.getSourcePort().getPhysicalPort().getManagerLabel();
+    this.physicalPortSourceNetworkElementPk = reservation.getDestinationPort().getPhysicalPort().getNetworkElementPk();
+    this.physicalPortSourceNocLabel = reservation.getDestinationPort().getPhysicalPort().getNocLabel();
+    this.physicalPortSourcePortId = reservation.getDestinationPort().getPhysicalPort().getPortId();
     this.reservationId = reservation.getReservationId();
     this.sourceManagerLabel = reservation.getSourcePort().getManagerLabel();
     this.sourceMaxBandwidth = reservation.getSourcePort().getMaxBandwidth();
@@ -179,13 +146,26 @@ public class ReservationFlattened {
     this.virtualResourceGroupName = reservation.getVirtualResourceGroup().getName();
     this.virtualResourceGroupSurfconextGroupId = reservation.getVirtualResourceGroup().getSurfconextGroupId();
 
+    this.physicalResourceGroupSourceAdminGroupName = reservation.getSourcePort().getPhysicalResourceGroup()
+        .getAdminGroup();
+    this.physicalResourceGroupSourceInstituteId = reservation.getSourcePort().getPhysicalPort()
+        .getPhysicalResourceGroup().getInstituteId();
+    this.physicalResourceGroupSourceManagerEmail = reservation.getSourcePort().getPhysicalPort()
+        .getPhysicalResourceGroup().getManagerEmail();
+
+    this.physicalResourceGroupDestinationAdminGroupName = reservation.getSourcePort().getPhysicalResourceGroup()
+        .getAdminGroup();
+    this.physicalResourceGroupDestinationInstituteId = reservation.getSourcePort().getPhysicalPort()
+        .getPhysicalResourceGroup().getInstituteId();
+    this.physicalResourceGroupDestinationManagerEmail = reservation.getSourcePort().getPhysicalPort()
+        .getPhysicalResourceGroup().getManagerEmail();
   }
 
   public final Long getId() {
     return id;
   }
 
-  public final Integer getVersion() {
+  public final int getVersion() {
     return version;
   }
 
@@ -217,7 +197,7 @@ public class ReservationFlattened {
     return userCreated;
   }
 
-  public final Integer getBandwidth() {
+  public final int getBandwidth() {
     return bandwidth;
   }
 
@@ -233,11 +213,11 @@ public class ReservationFlattened {
     return sourceUserLabel;
   }
 
-  public final Integer getSourceMaxBandwidth() {
+  public final int getSourceMaxBandwidth() {
     return sourceMaxBandwidth;
   }
 
-  public final Integer getSourceVlanId() {
+  public final int getSourceVlanId() {
     return sourceVlanId;
   }
 
@@ -249,11 +229,11 @@ public class ReservationFlattened {
     return destinationUserLabel;
   }
 
-  public final Integer getDestinationMaxBandwidth() {
+  public final int getDestinationMaxBandwidth() {
     return destinationMaxBandwidth;
   }
 
-  public final Integer getDestinationVlanId() {
+  public final int getDestinationVlanId() {
     return destinationVlanId;
   }
 
@@ -269,36 +249,60 @@ public class ReservationFlattened {
     return virtualResourceGroupSurfconextGroupId;
   }
 
-  public final String getPpDestinationNocLabel() {
-    return ppDestinationNocLabel;
+  public final String getPhysicalPortDestinationNocLabel() {
+    return physicalPortDestinationNocLabel;
   }
 
-  public final String getPpDestinationManagerLabel() {
-    return ppDestinationManagerLabel;
+  public final String getPhysicalPortDestinationManagerLabel() {
+    return physicalPortDestinationManagerLabel;
   }
 
-  public final String getPpDestinationPortId() {
-    return ppDestinationPortId;
+  public final String getPhysicalPortDestinationPortId() {
+    return physicalPortDestinationPortId;
   }
 
-  public final String getPpDestinationNetworkElementPk() {
-    return ppDestinationNetworkElementPk;
+  public final String getPhysicalPortDestinationNetworkElementPk() {
+    return physicalPortDestinationNetworkElementPk;
   }
 
-  public final String getPpSourceNocLabel() {
-    return ppSourceNocLabel;
+  public final String getPhysicalPortSourceNocLabel() {
+    return physicalPortSourceNocLabel;
   }
 
-  public final String getPpSourceManagerLabel() {
-    return ppSourceManagerLabel;
+  public final String getPhysicalPortSourceManagerLabel() {
+    return physicalPortSourceManagerLabel;
   }
 
-  public final String getPpSourcePortId() {
-    return ppSourcePortId;
+  public final String getPhysicalPortSourcePortId() {
+    return physicalPortSourcePortId;
   }
 
-  public final String getPpSourceNetworkElementPk() {
-    return ppSourceNetworkElementPk;
+  public final String getPhysicalPortSourceNetworkElementPk() {
+    return physicalPortSourceNetworkElementPk;
+  }
+
+  public final String getPhysicalResourceGroupSourceAdminGroupName() {
+    return physicalResourceGroupSourceAdminGroupName;
+  }
+
+  public final String getPhysicalResourceGroupSourceManagerEmail() {
+    return physicalResourceGroupSourceManagerEmail;
+  }
+
+  public final String getPhysicalResourceGroupDestinationAdminGroupName() {
+    return physicalResourceGroupDestinationAdminGroupName;
+  }
+
+  public final String getPhysicalResourceGroupDestinationManagerEmail() {
+    return physicalResourceGroupDestinationManagerEmail;
+  }
+
+  public final long getPhysicalResourceGroupSourceInstituteId() {
+    return physicalResourceGroupSourceInstituteId;
+  }
+
+  public final long getPhysicalResourceGroupDestinationInstituteId() {
+    return physicalResourceGroupDestinationInstituteId;
   }
 
   @Override
@@ -310,10 +314,10 @@ public class ReservationFlattened {
     builder.append(version);
     builder.append(", name=");
     builder.append(name);
-    builder.append(", status=");
-    builder.append(status);
     builder.append(", failedMessage=");
     builder.append(failedMessage);
+    builder.append(", status=");
+    builder.append(status);
     builder.append(", startDateTime=");
     builder.append(startDateTime);
     builder.append(", endDateTime=");
@@ -348,22 +352,34 @@ public class ReservationFlattened {
     builder.append(virtualResourceGroupDescription);
     builder.append(", virtualResourceGroupSurfconextGroupId=");
     builder.append(virtualResourceGroupSurfconextGroupId);
-    builder.append(", ppDestinationNocLabel=");
-    builder.append(ppDestinationNocLabel);
-    builder.append(", ppDestinationManagerLabel=");
-    builder.append(ppDestinationManagerLabel);
-    builder.append(", ppDestinationPortId=");
-    builder.append(ppDestinationPortId);
-    builder.append(", ppDestinationNetworkElementPk=");
-    builder.append(ppDestinationNetworkElementPk);
-    builder.append(", ppSourceNocLabel=");
-    builder.append(ppSourceNocLabel);
-    builder.append(", ppSourceManagerLabel=");
-    builder.append(ppSourceManagerLabel);
-    builder.append(", ppSourcePortId=");
-    builder.append(ppSourcePortId);
-    builder.append(", ppSourceNetworkElementPk=");
-    builder.append(ppSourceNetworkElementPk);
+    builder.append(", physicalPortSourceNocLabel=");
+    builder.append(physicalPortSourceNocLabel);
+    builder.append(", physicalPortSourceManagerLabel=");
+    builder.append(physicalPortSourceManagerLabel);
+    builder.append(", physicalPortSourcePortId=");
+    builder.append(physicalPortSourcePortId);
+    builder.append(", physicalPortSourceNetworkElementPk=");
+    builder.append(physicalPortSourceNetworkElementPk);
+    builder.append(", physicalPortDestinationNocLabel=");
+    builder.append(physicalPortDestinationNocLabel);
+    builder.append(", physicalPortDestinationManagerLabel=");
+    builder.append(physicalPortDestinationManagerLabel);
+    builder.append(", physicalPortDestinationPortId=");
+    builder.append(physicalPortDestinationPortId);
+    builder.append(", physicalPortDestinationNetworkElementPk=");
+    builder.append(physicalPortDestinationNetworkElementPk);
+    builder.append(", physicalResourceGroupSourceInstituteId=");
+    builder.append(physicalResourceGroupSourceInstituteId);
+    builder.append(", physicalResourceGroupSourceAdminGroupName=");
+    builder.append(physicalResourceGroupSourceAdminGroupName);
+    builder.append(", physicalResourceGroupSourceManagerEmail=");
+    builder.append(physicalResourceGroupSourceManagerEmail);
+    builder.append(", physicalResourceGroupDestinationInstituteId=");
+    builder.append(physicalResourceGroupDestinationInstituteId);
+    builder.append(", physicalResourceGroupDestinationAdminGroupName=");
+    builder.append(physicalResourceGroupDestinationAdminGroupName);
+    builder.append(", physicalResourceGroupDestinationManagerEmail=");
+    builder.append(physicalResourceGroupDestinationManagerEmail);
     builder.append("]");
     return builder.toString();
   }
