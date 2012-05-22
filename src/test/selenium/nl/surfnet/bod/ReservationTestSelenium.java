@@ -24,7 +24,6 @@ package nl.surfnet.bod;
 import nl.surfnet.bod.support.TestExternalSupport;
 
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.junit.After;
 import org.junit.Before;
@@ -84,7 +83,6 @@ public class ReservationTestSelenium extends TestExternalSupport {
 
   @Test
   public void cancelReservation() {
-    final LocalDateTime creationDateTime = LocalDateTime.now();
     final LocalDate startDate = LocalDate.now().plusDays(3);
     final LocalDate endDate = LocalDate.now().plusDays(5);
     final LocalTime startTime = LocalTime.now().plusHours(1);

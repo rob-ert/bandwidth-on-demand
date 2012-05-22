@@ -38,16 +38,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.PhysicalPort_;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationFlattened;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.Reservation_;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPort_;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationFlattenedRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -80,12 +71,12 @@ import com.google.common.collect.Ordering;
 public class ReservationService {
 
   private static final Function<Reservation, ReservationFlattened> TO_FLATTENED_RESERVATION = //
-  new Function<Reservation, ReservationFlattened>() {
-    @Override
-    public ReservationFlattened apply(Reservation reservation) {
-      return new ReservationFlattened(reservation);
-    }
-  };
+    new Function<Reservation, ReservationFlattened>() {
+      @Override
+      public ReservationFlattened apply(Reservation reservation) {
+        return new ReservationFlattened(reservation);
+      }
+    };
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -98,15 +89,15 @@ public class ReservationService {
   @Autowired
   private NbiClient nbiClient;
 
-  @PersistenceContext
-  private EntityManager entityManager;
-
   @Autowired
   private ReservationToNbi reservationToNbi;
 
+  @PersistenceContext
+  private EntityManager entityManager;
+
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   * 
+   *
    * @param reservation
    * @return
    */
@@ -176,7 +167,7 @@ public class ReservationService {
    * Cancels a reservation if the current user has the correct role and the
    * reservation is allowed to be deleted depending on its state. Updates the
    * state of the reservation.
-   * 
+   *
    * @param reservation
    *          {@link Reservation} to delete
    * @return true if the reservation was canceld, false otherwise.
@@ -205,7 +196,7 @@ public class ReservationService {
    * <li>and</li>
    * <li>the current status of the reservation must allow it</li>
    * </ul>
-   * 
+   *
    * @param reservation
    *          {@link Reservation} to check
    * @param user
@@ -238,7 +229,7 @@ public class ReservationService {
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   * 
+   *
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -436,7 +427,7 @@ public class ReservationService {
   public long count() {
     return reservationRepo.count();
   }
-  
+
   public void deleteReservations(final List<Reservation> reservations) {
      reservationRepo.delete(reservations);
   }
