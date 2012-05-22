@@ -25,14 +25,17 @@ import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.user.*;
+import nl.surfnet.bod.pages.user.EditVirtualPortPage;
+import nl.surfnet.bod.pages.user.ListReservationPage;
+import nl.surfnet.bod.pages.user.ListVirtualPortPage;
+import nl.surfnet.bod.pages.user.NewReservationPage;
+import nl.surfnet.bod.pages.user.RequestNewVirtualPortRequestPage;
+import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectInstitutePage;
+import nl.surfnet.bod.pages.user.UserOverviewPage;
 
-import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.Assert;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class BodUserWebDriver {
@@ -48,7 +51,7 @@ public class BodUserWebDriver {
 
     page.selectInstitute(team);
   }
-  
+
   public void verifyReservationStartDateHasError(String string) {
     NewReservationPage page = NewReservationPage.get(driver);
     String error = page.getStartDateError();
@@ -133,6 +136,18 @@ public class BodUserWebDriver {
     page.clickSwitchRole(role);
   }
 
-  
+  public void verifyReservationIsCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,
+      LocalTime startTime, LocalTime endTime) {
+
+    ListReservationPage page = ListReservationPage.get(driver);
+
+    page.verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
+  }
+
+  public void verifyReservationWasCreated(String reservationLabel, LocalDate startDate, LocalDate endDate,
+      LocalTime startTime, LocalTime endTime) {
+    ListReservationPage page = ListReservationPage.get(driver);
+    page.verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
+  }
 
 }

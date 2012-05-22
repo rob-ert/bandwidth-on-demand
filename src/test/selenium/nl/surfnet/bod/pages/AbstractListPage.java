@@ -21,12 +21,20 @@
  */
 package nl.surfnet.bod.pages;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.support.BodWebDriver;
 import nl.surfnet.bod.support.Probes;
 
+import org.hamcrest.core.CombinableMatcher;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
@@ -40,7 +48,7 @@ import com.google.common.util.concurrent.Uninterruptibles;
 
 public class AbstractListPage extends AbstractPage {
 
-  protected final Probes probes;
+  private final Probes probes;
 
   @FindBy(css = "table.table tbody")
   private WebElement table;
@@ -75,6 +83,10 @@ public class AbstractListPage extends AbstractPage {
 
   protected void clickRowIcon(String icon, String... fields) {
     findRow(fields).findElement(By.cssSelector("a i[class~=" + icon + "]")).click();
+  }
+
+  protected Probes getProbes() {
+    return probes;
   }
 
   public WebElement findRow(String... fields) {
@@ -118,5 +130,48 @@ public class AbstractListPage extends AbstractPage {
    */
   protected void setTable(WebElement table) {
     this.table = table;
+  }
+
+  public WebElement verifyReservationWasCreated(String label, LocalDate startDate, LocalDate endDate,
+      LocalTime startTime, LocalTime endTime) {
+
+    return findReservationRow(label, startDate, endDate, startTime, endTime);
+  }
+
+  public void verifyReservationIsCancellable(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
+      LocalTime endTime) {
+
+    WebElement row = verifyReservationWasCreated(label, startDate, endDate, startTime, endTime);
+
+    try {
+      row.findElement(By.cssSelector("span.disabled-icon"));
+      assertThat("Reservation should not contain disabled Icon", false);
+    }
+    catch (NoSuchElementException e) {
+      // Expected
+    }
+  }
+
+  public void verifyReservationIsNotCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,
+      LocalTime startTime, LocalTime endTime) {
+
+    WebElement row = verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
+    row.findElement(By.cssSelector("span.disabled-icon"));
+  }
+
+  private WebElement findReservationRow(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
+      LocalTime endTime) {
+
+    String start = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
+    String end = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
+
+    WebElement row = findRow(label, start, end);
+
+    assertThat(
+        row.getText(),
+        CombinableMatcher.<String> either(containsString(ReservationStatus.REQUESTED.name())).or(
+            containsString(ReservationStatus.SCHEDULED.name())));
+
+    return row;
   }
 }

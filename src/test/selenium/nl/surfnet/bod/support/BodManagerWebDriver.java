@@ -27,12 +27,19 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.pages.manager.*;
+import nl.surfnet.bod.pages.manager.EditPhysicalPortPage;
+import nl.surfnet.bod.pages.manager.EditPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.manager.EditVirtualPortPage;
+import nl.surfnet.bod.pages.manager.ListPhysicalPortsPage;
+import nl.surfnet.bod.pages.manager.ListReservationPage;
+import nl.surfnet.bod.pages.manager.ListVirtualPortPage;
+import nl.surfnet.bod.pages.manager.ListVirtualResourceGroupPage;
+import nl.surfnet.bod.pages.manager.ManagerOverviewPage;
+import nl.surfnet.bod.pages.manager.NewVirtualPortPage;
 import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.noc.NocOverviewPage;
 
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -146,16 +153,13 @@ public class BodManagerWebDriver {
     editPage.save();
   }
 
-  public void verifyReservationExists(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
-      LocalDateTime creationDateTime) {
+  public void verifyReservationIsCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,
+      LocalTime startTime, LocalTime endTime) {
+
     ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
-    String start = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
-    String end = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
-
-    page.findRow(start, end);
+    page.verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
   }
-  
 
   public void verifyStatistics() {
     ManagerOverviewPage page = ManagerOverviewPage.get(driver, URL_UNDER_TEST);
@@ -201,6 +205,15 @@ public class BodManagerWebDriver {
     NocOverviewPage page = NocOverviewPage.get(driver, URL_UNDER_TEST);
 
     page.clickSwitchRole(role);
+  }
+
+  public void verifyReservationWasCreated(String reservationLabel, LocalDate startDate, LocalDate endDate,
+      LocalTime startTime, LocalTime endTime) {
+
+    nl.surfnet.bod.pages.manager.ListReservationPage page = nl.surfnet.bod.pages.manager.ListReservationPage.get(
+        driver, URL_UNDER_TEST);
+
+    page.verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
   }
 
 }

@@ -43,7 +43,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.user.ListReservationPage;
+import nl.surfnet.bod.pages.AbstractListPage;
 
 import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.DateTime;
@@ -310,47 +310,6 @@ public class BodWebDriver {
     assertThat(modal.getText(), containsString(text));
   }
 
-  public void verifyReservationWasCreated(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
-      LocalTime endTime) {
-
-    verifyReservationIsCancellable(label, startDate, endDate, startTime, endTime);
-  }
-
-  public void verifyReservationIsCancellable(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
-      LocalTime endTime) {
-    WebElement row = findReservationRow(label, startDate, endDate, startTime, endTime);
-
-    try {
-      row.findElement(By.cssSelector("span [class~=disabled-icon]"));
-      assertThat("Reservation should not contain disabled Icon", false);
-    }
-    catch (NoSuchElementException e) {
-      // Expected
-    }
-  }
-
-  public void verifyReservationIsNotCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,
-      LocalTime startTime, LocalTime endTime) {
-
-    WebElement row = findReservationRow(reservationLabel, startDate, endDate, startTime, endTime);
-    row.findElement(By.cssSelector("span [class~=disabled-icon]"));
-  }
-
-  private WebElement findReservationRow(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
-      LocalTime endTime) {
-    ListReservationPage page = ListReservationPage.get(driver);
-
-    String start = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(startDate.toLocalDateTime(startTime));
-    String end = BodWebDriver.RESERVATION_DATE_TIME_FORMATTER.print(endDate.toLocalDateTime(endTime));
-
-    WebElement row = page.findRow(label, start, end);
-
-    assertThat(
-        row.getText(),
-        CombinableMatcher.<String> either(containsString(ReservationStatus.REQUESTED.name())).or(
-            containsString(ReservationStatus.SCHEDULED.name())));
-
-    return row;
-  }
+  
 
 }

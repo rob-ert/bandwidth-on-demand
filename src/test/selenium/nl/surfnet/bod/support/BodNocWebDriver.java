@@ -29,10 +29,13 @@ import nl.surfnet.bod.pages.noc.EditPhysicalPortPage;
 import nl.surfnet.bod.pages.noc.EditPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.noc.ListAllocatedPortsPage;
 import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.noc.ListReservationPage;
 import nl.surfnet.bod.pages.noc.ListUnallocatedPortsPage;
 import nl.surfnet.bod.pages.noc.NewPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.noc.NocOverviewPage;
 
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class BodNocWebDriver {
@@ -155,5 +158,13 @@ public class BodNocWebDriver {
     page.findRow("Elapsed reservations", "0");
     page.findRow("Active reservations", "0");
     page.findRow("Coming reservations", "1");
+  }
+
+  public void verifyReservationIsNotCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,
+      LocalTime startTime, LocalTime endTime) {
+
+    ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
+
+    page.verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime);
   }
 }
