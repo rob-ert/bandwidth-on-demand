@@ -66,7 +66,7 @@ public class VirtualPortServiceTest {
   private VirtualPortRepo virtualPortRepoMock;
 
   @Mock
-  private ReservationRepo reservationRepoMock;
+  private ReservationService reservationService;
 
   @Mock
   private VirtualPortRequestLinkRepo virtualPortRequestLinkRepoMock;
@@ -86,9 +86,8 @@ public class VirtualPortServiceTest {
   @Test
   public void delete() {
     VirtualPort virtualPort = new VirtualPortFactory().create();
-    when(reservationRepoMock.findBySourcePortOrDestinationPort(new VirtualPort(), new VirtualPort())).thenReturn(
+    when(reservationService.findBySourcePortOrDestinationPort(virtualPort, virtualPort)).thenReturn(
         new ArrayList<Reservation>());
-    
     subject.delete(virtualPort);
 
     verify(virtualPortRepoMock).delete(virtualPort);

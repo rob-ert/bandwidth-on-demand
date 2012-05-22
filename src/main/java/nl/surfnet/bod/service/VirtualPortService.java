@@ -21,8 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -32,9 +31,18 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalPort_;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
-import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.domain.VirtualPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -60,9 +68,9 @@ public class VirtualPortService {
   private VirtualPortRequestLinkRepo virtualPortRequestLinkRepo;
   @Autowired
   private EmailSender emailSender;
-
+  
   @Autowired
-  private ReservationRepo reservationRepo;
+  private ReservationService reservationService;
 
   public long count() {
     return virtualPortRepo.count();
@@ -77,9 +85,9 @@ public class VirtualPortService {
   }
 
   public void delete(final VirtualPort virtualPort) {
-    for (Reservation reservation : reservationRepo.findBySourcePortOrDestinationPort(virtualPort, virtualPort)) {
-      reservationRepo.delete(reservation);
-    }
+    final List<Reservation> reservations = reservationService.findBySourcePortOrDestinationPort(virtualPort, virtualPort);
+    reservationService.saveFlattenedReservations(reservations);
+    reservationService.deleteReservations(reservations);
     virtualPortRepo.delete(virtualPort);
   }
 

@@ -460,5 +460,13 @@ public class ReservationService {
   public long count() {
     return reservationRepo.count();
   }
+  
+  public void deleteReservations(final List<Reservation> reservations) {
+     reservationRepo.delete(reservations);
+  }
+
+  public List<Reservation> findBySourcePortOrDestinationPort(VirtualPort virtualPortA, VirtualPort virtualPortB) {
+    return reservationRepo.findBySourcePortOrDestinationPort(virtualPortA, virtualPortB);
+  }
 
 }
