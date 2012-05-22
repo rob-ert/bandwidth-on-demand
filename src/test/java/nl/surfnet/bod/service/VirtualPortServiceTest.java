@@ -30,10 +30,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.support.*;
@@ -45,6 +47,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -61,6 +64,9 @@ public class VirtualPortServiceTest {
 
   @Mock
   private VirtualPortRepo virtualPortRepoMock;
+
+  @Mock
+  private ReservationRepo reservationRepoMock;
 
   @Mock
   private VirtualPortRequestLinkRepo virtualPortRequestLinkRepoMock;
@@ -80,7 +86,9 @@ public class VirtualPortServiceTest {
   @Test
   public void delete() {
     VirtualPort virtualPort = new VirtualPortFactory().create();
-
+    when(reservationRepoMock.findBySourcePortOrDestinationPort(new VirtualPort(), new VirtualPort())).thenReturn(
+        new ArrayList<Reservation>());
+    
     subject.delete(virtualPort);
 
     verify(virtualPortRepoMock).delete(virtualPort);
@@ -114,7 +122,8 @@ public class VirtualPortServiceTest {
   public void findEntries() {
     VirtualPort port = new VirtualPortFactory().create();
 
-    when(virtualPortRepoMock.findAll(any(PageRequest.class))).thenReturn(new PageImpl<VirtualPort>(Lists.newArrayList(port)));
+    when(virtualPortRepoMock.findAll(any(PageRequest.class))).thenReturn(
+        new PageImpl<VirtualPort>(Lists.newArrayList(port)));
 
     List<VirtualPort> ports = subject.findEntries(5, 10);
 
@@ -123,24 +132,25 @@ public class VirtualPortServiceTest {
 
   @Test
   public void findAllForUserWithoutGroupsShouldNotGoToRepo() {
-      List<VirtualPort> ports = subject.findAllForUser(new RichUserDetailsFactory().create());
+    List<VirtualPort> ports = subject.findAllForUser(new RichUserDetailsFactory().create());
 
-      assertThat(ports, hasSize(0));
-      verifyZeroInteractions(virtualPortRepoMock);
+    assertThat(ports, hasSize(0));
+    verifyZeroInteractions(virtualPortRepoMock);
   }
 
   @Test
   public void findAllEntriesForUserWithoutGroupsShouldNotGoToRepo() {
-      List<VirtualPort> ports = subject.findEntriesForUser(new RichUserDetailsFactory().create(), 2, 5, new Sort("id"));
+    List<VirtualPort> ports = subject.findEntriesForUser(new RichUserDetailsFactory().create(), 2, 5, new Sort("id"));
 
-      assertThat(ports, hasSize(0));
-      verifyZeroInteractions(virtualPortRepoMock);
+    assertThat(ports, hasSize(0));
+    verifyZeroInteractions(virtualPortRepoMock);
   }
 
   @SuppressWarnings("unchecked")
   @Test
   public void findAllForUser() {
-    when(virtualPortRepoMock.findAll(any(Specification.class))).thenReturn(ImmutableList.of(new VirtualPortFactory().create()));
+    when(virtualPortRepoMock.findAll(any(Specification.class))).thenReturn(
+        ImmutableList.of(new VirtualPortFactory().create()));
 
     List<VirtualPort> ports = subject.findAllForUser(new RichUserDetailsFactory().addUserGroup("urn:mygroup").create());
 

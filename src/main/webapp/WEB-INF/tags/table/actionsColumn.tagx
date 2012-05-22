@@ -14,6 +14,8 @@
     <jsp:directive.attribute name="deleteLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="successMessageCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteEnabled" type="java.lang.Boolean" required="false" rtexprvalue="true" />
+    
+    <jsp:directive.attribute name="deleteConfirmLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
 
     <c:if test="${empty idFieldName}">
         <c:set var="idFieldName" value="id" />
@@ -33,6 +35,10 @@
     <c:if test="${empty deleteLabelCode}">
         <c:set var="deleteLabelCode" value="entity_delete" />
     </c:if>
+    
+    <c:if test="${empty deleteConfirmLabelCode}">
+        <c:set var="deleteConfirmLabelCode" value="entity_delete_confirm" />
+    </c:if>
 
     <spring:message code="${labelCode}" var="label" />
 
@@ -47,6 +53,8 @@
 
         <c:if test="${empty delete or delete}">
             <spring:message code="${deleteLabelCode}" arguments="${label}" var="delete_title" />
+            <spring:message code="${deleteConfirmLabelCode}" arguments="${affected_reservations}" var="delete_confirm_title" />
+            
             <spring:url value="${path}/delete" var="deleteUrl" >
                 <spring:param name="_method" value="DELETE" />
                 <spring:param name="id" value="${item[idFieldName]}" />
@@ -55,10 +63,10 @@
             <c:choose>                
                 <c:when test="${not empty successMessageCode and deleteEnabled}">
                     <spring:message code="${successMessageCode}" arguments="${item['name']}"  var="successMessage" />
-                    <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true" data-confirm="Are you sure?" data-success="${successMessage}"><i class="${deleteIcon}"><!--  --></i></a>
+                    <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true" data-confirm="${delete_confirm_title}" data-success="${successMessage}"><i class="${deleteIcon}"><!--  --></i></a>
                 </c:when>
                 <c:when test="${empty successMessageCode and deleteEnabled}">
-                  <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true" data-confirm="Are you sure?"><i class="${deleteIcon}"><!--  --></i></a>
+                  <a href="${deleteUrl}" rel="tooltip" data-type="info" title="${delete_title}" data-form="true" data-confirm="${delete_confirm_title}"><i class="${deleteIcon}"><!--  --></i></a>
                 </c:when>
                 <c:when test="${not deleteEnabled}">
                   <span rel="tooltip" data-type="info" title="${delete_title}" class="disabled-icon">

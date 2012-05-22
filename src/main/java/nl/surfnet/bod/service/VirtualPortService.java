@@ -34,6 +34,7 @@ import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -60,6 +61,9 @@ public class VirtualPortService {
   @Autowired
   private EmailSender emailSender;
 
+  @Autowired
+  private ReservationRepo reservationRepo;
+
   public long count() {
     return virtualPortRepo.count();
   }
@@ -73,6 +77,9 @@ public class VirtualPortService {
   }
 
   public void delete(final VirtualPort virtualPort) {
+    for (Reservation reservation : reservationRepo.findBySourcePortOrDestinationPort(virtualPort, virtualPort)) {
+      reservationRepo.delete(reservation);
+    }
     virtualPortRepo.delete(virtualPort);
   }
 
@@ -98,7 +105,7 @@ public class VirtualPortService {
     return new Specification<VirtualPort>() {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
+                                                              CriteriaBuilder cb) {
         return cb.and(root.get(VirtualPort_.virtualResourceGroup).get(VirtualResourceGroup_.surfconextGroupId)
             .in(user.getUserGroupIds()));
       }
@@ -112,7 +119,7 @@ public class VirtualPortService {
 
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
+                                                              CriteriaBuilder cb) {
         return cb.and(cb
             .equal(
                 root.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
@@ -128,7 +135,7 @@ public class VirtualPortService {
   }
 
   public List<VirtualPort> findEntriesForUser(final RichUserDetails user, final int firstResult, final int maxResults,
-      Sort sort) {
+                                              Sort sort) {
     checkNotNull(user);
 
     if (user.getUserGroups().isEmpty()) {
@@ -169,7 +176,7 @@ public class VirtualPortService {
   }
 
   public void requestNewVirtualPort(RichUserDetails user, VirtualResourceGroup vGroup, PhysicalResourceGroup pGroup,
-      Integer minBandwidth, String message) {
+                                    Integer minBandwidth, String message) {
     VirtualPortRequestLink link = new VirtualPortRequestLink();
     link.setVirtualResourceGroup(vGroup);
     link.setPhysicalResourceGroup(pGroup);
