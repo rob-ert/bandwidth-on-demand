@@ -33,6 +33,7 @@ import javax.validation.constraints.NotNull;
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.InstituteService;
+import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSortableListController;
@@ -70,7 +71,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     @Override
     public VirtualPortView apply(VirtualPort port) {
       instituteService.fillInstituteForPhysicalResourceGroup(port.getPhysicalResourceGroup());
-      return new VirtualPortView(port);
+      return new VirtualPortView(port, reservationService.countForVirtualResourceGroup(port.getVirtualResourceGroup()));
     }
   };
 
@@ -85,6 +86,10 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
   @Autowired
   private MessageSource messageSource;
+  
+  
+  @Autowired
+  private ReservationService reservationService;
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid VirtualPortCreateCommand createCommand, BindingResult result, Model model,
@@ -436,8 +441,9 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     private final String physicalResourceGroup;
     private final String physicalPort;
     private final String userLabel;
+    private final long reservationCounter;
 
-    public VirtualPortView(VirtualPort port) {
+    public VirtualPortView(VirtualPort port, final long reservationCounter) {
       id = port.getId();
       managerLabel = port.getManagerLabel();
       userLabel = port.getUserLabel();
@@ -446,6 +452,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
       virtualResourceGroup = port.getVirtualResourceGroup().getName();
       physicalResourceGroup = port.getPhysicalResourceGroup().getName();
       physicalPort = port.getPhysicalPort().getManagerLabel();
+      this.reservationCounter = reservationCounter;
     }
 
     public String getManagerLabel() {
@@ -478,6 +485,10 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
     public String getUserLabel() {
       return userLabel;
+    }
+
+    public long getReservationCounter() {
+      return reservationCounter;
     }
 
   }

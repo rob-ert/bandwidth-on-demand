@@ -429,6 +429,7 @@ public class ReservationService {
   }
 
   public void deleteReservations(final List<Reservation> reservations) {
+     this.saveFlattenedReservations(reservations);
      reservationRepo.delete(reservations);
   }
 

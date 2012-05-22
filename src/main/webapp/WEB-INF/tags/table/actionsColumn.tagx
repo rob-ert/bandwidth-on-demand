@@ -14,8 +14,9 @@
     <jsp:directive.attribute name="deleteLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="successMessageCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteEnabled" type="java.lang.Boolean" required="false" rtexprvalue="true" />
-    
     <jsp:directive.attribute name="deleteConfirmLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="deleteConfirmLabelArgument" type="java.lang.String" required="false" rtexprvalue="true" />
+    
 
     <c:if test="${empty idFieldName}">
         <c:set var="idFieldName" value="id" />
@@ -35,9 +36,11 @@
     <c:if test="${empty deleteLabelCode}">
         <c:set var="deleteLabelCode" value="entity_delete" />
     </c:if>
-    
     <c:if test="${empty deleteConfirmLabelCode}">
         <c:set var="deleteConfirmLabelCode" value="entity_delete_confirm" />
+    </c:if>
+    <c:if test="${empty deleteConfirmLabelArgument}">
+      <c:set var="deleteConfirmLabelArgument" value=""/>
     </c:if>
 
     <spring:message code="${labelCode}" var="label" />
@@ -53,7 +56,7 @@
 
         <c:if test="${empty delete or delete}">
             <spring:message code="${deleteLabelCode}" arguments="${label}" var="delete_title" />
-            <spring:message code="${deleteConfirmLabelCode}" arguments="${affected_reservations}" var="delete_confirm_title" />
+            <spring:message code="${deleteConfirmLabelCode}" arguments="${deleteConfirmLabelArgument}" var="delete_confirm_title" />
             
             <spring:url value="${path}/delete" var="deleteUrl" >
                 <spring:param name="_method" value="DELETE" />

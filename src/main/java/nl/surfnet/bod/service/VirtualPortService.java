@@ -86,7 +86,6 @@ public class VirtualPortService {
 
   public void delete(final VirtualPort virtualPort) {
     final List<Reservation> reservations = reservationService.findBySourcePortOrDestinationPort(virtualPort, virtualPort);
-    reservationService.saveFlattenedReservations(reservations);
     reservationService.deleteReservations(reservations);
     virtualPortRepo.delete(virtualPort);
   }
