@@ -14,7 +14,7 @@
         <selenium.version>2.20.0</selenium.version>
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:8888/bod</selenium.test.url>
-        <sos.version>0.1.0</sos.version>
+        <sos.version>0.1.1</sos.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <scm>
