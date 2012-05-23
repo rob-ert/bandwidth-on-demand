@@ -72,8 +72,8 @@ public class BodUserWebDriver {
 
     RequestNewVirtualPortRequestPage requestPage = page.selectInstitute(institute);
 
-    requestPage.sendMessage(message);
     requestPage.sendBandwidth("" + bandwidth);
+    requestPage.sendMessage(message);
     requestPage.sentRequest();
   }
 

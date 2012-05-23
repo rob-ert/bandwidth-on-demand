@@ -81,6 +81,16 @@ public class AbstractListPage extends AbstractPage {
     return probes;
   }
 
+  public boolean isTableEmpty() {
+    try {
+      table.findElements(By.tagName("tr"));
+      return false;
+    }
+    catch (NoSuchElementException e) {
+      return true;
+    }
+  }
+
   public WebElement findRow(String... fields) {
     List<WebElement> rows = table.findElements(By.tagName("tr"));
 

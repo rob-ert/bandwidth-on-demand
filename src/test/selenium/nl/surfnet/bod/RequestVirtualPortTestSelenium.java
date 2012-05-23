@@ -23,7 +23,6 @@ package nl.surfnet.bod;
 
 import nl.surfnet.bod.support.TestExternalSupport;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,7 +58,7 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
   }
 
   @Test
-  public void requestAVirtualPort() {
+  public void requestVirtualPortAndCheckRequestCanOnlyBeUsedOnce() {
     getManagerDriver().switchToUser();
 
     getUserDriver().requestVirtualPort("selenium-users");
@@ -70,8 +69,6 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
     getUserDriver().switchToManager("SURFnet");
 
-    getManagerDriver().verifyVirtualResourceGroupExists("selenium-users");
-
     getWebDriver().clickLinkInLastEmail();
 
     getManagerDriver().verifyNewVirtualPortHasProperties("SURFnet bv", 1200);
@@ -79,6 +76,12 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
     getManagerDriver().createVirtualPort("Your vport");
 
     getManagerDriver().verifyVirtualPortExists("Your vport", "selenium-users", "1200", "Request a virtual port");
+
+    getManagerDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
+
+    getManagerDriver().switchToManager("2COLLEGE");
+
+    getManagerDriver().verifyVirtualResourceGroupsEmpty();
 
     // requester has email about port creation
     getWebDriver().verifyLastEmailRecipient("Selenium Test User <selenium@test.com>");
@@ -89,9 +92,6 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
     // should be manager again and have a message link is already used
     getWebDriver().verifyPageHasMessage("already processed");
-
-    // virtual resource group should have one virtual port now
-    getManagerDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
 
     // physical resource group should have one physical port
     getManagerDriver().verifyPhysicalResourceGroupExists("SURFnet bv", "test@test.nl", "1");
@@ -109,16 +109,6 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
     getUserDriver().switchToManager("SURFnet");
 
     getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "selenium-users");
-  }
-
-  @After
-  public void teardown() {
-    getManagerDriver().deleteVirtualResourceGroup("selenium-users");
-
-    getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
-    getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK_2);
-    getNocDriver().deletePhysicalResourceGroup("SURFnet bv");
-    getNocDriver().deletePhysicalResourceGroup("2COLLEGE");
   }
 
 }
