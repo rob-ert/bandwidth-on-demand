@@ -771,12 +771,11 @@
                             <execution>
                                 <phase>pre-integration-test</phase>
                                 <configuration>
-                                    <target>
-                                      <mkdir dir="${project.build.directory}/sos-server"/>
-                                    </target>
                                     <available file="${project.build.directory}/sos-server/sos-server-${sos.version}.war"
                                         property="sos.present" />
                                     <target unless="sos.present">
+                                        <echo message="creating ${project.build.directory}/sos-server" />
+                                        <mkdir dir="${project.build.directory}/sos-server" />
                                         <echo message="sos not found" />
                                         <get
                                             src="http://atlas.dlp.surfnet.nl/nexus/service/local/repositories/releases/content/nl/surfnet/sos-server/${sos.version}/sos-server-${sos.version}.war"
