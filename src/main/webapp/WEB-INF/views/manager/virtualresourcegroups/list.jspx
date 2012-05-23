@@ -2,10 +2,10 @@
 <html xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
     xmlns:spring="http://www.springframework.org/tags" xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/table">
-    
+
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-        
+
     <page:list id="pl_VirtualResourceGroup">
 
         <table:table items="${list}" labelPluralCode="label_virtualresourcegroup_plural">
@@ -15,7 +15,6 @@
                     <table:sortableHeader property="name" labelCode="label_virtualresourcegroup_name" />
                     <table:sortableHeader property="description" labelCode="label_virtualresourcegroup_description" />
                     <th><spring:message code="label_virtualresourcegroup_virtualportcount" /></th>
-                    <table:actionsHeader />
                 </tr>
             </thead>
             <tbody>
@@ -32,7 +31,6 @@
                         <table:column item="${item}" property="name" />
                         <table:column item="${item}" property="description" />
                         <table:column item="${item}" property="virtualPortCount" />
-                        <table:actionsColumn item="${item}" update="false" path="/manager/virtualresourcegroups" labelCode="label_virtualresourcegroup" />
                     </tr>
                 </c:forEach>
             </tbody>
