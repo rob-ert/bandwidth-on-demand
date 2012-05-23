@@ -80,6 +80,10 @@ public class VirtualPortService {
     return virtualPortRepo.count(specificationForManager(managerRole));
   }
 
+  public long countForPhysicalPort(PhysicalPort physicalPort) {
+    return virtualPortRepo.count(specificationByPhysicalPort(physicalPort));
+  }
+
   public void delete(final VirtualPort virtualPort) {
     final List<Reservation> reservations = reservationService.findBySourcePortOrDestinationPort(virtualPort,
         virtualPort);
@@ -127,10 +131,22 @@ public class VirtualPortService {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
           CriteriaBuilder cb) {
-        return cb
-            .equal(
+        return cb.equal(
                 root.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
                     .get(PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId());
+      }
+    };
+  }
+
+  private Specification<VirtualPort> specificationByPhysicalPort(final PhysicalPort physicalPort) {
+    return new Specification<VirtualPort>() {
+
+      Long physicalPortId = physicalPort.getId();
+
+      @Override
+      public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
+          CriteriaBuilder cb) {
+        return cb.and(cb.equal(root.get(VirtualPort_.physicalPort).get(PhysicalPort_.id), physicalPortId));
       }
     };
   }
@@ -177,10 +193,10 @@ public class VirtualPortService {
     return virtualPortRepo.save(virtualPort);
   }
 
-  public Collection<VirtualPort> findAllForPhysicalPort(PhysicalPort port) {
-    checkNotNull(port);
+  public Collection<VirtualPort> findAllForPhysicalPort(PhysicalPort physicalPort) {
+    checkNotNull(physicalPort);
 
-    return virtualPortRepo.findByPhysicalPort(port);
+    return virtualPortRepo.findAll(specificationByPhysicalPort(physicalPort));
   }
 
   public void requestNewVirtualPort(RichUserDetails user, VirtualResourceGroup vGroup, PhysicalResourceGroup pGroup,
