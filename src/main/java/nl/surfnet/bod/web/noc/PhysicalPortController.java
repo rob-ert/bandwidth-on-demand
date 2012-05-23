@@ -21,7 +21,15 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.UPDATE;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,10 +39,14 @@ import javax.validation.constraints.NotNull;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.view.PhysicalPortView;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +67,7 @@ import com.google.common.collect.Iterables;
 
 @Controller
 @RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
-public class PhysicalPortController extends AbstractSortableListController<PhysicalPort> {
+public class PhysicalPortController extends AbstractSortableListController<PhysicalPortView> {
 
   public static final String PAGE_URL = "physicalports";
   static final String MODEL_KEY = "createPhysicalPortCommand";
@@ -67,10 +79,17 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   private PhysicalResourceGroupService physicalResourceGroupService;
 
   @Autowired
+  private InstituteService instituteService;
+
+  @Autowired
+  private VirtualPortService virtualPortService;
+
+  @Autowired
   private MessageSource messageSource;
 
   @RequestMapping(value = "add", method = RequestMethod.GET)
-  public String addPhysicalPortForm(@RequestParam(value = "prg") Long prgId, Model model, RedirectAttributes redirectAttrs) {
+  public String addPhysicalPortForm(@RequestParam(value = "prg") Long prgId, Model model,
+      RedirectAttributes redirectAttrs) {
     PhysicalResourceGroup prg = physicalResourceGroupService.find(prgId);
     if (prg == null) {
       return "redirect:/";
@@ -124,8 +143,8 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     physicalPortService.save(port);
 
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_physicalport_added", port.getNocLabel(),
-        port.getPhysicalResourceGroup().getName());
+    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_physicalport_added", port.getNocLabel(), port
+        .getPhysicalResourceGroup().getName());
 
     return "redirect:/noc/physicalresourcegroups";
   }
@@ -160,8 +179,10 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   @RequestMapping(value = "/free", method = RequestMethod.GET)
   public String listUnallocated(@RequestParam(value = PAGE_KEY, required = false) final Integer page,
       final Model uiModel) {
-    uiModel.addAttribute("list",
-        physicalPortService.findUnallocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
+
+    uiModel.addAttribute("list", Functions.enrichAndTransformUnallocatedPhysicalPort(
+        (List<PhysicalPort>) physicalPortService.findUnallocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE),
+        instituteService));
 
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocated()));
 
@@ -199,7 +220,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   *
+   * 
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
@@ -213,8 +234,10 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   }
 
   @Override
-  protected List<PhysicalPort> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return physicalPortService.findAllocatedEntries(firstPage, maxItems, sort);
+  protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
+
+    return (List<PhysicalPortView>) Functions.enrichAndTransformAllocatedPhysicalPort(
+        physicalPortService.findAllocatedEntries(firstPage, maxItems, sort), instituteService, virtualPortService);
   }
 
   @Override
@@ -284,13 +307,9 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     @Override
     public String toString() {
-      return Objects.toStringHelper(this)
-          .add("networkElementPk", networkElementPk)
-          .add("portId", portId)
-          .add("nocLabel", nocLabel)
-          .add("managerLabel", managerLabel)
-          .add("physicalResourceGroup", physicalResourceGroup)
-          .toString();
+      return Objects.toStringHelper(this).add("networkElementPk", networkElementPk).add("portId", portId)
+          .add("nocLabel", nocLabel).add("managerLabel", managerLabel)
+          .add("physicalResourceGroup", physicalResourceGroup).toString();
     }
   }
 

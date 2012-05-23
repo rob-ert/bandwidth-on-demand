@@ -123,17 +123,17 @@ public class DashboardControllerTest {
     Security.switchToManager(physicalResourceGroup);
 
     when(physicalResourceGroupServiceMock.find(physicalResourceGroup.getId())).thenReturn(physicalResourceGroup);
-    when(physicalPortServiceMock.countAllocatedForPhysicalResourceGroup(physicalResourceGroup)).thenReturn(1l);
-    when(virtualPortServiceMock.countForManager(Iterables.getOnlyElement(manager.getManagerRoles()))).thenReturn(2l);
-    when(reservationServiceMock.countForFilterAndManager(manager, elapsedFilter)).thenReturn(3l);
-    when(reservationServiceMock.countForFilterAndManager(manager, activeFilter)).thenReturn(4l);
-    when(reservationServiceMock.countForFilterAndManager(manager, comingFilter)).thenReturn(5l);
+    when(physicalPortServiceMock.countAllocatedForPhysicalResourceGroup(physicalResourceGroup)).thenReturn(1L);
+    when(virtualPortServiceMock.countForManager(Iterables.getOnlyElement(manager.getManagerRoles()))).thenReturn(2L);
+    when(reservationServiceMock.countForFilterAndManager(manager, elapsedFilter)).thenReturn(3L);
+    when(reservationServiceMock.countForFilterAndManager(manager, activeFilter)).thenReturn(4L);
+    when(reservationServiceMock.countForFilterAndManager(manager, comingFilter)).thenReturn(5L);
 
     ManagerStatisticsView statistics = subject.determineStatistics(manager);
-    assertThat(statistics.getPhysicalPortsAmount(), is(1l));
-    assertThat(statistics.getVirtualPortsAmount(), is(2l));
-    assertThat(statistics.getElapsedReservationsAmount(), is(3l));
-    assertThat(statistics.getActiveReservationsAmount(), is(4l));
-    assertThat(statistics.getComingReservationsAmount(), is(5l));
+    assertThat(statistics.getPhysicalPortsAmount(), is(1L));
+    assertThat(statistics.getVirtualPortsAmount(), is(2L));
+    assertThat(statistics.getElapsedReservationsAmount(), is(3L));
+    assertThat(statistics.getActiveReservationsAmount(), is(4L));
+    assertThat(statistics.getComingReservationsAmount(), is(5L));
   }
 }

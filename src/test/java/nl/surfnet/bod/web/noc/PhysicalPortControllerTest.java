@@ -41,6 +41,7 @@ import java.util.Locale;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -49,6 +50,7 @@ import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.noc.PhysicalPortController.CreatePhysicalPortCommand;
+import nl.surfnet.bod.web.view.PhysicalPortView;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -82,31 +84,44 @@ public class PhysicalPortControllerTest {
   private VirtualPortService virtualPortServiceMock;
 
   @Mock
+  private InstituteService instituteServiceMock;
+
+  @Mock
   private MessageSource messageSource;
 
   @Test
   public void listAllPortsShouldSetPortsAndMaxPages() {
     Model model = new ModelStub();
-    List<PhysicalPort> ports = Lists.newArrayList(new PhysicalPortFactory().create());
+    PhysicalPort port = new PhysicalPortFactory().create();
+
+    List<PhysicalPort> ports = Lists.newArrayList(port);
+    List<PhysicalPortView> transformedPorts = Lists.newArrayList(new PhysicalPortView(port));
+
     when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), org.mockito.Matchers.any(Sort.class)))
         .thenReturn(ports);
 
     subject.list(1, null, null, model);
 
-    assertThat(model.asMap(), hasEntry("list", Object.class.cast(ports)));
+    List<PhysicalPortView> modelList = WebUtils.getAttributeFromModel("list", model);
+
+    assertThat(modelList.get(0), is(transformedPorts.get(0)));
     assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
   }
 
   @Test
   public void listAllPortsWithoutAPageParam() {
     Model model = new ModelStub();
-    List<PhysicalPort> ports = Lists.newArrayList(new PhysicalPortFactory().create());
+    PhysicalPort port = new PhysicalPortFactory().create();
+    List<PhysicalPort> ports = Lists.newArrayList(port);
+    List<PhysicalPortView> transformedPorts = Lists.newArrayList(new PhysicalPortView(port));
+    
     when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), org.mockito.Matchers.any(Sort.class)))
         .thenReturn(ports);
 
     subject.list(null, null, null, model);
 
-    assertThat(model.asMap(), hasEntry("list", Object.class.cast(ports)));
+    List<PhysicalPortView> modelList = WebUtils.getAttributeFromModel("list", model);
+    assertThat(modelList.get(0), is(transformedPorts.get(0)));
     assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
   }
 

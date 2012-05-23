@@ -21,19 +21,18 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSortableListController;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.PhysicalPortView;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -44,12 +43,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 @Controller("managerPhysicalPortController")
 @RequestMapping(PhysicalPortController.PAGE_URL)
-public class PhysicalPortController extends AbstractSortableListController<PhysicalPortController.PhysicalPortView> {
+public class PhysicalPortController extends AbstractSortableListController<PhysicalPortView> {
 
   public static final String PAGE_URL = "/manager/physicalports";
 
@@ -60,19 +58,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   private VirtualPortService virtualPortService;
 
   @Autowired
-  private InstituteService instituteService;
-
-  @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
-
-  private final Function<PhysicalPort, PhysicalPortView> toView = new Function<PhysicalPort, PhysicalPortView>() {
-    @Override
-    public PhysicalPortView apply(PhysicalPort port) {
-      instituteService.fillInstituteForPhysicalResourceGroup(port.getPhysicalResourceGroup());
-      Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(port);
-      return new PhysicalPortView(port, virtualPorts);
-    }
-  };
 
   @RequestMapping(value = "/edit", params = "id", method = RequestMethod.GET)
   public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
@@ -82,8 +68,8 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
       return "manager/physicalports";
     }
 
+    uiModel.addAttribute("physicalPort", port);
     uiModel.addAttribute("updateManagerLabelCommand", new UpdateManagerLabelCommand(port));
-    uiModel.addAttribute("physicalPort", toView.apply(port));
 
     return "manager/physicalports/update";
   }
@@ -161,55 +147,6 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     }
   }
 
-  public static final class PhysicalPortView {
-    private final Long id;
-    private final String managerLabel;
-    private final String nocLabel;
-    private final PhysicalResourceGroup physicalResourceGroup;
-    private final String networkElementPk;
-    private final Collection<VirtualPort> virtualPorts;
-    private final String portId;
-
-    public PhysicalPortView(PhysicalPort port, Collection<VirtualPort> virtualPorts) {
-      this.id = port.getId();
-      this.managerLabel = port.getManagerLabel();
-      this.nocLabel = port.getNocLabel();
-      this.networkElementPk = port.getNetworkElementPk();
-      this.physicalResourceGroup = port.getPhysicalResourceGroup();
-      this.virtualPorts = virtualPorts;
-      this.portId = port.getPortId();
-    }
-
-    public String getNetworkElementPk() {
-      return networkElementPk;
-    }
-
-    public Integer getNumberOfVirtualPorts() {
-      return virtualPorts.size();
-    }
-
-    public String getManagerLabel() {
-      return managerLabel;
-    }
-
-    public PhysicalResourceGroup getPhysicalResourceGroup() {
-      return physicalResourceGroup;
-    }
-
-    public Long getId() {
-      return id;
-    }
-
-    public String getNocLabel() {
-      return nocLabel;
-    }
-
-    public String getPortId() {
-      return portId;
-    }
-
-  }
-
   @Override
   protected String listUrl() {
     return "manager/physicalports/list";
@@ -225,9 +162,8 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(groupId);
 
-    List<PhysicalPort> list = physicalPortService.findAllocatedEntriesForPhysicalResourceGroup(physicalResourceGroup,
-        firstPage, maxItems, sort);
-
-    return Lists.transform(list, toView);
+    return (List<PhysicalPortView>) Functions.transformAllocatedPhysicalPort(physicalPortService
+        .findAllocatedEntriesForPhysicalResourceGroup(physicalResourceGroup, firstPage, maxItems, sort),
+        virtualPortService);
   }
 }

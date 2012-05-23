@@ -49,10 +49,10 @@ import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.manager.PhysicalPortController.PhysicalPortView;
 import nl.surfnet.bod.web.manager.PhysicalPortController.UpdateManagerLabelCommand;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.PhysicalPortView;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -137,7 +137,7 @@ public class PhysicalPortControllerTest {
     assertThat((Long) model.asMap().get(WebUtils.FILTER_SELECT), is(1L));
 
     Collection<PhysicalPortView> ports = (Collection<PhysicalPortView>) model.asMap().get("list");
-    List<PhysicalPortView> portList = new ArrayList<PhysicalPortController.PhysicalPortView>(ports);
+    List<PhysicalPortView> portList = new ArrayList<PhysicalPortView>(ports);
 
     assertThat(portList.size(), is(1));
     assertThat(portList.get(0).getId(), is(portOne.getId()));
