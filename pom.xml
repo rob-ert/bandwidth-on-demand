@@ -764,24 +764,30 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>wagon-maven-plugin</artifactId>
-                        <version>1.0-beta-4</version>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
                         <executions>
                             <execution>
-                                <id>download-sos-server</id>
                                 <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>download-single</goal>
-                                </goals>
                                 <configuration>
-                                    <url>http://atlas.dlp.surfnet.nl</url>
-                                    <fromFile>nexus/service/local/repositories/releases/content/nl/surfnet/sos-server/${sos.version}/sos-server-${sos.version}.war</fromFile>
-                                    <toDir>${project.build.directory}/sos-server</toDir>
+                                    <available file="target/sos-server/sos-server-${sos.version}.war"
+                                        property="sos.present" />
+                    
+                                    <target unless="sos.present">
+                                        <echo message="sos not found" />
+                                        <get
+                                            src="http://atlas.dlp.surfnet.nl/nexus/service/local/repositories/releases/content/nl/surfnet/sos-server/${sos.version}/sos-server-${sos.version}.war"
+                                            dest="target/sos-server/sos-server-${sos.version}.war"
+                                            verbose="true" />
+                                    </target>
                                 </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
                             </execution>
                         </executions>
-                    </plugin>
+                    </plugin>                    
                     <plugin>
                         <groupId>org.mortbay.jetty</groupId>
                         <artifactId>jetty-maven-plugin</artifactId>
