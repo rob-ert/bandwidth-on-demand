@@ -33,7 +33,7 @@ public class ReservationToNbi {
     publishStatusChanged(reservationWithReservationId, orgStatus);
   }
 
-  private void publishStatusChanged(Reservation reservation, ReservationStatus originalStatus) {
+  private void publishStatusChanged(final Reservation reservation, final ReservationStatus originalStatus) {
     if (originalStatus == reservation.getStatus()) {
       return;
     }
