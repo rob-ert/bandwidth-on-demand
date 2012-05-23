@@ -95,6 +95,10 @@ public final class BodRole {
     return role;
   }
 
+  public boolean isManagerRole() {
+    return getRole() == RoleEnum.ICT_MANAGER;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {

@@ -29,14 +29,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +56,12 @@ public class VirtualResourceGroupService {
 
   public long count() {
     return virtualResourceGroupRepo.count();
+  }
+
+  public long countForManager(BodRole managerRole) {
+    checkArgument(managerRole.isManagerRole());
+
+    return virtualResourceGroupRepo.count(specificationForManager(managerRole));
   }
 
   public void delete(final VirtualResourceGroup virtualResourceGroup) {
@@ -69,6 +80,35 @@ public class VirtualResourceGroupService {
     checkArgument(maxResults > 0);
 
     return virtualResourceGroupRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+  }
+
+  public List<VirtualResourceGroup> findEntriesForManager(BodRole managerRole, int firstResult, int maxResults,
+      Sort sort) {
+    checkArgument(maxResults > 0);
+    checkArgument(managerRole.isManagerRole());
+
+    return virtualResourceGroupRepo.findAll(specificationForManager(managerRole),
+        new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+  }
+
+  private Specification<VirtualResourceGroup> specificationForManager(final BodRole managerRole) {
+    managerRole.getPhysicalResourceGroupId();
+
+    return new Specification<VirtualResourceGroup>() {
+      @Override
+      public javax.persistence.criteria.Predicate toPredicate(Root<VirtualResourceGroup> root, CriteriaQuery<?> query,
+          CriteriaBuilder cb) {
+
+        Subquery<Long> subquery = query.subquery(Long.class);
+        Root<VirtualPort> subRoot = subquery.from(VirtualPort.class);
+        subquery.select(subRoot.get(VirtualPort_.virtualResourceGroup).get(VirtualResourceGroup_.id));
+        subquery.where(cb.equal(
+            subRoot.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
+                .get(PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId()));
+
+        return cb.in(root.get(VirtualResourceGroup_.id)).value(subquery);
+      }
+    };
   }
 
   public void save(final VirtualResourceGroup virtualResourceGroup) {

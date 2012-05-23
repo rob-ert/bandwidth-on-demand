@@ -86,8 +86,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
   @Autowired
   private MessageSource messageSource;
-  
-  
+
   @Autowired
   private ReservationService reservationService;
 
@@ -247,13 +246,13 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   @Override
   protected List<VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
     return Lists.transform(
-        virtualPortService.findEntriesForManager(Security.getUserDetails(), firstPage, maxItems, sort),
+        virtualPortService.findEntriesForManager(Security.getSelectedRole(), firstPage, maxItems, sort),
         toVitualPortView);
   }
 
   @Override
   protected long count() {
-    return virtualPortService.countForManager(Security.getUserDetails());
+    return virtualPortService.countForManager(Security.getSelectedRole());
   }
 
   @Override

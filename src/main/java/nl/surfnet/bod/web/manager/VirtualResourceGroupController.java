@@ -31,6 +31,7 @@ import java.util.List;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -59,10 +60,10 @@ public class VirtualResourceGroupController extends AbstractSortableListControll
 
     uiModel.asMap().clear();
     uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());
-    
-  //Force refresh of roles, a role should possibly be removed
+
+    // Force refresh of roles, a role should possibly be removed
     SecurityContextHolder.clearContext();
-    
+
     return "redirect:";
   }
 
@@ -73,12 +74,12 @@ public class VirtualResourceGroupController extends AbstractSortableListControll
 
   @Override
   protected List<VirtualResourceGroup> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return virtualResourceGroupService.findEntries(firstPage, maxItems, sort);
+    return virtualResourceGroupService.findEntriesForManager(Security.getSelectedRole(), firstPage, maxItems, sort);
   }
 
   @Override
   protected long count() {
-    return virtualResourceGroupService.count();
+    return virtualResourceGroupService.countForManager(Security.getSelectedRole());
   }
 
   @Override

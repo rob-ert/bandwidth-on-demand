@@ -101,6 +101,10 @@ public final class Security {
     return getUserDetails().isSelectedUserRole();
   }
 
+  public static BodRole getSelectedRole() {
+    return getUserDetails().getSelectedRole();
+  }
+
   public static boolean isSelectedManagerRole() {
     return getUserDetails().isSelectedManagerRole();
   }
@@ -154,7 +158,7 @@ public final class Security {
 
   /**
    * Set the current logged in user. (Should only be used from tests).
-   * 
+   *
    * @param richUserDetails
    *          the user details
    */

@@ -41,10 +41,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 
 @SuppressWarnings("serial")
 public class RichUserDetails implements UserDetails {
@@ -135,6 +132,17 @@ public class RichUserDetails implements UserDetails {
 
   public List<BodRole> getBodRoles() {
     return bodRoles;
+  }
+
+  public List<BodRole> getManagerRoles() {
+    return FluentIterable.from(getBodRoles())
+      .filter(new Predicate<BodRole>() {
+        @Override
+        public boolean apply(BodRole bodRole) {
+          return bodRole.getRole() == RoleEnum.ICT_MANAGER;
+        }
+      })
+      .toImmutableList();
   }
 
   public BodRole getSelectedRole() {

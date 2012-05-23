@@ -84,7 +84,7 @@ public class DashboardController {
 
     long countPhysicalPorts = physicalPortService.countAllocatedForPhysicalResourceGroup(managerPrg);
 
-    long countVirtualPorts = virtualPortService.countForManager(manager);
+    long countVirtualPorts = virtualPortService.countForManager(manager.getSelectedRole());
 
     long countElapsedReservations = reservationService.countForFilterAndManager(manager,
         reservationFilterViewFactory.create(ReservationFilterViewFactory.ELAPSED));

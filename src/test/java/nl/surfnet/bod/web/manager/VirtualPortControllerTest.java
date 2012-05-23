@@ -62,6 +62,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -109,8 +110,9 @@ public class VirtualPortControllerTest {
     ModelStub model = new ModelStub();
 
     when(
-        virtualPortServiceMock.findEntriesForManager(eq(user), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class)))
-        .thenReturn(Lists.newArrayList(new VirtualPortFactory().create()));
+        virtualPortServiceMock.findEntriesForManager(eq(Iterables.getOnlyElement(user.getManagerRoles())), eq(0),
+            eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
+        Lists.newArrayList(new VirtualPortFactory().create()));
 
     subject.list(1, null, null, model);
 

@@ -36,11 +36,7 @@ import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -55,6 +51,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DashboardControllerTest {
@@ -127,7 +124,7 @@ public class DashboardControllerTest {
 
     when(physicalResourceGroupServiceMock.find(physicalResourceGroup.getId())).thenReturn(physicalResourceGroup);
     when(physicalPortServiceMock.countAllocatedForPhysicalResourceGroup(physicalResourceGroup)).thenReturn(1l);
-    when(virtualPortServiceMock.countForManager(manager)).thenReturn(2l);
+    when(virtualPortServiceMock.countForManager(Iterables.getOnlyElement(manager.getManagerRoles()))).thenReturn(2l);
     when(reservationServiceMock.countForFilterAndManager(manager, elapsedFilter)).thenReturn(3l);
     when(reservationServiceMock.countForFilterAndManager(manager, activeFilter)).thenReturn(4l);
     when(reservationServiceMock.countForFilterAndManager(manager, comingFilter)).thenReturn(5l);

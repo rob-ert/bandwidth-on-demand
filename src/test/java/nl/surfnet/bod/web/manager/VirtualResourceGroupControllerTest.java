@@ -22,6 +22,7 @@
 package nl.surfnet.bod.web.manager;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Matchers.any;
@@ -33,9 +34,13 @@ import java.util.Collection;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.ModelStub;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -43,6 +48,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.Sort;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -54,19 +60,32 @@ public class VirtualResourceGroupControllerTest {
   @Mock
   private VirtualResourceGroupService virtualResourceGroupServiceMock;
 
-  @SuppressWarnings("unchecked")
+  private RichUserDetails user;
+
+  @Before
+  public void loggedInuser() {
+    user = new RichUserDetailsFactory().addManagerRole().create();
+    Security.setUserDetails(user);
+  }
+
   @Test
   public void listShouldFindEntries() {
     ModelStub model = new ModelStub();
+    VirtualResourceGroup group = new VirtualResourceGroupFactory().create();
 
-    when(virtualResourceGroupServiceMock.findEntries(eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
-        Lists.newArrayList(new VirtualResourceGroupFactory().create()));
+    when(
+        virtualResourceGroupServiceMock.findEntriesForManager(eq(Iterables.getOnlyElement(user.getManagerRoles())),
+            eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
+        Lists.newArrayList(group));
 
     subject.list(1, null, null, model);
 
     assertThat(model.asMap(), hasKey("list"));
     assertThat(model.asMap(), hasKey(WebUtils.MAX_PAGES_KEY));
 
-    assertThat((Collection<VirtualResourceGroup>) model.asMap().get("list"), hasSize(1));
+    @SuppressWarnings("unchecked")
+    Collection<VirtualResourceGroup> groups = (Collection<VirtualResourceGroup>) model.asMap().get("list");
+    assertThat(groups, hasSize(1));
+    assertThat(groups, hasItem(group));
   }
 }

@@ -21,7 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -31,18 +32,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalPort_;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
-import nl.surfnet.bod.domain.VirtualPort_;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -68,7 +59,7 @@ public class VirtualPortService {
   private VirtualPortRequestLinkRepo virtualPortRequestLinkRepo;
   @Autowired
   private EmailSender emailSender;
-  
+
   @Autowired
   private ReservationService reservationService;
 
@@ -80,8 +71,10 @@ public class VirtualPortService {
     return virtualPortRepo.count(specificationForUser(user));
   }
 
-  public long countForManager(RichUserDetails manager) {
-    return virtualPortRepo.count(specificationForManager(manager));
+  public long countForManager(BodRole managerRole) {
+    checkArgument(managerRole.isManagerRole());
+
+    return virtualPortRepo.count(specificationForManager(managerRole));
   }
 
   public void delete(final VirtualPort virtualPort) {
@@ -119,18 +112,15 @@ public class VirtualPortService {
     };
   }
 
-  private Specification<VirtualPort> specificationForManager(final RichUserDetails manager) {
+  private Specification<VirtualPort> specificationForManager(final BodRole managerRole) {
     return new Specification<VirtualPort>() {
-
-      private Long prgId = manager.getSelectedRole().getPhysicalResourceGroupId();
 
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
                                                               CriteriaBuilder cb) {
-        return cb.and(cb
-            .equal(
-                root.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
-                    .get(PhysicalResourceGroup_.id), prgId));
+        return cb.equal(
+                root.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id),
+                managerRole.getPhysicalResourceGroupId());
       }
     };
   }
@@ -153,10 +143,11 @@ public class VirtualPortService {
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
-  public List<VirtualPort> findEntriesForManager(RichUserDetails manager, int firstResult, int maxResults, Sort sort) {
-    checkNotNull(manager);
+  public List<VirtualPort> findEntriesForManager(BodRole managerRole, int firstResult, int maxResults, Sort sort) {
+    checkArgument(maxResults > 0);
+    checkArgument(managerRole.isManagerRole());
 
-    return virtualPortRepo.findAll(specificationForManager(manager),
+    return virtualPortRepo.findAll(specificationForManager(managerRole),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
