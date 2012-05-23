@@ -60,6 +60,12 @@ public class NewReservationPage extends AbstractFormPage {
   @FindBy(id = "_startDate_error_id")
   private WebElement startDateError;
 
+  @FindBy(id = "now_chk")
+  private WebElement nowCheckbox;
+
+  @FindBy(id = "forever_chk")
+  private WebElement foreverCheckbox;
+
   public NewReservationPage(RemoteWebDriver driver) {
     super(driver);
   }
@@ -112,6 +118,14 @@ public class NewReservationPage extends AbstractFormPage {
   public void sendLabel(String label) {
     labelInput.clear();
     labelInput.sendKeys(label);
+  }
+
+  public void clickStartNow() {
+    nowCheckbox.click();
+  }
+
+  public void clickForever() {
+    foreverCheckbox.click();
   }
 
 }

@@ -25,7 +25,6 @@ import nl.surfnet.bod.support.TestExternalSupport;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -82,6 +81,15 @@ public class ReservationTestSelenium extends TestExternalSupport {
   }
 
   @Test
+  public void createReservationWithNowAndForever() {
+    getManagerDriver().switchToUser();
+
+    getUserDriver().createNewReservation("Starts now and forever");
+
+    getUserDriver().verifyReservationWasCreated("Starts now and forever");
+  }
+
+  @Test
   public void cancelReservation() {
     final LocalDate startDate = LocalDate.now().plusDays(3);
     final LocalDate endDate = LocalDate.now().plusDays(5);
@@ -106,14 +114,6 @@ public class ReservationTestSelenium extends TestExternalSupport {
 
     getUserDriver().cancelReservation(startDate, endDate, startTime, endTime);
     getUserDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);
-  }
-
-  @After
-  public void teardown() {
-    getManagerDriver().deleteVirtualResourceGroup("selenium-users");
-    getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
-    getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK_2);
-    getNocDriver().deletePhysicalResourceGroup(INSTITUTE_NAME);
   }
 
 }

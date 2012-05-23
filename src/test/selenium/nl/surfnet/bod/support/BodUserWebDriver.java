@@ -24,14 +24,9 @@ package nl.surfnet.bod.support;
 import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.user.EditVirtualPortPage;
-import nl.surfnet.bod.pages.user.ListReservationPage;
-import nl.surfnet.bod.pages.user.ListVirtualPortPage;
-import nl.surfnet.bod.pages.user.NewReservationPage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortRequestPage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectInstitutePage;
-import nl.surfnet.bod.pages.user.UserOverviewPage;
+import nl.surfnet.bod.pages.user.*;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -108,6 +103,17 @@ public class BodUserWebDriver {
     page.save();
   }
 
+  public void createNewReservation(String label) {
+    NewReservationPage page = NewReservationPage.get(driver, URL_UNDER_TEST);
+
+    page.sendLabel(label);
+    page.clickStartNow();
+    page.clickForever();
+
+    page.save();
+
+  }
+
   public void editVirtualPort(String oldLabel, String newLabel) {
     ListVirtualPortPage listPage = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
 
@@ -148,7 +154,15 @@ public class BodUserWebDriver {
       LocalTime startTime, LocalTime endTime) {
     ListReservationPage page = ListReservationPage.get(driver);
 
-    page.verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
+    page.verifyReservationExists(reservationLabel, startDate, endDate, startTime, endTime);
+  }
+
+  public void verifyReservationWasCreated(String label) {
+    ListReservationPage page = ListReservationPage.get(driver);
+
+    assertThat(page.getInfoMessages(), hasItem(containsString(label)));
+
+    page.verifyReservationExists(label);
   }
 
 }

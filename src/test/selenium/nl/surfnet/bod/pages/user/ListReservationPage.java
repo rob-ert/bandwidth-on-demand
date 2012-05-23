@@ -24,7 +24,7 @@ package nl.surfnet.bod.pages.user;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.AbstractListPage;
+import nl.surfnet.bod.pages.AbstractReservationListPage;
 import nl.surfnet.bod.support.BodWebDriver;
 
 import org.joda.time.LocalDate;
@@ -33,7 +33,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
-public class ListReservationPage extends AbstractListPage {
+public class ListReservationPage extends AbstractReservationListPage {
 
   private static final String PAGE = "/reservations";
 

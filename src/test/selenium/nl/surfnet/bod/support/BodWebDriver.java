@@ -42,17 +42,10 @@ import java.util.regex.Pattern;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.AbstractListPage;
-
-import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -100,8 +93,6 @@ public class BodWebDriver {
   }
 
   public synchronized void initializeOnce() {
-    clearDatabase();
-
     if (driver == null) {
       this.driver = new FirefoxDriver();
       this.driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
@@ -134,7 +125,7 @@ public class BodWebDriver {
     userDriver = new BodUserWebDriver(driver);
   }
 
-  private void clearDatabase() {
+  public void clearDatabase() {
     Connection connection = createDbConnection(getProperty(DB_URL), getProperty(DB_USER), getProperty(DB_PASS),
         getProperty(DB_DRIVER_CLASS));
 
@@ -310,6 +301,6 @@ public class BodWebDriver {
     assertThat(modal.getText(), containsString(text));
   }
 
-  
+
 
 }

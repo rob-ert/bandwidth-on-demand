@@ -212,7 +212,7 @@ public class BodManagerWebDriver {
 
     ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
-    page.verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
+    page.verifyReservationExists(reservationLabel, startDate, endDate, startTime, endTime);
   }
 
   public void verifyReservationIsNotCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,
