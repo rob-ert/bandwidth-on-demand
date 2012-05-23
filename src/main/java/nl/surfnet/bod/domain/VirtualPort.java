@@ -115,7 +115,6 @@ public class VirtualPort {
     this.physicalPort = physicalPort;
   }
 
-  // FIXME: Is always null and should not be here, I guess
   public PhysicalResourceGroup getPhysicalResourceGroup() {
     return physicalPort == null ? null : physicalPort.getPhysicalResourceGroup();
   }
