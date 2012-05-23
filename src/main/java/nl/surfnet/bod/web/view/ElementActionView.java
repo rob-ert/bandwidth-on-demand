@@ -55,4 +55,33 @@ public class ElementActionView {
     return reasonKey;
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + (allowed ? 1231 : 1237);
+    result = prime * result + ((reasonKey == null) ? 0 : reasonKey.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ElementActionView other = (ElementActionView) obj;
+    if (allowed != other.allowed)
+      return false;
+    if (reasonKey == null) {
+      if (other.reasonKey != null)
+        return false;
+    }
+    else if (!reasonKey.equals(other.reasonKey))
+      return false;
+    return true;
+  }
+
 }
