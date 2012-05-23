@@ -13,6 +13,7 @@
     <jsp:directive.attribute name="updateLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="successMessageCode" type="java.lang.String" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="deleteRender" type="java.lang.Boolean" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteEnabled" type="java.lang.Boolean" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteConfirmLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteConfirmLabelArgument" type="java.lang.String" required="false" rtexprvalue="true" />
@@ -23,6 +24,9 @@
     </c:if>
     <c:if test="${empty deleteIcon}">
         <c:set var="deleteIcon" value="icon-remove" />
+    </c:if>
+    <c:if test="${empty deleteRender}">
+      <c:set var="deleteRender" value="true"/>
     </c:if>
     <c:if test="${empty deleteEnabled}">
       <c:set var="deleteEnabled" value="true"/>
@@ -54,7 +58,7 @@
             <a href="${editUrl}" rel="tooltip" data-type="info" title="${edit_title}"><i class="${updateIcon}"><!--  --></i></a>
         </c:if>
 
-        <c:if test="${empty delete or delete}">
+        <c:if test="${deleteRender}">
             <spring:message code="${deleteLabelCode}" arguments="${label}" var="delete_title" />
             <spring:message code="${deleteConfirmLabelCode}" arguments="${deleteConfirmLabelArgument}" var="delete_confirm_title" />
             

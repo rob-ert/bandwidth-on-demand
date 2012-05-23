@@ -1,46 +1,62 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<html xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:spring="http://www.springframework.org/tags" xmlns:tiles="http://tiles.apache.org/tags-tiles"
-    xmlns:table="urn:jsptagdir:/WEB-INF/tags/table">
+<html xmlns:jsp="http://java.sun.com/JSP/Page"
+  xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+  xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:spring="http://www.springframework.org/tags"
+  xmlns:tiles="http://tiles.apache.org/tags-tiles"
+  xmlns:table="urn:jsptagdir:/WEB-INF/tags/table">
 
-    <jsp:directive.page contentType="text/html;charset=UTF-8" />
-    <jsp:output omit-xml-declaration="yes" />
-    <tiles:useAttribute id="show_unallocated" name="unallocated" classname="java.lang.Boolean" />
+<jsp:directive.page contentType="text/html;charset=UTF-8" />
+<jsp:output omit-xml-declaration="yes" />
+<tiles:useAttribute id="show_unallocated" name="unallocated"
+  classname="java.lang.Boolean" />
 
-    <page:list id="pl_PhysicalPort" pluralLabelCode="${show_unallocated ? 'label_physicalport_unallocated_plural' : ''}">
-        <table:table items="${list}" labelPluralCode="${show_unallocated ? 'label_physicalport_unallocated_plural' : 'label_physicalport_plural'}">
-            <thead>
-                <tr>
-                    <table:rowDetailsHeader render="${not show_unallocated}" />
-                    <table:sortableHeader labelCode="label_physicalport_noclabel" property="nocLabel" sortable="${not show_unallocated}" />
-                    <table:sortableHeader labelCode="label_physicalport_portid" property="portId" sortable="${not show_unallocated}" />
-                    <table:sortableHeader labelCode="label_physicalresourcegroup" property="physicalResourceGroup" render="${not show_unallocated}" />
-                    <table:sortableHeader labelCode="label_physicalport_networkelementpk" property="networkElementPk" sortable="${not show_unallocated}" />
-                    <table:actionsHeader />
-                </tr>
-            </thead>
-            <tbody>
-                <c:forEach items="${list}" var="item">
-                    <tr class="rowdetails">
-                        <table:rowDetailsColumn render="${not show_unallocated}">
-                            <dl class="dl-horizontal">
-                                <dt>Manager Label</dt>
-                                <dd><c:out value="${item.managerLabel}" /></dd>
-                            </dl>
-                        </table:rowDetailsColumn>
-                        <table:column item="${item}" property="nocLabel" />
-                        <table:column item="${item}" property="portId" />
-                        <table:column item="${item}" property="physicalResourceGroup" render="${not show_unallocated}" />
-                        <table:column item="${item}" property="networkElementPk" />
-                        <table:actionsColumn item="${item}"
-                            delete="${not show_unallocated}" deleteIcon="icon-resize-full" deleteLabelCode="label_unallocate"
-                            updateIcon="${show_unallocated ? 'icon-resize-small' : ''}" updateLabelCode="${show_unallocated ? 'label_allocate' : ''}"
-                            path="/noc/physicalports" idFieldName="networkElementPk"
-                            labelCode="label_physicalport" />
-                    </tr>
-                </c:forEach>
-            </tbody>
-        </table:table>
-    </page:list>
+<page:list id="pl_PhysicalPort"
+  pluralLabelCode="${show_unallocated ? 'label_physicalport_unallocated_plural' : ''}">
+  <table:table items="${list}"
+    labelPluralCode="${show_unallocated ? 'label_physicalport_unallocated_plural' : 'label_physicalport_plural'}">
+    <thead>
+      <tr>
+        <table:rowDetailsHeader render="${not show_unallocated}" />
+        <table:sortableHeader labelCode="label_physicalport_noclabel"
+          property="nocLabel" sortable="${not show_unallocated}" />
+        <table:sortableHeader labelCode="label_physicalport_portid"
+          property="portId" sortable="${not show_unallocated}" />
+        <table:sortableHeader labelCode="label_physicalresourcegroup"
+          property="physicalResourceGroup" render="${not show_unallocated}" />
+        <table:sortableHeader labelCode="label_physicalport_networkelementpk"
+          property="networkElementPk" sortable="${not show_unallocated}" />          
+        <table:actionsHeader />
+      </tr>
+    </thead>
+    <tbody>
+      <c:forEach items="${list}" var="item">
+        <tr class="rowdetails">
+          <table:rowDetailsColumn render="${not show_unallocated}">
+            <dl class="dl-horizontal">
+              <dt>Manager Label</dt>
+              <dd>
+                <c:out value="${item.managerLabel}" />
+              </dd>
+            </dl>
+          </table:rowDetailsColumn>
+          <table:column item="${item}" property="nocLabel" />
+          <table:column item="${item}" property="portId" />
+          <table:column item="${item}" property="physicalResourceGroupName"
+            render="${not show_unallocated}" />
+          <table:column item="${item}" property="networkElementPk" />          
+          <table:actionsColumn item="${item}"
+            deleteRender="${item.deleteRender}"
+            deleteEnabled="${item.deleteAllowed}"
+            deleteLabelCode="${item.deleteReasonKey}"
+            deleteIcon="icon-resize-full"
+            updateIcon="${show_unallocated ? 'icon-resize-small' : ''}"
+            updateLabelCode="${show_unallocated ? 'label_allocate' : ''}"
+            path="/noc/physicalports" idFieldName="networkElementPk"
+            labelCode="label_physicalport" />
+        </tr>
+      </c:forEach>
+    </tbody>
+  </table:table>
+</page:list>
 </html>

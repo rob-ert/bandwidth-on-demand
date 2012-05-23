@@ -23,9 +23,10 @@
                     <tr>
                         <table:column item="${item}" property="managerLabel" />
                         <table:column item="${item}" property="portId" />
-                        <table:column item="${item}" property="numberOfVirtualPorts" />
+                        <table:column item="${item}" property="numberOfVirtualPorts"/>
                         <table:column item="${item}" property="networkElementPk" />
-                        <table:actionsColumn item="${item}" delete="false" path="/manager/physicalports" labelCode="label_physicalport" />
+                        <table:actionsColumn item="${item}"  deleteRender="${item.deleteRender}" deleteEnabled="${item.deleteAllowed}" deleteLabelCode="${item.deleteReasonKey}"
+                            deleteIcon="icon-resize-full" path="/manager/physicalports" labelCode="label_physicalport" />
                     </tr>
                 </c:forEach>
             </tbody>
