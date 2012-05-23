@@ -27,14 +27,12 @@ import javax.persistence.*;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import com.google.common.base.Objects;
-
 /**
  * Entity which represents a List of {@link VirtualPort}s which belong together
  * and to the {@link Reservation}s which are related to this group.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 @Entity
 public class VirtualResourceGroup {
@@ -130,10 +128,10 @@ public class VirtualResourceGroup {
     return virtualPortRequestLinks;
   }
 
-  
- 
-  
-  
+
+
+
+
   @Override
   public int hashCode() {
     final int prime = 31;

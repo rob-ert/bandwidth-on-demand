@@ -35,9 +35,9 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
-import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
@@ -47,7 +47,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -72,6 +71,9 @@ public class VirtualPortServiceTest {
   private VirtualPortRequestLinkRepo virtualPortRequestLinkRepoMock;
 
   @Mock
+  private VirtualResourceGroupRepo virtualResourceGroupRepoMock;
+
+  @Mock
   private EmailSender emailSenderMock;
 
   @Test
@@ -91,6 +93,7 @@ public class VirtualPortServiceTest {
     subject.delete(virtualPort);
 
     verify(virtualPortRepoMock).delete(virtualPort);
+    verify(virtualResourceGroupRepoMock).delete(virtualPort.getVirtualResourceGroup());
   }
 
   @Test

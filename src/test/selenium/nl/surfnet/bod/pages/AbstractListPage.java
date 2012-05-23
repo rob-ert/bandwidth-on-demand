@@ -91,8 +91,12 @@ public class AbstractListPage extends AbstractPage {
     }
   }
 
+  public List<WebElement> getRows() {
+    return table.findElements(By.cssSelector("tbody tr"));
+  }
+
   public WebElement findRow(String... fields) {
-    List<WebElement> rows = table.findElements(By.tagName("tr"));
+    List<WebElement> rows = getRows();
 
     for (final WebElement row : rows) {
       if (containsAll(row, fields)) {

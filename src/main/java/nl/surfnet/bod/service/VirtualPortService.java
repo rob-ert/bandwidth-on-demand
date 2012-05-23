@@ -36,6 +36,7 @@ import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.joda.time.LocalDateTime;
@@ -55,6 +56,8 @@ public class VirtualPortService {
 
   @Autowired
   private VirtualPortRepo virtualPortRepo;
+  @Autowired
+  private VirtualResourceGroupRepo virtualResourceGroupReppo;
   @Autowired
   private VirtualPortRequestLinkRepo virtualPortRequestLinkRepo;
   @Autowired
@@ -78,9 +81,15 @@ public class VirtualPortService {
   }
 
   public void delete(final VirtualPort virtualPort) {
-    final List<Reservation> reservations = reservationService.findBySourcePortOrDestinationPort(virtualPort, virtualPort);
+    final List<Reservation> reservations = reservationService.findBySourcePortOrDestinationPort(virtualPort,
+        virtualPort);
     reservationService.deleteReservations(reservations);
+
     virtualPortRepo.delete(virtualPort);
+
+    if (virtualPort.getVirtualResourceGroup().getVirtualPortCount() == 0) {
+      virtualResourceGroupReppo.delete(virtualPort.getVirtualResourceGroup());
+    }
   }
 
   public VirtualPort find(final Long id) {
@@ -105,7 +114,7 @@ public class VirtualPortService {
     return new Specification<VirtualPort>() {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
-                                                              CriteriaBuilder cb) {
+          CriteriaBuilder cb) {
         return cb.and(root.get(VirtualPort_.virtualResourceGroup).get(VirtualResourceGroup_.surfconextGroupId)
             .in(user.getUserGroupIds()));
       }
@@ -117,10 +126,11 @@ public class VirtualPortService {
 
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
-                                                              CriteriaBuilder cb) {
-        return cb.equal(
-                root.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id),
-                managerRole.getPhysicalResourceGroupId());
+          CriteriaBuilder cb) {
+        return cb
+            .equal(
+                root.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
+                    .get(PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId());
       }
     };
   }
@@ -132,7 +142,7 @@ public class VirtualPortService {
   }
 
   public List<VirtualPort> findEntriesForUser(final RichUserDetails user, final int firstResult, final int maxResults,
-                                              Sort sort) {
+      Sort sort) {
     checkNotNull(user);
 
     if (user.getUserGroups().isEmpty()) {
@@ -174,7 +184,7 @@ public class VirtualPortService {
   }
 
   public void requestNewVirtualPort(RichUserDetails user, VirtualResourceGroup vGroup, PhysicalResourceGroup pGroup,
-                                    Integer minBandwidth, String message) {
+      Integer minBandwidth, String message) {
     VirtualPortRequestLink link = new VirtualPortRequestLink();
     link.setVirtualResourceGroup(vGroup);
     link.setPhysicalResourceGroup(pGroup);

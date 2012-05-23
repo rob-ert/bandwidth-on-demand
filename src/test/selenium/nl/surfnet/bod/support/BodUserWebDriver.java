@@ -24,6 +24,8 @@ package nl.surfnet.bod.support;
 import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.pages.user.*;
 
@@ -163,6 +165,18 @@ public class BodUserWebDriver {
     assertThat(page.getInfoMessages(), Matchers.<String>hasItem(containsString(label)));
 
     page.verifyReservationExists(label);
+  }
+
+  public void verifyNotMemberOf(String teamName) {
+    UserOverviewPage page = UserOverviewPage.get(driver, URL_UNDER_TEST);
+
+    assertThat(page.getTeams(), not(hasItem(teamName)));
+  }
+
+  public void verifyMemberOf(String teamName) {
+    UserOverviewPage page = UserOverviewPage.get(driver, URL_UNDER_TEST);
+
+    assertThat(page.getTeams(), hasItem(teamName));
   }
 
 }
