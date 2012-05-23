@@ -24,10 +24,10 @@ package nl.surfnet.bod.support;
 import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasItem;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.pages.user.*;
 
+import org.hamcrest.Matchers;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.Assert;
@@ -160,7 +160,7 @@ public class BodUserWebDriver {
   public void verifyReservationWasCreated(String label) {
     ListReservationPage page = ListReservationPage.get(driver);
 
-    assertThat(page.getInfoMessages(), hasItem(containsString(label)));
+    assertThat(page.getInfoMessages(), Matchers.<String>hasItem(containsString(label)));
 
     page.verifyReservationExists(label);
   }
