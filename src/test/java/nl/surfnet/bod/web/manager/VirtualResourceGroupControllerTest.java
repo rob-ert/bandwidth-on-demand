@@ -22,9 +22,7 @@
 package nl.surfnet.bod.web.manager;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -37,6 +35,7 @@ import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -84,8 +83,8 @@ public class VirtualResourceGroupControllerTest {
     assertThat(model.asMap(), hasKey(WebUtils.MAX_PAGES_KEY));
 
     @SuppressWarnings("unchecked")
-    Collection<VirtualResourceGroup> groups = (Collection<VirtualResourceGroup>) model.asMap().get("list");
+    Collection<VirtualResourceGroupView> groups = (Collection<VirtualResourceGroupView>) model.asMap().get("list");
     assertThat(groups, hasSize(1));
-    assertThat(groups, hasItem(group));
+    assertThat(groups, contains(hasProperty("name", is(group.getName()))));
   }
 }
