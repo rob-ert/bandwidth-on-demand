@@ -40,7 +40,7 @@ public class ReservationFlattened {
   private Long id;
 
   @Version
-  private int version;
+  private Integer version;
 
   // /////////////////////
   // reservation details
@@ -61,7 +61,7 @@ public class ReservationFlattened {
   private final LocalDateTime creationDateTime;
 
   private final String userCreated;
-  private final int bandwidth;
+  private final Integer bandwidth;
   private final  String reservationId;
 
   // ////////////
@@ -69,16 +69,16 @@ public class ReservationFlattened {
   // ////////////
   private final String sourceManagerLabel;
   private final String sourceUserLabel;
-  private final int sourceMaxBandwidth;
-  private final int sourceVlanId;
+  private final Integer sourceMaxBandwidth;
+  private final Integer sourceVlanId;
 
   // /////////////////
   // destination
   // /////////////////
   private final String destinationManagerLabel;
   private final String destinationUserLabel;
-  private final int destinationMaxBandwidth;
-  private final int destinationVlanId;
+  private final Integer destinationMaxBandwidth;
+  private final Integer destinationVlanId;
 
   private final String virtualResourceGroupName;
   private final String virtualResourceGroupDescription;
@@ -165,7 +165,7 @@ public class ReservationFlattened {
     return id;
   }
 
-  public final int getVersion() {
+  public final Integer getVersion() {
     return version;
   }
 
@@ -197,7 +197,7 @@ public class ReservationFlattened {
     return userCreated;
   }
 
-  public final int getBandwidth() {
+  public final Integer getBandwidth() {
     return bandwidth;
   }
 
@@ -213,11 +213,11 @@ public class ReservationFlattened {
     return sourceUserLabel;
   }
 
-  public final int getSourceMaxBandwidth() {
+  public final Integer getSourceMaxBandwidth() {
     return sourceMaxBandwidth;
   }
 
-  public final int getSourceVlanId() {
+  public final Integer getSourceVlanId() {
     return sourceVlanId;
   }
 
@@ -229,11 +229,11 @@ public class ReservationFlattened {
     return destinationUserLabel;
   }
 
-  public final int getDestinationMaxBandwidth() {
+  public final Integer getDestinationMaxBandwidth() {
     return destinationMaxBandwidth;
   }
 
-  public final int getDestinationVlanId() {
+  public final Integer getDestinationVlanId() {
     return destinationVlanId;
   }
 
