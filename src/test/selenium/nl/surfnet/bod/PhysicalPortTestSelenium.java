@@ -23,7 +23,6 @@ package nl.surfnet.bod;
 
 import nl.surfnet.bod.support.TestExternalSupport;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -68,11 +67,6 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(NETWORK_ELEMENT_PK, managerLabel2);
 
     getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
-  }
-
-  @After
-  public void teardown() {
-    getNocDriver().deletePhysicalResourceGroup(groupName);
   }
 
 }

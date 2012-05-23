@@ -23,7 +23,6 @@ package nl.surfnet.bod;
 
 import nl.surfnet.bod.support.TestExternalSupport;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,10 +42,4 @@ public class InactivePhysicalResourceGroupManagerTestSelenium extends TestExtern
     getManagerDriver().verifyOnEditPhysicalResourceGroupPage(WRONG_EMAIL);
   }
 
-   @After
-  public void teardown() {
-    getManagerDriver().switchToNoc();
-
-    getNocDriver().deletePhysicalResourceGroup("SURFnet bv");
-  }
 }
