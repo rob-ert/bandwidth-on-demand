@@ -26,7 +26,7 @@
  * DAMAGE.
  *
  */
-package nl.surfnet.bod.ws.nsi;
+package nl.surfnet.bod.web.services;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -34,8 +34,6 @@ import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceContext;
-
-import nl.surfnet.bod.repo.ReservationRepo;
 
 import org.ogf.schemas.nsi._2011._10.connection._interface.ForcedEndRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
@@ -47,12 +45,11 @@ import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service("connectionServiceRequester")
+@Service("nsiConnectionServiceRequester")
 @WebService(serviceName = "ConnectionServiceRequester", portName = "ConnectionServiceRequesterPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/requester", wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl")
-public class ConnectionServiceRequester {
+public class NsiConnectionServiceRequester {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -64,14 +61,11 @@ public class ConnectionServiceRequester {
   @Resource
   private WebServiceContext wsc;
   
-  @Autowired
-  private ReservationRepo reservationRepo;
 
   @PostConstruct
   @SuppressWarnings("unused")
   private void init() {
     log.debug("wsc: "+wsc);
-    log.debug("reservationRepo: "+reservationRepo);
   }
 
   @PreDestroy

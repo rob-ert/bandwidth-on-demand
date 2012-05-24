@@ -26,7 +26,7 @@
  * DAMAGE.
  *
  */
-package nl.surfnet.bod.ws.nsi;
+package nl.surfnet.bod.web.services;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -35,7 +35,7 @@ import javax.jws.WebService;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceContext;
 
-import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.service.ReservationService;
 
 import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
@@ -51,9 +51,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service("connectionServiceProvider")
+@Service("nsiConnectionServiceProvider")
 @WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider", wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
-public class ConnectionServiceProvider {
+public class NsiConnectionServiceProvider {
   
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -66,13 +66,13 @@ public class ConnectionServiceProvider {
   private WebServiceContext wsc;
   
   @Autowired
-  private ReservationRepo reservationRepo;
+  private ReservationService reservationService;
 
   @PostConstruct
   @SuppressWarnings("unused")
   private void init() {
     log.debug("wsc: "+wsc);
-    log.debug("reservationRepo: "+reservationRepo);
+    log.debug("reservationService: "+reservationService);
   }
 
   @PreDestroy

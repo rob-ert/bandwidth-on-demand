@@ -27,13 +27,13 @@
     <!-- NSI WS -->
     <wss:binding url="/nsi/provider">
         <wss:service>
-            <ws:service bean="#connectionServiceProvider" />
+            <ws:service bean="#nsiConnectionServiceProvider" />
         </wss:service>
     </wss:binding>
 
     <wss:binding url="/nsi/requester">
         <wss:service>
-            <ws:service bean="#connectionServiceRequester" />
+            <ws:service bean="#nsiConnectionServiceRequester" />
         </wss:service>
     </wss:binding>
 

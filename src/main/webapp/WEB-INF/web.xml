@@ -18,7 +18,7 @@
         <param-value>classpath*:spring/appCtx*.xml</param-value>
     </context-param>
     
-     <!-- Set the JAX-WS servlet for our web services. -->
+    <!-- JAX-WS Spring bridge -->
     <servlet>
         <servlet-name>jaxws-servlet</servlet-name>
         <servlet-class>
@@ -26,7 +26,7 @@
         </servlet-class>
     </servlet>
     
-    <!-- Pattern match for our web services. -->
+    <!-- JAX-WS Spring bridge mappings -->
     <servlet-mapping>
         <servlet-name>jaxws-servlet</servlet-name>
         <url-pattern>/nsi/provider</url-pattern>

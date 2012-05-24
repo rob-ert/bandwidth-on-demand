@@ -680,11 +680,11 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <schemaDirectory>${basedir}/src/main/resources/schema</schemaDirectory>
+                            <schemaDirectory>${basedir}/src/main/resources/schema/nsa</schemaDirectory>
                             <schemaIncludes>
                                 <include>*.xsd</include>
                             </schemaIncludes>
-                            <generatePackage>nl.surfnet.bod.ws.nsi.config.xml
+                            <generatePackage>nl.surfnet.bod.web.services.config.xml
                             </generatePackage>
                             <removeOldOutput>true</removeOldOutput>
                         </configuration>
