@@ -141,7 +141,7 @@ public class VirtualPortService {
   private Specification<VirtualPort> specificationByPhysicalPort(final PhysicalPort physicalPort) {
     return new Specification<VirtualPort>() {
 
-      Long physicalPortId = physicalPort.getId();
+     private  Long physicalPortId = physicalPort.getId();
 
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
