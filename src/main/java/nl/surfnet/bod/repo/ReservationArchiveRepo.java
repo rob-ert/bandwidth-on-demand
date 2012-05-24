@@ -21,14 +21,14 @@
  */
 package nl.surfnet.bod.repo;
 
-import nl.surfnet.bod.domain.ReservationFlattened;
+import nl.surfnet.bod.domain.ReservationArchive;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ReservationFlattenedRepo extends JpaSpecificationExecutor<ReservationFlattened>, JpaRepository<ReservationFlattened, Long> {
+public interface ReservationArchiveRepo extends JpaSpecificationExecutor<ReservationArchive>, JpaRepository<ReservationArchive, Long> {
   
 
 }

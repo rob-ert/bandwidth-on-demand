@@ -1,0 +1,1 @@
+ALTER TABLE reservation_flattened RENAME TO reservation_archive;

@@ -306,8 +306,8 @@ public class ReservationServiceTest {
         }
       }
     };
-    final Collection<ReservationFlattened> flattenedReservations = subject
-        .transformToFlattenedReservations(reservations);
+    final Collection<ReservationArchive> flattenedReservations = subject
+        .transformToReservationArchives(reservations);
     assertNotNull(flattenedReservations);
     assertEquals(10, flattenedReservations.size());
   }

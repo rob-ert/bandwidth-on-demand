@@ -33,7 +33,7 @@ import org.hibernate.annotations.Type;
 import org.joda.time.LocalDateTime;
 
 @Entity
-public class ReservationFlattened {
+public class ReservationArchive {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -114,7 +114,7 @@ public class ReservationFlattened {
   private final String physicalResourceGroupDestinationAdminGroupName;
   private final String physicalResourceGroupDestinationManagerEmail;
 
-  public ReservationFlattened(final Reservation reservation) {
+  public ReservationArchive(final Reservation reservation) {
     super();
     this.bandwidth = reservation.getBandwidth();
     this.creationDateTime = reservation.getCreationDateTime();
@@ -308,7 +308,7 @@ public class ReservationFlattened {
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    builder.append("ReservationFlattened [id=");
+    builder.append("ReservationArchive [id=");
     builder.append(id);
     builder.append(", version=");
     builder.append(version);

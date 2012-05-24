@@ -40,7 +40,7 @@ import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.repo.ReservationFlattenedRepo;
+import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -70,11 +70,11 @@ import com.google.common.collect.Ordering;
 @Transactional
 public class ReservationService {
 
-  private static final Function<Reservation, ReservationFlattened> TO_FLATTENED_RESERVATION = //
-    new Function<Reservation, ReservationFlattened>() {
+  private static final Function<Reservation, ReservationArchive> TO_RESERVATION_ARCHIVE = //
+    new Function<Reservation, ReservationArchive>() {
       @Override
-      public ReservationFlattened apply(Reservation reservation) {
-        return new ReservationFlattened(reservation);
+      public ReservationArchive apply(Reservation reservation) {
+        return new ReservationArchive(reservation);
       }
     };
 
@@ -84,7 +84,7 @@ public class ReservationService {
   private ReservationRepo reservationRepo;
 
   @Autowired
-  private ReservationFlattenedRepo reservationFlattenedRepo;
+  private ReservationArchiveRepo reservationArchiveRepo;
 
   @Autowired
   private NbiClient nbiClient;
@@ -412,12 +412,12 @@ public class ReservationService {
   }
 
   @VisibleForTesting
-  Collection<ReservationFlattened> transformToFlattenedReservations(final List<Reservation> reservations) {
-    return Collections2.transform(reservations, TO_FLATTENED_RESERVATION);
+  Collection<ReservationArchive> transformToReservationArchives(final List<Reservation> reservations) {
+    return Collections2.transform(reservations, TO_RESERVATION_ARCHIVE);
   }
 
-  public void saveFlattenedReservations(final List<Reservation> reservations) {
-    reservationFlattenedRepo.save(transformToFlattenedReservations(reservations));
+  public void saveAsReservationArchives(final List<Reservation> reservations) {
+    reservationArchiveRepo.save(transformToReservationArchives(reservations));
   }
 
   public List<Reservation> findReservationWithStatus(ReservationStatus... states) {
@@ -428,8 +428,8 @@ public class ReservationService {
     return reservationRepo.count();
   }
 
-  public void deleteReservations(final List<Reservation> reservations) {
-     this.saveFlattenedReservations(reservations);
+  public void deleteAndArchiveReservations(final List<Reservation> reservations) {
+     this.saveAsReservationArchives(reservations);
      reservationRepo.delete(reservations);
   }
 
