@@ -100,10 +100,10 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     // Delete Vp
     getNocDriver().switchToManager();
     getManagerDriver().deleteVirtualPort(VP_ONE);
-    getManagerDriver().switchToNoc();
 
     // After delete VP, the PysicalPort should be able to unallocate
     getManagerDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NETWORK_ELEMENT_PK, managerLabel1);
+    getManagerDriver().switchToNoc();
     getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
   }
 
