@@ -499,6 +499,10 @@
                     <groupId>javax.servlet</groupId>
                     <artifactId>servlet-api</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -631,8 +635,7 @@
                             <sourceDestDir>${project.build.directory}/generated-sources/jaxws/</sourceDestDir>
                             <destDir />
                             <wsdlLocation>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl</wsdlLocation>
-                            <staleFile>${project.build.directory}/generated-sources/jaxws/stale/ogf_nsi_connection_provider.done
-                            </staleFile>
+                            <staleFile>${project.build.directory}/generated-sources/jaxws/stale/ogf_nsi_connection_provider.done</staleFile>
                         </configuration>
                     </execution>
 
@@ -647,11 +650,9 @@
                             <xnocompile>true</xnocompile>
                             <wsdlDirectory>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi</wsdlDirectory>
                             <wsdlFiles>
-                                <wsdlFile>ogf_nsi_connection_requester_v1_0.wsdl
-                                </wsdlFile>
+                                <wsdlFile>ogf_nsi_connection_requester_v1_0.wsdl</wsdlFile>
                             </wsdlFiles>
                             <sourceDestDir>${project.build.directory}/generated-sources/jaxws/</sourceDestDir>
-                            <destDir />
                             <wsdlLocation>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl</wsdlLocation>
                             <staleFile>${project.build.directory}/generated-sources/jaxws/stale/ogf_nsi_connection_requester.done</staleFile>
                         </configuration>
@@ -669,8 +670,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <schemaDirectory>${basedir}/src/main/resources/schema
-                            </schemaDirectory>
+                            <schemaDirectory>${basedir}/src/main/resources/schema</schemaDirectory>
                             <schemaIncludes>
                                 <include>*.xsd</include>
                             </schemaIncludes>
