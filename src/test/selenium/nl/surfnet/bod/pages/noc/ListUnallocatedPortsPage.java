@@ -21,12 +21,12 @@
  */
 package nl.surfnet.bod.pages.noc;
 
-import nl.surfnet.bod.pages.AbstractListPage;
+import nl.surfnet.bod.pages.AbstractPhysicalPortListPage;
 
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
-public class ListUnallocatedPortsPage extends AbstractListPage {
+public class ListUnallocatedPortsPage extends AbstractPhysicalPortListPage {
 
   private static final String PAGE = "noc/physicalports/free";
 

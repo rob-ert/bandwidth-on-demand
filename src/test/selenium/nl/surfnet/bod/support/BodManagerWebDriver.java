@@ -27,7 +27,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.pages.manager.*;
+import nl.surfnet.bod.pages.manager.EditPhysicalPortPage;
+import nl.surfnet.bod.pages.manager.EditPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.manager.EditVirtualPortPage;
+import nl.surfnet.bod.pages.manager.ListPhysicalPortsPage;
+import nl.surfnet.bod.pages.manager.ListReservationPage;
+import nl.surfnet.bod.pages.manager.ListVirtualPortPage;
+import nl.surfnet.bod.pages.manager.ListVirtualResourceGroupPage;
+import nl.surfnet.bod.pages.manager.ManagerOverviewPage;
+import nl.surfnet.bod.pages.manager.NewVirtualPortPage;
 import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.noc.NocOverviewPage;
 
@@ -176,6 +184,14 @@ public class BodManagerWebDriver {
     page.save();
   }
 
+  public void acceptVirtualPort(String label) {
+    NewVirtualPortPage page = NewVirtualPortPage.get(driver);
+
+    page.sendName(label);
+    page.accept();
+    page.save();
+  }
+
   public void declineVirtualPort(String message) {
     NewVirtualPortPage page = NewVirtualPortPage.get(driver);
 
@@ -225,4 +241,15 @@ public class BodManagerWebDriver {
     page.verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime, "state cannot");
   }
 
+  public void verifyPhysicalPortHasEnabledUnallocateIcon(String networkElementPk, String nocLabel) {
+    ListPhysicalPortsPage page = ListPhysicalPortsPage.get(driver, URL_UNDER_TEST);
+
+    page.verifyPhysicalPortHasEnabledUnallocateIcon(networkElementPk, nocLabel);
+  }
+
+  public void verifyPhysicalPortHasDisabeldUnallocateIcon(String networkElementPk, String nocLabel, String toolTipText) {
+    ListPhysicalPortsPage page = ListPhysicalPortsPage.get(driver, URL_UNDER_TEST);
+
+    page.verifyPhysicalPortHasDisabledUnallocateIcon(networkElementPk, nocLabel, toolTipText);
+  }
 }

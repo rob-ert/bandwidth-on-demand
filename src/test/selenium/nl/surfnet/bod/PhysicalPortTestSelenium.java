@@ -28,16 +28,16 @@ import org.junit.Test;
 
 public class PhysicalPortTestSelenium extends TestExternalSupport {
 
-  private final String groupName = "2COLLEGE";
+  private final static String GROUP_NAME = "2COLLEGE";
 
   @Before
   public void setup() {
-    getNocDriver().createNewPhysicalResourceGroup(groupName, ICT_MANAGERS_GROUP, "test@example.com");
+    getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME, ICT_MANAGERS_GROUP, "test@example.com");
   }
 
   @Test
   public void allocatePhysicalPortFromInstitutePage() {
-    getNocDriver().addPhysicalPortToInstitute(groupName, "NOC label", "Mock_Poort 1de verdieping toren1a");
+    getNocDriver().addPhysicalPortToInstitute(GROUP_NAME, "NOC label", "Mock_Poort 1de verdieping toren1a");
 
     getNocDriver().verifyPhysicalPortWasAllocated(NETWORK_ELEMENT_PK, "NOC label");
 
@@ -50,9 +50,11 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     String managerLabel1 = "My Selenium Port (Manager 1st)";
     String managerLabel2 = "My Selenium Port (Manager 2nd)";
 
-    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, nocLabel, managerLabel1, groupName);
+    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, nocLabel, managerLabel1, GROUP_NAME);
 
     getNocDriver().verifyPhysicalPortWasAllocated(NETWORK_ELEMENT_PK, nocLabel);
+
+    getNocDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NETWORK_ELEMENT_PK, nocLabel);
 
     getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(NETWORK_ELEMENT_PK, managerLabel1);
 
@@ -67,6 +69,36 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(NETWORK_ELEMENT_PK, managerLabel2);
 
     getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
+  }
+
+  @Test
+  public void checkUnallocateState() {
+    final String VP_ONE = "VirtualPort One";
+    String nocLabel = "My Selenium Port (Noc)";
+    String managerLabel1 = "My Selenium Port (Manager 1st)";
+
+    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, nocLabel, managerLabel1, GROUP_NAME);
+    getWebDriver().clickLinkInLastEmail();
+    getNocDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NETWORK_ELEMENT_PK, nocLabel);
+
+    getManagerDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NETWORK_ELEMENT_PK, managerLabel1);
+
+    //Link a VirtualPort to the PhysicalPort, PhysicalPort cannot be unallocated anymore
+    getManagerDriver().switchToUser();
+    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().selectInstituteAndRequest(GROUP_NAME, 1000, "Doe mijn een nieuw poort...");
+    getUserDriver().switchToManager(GROUP_NAME);
+    getWebDriver().clickLinkInLastEmail();
+    getManagerDriver().acceptVirtualPort(VP_ONE);
+
+    getManagerDriver().verifyPhysicalPortHasDisabeldUnallocateIcon(NETWORK_ELEMENT_PK, managerLabel1, "related");
+    
+    getManagerDriver().switchToNoc();
+    getNocDriver().verifyPhysicalPortIsNotOnUnallocatedPage(NETWORK_ELEMENT_PK, nocLabel);
+    
+    //Delete Vp
+    
+    //Unallocate PP
   }
 
 }

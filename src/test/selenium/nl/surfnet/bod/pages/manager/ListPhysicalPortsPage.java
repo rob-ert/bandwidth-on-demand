@@ -21,15 +21,15 @@
  */
 package nl.surfnet.bod.pages.manager;
 
-import nl.surfnet.bod.pages.AbstractListPage;
+import nl.surfnet.bod.pages.AbstractPhysicalPortListPage;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
-public class ListPhysicalPortsPage extends AbstractListPage {
+public class ListPhysicalPortsPage extends AbstractPhysicalPortListPage {
 
-  private static final String PAGE =  "/manager/physicalports";
+  private static final String PAGE = "/manager/physicalports";
 
   public ListPhysicalPortsPage(RemoteWebDriver driver) {
     super(driver);

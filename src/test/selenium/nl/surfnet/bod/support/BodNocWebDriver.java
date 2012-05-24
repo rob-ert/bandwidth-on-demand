@@ -107,12 +107,6 @@ public class BodNocWebDriver {
     editPage.save();
   }
 
-  public void verifyPhysicalPortWasAllocated(String networkElementPk, String nocLabel) {
-    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
-
-    page.findRow(networkElementPk, nocLabel);
-  }
-
   public void unlinkPhysicalPort(String networkElementPk) {
     ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
 
@@ -165,6 +159,31 @@ public class BodNocWebDriver {
 
     ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
-    page.verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime, "no right to cancel");
+    page.verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime,
+        "no right to cancel");
+  }
+
+  public void verifyPhysicalPortHasEnabledUnallocateIcon(String networkElementPk, String label) {
+    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+
+    page.verifyPhysicalPortHasEnabledUnallocateIcon(networkElementPk, label);
+  }
+
+  public void verifyPhysicalPortHasDisabeldUnallocateIcon(String networkElementPk, String label, String toolTipText) {
+    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+
+    page.verifyPhysicalPortHasDisabledUnallocateIcon(networkElementPk, label, toolTipText);
+  }
+
+  public void verifyPhysicalPortIsNotOnUnallocatedPage(String networkElementPk, String label) {
+    ListUnallocatedPortsPage page = ListUnallocatedPortsPage.get(driver, URL_UNDER_TEST);
+
+    page.verifyPhysicalPortIsNotOnUnallocatedPage(networkElementPk, label);
+  }
+
+  public void verifyPhysicalPortWasAllocated(String networkElementPk, String label) {
+    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+
+    page.verifyPhysicalPortWasAllocated(networkElementPk, label);
   }
 }
