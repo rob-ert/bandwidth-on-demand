@@ -25,6 +25,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -60,6 +61,9 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
 
+  @Autowired
+  private InstituteService instituteService;
+
   @RequestMapping(value = "/edit", params = "id", method = RequestMethod.GET)
   public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
     PhysicalPort port = physicalPortService.find(id);
@@ -67,6 +71,8 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     if (port == null || Security.managerMayNotEdit(port)) {
       return "manager/physicalports";
     }
+
+    instituteService.fillInstituteForPhysicalPort(port);
 
     uiModel.addAttribute("physicalPort", port);
     uiModel.addAttribute("updateManagerLabelCommand", new UpdateManagerLabelCommand(port));

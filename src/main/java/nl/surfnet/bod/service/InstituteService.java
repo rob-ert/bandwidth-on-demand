@@ -33,6 +33,8 @@ public interface InstituteService {
 
   Institute findInstitute(Long id);
 
+  void fillInstituteForPhysicalPort(PhysicalPort port);
+
   void fillInstituteForPhysicalPorts(Collection<PhysicalPort> ports);
 
   void fillInstituteForPhysicalResourceGroup(PhysicalResourceGroup group);

@@ -57,7 +57,8 @@ public class InstituteIddService implements InstituteService {
       if (klant != null) {
         trimAttributes(klant);
         if (!(Strings.isNullOrEmpty(klant.getKlantnaam()) && (Strings.isNullOrEmpty(klant.getKlantafkorting())))) {
-          institutes.add(new Institute(Long.valueOf(klant.getKlant_id()), klant.getKlantnaam(), klant.getKlantafkorting()));
+          institutes.add(new Institute(Long.valueOf(klant.getKlant_id()), klant.getKlantnaam(), klant
+              .getKlantafkorting()));
         }
       }
     }
@@ -106,10 +107,15 @@ public class InstituteIddService implements InstituteService {
   }
 
   @Override
+  public void fillInstituteForPhysicalPort(PhysicalPort port) {
+    fillInstituteForPhysicalResourceGroup(port.getPhysicalResourceGroup());
+  }
+
+  @Override
   public void fillInstituteForPhysicalPorts(Collection<PhysicalPort> ports) {
 
     for (PhysicalPort port : ports) {
-      fillInstituteForPhysicalResourceGroup(port.getPhysicalResourceGroup());
+      fillInstituteForPhysicalPort(port);
     }
   }
 
