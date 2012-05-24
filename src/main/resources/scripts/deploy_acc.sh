@@ -8,8 +8,13 @@ function copyWar() {
  			if [ "$(ls -A $SOURCE)" ] 
 				then
     			echo "*** Moving war to $TARGET";
+    			if [ -f /var/run/jetty-acc.pid ]
+    			 then
+    			   echo "Killing pid `cat /var/run/jetty-acc.pid`";
+    			   cat /var/run/jetty-acc.pid | xargs kill -9;
+    			 fi
 					mv $SOURCE/*.war $TARGET;
-					touch $JETTY_HOME/contexts/root.xml;
+					/etc/init.d/jetty-acc start;
 			else
 				echo "*** Deploy directory is empty";
   		fi
