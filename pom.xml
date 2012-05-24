@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.surfnet.bod</groupId>
     <artifactId>bod</artifactId>
@@ -238,23 +239,23 @@
             <groupId>javax.servlet.jsp.jstl</groupId>
             <artifactId>jstl-api</artifactId>
             <version>1.2</version>
-						<exclusions>
-         	 			<exclusion>
-            				<groupId>javax.servlet</groupId>
-            				<artifactId>servlet-api</artifactId>
-			          </exclusion>
-						</exclusions>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.glassfish.web</groupId>
             <artifactId>jstl-impl</artifactId>
             <version>1.2</version>
-						<exclusions>
-         	 			<exclusion>
-            				<groupId>javax.servlet</groupId>
-            				<artifactId>servlet-api</artifactId>
-			          </exclusion>
-						</exclusions>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>javax.el</groupId>
@@ -350,17 +351,17 @@
             <scope>compile</scope>
         </dependency>
         <!-- End Axis1 -->
-				 <dependency>
+        <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-kernel</artifactId>
             <version>1.5.6</version>
             <scope>compile</scope>
-						<exclusions>
-         	 			<exclusion>
-            				<groupId>javax.servlet</groupId>
-            				<artifactId>servlet-api</artifactId>
-			          </exclusion>
-						</exclusions>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Begin test libraries -->
@@ -456,15 +457,52 @@
             <version>0.9.1.2</version>
         </dependency>
         <!-- End Databse dependencies -->
-        
-        
-       <dependency>
-          <groupId>findbugs</groupId>
-          <artifactId>annotations</artifactId>
-          <version>1.0.0</version>
-       </dependency>
-        
-        
+
+
+        <dependency>
+            <groupId>findbugs</groupId>
+            <artifactId>annotations</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+
+        <!-- JAX-WS -->
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-rt</artifactId>
+            <version>2.1.7</version>
+        </dependency>
+
+        <!-- Library from java.net, integrate Spring with JAX-WS -->
+        <dependency>
+            <groupId>org.jvnet.jax-ws-commons.spring</groupId>
+            <artifactId>jaxws-spring</artifactId>
+            <version>1.8</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-context</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.xml.stream.buffer</groupId>
+                    <artifactId>streambuffer</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jvnet.staxex</groupId>
+                    <artifactId>stax-ex</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+
     </dependencies>
     <build>
         <plugins>
@@ -528,7 +566,8 @@
                         <contextPath>/${project.name}</contextPath>
                     </webAppConfig>
                     <connectors>
-                        <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                        <connector
+                            implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                             <port>8082</port>
                             <maxIdleTime>60000</maxIdleTime>
                         </connector>
@@ -570,6 +609,79 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <version>1.12</version>
+                <executions>
+                    <execution>
+                        <id>ogf_nsi_connection_provider</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <verbose>true</verbose>
+                            <keep>true</keep>
+                            <xnocompile>true</xnocompile>
+                            <wsdlDirectory>${basedir}src/main/webapp/WEB-INF/wsdl/nsi</wsdlDirectory>
+                            <wsdlFiles>
+                                <wsdlFile>ogf_nsi_connection_provider_v1_0.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws/</sourceDestDir>
+                            <destDir />
+                            <wsdlLocation>src/main/webapp/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl</wsdlLocation>
+                            <staleFile>${project.build.directory}/generated-sources/jaxws/stale/ogf_nsi_connection_provider.done
+                            </staleFile>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>ogf_nsi_connection_requester</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <verbose>true</verbose>
+                            <keep>true</keep>
+                            <xnocompile>true</xnocompile>
+                            <wsdlDirectory>${basedir}src/main/webapp/WEB-INF/wsdl/nsi</wsdlDirectory>
+                            <wsdlFiles>
+                                <wsdlFile>ogf_nsi_connection_requester_v1_0.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws/</sourceDestDir>
+                            <destDir />
+                            <wsdlLocation>src/main/webapp/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl</wsdlLocation>
+                            <staleFile>${project.build.directory}/generated-sources/jaxws/stale/ogf_nsi_connection_requester.done</staleFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb22-plugin</artifactId>
+                <version>0.8.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <schemaDirectory>${basedir}/src/main/resources/schema
+                            </schemaDirectory>
+                            <schemaIncludes>
+                                <include>*.xsd</include>
+                            </schemaIncludes>
+                            <generatePackage>org.opendrac.nsi.config.xml
+                            </generatePackage>
+                            <removeOldOutput>true</removeOldOutput>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
@@ -586,6 +698,10 @@
                             <exclude>org/xmlsoap/schemas/**/*.class</exclude>
                             <exclude>schemaorg_apache_xmlbeans/**/*.class</exclude>
                             <exclude>org/w3/www/**/*.class</exclude>
+                            <exclude>oasis/names/**/*.class</exclude>
+                            <exclude>org/ogf/schemas/nsi/**/*.class</exclude>
+                            <exclude>org/w3/**/*.class</exclude>
+                            <exclude>org/opendrac/nsi/config/**/*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
@@ -703,7 +819,8 @@
                             <systemPropertiesFile>src/test/resources/bod-selenium.properties</systemPropertiesFile>
                             <scanIntervalSeconds>0</scanIntervalSeconds>
                             <connectors>
-                                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                                <connector
+                                    implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                                     <port>8083</port>
                                     <maxIdleTime>60000</maxIdleTime>
                                 </connector>
@@ -722,7 +839,8 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <version>2.10</version>
                         <configuration>
-                            <argLine>-Xms128m -Xmx512m -XX:MaxPermSize=256m -XX:+CMSClassUnloadingEnabled</argLine>
+                            <argLine>-Xms128m -Xmx512m -XX:MaxPermSize=256m
+                                -XX:+CMSClassUnloadingEnabled</argLine>
                         </configuration>
                         <executions>
                             <execution>
@@ -771,11 +889,14 @@
                             <execution>
                                 <phase>pre-integration-test</phase>
                                 <configuration>
-                                    <available file="${project.build.directory}/sos-server/sos-server-${sos.version}.war"
+                                    <available
+                                        file="${project.build.directory}/sos-server/sos-server-${sos.version}.war"
                                         property="sos.present" />
                                     <target unless="sos.present">
-                                        <echo message="creating ${project.build.directory}/sos-server" />
-                                        <mkdir dir="${project.build.directory}/sos-server" />
+                                        <echo
+                                            message="creating ${project.build.directory}/sos-server" />
+                                        <mkdir
+                                            dir="${project.build.directory}/sos-server" />
                                         <echo message="sos not found" />
                                         <get
                                             src="http://atlas.dlp.surfnet.nl/nexus/service/local/repositories/releases/content/nl/surfnet/sos-server/${sos.version}/sos-server-${sos.version}.war"
@@ -788,7 +909,7 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>                    
+                    </plugin>
                     <plugin>
                         <groupId>org.mortbay.jetty</groupId>
                         <artifactId>jetty-maven-plugin</artifactId>
@@ -805,15 +926,17 @@
                             </systemProperties>
                             <systemPropertiesFile>src/test/resources/bod-selenium.properties</systemPropertiesFile>
                             <connectors>
-                                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                                <connector
+                                    implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                                     <port>${jetty.port}</port>
                                     <maxIdleTime>60000</maxIdleTime>
                                 </connector>
                             </connectors>
                             <contextHandlers>
-                                <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
-                                  <war>${project.build.directory}/sos-server/sos-server-${sos.version}.war</war>
-                                  <contextPath>/sos</contextPath>
+                                <contextHandler
+                                    implementation="org.eclipse.jetty.webapp.WebAppContext">
+                                    <war>${project.build.directory}/sos-server/sos-server-${sos.version}.war</war>
+                                    <contextPath>/sos</contextPath>
                                 </contextHandler>
                             </contextHandlers>
                             <daemon>true</daemon>

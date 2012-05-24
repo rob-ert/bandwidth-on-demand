@@ -17,6 +17,52 @@
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath*:spring/appCtx*.xml</param-value>
     </context-param>
+    
+     <!-- JAX-WS listener -->
+    <listener>
+        <listener-class>com.sun.xml.ws.transport.http.servlet.WSServletContextListener</listener-class>
+    </listener>
+    
+     <!-- Set the JAX-WS servlet for our web services. -->
+    <servlet>
+        <servlet-name>ConnectionServiceProvider</servlet-name>
+        <servlet-class>com.sun.xml.ws.transport.http.servlet.WSServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>ConnectionServiceRequester</servlet-name>
+        <servlet-class>com.sun.xml.ws.transport.http.servlet.WSServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <!-- Pattern match for our web services. -->
+    <servlet-mapping>
+        <servlet-name>ConnectionServiceProvider</servlet-name>
+        <url-pattern>/ConnectionServiceProvider</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>ConnectionServiceRequester</servlet-name>
+        <url-pattern>/ConnectionServiceRequester</url-pattern>
+    </servlet-mapping>
+    
+    
+    <servlet>
+      <servlet-name>jaxws-servlet</servlet-name>
+      <servlet-class>com.sun.xml.ws.transport.http.servlet.WSSpringServlet</servlet-class>
+    </servlet>
+ 
+    <servlet-mapping>
+        <servlet-name>jaxws-servlet</servlet-name>
+        <url-pattern>/requester</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>jaxws-servlet</servlet-name>
+        <url-pattern>/provider</url-pattern>
+    </servlet-mapping>
+    
 
     <filter>
         <filter-name>CharacterEncodingFilter</filter-name>
