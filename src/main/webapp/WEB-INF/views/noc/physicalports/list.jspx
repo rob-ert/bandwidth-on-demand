@@ -46,7 +46,7 @@
             render="${not show_unallocated}" />
           <table:column item="${item}" property="networkElementPk" />          
           <table:actionsColumn item="${item}"
-            deleteRender="${item.deleteRender}"
+            delete="${item.deleteRender}"
             deleteEnabled="${item.deleteAllowed}"
             deleteLabelCode="${item.deleteReasonKey}"
             deleteIcon="icon-resize-full"

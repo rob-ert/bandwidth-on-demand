@@ -12,22 +12,17 @@
     <jsp:directive.attribute name="labelCode" type="java.lang.String" required="true" rtexprvalue="true" />
     <jsp:directive.attribute name="updateLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
-    <jsp:directive.attribute name="successMessageCode" type="java.lang.String" required="false" rtexprvalue="true" />
-    <jsp:directive.attribute name="deleteRender" type="java.lang.Boolean" required="false" rtexprvalue="true" />
+    <jsp:directive.attribute name="successMessageCode" type="java.lang.String" required="false" rtexprvalue="true" />    
     <jsp:directive.attribute name="deleteEnabled" type="java.lang.Boolean" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteConfirmLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteConfirmLabelArgument" type="java.lang.String" required="false" rtexprvalue="true" />
-    
 
     <c:if test="${empty idFieldName}">
         <c:set var="idFieldName" value="id" />
     </c:if>
     <c:if test="${empty deleteIcon}">
         <c:set var="deleteIcon" value="icon-remove" />
-    </c:if>
-    <c:if test="${empty deleteRender}">
-      <c:set var="deleteRender" value="true"/>
-    </c:if>
+    </c:if>    
     <c:if test="${empty deleteEnabled}">
       <c:set var="deleteEnabled" value="true"/>
     </c:if>
@@ -58,10 +53,10 @@
             <a href="${editUrl}" rel="tooltip" data-type="info" title="${edit_title}"><i class="${updateIcon}"><!--  --></i></a>
         </c:if>
 
-        <c:if test="${deleteRender}">
+        <c:if test="${delete}">
             <spring:message code="${deleteLabelCode}" arguments="${label}" var="delete_title" />
             <spring:message code="${deleteConfirmLabelCode}" arguments="${deleteConfirmLabelArgument}" var="delete_confirm_title" />
-            
+
             <spring:url value="${path}/delete" var="deleteUrl" >
                 <spring:param name="_method" value="DELETE" />
                 <spring:param name="id" value="${item[idFieldName]}" />
