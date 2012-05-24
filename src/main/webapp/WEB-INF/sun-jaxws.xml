@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<endpoints version="2.0" xmlns="http://java.sun.com/xml/ns/jax-ws/ri/runtime">
-  <endpoint implementation="nl.surfnet.bod.ws.nsi.ConnectionServiceProvider" name="ConnectionServiceProvider" url-pattern="/nsi/provider"/>
-  <endpoint implementation="nl.surfnet.bod.ws.nsi.ConnectionServiceRequester" name="ConnectionServiceRequester" url-pattern="/nsi/requester"/>
-</endpoints>

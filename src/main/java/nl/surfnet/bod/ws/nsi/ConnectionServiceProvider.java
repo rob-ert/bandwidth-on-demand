@@ -28,13 +28,14 @@
  */
 package nl.surfnet.bod.ws.nsi;
 
-// Standard java import.
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceContext;
+
+import nl.surfnet.bod.repo.ReservationRepo;
 
 import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
@@ -47,29 +48,35 @@ import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-/**
- * 
- * @author hacksaw
- */
-@WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider", wsdlLocation = "WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
+@Service("connectionServiceProvider")
+@WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider", wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
 public class ConnectionServiceProvider {
   
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   /*
    * This holds the web service request context which includes all the original
-   * HTTP information, including the JAAS authentication and authorization
+   * HTTP information, including the JAAS authentication and authorisation
    * information.
    */
   @Resource
   private WebServiceContext wsc;
+  
+  @Autowired
+  private ReservationRepo reservationRepo;
 
   @PostConstruct
+  @SuppressWarnings("unused")
   private void init() {
+    log.debug("wsc: "+wsc);
+    log.debug("reservationRepo: "+reservationRepo);
   }
 
   @PreDestroy
+  @SuppressWarnings("unused")
   private void destroy() {
   }
 

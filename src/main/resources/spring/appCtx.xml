@@ -1,29 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
-
-    The owner of the original code is SURFnet BV.
-
-    Portions created by the original owner are Copyright (C) 2011-2012 the
-    original owner. All Rights Reserved.
-
-    Portions created by other contributors are Copyright (C) the contributor.
-    All Rights Reserved.
-
-    Contributor(s):
-      (Contributors insert name & email here)
-
-    This file is part of the SURFnet7 Bandwidth on Demand software.
-
-    The SURFnet7 Bandwidth on Demand software is free software: you can
-    redistribute it and/or modify it under the terms of the BSD license
-    included with this distribution.
-
-    If the BSD license cannot be found with this distribution, it is available
-    at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
-
--->
-<beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:p="http://www.springframework.org/schema/p"
+<!-- The owner of the original code is SURFnet BV. Portions created by the original 
+    owner are Copyright (C) 2011-2012 the original owner. All Rights Reserved. Portions 
+    created by other contributors are Copyright (C) the contributor. All Rights Reserved. 
+    Contributor(s): (Contributors insert name & email here) This file is part of the 
+    SURFnet7 Bandwidth on Demand software. The SURFnet7 Bandwidth on Demand software 
+    is free software: you can redistribute it and/or modify it under the terms of the 
+    BSD license included with this distribution. If the BSD license cannot be found with 
+    this distribution, it is available at the following location <http://www.opensource.org/licenses/BSD-3-Clause> -->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
     xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
     xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
@@ -36,15 +20,18 @@
         http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
 
     <context:component-scan base-package="nl.surfnet.bod">
-        <context:exclude-filter expression="org.springframework.stereotype.Controller" type="annotation" />
+        <context:exclude-filter expression="org.springframework.stereotype.Controller"
+            type="annotation" />
     </context:component-scan>
 
     <task:annotation-driven mode="aspectj" />
-    <tx:annotation-driven mode="aspectj" transaction-manager="transactionManager" />
+    <tx:annotation-driven mode="aspectj"
+        transaction-manager="transactionManager" />
 
-    <bean class="org.springframework.context.support.ReloadableResourceBundleMessageSource" id="messageSource"
-        p:basenames="WEB-INF/i18n/messages,WEB-INF/i18n/application" p:fallbackToSystemLocale="false"
-        p:useCodeAsDefaultMessage="true" />
+    <bean
+        class="org.springframework.context.support.ReloadableResourceBundleMessageSource"
+        id="messageSource" p:basenames="WEB-INF/i18n/messages,WEB-INF/i18n/application"
+        p:fallbackToSystemLocale="false" p:useCodeAsDefaultMessage="true" />
 
     <bean
         class="org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer"
@@ -52,14 +39,15 @@
         <constructor-arg>
             <bean class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
                 <property name="config">
-                    <bean class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+                    <bean
+                        class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
                         <property name="algorithm" value="PBEWithMD5AndTripleDES" />
                         <property name="passwordEnvName" value="BOD_ENCRYPTION_PASSWORD" />
                     </bean>
                 </property>
             </bean>
         </constructor-arg>
-        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="ignoreResourceNotFound" value="true" />
         <property name="locations">
             <list>
                 <value>classpath:bod-default.properties</value>
@@ -70,17 +58,18 @@
     </bean>
 
     <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-      <property name="defaultEncoding" value="UTF-8" />
-      <property name="host" value="${mail.host}" />
-      <property name="port" value="${mail.port}" />
-      <property name="protocol" value="${mail.protocol}" />
-      <property name="javaMailProperties">
-         <props>
-            <prop key="mail.debug">${mail.debug}</prop>
-         </props>
+        <property name="defaultEncoding" value="UTF-8" />
+        <property name="host" value="${mail.host}" />
+        <property name="port" value="${mail.port}" />
+        <property name="protocol" value="${mail.protocol}" />
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.debug">${mail.debug}</prop>
+            </props>
         </property>
     </bean>
 
     <!-- Enable switching between mock and real implementation -->
-    <bean id="emailSender" class="${mail.sender.class}"/>
+    <bean id="emailSender" class="${mail.sender.class}" />
+
 </beans>
