@@ -75,7 +75,7 @@ public class BodWebDriver {
   private static final InputStream PROP_DEFAULT = BodWebDriver.class.getResourceAsStream("/bod-default.properties");
   private static final InputStream PROP_SELENIUM = BodWebDriver.class.getResourceAsStream("/bod-selenium.properties");
 
-  private static final String CLEAR_DATABASE_QUERY = "truncate physical_resource_group, virtual_resource_group, reservation_flattened CASCADE;";
+  private static final String CLEAR_DATABASE_QUERY = "truncate physical_resource_group, virtual_resource_group, reservation_archive CASCADE;";
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
