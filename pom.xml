@@ -624,13 +624,13 @@
                             <verbose>true</verbose>
                             <keep>true</keep>
                             <xnocompile>true</xnocompile>
-                            <wsdlDirectory>${basedir}src/main/webapp/WEB-INF/wsdl/nsi</wsdlDirectory>
+                            <wsdlDirectory>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi</wsdlDirectory>
                             <wsdlFiles>
                                 <wsdlFile>ogf_nsi_connection_provider_v1_0.wsdl</wsdlFile>
                             </wsdlFiles>
                             <sourceDestDir>${project.build.directory}/generated-sources/jaxws/</sourceDestDir>
                             <destDir />
-                            <wsdlLocation>src/main/webapp/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl</wsdlLocation>
+                            <wsdlLocation>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl</wsdlLocation>
                             <staleFile>${project.build.directory}/generated-sources/jaxws/stale/ogf_nsi_connection_provider.done
                             </staleFile>
                         </configuration>
@@ -652,7 +652,7 @@
                             </wsdlFiles>
                             <sourceDestDir>${project.build.directory}/generated-sources/jaxws/</sourceDestDir>
                             <destDir />
-                            <wsdlLocation>src/main/webapp/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl</wsdlLocation>
+                            <wsdlLocation>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl</wsdlLocation>
                             <staleFile>${project.build.directory}/generated-sources/jaxws/stale/ogf_nsi_connection_requester.done</staleFile>
                         </configuration>
                     </execution>
