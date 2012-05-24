@@ -684,8 +684,7 @@
                             <schemaIncludes>
                                 <include>*.xsd</include>
                             </schemaIncludes>
-                            <generatePackage>nl.surfnet.bod.web.services.config.xml
-                            </generatePackage>
+                            <generatePackage>nl.surfnet.bod.nsa.config</generatePackage>
                             <removeOldOutput>true</removeOldOutput>
                         </configuration>
                     </execution>
@@ -709,9 +708,9 @@
                             <exclude>schemaorg_apache_xmlbeans/**/*.class</exclude>
                             <exclude>org/w3/www/**/*.class</exclude>
                             <exclude>oasis/names/**/*.class</exclude>
-                            <exclude>org/ogf/schemas/nsi/**/*.class</exclude>
+                            <exclude>org/ogf/**/*.class</exclude>
                             <exclude>org/w3/**/*.class</exclude>
-                            <exclude>org/opendrac/nsi/config/**/*.class</exclude>
+                            <exclude>nl/surfnet/bod/nsa/config/**/*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
