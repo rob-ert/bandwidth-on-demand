@@ -39,28 +39,12 @@
     <!-- Pattern match for our web services. -->
     <servlet-mapping>
         <servlet-name>ConnectionServiceProvider</servlet-name>
-        <url-pattern>/ConnectionServiceProvider</url-pattern>
+        <url-pattern>/nsi/provider</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>
         <servlet-name>ConnectionServiceRequester</servlet-name>
-        <url-pattern>/ConnectionServiceRequester</url-pattern>
-    </servlet-mapping>
-    
-    
-    <servlet>
-      <servlet-name>jaxws-servlet</servlet-name>
-      <servlet-class>com.sun.xml.ws.transport.http.servlet.WSSpringServlet</servlet-class>
-    </servlet>
- 
-    <servlet-mapping>
-        <servlet-name>jaxws-servlet</servlet-name>
-        <url-pattern>/requester</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-        <servlet-name>jaxws-servlet</servlet-name>
-        <url-pattern>/provider</url-pattern>
+        <url-pattern>/nsi/requester</url-pattern>
     </servlet-mapping>
     
 

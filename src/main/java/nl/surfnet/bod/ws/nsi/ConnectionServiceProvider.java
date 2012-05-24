@@ -26,7 +26,7 @@
  * DAMAGE.
  *
  */
-package nl.surfnet.bod.nsi;
+package nl.surfnet.bod.ws.nsi;
 
 // Standard java import.
 import javax.annotation.PostConstruct;
@@ -54,7 +54,8 @@ import org.slf4j.LoggerFactory;
  */
 @WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider", wsdlLocation = "WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
 public class ConnectionServiceProvider {
-  private static final Logger log = LoggerFactory.getLogger(ConnectionServiceProvider.class);
+  
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   /*
    * This holds the web service request context which includes all the original
@@ -65,13 +66,11 @@ public class ConnectionServiceProvider {
   private WebServiceContext wsc;
 
   @PostConstruct
-  public void myInit() {
-    log.info("ConnectionServiceProvider: instantiated");
+  private void init() {
   }
 
   @PreDestroy
-  public void myDestroy() {
-    log.info("ConnectionServiceProvider: destroying");
+  private void destroy() {
   }
 
   /**

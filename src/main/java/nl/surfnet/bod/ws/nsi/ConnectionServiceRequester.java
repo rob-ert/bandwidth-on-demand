@@ -26,7 +26,7 @@
  * DAMAGE.
  *
  */
-package nl.surfnet.bod.nsi;
+package nl.surfnet.bod.ws.nsi;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
 @WebService(serviceName = "ConnectionServiceRequester", portName = "ConnectionServiceRequesterPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/requester", wsdlLocation = "WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl")
 public class ConnectionServiceRequester {
 
-  private final Logger logger = LoggerFactory.getLogger(getClass());
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   /*
    * This holds the web service request context which includes all the original
@@ -64,13 +64,11 @@ public class ConnectionServiceRequester {
   private WebServiceContext wsc;
 
   @PostConstruct
-  public void myInit() {
-    logger.info("ConnectionServiceRequester: instantiated");
+  private void init() {
   }
 
   @PreDestroy
-  public void myDestroy() {
-    logger.info("ConnectionServiceRequester: destroying");
+  private void destroy() {
   }
 
   public void reserveConfirmed(Holder<String> correlationId, ReserveConfirmedType reserveConfirmed)
