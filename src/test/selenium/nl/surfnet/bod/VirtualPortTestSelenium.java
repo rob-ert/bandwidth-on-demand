@@ -7,6 +7,8 @@ import org.junit.Test;
 
 public class VirtualPortTestSelenium extends TestExternalSupport {
 
+  private final static String VP_DELETE_ALERT_TEXT = "reservations will be effected";
+
   @Before
   public void setup() {
     getNocDriver().createNewPhysicalResourceGroup("2COLLEGE", ICT_MANAGERS_GROUP, "test@test.nl");
@@ -29,7 +31,7 @@ public class VirtualPortTestSelenium extends TestExternalSupport {
   public void lastPortDeletedShouldDeleteVirtualResourceGroup() {
     getManagerDriver().verifyVirtualResourceGroupExists("selenium-users", "2");
 
-    getManagerDriver().deleteVirtualPort("First port");
+    getManagerDriver().deleteVirtualPortAndVerifyAlertText("First port", VP_DELETE_ALERT_TEXT);
 
     getManagerDriver().switchToUser();
 
@@ -39,7 +41,7 @@ public class VirtualPortTestSelenium extends TestExternalSupport {
 
     getManagerDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
 
-    getManagerDriver().deleteVirtualPort("Second port");
+    getManagerDriver().deleteVirtualPortAndVerifyAlertText("Second port", VP_DELETE_ALERT_TEXT);
 
     getManagerDriver().verifyVirtualResourceGroupsEmpty();
 

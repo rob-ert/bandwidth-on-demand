@@ -103,6 +103,12 @@ public class BodManagerWebDriver {
     page.delete(name);
   }
 
+  public void deleteVirtualPortAndVerifyAlertText(String name, String alertText) {
+    ListVirtualPortPage page = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
+
+    page.deleteAndVerifyAlert(alertText, name);
+  }
+
   public void verifyVirtualPortWasDeleted(String name) {
     ListVirtualPortPage page = ListVirtualPortPage.get(driver);
 

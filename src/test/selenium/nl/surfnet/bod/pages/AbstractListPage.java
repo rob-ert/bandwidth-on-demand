@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import nl.surfnet.bod.support.Probes;
 
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
@@ -57,18 +58,29 @@ public class AbstractListPage extends AbstractPage {
   public void delete(String... fields) {
     deleteForIcon("icon-remove", fields);
   }
+  
+  public void deleteAndVerifyAlert(String alertText, String... fields) {
+    deleteForIconAndVerifyAlert("icon-remove", alertText, fields);
+  }
 
-  protected void deleteForIcon(String icon, String... fields) {
-    WebElement row = findRow(fields);
-
-    WebElement deleteButton = row.findElement(By.cssSelector(String.format("a i[class~=%s]", icon)));
-    deleteButton.click();
-    driver.switchTo().alert().accept();
+  protected void deleteForIconAndVerifyAlert(String icon, String alertText, String... fields) {
+    delete(icon, fields);
+    Alert alert = driver.switchTo().alert();
+    alert.getText().contains(alertText);
+    alert.accept();
 
     // wait for the reload, row should be gone..
     Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
   }
 
+  protected void deleteForIcon(String icon, String... fields) {
+    delete(icon, fields);
+    driver.switchTo().alert().accept();
+
+    // wait for the reload, row should be gone..
+    Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
+  }
+  
   protected void editRow(String... fields) {
     clickRowIcon("icon-pencil", fields);
   }
@@ -76,6 +88,14 @@ public class AbstractListPage extends AbstractPage {
   protected void clickRowIcon(String icon, String... fields) {
     findRow(fields).findElement(By.cssSelector("a i[class~=" + icon + "]")).click();
   }
+  
+  private void delete(String icon, String... fields) {
+    WebElement row = findRow(fields);
+
+    WebElement deleteButton = row.findElement(By.cssSelector(String.format("a i[class~=%s]", icon)));
+    deleteButton.click();
+  }
+
 
   protected Probes getProbes() {
     return probes;
@@ -130,7 +150,7 @@ public class AbstractListPage extends AbstractPage {
   /**
    * Overrides the default selected table by the given one in case there are
    * multiple tables on a page.
-   *
+   * 
    * @param table
    *          Table to set.
    */
