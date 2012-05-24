@@ -12,7 +12,7 @@ function copyWar() {
     			 then
     			   echo "Killing pid `cat /var/run/jetty-acc.pid`";
     			   cat /var/run/jetty-acc.pid | xargs kill -9;
-    			 fi
+    			fi
 					mv $SOURCE/*.war $TARGET;
 					/etc/init.d/jetty-acc start;
 			else
