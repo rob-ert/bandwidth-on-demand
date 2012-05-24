@@ -645,7 +645,7 @@
                             <verbose>true</verbose>
                             <keep>true</keep>
                             <xnocompile>true</xnocompile>
-                            <wsdlDirectory>${basedir}src/main/webapp/WEB-INF/wsdl/nsi</wsdlDirectory>
+                            <wsdlDirectory>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi</wsdlDirectory>
                             <wsdlFiles>
                                 <wsdlFile>ogf_nsi_connection_requester_v1_0.wsdl
                                 </wsdlFile>
