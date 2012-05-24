@@ -30,7 +30,7 @@
         <class>nl.surfnet.bod.domain.VirtualResourceGroup</class>
         <class>nl.surfnet.bod.domain.VirtualPort</class>
         <class>nl.surfnet.bod.domain.Reservation</class>
-        <class>nl.surfnet.bod.domain.ReservationFlattened</class>
+        <class>nl.surfnet.bod.domain.ReservationArchive</class>
         <class>nl.surfnet.bod.domain.ActivationEmailLink</class>
         <class>nl.surfnet.bod.domain.VirtualPortRequestLink</class>
         <properties>
