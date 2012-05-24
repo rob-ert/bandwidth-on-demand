@@ -83,7 +83,8 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
 
     getManagerDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NETWORK_ELEMENT_PK, managerLabel1);
 
-    //Link a VirtualPort to the PhysicalPort, PhysicalPort cannot be unallocated anymore
+    // Link a VirtualPort to the PhysicalPort, PhysicalPort cannot be
+    // unallocated anymore
     getManagerDriver().switchToUser();
     getUserDriver().requestVirtualPort("selenium-users");
     getUserDriver().selectInstituteAndRequest(GROUP_NAME, 1000, "Doe mijn een nieuw poort...");
@@ -92,13 +93,18 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getManagerDriver().acceptVirtualPort(VP_ONE);
 
     getManagerDriver().verifyPhysicalPortHasDisabeldUnallocateIcon(NETWORK_ELEMENT_PK, managerLabel1, "related");
-    
+
     getManagerDriver().switchToNoc();
     getNocDriver().verifyPhysicalPortIsNotOnUnallocatedPage(NETWORK_ELEMENT_PK, nocLabel);
-    
-    //Delete Vp
-    
-    //Unallocate PP
+
+    // Delete Vp
+    getNocDriver().switchToManager();
+    getManagerDriver().deleteVirtualPort(VP_ONE);
+    getManagerDriver().switchToNoc();
+
+    // After delete VP, the PysicalPort should be able to unallocate
+    getManagerDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NETWORK_ELEMENT_PK, managerLabel1);
+    getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
   }
 
 }
