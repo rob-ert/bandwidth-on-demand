@@ -9,7 +9,7 @@
 
     <spring:url value="/push" var="pushUrl" />
     <spring:url value="/${baseFilterUrl}" var="filterUrl" />
-    
+
     <page:list id="pl_reservation" path="/reservations">
         <form class="form-inline" action="${filterUrl}" data-component="reservation-filter">
            <label>Reservation Filter</label><c:out value=" " />
@@ -86,7 +86,7 @@
                         <table:column item="${item}" property="startDateTime" />
                         <table:column item="${item}" property="endDateTime" />
                         <table:column item="${item}" property="status" styleClass="status" />
-                        <table:actionsColumn item="${item}" update="false"
+                        <table:actionsColumn item="${item}" update="false" delete="true"
                             deleteEnabled="${item.deleteAllowedForSelectedRole}" deleteLabelCode="${item.deleteReasonKey}" 
                             path="/reservations" labelCode="label_reservation"  />
                     </tr>
