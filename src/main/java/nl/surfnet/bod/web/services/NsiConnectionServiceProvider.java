@@ -308,12 +308,6 @@ public class NsiConnectionServiceProvider {
      * ProviderNSA field. If invalid we will throw an exception.
      */
 
-    /*
-     * TODO: We need to fill in te connectionId so the the load balancer can
-     * hash to an appropriate worker. We can change this to has on correlationId
-     * since there is really no value serializing on connectionId (original idea
-     * gone wrong with multiple actors).
-     */
 
     // Route this message to the appropriate actor for processing.
 
@@ -327,12 +321,10 @@ public class NsiConnectionServiceProvider {
   }
 
   public void queryConfirmed(Holder<String> correlationId, QueryConfirmedType queryConfirmed) throws ServiceException {
-    // TODO implement this method
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
   public void queryFailed(Holder<String> correlationId, QueryFailedType queryFailed) throws ServiceException {
-    // TODO implement this method
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 

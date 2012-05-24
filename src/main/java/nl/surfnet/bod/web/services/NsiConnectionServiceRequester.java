@@ -331,22 +331,18 @@ public class NsiConnectionServiceRequester {
   }
 
   public void query(QueryRequestType parameters) throws ServiceException {
-    // TODO implement this method
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
   public void queryConfirmed(Holder<String> correlationId, QueryConfirmedType queryConfirmed) throws ServiceException {
-    // TODO implement this method
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
   public void queryFailed(Holder<String> correlationId, QueryFailedType queryFailed) throws ServiceException {
-    // TODO implement this method
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
   public void forcedEnd(ForcedEndRequestType parameters) throws ServiceException {
-    // TODO implement this method
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
