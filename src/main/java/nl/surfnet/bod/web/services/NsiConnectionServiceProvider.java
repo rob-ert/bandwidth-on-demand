@@ -52,9 +52,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("nsiConnectionServiceProvider")
-@WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider", wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
+@WebService(serviceName = "ConnectionServiceProvider",
+    portName = "ConnectionServiceProviderPort",
+    endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
+    targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider",
+    wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
 public class NsiConnectionServiceProvider {
-  
+
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   /*
@@ -64,15 +68,15 @@ public class NsiConnectionServiceProvider {
    */
   @Resource
   private WebServiceContext wsc;
-  
+
   @Autowired
   private ReservationService reservationService;
 
   @PostConstruct
   @SuppressWarnings("unused")
   private void init() {
-    log.debug("wsc: "+wsc);
-    log.debug("reservationService: "+reservationService);
+    log.debug("wsc: " + wsc);
+    log.debug("reservationService: " + reservationService);
   }
 
   @PreDestroy

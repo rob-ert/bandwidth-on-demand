@@ -48,7 +48,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service("nsiConnectionServiceRequester")
-@WebService(serviceName = "ConnectionServiceRequester", portName = "ConnectionServiceRequesterPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/requester", wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl")
+@WebService(serviceName = "ConnectionServiceRequester",
+    portName = "ConnectionServiceRequesterPort",
+    endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort",
+    targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/requester",
+    wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl")
 public class NsiConnectionServiceRequester {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -60,12 +64,11 @@ public class NsiConnectionServiceRequester {
    */
   @Resource
   private WebServiceContext wsc;
-  
 
   @PostConstruct
   @SuppressWarnings("unused")
   private void init() {
-    log.debug("wsc: "+wsc);
+    log.debug("wsc: " + wsc);
   }
 
   @PreDestroy
