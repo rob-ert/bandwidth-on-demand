@@ -21,7 +21,7 @@
         <c:set var="idFieldName" value="id" />
     </c:if>
     <c:if test="${empty delete}">
-        <c:set var="delete" value="false"/>
+        <c:set var="delete" value="true"/>
     </c:if>
     <c:if test="${empty deleteIcon}">
         <c:set var="deleteIcon" value="icon-remove" />
