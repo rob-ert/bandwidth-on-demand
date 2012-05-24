@@ -84,4 +84,9 @@ public class ElementActionView {
     return true;
   }
 
+  @Override
+  public String toString() {
+    return "ElementActionView [allowed=" + allowed + ", reasonKey=" + reasonKey + "]";
+  }
+
 }

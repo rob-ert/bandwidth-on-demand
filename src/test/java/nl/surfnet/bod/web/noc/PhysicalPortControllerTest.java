@@ -50,6 +50,7 @@ import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.noc.PhysicalPortController.CreatePhysicalPortCommand;
+import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.PhysicalPortView;
 
 import org.hamcrest.Matchers;
@@ -93,9 +94,10 @@ public class PhysicalPortControllerTest {
   public void listAllPortsShouldSetPortsAndMaxPages() {
     Model model = new ModelStub();
     PhysicalPort port = new PhysicalPortFactory().create();
+    ElementActionView deleteActionView = new ElementActionView(true, "label_unallocate");
 
     List<PhysicalPort> ports = Lists.newArrayList(port);
-    List<PhysicalPortView> transformedPorts = Lists.newArrayList(new PhysicalPortView(port));
+    List<PhysicalPortView> transformedPorts = Lists.newArrayList(new PhysicalPortView(port, deleteActionView));
 
     when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), org.mockito.Matchers.any(Sort.class)))
         .thenReturn(ports);
@@ -112,9 +114,10 @@ public class PhysicalPortControllerTest {
   public void listAllPortsWithoutAPageParam() {
     Model model = new ModelStub();
     PhysicalPort port = new PhysicalPortFactory().create();
+    ElementActionView deleteActionView = new ElementActionView(true, "label_unallocate");
     List<PhysicalPort> ports = Lists.newArrayList(port);
-    List<PhysicalPortView> transformedPorts = Lists.newArrayList(new PhysicalPortView(port));
-    
+    List<PhysicalPortView> transformedPorts = Lists.newArrayList(new PhysicalPortView(port, deleteActionView));
+
     when(physicalPortServiceMock.findAllocatedEntries(eq(0), anyInt(), org.mockito.Matchers.any(Sort.class)))
         .thenReturn(ports);
 
@@ -127,13 +130,19 @@ public class PhysicalPortControllerTest {
 
   @Test
   public void listAllUnallocatedPortsShouldSetPortsAndMaxPages() {
-    Model model = new ModelStub();
-    List<PhysicalPort> ports = Lists.newArrayList(new PhysicalPortFactory().create());
+    Model model = new ModelStub();    
+    PhysicalPort port = new PhysicalPortFactory().create();
+    List<PhysicalPort> ports = Lists.newArrayList(port);
+    //Unallocated can never be 'deleted'
+    PhysicalPortView physicalPortView = new PhysicalPortView(port, null, 0);
+    List<PhysicalPortView> transformedPorts = Lists.newArrayList(physicalPortView);
+
     when(physicalPortServiceMock.findUnallocatedEntries(eq(0), anyInt())).thenReturn(ports);
 
     subject.listUnallocated(1, model);
 
-    assertThat(model.asMap(), hasEntry("list", Object.class.cast(ports)));
+    List<PhysicalPortView> modelList = WebUtils.getAttributeFromModel("list", model);
+    assertThat(modelList.get(0), is(transformedPorts.get(0)));
     assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
   }
 

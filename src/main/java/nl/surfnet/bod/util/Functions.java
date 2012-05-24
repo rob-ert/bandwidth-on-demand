@@ -40,7 +40,7 @@ public final class Functions {
       allocateActionView = new ElementActionView(false, "label_virtual_ports_related");
     }
 
-    return new PhysicalPortView(port, vpCount, allocateActionView);
+    return new PhysicalPortView(port, allocateActionView, vpCount);
   }
 
   /**

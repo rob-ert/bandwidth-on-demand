@@ -14,7 +14,9 @@ public class PhysicalPortView {
   private Long numberOfVirtualPorts;
   private boolean deleteRender;
 
-  public PhysicalPortView(final PhysicalPort physicalPort, final long virtualPortSize, final ElementActionView deleteActionView) {
+  public PhysicalPortView(final PhysicalPort physicalPort, final ElementActionView deleteActionView,
+      final long virtualPortSize) {
+    
     this(physicalPort, deleteActionView);
     this.numberOfVirtualPorts = virtualPortSize;
   }
@@ -102,6 +104,14 @@ public class PhysicalPortView {
     result = prime * result + ((physicalResourceGroupName == null) ? 0 : physicalResourceGroupName.hashCode());
     result = prime * result + ((portId == null) ? 0 : portId.hashCode());
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return "PhysicalPortView [id=" + id + ", managerLabel=" + managerLabel + ", nocLabel=" + nocLabel + ", portId="
+        + portId + ", physicalResourceGroupName=" + physicalResourceGroupName + ", networkElementPk="
+        + networkElementPk + ", deleteActionView=" + deleteActionView + ", numberOfVirtualPorts="
+        + numberOfVirtualPorts + ", deleteRender=" + deleteRender + "]";
   }
 
   @Override
