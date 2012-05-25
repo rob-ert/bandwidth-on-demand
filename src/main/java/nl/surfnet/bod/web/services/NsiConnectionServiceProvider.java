@@ -106,15 +106,16 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
   }
 
   private void sendReservationFailed(final String requesterEndpoint, final String correlationId) {
+    log.info("Sending reservation failed to endpoint: {}", requesterEndpoint);
+    
     final ConnectionServiceRequester requester = new ConnectionServiceRequester();
     final ConnectionRequesterPort connectionServiceRequesterPort = requester.getConnectionServiceRequesterPort();
-    final GenericFailedType provisionFailed = new GenericFailedType();
-    final Holder<String> correlationIdHolder = new Holder<String>(correlationId);
-    provisionFailed.setRequesterNSA(requesterEndpoint);
+    final GenericFailedType reservationFailed = new GenericFailedType();
+    reservationFailed.setRequesterNSA(requesterEndpoint);
     try {
       ((BindingProvider) connectionServiceRequesterPort).getRequestContext().put(
           BindingProvider.ENDPOINT_ADDRESS_PROPERTY, requesterEndpoint);
-      connectionServiceRequesterPort.reserveFailed(correlationIdHolder, provisionFailed);
+      connectionServiceRequesterPort.reserveFailed(new Holder<String>(correlationId), reservationFailed);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
       log.error("Error: ", e);
@@ -174,7 +175,7 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
      * field to NSA topology.
      */
     final String requesterEndpoint = reservationRequest.getReplyTo();
-    log.info("Requester endpoint: {}", requesterEndpoint);
+    log.debug("Requester endpoint: {}", requesterEndpoint);
 
     /*
      * Save the calling NSA security context and pass it along for use during
@@ -223,6 +224,8 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
      */
     final GenericAcknowledgmentType genericAcknowledgment = new GenericAcknowledgmentType();
     genericAcknowledgment.setCorrelationId(correlationId);
+
+    log.info("Sending back reservation request generic acknowledge: {}", genericAcknowledgment);
     return genericAcknowledgment;
   }
 
