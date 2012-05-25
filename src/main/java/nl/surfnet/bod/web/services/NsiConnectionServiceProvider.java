@@ -28,6 +28,8 @@
  */
 package nl.surfnet.bod.web.services;
 
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
@@ -65,6 +67,8 @@ public class NsiConnectionServiceProvider {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
+  @Resource(name = "nsaProviderUrns")
+  private List<String> nsaProviderUrns;
 
   /*
    * This holds the web service request context which includes all the original
@@ -143,16 +147,7 @@ public class NsiConnectionServiceProvider {
      * ProviderNSA field. If invalid we will throw an exception.
      */
     if (!isSameProviderNsa(reservationRequest)) {
-      final ServiceExceptionType faultInfo = new ServiceExceptionType();
-      faultInfo.setErrorId("SVC0001");
-      faultInfo.setText("Invalid or missing parameter");
-      final AttributeType attributeType = new AttributeType();
-      attributeType.setName("providerNSA");
-      attributeType.setNameFormat("urn:oasis:names:tc:SAML:2.0:attrname-format:basic");
-      final AttributeStatementType attributeStatementType = new AttributeStatementType();
-      attributeStatementType.getAttributeOrEncryptedAttribute().add(attributeType);
-      faultInfo.setVariables(attributeStatementType);
-      throw new ServiceException("SVC0001", faultInfo);
+      throw new ServiceException("SVC0001", createProviderMismatchError());
     }
     log.debug("message context: {}", webServiceContext.getMessageContext());
 
@@ -176,17 +171,27 @@ public class NsiConnectionServiceProvider {
   }
 
   /**
+   * @return
+   */
+  private ServiceExceptionType createProviderMismatchError() {
+    final ServiceExceptionType faultInfo = new ServiceExceptionType();
+    faultInfo.setErrorId("SVC0001");
+    faultInfo.setText("Invalid or missing parameter");
+    final AttributeType attributeType = new AttributeType();
+    attributeType.setName("providerNSA");
+    attributeType.setNameFormat("urn:oasis:names:tc:SAML:2.0:attrname-format:basic");
+    final AttributeStatementType attributeStatementType = new AttributeStatementType();
+    attributeStatementType.getAttributeOrEncryptedAttribute().add(attributeType);
+    faultInfo.setVariables(attributeStatementType);
+    return faultInfo;
+  }
+
+  /**
    * @param reserveRequest
    * @throws ServiceException
    */
   private boolean isSameProviderNsa(final ReserveRequestType reserveRequest) {
-    final String providerEndpoint = reserveRequest.getReserve().getProviderNSA();
-    if (!providerEndpoint.equals(webServiceContext.getMessageContext().get(
-        "com.sun.xml.ws.transport.http.servlet.requestURL"))) {
-      return false;
-    }
-    log.debug("Provider endpoint: {}", providerEndpoint);
-    return true;
+    return nsaProviderUrns == null ? true : nsaProviderUrns.contains(reserveRequest.getReserve().getProviderNSA());
   }
 
   public GenericAcknowledgmentType provision(ProvisionRequestType parameters) throws ServiceException {
@@ -364,6 +369,10 @@ public class NsiConnectionServiceProvider {
 
   public void queryFailed(Holder<String> correlationId, QueryFailedType queryFailed) throws ServiceException {
     throw new UnsupportedOperationException("Not implemented yet.");
+  }
+
+  static {
+    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
   }
 
 }
