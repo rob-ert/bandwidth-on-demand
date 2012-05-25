@@ -65,11 +65,6 @@ public class NsiReservationFactory {
       }
     }
     serviceParameters.setSchedule(schedule);
-    
-    System.out.println(schedule.getStartTime());
-    System.out.println(schedule.getEndTime());
-    System.out.println(schedule.getDuration());
-
     reservationInfoType.setServiceParameters(serviceParameters);
     reservationType.setReservation(reservationInfoType);
     reservationRequest.setReserve(reservationType);
