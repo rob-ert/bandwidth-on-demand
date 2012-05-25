@@ -21,6 +21,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.ws.client.core.WebServiceTemplate;
+import org.springframework.ws.test.client.MockWebServiceServer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml",
@@ -28,11 +30,14 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
 public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit4SpringContextTests {
 
-  @Resource(name = "nsiConnectionServiceProvider")
-  private NsiConnectionServiceProvider nsiConnectionServiceProvider;
+  @Resource(name = "nsiProvider")
+  private NsiConnectionServiceProvider nsiProvider;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
+    final WebServiceTemplate webServiceTemplate = new WebServiceTemplate();
+    webServiceTemplate.setDefaultUri(NsiReservationFactory.NSI_REQUESTER_ENDPOINT);
+    MockWebServiceServer.createServer(webServiceTemplate);
   }
 
   @AfterClass
@@ -48,17 +53,15 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
   }
 
   @Test(expected = ServiceException.class)
-  public void should_throw_exeption_after_null_reservervation() throws ServiceException {
-    assertNotNull(nsiConnectionServiceProvider);
-    nsiConnectionServiceProvider.reserve(null);
+  public void should_throw_exeption_because_of_null_reservervation() throws ServiceException {
+    nsiProvider.reserve(null);
   }
 
   @Test(expected = ServiceException.class)
   public void should_throw_exeption_because_of_invalid_provider_urn() throws ServiceException {
     final ReserveRequestType reservationRequest = new NsiReservationFactory().setNsaProviderUrn(
         "urn:ogf:network:nsa:no:such:provider").createReservation();
-    final GenericAcknowledgmentType genericAcknowledgmentType = nsiConnectionServiceProvider
-        .reserve(reservationRequest);
+    final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
     assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
   }
 
@@ -66,16 +69,14 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
   public void should_throw_exeption_because_of_invalid_correlation_id() throws ServiceException {
     final ReserveRequestType reservationRequest = new NsiReservationFactory().setCorrelationId(
         UUID.randomUUID().toString()).createReservation();
-    final GenericAcknowledgmentType genericAcknowledgmentType = nsiConnectionServiceProvider
-        .reserve(reservationRequest);
+    final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
     assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
   }
 
   @Test
   public void should_return_generic_acknowledgement() throws Exception {
     final ReserveRequestType reservationRequest = new NsiReservationFactory().createReservation();
-    final GenericAcknowledgmentType genericAcknowledgmentType = nsiConnectionServiceProvider
-        .reserve(reservationRequest);
+    final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
     assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
   }
 

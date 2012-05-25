@@ -43,15 +43,18 @@ import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
-@Service("nsiConnectionServiceRequester")
+@Service("nsiRequester")
 @WebService(serviceName = "ConnectionServiceRequester",
     portName = "ConnectionServiceRequesterPort",
     endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort",
     targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/requester",
     wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl")
 public final class NsiConnectionServiceRequester extends NsiConnectionService {
+  
+  private final Logger log = getLog();
 
   /*
    * This holds the web service request context which includes all the original
@@ -64,7 +67,7 @@ public final class NsiConnectionServiceRequester extends NsiConnectionService {
   @PostConstruct
   @SuppressWarnings("unused")
   private void init() {
-    getLog().debug("webServiceContext: {}", webServiceContext);
+    log.debug("webServiceContext: {}", webServiceContext);
   }
 
   @PreDestroy
@@ -104,6 +107,8 @@ public final class NsiConnectionServiceRequester extends NsiConnectionService {
   }
 
   public void reserveFailed(Holder<String> correlationId, GenericFailedType reserveFailed) throws ServiceException {
+    
+    log.info("Reservation failed received for correlationid {}", correlationId.value);
 
     // Validate we received the confirmed message.
 
@@ -175,7 +180,6 @@ public final class NsiConnectionServiceRequester extends NsiConnectionService {
   }
 
   public void provisionFailed(Holder<String> correlationId, GenericFailedType provisionFailed) throws ServiceException {
-
     // Validate we received the confirmed message.
 
     // Build an internal request for this provisionFailed request.
