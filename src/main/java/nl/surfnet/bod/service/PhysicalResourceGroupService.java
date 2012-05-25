@@ -183,7 +183,6 @@ public class PhysicalResourceGroupService {
     update(activationEmailLink.getSourceObject());
   }
 
-  @SuppressWarnings("unchecked")
   @Transactional
   public ActivationEmailLink<PhysicalResourceGroup> sendActivationRequest(PhysicalResourceGroup physicalResourceGroup) {
     deActivatePhysicalResourceGroup(physicalResourceGroup);
