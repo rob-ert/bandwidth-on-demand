@@ -35,7 +35,6 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
-import javax.xml.ws.WebServiceContext;
 
 import nl.surfnet.bod.service.ReservationService;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
@@ -52,8 +51,6 @@ import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -63,20 +60,10 @@ import org.springframework.stereotype.Service;
     endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
     targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider",
     wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
-public class NsiConnectionServiceProvider {
-
-  private final Logger log = LoggerFactory.getLogger(getClass());
+public final class NsiConnectionServiceProvider extends NsiConnectionService {
 
   @Resource(name = "nsaProviderUrns")
   private List<String> nsaProviderUrns;
-
-  /*
-   * This holds the web service request context which includes all the original
-   * HTTP information, including the JAAS authentication and authorisation
-   * information.
-   */
-  @Resource
-  private WebServiceContext webServiceContext;
 
   @Autowired
   private ReservationService reservationService;
@@ -84,8 +71,8 @@ public class NsiConnectionServiceProvider {
   @PostConstruct
   @SuppressWarnings("unused")
   private void init() {
-    log.debug("webServiceContext: " + webServiceContext);
-    log.debug("reservationService: " + reservationService);
+    getLog().debug("webServiceContext: " + getWebServiceContext());
+    getLog().debug("reservationService: " + reservationService);
   }
 
   @PreDestroy
@@ -113,13 +100,16 @@ public class NsiConnectionServiceProvider {
     if (reservationRequest == null) {
       throw new ServiceException("Invalid reservationRequest received (null)", null);
     }
-    
-    if (webServiceContext != null) {
-      log.debug("message context: {}", webServiceContext.getMessageContext());
+
+    if (getWebServiceContext() != null) {
+      getLog().debug("message context: {}", getWebServiceContext().getMessageContext());
     }
 
     final ReservationInfoType reservation = reservationRequest.getReserve().getReservation();
     final String correlationId = reservationRequest.getCorrelationId();
+    if (!isValidCorrelationId(correlationId)) {
+      throw new ServiceException("SVC0001", getInvalidParameterServiceExceptionType("correlationId"));
+    }
 
     // Build an internal request for this reservation request.
 
@@ -134,7 +124,7 @@ public class NsiConnectionServiceProvider {
      * field to NSA topology.
      */
     final String requesterEndpoint = reservationRequest.getReplyTo();
-    log.info("Requester endpoint: {}", requesterEndpoint);
+    getLog().info("Requester endpoint: {}", requesterEndpoint);
 
     /*
      * Save the calling NSA security context and pass it along for use during
@@ -155,15 +145,15 @@ public class NsiConnectionServiceProvider {
      * ProviderNSA field. If invalid we will throw an exception.
      */
     if (!isValidProviderNsa(reservationRequest)) {
-      throw new ServiceException("SVC0001", createProviderNotSupportedError());
+      throw new ServiceException("SVC0001", getInvalidParameterServiceExceptionType("providerNSA"));
     }
-    
+
     /*
      * Get the connectionId from the reservation as we will use this to
      * serialize related requests.
      */
     final String connectionId = reservation.getConnectionId();
-    log.debug("connectionId {}", connectionId);
+    getLog().debug("connectionId {}", connectionId);
 
     // Route this message to the appropriate actor for processing.
 
@@ -180,12 +170,12 @@ public class NsiConnectionServiceProvider {
   /**
    * @return
    */
-  private ServiceExceptionType createProviderNotSupportedError() {
+  private ServiceExceptionType getInvalidParameterServiceExceptionType(final String attributeName) {
     final ServiceExceptionType faultInfo = new ServiceExceptionType();
     faultInfo.setErrorId("SVC0001");
     faultInfo.setText("Invalid or missing parameter");
     final AttributeType attributeType = new AttributeType();
-    attributeType.setName("providerNSA");
+    attributeType.setName(attributeName);
     attributeType.setNameFormat("urn:oasis:names:tc:SAML:2.0:attrname-format:basic");
     final AttributeStatementType attributeStatementType = new AttributeStatementType();
     attributeStatementType.getAttributeOrEncryptedAttribute().add(attributeType);
@@ -376,10 +366,6 @@ public class NsiConnectionServiceProvider {
 
   public void queryFailed(Holder<String> correlationId, QueryFailedType queryFailed) throws ServiceException {
     throw new UnsupportedOperationException("Not implemented yet.");
-  }
-
-  static {
-    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
   }
 
 }

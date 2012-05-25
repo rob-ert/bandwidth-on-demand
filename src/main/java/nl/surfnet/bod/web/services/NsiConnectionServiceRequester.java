@@ -43,8 +43,6 @@ import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service("nsiConnectionServiceRequester")
@@ -53,9 +51,7 @@ import org.springframework.stereotype.Service;
     endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort",
     targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/requester",
     wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl")
-public class NsiConnectionServiceRequester {
-
-  private final Logger log = LoggerFactory.getLogger(getClass());
+public final class NsiConnectionServiceRequester extends NsiConnectionService {
 
   /*
    * This holds the web service request context which includes all the original
@@ -68,7 +64,7 @@ public class NsiConnectionServiceRequester {
   @PostConstruct
   @SuppressWarnings("unused")
   private void init() {
-    log.debug("webServiceContext: {}", webServiceContext);
+    getLog().debug("webServiceContext: {}", webServiceContext);
   }
 
   @PreDestroy

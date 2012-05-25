@@ -63,7 +63,17 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
   @Test(expected = ServiceException.class)
   public void should_throw_exeption_because_of_invalid_provider_urn() throws ServiceException {
     final String nsaProviderUrn = "NOT:VALID:urn:ogf:network:nsa:netherlight";
-    final ReserveRequestType reservationRequest = createReservation(nsaProviderUrn);
+    final ReserveRequestType reservationRequest = createReservation(nsaProviderUrn,
+        NsiConnectionService.getCorrelationId());
+    final GenericAcknowledgmentType genericAcknowledgmentType = nsiConnectionServiceProvider
+        .reserve(reservationRequest);
+    assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
+  }
+
+  @Test(expected = ServiceException.class)
+  public void should_throw_exeption_because_of_invalid_correlation_id() throws ServiceException {
+    final String nsaProviderUrn = "urn:ogf:network:nsa:netherlight";
+    final ReserveRequestType reservationRequest = createReservation(nsaProviderUrn, UUID.randomUUID().toString());
     final GenericAcknowledgmentType genericAcknowledgmentType = nsiConnectionServiceProvider
         .reserve(reservationRequest);
     assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
@@ -73,11 +83,11 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
   public void should_return_generic_acknowledgement() {
     try {
       final String nsaProviderUrn = "urn:ogf:network:nsa:netherlight";
-      final ReserveRequestType reservationRequest = createReservation(nsaProviderUrn);
+      final ReserveRequestType reservationRequest = createReservation(nsaProviderUrn,
+          NsiConnectionService.getCorrelationId());
       final GenericAcknowledgmentType genericAcknowledgmentType = nsiConnectionServiceProvider
           .reserve(reservationRequest);
       assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
-
     }
     catch (ServiceException e) {
       fail("should throw ServiceException because request was null");
@@ -86,14 +96,14 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
 
   /**
    * @param nsaProviderUrn
+   * @param correlationId
    * @return
    */
-  private ReserveRequestType createReservation(final String nsaProviderUrn) {
+  private ReserveRequestType createReservation(final String nsaProviderUrn, final String correlationId) {
     final ReserveRequestType reservationRequest = new ReserveRequestType();
-    reservationRequest.setCorrelationId(UUID.randomUUID().toString());
+    reservationRequest.setCorrelationId(correlationId);
     reservationRequest.setReplyTo("http://localhost:8082/bod/nsi/requester");
     final ReserveType reservationType = new ReserveType();
-
     reservationType.setProviderNSA(nsaProviderUrn);
     final ReservationInfoType reservationInfoType = new ReservationInfoType();
     final ServiceParametersType serviceParameters = new ServiceParametersType();

@@ -6600,54 +6600,50 @@
          </typ:release>
       </int:releaseRequest>
    </soapenv:Body>
-</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/release"/></con:call></con:operation><con:operation isOneWay="false" action="http://schemas.ogf.org/nsi/2011/10/connection/service/reserve" name="reserve" bindingOperationName="reserve" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8082/bod/nsi/provider</con:endpoint><con:request><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-    xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface"
-    xmlns:typ="http://schemas.ogf.org/nsi/2011/10/connection/types" xmlns:urn="urn:oasis:names:tc:SAML:2.0:assertion"
-    xmlns:xe="http://www.w3.org/2001/04/xmlenc#" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
-    <soapenv:Header />
-    <soapenv:Body>
-        <int:reserveRequest>
-            <int:correlationId>f32cc82e-4d87-45ab-baab-4b7011652a2e</int:correlationId>
-            <int:replyTo>http://localhost:8082/bod/nsi/requester</int:replyTo>
-            <typ:reserve>
-                <requesterNSA>?</requesterNSA>
-                <providerNSA>urn:ogf:network:nsa:netherlight</providerNSA>
-                <reservation>
-                    <globalReservationId>?</globalReservationId>
-                    <description>?</description>
-                    <connectionId>con_id-f32cc82e-4d87</connectionId>
-                    <serviceParameters>
-                        <schedule>
-                            <startTime>?</startTime>
-                            <endTime>?</endTime>
-                            <duration>?</duration>
-                        </schedule>
-                        <bandwidth>
-                            <desired>1000</desired>
-                            <minimum>750</minimum>
-                            <maximum>1000</maximum>
-                        </bandwidth>
-                    </serviceParameters>
-                    <path>
-                        <directionality>Bidirectional</directionality>
-                        <sourceSTP>
-                            <stpId>?</stpId>
-                        </sourceSTP>
-                        <destSTP>
-                            <stpId>?</stpId>
-                        </destSTP>
-                        <stpList>
-                            <!--Zero or more repetitions: -->
-                            <stp order="0">
-                                <stpId>?</stpId>
-                            </stp>
-                        </stpList>
-                    </path>
-                </reservation>
-            </typ:reserve>
-        </int:reserveRequest>
-    </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/release"/></con:call></con:operation><con:operation isOneWay="false" action="http://schemas.ogf.org/nsi/2011/10/connection/service/reserve" name="reserve" bindingOperationName="reserve" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8082/bod/nsi/provider</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface" xmlns:typ="http://schemas.ogf.org/nsi/2011/10/connection/types" xmlns:urn="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xe="http://www.w3.org/2001/04/xmlenc#" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <int:reserveRequest>
+         <int:correlationId>urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e</int:correlationId>
+         <int:replyTo>http://localhost:8082/bod/nsi/requester</int:replyTo>
+         <typ:reserve>
+            <requesterNSA>?</requesterNSA>
+            <providerNSA>urn:ogf:network:nsa:netherlight</providerNSA>
+            <reservation>
+               <globalReservationId>?</globalReservationId>
+               <description>?</description>
+               <connectionId>?</connectionId>
+               <serviceParameters>
+                  <schedule>
+                     <startTime>?</startTime>
+                     <endTime>?</endTime>
+                     <duration>?</duration>
+                  </schedule>
+                  <bandwidth>
+                     <desired>1000</desired>
+                     <minimum>750</minimum>
+                     <maximum>1000</maximum>
+                  </bandwidth>
+               </serviceParameters>
+               <path>
+                  <directionality>Bidirectional</directionality>
+                  <sourceSTP>
+                     <stpId>?</stpId>
+                  </sourceSTP>
+                  <destSTP>
+                     <stpId>?</stpId>
+                  </destSTP>
+                  <stpList>
+                     <!--Zero or more repetitions:-->
+                     <stp order="0">
+                        <stpId>?</stpId>
+                     </stp>
+                  </stpList>
+               </path>
+            </reservation>
+         </typ:reserve>
+      </int:reserveRequest>
+   </soapenv:Body>
 </soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/reserve"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="http://schemas.ogf.org/nsi/2011/10/connection/service/terminate" name="terminate" bindingOperationName="terminate" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8082/bod/nsi/provider</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface" xmlns:typ="http://schemas.ogf.org/nsi/2011/10/connection/types" xmlns:urn="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xe="http://www.w3.org/2001/04/xmlenc#" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
    <soapenv:Header/>
    <soapenv:Body>
