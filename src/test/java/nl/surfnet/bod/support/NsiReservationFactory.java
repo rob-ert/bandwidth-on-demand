@@ -30,8 +30,6 @@ public class NsiReservationFactory {
     reservationInfoType.setServiceParameters(serviceParameters);
     reservationType.setReservation(reservationInfoType);
     reservationRequest.setReserve(reservationType);
-    System.out.println(correlationId);
-    System.out.println(nsaProviderUrn);
     return reservationRequest;
   }
 
