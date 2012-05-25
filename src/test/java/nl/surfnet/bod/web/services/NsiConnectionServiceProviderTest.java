@@ -32,12 +32,13 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
 
   @Resource(name = "nsiProvider")
   private NsiConnectionServiceProvider nsiProvider;
+  
+  
+  private  MockWebServiceServer mockServer;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    final WebServiceTemplate webServiceTemplate = new WebServiceTemplate();
-    webServiceTemplate.setDefaultUri(NsiReservationFactory.NSI_REQUESTER_ENDPOINT);
-    MockWebServiceServer.createServer(webServiceTemplate);
+    
   }
 
   @AfterClass
@@ -46,6 +47,9 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
 
   @Before
   public void setUp() throws Exception {
+    final WebServiceTemplate webServiceTemplate = new WebServiceTemplate();
+    webServiceTemplate.setDefaultUri(NsiReservationFactory.NSI_REQUESTER_ENDPOINT);
+     mockServer = MockWebServiceServer.createServer(webServiceTemplate);
   }
 
   @After
@@ -74,7 +78,7 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
   }
 
   @Test
-  public void should_return_generic_acknowledgement() throws Exception {
+  public void should_return_generic_acknowledgement_with_valid_correlation_id() throws Exception {
     final ReserveRequestType reservationRequest = new NsiReservationFactory().createReservation();
     final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
     assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
