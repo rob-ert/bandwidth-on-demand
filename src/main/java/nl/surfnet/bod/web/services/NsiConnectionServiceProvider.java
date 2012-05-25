@@ -67,7 +67,7 @@ public class NsiConnectionServiceProvider {
    * information.
    */
   @Resource
-  private WebServiceContext wsc;
+  private WebServiceContext webServiceContext;
 
   @Autowired
   private ReservationService reservationService;
@@ -75,7 +75,7 @@ public class NsiConnectionServiceProvider {
   @PostConstruct
   @SuppressWarnings("unused")
   private void init() {
-    log.debug("wsc: " + wsc);
+    log.debug("webServiceContext: " + webServiceContext);
     log.debug("reservationService: " + reservationService);
   }
 

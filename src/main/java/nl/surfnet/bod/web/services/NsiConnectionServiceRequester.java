@@ -63,12 +63,12 @@ public class NsiConnectionServiceRequester {
    * information.
    */
   @Resource
-  private WebServiceContext wsc;
+  private WebServiceContext webServiceContext;
 
   @PostConstruct
   @SuppressWarnings("unused")
   private void init() {
-    log.debug("wsc: " + wsc);
+    log.debug("webServiceContext: " + webServiceContext);
   }
 
   @PreDestroy
