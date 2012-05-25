@@ -36,6 +36,8 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceContext;
 
 import nl.surfnet.bod.service.ReservationService;
+import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
+import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
 import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
@@ -46,6 +48,8 @@ import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +64,7 @@ import org.springframework.stereotype.Service;
 public class NsiConnectionServiceProvider {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
+
 
   /*
    * This holds the web service request context which includes all the original
@@ -99,7 +104,10 @@ public class NsiConnectionServiceProvider {
    *           if we can determine there is processing error before digging into
    *           the request.
    */
-  public GenericAcknowledgmentType reserve(ReserveRequestType parameters) throws ServiceException {
+  public GenericAcknowledgmentType reserve(final ReserveRequestType reservationRequest) throws ServiceException {
+
+    final ReservationInfoType reservation = reservationRequest.getReserve().getReservation();
+    final String correlationId = reservationRequest.getCorrelationId();
 
     // Build an internal request for this reservation request.
 
@@ -113,6 +121,8 @@ public class NsiConnectionServiceProvider {
      * In the future we may remove this parameter and add a csRequesterEndpoint
      * field to NSA topology.
      */
+    final String requesterEndpoint = reservationRequest.getReplyTo();
+    log.info("Requester endpoint: {}", requesterEndpoint);
 
     /*
      * Save the calling NSA security context and pass it along for use during
@@ -132,11 +142,26 @@ public class NsiConnectionServiceProvider {
      * Verify that this message was targeting this NSA by looking at the
      * ProviderNSA field. If invalid we will throw an exception.
      */
+    if (!isSameProviderNsa(reservationRequest)) {
+      final ServiceExceptionType faultInfo = new ServiceExceptionType();
+      faultInfo.setErrorId("SVC0001");
+      faultInfo.setText("Invalid or missing parameter");
+      final AttributeType attributeType = new AttributeType();
+      attributeType.setName("providerNSA");
+      attributeType.setNameFormat("urn:oasis:names:tc:SAML:2.0:attrname-format:basic");
+      final AttributeStatementType attributeStatementType = new AttributeStatementType();
+      attributeStatementType.getAttributeOrEncryptedAttribute().add(attributeType);
+      faultInfo.setVariables(attributeStatementType);
+      throw new ServiceException("SVC0001", faultInfo);
+    }
+    log.debug("message context: {}", webServiceContext.getMessageContext());
 
     /*
      * Get the connectionId from the reservation as we will use this to
      * serialize related requests.
      */
+    final String connectionId = reservation.getConnectionId();
+    log.debug("connectionId {}", connectionId);
 
     // Route this message to the appropriate actor for processing.
 
@@ -145,9 +170,23 @@ public class NsiConnectionServiceProvider {
      * the requesting NSA. We hope this returns before the confirmation makes it
      * back to the requesting NSA.
      */
-    GenericAcknowledgmentType ack = new GenericAcknowledgmentType();
-    ack.setCorrelationId(null);
-    return ack;
+    final GenericAcknowledgmentType genericAcknowledgment = new GenericAcknowledgmentType();
+    genericAcknowledgment.setCorrelationId(correlationId);
+    return genericAcknowledgment;
+  }
+
+  /**
+   * @param reserveRequest
+   * @throws ServiceException
+   */
+  private boolean isSameProviderNsa(final ReserveRequestType reserveRequest) {
+    final String providerEndpoint = reserveRequest.getReserve().getProviderNSA();
+    if (!providerEndpoint.equals(webServiceContext.getMessageContext().get(
+        "com.sun.xml.ws.transport.http.servlet.requestURL"))) {
+      return false;
+    }
+    log.debug("Provider endpoint: {}", providerEndpoint);
+    return true;
   }
 
   public GenericAcknowledgmentType provision(ProvisionRequestType parameters) throws ServiceException {
@@ -307,7 +346,6 @@ public class NsiConnectionServiceProvider {
      * Verify that this message was targeting this NSA by looking at the
      * ProviderNSA field. If invalid we will throw an exception.
      */
-
 
     // Route this message to the appropriate actor for processing.
 

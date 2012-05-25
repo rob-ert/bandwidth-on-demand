@@ -68,7 +68,7 @@ public class NsiConnectionServiceRequester {
   @PostConstruct
   @SuppressWarnings("unused")
   private void init() {
-    log.debug("webServiceContext: " + webServiceContext);
+    log.debug("webServiceContext: {}", webServiceContext);
   }
 
   @PreDestroy
