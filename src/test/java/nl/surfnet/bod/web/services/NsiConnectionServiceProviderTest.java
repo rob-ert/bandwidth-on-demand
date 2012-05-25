@@ -93,6 +93,7 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
     final ReserveRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
         .setScheduleEndTime(endTime).createReservation();
     final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
+    
     assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
   }
 
