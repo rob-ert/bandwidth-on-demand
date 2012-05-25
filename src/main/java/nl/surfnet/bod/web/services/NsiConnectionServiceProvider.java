@@ -110,6 +110,14 @@ public class NsiConnectionServiceProvider {
    */
   public GenericAcknowledgmentType reserve(final ReserveRequestType reservationRequest) throws ServiceException {
 
+    if (reservationRequest == null) {
+      throw new ServiceException("Invalid reservationRequest received (null)", null);
+    }
+    
+    if (webServiceContext != null) {
+      log.debug("message context: {}", webServiceContext.getMessageContext());
+    }
+
     final ReservationInfoType reservation = reservationRequest.getReserve().getReservation();
     final String correlationId = reservationRequest.getCorrelationId();
 
@@ -146,11 +154,10 @@ public class NsiConnectionServiceProvider {
      * Verify that this message was targeting this NSA by looking at the
      * ProviderNSA field. If invalid we will throw an exception.
      */
-    if (!isSameProviderNsa(reservationRequest)) {
-      throw new ServiceException("SVC0001", createProviderMismatchError());
+    if (!isValidProviderNsa(reservationRequest)) {
+      throw new ServiceException("SVC0001", createProviderNotSupportedError());
     }
-    log.debug("message context: {}", webServiceContext.getMessageContext());
-
+    
     /*
      * Get the connectionId from the reservation as we will use this to
      * serialize related requests.
@@ -173,7 +180,7 @@ public class NsiConnectionServiceProvider {
   /**
    * @return
    */
-  private ServiceExceptionType createProviderMismatchError() {
+  private ServiceExceptionType createProviderNotSupportedError() {
     final ServiceExceptionType faultInfo = new ServiceExceptionType();
     faultInfo.setErrorId("SVC0001");
     faultInfo.setText("Invalid or missing parameter");
@@ -190,7 +197,7 @@ public class NsiConnectionServiceProvider {
    * @param reserveRequest
    * @throws ServiceException
    */
-  private boolean isSameProviderNsa(final ReserveRequestType reserveRequest) {
+  private boolean isValidProviderNsa(final ReserveRequestType reserveRequest) {
     return nsaProviderUrns == null ? true : nsaProviderUrns.contains(reserveRequest.getReserve().getProviderNSA());
   }
 
