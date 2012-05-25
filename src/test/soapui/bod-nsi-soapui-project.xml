@@ -6605,7 +6605,7 @@
    <soapenv:Body>
       <int:reserveRequest>
          <int:correlationId>urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e</int:correlationId>
-         <int:replyTo>http://localhost:8082/bod/nsi/requester</int:replyTo>
+         <int:replyTo>http://localhost:8088/requester</int:replyTo>
          <typ:reserve>
             <requesterNSA>?</requesterNSA>
             <providerNSA>urn:ogf:network:nsa:netherlight</providerNSA>
@@ -9565,7 +9565,7 @@
     <attribute name="Id" type="ID" use="optional"/>
     <anyAttribute namespace="http://www.w3.org/XML/1998/namespace"/>
   </complexType>
-</schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8082/bod/nsi/requester</con:endpoint><con:endpoint>http://mba.local:8080/</con:endpoint></con:endpoints><con:operation isOneWay="false" action="http://schemas.ogf.org/nsi/2011/10/connection/service/forcedEnd" name="forcedEnd" bindingOperationName="forcedEnd" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8082/bod/nsi/requester</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface" xmlns:typ="http://schemas.ogf.org/nsi/2011/10/connection/types" xmlns:urn="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xe="http://www.w3.org/2001/04/xmlenc#" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+</schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8082/bod/nsi/requester</con:endpoint><con:endpoint>http://mba.local:8080/</con:endpoint><con:endpoint>http://mba.local:8088/requester</con:endpoint></con:endpoints><con:operation isOneWay="false" action="http://schemas.ogf.org/nsi/2011/10/connection/service/forcedEnd" name="forcedEnd" bindingOperationName="forcedEnd" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8082/bod/nsi/requester</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface" xmlns:typ="http://schemas.ogf.org/nsi/2011/10/connection/types" xmlns:urn="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xe="http://www.w3.org/2001/04/xmlenc#" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
    <soapenv:Header/>
    <soapenv:Body>
       <int:forcedEndRequest>
@@ -13636,7 +13636,7 @@
          </typ:releaseConfirmed>
       </int:releaseConfirmed>
    </soapenv:Body>
-</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/releaseConfirmed"/></con:call></con:operation><con:operation isOneWay="false" action="http://schemas.ogf.org/nsi/2011/10/connection/service/releaseFailed" name="releaseFailed" bindingOperationName="releaseFailed" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8082/bod/nsi/requester</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface" xmlns:typ="http://schemas.ogf.org/nsi/2011/10/connection/types" xmlns:urn="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xe="http://www.w3.org/2001/04/xmlenc#" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/releaseConfirmed"/></con:call></con:operation><con:operation isOneWay="false" action="http://schemas.ogf.org/nsi/2011/10/connection/service/releaseFailed" name="releaseFailed" bindingOperationName="releaseFailed" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://mba.local:8088/requester</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface" xmlns:typ="http://schemas.ogf.org/nsi/2011/10/connection/types" xmlns:urn="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xe="http://www.w3.org/2001/04/xmlenc#" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
    <soapenv:Header/>
    <soapenv:Body>
       <int:releaseFailed>
@@ -13896,7 +13896,7 @@
          </typ:releaseFailed>
       </int:releaseFailed>
    </soapenv:Body>
-</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/releaseFailed"/></con:call></con:operation><con:operation isOneWay="false" action="http://schemas.ogf.org/nsi/2011/10/connection/service/reserveConfirmed" name="reserveConfirmed" bindingOperationName="reserveConfirmed" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8082/bod/nsi/requester</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface" xmlns:typ="http://schemas.ogf.org/nsi/2011/10/connection/types" xmlns:urn="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xe="http://www.w3.org/2001/04/xmlenc#" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/releaseFailed"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="http://schemas.ogf.org/nsi/2011/10/connection/service/reserveConfirmed" name="reserveConfirmed" bindingOperationName="reserveConfirmed" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8082/bod/nsi/requester</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface" xmlns:typ="http://schemas.ogf.org/nsi/2011/10/connection/types" xmlns:urn="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xe="http://www.w3.org/2001/04/xmlenc#" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
    <soapenv:Header/>
    <soapenv:Body>
       <int:reserveConfirmed>
@@ -15693,4 +15693,88 @@
          </typ:terminateFailed>
       </int:terminateFailed>
    </soapenv:Body>
-</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/terminateFailed"/></con:call></con:operation></con:interface><con:mockService port="8080" path="/" host="mba.local" name="Requester"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.mock.WsdlMockService@require-soap-action">false</con:setting></con:settings><con:properties/></con:mockService><con:properties/><con:wssContainer/></con:soapui-project>
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/terminateFailed"/></con:call></con:operation></con:interface><con:mockService port="8088" path="/requester" host="mba.local" name="MockRequesterService"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.mock.WsdlMockService@require-soap-action">false</con:setting></con:settings><con:mockOperation name="forcedEnd" interface="ConnectionServiceRequesterSoapBinding" operation="forcedEnd"><con:settings/><con:dispatchStyle>SEQUENCE</con:dispatchStyle><con:defaultResponse>Response 1</con:defaultResponse><con:response name="Response 1" encoding="UTF-8"><con:settings/><con:responseContent><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <int:acknowledgment>
+         <int:correlationId>?</int:correlationId>
+      </int:acknowledgment>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:responseContent><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/forcedEnd"/></con:response><con:dispatchConfig/></con:mockOperation><con:mockOperation name="provisionConfirmed" interface="ConnectionServiceRequesterSoapBinding" operation="provisionConfirmed"><con:settings/><con:dispatchStyle>SEQUENCE</con:dispatchStyle><con:defaultResponse>Response 1</con:defaultResponse><con:response name="Response 1" encoding="UTF-8"><con:settings/><con:responseContent><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <int:acknowledgment>
+         <int:correlationId>?</int:correlationId>
+      </int:acknowledgment>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:responseContent><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/provisionConfirmed"/></con:response><con:dispatchConfig/></con:mockOperation><con:mockOperation name="provisionFailed" interface="ConnectionServiceRequesterSoapBinding" operation="provisionFailed"><con:settings/><con:dispatchStyle>SEQUENCE</con:dispatchStyle><con:defaultResponse>Response 1</con:defaultResponse><con:response name="Response 1" encoding="UTF-8"><con:settings/><con:responseContent><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <int:acknowledgment>
+         <int:correlationId>?</int:correlationId>
+      </int:acknowledgment>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:responseContent><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/provisionFailed"/></con:response><con:dispatchConfig/></con:mockOperation><con:mockOperation name="query" interface="ConnectionServiceRequesterSoapBinding" operation="query"><con:settings/><con:dispatchStyle>SEQUENCE</con:dispatchStyle><con:defaultResponse>Response 1</con:defaultResponse><con:response name="Response 1" encoding="UTF-8"><con:settings/><con:responseContent><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <int:acknowledgment>
+         <int:correlationId>?</int:correlationId>
+      </int:acknowledgment>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:responseContent><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/query"/></con:response><con:dispatchConfig/></con:mockOperation><con:mockOperation name="queryConfirmed" interface="ConnectionServiceRequesterSoapBinding" operation="queryConfirmed"><con:settings/><con:dispatchStyle>SEQUENCE</con:dispatchStyle><con:defaultResponse>Response 1</con:defaultResponse><con:response name="Response 1" encoding="UTF-8"><con:settings/><con:responseContent><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <int:acknowledgment>
+         <int:correlationId>?</int:correlationId>
+      </int:acknowledgment>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:responseContent><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/queryConfirmed"/></con:response><con:dispatchConfig/></con:mockOperation><con:mockOperation name="queryFailed" interface="ConnectionServiceRequesterSoapBinding" operation="queryFailed"><con:settings/><con:dispatchStyle>SEQUENCE</con:dispatchStyle><con:defaultResponse>Response 1</con:defaultResponse><con:response name="Response 1" encoding="UTF-8"><con:settings/><con:responseContent><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <int:acknowledgment>
+         <int:correlationId>?</int:correlationId>
+      </int:acknowledgment>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:responseContent><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/queryFailed"/></con:response><con:dispatchConfig/></con:mockOperation><con:mockOperation name="releaseConfirmed" interface="ConnectionServiceRequesterSoapBinding" operation="releaseConfirmed"><con:settings/><con:dispatchStyle>SEQUENCE</con:dispatchStyle><con:defaultResponse>Response 1</con:defaultResponse><con:response name="Response 1" encoding="UTF-8"><con:settings/><con:responseContent><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <int:acknowledgment>
+         <int:correlationId>?</int:correlationId>
+      </int:acknowledgment>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:responseContent><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/releaseConfirmed"/></con:response><con:dispatchConfig/></con:mockOperation><con:mockOperation name="releaseFailed" interface="ConnectionServiceRequesterSoapBinding" operation="releaseFailed"><con:settings/><con:dispatchStyle>SEQUENCE</con:dispatchStyle><con:defaultResponse>Response 1</con:defaultResponse><con:response name="Response 1" encoding="UTF-8"><con:settings/><con:responseContent><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <int:acknowledgment>
+         <int:correlationId>?</int:correlationId>
+      </int:acknowledgment>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:responseContent><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/releaseFailed"/></con:response><con:dispatchConfig/></con:mockOperation><con:mockOperation name="reserveConfirmed" interface="ConnectionServiceRequesterSoapBinding" operation="reserveConfirmed"><con:settings/><con:dispatchStyle>SEQUENCE</con:dispatchStyle><con:defaultResponse>Response 1</con:defaultResponse><con:response name="Response 1" encoding="UTF-8"><con:settings/><con:responseContent><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <int:acknowledgment>
+         <int:correlationId>?</int:correlationId>
+      </int:acknowledgment>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:responseContent><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/reserveConfirmed"/></con:response><con:dispatchConfig/></con:mockOperation><con:mockOperation name="reserveFailed" interface="ConnectionServiceRequesterSoapBinding" operation="reserveFailed"><con:settings/><con:dispatchStyle>SEQUENCE</con:dispatchStyle><con:defaultResponse>Response 1</con:defaultResponse><con:response name="Response 1" encoding="UTF-8"><con:settings/><con:responseContent><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <int:acknowledgment>
+         <int:correlationId>?</int:correlationId>
+      </int:acknowledgment>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:responseContent><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/reserveFailed"/></con:response><con:dispatchConfig/></con:mockOperation><con:mockOperation name="terminateConfirmed" interface="ConnectionServiceRequesterSoapBinding" operation="terminateConfirmed"><con:settings/><con:dispatchStyle>SEQUENCE</con:dispatchStyle><con:defaultResponse>Response 1</con:defaultResponse><con:response name="Response 1" encoding="UTF-8"><con:settings/><con:responseContent><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <int:acknowledgment>
+         <int:correlationId>?</int:correlationId>
+      </int:acknowledgment>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:responseContent><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/terminateConfirmed"/></con:response><con:dispatchConfig/></con:mockOperation><con:mockOperation name="terminateFailed" interface="ConnectionServiceRequesterSoapBinding" operation="terminateFailed"><con:settings/><con:dispatchStyle>SEQUENCE</con:dispatchStyle><con:defaultResponse>Response 1</con:defaultResponse><con:response name="Response 1" encoding="UTF-8"><con:settings/><con:responseContent><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <int:acknowledgment>
+         <int:correlationId>?</int:correlationId>
+      </int:acknowledgment>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:responseContent><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/terminateFailed"/></con:response><con:dispatchConfig/></con:mockOperation><con:properties/></con:mockService><con:properties/><con:wssContainer/></con:soapui-project>
