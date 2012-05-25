@@ -16,21 +16,15 @@
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
         http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.1.xsd
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
-        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
         http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
-
-    <!-- -->
-    <!-- Java byte code manipulation or things like cobertura will not work -->
-    <!-- -->
-    <aop:config proxy-target-class="true" />
-
 
     <context:component-scan base-package="nl.surfnet.bod">
         <context:exclude-filter expression="org.springframework.stereotype.Controller"
             type="annotation" />
     </context:component-scan>
 
-    <task:annotation-driven />
+    <task:annotation-driven mode="aspectj" />
     <tx:annotation-driven mode="aspectj"
         transaction-manager="transactionManager" />
 
@@ -77,5 +71,6 @@
 
     <!-- Enable switching between mock and real implementation -->
     <bean id="emailSender" class="${mail.sender.class}" />
+
 
 </beans>
