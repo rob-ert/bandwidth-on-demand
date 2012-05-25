@@ -30,7 +30,7 @@
             type="annotation" />
     </context:component-scan>
 
-    <task:annotation-driven mode="aspectj" />
+    <task:annotation-driven />
     <tx:annotation-driven mode="aspectj"
         transaction-manager="transactionManager" />
 
