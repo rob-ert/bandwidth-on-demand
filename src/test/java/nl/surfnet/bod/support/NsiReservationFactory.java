@@ -1,17 +1,19 @@
 package nl.surfnet.bod.support;
 
+import java.math.BigInteger;
+
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import nl.surfnet.bod.web.services.NsiConnectionService;
 
-import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection.types.BandwidthType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReserveType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
+import org.ogf.schemas.nsi._2011._07.connection._interface.ReservationRequestType;
+import org.ogf.schemas.nsi._2011._07.connection.types.BandwidthType;
+import org.ogf.schemas.nsi._2011._07.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._07.connection.types.ReservationType;
+import org.ogf.schemas.nsi._2011._07.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2011._07.connection.types.ServiceParametersType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +25,9 @@ public class NsiReservationFactory {
 
   private String correlationId = NsiConnectionService.getCorrelationId();
   private String nsaProviderUrn = "urn:ogf:network:nsa:netherlight";
-  private int desiredBandwidth = 1000;
-  private int maxBandwidth = 1000;
-  private int minBandwidth = 950;
+  private long desiredBandwidth = 1000;
+  private long maxBandwidth = 1000;
+  private long minBandwidth = 950;
   private XMLGregorianCalendar scheduleEndTime;
   private XMLGregorianCalendar scheduleStartTime;
 
@@ -34,21 +36,21 @@ public class NsiReservationFactory {
    * @param correlationId
    * @return
    */
-  public ReserveRequestType createReservation() {
-    final ReserveRequestType reservationRequest = new ReserveRequestType();
+  public ReservationRequestType createReservation() {
+    final ReservationRequestType reservationRequest = new ReservationRequestType();
     reservationRequest.setCorrelationId(this.correlationId);
     reservationRequest.setReplyTo(NSI_REQUESTER_ENDPOINT);
 
-    final ReserveType reservationType = new ReserveType();
+    final ReservationType reservationType = new ReservationType();
     reservationType.setProviderNSA(this.nsaProviderUrn);
 
     final ReservationInfoType reservationInfoType = new ReservationInfoType();
     final ServiceParametersType serviceParameters = new ServiceParametersType();
 
     final BandwidthType bandwidth = new BandwidthType();
-    bandwidth.setDesired(desiredBandwidth);
-    bandwidth.setMaximum(maxBandwidth);
-    bandwidth.setMinimum(minBandwidth);
+    bandwidth.setDesired(BigInteger.valueOf(desiredBandwidth));
+    bandwidth.setMaximum(BigInteger.valueOf(maxBandwidth));
+    bandwidth.setMinimum(BigInteger.valueOf(minBandwidth));
     serviceParameters.setBandwidth(bandwidth);
 
     final ScheduleType schedule = new ScheduleType();
@@ -67,7 +69,7 @@ public class NsiReservationFactory {
     serviceParameters.setSchedule(schedule);
     reservationInfoType.setServiceParameters(serviceParameters);
     reservationType.setReservation(reservationInfoType);
-    reservationRequest.setReserve(reservationType);
+    reservationRequest.setReservation(reservationType);
     return reservationRequest;
   }
 
@@ -81,17 +83,17 @@ public class NsiReservationFactory {
     return this;
   }
 
-  public final NsiReservationFactory setDesiredBandwidth(int desiredBandwidth) {
+  public final NsiReservationFactory setDesiredBandwidth(long desiredBandwidth) {
     this.desiredBandwidth = desiredBandwidth;
     return this;
   }
 
-  public final NsiReservationFactory setMaxBandwidth(int maxBandwidth) {
+  public final NsiReservationFactory setMaxBandwidth(long maxBandwidth) {
     this.maxBandwidth = maxBandwidth;
     return this;
   }
 
-  public final NsiReservationFactory setMinBandwidth(int minBandwidth) {
+  public final NsiReservationFactory setMinBandwidth(long minBandwidth) {
     this.minBandwidth = minBandwidth;
     return this;
   }

@@ -16,9 +16,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2011._07.connection._interface.GenericAcknowledgmentType;
+import org.ogf.schemas.nsi._2011._07.connection._interface.ReservationRequestType;
+import org.ogf.schemas.nsi._2011._07.connection.provider.NSIServiceException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -57,23 +57,23 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
   public void tearDown() throws Exception {
   }
 
-  @Test(expected = ServiceException.class)
-  public void should_throw_exeption_because_of_null_reservervation() throws ServiceException {
-    nsiProvider.reserve(null);
+  @Test(expected = NSIServiceException.class)
+  public void should_throw_exeption_because_of_null_reservervation() throws NSIServiceException {
+    nsiProvider.reservation(null);
   }
 
-  @Test(expected = ServiceException.class)
-  public void should_throw_exeption_because_of_invalid_provider_urn() throws ServiceException {
-    final ReserveRequestType reservationRequest = new NsiReservationFactory().setNsaProviderUrn(
+  @Test(expected = NSIServiceException.class)
+  public void should_throw_exeption_because_of_invalid_provider_urn() throws NSIServiceException {
+    final ReservationRequestType reservationRequest = new NsiReservationFactory().setNsaProviderUrn(
         "urn:ogf:network:nsa:no:such:provider").createReservation();
-    nsiProvider.reserve(reservationRequest);
+    nsiProvider.reservation(reservationRequest);
   }
 
-  @Test(expected = ServiceException.class)
-  public void should_throw_exeption_because_of_invalid_correlation_id() throws ServiceException {
-    final ReserveRequestType reservationRequest = new NsiReservationFactory().setCorrelationId(
+  @Test(expected = NSIServiceException.class)
+  public void should_throw_exeption_because_of_invalid_correlation_id() throws NSIServiceException {
+    final ReservationRequestType reservationRequest = new NsiReservationFactory().setCorrelationId(
         UUID.randomUUID().toString()).createReservation();
-    nsiProvider.reserve(reservationRequest);
+    nsiProvider.reservation(reservationRequest);
   }
 
   @Test
@@ -85,15 +85,15 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
     startTime.setMinute(0);
     startTime.setHour(0);
     startTime.setSecond(0);
-    
+
     final XMLGregorianCalendar endTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(
         startTime.toGregorianCalendar());
     endTime.setDay(startTime.getDay() + 5);
 
-    final ReserveRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
+    final ReservationRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
         .setScheduleEndTime(endTime).createReservation();
-    final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
-    
+    final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reservation(reservationRequest);
+
     assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
   }
 
