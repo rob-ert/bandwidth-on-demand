@@ -144,7 +144,7 @@ public class PhysicalPortServiceImplTest {
     List<PhysicalPort> ports = Lists.newArrayList(new PhysicalPortFactory().setNocLabel("first").create(),
         new PhysicalPortFactory().setNocLabel("second").create());
 
-    when(physicalPortRepoMock.findAll(any(Pageable.class))).thenReturn(new PageImpl(ports));
+    when(physicalPortRepoMock.findAll(any(Pageable.class))).thenReturn(new PageImpl<PhysicalPort>(ports));
 
     List<PhysicalPort> entries = subject.findAllocatedEntries(0, 20, new Sort("id"));
 

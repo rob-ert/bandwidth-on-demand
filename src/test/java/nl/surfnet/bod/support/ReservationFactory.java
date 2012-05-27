@@ -81,7 +81,7 @@ public class ReservationFactory {
   }
 
   public ReservationFactory setId(Long id) {
-    this.id = id;
+    ReservationFactory.id = id;
     return this;
   }
 
