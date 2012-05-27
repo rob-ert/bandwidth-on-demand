@@ -1,0 +1,8 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/07/connection/interface">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <int:acknowledgment>
+         <int:correlationId>urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e</int:correlationId>
+      </int:acknowledgment>
+   </soapenv:Body>
+</soapenv:Envelope

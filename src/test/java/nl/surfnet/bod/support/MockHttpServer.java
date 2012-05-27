@@ -22,6 +22,7 @@
 package nl.surfnet.bod.support;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -29,6 +30,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.http.security.Constraint;
 import org.eclipse.jetty.http.security.Credential;
 import org.eclipse.jetty.security.ConstraintMapping;
@@ -53,8 +55,12 @@ public class MockHttpServer extends AbstractHandler {
   private final HandlerCollection mainHandlers;
 
   private Map<String, Resource> responseResource = Maps.newHashMap();
+  private final LinkedList<String> requests = new LinkedList<String>();
+
   private String username;
   private String password;
+
+  private int callCounter = 0;
 
   public MockHttpServer(int port) {
     server = new Server(port);
@@ -108,6 +114,8 @@ public class MockHttpServer extends AbstractHandler {
   public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
 
+    callCounter++;
+    requests.addLast(IOUtils.toString(request.getInputStream()));
     if (responseResource.containsKey(target)) {
       ServletOutputStream outputStream = response.getOutputStream();
       response.setStatus(HttpServletResponse.SC_OK);
@@ -134,6 +142,18 @@ public class MockHttpServer extends AbstractHandler {
   public void withBasicAuthentication(String user, String pass) {
     this.username = user;
     this.password = pass;
+  }
+
+  public final int getCallCounter() {
+    return callCounter;
+  }
+
+  public final String getLastRequests() {
+    return requests.removeLast();
+  }
+
+  public final LinkedList<String> getRequests() {
+    return requests;
   }
 
 }

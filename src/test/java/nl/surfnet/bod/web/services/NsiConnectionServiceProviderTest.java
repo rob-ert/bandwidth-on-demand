@@ -1,6 +1,6 @@
 package nl.surfnet.bod.web.services;
 
-import static org.junit.Assert.*;
+import static junit.framework.Assert.*;
 
 import java.util.UUID;
 
@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import nl.surfnet.bod.support.MockHttpServer;
 import nl.surfnet.bod.support.NsiReservationFactory;
 
 import org.junit.After;
@@ -19,12 +20,11 @@ import org.junit.runner.RunWith;
 import org.ogf.schemas.nsi._2011._07.connection._interface.GenericAcknowledgmentType;
 import org.ogf.schemas.nsi._2011._07.connection._interface.ReservationRequestType;
 import org.ogf.schemas.nsi._2011._07.connection.provider.NSIServiceException;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.ws.client.core.WebServiceTemplate;
-import org.springframework.ws.test.client.MockWebServiceServer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml",
@@ -35,26 +35,28 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
   @Resource(name = "nsiProvider")
   private NsiConnectionServiceProvider nsiProvider;
 
-  @SuppressWarnings("unused")
-  private MockWebServiceServer mockServer;
+  private static MockHttpServer requesterEndpoint = new MockHttpServer(NsiReservationFactory.PORT);
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
+    requesterEndpoint.addResponse("/bod/nsi/requester", new ClassPathResource(
+        "web/services/nsi/mockNsiReservationFailedResponse.xml"));
+    requesterEndpoint.startServer();
   }
 
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
+    requesterEndpoint.stopServer();
   }
 
   @Before
   public void setUp() throws Exception {
-    final WebServiceTemplate webServiceTemplate = new WebServiceTemplate();
-    webServiceTemplate.setDefaultUri(NsiReservationFactory.NSI_REQUESTER_ENDPOINT);
-    mockServer = MockWebServiceServer.createServer(webServiceTemplate);
+
   }
 
   @After
   public void tearDown() throws Exception {
+
   }
 
   @Test(expected = NSIServiceException.class)
@@ -77,7 +79,11 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
   }
 
   @Test
-  public void should_return_generic_acknowledgement_with_valid_correlation_id() throws Exception {
+  public void should_return_generic_acknowledgement_and_send_reservation_failed() throws Exception {
+
+    final int requesterCountBefore = requesterEndpoint.getCallCounter();
+    assertEquals(0, requesterCountBefore);
+
     final XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
     startTime.setDay(10);
     startTime.setMonth(10);
@@ -93,8 +99,9 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
     final ReservationRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
         .setScheduleEndTime(endTime).createReservation();
     final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reservation(reservationRequest);
-
+    
+    assertEquals(requesterCountBefore + 1, requesterEndpoint.getCallCounter());
     assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
-  }
 
+  }
 }

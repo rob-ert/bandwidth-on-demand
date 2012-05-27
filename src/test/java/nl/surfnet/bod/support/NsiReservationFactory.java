@@ -19,11 +19,14 @@ import org.slf4j.LoggerFactory;
 
 public class NsiReservationFactory {
 
-  public static final String NSI_REQUESTER_ENDPOINT = "http://localhost:9082/bod/nsi/requester";
+  public static final int PORT = 9082;
+
+  public static final String NSI_REQUESTER_ENDPOINT = "http://localhost:"+PORT+"/bod/nsi/requester";
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   private String correlationId = NsiConnectionService.getCorrelationId();
+  private String connectionId = NsiConnectionService.getCorrelationId();
   private String nsaProviderUrn = "urn:ogf:network:nsa:netherlight";
   private long desiredBandwidth = 1000;
   private long maxBandwidth = 1000;
@@ -37,40 +40,46 @@ public class NsiReservationFactory {
    * @return
    */
   public ReservationRequestType createReservation() {
-    final ReservationRequestType reservationRequest = new ReservationRequestType();
-    reservationRequest.setCorrelationId(this.correlationId);
-    reservationRequest.setReplyTo(NSI_REQUESTER_ENDPOINT);
 
-    final ReservationType reservationType = new ReservationType();
-    reservationType.setProviderNSA(this.nsaProviderUrn);
+    final BandwidthType bandwidthType = new BandwidthType();
+    bandwidthType.setDesired(BigInteger.valueOf(desiredBandwidth));
+    bandwidthType.setMaximum(BigInteger.valueOf(maxBandwidth));
+    bandwidthType.setMinimum(BigInteger.valueOf(minBandwidth));
 
-    final ReservationInfoType reservationInfoType = new ReservationInfoType();
-    final ServiceParametersType serviceParameters = new ServiceParametersType();
+    final ScheduleType scheduleType = new ScheduleType();
+    scheduleType.setEndTime(scheduleEndTime);
+    scheduleType.setStartTime(scheduleStartTime);
 
-    final BandwidthType bandwidth = new BandwidthType();
-    bandwidth.setDesired(BigInteger.valueOf(desiredBandwidth));
-    bandwidth.setMaximum(BigInteger.valueOf(maxBandwidth));
-    bandwidth.setMinimum(BigInteger.valueOf(minBandwidth));
-    serviceParameters.setBandwidth(bandwidth);
-
-    final ScheduleType schedule = new ScheduleType();
-    schedule.setEndTime(scheduleEndTime);
-    schedule.setStartTime(scheduleStartTime);
-
-    if (schedule.getEndTime() != null && schedule.getStartTime() != null) {
+    if (scheduleType.getEndTime() != null && scheduleType.getStartTime() != null) {
       try {
-        schedule.setDuration(DatatypeFactory.newInstance().newDuration(
-            schedule.getEndTime().getMillisecond() - schedule.getStartTime().getMillisecond()));
+        scheduleType.setDuration(DatatypeFactory.newInstance().newDuration(
+            scheduleType.getEndTime().getMillisecond() - scheduleType.getStartTime().getMillisecond()));
       }
       catch (DatatypeConfigurationException e) {
         log.error("Error: ", e);
       }
     }
-    serviceParameters.setSchedule(schedule);
-    reservationInfoType.setServiceParameters(serviceParameters);
+
+    final ServiceParametersType serviceParametersType = new ServiceParametersType();
+    serviceParametersType.setBandwidth(bandwidthType);
+    serviceParametersType.setSchedule(scheduleType);
+
+    final ReservationInfoType reservationInfoType = new ReservationInfoType();
+    reservationInfoType.setServiceParameters(serviceParametersType);
+    reservationInfoType.setConnectionId(connectionId);
+    reservationInfoType.setGlobalReservationId(correlationId);
+    
+
+    final ReservationType reservationType = new ReservationType();
+    reservationType.setProviderNSA(nsaProviderUrn);
     reservationType.setReservation(reservationInfoType);
-    reservationRequest.setReservation(reservationType);
-    return reservationRequest;
+
+    final ReservationRequestType reservationRequestType = new ReservationRequestType();
+    reservationRequestType.setCorrelationId(this.correlationId);
+    reservationRequestType.setReplyTo(NSI_REQUESTER_ENDPOINT);
+    reservationRequestType.setReservation(reservationType);
+
+    return reservationRequestType;
   }
 
   public final NsiReservationFactory setCorrelationId(String correlationId) {
@@ -105,6 +114,11 @@ public class NsiReservationFactory {
 
   public final NsiReservationFactory setScheduleStartTime(XMLGregorianCalendar scheduleStartTime) {
     this.scheduleStartTime = scheduleStartTime;
+    return this;
+  }
+
+  public final NsiReservationFactory setConnectionId(String connectionId) {
+    this.connectionId = connectionId;
     return this;
   }
 
