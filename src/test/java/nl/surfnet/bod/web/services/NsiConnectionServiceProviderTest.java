@@ -35,6 +35,8 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
   @Resource(name = "nsiProvider")
   private NsiConnectionServiceProvider nsiProvider;
 
+  private final String correationId = "urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e";
+
   private static MockHttpServer requesterEndpoint = new MockHttpServer(NsiReservationFactory.PORT);
 
   @BeforeClass
@@ -97,11 +99,13 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
     endTime.setDay(startTime.getDay() + 5);
 
     final ReservationRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
-        .setScheduleEndTime(endTime).createReservation();
-    final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reservation(reservationRequest);
-    
-    assertEquals(requesterCountBefore + 1, requesterEndpoint.getCallCounter());
-    assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
+        .setScheduleEndTime(endTime).setCorrelationId(correationId).createReservation();
 
+    final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reservation(reservationRequest);
+    assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
+    
+    assertTrue(requesterEndpoint.waitForLastRequest(5).contains(correationId));
+    assertTrue(requesterEndpoint.waitForLastRequest(5).contains("reservationFailed"));
+    assertEquals(requesterCountBefore + 1, requesterEndpoint.getCallCounter());
   }
 }

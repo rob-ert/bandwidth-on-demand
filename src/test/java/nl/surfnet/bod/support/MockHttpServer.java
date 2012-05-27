@@ -21,9 +21,12 @@
  */
 package nl.surfnet.bod.support;
 
+import static java.util.concurrent.TimeUnit.*;
+
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -55,7 +58,7 @@ public class MockHttpServer extends AbstractHandler {
   private final HandlerCollection mainHandlers;
 
   private Map<String, Resource> responseResource = Maps.newHashMap();
-  private final LinkedList<String> requests = new LinkedList<String>();
+  private final LinkedBlockingDeque<String> requests = new LinkedBlockingDeque<String>();
 
   private String username;
   private String password;
@@ -148,11 +151,20 @@ public class MockHttpServer extends AbstractHandler {
     return callCounter;
   }
 
-  public final String getLastRequests() {
-    return requests.removeLast();
+  public final String waitForLastRequest(final long seconds) {
+    try {
+      final String lastRequest = requests.poll(seconds, SECONDS);
+      // add it back, need this strange construction because there is no peek
+      // with wait timeout
+      requests.addLast(lastRequest);
+      return lastRequest;
+    }
+    catch (InterruptedException e) {
+      return null;
+    }
   }
 
-  public final LinkedList<String> getRequests() {
+  public final Collection<String> getRequests() {
     return requests;
   }
 
