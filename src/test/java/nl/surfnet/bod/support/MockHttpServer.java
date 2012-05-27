@@ -124,7 +124,7 @@ public class MockHttpServer extends AbstractHandler {
 
     callCounter++;
     final String currentRequestBody = IOUtils.toString(request.getInputStream());
-    lastRequest.addLast(currentRequestBody);
+    lastRequest.addFirst(currentRequestBody);
     requests.add(currentRequestBody);
 
     if (responseResource.containsKey(target)) {
