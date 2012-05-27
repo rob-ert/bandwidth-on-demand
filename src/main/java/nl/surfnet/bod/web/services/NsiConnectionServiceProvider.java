@@ -150,6 +150,8 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
       throws NSIServiceException {
 
     log.debug("Reservation received: {}", reservationRequest);
+    log.debug("Reservation amount: {}", reservationService.count());
+    
     if (reservationRequest == null) {
       throw new NSIServiceException("Invalid reservationRequest received (null)", null);
     }
