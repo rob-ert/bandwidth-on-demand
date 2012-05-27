@@ -416,10 +416,6 @@ public class ReservationService {
     return Collections2.transform(reservations, TO_RESERVATION_ARCHIVE);
   }
 
-  public void saveAsReservationArchives(final List<Reservation> reservations) {
-    reservationArchiveRepo.save(transformToReservationArchives(reservations));
-  }
-
   public List<Reservation> findReservationWithStatus(ReservationStatus... states) {
     return reservationRepo.findByStatusIn(Arrays.asList(states));
   }
@@ -429,7 +425,7 @@ public class ReservationService {
   }
 
   public void deleteAndArchiveReservations(final List<Reservation> reservations) {
-     this.saveAsReservationArchives(reservations);
+     reservationArchiveRepo.save(transformToReservationArchives(reservations));
      reservationRepo.delete(reservations);
   }
 
