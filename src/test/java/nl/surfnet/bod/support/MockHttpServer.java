@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -61,7 +62,8 @@ public class MockHttpServer extends AbstractHandler {
   private final HandlerCollection mainHandlers;
 
   private Map<String, Resource> responseResource = Maps.newHashMap();
-  private final LinkedBlockingDeque<String> requests = new LinkedBlockingDeque<String>();
+  private final LinkedBlockingDeque<String> lastRequest = new LinkedBlockingDeque<String>();
+  private final List<String> requests = new ArrayList<String>();
 
   private String username;
   private String password;
@@ -121,7 +123,10 @@ public class MockHttpServer extends AbstractHandler {
       throws IOException, ServletException {
 
     callCounter++;
-    requests.addLast(IOUtils.toString(request.getInputStream()));
+    final String currentRequestBody = IOUtils.toString(request.getInputStream());
+    lastRequest.addLast(currentRequestBody);
+    requests.add(currentRequestBody);
+
     if (responseResource.containsKey(target)) {
       ServletOutputStream outputStream = response.getOutputStream();
       response.setStatus(HttpServletResponse.SC_OK);
@@ -156,15 +161,7 @@ public class MockHttpServer extends AbstractHandler {
 
   public final String getOrWaitForLastRequest(final long seconds) {
     try {
-      // all this is needed because there is no peekLast(long timeout, TimeUnit unit)...
-      final long end = System.currentTimeMillis() + seconds * 1000L;
-      while (System.currentTimeMillis() < end) {
-        final String lastRequest = requests.peekLast();
-        if (lastRequest != null) {
-          return lastRequest;
-        }
-        Thread.sleep(200L);
-      }
+      return lastRequest.pollLast(seconds, TimeUnit.SECONDS);
     }
     catch (InterruptedException e) {
       log.error("Error: ", e);
@@ -173,7 +170,7 @@ public class MockHttpServer extends AbstractHandler {
   }
 
   public final List<String> getRequests() {
-    return new ArrayList<String>(requests);
+    return requests;
   }
 
 }
