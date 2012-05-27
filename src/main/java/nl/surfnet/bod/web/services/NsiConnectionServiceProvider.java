@@ -106,7 +106,7 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
 
   private void sendReservationFailed(final String requesterEndpoint, final String correlationId) {
     log.info("Sending reservation failed to endpoint: {}", requesterEndpoint);
-    
+
     final ConnectionServiceRequester requester = new ConnectionServiceRequester();
     final ConnectionRequesterPort connectionServiceRequesterPort = requester.getConnectionServiceRequesterPort();
     final GenericFailedType reservationFailed = new GenericFailedType();
@@ -126,7 +126,8 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
    * @throws NSIServiceException
    */
   private boolean isValidProviderNsa(final ReservationRequestType reservationRequest) {
-    return nsaProviderUrns == null ? true : nsaProviderUrns.contains(reservationRequest.getReservation().getProviderNSA());
+    return nsaProviderUrns == null ? true : nsaProviderUrns.contains(reservationRequest.getReservation()
+        .getProviderNSA());
   }
 
   /**
@@ -144,8 +145,10 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
    *           if we can determine there is processing error before digging into
    *           the request.
    */
-  public GenericAcknowledgmentType reservation(final ReservationRequestType reservationRequest) throws NSIServiceException {
+  public GenericAcknowledgmentType reservation(final ReservationRequestType reservationRequest)
+      throws NSIServiceException {
 
+    log.debug("Reservation received: {}", reservationRequest);
     if (reservationRequest == null) {
       throw new NSIServiceException("Invalid reservationRequest received (null)", null);
     }
@@ -207,14 +210,15 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
 
     // Route this message to the appropriate actor for processing.
 
-    // for now always fail the reservation
+    // for now always fail the reservation. Do it in a timer or we receive this
+    // message before the expected ack... nature of the async nsi protocol
     new Timer().schedule(new TimerTask() {
       @Override
       public void run() {
         sendReservationFailed(requesterEndpoint, correlationId);
 
       }
-    }, 2000L);
+    }, 1500L);
 
     /*
      * We successfully sent the message for processing so acknowledge it back to
@@ -397,7 +401,8 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
     return ack;
   }
 
-  public void queryConfirmed(Holder<String> correlationId, QueryConfirmedType queryConfirmed) throws NSIServiceException {
+  public void queryConfirmed(Holder<String> correlationId, QueryConfirmedType queryConfirmed)
+      throws NSIServiceException {
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
