@@ -92,7 +92,7 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
   /**
    * @return
    */
-  private NsiExceptionType getInvalidParameterNSIServiceExceptionType(final String attributeName) {
+  private NsiExceptionType getInvalidParameterNsiExceptionType(final String attributeName) {
     final NsiExceptionType faultInfo = new NsiExceptionType();
     faultInfo.setText("Invalid or missing parameter");
     final AttributeType attributeType = new AttributeType();
@@ -111,6 +111,7 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
     final ConnectionRequesterPort connectionServiceRequesterPort = requester.getConnectionServiceRequesterPort();
     final GenericFailedType reservationFailed = new GenericFailedType();
     reservationFailed.setRequesterNSA(requesterEndpoint);
+    
     try {
       ((BindingProvider) connectionServiceRequesterPort).getRequestContext().put(
           BindingProvider.ENDPOINT_ADDRESS_PROPERTY, requesterEndpoint);
@@ -161,7 +162,7 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
     final ReservationInfoType reservation = reservationRequest.getReservation().getReservation();
     final String correlationId = reservationRequest.getCorrelationId();
     if (!isValidCorrelationId(correlationId)) {
-      throw new NSIServiceException("SVC0001", getInvalidParameterNSIServiceExceptionType("correlationId"));
+      throw new NSIServiceException("SVC0001", getInvalidParameterNsiExceptionType("correlationId"));
     }
 
     // Build an internal request for this reservation request.
@@ -198,7 +199,7 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
      * ProviderNSA field. If invalid we will throw an exception.
      */
     if (!isValidProviderNsa(reservationRequest)) {
-      throw new NSIServiceException("SVC0001", getInvalidParameterNSIServiceExceptionType("providerNSA"));
+      throw new NSIServiceException("SVC0001", getInvalidParameterNsiExceptionType("providerNSA"));
     }
 
     /*
