@@ -21,10 +21,9 @@
  */
 package nl.surfnet.bod.support;
 
-import static java.util.concurrent.TimeUnit.*;
-
 import java.io.IOException;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -46,6 +45,8 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 import com.google.common.collect.Maps;
@@ -53,6 +54,8 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 
 public class MockHttpServer extends AbstractHandler {
+
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private final Server server;
   private final HandlerCollection mainHandlers;
@@ -151,21 +154,26 @@ public class MockHttpServer extends AbstractHandler {
     return callCounter;
   }
 
-  public final String waitForLastRequest(final long seconds) {
+  public final String getOrWaitForLastRequest(final long seconds) {
     try {
-      final String lastRequest = requests.poll(seconds, SECONDS);
-      // add it back, need this strange construction because there is no peek
-      // with wait timeout
-      requests.addLast(lastRequest);
-      return lastRequest;
+      // all this is needed because there is no peekLast(long timeout, TimeUnit unit)...
+      final long end = System.currentTimeMillis() + seconds * 1000L;
+      while (System.currentTimeMillis() < end) {
+        final String lastRequest = requests.peekLast();
+        if (lastRequest != null) {
+          return lastRequest;
+        }
+        Thread.sleep(200L);
+      }
     }
     catch (InterruptedException e) {
-      return null;
+      log.error("Error: ", e);
     }
+    return null;
   }
 
-  public final Collection<String> getRequests() {
-    return requests;
+  public final List<String> getRequests() {
+    return new ArrayList<String>(requests);
   }
 
 }

@@ -104,8 +104,9 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
     final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reservation(reservationRequest);
     assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
     
-    assertTrue(requesterEndpoint.waitForLastRequest(5).contains(correationId));
-    assertTrue(requesterEndpoint.waitForLastRequest(5).contains("reservationFailed"));
+    assertTrue(requesterEndpoint.getOrWaitForLastRequest(5).contains(correationId));
+    assertTrue(requesterEndpoint.getOrWaitForLastRequest(5).contains("reservationFailed"));
+    
     assertEquals(requesterCountBefore + 1, requesterEndpoint.getCallCounter());
   }
 }
