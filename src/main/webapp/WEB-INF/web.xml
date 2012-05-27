@@ -28,14 +28,8 @@
     <!-- JAX-WS Spring bridge mappings -->
     <servlet-mapping>
         <servlet-name>jaxws-servlet</servlet-name>
-        <url-pattern>/nsi/provider</url-pattern>
+        <url-pattern>/nsi/*</url-pattern>
     </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>jaxws-servlet</servlet-name>
-        <url-pattern>/nsi/requester</url-pattern>
-    </servlet-mapping>
-
 
     <filter>
         <filter-name>CharacterEncodingFilter</filter-name>
