@@ -62,13 +62,11 @@ public class MockHttpServer extends AbstractHandler {
   private final HandlerCollection mainHandlers;
 
   private Map<String, Resource> responseResource = Maps.newHashMap();
-  private final LinkedBlockingDeque<String> lastRequest = new LinkedBlockingDeque<String>();
+  private final LinkedBlockingDeque<String> lastRequests = new LinkedBlockingDeque<String>();
   private final List<String> requests = new ArrayList<String>();
 
   private String username;
   private String password;
-
-  private int callCounter = 0;
 
   public MockHttpServer(int port) {
     server = new Server(port);
@@ -80,11 +78,11 @@ public class MockHttpServer extends AbstractHandler {
   }
 
   public void startServer() throws Exception {
-    if (username != null && password != null) {
-      server.setHandler(getSecurityHandler());
+    if (username == null && password == null) {
+      server.setHandler(this);
     }
     else {
-      server.setHandler(this);
+      server.setHandler(getSecurityHandler());
     }
     server.start();
   }
@@ -107,7 +105,6 @@ public class MockHttpServer extends AbstractHandler {
     securityHandler.setAuthenticator(new BasicAuthenticator());
     securityHandler.addConstraintMapping(cm);
     securityHandler.setLoginService(loginService);
-
     securityHandler.setHandler(this);
 
     return securityHandler;
@@ -121,12 +118,7 @@ public class MockHttpServer extends AbstractHandler {
   @Override
   public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
-
-    callCounter++;
-    final String currentRequestBody = IOUtils.toString(request.getInputStream());
-    lastRequest.addFirst(currentRequestBody);
-    requests.add(currentRequestBody);
-
+    saveRequestBody(request);
     if (responseResource.containsKey(target)) {
       ServletOutputStream outputStream = response.getOutputStream();
       response.setStatus(HttpServletResponse.SC_OK);
@@ -136,6 +128,12 @@ public class MockHttpServer extends AbstractHandler {
     else {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
+  }
+
+  private void saveRequestBody(final HttpServletRequest request) throws IOException {
+    final String currentRequestBody = IOUtils.toString(request.getInputStream());
+    lastRequests.addFirst(currentRequestBody);
+    requests.add(currentRequestBody);
   }
 
   public void removeResponse(String path) {
@@ -156,17 +154,21 @@ public class MockHttpServer extends AbstractHandler {
   }
 
   public final int getCallCounter() {
-    return callCounter;
+    return requests.size();
   }
 
-  public final String getOrWaitForLastRequest(final long seconds) {
+  public final String getLastRequest() {
+    return getOrWaitForRequest(0L);
+  }
+
+  public final String getOrWaitForRequest(final long seconds) {
     try {
-      return lastRequest.pollLast(seconds, TimeUnit.SECONDS);
+      return lastRequests.pollLast(seconds, TimeUnit.SECONDS);
     }
     catch (InterruptedException e) {
       log.error("Error: ", e);
+      return null;
     }
-    return null;
   }
 
   public final List<String> getRequests() {
