@@ -8,23 +8,23 @@ import javax.annotation.Resource;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import nl.surfnet.bod.support.MockHttpServer;
-import nl.surfnet.bod.support.NsiReservationFactory;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ogf.schemas.nsi._2011._07.connection._interface.GenericAcknowledgmentType;
-import org.ogf.schemas.nsi._2011._07.connection._interface.ReservationRequestType;
-import org.ogf.schemas.nsi._2011._07.connection.provider.NSIServiceException;
+import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
+
+import nl.surfnet.bod.support.MockHttpServer;
+import nl.surfnet.bod.support.NsiReservationFactory;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml",
@@ -61,23 +61,23 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
 
   }
 
-  @Test(expected = NSIServiceException.class)
-  public void should_throw_exeption_because_of_null_reservervation() throws NSIServiceException {
-    nsiProvider.reservation(null);
+  @Test(expected = ServiceException.class)
+  public void should_throw_exeption_because_of_null_reservervation() throws ServiceException {
+    nsiProvider.reserve(null);
   }
 
-  @Test(expected = NSIServiceException.class)
-  public void should_throw_exeption_because_of_invalid_provider_urn() throws NSIServiceException {
-    final ReservationRequestType reservationRequest = new NsiReservationFactory().setNsaProviderUrn(
+  @Test(expected = ServiceException.class)
+  public void should_throw_exeption_because_of_invalid_provider_urn() throws ServiceException {
+    final ReserveRequestType reservationRequest = new NsiReservationFactory().setNsaProviderUrn(
         "urn:ogf:network:nsa:no:such:provider").createReservation();
-    nsiProvider.reservation(reservationRequest);
+    nsiProvider.reserve(reservationRequest);
   }
 
-  @Test(expected = NSIServiceException.class)
-  public void should_throw_exeption_because_of_invalid_correlation_id() throws NSIServiceException {
-    final ReservationRequestType reservationRequest = new NsiReservationFactory().setCorrelationId(
+  @Test(expected = ServiceException.class)
+  public void should_throw_exeption_because_of_invalid_correlation_id() throws ServiceException {
+    final ReserveRequestType reservationRequest = new NsiReservationFactory().setCorrelationId(
         UUID.randomUUID().toString()).createReservation();
-    nsiProvider.reservation(reservationRequest);
+    nsiProvider.reserve(reservationRequest);
   }
 
   @Test
@@ -98,16 +98,16 @@ public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit
         startTime.toGregorianCalendar());
     endTime.setDay(startTime.getDay() + 5);
 
-    final ReservationRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
+    final ReserveRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
         .setScheduleEndTime(endTime).setCorrelationId(correationId).createReservation();
 
-    final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reservation(reservationRequest);
+    final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
     assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
     
     final String lastRequest = requesterEndpoint.getOrWaitForRequest(5);
     
     assertTrue(lastRequest.contains(correationId));
-    assertTrue(lastRequest.contains("reservationFailed"));
+    assertTrue(lastRequest.contains("reserveFailed"));
     
     assertEquals(requesterCountBefore + 1, requesterEndpoint.getCallCounter());
   }

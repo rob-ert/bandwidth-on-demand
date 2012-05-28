@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2011, SURFnet bv, The Netherlands
- * All rights reservationd.
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,25 +32,25 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.jws.WebService;
-import javax.xml.rpc.ServiceException;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceContext;
 
-import org.ogf.schemas.nsi._2011._07.connection._interface.ForcedEndRequestType;
-import org.ogf.schemas.nsi._2011._07.connection._interface.QueryRequestType;
-import org.ogf.schemas.nsi._2011._07.connection.types.GenericConfirmedType;
-import org.ogf.schemas.nsi._2011._07.connection.types.GenericFailedType;
-import org.ogf.schemas.nsi._2011._07.connection.types.QueryConfirmedType;
-import org.ogf.schemas.nsi._2011._07.connection.types.QueryFailedType;
-import org.ogf.schemas.nsi._2011._07.connection.types.ReservationConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ForcedEndRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
+import org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 @Service("nsiRequester")
 @WebService(serviceName = "ConnectionServiceRequester",
     portName = "ConnectionServiceRequesterPort",
-    endpointInterface = "org.ogf.schemas.nsi._2011._07.connection.requester.ConnectionRequesterPort",
-    targetNamespace = "http://schemas.ogf.org/nsi/2011/07/connection/requester",
+    endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort",
+    targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/requester",
     wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl")
 public final class NsiConnectionServiceRequester extends NsiConnectionService {
   
@@ -75,7 +75,7 @@ public final class NsiConnectionServiceRequester extends NsiConnectionService {
   private void destroy() {
   }
 
-  public void reservationConfirmed(Holder<String> correlationId, ReservationConfirmedType reservationConfirmed)
+  public void reserveConfirmed(Holder<String> correlationId, ReserveConfirmedType reserveConfirmed)
       throws ServiceException {
 
     // Validate we received the confirmed message.
@@ -106,13 +106,13 @@ public final class NsiConnectionServiceRequester extends NsiConnectionService {
 
   }
 
-  public void reservationFailed(Holder<String> correlationId, GenericFailedType reservationFailed) throws ServiceException {
+  public void reserveFailed(Holder<String> correlationId, GenericFailedType reserveFailed) throws ServiceException {
     
     log.info("Reservation failed received for correlationid {}", correlationId.value);
 
     // Validate we received the confirmed message.
 
-    // Build an internal request for this reservationFailed request.
+    // Build an internal request for this reserveFailed request.
 
     /*
      * Break out the attributes we need for handling.

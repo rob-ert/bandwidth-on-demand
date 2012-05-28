@@ -43,20 +43,20 @@ import nl.surfnet.bod.service.ReservationService;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
-import org.ogf.schemas.nsi._2011._07.connection._interface.GenericAcknowledgmentType;
-import org.ogf.schemas.nsi._2011._07.connection._interface.ProvisionRequestType;
-import org.ogf.schemas.nsi._2011._07.connection._interface.QueryRequestType;
-import org.ogf.schemas.nsi._2011._07.connection._interface.ReleaseRequestType;
-import org.ogf.schemas.nsi._2011._07.connection._interface.ReservationRequestType;
-import org.ogf.schemas.nsi._2011._07.connection._interface.TerminateRequestType;
-import org.ogf.schemas.nsi._2011._07.connection.provider.NSIServiceException;
-import org.ogf.schemas.nsi._2011._07.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2011._07.connection.requester.ConnectionServiceRequester;
-import org.ogf.schemas.nsi._2011._07.connection.types.GenericFailedType;
-import org.ogf.schemas.nsi._2011._07.connection.types.NsiExceptionType;
-import org.ogf.schemas.nsi._2011._07.connection.types.QueryConfirmedType;
-import org.ogf.schemas.nsi._2011._07.connection.types.QueryFailedType;
-import org.ogf.schemas.nsi._2011._07.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReleaseRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
+import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
+import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -64,8 +64,8 @@ import org.springframework.stereotype.Service;
 @Service("nsiProvider")
 @WebService(serviceName = "ConnectionServiceProvider",
     portName = "ConnectionServiceProviderPort",
-    endpointInterface = "org.ogf.schemas.nsi._2011._07.connection.provider.ConnectionProviderPort",
-    targetNamespace = "http://schemas.ogf.org/nsi/2011/07/connection/provider",
+    endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
+    targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider",
     wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
 public final class NsiConnectionServiceProvider extends NsiConnectionService {
 
@@ -92,8 +92,9 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
   /**
    * @return
    */
-  private NsiExceptionType getInvalidParameterNsiExceptionType(final String attributeName) {
-    final NsiExceptionType faultInfo = new NsiExceptionType();
+  private ServiceExceptionType getInvalidParameterServiceExceptionType(final String attributeName) {
+    final ServiceExceptionType faultInfo = new ServiceExceptionType();
+    faultInfo.setErrorId("SVC0001");
     faultInfo.setText("Invalid or missing parameter");
     final AttributeType attributeType = new AttributeType();
     attributeType.setName(attributeName);
@@ -106,29 +107,27 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
 
   private void sendReservationFailed(final String requesterEndpoint, final String correlationId) {
     log.info("Sending reservation failed to endpoint: {}", requesterEndpoint);
-
+    
     final ConnectionServiceRequester requester = new ConnectionServiceRequester();
     final ConnectionRequesterPort connectionServiceRequesterPort = requester.getConnectionServiceRequesterPort();
     final GenericFailedType reservationFailed = new GenericFailedType();
     reservationFailed.setRequesterNSA(requesterEndpoint);
-    
     try {
       ((BindingProvider) connectionServiceRequesterPort).getRequestContext().put(
           BindingProvider.ENDPOINT_ADDRESS_PROPERTY, requesterEndpoint);
-      connectionServiceRequesterPort.reservationFailed(new Holder<String>(correlationId), reservationFailed);
+      connectionServiceRequesterPort.reserveFailed(new Holder<String>(correlationId), reservationFailed);
     }
-    catch (org.ogf.schemas.nsi._2011._07.connection.requester.NSIServiceException e) {
+    catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
       log.error("Error: ", e);
     }
   }
 
   /**
-   * @param reservationRequest
-   * @throws NSIServiceException
+   * @param reserveRequest
+   * @throws ServiceException
    */
-  private boolean isValidProviderNsa(final ReservationRequestType reservationRequest) {
-    return nsaProviderUrns == null ? true : nsaProviderUrns.contains(reservationRequest.getReservation()
-        .getProviderNSA());
+  private boolean isValidProviderNsa(final ReserveRequestType reserveRequest) {
+    return nsaProviderUrns == null ? true : nsaProviderUrns.contains(reserveRequest.getReserve().getProviderNSA());
   }
 
   /**
@@ -142,18 +141,14 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
    * @return The GenericAcknowledgmentType object returning the correlationId
    *         sent in the reservation request. We are acknowledging that we have
    *         received the request.
-   * @throws NSIServiceException
+   * @throws ServiceException
    *           if we can determine there is processing error before digging into
    *           the request.
    */
-  public GenericAcknowledgmentType reservation(final ReservationRequestType reservationRequest)
-      throws NSIServiceException {
+  public GenericAcknowledgmentType reserve(final ReserveRequestType reservationRequest) throws ServiceException {
 
-    log.debug("Reservation received: {}", reservationRequest);
-    log.debug("Reservation amount: {}", reservationService.count());
-    
     if (reservationRequest == null) {
-      throw new NSIServiceException("Invalid reservationRequest received (null)", null);
+      throw new ServiceException("Invalid reservationRequest received (null)", null);
     }
 
     // if (getWebServiceContext() != null) {
@@ -161,10 +156,10 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
     // getWebServiceContext().getMessageContext());
     // }
 
-    final ReservationInfoType reservation = reservationRequest.getReservation().getReservation();
+    final ReservationInfoType reservation = reservationRequest.getReserve().getReservation();
     final String correlationId = reservationRequest.getCorrelationId();
     if (!isValidCorrelationId(correlationId)) {
-      throw new NSIServiceException("SVC0001", getInvalidParameterNsiExceptionType("correlationId"));
+      throw new ServiceException("SVC0001", getInvalidParameterServiceExceptionType("correlationId"));
     }
 
     // Build an internal request for this reservation request.
@@ -201,7 +196,7 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
      * ProviderNSA field. If invalid we will throw an exception.
      */
     if (!isValidProviderNsa(reservationRequest)) {
-      throw new NSIServiceException("SVC0001", getInvalidParameterNsiExceptionType("providerNSA"));
+      throw new ServiceException("SVC0001", getInvalidParameterServiceExceptionType("providerNSA"));
     }
 
     /*
@@ -213,15 +208,14 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
 
     // Route this message to the appropriate actor for processing.
 
-    // for now always fail the reservation. Do it in a timer or we receive this
-    // message before the expected ack... nature of the async nsi protocol
+    // for now always fail the reservation
     new Timer().schedule(new TimerTask() {
       @Override
       public void run() {
         sendReservationFailed(requesterEndpoint, correlationId);
 
       }
-    }, 1500L);
+    }, 2000L);
 
     /*
      * We successfully sent the message for processing so acknowledge it back to
@@ -235,7 +229,7 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
     return genericAcknowledgment;
   }
 
-  public GenericAcknowledgmentType provision(ProvisionRequestType parameters) throws NSIServiceException {
+  public GenericAcknowledgmentType provision(ProvisionRequestType parameters) throws ServiceException {
 
     // Build an internal request for this reservation request.
 
@@ -278,7 +272,7 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
     return ack;
   }
 
-  public GenericAcknowledgmentType release(ReleaseRequestType parameters) throws NSIServiceException {
+  public GenericAcknowledgmentType release(ReleaseRequestType parameters) throws ServiceException {
 
     // Build an internal request for this reservation request.
 
@@ -321,7 +315,7 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
     return ack;
   }
 
-  public GenericAcknowledgmentType terminate(TerminateRequestType parameters) throws NSIServiceException {
+  public GenericAcknowledgmentType terminate(TerminateRequestType parameters) throws ServiceException {
 
     // Build an internal request for this reservation request.
 
@@ -364,7 +358,7 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
     return ack;
   }
 
-  public GenericAcknowledgmentType query(QueryRequestType parameters) throws NSIServiceException {
+  public GenericAcknowledgmentType query(QueryRequestType parameters) throws ServiceException {
 
     // Build an internal request for this reservation request.
 
@@ -404,12 +398,11 @@ public final class NsiConnectionServiceProvider extends NsiConnectionService {
     return ack;
   }
 
-  public void queryConfirmed(Holder<String> correlationId, QueryConfirmedType queryConfirmed)
-      throws NSIServiceException {
+  public void queryConfirmed(Holder<String> correlationId, QueryConfirmedType queryConfirmed) throws ServiceException {
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
-  public void queryFailed(Holder<String> correlationId, QueryFailedType queryFailed) throws NSIServiceException {
+  public void queryFailed(Holder<String> correlationId, QueryFailedType queryFailed) throws ServiceException {
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 

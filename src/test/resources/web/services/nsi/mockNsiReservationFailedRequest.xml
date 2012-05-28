@@ -1,14 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
     <S:Body>
-        <ns5:reservationFailed xmlns:ns2="http://www.w3.org/2000/09/xmldsig#"
-            xmlns:ns3="http://www.w3.org/2001/04/xmlenc#" xmlns:ns4="urn:oasis:names:tc:SAML:2.0:assertion"
-            xmlns:ns5="http://schemas.ogf.org/nsi/2011/07/connection/interface"
-            xmlns:ns6="http://schemas.ogf.org/nsi/2011/07/connection/types">
+        <ns5:reserveFailed xmlns:ns2="urn:oasis:names:tc:SAML:2.0:assertion"
+            xmlns:ns3="http://www.w3.org/2001/04/xmlenc#" xmlns:ns4="http://www.w3.org/2000/09/xmldsig#"
+            xmlns:ns5="http://schemas.ogf.org/nsi/2011/10/connection/interface"
+            xmlns:ns6="http://schemas.ogf.org/nsi/2011/10/connection/types">
             <ns5:correlationId>urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e</ns5:correlationId>
-            <ns6:reservationFailed>
-                <requesterNSA>http://localhost:8088/nsi/requester</requesterNSA>
-            </ns6:reservationFailed>
-        </ns5:reservationFailed>
+            <ns6:reserveFailed>
+                <requesterNSA>http://localhost:8088/nsi/requester
+            </ns6:reserveFailed>
+        </ns5:reserveFailed>
     </S:Body>
 </S:Envelope>
