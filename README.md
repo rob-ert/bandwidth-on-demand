@@ -11,13 +11,13 @@
 
         idd.client.class = nl.surfnet.bod.idd.IddOfflineClient
         nbi.client.class = nl.surfnet.bod.nbi.NbiOfflineClient
-        
+
 * Not using SURFconext authentication makes it easier to test/run the application. To do this you can set some properties in the `bod.properties`. An example mock implementation of is our [SoS][sos-git-repo].
 
-		hibboleth.imitate = true
-		shibboleth.imitate.displayName = John Doe
-		shibboleth.imitate.userId = urn:collab:person:surfguest.nl:johndoe
-		shibboleth.imitate.email = johndoe@example.com
+    hibboleth.imitate = true
+    shibboleth.imitate.displayName = John Doe
+    shibboleth.imitate.userId = urn:collab:person:surfguest.nl:johndoe
+    shibboleth.imitate.email = johndoe@example.com
 
 
 ## Running the Selenium tests
@@ -25,11 +25,11 @@
 The easiest way to run the selenium tests is to run the mock open social server, [SoS][sos-git-repo].
 Further a (empty) `bod-selenium` database is expected.
 
-		mvn verify -Pselenium
+    mvn verify -Pselenium
 
 If you want to run the selenium tests from your IDE (like Eclipse), you could start a local server with selenium settings.
 
-		mvn jetty:run -Pselenium-server
+    mvn jetty:run -Pselenium-server
 
 ## Network Managment System (NMS)
 
@@ -50,4 +50,3 @@ To easily test the encryption and decryption there exists a helper class on the 
 [nexus]: https://atlas.dlp.surfnet.nl/nexus/
 [jenkins]: https://atlas.dlp.surfnet.nl/jenkins/
 [sos-git-repo]: gitolite@atlas.dlp.surfnet.nl:sos-server
-
