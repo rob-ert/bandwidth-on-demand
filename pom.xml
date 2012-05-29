@@ -521,7 +521,7 @@
             <artifactId>spring-ws-core</artifactId>
             <version>2.0.5.RELEASE</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework.ws</groupId>
             <artifactId>spring-ws-test</artifactId>
@@ -642,7 +642,7 @@
                 <version>1.12</version>
                 <executions>
                     <execution>
-                        <id>ogf_nsi_connection_provider</id>
+                        <id>ogf_nsi_connection-1.1</id>
                         <goals>
                             <goal>wsimport</goal>
                         </goals>
@@ -650,19 +650,20 @@
                             <verbose>true</verbose>
                             <keep>true</keep>
                             <xnocompile>true</xnocompile>
-                            <wsdlDirectory>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi</wsdlDirectory>
+                            <wsdlDirectory>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/1.1</wsdlDirectory>
                             <wsdlFiles>
                                 <wsdlFile>ogf_nsi_connection_provider_v1_0.wsdl</wsdlFile>
+                                <wsdlFile>ogf_nsi_connection_requester_v1_0.wsdl</wsdlFile>
                             </wsdlFiles>
-                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws/</sourceDestDir>
+                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws/nsi/1.1</sourceDestDir>
                             <destDir />
-                            <wsdlLocation>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl</wsdlLocation>
-                            <staleFile>${project.build.directory}/generated-sources/jaxws/stale/ogf_nsi_connection_provider.done</staleFile>
+                            <staleFile>${project.build.directory}/generated-sources/jaxws/nsi/1.1/gererate.done</staleFile>
+                            <!-- <bindingFiles> <bindingFile>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/1.1/jaxb-bindings.xml 
+                                </bindingFile> </bindingFiles> -->
                         </configuration>
                     </execution>
-
-                    <execution>
-                        <id>ogf_nsi_connection_requester</id>
+                    <!-- <execution>
+                        <id>ogf_nsi_connection-1.sc</id>
                         <goals>
                             <goal>wsimport</goal>
                         </goals>
@@ -670,15 +671,16 @@
                             <verbose>true</verbose>
                             <keep>true</keep>
                             <xnocompile>true</xnocompile>
-                            <wsdlDirectory>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi</wsdlDirectory>
+                            <wsdlDirectory>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/1.sc</wsdlDirectory>
                             <wsdlFiles>
+                                <wsdlFile>ogf_nsi_connection_provider_v1_0.wsdl</wsdlFile>
                                 <wsdlFile>ogf_nsi_connection_requester_v1_0.wsdl</wsdlFile>
                             </wsdlFiles>
-                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws/</sourceDestDir>
-                            <wsdlLocation>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl</wsdlLocation>
-                            <staleFile>${project.build.directory}/generated-sources/jaxws/stale/ogf_nsi_connection_requester.done</staleFile>
+                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws/nsi/1.sc</sourceDestDir>
+                            <destDir />
+                            <staleFile>${project.build.directory}/generated-sources/jaxws/nsi/1.sc/gererate.done</staleFile>
                         </configuration>
-                    </execution>
+                    </execution> -->
                 </executions>
             </plugin>
 
