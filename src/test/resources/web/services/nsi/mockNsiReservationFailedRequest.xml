@@ -7,7 +7,7 @@
             xmlns:ns6="http://schemas.ogf.org/nsi/2011/10/connection/types">
             <ns5:correlationId>urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e</ns5:correlationId>
             <ns6:reserveFailed>
-                <requesterNSA>http://localhost:8088/nsi/requester
+              <requesterNSA>http://localhost:8088/nsi/requester</requesterNSA>
             </ns6:reserveFailed>
         </ns5:reserveFailed>
     </S:Body>
