@@ -71,6 +71,9 @@ public class VirtualPortService {
   }
 
   public long countForUser(RichUserDetails user) {
+    if (user.getUserGroups().isEmpty()) {
+      return 0;
+    }
     return virtualPortRepo.count(specificationForUser(user));
   }
 

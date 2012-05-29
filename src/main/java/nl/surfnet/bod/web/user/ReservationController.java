@@ -183,8 +183,9 @@ public class ReservationController extends AbstractFilteredReservationController
     model.addAttribute("maxPages",
         WebUtils.calculateMaxPages(getReservationService().countForFilterAndUser(Security.getUserDetails(), filter)));
 
-    return transformReservationToReservationView(getReservationService().findEntriesForUserUsingFilter(
-        Security.getUserDetails(), filter, firstPage, maxItems, sort),Security.getUserDetails());
+    return transformReservationToReservationView(
+        getReservationService().findEntriesForUserUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems,
+            sort), Security.getUserDetails());
   }
 
   private Reservation createDefaultReservation(VirtualResourceGroup vrg) {

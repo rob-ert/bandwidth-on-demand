@@ -344,6 +344,10 @@ public class ReservationService {
   public List<Reservation> findEntriesForUserUsingFilter(final RichUserDetails user,
       final ReservationFilterView filter, int firstResult, int maxResults, Sort sort) {
 
+    if (user.getUserGroupIds().isEmpty()) {
+      return Collections.emptyList();
+    }
+
     return reservationRepo.findAll(specFilteredReservationsForUser(filter, user),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
@@ -363,6 +367,10 @@ public class ReservationService {
   }
 
   public long countForFilterAndUser(RichUserDetails user, ReservationFilterView filter) {
+    if (user.getUserGroupIds().isEmpty()) {
+      return 0;
+    }
+
     return reservationRepo.count(specFilteredReservationsForUser(filter, user));
   }
 
