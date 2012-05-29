@@ -123,13 +123,6 @@ public class PhysicalPort {
     this.portId = portId;
   }
 
-  @Override
-  public String toString() {
-    return Objects.toStringHelper(PhysicalPort.class).add("id", id).add("nocLabel", nocLabel)
-        .add("managerLabel", managerLabel).add("networkElementPk", networkElementPk)
-        .add("physicalResourceGroup", physicalResourceGroup).add("portId", portId).toString();
-  }
-
   public void setVlanRequired(boolean vlanRequired) {
     this.vlanRequired = vlanRequired;
   }
@@ -137,4 +130,12 @@ public class PhysicalPort {
   public boolean isVlanRequired() {
     return vlanRequired;
   }
+
+  @Override
+  public String toString() {
+    return "PhysicalPort [id=" + id + ", version=" + version + ", nocLabel=" + nocLabel + ", managerLabel="
+        + managerLabel + ", portId=" + portId + ", networkElementPk=" + networkElementPk + ", physicalResourceGroup="
+        + physicalResourceGroup + ", vlanRequired=" + vlanRequired + "]";
+  }
+
 }
