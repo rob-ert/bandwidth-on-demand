@@ -6605,7 +6605,7 @@
    <soapenv:Body>
       <int:reserveRequest>
          <int:correlationId>urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e</int:correlationId>
-         <int:replyTo>http://localhost:9089/requester</int:replyTo>
+         <int:replyTo>http://localhost:9089/bod/nsi/requester</int:replyTo>
          <typ:reserve>
             <requesterNSA>?</requesterNSA>
             <providerNSA>urn:ogf:network:nsa:netherlight</providerNSA>
