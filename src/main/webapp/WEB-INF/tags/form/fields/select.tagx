@@ -40,7 +40,7 @@
     <c:set var="sec_itemLabel">
         <spring:escapeBody htmlEscape="true" >${itemLabel}</spring:escapeBody>
     </c:set>
-    
+
     <c:set var="component_id">
         _${fn:escapeXml(id)}
     </c:set>

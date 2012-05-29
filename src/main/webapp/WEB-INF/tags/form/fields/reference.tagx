@@ -15,18 +15,13 @@
       <spring:message code="label_${fn:toLowerCase(fn:substringAfter(id,'_'))}" var="label" htmlEscape="false" />
     </c:if>
 
-  <label for="_${fn:escapeXml(field)}_id">
-    <c:out value="${fn:escapeXml(label)}" />
-  </label>
-  
   <spring:url value="${path}/create" var="create_url" />
   <div class="input">
-      <span class="ref-block">
+      <output>
           <c:if test="${empty create or create}">
               <a href="${create_url}">
-                <spring:url value="/resources/images/add.png" var="create_img_url" />
                 <spring:message arguments="${field}" code="global_menu_new" var="add_message" htmlEscape="false" />
-                <img alt="${fn:escapeXml(add_message)}" src="${create_img_url}" title="${fn:escapeXml(add_message)}" />
+                <i class="icon-plus"><!--  --></i>
               </a>
               <c:out value=" " />
           </c:if>
@@ -34,7 +29,7 @@
           <c:if test="${not empty required and required eq 'true'}">
               (<spring:message code="field_required" />)
           </c:if>
-      </span>
+      </output>
   </div>
 
   </c:if>
