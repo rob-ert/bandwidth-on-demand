@@ -28,6 +28,9 @@
  */
 package nl.surfnet.bod.web.services;
 
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -39,18 +42,30 @@ import javax.jws.WebService;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
-import nl.surfnet.bod.service.ReservationService;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
-import org.ogf.schemas.nsi._2011._10.connection._interface.*;
+import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReleaseRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericRequestType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import nl.surfnet.bod.nsi.StateMachine;
+import nl.surfnet.bod.service.ReservationService;
 
 @Service("nsiProvider")
 @WebService(serviceName = "ConnectionServiceProvider",
@@ -63,10 +78,22 @@ public class NsiConnectionServiceProvider extends NsiConnectionService {
   @Resource(name = "nsaProviderUrns")
   private List<String> nsaProviderUrns;
 
+  @Resource(name = "simpelStateMachine")
+  private StateMachine stateMachine;
+
   @Autowired
   private ReservationService reservationService;
 
   private final Logger log = getLog();
+
+  @Resource(name = "nsaProviderUrns")
+  private List<String> nsaChildren = new ArrayList<String>() {
+    {
+      add("urn:ogf:network:nsa:child1");
+      add("urn:ogf:network:nsa:child2");
+      add("urn:ogf:network:nsa:child3");
+    }
+  };
 
   @PostConstruct
   @SuppressWarnings("unused")
@@ -97,7 +124,7 @@ public class NsiConnectionServiceProvider extends NsiConnectionService {
   }
 
   private void sendReservationFailed(final String requesterEndpoint, final String correlationId) {
-    log.info("Sending reservation failed to endpoint: {}", requesterEndpoint);
+    log.info("Calling reserveFailed on endpoint: {} with id: {}", requesterEndpoint, correlationId);
 
     final ConnectionServiceRequester requester = new ConnectionServiceRequester();
     final ConnectionRequesterPort connectionServiceRequesterPort = requester.getConnectionServiceRequesterPort();
@@ -113,6 +140,24 @@ public class NsiConnectionServiceProvider extends NsiConnectionService {
     }
   }
 
+  private void sendTerminateTypeToChildNsa(final String childNsa, final String requesterNsa, final String correlationId) {
+    final TerminateRequestType terminator = new TerminateRequestType();
+    terminator.setCorrelationId(correlationId);
+    terminator.setReplyTo(requesterNsa);
+    final GenericRequestType genericRequestType = new GenericRequestType();
+    genericRequestType.setConnectionId(correlationId);
+    genericRequestType.setProviderNSA(childNsa);
+    genericRequestType.setRequesterNSA(requesterNsa);
+    // TODO: Get security attribute
+    genericRequestType.setSessionSecurityAttr(null);
+    terminator.setTerminate(genericRequestType);
+    log.debug("Sendign terminate event to: {} with id: {}", childNsa, correlationId);
+  }
+
+  private void sendTerminatToNrm(final String correlationId) {
+    log.debug("Sendig nrm terminate event.");
+  }
+
   /**
    * @param reserveRequest
    * @throws ServiceException
@@ -126,7 +171,7 @@ public class NsiConnectionServiceProvider extends NsiConnectionService {
    * inter-domain bandwidth. Those parameters required for the request to
    * proceed to a processing actor will be validated, however, all other
    * parameters will be validated in the processing actor.
-   *
+   * 
    * @param parameters
    *          The un-marshaled JAXB object holding the NSI reservation request.
    * @return The GenericAcknowledgmentType object returning the correlationId
@@ -139,8 +184,13 @@ public class NsiConnectionServiceProvider extends NsiConnectionService {
   public GenericAcknowledgmentType reserve(final ReserveRequestType reservationRequest) throws ServiceException {
 
     if (reservationRequest == null) {
+      stateMachine.inserOrUpdateState(reservationRequest.getCorrelationId(), CLEANING);
       throw new ServiceException("Invalid reservationRequest received (null)", null);
     }
+
+    final String correlationId = reservationRequest.getCorrelationId();
+    log.debug("Received reservation request with id: {}", reservationRequest.getCorrelationId());
+    stateMachine.inserOrUpdateState(correlationId, INITIAL);
 
     // if (getWebServiceContext() != null) {
     // log.debug("message context: {}",
@@ -148,10 +198,11 @@ public class NsiConnectionServiceProvider extends NsiConnectionService {
     // }
 
     final ReservationInfoType reservation = reservationRequest.getReserve().getReservation();
-    final String correlationId = reservationRequest.getCorrelationId();
     if (!isValidCorrelationId(correlationId)) {
       throw new ServiceException("SVC0001", getInvalidParameterServiceExceptionType("correlationId"));
     }
+
+    stateMachine.inserOrUpdateState(correlationId, RESERVING);
 
     // Build an internal request for this reservation request.
 
@@ -166,7 +217,7 @@ public class NsiConnectionServiceProvider extends NsiConnectionService {
      * field to NSA topology.
      */
     final String requesterEndpoint = reservationRequest.getReplyTo();
-    log.debug("Requester endpoint: {}", requesterEndpoint);
+    // log.debug("Requester endpoint: {}", requesterEndpoint);
 
     /*
      * Save the calling NSA security context and pass it along for use during
@@ -195,18 +246,12 @@ public class NsiConnectionServiceProvider extends NsiConnectionService {
      * serialize related requests.
      */
     final String connectionId = reservation.getConnectionId();
-    log.debug("connectionId {}", connectionId);
+    // log.debug("connectionId {}", connectionId);
 
     // Route this message to the appropriate actor for processing.
 
     // for now always fail the reservation
-    new Timer().schedule(new TimerTask() {
-      @Override
-      public void run() {
-        sendReservationFailed(requesterEndpoint, correlationId);
-
-      }
-    }, 2000L);
+    forceFailed(correlationId, requesterEndpoint);
 
     /*
      * We successfully sent the message for processing so acknowledge it back to
@@ -216,8 +261,28 @@ public class NsiConnectionServiceProvider extends NsiConnectionService {
     final GenericAcknowledgmentType genericAcknowledgment = new GenericAcknowledgmentType();
     genericAcknowledgment.setCorrelationId(correlationId);
 
-    log.info("Sending back reservation request generic acknowledge: {}", genericAcknowledgment);
+    log.info("Returning GenericAcknowledgmentType with id: {}", genericAcknowledgment.getCorrelationId());
     return genericAcknowledgment;
+  }
+
+  /**
+   * @param correlationId
+   * @param requesterEndpoint
+   */
+  private void forceFailed(final String correlationId, final String requesterEndpoint) {
+    new Timer().schedule(new TimerTask() {
+      @Override
+      public void run() {
+        sendReservationFailed(requesterEndpoint, correlationId);
+        stateMachine.inserOrUpdateState(correlationId, CLEANING);
+
+        for (final String childNsa : nsaChildren) {
+          sendTerminateTypeToChildNsa(childNsa, requesterEndpoint, correlationId);
+        }
+        sendTerminatToNrm(correlationId);
+        stateMachine.deleteState(correlationId);
+      }
+    }, 2000L);
   }
 
   public GenericAcknowledgmentType provision(ProvisionRequestType parameters) throws ServiceException {
