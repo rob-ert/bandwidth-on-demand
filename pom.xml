@@ -379,7 +379,7 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
             <version>1.2.1</version>
-            <scope>test</scope>
+            <!-- <scope>test</scope> -->
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -642,27 +642,6 @@
                 <version>1.12</version>
                 <executions>
                     <execution>
-                        <id>ogf_nsi_connection-1.1</id>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                        <configuration>
-                            <verbose>true</verbose>
-                            <keep>true</keep>
-                            <xnocompile>true</xnocompile>
-                            <wsdlDirectory>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/1.1</wsdlDirectory>
-                            <wsdlFiles>
-                                <wsdlFile>ogf_nsi_connection_provider_v1_0.wsdl</wsdlFile>
-                                <wsdlFile>ogf_nsi_connection_requester_v1_0.wsdl</wsdlFile>
-                            </wsdlFiles>
-                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws/nsi/1.1</sourceDestDir>
-                            <destDir />
-                            <staleFile>${project.build.directory}/generated-sources/jaxws/nsi/1.1/gererate.done</staleFile>
-                            <!-- <bindingFiles> <bindingFile>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/1.1/jaxb-bindings.xml 
-                                </bindingFile> </bindingFiles> -->
-                        </configuration>
-                    </execution>
-                    <!-- <execution>
                         <id>ogf_nsi_connection-1.sc</id>
                         <goals>
                             <goal>wsimport</goal>
@@ -680,7 +659,7 @@
                             <destDir />
                             <staleFile>${project.build.directory}/generated-sources/jaxws/nsi/1.sc/gererate.done</staleFile>
                         </configuration>
-                    </execution> -->
+                    </execution>
                 </executions>
             </plugin>
 
