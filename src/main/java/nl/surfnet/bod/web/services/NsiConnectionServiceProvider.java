@@ -86,7 +86,6 @@ public class NsiConnectionServiceProvider extends NsiConnectionService {
 
   private final Logger log = getLog();
 
-  @Resource(name = "nsaProviderUrns")
   private List<String> nsaChildren = new ArrayList<String>() {
     {
       add("urn:ogf:network:nsa:child1");
@@ -151,7 +150,13 @@ public class NsiConnectionServiceProvider extends NsiConnectionService {
     // TODO: Get security attribute
     genericRequestType.setSessionSecurityAttr(null);
     terminator.setTerminate(genericRequestType);
-    log.debug("Sendign terminate event to: {} with id: {}", childNsa, correlationId);
+
+    sendToOblivion(childNsa, terminator);
+
+  }
+
+  private void sendToOblivion(String nsaChild, TerminateRequestType terminator) {
+    log.debug("Sendign terminate event to child nsa: {} with id: {}", nsaChild, terminator.getCorrelationId());
   }
 
   private void sendTerminatToNrm(final String correlationId) {
@@ -184,7 +189,6 @@ public class NsiConnectionServiceProvider extends NsiConnectionService {
   public GenericAcknowledgmentType reserve(final ReserveRequestType reservationRequest) throws ServiceException {
 
     if (reservationRequest == null) {
-      stateMachine.inserOrUpdateState(reservationRequest.getCorrelationId(), CLEANING);
       throw new ServiceException("Invalid reservationRequest received (null)", null);
     }
 
@@ -199,6 +203,7 @@ public class NsiConnectionServiceProvider extends NsiConnectionService {
 
     final ReservationInfoType reservation = reservationRequest.getReserve().getReservation();
     if (!isValidCorrelationId(correlationId)) {
+      stateMachine.inserOrUpdateState(reservationRequest.getCorrelationId(), CLEANING);
       throw new ServiceException("SVC0001", getInvalidParameterServiceExceptionType("correlationId"));
     }
 
@@ -238,6 +243,7 @@ public class NsiConnectionServiceProvider extends NsiConnectionService {
      * ProviderNSA field. If invalid we will throw an exception.
      */
     if (!isValidProviderNsa(reservationRequest)) {
+      stateMachine.inserOrUpdateState(reservationRequest.getCorrelationId(), CLEANING);
       throw new ServiceException("SVC0001", getInvalidParameterServiceExceptionType("providerNSA"));
     }
 
@@ -276,8 +282,9 @@ public class NsiConnectionServiceProvider extends NsiConnectionService {
         sendReservationFailed(requesterEndpoint, correlationId);
         stateMachine.inserOrUpdateState(correlationId, CLEANING);
 
-        for (final String childNsa : nsaChildren) {
-          sendTerminateTypeToChildNsa(childNsa, requesterEndpoint, correlationId);
+        log.debug("child nsa's "+nsaChildren);
+        for (final String nsaChild : nsaChildren) {
+          sendTerminateTypeToChildNsa(nsaChild, requesterEndpoint, correlationId);
         }
         sendTerminatToNrm(correlationId);
         stateMachine.deleteState(correlationId);
