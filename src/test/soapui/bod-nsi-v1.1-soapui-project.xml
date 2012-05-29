@@ -6346,261 +6346,51 @@
          </typ:queryFailed>
       </int:queryFailed>
    </soapenv:Body>
-</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/queryFailed"/></con:call></con:operation><con:operation isOneWay="false" action="http://schemas.ogf.org/nsi/2011/10/connection/service/release" name="release" bindingOperationName="release" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8082/bod/nsi/provider</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface" xmlns:typ="http://schemas.ogf.org/nsi/2011/10/connection/types" xmlns:urn="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xe="http://www.w3.org/2001/04/xmlenc#" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/queryFailed"/></con:call></con:operation><con:operation isOneWay="false" action="http://schemas.ogf.org/nsi/2011/10/connection/service/release" name="release" bindingOperationName="release" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8082/bod/nsi/provider</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface" xmlns:typ="http://schemas.ogf.org/nsi/2011/10/connection/types" xmlns:urn="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xe="http://www.w3.org/2001/04/xmlenc#" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
    <soapenv:Header/>
    <soapenv:Body>
-      <int:releaseRequest>
-         <int:correlationId>?</int:correlationId>
-         <int:replyTo>?</int:replyTo>
-         <typ:release>
+      <int:reserveRequest>
+         <int:correlationId>urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e</int:correlationId>
+         <int:replyTo>http://localhost:9089/bod/nsi/v1_sc/requester</int:replyTo>
+         <typ:reserve>
             <requesterNSA>?</requesterNSA>
-            <providerNSA>?</providerNSA>
-            <!--Optional:-->
-            <sessionSecurityAttr>
-               <!--You have a CHOICE of the next 2 items at this level-->
-               <urn:Attribute Name="?" NameFormat="?" FriendlyName="?">
-                  <!--Zero or more repetitions:-->
-                  <urn:AttributeValue>?</urn:AttributeValue>
-               </urn:Attribute>
-               <urn:EncryptedAttribute>
-                  <xe:EncryptedData Id="?" Type="?" MimeType="?" Encoding="?">
-                     <!--Optional:-->
-                     <xe:EncryptionMethod Algorithm="?">
-                        e
-                        <!--Optional:-->
-                        <xe:KeySize>?</xe:KeySize>
-                        gero
-                        <!--Optional:-->
-                        <xe:OAEPparams>cid:1296891402647</xe:OAEPparams>
-                        cum
-                        <!--You may enter ANY elements at this point-->
-                        sonoras
-                     </xe:EncryptionMethod>
-                     <!--Optional:-->
-                     <xd:KeyInfo Id="?">
-                        aeoliam
-                        <!--You have a CHOICE of the next 8 items at this level-->
-                        <xd:KeyName>?</xd:KeyName>
-                        <xd:KeyValue>
-                           quae
-                           <!--You have a CHOICE of the next 3 items at this level-->
-                           <xd:DSAKeyValue>
-                              <xd:P>cid:99592994931</xd:P>
-                              <xd:Q>cid:929799461880</xd:Q>
-                              <!--Optional:-->
-                              <xd:G>cid:597061172079</xd:G>
-                              <xd:Y>cid:262013588532</xd:Y>
-                              <!--Optional:-->
-                              <xd:J>cid:628745201753</xd:J>
-                              <xd:Seed>cid:898302860473</xd:Seed>
-                              <xd:PgenCounter>cid:1240375923255</xd:PgenCounter>
-                           </xd:DSAKeyValue>
-                           <xd:RSAKeyValue>
-                              <xd:Modulus>cid:1255278639812</xd:Modulus>
-                              <xd:Exponent>cid:1308024370986</xd:Exponent>
-                           </xd:RSAKeyValue>
-                           <!--You may enter ANY elements at this point-->
-                           ventos
-                        </xd:KeyValue>
-                        <xd:RetrievalMethod URI="?" Type="?">
-                           <!--Optional:-->
-                           <xd:Transforms>
-                              <!--1 or more repetitions:-->
-                              <xd:Transform Algorithm="?">
-                                 verrantque
-                                 <!--You have a CHOICE of the next 2 items at this level-->
-                                 <!--You may enter ANY elements at this point-->
-                                 <xd:XPath>?</xd:XPath>
-                                 temperat
-                              </xd:Transform>
-                           </xd:Transforms>
-                        </xd:RetrievalMethod>
-                        <xd:X509Data>
-                           <!--You have a CHOICE of the next 6 items at this level-->
-                           <xd:X509IssuerSerial>
-                              <xd:X509IssuerName>?</xd:X509IssuerName>
-                              <xd:X509SerialNumber>?</xd:X509SerialNumber>
-                           </xd:X509IssuerSerial>
-                           <xd:X509SKI>cid:661240287298</xd:X509SKI>
-                           <xd:X509SubjectName>?</xd:X509SubjectName>
-                           <xd:X509Certificate>cid:875396821547</xd:X509Certificate>
-                           <xd:X509CRL>cid:1336784661034</xd:X509CRL>
-                           <!--You may enter ANY elements at this point-->
-                        </xd:X509Data>
-                        <xd:PGPData>
-                           <!--You have a CHOICE of the next 2 items at this level-->
-                           <xd:PGPKeyID>cid:987427934996</xd:PGPKeyID>
-                           <!--Optional:-->
-                           <xd:PGPKeyPacket>cid:198212070480</xd:PGPKeyPacket>
-                           <!--You may enter ANY elements at this point-->
-                           <xd:PGPKeyPacket>cid:976207024741</xd:PGPKeyPacket>
-                           <!--You may enter ANY elements at this point-->
-                        </xd:PGPData>
-                        <xd:SPKIData>
-                           <xd:SPKISexp>cid:1041524810126</xd:SPKISexp>
-                           <!--You may enter ANY elements at this point-->
-                        </xd:SPKIData>
-                        <xd:MgmtData>?</xd:MgmtData>
-                        <!--You may enter ANY elements at this point-->
-                        per
-                     </xd:KeyInfo>
-                     <xe:CipherData>
-                        <!--You have a CHOICE of the next 2 items at this level-->
-                        <xe:CipherValue>cid:1263263684119</xe:CipherValue>
-                        <xe:CipherReference URI="?">
-                           <!--Optional:-->
-                           <xe:Transforms>
-                              <!--1 or more repetitions:-->
-                              <xd:Transform Algorithm="?">
-                                 turbine
-                                 <!--You have a CHOICE of the next 2 items at this level-->
-                                 <!--You may enter ANY elements at this point-->
-                                 <xd:XPath>?</xd:XPath>
-                                 circum
-                              </xd:Transform>
-                           </xe:Transforms>
-                        </xe:CipherReference>
-                     </xe:CipherData>
-                     <!--Optional:-->
-                     <xe:EncryptionProperties Id="?">
-                        <!--1 or more repetitions:-->
-                        <xe:EncryptionProperty Target="?" Id="?">
-                           regemque
-                           <!--You have a CHOICE of the next 1 items at this level-->
-                           <!--You may enter ANY elements at this point-->
-                           nimborum
-                        </xe:EncryptionProperty>
-                     </xe:EncryptionProperties>
-                  </xe:EncryptedData>
-                  <!--Zero or more repetitions:-->
-                  <xe:EncryptedKey Id="?" Type="?" MimeType="?" Encoding="?" Recipient="?">
-                     <!--Optional:-->
-                     <xe:EncryptionMethod Algorithm="?">
-                        fremunt
-                        <!--Optional:-->
-                        <xe:KeySize>?</xe:KeySize>
-                        foedere
-                        <!--Optional:-->
-                        <xe:OAEPparams>cid:753753718944</xe:OAEPparams>
-                        ferant
-                        <!--You may enter ANY elements at this point-->
-                        profundum
-                     </xe:EncryptionMethod>
-                     <!--Optional:-->
-                     <xd:KeyInfo Id="?">
-                        sceptra
-                        <!--You have a CHOICE of the next 8 items at this level-->
-                        <xd:KeyName>?</xd:KeyName>
-                        <xd:KeyValue>
-                           et
-                           <!--You have a CHOICE of the next 3 items at this level-->
-                           <xd:DSAKeyValue>
-                              <xd:P>cid:634686343169</xd:P>
-                              <xd:Q>cid:37471960132</xd:Q>
-                              <!--Optional:-->
-                              <xd:G>cid:71367618305</xd:G>
-                              <xd:Y>cid:386755281473</xd:Y>
-                              <!--Optional:-->
-                              <xd:J>cid:252665274454</xd:J>
-                              <xd:Seed>cid:997069616217</xd:Seed>
-                              <xd:PgenCounter>cid:541685648152</xd:PgenCounter>
-                           </xd:DSAKeyValue>
-                           <xd:RSAKeyValue>
-                              <xd:Modulus>cid:672966631619</xd:Modulus>
-                              <xd:Exponent>cid:1217378860304</xd:Exponent>
-                           </xd:RSAKeyValue>
-                           <!--You may enter ANY elements at this point-->
-                           turbine
-                        </xd:KeyValue>
-                        <xd:RetrievalMethod URI="?" Type="?">
-                           <!--Optional:-->
-                           <xd:Transforms>
-                              <!--1 or more repetitions:-->
-                              <xd:Transform Algorithm="?">
-                                 iovis
-                                 <!--You have a CHOICE of the next 2 items at this level-->
-                                 <!--You may enter ANY elements at this point-->
-                                 <xd:XPath>?</xd:XPath>
-                                 flammato
-                              </xd:Transform>
-                           </xd:Transforms>
-                        </xd:RetrievalMethod>
-                        <xd:X509Data>
-                           <!--You have a CHOICE of the next 6 items at this level-->
-                           <xd:X509IssuerSerial>
-                              <xd:X509IssuerName>?</xd:X509IssuerName>
-                              <xd:X509SerialNumber>?</xd:X509SerialNumber>
-                           </xd:X509IssuerSerial>
-                           <xd:X509SKI>cid:190870664473</xd:X509SKI>
-                           <xd:X509SubjectName>?</xd:X509SubjectName>
-                           <xd:X509Certificate>cid:651843470188</xd:X509Certificate>
-                           <xd:X509CRL>cid:323611998600</xd:X509CRL>
-                           <!--You may enter ANY elements at this point-->
-                        </xd:X509Data>
-                        <xd:PGPData>
-                           <!--You have a CHOICE of the next 2 items at this level-->
-                           <xd:PGPKeyID>cid:230028808497</xd:PGPKeyID>
-                           <!--Optional:-->
-                           <xd:PGPKeyPacket>cid:85640819836</xd:PGPKeyPacket>
-                           <!--You may enter ANY elements at this point-->
-                           <xd:PGPKeyPacket>cid:300258145113</xd:PGPKeyPacket>
-                           <!--You may enter ANY elements at this point-->
-                        </xd:PGPData>
-                        <xd:SPKIData>
-                           <xd:SPKISexp>cid:1169978503587</xd:SPKISexp>
-                           <!--You may enter ANY elements at this point-->
-                        </xd:SPKIData>
-                        <xd:MgmtData>?</xd:MgmtData>
-                        <!--You may enter ANY elements at this point-->
-                        speluncis
-                     </xd:KeyInfo>
-                     <xe:CipherData>
-                        <!--You have a CHOICE of the next 2 items at this level-->
-                        <xe:CipherValue>cid:983435293349</xe:CipherValue>
-                        <xe:CipherReference URI="?">
-                           <!--Optional:-->
-                           <xe:Transforms>
-                              <!--1 or more repetitions:-->
-                              <xd:Transform Algorithm="?">
-                                 profundum
-                                 <!--You have a CHOICE of the next 2 items at this level-->
-                                 <!--You may enter ANY elements at this point-->
-                                 <xd:XPath>?</xd:XPath>
-                                 bella
-                              </xd:Transform>
-                           </xe:Transforms>
-                        </xe:CipherReference>
-                     </xe:CipherData>
-                     <!--Optional:-->
-                     <xe:EncryptionProperties Id="?">
-                        <!--1 or more repetitions:-->
-                        <xe:EncryptionProperty Target="?" Id="?">
-                           nubibus
-                           <!--You have a CHOICE of the next 1 items at this level-->
-                           <!--You may enter ANY elements at this point-->
-                           flammas
-                        </xe:EncryptionProperty>
-                     </xe:EncryptionProperties>
-                     <!--Optional:-->
-                     <xe:ReferenceList>
-                        <!--You have a CHOICE of the next 2 items at this level-->
-                        <xe:DataReference URI="?">
-                           <!--You may enter ANY elements at this point-->
-                        </xe:DataReference>
-                        <xe:KeyReference URI="?">
-                           <!--You may enter ANY elements at this point-->
-                        </xe:KeyReference>
-                     </xe:ReferenceList>
-                     <!--Optional:-->
-                     <xe:CarriedKeyName>?</xe:CarriedKeyName>
-                  </xe:EncryptedKey>
-               </urn:EncryptedAttribute>
-            </sessionSecurityAttr>
-            <connectionId>?</connectionId>
-         </typ:release>
-      </int:releaseRequest>
+            <providerNSA>urn:ogf:network:nsa:netherlight</providerNSA>
+            <reservation>
+               <globalReservationId>?</globalReservationId>
+               <description>?</description>
+               <connectionId>?</connectionId>
+               <serviceParameters>
+                  <schedule>
+                     <startTime>?</startTime>
+                     <endTime>?</endTime>
+                     <duration>?</duration>
+                  </schedule>
+                  <bandwidth>
+                     <desired>1000</desired>
+                     <minimum>750</minimum>
+                     <maximum>1000</maximum>
+                  </bandwidth>
+               </serviceParameters>
+               <path>
+                  <directionality>Bidirectional</directionality>
+                  <sourceSTP>
+                     <stpId>?</stpId>
+                  </sourceSTP>
+                  <destSTP>
+                     <stpId>?</stpId>
+                  </destSTP>
+                  <stpList>
+                     <!--Zero or more repetitions:-->
+                     <stp order="0">
+                        <stpId>?</stpId>
+                     </stp>
+                  </stpList>
+               </path>
+            </reservation>
+         </typ:reserve>
+      </int:reserveRequest>
    </soapenv:Body>
-</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/release"/></con:call></con:operation><con:operation isOneWay="false" action="http://schemas.ogf.org/nsi/2011/10/connection/service/reserve" name="reserve" bindingOperationName="reserve" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8082/bod/nsi/provider</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface" xmlns:typ="http://schemas.ogf.org/nsi/2011/10/connection/types" xmlns:urn="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xe="http://www.w3.org/2001/04/xmlenc#" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
+</soapenv:Envelope>]]></con:request><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://schemas.ogf.org/nsi/2011/10/connection/service/release"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="http://schemas.ogf.org/nsi/2011/10/connection/service/reserve" name="reserve" bindingOperationName="reserve" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8082/bod/nsi/provider</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:int="http://schemas.ogf.org/nsi/2011/10/connection/interface" xmlns:typ="http://schemas.ogf.org/nsi/2011/10/connection/types" xmlns:urn="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xe="http://www.w3.org/2001/04/xmlenc#" xmlns:xd="http://www.w3.org/2000/09/xmldsig#">
    <soapenv:Header/>
    <soapenv:Body>
       <int:reserveRequest>

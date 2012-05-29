@@ -27,15 +27,15 @@
         http://jax-ws.dev.java.net/spring/servlet.xsd">
 
     <!-- NSI WS -->
-    <wss:binding url="/nsi/provider">
+    <wss:binding url="/nsi/v1_sc/provider">
         <wss:service>
-            <ws:service bean="#nsiProvider" />
+            <ws:service bean="#nsiProvider_v1_sc" />
         </wss:service>
     </wss:binding>
 
-    <wss:binding url="/nsi/requester">
+    <wss:binding url="/nsi/v1_sc/requester">
         <wss:service>
-            <ws:service bean="#nsiRequester" />
+            <ws:service bean="#nsiRequester_v1_sc" />
         </wss:service>
     </wss:binding>
 

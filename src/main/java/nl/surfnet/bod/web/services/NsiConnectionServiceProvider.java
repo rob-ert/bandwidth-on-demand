@@ -67,12 +67,12 @@ import org.springframework.stereotype.Service;
 import nl.surfnet.bod.nsi.StateMachine;
 import nl.surfnet.bod.service.ReservationService;
 
-@Service("nsiProvider")
+@Service("nsiProvider_v1_sc")
 @WebService(serviceName = "ConnectionServiceProvider",
     portName = "ConnectionServiceProviderPort",
     endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
     targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider",
-    wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
+    wsdlLocation = "/WEB-INF/wsdl/nsi/1.sc/ogf_nsi_connection_provider_v1_0.wsdl")
 public class NsiConnectionServiceProvider extends NsiConnectionService {
 
   @Resource(name = "nsaProviderUrns")

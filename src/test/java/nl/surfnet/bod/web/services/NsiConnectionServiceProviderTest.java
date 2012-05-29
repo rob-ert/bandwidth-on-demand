@@ -32,7 +32,7 @@ import nl.surfnet.bod.support.NsiReservationFactory;
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
 public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit4SpringContextTests {
 
-  @Resource(name = "nsiProvider")
+  @Resource(name = "nsiProvider_v1_sc")
   private NsiConnectionServiceProvider nsiProvider;
 
   private final String correationId = "urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e";
