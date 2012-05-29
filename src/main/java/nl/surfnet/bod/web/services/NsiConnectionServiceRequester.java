@@ -36,13 +36,10 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceContext;
 
 import org.ogf.schemas.nsi._2011._10.connection._interface.ForcedEndRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException;
-import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.*;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
@@ -52,8 +49,8 @@ import org.springframework.stereotype.Service;
     endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort",
     targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/requester",
     wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl")
-public final class NsiConnectionServiceRequester extends NsiConnectionService {
-  
+public class NsiConnectionServiceRequester extends NsiConnectionService {
+
   private final Logger log = getLog();
 
   /*
@@ -107,7 +104,7 @@ public final class NsiConnectionServiceRequester extends NsiConnectionService {
   }
 
   public void reserveFailed(Holder<String> correlationId, GenericFailedType reserveFailed) throws ServiceException {
-    
+
     log.info("Reservation failed received for correlationid {}", correlationId.value);
 
     // Validate we received the confirmed message.
@@ -139,7 +136,7 @@ public final class NsiConnectionServiceRequester extends NsiConnectionService {
   }
 
   /**
-   * 
+   *
    * @param correlationId
    *          The correlation for the provision operation we issued to the child
    *          NSA.
@@ -330,7 +327,7 @@ public final class NsiConnectionServiceRequester extends NsiConnectionService {
 
   }
 
-  public void query(QueryRequestType parameters) throws ServiceException {
+  public GenericAcknowledgmentType query(QueryRequestType parameters) throws ServiceException {
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
@@ -342,7 +339,7 @@ public final class NsiConnectionServiceRequester extends NsiConnectionService {
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
-  public void forcedEnd(ForcedEndRequestType parameters) throws ServiceException {
+  public GenericAcknowledgmentType forcedEnd(ForcedEndRequestType parameters) throws ServiceException {
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
