@@ -42,6 +42,10 @@ To easily test the encryption and decryption there exists a helper class on the 
 * [Nexus][nexus]
 * [Sonar][sonar]
 
+## Setting up Shibboleth
+
+How to setup Shibboleth can be found on the [SURFconext wiki](https://wiki.surfnetlabs.nl/display/surfconextdev/My+First+SP+-+Shibboleth).
+
 [jasypt]: http://www.jasypt.org/
 [opendrac]: https://www.opendrac.org/
 [opendrac-app]: http://drac.surfnet.nl:8443/
