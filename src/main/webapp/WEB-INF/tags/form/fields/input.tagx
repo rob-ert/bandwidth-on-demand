@@ -47,13 +47,13 @@
         <c:set var="sec_field">
             <spring:escapeBody javaScriptEscape="true">${field}</spring:escapeBody>
         </c:set>
-        
+
         <c:set var="errors"><form:errors path="${sec_field}" /></c:set>
         <c:if test="${not empty errors}">
             <c:set var="error_css" value=" error" />
         </c:if>
-        
-        <div class="control-group${error_css}">
+
+        <div class="control-group${error_css}" id="_${id}_group">
             <label for="_${sec_field}_id" class="control-label"> <c:out value="${fn:escapeXml(label)}" /> </label>
 
             <div class="controls">

@@ -88,7 +88,7 @@
 
                     <field:input field="managerLabel" id="name" labelCode="virtualport_name" />
                     <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_maxbandwidth" />
-                    <field:input field="vlanId" id="vlanId" labelCode="virtualport_vlan_id" />
+                    <field:input field="vlanId" id="vlanId" labelCode="virtualport_vlan_id" /><!-- render="${virtualPortCreateCommand.physicalPort.vlanRequired}" /> -->
 
                     <field:select items="${virtualResourceGroups}" field="virtualResourceGroup"
                         labelCode="virtualresourcegroup" id="virtualresourcegroup" itemValue="id"
@@ -98,9 +98,23 @@
                         labelCode="physicalresourcegroup" itemValue="id" field="physicalResourceGroup"
                         path="/noc/physicalresourcegroups" create="false" showSingle="true" />
 
-                    <field:select items="${physicalPorts}" id="physicalPort" labelCode="physicalport" itemValue="id"
-                        itemLabel="managerLabel" field="physicalPort" path="/manager/virtualports" create="false"
-                        showSingle="true" />
+                    <div class="control-group">
+                        <label class="control-label"><spring:message code="label_physicalport" /></label>
+                        <div class="controls">
+                            <select id="physicalPort"  name="physicalPort" data-component="physicalport-selector-for-virtualport" data-field="_vlanId_group" class="input-xlarge">
+                                <c:forEach items="${physicalPorts}" var="port">
+                                    <c:choose>
+                                        <c:when test="${port.id eq virtualPortCreateCommand.physicalPort.id}">
+                                            <option value="${port.id}" data-hasvlan="${port.vlanRequired}" selected="true"><c:out value="${port.managerLabel}" /></option>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <option value="${port.id}" data-hasvlan="${port.vlanRequired}"><c:out value="${port.managerLabel}" /></option>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:forEach>
+                            </select>
+                        </div>
+                    </div>
                 </fieldset>
 
             </form:create>

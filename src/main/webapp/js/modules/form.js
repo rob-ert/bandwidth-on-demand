@@ -17,7 +17,7 @@ app.form = function(){
         initReservationFilter();
         initPhysicalPortSelector();
         initAcceptDeclineSelector();
-
+        initPhysicalPortSelectorForVirtualPort();
     };
 
     var initPlugins = function() {
@@ -281,6 +281,29 @@ app.form = function(){
             $("#_nocLabel_id").val(selected.attr("data-noclabel"));
             $("#_portId_id").val(selected.attr("data-portid"));
         });
+    }
+
+    var initPhysicalPortSelectorForVirtualPort = function() {
+        var selects = $('[data-component="physicalport-selector-for-virtualport"]')
+
+            selects.each(function(i, item){
+                var select = $(item),
+                   field = $('#'+select.attr("data-field"));
+
+                select.on('change', function() {
+                    var show = select.find(":selected").attr("data-hasvlan") === 'true';
+
+                    if (show) {
+                        console.log("Show");
+                        field.show();
+                } else {
+                    console.log("Hide");
+                        field.hide();
+                }
+                })
+
+                select.trigger('change');
+            })
     }
 
     var initAcceptDeclineSelector = function() {
