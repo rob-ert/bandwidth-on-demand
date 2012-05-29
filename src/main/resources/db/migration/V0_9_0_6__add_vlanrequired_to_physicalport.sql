@@ -1,0 +1,1 @@
+ALTER TABLE physical_port ADD COLUMN vlan_required BOOLEAN NOT NULL DEFAULT FALSE;

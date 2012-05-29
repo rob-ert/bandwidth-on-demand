@@ -38,6 +38,7 @@ public class PhysicalPortFactory {
   private Integer version = 0;
   private String networkElementPk = UUID.randomUUID().toString();
   private String portId = "Asd001A_OME3T_ETH-1-1-4";
+  private boolean vlanRequired = false;
 
   public PhysicalPort create() {
     PhysicalPort port = new PhysicalPort();
@@ -49,6 +50,7 @@ public class PhysicalPortFactory {
     port.setManagerLabel(managerLabel);
     port.setNetworkElementPk(networkElementPk);
     port.setPhysicalResourceGroup(physicalResourceGroup);
+    port.setVlanRequired(vlanRequired);
 
     return port;
   }
@@ -80,6 +82,11 @@ public class PhysicalPortFactory {
 
   public PhysicalPortFactory setNetworkElementPk(String networkElementPk) {
     this.networkElementPk = networkElementPk;
+    return this;
+  }
+
+  public PhysicalPortFactory setVlanRequired(boolean vlanRequired) {
+    this.vlanRequired = vlanRequired;
     return this;
   }
 

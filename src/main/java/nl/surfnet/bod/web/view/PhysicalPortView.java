@@ -12,11 +12,12 @@ public class PhysicalPortView {
   private final String networkElementPk;
   private ElementActionView deleteActionView;
   private Long numberOfVirtualPorts;
+  private final boolean vlanRequired;
   private boolean deleteRender;
 
   public PhysicalPortView(final PhysicalPort physicalPort, final ElementActionView deleteActionView,
       final long virtualPortSize) {
-    
+
     this(physicalPort, deleteActionView);
     this.numberOfVirtualPorts = virtualPortSize;
   }
@@ -40,6 +41,7 @@ public class PhysicalPortView {
     this.physicalResourceGroupName = physicalPort.getPhysicalResourceGroup() == null ? null : physicalPort
         .getPhysicalResourceGroup().getName();
     this.networkElementPk = physicalPort.getNetworkElementPk();
+    this.vlanRequired = physicalPort.isVlanRequired();
 
     this.numberOfVirtualPorts = 0L;
     this.deleteActionView = new ElementActionView(false, "");
@@ -90,6 +92,10 @@ public class PhysicalPortView {
     return deleteRender;
   }
 
+  public boolean isVlanRequired() {
+    return vlanRequired;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -103,6 +109,7 @@ public class PhysicalPortView {
     result = prime * result + ((numberOfVirtualPorts == null) ? 0 : numberOfVirtualPorts.hashCode());
     result = prime * result + ((physicalResourceGroupName == null) ? 0 : physicalResourceGroupName.hashCode());
     result = prime * result + ((portId == null) ? 0 : portId.hashCode());
+    result = prime * result + (vlanRequired ? 1231 : 1237);
     return result;
   }
 
@@ -111,7 +118,7 @@ public class PhysicalPortView {
     return "PhysicalPortView [id=" + id + ", managerLabel=" + managerLabel + ", nocLabel=" + nocLabel + ", portId="
         + portId + ", physicalResourceGroupName=" + physicalResourceGroupName + ", networkElementPk="
         + networkElementPk + ", deleteActionView=" + deleteActionView + ", numberOfVirtualPorts="
-        + numberOfVirtualPorts + ", deleteRender=" + deleteRender + "]";
+        + numberOfVirtualPorts + ", vlanRequired=" + vlanRequired + ", deleteRender=" + deleteRender + "]";
   }
 
   @Override
@@ -172,6 +179,8 @@ public class PhysicalPortView {
         return false;
     }
     else if (!portId.equals(other.portId))
+      return false;
+    if (vlanRequired != other.vlanRequired)
       return false;
     return true;
   }

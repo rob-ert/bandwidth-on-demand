@@ -44,7 +44,7 @@ public class PhysicalPort {
   private String nocLabel;
 
   private String managerLabel;
-  
+
   @NotEmpty
   @Column(nullable = false)
   private String portId;
@@ -55,6 +55,9 @@ public class PhysicalPort {
 
   @ManyToOne
   private PhysicalResourceGroup physicalResourceGroup;
+
+  @Basic
+  private boolean vlanRequired;
 
   public Long getId() {
     return this.id;
@@ -122,13 +125,16 @@ public class PhysicalPort {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(PhysicalPort.class)
-        .add("id", id)
-        .add("nocLabel", nocLabel)
-        .add("managerLabel", managerLabel)
-        .add("networkElementPk", networkElementPk)
-        .add("physicalResourceGroup", physicalResourceGroup)
-        .add("portId", portId)
-        .toString();
+    return Objects.toStringHelper(PhysicalPort.class).add("id", id).add("nocLabel", nocLabel)
+        .add("managerLabel", managerLabel).add("networkElementPk", networkElementPk)
+        .add("physicalResourceGroup", physicalResourceGroup).add("portId", portId).toString();
+  }
+
+  public void setVlanRequired(boolean vlanRequired) {
+    this.vlanRequired = vlanRequired;
+  }
+
+  public boolean isVlanRequired() {
+    return vlanRequired;
   }
 }

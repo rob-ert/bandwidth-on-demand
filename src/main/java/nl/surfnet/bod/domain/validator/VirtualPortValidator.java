@@ -34,9 +34,9 @@ import org.springframework.validation.Validator;
 /**
  * Validator for the {@link VirtualPort}. Validates that the
  * {@link VirtualPort#getManagerLabel()} is unique.
- *
+ * 
  * @author Franky
- *
+ * 
  */
 @Component
 public class VirtualPortValidator implements Validator {
@@ -58,6 +58,7 @@ public class VirtualPortValidator implements Validator {
     validateUniquenessOfName(virtualPort, errors);
     validatePhysicalPort(virtualPort, errors);
     validateBandwidth(virtualPort, errors);
+    validateVlanRequired(virtualPort, errors);
   }
 
   private void validatePhysicalPort(VirtualPort virtualPort, Errors errors) {
@@ -73,20 +74,30 @@ public class VirtualPortValidator implements Validator {
     VirtualPort existingVirtualPort = virtualPortService.findByManagerLabel(virtualPort.getManagerLabel());
 
     if (existingVirtualPort != null && labelsAreNotUnique(virtualPort, existingVirtualPort)) {
-        errors.rejectValue("managerLabel", "validation.not.unique");
+      errors.rejectValue("managerLabel", "validation.not.unique");
     }
   }
 
   private boolean labelsAreNotUnique(VirtualPort virtualPort, VirtualPort existingVirtualPort) {
-    return !validatorHelper.validateNameUniqueness(
-        existingVirtualPort.getId().equals(virtualPort.getId()),
-        virtualPort.getManagerLabel().equalsIgnoreCase(existingVirtualPort.getManagerLabel()),
-        virtualPort.getId() != null);
+    return !validatorHelper.validateNameUniqueness(existingVirtualPort.getId().equals(virtualPort.getId()), virtualPort
+        .getManagerLabel().equalsIgnoreCase(existingVirtualPort.getManagerLabel()), virtualPort.getId() != null);
   }
 
   private void validateBandwidth(VirtualPort virtualPort, Errors errors) {
     if (virtualPort.getMaxBandwidth() != null && virtualPort.getMaxBandwidth() < 1) {
       errors.rejectValue("maxBandwidth", "validation.low");
+    }
+  }
+
+  private void validateVlanRequired(VirtualPort virtualPort, Errors errors) {
+    if ((virtualPort.getPhysicalPort() == null || virtualPort.getPhysicalPort().isVlanRequired())
+        && ((virtualPort.getVlanId() == null) || new Integer(0).equals(virtualPort.getVlanId()))) {
+      errors.rejectValue("vlanId", "validation.virtualport.vlanid.required.because.physicalport.requires.it");
+    }
+
+    if ((virtualPort.getVlanId() != null) && (virtualPort.getVlanId().intValue() > 0)
+        && ((virtualPort.getPhysicalPort() == null || !virtualPort.getPhysicalPort().isVlanRequired()))) {
+      errors.rejectValue("vlanId", "validation.virtualport.vlanid.not.allowed.since.physicalport.does.not.require.it");
     }
   }
 

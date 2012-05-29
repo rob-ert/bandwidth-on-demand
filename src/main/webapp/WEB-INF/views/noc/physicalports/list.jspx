@@ -38,6 +38,10 @@
               <dd>
                 <c:out value="${item.managerLabel}" />
               </dd>
+              <dt>Vlan required</dt>
+              <dd>
+                <c:out value="${item.vlanRequired}" />
+              </dd>
             </dl>
           </table:rowDetailsColumn>
           <table:column item="${item}" property="nocLabel" />
