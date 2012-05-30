@@ -28,9 +28,10 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.RESERVING;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -41,36 +42,28 @@ import javax.jws.WebService;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
+import nl.surfnet.bod.nsi.StateMachine;
+import nl.surfnet.bod.nsi.ws.ConnectionService;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
-import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ReleaseRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.*;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
-import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.GenericRequestType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
+import org.ogf.schemas.nsi._2011._10.connection.types.*;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
-import nl.surfnet.bod.nsi.StateMachine;
-import nl.surfnet.bod.nsi.ws.ConnectionService;
+import com.google.common.collect.ImmutableList;
 
 @Service("nsiProvider_v1_sc")
-@WebService(serviceName = "ConnectionServiceProvider",
-    portName = "ConnectionServiceProviderPort",
-    endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
-    targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider",
-    wsdlLocation = "/WEB-INF/wsdl/nsi/1.sc/ogf_nsi_connection_provider_v1_0.wsdl")
+@WebService(
+  serviceName = "ConnectionServiceProvider",
+  portName = "ConnectionServiceProviderPort",
+  endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
+  targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider",
+  wsdlLocation = "/WEB-INF/wsdl/nsi/1.sc/ogf_nsi_connection_provider_v1_0.wsdl")
 public class ConnectionServiceProvider extends ConnectionService {
 
   @Resource(name = "nsaProviderUrns")
@@ -81,17 +74,11 @@ public class ConnectionServiceProvider extends ConnectionService {
 
   private final Logger log = getLog();
 
-  private List<String> nsaChildren = new ArrayList<String>() {
-    {
-      add("urn:ogf:network:nsa:child1");
-      add("urn:ogf:network:nsa:child2");
-      add("urn:ogf:network:nsa:child3");
-    }
-  };
+  private List<String> nsaChildren = ImmutableList.of(
+      "urn:ogf:network:nsa:child1",
+      "urn:ogf:network:nsa:child2",
+      "urn:ogf:network:nsa:child3");
 
-  /**
-   * @return
-   */
   private ServiceExceptionType getInvalidParameterServiceException(final String attributeName) {
     final ServiceExceptionType serviceException = new ServiceExceptionType();
     serviceException.setErrorId("SVC0001");
@@ -119,7 +106,7 @@ public class ConnectionServiceProvider extends ConnectionService {
     try {
       final Map<String, Object> requestContext = ((BindingProvider) connectionServiceRequesterPort).getRequestContext();
 
-      // TODO: get credentials from reservation request 
+      // TODO: get credentials from reservation request
       requestContext.put(BindingProvider.USERNAME_PROPERTY, "admin");
       requestContext.put(BindingProvider.PASSWORD_PROPERTY, "nsi");
       requestContext.put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
@@ -152,10 +139,6 @@ public class ConnectionServiceProvider extends ConnectionService {
     log.debug("Sendig terminate event to NRM.");
   }
 
-  /**
-   * @param reserveRequest
-   * @throws ServiceException
-   */
   private boolean isValidProviderNsa(final ReserveRequestType reserveRequest) {
     return nsaProviderUrns == null ? true : nsaProviderUrns.contains(reserveRequest.getReserve().getProviderNSA());
   }
@@ -165,7 +148,7 @@ public class ConnectionServiceProvider extends ConnectionService {
    * inter-domain bandwidth. Those parameters required for the request to
    * proceed to a processing actor will be validated, however, all other
    * parameters will be validated in the processing actor.
-   * 
+   *
    * @param parameters
    *          The un-marshaled JAXB object holding the NSI reservation request.
    * @return The GenericAcknowledgmentType object returning the correlationId

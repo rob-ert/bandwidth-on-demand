@@ -28,7 +28,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ReservationArchiveRepo extends JpaSpecificationExecutor<ReservationArchive>, JpaRepository<ReservationArchive, Long> {
-  
+public interface ReservationArchiveRepo extends JpaSpecificationExecutor<ReservationArchive>,
+    JpaRepository<ReservationArchive, Long> {
 
 }

@@ -9,14 +9,15 @@ import org.springframework.stereotype.Service;
 
 @Service("simpelStateMachine")
 class SimpelStateMachine implements StateMachine {
-  private final Logger log = LoggerFactory.getLogger(getClass());
+  private static final ConcurrentHashMap<String, ConnectionStateType> STATES =
+      new ConcurrentHashMap<String, ConnectionStateType>();
 
-  public static final ConcurrentHashMap<String, ConnectionStateType> states = new ConcurrentHashMap<String, ConnectionStateType>();
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   @Override
   public void inserOrUpdateState(String correlationId, ConnectionStateType state) {
     log.debug("Updating connection state of {} to {}", correlationId, state);
-    states.put(correlationId, state);
+    STATES.put(correlationId, state);
 
   }
 
@@ -28,7 +29,7 @@ class SimpelStateMachine implements StateMachine {
 
   @Override
   public ConnectionStateType getState(String correlationId) {
-    return states.get(correlationId);
+    return STATES.get(correlationId);
   }
 
 }

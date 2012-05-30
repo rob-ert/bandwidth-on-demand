@@ -40,8 +40,8 @@ public class IddOfflineClient implements IddClient {
   private final Logger logger = LoggerFactory.getLogger(IddOfflineClient.class);
 
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(
-      value="UPM_UNCALLED_PRIVATE_METHOD", 
-      justification="Called by IoC container")
+      value = "UPM_UNCALLED_PRIVATE_METHOD",
+      justification = "Called by IoC container")
   @SuppressWarnings("unused")
   @PostConstruct
   private void init() {

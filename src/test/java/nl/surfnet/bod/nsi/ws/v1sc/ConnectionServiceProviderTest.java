@@ -1,6 +1,7 @@
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 import java.util.UUID;
 
@@ -8,9 +9,10 @@ import javax.annotation.Resource;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.junit.After;
+import nl.surfnet.bod.support.MockHttpServer;
+import nl.surfnet.bod.support.NsiReservationFactory;
+
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,22 +25,18 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 
-import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProvider;
-import nl.surfnet.bod.support.MockHttpServer;
-import nl.surfnet.bod.support.NsiReservationFactory;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml",
     "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
 public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4SpringContextTests {
 
+  private static MockHttpServer requesterEndpoint = new MockHttpServer(NsiReservationFactory.PORT);
+
   @Resource(name = "nsiProvider_v1_sc")
   private ConnectionServiceProvider nsiProvider;
 
   private final String correationId = "urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e";
-
-  private static MockHttpServer requesterEndpoint = new MockHttpServer(NsiReservationFactory.PORT);
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -50,16 +48,6 @@ public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4Sp
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
     requesterEndpoint.stopServer();
-  }
-
-  @Before
-  public void setUp() throws Exception {
-
-  }
-
-  @After
-  public void tearDown() throws Exception {
-
   }
 
   @Test(expected = ServiceException.class)
@@ -104,12 +92,12 @@ public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4Sp
 
     final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
     assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
-    
+
     final String lastRequest = requesterEndpoint.getOrWaitForRequest(5);
-    
+
     assertTrue(lastRequest.contains(correationId));
     assertTrue(lastRequest.contains("reserveFailed"));
-    
+
     assertEquals(requesterCountBefore + 1, requesterEndpoint.getCallCounter());
   }
 }
