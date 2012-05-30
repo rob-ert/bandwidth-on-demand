@@ -5,21 +5,21 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.xml.ws.WebServiceContext;
 
+import nl.surfnet.bod.service.ReservationService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import nl.surfnet.bod.service.ReservationService;
-
 public abstract class ConnectionService {
-
-  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private static final String URN_UUID = "urn:uuid:";
 
+  private final Logger log = LoggerFactory.getLogger(getClass());
+
   /*
    * This holds the web service request context which includes all the original
-   * HTTP information, including the JAAS authentication and authorisation
+   * HTTP information, including the JAAS authentication and authorization
    * information.
    */
   @Resource
