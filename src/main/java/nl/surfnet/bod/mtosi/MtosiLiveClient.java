@@ -1,5 +1,7 @@
 package nl.surfnet.bod.mtosi;
 
+import java.util.List;
+
 import javax.xml.ws.Holder;
 
 import org.slf4j.Logger;
@@ -20,6 +22,8 @@ import org.tmforum.mtop.mri.xsd.rir.v1.ObjectFactory;
 import org.tmforum.mtop.mri.xsd.rir.v1.SimpleFilterType;
 import org.tmforum.mtop.mri.xsd.rir.v1.SimpleFilterType.IncludedObjectType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.InventoryDataType;
+import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagedElementInventoryType;
+import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagementDomainInventoryType;
 
 @Service("mtosiLiveClient")
 public class MtosiLiveClient {
@@ -27,6 +31,7 @@ public class MtosiLiveClient {
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   public InventoryDataType getInventory() {
+    log.info("Starting");
     final GetInventoryRequest getInventoryRequest = new ObjectFactory().createGetInventoryRequest();
     getInventoryRequest.setFilter(getInventoryRequestSimpleFilter());
     try {
@@ -44,27 +49,28 @@ public class MtosiLiveClient {
    * @return
    */
   private SimpleFilterType getInventoryRequestSimpleFilter() {
-    
-    final SimpleFilterType simpleFilter = new ObjectFactory().createSimpleFilterType();
-    
+
+    // baseInstance
     final RelativeDistinguishNameType relativeDistinguishName = new RelativeDistinguishNameType();
     relativeDistinguishName.setType("MD");
     relativeDistinguishName.setValue("Ciena");
 
     final NamingAttributeType namingAttribute = new NamingAttributeType();
     namingAttribute.getRdn().add(relativeDistinguishName);
-    
+
+    final SimpleFilterType simpleFilter = new ObjectFactory().createSimpleFilterType();
     simpleFilter.getBaseInstance().add(namingAttribute);
 
+    // includedObjectTypes
     final String[] objectTypes = { "ME", "EH", "EQ", "PTP" };
 
-    for (String objectType : objectTypes) {
+    for (final String objectType : objectTypes) {
       final IncludedObjectType includeObject = new IncludedObjectType();
       includeObject.setObjectType(objectType);
       includeObject.setGranularity(GranularityType.ATTRS);
       simpleFilter.getIncludedObjectType().add(includeObject);
     }
-
+    log.info("returning: {}", simpleFilter);
     return simpleFilter;
   }
 
@@ -87,7 +93,25 @@ public class MtosiLiveClient {
     header.setMsgName("getInventoryRequest");
     header.setSenderURI("http://62.190.191.48:9009");
     header.setMsgType(MessageTypeType.REQUEST);
-
+    log.info("header: {}", header);
     return new Holder<Header>(header);
   }
+
+  public static void main(final String... args) {
+    final Logger log = LoggerFactory.getLogger(MtosiLiveClient.class);
+
+    // all this ^$%# for just getting the bloody NE names ....
+    final List<ManagementDomainInventoryType> mds = new MtosiLiveClient().getInventory().getMdList().getMd();
+    for (final ManagementDomainInventoryType md : mds) {
+      final List<ManagedElementInventoryType> meInvs = md.getMeList().getMeInv();
+      for (final ManagedElementInventoryType meInv : meInvs) {
+        final List<RelativeDistinguishNameType> rdns = meInv.getMeAttrs().getName().getValue().getRdn();
+        for (final RelativeDistinguishNameType rdn : rdns) {
+          log.info("Rdn type: {}", rdn.getType());
+          log.info("Rdn value: {}", rdn.getValue());
+        }
+      }
+    }
+  }
+
 }
