@@ -1,6 +1,5 @@
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -48,14 +47,14 @@ public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4Sp
     requesterEndpoint.startServer();
   }
 
-  @Before
-  public void makeItFaster() {
-    nsiProvider.setDelayBeforeResponseSend(10);
-  }
-
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
     requesterEndpoint.stopServer();
+  }
+
+  @Before
+  public void makeItFaster() {
+    nsiProvider.setDelayBeforeResponseSend(10);
   }
 
   @Test(expected = ServiceException.class)
@@ -81,8 +80,6 @@ public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4Sp
 
   @Test
   public void should_return_generic_acknowledgement_and_send_reservation_failed() throws Exception {
-    int requesterCountBefore = requesterEndpoint.getCallCounter();
-
     XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
     startTime.setDay(10);
     startTime.setMonth(10);
@@ -106,6 +103,7 @@ public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4Sp
 
     assertTrue(lastRequest.contains(correationId));
     assertTrue(lastRequest.contains("reserveFailed"));
-    assertEquals(requesterCountBefore + 1, requesterEndpoint.getCallCounter());
+
+    assertThat(requesterEndpoint.getCallCounter(), is(1));
   }
 }
