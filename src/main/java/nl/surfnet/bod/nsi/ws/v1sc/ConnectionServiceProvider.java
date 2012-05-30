@@ -134,7 +134,7 @@ public class ConnectionServiceProvider extends ConnectionService {
     terminator.setCorrelationId(correlationId);
     terminator.setReplyTo(nsaRequester);
     terminator.setTerminate(genericRequestType);
-    log.debug("Sendign terminate event to child nsa: {} with id: {}", nsaChild, terminator.getCorrelationId());
+    log.debug("Sendign terminate event to child nsa: {} with id: {}", nsaChild, correlationId);
   }
 
   private void sendTerminatToNrm(final String correlationId) {
