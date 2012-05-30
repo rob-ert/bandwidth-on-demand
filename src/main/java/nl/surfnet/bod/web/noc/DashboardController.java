@@ -46,6 +46,7 @@ public class DashboardController {
   public String index(Model model) {
     
     model.addAttribute("stats", determineStatistics());
+    model.addAttribute("defaultDuration", ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL_STRING);
 
     return "noc/index";
   }

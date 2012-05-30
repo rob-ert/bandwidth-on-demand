@@ -73,6 +73,7 @@ public class DashboardController {
     model.addAttribute("requests", Orderings.vpRequestLinkOrdring().sortedCopy(requests));
 
     model.addAttribute("stats", determineStatistics(Security.getUserDetails()));
+    model.addAttribute("defaultDuration", ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL_STRING);
 
     return "manager/index";
   }

@@ -98,21 +98,21 @@
 							</a></td>
 						</tr>
 						<tr>
-							<td>Elapsed reservations</td>
+							<td>Reservations past ${defaultDuration}</td>
 							<td><a href="${elapsedReservationsUrl}" rel="tooltip"
 								title="Elapsed Reservations" data-type="info"> <c:out
 										value="${stats.elapsedReservationsAmount}" />
 							</a></td>
 						</tr>
 						<tr>
-							<td>Active reservations</td>
+							<td>Active Reservations</td>
 							<td><a href="${activeReservationsUrl}" rel="tooltip"
 								title="Active Reservations" data-type="info"> <c:out
 										value="${stats.activeReservationsAmount}" />
 							</a></td>
 						</tr>
 						<tr>
-							<td>Coming reservations</td>
+							<td>Reservations in ${defaultDuration}</td>
 							<td><a href="${comingReservationsUrl}" rel="tooltip"
 								title="Coming Reservations" data-type="info"> <c:out
 										value="${stats.comingReservationsAmount}" />

@@ -42,6 +42,10 @@
     width: 75px;
 }
 
+.table .cw80 {
+    width: 80px;
+}
+
 .table .center {
     text-align: center;
 }

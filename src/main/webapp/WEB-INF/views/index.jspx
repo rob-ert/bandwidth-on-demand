@@ -16,7 +16,7 @@
                 <div class="form-inline" data-component="teams-filter">
                     <label class="radio">
                         <input type="radio" name="show" value="existing" checked="true" />
-                        Show used
+                        Show active
                     </label>
                     <c:out value=" " />
                     <label class="radio">
@@ -30,8 +30,16 @@
                         <tr>
                             <th><spring:message code="label_virtualresourcegroup" /></th>
                             <th class="center cw75"># of Ports</th>
-                            <th class="center cw75">Reservations</th>
+                            <th class="center cw75" colspan="3">Reservations</th>
                             <table:actionsHeader />
+                         </tr>
+                        <tr>
+                            <th><!--  --></th>
+                            <th><!--  --></th>
+                            <th class="center cw80 small">Active</th>
+                            <th class="center cw80 small">In ${defaultDuration}</th>
+                            <th class="center cw80 small">Past ${defaultDuration}</th>
+                            <th><!--  --></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -59,20 +67,18 @@
                                     </c:choose>
                                 </td>
 
-                                <td class="center">
-                                    <c:choose>
-                                        <c:when test="${team.existing}">
-                                            <c:out value="${team.activeReservations}"/>
-                                            /
-                                            <c:out value="${team.scheduledReservations}"/>
-                                            /
-                                            <c:out value="${team.totalReservations}"/>
-                                        </c:when>
-                                        <c:otherwise>
-                                            -
-                                        </c:otherwise>
-                                    </c:choose>
-                                </td>
+                                <c:choose>
+                                    <c:when test="${team.existing}">
+                                        <td class="center"><c:out value="${team.activeReservations}"/></td>
+                                        <td class="center"><c:out value="${team.scheduledReservations}"/></td>
+                                        <td class="center"><c:out value="${team.totalReservations}"/></td>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <td class="center">-</td>
+                                        <td class="center">-</td>
+                                        <td class="center">-</td>
+                                    </c:otherwise>
+                                </c:choose>
 
                                 <td class="center">
                                     <c:if test="${team.existing and team.numberOfPorts > 1}">

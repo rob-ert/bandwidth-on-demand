@@ -31,6 +31,7 @@ import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.web.security.Security;
 
@@ -91,6 +92,7 @@ public class DashboardController {
       }
     }));
 
+    model.addAttribute("defaultDuration", ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL_STRING);
     return "index";
   }
 
@@ -115,18 +117,17 @@ public class DashboardController {
       }
     });
 
-    Collection<TeamView> newTeams = FluentIterable.from(userGroups)
-      .filter(new Predicate<UserGroup>() {
-        @Override
-        public boolean apply(UserGroup group) {
-          return !existingIds.contains(group.getId());
-        }
-      }).transform(new Function<UserGroup, TeamView>() {
-        @Override
-        public TeamView apply(UserGroup group) {
-          return new TeamView(group);
-        }
-      }).toImmutableList();
+    Collection<TeamView> newTeams = FluentIterable.from(userGroups).filter(new Predicate<UserGroup>() {
+      @Override
+      public boolean apply(UserGroup group) {
+        return !existingIds.contains(group.getId());
+      }
+    }).transform(new Function<UserGroup, TeamView>() {
+      @Override
+      public TeamView apply(UserGroup group) {
+        return new TeamView(group);
+      }
+    }).toImmutableList();
 
     return Ordering.natural().sortedCopy(Iterables.concat(existingTeams, newTeams));
   }
