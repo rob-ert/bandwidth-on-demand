@@ -66,13 +66,15 @@ import com.google.common.collect.ImmutableList;
   wsdlLocation = "/WEB-INF/wsdl/nsi/1.sc/ogf_nsi_connection_provider_v1_0.wsdl")
 public class ConnectionServiceProvider extends ConnectionService {
 
+  private final Logger log = getLog();
+
+  private Long delayBeforeResponseSend = 2000L;
+
   @Resource(name = "nsaProviderUrns")
   private List<String> nsaProviderUrns;
 
   @Resource(name = "simpelStateMachine")
   private StateMachine stateMachine;
-
-  private final Logger log = getLog();
 
   private List<String> nsaChildren = ImmutableList.of(
       "urn:ogf:network:nsa:child1",
@@ -168,11 +170,6 @@ public class ConnectionServiceProvider extends ConnectionService {
     log.debug("Received reservation request with id: {}", reservationRequest.getCorrelationId());
     stateMachine.inserOrUpdateState(correlationId, INITIAL);
 
-    // if (getWebServiceContext() != null) {
-    // log.debug("message context: {}",
-    // getWebServiceContext().getMessageContext());
-    // }
-
     final ReservationInfoType reservation = reservationRequest.getReserve().getReservation();
     if (!isValidCorrelationId(correlationId)) {
       stateMachine.inserOrUpdateState(reservationRequest.getCorrelationId(), CLEANING);
@@ -259,7 +256,7 @@ public class ConnectionServiceProvider extends ConnectionService {
         sendTerminatToNrm(correlationId);
         stateMachine.deleteState(correlationId);
       }
-    }, 2000L);
+    }, delayBeforeResponseSend);
   }
 
   public GenericAcknowledgmentType provision(ProvisionRequestType parameters) throws ServiceException {
@@ -437,6 +434,10 @@ public class ConnectionServiceProvider extends ConnectionService {
 
   public void queryFailed(Holder<String> correlationId, QueryFailedType queryFailed) throws ServiceException {
     throw new UnsupportedOperationException("Not implemented yet.");
+  }
+
+  void setDelayBeforeResponseSend(long delayInMilis) {
+    this.delayBeforeResponseSend = delayInMilis;
   }
 
 }

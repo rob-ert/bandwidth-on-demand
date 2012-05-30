@@ -2,6 +2,8 @@ package nl.surfnet.bod.nsi.ws.v1sc;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 import java.util.UUID;
 
@@ -13,6 +15,7 @@ import nl.surfnet.bod.support.MockHttpServer;
 import nl.surfnet.bod.support.NsiReservationFactory;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,6 +48,11 @@ public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4Sp
     requesterEndpoint.startServer();
   }
 
+  @Before
+  public void makeItFaster() {
+    nsiProvider.setDelayBeforeResponseSend(10);
+  }
+
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
     requesterEndpoint.stopServer();
@@ -59,6 +67,7 @@ public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4Sp
   public void should_throw_exeption_because_of_invalid_provider_urn() throws ServiceException {
     final ReserveRequestType reservationRequest = new NsiReservationFactory().setNsaProviderUrn(
         "urn:ogf:network:nsa:no:such:provider").createReservation();
+
     nsiProvider.reserve(reservationRequest);
   }
 
@@ -66,16 +75,15 @@ public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4Sp
   public void should_throw_exeption_because_of_invalid_correlation_id() throws ServiceException {
     final ReserveRequestType reservationRequest = new NsiReservationFactory().setCorrelationId(
         UUID.randomUUID().toString()).createReservation();
+
     nsiProvider.reserve(reservationRequest);
   }
 
   @Test
   public void should_return_generic_acknowledgement_and_send_reservation_failed() throws Exception {
+    int requesterCountBefore = requesterEndpoint.getCallCounter();
 
-    final int requesterCountBefore = requesterEndpoint.getCallCounter();
-    assertEquals(0, requesterCountBefore);
-
-    final XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
+    XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
     startTime.setDay(10);
     startTime.setMonth(10);
     startTime.setYear(2012);
@@ -83,21 +91,21 @@ public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4Sp
     startTime.setHour(0);
     startTime.setSecond(0);
 
-    final XMLGregorianCalendar endTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(
+    XMLGregorianCalendar endTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(
         startTime.toGregorianCalendar());
     endTime.setDay(startTime.getDay() + 5);
 
-    final ReserveRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
+    ReserveRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
         .setScheduleEndTime(endTime).setCorrelationId(correationId).createReservation();
 
-    final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
-    assertEquals(reservationRequest.getCorrelationId(), genericAcknowledgmentType.getCorrelationId());
+    GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
 
-    final String lastRequest = requesterEndpoint.getOrWaitForRequest(5);
+    assertThat(genericAcknowledgmentType.getCorrelationId(), is(reservationRequest.getCorrelationId()));
+
+    String lastRequest = requesterEndpoint.getOrWaitForRequest(5);
 
     assertTrue(lastRequest.contains(correationId));
     assertTrue(lastRequest.contains("reserveFailed"));
-
     assertEquals(requesterCountBefore + 1, requesterEndpoint.getCallCounter());
   }
 }
