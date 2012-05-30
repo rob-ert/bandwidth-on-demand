@@ -29,34 +29,36 @@ import nl.surfnet.bod.domain.ReservationStatus;
 
 public interface NbiClient {
 
+  String VLAN_REQUIRED_SELECTOR = "ome";
+
   /**
-   *
+   * 
    * @param scheduleId
    */
   void cancelReservation(String scheduleId);
 
   /**
-   *
+   * 
    * @return the amount of all available {@link PhysicalPort}'s
    */
   long getPhysicalPortsCount();
 
   /**
-   *
+   * 
    * @param reservation
    * @return the reservation id returned from the underlying NMS
    */
   Reservation createReservation(Reservation reservation);
 
   /**
-   *
+   * 
    * @return all available {@link PhysicalPort}'s
    */
   List<PhysicalPort> findAllPhysicalPorts();
 
   /**
    * Retrieve the status of a reservation.
-   *
+   * 
    * @param scheduleId
    *          the id of the schedule of interest
    * @return status of the reservation
@@ -64,10 +66,11 @@ public interface NbiClient {
   ReservationStatus getReservationStatus(String scheduleId);
 
   /**
-  *
-  * @param name
-  * @return a {@link PhysicalPort} identified by a certain name, in OpenDRAC's case the network elements pk
-  */
+   * 
+   * @param name
+   * @return a {@link PhysicalPort} identified by a certain name, in OpenDRAC's
+   *         case the network elements pk
+   */
   PhysicalPort findPhysicalPortByNetworkElementId(String networkElementId);
 
 }

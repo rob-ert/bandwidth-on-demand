@@ -25,11 +25,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 
+import org.hamcrest.core.IsNot;
 import org.junit.Test;
 
 public class NbiOfflineClientTest {
@@ -58,6 +60,14 @@ public class NbiOfflineClientTest {
     PhysicalPort foundPort = subject.findPhysicalPortByNetworkElementId(port.getNetworkElementPk());
 
     assertThat(foundPort.getNetworkElementPk(), is(port.getNetworkElementPk()));
+  }
+
+  @Test
+  public void testRequireVlanIdWhenPortIdContainsLabel() {
+    for (PhysicalPort port : subject.findAllPhysicalPorts()) {
+      assertThat(port.toString(), port.isVlanRequired(),
+          not(port.getPortId().toLowerCase().contains(NbiClient.VLAN_REQUIRED_SELECTOR)));
+    }
   }
 
 }

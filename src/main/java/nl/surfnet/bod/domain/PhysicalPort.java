@@ -22,11 +22,17 @@
 package nl.surfnet.bod.domain;
 
 import javax.annotation.Nullable;
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Version;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 
 @Entity
@@ -58,6 +64,14 @@ public class PhysicalPort {
 
   @Basic
   private boolean vlanRequired;
+
+  public PhysicalPort() {
+    this(false);
+  }
+
+  public PhysicalPort(boolean vlanRequired) {
+    this.vlanRequired = vlanRequired;
+  }
 
   public Long getId() {
     return this.id;
@@ -121,10 +135,6 @@ public class PhysicalPort {
 
   public void setPortId(String portId) {
     this.portId = portId;
-  }
-
-  public void setVlanRequired(boolean vlanRequired) {
-    this.vlanRequired = vlanRequired;
   }
 
   public boolean isVlanRequired() {

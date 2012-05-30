@@ -437,7 +437,7 @@ class NbiOpenDracWsClient implements NbiClient {
   }
 
   private PhysicalPort getPhysicalPort(final EndpointT endpoint) {
-    final PhysicalPort port = new PhysicalPort();
+    final PhysicalPort port = new PhysicalPort(isVlanRequired(endpoint.getTna()));
     if (endpoint.getUserLabel() == null || endpoint.getUserLabel().isEmpty()) {
       port.setNocLabel(endpoint.getTna());
     }
@@ -446,17 +446,17 @@ class NbiOpenDracWsClient implements NbiClient {
     }
     port.setNetworkElementPk(endpoint.getId());
     port.setPortId(endpoint.getTna());
-    port.setVlanRequired(isVlanRequired(endpoint.getTna()));
 
     return port;
   }
 
   /**
    * @return true when a VlanId is required for this port. This is only the case
-   *         when the tna of the port contains NOT "ome"
+   *         when the tna of the port contains NOT
+   *         {@link NbiClient#VLAN_REQUIRED_SELECTOR}
    */
   private boolean isVlanRequired(String tna) {
-    return tna == null ? false : !tna.toLowerCase().contains("ome");
+    return tna == null ? false : !tna.toLowerCase().contains(VLAN_REQUIRED_SELECTOR);
   }
 
   private SecurityDocument getSecurityDocument() {

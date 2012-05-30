@@ -41,7 +41,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.common.base.*;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
@@ -50,12 +54,21 @@ class NbiOfflineClient implements NbiClient {
   private static final Function<NbiPort, PhysicalPort> TRANSFORM_FUNCTION = new Function<NbiPort, PhysicalPort>() {
     @Override
     public PhysicalPort apply(NbiPort nbiPort) {
-      PhysicalPort physicalPort = new PhysicalPort();
+      PhysicalPort physicalPort = new PhysicalPort(isVlanRequired(nbiPort.getName()));
       physicalPort.setNetworkElementPk(nbiPort.getId());
       physicalPort.setPortId("Mock_" + nbiPort.getName());
       physicalPort.setNocLabel("Mock_" + nbiPort.getUserLabel().or(nbiPort.getName()));
 
       return physicalPort;
+    }
+
+    /**
+     * @return true when a VlanId is required for this port. This is only the
+     *         case when the name of the port contains NOT
+     *         {@link NbiClient#VLAN_REQUIRED_SELECTOR}
+     */
+    private boolean isVlanRequired(String name) {
+      return name == null ? false : !name.toLowerCase().contains(VLAN_REQUIRED_SELECTOR);
     }
   };
 
@@ -90,8 +103,8 @@ class NbiOfflineClient implements NbiClient {
   }
 
   @edu.umd.cs.findbugs.annotations.SuppressWarnings(
-      value = "UPM_UNCALLED_PRIVATE_METHOD",
-      justification = "Called by IoC container")
+      value="UPM_UNCALLED_PRIVATE_METHOD", 
+      justification="Called by IoC container")
   @SuppressWarnings("unused")
   @PostConstruct
   private void init() {
@@ -134,9 +147,9 @@ class NbiOfflineClient implements NbiClient {
     ReservationStatus currentStatus = scheduleIds.get(scheduleId);
 
     if (currentStatus.isTransitionState() && random.nextInt(20) < 2) {
-        ReservationStatus nextStatus = getNextStatus(currentStatus);
-        scheduleIds.put(scheduleId, nextStatus);
-        currentStatus = nextStatus;
+      ReservationStatus nextStatus = getNextStatus(currentStatus);
+      scheduleIds.put(scheduleId, nextStatus);
+      currentStatus = nextStatus;
     }
 
     return currentStatus;

@@ -25,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import java.util.List;
 
@@ -64,6 +65,13 @@ public class NbiClientTestIntegration {
     List<PhysicalPort> ports = nbiClient.findAllPhysicalPorts();
 
     assertThat(count, is((long) ports.size()));
+  }
+
+  @Test
+  public void testRequireVlanIdWhenPortIdContainsLabel() {
+    for (PhysicalPort port : nbiClient.findAllPhysicalPorts()) {
+      assertThat(port.toString(), port.isVlanRequired(), not(port.getPortId().toLowerCase().contains(NbiClient.VLAN_REQUIRED_SELECTOR)));
+    }
   }
 
 }
