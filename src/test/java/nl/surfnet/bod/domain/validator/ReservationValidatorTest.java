@@ -36,7 +36,9 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.Security;
 
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -136,7 +138,7 @@ public class ReservationValidatorTest {
   }
 
   @Test
-  public void aReservationShouldNotBeInThePast() {
+  public void aReservationShouldNotBeInThePastCheckingDatePart() {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
 
     Reservation reservation = new ReservationFactory().setStartDateTime(yesterday).create();
@@ -150,20 +152,22 @@ public class ReservationValidatorTest {
   }
 
   @Test
-  public void aReservationShouldNotBeInThePast2() {
-    LocalDateTime thirtyPastMidnight = LocalDateTime.now().plusMinutes(30);
-    DateTimeUtils.setCurrentMillisFixed(thirtyPastMidnight.toDate().getTime());
+  public void aReservationShouldNotBeInThePastCheckingTimePart() {
+    DateTime someHoursBeforeMidnight = LocalDate.now().toDateTimeAtStartOfDay().minusHours(2);
+    DateTime startDateInThePast = someHoursBeforeMidnight.minusMinutes(5);
 
-    LocalDateTime fewMinutesAgo = thirtyPastMidnight.minusMinutes(20);
-
-    Reservation reservation = new ReservationFactory().setStartDateTime(fewMinutesAgo).create();
+    Reservation reservation = new ReservationFactory().setStartDateTime(startDateInThePast.toLocalDateTime()).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
         reservation.getVirtualResourceGroup().getSurfconextGroupId()).create());
     Errors errors = createErrorObject(reservation);
 
-    subject.validate(reservation, errors);
-
-    DateTimeUtils.setCurrentMillisSystem();
+    try {
+      DateTimeUtils.setCurrentMillisFixed(someHoursBeforeMidnight.getMillis());
+      subject.validate(reservation, errors);
+    }
+    finally {
+      DateTimeUtils.setCurrentMillisSystem();
+    }
 
     assertTrue(errors.hasFieldErrors("startTime"));
   }
