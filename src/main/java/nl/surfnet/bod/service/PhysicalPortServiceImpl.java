@@ -100,6 +100,11 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     return limitPorts(findUnallocated(), firstResult, sizeNo);
   }
 
+  @Override
+  public Collection<PhysicalPort> findUnallocatedMTOSIEntries(int firstResult, int sizeNo) {
+    return limitPorts(findUnallocated(), firstResult, sizeNo);
+  }
+
   private List<PhysicalPort> limitPorts(Collection<PhysicalPort> ports, int firstResult, int sizeNo) {
     return newArrayList(limit(skip(ports, firstResult), sizeNo));
   }
@@ -123,6 +128,11 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public long countUnallocated() {
+    return nbiClient.getPhysicalPortsCount() - physicalPortRepo.count();
+  }
+
+  @Override
+  public long countUnallocatedMTOSI() {
     return nbiClient.getPhysicalPortsCount() - physicalPortRepo.count();
   }
 
