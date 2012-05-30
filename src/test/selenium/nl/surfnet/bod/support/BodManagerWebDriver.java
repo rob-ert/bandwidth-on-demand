@@ -178,9 +178,9 @@ public class BodManagerWebDriver {
 
     page.findRow("Physical ports", "2");
     page.findRow("Virtual ports", "2");
-    page.findRow("Elapsed reservations", "0");
+    page.findRow("Reservations past", "0");
     page.findRow("Active reservations", "0");
-    page.findRow("Coming reservations", "1");
+    page.findRow("Reservations in", "1");
   }
 
   public void createVirtualPort(String name) {
