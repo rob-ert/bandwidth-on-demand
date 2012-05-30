@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service("simpelStateMachine")
-public class SimpelStateMachine implements StateMachine {
+class SimpelStateMachine implements StateMachine {
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   public static final ConcurrentHashMap<String, ConnectionStateType> states = new ConcurrentHashMap<String, ConnectionStateType>();

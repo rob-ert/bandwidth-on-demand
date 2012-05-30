@@ -1,4 +1,4 @@
-package nl.surfnet.bod.web.services;
+package nl.surfnet.bod.nsi.ws.v1sc;
 
 import static junit.framework.Assert.*;
 
@@ -23,6 +23,7 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 
+import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProvider;
 import nl.surfnet.bod.support.MockHttpServer;
 import nl.surfnet.bod.support.NsiReservationFactory;
 
@@ -30,10 +31,10 @@ import nl.surfnet.bod.support.NsiReservationFactory;
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml",
     "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
-public class NsiConnectionServiceProviderTest extends AbstractTransactionalJUnit4SpringContextTests {
+public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4SpringContextTests {
 
   @Resource(name = "nsiProvider_v1_sc")
-  private NsiConnectionServiceProvider nsiProvider;
+  private ConnectionServiceProvider nsiProvider;
 
   private final String correationId = "urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e";
 

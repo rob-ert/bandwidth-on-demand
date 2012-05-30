@@ -13,7 +13,7 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.surfnet.bod.web.services.NsiConnectionService;
+import nl.surfnet.bod.nsi.ws.ConnectionService;
 
 public class NsiReservationFactory {
 
@@ -22,8 +22,8 @@ public class NsiReservationFactory {
   public static final int PORT = 9082;
   public static final String NSI_REQUESTER_ENDPOINT = "http://localhost:" + PORT + "/bod/nsi/requester";
 
-  private String correlationId = NsiConnectionService.getCorrelationId();
-  private String connectionId = NsiConnectionService.getCorrelationId();
+  private String correlationId = ConnectionService.getCorrelationId();
+  private String connectionId = ConnectionService.getCorrelationId();
   private String nsaProviderUrn = "urn:ogf:network:nsa:netherlight";
   private int desiredBandwidth = 1000;
   private int maxBandwidth = 1000;

@@ -1,4 +1,4 @@
-package nl.surfnet.bod.web.services;
+package nl.surfnet.bod.nsi.ws;
 
 import java.util.UUID;
 
@@ -7,8 +7,11 @@ import javax.xml.ws.WebServiceContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class NsiConnectionService {
+import nl.surfnet.bod.service.ReservationService;
+
+public abstract class ConnectionService {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -22,6 +25,17 @@ public abstract class NsiConnectionService {
   @Resource
   private WebServiceContext webServiceContext;
 
+  @Autowired
+  private ReservationService reservationService;
+
+  protected boolean isValidCorrelationId(final String correlationId) {
+    return correlationId == null ? false : correlationId.startsWith(URN_UUID);
+  }
+
+  public static String getCorrelationId() {
+    return URN_UUID + UUID.randomUUID().toString();
+  }
+
   protected Logger getLog() {
     return log;
   }
@@ -30,12 +44,8 @@ public abstract class NsiConnectionService {
     return webServiceContext;
   }
 
-  protected boolean isValidCorrelationId(final String correlationId) {
-    return correlationId == null ? false : correlationId.startsWith(URN_UUID);
-  }
-
-  public static String getCorrelationId() {
-    return URN_UUID + UUID.randomUUID().toString();
+  protected ReservationService getReservationService() {
+    return reservationService;
   }
 
   static {

@@ -26,22 +26,24 @@
  * DAMAGE.
  *
  */
-package nl.surfnet.bod.web.services;
+package nl.surfnet.bod.nsi.ws.v1sc;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
-import javax.xml.ws.WebServiceContext;
 
 import org.ogf.schemas.nsi._2011._10.connection._interface.ForcedEndRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException;
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
+
+import nl.surfnet.bod.nsi.ws.ConnectionService;
 
 @Service("nsiRequester_v1_sc")
 @WebService(serviceName = "ConnectionServiceRequester",
@@ -49,28 +51,9 @@ import org.springframework.stereotype.Service;
     endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort",
     targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/requester",
     wsdlLocation = "/WEB-INF/wsdl/nsi/1.sc/ogf_nsi_connection_requester_v1_0.wsdl")
-public class NsiConnectionServiceRequester extends NsiConnectionService {
+public class ConnectionServiceRequester extends ConnectionService {
 
   private final Logger log = getLog();
-
-  /*
-   * This holds the web service request context which includes all the original
-   * HTTP information, including the JAAS authentication and authorisation
-   * information.
-   */
-  @Resource
-  private WebServiceContext webServiceContext;
-
-  @PostConstruct
-  @SuppressWarnings("unused")
-  private void init() {
-    log.debug("webServiceContext: {}", webServiceContext);
-  }
-
-  @PreDestroy
-  @SuppressWarnings("unused")
-  private void destroy() {
-  }
 
   public void reserveConfirmed(Holder<String> correlationId, ReserveConfirmedType reserveConfirmed)
       throws ServiceException {
