@@ -118,7 +118,9 @@ public class MockHttpServer extends AbstractHandler {
   @Override
   public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
+
     saveRequestBody(request);
+
     if (responseResource.containsKey(target)) {
       ServletOutputStream outputStream = response.getOutputStream();
       response.setStatus(HttpServletResponse.SC_OK);
@@ -167,7 +169,7 @@ public class MockHttpServer extends AbstractHandler {
     }
     catch (InterruptedException e) {
       log.error("Error: ", e);
-      return null;
+      throw new RuntimeException(e);
     }
   }
 
