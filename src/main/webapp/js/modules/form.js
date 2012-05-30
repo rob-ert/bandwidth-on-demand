@@ -288,18 +288,18 @@ app.form = function(){
 
             selects.each(function(i, item){
                 var select = $(item),
-                   field = $('#'+select.attr("data-field"));
+                   fieldGroup = $('#'+select.attr("data-field"));
 
                 select.on('change', function() {
                     var show = select.find(":selected").attr("data-hasvlan") === 'true';
 
                     if (show) {
-                        console.log("Show");
-                        field.show();
-                } else {
-                    console.log("Hide");
-                        field.hide();
-                }
+                       fieldGroup.show();
+                    } else {
+                        //empty existing value, to prevent posting
+                        fieldGroup.find("input").val('');
+                        fieldGroup.hide();
+                    }
                 })
 
                 select.trigger('change');

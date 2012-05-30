@@ -25,7 +25,7 @@
                     <div class="control-group">
                         <label class="control-label"><spring:message code="label_physicalport" /></label>
                         <div class="controls">
-                            <select id="physicalPort"  name="physicalPort" data-component="physicalport-selector-for-virtualport" data-field-group="_vlanId_group" data-field="_vlanId" class="input-xlarge">
+                            <select id="physicalPort"  name="physicalPort" data-component="physicalport-selector-for-virtualport" data-field ="_vlanId_group" class="input-xlarge">
                                 <c:forEach items="${physicalPorts}" var="port">
                                     <c:choose>
                                         <c:when test="${port.id eq virtualPortUpdateCommand.physicalPort.id}">
