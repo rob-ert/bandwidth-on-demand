@@ -28,18 +28,16 @@
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
-                            <th><spring:message code="label_virtualresourcegroup" /></th>
-                            <th class="center cw75"># of Ports</th>
-                            <th class="center cw75" colspan="3">Reservations</th>
-                            <table:actionsHeader />
+                            <th rowspan="2"><spring:message code="label_virtualresourcegroup" /></th>
+                            <th rowspan="2" class="center cw65">Number of<br/>Ports</th>
+                            <th class="center cw65" colspan="3">Reservations</th>
+                            <th><!--  --></th>
                          </tr>
                         <tr>
-                            <th><!--  --></th>
-                            <th><!--  --></th>
-                            <th class="center cw80 small">Active</th>
-                            <th class="center cw80 small">In ${defaultDuration}</th>
-                            <th class="center cw80 small">Past ${defaultDuration}</th>
-                            <th><!--  --></th>
+                            <th class="center cw65 small subheader">Active</th>
+                            <th class="center cw65 small subheader">In<br/>${defaultDuration}</th>
+                            <th class="center cw65 small subheader">Past<br/>${defaultDuration}</th>
+                            <table:actionsHeader />
                         </tr>
                     </thead>
                     <tbody>
