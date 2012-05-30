@@ -55,12 +55,15 @@ public class VirtualPortValidatorTest {
 
   private PhysicalPort physicalPort;
 
+  private PhysicalPort physicalPortVlanRequired;
+
   @Before
   public void initSecurity() {
-    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:mygroup").addUserGroup("urn:test:group")
+    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:my-group").addUserGroup("urn:test:group")
         .create());
 
     physicalPort = new PhysicalPortFactory().create();
+    physicalPortVlanRequired = new PhysicalPortFactory().setVlanRequired(true).create();
     virtualPort = new VirtualPortFactory().setPhysicalPort(physicalPort).create();
   }
 
@@ -121,10 +124,10 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void zeroBandwidth() {
-    VirtualPort port = new VirtualPortFactory().setMaxBandwidth(0).setPhysicalPortAdminGroup("urn:mygroup").create();
-    Errors errors = createErrorObject(port);
+    virtualPort.setMaxBandwidth(0);
+    Errors errors = createErrorObject(virtualPort);
 
-    subject.validate(port, errors);
+    subject.validate(virtualPort, errors);
 
     assertFalse(errors.hasGlobalErrors());
     assertTrue(errors.hasFieldErrors("maxBandwidth"));
@@ -132,20 +135,20 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void minimalBandwidth() {
-    VirtualPort port = new VirtualPortFactory().setMaxBandwidth(1).setPhysicalPortAdminGroup("urn:mygroup").create();
-    Errors errors = createErrorObject(port);
+    virtualPort.setMaxBandwidth(1);
+    Errors errors = createErrorObject(virtualPort);
 
-    subject.validate(port, errors);
+    subject.validate(virtualPort, errors);
 
     assertFalse(errors.hasErrors());
   }
 
   @Test
   public void nullBandwidth() {
-    VirtualPort port = new VirtualPortFactory().setMaxBandwidth(null).setPhysicalPortAdminGroup("urn:mygroup").create();
-    Errors errors = createErrorObject(port);
+    virtualPort.setMaxBandwidth(null);
+    Errors errors = createErrorObject(virtualPort);
 
-    subject.validate(port, errors);
+    subject.validate(virtualPort, errors);
 
     // validation error is added by hibernate validator...
     assertFalse(errors.hasErrors());
@@ -167,7 +170,7 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void vlanIdShouldBeRequiredSincePhysicalPortRequiresIt() {
-    physicalPort.setVlanRequired(true);
+    virtualPort.setPhysicalPort(physicalPortVlanRequired);
     virtualPort.setVlanId(null);
     Errors errors = createErrorObject(virtualPort);
 
@@ -178,7 +181,7 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void vlanIdShouldBeRequiredWithValueZeroSincePhysicalPortRequiresIt() {
-    physicalPort.setVlanRequired(true);
+    virtualPort.setPhysicalPort(physicalPortVlanRequired);
     virtualPort.setVlanId(0);
     Errors errors = createErrorObject(virtualPort);
 
@@ -189,7 +192,7 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void vlanIdShouldBeRequiredWithValueOneSincePhysicalPortRequiresIt() {
-    physicalPort.setVlanRequired(true);
+    virtualPort.setPhysicalPort(physicalPortVlanRequired);
     virtualPort.setVlanId(1);
     Errors errors = createErrorObject(virtualPort);
 
@@ -200,7 +203,6 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void vlanIdShouldNotBeRequiredSincePhysicalPortDoesNotRequireIt() {
-    physicalPort.setVlanRequired(false);
     virtualPort.setVlanId(null);
     Errors errors = createErrorObject(virtualPort);
 
@@ -211,7 +213,6 @@ public class VirtualPortValidatorTest {
 
   @Test
   public void vlanIdMayNotBePresentSincePhysicalPortDoesNotRequireIt() {
-    physicalPort.setVlanRequired(false);
     virtualPort.setVlanId(1);
     Errors errors = createErrorObject(virtualPort);
 
