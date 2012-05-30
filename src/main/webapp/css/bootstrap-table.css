@@ -38,8 +38,16 @@
     width: 65px;
 }
 
+.table .cw70 {
+    width: 70px;
+}
+
 .table .cw75 {
     width: 75px;
+}
+
+.table .cw80 {
+    width: 80px;
 }
 
 .table .center {
@@ -173,4 +181,14 @@ th.sortable.headerSortUp:hover i:before {
 
 .table-striped tbody tr.existing.even td {
     background-color: #EBEBEB;
+}
+
+/* table with double headers */
+
+.table th[colspan] {
+  padding-bottom: 3px;
+}
+
+.table .subheader {
+  padding-top: 0;
 }

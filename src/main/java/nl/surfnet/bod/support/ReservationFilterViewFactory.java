@@ -38,6 +38,8 @@ import com.google.common.collect.Lists;
 public class ReservationFilterViewFactory {
 
   public static final ReadablePeriod DEFAULT_FILTER_INTERVAL = Months.FOUR;
+  public static final String DEFAULT_FILTER_INTERVAL_STRING = DEFAULT_FILTER_INTERVAL.getValue(0) + " "
+      + DEFAULT_FILTER_INTERVAL.getFieldType(0);
 
   public static final String COMING = "coming";
   public static final String ELAPSED = "elapsed";
@@ -52,11 +54,11 @@ public class ReservationFilterViewFactory {
     }
     catch (IllegalArgumentException exc) {
       if (ELAPSED.equals(id)) {
-        return new ReservationFilterView(ELAPSED, String.format("Now - %d months",
+        return new ReservationFilterView(ELAPSED, String.format("Past %d months",
             DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, true);
       }
       else if (COMING.equals(id)) {
-        return new ReservationFilterView(COMING, String.format("Now + %d months",
+        return new ReservationFilterView(COMING, String.format("In %d months",
             DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, false);
       }
       else if (ACTIVE.equals(id)) {

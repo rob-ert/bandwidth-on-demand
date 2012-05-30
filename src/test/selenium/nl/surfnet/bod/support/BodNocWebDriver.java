@@ -149,9 +149,9 @@ public class BodNocWebDriver {
     NocOverviewPage page = NocOverviewPage.get(driver, URL_UNDER_TEST);
 
     page.findRow("Allocated physical ports", "2");
-    page.findRow("Elapsed reservations", "0");
+    page.findRow("Reservations past", "0");
     page.findRow("Active reservations", "0");
-    page.findRow("Coming reservations", "1");
+    page.findRow("Reservations in", "1");
   }
 
   public void verifyReservationIsNotCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,

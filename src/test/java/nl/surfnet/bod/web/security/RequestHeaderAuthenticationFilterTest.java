@@ -95,4 +95,19 @@ public class RequestHeaderAuthenticationFilterTest {
     assertThat(((String) credentials), is("N/A"));
   }
 
+  @Test
+  public void diacriticalsShouldBeDisplayedCorrectly() {
+    HttpServletRequest requestMock = mock(HttpServletRequest.class);
+    subject.setEnvironment(new Environment(false, "urn:dummy", "Dummy", "dummy@dummy.com", "shiblogout"));
+
+    when(requestMock.getHeader(ShibbolethConstants.NAME_ID)).thenReturn("urn:truusvisscher");
+    when(requestMock.getHeader(ShibbolethConstants.DISPLAY_NAME)).thenReturn("Frank MÃ¶lder");
+
+    Object principal = subject.getPreAuthenticatedPrincipal(requestMock);
+
+    assertThat(principal, is(instanceOf(RichPrincipal.class)));
+    assertThat(((RichPrincipal) principal).getDisplayName(), is("Frank Mölder"));
+
+  }
+
 }

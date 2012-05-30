@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
+import com.google.common.base.Charsets;
+
 public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
 
   private final Logger logger = LoggerFactory.getLogger(RequestHeaderAuthenticationFilter.class);
@@ -59,7 +61,9 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
   private String getRequestHeaderOrImitate(HttpServletRequest request, String header, String imitateValue) {
     String value = nullToEmpty(request.getHeader(header));
 
-    return value.isEmpty() && env.getImitateShibboleth() ? imitateValue : value;
+    String headerValue = value.isEmpty() && env.getImitateShibboleth() ? imitateValue : value;
+
+    return new String(headerValue.getBytes(Charsets.ISO_8859_1), Charsets.UTF_8);
   }
 
   @Override

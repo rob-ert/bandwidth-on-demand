@@ -78,6 +78,8 @@ public interface PhysicalPortService {
   long countUnallocated();
 
   long countAllocated();
+  
+  long countUnallocatedMTOSI();
 
   long countAllocatedForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup);
 
@@ -90,5 +92,16 @@ public interface PhysicalPortService {
   void save(final PhysicalPort physicalPort);
 
   PhysicalPort update(final PhysicalPort physicalPort);
+  
+  /**
+   * Finds unallocated {@link PhysicalPort}s with a start index and a max number
+   * of results retreived using MTOSI.
+   * 
+   * @param firstResult
+   * @param sizeNo
+   *          max result size
+   * @return Collection of unallocated ports
+   */
+  Collection<PhysicalPort> findUnallocatedMTOSIEntries(final int firstResult, final int sizeNo);
 
 }

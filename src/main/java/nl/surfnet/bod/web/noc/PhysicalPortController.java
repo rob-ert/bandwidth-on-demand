@@ -189,6 +189,19 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     return PAGE_URL + "/listunallocated";
   }
 
+  @RequestMapping(value = "/mtosi", method = RequestMethod.GET)
+  public String listMtosi(@RequestParam(value = PAGE_KEY, required = false) final Integer page,
+      final Model uiModel) {
+
+    uiModel.addAttribute("list", Functions.enrichAndTransformUnallocatedPhysicalPort(
+        (List<PhysicalPort>) physicalPortService.findUnallocatedMTOSIEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE),
+        instituteService));
+
+    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocatedMTOSI()));
+
+    return PAGE_URL + "/listunallocated";
+  }
+
   @RequestMapping(value = "edit", params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final String networkElementPk, final Model uiModel) {
     PhysicalPort port;
