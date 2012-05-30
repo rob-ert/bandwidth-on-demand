@@ -41,7 +41,7 @@ public class PhysicalPortFactory {
   private boolean vlanRequired = false;
 
   public PhysicalPort create() {
-    PhysicalPort port = new PhysicalPort();
+    PhysicalPort port = new PhysicalPort(vlanRequired);
     port.setId(id);
     port.setVersion(version);
     port.setPortId(portId);
@@ -50,8 +50,7 @@ public class PhysicalPortFactory {
     port.setManagerLabel(managerLabel);
     port.setNetworkElementPk(networkElementPk);
     port.setPhysicalResourceGroup(physicalResourceGroup);
-    port.setVlanRequired(vlanRequired);
-
+    
     return port;
   }
 
