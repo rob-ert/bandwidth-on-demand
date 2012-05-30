@@ -124,4 +124,24 @@
         <error-code>403</error-code>
         <location>/accessDenied</location>
     </error-page>
+
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>NSI</web-resource-name>
+            <url-pattern>/nsi/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>nsi_group</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <login-config>
+        <auth-method>BASIC</auth-method>
+    </login-config>
+
+    <security-role>
+        <role-name>nsi_group</role-name>
+    </security-role>
+
 </web-app>
