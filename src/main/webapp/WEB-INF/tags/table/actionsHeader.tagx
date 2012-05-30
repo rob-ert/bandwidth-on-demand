@@ -6,7 +6,7 @@
     <jsp:directive.attribute name="styleClass" type="java.lang.String" required="false" rtexprvalue="true" />
 
     <c:if test="${empty styleClass}">
-        <c:set var="styleClass" value="cw65 center" />
+        <c:set var="styleClass" value="cw65 center small" />
     </c:if>
     <c:if test="${empty render or render}">
         <th class="${styleClass}"><spring:message code="label_header_actions"/></th>
