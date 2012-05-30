@@ -109,8 +109,8 @@ public class ConnectionServiceProvider extends ConnectionService {
       final Map<String, Object> requestContext = ((BindingProvider) connectionServiceRequesterPort).getRequestContext();
 
       // TODO: get credentials from reservation request
-      requestContext.put(BindingProvider.USERNAME_PROPERTY, "admin");
-      requestContext.put(BindingProvider.PASSWORD_PROPERTY, "nsi");
+      requestContext.put(BindingProvider.USERNAME_PROPERTY, "nsi");
+      requestContext.put(BindingProvider.PASSWORD_PROPERTY, "nsi123");
       requestContext.put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
 
       requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, nsaRequester);
