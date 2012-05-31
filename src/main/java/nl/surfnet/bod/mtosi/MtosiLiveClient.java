@@ -29,8 +29,6 @@ import org.tmforum.mtop.nrf.xsd.invdata.v1.InventoryDataType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagedElementInventoryType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagementDomainInventoryType;
 
-import com.sun.org.apache.xerces.internal.dom.ElementNSImpl;
-
 @Service("mtosiLiveClient")
 public class MtosiLiveClient {
 
@@ -111,6 +109,7 @@ public class MtosiLiveClient {
     // all this ^$%# for just getting the bloody NE names ....
     final List<ManagementDomainInventoryType> mds = new MtosiLiveClient().getInventory().getMdList().getMd();
 
+    int macCounter = 0;
     HashMap<String, String> ports = new HashMap<String, String>();
     for (final ManagementDomainInventoryType md : mds) {
       final List<ManagedElementInventoryType> meInvs = md.getMeList().getMeInv();
@@ -134,9 +133,8 @@ public class MtosiLiveClient {
         }
         else {
           final List<Object> some = vendorExtensions.getValue().getAny();
-          int i = 0;
           for (final Object o : some) {
-            macAddress = String.valueOf((i++));
+            macAddress = String.valueOf((macCounter++));
 
             log.info("Some vendor extension value: {}", o);
           }
@@ -153,7 +151,8 @@ public class MtosiLiveClient {
   }
 
   public long getUnallocatedMTOSIEPortCount() {
-    return 100L;
+    // FIXME
+    return 10L;
   }
 
   private final Holder<Header> getInventoryRequestHeaders() {
