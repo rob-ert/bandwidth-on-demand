@@ -2,11 +2,13 @@ package nl.surfnet.bod.mtosi;
 
 import java.util.List;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.ws.Holder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.tmforum.mtop.fmw.xsd.gen.v1.AnyListType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationPatternType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationStyleType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
@@ -50,6 +52,34 @@ public class MtosiLiveClient {
    */
   private SimpleFilterType getInventoryRequestSimpleFilter() {
 
+//    
+//    <v11:filter
+//    <v11:baseInstance>
+//       <v12:rdn>
+//          <v12:type>MD</v12:type>
+//          <v12:value>Ciena</v12:value>
+//       </v12:rdn>
+//    </v11:baseInstance>
+//    <v11:includedObjectType>
+//       <v11:objectType>ME</v11:objectType>
+//       <v11:granularity>ATTRS</v11:granularity>
+//    </v11:includedObjectType>
+//    <v11:includedObjectType>
+//       <v11:objectType>EH</v11:objectType>
+//       <v11:granularity>ATTRS</v11:granularity>
+//    </v11:includedObjectType>
+//    <v11:includedObjectType>
+//       <v11:objectType>EQ</v11:objectType>
+//       <v11:granularity>ATTRS</v11:granularity>
+//    </v11:includedObjectType>
+//    <v11:includedObjectType>
+//       <v11:objectType>PTP</v11:objectType>
+//       <v11:granularity>ATTRS</v11:granularity>
+//    </v11:includedObjectType>
+// </v11:filter>
+//
+    
+    
     // baseInstance
     final RelativeDistinguishNameType relativeDistinguishName = new RelativeDistinguishNameType();
     relativeDistinguishName.setType("MD");
@@ -109,6 +139,18 @@ public class MtosiLiveClient {
         for (final RelativeDistinguishNameType rdn : rdns) {
           log.info("Rdn type: {}", rdn.getType());
           log.info("Rdn value: {}", rdn.getValue());
+        }
+        final JAXBElement<AnyListType> vendorExtensions = meInv.getMeAttrs().getVendorExtensions();
+        
+        if (vendorExtensions.isNil()) {
+          log.info("Vendor extensions are null");
+        }
+        else {
+
+          final List<Object> some = vendorExtensions.getValue().getAny();
+          for (final Object o : some) {
+            log.info("Some vendor extension value: {}", o);
+          }
         }
       }
     }
