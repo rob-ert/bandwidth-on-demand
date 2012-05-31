@@ -1,5 +1,6 @@
 package nl.surfnet.bod.mtosi;
 
+import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
@@ -104,6 +105,55 @@ public class MtosiLiveClient {
     }
     log.info("returning: {}", simpleFilter);
     return simpleFilter;
+  }
+
+  public HashMap<String, String> getUnallocatedPorts() {
+    // all this ^$%# for just getting the bloody NE names ....
+    final List<ManagementDomainInventoryType> mds = new MtosiLiveClient().getInventory().getMdList().getMd();
+
+    HashMap<String, String> ports = new HashMap<String, String>();
+    for (final ManagementDomainInventoryType md : mds) {
+      final List<ManagedElementInventoryType> meInvs = md.getMeList().getMeInv();
+      for (final ManagedElementInventoryType meInv : meInvs) {
+        final List<RelativeDistinguishNameType> rdns = meInv.getMeAttrs().getName().getValue().getRdn();
+
+        String elementName = null;
+        String macAddress = null;
+        for (final RelativeDistinguishNameType rdn : rdns) {
+          elementName = null;
+          if ("ME".equals(rdn.getType())) {
+            elementName = rdn.getValue();
+          }
+
+        }
+        final JAXBElement<AnyListType> vendorExtensions = meInv.getMeAttrs().getVendorExtensions();
+
+        if (vendorExtensions.isNil()) {
+          log.info("Vendor extensions are null");
+          macAddress = null;
+        }
+        else {
+          final List<Object> some = vendorExtensions.getValue().getAny();
+          int i = 0;
+          for (final Object o : some) {
+            macAddress = String.valueOf((i++));
+
+            log.info("Some vendor extension value: {}", o);
+          }
+        }
+
+        if (elementName != null) {
+          ports.put(elementName, macAddress);
+        }
+      }
+    }
+
+    log.info("Port: {}", ports);
+    return ports;
+  }
+
+  public long getUnallocatedMTOSIEPortCount() {
+    return 100L;
   }
 
   private final Holder<Header> getInventoryRequestHeaders() {

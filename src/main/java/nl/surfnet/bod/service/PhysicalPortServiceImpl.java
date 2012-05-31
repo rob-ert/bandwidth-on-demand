@@ -26,7 +26,9 @@ import static com.google.common.collect.Iterables.skip;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -35,6 +37,7 @@ import javax.persistence.criteria.Root;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalPort_;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.mtosi.MtosiLiveClient;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 
@@ -46,10 +49,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
@@ -74,6 +79,9 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Autowired
   private NbiClient nbiClient;
+
+  @Autowired
+  private MtosiLiveClient mtosiClient;
 
   /**
    * Finds all ports using the North Bound Interface and enhances these ports
@@ -102,7 +110,23 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public Collection<PhysicalPort> findUnallocatedMTOSIEntries(int firstResult, int sizeNo) {
-    return limitPorts(findUnallocated(), firstResult, sizeNo);
+    HashMap<String, String> unallocatedPorts = mtosiClient.getUnallocatedPorts();
+
+    List<PhysicalPort> physicalPorts = Lists.newArrayList();
+    for (Entry<String, String> entry : unallocatedPorts.entrySet()) {
+      PhysicalPort physicalPort = transformMTOSIEToPhysicalPort(entry);
+      physicalPorts.add(physicalPort);
+    }
+
+    return limitPorts(physicalPorts, firstResult, sizeNo);
+  }
+
+  @VisibleForTesting
+  PhysicalPort transformMTOSIEToPhysicalPort(Entry<String, String> entry) {
+    PhysicalPort physicalPort = new PhysicalPort();
+    physicalPort.setPortId(entry.getKey());
+    physicalPort.setNetworkElementPk(entry.getValue());
+    return physicalPort;
   }
 
   private List<PhysicalPort> limitPorts(Collection<PhysicalPort> ports, int firstResult, int sizeNo) {
@@ -133,7 +157,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public long countUnallocatedMTOSI() {
-    return nbiClient.getPhysicalPortsCount() - physicalPortRepo.count();
+    return mtosiClient.getUnallocatedMTOSIEPortCount();
   }
 
   @Override
