@@ -89,3 +89,7 @@ select.input-xlarge {
 .form-horizontal .controls {
     *margin-left: 0; /* IE7-only hack */
 }
+
+.input-append .add-on {
+    border-radius: 3px;
+}
