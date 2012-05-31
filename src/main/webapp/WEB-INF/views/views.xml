@@ -27,4 +27,8 @@
     <definition extends="error" name="uncaughtException">
         <put-attribute name="body" value="/WEB-INF/views/uncaughtException.jspx" />
     </definition>
+    <definition extends="emptyMenu" name="healthcheck">
+        <put-attribute name="body" value="/WEB-INF/views/healthcheck.jspx" />
+    </definition>
+
 </tiles-definitions>

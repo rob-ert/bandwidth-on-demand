@@ -1,0 +1,10 @@
+<html xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
+    xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
+
+<jsp:directive.page contentType="text/html;charset=UTF-8" />
+<jsp:output omit-xml-declaration="yes" />
+
+<util:modal titleCode="success_healthcheck_header" messageCode="success_healthcheck_message" type="success" />
+
+</html>

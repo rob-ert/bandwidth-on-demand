@@ -39,64 +39,66 @@
                 <h1>${app_name}</h1>
             </header>
 
-            <section class="user-box content-dense">
-                <span class="user-name">
-                    <sec:authentication property="principal.displayName"/>
-                    <c:if test="${dev}">
-                        <spring:url value="/admin/refreshMessages" var="refresh_messages_url"/>
-                        <spring:url value="/shibboleth/refresh" var="refresh_roles_url" />
-                        <spring:url value="/teams" var="teams_url" />
-                        <ul class="dev-nav">
-                            <li><a href="${refresh_messages_url}" rel="tooltip" data-type="info" title="Refresh Messages">RM</a></li>
-                            <li><a href="${refresh_roles_url}" rel="tooltip" data-type="info" title="Refresh Roles">RR</a></li>
-                            <li><a href="${teams_url}" rel="tooltip" data-type="info" title="Show Teams">ST</a></li>
-                        </ul>
-                    </c:if>
-                </span>
-
-                <spring:url value="/switchrole/logout" var="logoutUrl" />
-                <a href="${logoutUrl}" class="logout"><spring:message code="global_menu_logout" /><c:out value=" "/><i class="icon-signout"><!-- --></i></a>
-
-                <div class="dropdown dropdown-disabled">
-                    <sec:authentication property="principal.selectableRoles" var="bodRoles"/>
-                    <sec:authentication property="principal.selectedRole" var="selectedRole" />
-
-                    <!-- selected role -->
-                    <spring:message code="role_class_${selectedRole.roleName}" var="s_role_class"/>
-                    <c:if test="${fn:length(bodRoles) > 0}">
-                        <c:set value="dropdown-toggle" var="dropdownClass" />
-                        <c:set value="dropdown" var="dataToggle" />
-                    </c:if>
-                    <div class="${dropdownClass} ${s_role_class}" data-toggle="${dataToggle}">
-                        <div class="user">
-                            <spring:message code="role_${selectedRole.roleName}"/>
-                            <c:if test="${not empty selectedRole.instituteName}">
-                                <br/><c:out value="${selectedRole.instituteName}"/>
-                            </c:if>
-                            <c:if test="${fn:length(bodRoles) > 0}">
-                                <b class="caret"><!--  --></b>
-                            </c:if>
-                        </div>
-
-                        <spring:url value="/switchrole" var="postUrl" />
-                        <form action="${postUrl}" method="POST" class="dropdown-menu">
-                            <ul>
-                                <c:forEach items="${bodRoles}" var="bodRole">
-                                    <spring:message code="role_class_${bodRole.roleName}" var="role_class"/>
-                                    <li class="${role_class}" data-roleId="${bodRole.id}">
-                                        <div class="user">
-                                            <spring:message code="role_${bodRole.roleName}"/>
-                                            <c:if test="${not empty bodRole.instituteName}">
-                                                <br/><c:out value="${bodRole.instituteName}"/>
-                                            </c:if>
-                                        </div>
-                                    </li>
-                                </c:forEach>
+            <sec:authorize ifAnyGranted="USER, ICT_MANAGER, NOC_ENGINEER">
+                <section class="user-box content-dense">
+                    <span class="user-name">
+                        <sec:authentication property="principal.displayName" />
+                        <c:if test="${dev}">
+                            <spring:url value="/admin/refreshMessages" var="refresh_messages_url" />
+                            <spring:url value="/shibboleth/refresh" var="refresh_roles_url" />
+                            <spring:url value="/teams" var="teams_url" />
+                            <ul class="dev-nav">
+                                <li><a href="${refresh_messages_url}" rel="tooltip" data-type="info" title="Refresh Messages">RM</a></li>
+                                <li><a href="${refresh_roles_url}" rel="tooltip" data-type="info" title="Refresh Roles">RR</a></li>
+                                <li><a href="${teams_url}" rel="tooltip" data-type="info" title="Show Teams">ST</a></li>
                             </ul>
-                        </form>
+                        </c:if>
+                    </span>
+
+                    <spring:url value="/switchrole/logout" var="logoutUrl" />
+                    <a href="${logoutUrl}" class="logout"><spring:message code="global_menu_logout" /><c:out value=" "/><i class="icon-signout"><!-- --></i></a>
+
+                    <div class="dropdown dropdown-disabled">
+                        <sec:authentication property="principal.selectableRoles" var="bodRoles"/>
+                        <sec:authentication property="principal.selectedRole" var="selectedRole" />
+
+                        <!-- selected role -->
+                        <spring:message code="role_class_${selectedRole.roleName}" var="s_role_class"/>
+                        <c:if test="${fn:length(bodRoles) > 0}">
+                            <c:set value="dropdown-toggle" var="dropdownClass" />
+                            <c:set value="dropdown" var="dataToggle" />
+                        </c:if>
+                        <div class="${dropdownClass} ${s_role_class}" data-toggle="${dataToggle}">
+                            <div class="user">
+                                <spring:message code="role_${selectedRole.roleName}"/>
+                                <c:if test="${not empty selectedRole.instituteName}">
+                                    <br/><c:out value="${selectedRole.instituteName}"/>
+                                </c:if>
+                                <c:if test="${fn:length(bodRoles) > 0}">
+                                    <b class="caret"><!--  --></b>
+                                </c:if>
+                            </div>
+
+                            <spring:url value="/switchrole" var="postUrl" />
+                            <form action="${postUrl}" method="POST" class="dropdown-menu">
+                                <ul>
+                                    <c:forEach items="${bodRoles}" var="bodRole">
+                                        <spring:message code="role_class_${bodRole.roleName}" var="role_class"/>
+                                        <li class="${role_class}" data-roleId="${bodRole.id}">
+                                            <div class="user">
+                                                <spring:message code="role_${bodRole.roleName}"/>
+                                                <c:if test="${not empty bodRole.instituteName}">
+                                                    <br/><c:out value="${bodRole.instituteName}"/>
+                                                </c:if>
+                                            </div>
+                                        </li>
+                                    </c:forEach>
+                                </ul>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            </sec:authorize>
 
             <nav class="navbar">
                 <div class="navbar-inner">

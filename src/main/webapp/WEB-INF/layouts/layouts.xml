@@ -25,4 +25,8 @@
     <put-attribute name="active_menu" value="error" cascade="true" />
   </definition>
 
+  <definition name="emptyMenu" template="/WEB-INF/layouts/default.jspx">
+    <put-attribute name="menubar" value="/WEB-INF/views/emptyMenubar.jspx" />
+  </definition>
+
 </tiles-definitions>
