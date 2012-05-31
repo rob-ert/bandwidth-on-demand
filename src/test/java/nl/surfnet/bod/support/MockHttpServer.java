@@ -22,7 +22,6 @@
 package nl.surfnet.bod.support;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -50,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
@@ -63,7 +63,7 @@ public class MockHttpServer extends AbstractHandler {
 
   private Map<String, Resource> responseResource = Maps.newHashMap();
   private final LinkedBlockingDeque<String> lastRequests = new LinkedBlockingDeque<String>();
-  private final List<String> requests = new ArrayList<String>();
+  private final List<String> requests = Lists.newArrayList();
 
   private String username;
   private String password;

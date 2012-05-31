@@ -26,14 +26,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import javax.servlet.AsyncContext;
-import javax.servlet.AsyncListener;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -58,6 +54,7 @@ public class LongPollServletTest {
   private EndPoints endPointsMock;
 
   private RichUserDetails user = new RichUserDetailsFactory().create();
+
   @Before
   public void userLogin() {
     Security.setUserDetails(user);
@@ -69,6 +66,8 @@ public class LongPollServletTest {
     HttpServletResponse responseMock = mock(HttpServletResponse.class);
 
     subject.doGet(requestMock, responseMock);
+
+    verifyZeroInteractions(endPointsMock);
   }
 
   @Test

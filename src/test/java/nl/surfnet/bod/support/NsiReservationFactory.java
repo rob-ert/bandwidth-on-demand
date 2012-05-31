@@ -4,23 +4,19 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import nl.surfnet.bod.nsi.ws.ConnectionService;
+
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection.types.BandwidthType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReserveType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
+import org.ogf.schemas.nsi._2011._10.connection.types.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.surfnet.bod.nsi.ws.ConnectionService;
-
 public class NsiReservationFactory {
-
-  private final Logger log = LoggerFactory.getLogger(getClass());
 
   public static final int PORT = 9082;
   public static final String NSI_REQUESTER_ENDPOINT = "http://localhost:" + PORT + "/bod/nsi/requester";
+
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private String correlationId = ConnectionService.getCorrelationId();
   private String connectionId = ConnectionService.getCorrelationId();
