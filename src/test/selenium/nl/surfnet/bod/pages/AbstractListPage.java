@@ -34,6 +34,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -58,7 +59,7 @@ public class AbstractListPage extends AbstractPage {
   public void delete(String... fields) {
     deleteForIcon("icon-remove", fields);
   }
-  
+
   public void deleteAndVerifyAlert(String alertText, String... fields) {
     deleteForIconAndVerifyAlert("icon-remove", alertText, fields);
   }
@@ -80,7 +81,7 @@ public class AbstractListPage extends AbstractPage {
     // wait for the reload, row should be gone..
     Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
   }
-  
+
   protected void editRow(String... fields) {
     clickRowIcon("icon-pencil", fields);
   }
@@ -88,14 +89,13 @@ public class AbstractListPage extends AbstractPage {
   protected void clickRowIcon(String icon, String... fields) {
     findRow(fields).findElement(By.cssSelector("a i[class~=" + icon + "]")).click();
   }
-  
+
   private void delete(String icon, String... fields) {
     WebElement row = findRow(fields);
 
     WebElement deleteButton = row.findElement(By.cssSelector(String.format("a i[class~=%s]", icon)));
     deleteButton.click();
   }
-
 
   protected Probes getProbes() {
     return probes;
@@ -124,7 +124,13 @@ public class AbstractListPage extends AbstractPage {
       }
     }
     throw new NoSuchElementException(String.format("row with fields '%s' not found in rows: '%s'",
-        Joiner.on(',').join(fields), Joiner.on(" | ").join(rows)));
+        Joiner.on(',').join(fields),
+        Joiner.on(" | ").join(Iterables.transform(rows, new Function<WebElement, String>() {
+          @Override
+          public String apply(WebElement row) {
+            return row.getText();
+          }
+        }))));
   }
 
   private boolean containsAll(final WebElement row, String... fields) {
@@ -150,7 +156,7 @@ public class AbstractListPage extends AbstractPage {
   /**
    * Overrides the default selected table by the given one in case there are
    * multiple tables on a page.
-   * 
+   *
    * @param table
    *          Table to set.
    */
