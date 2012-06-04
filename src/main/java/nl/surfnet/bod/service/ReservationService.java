@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.domain.ReservationStatus.*;
 import static com.google.common.base.Preconditions.checkState;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
@@ -71,12 +72,12 @@ import com.google.common.collect.Ordering;
 public class ReservationService {
 
   private static final Function<Reservation, ReservationArchive> TO_RESERVATION_ARCHIVE = //
-    new Function<Reservation, ReservationArchive>() {
-      @Override
-      public ReservationArchive apply(Reservation reservation) {
-        return new ReservationArchive(reservation);
-      }
-    };
+  new Function<Reservation, ReservationArchive>() {
+    @Override
+    public ReservationArchive apply(Reservation reservation) {
+      return new ReservationArchive(reservation);
+    }
+  };
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -97,7 +98,7 @@ public class ReservationService {
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   *
+   * 
    * @param reservation
    * @return
    */
@@ -167,7 +168,7 @@ public class ReservationService {
    * Cancels a reservation if the current user has the correct role and the
    * reservation is allowed to be deleted depending on its state. Updates the
    * state of the reservation.
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to delete
    * @return true if the reservation was canceld, false otherwise.
@@ -196,7 +197,7 @@ public class ReservationService {
    * <li>and</li>
    * <li>the current status of the reservation must allow it</li>
    * </ul>
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to check
    * @param user
@@ -229,7 +230,7 @@ public class ReservationService {
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   *
+   * 
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -321,8 +322,7 @@ public class ReservationService {
     Specification<Reservation> filterSpecOnEnd = new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(
-            cb.isNull(root.get(Reservation_.endDateTime)),
+        return cb.or(cb.isNull(root.get(Reservation_.endDateTime)),
             cb.between(root.get(Reservation_.endDateTime), filter.getStart(), filter.getEnd()));
       }
     };
@@ -433,8 +433,15 @@ public class ReservationService {
   }
 
   public void deleteAndArchiveReservations(final List<Reservation> reservations) {
-     reservationArchiveRepo.save(transformToReservationArchives(reservations));
-     reservationRepo.delete(reservations);
+    for (final Reservation reservation : reservations) {
+      final ReservationStatus status = reservation.getStatus();
+      if (status.equals(REQUESTED) || status.equals(SCHEDULED) || status.equals(PREPARING) || status.equals(RUNNING)) {
+        // do not cancel a failed, succeed or cancelled reservation
+        nbiClient.cancelReservation(reservation.getReservationId());
+      }
+    }
+    reservationArchiveRepo.save(transformToReservationArchives(reservations));
+    reservationRepo.delete(reservations);
   }
 
   public List<Reservation> findBySourcePortOrDestinationPort(VirtualPort virtualPortA, VirtualPort virtualPortB) {
