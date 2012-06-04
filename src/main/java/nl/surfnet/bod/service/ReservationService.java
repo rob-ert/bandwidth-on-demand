@@ -447,14 +447,9 @@ public class ReservationService {
 
   public void cancelAndArchiveReservations(final List<Reservation> reservations, RichUserDetails user) {
     for (final Reservation reservation : reservations) {
-      final ReservationStatus status = reservation.getStatus();
-
-      // Only check the user, not the state since this might differ with our nbi
-      // implementation due to errors
-      if (isDeleteAllowedForUserOnly(reservation, user).isAllowed()) {
-        // do not cancel a failed, succeed or cancelled reservation
+     if(isDeleteAllowedForUserOnly(reservation, user).isAllowed()){
         nbiClient.cancelReservation(reservation.getReservationId());
-      }
+     }
     }
     reservationArchiveRepo.save(transformToReservationArchives(reservations));
     reservationRepo.delete(reservations);
