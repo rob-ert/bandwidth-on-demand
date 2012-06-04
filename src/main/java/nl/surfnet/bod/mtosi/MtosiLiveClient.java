@@ -2,8 +2,11 @@ package nl.surfnet.bod.mtosi;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBElement;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
 import org.apache.xerces.dom.ChildNode;
@@ -17,10 +20,8 @@ import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.MessageTypeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
-import org.tmforum.mtop.mri.wsdl.rir.v1_0.GetInventoryException;
-import org.tmforum.mtop.mri.wsdl.rir.v1_0.ResourceInventoryRetrievalHttp;
+import org.tmforum.mtop.mri.wsdl.rir.v1_0.ResourceInventoryRetrievalRPC;
 import org.tmforum.mtop.mri.xsd.rir.v1.GetInventoryRequest;
-import org.tmforum.mtop.mri.xsd.rir.v1.GetInventoryResponse;
 import org.tmforum.mtop.mri.xsd.rir.v1.GranularityType;
 import org.tmforum.mtop.mri.xsd.rir.v1.ObjectFactory;
 import org.tmforum.mtop.mri.xsd.rir.v1.SimpleFilterType;
@@ -34,16 +35,35 @@ public class MtosiLiveClient {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
+  private ResourceInventoryRetrievalRPC resourceInventoryRetrievalRPCPort = null;
+  private final GetInventoryRequest getInventoryRequest = new ObjectFactory().createGetInventoryRequest();
+
+  @PostConstruct
+  public void init() {
+    log.info("Starting");
+    try {
+      final BodResourceInventoryRetrieval bodResourceInventoryRetrieval = new BodResourceInventoryRetrieval();
+      getInventoryRequest.setFilter(getInventoryRequestSimpleFilter());
+      resourceInventoryRetrievalRPCPort = bodResourceInventoryRetrieval.getPort(ResourceInventoryRetrievalRPC.class);
+      final Map<String, Object> requestContext = ((BindingProvider) resourceInventoryRetrievalRPCPort)
+          .getRequestContext();
+      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+          "http://62.190.191.48:9006/mtosi/mri/ResourceInventoryRetrieval");
+
+    }
+    catch (Exception e) {
+      log.error("Error: ", e);
+    }
+  }
+
   public InventoryDataType getInventory() {
     log.info("Starting");
-    final GetInventoryRequest getInventoryRequest = new ObjectFactory().createGetInventoryRequest();
-    getInventoryRequest.setFilter(getInventoryRequestSimpleFilter());
     try {
-      final GetInventoryResponse inventory = new ResourceInventoryRetrievalHttp()
-          .getResourceInventoryRetrievalSoapHttp().getInventory(getInventoryRequestHeaders(), getInventoryRequest);
-      return inventory.getInventoryData();
+
+      return resourceInventoryRetrievalRPCPort.getInventory(getInventoryRequestHeaders(), getInventoryRequest)
+          .getInventoryData();
     }
-    catch (GetInventoryException e) {
+    catch (Exception e) {
       log.error("Error: ", e);
       return null;
     }
@@ -182,7 +202,10 @@ public class MtosiLiveClient {
     final Logger log = LoggerFactory.getLogger(MtosiLiveClient.class);
 
     // all this ^$%# for just getting the bloody NE names ....
-    final List<ManagementDomainInventoryType> mds = new MtosiLiveClient().getInventory().getMdList().getMd();
+    final MtosiLiveClient mtosiLiveClient = new MtosiLiveClient();
+    mtosiLiveClient.init();
+
+    final List<ManagementDomainInventoryType> mds = mtosiLiveClient.getInventory().getMdList().getMd();
     for (final ManagementDomainInventoryType md : mds) {
       final List<ManagedElementInventoryType> meInvs = md.getMeList().getMeInv();
       for (final ManagedElementInventoryType meInv : meInvs) {
