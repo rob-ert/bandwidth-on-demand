@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.surfnet.bod</groupId>
     <artifactId>bod</artifactId>
     <packaging>war</packaging>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.10.0-SNAPSHOT</version>
     <name>bod</name>
     <properties>
         <spring.version>3.1.1.RELEASE</spring.version>
@@ -605,8 +604,7 @@
                         <contextPath>/${project.name}</contextPath>
                     </webAppConfig>
                     <connectors>
-                        <connector
-                            implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                        <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                             <port>8082</port>
                             <maxIdleTime>60000</maxIdleTime>
                         </connector>
@@ -739,6 +737,7 @@
                             <exclude>org/ogf/**/*.class</exclude>
                             <exclude>org/w3/**/*.class</exclude>
                             <exclude>nl/surfnet/bod/nsa/config/**/*.class</exclude>
+                            <exclude>org/tmforum/**/*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
@@ -869,8 +868,7 @@
                             <systemPropertiesFile>src/test/resources/bod-selenium.properties</systemPropertiesFile>
                             <scanIntervalSeconds>0</scanIntervalSeconds>
                             <connectors>
-                                <connector
-                                    implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                                     <port>8083</port>
                                     <maxIdleTime>60000</maxIdleTime>
                                 </connector>
@@ -940,19 +938,12 @@
                             <execution>
                                 <phase>pre-integration-test</phase>
                                 <configuration>
-                                    <available
-                                        file="${project.build.directory}/sos-server/sos-server-${sos.version}.war"
-                                        property="sos.present" />
+                                    <available file="${project.build.directory}/sos-server/sos-server-${sos.version}.war" property="sos.present" />
                                     <target unless="sos.present">
-                                        <echo
-                                            message="creating ${project.build.directory}/sos-server" />
-                                        <mkdir
-                                            dir="${project.build.directory}/sos-server" />
+                                        <echo message="creating ${project.build.directory}/sos-server" />
+                                        <mkdir dir="${project.build.directory}/sos-server" />
                                         <echo message="sos not found" />
-                                        <get
-                                            src="http://atlas.dlp.surfnet.nl/nexus/service/local/repositories/releases/content/nl/surfnet/sos-server/${sos.version}/sos-server-${sos.version}.war"
-                                            dest="${project.build.directory}/sos-server/sos-server-${sos.version}.war"
-                                            verbose="true" />
+                                        <get src="http://atlas.dlp.surfnet.nl/nexus/service/local/repositories/releases/content/nl/surfnet/sos-server/${sos.version}/sos-server-${sos.version}.war" dest="${project.build.directory}/sos-server/sos-server-${sos.version}.war" verbose="true" />
                                     </target>
                                 </configuration>
                                 <goals>
@@ -977,15 +968,13 @@
                             </systemProperties>
                             <systemPropertiesFile>src/test/resources/bod-selenium.properties</systemPropertiesFile>
                             <connectors>
-                                <connector
-                                    implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                                     <port>${jetty.port}</port>
                                     <maxIdleTime>60000</maxIdleTime>
                                 </connector>
                             </connectors>
                             <contextHandlers>
-                                <contextHandler
-                                    implementation="org.eclipse.jetty.webapp.WebAppContext">
+                                <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
                                     <war>${project.build.directory}/sos-server/sos-server-${sos.version}.war</war>
                                     <contextPath>/sos</contextPath>
                                 </contextHandler>
