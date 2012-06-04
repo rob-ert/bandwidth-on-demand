@@ -57,6 +57,9 @@ public class Environment {
   @Value("${bod.development}")
   private boolean development;
 
+  @Value("${bod.version}")
+  private String version;
+
   @Value("${google.analytics.code}")
   private String googleAnalyticsCode;
 
@@ -128,6 +131,10 @@ public class Environment {
 
   public void setGoogleAnalyticsCode(String googleAnalyticsCode) {
     this.googleAnalyticsCode = googleAnalyticsCode;
+  }
+
+  public String getVersion() {
+    return version;
   }
 
 }

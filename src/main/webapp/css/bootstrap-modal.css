@@ -9,7 +9,7 @@
     -moz-border-radius-topright: 4px;
 }
 
-.modal-body [class*="icon-"]:before  {
+.modal-body > [class*="icon-"]:before  {
     font-size: 50px;
     float: left;
     margin-top: 20px;
@@ -28,7 +28,8 @@
     color: #C09853;
 }
 
-.modal-body p {
+.modal-body p,
+.modal-body dl {
     margin-left: 60px;
     font-size: 14px;
     line-height: 20px;

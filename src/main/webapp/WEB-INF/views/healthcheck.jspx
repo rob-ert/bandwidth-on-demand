@@ -1,10 +1,45 @@
 <html xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
-    xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
+    xmlns:bod="BodTags" xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
 
 <jsp:directive.page contentType="text/html;charset=UTF-8" />
 <jsp:output omit-xml-declaration="yes" />
 
-<util:modal titleCode="success_healthcheck_header" messageCode="success_healthcheck_message" type="success" />
+<bod:env var="version" property="version" />
+
+<div class="modal modal-relative">
+    <div class="modal-header">
+        <h3>
+            <spring:message code="success_healthcheck_header" />
+        </h3>
+    </div>
+    <div class="modal-body">
+        <i class="icon-info-sign">
+            <!--  -->
+        </i>
+        <p>
+            <spring:message code="success_healthcheck_message" htmlEscape="false" />
+        </p>
+        <dl class="dl-horizontal">
+            <dt>Version</dt>
+            <dd>${version}</dd>
+            <dt>IDD status</dt>
+            <dd>
+                <c:choose>
+                    <c:when test="${iddHealth}"><i class="icon-ok-sign"><!--  --></i></c:when>
+                    <c:otherwise><i class="icon-remove-sign"><!--  --></i></c:otherwise>
+                </c:choose>
+            </dd>
+            <dt>NBI status</dt>
+            <dd>
+                <c:choose>
+                    <c:when test="${nbiHealth}"><i class="icon-ok-sign"><!--  --></i></c:when>
+                    <c:otherwise><i class="icon-remove-sign"><!--  --></i></c:otherwise>
+                </c:choose>
+            </dd>
+        </dl>
+    </div>
+    <div class="actions"><!--  --></div>
+</div>
 
 </html>
