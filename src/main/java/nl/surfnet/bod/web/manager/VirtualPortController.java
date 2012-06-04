@@ -99,7 +99,8 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
         return addCreateFormToModel(createCommand, model);
       }
 
-      virtualPortService.requestLinkDeclined(createCommand.getVirtualPortRequestLink(), createCommand.getDeclineMessage());
+      virtualPortService.requestLinkDeclined(createCommand.getVirtualPortRequestLink(),
+          createCommand.getDeclineMessage());
 
       return "redirect:" + PAGE_URL;
     }
@@ -128,8 +129,8 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     instituteService.fillInstituteForPhysicalResourceGroup(command.getPhysicalResourceGroup());
 
     model.addAttribute("virtualPortCreateCommand", command);
-    model.addAttribute("physicalPorts", command.getPhysicalResourceGroup() == null ? Collections.emptyList()
-        : command.getPhysicalResourceGroup().getPhysicalPorts());
+    model.addAttribute("physicalPorts", command.getPhysicalResourceGroup() == null ? Collections.emptyList() : command
+        .getPhysicalResourceGroup().getPhysicalPorts());
     model.addAttribute("virtualResourceGroups", ImmutableList.of(command.getVirtualResourceGroup()));
     model.addAttribute("physicalResourceGroups", ImmutableList.of(command.getPhysicalResourceGroup()));
 
@@ -230,7 +231,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
       return "redirect:" + PAGE_URL;
     }
 
-    virtualPortService.delete(virtualPort);
+    virtualPortService.delete(virtualPort, Security.getUserDetails());
 
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_deleted",
         virtualPort.getManagerLabel());

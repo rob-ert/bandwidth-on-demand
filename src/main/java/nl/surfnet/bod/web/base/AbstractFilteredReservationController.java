@@ -160,7 +160,7 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
 
     ReservationView reservationView = null;    
     for (Reservation reservation : reservationsToTransform) {      
-      reservationView = new ReservationView(reservation, reservationService.isDeleteAllowedForUser(reservation, user));
+      reservationView = new ReservationView(reservation, reservationService.isDeleteAllowed(reservation, user));
       reservationViews.add(reservationView);
     }
 
