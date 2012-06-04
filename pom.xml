@@ -17,6 +17,7 @@
         <selenium.test.url>http://localhost:8888/bod</selenium.test.url>
         <sos.version>0.1.1</sos.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <bod.maven.version>${project.version} build date: ${maven.build.timestamp}</bod.maven.version>
     </properties>
     <scm>
         <developerConnection>scm:git:gitolite@atlas.dlp.surfnet.nl:bandwidth-on-demand.git</developerConnection>
@@ -529,12 +530,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.tmforum.mtop</groupId>
-            <artifactId>mtosi</artifactId>
-            <version>2.n</version>
-        </dependency>
-
     </dependencies>
     <build>
         <plugins>
@@ -667,6 +662,27 @@
                             <staleFile>${project.build.directory}/generated-sources/jaxws/nsi/1.sc/gererate.done</staleFile>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>mtosi-</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <verbose>true</verbose>
+                            <keep>true</keep>
+                            <xnocompile>true</xnocompile>
+                            <wsdlDirectory>${basedir}/src/main/resources/MTOSI-2.1/DDPs/ManageResourceInventory/IIS/wsdl/ResourceInventoryRetrieval</wsdlDirectory>
+                            <wsdlFiles>
+                                <wsdlFile>ResourceInventoryRetrievalHttp.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws/mtosi/2.1</sourceDestDir>
+                            <destDir />
+                            <staleFile>${project.build.directory}/generated-sources/jaxws/mtosi/2.1/gererate.done</staleFile>
+                        </configuration>
+                    </execution>
+
+
                 </executions>
             </plugin>
 
@@ -812,6 +828,35 @@
                     </archive>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <nonFilteredFileExtensions>
+                        <nonFilteredFileExtension>gif</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>ico</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>jar</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>jpg</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>json</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>js</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>pdf</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>properties</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>png</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>wsdl</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>xml</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>xsd</nonFilteredFileExtension>
+                    </nonFilteredFileExtensions>
+                    <webResources>
+                        <resource>
+                            <directory>src/main/webapp</directory>
+                            <filtering>true</filtering>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+
 
         </plugins>
     </build>
