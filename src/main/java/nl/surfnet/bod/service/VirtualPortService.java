@@ -87,10 +87,10 @@ public class VirtualPortService {
     return virtualPortRepo.count(specificationByPhysicalPort(physicalPort));
   }
 
-  public void delete(final VirtualPort virtualPort) {
+  public void delete(final VirtualPort virtualPort, RichUserDetails user) {
     final List<Reservation> reservations = reservationService.findBySourcePortOrDestinationPort(virtualPort,
         virtualPort);
-    reservationService.deleteAndArchiveReservations(reservations);
+    reservationService.cancelAndArchiveReservations(reservations, user);
 
     virtualPortRepo.delete(virtualPort);
 

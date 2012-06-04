@@ -21,7 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.domain.ReservationStatus.*;
 import static com.google.common.base.Preconditions.checkState;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
@@ -39,7 +38,16 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.PhysicalPort_;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationArchive;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.Reservation_;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -175,7 +183,7 @@ public class ReservationService {
    */
   public boolean cancel(Reservation reservation, RichUserDetails user) {
 
-    if (isDeleteAllowedForUser(reservation, user).isAllowed()) {
+    if (isDeleteAllowed(reservation, user).isAllowed()) {
       nbiClient.cancelReservation(reservation.getReservationId());
       reservation.setStatus(CANCELLED);
       reservationRepo.save(reservation);
@@ -204,12 +212,17 @@ public class ReservationService {
    *          {@link RichUserDetails} to check
    * @return true if the reservation is allowed to be delete, false otherwise
    */
-  public ElementActionView isDeleteAllowedForUser(Reservation reservation, RichUserDetails user) {
+  public ElementActionView isDeleteAllowed(Reservation reservation, RichUserDetails user) {
     if (!reservation.getStatus().isDeleteAllowed()) {
       // No need to continue
       return new ElementActionView(false, "reservation_state_transition_not_allowed");
     }
 
+    return isDeleteAllowedForUserOnly(reservation, user);
+  }
+
+  @VisibleForTesting
+  ElementActionView isDeleteAllowedForUserOnly(Reservation reservation, RichUserDetails user) {
     if (user.isSelectedManagerRole()
         && ((Security.isManagerMemberOf(reservation.getSourcePort().getPhysicalResourceGroup())//
         || (Security.isManagerMemberOf(reservation.getDestinationPort().getPhysicalResourceGroup()))))) {
@@ -432,10 +445,13 @@ public class ReservationService {
     return reservationRepo.count();
   }
 
-  public void deleteAndArchiveReservations(final List<Reservation> reservations) {
+  public void cancelAndArchiveReservations(final List<Reservation> reservations, RichUserDetails user) {
     for (final Reservation reservation : reservations) {
       final ReservationStatus status = reservation.getStatus();
-      if (status.equals(REQUESTED) || status.equals(SCHEDULED) || status.equals(PREPARING) || status.equals(RUNNING)) {
+
+      // Only check the user, not the state since this might differ with our nbi
+      // implementation due to errors
+      if (isDeleteAllowedForUserOnly(reservation, user).isAllowed()) {
         // do not cancel a failed, succeed or cancelled reservation
         nbiClient.cancelReservation(reservation.getReservationId());
       }
