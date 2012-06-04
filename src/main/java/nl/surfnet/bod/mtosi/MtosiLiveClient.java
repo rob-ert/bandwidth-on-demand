@@ -40,7 +40,7 @@ public class MtosiLiveClient {
 
   
   // TODO: Get from prop file
-  private final String resourceInventoryRetrievalUrl = "http://localhost:8088/mtosi/mri/ResourceInventoryRetrieval";
+  private final String resourceInventoryRetrievalUrl = "http://62.190.191.48:9006/mtosi/mri/ResourceInventoryRetrieval";
 
   @PostConstruct
   public void init() {
