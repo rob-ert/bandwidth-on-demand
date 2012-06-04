@@ -530,6 +530,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.tmforum.mtop</groupId>
+            <artifactId>mtosi</artifactId>
+            <version>2.n</version>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>
@@ -663,7 +669,7 @@
                         </configuration>
                     </execution>
 
-                    <execution>
+                    <!-- <execution>
                         <id>mtosi-</id>
                         <goals>
                             <goal>wsimport</goal>
@@ -680,7 +686,7 @@
                             <destDir />
                             <staleFile>${project.build.directory}/generated-sources/jaxws/mtosi/2.1/gererate.done</staleFile>
                         </configuration>
-                    </execution>
+                    </execution> -->
 
 
                 </executions>
