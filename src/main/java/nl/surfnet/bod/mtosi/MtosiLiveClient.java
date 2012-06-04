@@ -1,5 +1,6 @@
 package nl.surfnet.bod.mtosi;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.MessageTypeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
+import org.tmforum.mtop.mri.wsdl.rir.v1_0.GetInventoryException;
 import org.tmforum.mtop.mri.wsdl.rir.v1_0.ResourceInventoryRetrievalRPC;
 import org.tmforum.mtop.mri.xsd.rir.v1.GetInventoryRequest;
 import org.tmforum.mtop.mri.xsd.rir.v1.GranularityType;
@@ -38,7 +40,6 @@ public class MtosiLiveClient {
   private ResourceInventoryRetrievalRPC resourceInventoryRetrievalRPCPort = null;
   private final GetInventoryRequest getInventoryRequest = new ObjectFactory().createGetInventoryRequest();
 
-  
   // TODO: Get from prop file
   private final String resourceInventoryRetrievalUrl = "http://62.190.191.48:9006/mtosi/mri/ResourceInventoryRetrieval";
 
@@ -51,23 +52,21 @@ public class MtosiLiveClient {
       resourceInventoryRetrievalRPCPort = bodResourceInventoryRetrieval.getPort(ResourceInventoryRetrievalRPC.class);
       final Map<String, Object> requestContext = ((BindingProvider) resourceInventoryRetrievalRPCPort)
           .getRequestContext();
-
       requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, resourceInventoryRetrievalUrl);
-
     }
-    catch (Exception e) {
+    catch (IOException e) {
       log.error("Error: ", e);
     }
   }
 
   public InventoryDataType getInventory() {
-    log.info("Starting");
+    log.info("Retrieving inventory at: {}", resourceInventoryRetrievalUrl);
     try {
 
       return resourceInventoryRetrievalRPCPort.getInventory(getInventoryRequestHeaders(), getInventoryRequest)
           .getInventoryData();
     }
-    catch (Exception e) {
+    catch (GetInventoryException e) {
       log.error("Error: ", e);
       return null;
     }
@@ -131,7 +130,7 @@ public class MtosiLiveClient {
 
   public HashMap<String, String> getUnallocatedPorts() {
     // all this ^$%# for just getting the bloody NE names ....
-    final List<ManagementDomainInventoryType> mds = new MtosiLiveClient().getInventory().getMdList().getMd();
+    final List<ManagementDomainInventoryType> mds = getInventory().getMdList().getMd();
 
     int macCounter = 0;
     HashMap<String, String> ports = new HashMap<String, String>();
@@ -191,7 +190,7 @@ public class MtosiLiveClient {
     // </v1:header>
 
     final Header header = new Header();
-    header.setDestinationURI("http://62.190.191.48:9006/mtosi/mri/ResourceInventoryRetrieval");
+    header.setDestinationURI(resourceInventoryRetrievalUrl);
     header.setCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE);
     header.setCommunicationStyle(CommunicationStyleType.RPC);
     header.setActivityName("getInventory");
@@ -224,17 +223,18 @@ public class MtosiLiveClient {
           log.info("Vendor extensions are null");
         }
         else {
-          final List<Object> some = vendorExtensions.getValue().getAny();
-          for (final Object o : some) {
-            final ChildNode node = (ChildNode) o;
-            if (node.getNodeName().equals("meMacAddress")) {
+          final List<Object> verndorExtensions = vendorExtensions.getValue().getAny();
+          for (final Object vendorExtension : verndorExtensions) {
+            final ChildNode child = (ChildNode) vendorExtension;
+            log.info("Child: " + child);
+            log.info("Child node: " + child.getNodeName());
+            log.info("Mac address value: {}", child.getNodeValue());
+            if (child.getNodeName().equals("meMacAddress")) {
               log.info("Mac adress node found");
-              log.info("Mac address value: {}", node.getNodeValue());
             }
           }
         }
       }
     }
   }
-
 }
