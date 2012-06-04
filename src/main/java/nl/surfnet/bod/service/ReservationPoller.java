@@ -86,10 +86,12 @@ public class ReservationPoller {
   }
 
   @Scheduled(cron = "0 * * * * *")
-  public void pollReservationsThatHaveARunningStatus() {
-    List<Reservation> reservations = reservationService.findReservationWithStatus(ReservationStatus.RUNNING);
+  public void pollReservationsThatHaveATransitionStatus() {
+    ReservationStatus[] transitionStates = new ReservationStatus[ReservationStatus.TRANSITION_STATES.size()];
+    List<Reservation> reservations = reservationService.findReservationWithStatus(ReservationStatus.TRANSITION_STATES
+        .toArray(transitionStates));
 
-    logger.debug("Found {} reservations that are running", reservations.size());
+    logger.debug("Found {} reservations that have a transition state.", reservations.size());
 
     for (Reservation reservation : reservations) {
       executorService.submit(new ReservationStatusChecker(reservation, 1));
