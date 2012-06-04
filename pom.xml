@@ -675,7 +675,7 @@
                         </configuration>
                     </execution>
 
-                    <!-- <execution>
+                    <execution>
                         <id>mtosi-</id>
                         <goals>
                             <goal>wsimport</goal>
@@ -692,7 +692,7 @@
                             <destDir />
                             <staleFile>${project.build.directory}/generated-sources/jaxws/mtosi/2.1/gererate.done</staleFile>
                         </configuration>
-                    </execution> -->
+                    </execution>
 
 
                 </executions>

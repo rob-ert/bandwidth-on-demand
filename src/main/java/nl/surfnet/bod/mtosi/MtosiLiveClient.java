@@ -38,6 +38,10 @@ public class MtosiLiveClient {
   private ResourceInventoryRetrievalRPC resourceInventoryRetrievalRPCPort = null;
   private final GetInventoryRequest getInventoryRequest = new ObjectFactory().createGetInventoryRequest();
 
+  
+  // TODO: Get from prop file
+  private final String resourceInventoryRetrievalUrl = "http://localhost:8088/mtosi/mri/ResourceInventoryRetrieval";
+
   @PostConstruct
   public void init() {
     log.info("Starting");
@@ -47,8 +51,8 @@ public class MtosiLiveClient {
       resourceInventoryRetrievalRPCPort = bodResourceInventoryRetrieval.getPort(ResourceInventoryRetrievalRPC.class);
       final Map<String, Object> requestContext = ((BindingProvider) resourceInventoryRetrievalRPCPort)
           .getRequestContext();
-      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
-          "http://62.190.191.48:9006/mtosi/mri/ResourceInventoryRetrieval");
+
+      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, resourceInventoryRetrievalUrl);
 
     }
     catch (Exception e) {
