@@ -37,7 +37,7 @@ public class MtosiLiveClient {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private ResourceInventoryRetrievalRPC resourceInventoryRetrievalRPCPort = null;
+  private ResourceInventoryRetrievalRPC resourceInventoryRetrievalRpcPort = null;
   private final GetInventoryRequest getInventoryRequest = new ObjectFactory().createGetInventoryRequest();
 
   // TODO: Get from prop file
@@ -49,8 +49,8 @@ public class MtosiLiveClient {
     try {
       final BodResourceInventoryRetrieval bodResourceInventoryRetrieval = new BodResourceInventoryRetrieval();
       getInventoryRequest.setFilter(getInventoryRequestSimpleFilter());
-      resourceInventoryRetrievalRPCPort = bodResourceInventoryRetrieval.getPort(ResourceInventoryRetrievalRPC.class);
-      final Map<String, Object> requestContext = ((BindingProvider) resourceInventoryRetrievalRPCPort)
+      resourceInventoryRetrievalRpcPort = bodResourceInventoryRetrieval.getPort(ResourceInventoryRetrievalRPC.class);
+      final Map<String, Object> requestContext = ((BindingProvider) resourceInventoryRetrievalRpcPort)
           .getRequestContext();
       requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, resourceInventoryRetrievalUrl);
     }
@@ -63,7 +63,7 @@ public class MtosiLiveClient {
     log.info("Retrieving inventory at: {}", resourceInventoryRetrievalUrl);
     try {
 
-      return resourceInventoryRetrievalRPCPort.getInventory(getInventoryRequestHeaders(), getInventoryRequest)
+      return resourceInventoryRetrievalRpcPort.getInventory(getInventoryRequestHeaders(), getInventoryRequest)
           .getInventoryData();
     }
     catch (GetInventoryException e) {
@@ -129,93 +129,21 @@ public class MtosiLiveClient {
   }
 
   public HashMap<String, String> getUnallocatedPorts() {
-    // all this ^$%# for just getting the bloody NE names ....
+    // all this ^$%# for just getting the bloody NE names and macs ....
+    final HashMap<String, String> ports = new HashMap<String, String>();
     final List<ManagementDomainInventoryType> mds = getInventory().getMdList().getMd();
-
-    int macCounter = 0;
-    HashMap<String, String> ports = new HashMap<String, String>();
     for (final ManagementDomainInventoryType md : mds) {
       final List<ManagedElementInventoryType> meInvs = md.getMeList().getMeInv();
+
+      String hostname = "";
       for (final ManagedElementInventoryType meInv : meInvs) {
         final List<RelativeDistinguishNameType> rdns = meInv.getMeAttrs().getName().getValue().getRdn();
-
-        String elementName = null;
-        String macAddress = null;
         for (final RelativeDistinguishNameType rdn : rdns) {
-          elementName = null;
           if ("ME".equals(rdn.getType())) {
-            elementName = rdn.getValue();
+            hostname = rdn.getValue();
           }
-
-        }
-        final JAXBElement<AnyListType> vendorExtensions = meInv.getMeAttrs().getVendorExtensions();
-
-        if (vendorExtensions.isNil()) {
-          log.info("Vendor extensions are null");
-          macAddress = null;
-        }
-        else {
-          final List<Object> some = vendorExtensions.getValue().getAny();
-          for (final Object o : some) {
-            macAddress = String.valueOf((macCounter++));
-
-            log.info("Some vendor extension value: {}", o);
-          }
-        }
-
-        if (elementName != null) {
-          ports.put(elementName, macAddress);
-        }
-      }
-    }
-
-    log.info("Port: {}", ports);
-    return ports;
-  }
-
-  public long getUnallocatedMTOSIEPortCount() {
-    // FIXME
-    return 10L;
-  }
-
-  private final Holder<Header> getInventoryRequestHeaders() {
-    // <v1:header>
-    // <v1:destinationURI>http://62.190.191.48:9006/mtosi/mri/ResourceInventoryRetrieval</v1:destinationURI>
-    // <v1:communicationPattern>SimpleResponse</v1:communicationPattern>
-    // <v1:communicationStyle>RPC</v1:communicationStyle>
-    // <v1:activityName>getInventory</v1:activityName>
-    // <v1:msgName>getInventoryRequest</v1:msgName>
-    // <v1:senderURI>http://62.190.191.48:9009</v1:senderURI>
-    // <v1:msgType>REQUEST</v1:msgType>a
-    // </v1:header>
-
-    final Header header = new Header();
-    header.setDestinationURI(resourceInventoryRetrievalUrl);
-    header.setCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE);
-    header.setCommunicationStyle(CommunicationStyleType.RPC);
-    header.setActivityName("getInventory");
-    header.setMsgName("getInventoryRequest");
-    header.setSenderURI("http://62.190.191.48:9009");
-    header.setMsgType(MessageTypeType.REQUEST);
-    log.info("header: {}", header);
-    return new Holder<Header>(header);
-  }
-
-  public static void main(final String... args) {
-    final Logger log = LoggerFactory.getLogger(MtosiLiveClient.class);
-
-    // all this ^$%# for just getting the bloody NE names ....
-    final MtosiLiveClient mtosiLiveClient = new MtosiLiveClient();
-    mtosiLiveClient.init();
-
-    final List<ManagementDomainInventoryType> mds = mtosiLiveClient.getInventory().getMdList().getMd();
-    for (final ManagementDomainInventoryType md : mds) {
-      final List<ManagedElementInventoryType> meInvs = md.getMeList().getMeInv();
-      for (final ManagedElementInventoryType meInv : meInvs) {
-        final List<RelativeDistinguishNameType> rdns = meInv.getMeAttrs().getName().getValue().getRdn();
-        for (final RelativeDistinguishNameType rdn : rdns) {
-          log.info("Rdn type: {}", rdn.getType());
-          log.info("Rdn value: {}", rdn.getValue());
+          log.debug("Rdn type: {}", rdn.getType());
+          log.debug("Rdn value: {}", rdn.getValue());
         }
         final JAXBElement<AnyListType> vendorExtensions = meInv.getMeAttrs().getVendorExtensions();
 
@@ -226,15 +154,41 @@ public class MtosiLiveClient {
           final List<Object> verndorExtensions = vendorExtensions.getValue().getAny();
           for (final Object vendorExtension : verndorExtensions) {
             final ChildNode child = (ChildNode) vendorExtension;
-            log.info("Child: " + child);
-            log.info("Child node: " + child.getNodeName());
-            log.info("Mac address value: {}", child.getNodeValue());
-            if (child.getNodeName().equals("meMacAddress")) {
-              log.info("Mac adress node found");
+            log.debug("Child node: " + child.getNodeName());
+            final String value = child.getFirstChild().getTextContent();
+            log.debug("Value: {}", value);
+            if ("meMacAddress".equals(child.getNodeName())) {
+              ports.put(hostname, value);
             }
           }
         }
       }
     }
+    return ports;
+  }
+
+  public long getUnallocatedMtosiPortCount() {
+    return getUnallocatedPorts().size();
+  }
+
+  private final Holder<Header> getInventoryRequestHeaders() {
+    final Header header = new Header();
+    header.setDestinationURI(resourceInventoryRetrievalUrl);
+    header.setCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE);
+    header.setCommunicationStyle(CommunicationStyleType.RPC);
+    header.setActivityName("getInventory");
+    header.setMsgName("getInventoryRequest");
+    header.setSenderURI("http://62.190.191.48:9009");
+    header.setMsgType(MessageTypeType.REQUEST);
+    log.debug("header: {}", header);
+    return new Holder<Header>(header);
+  }
+
+  public static void main(final String... args) {
+    final Logger log = LoggerFactory.getLogger(MtosiLiveClient.class);
+    final MtosiLiveClient mtosiLiveClient = new MtosiLiveClient();
+    mtosiLiveClient.init();
+    log.debug(mtosiLiveClient.getUnallocatedPorts().toString());
+
   }
 }

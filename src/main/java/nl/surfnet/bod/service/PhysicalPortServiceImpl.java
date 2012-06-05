@@ -157,7 +157,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public long countUnallocatedMTOSI() {
-    return mtosiClient.getUnallocatedMTOSIEPortCount();
+    return mtosiClient.getUnallocatedMtosiPortCount();
   }
 
   @Override
