@@ -726,14 +726,9 @@
                             <exclude>nl/surfnet/bod/idd/generated/*.class</exclude>
                             <exclude>nl/surfnet/bod/nbi/generated/*.class</exclude>
                             <exclude>nl/surfnet/bod/domain/*_.class</exclude>
-                            <exclude>com/nortel/**/*.class</exclude>
-                            <exclude>org/opendrac/www/**/*.class</exclude>
                             <exclude>org/oasis_open/**/*.class</exclude>
-                            <exclude>org/xmlsoap/schemas/**/*.class</exclude>
-                            <exclude>schemaorg_apache_xmlbeans/**/*.class</exclude>
-                            <exclude>org/w3/www/**/*.class</exclude>
-                            <exclude>oasis/names/**/*.class</exclude>
                             <exclude>org/ogf/**/*.class</exclude>
+                            <exclude>oasis/names/**/*.class</exclude>
                             <exclude>org/w3/**/*.class</exclude>
                             <exclude>nl/surfnet/bod/nsa/config/**/*.class</exclude>
                             <exclude>org/tmforum/**/*.class</exclude>
