@@ -136,6 +136,7 @@ public class MtosiLiveClient {
       final List<ManagedElementInventoryType> meInvs = md.getMeList().getMeInv();
 
       String hostname = "";
+
       for (final ManagedElementInventoryType meInv : meInvs) {
         final List<RelativeDistinguishNameType> rdns = meInv.getMeAttrs().getName().getValue().getRdn();
         for (final RelativeDistinguishNameType rdn : rdns) {
@@ -185,10 +186,11 @@ public class MtosiLiveClient {
   }
 
   public static void main(final String... args) {
-    final Logger log = LoggerFactory.getLogger(MtosiLiveClient.class);
-    final MtosiLiveClient mtosiLiveClient = new MtosiLiveClient();
-    mtosiLiveClient.init();
-    log.debug(mtosiLiveClient.getUnallocatedPorts().toString());
-
+    new MtosiLiveClient() {
+      {
+        init();
+        LoggerFactory.getLogger(MtosiLiveClient.class).debug(getUnallocatedPorts().toString());
+      }
+    };
   }
 }
