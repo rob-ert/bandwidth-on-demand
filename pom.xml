@@ -370,6 +370,10 @@
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
+                 <exclusion>
+                    <groupId>org.apache.woden</groupId>
+                    <artifactId>woden-impl-dom</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
