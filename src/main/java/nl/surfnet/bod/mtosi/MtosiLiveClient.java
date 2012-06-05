@@ -10,7 +10,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
-import org.apache.xerces.dom.ChildNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,6 +30,7 @@ import org.tmforum.mtop.mri.xsd.rir.v1.SimpleFilterType.IncludedObjectType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.InventoryDataType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagedElementInventoryType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagementDomainInventoryType;
+import org.w3c.dom.Node;
 
 @Service("mtosiLiveClient")
 public class MtosiLiveClient {
@@ -41,7 +41,7 @@ public class MtosiLiveClient {
   private final GetInventoryRequest getInventoryRequest = new ObjectFactory().createGetInventoryRequest();
 
   // TODO: Get from prop file
-  private final String resourceInventoryRetrievalUrl = "http://62.190.191.48:9006/mtosi/mri/ResourceInventoryRetrieval";
+  private final String resourceInventoryRetrievalUrl = "http://localhost:19006/mtosi/mri/ResourceInventoryRetrieval";
 
   @PostConstruct
   public void init() {
@@ -153,7 +153,7 @@ public class MtosiLiveClient {
         else {
           final List<Object> verndorExtensions = vendorExtensions.getValue().getAny();
           for (final Object vendorExtension : verndorExtensions) {
-            final ChildNode child = (ChildNode) vendorExtension;
+            final Node child = (Node) vendorExtension;
             log.debug("Child node: " + child.getNodeName());
             final String value = child.getFirstChild().getTextContent();
             log.debug("Value: {}", value);
