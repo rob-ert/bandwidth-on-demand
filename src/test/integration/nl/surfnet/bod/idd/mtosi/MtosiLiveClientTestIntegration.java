@@ -5,12 +5,15 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 import nl.surfnet.bod.mtosi.MtosiLiveClient;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.core.io.ClassPathResource;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.InventoryDataType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagedElementInventoryType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagementDomainInventoryType;
@@ -22,8 +25,11 @@ public class MtosiLiveClientTestIntegration {
   private MtosiLiveClient subject;
 
   @Before
-  public void init() {
-    subject = new MtosiLiveClient();
+  public void init() throws IOException {
+    Properties props = new Properties();
+    props.load(new ClassPathResource("bod-default.properties").getInputStream());
+
+    subject = new MtosiLiveClient(props.getProperty("mtosi.inventory.retrieval.endpoint"), "http://atlas.dlp.surfnet.nl");
     subject.init();
   }
 

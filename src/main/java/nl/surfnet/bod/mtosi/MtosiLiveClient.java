@@ -12,6 +12,7 @@ import javax.xml.ws.Holder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.tmforum.mtop.fmw.xsd.gen.v1.AnyListType;
@@ -23,10 +24,7 @@ import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.mri.wsdl.rir.v1_0.GetInventoryException;
 import org.tmforum.mtop.mri.wsdl.rir.v1_0.ResourceInventoryRetrievalRPC;
-import org.tmforum.mtop.mri.xsd.rir.v1.GetInventoryRequest;
-import org.tmforum.mtop.mri.xsd.rir.v1.GranularityType;
-import org.tmforum.mtop.mri.xsd.rir.v1.ObjectFactory;
-import org.tmforum.mtop.mri.xsd.rir.v1.SimpleFilterType;
+import org.tmforum.mtop.mri.xsd.rir.v1.*;
 import org.tmforum.mtop.mri.xsd.rir.v1.SimpleFilterType.IncludedObjectType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.InventoryDataType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagedElementInventoryType;
@@ -39,13 +37,17 @@ public class MtosiLiveClient {
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   private ResourceInventoryRetrievalRPC resourceInventoryRetrievalRpcPort = null;
+
   private final GetInventoryRequest getInventoryRequest = new ObjectFactory().createGetInventoryRequest();
+  private final String resourceInventoryRetrievalUrl;
+  private final String senderUri;
 
-  @Value("${mtosi.inventory.retrieval.endpoint}")
-  private String resourceInventoryRetrievalUrl;
-
-  @Value("${mtosi.inventory.sender.uri}")
-  private String senderUri;
+  @Autowired
+  public MtosiLiveClient(@Value("${mtosi.inventory.retrieval.endpoint}") String retrievalUrl,
+      @Value("${mtosi.inventory.sender.uri}") String senderUri) {
+    this.resourceInventoryRetrievalUrl = retrievalUrl;
+    this.senderUri = senderUri;
+  }
 
   @PostConstruct
   public void init() {
@@ -65,7 +67,6 @@ public class MtosiLiveClient {
   public InventoryDataType getInventory() {
     log.info("Retrieving inventory at: {}", resourceInventoryRetrievalUrl);
     try {
-
       return resourceInventoryRetrievalRpcPort.getInventory(getInventoryRequestHeaders(), getInventoryRequest)
           .getInventoryData();
     }
