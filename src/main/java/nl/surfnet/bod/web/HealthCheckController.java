@@ -24,13 +24,15 @@ public class HealthCheckController {
       @Override
       public boolean healty() {
         return iddClient.getKlanten().size() > 0;
-      }});
+      }
+    });
 
     boolean nbiHealth = isServiceHealty(new ServiceCheck() {
       @Override
       public boolean healty() {
         return nbiClient.getPhysicalPortsCount() > 0;
-      }});
+      }
+    });
 
     model.addAttribute("iddHealth", iddHealth);
     model.addAttribute("nbiHealth", nbiHealth);
@@ -48,6 +50,6 @@ public class HealthCheckController {
   }
 
   interface ServiceCheck {
-    public boolean healty();
+    boolean healty();
   }
 }
