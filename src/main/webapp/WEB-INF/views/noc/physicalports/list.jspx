@@ -25,8 +25,8 @@
         <table:sortableHeader labelCode="label_physicalresourcegroup"
           property="physicalResourceGroup" render="${not show_unallocated}" />
         <table:sortableHeader labelCode="label_physicalport_networkelementpk"
-          property="networkElementPk" sortable="${not show_unallocated}" />          
-        <table:actionsHeader />
+          property="networkElementPk" sortable="${not show_unallocated}" />
+        <table:actionsHeader styleClass="cw75 center small" />
       </tr>
     </thead>
     <tbody>
@@ -48,7 +48,7 @@
           <table:column item="${item}" property="portId" />
           <table:column item="${item}" property="physicalResourceGroupName"
             render="${not show_unallocated}" />
-          <table:column item="${item}" property="networkElementPk" />          
+          <table:column item="${item}" property="networkElementPk" />
           <table:actionsColumn item="${item}"
             delete="${item.deleteRender}"
             deleteEnabled="${item.deleteAllowed}"
@@ -57,7 +57,14 @@
             updateIcon="${show_unallocated ? 'icon-resize-small' : ''}"
             updateLabelCode="${show_unallocated ? 'label_allocate' : ''}"
             path="/noc/physicalports" idFieldName="networkElementPk"
-            labelCode="label_physicalport" />
+            labelCode="label_physicalport">
+            <c:if test="${not show_unallocated}">
+                 <spring:url var="moveUrl" value="/noc/physicalports/move">
+                    <spring:param name="id" value="${item.networkElementPk}" />
+                </spring:url>
+                <a href="${moveUrl}" rel="tooltip" data-type="info" title="Move Physical Port" ><i class="icon-truck"><!--  --></i></a>
+            </c:if>
+        </table:actionsColumn>
         </tr>
       </c:forEach>
     </tbody>

@@ -12,7 +12,7 @@
     <jsp:directive.attribute name="labelCode" type="java.lang.String" required="true" rtexprvalue="true" />
     <jsp:directive.attribute name="updateLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
-    <jsp:directive.attribute name="successMessageCode" type="java.lang.String" required="false" rtexprvalue="true" />    
+    <jsp:directive.attribute name="successMessageCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteEnabled" type="java.lang.Boolean" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteConfirmLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteConfirmLabelArgument" type="java.lang.String" required="false" rtexprvalue="true" />

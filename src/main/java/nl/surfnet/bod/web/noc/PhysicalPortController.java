@@ -21,15 +21,7 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.UPDATE;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -203,7 +195,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   }
 
   @RequestMapping(value = "edit", params = ID_KEY, method = RequestMethod.GET)
-  public String updateForm(@RequestParam(ID_KEY) final String networkElementPk, final Model uiModel) {
+  public String updateForm(@RequestParam(ID_KEY) final String networkElementPk, final Model model) {
     PhysicalPort port;
     try {
       port = physicalPortService.findByNetworkElementPk(networkElementPk);
@@ -212,7 +204,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
       return "redirect:";
     }
 
-    uiModel.addAttribute(MODEL_KEY, new CreatePhysicalPortCommand(port));
+    model.addAttribute(MODEL_KEY, new CreatePhysicalPortCommand(port));
 
     return PAGE_URL + UPDATE;
   }
@@ -230,10 +222,15 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     return "redirect:";
   }
 
+  @RequestMapping(value = "move")
+  public String moveForm(@RequestParam(ID_KEY) final String networkElementPk, final Model model) {
+    return PAGE_URL + "/move";
+  }
+
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   * 
+   *
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
@@ -249,7 +246,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   @Override
   protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
 
-    return (List<PhysicalPortView>) Functions.enrichAndTransformAllocatedPhysicalPort(
+    return Functions.enrichAndTransformAllocatedPhysicalPort(
         physicalPortService.findAllocatedEntries(firstPage, maxItems, sort), instituteService, virtualPortService);
   }
 
