@@ -99,6 +99,14 @@ public final class BodRole {
     return getRole() == RoleEnum.ICT_MANAGER;
   }
 
+  public boolean isNocRole() {
+    return getRole() == RoleEnum.NOC_ENGINEER;
+  }
+
+  public boolean isUserRole() {
+    return getRole() == RoleEnum.USER;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
