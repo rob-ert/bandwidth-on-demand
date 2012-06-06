@@ -44,9 +44,11 @@ public class MtosiLiveClient {
   @Value("${mtosi.inventory.retrieval.endpoint}")
   private String resourceInventoryRetrievalUrl;
 
+  @Value("${mtosi.inventory.sender.uri}")
+  private String senderUri;
+
   @PostConstruct
   public void init() {
-    log.info("Starting");
     try {
       final BodResourceInventoryRetrieval bodResourceInventoryRetrieval = new BodResourceInventoryRetrieval();
       getInventoryRequest.setFilter(getInventoryRequestSimpleFilter());
@@ -77,34 +79,6 @@ public class MtosiLiveClient {
    * @return
    */
   private SimpleFilterType getInventoryRequestSimpleFilter() {
-
-    //
-    // <v11:filter
-    // <v11:baseInstance>
-    // <v12:rdn>
-    // <v12:type>MD</v12:type>
-    // <v12:value>Ciena</v12:value>
-    // </v12:rdn>
-    // </v11:baseInstance>
-    // <v11:includedObjectType>
-    // <v11:objectType>ME</v11:objectType>
-    // <v11:granularity>ATTRS</v11:granularity>
-    // </v11:includedObjectType>
-    // <v11:includedObjectType>
-    // <v11:objectType>EH</v11:objectType>
-    // <v11:granularity>ATTRS</v11:granularity>
-    // </v11:includedObjectType>
-    // <v11:includedObjectType>
-    // <v11:objectType>EQ</v11:objectType>
-    // <v11:granularity>ATTRS</v11:granularity>
-    // </v11:includedObjectType>
-    // <v11:includedObjectType>
-    // <v11:objectType>PTP</v11:objectType>
-    // <v11:granularity>ATTRS</v11:granularity>
-    // </v11:includedObjectType>
-    // </v11:filter>
-    //
-
     // baseInstance
     final RelativeDistinguishNameType relativeDistinguishName = new RelativeDistinguishNameType();
     relativeDistinguishName.setType("MD");
@@ -116,7 +90,7 @@ public class MtosiLiveClient {
     final SimpleFilterType simpleFilter = new ObjectFactory().createSimpleFilterType();
     simpleFilter.getBaseInstance().add(namingAttribute);
 
-    // includedObjectTypes
+    // includedObjectTypes, maybe we only need EH or maybe don;t use a filter after all
     final String[] objectTypes = { "ME", "EH", "EQ", "PTP" };
 
     for (final String objectType : objectTypes) {
@@ -180,10 +154,10 @@ public class MtosiLiveClient {
     header.setCommunicationStyle(CommunicationStyleType.RPC);
     header.setActivityName("getInventory");
     header.setMsgName("getInventoryRequest");
-    header.setSenderURI("http://62.190.191.48:9009");
+    header.setSenderURI(senderUri);
     header.setMsgType(MessageTypeType.REQUEST);
     log.debug("header: {}", header);
     return new Holder<Header>(header);
   }
-  
+
 }
