@@ -12,6 +12,7 @@ import javax.xml.ws.Holder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.tmforum.mtop.fmw.xsd.gen.v1.AnyListType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationPatternType;
@@ -40,8 +41,8 @@ public class MtosiLiveClient {
   private ResourceInventoryRetrievalRPC resourceInventoryRetrievalRpcPort = null;
   private final GetInventoryRequest getInventoryRequest = new ObjectFactory().createGetInventoryRequest();
 
-  // TODO: Get from prop file
-  private final String resourceInventoryRetrievalUrl = "http://localhost:19006/mtosi/mri/ResourceInventoryRetrieval";
+  @Value("${mtosi.inventory.retrieval.endpoint}")
+  private String resourceInventoryRetrievalUrl;
 
   @PostConstruct
   public void init() {
@@ -184,13 +185,5 @@ public class MtosiLiveClient {
     log.debug("header: {}", header);
     return new Holder<Header>(header);
   }
-
-  public static void main(final String... args) {
-    new MtosiLiveClient() {
-      {
-        init();
-        LoggerFactory.getLogger(MtosiLiveClient.class).debug(getUnallocatedPorts().toString());
-      }
-    };
-  }
+  
 }
