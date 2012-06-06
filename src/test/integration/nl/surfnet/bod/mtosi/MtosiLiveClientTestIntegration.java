@@ -1,4 +1,4 @@
-package nl.surfnet.bod.idd.mtosi;
+package nl.surfnet.bod.mtosi;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -8,8 +8,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
-
-import nl.surfnet.bod.mtosi.MtosiLiveClient;
 
 import org.junit.Before;
 import org.junit.Test;
