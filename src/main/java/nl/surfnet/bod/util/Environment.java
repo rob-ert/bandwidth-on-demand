@@ -63,6 +63,9 @@ public class Environment {
   @Value("${google.analytics.code}")
   private String googleAnalyticsCode;
 
+  @Value("${physicalport.detection.job.cron}")
+  private String physicalPortDectionJobCron;
+
   public Environment() {
   }
 
@@ -131,6 +134,14 @@ public class Environment {
 
   public void setGoogleAnalyticsCode(String googleAnalyticsCode) {
     this.googleAnalyticsCode = googleAnalyticsCode;
+  }
+
+  public String getPhysicalPortDectionJobCron() {
+    return physicalPortDectionJobCron;
+  }
+
+  public void setPhysicalPortDectionJobCron(String physicalPortDectionJobCron) {
+    this.physicalPortDectionJobCron = physicalPortDectionJobCron;
   }
 
   public String getVersion() {

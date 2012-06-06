@@ -65,12 +65,16 @@ public class PhysicalPort {
   @Basic
   private boolean vlanRequired;
 
+  @Basic
+  private boolean missing;
+
   public PhysicalPort() {
     this(false);
   }
 
   public PhysicalPort(boolean vlanRequired) {
     this.vlanRequired = vlanRequired;
+    this.missing = false;
   }
 
   public Long getId() {
@@ -141,11 +145,19 @@ public class PhysicalPort {
     return vlanRequired;
   }
 
+  public void setMissing(boolean missing) {
+    this.missing = missing;
+  }
+
+  public boolean isMissing() {
+    return missing;
+  }
+
   @Override
   public String toString() {
     return "PhysicalPort [id=" + id + ", version=" + version + ", nocLabel=" + nocLabel + ", managerLabel="
         + managerLabel + ", portId=" + portId + ", networkElementPk=" + networkElementPk + ", physicalResourceGroup="
-        + physicalResourceGroup + ", vlanRequired=" + vlanRequired + "]";
+        + physicalResourceGroup + ", vlanRequired=" + vlanRequired + ", missing=" + missing + "]";
   }
 
 }

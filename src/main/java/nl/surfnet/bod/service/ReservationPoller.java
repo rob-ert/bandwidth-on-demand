@@ -92,7 +92,7 @@ public class ReservationPoller {
     //temporary status which might change fast which will lead to concurrent updates and staleObjectExceptions
     List<Reservation> reservations = reservationService.findReservationWithStatus(ReservationStatus.RUNNING);
 
-    logger.debug("Found {} reservations that have a transition state.", reservations.size());
+    logger.debug("Found {} reservations that have a running state.", reservations.size());
 
     for (Reservation reservation : reservations) {
       executorService.submit(new ReservationStatusChecker(reservation, 1));

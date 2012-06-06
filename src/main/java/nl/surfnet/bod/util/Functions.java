@@ -3,11 +3,16 @@ package nl.surfnet.bod.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.PhysicalPortView;
+
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 
 public final class Functions {
 
@@ -123,4 +128,22 @@ public final class Functions {
 
     return transformers;
   }
+
+  public static final Function<PhysicalPort, String> TO_NETWORK_ELEMENT_PK = //
+  new Function<PhysicalPort, String>() {
+
+    @Override
+    public String apply(PhysicalPort physicalPort) {
+      return physicalPort.getNetworkElementPk();
+    }
+  };
+
+  public static final Predicate<PhysicalPort> NON_MISSING_PORTS = //
+  new Predicate<PhysicalPort>() {
+    @Override
+    public boolean apply(PhysicalPort physicalPort) {
+      return !physicalPort.isMissing();
+    }
+  };
+  
 }

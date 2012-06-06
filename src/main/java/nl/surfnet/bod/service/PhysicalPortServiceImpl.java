@@ -28,7 +28,9 @@ import static com.google.common.collect.Lists.newArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -40,6 +42,8 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.mtosi.MtosiLiveClient;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.util.Functions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,14 +51,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
@@ -82,6 +93,9 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Autowired
   private MtosiLiveClient mtosiClient;
+
+  @Autowired
+  private Environment environment;
 
   /**
    * Finds all ports using the North Bound Interface and enhances these ports
@@ -230,6 +244,89 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   public long countAllocatedForPhysicalResourceGroup(final PhysicalResourceGroup physicalResourceGroup) {
 
     return physicalPortRepo.count(specificationForPhysicalResourceGroup(physicalResourceGroup));
+  }
+
+  @Scheduled(cron = "${physicalport.detection.job.cron}")
+  public void detectAndPersistPortInconsistencies() {
+    logger.info("About to detect physical port inconsistencies, using cron expression: {}",
+        environment.getPhysicalPortDectionJobCron());
+    
+    final ImmutableSet<String> nbiPortIds = ImmutableSet.copyOf(Lists.transform(nbiClient.findAllPhysicalPorts(),
+        Functions.TO_NETWORK_ELEMENT_PK));
+
+    // Build map for easy lookup
+    Map<String, PhysicalPort> physicalPorts = Maps.newHashMap();
+    for (PhysicalPort port : physicalPortRepo.findAll()) {
+      physicalPorts.put(port.getNetworkElementPk(), port);
+    }
+    final ImmutableMap<String, PhysicalPort> immutablePorts = ImmutableMap.copyOf(physicalPorts);
+
+    List<PhysicalPort> reappearedPortsInNMS = markReappearedPortsInNMS(immutablePorts, nbiPortIds);
+    physicalPortRepo.save(reappearedPortsInNMS);
+
+    List<PhysicalPort> dissapearedPortsFromNMS = markDisappearedPortsFromNMS(immutablePorts, nbiPortIds);
+    physicalPortRepo.save(dissapearedPortsFromNMS);
+  }
+
+  @VisibleForTesting
+  List<PhysicalPort> markReappearedPortsInNMS(Map<String, PhysicalPort> physicalPorts, Set<String> nbiPortIds) {
+    List<PhysicalPort> reappearedPorts = Lists.newArrayList();
+
+    List<PhysicalPort> portsMarkedAsMissing = Lists.newArrayList(Collections2.filter(physicalPorts.values(),
+        new Predicate<PhysicalPort>() {
+          @Override
+          public boolean apply(PhysicalPort port) {
+            return port.isMissing();
+          }
+        }).iterator());
+
+    Set<String> missingPortIds = Sets
+        .newHashSet(Lists.transform(portsMarkedAsMissing, Functions.TO_NETWORK_ELEMENT_PK));
+
+    SetView<String> reappearedPortIds = Sets.intersection(missingPortIds, nbiPortIds);
+    logger.info("Found {} ports reappeared in the NMS", reappearedPortIds.size());
+
+    PhysicalPort reappearedPort = null;
+    for (String portId : reappearedPortIds) {
+      reappearedPort = physicalPorts.get(portId);
+      reappearedPort.setMissing(false);
+      reappearedPorts.add(reappearedPort);
+      logger.debug("Port reappeared in the NMS: {}", reappearedPort);
+    }
+
+    return reappearedPorts;
+  }
+
+  /**
+   * Checks the {@link PhysicalPort}s in the given Map which are <strong>not</strong> indicated
+   * as missing have disappeared from the NMS by finding the differences between
+   * the ports in the given list and the ports returned by the NMS based on the
+   * {@link PhysicalPort#getNetworkElementPk()}.
+   * 
+   * @param bodPorts
+   *          List with ports from BoD
+   * @param nbiPortIds
+   *          List with portIds from the NMS
+   * @return {@link List<PhysicalPort>} which were not missing but are now.
+   */
+  @VisibleForTesting
+  List<PhysicalPort> markDisappearedPortsFromNMS(final Map<String, PhysicalPort> bodPorts, final Set<String> nbiPortIds) {
+    List<PhysicalPort> disappearedPorts = Lists.newArrayList();
+
+    ImmutableSet<String> physicalPortIds = FluentIterable.from(bodPorts.values()).filter(Functions.NON_MISSING_PORTS)
+        .transform(Functions.TO_NETWORK_ELEMENT_PK).toImmutableSet();
+
+    SetView<String> dissapearedPortIds = Sets.difference(physicalPortIds, nbiPortIds);
+    logger.info("Found {} ports disappeared in the NMS", dissapearedPortIds.size());
+    PhysicalPort disappearedPort = null;
+    for (String portId : dissapearedPortIds) {
+      disappearedPort = bodPorts.get(portId);
+      disappearedPort.setMissing(true);
+      logger.debug("Port disappeared in the NMS: {}", disappearedPort);
+      disappearedPorts.add(disappearedPort);
+    }
+
+    return disappearedPorts;
   }
 
   private Specification<PhysicalPort> specificationForPhysicalResourceGroup(
