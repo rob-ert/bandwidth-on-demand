@@ -292,7 +292,7 @@ class NbiOpenDracWsClient implements NbiClient {
       return OpenDracStatusTranslator.translate(status);
     }
     else {
-      log.info("No reservation found for reservation id: {}, returning FAILED", reservationId);
+      log.info("No reservation found for reservationId: {}, returning FAILED", reservationId);
       return FAILED;
     }
 
