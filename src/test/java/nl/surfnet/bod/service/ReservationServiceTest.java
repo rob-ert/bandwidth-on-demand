@@ -26,24 +26,17 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationArchive;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -83,8 +76,7 @@ public class ReservationServiceTest {
 
   @Test
   public void whenTheUserHasNoGroupsTheReservationsShouldBeEmpty() {
-    RichUserDetails richUserDetailsWithoutGroups = new RichUserDetailsFactory().create();
-    Security.setUserDetails(richUserDetailsWithoutGroups);
+    Security.setUserDetails(new RichUserDetailsFactory().create());
 
     List<Reservation> reservations = subject.findEntries(0, 20, new Sort("id"));
 
@@ -229,12 +221,16 @@ public class ReservationServiceTest {
   public void cancelAReservationAsAManagerInSourcePortPrgShouldChangeItsStatus() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
 
-    RichUserDetails richUserDetails = new RichUserDetailsFactory().addManagerRole().//
-        addUserGroup(reservation.getSourcePort().getPhysicalPort().getPhysicalResourceGroup().getAdminGroup()).create();
+    RichUserDetails richUserDetails = new RichUserDetailsFactory()
+      .addManagerRole(reservation.getSourcePort().getPhysicalPort().getPhysicalResourceGroup())
+      .create();
     Security.setUserDetails(richUserDetails);
 
-    Assert.assertTrue(subject.cancel(reservation, richUserDetails));
+    boolean cancelled = subject.cancel(reservation, richUserDetails);
+
+    assertThat(cancelled, is(true));
     assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
+
     verify(reservationRepoMock).save(reservation);
   }
 
@@ -243,26 +239,31 @@ public class ReservationServiceTest {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
     reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup().setAdminGroup("urn:different");
 
-    RichUserDetails richUserDetails = new RichUserDetailsFactory().addManagerRole()
-        .//
-        addUserGroup(reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup().getAdminGroup())
+    RichUserDetails richUserDetails = new RichUserDetailsFactory()
+        .addManagerRole(reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup())
         .create();
     Security.setUserDetails(richUserDetails);
 
-    Assert.assertTrue(subject.cancel(reservation, richUserDetails));
+    boolean cancelled = subject.cancel(reservation, richUserDetails);
+
+    assertThat(cancelled, is(true));
     assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
+
     verify(reservationRepoMock).save(reservation);
   }
 
   @Test
-  public void cancelAReservationAsANocShouldNotChangeItsStatus() {
+  public void cancelAReservationAsANocShouldChangeItsStatus() {
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addNocRole().create();
 
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
 
-    Assert.assertFalse(subject.cancel(reservation, richUserDetails));
-    assertThat(reservation.getStatus(), is(ReservationStatus.SCHEDULED));
-    verify(reservationRepoMock, never()).save(reservation);
+    boolean cancelled = subject.cancel(reservation, richUserDetails);
+
+    assertThat(cancelled, is(true));
+    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
+
+    verify(reservationRepoMock).save(reservation);
   }
 
   @Test
@@ -271,8 +272,11 @@ public class ReservationServiceTest {
 
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).create();
 
-    Assert.assertFalse(subject.cancel(reservation, richUserDetails));
+    boolean cancelled = subject.cancel(reservation, richUserDetails);
+
+    assertThat(cancelled, is(false));
     assertThat(reservation.getStatus(), is(ReservationStatus.FAILED));
+
     verify(reservationRepoMock, never()).save(reservation);
   }
 
@@ -302,18 +306,15 @@ public class ReservationServiceTest {
 
   @Test
   public void transformToFlattenedReservations() {
-    final List<Reservation> reservations = new ArrayList<Reservation>() {
-      {
-        for (int i = 0; i < 10; i++) {
-          final Reservation reservation = new ReservationFactory().create();
-          add(reservation);
-        }
-      }
-    };
+    List<Reservation> reservations = Lists.newArrayList();
+    for (int i = 0; i < 10; i++) {
+      reservations.add(new ReservationFactory().create());
+    }
+
     final Collection<ReservationArchive> flattenedReservations = subject
         .transformToReservationArchives(reservations);
-    assertNotNull(flattenedReservations);
-    assertEquals(10, flattenedReservations.size());
+
+    assertThat(flattenedReservations, hasSize(10));
   }
 
 }

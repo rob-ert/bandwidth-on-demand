@@ -51,10 +51,9 @@ public class ReservationFactory {
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
 
   public Reservation create() {
-
     sourcePort = sourcePort == null ? new VirtualPortFactory().setVirtualResourceGroup(virtualResourceGroup).create()
         : sourcePort;
-    
+
     destinationPort = destinationPort == null ? new VirtualPortFactory().setVirtualResourceGroup(virtualResourceGroup)
         .create() : destinationPort;
 

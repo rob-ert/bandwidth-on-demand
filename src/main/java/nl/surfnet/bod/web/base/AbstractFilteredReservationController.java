@@ -21,11 +21,7 @@
  */
 package nl.surfnet.bod.web.base;
 
-import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
-import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.List;
 
@@ -41,12 +37,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 /**
@@ -149,22 +142,23 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
   /**
    * Transforms the given reservations to {@link ReservationView}s and
    * determines if the reservation is allowed to be delete by the given user.
-   * 
-   * @param reservationsToTransform {@link Reservation}s to be transformed
-   * @param user {@link RichUserDetails} to check if this user is allowed to delete the reservation
+   *
+   * @param reservationsToTransform
+   *          {@link Reservation}s to be transformed
+   * @param user
+   *          {@link RichUserDetails} to check if this user is allowed to delete
+   *          the reservation
    * @return {@link List<ReservationView>} transformed reservations
    */
   public List<ReservationView> transformReservationToReservationView(List<Reservation> reservationsToTransform,
-      RichUserDetails user) {
-    List<ReservationView> reservationViews = Lists.newArrayList();
+      final RichUserDetails user) {
 
-    ReservationView reservationView = null;    
-    for (Reservation reservation : reservationsToTransform) {      
-      reservationView = new ReservationView(reservation, reservationService.isDeleteAllowed(reservation, user));
-      reservationViews.add(reservationView);
-    }
-
-    return reservationViews;
+    return Lists.transform(reservationsToTransform, new Function<Reservation, ReservationView>() {
+      @Override
+      public ReservationView apply(Reservation reservation) {
+        return new ReservationView(reservation, reservationService.isDeleteAllowed(reservation, user.getSelectedRole()));
+      }
+    });
   }
 
   private List<ReservationFilterView> determineFilters() {

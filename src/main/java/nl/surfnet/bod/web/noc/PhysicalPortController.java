@@ -31,10 +31,7 @@ import javax.validation.constraints.NotNull;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.service.InstituteService;
-import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.service.*;
 import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSortableListController;
@@ -75,6 +72,9 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
   @Autowired
   private VirtualPortService virtualPortService;
+
+  @Autowired
+  private NocService nocService;
 
   @Autowired
   private MessageSource messageSource;
@@ -222,9 +222,38 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     return "redirect:";
   }
 
-  @RequestMapping(value = "move")
-  public String moveForm(@RequestParam(ID_KEY) final String networkElementPk, final Model model) {
+  @RequestMapping(value = "move", method = RequestMethod.GET)
+  public String moveForm(@RequestParam(ID_KEY) String networkElementPk, Model model, RedirectAttributes redirectAttrs) {
+    PhysicalPort port;
+    try {
+      port = physicalPortService.findByNetworkElementPk(networkElementPk);
+    }
+    catch (IllegalStateException e) {
+      return "redirect:";
+    }
+
+    Collection<PhysicalPort> unallocatedPorts = physicalPortService.findUnallocated();
+    if (unallocatedPorts.isEmpty()) {
+      WebUtils.addInfoMessage(redirectAttrs, messageSource, "info_physicalport_nounallocated");
+      return "redirect:/noc/physicalresourcegroups";
+    }
+
+    model.addAttribute("physicalPort", port);
+    model.addAttribute("unallocatedPhysicalPorts", unallocatedPorts);
+    model.addAttribute("movePhysicalPortCommand", new MovePhysicalPortCommand(port));
+
     return PAGE_URL + "/move";
+  }
+
+  @RequestMapping(value = "move", method = RequestMethod.PUT)
+  public String move(MovePhysicalPortCommand command, BindingResult result, Model model) {
+
+    PhysicalPort newPort = physicalPortService.findByNetworkElementPk(command.getNewPhysicalPort());
+    PhysicalPort oldPort = physicalPortService.find(command.getId());
+
+    nocService.movePort(oldPort, newPort);
+
+    return "redirect:/noc/physicalports";
   }
 
   /**
@@ -258,6 +287,34 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   @Override
   protected String defaultSortProperty() {
     return "nocLabel";
+  }
+
+  public static class MovePhysicalPortCommand {
+    private Long id;
+    private String newPhysicalPort;
+
+    public MovePhysicalPortCommand() {
+    }
+
+    public MovePhysicalPortCommand(PhysicalPort port) {
+      this.id = port.getId();
+    }
+
+    public String getNewPhysicalPort() {
+      return newPhysicalPort;
+    }
+
+    public void setNewPhysicalPort(String newPhysicalPort) {
+      this.newPhysicalPort = newPhysicalPort;
+    }
+
+    public Long getId() {
+      return id;
+    }
+
+    public void setId(Long id) {
+      this.id = id;
+    }
   }
 
   public static class PhysicalPortCommand {

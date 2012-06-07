@@ -38,16 +38,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.PhysicalPort_;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationArchive;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.Reservation_;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPort_;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -106,7 +97,7 @@ public class ReservationService {
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   * 
+   *
    * @param reservation
    * @return
    */
@@ -156,6 +147,11 @@ public class ReservationService {
     return reservationRepo.findBySourcePortOrDestinationPort(port, port);
   }
 
+  public Collection<Reservation> findActiveByVirtualPort(VirtualPort port) {
+    return reservationRepo.findBySourcePortOrDestinationPortAndStatusIn(port, port,
+        ImmutableList.copyOf(ReservationStatus.TRANSITION_STATES));
+  }
+
   public long countForUser(RichUserDetails user) {
     if (user.getUserGroups().isEmpty()) {
       return 0;
@@ -176,14 +172,14 @@ public class ReservationService {
    * Cancels a reservation if the current user has the correct role and the
    * reservation is allowed to be deleted depending on its state. Updates the
    * state of the reservation.
-   * 
+   *
    * @param reservation
    *          {@link Reservation} to delete
-   * @return true if the reservation was canceld, false otherwise.
+   * @return true if the reservation was canceled, false otherwise.
    */
   public boolean cancel(Reservation reservation, RichUserDetails user) {
 
-    if (isDeleteAllowed(reservation, user).isAllowed()) {
+    if (isDeleteAllowed(reservation, user.getSelectedRole()).isAllowed()) {
       nbiClient.cancelReservation(reservation.getReservationId());
       reservation.setStatus(CANCELLED);
       reservationRepo.save(reservation);
@@ -205,31 +201,32 @@ public class ReservationService {
    * <li>and</li>
    * <li>the current status of the reservation must allow it</li>
    * </ul>
-   * 
+   *
    * @param reservation
    *          {@link Reservation} to check
-   * @param user
-   *          {@link RichUserDetails} to check
+   * @param role
+   *          {@link BodRole} the selected user role
    * @return true if the reservation is allowed to be delete, false otherwise
    */
-  public ElementActionView isDeleteAllowed(Reservation reservation, RichUserDetails user) {
+  public ElementActionView isDeleteAllowed(Reservation reservation, BodRole role) {
     if (!reservation.getStatus().isDeleteAllowed()) {
       // No need to continue
       return new ElementActionView(false, "reservation_state_transition_not_allowed");
     }
 
-    return isDeleteAllowedForUserOnly(reservation, user);
+    return isDeleteAllowedForUserOnly(reservation, role);
   }
 
-  @VisibleForTesting
-  ElementActionView isDeleteAllowedForUserOnly(Reservation reservation, RichUserDetails user) {
-    if (user.isSelectedManagerRole()
-        && ((Security.isManagerMemberOf(reservation.getSourcePort().getPhysicalResourceGroup())//
-        || (Security.isManagerMemberOf(reservation.getDestinationPort().getPhysicalResourceGroup()))))) {
+  private ElementActionView isDeleteAllowedForUserOnly(Reservation reservation, BodRole role) {
+    if (role.isNocRole()) {
       return new ElementActionView(true);
     }
-    else if ((user.isSelectedUserRole())//
-        && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
+    else if (role.isManagerRole()
+        && (reservation.getSourcePort().getPhysicalResourceGroup().getId() == role.getPhysicalResourceGroupId() || reservation
+            .getDestinationPort().getPhysicalResourceGroup().getId() == role.getPhysicalResourceGroupId())) {
+      return new ElementActionView(true);
+    }
+    else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
       return new ElementActionView(true);
     }
 
@@ -243,7 +240,7 @@ public class ReservationService {
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   * 
+   *
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -447,9 +444,9 @@ public class ReservationService {
 
   public void cancelAndArchiveReservations(final List<Reservation> reservations, RichUserDetails user) {
     for (final Reservation reservation : reservations) {
-     if(isDeleteAllowedForUserOnly(reservation, user).isAllowed()){
+      if (isDeleteAllowedForUserOnly(reservation, user.getSelectedRole()).isAllowed()) {
         nbiClient.cancelReservation(reservation.getReservationId());
-     }
+      }
     }
     reservationArchiveRepo.save(transformToReservationArchives(reservations));
     reservationRepo.delete(reservations);

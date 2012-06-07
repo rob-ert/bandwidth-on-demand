@@ -126,7 +126,7 @@ public class Reservation {
   /**
    * Sets the {@link #sourcePort} and the {@link #virtualResourceGroup} related
    * to this port.
-   * 
+   *
    * @param sourcePort
    *          The source port to set
    * @throws IllegalStateException
@@ -152,7 +152,7 @@ public class Reservation {
   /**
    * Sets the {@link #destinationPort} and the {@link #virtualResourceGroup}
    * related to this port.
-   * 
+   *
    * @param destinationPort
    *          The destinationPort port to set
    * @throws IllegalStateException
@@ -251,7 +251,6 @@ public class Reservation {
    * @param endDate
    */
   public void setEndDate(LocalDate endDate) {
-
     if (endDate == null) {
       endDateTime = null;
       return;

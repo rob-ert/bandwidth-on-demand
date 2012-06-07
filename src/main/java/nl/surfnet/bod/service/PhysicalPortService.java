@@ -34,7 +34,7 @@ public interface PhysicalPortService {
   /**
    * Finds all unallocated ports. Which means ports that are not connected to a
    * {@link PhysicalPort} in BoD.
-   * 
+   *
    * @return List of unallocated physical ports
    */
   Collection<PhysicalPort> findUnallocated();
@@ -42,7 +42,7 @@ public interface PhysicalPortService {
   /**
    * Finds unallocated {@link PhysicalPort}s with a start index and a max number
    * of results.
-   * 
+   *
    * @param firstResult
    * @param sizeNo
    *          max result size
@@ -52,12 +52,12 @@ public interface PhysicalPortService {
 
   /**
    * Finds all allocated physical ports.
-   * 
+   *
    * @param firstResult
    *          index of first result
    * @param sizeNo
    *          max result size
-   * 
+   *
    * @return Collection of allocated ports
    */
   List<PhysicalPort> findAllocatedEntries(int firstResult, int sizeNo, Sort sort);
@@ -65,11 +65,11 @@ public interface PhysicalPortService {
   /**
    * Finds all physical ports related to the given {@link PhysicalResourceGroup}
    * *
-   * 
-   * 
+   *
+   *
    * @param physicalResourceGroup
    *          {@link PhysicalResourceGroup} to filter on
-   * 
+   *
    * @return list of physical ports
    */
   List<PhysicalPort> findAllocatedEntriesForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup,
@@ -78,7 +78,7 @@ public interface PhysicalPortService {
   long countUnallocated();
 
   long countAllocated();
-  
+
   long countUnallocatedMTOSI();
 
   long countAllocatedForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup);
@@ -92,11 +92,11 @@ public interface PhysicalPortService {
   void save(final PhysicalPort physicalPort);
 
   PhysicalPort update(final PhysicalPort physicalPort);
-  
+
   /**
    * Finds unallocated {@link PhysicalPort}s with a start index and a max number
    * of results retreived using MTOSI.
-   * 
+   *
    * @param firstResult
    * @param sizeNo
    *          max result size
