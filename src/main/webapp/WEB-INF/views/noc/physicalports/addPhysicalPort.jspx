@@ -6,9 +6,9 @@
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
-    
+
     <c:set var="cancelPath" value="${pageContext.request.contextPath}/noc/physicalresourcegroups" scope="request"/>
-    
+
     <form:create id="fc_PhysicalPort" modelAttribute="addPhysicalPortCommand" path="/noc/physicalports/add" fullLabel="Allocate a Physical Port">
         <div class="control-group">
             <label class="control-label">Institute</label>

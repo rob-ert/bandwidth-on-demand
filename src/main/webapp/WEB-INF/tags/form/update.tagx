@@ -53,7 +53,7 @@
                             <input id="proceed" type="submit" value="${fn:escapeXml(save_button)}" class="btn btn-primary" />
                             <c:out value=" " />
                             <c:if test="${empty cancelUrl}">
-                            		<c:set var="cancelUrl" value="${form_url}"/>
+                                <c:set var="cancelUrl" value="${form_url}"/>
                             </c:if>
                             <a href="${cancelUrl}"><spring:message code="button_cancel" /></a>
                         </div>
