@@ -434,7 +434,7 @@ public class ReservationService {
     return Collections2.transform(reservations, TO_RESERVATION_ARCHIVE);
   }
 
-  public List<Reservation> findReservationWithStatus(ReservationStatus... states) {
+  private List<Reservation> findReservationWithStatus(ReservationStatus... states) {
     return reservationRepo.findByStatusIn(Arrays.asList(states));
   }
 
@@ -454,6 +454,10 @@ public class ReservationService {
 
   public List<Reservation> findBySourcePortOrDestinationPort(VirtualPort virtualPortA, VirtualPort virtualPortB) {
     return reservationRepo.findBySourcePortOrDestinationPort(virtualPortA, virtualPortB);
+  }
+
+  public List<Reservation> findRunningReservations() {
+    return findReservationWithStatus(ReservationStatus.RUNNING);
   }
 
 }

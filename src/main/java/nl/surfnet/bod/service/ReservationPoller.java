@@ -85,12 +85,12 @@ public class ReservationPoller {
     }
   }
 
-  
+
   @Scheduled(cron = "0 * * * * *")
   public void pollReservationsThatHaveARunningStatus() {
     //Only check for RUNNING state, otherwise it might interfere with other schedule jobs. Status PREPARING and SCHEDULED are
     //temporary status which might change fast which will lead to concurrent updates and staleObjectExceptions
-    List<Reservation> reservations = reservationService.findReservationWithStatus(ReservationStatus.RUNNING);
+    List<Reservation> reservations = reservationService.findRunningReservations();
 
     logger.debug("Found {} reservations that have a running state.", reservations.size());
 
@@ -127,7 +127,7 @@ public class ReservationPoller {
     public void run() {
       ReservationStatus currentStatus = null;
 
-      //No need to retrieve status when there is no reservationId 
+      //No need to retrieve status when there is no reservationId
       while ((numberOfTries < maxPollingTries) && (reservation.getReservationId() != null)) {
         logger.debug("Checking status update for: '{}' (try {})", reservation.getReservationId(), numberOfTries);
 
