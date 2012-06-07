@@ -138,12 +138,20 @@ public final class Functions {
     }
   };
 
+  public static final Predicate<PhysicalPort> MISSING_PORTS = //
+  new Predicate<PhysicalPort>() {
+    @Override
+    public boolean apply(PhysicalPort physicalPort) {
+      return physicalPort.isMissing();
+    }
+  };
+
   public static final Predicate<PhysicalPort> NON_MISSING_PORTS = //
   new Predicate<PhysicalPort>() {
     @Override
     public boolean apply(PhysicalPort physicalPort) {
-      return !physicalPort.isMissing();
+      return !MISSING_PORTS.apply(physicalPort);
     }
   };
-  
+
 }

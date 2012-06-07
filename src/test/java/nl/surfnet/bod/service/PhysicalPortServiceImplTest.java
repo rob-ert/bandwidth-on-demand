@@ -290,7 +290,7 @@ public class PhysicalPortServiceImplTest {
 
   @Test
   public void shouldFindOneReappearedPorts() {
-    Set<String> nbiPortIds = Sets.newHashSet("1");
+    Set<String> nbiPortIds = Sets.newHashSet("1", "2");
 
     // Mark missing
     PhysicalPort portOne = physicalPortMap.get("1");
@@ -316,7 +316,7 @@ public class PhysicalPortServiceImplTest {
   }
 
   @Test
-  public void shouldChangeNoPortsDetectAndPersistPortInconsistencies() {
+  public void shouldChangeNoPorts() {
 
     when(nbiClientMock.findAllPhysicalPorts()).thenReturn(Lists.newArrayList(physicalPortMap.values()));
     when(physicalPortRepoMock.findAll()).thenReturn(Lists.newArrayList(physicalPortMap.values()));
@@ -331,7 +331,7 @@ public class PhysicalPortServiceImplTest {
   }
 
   @Test
-  public void shouldFindOneReappearingPortChangeNoPortsDetectAndPersistPortInconsistencies() {
+  public void shouldFindOneReappearingPort() {
 
     physicalPortMap.get("1").setMissing(true);
     when(nbiClientMock.findAllPhysicalPorts()).thenReturn(Lists.newArrayList(physicalPortMap.values()));
@@ -347,7 +347,7 @@ public class PhysicalPortServiceImplTest {
   }
 
   @Test
-  public void shouldFindOneDisappearingPortChangeNoPortsDetectAndPersistPortInconsistencies() {
+  public void shouldFindOneDisappearingPort() {
 
     when(nbiClientMock.findAllPhysicalPorts()).thenReturn(
         Lists.newArrayList(physicalPortMap.get("1"), physicalPortMap.get("2")));

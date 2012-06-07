@@ -250,7 +250,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   public void detectAndPersistPortInconsistencies() {
     logger.info("About to detect physical port inconsistencies, using cron expression: {}",
         environment.getPhysicalPortDectionJobCron());
-    
+
     final ImmutableSet<String> nbiPortIds = ImmutableSet.copyOf(Lists.transform(nbiClient.findAllPhysicalPorts(),
         Functions.TO_NETWORK_ELEMENT_PK));
 
@@ -269,26 +269,18 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   }
 
   @VisibleForTesting
-  List<PhysicalPort> markReappearedPortsInNMS(Map<String, PhysicalPort> physicalPorts, Set<String> nbiPortIds) {
+  List<PhysicalPort> markReappearedPortsInNMS(Map<String, PhysicalPort> bodPorts, Set<String> nbiPortIds) {
     List<PhysicalPort> reappearedPorts = Lists.newArrayList();
 
-    List<PhysicalPort> portsMarkedAsMissing = Lists.newArrayList(Collections2.filter(physicalPorts.values(),
-        new Predicate<PhysicalPort>() {
-          @Override
-          public boolean apply(PhysicalPort port) {
-            return port.isMissing();
-          }
-        }).iterator());
-
-    Set<String> missingPortIds = Sets
-        .newHashSet(Lists.transform(portsMarkedAsMissing, Functions.TO_NETWORK_ELEMENT_PK));
+    ImmutableSet<String> missingPortIds = FluentIterable.from(bodPorts.values()).filter(Functions.MISSING_PORTS)
+        .transform(Functions.TO_NETWORK_ELEMENT_PK).toImmutableSet();
 
     SetView<String> reappearedPortIds = Sets.intersection(missingPortIds, nbiPortIds);
     logger.info("Found {} ports reappeared in the NMS", reappearedPortIds.size());
 
     PhysicalPort reappearedPort = null;
     for (String portId : reappearedPortIds) {
-      reappearedPort = physicalPorts.get(portId);
+      reappearedPort = bodPorts.get(portId);
       reappearedPort.setMissing(false);
       reappearedPorts.add(reappearedPort);
       logger.debug("Port reappeared in the NMS: {}", reappearedPort);
@@ -298,10 +290,11 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   }
 
   /**
-   * Checks the {@link PhysicalPort}s in the given Map which are <strong>not</strong> indicated
-   * as missing have disappeared from the NMS by finding the differences between
-   * the ports in the given list and the ports returned by the NMS based on the
-   * {@link PhysicalPort#getNetworkElementPk()}.
+   * Checks the {@link PhysicalPort}s in the given Map which are
+   * <strong>not</strong> indicated as missing have disappeared from the NMS by
+   * finding the differences between the ports in the given list and the ports
+   * returned by the NMS based on the {@link PhysicalPort#getNetworkElementPk()}
+   * .
    * 
    * @param bodPorts
    *          List with ports from BoD

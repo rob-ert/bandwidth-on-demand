@@ -195,15 +195,13 @@ class NbiOfflineClient implements NbiClient {
     private final String id;
 
     public NbiPort(String name, String id) {
-      this.name = name;
-      this.id = id;
-      this.userLabel = Optional.absent();
+      this(name, id, null);
     }
 
     public NbiPort(String name, String id, String userLabel) {
       this.name = name;
       this.id = id;
-      this.userLabel = Optional.of(userLabel);
+      this.userLabel = Optional.fromNullable(userLabel);
     }
 
     public String getName() {
