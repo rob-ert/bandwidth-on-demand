@@ -63,9 +63,9 @@
                             </a></td>
                         </tr>
                         <tr>
-                            <td>Missing physicalPorts</td>
+                            <td>Missing physical ports</td>
                             <td><a href="${missingPhysicalPortsUrl}" rel="tooltip"
-                                title="Ports that have been removed in the NMS" data-type="info"> <c:out
+                                title="Physical ports that are no longer available in the NMS" data-type="info"> <c:out
                                         value="${stats.missingPhysicalPortsAmount}" />
                             </a></td>
                         </tr>
