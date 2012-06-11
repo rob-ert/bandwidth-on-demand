@@ -22,7 +22,7 @@ public final class PhysicalPortPredicatesAndSpecifications {
     @Override
     public javax.persistence.criteria.Predicate toPredicate(Root<PhysicalPort> physicalPort, CriteriaQuery<?> query,
         CriteriaBuilder cb) {
-      return cb.equal(physicalPort.get(PhysicalPort_.missing), true);
+      return cb.equal(physicalPort.get(PhysicalPort_.alignedWithNMS), false);
     }
   };
 

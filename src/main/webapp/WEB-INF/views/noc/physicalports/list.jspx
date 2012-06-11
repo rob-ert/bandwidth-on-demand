@@ -42,9 +42,9 @@
               <dd>
                 <c:out value="${item.vlanRequired}" />
               </dd>
-              <dt>Available in NMS</dt>
+              <dt>Aligned with NMS</dt>
               <dd>
-                <c:out value="${not item.missing}" />
+                <c:out value="${item.alignedWithNMS}" />
               </dd>
             </dl>
           </table:rowDetailsColumn>
@@ -53,23 +53,24 @@
           <table:column item="${item}" property="physicalResourceGroupName"
             render="${not show_unallocated}" />
           <table:column item="${item}" property="networkElementPk" />
-          <table:actionsColumn item="${item}"
-            delete="${item.deleteRender}"
+          <table:actionsColumn item="${item}" delete="${item.deleteRender}"
             deleteEnabled="${item.deleteAllowed}"
             deleteLabelCode="${item.deleteReasonKey}"
             deleteIcon="icon-resize-full"
             updateIcon="${show_unallocated ? 'icon-resize-small' : ''}"
             updateLabelCode="${show_unallocated ? 'label_allocate' : ''}"
             path="/noc/physicalports" idFieldName="networkElementPk"
-            labelCode="label_physicalport" 
-            alarm="${item.missing}">
-            <c:if test="${not (show_unallocated or item.missing)}">
-                 <spring:url var="moveUrl" value="/noc/physicalports/move">
-                    <spring:param name="id" value="${item.networkElementPk}" />
-                </spring:url>
-                <a href="${moveUrl}" rel="tooltip" data-type="info" title="Move Physical Port" ><i class="icon-truck"><!--  --></i></a>
+            labelCode="label_physicalport" alarm="${not item.alignedWithNMS}">
+            <c:if test="${show_unallocated}">
+              <spring:url var="moveUrl" value="/noc/physicalports/move">
+                <spring:param name="id" value="${item.networkElementPk}" />
+              </spring:url>
+              <a href="${moveUrl}" rel="tooltip" data-type="info"
+                title="Move Physical Port"><i class="icon-truck">
+                  <!--  -->
+              </i></a>
             </c:if>
-        </table:actionsColumn>
+          </table:actionsColumn>
         </tr>
       </c:forEach>
     </tbody>

@@ -26,7 +26,7 @@
                         <table:column item="${item}" property="numberOfVirtualPorts"/>
                         <table:column item="${item}" property="networkElementPk" />
                         <table:actionsColumn item="${item}"  delete="${item.deleteRender}" deleteEnabled="${item.deleteAllowed}" deleteLabelCode="${item.deleteReasonKey}"
-                            deleteIcon="icon-resize-full" path="/manager/physicalports" labelCode="label_physicalport" alarm="${item.missing}"/>
+                            deleteIcon="icon-resize-full" path="/manager/physicalports" labelCode="label_physicalport" alarm="${not item.alignedWithNMS}"/>
                     </tr>
                 </c:forEach>
             </tbody>

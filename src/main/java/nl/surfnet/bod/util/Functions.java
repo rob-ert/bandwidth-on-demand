@@ -142,7 +142,7 @@ public final class Functions {
   new Predicate<PhysicalPort>() {
     @Override
     public boolean apply(PhysicalPort physicalPort) {
-      return physicalPort.isMissing();
+      return physicalPort.isAlignedWithNMS();
     }
   };
 

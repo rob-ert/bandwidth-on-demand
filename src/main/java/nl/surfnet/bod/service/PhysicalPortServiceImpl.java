@@ -281,7 +281,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     PhysicalPort reappearedPort = null;
     for (String portId : reappearedPortIds) {
       reappearedPort = bodPorts.get(portId);
-      reappearedPort.setMissing(false);
+      reappearedPort.setAlignedWithNMS(true);
       reappearedPorts.add(reappearedPort);
       logger.debug("Port reappeared in the NMS: {}", reappearedPort);
     }
@@ -314,7 +314,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     PhysicalPort disappearedPort = null;
     for (String portId : dissapearedPortIds) {
       disappearedPort = bodPorts.get(portId);
-      disappearedPort.setMissing(true);
+      disappearedPort.setAlignedWithNMS(false);
       logger.debug("Port disappeared in the NMS: {}", disappearedPort);
       disappearedPorts.add(disappearedPort);
     }

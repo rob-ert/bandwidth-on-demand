@@ -66,7 +66,8 @@ public class PhysicalPort {
   private boolean vlanRequired;
 
   @Basic
-  private boolean missing;
+  @Column(name = "aligned_nms")
+  private boolean alignedWithNMS;
 
   public PhysicalPort() {
     this(false);
@@ -74,7 +75,7 @@ public class PhysicalPort {
 
   public PhysicalPort(boolean vlanRequired) {
     this.vlanRequired = vlanRequired;
-    this.missing = false;
+    this.alignedWithNMS = false;
   }
 
   public Long getId() {
@@ -145,19 +146,19 @@ public class PhysicalPort {
     return vlanRequired;
   }
 
-  public void setMissing(boolean missing) {
-    this.missing = missing;
+  public void setAlignedWithNMS(boolean missing) {
+    this.alignedWithNMS = missing;
   }
 
-  public boolean isMissing() {
-    return missing;
+  public boolean isAlignedWithNMS() {
+    return alignedWithNMS;
   }
 
   @Override
   public String toString() {
     return "PhysicalPort [id=" + id + ", version=" + version + ", nocLabel=" + nocLabel + ", managerLabel="
         + managerLabel + ", portId=" + portId + ", networkElementPk=" + networkElementPk + ", physicalResourceGroup="
-        + physicalResourceGroup + ", vlanRequired=" + vlanRequired + ", missing=" + missing + "]";
+        + physicalResourceGroup + ", vlanRequired=" + vlanRequired + ", alignedWithNMS=" + alignedWithNMS + "]";
   }
 
 }
