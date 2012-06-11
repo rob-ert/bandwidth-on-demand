@@ -42,6 +42,10 @@
               <dd>
                 <c:out value="${item.vlanRequired}" />
               </dd>
+              <dt>Available in NMS</dt>
+              <dd>
+                <c:out value="${not item.missing}" />
+              </dd>
             </dl>
           </table:rowDetailsColumn>
           <table:column item="${item}" property="nocLabel" />
