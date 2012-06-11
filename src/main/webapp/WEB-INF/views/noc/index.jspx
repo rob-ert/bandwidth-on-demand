@@ -23,8 +23,8 @@
                     var="activeReservationsUrl" />
                 <spring:url value="${stats.comingReservationsUrl}"
                     var="comingReservationsUrl" />
-                 <spring:url value="${stats.missingPhysicalPortsUrl}" 
-                    var="missingPhysicalPortsUrl"/>
+                 <spring:url value="${stats.unalignedPhysicalPortsUrl}" 
+                    var="unalignedPhysicalPortsUrl"/>
                     
                 <table id="idStats" class="table table-bordered table-striped">
                     <thead>
@@ -63,10 +63,10 @@
                             </a></td>
                         </tr>
                         <tr>
-                            <td>Missing physical ports</td>
-                            <td><a href="${missingPhysicalPortsUrl}" rel="tooltip"
+                            <td>Unaligned physical ports</td>
+                            <td><a href="${unalignedPhysicalPortsUrl}" rel="tooltip"
                                 title="Physical ports that are no longer available in the NMS" data-type="info"> <c:out
-                                        value="${stats.missingPhysicalPortsAmount}" />
+                                        value="${stats.unalignedPhysicalPortsAmount}" />
                             </a></td>
                         </tr>
                     </tbody>
