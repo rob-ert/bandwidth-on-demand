@@ -30,16 +30,16 @@ public class NocStatisticsView {
   private long activeReservationsAmount;
   private long comingReservationsAmount;
   private long physicalPortsAmount;
-  private long countMissingPhysicalPorts;
+  private long unalignedPhysicalPortsAmount;
 
   public NocStatisticsView(long countPhysicalPorts, long countElapsedReservations, long countActiveReservations,
-      long countComingReservations, long countMissingPhysicalPorts) {
+      long countComingReservations, long countUnalignedPhyscalPorts) {
 
     this.physicalPortsAmount = countPhysicalPorts;
     this.elapsedReservationsAmount = countElapsedReservations;
     this.activeReservationsAmount = countActiveReservations;
     this.comingReservationsAmount = countComingReservations;
-    this.countMissingPhysicalPorts = countMissingPhysicalPorts;
+    this.unalignedPhysicalPortsAmount = countUnalignedPhyscalPorts;
   }
 
   public long getElapsedReservationsAmount() {
@@ -70,12 +70,12 @@ public class NocStatisticsView {
     return ReservationController.COMING_URL;
   }
 
-  public long getMissingPhysicalPortsAmount() {
-    return countMissingPhysicalPorts;
+  public long getUnalignedPhysicalPortsAmount() {
+    return unalignedPhysicalPortsAmount;
   }
 
-  public String getMissingPhysicalPortsUrl() {
-    return PhysicalPortController.PAGE_MISSING_URL;
+  public String getUnalignedPhysicalPortsUrl() {
+    return PhysicalPortController.PAGE_UNALIGNED_URL;
   }
 
   public String getPpsUrl() {

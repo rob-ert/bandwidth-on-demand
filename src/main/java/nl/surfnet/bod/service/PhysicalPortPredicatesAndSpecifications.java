@@ -17,7 +17,7 @@ public final class PhysicalPortPredicatesAndSpecifications {
   private PhysicalPortPredicatesAndSpecifications() {
   }
 
-  public static final Specification<PhysicalPort> MISSING_PORT_SPEC = new Specification<PhysicalPort>() {
+  public static final Specification<PhysicalPort> UNALIGNED_PORT_SPEC = new Specification<PhysicalPort>() {
 
     @Override
     public javax.persistence.criteria.Predicate toPredicate(Root<PhysicalPort> physicalPort, CriteriaQuery<?> query,

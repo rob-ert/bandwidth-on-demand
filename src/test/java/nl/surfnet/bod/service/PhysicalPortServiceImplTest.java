@@ -232,7 +232,7 @@ public class PhysicalPortServiceImplTest {
   public void shouldFindTwoDissapearedPorts() {
     Set<String> nbiPortIds = Sets.newHashSet("3");
 
-    List<PhysicalPort> dissapearedPorts = subject.markDisappearedPortsFromNMS(physicalPortMap, nbiPortIds);
+    List<PhysicalPort> dissapearedPorts = subject.markUnalignedWithNMS(physicalPortMap, nbiPortIds);
 
     assertThat(dissapearedPorts, hasSize(2));
     assertThat(dissapearedPorts, hasItems(physicalPortMap.get("1"), physicalPortMap.get("2")));
@@ -243,7 +243,7 @@ public class PhysicalPortServiceImplTest {
     Set<String> nbiPortIds = Sets.newHashSet("3");
 
     physicalPortMap.get("2").setAlignedWithNMS(false);
-    List<PhysicalPort> dissapearedPorts = subject.markDisappearedPortsFromNMS(physicalPortMap, nbiPortIds);
+    List<PhysicalPort> dissapearedPorts = subject.markUnalignedWithNMS(physicalPortMap, nbiPortIds);
 
     assertThat(dissapearedPorts, hasSize(1));
     assertThat(dissapearedPorts, hasItems(physicalPortMap.get("1")));
@@ -253,7 +253,7 @@ public class PhysicalPortServiceImplTest {
   public void shouldFindNoDissapearedPorts() {
     Set<String> nbiPortIds = Sets.newHashSet("1", "2", "3");
 
-    List<PhysicalPort> dissapearedPorts = subject.markDisappearedPortsFromNMS(physicalPortMap, nbiPortIds);
+    List<PhysicalPort> dissapearedPorts = subject.markUnalignedWithNMS(physicalPortMap, nbiPortIds);
 
     assertThat(dissapearedPorts, hasSize(0));
   }
@@ -262,7 +262,7 @@ public class PhysicalPortServiceImplTest {
   public void shouldFindOneDissapearedPorts() {
     Set<String> nbiPortIds = Sets.newHashSet("1", "3");
 
-    List<PhysicalPort> dissapearedPorts = subject.markDisappearedPortsFromNMS(physicalPortMap, nbiPortIds);
+    List<PhysicalPort> dissapearedPorts = subject.markUnalignedWithNMS(physicalPortMap, nbiPortIds);
 
     assertThat(dissapearedPorts, hasSize(1));
     assertThat(dissapearedPorts, hasItems(physicalPortMap.get("2")));
@@ -272,7 +272,7 @@ public class PhysicalPortServiceImplTest {
   public void shouldFindNoDissapearedPortsWhenWithNewPort() {
     Set<String> nbiPortIds = Sets.newHashSet("4");
 
-    List<PhysicalPort> dissapearedPorts = subject.markDisappearedPortsFromNMS(physicalPortMap, nbiPortIds);
+    List<PhysicalPort> dissapearedPorts = subject.markUnalignedWithNMS(physicalPortMap, nbiPortIds);
 
     assertThat(dissapearedPorts, hasSize(3));
     assertThat(dissapearedPorts, hasItems(physicalPortMap.get("1"), physicalPortMap.get("2"), physicalPortMap.get("3")));
@@ -283,7 +283,7 @@ public class PhysicalPortServiceImplTest {
     Set<String> nbiPortIds = Sets.newHashSet();
     physicalPortMap.get("1").setAlignedWithNMS(true);
 
-    List<PhysicalPort> reappearedPorts = subject.markReappearedPortsInNMS(physicalPortMap, nbiPortIds);
+    List<PhysicalPort> reappearedPorts = subject.markRealignedPortsInNMS(physicalPortMap, nbiPortIds);
 
     assertThat(reappearedPorts, hasSize(0));
   }
@@ -296,7 +296,7 @@ public class PhysicalPortServiceImplTest {
     PhysicalPort portOne = physicalPortMap.get("1");
     portOne.setAlignedWithNMS(false);
 
-    List<PhysicalPort> reappearedPorts = subject.markReappearedPortsInNMS(physicalPortMap, nbiPortIds);
+    List<PhysicalPort> reappearedPorts = subject.markRealignedPortsInNMS(physicalPortMap, nbiPortIds);
 
     assertThat(reappearedPorts, hasSize(1));
     assertThat(reappearedPorts, hasItems(portOne));
@@ -310,7 +310,7 @@ public class PhysicalPortServiceImplTest {
     PhysicalPort portOne = physicalPortMap.get("1");
     portOne.setAlignedWithNMS(true);
 
-    List<PhysicalPort> reappearedPorts = subject.markReappearedPortsInNMS(physicalPortMap, nbiPortIds);
+    List<PhysicalPort> reappearedPorts = subject.markRealignedPortsInNMS(physicalPortMap, nbiPortIds);
 
     assertThat(reappearedPorts, hasSize(0));
   }

@@ -63,15 +63,15 @@ import com.google.common.collect.Sets.SetView;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
- *
+ * 
  * The {@link PhysicalPort}s found in the {@link NbiPortService} are leading and
  * when more data is available in our repository they will be enriched.
- *
+ * 
  * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
- *
- *
+ * 
+ * 
  * @author Frank Mölder
  */
 @Service
@@ -129,8 +129,8 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     return limitPorts(physicalPorts, firstResult, sizeNo);
   }
 
-  public List<PhysicalPort> findMissingPhysicalPorts() {
-    return physicalPortRepo.findAll(PhysicalPortPredicatesAndSpecifications.MISSING_PORT_SPEC);
+  public List<PhysicalPort> findUnalignedPhysicalPorts() {
+    return physicalPortRepo.findAll(PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC);
   }
 
   @VisibleForTesting
@@ -168,8 +168,8 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   }
 
   @Override
-  public long countMissingPhysicalPorts() {
-    return physicalPortRepo.count(PhysicalPortPredicatesAndSpecifications.MISSING_PORT_SPEC);
+  public long countUnalignedPhysicalPorts() {
+    return physicalPortRepo.count(PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC);
   }
 
   @Override
@@ -206,7 +206,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Adds data found in given ports to the specified ports, enriches them.
-   *
+   * 
    * @param nbiPorts
    *          {@link PhysicalPort}s to add the data to
    * @param repoPorts
@@ -261,29 +261,29 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     }
     final ImmutableMap<String, PhysicalPort> immutablePorts = ImmutableMap.copyOf(physicalPorts);
 
-    List<PhysicalPort> reappearedPortsInNMS = markReappearedPortsInNMS(immutablePorts, nbiPortIds);
+    List<PhysicalPort> reappearedPortsInNMS = markRealignedPortsInNMS(immutablePorts, nbiPortIds);
     physicalPortRepo.save(reappearedPortsInNMS);
 
-    List<PhysicalPort> dissapearedPortsFromNMS = markDisappearedPortsFromNMS(immutablePorts, nbiPortIds);
+    List<PhysicalPort> dissapearedPortsFromNMS = markUnalignedWithNMS(immutablePorts, nbiPortIds);
     physicalPortRepo.save(dissapearedPortsFromNMS);
   }
 
   @VisibleForTesting
-  List<PhysicalPort> markReappearedPortsInNMS(Map<String, PhysicalPort> bodPorts, Set<String> nbiPortIds) {
+  List<PhysicalPort> markRealignedPortsInNMS(Map<String, PhysicalPort> bodPorts, Set<String> nbiPortIds) {
     List<PhysicalPort> reappearedPorts = Lists.newArrayList();
 
-    ImmutableSet<String> missingPortIds = FluentIterable.from(bodPorts.values()).filter(Functions.MISSING_PORTS)
+    ImmutableSet<String> unalignedPortIds = FluentIterable.from(bodPorts.values()).filter(Functions.MISSING_PORTS)
         .transform(Functions.TO_NETWORK_ELEMENT_PK).toImmutableSet();
 
-    SetView<String> reappearedPortIds = Sets.intersection(missingPortIds, nbiPortIds);
-    logger.info("Found {} ports reappeared in the NMS", reappearedPortIds.size());
+    SetView<String> reAlignedPortIds = Sets.intersection(unalignedPortIds, nbiPortIds);
+    logger.info("Found {} ports realigned in the NMS", reAlignedPortIds.size());
 
     PhysicalPort reappearedPort = null;
-    for (String portId : reappearedPortIds) {
+    for (String portId : reAlignedPortIds) {
       reappearedPort = bodPorts.get(portId);
       reappearedPort.setAlignedWithNMS(true);
       reappearedPorts.add(reappearedPort);
-      logger.debug("Port reappeared in the NMS: {}", reappearedPort);
+      logger.debug("Port realigned in the NMS: {}", reappearedPort);
     }
 
     return reappearedPorts;
@@ -303,19 +303,19 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    * @return {@link List<PhysicalPort>} which were not missing but are now.
    */
   @VisibleForTesting
-  List<PhysicalPort> markDisappearedPortsFromNMS(final Map<String, PhysicalPort> bodPorts, final Set<String> nbiPortIds) {
+  List<PhysicalPort> markUnalignedWithNMS(final Map<String, PhysicalPort> bodPorts, final Set<String> nbiPortIds) {
     List<PhysicalPort> disappearedPorts = Lists.newArrayList();
 
     ImmutableSet<String> physicalPortIds = FluentIterable.from(bodPorts.values()).filter(Functions.NON_MISSING_PORTS)
         .transform(Functions.TO_NETWORK_ELEMENT_PK).toImmutableSet();
 
-    SetView<String> dissapearedPortIds = Sets.difference(physicalPortIds, nbiPortIds);
-    logger.info("Found {} ports disappeared in the NMS", dissapearedPortIds.size());
+    SetView<String> unalignedPortIds = Sets.difference(physicalPortIds, nbiPortIds);
+    logger.info("Found {} ports disappeared in the NMS", unalignedPortIds.size());
     PhysicalPort disappearedPort = null;
-    for (String portId : dissapearedPortIds) {
+    for (String portId : unalignedPortIds) {
       disappearedPort = bodPorts.get(portId);
       disappearedPort.setAlignedWithNMS(false);
-      logger.debug("Port disappeared in the NMS: {}", disappearedPort);
+      logger.debug("Port unaligned in the NMS: {}", disappearedPort);
       disappearedPorts.add(disappearedPort);
     }
 
@@ -324,10 +324,10 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Enriches the port with additional data.
-   *
+   * 
    * Clones JPA attributes (id and version), so a find will return these
    * preventing a additional save instead of an update.
-   *
+   * 
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort

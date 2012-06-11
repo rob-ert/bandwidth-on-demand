@@ -146,8 +146,8 @@ public class PhysicalPort {
     return vlanRequired;
   }
 
-  public void setAlignedWithNMS(boolean missing) {
-    this.alignedWithNMS = missing;
+  public void setAlignedWithNMS(boolean aligned) {
+    this.alignedWithNMS = aligned;
   }
 
   public boolean isAlignedWithNMS() {

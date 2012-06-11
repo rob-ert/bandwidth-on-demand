@@ -59,7 +59,7 @@ import com.google.common.collect.Iterables;
 public class PhysicalPortController extends AbstractSortableListController<PhysicalPortView> {
 
   public static final String PAGE_URL = "physicalports";
-  public static final String PAGE_MISSING_URL = "/noc/" + PAGE_URL + "/missing";
+  public static final String PAGE_UNALIGNED_URL = "/noc/" + PAGE_URL + "/unaligned";
 
   static final String MODEL_KEY = "createPhysicalPortCommand";
 
@@ -183,13 +183,13 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     return PAGE_URL + "/listunallocated";
   }
 
-  @RequestMapping(value = "/missing", method = RequestMethod.GET)
-  public String listMissing(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
+  @RequestMapping(value = "/unaligned", method = RequestMethod.GET)
+  public String listUnaligned(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
     uiModel.addAttribute("list",
-        Functions.transformPhysicalPorts(physicalPortService.findMissingPhysicalPorts(), virtualPortService));
+        Functions.transformPhysicalPorts(physicalPortService.findUnalignedPhysicalPorts(), virtualPortService));
 
-    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countMissingPhysicalPorts()));
+    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnalignedPhysicalPorts()));
 
     return PAGE_URL + "/listunallocated";
   }

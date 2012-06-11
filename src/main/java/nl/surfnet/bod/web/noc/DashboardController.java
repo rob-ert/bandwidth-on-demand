@@ -48,7 +48,7 @@ public class DashboardController {
     model.addAttribute("stats", determineStatistics());
     model.addAttribute("defaultDuration", ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL_STRING);
 
-    model.addAttribute("missingPorts", physicalPortService.findMissingPhysicalPorts());
+    model.addAttribute("missingPorts", physicalPortService.findUnalignedPhysicalPorts());
     return "noc/index";
   }
 
@@ -66,7 +66,7 @@ public class DashboardController {
     long countComingReservations = reservationService.countAllEntriesUsingFilter(reservationFilterViewFactory
         .create(ReservationFilterViewFactory.COMING));
 
-    long countMissingPhysicalPorts = physicalPortService.countMissingPhysicalPorts();
+    long countMissingPhysicalPorts = physicalPortService.countUnalignedPhysicalPorts();
 
     return new NocStatisticsView(countPhysicalPorts, countElapsedReservations, countActiveReservations,
         countComingReservations, countMissingPhysicalPorts);
