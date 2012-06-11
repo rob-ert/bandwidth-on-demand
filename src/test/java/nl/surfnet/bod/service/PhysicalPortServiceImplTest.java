@@ -242,7 +242,7 @@ public class PhysicalPortServiceImplTest {
   public void shouldOnlyFindNonMissingDisappearedPorts() {
     Set<String> nbiPortIds = Sets.newHashSet("3");
 
-    physicalPortMap.get("2").setAlignedWithNMS(true);
+    physicalPortMap.get("2").setAlignedWithNMS(false);
     List<PhysicalPort> dissapearedPorts = subject.markDisappearedPortsFromNMS(physicalPortMap, nbiPortIds);
 
     assertThat(dissapearedPorts, hasSize(1));
@@ -294,7 +294,7 @@ public class PhysicalPortServiceImplTest {
 
     // Mark missing
     PhysicalPort portOne = physicalPortMap.get("1");
-    portOne.setAlignedWithNMS(true);
+    portOne.setAlignedWithNMS(false);
 
     List<PhysicalPort> reappearedPorts = subject.markReappearedPortsInNMS(physicalPortMap, nbiPortIds);
 
@@ -308,7 +308,7 @@ public class PhysicalPortServiceImplTest {
 
     // Mark missing
     PhysicalPort portOne = physicalPortMap.get("1");
-    portOne.setAlignedWithNMS(false);
+    portOne.setAlignedWithNMS(true);
 
     List<PhysicalPort> reappearedPorts = subject.markReappearedPortsInNMS(physicalPortMap, nbiPortIds);
 
@@ -324,7 +324,7 @@ public class PhysicalPortServiceImplTest {
     subject.detectAndPersistPortInconsistencies();
 
     for (PhysicalPort port : physicalPortMap.values()) {
-      assertThat(port.isAlignedWithNMS(), is(false));
+      assertThat(port.isAlignedWithNMS(), is(true));
     }
 
     verify(physicalPortRepoMock, times(2)).save(anyListOf(PhysicalPort.class));
@@ -333,14 +333,14 @@ public class PhysicalPortServiceImplTest {
   @Test
   public void shouldFindOneReappearingPort() {
 
-    physicalPortMap.get("1").setAlignedWithNMS(true);
+    physicalPortMap.get("1").setAlignedWithNMS(false);
     when(nbiClientMock.findAllPhysicalPorts()).thenReturn(Lists.newArrayList(physicalPortMap.values()));
     when(physicalPortRepoMock.findAll()).thenReturn(Lists.newArrayList(physicalPortMap.values()));
 
     subject.detectAndPersistPortInconsistencies();
 
     for (PhysicalPort port : physicalPortMap.values()) {
-      assertThat(port.isAlignedWithNMS(), is(false));
+      assertThat(port.isAlignedWithNMS(), is(true));
     }
 
     verify(physicalPortRepoMock, times(2)).save(anyListOf(PhysicalPort.class));
@@ -355,9 +355,9 @@ public class PhysicalPortServiceImplTest {
 
     subject.detectAndPersistPortInconsistencies();
 
-    assertThat(physicalPortMap.get("1").isAlignedWithNMS(), is(false));
-    assertThat(physicalPortMap.get("2").isAlignedWithNMS(), is(false));
-    assertThat(physicalPortMap.get("3").isAlignedWithNMS(), is(true));
+    assertThat(physicalPortMap.get("1").isAlignedWithNMS(), is(true));
+    assertThat(physicalPortMap.get("2").isAlignedWithNMS(), is(true));
+    assertThat(physicalPortMap.get("3").isAlignedWithNMS(), is(false));
 
     verify(physicalPortRepoMock, times(2)).save(anyListOf(PhysicalPort.class));
   }

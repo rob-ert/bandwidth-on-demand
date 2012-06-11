@@ -75,7 +75,7 @@ public class PhysicalPort {
 
   public PhysicalPort(boolean vlanRequired) {
     this.vlanRequired = vlanRequired;
-    this.alignedWithNMS = false;
+    this.alignedWithNMS = true;
   }
 
   public Long getId() {
