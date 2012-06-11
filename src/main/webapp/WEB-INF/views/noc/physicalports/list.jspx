@@ -57,10 +57,11 @@
             deleteEnabled="${item.deleteAllowed}"
             deleteLabelCode="${item.deleteReasonKey}"
             deleteIcon="icon-resize-full"
+            update="${item.alignedWithNMS}"
             updateIcon="${show_unallocated ? 'icon-resize-small' : ''}"
             updateLabelCode="${show_unallocated ? 'label_allocate' : ''}"
             path="/noc/physicalports" idFieldName="networkElementPk"
-            labelCode="label_physicalport" alarm="${not item.alignedWithNMS}">
+            labelCode="label_physicalport" alarm="${not item.alignedWithNMS}" alarmLabel="label_physicalport_not_aligned">
             <c:if test="${show_unallocated}">
               <spring:url var="moveUrl" value="/noc/physicalports/move">
                 <spring:param name="id" value="${item.networkElementPk}" />
