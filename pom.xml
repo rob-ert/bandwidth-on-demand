@@ -673,6 +673,9 @@
                             <sourceDestDir>${project.build.directory}/generated-sources/jaxws/nsi/1.sc</sourceDestDir>
                             <destDir />
                             <staleFile>${project.build.directory}/generated-sources/jaxws/nsi/1.sc/gererate.done</staleFile>
+                            <bindingFiles>
+                                <bindingFile>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/1.sc/jaxb-bindings.xml</bindingFile>
+                            </bindingFiles>
                         </configuration>
                     </execution>
 
