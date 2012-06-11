@@ -59,6 +59,8 @@ import com.google.common.collect.Iterables;
 public class PhysicalPortController extends AbstractSortableListController<PhysicalPortView> {
 
   public static final String PAGE_URL = "physicalports";
+  public static final String PAGE_MISSING_URL = "/noc/" + PAGE_URL + "/missing";
+
   static final String MODEL_KEY = "createPhysicalPortCommand";
 
   @Autowired
@@ -181,13 +183,23 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     return PAGE_URL + "/listunallocated";
   }
 
+  @RequestMapping(value = "/missing", method = RequestMethod.GET)
+  public String listMissing(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
+
+    uiModel.addAttribute("list",
+        Functions.transformPhysicalPorts(physicalPortService.findMissingPhysicalPorts(), virtualPortService));
+
+    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countMissingPhysicalPorts()));
+
+    return PAGE_URL + "/listunallocated";
+  }
+
   @RequestMapping(value = "/mtosi", method = RequestMethod.GET)
-  public String listMtosi(@RequestParam(value = PAGE_KEY, required = false) final Integer page,
-      final Model uiModel) {
+  public String listMtosi(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
     uiModel.addAttribute("list", Functions.enrichAndTransformUnallocatedPhysicalPort(
-        (List<PhysicalPort>) physicalPortService.findUnallocatedMTOSIEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE),
-        instituteService));
+        (List<PhysicalPort>) physicalPortService.findUnallocatedMTOSIEntries(calculateFirstPage(page),
+            MAX_ITEMS_PER_PAGE), instituteService));
 
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocatedMTOSI()));
 
@@ -259,7 +271,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   *
+   * 
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)

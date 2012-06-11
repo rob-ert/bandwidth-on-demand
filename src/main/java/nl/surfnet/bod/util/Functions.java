@@ -52,7 +52,7 @@ public final class Functions {
    * @see #transformPhysicalPort(PhysicalPort, VirtualPortService)
    * 
    */
-  public static List<PhysicalPortView> transformAllocatedPhysicalPort(final List<PhysicalPort> ports,
+  public static List<PhysicalPortView> transformPhysicalPorts(final List<PhysicalPort> ports,
       final VirtualPortService virtualPortService) {
 
     List<PhysicalPortView> transformers = new ArrayList<PhysicalPortView>();

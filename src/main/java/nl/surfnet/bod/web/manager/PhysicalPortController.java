@@ -168,7 +168,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(groupId);
 
-    return (List<PhysicalPortView>) Functions.transformAllocatedPhysicalPort(physicalPortService
+    return (List<PhysicalPortView>) Functions.transformPhysicalPorts(physicalPortService
         .findAllocatedEntriesForPhysicalResourceGroup(physicalResourceGroup, firstPage, maxItems, sort),
         virtualPortService);
   }

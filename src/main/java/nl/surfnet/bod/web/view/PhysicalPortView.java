@@ -13,6 +13,7 @@ public class PhysicalPortView {
   private ElementActionView deleteActionView;
   private Long numberOfVirtualPorts;
   private final boolean vlanRequired;
+  private final boolean missing;
   private boolean deleteRender;
 
   public PhysicalPortView(final PhysicalPort physicalPort, final ElementActionView deleteActionView,
@@ -42,6 +43,7 @@ public class PhysicalPortView {
         .getPhysicalResourceGroup().getName();
     this.networkElementPk = physicalPort.getNetworkElementPk();
     this.vlanRequired = physicalPort.isVlanRequired();
+    this.missing = physicalPort.isMissing();
 
     this.numberOfVirtualPorts = 0L;
     this.deleteActionView = new ElementActionView(false, "");

@@ -31,4 +31,5 @@ import org.springframework.stereotype.Repository;
 public interface PhysicalPortRepo extends JpaSpecificationExecutor<PhysicalPort>, JpaRepository<PhysicalPort, Long> {
 
   PhysicalPort findByNetworkElementPk(String networkelementPk);
+  
 }

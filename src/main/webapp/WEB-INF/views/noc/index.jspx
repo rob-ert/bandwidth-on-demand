@@ -11,7 +11,7 @@
                 <h1>Welcome NOC Engineer</h1>
                 <div class="content">
                     <h3>Welcome to SURFnet's Bandwidth on Demand user interface.</h3>
-                </div>
+                 </div>
             </section>
             <section>
             <h2>Statistics</h2>
@@ -23,7 +23,9 @@
                     var="activeReservationsUrl" />
                 <spring:url value="${stats.comingReservationsUrl}"
                     var="comingReservationsUrl" />
-
+                 <spring:url value="${stats.missingPhysicalPortsUrl}" 
+                    var="missingPhysicalPortsUrl"/>
+                    
                 <table id="idStats" class="table table-bordered table-striped">
                     <thead>
                         <tr>
@@ -58,6 +60,13 @@
                             <td><a href="${comingReservationsUrl}" rel="tooltip"
                                 title="Coming Reservations" data-type="info"> <c:out
                                         value="${stats.comingReservationsAmount}" />
+                            </a></td>
+                        </tr>
+                        <tr>
+                            <td>Missing physicalPorts</td>
+                            <td><a href="${missingPhysicalPortsUrl}" rel="tooltip"
+                                title="Ports that have been removed in the NMS" data-type="info"> <c:out
+                                        value="${stats.missingPhysicalPortsAmount}" />
                             </a></td>
                         </tr>
                     </tbody>

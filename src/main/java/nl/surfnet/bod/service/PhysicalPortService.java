@@ -75,6 +75,14 @@ public interface PhysicalPortService {
   List<PhysicalPort> findAllocatedEntriesForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup,
       int firstResult, int sizeNo, Sort sort);
 
+  /**
+   * Finds all physical ports which are marked missing, since the are no longer
+   * present in the NMS.
+   * 
+   * @return list of physical ports
+   */
+  List<PhysicalPort> findMissingPhysicalPorts();
+
   long countUnallocated();
 
   long countAllocated();
@@ -82,6 +90,12 @@ public interface PhysicalPortService {
   long countUnallocatedMTOSI();
 
   long countAllocatedForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup);
+
+  /**
+   * 
+   * @return Count of all physical ports marked missing
+   */
+  long countMissingPhysicalPorts();
 
   void delete(final PhysicalPort physicalPort);
 

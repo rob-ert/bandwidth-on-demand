@@ -44,10 +44,11 @@ public class DashboardController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
-    
+
     model.addAttribute("stats", determineStatistics());
     model.addAttribute("defaultDuration", ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL_STRING);
 
+    model.addAttribute("missingPorts", physicalPortService.findMissingPhysicalPorts());
     return "noc/index";
   }
 
@@ -65,7 +66,9 @@ public class DashboardController {
     long countComingReservations = reservationService.countAllEntriesUsingFilter(reservationFilterViewFactory
         .create(ReservationFilterViewFactory.COMING));
 
+    long countMissingPhysicalPorts = physicalPortService.countMissingPhysicalPorts();
+
     return new NocStatisticsView(countPhysicalPorts, countElapsedReservations, countActiveReservations,
-        countComingReservations);
+        countComingReservations, countMissingPhysicalPorts);
   }
 }

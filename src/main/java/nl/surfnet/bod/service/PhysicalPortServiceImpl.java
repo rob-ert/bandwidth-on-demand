@@ -32,12 +32,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalPort_;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.mtosi.MtosiLiveClient;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -50,7 +45,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -135,6 +129,10 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     return limitPorts(physicalPorts, firstResult, sizeNo);
   }
 
+  public List<PhysicalPort> findMissingPhysicalPorts() {
+    return physicalPortRepo.findAll(PhysicalPortPredicatesAndSpecifications.MISSING_PORT_SPEC);
+  }
+
   @VisibleForTesting
   PhysicalPort transformMTOSIEToPhysicalPort(Entry<String, String> entry) {
     PhysicalPort physicalPort = new PhysicalPort();
@@ -151,12 +149,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   public Collection<PhysicalPort> findUnallocated() {
     List<PhysicalPort> allPorts = findAll();
 
-    return Collections2.filter(allPorts, new Predicate<PhysicalPort>() {
-      @Override
-      public boolean apply(PhysicalPort input) {
-        return input.getId() == null;
-      }
-    });
+    return Collections2.filter(allPorts, PhysicalPortPredicatesAndSpecifications.UNALLOCATED_PORTS_PRED);
   }
 
   @Override
@@ -172,6 +165,11 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   @Override
   public long countUnallocatedMTOSI() {
     return mtosiClient.getUnallocatedMtosiPortCount();
+  }
+
+  @Override
+  public long countMissingPhysicalPorts() {
+    return physicalPortRepo.count(PhysicalPortPredicatesAndSpecifications.MISSING_PORT_SPEC);
   }
 
   @Override
@@ -236,14 +234,16 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   public List<PhysicalPort> findAllocatedEntriesForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup,
       int firstResult, int maxResults, Sort sort) {
 
-    return physicalPortRepo.findAll(specificationForPhysicalResourceGroup(physicalResourceGroup),
+    return physicalPortRepo.findAll(
+        PhysicalPortPredicatesAndSpecifications.BY_PHYSICAL_RESOURCE_GROUP_SPEC(physicalResourceGroup),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
   @Override
   public long countAllocatedForPhysicalResourceGroup(final PhysicalResourceGroup physicalResourceGroup) {
 
-    return physicalPortRepo.count(specificationForPhysicalResourceGroup(physicalResourceGroup));
+    return physicalPortRepo.count(PhysicalPortPredicatesAndSpecifications
+        .BY_PHYSICAL_RESOURCE_GROUP_SPEC(physicalResourceGroup));
   }
 
   @Scheduled(cron = "${physicalport.detection.job.cron}")
@@ -320,19 +320,6 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     }
 
     return disappearedPorts;
-  }
-
-  private Specification<PhysicalPort> specificationForPhysicalResourceGroup(
-      final PhysicalResourceGroup physicalResourceGroup) {
-    return new Specification<PhysicalPort>() {
-
-      @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<PhysicalPort> root, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
-
-        return cb.equal(root.get(PhysicalPort_.physicalResourceGroup), physicalResourceGroup);
-      }
-    };
   }
 
   /**
