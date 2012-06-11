@@ -28,6 +28,10 @@
     color: #C09853;
 }
 
+td>a .icon-exclamation-sign:before {
+    color: #B94A48;
+}
+
 .modal-body p,
 .modal-body dl {
     margin-left: 60px;

@@ -57,8 +57,9 @@
             updateIcon="${show_unallocated ? 'icon-resize-small' : ''}"
             updateLabelCode="${show_unallocated ? 'label_allocate' : ''}"
             path="/noc/physicalports" idFieldName="networkElementPk"
-            labelCode="label_physicalport">
-            <c:if test="${not show_unallocated}">
+            labelCode="label_physicalport" 
+            alarm="${item.missing}">
+            <c:if test="${not (show_unallocated or item.missing)}">
                  <spring:url var="moveUrl" value="/noc/physicalports/move">
                     <spring:param name="id" value="${item.networkElementPk}" />
                 </spring:url>
