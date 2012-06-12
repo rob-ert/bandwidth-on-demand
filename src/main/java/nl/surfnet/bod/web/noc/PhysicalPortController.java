@@ -76,6 +76,9 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   private VirtualPortService virtualPortService;
 
   @Autowired
+  private ReservationService reservationService;
+
+  @Autowired
   private NocService nocService;
 
   @Autowired
@@ -250,11 +253,41 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
       return "redirect:/noc/physicalresourcegroups";
     }
 
+    long numberOfVirtualPorts = virtualPortService.countForPhysicalPort(port);
+    long numberOfReservations = reservationService.countForPhysicalPort(port);
+    long numberOfActiveReservations = reservationService.countActiveForPhysicalPort(port);
+
+    model.addAttribute("relatedObjects", new RelatedObjects(numberOfVirtualPorts, numberOfReservations,
+        numberOfActiveReservations));
     model.addAttribute("physicalPort", port);
     model.addAttribute("unallocatedPhysicalPorts", unallocatedPorts);
     model.addAttribute("movePhysicalPortCommand", new MovePhysicalPortCommand(port));
 
     return PAGE_URL + "/move";
+  }
+
+  public static final class RelatedObjects {
+    private final Long numberOfVirtualPorts;
+    private final Long numberOfReservations;
+    private final Long numberOfActiveReservations;
+
+    public RelatedObjects(Long numberOfVirtualPorts, Long numberOfReservations, Long numberOfActiveReservations) {
+      this.numberOfActiveReservations = numberOfActiveReservations;
+      this.numberOfVirtualPorts = numberOfVirtualPorts;
+      this.numberOfReservations = numberOfReservations;
+    }
+
+    public Long getNumberOfVirtualPorts() {
+      return numberOfVirtualPorts;
+    }
+
+    public Long getNumberOfReservations() {
+      return numberOfReservations;
+    }
+
+    public Long getNumberOfActiveReservations() {
+      return numberOfActiveReservations;
+    }
   }
 
   @RequestMapping(value = "move", method = RequestMethod.PUT)
@@ -271,7 +304,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   * 
+   *
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)

@@ -309,6 +309,16 @@ public class ReservationService {
     };
   }
 
+  private Specification<Reservation> specByPhysicalPort(final PhysicalPort port) {
+    return new Specification<Reservation>() {
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort), port),
+            cb.equal(root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort), port));
+      }
+    };
+  }
+
   private Specification<Reservation> specFilteredReservationsForUser(final ReservationFilterView filter,
       final RichUserDetails user) {
 
@@ -460,4 +470,18 @@ public class ReservationService {
     return findReservationWithStatus(ReservationStatus.RUNNING);
   }
 
+  public long countActiveForPhysicalPort(final PhysicalPort port) {
+    Specification<Reservation> statusSpec = new Specification<Reservation>() {
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return root.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES);
+      }
+    };
+
+    return reservationRepo.count(Specifications.where(specByPhysicalPort(port)).and(statusSpec));
+  }
+
+  public long countForPhysicalPort(final PhysicalPort port) {
+    return reservationRepo.count(specByPhysicalPort(port));
+  }
 }
