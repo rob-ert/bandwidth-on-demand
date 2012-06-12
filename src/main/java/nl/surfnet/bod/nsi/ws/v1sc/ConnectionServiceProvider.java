@@ -163,7 +163,7 @@ public class ConnectionServiceProvider extends ConnectionService {
     log.debug("Received reservation request with id: {}", reservationRequest.getCorrelationId());
     stateMachine.inserOrUpdateState(correlationId, INITIAL);
 
-    final ReservationInfoType reservation = reservationRequest.getReserve().getReservation();
+//    final ReservationInfoType reservation = reservationRequest.getReserve().getReservation();
     if (!isValidCorrelationId(correlationId)) {
       stateMachine.inserOrUpdateState(reservationRequest.getCorrelationId(), CLEANING);
       throw new ServiceException("SVC0001", getInvalidParameterServiceException("correlationId"));
@@ -213,7 +213,7 @@ public class ConnectionServiceProvider extends ConnectionService {
      * Get the connectionId from the reservation as we will use this to
      * serialize related requests.
      */
-    final String connectionId = reservation.getConnectionId();
+//    final String connectionId = reservation.getConnectionId();
     // log.debug("connectionId {}", connectionId);
 
     // Route this message to the appropriate actor for processing.

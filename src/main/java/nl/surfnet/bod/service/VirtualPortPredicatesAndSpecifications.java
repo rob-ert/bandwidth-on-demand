@@ -7,15 +7,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalPort_;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualPortRequestLink_;
-import nl.surfnet.bod.domain.VirtualPort_;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.joda.time.DateMidnight;
@@ -27,7 +19,7 @@ public final class VirtualPortPredicatesAndSpecifications {
   private VirtualPortPredicatesAndSpecifications() {
   }
 
-  static final Specification<VirtualPort> FOR_USER_SPEC(final RichUserDetails user) {
+  static Specification<VirtualPort> FOR_USER_SPEC(final RichUserDetails user) {
     return new Specification<VirtualPort>() {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
@@ -38,7 +30,7 @@ public final class VirtualPortPredicatesAndSpecifications {
     };
   }
 
-  static final Specification<VirtualPort> FOR_MANAGER_SPEC(final BodRole managerRole) {
+  static Specification<VirtualPort> FOR_MANAGER_SPEC(final BodRole managerRole) {
     return new Specification<VirtualPort>() {
 
       @Override
@@ -52,7 +44,7 @@ public final class VirtualPortPredicatesAndSpecifications {
     };
   }
 
-  static final Specification<VirtualPort> BY_PHYSICAL_PORT_SPEC(final PhysicalPort physicalPort) {
+  static Specification<VirtualPort> BY_PHYSICAL_PORT_SPEC(final PhysicalPort physicalPort) {
     return new Specification<VirtualPort>() {
 
       private Long physicalPortId = physicalPort.getId();
@@ -65,7 +57,7 @@ public final class VirtualPortPredicatesAndSpecifications {
     };
   }
 
-  static final Specification<VirtualPortRequestLink> BY_GROUP_ID_IN_LAST_MONTH_SPEC(final Collection<String> vrgUrns) {
+  static Specification<VirtualPortRequestLink> BY_GROUP_ID_IN_LAST_MONTH_SPEC(final Collection<String> vrgUrns) {
     return new Specification<VirtualPortRequestLink>() {
 
       @Override

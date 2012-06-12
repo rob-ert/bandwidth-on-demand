@@ -45,10 +45,10 @@ import com.google.common.annotations.VisibleForTesting;
 @Controller("nocDashboardController")
 @RequestMapping(DashboardController.PAGE_URL)
 public class DashboardController {
-  private static final String CHECK_PORTS = "/checkports";
 
   public static final String PAGE_URL = "/noc";
-  public static final String CHECK_PORTS_URL = PAGE_URL + CHECK_PORTS;
+  private static final String CHECK_PORTS = "/checkports";
+  private static final String CHECK_PORTS_URL = PAGE_URL + CHECK_PORTS;
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 

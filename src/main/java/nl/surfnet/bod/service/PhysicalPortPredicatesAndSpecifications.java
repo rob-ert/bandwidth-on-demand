@@ -35,8 +35,6 @@ import com.google.common.base.Predicate;
 
 public final class PhysicalPortPredicatesAndSpecifications {
 
-  private PhysicalPortPredicatesAndSpecifications() {
-  }
 
   static final Specification<PhysicalPort> UNALIGNED_PORT_SPEC = new Specification<PhysicalPort>() {
 
@@ -47,8 +45,17 @@ public final class PhysicalPortPredicatesAndSpecifications {
     }
   };
 
-  static final Specification<PhysicalPort> BY_PHYSICAL_RESOURCE_GROUP_SPEC(
-      final PhysicalResourceGroup physicalResourceGroup) {
+  static final Predicate<PhysicalPort> UNALLOCATED_PORTS_PRED = new Predicate<PhysicalPort>() {
+    @Override
+    public boolean apply(PhysicalPort input) {
+      return input.getId() == null;
+    }
+  };
+
+  private PhysicalPortPredicatesAndSpecifications() {
+  }
+
+  static Specification<PhysicalPort> byPhysicalResourceGroupSpec(final PhysicalResourceGroup physicalResourceGroup) {
     return new Specification<PhysicalPort>() {
 
       @Override
@@ -60,10 +67,4 @@ public final class PhysicalPortPredicatesAndSpecifications {
     };
   }
 
-  static final Predicate<PhysicalPort> UNALLOCATED_PORTS_PRED = new Predicate<PhysicalPort>() {
-    @Override
-    public boolean apply(PhysicalPort input) {
-      return input.getId() == null;
-    }
-  };
 }

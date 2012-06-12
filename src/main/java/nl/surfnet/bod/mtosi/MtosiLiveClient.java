@@ -43,10 +43,7 @@ import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.mri.wsdl.rir.v1_0.GetInventoryException;
 import org.tmforum.mtop.mri.wsdl.rir.v1_0.ResourceInventoryRetrievalRPC;
-import org.tmforum.mtop.mri.xsd.rir.v1.GetInventoryRequest;
-import org.tmforum.mtop.mri.xsd.rir.v1.GranularityType;
-import org.tmforum.mtop.mri.xsd.rir.v1.ObjectFactory;
-import org.tmforum.mtop.mri.xsd.rir.v1.SimpleFilterType;
+import org.tmforum.mtop.mri.xsd.rir.v1.*;
 import org.tmforum.mtop.mri.xsd.rir.v1.SimpleFilterType.IncludedObjectType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.InventoryDataType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagedElementInventoryType;
@@ -68,7 +65,7 @@ public class MtosiLiveClient {
       @Value("${mtosi.inventory.sender.uri}") String senderUri) {
     this.resourceInventoryRetrievalUrl = retrievalUrl;
     this.senderUri = senderUri;
-    
+
     log.info("Using ws at: {}", resourceInventoryRetrievalUrl);
   }
 
@@ -149,7 +146,7 @@ public class MtosiLiveClient {
     return getUnallocatedPorts().size();
   }
 
-  private final Holder<Header> getInventoryRequestHeaders() {
+  private Holder<Header> getInventoryRequestHeaders() {
     final Header header = new Header();
     header.setDestinationURI(resourceInventoryRetrievalUrl);
     header.setCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE);
@@ -159,6 +156,7 @@ public class MtosiLiveClient {
     header.setSenderURI(senderUri);
     header.setMsgType(MessageTypeType.REQUEST);
     log.debug("header: {}", header);
+
     return new Holder<Header>(header);
   }
 

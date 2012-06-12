@@ -21,19 +21,21 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static com.google.common.collect.Iterables.limit;
+import static com.google.common.collect.Iterables.skip;
+import static com.google.common.collect.Lists.newArrayList;
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec;
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC;
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALLOCATED_PORTS_PRED;
+
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.mtosi.MtosiLiveClient;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.Functions;
 
 import org.slf4j.Logger;
@@ -47,35 +49,20 @@ import org.springframework.stereotype.Service;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.google.common.collect.Sets.SetView;
-
-import static com.google.common.collect.Iterables.limit;
-import static com.google.common.collect.Iterables.skip;
-import static com.google.common.collect.Lists.newArrayList;
-
-import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.BY_PHYSICAL_RESOURCE_GROUP_SPEC;
-import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC;
-import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALLOCATED_PORTS_PRED;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
- * 
+ *
  * The {@link PhysicalPort}s found in the {@link NbiPortService} are leading and
  * when more data is available in our repository they will be enriched.
- * 
+ *
  * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
- * 
- * 
+ *
+ *
  * @author Frank Mölder
  */
 @Service
@@ -91,9 +78,6 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Autowired
   private MtosiLiveClient mtosiClient;
-
-  @Autowired
-  private Environment environment;
 
   /**
    * Finds all ports using the North Bound Interface and enhances these ports
@@ -211,7 +195,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Adds data found in given ports to the specified ports, enriches them.
-   * 
+   *
    * @param nbiPorts
    *          {@link PhysicalPort}s to add the data to
    * @param repoPorts
@@ -239,7 +223,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   public List<PhysicalPort> findAllocatedEntriesForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup,
       int firstResult, int maxResults, Sort sort) {
 
-    return physicalPortRepo.findAll(BY_PHYSICAL_RESOURCE_GROUP_SPEC(physicalResourceGroup),
+    return physicalPortRepo.findAll(byPhysicalResourceGroupSpec(physicalResourceGroup),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
@@ -247,7 +231,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   public long countAllocatedForPhysicalResourceGroup(final PhysicalResourceGroup physicalResourceGroup) {
 
     return physicalPortRepo.count(PhysicalPortPredicatesAndSpecifications
-        .BY_PHYSICAL_RESOURCE_GROUP_SPEC(physicalResourceGroup));
+        .byPhysicalResourceGroupSpec(physicalResourceGroup));
   }
 
   @Override
@@ -301,7 +285,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    * finding the differences between the ports in the given list and the ports
    * returned by the NMS based on the {@link PhysicalPort#getNetworkElementPk()}
    * .
-   * 
+   *
    * @param bodPorts
    *          List with ports from BoD
    * @param nbiPortIds
@@ -330,10 +314,10 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Enriches the port with additional data.
-   * 
+   *
    * Clones JPA attributes (id and version), so a find will return these
    * preventing a additional save instead of an update.
-   * 
+   *
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort
