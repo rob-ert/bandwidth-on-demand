@@ -305,9 +305,11 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     PhysicalPort newPort = physicalPortService.findByNetworkElementPk(command.getNewPhysicalPort());
     PhysicalPort oldPort = physicalPortService.find(command.getId());
 
-    nocService.movePort(oldPort, newPort);
+    Collection<Reservation> reservations = nocService.movePort(oldPort, newPort);
 
-    return "redirect:/noc/physicalports";
+    model.addAttribute("reservations", reservations);
+
+    return "physicalports/moveResult";
   }
 
   /**
