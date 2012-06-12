@@ -47,7 +47,12 @@
     <level value="INFO" />
   </logger>
 
-  <!-- <logger name="nl.surfnet.bod.nbi">
+<!--
+  <logger name="nl.surfnet.bod.web.push">
+    <level value="DEBUG" />
+  </logger>
+
+  <logger name="nl.surfnet.bod.nbi">
     <level value="DEBUG" />
   </logger>
 
@@ -57,7 +62,8 @@
 
   <logger name="org.hibernate.type">
     <level value="TRACE" />
-  </logger>-->
+  </logger>
+-->
 
   <!-- ======================= -->
   <!-- Setup the Root category -->
