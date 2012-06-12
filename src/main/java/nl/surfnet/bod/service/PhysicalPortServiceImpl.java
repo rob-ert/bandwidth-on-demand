@@ -243,9 +243,6 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Scheduled(cron = "${physicalport.detection.job.cron}")
   public void detectAndPersistPortInconsistencies() {
-    logger.debug("About to detect physical port inconsistencies, using cron expression: {}",
-        environment.getPhysicalPortDectionJobCron());
-
     final ImmutableSet<String> nbiPortIds = ImmutableSet.copyOf(Lists.transform(nbiClient.findAllPhysicalPorts(),
         Functions.TO_NETWORK_ELEMENT_PK));
 
