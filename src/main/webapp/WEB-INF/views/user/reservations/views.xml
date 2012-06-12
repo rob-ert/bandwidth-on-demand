@@ -4,9 +4,11 @@
     <definition extends="default" name="reservations/list">
         <put-attribute name="body" value="/WEB-INF/views/reservations/list.jspx" />
         <put-attribute name="active_menu" value="reservation" cascade="true" />
+        <put-attribute name="renderActions" value="true" cascade="true" />
     </definition>
-        <definition extends="default" name="reservations/create">
+
+    <definition extends="default" name="reservations/create">
         <put-attribute name="body" value="/WEB-INF/views/user/reservations/create.jspx" />
         <put-attribute name="active_menu" value="reservation" cascade="true" />
-    </definition>    
+    </definition>
 </tiles-definitions>
