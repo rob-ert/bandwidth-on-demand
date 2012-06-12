@@ -52,11 +52,11 @@
                                             <dt>Failed reason</dt>
                                             <dd>
                                                 <c:choose>
-                                                    <c:when test="${empty item.failedMessage}">
+                                                    <c:when test="${empty item.failedReason}">
                                                         -
                                                     </c:when>
                                                     <c:otherwise>
-                                                        <spring:eval expression="item['failedMessage']" htmlEscape="true" />
+                                                        <spring:eval expression="item['failedReason']" htmlEscape="true" />
                                                     </c:otherwise>
                                                 </c:choose>
                                             </dd>

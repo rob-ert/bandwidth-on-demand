@@ -155,10 +155,10 @@ class NbiOpenDracWsClient implements NbiClient {
           reasons.add(occurenceInfo.getReason());
         }
 
-        String failedMessage = Joiner.on(", ").join(reasons);
-        reservation.setFailedMessage(failedMessage);
+        String failedReason = Joiner.on(", ").join(reasons);
+        reservation.setFailedReason(failedReason);
 
-        log.info("Create reservation ({}) failed with '{}'", reservationId, failedMessage);
+        log.info("Create reservation ({}) failed with '{}'", reservationId, failedReason);
       }
 
       reservation.setReservationId(reservationId);

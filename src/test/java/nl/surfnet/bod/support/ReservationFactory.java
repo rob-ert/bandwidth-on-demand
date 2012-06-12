@@ -47,7 +47,7 @@ public class ReservationFactory {
   private String userCreated = "urn:truusvisscher";
   private Integer bandwidth = 10000;
   private String reservationId = "9" + String.valueOf(id);
-  private String failedMessage;
+  private String failedReason;
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
 
   public Reservation create() {
@@ -69,7 +69,7 @@ public class ReservationFactory {
     reservation.setUserCreated(userCreated);
     reservation.setBandwidth(bandwidth);
     reservation.setReservationId(reservationId);
-    reservation.setFailedMessage(failedMessage);
+    reservation.setFailedReason(failedReason);
 
     return reservation;
   }
@@ -84,8 +84,8 @@ public class ReservationFactory {
     return this;
   }
 
-  public ReservationFactory setFailedMessage(String failedMessage) {
-    this.failedMessage = failedMessage;
+  public ReservationFactory setFailedReason(String failedReason) {
+    this.failedReason = failedReason;
     return this;
   }
 

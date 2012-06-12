@@ -36,7 +36,7 @@ public class ReservationView {
   private final String sourcePort;
   private final String destinationPort;
   private final ReservationStatus status;
-  private final String failedMessage;
+  private final String failedReason;
   private final String cancelReason;
   @JsonSerialize(using = JsonLocalDateTimeSerializer.class)
   private final LocalDateTime startDateTime;
@@ -54,7 +54,7 @@ public class ReservationView {
     this.sourcePort = reservation.getSourcePort().getUserLabel();
     this.destinationPort = reservation.getDestinationPort().getUserLabel();
     this.status = reservation.getStatus();
-    this.failedMessage = reservation.getFailedMessage();
+    this.failedReason = reservation.getFailedReason();
     this.cancelReason = reservation.getCancelReason();
     this.startDateTime = reservation.getStartDateTime();
     this.endDateTime = reservation.getEndDateTime();
@@ -82,8 +82,8 @@ public class ReservationView {
     return status;
   }
 
-  public String getFailedMessage() {
-    return failedMessage;
+  public String getFailedReason() {
+    return failedReason;
   }
 
   public LocalDateTime getStartDateTime() {
@@ -137,7 +137,7 @@ public class ReservationView {
 
       return Objects.equal(this.id, resView.id)
           && Objects.equal(this.virtualResourceGroup, resView.virtualResourceGroup)
-          && Objects.equal(this.status, resView.status) && Objects.equal(this.failedMessage, resView.failedMessage)
+          && Objects.equal(this.status, resView.status) && Objects.equal(this.failedReason, resView.failedReason)
           && Objects.equal(this.sourcePort, resView.sourcePort)
           && Objects.equal(this.destinationPort, resView.destinationPort)
           && Objects.equal(this.startDateTime, resView.startDateTime)
@@ -153,7 +153,7 @@ public class ReservationView {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(id, virtualResourceGroup, sourcePort, destinationPort, status, failedMessage,
+    return Objects.hashCode(id, virtualResourceGroup, sourcePort, destinationPort, status, failedReason,
         startDateTime, endDateTime, bandwidth, userCreated, reservationId, creationDateTime, name);
   }
 

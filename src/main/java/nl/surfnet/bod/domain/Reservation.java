@@ -56,7 +56,7 @@ public class Reservation {
   @Enumerated(EnumType.STRING)
   private ReservationStatus status = ReservationStatus.REQUESTED;
 
-  private String failedMessage;
+  private String failedReason;
 
   private String cancelReason;
 
@@ -347,12 +347,12 @@ public class Reservation {
         .toString();
   }
 
-  public String getFailedMessage() {
-    return failedMessage;
+  public String getFailedReason() {
+    return failedReason;
   }
 
-  public void setFailedMessage(String failedMessage) {
-    this.failedMessage = failedMessage;
+  public void setFailedReason(String failedReason) {
+    this.failedReason = failedReason;
   }
 
   public String getName() {
@@ -365,7 +365,7 @@ public class Reservation {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(id, name, virtualResourceGroup, status, failedMessage, sourcePort, destinationPort,
+    return Objects.hashCode(id, name, virtualResourceGroup, status, failedReason, sourcePort, destinationPort,
         startDateTime, endDateTime, userCreated, bandwidth, creationDateTime);
   }
 
@@ -380,7 +380,7 @@ public class Reservation {
 
       return Objects.equal(this.id, res.id) && Objects.equal(this.name, res.name)
           && Objects.equal(this.virtualResourceGroup, res.virtualResourceGroup)
-          && Objects.equal(this.status, res.status) && Objects.equal(this.failedMessage, res.failedMessage)
+          && Objects.equal(this.status, res.status) && Objects.equal(this.failedReason, res.failedReason)
           && Objects.equal(this.sourcePort, res.sourcePort) && Objects.equal(this.destinationPort, res.destinationPort)
           && Objects.equal(this.startDateTime, res.startDateTime) && Objects.equal(this.endDateTime, res.endDateTime)
           && Objects.equal(this.userCreated, res.userCreated) && Objects.equal(this.bandwidth, res.bandwidth)

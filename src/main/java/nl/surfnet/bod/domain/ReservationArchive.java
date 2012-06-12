@@ -21,13 +21,7 @@
  */
 package nl.surfnet.bod.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Version;
+import javax.persistence.*;
 
 import org.hibernate.annotations.Type;
 import org.joda.time.LocalDateTime;
@@ -46,7 +40,7 @@ public class ReservationArchive {
   // reservation details
   // /////////////////////
   private final String name;
-  private final String failedMessage;
+  private final String failedReason;
 
   @Enumerated(EnumType.STRING)
   private ReservationStatus status = ReservationStatus.REQUESTED;
@@ -123,7 +117,7 @@ public class ReservationArchive {
     this.destinationUserLabel = reservation.getDestinationPort().getUserLabel();
     this.destinationVlanId = reservation.getDestinationPort().getVlanId();
     this.endDateTime = reservation.getEndDateTime();
-    this.failedMessage = reservation.getFailedMessage();
+    this.failedReason = reservation.getFailedReason();
     this.name = reservation.getName();
     this.physicalPortDestinationManagerLabel = reservation.getDestinationPort().getPhysicalPort().getManagerLabel();
     this.physicalPortDestinationNetworkElementPk = reservation.getDestinationPort().getPhysicalPort()
@@ -177,8 +171,8 @@ public class ReservationArchive {
     return status;
   }
 
-  public final String getFailedMessage() {
-    return failedMessage;
+  public final String getFailedReason() {
+    return failedReason;
   }
 
   public final LocalDateTime getStartDateTime() {
@@ -314,8 +308,8 @@ public class ReservationArchive {
     builder.append(version);
     builder.append(", name=");
     builder.append(name);
-    builder.append(", failedMessage=");
-    builder.append(failedMessage);
+    builder.append(", failedReason=");
+    builder.append(failedReason);
     builder.append(", status=");
     builder.append(status);
     builder.append(", startDateTime=");
