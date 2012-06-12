@@ -187,7 +187,7 @@ public class DashboardControllerTest {
 
     Model model = new ModelStub();
 
-    when(virtualPortServiceMock.findPendingRequests(user.getUserGroups())).thenReturn(ImmutableList.of(link));
+    when(virtualPortServiceMock.findRequestsForLastMonth(user.getUserGroups())).thenReturn(ImmutableList.of(link));
 
     String page = subject.index(model);
 

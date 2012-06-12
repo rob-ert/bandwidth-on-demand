@@ -75,8 +75,8 @@ public class DashboardController {
 
     model.addAttribute(
         "requests",
-        Orderings.vpRequestLinkOrdring().sortedCopy(
-            Collections2.transform(virtualPortService.findPendingRequests(userGroups),
+        Orderings.vpRequestLinkOrdering().sortedCopy(
+            Collections2.transform(virtualPortService.findRequestsForLastMonth(userGroups),
                 new Function<VirtualPortRequestLink, VirtualPortRequestLink>() {
                   @Override
                   public VirtualPortRequestLink apply(VirtualPortRequestLink input) {

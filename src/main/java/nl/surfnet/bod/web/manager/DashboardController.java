@@ -70,7 +70,7 @@ public class DashboardController {
     Collection<VirtualPortRequestLink> requests = virtualPortService.findPendingRequests(group);
 
     model.addAttribute("prg", group);
-    model.addAttribute("requests", Orderings.vpRequestLinkOrdring().sortedCopy(requests));
+    model.addAttribute("requests", Orderings.vpRequestLinkOrdering().sortedCopy(requests));
 
     model.addAttribute("stats", determineStatistics(Security.getUserDetails()));
     model.addAttribute("defaultDuration", ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL_STRING);

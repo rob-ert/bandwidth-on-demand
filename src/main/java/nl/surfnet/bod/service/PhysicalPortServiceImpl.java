@@ -21,12 +21,12 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.collect.Iterables.limit;
-import static com.google.common.collect.Iterables.skip;
-import static com.google.common.collect.Lists.newArrayList;
-
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -47,20 +47,35 @@ import org.springframework.stereotype.Service;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
+
+import static com.google.common.collect.Iterables.limit;
+import static com.google.common.collect.Iterables.skip;
+import static com.google.common.collect.Lists.newArrayList;
+
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.BY_PHYSICAL_RESOURCE_GROUP_SPEC;
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC;
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALLOCATED_PORTS_PRED;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
- *
+ * 
  * The {@link PhysicalPort}s found in the {@link NbiPortService} are leading and
  * when more data is available in our repository they will be enriched.
- *
+ * 
  * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
- *
- *
+ * 
+ * 
  * @author Frank Mölder
  */
 @Service
@@ -120,7 +135,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public List<PhysicalPort> findUnalignedPhysicalPorts() {
-    return physicalPortRepo.findAll(PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC);
+    return physicalPortRepo.findAll(UNALIGNED_PORT_SPEC);
   }
 
   @VisibleForTesting
@@ -139,7 +154,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   public Collection<PhysicalPort> findUnallocated() {
     List<PhysicalPort> allPorts = findAll();
 
-    return Collections2.filter(allPorts, PhysicalPortPredicatesAndSpecifications.UNALLOCATED_PORTS_PRED);
+    return Collections2.filter(allPorts, UNALLOCATED_PORTS_PRED);
   }
 
   @Override
@@ -159,7 +174,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public long countUnalignedPhysicalPorts() {
-    return physicalPortRepo.count(PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC);
+    return physicalPortRepo.count(UNALIGNED_PORT_SPEC);
   }
 
   @Override
@@ -196,7 +211,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Adds data found in given ports to the specified ports, enriches them.
-   *
+   * 
    * @param nbiPorts
    *          {@link PhysicalPort}s to add the data to
    * @param repoPorts
@@ -224,8 +239,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   public List<PhysicalPort> findAllocatedEntriesForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup,
       int firstResult, int maxResults, Sort sort) {
 
-    return physicalPortRepo.findAll(
-        PhysicalPortPredicatesAndSpecifications.BY_PHYSICAL_RESOURCE_GROUP_SPEC(physicalResourceGroup),
+    return physicalPortRepo.findAll(BY_PHYSICAL_RESOURCE_GROUP_SPEC(physicalResourceGroup),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
@@ -287,7 +301,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    * finding the differences between the ports in the given list and the ports
    * returned by the NMS based on the {@link PhysicalPort#getNetworkElementPk()}
    * .
-   *
+   * 
    * @param bodPorts
    *          List with ports from BoD
    * @param nbiPortIds
@@ -316,10 +330,10 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Enriches the port with additional data.
-   *
+   * 
    * Clones JPA attributes (id and version), so a find will return these
    * preventing a additional save instead of an update.
-   *
+   * 
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort

@@ -21,19 +21,19 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
@@ -43,12 +43,19 @@ import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.BY_PHYSICAL_PORT_SPEC;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.FOR_MANAGER_SPEC;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.FOR_USER_SPEC;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.BY_GROUP_ID_IN_LAST_MONTH_SPEC;
 
 @Service
 @Transactional
@@ -74,17 +81,17 @@ public class VirtualPortService {
     if (user.getUserGroups().isEmpty()) {
       return 0;
     }
-    return virtualPortRepo.count(specificationForUser(user));
+    return virtualPortRepo.count(FOR_USER_SPEC(user));
   }
 
   public long countForManager(BodRole managerRole) {
     checkArgument(managerRole.isManagerRole());
 
-    return virtualPortRepo.count(specificationForManager(managerRole));
+    return virtualPortRepo.count(FOR_MANAGER_SPEC(managerRole));
   }
 
   public long countForPhysicalPort(PhysicalPort physicalPort) {
-    return virtualPortRepo.count(specificationByPhysicalPort(physicalPort));
+    return virtualPortRepo.count(BY_PHYSICAL_PORT_SPEC(physicalPort));
   }
 
   public void delete(final VirtualPort virtualPort, RichUserDetails user) {
@@ -114,44 +121,7 @@ public class VirtualPortService {
       return Collections.emptyList();
     }
 
-    return virtualPortRepo.findAll(specificationForUser(user));
-  }
-
-  private Specification<VirtualPort> specificationForUser(final RichUserDetails user) {
-    return new Specification<VirtualPort>() {
-      @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
-        return cb.and(root.get(VirtualPort_.virtualResourceGroup).get(VirtualResourceGroup_.surfconextGroupId)
-            .in(user.getUserGroupIds()));
-      }
-    };
-  }
-
-  private Specification<VirtualPort> specificationForManager(final BodRole managerRole) {
-    return new Specification<VirtualPort>() {
-
-      @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
-        return cb.equal(
-                root.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
-                    .get(PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId());
-      }
-    };
-  }
-
-  private Specification<VirtualPort> specificationByPhysicalPort(final PhysicalPort physicalPort) {
-    return new Specification<VirtualPort>() {
-
-     private  Long physicalPortId = physicalPort.getId();
-
-      @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
-        return cb.and(cb.equal(root.get(VirtualPort_.physicalPort).get(PhysicalPort_.id), physicalPortId));
-      }
-    };
+    return virtualPortRepo.findAll(FOR_USER_SPEC(user));
   }
 
   public List<VirtualPort> findEntries(final int firstResult, final int maxResults) {
@@ -168,15 +138,15 @@ public class VirtualPortService {
       return Collections.emptyList();
     }
 
-    return virtualPortRepo.findAll(specificationForUser(user),
-        new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+    return virtualPortRepo.findAll(FOR_USER_SPEC(user), new PageRequest(firstResult / maxResults, maxResults, sort))
+        .getContent();
   }
 
   public List<VirtualPort> findEntriesForManager(BodRole managerRole, int firstResult, int maxResults, Sort sort) {
     checkArgument(maxResults > 0);
     checkArgument(managerRole.isManagerRole());
 
-    return virtualPortRepo.findAll(specificationForManager(managerRole),
+    return virtualPortRepo.findAll(FOR_MANAGER_SPEC(managerRole),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
@@ -199,7 +169,7 @@ public class VirtualPortService {
   public Collection<VirtualPort> findAllForPhysicalPort(PhysicalPort physicalPort) {
     checkNotNull(physicalPort);
 
-    return virtualPortRepo.findAll(specificationByPhysicalPort(physicalPort));
+    return virtualPortRepo.findAll(BY_PHYSICAL_PORT_SPEC(physicalPort));
   }
 
   public void requestNewVirtualPort(RichUserDetails user, VirtualResourceGroup vGroup, PhysicalResourceGroup pGroup,
@@ -236,14 +206,16 @@ public class VirtualPortService {
     return virtualPortRequestLinkRepo.findOne(id);
   }
 
-  public Collection<VirtualPortRequestLink> findPendingRequests(Collection<UserGroup> userGroups) {
-    return virtualPortRequestLinkRepo.findByVirtualResourceGroupSurfconextGroupIdInAndStatus(
-        Collections2.transform(userGroups, new Function<UserGroup, String>() {
-          @Override
-          public String apply(UserGroup group) {
-            return group.getId();
-          }
-        }), RequestStatus.PENDING);
+  public Collection<VirtualPortRequestLink> findRequestsForLastMonth(Collection<UserGroup> userGroups) {
+
+    Collection<String> groups = Collections2.transform(userGroups, new Function<UserGroup, String>() {
+      @Override
+      public String apply(UserGroup group) {
+        return group.getId();
+      }
+    });
+
+    return virtualPortRequestLinkRepo.findAll(BY_GROUP_ID_IN_LAST_MONTH_SPEC(groups));
   }
 
   public void requestLinkDeclined(VirtualPortRequestLink link, String declineMessage) {

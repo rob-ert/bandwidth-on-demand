@@ -99,7 +99,7 @@
         </section>
         <c:if test="${not requests.isEmpty()}">
             <section>
-                <h2>Your Teams Pending Virtual Port Requests</h2>
+                <h2><spring:message code="label_virtualport_pending_requests"/></h2>
                 <div class="content">
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -108,15 +108,17 @@
                                 <th>Institute</th>
                                 <th>Requestor</th>
                                 <th>Requested</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:forEach var="request" items="${requests}">
                                 <tr>
-                                    <td>${request.virtualResourceGroup.name}</td>
+                                    <td class="cw75">${request.virtualResourceGroup.name}</td>
                                     <td>${request.physicalResourceGroup.name}</td>
                                     <td>${request.requestorName}</td>
                                     <td><spring:eval expression="request.requestDateTime" /></td>
+                                    <td>${request.status}</td>
                                 </tr>
                             </c:forEach>
                         </tbody>
