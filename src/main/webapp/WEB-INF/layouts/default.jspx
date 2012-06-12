@@ -115,6 +115,12 @@
                         <c:out value=" ${infoMessage}" escapeXml="false"/>
                     </div>
                 </c:forEach>
+                <c:forEach items="${errorMessages}" var="errorMessage">
+                    <div class="alert alert-error">
+                        <a class="close" data-dismiss="alert">&amp;times;</a>
+                        <c:out value=" ${errorMessage}" escapeXml="false"/>
+                    </div>
+                </c:forEach>
             </div>
 
             <tiles:insertAttribute name="body" />

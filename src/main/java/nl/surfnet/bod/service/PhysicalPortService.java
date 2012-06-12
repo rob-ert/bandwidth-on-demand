@@ -118,4 +118,10 @@ public interface PhysicalPortService {
    */
   Collection<PhysicalPort> findUnallocatedMTOSIEntries(final int firstResult, final int sizeNo);
 
+  /**
+   * Forces to check for port unconstitencies, e.g. checking if there are ports
+   * unaligned or re-aligned with the NM.
+   */
+  void forceCheckForPortInconsitencies();
+
 }

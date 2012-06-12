@@ -246,6 +246,11 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
         .BY_PHYSICAL_RESOURCE_GROUP_SPEC(physicalResourceGroup));
   }
 
+  @Override
+  public void forceCheckForPortInconsitencies() {
+    detectAndPersistPortInconsistencies();
+  }
+
   @Scheduled(cron = "${physicalport.detection.job.cron}")
   public void detectAndPersistPortInconsistencies() {
     logger.info("About to detect physical port inconsistencies, using cron expression: {}",

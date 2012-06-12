@@ -57,6 +57,7 @@ public final class WebUtils {
   public static final int MAX_ITEMS_PER_PAGE = 15;
 
   public static final String INFO_MESSAGES_KEY = "infoMessages";
+  public static final String ERROR_MESSAGES_KEY = "errorMessages";
 
   public static final String PARAM_MARKUP_START = "<b>";
   public static final String PARAM_MARKUP_END = "</b>";
@@ -83,7 +84,7 @@ public final class WebUtils {
   }
 
   /**
-   *
+   * 
    * @return The user selected PhysicalResourceGroupId
    */
   public static Long getSelectedPhysicalResourceGroupId() {
@@ -96,14 +97,18 @@ public final class WebUtils {
     addMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs));
   }
 
-  public static void addInfoMessage(String extraHtml, RedirectAttributes model, MessageSource messageSource, String label,
-      String... messageArgs) {
+  public static void addInfoMessage(String extraHtml, RedirectAttributes model, MessageSource messageSource,
+      String label, String... messageArgs) {
     addMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs) + " " + extraHtml);
   }
 
-  public static void addInfoMessage(Model model, MessageSource messageSource, String label,
+  public static void addInfoMessage(Model model, MessageSource messageSource, String label, String... messageArgs) {
+    addInfoMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs));
+  }
+
+  public static void addErrorMessage(String extraHtml, Model model, MessageSource messageSource, String label,
       String... messageArgs) {
-    addMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs));
+    addErrorMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs) + " " + extraHtml);
   }
 
   public static String getMessageWithBoldArguments(MessageSource messageSource, String label, String... messageArgs) {
@@ -115,13 +120,12 @@ public final class WebUtils {
   }
 
   private static String[] makeArgsDisplayBold(String[] objects) {
-    return FluentIterable.from(Arrays.asList(objects))
-        .transform(new Function<String, String>() {
-          @Override
-          public String apply(String input) {
-            return String.format("<b>%s</b>", input);
-          }
-        }).toArray(String.class);
+    return FluentIterable.from(Arrays.asList(objects)).transform(new Function<String, String>() {
+      @Override
+      public String apply(String input) {
+        return String.format("<b>%s</b>", input);
+      }
+    }).toArray(String.class);
   }
 
   public static String getFirstInfoMessage(Model model) {
@@ -156,12 +160,24 @@ public final class WebUtils {
     }
   }
 
-  private static void addMessage(Model model, String message) {
+  private static void addInfoMessage(Model model, String message) {
     @SuppressWarnings("unchecked")
     List<String> messages = (List<String>) model.asMap().get(INFO_MESSAGES_KEY);
 
     if (messages == null) {
       model.addAttribute(INFO_MESSAGES_KEY, Lists.newArrayList(message));
+    }
+    else {
+      messages.add(message);
+    }
+  }
+
+  private static void addErrorMessage(Model model, String message) {
+    @SuppressWarnings("unchecked")
+    List<String> messages = (List<String>) model.asMap().get(ERROR_MESSAGES_KEY);
+
+    if (messages == null) {
+      model.addAttribute(ERROR_MESSAGES_KEY, Lists.newArrayList(message));
     }
     else {
       messages.add(message);
