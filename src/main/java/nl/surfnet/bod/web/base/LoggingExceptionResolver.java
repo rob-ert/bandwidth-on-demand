@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import nl.surfnet.bod.service.EmailSender;
+import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.Security;
 
 import org.slf4j.Logger;
@@ -40,6 +41,9 @@ public class LoggingExceptionResolver extends SimpleMappingExceptionResolver {
   @Autowired
   private EmailSender emailSender;
 
+  @Autowired
+  private Environment environment;
+
   @Override
   protected ModelAndView doResolveException(HttpServletRequest request,
       HttpServletResponse response,
@@ -48,7 +52,9 @@ public class LoggingExceptionResolver extends SimpleMappingExceptionResolver {
 
     logger.error("An exception occured during user request", ex);
 
-    emailSender.sendErrorMail(Security.getUserDetails(), ex, request);
+    if (!environment.isDevelopment()) {
+      emailSender.sendErrorMail(Security.getUserDetails(), ex, request);
+    }
 
     return super.doResolveException(request, response, handler, ex);
   }
