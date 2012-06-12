@@ -38,7 +38,7 @@ public final class PhysicalPortPredicatesAndSpecifications {
   private PhysicalPortPredicatesAndSpecifications() {
   }
 
-  public static final Specification<PhysicalPort> UNALIGNED_PORT_SPEC = new Specification<PhysicalPort>() {
+  static final Specification<PhysicalPort> UNALIGNED_PORT_SPEC = new Specification<PhysicalPort>() {
 
     @Override
     public javax.persistence.criteria.Predicate toPredicate(Root<PhysicalPort> physicalPort, CriteriaQuery<?> query,
@@ -47,7 +47,7 @@ public final class PhysicalPortPredicatesAndSpecifications {
     }
   };
 
-  public static Specification<PhysicalPort> BY_PHYSICAL_RESOURCE_GROUP_SPEC(
+  static final Specification<PhysicalPort> BY_PHYSICAL_RESOURCE_GROUP_SPEC(
       final PhysicalResourceGroup physicalResourceGroup) {
     return new Specification<PhysicalPort>() {
 
@@ -60,7 +60,7 @@ public final class PhysicalPortPredicatesAndSpecifications {
     };
   }
 
-  public static Predicate<PhysicalPort> UNALLOCATED_PORTS_PRED = new Predicate<PhysicalPort>() {
+  static final Predicate<PhysicalPort> UNALLOCATED_PORTS_PRED = new Predicate<PhysicalPort>() {
     @Override
     public boolean apply(PhysicalPort input) {
       return input.getId() == null;
