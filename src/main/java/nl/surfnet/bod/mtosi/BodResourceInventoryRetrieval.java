@@ -16,7 +16,7 @@ public class BodResourceInventoryRetrieval extends ResourceInventoryRetrievalHtt
 
     super(
         new ClassPathResource(
-            "/MTOSI-2.1/DDPs/ManageResourceInventory/IIS/wsdl/ResourceInventoryRetrieval/ResourceInventoryRetrievalHttp.wsdl")
+            "/mtosi/2.1/DDPs/ManageResourceInventory/IIS/wsdl/ResourceInventoryRetrieval/ResourceInventoryRetrievalHttp.wsdl")
             .getURL(), new QName("http://www.tmforum.org/mtop/mri/wsdl/rir/v1-0", "ResourceInventoryRetrievalHttp"));
   }
 

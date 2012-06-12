@@ -532,12 +532,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.tmforum.mtop</groupId>
-            <artifactId>mtosi</artifactId>
-            <version>2.n</version>
-        </dependency>
-
     </dependencies>
     <build>
         <resources>
@@ -665,16 +659,18 @@
                             <verbose>true</verbose>
                             <keep>true</keep>
                             <xnocompile>true</xnocompile>
-                            <wsdlDirectory>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/1.sc</wsdlDirectory>
+                            <wsdlDirectory>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi</wsdlDirectory>
                             <wsdlFiles>
                                 <wsdlFile>ogf_nsi_connection_provider_v1_0.wsdl</wsdlFile>
                                 <wsdlFile>ogf_nsi_connection_requester_v1_0.wsdl</wsdlFile>
+                                <wsdlFile>ogf_nsi_connection_provider_v1_1.wsdl</wsdlFile>
+                                <wsdlFile>ogf_nsi_connection_requester_v1_1.wsdl</wsdlFile>
                             </wsdlFiles>
-                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws/nsi/1.sc</sourceDestDir>
+                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws/nsi</sourceDestDir>
                             <destDir />
-                            <staleFile>${project.build.directory}/generated-sources/jaxws/nsi/1.sc/gererate.done</staleFile>
+                            <staleFile>${project.build.directory}/generated-sources/jaxws/nsi/gererate.done</staleFile>
                             <bindingFiles>
-                                <bindingFile>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/1.sc/jaxb-bindings.xml</bindingFile>
+                                <bindingFile>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/jaxb-bindings.xml</bindingFile>
                             </bindingFiles>
                         </configuration>
                     </execution>
@@ -688,36 +684,13 @@
                             <verbose>true</verbose>
                             <keep>true</keep>
                             <xnocompile>true</xnocompile>
-                            <wsdlDirectory>${basedir}/src/main/resources/MTOSI-2.1/DDPs/ManageResourceInventory/IIS/wsdl/ResourceInventoryRetrieval</wsdlDirectory>
+                            <wsdlDirectory>${basedir}/src/main/resources/mtosi/2.1/DDPs/ManageResourceInventory/IIS/wsdl/ResourceInventoryRetrieval</wsdlDirectory>
                             <wsdlFiles>
                                 <wsdlFile>ResourceInventoryRetrievalHttp.wsdl</wsdlFile>
                             </wsdlFiles>
-                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws/mtosi/2.1</sourceDestDir>
+                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws/mtosi</sourceDestDir>
                             <destDir />
-                            <staleFile>${project.build.directory}/generated-sources/jaxws/mtosi/2.1/gererate.done</staleFile>
-                        </configuration>
-                    </execution>
-
-
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb22-plugin</artifactId>
-                <version>0.8.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <schemaDirectory>${basedir}/src/main/resources/schema/nsa</schemaDirectory>
-                            <schemaIncludes>
-                                <include>*.xsd</include>
-                            </schemaIncludes>
-                            <generatePackage>nl.surfnet.bod.nsa.config</generatePackage>
-                            <removeOldOutput>true</removeOldOutput>
+                            <staleFile>${project.build.directory}/generated-sources/jaxws/mtosi/gererate.done</staleFile>
                         </configuration>
                     </execution>
                 </executions>
