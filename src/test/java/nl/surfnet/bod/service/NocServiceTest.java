@@ -48,27 +48,6 @@ public class NocServiceTest {
   }
 
   @Test
-  public void moveShouldCancelReservationsForOldPort() {
-    PhysicalPort oldPort = new PhysicalPortFactory().create();
-    PhysicalPort newPort = new PhysicalPortFactory().create();
-    VirtualPort port1 = new VirtualPortFactory().create();
-    VirtualPort port2 = new VirtualPortFactory().create();
-    Reservation reservation1 = new ReservationFactory().create();
-    Reservation reservation2 = new ReservationFactory().create();
-    Reservation reservation3 = new ReservationFactory().create();
-
-    when(virtualPortServiceMock.findAllForPhysicalPort(oldPort)).thenReturn(ImmutableList.of(port1, port2));
-    when(reservationServiceMock.findActiveByVirtualPort(port1)).thenReturn(ImmutableList.of(reservation1, reservation2));
-    when(reservationServiceMock.findActiveByVirtualPort(port2)).thenReturn(ImmutableList.of(reservation2, reservation3));
-
-    subject.movePort(oldPort, newPort);
-
-    verify(reservationServiceMock).cancel(reservation1, user);
-    verify(reservationServiceMock).cancel(reservation2, user);
-    verify(reservationServiceMock).cancel(reservation3, user);
-  }
-
-  @Test
   public void moveShouldRescheduleReservations() {
     LocalDateTime start = LocalDateTime.now().plusDays(2);
     LocalDateTime end = LocalDateTime.now().plusDays(5);
@@ -83,7 +62,7 @@ public class NocServiceTest {
       .setEndDateTime(end).create();
 
     when(virtualPortServiceMock.findAllForPhysicalPort(oldPort)).thenReturn(ImmutableList.of(vPort));
-    when(reservationServiceMock.findActiveByVirtualPort(vPort)).thenReturn(ImmutableList.of(reservation));
+    when(reservationServiceMock.findActiveByPhysicalPort(oldPort)).thenReturn(ImmutableList.of(reservation));
 
     subject.movePort(oldPort, newPort);
 

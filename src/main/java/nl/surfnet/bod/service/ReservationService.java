@@ -147,11 +147,6 @@ public class ReservationService {
     return reservationRepo.findBySourcePortOrDestinationPort(port, port);
   }
 
-  public Collection<Reservation> findActiveByVirtualPort(VirtualPort port) {
-    return reservationRepo.findBySourcePortOrDestinationPortAndStatusIn(port, port,
-        ImmutableList.copyOf(ReservationStatus.TRANSITION_STATES));
-  }
-
   public long countForUser(RichUserDetails user) {
     if (user.getUserGroups().isEmpty()) {
       return 0;
@@ -319,6 +314,15 @@ public class ReservationService {
     };
   }
 
+  private Specification<Reservation> specActiveReservations() {
+    return new Specification<Reservation>() {
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return root.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES);
+      }
+    };
+  }
+
   private Specification<Reservation> specFilteredReservationsForUser(final ReservationFilterView filter,
       final RichUserDetails user) {
 
@@ -470,15 +474,12 @@ public class ReservationService {
     return findReservationWithStatus(ReservationStatus.RUNNING);
   }
 
-  public long countActiveForPhysicalPort(final PhysicalPort port) {
-    Specification<Reservation> statusSpec = new Specification<Reservation>() {
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return root.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES);
-      }
-    };
+  public Collection<Reservation> findActiveByPhysicalPort(final PhysicalPort port) {
+    return reservationRepo.findAll(Specifications.where(specByPhysicalPort(port)).and(specActiveReservations()));
+  }
 
-    return reservationRepo.count(Specifications.where(specByPhysicalPort(port)).and(statusSpec));
+  public long countActiveForPhysicalPort(final PhysicalPort port) {
+    return reservationRepo.count(Specifications.where(specByPhysicalPort(port)).and(specActiveReservations()));
   }
 
   public long countForPhysicalPort(final PhysicalPort port) {

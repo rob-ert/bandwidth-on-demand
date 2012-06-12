@@ -1,8 +1,6 @@
 package nl.surfnet.bod.service;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
@@ -15,8 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 
 @Service
 public class NocService {
@@ -34,7 +30,7 @@ public class NocService {
   public Collection<Reservation> movePort(PhysicalPort oldPort, PhysicalPort newPort) {
     Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(oldPort);
 
-    Set<Reservation> reservations = getActiveReservations(virtualPorts);
+    Collection<Reservation> reservations = getActiveReservations(oldPort);
 
     cancelReservations(reservations);
 
@@ -53,7 +49,7 @@ public class NocService {
     return newReservations;
   }
 
-  private Collection<Reservation> makeNewReserations(Set<Reservation> reservations) {
+  private Collection<Reservation> makeNewReserations(Collection<Reservation> reservations) {
     return Collections2.transform(reservations,
         new Function<Reservation, Reservation>() {
           @Override
@@ -88,19 +84,13 @@ public class NocService {
     physicalPortService.save(newPort);
   }
 
-  private void cancelReservations(Set<Reservation> reservations) {
+  private void cancelReservations(Collection<Reservation> reservations) {
     for (Reservation reservation : reservations) {
       reservationService.cancel(reservation, Security.getUserDetails());
     }
   }
 
-  private HashSet<Reservation> getActiveReservations(Collection<VirtualPort> virtualPorts) {
-    return Sets.newHashSet(Iterables.concat(Iterables.transform(virtualPorts,
-        new Function<VirtualPort, Collection<Reservation>>() {
-          @Override
-          public Collection<Reservation> apply(VirtualPort vp) {
-            return reservationService.findActiveByVirtualPort(vp);
-          }
-        })));
+  private Collection<Reservation> getActiveReservations(PhysicalPort port) {
+    return reservationService.findActiveByPhysicalPort(port);
   }
 }

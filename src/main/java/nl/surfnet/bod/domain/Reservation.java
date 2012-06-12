@@ -333,11 +333,13 @@ public class Reservation {
   public String toString() {
     return Objects.toStringHelper(Reservation.class)
         .add("id", id)
+        .add("name", name)
         .add("reservationId", reservationId)
         .add("startDateTime", startDateTime)
         .add("endDateTime", endDateTime)
         .add("sourcePort", sourcePort.getUserLabel())
         .add("destinationPort", destinationPort.getUserLabel())
+        .add("status", status)
         .add("userCreated", userCreated)
         .add("creationDT", creationDateTime)
         .toString();
