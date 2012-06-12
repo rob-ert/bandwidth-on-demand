@@ -58,6 +58,8 @@ public class Reservation {
 
   private String failedMessage;
 
+  private String cancelReason;
+
   @NotNull
   @ManyToOne(optional = false)
   private VirtualPort sourcePort;
@@ -387,5 +389,13 @@ public class Reservation {
     else {
       return false;
     }
+  }
+
+  public String getCancelReason() {
+    return cancelReason;
+  }
+
+  public void setCancelReason(String cancelReason) {
+    this.cancelReason = cancelReason;
   }
 }

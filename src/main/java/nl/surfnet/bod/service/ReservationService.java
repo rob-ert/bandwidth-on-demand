@@ -173,17 +173,7 @@ public class ReservationService {
    * @return true if the reservation was canceled, false otherwise.
    */
   public boolean cancel(Reservation reservation, RichUserDetails user) {
-
-    if (isDeleteAllowed(reservation, user.getSelectedRole()).isAllowed()) {
-      nbiClient.cancelReservation(reservation.getReservationId());
-      reservation.setStatus(CANCELLED);
-      reservationRepo.save(reservation);
-      return true;
-    }
-    else {
-      log.info("Not allowed to cancel reservation {}", reservation.getName());
-    }
-    return false;
+    return cancelWithReason(reservation, "Cancelled by " + user.getDisplayName(), user);
   }
 
   /**
@@ -484,5 +474,19 @@ public class ReservationService {
 
   public long countForPhysicalPort(final PhysicalPort port) {
     return reservationRepo.count(specByPhysicalPort(port));
+  }
+
+  public boolean cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user) {
+    if (isDeleteAllowed(reservation, user.getSelectedRole()).isAllowed()) {
+      nbiClient.cancelReservation(reservation.getReservationId());
+      reservation.setStatus(CANCELLED);
+      reservation.setCancelReason(cancelReason);
+      reservationRepo.save(reservation);
+      return true;
+    }
+    else {
+      log.info("Not allowed to cancel reservation {}", reservation.getName());
+    }
+    return false;
   }
 }

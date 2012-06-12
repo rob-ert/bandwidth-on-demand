@@ -61,6 +61,19 @@
                                                 </c:choose>
                                             </dd>
                                         </c:if>
+                                        <c:if test="${item.status eq 'CANCELLED'}">
+                                            <dt>Cancelled reason</dt>
+                                            <dd>
+                                                <c:choose>
+                                                    <c:when test="${empty item.cancelReason}">
+                                                        -
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <spring:eval expression="item['cancelReason']" htmlEscape="true" />
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </dd>
+                                        </c:if>
                                     </dl>
                                 </div>
                                 <div class="span6">

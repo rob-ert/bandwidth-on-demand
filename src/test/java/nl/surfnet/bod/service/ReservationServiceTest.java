@@ -23,6 +23,7 @@ package nl.surfnet.bod.service;
 
 import static nl.surfnet.bod.matchers.DateMatchers.isAfterNow;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -178,14 +179,16 @@ public class ReservationServiceTest {
   @Test
   public void cancelAReservationAsAUserInGroupShouldChangeItsStatus() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
-    RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole().//
-        addUserGroup(reservation.getVirtualResourceGroup().getSurfconextGroupId()).create();
+    RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole()
+        .addUserGroup(reservation.getVirtualResourceGroup().getSurfconextGroupId())
+        .setDisplayname("Piet Puk").create();
     Security.setUserDetails(richUserDetails);
 
     boolean result = subject.cancel(reservation, richUserDetails);
 
     assertThat(result, is(true));
     assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
+    assertThat(reservation.getCancelReason(), containsString(richUserDetails.getDisplayName()));
 
     verify(reservationRepoMock).save(reservation);
     verify(nbiClientMock).cancelReservation(reservation.getReservationId());

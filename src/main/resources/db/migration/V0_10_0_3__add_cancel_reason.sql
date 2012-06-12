@@ -1,0 +1,1 @@
+ALTER TABLE reservation ADD COLUMN cancel_reason varchar(255);

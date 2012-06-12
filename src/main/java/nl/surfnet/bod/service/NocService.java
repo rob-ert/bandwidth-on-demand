@@ -71,22 +71,21 @@ public class NocService {
   }
 
   private Collection<Reservation> makeNewReserations(Collection<Reservation> reservations) {
-    return Collections2.transform(reservations,
-        new Function<Reservation, Reservation>() {
-          @Override
-          public Reservation apply(Reservation oldRes) {
-            Reservation newRes = new Reservation();
-            newRes.setStartDateTime(oldRes.getStartDateTime());
-            newRes.setEndDateTime(oldRes.getEndDateTime());
-            newRes.setSourcePort(oldRes.getSourcePort());
-            newRes.setDestinationPort(oldRes.getDestinationPort());
-            newRes.setName(oldRes.getName());
-            newRes.setBandwidth(oldRes.getBandwidth());
-            newRes.setUserCreated(oldRes.getUserCreated());
+    return Collections2.transform(reservations, new Function<Reservation, Reservation>() {
+      @Override
+      public Reservation apply(Reservation oldRes) {
+        Reservation newRes = new Reservation();
+        newRes.setStartDateTime(oldRes.getStartDateTime());
+        newRes.setEndDateTime(oldRes.getEndDateTime());
+        newRes.setSourcePort(oldRes.getSourcePort());
+        newRes.setDestinationPort(oldRes.getDestinationPort());
+        newRes.setName(oldRes.getName());
+        newRes.setBandwidth(oldRes.getBandwidth());
+        newRes.setUserCreated(oldRes.getUserCreated());
 
-            return newRes;
-          }
-        });
+        return newRes;
+      }
+    });
   }
 
   private void unallocateOldPort(PhysicalPort oldPort) {
@@ -107,7 +106,8 @@ public class NocService {
 
   private void cancelReservations(Collection<Reservation> reservations) {
     for (Reservation reservation : reservations) {
-      reservationService.cancel(reservation, Security.getUserDetails());
+      reservationService.cancelWithReason(reservation, "A physical port, which the reservation used was moved",
+          Security.getUserDetails());
     }
   }
 
