@@ -82,7 +82,7 @@ public final class Orderings {
     return ROLE_ORDERING;
   }
 
-  public static Ordering<VirtualPortRequestLink> vpRequestLinkOrdring() {
+  public static Ordering<VirtualPortRequestLink> vpRequestLinkOrdering() {
     return VP_REQUEST_LINK_ORDERING;
   }
 }
