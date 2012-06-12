@@ -154,6 +154,14 @@ public class BodNocWebDriver {
     page.findRow("Reservations in", "1");
   }
 
+  public void verifyReservationIsCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,
+      LocalTime startTime, LocalTime endTime) {
+
+    ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
+
+    page.verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
+  }
+
   public void verifyReservationIsNotCancellable(String reservationLabel, LocalDate startDate, LocalDate endDate,
       LocalTime startTime, LocalTime endTime) {
 
