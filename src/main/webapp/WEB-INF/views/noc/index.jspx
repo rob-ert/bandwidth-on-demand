@@ -87,8 +87,8 @@
                     <h3>Statistics</h3>
                     <p>
                         The most relevant statistics relevant for you are shown here. The total amounts for the <strong>complete BoD system</strong> are shown here. Sequentially
-                        you will find the total amount of allocated physical ports, elapsed reservation, currently active reservations and the amount of reservations for the coming
-                        period.
+                        you will find the total amount of allocated physical ports, elapsed reservation, currently active reservations, the amount of reservations for the coming
+                        period and the amount of unaligned ports between BoD and the NMS.
                     </p>
                     <p>You can navigate to the related page by clicking on the number.</p>
                 </div>
