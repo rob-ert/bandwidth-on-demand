@@ -21,7 +21,6 @@
  */
 package nl.surfnet.bod.repo;
 
-import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -40,6 +39,4 @@ public interface VirtualPortRequestLinkRepo extends JpaSpecificationExecutor<Vir
 
   List<VirtualPortRequestLink> findByPhysicalResourceGroupAndStatus(PhysicalResourceGroup prg, RequestStatus status);
 
-  List<VirtualPortRequestLink> findByVirtualResourceGroupSurfconextGroupIdInAndStatus(Collection<String> urns,
-      RequestStatus status);
 }
