@@ -30,6 +30,7 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -54,6 +55,9 @@ public class DashboardControllerTest {
 
   @Mock
   private ReservationService reservationServiceMock;
+
+  @Mock
+  private Environment environment;
 
   @Test
   public void shouldAddNullPrgToModel() {
@@ -84,11 +88,13 @@ public class DashboardControllerTest {
     when(reservationServiceMock.countAllEntriesUsingFilter(elapsedFilter)).thenReturn(3L);
     when(reservationServiceMock.countAllEntriesUsingFilter(activeFilter)).thenReturn(4L);
     when(reservationServiceMock.countAllEntriesUsingFilter(comingFilter)).thenReturn(5L);
+    when(physicalPortServiceMock.countUnalignedPhysicalPorts()).thenReturn(6L);
 
     NocStatisticsView statistics = subject.determineStatistics();
     assertThat(statistics.getPhysicalPortsAmount(), is(2L));
     assertThat(statistics.getElapsedReservationsAmount(), is(3L));
     assertThat(statistics.getActiveReservationsAmount(), is(4L));
     assertThat(statistics.getComingReservationsAmount(), is(5L));
+    assertThat(statistics.getUnalignedPhysicalPortsAmount(), is(6L));
   }
 }
