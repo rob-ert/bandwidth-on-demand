@@ -62,14 +62,13 @@
             updateLabelCode="${show_unallocated ? 'label_allocate' : ''}"
             path="/noc/physicalports" idFieldName="networkElementPk"
             labelCode="label_physicalport" alarm="${not item.alignedWithNMS}" alarmLabel="label_physicalport_not_aligned">
-            <c:if test="${show_unallocated}">
+            <c:if test="${not show_unallocated}">
               <spring:url var="moveUrl" value="/noc/physicalports/move">
                 <spring:param name="id" value="${item.networkElementPk}" />
               </spring:url>
-              <a href="${moveUrl}" rel="tooltip" data-type="info"
-                title="Move Physical Port"><i class="icon-truck">
-                  <!--  -->
-              </i></a>
+              <a href="${moveUrl}" rel="tooltip" data-type="info" title="Move Physical Port">
+                <i class="icon-truck"><!--  --></i>
+              </a>
             </c:if>
           </table:actionsColumn>
         </tr>
