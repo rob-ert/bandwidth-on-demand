@@ -130,7 +130,7 @@ public class PhysicalPortControllerTest {
 
   @Test
   public void listAllUnallocatedPortsShouldSetPortsAndMaxPages() {
-    Model model = new ModelStub();    
+    Model model = new ModelStub();
     PhysicalPort port = new PhysicalPortFactory().create();
     List<PhysicalPort> ports = Lists.newArrayList(port);
     //Unallocated can never be 'deleted'

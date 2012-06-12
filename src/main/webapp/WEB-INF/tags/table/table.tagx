@@ -11,7 +11,7 @@
             <c:if test="${not empty maxPages and maxPages > 1}">
                 <c:set var="table_classes" value="${table_classes} table-above-pagination"/>
             </c:if>
-        
+
             <table class="${table_classes}">
                 <jsp:doBody />
             </table>
