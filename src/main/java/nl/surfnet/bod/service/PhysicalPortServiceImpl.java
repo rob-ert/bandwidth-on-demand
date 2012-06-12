@@ -51,27 +51,20 @@ import org.springframework.stereotype.Service;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.google.common.collect.Sets.SetView;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
- * 
+ *
  * The {@link PhysicalPort}s found in the {@link NbiPortService} are leading and
  * when more data is available in our repository they will be enriched.
- * 
+ *
  * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
- * 
- * 
+ *
+ *
  * @author Frank Mölder
  */
 @Service
@@ -129,6 +122,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     return limitPorts(physicalPorts, firstResult, sizeNo);
   }
 
+  @Override
   public List<PhysicalPort> findUnalignedPhysicalPorts() {
     return physicalPortRepo.findAll(PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC);
   }
@@ -206,7 +200,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Adds data found in given ports to the specified ports, enriches them.
-   * 
+   *
    * @param nbiPorts
    *          {@link PhysicalPort}s to add the data to
    * @param repoPorts
@@ -253,7 +247,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Scheduled(cron = "${physicalport.detection.job.cron}")
   public void detectAndPersistPortInconsistencies() {
-    logger.info("About to detect physical port inconsistencies, using cron expression: {}",
+    logger.debug("About to detect physical port inconsistencies, using cron expression: {}",
         environment.getPhysicalPortDectionJobCron());
 
     final ImmutableSet<String> nbiPortIds = ImmutableSet.copyOf(Lists.transform(nbiClient.findAllPhysicalPorts(),
@@ -300,7 +294,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    * finding the differences between the ports in the given list and the ports
    * returned by the NMS based on the {@link PhysicalPort#getNetworkElementPk()}
    * .
-   * 
+   *
    * @param bodPorts
    *          List with ports from BoD
    * @param nbiPortIds
@@ -329,10 +323,10 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Enriches the port with additional data.
-   * 
+   *
    * Clones JPA attributes (id and version), so a find will return these
    * preventing a additional save instead of an update.
-   * 
+   *
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort
