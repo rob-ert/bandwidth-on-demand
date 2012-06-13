@@ -1,0 +1,5 @@
+ALTER TABLE reservation_archive RENAME COLUMN physical_port_destination_port_id TO physical_port_destination_bod_port_id;
+ALTER TABLE reservation_archive RENAME COLUMN physical_port_destination_network_element_pk TO physical_port_destination_nms_port_id;
+
+ALTER TABLE reservation_archive RENAME COLUMN physical_port_source_port_id TO physical_port_source_bod_port_id;
+ALTER TABLE reservation_archive RENAME COLUMN physical_port_source_network_element_pk TO physical_port_source_nms_port_id;
