@@ -106,7 +106,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     addCommand.setNetworkElementPk(port.getNetworkElementPk());
     addCommand.setNocLabel(port.getNocLabel());
     addCommand.setManagerLabel(port.hasManagerLabel() ? port.getManagerLabel() : "");
-    addCommand.setPortId(port.getPortId());
+    addCommand.setPortId(port.getBodPortId());
 
     model.addAttribute("addPhysicalPortCommand", addCommand);
     model.addAttribute("unallocatedPhysicalPorts", unallocatedPorts);
@@ -136,7 +136,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     else {
       port.setManagerLabel(addCommand.getManagerLabel());
     }
-    port.setPortId(addCommand.getPortId());
+    port.setBodPortId(addCommand.getPortId());
 
     physicalPortService.save(port);
 
@@ -158,7 +158,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     PhysicalPort portToSave = physicalPortService.findByNetworkElementPk(command.getNetworkElementPk());
     portToSave.setPhysicalResourceGroup(command.getPhysicalResourceGroup());
     portToSave.setNocLabel(command.getNocLabel());
-    portToSave.setPortId(command.getPortId());
+    portToSave.setBodPortId(command.getPortId());
     if (Strings.emptyToNull(command.getManagerLabel()) != null) {
       portToSave.setManagerLabel(command.getManagerLabel());
     }
@@ -442,7 +442,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
       setPhysicalResourceGroup(port.getPhysicalResourceGroup());
       setNocLabel(port.getNocLabel());
       setManagerLabel(port.hasManagerLabel() ? port.getManagerLabel() : "");
-      setPortId(port.getPortId());
+      setPortId(port.getBodPortId());
       this.version = port.getVersion();
     }
 

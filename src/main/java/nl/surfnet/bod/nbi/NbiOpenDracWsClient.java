@@ -420,7 +420,7 @@ class NbiOpenDracWsClient implements NbiClient {
       port.setNocLabel(endpoint.getUserLabel());
     }
     port.setNetworkElementPk(endpoint.getId());
-    port.setPortId(endpoint.getTna());
+    port.setBodPortId(endpoint.getTna());
 
     return port;
   }

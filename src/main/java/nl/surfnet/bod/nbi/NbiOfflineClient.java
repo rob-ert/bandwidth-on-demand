@@ -52,7 +52,7 @@ class NbiOfflineClient implements NbiClient {
     public PhysicalPort apply(NbiPort nbiPort) {
       PhysicalPort physicalPort = new PhysicalPort(isVlanRequired(nbiPort.getName()));
       physicalPort.setNetworkElementPk(nbiPort.getId());
-      physicalPort.setPortId("Mock_" + nbiPort.getName());
+      physicalPort.setBodPortId("Mock_" + nbiPort.getName());
       physicalPort.setNocLabel("Mock_" + nbiPort.getUserLabel().or(nbiPort.getName()));
 
       return physicalPort;

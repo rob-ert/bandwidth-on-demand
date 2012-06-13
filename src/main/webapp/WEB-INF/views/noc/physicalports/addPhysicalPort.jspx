@@ -20,15 +20,15 @@
         <div class="control-group">
             <label class="control-label">Unallocated ports</label>
             <div class="controls">
-                <select name="networkElementPk" data-component="physicalport-selector">
+                <select name="nmsPortId" data-component="physicalport-selector">
                     <c:forEach var="port" items="${unallocatedPhysicalPorts}">
                         <c:set var="managerLabel" value="${port.hasManagerLabel() ? port.managerLabel : ''}" />
                         <c:choose>
-                            <c:when test="${addPhysicalPortCommand.networkElementPk eq port.networkElementPk}">
-                                <option value="${port.networkElementPk}" data-noclabel="${port.nocLabel}" data-portid="${port.portId}" selected="true">${port.nocLabel}</option>
+                            <c:when test="${addPhysicalPortCommand.nmsPortId eq port.nmsPortId}">
+                                <option value="${port.nmsPortId}" data-noclabel="${port.nocLabel}" data-portid="${port.bodPortId}" selected="true">${port.nocLabel}</option>
                             </c:when>
                             <c:otherwise>
-                                <option value="${port.networkElementPk}" data-noclabel="${port.nocLabel}" data-portid="${port.portId}">${port.nocLabel}</option>
+                                <option value="${port.nmsPortId}" data-noclabel="${port.nocLabel}" data-portid="${port.bodPortId}">${port.nocLabel}</option>
                             </c:otherwise>
                         </c:choose>
                     </c:forEach>
@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        <field:input field="portId" id="portId" labelCode="physicalport_portid" />
+        <field:input field="bodPortId" id="bodPortId" labelCode="physicalport_bod_port_id" />
         <field:input field="nocLabel" id="nocLabel" labelCode="physicalport_nocLabel" />
         <field:input field="managerLabel" id="managerLabel" labelCode="physicalport_managerLabel"/>
     </form:create>

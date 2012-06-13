@@ -10,7 +10,7 @@
     <form:update id="fc_PhysicalPort" modelAttribute="createPhysicalPortCommand" path="/noc/physicalports" idField="networkElementPk">
         <field:input field="nocLabel" id="c_PhysicalPort_name" />
         <field:input field="managerLabel" id="c_PhysicalPort_managerlabel" />
-        <field:input field="portId" id="c_PhysicalPort_portid" />
+        <field:input field="bodPortId" id="c_PhysicalPort_bod_port_id" />
 
         <field:select field="physicalResourceGroup" id="c_PhysicalPort_physicalResourceGroup" itemValue="id"
             items="${physicalResourceGroupList}" path="/noc/physicalresourcegroups" />

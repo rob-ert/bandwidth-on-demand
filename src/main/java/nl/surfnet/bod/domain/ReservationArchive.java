@@ -123,11 +123,11 @@ public class ReservationArchive {
     this.physicalPortDestinationNetworkElementPk = reservation.getDestinationPort().getPhysicalPort()
         .getNetworkElementPk();
     this.physicalPortDestinationNocLabel = reservation.getDestinationPort().getPhysicalPort().getNocLabel();
-    this.physicalPortDestinationPortId = reservation.getDestinationPort().getPhysicalPort().getPortId();
+    this.physicalPortDestinationPortId = reservation.getDestinationPort().getPhysicalPort().getBodPortId();
     this.physicalPortSourceManagerLabel = reservation.getSourcePort().getPhysicalPort().getManagerLabel();
     this.physicalPortSourceNetworkElementPk = reservation.getDestinationPort().getPhysicalPort().getNetworkElementPk();
     this.physicalPortSourceNocLabel = reservation.getDestinationPort().getPhysicalPort().getNocLabel();
-    this.physicalPortSourcePortId = reservation.getDestinationPort().getPhysicalPort().getPortId();
+    this.physicalPortSourcePortId = reservation.getDestinationPort().getPhysicalPort().getBodPortId();
     this.reservationId = reservation.getReservationId();
     this.sourceManagerLabel = reservation.getSourcePort().getManagerLabel();
     this.sourceMaxBandwidth = reservation.getSourcePort().getMaxBandwidth();

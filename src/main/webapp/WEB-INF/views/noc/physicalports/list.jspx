@@ -20,8 +20,8 @@
         <table:rowDetailsHeader render="${not show_unallocated}" />
         <table:sortableHeader labelCode="label_physicalport_noclabel"
           property="nocLabel" sortable="${not show_unallocated}" />
-        <table:sortableHeader labelCode="label_physicalport_portid"
-          property="portId" sortable="${not show_unallocated}" />
+        <table:sortableHeader labelCode="label_physicalport_bod_port_id"
+          property="bodPortId" sortable="${not show_unallocated}" />
         <table:sortableHeader labelCode="label_physicalresourcegroup"
           property="physicalResourceGroup" render="${not show_unallocated}" />
         <table:sortableHeader labelCode="label_physicalport_networkelementpk"
@@ -49,7 +49,7 @@
             </dl>
           </table:rowDetailsColumn>
           <table:column item="${item}" property="nocLabel" />
-          <table:column item="${item}" property="portId" />
+          <table:column item="${item}" property="bodPortId" />
           <table:column item="${item}" property="physicalResourceGroupName"
             render="${not show_unallocated}" />
           <table:column item="${item}" property="networkElementPk" />

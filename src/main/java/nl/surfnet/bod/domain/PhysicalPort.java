@@ -53,7 +53,7 @@ public class PhysicalPort {
 
   @NotEmpty
   @Column(name="bod_port_id", nullable = false)
-  private String portId;
+  private String bodPortId;
 
   @Nullable
   @Column(name = "nms_port_id", unique = true, nullable = false)
@@ -134,12 +134,12 @@ public class PhysicalPort {
     return getPhysicalResourceGroup() != null;
   }
 
-  public String getPortId() {
-    return portId;
+  public String getBodPortId() {
+    return bodPortId;
   }
 
-  public void setPortId(String portId) {
-    this.portId = portId;
+  public void setBodPortId(String portId) {
+    this.bodPortId = portId;
   }
 
   public boolean isVlanRequired() {
@@ -157,7 +157,7 @@ public class PhysicalPort {
   @Override
   public String toString() {
     return "PhysicalPort [id=" + id + ", version=" + version + ", nocLabel=" + nocLabel + ", managerLabel="
-        + managerLabel + ", portId=" + portId + ", networkElementPk=" + networkElementPk + ", physicalResourceGroup="
+        + managerLabel + ", bodPortId=" + bodPortId + ", networkElementPk=" + networkElementPk + ", physicalResourceGroup="
         + physicalResourceGroup + ", vlanRequired=" + vlanRequired + ", alignedWithNMS=" + alignedWithNMS + "]";
   }
 

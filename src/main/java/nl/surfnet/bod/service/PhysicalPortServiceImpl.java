@@ -125,7 +125,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   @VisibleForTesting
   PhysicalPort transformMTOSIEToPhysicalPort(Entry<String, String> entry) {
     PhysicalPort physicalPort = new PhysicalPort();
-    physicalPort.setPortId(entry.getKey());
+    physicalPort.setBodPortId(entry.getKey());
     physicalPort.setNetworkElementPk(entry.getValue());
     return physicalPort;
   }
@@ -332,6 +332,6 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     portToEnrich.setVersion(dataPort.getVersion());
     portToEnrich.setNocLabel(dataPort.getNocLabel());
     portToEnrich.setManagerLabel(dataPort.getManagerLabel());
-    portToEnrich.setPortId(dataPort.getPortId());
+    portToEnrich.setBodPortId(dataPort.getBodPortId());
   }
 }

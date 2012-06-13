@@ -71,7 +71,7 @@ public class NbiClientTestIntegration {
   public void testRequireVlanIdWhenPortIdContainsLabel() {
     for (PhysicalPort port : nbiClient.findAllPhysicalPorts()) {
       assertThat(port.toString(), port.isVlanRequired(),
-          not(port.getPortId().toLowerCase().contains(NbiClient.VLAN_REQUIRED_SELECTOR)));
+          not(port.getBodPortId().toLowerCase().contains(NbiClient.VLAN_REQUIRED_SELECTOR)));
     }
   }
 
