@@ -52,12 +52,12 @@ public class PhysicalPort {
   private String managerLabel;
 
   @NotEmpty
-  @Column(name="bod_port_id", nullable = false)
+  @Column(nullable = false)
   private String bodPortId;
 
   @Nullable
-  @Column(name = "nms_port_id", unique = true, nullable = false)
-  private String networkElementPk;
+  @Column(unique = true, nullable = false)
+  private String nmsPortId;
 
   @ManyToOne
   private PhysicalResourceGroup physicalResourceGroup;
@@ -110,12 +110,12 @@ public class PhysicalPort {
     this.physicalResourceGroup = physicalResourceGroup;
   }
 
-  public String getNetworkElementPk() {
-    return networkElementPk;
+  public String getNmsPortId() {
+    return nmsPortId;
   }
 
-  public void setNetworkElementPk(String networkElementPk) {
-    this.networkElementPk = networkElementPk;
+  public void setNmsPortId(String nmsPortId) {
+    this.nmsPortId = nmsPortId;
   }
 
   public String getManagerLabel() {
@@ -157,7 +157,7 @@ public class PhysicalPort {
   @Override
   public String toString() {
     return "PhysicalPort [id=" + id + ", version=" + version + ", nocLabel=" + nocLabel + ", managerLabel="
-        + managerLabel + ", bodPortId=" + bodPortId + ", networkElementPk=" + networkElementPk + ", physicalResourceGroup="
+        + managerLabel + ", bodPortId=" + bodPortId + ", nmsPortId=" + nmsPortId + ", physicalResourceGroup="
         + physicalResourceGroup + ", vlanRequired=" + vlanRequired + ", alignedWithNMS=" + alignedWithNMS + "]";
   }
 

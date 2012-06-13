@@ -126,7 +126,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   PhysicalPort transformMTOSIEToPhysicalPort(Entry<String, String> entry) {
     PhysicalPort physicalPort = new PhysicalPort();
     physicalPort.setBodPortId(entry.getKey());
-    physicalPort.setNetworkElementPk(entry.getValue());
+    physicalPort.setNmsPortId(entry.getValue());
     return physicalPort;
   }
 
@@ -162,9 +162,9 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   }
 
   @Override
-  public PhysicalPort findByNetworkElementPk(final String networkElementPk) {
-    PhysicalPort nbiPort = nbiClient.findPhysicalPortByNetworkElementId(networkElementPk);
-    PhysicalPort repoPort = physicalPortRepo.findByNetworkElementPk(networkElementPk);
+  public PhysicalPort findByNmsPortId(final String nmsPortId) {
+    PhysicalPort nbiPort = nbiClient.findPhysicalPortByNmsPortId(nmsPortId);
+    PhysicalPort repoPort = physicalPortRepo.findByNmsPortId(nmsPortId);
 
     if (repoPort != null) {
       enrichPortWithPort(nbiPort, repoPort);
@@ -206,7 +206,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
       Collection<PhysicalPort> matchingPorts = Collections2.filter(repoPorts, new Predicate<PhysicalPort>() {
         @Override
         public boolean apply(final PhysicalPort port) {
-          return nbiPort.getNetworkElementPk().equals(port.getNetworkElementPk());
+          return nbiPort.getNmsPortId().equals(port.getNmsPortId());
         };
       });
 
@@ -247,7 +247,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     // Build map for easy lookup
     Map<String, PhysicalPort> physicalPorts = Maps.newHashMap();
     for (PhysicalPort port : physicalPortRepo.findAll()) {
-      physicalPorts.put(port.getNetworkElementPk(), port);
+      physicalPorts.put(port.getNmsPortId(), port);
     }
     final ImmutableMap<String, PhysicalPort> immutablePorts = ImmutableMap.copyOf(physicalPorts);
 
@@ -283,7 +283,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    * Checks the {@link PhysicalPort}s in the given Map which are
    * <strong>not</strong> indicated as missing have disappeared from the NMS by
    * finding the differences between the ports in the given list and the ports
-   * returned by the NMS based on the {@link PhysicalPort#getNetworkElementPk()}
+   * returned by the NMS based on the {@link PhysicalPort#getNmsPortId()}
    * .
    *
    * @param bodPorts

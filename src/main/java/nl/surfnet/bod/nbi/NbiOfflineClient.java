@@ -51,7 +51,7 @@ class NbiOfflineClient implements NbiClient {
     @Override
     public PhysicalPort apply(NbiPort nbiPort) {
       PhysicalPort physicalPort = new PhysicalPort(isVlanRequired(nbiPort.getName()));
-      physicalPort.setNetworkElementPk(nbiPort.getId());
+      physicalPort.setNmsPortId(nbiPort.getId());
       physicalPort.setBodPortId("Mock_" + nbiPort.getName());
       physicalPort.setNocLabel("Mock_" + nbiPort.getUserLabel().or(nbiPort.getName()));
 
@@ -178,13 +178,13 @@ class NbiOfflineClient implements NbiClient {
   }
 
   @Override
-  public PhysicalPort findPhysicalPortByNetworkElementId(final String networkElementId) {
-    Preconditions.checkNotNull(Strings.emptyToNull(networkElementId));
+  public PhysicalPort findPhysicalPortByNmsPortId(final String nmsPortId) {
+    Preconditions.checkNotNull(Strings.emptyToNull(nmsPortId));
 
     return Iterables.getOnlyElement(Iterables.transform(Iterables.filter(ports, new Predicate<NbiPort>() {
       @Override
       public boolean apply(NbiPort nbiPort) {
-        return nbiPort.getId().equals(networkElementId);
+        return nbiPort.getId().equals(nmsPortId);
       }
     }), TRANSFORM_FUNCTION));
   }

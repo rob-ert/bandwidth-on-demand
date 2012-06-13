@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.*;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -32,7 +30,12 @@ import javax.validation.constraints.NotNull;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.service.*;
+import nl.surfnet.bod.service.InstituteService;
+import nl.surfnet.bod.service.NocService;
+import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSortableListController;
@@ -51,9 +54,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.UPDATE;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 @Controller
 @RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
@@ -103,10 +115,10 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     addCommand.setPhysicalResourceGroup(prg);
     PhysicalPort port = Iterables.get(unallocatedPorts, 0);
 
-    addCommand.setNetworkElementPk(port.getNetworkElementPk());
+    addCommand.setNmsPortId(port.getNmsPortId());
     addCommand.setNocLabel(port.getNocLabel());
     addCommand.setManagerLabel(port.hasManagerLabel() ? port.getManagerLabel() : "");
-    addCommand.setPortId(port.getBodPortId());
+    addCommand.setBodPortId(port.getBodPortId());
 
     model.addAttribute("addPhysicalPortCommand", addCommand);
     model.addAttribute("unallocatedPhysicalPorts", unallocatedPorts);
@@ -124,7 +136,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
       return "physicalports/addPhysicalPort";
     }
 
-    PhysicalPort port = physicalPortService.findByNetworkElementPk(addCommand.getNetworkElementPk());
+    PhysicalPort port = physicalPortService.findByNmsPortId(addCommand.getNmsPortId());
     if (!Strings.isNullOrEmpty(addCommand.getManagerLabel())) {
       port.setManagerLabel(addCommand.getManagerLabel());
     }
@@ -136,7 +148,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     else {
       port.setManagerLabel(addCommand.getManagerLabel());
     }
-    port.setBodPortId(addCommand.getPortId());
+    port.setBodPortId(addCommand.getBodPortId());
 
     physicalPortService.save(port);
 
@@ -155,10 +167,10 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
       return PAGE_URL + UPDATE;
     }
 
-    PhysicalPort portToSave = physicalPortService.findByNetworkElementPk(command.getNetworkElementPk());
+    PhysicalPort portToSave = physicalPortService.findByNmsPortId(command.getNmsPortId());
     portToSave.setPhysicalResourceGroup(command.getPhysicalResourceGroup());
     portToSave.setNocLabel(command.getNocLabel());
-    portToSave.setBodPortId(command.getPortId());
+    portToSave.setBodPortId(command.getBodPortId());
     if (Strings.emptyToNull(command.getManagerLabel()) != null) {
       portToSave.setManagerLabel(command.getManagerLabel());
     }
@@ -210,10 +222,10 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   }
 
   @RequestMapping(value = "edit", params = ID_KEY, method = RequestMethod.GET)
-  public String updateForm(@RequestParam(ID_KEY) final String networkElementPk, final Model model) {
+  public String updateForm(@RequestParam(ID_KEY) final String nmsPortId, final Model model) {
     PhysicalPort port;
     try {
-      port = physicalPortService.findByNetworkElementPk(networkElementPk);
+      port = physicalPortService.findByNmsPortId(nmsPortId);
     }
     catch (IllegalStateException e) {
       return "redirect:";
@@ -225,10 +237,10 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   }
 
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
-  public String delete(@RequestParam(ID_KEY) final String networkElementPk,
+  public String delete(@RequestParam(ID_KEY) final String nmsPortId,
       @RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
-    PhysicalPort physicalPort = physicalPortService.findByNetworkElementPk(networkElementPk);
+    PhysicalPort physicalPort = physicalPortService.findByNmsPortId(nmsPortId);
     physicalPortService.delete(physicalPort);
 
     uiModel.asMap().clear();
@@ -238,10 +250,10 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   }
 
   @RequestMapping(value = "move", method = RequestMethod.GET)
-  public String moveForm(@RequestParam(ID_KEY) String networkElementPk, Model model, RedirectAttributes redirectAttrs) {
+  public String moveForm(@RequestParam(ID_KEY) String nmsPortId, Model model, RedirectAttributes redirectAttrs) {
     PhysicalPort port;
     try {
-      port = physicalPortService.findByNetworkElementPk(networkElementPk);
+      port = physicalPortService.findByNmsPortId(nmsPortId);
     }
     catch (IllegalStateException e) {
       return "redirect:";
@@ -293,7 +305,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   @RequestMapping(value = "move", method = RequestMethod.PUT)
   public String move(MovePhysicalPortCommand command, BindingResult result, Model model) {
 
-    PhysicalPort newPort = physicalPortService.findByNetworkElementPk(command.getNewPhysicalPort());
+    PhysicalPort newPort = physicalPortService.findByNmsPortId(command.getNewPhysicalPort());
     PhysicalPort oldPort = physicalPortService.find(command.getId());
 
     Collection<Reservation> reservations = nocService.movePort(oldPort, newPort);
@@ -306,7 +318,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   *
+   * 
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
@@ -368,11 +380,11 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     @NotNull
     private PhysicalResourceGroup physicalResourceGroup;
     @NotEmpty
-    private String networkElementPk;
+    private String nmsPortId;
     @NotEmpty
     private String nocLabel;
     @NotEmpty
-    private String portId;
+    private String bodPortId;
 
     private String managerLabel;
 
@@ -387,12 +399,12 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
       this.physicalResourceGroup = physicalResourceGroup;
     }
 
-    public String getNetworkElementPk() {
-      return networkElementPk;
+    public String getNmsPortId() {
+      return nmsPortId;
     }
 
-    public void setNetworkElementPk(String networkElementPk) {
-      this.networkElementPk = networkElementPk;
+    public void setNmsPortId(String nmsPortId) {
+      this.nmsPortId = nmsPortId;
     }
 
     public String getNocLabel() {
@@ -403,12 +415,12 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
       this.nocLabel = nocLabel;
     }
 
-    public String getPortId() {
-      return portId;
+    public String getBodPortId() {
+      return bodPortId;
     }
 
-    public void setPortId(String portId) {
-      this.portId = portId;
+    public void setBodPortId(String portId) {
+      this.bodPortId = portId;
     }
 
     public String getManagerLabel() {
@@ -421,10 +433,10 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     @Override
     public String toString() {
-      return Objects.toStringHelper(this).add("networkElementPk", networkElementPk).add("portId", portId)
-          .add("nocLabel", nocLabel).add("managerLabel", managerLabel)
-          .add("physicalResourceGroup", physicalResourceGroup).toString();
+      return "PhysicalPortCommand [physicalResourceGroup=" + physicalResourceGroup + ", nmsPortId=" + nmsPortId
+          + ", nocLabel=" + nocLabel + ", bodPortId=" + bodPortId + ", managerLabel=" + managerLabel + "]";
     }
+
   }
 
   public static final class AddPhysicalPortCommand extends PhysicalPortCommand {
@@ -438,11 +450,11 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     }
 
     public CreatePhysicalPortCommand(PhysicalPort port) {
-      setNetworkElementPk(port.getNetworkElementPk());
+      setNmsPortId(port.getNmsPortId());
       setPhysicalResourceGroup(port.getPhysicalResourceGroup());
       setNocLabel(port.getNocLabel());
       setManagerLabel(port.hasManagerLabel() ? port.getManagerLabel() : "");
-      setPortId(port.getBodPortId());
+      setBodPortId(port.getBodPortId());
       this.version = port.getVersion();
     }
 

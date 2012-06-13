@@ -84,31 +84,31 @@ public class BodNocWebDriver {
   /* Physical ports */
   /* ******************************************** */
 
-  public void linkPhysicalPort(String networkElementPk, String nocLabel, String physicalResourceGroup) {
-    linkPhysicalPort(networkElementPk, nocLabel, "", physicalResourceGroup);
+  public void linkPhysicalPort(String nmsPortId, String nocLabel, String physicalResourceGroup) {
+    linkPhysicalPort(nmsPortId, nocLabel, "", physicalResourceGroup);
   }
 
-  public void linkPhysicalPort(String networkElementPk, String nocLabel, String managerLabel,
+  public void linkPhysicalPort(String nmsPortId, String nocLabel, String managerLabel,
       String physicalResourceGroup) {
     ListUnallocatedPortsPage listPage = ListUnallocatedPortsPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
-    EditPhysicalPortPage editPage = listPage.edit(networkElementPk);
+    EditPhysicalPortPage editPage = listPage.edit(nmsPortId);
     editPage.sendNocLabel(nocLabel);
     editPage.sendManagerLabel(managerLabel);
     editPage.selectPhysicalResourceGroup(physicalResourceGroup);
     editPage.save();
   }
 
-  public void unlinkPhysicalPort(String networkElementPk) {
+  public void unlinkPhysicalPort(String nmsPortId) {
     ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
 
-    page.unlinkPhysicalPort(networkElementPk);
+    page.unlinkPhysicalPort(nmsPortId);
   }
 
-  public void gotoEditPhysicalPortAndVerifyManagerLabel(String networkElementPk, String managerLabel) {
+  public void gotoEditPhysicalPortAndVerifyManagerLabel(String nmsPortId, String managerLabel) {
     ListAllocatedPortsPage listPage = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
 
-    EditPhysicalPortPage editPage = listPage.edit(networkElementPk);
+    EditPhysicalPortPage editPage = listPage.edit(nmsPortId);
 
     assertThat(editPage.getManagerLabel(), is(managerLabel));
   }
@@ -163,28 +163,28 @@ public class BodNocWebDriver {
         "no right to cancel");
   }
 
-  public void verifyPhysicalPortHasEnabledUnallocateIcon(String networkElementPk, String label) {
+  public void verifyPhysicalPortHasEnabledUnallocateIcon(String nmsPortId, String label) {
     ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
 
-    page.verifyPhysicalPortHasEnabledUnallocateIcon(networkElementPk, label);
+    page.verifyPhysicalPortHasEnabledUnallocateIcon(nmsPortId, label);
   }
 
-  public void verifyPhysicalPortHasDisabeldUnallocateIcon(String networkElementPk, String label, String toolTipText) {
+  public void verifyPhysicalPortHasDisabeldUnallocateIcon(String nmsPortId, String label, String toolTipText) {
     ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
 
-    page.verifyPhysicalPortHasDisabledUnallocateIcon(networkElementPk, label, toolTipText);
+    page.verifyPhysicalPortHasDisabledUnallocateIcon(nmsPortId, label, toolTipText);
   }
 
-  public void verifyPhysicalPortIsNotOnUnallocatedPage(String networkElementPk, String label) {
+  public void verifyPhysicalPortIsNotOnUnallocatedPage(String nmsPortId, String label) {
     ListUnallocatedPortsPage page = ListUnallocatedPortsPage.get(driver, URL_UNDER_TEST);
 
-    page.verifyPhysicalPortIsNotOnUnallocatedPage(networkElementPk, label);
+    page.verifyPhysicalPortIsNotOnUnallocatedPage(nmsPortId, label);
   }
 
-  public void verifyPhysicalPortWasAllocated(String networkElementPk, String label) {
+  public void verifyPhysicalPortWasAllocated(String nmsPortId, String label) {
     ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
 
-    page.verifyPhysicalPortWasAllocated(networkElementPk, label);
+    page.verifyPhysicalPortWasAllocated(nmsPortId, label);
   }
 
   public void movePhysicalPort(String name) {

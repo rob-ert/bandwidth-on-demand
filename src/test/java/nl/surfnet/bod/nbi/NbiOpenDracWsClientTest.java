@@ -84,10 +84,10 @@ public class NbiOpenDracWsClientTest {
 
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
     sourcePort = new VirtualPortFactory()
-        .setPhysicalPort(new PhysicalPortFactory().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4").create())
+        .setPhysicalPort(new PhysicalPortFactory().setNmsPortId("00-21-E1-D9-CC-70_ETH-1-36-4").create())
         .setVirtualResourceGroup(vrg).create();
     destPort = new VirtualPortFactory()
-        .setPhysicalPort(new PhysicalPortFactory().setNetworkElementPk("00-21-E1-D9-CC-70_ETH-1-36-4").create())
+        .setPhysicalPort(new PhysicalPortFactory().setNmsPortId("00-21-E1-D9-CC-70_ETH-1-36-4").create())
         .setVirtualResourceGroup(vrg).create();
 
     when(networkingServiceMock.queryEndpoints(any(QueryEndpointsRequestDocument.class), any(SecurityDocument.class)))

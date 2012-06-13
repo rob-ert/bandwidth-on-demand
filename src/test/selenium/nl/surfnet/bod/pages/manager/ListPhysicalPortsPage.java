@@ -47,14 +47,14 @@ public class ListPhysicalPortsPage extends AbstractPhysicalPortListPage {
     return get(driver);
   }
 
-  public EditPhysicalPortPage edit(String networkElementPk) {
-    editRow(networkElementPk);
+  public EditPhysicalPortPage edit(String nmsPortId) {
+    editRow(nmsPortId);
 
     return EditPhysicalPortPage.get(driver);
   }
 
-  public void newVirtualPort(String networkElementPk) {
-    findRow(networkElementPk).findElement(By.cssSelector("a img[alt~=Create]")).click();
+  public void newVirtualPort(String nmsPortId) {
+    findRow(nmsPortId).findElement(By.cssSelector("a img[alt~=Create]")).click();
   }
 
 }

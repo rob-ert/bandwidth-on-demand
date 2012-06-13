@@ -46,12 +46,12 @@ public class ListAllocatedPortsPage extends AbstractPhysicalPortListPage {
     return page;
   }
 
-  public void unlinkPhysicalPort(String networkElementPk) {
-    deleteForIcon("icon-resize-full", networkElementPk);
+  public void unlinkPhysicalPort(String nmsPortId) {
+    deleteForIcon("icon-resize-full", nmsPortId);
   }
 
-  public EditPhysicalPortPage edit(String networkElementPk) {
-    editRow(networkElementPk);
+  public EditPhysicalPortPage edit(String nmsPortId) {
+    editRow(nmsPortId);
 
     return EditPhysicalPortPage.get(driver);
   }

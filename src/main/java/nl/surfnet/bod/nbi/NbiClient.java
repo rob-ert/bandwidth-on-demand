@@ -71,6 +71,6 @@ public interface NbiClient {
    * @return a {@link PhysicalPort} identified by a certain name, in OpenDRAC's
    *         case the network elements pk
    */
-  PhysicalPort findPhysicalPortByNetworkElementId(String networkElementId);
+  PhysicalPort findPhysicalPortByNmsPortId(String nmsPortId);
 
 }

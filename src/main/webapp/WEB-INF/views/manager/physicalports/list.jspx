@@ -14,7 +14,7 @@
                     <table:sortableHeader labelCode="label_physicalport_managerlabel" property="managerLabel" />
                     <table:sortableHeader labelCode="label_physicalport_bod_port_id" property="bodPortId" />
                     <th># of Virtual Ports</th>
-                    <table:sortableHeader labelCode="label_physicalport_networkelementpk" property="nmsPortId" />
+                    <table:sortableHeader labelCode="label_physicalport_nms_port_id" property="nmsPortId" />
                     <table:actionsHeader />
                 </tr>
             </thead>

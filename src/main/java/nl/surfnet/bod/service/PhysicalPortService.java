@@ -101,7 +101,7 @@ public interface PhysicalPortService {
 
   PhysicalPort find(final Long id);
 
-  PhysicalPort findByNetworkElementPk(final String networkElementPk);
+  PhysicalPort findByNmsPortId(final String nmsPortId);
 
   void save(final PhysicalPort physicalPort);
 

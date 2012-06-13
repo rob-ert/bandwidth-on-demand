@@ -109,7 +109,7 @@ public class DashboardController {
 
     for (PhysicalPort port : unaliagnedPhysicalPorts) {
       WebUtils.addErrorMessage(forcePortCheckButton, model, messageSource, "info_physicalport_unaligned_with_nms",
-          port.getNetworkElementPk(), port.getNocLabel());
+          port.getNmsPortId(), port.getNocLabel());
     }
   }
 

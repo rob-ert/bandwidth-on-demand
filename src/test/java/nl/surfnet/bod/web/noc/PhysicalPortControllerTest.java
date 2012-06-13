@@ -149,14 +149,14 @@ public class PhysicalPortControllerTest {
   @Test
   public void updateForm() {
     Model model = new ModelStub();
-    PhysicalPort port = new PhysicalPortFactory().setNetworkElementPk("00:00/port2").create();
+    PhysicalPort port = new PhysicalPortFactory().setNmsPortId("00:00/port2").create();
 
-    when(physicalPortServiceMock.findByNetworkElementPk("00:00/port2")).thenReturn(port);
+    when(physicalPortServiceMock.findByNmsPortId("00:00/port2")).thenReturn(port);
 
     subject.updateForm("00:00/port2", model);
 
     assertThat(model.asMap(), hasKey("createPhysicalPortCommand"));
-    assertThat(((CreatePhysicalPortCommand) model.asMap().get("createPhysicalPortCommand")).getNetworkElementPk(),
+    assertThat(((CreatePhysicalPortCommand) model.asMap().get("createPhysicalPortCommand")).getNmsPortId(),
         is("00:00/port2"));
   }
 
@@ -169,7 +169,7 @@ public class PhysicalPortControllerTest {
     when(
         messageSource.getMessage(anyString(), org.mockito.Matchers.any(Object[].class),
             org.mockito.Matchers.any(Locale.class))).thenReturn("Flash message");
-    when(physicalPortServiceMock.findByNetworkElementPk(port.getNetworkElementPk())).thenReturn(port);
+    when(physicalPortServiceMock.findByNmsPortId(port.getNmsPortId())).thenReturn(port);
 
     String page = subject.update(new CreatePhysicalPortCommand(port), result, model, model);
 
@@ -187,7 +187,7 @@ public class PhysicalPortControllerTest {
   public void deleteShouldStayOnSamePage() {
     Model model = new ModelStub();
     PhysicalPort port = new PhysicalPortFactory().create();
-    when(physicalPortServiceMock.findByNetworkElementPk("port_name")).thenReturn(port);
+    when(physicalPortServiceMock.findByNmsPortId("port_name")).thenReturn(port);
 
     subject.delete("port_name", 3, model);
 

@@ -35,7 +35,7 @@
                 <h3>New Port</h3>
             </div>
 
-            <field:select field="newPhysicalPort" itemValue="networkElementPk" id="c_new_physicalport" labelCode="physicalport_move_new_port"
+            <field:select field="newPhysicalPort" itemValue="nmsPortId" id="c_new_physicalport" labelCode="physicalport_move_new_port"
                 items="${unallocatedPhysicalPorts}" path="/noc/physicalports" create="false" />
 
             <sform:hidden id="_pp_id" path="id" />

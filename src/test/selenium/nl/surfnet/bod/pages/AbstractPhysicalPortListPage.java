@@ -35,13 +35,13 @@ public class AbstractPhysicalPortListPage extends AbstractListPage {
     super(driver);
   }
 
-  public WebElement verifyPhysicalPortWasAllocated(String networkElementPk, String label) {
+  public WebElement verifyPhysicalPortWasAllocated(String nmsPortId, String label) {
 
-    return findRow(networkElementPk, label);
+    return findRow(nmsPortId, label);
   }
 
-  public void verifyPhysicalPortHasEnabledUnallocateIcon(String networkElementPk, String label) {
-    WebElement row = verifyPhysicalPortWasAllocated(networkElementPk, label);
+  public void verifyPhysicalPortHasEnabledUnallocateIcon(String nmsPortId, String label) {
+    WebElement row = verifyPhysicalPortWasAllocated(nmsPortId, label);
 
     try {
       row.findElement(By.cssSelector("span.disabled-icon"));
@@ -52,9 +52,9 @@ public class AbstractPhysicalPortListPage extends AbstractListPage {
     }
   }
 
-  public void verifyPhysicalPortHasDisabledUnallocateIcon(String networkElementPk, String label, String toolTipText) {
+  public void verifyPhysicalPortHasDisabledUnallocateIcon(String nmsPortId, String label, String toolTipText) {
 
-    WebElement row = verifyPhysicalPortWasAllocated(networkElementPk, label);
+    WebElement row = verifyPhysicalPortWasAllocated(nmsPortId, label);
 
     WebElement unAllocateElement = row.findElement(By.cssSelector("span.disabled-icon"));
     String deleteTooltip = unAllocateElement.getAttribute("data-original-title");
@@ -62,9 +62,9 @@ public class AbstractPhysicalPortListPage extends AbstractListPage {
     assertThat(deleteTooltip, containsString(toolTipText));
   }
 
-  public void verifyPhysicalPortIsNotOnUnallocatedPage(String networkElementPk, String label) {
+  public void verifyPhysicalPortIsNotOnUnallocatedPage(String nmsPortId, String label) {
     try {
-      verifyPhysicalPortWasAllocated(networkElementPk, label);
+      verifyPhysicalPortWasAllocated(nmsPortId, label);
       assertThat("PhysicalPort should not be listed on unAllocated page", false);
     }
     catch (NoSuchElementException e) {

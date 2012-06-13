@@ -83,16 +83,16 @@ public class ReservationArchive {
   // ///////////////////////
   private final String physicalPortSourceNocLabel;
   private final String physicalPortSourceManagerLabel;
-  private final String physicalPortSourcePortId;
-  private final String physicalPortSourceNetworkElementPk;
+  private final String physicalPortSourceBodPortId;
+  private final String physicalPortSourceNmsPortId;
 
   // ///////////////////////////
   // physical port destination
   // ///////////////////////////
   private final String physicalPortDestinationNocLabel;
   private final String physicalPortDestinationManagerLabel;
-  private final String physicalPortDestinationPortId;
-  private final String physicalPortDestinationNetworkElementPk;
+  private final String physicalPortDestinationBodPortId;
+  private final String physicalPortDestinationNmsPortId;
 
   // //////////////////////////////////
   // physical resource group source
@@ -120,14 +120,14 @@ public class ReservationArchive {
     this.failedReason = reservation.getFailedReason();
     this.name = reservation.getName();
     this.physicalPortDestinationManagerLabel = reservation.getDestinationPort().getPhysicalPort().getManagerLabel();
-    this.physicalPortDestinationNetworkElementPk = reservation.getDestinationPort().getPhysicalPort()
-        .getNetworkElementPk();
+    this.physicalPortDestinationNmsPortId = reservation.getDestinationPort().getPhysicalPort()
+        .getNmsPortId();
     this.physicalPortDestinationNocLabel = reservation.getDestinationPort().getPhysicalPort().getNocLabel();
-    this.physicalPortDestinationPortId = reservation.getDestinationPort().getPhysicalPort().getBodPortId();
+    this.physicalPortDestinationBodPortId = reservation.getDestinationPort().getPhysicalPort().getBodPortId();
     this.physicalPortSourceManagerLabel = reservation.getSourcePort().getPhysicalPort().getManagerLabel();
-    this.physicalPortSourceNetworkElementPk = reservation.getDestinationPort().getPhysicalPort().getNetworkElementPk();
+    this.physicalPortSourceNmsPortId = reservation.getDestinationPort().getPhysicalPort().getNmsPortId();
     this.physicalPortSourceNocLabel = reservation.getDestinationPort().getPhysicalPort().getNocLabel();
-    this.physicalPortSourcePortId = reservation.getDestinationPort().getPhysicalPort().getBodPortId();
+    this.physicalPortSourceBodPortId = reservation.getDestinationPort().getPhysicalPort().getBodPortId();
     this.reservationId = reservation.getReservationId();
     this.sourceManagerLabel = reservation.getSourcePort().getManagerLabel();
     this.sourceMaxBandwidth = reservation.getSourcePort().getMaxBandwidth();
@@ -251,12 +251,12 @@ public class ReservationArchive {
     return physicalPortDestinationManagerLabel;
   }
 
-  public final String getPhysicalPortDestinationPortId() {
-    return physicalPortDestinationPortId;
+  public final String getPhysicalPortDestinationBodPortId() {
+    return physicalPortDestinationBodPortId;
   }
 
-  public final String getPhysicalPortDestinationNetworkElementPk() {
-    return physicalPortDestinationNetworkElementPk;
+  public final String getPhysicalPortDestinationNmsPortId() {
+    return physicalPortDestinationNmsPortId;
   }
 
   public final String getPhysicalPortSourceNocLabel() {
@@ -267,12 +267,12 @@ public class ReservationArchive {
     return physicalPortSourceManagerLabel;
   }
 
-  public final String getPhysicalPortSourcePortId() {
-    return physicalPortSourcePortId;
+  public final String getPhysicalPortSourceBodPortId() {
+    return physicalPortSourceBodPortId;
   }
 
-  public final String getPhysicalPortSourceNetworkElementPk() {
-    return physicalPortSourceNetworkElementPk;
+  public final String getPhysicalPortSourceNmsPortId() {
+    return physicalPortSourceNmsPortId;
   }
 
   public final String getPhysicalResourceGroupSourceAdminGroupName() {
@@ -350,18 +350,18 @@ public class ReservationArchive {
     builder.append(physicalPortSourceNocLabel);
     builder.append(", physicalPortSourceManagerLabel=");
     builder.append(physicalPortSourceManagerLabel);
-    builder.append(", physicalPortSourcePortId=");
-    builder.append(physicalPortSourcePortId);
-    builder.append(", physicalPortSourceNetworkElementPk=");
-    builder.append(physicalPortSourceNetworkElementPk);
+    builder.append(", physicalPortSourceBodPortId=");
+    builder.append(physicalPortSourceBodPortId);
+    builder.append(", physicalPortSourceNmsPortId=");
+    builder.append(physicalPortSourceNmsPortId);
     builder.append(", physicalPortDestinationNocLabel=");
     builder.append(physicalPortDestinationNocLabel);
     builder.append(", physicalPortDestinationManagerLabel=");
     builder.append(physicalPortDestinationManagerLabel);
-    builder.append(", physicalPortDestinationPortId=");
-    builder.append(physicalPortDestinationPortId);
-    builder.append(", physicalPortDestinationNetworkElementPk=");
-    builder.append(physicalPortDestinationNetworkElementPk);
+    builder.append(", physicalPortDestinationBodPortId=");
+    builder.append(physicalPortDestinationBodPortId);
+    builder.append(", physicalPortDestinationNmsPortId=");
+    builder.append(physicalPortDestinationNmsPortId);
     builder.append(", physicalResourceGroupSourceInstituteId=");
     builder.append(physicalResourceGroupSourceInstituteId);
     builder.append(", physicalResourceGroupSourceAdminGroupName=");

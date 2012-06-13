@@ -155,7 +155,7 @@ public final class Functions {
 
     @Override
     public String apply(PhysicalPort physicalPort) {
-      return physicalPort.getNetworkElementPk();
+      return physicalPort.getNmsPortId();
     }
   };
 

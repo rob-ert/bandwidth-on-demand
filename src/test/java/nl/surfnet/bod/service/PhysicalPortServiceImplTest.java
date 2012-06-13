@@ -78,23 +78,23 @@ public class PhysicalPortServiceImplTest {
 
   @Before
   public void setUp() {
-    ArrayList<PhysicalPort> physicalPorts = Lists.newArrayList(new PhysicalPortFactory().setNetworkElementPk("1")
-        .create(), new PhysicalPortFactory().setNetworkElementPk("2").create(), new PhysicalPortFactory()
-        .setNetworkElementPk("3").create());
+    ArrayList<PhysicalPort> physicalPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("1")
+        .create(), new PhysicalPortFactory().setNmsPortId("2").create(), new PhysicalPortFactory()
+        .setNmsPortId("3").create());
 
-    physicalPortMap.put(physicalPorts.get(0).getNetworkElementPk(), physicalPorts.get(0));
-    physicalPortMap.put(physicalPorts.get(1).getNetworkElementPk(), physicalPorts.get(1));
-    physicalPortMap.put(physicalPorts.get(2).getNetworkElementPk(), physicalPorts.get(2));
+    physicalPortMap.put(physicalPorts.get(0).getNmsPortId(), physicalPorts.get(0));
+    physicalPortMap.put(physicalPorts.get(1).getNmsPortId(), physicalPorts.get(1));
+    physicalPortMap.put(physicalPorts.get(2).getNmsPortId(), physicalPorts.get(2));
   }
 
   @Test
   public void findAllShouldMergePorts() {
     List<PhysicalPort> nbiPorts = Lists.newArrayList(new PhysicalPortFactory().setNocLabel("noc label")
-        .setNetworkElementPk("first").setId(null).create(), new PhysicalPortFactory().setNocLabel("noc label")
-        .setNetworkElementPk("second").setId(null).create());
+        .setNmsPortId("first").setId(null).create(), new PhysicalPortFactory().setNocLabel("noc label")
+        .setNmsPortId("second").setId(null).create());
 
     List<PhysicalPort> repoPorts = Lists.newArrayList(new PhysicalPortFactory().setNocLabel("overwrite")
-        .setNetworkElementPk("first").setId(1L).setVersion(2).create());
+        .setNmsPortId("first").setId(1L).setVersion(2).create());
 
     when(nbiClientMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
@@ -104,20 +104,20 @@ public class PhysicalPortServiceImplTest {
     assertThat(allPorts, hasSize(2));
     assertThat(allPorts.get(0).getId(), is(1L));
     assertThat(allPorts.get(0).getVersion(), is(2));
-    assertThat(allPorts.get(0).getNetworkElementPk(), is("first"));
+    assertThat(allPorts.get(0).getNmsPortId(), is("first"));
     assertThat(allPorts.get(0).getNocLabel(), is("overwrite"));
 
     assertThat(allPorts.get(1).getId(), nullValue());
-    assertThat(allPorts.get(1).getNetworkElementPk(), is("second"));
+    assertThat(allPorts.get(1).getNmsPortId(), is("second"));
     assertThat(allPorts.get(1).getNocLabel(), is("noc label"));
   }
 
   @Test
   public void allUnallocatedPortsShouldNotContainOnesWithId() {
-    List<PhysicalPort> nbiPorts = Lists.newArrayList(new PhysicalPortFactory().setNetworkElementPk("first").setId(null)
-        .create(), new PhysicalPortFactory().setNetworkElementPk("second").setId(null).create());
+    List<PhysicalPort> nbiPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("first").setId(null)
+        .create(), new PhysicalPortFactory().setNmsPortId("second").setId(null).create());
 
-    List<PhysicalPort> repoPorts = Lists.newArrayList(new PhysicalPortFactory().setNetworkElementPk("first").setId(1L)
+    List<PhysicalPort> repoPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("first").setId(1L)
         .create());
 
     when(nbiClientMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
@@ -126,14 +126,14 @@ public class PhysicalPortServiceImplTest {
     Collection<PhysicalPort> unallocatedPorts = subject.findUnallocated();
 
     assertThat(unallocatedPorts, hasSize(1));
-    assertThat(unallocatedPorts.iterator().next().getNetworkElementPk(), is("second"));
+    assertThat(unallocatedPorts.iterator().next().getNmsPortId(), is("second"));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void findAllPortsWithSameNameShouldGiveAnException() {
-    List<PhysicalPort> nbiPorts = Lists.newArrayList(new PhysicalPortFactory().setNetworkElementPk("first").create());
-    List<PhysicalPort> repoPorts = Lists.newArrayList(new PhysicalPortFactory().setNetworkElementPk("first").create(),
-        new PhysicalPortFactory().setNetworkElementPk("first").create());
+    List<PhysicalPort> nbiPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("first").create());
+    List<PhysicalPort> repoPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("first").create(),
+        new PhysicalPortFactory().setNmsPortId("first").create());
 
     when(nbiClientMock.findAllPhysicalPorts()).thenReturn(nbiPorts);
     when(physicalPortRepoMock.findAll()).thenReturn(repoPorts);
@@ -142,26 +142,26 @@ public class PhysicalPortServiceImplTest {
   }
 
   @Test
-  public void findByNetworkElementPkShouldGiveNullIfNotFound() {
-    when(nbiClientMock.findPhysicalPortByNetworkElementId("first")).thenReturn(null);
-    when(physicalPortRepoMock.findByNetworkElementPk("first")).thenReturn(null);
+  public void findByNmsPortIdShouldGiveNullIfNotFound() {
+    when(nbiClientMock.findPhysicalPortByNmsPortId("first")).thenReturn(null);
+    when(physicalPortRepoMock.findByNmsPortId("first")).thenReturn(null);
 
-    PhysicalPort port = subject.findByNetworkElementPk("first");
+    PhysicalPort port = subject.findByNmsPortId("first");
 
     assertThat(port, nullValue());
   }
 
   @Test
-  public void findByNetworkElementPkShouldGiveAMergedPortIfFound() {
-    PhysicalPort nbiPort = new PhysicalPortFactory().setNetworkElementPk("first").create();
-    PhysicalPort repoPort = new PhysicalPortFactory().setId(1L).setNetworkElementPk("first").create();
+  public void findByNmsPortIdhouldGiveAMergedPortIfFound() {
+    PhysicalPort nbiPort = new PhysicalPortFactory().setNmsPortId("first").create();
+    PhysicalPort repoPort = new PhysicalPortFactory().setId(1L).setNmsPortId("first").create();
 
-    when(nbiClientMock.findPhysicalPortByNetworkElementId("first")).thenReturn(nbiPort);
-    when(physicalPortRepoMock.findByNetworkElementPk("first")).thenReturn(repoPort);
+    when(nbiClientMock.findPhysicalPortByNmsPortId("first")).thenReturn(nbiPort);
+    when(physicalPortRepoMock.findByNmsPortId("first")).thenReturn(repoPort);
 
-    PhysicalPort port = subject.findByNetworkElementPk("first");
+    PhysicalPort port = subject.findByNmsPortId("first");
 
-    assertThat(port.getNetworkElementPk(), is("first"));
+    assertThat(port.getNmsPortId(), is("first"));
     assertThat(port.getId(), is(1L));
   }
 

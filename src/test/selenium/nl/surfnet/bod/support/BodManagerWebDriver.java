@@ -52,10 +52,10 @@ public class BodManagerWebDriver {
     this.driver = driver;
   }
 
-  public void verifyManagerLabelChanged(String networkElementPk, String managerLabel) {
+  public void verifyManagerLabelChanged(String nmsPortId, String managerLabel) {
     ListPhysicalPortsPage listPage = ListPhysicalPortsPage.get(driver);
 
-    listPage.findRow(networkElementPk, managerLabel);
+    listPage.findRow(nmsPortId, managerLabel);
   }
 
   public void verifyPhysicalPortSelected(String managerLabel) {
@@ -66,10 +66,10 @@ public class BodManagerWebDriver {
     assertThat(portName, is(managerLabel));
   }
 
-  public void changeManagerLabelOfPhyiscalPort(String networkElementPk, String managerLabel) {
+  public void changeManagerLabelOfPhyiscalPort(String nmsPortId, String managerLabel) {
     ListPhysicalPortsPage page = ListPhysicalPortsPage.get(driver, URL_UNDER_TEST);
 
-    EditPhysicalPortPage editPage = page.edit(networkElementPk);
+    EditPhysicalPortPage editPage = page.edit(nmsPortId);
 
     editPage.sendMagerLabel(managerLabel);
     editPage.save();
@@ -249,15 +249,15 @@ public class BodManagerWebDriver {
     page.verifyReservationIsNotCancellable(reservationLabel, startDate, endDate, startTime, endTime, "state cannot");
   }
 
-  public void verifyPhysicalPortHasEnabledUnallocateIcon(String networkElementPk, String nocLabel) {
+  public void verifyPhysicalPortHasEnabledUnallocateIcon(String nmsPortId, String nocLabel) {
     ListPhysicalPortsPage page = ListPhysicalPortsPage.get(driver, URL_UNDER_TEST);
 
-    page.verifyPhysicalPortHasEnabledUnallocateIcon(networkElementPk, nocLabel);
+    page.verifyPhysicalPortHasEnabledUnallocateIcon(nmsPortId, nocLabel);
   }
 
-  public void verifyPhysicalPortHasDisabeldUnallocateIcon(String networkElementPk, String nocLabel, String toolTipText) {
+  public void verifyPhysicalPortHasDisabeldUnallocateIcon(String nmsPortId, String nocLabel, String toolTipText) {
     ListPhysicalPortsPage page = ListPhysicalPortsPage.get(driver, URL_UNDER_TEST);
 
-    page.verifyPhysicalPortHasDisabledUnallocateIcon(networkElementPk, nocLabel, toolTipText);
+    page.verifyPhysicalPortHasDisabledUnallocateIcon(nmsPortId, nocLabel, toolTipText);
   }
 }

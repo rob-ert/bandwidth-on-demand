@@ -51,12 +51,12 @@ public class NbiClientTestIntegration {
   }
 
   @Test
-  public void testFindPhysicalPortByNetworkElementId() throws Exception {
+  public void testFindPhysicalPortByNmsPortId() throws Exception {
     PhysicalPort firstPort = nbiClient.findAllPhysicalPorts().get(0);
 
-    PhysicalPort foundPort = nbiClient.findPhysicalPortByNetworkElementId(firstPort.getNetworkElementPk());
+    PhysicalPort foundPort = nbiClient.findPhysicalPortByNmsPortId(firstPort.getNmsPortId());
 
-    assertThat(foundPort.getNetworkElementPk(), is(firstPort.getNetworkElementPk()));
+    assertThat(foundPort.getNmsPortId(), is(firstPort.getNmsPortId()));
   }
 
   @Test

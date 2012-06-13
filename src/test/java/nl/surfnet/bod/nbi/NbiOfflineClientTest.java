@@ -54,12 +54,12 @@ public class NbiOfflineClientTest {
   }
 
   @Test
-  public void findByNetworkElementId() {
+  public void findByNmsPortId() {
     PhysicalPort port = subject.findAllPhysicalPorts().get(0);
 
-    PhysicalPort foundPort = subject.findPhysicalPortByNetworkElementId(port.getNetworkElementPk());
+    PhysicalPort foundPort = subject.findPhysicalPortByNmsPortId(port.getNmsPortId());
 
-    assertThat(foundPort.getNetworkElementPk(), is(port.getNetworkElementPk()));
+    assertThat(foundPort.getNmsPortId(), is(port.getNmsPortId()));
   }
 
   @Test

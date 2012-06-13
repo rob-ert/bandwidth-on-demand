@@ -194,13 +194,13 @@ class NbiOpenDracWsClient implements NbiClient {
   }
 
   @Override
-  public PhysicalPort findPhysicalPortByNetworkElementId(final String networkElementId) {
+  public PhysicalPort findPhysicalPortByNmsPortId(final String nmsPortId) {
     try {
-      EndpointT endpoint = findEndPointById(networkElementId);
+      EndpointT endpoint = findEndPointById(nmsPortId);
       return getPhysicalPort(endpoint);
     }
     catch (NetworkMonitoringServiceFault e) {
-      log.warn("Could not query OpenDrac for end point by id '{}'", networkElementId);
+      log.warn("Could not query OpenDrac for end point by id '{}'", nmsPortId);
       throw new RuntimeException(e);
     }
   }
@@ -346,8 +346,8 @@ class NbiOpenDracWsClient implements NbiClient {
     final VirtualPort virtualSourcePort = reservation.getSourcePort();
     final VirtualPort virtualDestinationPort = reservation.getDestinationPort();
 
-    EndpointT sourceEndPoint = findEndPointById(virtualSourcePort.getPhysicalPort().getNetworkElementPk());
-    EndpointT destinationEndPoint = findEndPointById(virtualDestinationPort.getPhysicalPort().getNetworkElementPk());
+    EndpointT sourceEndPoint = findEndPointById(virtualSourcePort.getPhysicalPort().getNmsPortId());
+    EndpointT destinationEndPoint = findEndPointById(virtualDestinationPort.getPhysicalPort().getNmsPortId());
 
     pathRequest.setSourceTna(sourceEndPoint.getTna());
     pathRequest.setTargetTna(destinationEndPoint.getTna());
@@ -419,7 +419,7 @@ class NbiOpenDracWsClient implements NbiClient {
     else {
       port.setNocLabel(endpoint.getUserLabel());
     }
-    port.setNetworkElementPk(endpoint.getId());
+    port.setNmsPortId(endpoint.getId());
     port.setBodPortId(endpoint.getTna());
 
     return port;

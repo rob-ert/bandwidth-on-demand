@@ -24,8 +24,8 @@
           property="bodPortId" sortable="${not show_unallocated}" />
         <table:sortableHeader labelCode="label_physicalresourcegroup"
           property="physicalResourceGroup" render="${not show_unallocated}" />
-        <table:sortableHeader labelCode="label_physicalport_networkelementpk"
-          property="networkElementPk" sortable="${not show_unallocated}" />
+        <table:sortableHeader labelCode="label_physicalport_nms_port_id"
+          property="nmsPortId" sortable="${not show_unallocated}" />
         <table:actionsHeader styleClass="cw75 center small" />
       </tr>
     </thead>
@@ -52,7 +52,7 @@
           <table:column item="${item}" property="bodPortId" />
           <table:column item="${item}" property="physicalResourceGroupName"
             render="${not show_unallocated}" />
-          <table:column item="${item}" property="networkElementPk" />
+          <table:column item="${item}" property="nmsPortId" />
           <table:actionsColumn item="${item}" delete="${item.deleteRender}"
             deleteEnabled="${item.deleteAllowed}"
             deleteLabelCode="${item.deleteReasonKey}"
@@ -60,11 +60,11 @@
             update="${item.alignedWithNMS}"
             updateIcon="${show_unallocated ? 'icon-resize-small' : ''}"
             updateLabelCode="${show_unallocated ? 'label_allocate' : ''}"
-            path="/noc/physicalports" idFieldName="networkElementPk"
+            path="/noc/physicalports" idFieldName="nmsPortId"
             labelCode="label_physicalport" alarm="${not item.alignedWithNMS}" alarmLabel="label_physicalport_not_aligned">
             <c:if test="${not show_unallocated}">
               <spring:url var="moveUrl" value="/noc/physicalports/move">
-                <spring:param name="id" value="${item.networkElementPk}" />
+                <spring:param name="id" value="${item.nmsPortId}" />
               </spring:url>
               <a href="${moveUrl}" rel="tooltip" data-type="info" title="Move Physical Port">
                 <i class="icon-truck"><!--  --></i>

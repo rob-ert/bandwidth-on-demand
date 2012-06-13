@@ -36,7 +36,7 @@ public class PhysicalPortFactory {
   private String managerLabel = "";
   private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
   private Integer version = 0;
-  private String networkElementPk = UUID.randomUUID().toString();
+  private String nmsPortId = UUID.randomUUID().toString();
   private String bodPortId = "Asd001A_OME3T_ETH-1-1-4";
   private boolean vlanRequired = false;
 
@@ -48,7 +48,7 @@ public class PhysicalPortFactory {
 
     port.setNocLabel(nocLabel);
     port.setManagerLabel(managerLabel);
-    port.setNetworkElementPk(networkElementPk);
+    port.setNmsPortId(nmsPortId);
     port.setPhysicalResourceGroup(physicalResourceGroup);
     
     return port;
@@ -79,8 +79,8 @@ public class PhysicalPortFactory {
     return this;
   }
 
-  public PhysicalPortFactory setNetworkElementPk(String networkElementPk) {
-    this.networkElementPk = networkElementPk;
+  public PhysicalPortFactory setNmsPortId(String nmsPortId) {
+    this.nmsPortId = nmsPortId;
     return this;
   }
 

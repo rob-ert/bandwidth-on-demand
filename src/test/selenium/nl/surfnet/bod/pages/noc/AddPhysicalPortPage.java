@@ -34,7 +34,7 @@ public class AddPhysicalPortPage extends AbstractFormPage {
   @FindBy(id = "_nocLabel_id")
   private WebElement nocLabelInput;
 
-  @FindBy(name = "networkElementPk")
+  @FindBy(name = "nmsPortId")
   private WebElement portSelect;
 
   public AddPhysicalPortPage(RemoteWebDriver driver) {

@@ -30,7 +30,7 @@ public class PhysicalPortView {
   private final String nocLabel;
   private final String bodPortId;
   private final String physicalResourceGroupName;
-  private final String networkElementPk;
+  private final String nmsPortId;
   private ElementActionView deleteActionView;
   private Long numberOfVirtualPorts;
   private final boolean vlanRequired;
@@ -62,7 +62,7 @@ public class PhysicalPortView {
     this.bodPortId = physicalPort.getBodPortId();
     this.physicalResourceGroupName = physicalPort.getPhysicalResourceGroup() == null ? null : physicalPort
         .getPhysicalResourceGroup().getName();
-    this.networkElementPk = physicalPort.getNetworkElementPk();
+    this.nmsPortId = physicalPort.getNmsPortId();
     this.vlanRequired = physicalPort.isVlanRequired();
     this.alignedWithNMS = physicalPort.isAlignedWithNMS();
 
@@ -95,8 +95,8 @@ public class PhysicalPortView {
     return physicalResourceGroupName;
   }
 
-  public String getNetworkElementPk() {
-    return networkElementPk;
+  public String getNmsPortId() {
+    return nmsPortId;
   }
 
   public ElementActionView getDeleteActionView() {
@@ -132,7 +132,7 @@ public class PhysicalPortView {
     result = prime * result + (deleteRender ? 1231 : 1237);
     result = prime * result + ((id == null) ? 0 : id.hashCode());
     result = prime * result + ((managerLabel == null) ? 0 : managerLabel.hashCode());
-    result = prime * result + ((networkElementPk == null) ? 0 : networkElementPk.hashCode());
+    result = prime * result + ((nmsPortId == null) ? 0 : nmsPortId.hashCode());
     result = prime * result + ((nocLabel == null) ? 0 : nocLabel.hashCode());
     result = prime * result + ((numberOfVirtualPorts == null) ? 0 : numberOfVirtualPorts.hashCode());
     result = prime * result + ((physicalResourceGroupName == null) ? 0 : physicalResourceGroupName.hashCode());
@@ -144,8 +144,8 @@ public class PhysicalPortView {
   @Override
   public String toString() {
     return "PhysicalPortView [id=" + id + ", managerLabel=" + managerLabel + ", nocLabel=" + nocLabel + ", bodPortId="
-        + bodPortId + ", physicalResourceGroupName=" + physicalResourceGroupName + ", networkElementPk="
-        + networkElementPk + ", deleteActionView=" + deleteActionView + ", numberOfVirtualPorts="
+        + bodPortId + ", physicalResourceGroupName=" + physicalResourceGroupName + ", nmsPortId="
+        + nmsPortId + ", deleteActionView=" + deleteActionView + ", numberOfVirtualPorts="
         + numberOfVirtualPorts + ", vlanRequired=" + vlanRequired + ", alignedWithNMS=" + alignedWithNMS
         + ", deleteRender=" + deleteRender + "]";
   }
@@ -181,11 +181,11 @@ public class PhysicalPortView {
     }
     else if (!managerLabel.equals(other.managerLabel))
       return false;
-    if (networkElementPk == null) {
-      if (other.networkElementPk != null)
+    if (nmsPortId == null) {
+      if (other.nmsPortId != null)
         return false;
     }
-    else if (!networkElementPk.equals(other.networkElementPk))
+    else if (!nmsPortId.equals(other.nmsPortId))
       return false;
     if (nocLabel == null) {
       if (other.nocLabel != null)
