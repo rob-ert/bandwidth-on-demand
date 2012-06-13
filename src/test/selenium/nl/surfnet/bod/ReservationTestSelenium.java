@@ -35,8 +35,8 @@ public class ReservationTestSelenium extends TestExternalSupport {
   @Before
   public void setup() {
     getNocDriver().createNewPhysicalResourceGroup(INSTITUTE_NAME, ICT_MANAGERS_GROUP, "test@example.com");
-    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, "First port", INSTITUTE_NAME);
-    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK_2, "Second port", INSTITUTE_NAME);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "First port", INSTITUTE_NAME);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Second port", INSTITUTE_NAME);
 
     getWebDriver().clickLinkInLastEmail();
 

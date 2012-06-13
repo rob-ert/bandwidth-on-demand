@@ -33,7 +33,7 @@ public class VirtualPortTestSelenium extends TestExternalSupport {
   @Before
   public void setup() {
     getNocDriver().createNewPhysicalResourceGroup("2COLLEGE", ICT_MANAGERS_GROUP, "test@test.nl");
-    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK_2, "Request a virtual port", "2COLLEGE");
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Request a virtual port", "2COLLEGE");
 
     getWebDriver().clickLinkInLastEmail();
 

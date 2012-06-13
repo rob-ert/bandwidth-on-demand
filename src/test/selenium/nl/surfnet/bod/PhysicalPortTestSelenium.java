@@ -39,9 +39,9 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
   public void allocatePhysicalPortFromInstitutePage() {
     getNocDriver().addPhysicalPortToInstitute(GROUP_NAME, "NOC label", "Mock_Poort 1de verdieping toren1a");
 
-    getNocDriver().verifyPhysicalPortWasAllocated(NETWORK_ELEMENT_PK, "NOC label");
+    getNocDriver().verifyPhysicalPortWasAllocated(NMS_PORT_ID_1, "NOC label");
 
-    getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
+    getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_1);
   }
 
   @Test
@@ -50,25 +50,25 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     String managerLabel1 = "My Selenium Port (Manager 1st)";
     String managerLabel2 = "My Selenium Port (Manager 2nd)";
 
-    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, nocLabel, managerLabel1, GROUP_NAME);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, nocLabel, managerLabel1, GROUP_NAME);
 
-    getNocDriver().verifyPhysicalPortWasAllocated(NETWORK_ELEMENT_PK, nocLabel);
+    getNocDriver().verifyPhysicalPortWasAllocated(NMS_PORT_ID_1, nocLabel);
 
-    getNocDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NETWORK_ELEMENT_PK, nocLabel);
+    getNocDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NMS_PORT_ID_1, nocLabel);
 
-    getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(NETWORK_ELEMENT_PK, managerLabel1);
+    getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(NMS_PORT_ID_1, managerLabel1);
 
     getNocDriver().switchToManager();
 
-    getManagerDriver().changeManagerLabelOfPhyiscalPort(NETWORK_ELEMENT_PK, managerLabel2);
+    getManagerDriver().changeManagerLabelOfPhyiscalPort(NMS_PORT_ID_1, managerLabel2);
 
-    getManagerDriver().verifyManagerLabelChanged(NETWORK_ELEMENT_PK, managerLabel2);
+    getManagerDriver().verifyManagerLabelChanged(NMS_PORT_ID_1, managerLabel2);
 
     getManagerDriver().switchToNoc();
 
-    getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(NETWORK_ELEMENT_PK, managerLabel2);
+    getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(NMS_PORT_ID_1, managerLabel2);
 
-    getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
+    getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_1);
   }
 
   @Test
@@ -77,11 +77,11 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     String nocLabel = "My Selenium Port (Noc)";
     String managerLabel1 = "My Selenium Port (Manager 1st)";
 
-    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, nocLabel, managerLabel1, GROUP_NAME);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, nocLabel, managerLabel1, GROUP_NAME);
     getWebDriver().clickLinkInLastEmail();
-    getNocDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NETWORK_ELEMENT_PK, nocLabel);
+    getNocDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NMS_PORT_ID_1, nocLabel);
 
-    getManagerDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NETWORK_ELEMENT_PK, managerLabel1);
+    getManagerDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NMS_PORT_ID_1, managerLabel1);
 
     // Link a VirtualPort to the PhysicalPort, PhysicalPort cannot be
     // unallocated anymore
@@ -92,19 +92,19 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().acceptVirtualPort(vpOne);
 
-    getManagerDriver().verifyPhysicalPortHasDisabeldUnallocateIcon(NETWORK_ELEMENT_PK, managerLabel1, "related");
+    getManagerDriver().verifyPhysicalPortHasDisabeldUnallocateIcon(NMS_PORT_ID_1, managerLabel1, "related");
 
     getManagerDriver().switchToNoc();
-    getNocDriver().verifyPhysicalPortIsNotOnUnallocatedPage(NETWORK_ELEMENT_PK, nocLabel);
+    getNocDriver().verifyPhysicalPortIsNotOnUnallocatedPage(NMS_PORT_ID_1, nocLabel);
 
     // Delete Vp
     getNocDriver().switchToManager();
     getManagerDriver().deleteVirtualPort(vpOne);
 
     // After delete VP, the PysicalPort should be able to unallocate
-    getManagerDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NETWORK_ELEMENT_PK, managerLabel1);
+    getManagerDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NMS_PORT_ID_1, managerLabel1);
     getManagerDriver().switchToNoc();
-    getNocDriver().unlinkPhysicalPort(NETWORK_ELEMENT_PK);
+    getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_1);
   }
 
 }

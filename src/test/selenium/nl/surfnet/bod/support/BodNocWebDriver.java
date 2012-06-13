@@ -88,8 +88,7 @@ public class BodNocWebDriver {
     linkPhysicalPort(nmsPortId, nocLabel, "", physicalResourceGroup);
   }
 
-  public void linkPhysicalPort(String nmsPortId, String nocLabel, String managerLabel,
-      String physicalResourceGroup) {
+  public void linkPhysicalPort(String nmsPortId, String nocLabel, String managerLabel, String physicalResourceGroup) {
     ListUnallocatedPortsPage listPage = ListUnallocatedPortsPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
     EditPhysicalPortPage editPage = listPage.edit(nmsPortId);
@@ -118,7 +117,7 @@ public class BodNocWebDriver {
   }
 
   public void switchToUser() {
-    switchTo("BoD User");
+    switchTo("User");
   }
 
   private void switchTo(String role) {
@@ -203,7 +202,7 @@ public class BodNocWebDriver {
       int numberOfActiveRess) {
     MovePhysicalPortPage movePage = MovePhysicalPortPage.get(driver);
 
-    assertThat(movePage.getNetworkElementPk(), is(networkElementPk));
+    assertThat(movePage.getNmsPortId(), is(networkElementPk));
     assertThat(movePage.getInstituteName(), is(instituteName));
     assertThat(movePage.getNumberOfVirtualPorts(), is(numberOfVps));
     assertThat(movePage.getNumberOfReservations(), is(numberOfRess));

@@ -17,8 +17,8 @@ public final class MovePhysicalPortPage {
   @FindBy(css = "input[type=submit]")
   private WebElement moveButton;
 
-  @FindBy(id = "networkelementpk_id")
-  private WebElement networkElementPkDiv;
+  @FindBy(id = "nms_port_id")
+  private WebElement nmsPortIdDiv;
 
   @FindBy(id = "institute_id")
   private WebElement instituteDiv;
@@ -51,8 +51,8 @@ public final class MovePhysicalPortPage {
     moveButton.click();
   }
 
-  public String getNetworkElementPk() {
-    return getOutputText(networkElementPkDiv);
+  public String getNmsPortId() {
+    return getOutputText(nmsPortIdDiv);
   }
 
   public String getInstituteName() {

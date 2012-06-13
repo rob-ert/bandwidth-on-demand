@@ -18,10 +18,10 @@
                 <h3>Old Physical Port Details</h3>
             </div>
 
-            <field:display labelCode="label_physicalport_noclabel" object="${physicalPort}" field="nocLabel" />
+            <field:display labelCode="label_physicalport_noclabel" object="${physicalPort}" field="nocLabel"  />
             <field:display labelCode="label_physicalport_bod_port_id" object="${physicalPort}" field="bodPortId" />
-            <field:display labelCode="label_physicalresourcegroup" object="${physicalPort}" field="physicalResourceGroup" />
-            <field:display labelCode="label_physicalport_nms_port_id" object="${physicalPort}" field="nmsPortId" />
+            <field:display labelCode="label_physicalresourcegroup" object="${physicalPort}" field="physicalResourceGroup" id="institute_id"/>
+            <field:display labelCode="label_physicalport_nms_port_id" object="${physicalPort}" field="nmsPortId" id="nms_port_id" />
 
             <div class="message">
                 <h3>Related Objects</h3>

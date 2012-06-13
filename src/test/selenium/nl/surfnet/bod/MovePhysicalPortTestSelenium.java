@@ -14,16 +14,22 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
   public void setup() {
     getNocDriver().createNewPhysicalResourceGroup(INSTITUTE_SURF, ICT_MANAGERS_GROUP, "test@example.com");
     getWebDriver().clickLinkInLastEmail();
+    getManagerDriver().switchToNoc();
+
     getNocDriver().createNewPhysicalResourceGroup(INSTITUTE_UU, ICT_MANAGERS_GROUP_2, "test@example.com");
     getWebDriver().clickLinkInLastEmail();
-    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK, "First port", INSTITUTE_SURF);
-    getNocDriver().linkPhysicalPort(NETWORK_ELEMENT_PK_2, "Second port", INSTITUTE_UU);
+    getManagerDriver().switchToNoc();
 
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "First port", INSTITUTE_SURF);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Second port", INSTITUTE_UU);
+
+    getNocDriver().switchToUser();
     getUserDriver().requestVirtualPort("selenium-users");
     getUserDriver().selectInstituteAndRequest(INSTITUTE_SURF, 1200, "port 1");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("First port");
 
+    getManagerDriver().switchToUser();
     getUserDriver().requestVirtualPort("selenium-users");
     getUserDriver().selectInstituteAndRequest(INSTITUTE_UU, 1200, "port 2");
     getWebDriver().clickLinkInLastEmail();
@@ -40,9 +46,9 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
 
     getNocDriver().movePhysicalPort("First port");
 
-    getNocDriver().verifyMovePage(NETWORK_ELEMENT_PK, INSTITUTE_SURF, 1, 2, 2);
+    getNocDriver().verifyMovePage(NMS_PORT_ID_1, INSTITUTE_SURF, 1, 2, 2);
 
-    getNocDriver().movePhysicalPortChooseNewPort(NETWORK_ELEMENT_PK_3);
+    getNocDriver().movePhysicalPortChooseNewPort(NMS_PORT_ID_3);
 
     getNocDriver().verifyMoveResultPage(2);
 
