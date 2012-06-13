@@ -36,7 +36,6 @@ import org.hibernate.validator.constraints.NotEmpty;
  * @author Franky
  * 
  */
-@Entity
 public class Institute {
 
   @Id
