@@ -17,9 +17,17 @@ app.global = function() {
 
     var initPlugins = function() {
 
+        initCsrfFilter();
         initTooltips();
         initPopovers();
 
+    };
+
+    var initCsrfFilter = function() {
+        var token = $("#csrf-token").text();
+        $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
+            options.data = options.data + "&csrf-token=" + token;
+        });
     };
 
     var initUserSelection = function() {

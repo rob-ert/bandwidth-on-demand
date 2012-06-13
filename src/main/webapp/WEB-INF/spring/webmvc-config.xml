@@ -20,6 +20,10 @@
     <!-- Allows for mapping the DispatcherServlet to "/" by forwarding static resource requests to the container's default Servlet -->
     <mvc:default-servlet-handler />
 
+    <mvc:interceptors>
+        <bean class="nl.surfnet.bod.web.csrf.CsrfHandlerInterceptor" />
+    </mvc:interceptors>
+
     <!-- selects a static view for rendering without the need for an explicit controller -->
     <mvc:view-controller path="/uncaughtException" />
     <mvc:view-controller path="/resourceNotFound" />

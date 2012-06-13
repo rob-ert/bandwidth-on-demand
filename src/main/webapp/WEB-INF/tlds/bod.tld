@@ -35,6 +35,12 @@
     </tag>
 
     <tag>
+        <name>csrfToken</name>
+        <tag-class>nl.surfnet.bod.web.tag.CsrfTokenTag</tag-class>
+        <body-content>empty</body-content>
+    </tag>
+
+    <tag>
         <name>env</name>
         <tag-class>nl.surfnet.bod.web.tag.EnvironmentTag</tag-class>
         <body-content>empty</body-content>
