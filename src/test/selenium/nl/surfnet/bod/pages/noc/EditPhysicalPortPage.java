@@ -40,15 +40,15 @@ public class EditPhysicalPortPage extends AbstractFormPage {
   @FindBy(id = "_c_PhysicalPort_physicalResourceGroup")
   private WebElement physicalResourceGroupSelect;
 
+  public EditPhysicalPortPage(RemoteWebDriver driver) {
+    super(driver);
+  }
+
   public static EditPhysicalPortPage get(RemoteWebDriver driver) {
     EditPhysicalPortPage page = new EditPhysicalPortPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;
-  }
-  
-  public EditPhysicalPortPage(RemoteWebDriver driver) {
-    super(driver);
   }
 
   public void sendNocLabel(String nocLabel) {

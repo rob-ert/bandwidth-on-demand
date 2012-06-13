@@ -28,7 +28,7 @@ import org.junit.Test;
 
 public class PhysicalPortTestSelenium extends TestExternalSupport {
 
-  private final static String GROUP_NAME = "2COLLEGE";
+  private static final String GROUP_NAME = "2COLLEGE";
 
   @Before
   public void setup() {
@@ -73,7 +73,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
 
   @Test
   public void checkUnallocateState() {
-    final String VP_ONE = "VirtualPort One";
+    final String vpOne = "VirtualPort One";
     String nocLabel = "My Selenium Port (Noc)";
     String managerLabel1 = "My Selenium Port (Manager 1st)";
 
@@ -90,7 +90,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getUserDriver().selectInstituteAndRequest(GROUP_NAME, 1000, "Doe mijn een nieuw poort...");
     getUserDriver().switchToManager(GROUP_NAME);
     getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().acceptVirtualPort(VP_ONE);
+    getManagerDriver().acceptVirtualPort(vpOne);
 
     getManagerDriver().verifyPhysicalPortHasDisabeldUnallocateIcon(NETWORK_ELEMENT_PK, managerLabel1, "related");
 
@@ -99,7 +99,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
 
     // Delete Vp
     getNocDriver().switchToManager();
-    getManagerDriver().deleteVirtualPort(VP_ONE);
+    getManagerDriver().deleteVirtualPort(vpOne);
 
     // After delete VP, the PysicalPort should be able to unallocate
     getManagerDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NETWORK_ELEMENT_PK, managerLabel1);

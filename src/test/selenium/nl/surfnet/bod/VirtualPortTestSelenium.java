@@ -28,7 +28,7 @@ import org.junit.Test;
 
 public class VirtualPortTestSelenium extends TestExternalSupport {
 
-  private final static String VP_DELETE_ALERT_TEXT = "reservations will be effected";
+  private static final String VP_DELETE_ALERT_TEXT = "reservations will be effected";
 
   @Before
   public void setup() {

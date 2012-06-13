@@ -7,15 +7,33 @@
     <jsp:directive.attribute name="field" type="java.lang.String" required="true" rtexprvalue="true" description="The field name" />
     <jsp:directive.attribute name="labelCode" type="java.lang.String" required="true" rtexprvalue="true" description="Key for label message bundle if label is not supplied" />
     <jsp:directive.attribute name="render" type="java.lang.Boolean" required="false" rtexprvalue="true" description="" />
+    <jsp:directive.attribute name="id" type="java.lang.String" required="false" rtexprvalue="true" description="Id of component" />
 
     <c:if test="${empty render or render}">
 
-        <div class="control-group">
-            <label class="control-label"><spring:message code="${labelCode}"/></label>
-            <div class="controls">
-                <output><spring:eval expression="object[field]" /></output>
-            </div>
-        </div>
+        <c:choose>
+            <c:when test="${not empty id}">
+                <div class="control-group" id="${fn:escapeXml(id)}">
+                    <label class="control-label"><spring:message code="${labelCode}" /></label>
+                    <div class="controls">
+                        <output>
+                            <spring:eval expression="object[field]" />
+                        </output>
+                    </div>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <div class="control-group">
+                    <label class="control-label"><spring:message code="${labelCode}" /></label>
+                    <div class="controls">
+                        <output>
+                            <spring:eval expression="object[field]" />
+                        </output>
+                    </div>
+                </div>
+            </c:otherwise>
+        </c:choose>
+
     </c:if>
-        
+
 </jsp:root>

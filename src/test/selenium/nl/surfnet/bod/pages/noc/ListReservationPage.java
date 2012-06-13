@@ -45,4 +45,8 @@ public class ListReservationPage extends AbstractReservationListPage {
     return get(driver);
   }
 
+  public Integer getNumberOfReservations() {
+    return getRows().size();
+  }
+
 }

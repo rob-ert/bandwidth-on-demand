@@ -24,15 +24,7 @@ package nl.surfnet.bod.support;
 import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.pages.noc.AddPhysicalPortPage;
-import nl.surfnet.bod.pages.noc.EditPhysicalPortPage;
-import nl.surfnet.bod.pages.noc.EditPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.noc.ListAllocatedPortsPage;
-import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.noc.ListReservationPage;
-import nl.surfnet.bod.pages.noc.ListUnallocatedPortsPage;
-import nl.surfnet.bod.pages.noc.NewPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.noc.NocOverviewPage;
+import nl.surfnet.bod.pages.noc.*;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -193,5 +185,41 @@ public class BodNocWebDriver {
     ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
 
     page.verifyPhysicalPortWasAllocated(networkElementPk, label);
+  }
+
+  public void movePhysicalPort(String name) {
+    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+
+    page.movePort(name);
+  }
+
+  public void movePhysicalPortChooseNewPort(String networkElementPk) {
+    MovePhysicalPortPage movePage = MovePhysicalPortPage.get(driver);
+    movePage.selectNewPhysicalPort(networkElementPk);
+    movePage.movePort();
+  }
+
+  public void verifyMovePage(String networkElementPk, String instituteName, int numberOfVps, int numberOfRess,
+      int numberOfActiveRess) {
+    MovePhysicalPortPage movePage = MovePhysicalPortPage.get(driver);
+
+    assertThat(movePage.getNetworkElementPk(), is(networkElementPk));
+    assertThat(movePage.getInstituteName(), is(instituteName));
+    assertThat(movePage.getNumberOfVirtualPorts(), is(numberOfVps));
+    assertThat(movePage.getNumberOfReservations(), is(numberOfRess));
+    assertThat(movePage.getNumberOfActiveReservations(), is(numberOfActiveRess));
+  }
+
+  public void verifyMoveResultPage(int i) {
+    MovePhysicalPortResultPage page = MovePhysicalPortResultPage.get(driver);
+
+    assertThat(page.getNumberOfReservations(), is(i));
+  }
+
+  public void verifyHasReservations(int i) {
+    ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
+
+    assertThat(page.getNumberOfReservations(), is(i));
+
   }
 }

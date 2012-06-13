@@ -56,4 +56,10 @@ public class ListAllocatedPortsPage extends AbstractPhysicalPortListPage {
     return EditPhysicalPortPage.get(driver);
   }
 
+  public MovePhysicalPortPage movePort(String name) {
+    clickRowIcon("icon-truck", name);
+
+    return MovePhysicalPortPage.get(driver);
+  }
+
 }
