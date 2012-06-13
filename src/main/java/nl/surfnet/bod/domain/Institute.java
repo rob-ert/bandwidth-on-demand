@@ -21,21 +21,33 @@
  */
 package nl.surfnet.bod.domain;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Version;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
 /**
- * Represents a customer of SURFnet.
+ * Represents a customer of SURFnet, a local copy of IDD data, which is regarded
+ * by the rest of the team as a good idea...
  * 
  * @author Franky
  * 
  */
+@Entity
 public class Institute {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
   private final Long id;
+  @NotEmpty
   private final String name;
+  @NotEmpty
   private final String shortName;
-
-  public Institute() {
-    this(null, null, null);
-  }
+  @Version
+  private Integer version;
 
   public Institute(Long id, String name, String shortName) {
     this.id = id;
@@ -53,6 +65,10 @@ public class Institute {
 
   public String getShortName() {
     return shortName;
+  }
+
+  public Integer getVersion() {
+    return version;
   }
 
 }
