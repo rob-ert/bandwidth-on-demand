@@ -45,13 +45,13 @@ public class ReservationArchive {
   @Enumerated(EnumType.STRING)
   private ReservationStatus status = ReservationStatus.REQUESTED;
 
-  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
   private final LocalDateTime startDateTime;
 
-  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
   private final LocalDateTime endDateTime;
 
-  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
   private final LocalDateTime creationDateTime;
 
   private final String userCreated;

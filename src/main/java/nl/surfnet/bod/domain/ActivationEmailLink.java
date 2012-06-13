@@ -58,11 +58,11 @@ public class ActivationEmailLink<T> {
   private String uuid;
 
   @Nullable
-  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
   private LocalDateTime emailSentDateTime;
 
   @Nullable
-  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
   private LocalDateTime activationDateTime;
 
   @NotNull

@@ -59,7 +59,7 @@ public class VirtualPortRequestLink {
   private String requestorUrn;
 
   @NotNull
-  @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
   private LocalDateTime requestDateTime;
 
   @NotNull

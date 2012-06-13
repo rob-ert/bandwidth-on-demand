@@ -101,7 +101,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>3.6.7.Final</version>
+            <version>4.1.4.Final</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -138,7 +138,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
-            <version>3.6.7.Final</version>
+            <version>4.1.4.Final</version>
             <exclusions>
                 <exclusion>
                     <groupId>cglib</groupId>
@@ -532,6 +532,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.jadira.usertype</groupId>
+            <artifactId>usertype.core</artifactId>
+            <version>3.0.0.CR1</version>
+        </dependency>
+
     </dependencies>
     <build>
         <resources>
@@ -580,6 +586,7 @@
                     <source>1.6</source>
                     <target>1.6</target>
                     <encoding>UTF-8</encoding>
+                    <compilerArgument>-proc:none</compilerArgument>
                 </configuration>
             </plugin>
             <plugin>
@@ -710,7 +717,6 @@
                             <exclude>org/ogf/**/*.class</exclude>
                             <exclude>oasis/names/**/*.class</exclude>
                             <exclude>org/w3/**/*.class</exclude>
-                            <exclude>nl/surfnet/bod/nsa/config/**/*.class</exclude>
                             <exclude>org/tmforum/**/*.class</exclude>
                         </excludes>
                     </instrumentation>
