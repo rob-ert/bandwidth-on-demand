@@ -195,7 +195,6 @@ public class ReservationService {
    */
   public ElementActionView isDeleteAllowed(Reservation reservation, BodRole role) {
     if (!reservation.getStatus().isDeleteAllowed()) {
-      // No need to continue
       return new ElementActionView(false, "reservation_state_transition_not_allowed");
     }
 
@@ -207,8 +206,8 @@ public class ReservationService {
       return new ElementActionView(true);
     }
     else if (role.isManagerRole()
-        && (reservation.getSourcePort().getPhysicalResourceGroup().getId() == role.getPhysicalResourceGroupId() || reservation
-            .getDestinationPort().getPhysicalResourceGroup().getId() == role.getPhysicalResourceGroupId())) {
+        && (reservation.getSourcePort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId())
+              || reservation.getDestinationPort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId()))) {
       return new ElementActionView(true);
     }
     else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {

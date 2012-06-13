@@ -102,11 +102,9 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getUserDriver().createNewReservation(reservationLabel, startDate, endDate, startTime, endTime);
     getUserDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
 
-    // Manager should also be able to cancel the reservation
     getUserDriver().switchToManager(INSTITUTE_NAME);
     getManagerDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
 
-    // Noc should NOT be able to cancel the reservation
     getManagerDriver().switchToNoc();
     getNocDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
 
