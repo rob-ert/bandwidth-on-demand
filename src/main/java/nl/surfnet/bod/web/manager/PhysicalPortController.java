@@ -72,8 +72,6 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
       return "manager/physicalports";
     }
 
-    instituteService.fillInstituteForPhysicalPort(port);
-
     uiModel.addAttribute("physicalPort", port);
     uiModel.addAttribute("updateManagerLabelCommand", new UpdateManagerLabelCommand(port));
 
@@ -168,7 +166,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(groupId);
 
-    return (List<PhysicalPortView>) Functions.transformPhysicalPorts(physicalPortService
+    return (List<PhysicalPortView>) Functions.transformAllocatedPhysicalPorts(physicalPortService
         .findAllocatedEntriesForPhysicalResourceGroup(physicalResourceGroup, firstPage, maxItems, sort),
         virtualPortService);
   }

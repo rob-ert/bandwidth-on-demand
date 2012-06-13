@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.web.WebUtils.*;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -30,9 +28,12 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
-import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.WebUtils;
@@ -60,6 +61,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import static nl.surfnet.bod.web.WebUtils.CREATE;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.EDIT;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.UPDATE;
+
 @Controller("managerVirtualPortController")
 @RequestMapping(VirtualPortController.PAGE_URL)
 public class VirtualPortController extends AbstractSortableListController<VirtualPortView> {
@@ -70,16 +79,12 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   private final Function<VirtualPort, VirtualPortView> toVitualPortView = new Function<VirtualPort, VirtualPortView>() {
     @Override
     public VirtualPortView apply(VirtualPort port) {
-      instituteService.fillInstituteForPhysicalResourceGroup(port.getPhysicalResourceGroup());
       return new VirtualPortView(port, reservationService.countForVirtualResourceGroup(port.getVirtualResourceGroup()));
     }
   };
 
   @Autowired
   private VirtualPortService virtualPortService;
-
-  @Autowired
-  private InstituteService instituteService;
 
   @Autowired
   private VirtualPortValidator virtualPortValidator;
@@ -126,8 +131,6 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   }
 
   private String addCreateFormToModel(VirtualPortCreateCommand command, Model model) {
-    instituteService.fillInstituteForPhysicalResourceGroup(command.getPhysicalResourceGroup());
-
     model.addAttribute("virtualPortCreateCommand", command);
     model.addAttribute("physicalPorts", command.getPhysicalResourceGroup() == null ? Collections.emptyList() : command
         .getPhysicalResourceGroup().getPhysicalPorts());
@@ -210,8 +213,6 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     if (virtualPort == null || Security.managerMayNotEdit(virtualPort)) {
       return "redirect:" + PAGE_URL;
     }
-
-    instituteService.fillInstituteForPhysicalResourceGroup(virtualPort.getPhysicalResourceGroup());
 
     model.addAttribute("virtualPortUpdateCommand", new VirtualPortUpdateCommand(virtualPort));
     model.addAttribute("physicalPorts", virtualPort.getPhysicalResourceGroup().getPhysicalPorts());

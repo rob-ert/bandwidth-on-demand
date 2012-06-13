@@ -26,15 +26,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.idd.generated.Klanten;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
@@ -85,37 +82,6 @@ public class InstituteIddService implements InstituteService {
 
     if (!Strings.isNullOrEmpty(klant.getKlantafkorting())) {
       klant.setKlantafkorting(klant.getKlantafkorting().trim());
-    }
-
-  }
-
-  @Override
-  public void fillInstituteForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
-    Preconditions.checkNotNull(physicalResourceGroup);
-
-    if (physicalResourceGroup.getInstituteId() != null) {
-      Institute institute = findInstitute(physicalResourceGroup.getInstituteId());
-      physicalResourceGroup.setInstitute(institute);
-    }
-  }
-
-  @Override
-  public void fillInstituteForPhysicalResourceGroups(Collection<PhysicalResourceGroup> prgs) {
-    for (PhysicalResourceGroup prg : prgs) {
-      fillInstituteForPhysicalResourceGroup(prg);
-    }
-  }
-
-  @Override
-  public void fillInstituteForPhysicalPort(PhysicalPort port) {
-    fillInstituteForPhysicalResourceGroup(port.getPhysicalResourceGroup());
-  }
-
-  @Override
-  public void fillInstituteForPhysicalPorts(Collection<PhysicalPort> ports) {
-
-    for (PhysicalPort port : ports) {
-      fillInstituteForPhysicalPort(port);
     }
   }
 

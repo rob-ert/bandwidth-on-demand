@@ -25,9 +25,7 @@ import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
@@ -43,7 +41,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 
 @RequestMapping("/user")
 @Controller
@@ -58,9 +60,6 @@ public class DashboardController {
   @Autowired
   private ReservationService reservationService;
 
-  @Autowired
-  private InstituteService instituteService;
-
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
     Collection<UserGroup> userGroups = Security.getUserDetails().getUserGroups();
@@ -73,17 +72,8 @@ public class DashboardController {
 
     List<TeamView> views = getTeamViews(userGroups);
 
-    model.addAttribute(
-        "requests",
-        Orderings.vpRequestLinkOrdering().sortedCopy(
-            Collections2.transform(virtualPortService.findRequestsForLastMonth(userGroups),
-                new Function<VirtualPortRequestLink, VirtualPortRequestLink>() {
-                  @Override
-                  public VirtualPortRequestLink apply(VirtualPortRequestLink input) {
-                    instituteService.fillInstituteForPhysicalResourceGroup(input.getPhysicalResourceGroup());
-                    return input;
-                  }
-                })));
+    model.addAttribute("requests",
+        Orderings.vpRequestLinkOrdering().sortedCopy(virtualPortService.findRequestsForLastMonth(userGroups)));
     model.addAttribute("teams", views);
     model.addAttribute("canCreateReservation", Iterables.any(views, new Predicate<TeamView>() {
       @Override

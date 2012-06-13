@@ -21,13 +21,9 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-
 import java.util.List;
 
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.base.AbstractSortableListController;
 import nl.surfnet.bod.web.security.Security;
@@ -43,8 +39,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import static nl.surfnet.bod.web.WebUtils.EDIT;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 
 @Controller
 @RequestMapping("/virtualports")
@@ -52,9 +48,6 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
   @Autowired
   private VirtualPortService virtualPortService;
-
-  @Autowired
-  private InstituteService instituteService;
 
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
@@ -113,14 +106,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
   @Override
   protected List<VirtualPort> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return Lists.transform(virtualPortService.findEntriesForUser(Security.getUserDetails(), firstPage, maxItems, sort),
-        new Function<VirtualPort, VirtualPort>() {
-          @Override
-          public VirtualPort apply(VirtualPort port) {
-            instituteService.fillInstituteForPhysicalResourceGroup(port.getPhysicalResourceGroup());
-            return port;
-          }
-        });
+    return virtualPortService.findEntriesForUser(Security.getUserDetails(), firstPage, maxItems, sort);
   }
 
   @Override

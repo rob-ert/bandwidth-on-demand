@@ -82,9 +82,6 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   private PhysicalResourceGroupService physicalResourceGroupService;
 
   @Autowired
-  private InstituteService instituteService;
-
-  @Autowired
   private VirtualPortService virtualPortService;
 
   @Autowired
@@ -189,9 +186,8 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   public String listUnallocated(@RequestParam(value = PAGE_KEY, required = false) final Integer page,
       final Model uiModel) {
 
-    uiModel.addAttribute("list", Functions.enrichAndTransformUnallocatedPhysicalPort(
-        (List<PhysicalPort>) physicalPortService.findUnallocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE),
-        instituteService));
+    uiModel.addAttribute("list", Functions.transformUnallocatedPhysicalPorts((List<PhysicalPort>) physicalPortService
+        .findUnallocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE)));
 
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocated()));
 
@@ -202,7 +198,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   public String listUnaligned(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
     uiModel.addAttribute("list",
-        Functions.transformPhysicalPorts(physicalPortService.findUnalignedPhysicalPorts(), virtualPortService));
+        Functions.transformAllocatedPhysicalPorts(physicalPortService.findUnalignedPhysicalPorts(), virtualPortService));
 
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnalignedPhysicalPorts()));
 
@@ -212,9 +208,8 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   @RequestMapping(value = "/mtosi", method = RequestMethod.GET)
   public String listMtosi(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
-    uiModel.addAttribute("list", Functions.enrichAndTransformUnallocatedPhysicalPort(
-        (List<PhysicalPort>) physicalPortService.findUnallocatedMTOSIEntries(calculateFirstPage(page),
-            MAX_ITEMS_PER_PAGE), instituteService));
+    uiModel.addAttribute("list", Functions.transformUnallocatedPhysicalPorts((List<PhysicalPort>) physicalPortService
+        .findUnallocatedMTOSIEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE)));
 
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocatedMTOSI()));
 
@@ -334,8 +329,8 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   @Override
   protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
 
-    return Functions.enrichAndTransformAllocatedPhysicalPort(
-        physicalPortService.findAllocatedEntries(firstPage, maxItems, sort), instituteService, virtualPortService);
+    return Functions.transformAllocatedPhysicalPorts(
+        physicalPortService.findAllocatedEntries(firstPage, maxItems, sort), virtualPortService);
   }
 
   @Override

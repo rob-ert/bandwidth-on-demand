@@ -21,18 +21,6 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.Collection;
 import java.util.Locale;
 
@@ -41,9 +29,13 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
-import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.support.ModelStub;
+import nl.surfnet.bod.support.PhysicalPortFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortCreateCommand;
 import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortUpdateCommand;
@@ -65,6 +57,19 @@ import org.springframework.validation.BindingResult;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class VirtualPortControllerTest {
 
@@ -73,9 +78,6 @@ public class VirtualPortControllerTest {
 
   @Mock
   private VirtualPortService virtualPortServiceMock;
-
-  @Mock
-  private InstituteService instituteServiceMock;
 
   @Mock
   private VirtualPortValidator virtualPortValidatorMock;
@@ -183,8 +185,7 @@ public class VirtualPortControllerTest {
     assertThat(command.getPhysicalResourceGroup(), is(prg));
     assertThat(command.getMaxBandwidth(), is(link.getMinBandwidth()));
     assertThat(command.getVirtualPortRequestLink(), is(link));
-
-    verify(instituteServiceMock).fillInstituteForPhysicalResourceGroup(prg);
+    assertThat(command.getPhysicalResourceGroup().getInstitute(), notNullValue());
   }
 
   @Test

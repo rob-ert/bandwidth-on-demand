@@ -141,7 +141,6 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
   public String updateForm(@RequestParam(ID_KEY) final Long id, final Model uiModel) {
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
-    instituteService.fillInstituteForPhysicalResourceGroup(group);
 
     uiModel.addAttribute(MODEL_KEY, new PhysicalResourceGroupCommand(group));
     return PAGE_URL + UPDATE;

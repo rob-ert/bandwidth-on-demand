@@ -21,9 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -48,18 +45,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import com.google.common.base.Function;
+
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
 
 @Service
 @Transactional
 public class PhysicalResourceGroupService {
 
   private Logger log = LoggerFactory.getLogger(this.getClass());
-
-  @Autowired
-  private InstituteService instituteService;
 
   @Autowired
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
@@ -79,30 +75,15 @@ public class PhysicalResourceGroupService {
   }
 
   public PhysicalResourceGroup find(final Long id) {
-    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupRepo.findOne(id);
-    if (physicalResourceGroup == null) {
-      return null;
-    }
-    instituteService.fillInstituteForPhysicalResourceGroup(physicalResourceGroup);
-
-    return physicalResourceGroup;
+    return physicalResourceGroupRepo.findOne(id);
   }
 
   public List<PhysicalResourceGroup> findAll() {
-    List<PhysicalResourceGroup> prgs = physicalResourceGroupRepo.findAll();
-
-    instituteService.fillInstituteForPhysicalResourceGroups(prgs);
-
-    return prgs;
+    return physicalResourceGroupRepo.findAll();
   }
 
   public List<PhysicalResourceGroup> findEntries(int firstResult, int maxResults, Sort sort) {
-    List<PhysicalResourceGroup> prgs = physicalResourceGroupRepo.findAll(
-        new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
-
-    instituteService.fillInstituteForPhysicalResourceGroups(prgs);
-
-    return prgs;
+    return physicalResourceGroupRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
   public void save(final PhysicalResourceGroup physicalResourceGroup) {
@@ -114,7 +95,6 @@ public class PhysicalResourceGroupService {
   }
 
   public boolean hasRelatedPhysicalResourceGroup(UserGroup group) {
-
     return (group != null) && (physicalResourceGroupRepo.findByAdminGroup(group.getId()) != null);
   }
 
@@ -130,30 +110,20 @@ public class PhysicalResourceGroupService {
       }
     }));
 
-    List<PhysicalResourceGroup> prgs = physicalResourceGroupRepo.findByAdminGroupIn(groupIds);
-    instituteService.fillInstituteForPhysicalResourceGroups(prgs);
-
-    return prgs;
+    return physicalResourceGroupRepo.findByAdminGroupIn(groupIds);
   }
 
   public List<PhysicalResourceGroup> findByAdminGroup(String groupId) {
-    List<PhysicalResourceGroup> prgs = physicalResourceGroupRepo.findByAdminGroup(groupId);
-
-    if (!CollectionUtils.isEmpty(prgs)) {
-      instituteService.fillInstituteForPhysicalResourceGroups(prgs);
-    }
-
-    return prgs;
+    return physicalResourceGroupRepo.findByAdminGroup(groupId);
   }
 
   @SuppressWarnings("unchecked")
   public ActivationEmailLink<PhysicalResourceGroup> findActivationLink(String uuid) {
-    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = 
-        (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo.findByUuid(uuid);
+    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo
+        .findByUuid(uuid);
 
     if (activationEmailLink != null) {
       activationEmailLink.setSourceObject(find(activationEmailLink.getSourceId()));
-      instituteService.fillInstituteForPhysicalResourceGroup(activationEmailLink.getSourceObject());
     }
 
     return activationEmailLink;
@@ -167,10 +137,7 @@ public class PhysicalResourceGroupService {
       }
     };
 
-    List<PhysicalResourceGroup> groups = physicalResourceGroupRepo.findAll(withPhysicalPorts);
-    instituteService.fillInstituteForPhysicalResourceGroups(groups);
-
-    return groups;
+    return physicalResourceGroupRepo.findAll(withPhysicalPorts);
   }
 
   public void activate(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {

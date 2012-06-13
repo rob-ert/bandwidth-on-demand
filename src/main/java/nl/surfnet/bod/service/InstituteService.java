@@ -24,20 +24,10 @@ package nl.surfnet.bod.service;
 import java.util.Collection;
 
 import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
 public interface InstituteService {
 
   Collection<Institute> getInstitutes();
 
   Institute findInstitute(Long id);
-
-  void fillInstituteForPhysicalPort(PhysicalPort port);
-
-  void fillInstituteForPhysicalPorts(Collection<PhysicalPort> ports);
-
-  void fillInstituteForPhysicalResourceGroup(PhysicalResourceGroup group);
-
-  void fillInstituteForPhysicalResourceGroups(Collection<PhysicalResourceGroup> groups);
 }

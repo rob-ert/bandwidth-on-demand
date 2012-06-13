@@ -54,15 +54,15 @@ import com.google.common.collect.Sets.SetView;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
- *
+ * 
  * The {@link PhysicalPort}s found in the {@link NbiPortService} are leading and
  * when more data is available in our repository they will be enriched.
- *
+ * 
  * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
- *
- *
+ * 
+ * 
  * @author Frank Mölder
  */
 @Service
@@ -195,7 +195,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Adds data found in given ports to the specified ports, enriches them.
-   *
+   * 
    * @param nbiPorts
    *          {@link PhysicalPort}s to add the data to
    * @param repoPorts
@@ -242,7 +242,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   @Scheduled(cron = "${physicalport.detection.job.cron}")
   public void detectAndPersistPortInconsistencies() {
     final ImmutableSet<String> nbiPortIds = ImmutableSet.copyOf(Lists.transform(nbiClient.findAllPhysicalPorts(),
-        Functions.TO_NETWORK_ELEMENT_PK));
+        Functions.TO_NMS_PORT_ID));
 
     // Build map for easy lookup
     Map<String, PhysicalPort> physicalPorts = Maps.newHashMap();
@@ -263,7 +263,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     List<PhysicalPort> reappearedPorts = Lists.newArrayList();
 
     ImmutableSet<String> unalignedPortIds = FluentIterable.from(bodPorts.values()).filter(Functions.MISSING_PORTS)
-        .transform(Functions.TO_NETWORK_ELEMENT_PK).toImmutableSet();
+        .transform(Functions.TO_NMS_PORT_ID).toImmutableSet();
 
     SetView<String> reAlignedPortIds = Sets.intersection(unalignedPortIds, nbiPortIds);
     logger.info("Found {} ports realigned in the NMS", reAlignedPortIds.size());
@@ -283,9 +283,8 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    * Checks the {@link PhysicalPort}s in the given Map which are
    * <strong>not</strong> indicated as missing have disappeared from the NMS by
    * finding the differences between the ports in the given list and the ports
-   * returned by the NMS based on the {@link PhysicalPort#getNmsPortId()}
-   * .
-   *
+   * returned by the NMS based on the {@link PhysicalPort#getNmsPortId()} .
+   * 
    * @param bodPorts
    *          List with ports from BoD
    * @param nbiPortIds
@@ -297,7 +296,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     List<PhysicalPort> disappearedPorts = Lists.newArrayList();
 
     ImmutableSet<String> physicalPortIds = FluentIterable.from(bodPorts.values()).filter(Functions.NON_MISSING_PORTS)
-        .transform(Functions.TO_NETWORK_ELEMENT_PK).toImmutableSet();
+        .transform(Functions.TO_NMS_PORT_ID).toImmutableSet();
 
     SetView<String> unalignedPortIds = Sets.difference(physicalPortIds, nbiPortIds);
     logger.info("Found {} ports disappeared in the NMS", unalignedPortIds.size());
@@ -314,10 +313,10 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Enriches the port with additional data.
-   *
+   * 
    * Clones JPA attributes (id and version), so a find will return these
    * preventing a additional save instead of an update.
-   *
+   * 
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort

@@ -21,11 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.when;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -47,6 +42,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstituteIddServiceTest {
@@ -101,37 +101,6 @@ public class InstituteIddServiceTest {
     Institute institute = Iterables.getOnlyElement(institutes);
     assertThat(institute.getName(), is("SURFnet"));
     assertThat(institute.getShortName(), is("SURF"));
-  }
-
-  @Test
-  public void shouldFillInstituteForPhysicalPorts() {
-    when(iddClientMock.getKlantById(1L)).thenReturn(klantOne);
-    when(iddClientMock.getKlantById(2L)).thenReturn(klantTwo);
-
-    portOne.getPhysicalResourceGroup().setInstitute(null);
-    portOne.getPhysicalResourceGroup().setInstituteId(1L);
-
-    portTwo.getPhysicalResourceGroup().setInstitute(null);
-    portTwo.getPhysicalResourceGroup().setInstituteId(2L);
-
-    subject.fillInstituteForPhysicalPorts(ports);
-
-    assertThat(portOne.getPhysicalResourceGroup().getInstituteId(), is(portOne.getPhysicalResourceGroup()
-        .getInstitute().getId()));
-    assertThat(portTwo.getPhysicalResourceGroup().getInstituteId(), is(portTwo.getPhysicalResourceGroup()
-        .getInstitute().getId()));
-  }
-
-  @Test
-  public void shouldFillInstituteForPhysicalResourceGroup() {
-    when(iddClientMock.getKlantById(1L)).thenReturn(klantOne);
-
-    groupOne.setInstitute(null);
-    groupOne.setInstituteId(1L);
-
-    subject.fillInstituteForPhysicalResourceGroup(groupOne);
-
-    assertThat(groupOne.getInstituteId(), is(groupOne.getInstitute().getId()));
   }
 
   private Klanten newKlantWithName(String naam, String afkorting) {

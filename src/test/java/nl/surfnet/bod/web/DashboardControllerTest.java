@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -125,8 +126,8 @@ public class DashboardControllerTest {
 
   @Test
   public void showDashboardForUserWhichCanCreateReservations() {
-    VirtualResourceGroup vrgWithPorts = new VirtualResourceGroupFactory().addVirtualPorts(new VirtualPortFactory().create(),
-        new VirtualPortFactory().create()).create();
+    VirtualResourceGroup vrgWithPorts = new VirtualResourceGroupFactory().addVirtualPorts(
+        new VirtualPortFactory().create(), new VirtualPortFactory().create()).create();
 
     RichUserDetails user = new RichUserDetailsFactory().addUserRole().create();
     Security.setUserDetails(user);
@@ -195,8 +196,7 @@ public class DashboardControllerTest {
     assertThat(model.asMap(), hasKey("requests"));
     List<VirtualPortRequestLink> requests = (List<VirtualPortRequestLink>) model.asMap().get("requests");
     assertThat(requests, contains(link));
-
-    verify(instituteServiceMock).fillInstituteForPhysicalResourceGroup(link.getPhysicalResourceGroup());
+    assertThat(link.getPhysicalResourceGroup().getInstitute(), notNullValue());
   }
 
 }
