@@ -1,27 +1,6 @@
-/**
- * The owner of the original code is SURFnet BV.
- *
- * Portions created by the original owner are Copyright (C) 2011-2012 the
- * original owner. All Rights Reserved.
- *
- * Portions created by other contributors are Copyright (C) the contributor.
- * All Rights Reserved.
- *
- * Contributor(s):
- *   (Contributors insert name & email here)
- *
- * This file is part of the SURFnet7 Bandwidth on Demand software.
- *
- * The SURFnet7 Bandwidth on Demand software is free software: you can
- * redistribute it and/or modify it under the terms of the BSD license
- * included with this distribution.
- *
- * If the BSD license cannot be found with this distribution, it is available
- * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
- */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -44,6 +23,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
+
+import com.mchange.util.AssertException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml",
@@ -91,13 +72,13 @@ public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4Sp
   @Test(expected = ServiceException.class)
   public void should_throw_exeption_because_of_invalid_correlation_id() throws ServiceException {
     final ReserveRequestType reservationRequest = new NsiReservationFactory().setCorrelationId(
-        UUID.randomUUID().toString()).createReservation();
+        UUID.randomUUID().toString()).setDesiredBandwidth(1000).createReservation();
 
     nsiProvider.reserve(reservationRequest);
   }
 
   @Test
-  @Ignore("Flacky test.. . most of the time")
+//  @Ignore("Flacky test..")
   public void should_return_generic_acknowledgement_and_send_reservation_failed() throws Exception {
     XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
     startTime.setDay(10);
@@ -112,7 +93,7 @@ public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4Sp
     endTime.setDay(startTime.getDay() + 5);
 
     ReserveRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
-        .setScheduleEndTime(endTime).setCorrelationId(correationId).createReservation();
+        .setScheduleEndTime(endTime).setCorrelationId(correationId).setProviderNsa("urn:ogf:network:nsa:netherlight").createReservation();
 
     GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
 
@@ -123,6 +104,7 @@ public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4Sp
     assertTrue(lastRequest.contains(correationId));
     assertTrue(lastRequest.contains("reserveFailed"));
 
-    assertThat(requesterEndpoint.getCallCounter(), is(1));
+    
+    assertEquals(1, requesterEndpoint.getCallCounter());
   }
 }
