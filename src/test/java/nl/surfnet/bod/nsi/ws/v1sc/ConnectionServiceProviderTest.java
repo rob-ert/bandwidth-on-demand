@@ -78,7 +78,7 @@ public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4Sp
   }
 
   @Test
-//  @Ignore("Flacky test..")
+  @Ignore("Flacky test..")
   public void should_return_generic_acknowledgement_and_send_reservation_failed() throws Exception {
     XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
     startTime.setDay(10);
