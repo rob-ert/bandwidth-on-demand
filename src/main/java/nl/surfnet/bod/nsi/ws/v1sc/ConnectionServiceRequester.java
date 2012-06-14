@@ -50,7 +50,7 @@ import nl.surfnet.bod.nsi.ws.ConnectionService;
     portName = "ConnectionServiceRequesterPort",
     endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort",
     targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/requester",
-    wsdlLocation = "/WEB-INF/wsdl/nsi/1.sc/ogf_nsi_connection_requester_v1_0.wsdl")
+    wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl")
 public class ConnectionServiceRequester extends ConnectionService {
 
   private final Logger log = getLog();

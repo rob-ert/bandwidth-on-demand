@@ -74,7 +74,7 @@ import nl.surfnet.bod.nsi.ws.ConnectionService;
     portName = "ConnectionServiceProviderPort",
     endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
     targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider",
-    wsdlLocation = "/WEB-INF/wsdl/nsi/1.sc/ogf_nsi_connection_provider_v1_0.wsdl")
+    wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
 public class ConnectionServiceProvider extends ConnectionService {
 
   private final Logger log = getLog();
