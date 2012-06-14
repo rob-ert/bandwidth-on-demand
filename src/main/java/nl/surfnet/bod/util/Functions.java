@@ -22,19 +22,23 @@
 package nl.surfnet.bod.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.PhysicalPortView;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 
 public final class Functions {
 
-  public static final Function<PhysicalPort, String> TO_NMS_PORT_ID = //
+  public static final Function<PhysicalPort, String> TO_NMS_PORT_ID_FUNC = //
   new Function<PhysicalPort, String>() {
 
     @Override
@@ -43,7 +47,7 @@ public final class Functions {
     }
   };
 
-  public static final Predicate<PhysicalPort> MISSING_PORTS = //
+  public static final Predicate<PhysicalPort> MISSING_PORTS_PRED = //
   new Predicate<PhysicalPort>() {
     @Override
     public boolean apply(PhysicalPort physicalPort) {
@@ -51,11 +55,11 @@ public final class Functions {
     }
   };
 
-  public static final Predicate<PhysicalPort> NON_MISSING_PORTS = //
+  public static final Predicate<PhysicalPort> NON_MISSING_PORTS_PRED = //
   new Predicate<PhysicalPort>() {
     @Override
     public boolean apply(PhysicalPort physicalPort) {
-      return !MISSING_PORTS.apply(physicalPort);
+      return !MISSING_PORTS_PRED.apply(physicalPort);
     }
   };
 
@@ -118,4 +122,27 @@ public final class Functions {
     return transformers;
   }
 
+  public static Institute transformKlant(Klanten klant) {
+    Institute institute = null;
+
+    if (!(Strings.isNullOrEmpty(klant.getKlantnaam()) && (Strings.isNullOrEmpty(klant.getKlantafkorting())))) {
+      institute = new Institute(Long.valueOf(klant.getKlant_id()), klant.getKlantnaam().trim(), klant
+          .getKlantafkorting().trim());
+    }
+
+    return institute;
+  }
+
+  public static List<Institute> transformKlanten(Collection<Klanten> klanten) {
+    List<Institute> transformers = new ArrayList<Institute>();
+
+    Institute institute = null;
+    for (Klanten klant : klanten) {
+      institute = transformKlant(klant);
+      if (institute != null) {
+        transformers.add(institute);
+      }
+    }
+    return transformers;
+  }
 }

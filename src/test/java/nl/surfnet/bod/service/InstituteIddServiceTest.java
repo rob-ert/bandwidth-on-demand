@@ -84,7 +84,7 @@ public class InstituteIddServiceTest {
 
     when(iddClientMock.getKlanten()).thenReturn(Lists.newArrayList(klant));
 
-    Collection<Institute> institutes = subject.getInstitutes();
+    Collection<Institute> institutes = subject.findAll();
 
     assertThat(institutes, hasSize(0));
   }
@@ -95,13 +95,15 @@ public class InstituteIddServiceTest {
 
     when(iddClientMock.getKlanten()).thenReturn(Lists.newArrayList(klant));
 
-    Collection<Institute> institutes = subject.getInstitutes();
+    Collection<Institute> institutes = subject.findAll();
 
     assertThat(institutes, hasSize(1));
     Institute institute = Iterables.getOnlyElement(institutes);
     assertThat(institute.getName(), is("SURFnet"));
     assertThat(institute.getShortName(), is("SURF"));
   }
+  
+  
 
   private Klanten newKlantWithName(String naam, String afkorting) {
     Klanten klanten = new Klanten();

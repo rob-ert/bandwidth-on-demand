@@ -87,7 +87,7 @@ public class PhysicalResourceGroupServiceTest {
   @Test
   public void shouldFillInstitute() {
     when(groupRepoMock.findOne(1L)).thenReturn(physicalResourceGroupOne);
-    when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
+    when(instituteServiceMock.find(1L)).thenReturn(instituteOne);
 
     PhysicalResourceGroup foundResourceGroup = subject.find(1L);
 
@@ -99,8 +99,8 @@ public class PhysicalResourceGroupServiceTest {
   @Test
   public void shoudFillInstitutesFindAll() {
     when(groupRepoMock.findAll()).thenReturn(physicalResourceGroups);
-    when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
-    when(instituteServiceMock.findInstitute(2L)).thenReturn(instituteTwo);
+    when(instituteServiceMock.find(1L)).thenReturn(instituteOne);
+    when(instituteServiceMock.find(2L)).thenReturn(instituteTwo);
 
     List<PhysicalResourceGroup> prgs = subject.findAll();
 
@@ -115,8 +115,8 @@ public class PhysicalResourceGroupServiceTest {
     Sort sort = new Sort("id");
 
     when(groupRepoMock.findAll(new PageRequest(1, 1, sort))).thenReturn(pageResult);
-    when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
-    when(instituteServiceMock.findInstitute(2L)).thenReturn(instituteTwo);
+    when(instituteServiceMock.find(1L)).thenReturn(instituteOne);
+    when(instituteServiceMock.find(2L)).thenReturn(instituteTwo);
 
     List<PhysicalResourceGroup> prgs = subject.findEntries(1, 1, new Sort("id"));
 
@@ -134,8 +134,8 @@ public class PhysicalResourceGroupServiceTest {
     Collection<UserGroup> groups = ImmutableList.of(userGroupOne, userGroupTwo);
 
     when(groupRepoMock.findByAdminGroupIn(anyCollection())).thenReturn(physicalResourceGroups);
-    when(instituteServiceMock.findInstitute(1L)).thenReturn(instituteOne);
-    when(instituteServiceMock.findInstitute(2L)).thenReturn(instituteTwo);
+    when(instituteServiceMock.find(1L)).thenReturn(instituteOne);
+    when(instituteServiceMock.find(2L)).thenReturn(instituteTwo);
 
     Collection<PhysicalResourceGroup> prgs = subject.findAllForAdminGroups(groups);
 

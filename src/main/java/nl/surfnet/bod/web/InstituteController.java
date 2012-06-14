@@ -36,6 +36,7 @@ import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,13 +60,13 @@ public class InstituteController {
   @Autowired
   private PhysicalResourceGroupService physicalResourceGroupService;
 
-  @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+  @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   public Collection<Institute> jsonList(@RequestParam(required = false) String q) {
     final Collection<String> existingInstitutes = getExistingInstituteNames();
     final String query = StringUtils.hasText(q) ? q.toLowerCase() : "";
 
-    return filter(instituteService.getInstitutes(), new Predicate<Institute>() {
+    return filter(instituteService.findAll(), new Predicate<Institute>() {
       @Override
       public boolean apply(Institute input) {
         String instituteName = nullToEmpty(input.getName()).toLowerCase();
@@ -73,6 +74,14 @@ public class InstituteController {
         return !existingInstitutes.contains(instituteName) && !instituteName.isEmpty() && instituteName.contains(query);
       }
     });
+  }
+
+  @RequestMapping(value = "/refresh", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
+  @ResponseBody
+  public String refreshInstitutes() {
+    instituteService.refreshInstitutes();
+
+    return "Refresed institutes";
   }
 
   private Collection<String> getExistingInstituteNames() {

@@ -19,17 +19,15 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.service;
-
-import java.util.Collection;
+package nl.surfnet.bod.repo;
 
 import nl.surfnet.bod.domain.Institute;
 
-public interface InstituteService {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 
-  Institute find(Long id);
+@Repository
+public interface InstituteRepo extends JpaSpecificationExecutor<Institute>, JpaRepository<Institute, Long> {
 
-  Collection<Institute> findAll();
-
-  void refreshInstitutes();
 }

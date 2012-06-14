@@ -22,16 +22,17 @@
 package nl.surfnet.bod.domain;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Version;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Represents a customer of SURFnet, a local copy of IDD data, which is regarded
  * by the rest of the team as a good idea...
+ * 
+ * Note that this class has <strong>no version</strong> field, since this causes
+ * duplicate key exceptions because hibernate tries to insert them instead of
+ * updating the existing content of the database.
  * 
  * @author Franky
  * 
@@ -40,14 +41,16 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class Institute {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private final Long id;
+  private Long id;
   @NotEmpty
-  private final String name;
+  private String name;
   @NotEmpty
-  private final String shortName;
-  @Version
-  private Integer version;
+  private String shortName;
+
+  // No version!
+
+  private Institute() {
+  }
 
   public Institute(Long id, String name, String shortName) {
     this.id = id;
@@ -66,9 +69,4 @@ public class Institute {
   public String getShortName() {
     return shortName;
   }
-
-  public Integer getVersion() {
-    return version;
-  }
-
 }

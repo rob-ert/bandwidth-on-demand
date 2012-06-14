@@ -168,7 +168,7 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
       return;
     }
 
-    Institute institute = instituteService.findInstitute(command.getInstituteId());
+    Institute institute = instituteService.find(command.getInstituteId());
     command.setInstitute(institute);
     group.setInstitute(institute);
   }

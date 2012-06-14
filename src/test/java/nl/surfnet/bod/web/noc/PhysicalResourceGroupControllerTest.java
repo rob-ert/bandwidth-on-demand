@@ -137,7 +137,7 @@ public class PhysicalResourceGroupControllerTest {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
 
     when(physicalResourceGroupServiceMock.find(group.getId())).thenReturn(group);
-    when(instituteService.findInstitute(group.getInstituteId())).thenReturn(new InstituteFactory().create());
+    when(instituteService.find(group.getInstituteId())).thenReturn(new InstituteFactory().create());
 
     BeanPropertyBindingResult result = new BeanPropertyBindingResult(group, PhysicalResourceGroupController.MODEL_KEY) {
       @Override

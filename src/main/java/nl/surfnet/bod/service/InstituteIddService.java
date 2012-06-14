@@ -22,67 +22,61 @@
 package nl.surfnet.bod.service;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.idd.generated.Klanten;
+import nl.surfnet.bod.repo.InstituteRepo;
+import nl.surfnet.bod.util.Functions;
 
+import org.hibernate.internal.SessionImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class InstituteIddService implements InstituteService {
+
+  private static final String INSTITUTE_REFRESH_CRON_KEY = "institute.refresh.job.cron";
+
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+  @PersistenceContext
+  EntityManager em;
 
   @Autowired
   private IddClient iddClient;
 
+  @Autowired
+  private InstituteRepo instituteRepo;
+
   @Override
-  public Collection<Institute> getInstitutes() {
+  public Institute find(Long id) {
+    return instituteRepo.findOne(id);
+  }
+
+  @Override
+  public Collection<Institute> findAll() {
+    return instituteRepo.findAll();
+  }
+
+  @Override
+  @Scheduled(cron = "${" + INSTITUTE_REFRESH_CRON_KEY + "}")
+  public void refreshInstitutes() {
+    logger
+        .info("Refreshing institutes from IDD to BoD, job based on configuration key: {}", INSTITUTE_REFRESH_CRON_KEY);
+
     Collection<Klanten> klanten = iddClient.getKlanten();
 
-    return toInstitutes(klanten.toArray(new Klanten[klanten.size()]));
+    instituteRepo.save(Functions.transformKlanten(klanten));
+
   }
-
-  private Collection<Institute> toInstitutes(Klanten... klanten) {
-    List<Institute> institutes = Lists.newArrayList();
-    for (Klanten klant : klanten) {
-      if (klant != null) {
-        trimAttributes(klant);
-        if (!(Strings.isNullOrEmpty(klant.getKlantnaam()) && (Strings.isNullOrEmpty(klant.getKlantafkorting())))) {
-          institutes.add(new Institute(Long.valueOf(klant.getKlant_id()), klant.getKlantnaam(), klant
-              .getKlantafkorting()));
-        }
-      }
-    }
-
-    return institutes;
-  }
-
-  @Override
-  public Institute findInstitute(Long id) {
-    Institute institute = null;
-
-    Iterator<Institute> it = toInstitutes(iddClient.getKlantById(id)).iterator();
-    if (it.hasNext()) {
-      institute = it.next();
-    }
-
-    return institute;
-  }
-
-  private void trimAttributes(Klanten klant) {
-    if (!Strings.isNullOrEmpty(klant.getKlantnaam())) {
-      klant.setKlantnaam(klant.getKlantnaam().trim());
-    }
-
-    if (!Strings.isNullOrEmpty(klant.getKlantafkorting())) {
-      klant.setKlantafkorting(klant.getKlantafkorting().trim());
-    }
-  }
-
 }

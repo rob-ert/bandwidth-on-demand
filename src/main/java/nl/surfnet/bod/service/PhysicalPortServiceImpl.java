@@ -70,6 +70,8 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   private Logger logger = LoggerFactory.getLogger(PhysicalPortServiceImpl.class);
 
+  private static final String PORT_DETECTION_CRON_KEY = "physicalport.detection.job.cron";
+
   @Autowired
   private PhysicalPortRepo physicalPortRepo;
 
@@ -239,10 +241,12 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     detectAndPersistPortInconsistencies();
   }
 
-  @Scheduled(cron = "${physicalport.detection.job.cron}")
+  @Scheduled(cron = "${" + PORT_DETECTION_CRON_KEY + "}")
   public void detectAndPersistPortInconsistencies() {
+    logger
+        .info("Detecting port inconssistencies with the NMS, job based on configuration key: {}", PORT_DETECTION_CRON_KEY);
     final ImmutableSet<String> nbiPortIds = ImmutableSet.copyOf(Lists.transform(nbiClient.findAllPhysicalPorts(),
-        Functions.TO_NMS_PORT_ID));
+        Functions.TO_NMS_PORT_ID_FUNC));
 
     // Build map for easy lookup
     Map<String, PhysicalPort> physicalPorts = Maps.newHashMap();
@@ -262,8 +266,8 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   List<PhysicalPort> markRealignedPortsInNMS(Map<String, PhysicalPort> bodPorts, Set<String> nbiPortIds) {
     List<PhysicalPort> reappearedPorts = Lists.newArrayList();
 
-    ImmutableSet<String> unalignedPortIds = FluentIterable.from(bodPorts.values()).filter(Functions.MISSING_PORTS)
-        .transform(Functions.TO_NMS_PORT_ID).toImmutableSet();
+    ImmutableSet<String> unalignedPortIds = FluentIterable.from(bodPorts.values()).filter(Functions.MISSING_PORTS_PRED)
+        .transform(Functions.TO_NMS_PORT_ID_FUNC).toImmutableSet();
 
     SetView<String> reAlignedPortIds = Sets.intersection(unalignedPortIds, nbiPortIds);
     logger.info("Found {} ports realigned in the NMS", reAlignedPortIds.size());
@@ -295,8 +299,8 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   List<PhysicalPort> markUnalignedWithNMS(final Map<String, PhysicalPort> bodPorts, final Set<String> nbiPortIds) {
     List<PhysicalPort> disappearedPorts = Lists.newArrayList();
 
-    ImmutableSet<String> physicalPortIds = FluentIterable.from(bodPorts.values()).filter(Functions.NON_MISSING_PORTS)
-        .transform(Functions.TO_NMS_PORT_ID).toImmutableSet();
+    ImmutableSet<String> physicalPortIds = FluentIterable.from(bodPorts.values())
+        .filter(Functions.NON_MISSING_PORTS_PRED).transform(Functions.TO_NMS_PORT_ID_FUNC).toImmutableSet();
 
     SetView<String> unalignedPortIds = Sets.difference(physicalPortIds, nbiPortIds);
     logger.info("Found {} ports disappeared in the NMS", unalignedPortIds.size());
