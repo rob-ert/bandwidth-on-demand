@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.PhysicalPortView;
@@ -35,11 +34,7 @@ import com.google.common.base.Predicate;
 
 public final class Functions {
 
-  private Functions() {
-
-  }
-
-  public static Function<PhysicalPort, String> TO_NMS_PORT_ID = //
+  public static final Function<PhysicalPort, String> TO_NMS_PORT_ID = //
   new Function<PhysicalPort, String>() {
 
     @Override
@@ -48,7 +43,7 @@ public final class Functions {
     }
   };
 
-  public static Predicate<PhysicalPort> MISSING_PORTS = //
+  public static final Predicate<PhysicalPort> MISSING_PORTS = //
   new Predicate<PhysicalPort>() {
     @Override
     public boolean apply(PhysicalPort physicalPort) {
@@ -56,13 +51,16 @@ public final class Functions {
     }
   };
 
-  public static Predicate<PhysicalPort> NON_MISSING_PORTS = //
+  public static final Predicate<PhysicalPort> NON_MISSING_PORTS = //
   new Predicate<PhysicalPort>() {
     @Override
     public boolean apply(PhysicalPort physicalPort) {
       return !MISSING_PORTS.apply(physicalPort);
     }
   };
+
+  private Functions() {
+  }
 
   /**
    * Calculates the amount of related {@link VirtualPort}s and transforms it to
@@ -108,7 +106,7 @@ public final class Functions {
   }
 
   public static PhysicalPortView transformUnallocatedPhysicalPort(PhysicalPort unallocatedPort) {
-    return new PhysicalPortView(unallocatedPort);
+    return new PhysicalPortView(unallocatedPort, null);
   }
 
   public static List<PhysicalPortView> transformUnallocatedPhysicalPorts(List<PhysicalPort> unallocatedPorts) {
