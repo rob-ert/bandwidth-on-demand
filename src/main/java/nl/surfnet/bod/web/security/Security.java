@@ -27,10 +27,13 @@ import java.util.Collections;
 import nl.surfnet.bod.domain.*;
 
 import org.springframework.security.access.intercept.RunAsUserToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -62,7 +65,15 @@ public final class Security {
   }
 
   public static RichUserDetails getUserDetails() {
-    return (RichUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    Optional<Authentication> authentication = Optional.fromNullable(SecurityContextHolder.getContext()
+        .getAuthentication());
+
+    return authentication.transform(new Function<Authentication, RichUserDetails>() {
+      @Override
+      public RichUserDetails apply(Authentication input) {
+        return (RichUserDetails) input.getPrincipal();
+      }
+    }).orNull();
   }
 
   public static UserGroup getUserGroup(final String groupId) {

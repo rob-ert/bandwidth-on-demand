@@ -30,6 +30,8 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 
 public final class Emails {
@@ -126,10 +128,39 @@ public final class Emails {
     }
 
     public static String body(RichUserDetails user, Throwable throwable, HttpServletRequest request) {
-      return String.format(ERROR_MAIL_BODY, user.getDisplayName(), user.getEmail(), user.getUsername(), request
-          .getRequestURL().append(request.getQueryString() != null ? "?" + request.getQueryString() : "").toString(),
+      Optional<RichUserDetails> optUser = Optional.fromNullable(user);
+      return String.format(ERROR_MAIL_BODY,
+
+          getOrUnknown(new Function<RichUserDetails, String>() {
+            @Override
+            public String apply(RichUserDetails input) {
+              return input.getDisplayName();
+            }
+          }, optUser),
+
+          getOrUnknown(new Function<RichUserDetails, String>() {
+            @Override
+            public String apply(RichUserDetails input) {
+              return input.getEmail();
+            }
+          }, optUser),
+
+          getOrUnknown(new Function<RichUserDetails, String>() {
+            @Override
+            public String apply(RichUserDetails input) {
+              return input.getUsername();
+            }
+          }, optUser),
+
+          request.getRequestURL().append(request.getQueryString() != null ? "?" + request.getQueryString() : "").toString(),
+
           request.getMethod(), DateTimeFormat.mediumDateTime().print(DateTime.now()),
+
           Throwables.getStackTraceAsString(throwable));
+    }
+
+    private static String getOrUnknown(Function<RichUserDetails, String> function, Optional<RichUserDetails> user) {
+      return user.transform(function).or("Unknown");
     }
   }
 
