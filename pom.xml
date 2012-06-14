@@ -8,10 +8,10 @@
     <name>bod</name>
     <properties>
         <spring.version>3.1.1.RELEASE</spring.version>
-        <slf4j.version>1.6.4</slf4j.version>
+        <slf4j.version>1.6.6</slf4j.version>
         <jetty.version>8.0.4.v20111024</jetty.version>
         <spring-security.version>3.0.7.RELEASE</spring-security.version>
-        <selenium.version>2.21.0</selenium.version>
+        <selenium.version>2.23.1</selenium.version>
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:8888/bod</selenium.test.url>
         <sos.version>0.1.2</sos.version>
@@ -30,7 +30,7 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
+            <version>1.2.17</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -670,8 +670,6 @@
                             <wsdlFiles>
                                 <wsdlFile>ogf_nsi_connection_provider_v1_0.wsdl</wsdlFile>
                                 <wsdlFile>ogf_nsi_connection_requester_v1_0.wsdl</wsdlFile>
-                                <wsdlFile>ogf_nsi_connection_provider_v1_1.wsdl</wsdlFile>
-                                <wsdlFile>ogf_nsi_connection_requester_v1_1.wsdl</wsdlFile>
                             </wsdlFiles>
                             <sourceDestDir>${project.build.directory}/generated-sources/jaxws/nsi</sourceDestDir>
                             <destDir />

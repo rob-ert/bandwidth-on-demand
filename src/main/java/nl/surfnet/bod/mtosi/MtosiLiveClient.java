@@ -1,24 +1,3 @@
-/**
- * The owner of the original code is SURFnet BV.
- *
- * Portions created by the original owner are Copyright (C) 2011-2012 the
- * original owner. All Rights Reserved.
- *
- * Portions created by other contributors are Copyright (C) the contributor.
- * All Rights Reserved.
- *
- * Contributor(s):
- *   (Contributors insert name & email here)
- *
- * This file is part of the SURFnet7 Bandwidth on Demand software.
- *
- * The SURFnet7 Bandwidth on Demand software is free software: you can
- * redistribute it and/or modify it under the terms of the BSD license
- * included with this distribution.
- *
- * If the BSD license cannot be found with this distribution, it is available
- * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
- */
 package nl.surfnet.bod.mtosi;
 
 import java.io.IOException;
@@ -27,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.xml.bind.JAXBElement;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
@@ -35,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.tmforum.mtop.fmw.xsd.gen.v1.AnyListType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationPatternType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationStyleType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
@@ -48,6 +29,7 @@ import org.tmforum.mtop.mri.xsd.rir.v1.SimpleFilterType.IncludedObjectType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.InventoryDataType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagedElementInventoryType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagementDomainInventoryType;
+import org.w3c.dom.Node;
 
 @Service("mtosiLiveClient")
 public class MtosiLiveClient {
@@ -65,8 +47,6 @@ public class MtosiLiveClient {
       @Value("${mtosi.inventory.sender.uri}") String senderUri) {
     this.resourceInventoryRetrievalUrl = retrievalUrl;
     this.senderUri = senderUri;
-
-    log.info("Using ws at: {}", resourceInventoryRetrievalUrl);
   }
 
   @PostConstruct
@@ -111,8 +91,7 @@ public class MtosiLiveClient {
     final SimpleFilterType simpleFilter = new ObjectFactory().createSimpleFilterType();
     simpleFilter.getBaseInstance().add(namingAttribute);
 
-    // includedObjectTypes, maybe we only need EH or maybe don;t use a filter
-    // after all
+    // includedObjectTypes, maybe we only need EH or maybe don;t use a filter after all
     final String[] objectTypes = { "ME", "EH", "EQ", "PTP" };
 
     for (final String objectType : objectTypes) {
@@ -121,7 +100,7 @@ public class MtosiLiveClient {
       includeObject.setGranularity(GranularityType.ATTRS);
       simpleFilter.getIncludedObjectType().add(includeObject);
     }
-    // log.info("returning: {}", simpleFilter);
+    log.info("returning: {}", simpleFilter);
     return simpleFilter;
   }
 
@@ -130,13 +109,36 @@ public class MtosiLiveClient {
     final HashMap<String, String> ports = new HashMap<String, String>();
     final List<ManagementDomainInventoryType> mds = getInventory().getMdList().getMd();
     for (final ManagementDomainInventoryType md : mds) {
-
       final List<ManagedElementInventoryType> meInvs = md.getMeList().getMeInv();
 
+      String hostname = "";
+
       for (final ManagedElementInventoryType meInv : meInvs) {
-        final String macAddress = meInv.getMeNm();
-        final String userLabel = meInv.getMeAttrs().getUserLabel().getValue();
-        ports.put(userLabel, macAddress);
+        final List<RelativeDistinguishNameType> rdns = meInv.getMeAttrs().getName().getValue().getRdn();
+        for (final RelativeDistinguishNameType rdn : rdns) {
+          if ("ME".equals(rdn.getType())) {
+            hostname = rdn.getValue();
+          }
+          log.debug("Rdn type: {}", rdn.getType());
+          log.debug("Rdn value: {}", rdn.getValue());
+        }
+        final JAXBElement<AnyListType> vendorExtensions = meInv.getMeAttrs().getVendorExtensions();
+
+        if (vendorExtensions.isNil()) {
+          log.info("Vendor extensions are null");
+        }
+        else {
+          final List<Object> verndorExtensions = vendorExtensions.getValue().getAny();
+          for (final Object vendorExtension : verndorExtensions) {
+            final Node child = (Node) vendorExtension;
+            log.debug("Child node: " + child.getNodeName());
+            final String value = child.getFirstChild().getTextContent();
+            log.debug("Value: {}", value);
+            if ("meMacAddress".equals(child.getNodeName())) {
+              ports.put(hostname, value);
+            }
+          }
+        }
       }
     }
     return ports;
@@ -146,7 +148,7 @@ public class MtosiLiveClient {
     return getUnallocatedPorts().size();
   }
 
-  private Holder<Header> getInventoryRequestHeaders() {
+  private final Holder<Header> getInventoryRequestHeaders() {
     final Header header = new Header();
     header.setDestinationURI(resourceInventoryRetrievalUrl);
     header.setCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE);
@@ -156,15 +158,7 @@ public class MtosiLiveClient {
     header.setSenderURI(senderUri);
     header.setMsgType(MessageTypeType.REQUEST);
     log.debug("header: {}", header);
-
     return new Holder<Header>(header);
-  }
-
-  public static void main(String... args) {
-    final MtosiLiveClient mtosiLiveClient = new MtosiLiveClient(
-        "http://localhost:9006/mtosi/mri/ResourceInventoryRetrieval", "http://localhost:9009");
-    mtosiLiveClient.init();
-    mtosiLiveClient.getUnallocatedPorts();
   }
 
 }

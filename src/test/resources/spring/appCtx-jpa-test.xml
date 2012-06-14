@@ -35,7 +35,7 @@
         <property name="user" value="sa" />
         <property name="password" value="" />
         <property name="driverClass" value="org.h2.Driver" />
-        <property name="jdbcUrl" value="jdbc:h2:mem:bod-tmp-db;FILE_LOCK=NO;DB_CLOSE_DELAY=-1;TRACE_LEVEL_SYSTEM_OUT=0;TRACE_LEVEL_FILE=2" />
+        <property name="jdbcUrl" value="jdbc:h2:mem:bod-tmp-db;FILE_LOCK=NO;DB_CLOSE_DELAY=-1;TRACE_LEVEL_SYSTEM_OUT=0;TRACE_LEVEL_FILE=2;MVCC=true" />
     </bean>
         
     <bean class="org.springframework.orm.jpa.JpaTransactionManager" id="transactionManager">

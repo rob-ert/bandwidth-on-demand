@@ -1,29 +1,34 @@
 /**
- * The owner of the original code is SURFnet BV.
+ * Copyright (c) 2011, SURFnet bv, The Netherlands
+ * All rights reserved.
  *
- * Portions created by the original owner are Copyright (C) 2011-2012 the
- * original owner. All Rights Reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *   - Neither the name of the SURFnet bv, The Netherlands nor the names of
+ *     its contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
  *
- * Portions created by other contributors are Copyright (C) the contributor.
- * All Rights Reserved.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL SURFnet bv, The Netherlands BE LIABLE FOR
+ * AND DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
  *
- * Contributor(s):
- *   (Contributors insert name & email here)
- *
- * This file is part of the SURFnet7 Bandwidth on Demand software.
- *
- * The SURFnet7 Bandwidth on Demand software is free software: you can
- * redistribute it and/or modify it under the terms of the BSD license
- * included with this distribution.
- *
- * If the BSD license cannot be found with this distribution, it is available
- * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.RESERVING;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
 
 import java.util.List;
 import java.util.Map;
@@ -35,28 +40,41 @@ import javax.jws.WebService;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
-import nl.surfnet.bod.nsi.StateMachine;
-import nl.surfnet.bod.nsi.ws.ConnectionService;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
-import org.ogf.schemas.nsi._2011._10.connection._interface.*;
+import org.joda.time.LocalDateTime;
+import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReleaseRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericRequestType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.nsi.ws.ConnectionService;
+
 @Service("nsiProvider_v1_sc")
-@WebService(
-  serviceName = "ConnectionServiceProvider",
-  portName = "ConnectionServiceProviderPort",
-  endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
-  targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider",
-  wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
+@WebService(serviceName = "ConnectionServiceProvider",
+    portName = "ConnectionServiceProviderPort",
+    endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
+    targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider",
+    wsdlLocation = "/WEB-INF/wsdl/nsi/1.sc/ogf_nsi_connection_provider_v1_0.wsdl")
 public class ConnectionServiceProvider extends ConnectionService {
 
   private final Logger log = getLog();
@@ -66,13 +84,110 @@ public class ConnectionServiceProvider extends ConnectionService {
   @Resource(name = "nsaProviderUrns")
   private List<String> nsaProviderUrns;
 
-  @Resource(name = "simpelStateMachine")
-  private StateMachine stateMachine;
-
-  private List<String> nsaChildren = ImmutableList.of(
-      "urn:ogf:network:nsa:child1",
-      "urn:ogf:network:nsa:child2",
+  private List<String> nsaChildren = ImmutableList.of("urn:ogf:network:nsa:child1", "urn:ogf:network:nsa:child2",
       "urn:ogf:network:nsa:child3");
+
+  private static final Function<Connection, Reservation> TO_RESERVATION = //
+  new Function<Connection, Reservation>() {
+    @Override
+    public Reservation apply(final Connection connection) {
+
+      final Reservation reservation = new Reservation();
+
+      reservation.setBandwidth(connection.getDesiredBandwidth());
+      // reservation.setDestinationPort(destinationPort);
+      reservation.setEndDateTime(new LocalDateTime(connection.getEndTime()));
+      // reservation.setFailedMessage(failedMessage);
+      // reservation.setName(name);
+      // reservation.setReservationId(reservationId);
+      // reservation.setSourcePort(sourcePort);
+      reservation.setStartDateTime(new LocalDateTime(connection.getStartTime()));
+      // reservation.setStatus(reservationStatus);
+      reservation.setUserCreated(connection.getRequesterNsa());
+
+      // @NotNull
+      // @ManyToOne(optional = false)
+      // private VirtualPort sourcePort;
+      //
+      // @NotNull
+      // @ManyToOne(optional = false)
+      // private VirtualPort destinationPort;
+      //
+      // @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
+      // private LocalDateTime startDateTime;
+      //
+      // @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
+      // private LocalDateTime endDateTime;
+      //
+      // @Column(nullable = false)
+      // private String userCreated;
+      //
+      // @NotNull
+      // @Column(nullable = false)
+      // private Integer bandwidth;
+      //
+      // @Basic
+      // private String reservationId;
+      //
+      // @NotNull
+      // @Column(nullable = false)
+      // @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
+      // private LocalDateTime creationDateTime;
+      //
+      //
+      //
+      // final Reservation reservation = new Reservation();
+      // reservation.set
+      // reservation.set
+      // reservation.set
+      // reservation.set
+      // reservation.set
+      // reservation.set
+      // reservation.set
+      // reservation.set
+
+      return null;
+    }
+  };
+
+  private static final Function<ReserveRequestType, Connection> TO_CONNECTION = //
+  new Function<ReserveRequestType, Connection>() {
+    @Override
+    public Connection apply(ReserveRequestType reserveRequestType) {
+
+      final Connection connection = new Connection();
+
+      connection.setConnectionId(reserveRequestType.getReserve().getReservation().getConnectionId());
+      connection.setCurrentState(INITIAL);
+      connection.setDescription(null);
+      
+      
+      connection.setDesiredBandwidth(reserveRequestType.getReserve().getReservation().getServiceParameters()
+          .getBandwidth().getDesired());
+      connection.setEndTime(reserveRequestType.getReserve().getReservation().getServiceParameters().getSchedule()
+          .getEndTime().toGregorianCalendar().getTime());
+
+      connection.setGlobalReservationId(reserveRequestType.getReserve().getReservation().getGlobalReservationId());
+      connection.setMaximumBandwidth(reserveRequestType.getReserve().getReservation().getServiceParameters()
+          .getBandwidth().getMaximum());
+      connection.setMinimumBandwidth(reserveRequestType.getReserve().getReservation().getServiceParameters()
+          .getBandwidth().getMinimum());
+
+      connection.setPath(reserveRequestType.getReserve().getReservation().getPath());
+      connection.setProviderNsa(reserveRequestType.getReserve().getProviderNSA());
+      connection.setReplyTo(reserveRequestType.getReplyTo());
+      connection.setRequesterNsa(reserveRequestType.getReserve().getRequesterNSA());
+      connection.setReservationId(null);
+      connection.setServiceParameters(reserveRequestType.getReserve().getReservation().getServiceParameters());
+
+      connection.setStartTime(reserveRequestType.getReserve().getReservation().getServiceParameters().getSchedule()
+          .getStartTime().toGregorianCalendar().getTime());
+
+      connection.setDescription(reserveRequestType.getReserve().getReservation().getDescription());
+
+      return connection;
+    }
+  };
 
   private ServiceExceptionType getInvalidParameterServiceException(final String attributeName) {
     final ServiceExceptionType serviceException = new ServiceExceptionType();
@@ -90,13 +205,26 @@ public class ConnectionServiceProvider extends ConnectionService {
     return serviceException;
   }
 
-  private void sendReservationFailed(final String correlationId, final String nsaRequester) {
-    log.info("Calling reserveFailed on endpoint: {} with id: {}", nsaRequester, correlationId);
+  private void sendReservationFailed(final Connection connection) {
+    log.info("Calling reserveFailed on endpoint: {} with id: {}", connection.getReplyTo(),
+        connection.getGlobalReservationId());
 
     final ConnectionServiceRequester requester = new ConnectionServiceRequester();
     final ConnectionRequesterPort connectionServiceRequesterPort = requester.getConnectionServiceRequesterPort();
     final GenericFailedType reservationFailed = new GenericFailedType();
-    reservationFailed.setRequesterNSA(nsaRequester);
+    reservationFailed.setRequesterNSA(connection.getRequesterNsa());
+    reservationFailed.setProviderNSA(connection.getProviderNsa());
+    reservationFailed.setGlobalReservationId(connection.getGlobalReservationId());
+    reservationFailed.setConnectionId(connection.getConnectionId());
+    reservationFailed.setConnectionState(connection.getCurrentState());
+
+    // FIXME: What to put into the service exception
+    final ServiceExceptionType serviceException = new ServiceExceptionType();
+    serviceException.setErrorId("ERROR_ID");
+    serviceException.setText("Some text");
+    AttributeStatementType values = new AttributeStatementType();
+    serviceException.setVariables(values);
+    reservationFailed.setServiceException(serviceException);
 
     try {
       final Map<String, Object> requestContext = ((BindingProvider) connectionServiceRequesterPort).getRequestContext();
@@ -106,8 +234,8 @@ public class ConnectionServiceProvider extends ConnectionService {
       requestContext.put(BindingProvider.PASSWORD_PROPERTY, "nsi123");
       requestContext.put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
 
-      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, nsaRequester);
-      connectionServiceRequesterPort.reserveFailed(new Holder<String>(correlationId), reservationFailed);
+      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, connection.getReplyTo());
+      connectionServiceRequesterPort.reserveFailed(new Holder<String>(connection.getConnectionId()), reservationFailed);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
       log.error("Error: ", e);
@@ -120,6 +248,7 @@ public class ConnectionServiceProvider extends ConnectionService {
     genericRequestType.setConnectionId(correlationId);
     genericRequestType.setProviderNSA(nsaChild);
     genericRequestType.setRequesterNSA(nsaRequester);
+
     // TODO: Get security attribute
     genericRequestType.setSessionSecurityAttr(null);
 
@@ -135,6 +264,7 @@ public class ConnectionServiceProvider extends ConnectionService {
   }
 
   private boolean isValidProviderNsa(final ReserveRequestType reserveRequest) {
+    log.info("reserveRequest.getReserve().getProviderNSA(): "+reserveRequest.getReserve().getProviderNSA());
     return nsaProviderUrns == null ? true : nsaProviderUrns.contains(reserveRequest.getReserve().getProviderNSA());
   }
 
@@ -143,7 +273,7 @@ public class ConnectionServiceProvider extends ConnectionService {
    * inter-domain bandwidth. Those parameters required for the request to
    * proceed to a processing actor will be validated, however, all other
    * parameters will be validated in the processing actor.
-   *
+   * 
    * @param parameters
    *          The un-marshaled JAXB object holding the NSI reservation request.
    * @return The GenericAcknowledgmentType object returning the correlationId
@@ -159,17 +289,25 @@ public class ConnectionServiceProvider extends ConnectionService {
       throw new ServiceException("Invalid reservationRequest received (null)", null);
     }
 
-    final String correlationId = reservationRequest.getCorrelationId();
-    log.debug("Received reservation request with id: {}", reservationRequest.getCorrelationId());
-    stateMachine.inserOrUpdateState(correlationId, INITIAL);
+    Connection connection = TO_CONNECTION.apply(reservationRequest);
+    connection.setCurrentState(INITIAL);
+    connection = getconnectionRepo().save(connection);
+    log.info("connection: "+connection);
 
-//    final ReservationInfoType reservation = reservationRequest.getReserve().getReservation();
-    if (!isValidCorrelationId(correlationId)) {
-      stateMachine.inserOrUpdateState(reservationRequest.getCorrelationId(), CLEANING);
+    log.debug("Received reservation request with id: {}", connection.getConnectionId());
+    
+    if (!isValidCorrelationId(connection.getConnectionId())) {
+      connection = getconnectionRepo().findOne(connection.getId());
+      connection.setCurrentState(CLEANING);
+      connection = getconnectionRepo().save(connection);
       throw new ServiceException("SVC0001", getInvalidParameterServiceException("correlationId"));
     }
 
-    stateMachine.inserOrUpdateState(correlationId, RESERVING);
+    connection = getconnectionRepo().findOne(connection.getId());
+    connection.setCurrentState(RESERVING);
+    connection = getconnectionRepo().save(connection);
+    
+    System.out.println(getconnectionRepo().findAll());
 
     // Build an internal request for this reservation request.
 
@@ -183,8 +321,6 @@ public class ConnectionServiceProvider extends ConnectionService {
      * In the future we may remove this parameter and add a csRequesterEndpoint
      * field to NSA topology.
      */
-    final String nsaRequester = reservationRequest.getReplyTo();
-    // log.debug("Requester endpoint: {}", requesterEndpoint);
 
     /*
      * Save the calling NSA security context and pass it along for use during
@@ -205,7 +341,9 @@ public class ConnectionServiceProvider extends ConnectionService {
      * ProviderNSA field. If invalid we will throw an exception.
      */
     if (!isValidProviderNsa(reservationRequest)) {
-      stateMachine.inserOrUpdateState(reservationRequest.getCorrelationId(), CLEANING);
+      connection = getconnectionRepo().findOne(connection.getId());
+      connection.setCurrentState(CLEANING);
+      connection = getconnectionRepo().save(connection);
       throw new ServiceException("SVC0001", getInvalidParameterServiceException("providerNSA"));
     }
 
@@ -213,13 +351,11 @@ public class ConnectionServiceProvider extends ConnectionService {
      * Get the connectionId from the reservation as we will use this to
      * serialize related requests.
      */
-//    final String connectionId = reservation.getConnectionId();
-    // log.debug("connectionId {}", connectionId);
 
     // Route this message to the appropriate actor for processing.
 
     // for now always fail the reservation
-    forceFailed(correlationId, nsaRequester);
+    forceFailed(connection);
 
     /*
      * We successfully sent the message for processing so acknowledge it back to
@@ -227,7 +363,7 @@ public class ConnectionServiceProvider extends ConnectionService {
      * back to the requesting NSA.
      */
     final GenericAcknowledgmentType genericAcknowledgment = new GenericAcknowledgmentType();
-    genericAcknowledgment.setCorrelationId(correlationId);
+    genericAcknowledgment.setCorrelationId(reservationRequest.getCorrelationId());
 
     log.info("Returning GenericAcknowledgmentType with id: {}", genericAcknowledgment.getCorrelationId());
     return genericAcknowledgment;
@@ -237,17 +373,31 @@ public class ConnectionServiceProvider extends ConnectionService {
    * @param correlationId
    * @param nsaRequester
    */
-  private void forceFailed(final String correlationId, final String nsaRequester) {
+  private void forceFailed(final Connection con) {
+    
+    log.info("Searching for: {}", con.getConnectionId());
+    
     new Timer().schedule(new TimerTask() {
       @Override
       public void run() {
-        sendReservationFailed(correlationId, nsaRequester);
-        stateMachine.inserOrUpdateState(correlationId, CLEANING);
+        Connection connection = getconnectionRepo().findByConnectionId(con.getConnectionId());
+        
+        final List<Connection> connections = getconnectionRepo().findAll();
+        System.out.println(connections);
+        
+        System.out.println(connection);
+        connection.setCurrentState(CLEANING);
+        connection = getconnectionRepo().save(connection);
+        sendReservationFailed(connection);
         for (final String nsaChild : nsaChildren) {
-          sendTerminateToChildNsa(correlationId, nsaChild, nsaRequester);
+          sendTerminateToChildNsa(connection.getConnectionId(), nsaChild, connection.getRequesterNsa());
         }
-        sendTerminatToNrm(correlationId);
-        stateMachine.deleteState(correlationId);
+        sendTerminatToNrm(connection.getConnectionId());
+
+        // FIXME: Do I have to delete the connection or keep it for archiving
+        // purposes?
+        getconnectionRepo().delete(connection);
+
       }
     }, delayBeforeResponseSend);
   }

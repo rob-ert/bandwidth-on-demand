@@ -1,36 +1,22 @@
-/**
- * The owner of the original code is SURFnet BV.
- *
- * Portions created by the original owner are Copyright (C) 2011-2012 the
- * original owner. All Rights Reserved.
- *
- * Portions created by other contributors are Copyright (C) the contributor.
- * All Rights Reserved.
- *
- * Contributor(s):
- *   (Contributors insert name & email here)
- *
- * This file is part of the SURFnet7 Bandwidth on Demand software.
- *
- * The SURFnet7 Bandwidth on Demand software is free software: you can
- * redistribute it and/or modify it under the terms of the BSD license
- * included with this distribution.
- *
- * If the BSD license cannot be found with this distribution, it is available
- * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
- */
 package nl.surfnet.bod.support;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import nl.surfnet.bod.nsi.ws.ConnectionService;
-
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
+import org.ogf.schemas.nsi._2011._10.connection.types.BandwidthType;
+import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReserveType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+
+import nl.surfnet.bod.nsi.ws.ConnectionService;
 
 public class NsiReservationFactory {
 
@@ -41,12 +27,22 @@ public class NsiReservationFactory {
 
   private String correlationId = ConnectionService.getCorrelationId();
   private String connectionId = ConnectionService.getCorrelationId();
-  private String nsaProviderUrn = "urn:ogf:network:nsa:netherlight";
   private int desiredBandwidth = 1000;
   private int maxBandwidth = 1000;
   private int minBandwidth = 950;
-  private XMLGregorianCalendar scheduleEndTime;
-  private XMLGregorianCalendar scheduleStartTime;
+  private XMLGregorianCalendar scheduleEndTime = new XMLGregorianCalendarImpl();
+  private XMLGregorianCalendar scheduleStartTime = new XMLGregorianCalendarImpl();
+  private String description = "Some example Description";
+  private String providerNsa = "urn:example:nsa:provider", requesterNsa = "urn:example:nsa:provider";
+  private PathType path = new PathType();
+  private ServiceParametersType serviceParameters = new ServiceParametersType();
+
+  public NsiReservationFactory() {
+    scheduleStartTime.setDay(1);
+    scheduleStartTime.setMonth(1);
+    scheduleStartTime.setYear(2013);
+    scheduleEndTime.setDay(scheduleStartTime.getDay() + 1);
+  }
 
   /**
    * @param nsaProviderUrn
@@ -64,6 +60,9 @@ public class NsiReservationFactory {
     scheduleType.setEndTime(scheduleEndTime);
     scheduleType.setStartTime(scheduleStartTime);
 
+    serviceParameters.setBandwidth(bandwidthType);
+    serviceParameters.setSchedule(scheduleType);
+
     if (scheduleType.getEndTime() != null && scheduleType.getStartTime() != null) {
       try {
         scheduleType.setDuration(DatatypeFactory.newInstance().newDuration(
@@ -73,19 +72,18 @@ public class NsiReservationFactory {
         log.error("Error: ", e);
       }
     }
-    final ServiceParametersType serviceParametersType = new ServiceParametersType();
-    // serviceParametersType.setBandwidth(desiredBandwidth);
-    serviceParametersType.setBandwidth(bandwidthType);
-    serviceParametersType.setSchedule(scheduleType);
 
     final ReservationInfoType reservationInfoType = new ReservationInfoType();
-    reservationInfoType.setServiceParameters(serviceParametersType);
     reservationInfoType.setConnectionId(connectionId);
     reservationInfoType.setGlobalReservationId(correlationId);
+    reservationInfoType.setDescription(description);
+    reservationInfoType.setPath(path);
+    reservationInfoType.setServiceParameters(serviceParameters);
 
     final ReserveType reservationType = new ReserveType();
-    reservationType.setProviderNSA(nsaProviderUrn);
+    reservationType.setProviderNSA(providerNsa);
     reservationType.setReservation(reservationInfoType);
+    reservationType.setRequesterNSA(requesterNsa);
 
     final ReserveRequestType reservationRequestType = new ReserveRequestType();
     reservationRequestType.setCorrelationId(this.correlationId);
@@ -101,7 +99,7 @@ public class NsiReservationFactory {
   }
 
   public final NsiReservationFactory setNsaProviderUrn(String nsaProviderUrn) {
-    this.nsaProviderUrn = nsaProviderUrn;
+    this.providerNsa = nsaProviderUrn;
     return this;
   }
 
@@ -132,6 +130,31 @@ public class NsiReservationFactory {
 
   public final NsiReservationFactory setConnectionId(String connectionId) {
     this.connectionId = connectionId;
+    return this;
+  }
+
+  public final NsiReservationFactory setDescription(String description) {
+    this.description = description;
+    return this;
+  }
+
+  public NsiReservationFactory setProviderNsa(String providerNSA) {
+    this.providerNsa = providerNSA;
+    return this;
+  }
+
+  public NsiReservationFactory setRequesterNsa(String requesterNSA) {
+    this.requesterNsa = requesterNSA;
+    return this;
+  }
+
+  public final NsiReservationFactory setPath(PathType path) {
+    this.path = path;
+    return this;
+  }
+
+  public final NsiReservationFactory setServiceParameters(ServiceParametersType serviceParameters) {
+    this.serviceParameters = serviceParameters;
     return this;
   }
 
