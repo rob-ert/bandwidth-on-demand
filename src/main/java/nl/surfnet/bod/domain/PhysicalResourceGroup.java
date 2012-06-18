@@ -49,7 +49,7 @@ public class PhysicalResourceGroup {
   @Version
   private Integer version;
 
-  @OneToOne
+  @OneToOne(optional = false)
   @JoinColumn(name = "institute_id")
   private Institute institute;
 

@@ -31,6 +31,7 @@ import java.util.List;
 
 import javax.validation.ConstraintViolationException;
 
+import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
@@ -39,6 +40,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,12 +57,16 @@ public class PhysicalResourceGroupDbTest {
   @Autowired
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
 
+  @Autowired
+  private InstituteRepo instituteRepo;
+
   private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setId(null).create();
 
   @Test
   public void countAllPhysicalResourceGroups() {
     long count = physicalResourceGroupService.count();
 
+    instituteRepo.save(physicalResourceGroup.getInstitute());
     physicalResourceGroupService.save(physicalResourceGroup);
     physicalResourceGroupRepo.flush();
 
@@ -69,6 +75,7 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void findPhysicalResourceGroup() {
+    instituteRepo.save(physicalResourceGroup.getInstitute());
     physicalResourceGroupService.save(physicalResourceGroup);
 
     PhysicalResourceGroup freshLoadedGroup = physicalResourceGroupService.find(physicalResourceGroup.getId());
@@ -78,6 +85,7 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void findPhysicalResourceGroupEntries() {
+    instituteRepo.save(physicalResourceGroup.getInstitute());
     physicalResourceGroupService.save(physicalResourceGroup);
     long count = physicalResourceGroupService.count();
 
@@ -90,6 +98,7 @@ public class PhysicalResourceGroupDbTest {
 
   @Test
   public void testUpdatePhysicalResourceGroupUpdate() {
+    instituteRepo.save(physicalResourceGroup.getInstitute());
     physicalResourceGroupService.save(physicalResourceGroup);
 
     Integer initialVersion = physicalResourceGroup.getVersion();
@@ -108,6 +117,7 @@ public class PhysicalResourceGroupDbTest {
   public void savePhysicalResourceGroup() {
 
     assertThat(physicalResourceGroup.getId(), nullValue());
+    instituteRepo.save(physicalResourceGroup.getInstitute());
     physicalResourceGroupService.save(physicalResourceGroup);
 
     physicalResourceGroupRepo.flush();
@@ -118,6 +128,8 @@ public class PhysicalResourceGroupDbTest {
   @Test
   public void deletePhysicalResourceGroup() {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setId(null).create();
+
+    instituteRepo.save(group.getInstitute());
     physicalResourceGroupService.save(group);
     physicalResourceGroupRepo.flush();
 
@@ -127,7 +139,7 @@ public class PhysicalResourceGroupDbTest {
     assertThat(physicalResourceGroupService.find(group.getId()), nullValue());
   }
 
-  @Test(expected = ConstraintViolationException.class)
+  @Test(expected = JpaSystemException.class)
   public void physicalResourceGroupWithoutANameShouldNotSave() {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
     group.setInstitute(null);
