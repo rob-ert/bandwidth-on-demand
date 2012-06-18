@@ -77,22 +77,6 @@ public class PhysicalResourceGroupDbTest {
   }
 
   @Test
-  public void findAllPhysicalResourceGroups() {
-
-    int size = physicalResourceGroupService.findAll().size();
-
-    PhysicalResourceGroup groupTwo = new PhysicalResourceGroupFactory().setId(null).create();
-    groupTwo.setInstituteId(2L);
-
-    physicalResourceGroupService.save(physicalResourceGroup);
-    physicalResourceGroupService.save(groupTwo);
-
-    List<PhysicalResourceGroup> prgs = physicalResourceGroupService.findAll();
-
-    assertThat(2, is(prgs.size() - size));
-  }
-
-  @Test
   public void findPhysicalResourceGroupEntries() {
     physicalResourceGroupService.save(physicalResourceGroup);
     long count = physicalResourceGroupService.count();
@@ -146,7 +130,7 @@ public class PhysicalResourceGroupDbTest {
   @Test(expected = ConstraintViolationException.class)
   public void physicalResourceGroupWithoutANameShouldNotSave() {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
-    group.setInstituteId(null);
+    group.setInstitute(null);
 
     physicalResourceGroupService.save(group);
   }

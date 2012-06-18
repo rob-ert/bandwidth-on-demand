@@ -41,13 +41,6 @@ public class PhysicalResourceGroupTest {
   }
 
   @Test
-  public void physicalResourceGroupgetNameDefaultToInstituteId() {
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setInstitute(null).setInstituteId(99L).create();
-    
-    assertThat(group.getName(), is("99"));
-  }
-
-  @Test
   public void physicalResourceGroupShouldCountItsPorts() {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().addPhysicalPort(
         new PhysicalPortFactory().create(), new PhysicalPortFactory().create()).create();

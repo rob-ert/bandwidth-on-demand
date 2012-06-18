@@ -35,6 +35,8 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -43,6 +45,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import sun.util.logging.resources.logging;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -53,6 +57,8 @@ public class InstituteController {
 
   static final String MODEL_KEY = "institute";
   static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
+
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Autowired
   private InstituteService instituteService;
@@ -66,7 +72,7 @@ public class InstituteController {
     final Collection<String> existingInstitutes = getExistingInstituteNames();
     final String query = StringUtils.hasText(q) ? q.toLowerCase() : "";
 
-    return filter(instituteService.findAll(), new Predicate<Institute>() {
+    return filter(instituteService.findAlignedWithIDD(), new Predicate<Institute>() {
       @Override
       public boolean apply(Institute input) {
         String instituteName = nullToEmpty(input.getName()).toLowerCase();
@@ -79,9 +85,10 @@ public class InstituteController {
   @RequestMapping(value = "/refresh", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
   @ResponseBody
   public String refreshInstitutes() {
+    logger.info("Manually refreshing institutes...");
     instituteService.refreshInstitutes();
 
-    return "Refresed institutes";
+    return "Refreshed institutes";
   }
 
   private Collection<String> getExistingInstituteNames() {

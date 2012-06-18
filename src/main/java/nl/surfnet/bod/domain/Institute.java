@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.domain;
 
+import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -46,16 +48,20 @@ public class Institute {
   private String name;
   @NotEmpty
   private String shortName;
+  @Basic
+  @Column(name = "aligned_idd")
+  private boolean alignedWithIDD;
 
   // No version!
 
   private Institute() {
   }
 
-  public Institute(Long id, String name, String shortName) {
+  public Institute(Long id, String name, String shortName, boolean alignedWithIDD) {
     this.id = id;
     this.name = name;
     this.shortName = shortName;
+    this.alignedWithIDD = alignedWithIDD;
   }
 
   public Long getId() {
@@ -68,5 +74,13 @@ public class Institute {
 
   public String getShortName() {
     return shortName;
+  }
+
+  public boolean isAlignedWithIDD() {
+    return alignedWithIDD;
+  }
+
+  public void setAlignedWithIDD(boolean alignedWithIDD) {
+    this.alignedWithIDD = alignedWithIDD;
   }
 }

@@ -21,7 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.Institute;
@@ -29,8 +28,10 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.idd.generated.Klanten;
+import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.util.Functions;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,13 +41,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.nullValue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstituteIddServiceTest {
@@ -56,6 +54,9 @@ public class InstituteIddServiceTest {
 
   @Mock
   private IddClient iddClientMock;
+
+  @Mock
+  private InstituteRepo instituteRepoMock;
 
   private PhysicalPort portOne = new PhysicalPortFactory().setNocLabel("onePort").create();
 
@@ -82,28 +83,20 @@ public class InstituteIddServiceTest {
   public void shouldIgnoreEmptyNames() {
     Klanten klant = newKlantWithName("", "");
 
-    when(iddClientMock.getKlanten()).thenReturn(Lists.newArrayList(klant));
+    Institute institute = Functions.transformKlant(klant, false);
 
-    Collection<Institute> institutes = subject.findAll();
-
-    assertThat(institutes, hasSize(0));
+    assertThat(institute, nullValue());
   }
 
   @Test
   public void shouldRemoveTrailingWhitespaceFromNameAndAfkorting() {
     Klanten klant = newKlantWithName("SURFnet\n", "SURF\n");
 
-    when(iddClientMock.getKlanten()).thenReturn(Lists.newArrayList(klant));
+    Institute institute = Functions.transformKlant(klant, false);
 
-    Collection<Institute> institutes = subject.findAll();
-
-    assertThat(institutes, hasSize(1));
-    Institute institute = Iterables.getOnlyElement(institutes);
     assertThat(institute.getName(), is("SURFnet"));
     assertThat(institute.getShortName(), is("SURF"));
   }
-  
-  
 
   private Klanten newKlantWithName(String naam, String afkorting) {
     Klanten klanten = new Klanten();

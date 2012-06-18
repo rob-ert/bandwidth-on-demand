@@ -33,12 +33,12 @@ import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.util.Functions;
 
-import org.hibernate.internal.SessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -64,19 +64,32 @@ public class InstituteIddService implements InstituteService {
   }
 
   @Override
-  public Collection<Institute> findAll() {
-    return instituteRepo.findAll();
+  public Collection<Institute> findAlignedWithIDD() {
+    return instituteRepo.findByAlignedWithIDD(true);
   }
 
   @Override
   @Scheduled(cron = "${" + INSTITUTE_REFRESH_CRON_KEY + "}")
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void refreshInstitutes() {
     logger
         .info("Refreshing institutes from IDD to BoD, job based on configuration key: {}", INSTITUTE_REFRESH_CRON_KEY);
 
+    // Mark not aligned
+    List<Institute> currentInstitutes = instituteRepo.findAll();
+    markNotAligned(currentInstitutes);
+    instituteRepo.save(currentInstitutes);
+
+    // Align With IDD
     Collection<Klanten> klanten = iddClient.getKlanten();
-
-    instituteRepo.save(Functions.transformKlanten(klanten));
-
+    instituteRepo.save(Functions.transformKlanten(klanten, true));
   }
+
+  private void markNotAligned(List<Institute> allInstitutes) {
+    // Mark all not aligned
+    for (Institute institute : allInstitutes) {
+      institute.setAlignedWithIDD(false);
+    }
+  }
+
 }

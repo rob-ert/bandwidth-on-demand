@@ -84,17 +84,6 @@ public class PhysicalResourceGroupServiceTest {
   private List<PhysicalResourceGroup> physicalResourceGroups = ImmutableList.of(physicalResourceGroupOne,
       physicalResourceGroupTwo);
 
-  @Test
-  public void shouldFillInstitute() {
-    when(groupRepoMock.findOne(1L)).thenReturn(physicalResourceGroupOne);
-    when(instituteServiceMock.find(1L)).thenReturn(instituteOne);
-
-    PhysicalResourceGroup foundResourceGroup = subject.find(1L);
-
-    assertThat(foundResourceGroup.getInstitute(), is((instituteOne)));
-
-    assertThat(foundResourceGroup.getInstituteId(), is(instituteOne.getId()));
-  }
 
   @Test
   public void shoudFillInstitutesFindAll() {

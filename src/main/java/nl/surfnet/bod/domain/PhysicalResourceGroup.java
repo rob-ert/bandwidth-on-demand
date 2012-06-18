@@ -24,13 +24,20 @@ package nl.surfnet.bod.domain;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
-
-import com.google.common.base.Objects;
 
 @Entity
 public class PhysicalResourceGroup {
@@ -42,14 +49,8 @@ public class PhysicalResourceGroup {
   @Version
   private Integer version;
 
-  /**
-   * Institute is managed by IDD, we only persist the id of an {@link Institute}
-   */
-  @NotNull
-  @Column(nullable = false, unique = true)
-  private Long instituteId;
-
-  @Transient
+  @OneToOne
+  @JoinColumn(name = "institute_id")
   private Institute institute;
 
   @NotEmpty
@@ -89,24 +90,11 @@ public class PhysicalResourceGroup {
   /**
    * This class will not have a name, instead it has a one-one relation to an
    * {@link Institute} and we will use the name of an Institute instead.
-   * Whenever an instittute is not availabled (e.g. it was deleted in the IDD
-   * system) the id of institute will be shown. This will trigger a NOC engineer
-   * to investigate and correct this.
-   *
-   * @return Name of the related institute when available, the
-   *         {@link #instituteId} otherwise.
+   * 
+   * @return Name of the related institute
    */
   public String getName() {
-    return institute != null ? institute.getName() : String.valueOf(instituteId);
-  }
-
-  public Long getInstituteId() {
-    return instituteId;
-  }
-
-  public void setInstituteId(Long instituteId) {
-    this.institute = null;
-    this.instituteId = instituteId;
+    return institute.getName();
   }
 
   public String getAdminGroup() {
@@ -142,7 +130,6 @@ public class PhysicalResourceGroup {
   }
 
   public void setInstitute(Institute institute) {
-    this.instituteId = institute == null ? null : institute.getId();
     this.institute = institute;
   }
 
@@ -156,12 +143,8 @@ public class PhysicalResourceGroup {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(PhysicalResourceGroup.class)
-      .add("id", id)
-      .add("instituteId", instituteId)
-      .add("adminGroup: ", adminGroup)
-      .add("managerEmail", managerEmail)
-      .add("active", active)
-      .add("version", version).toString();
+    return "PhysicalResourceGroup [id=" + id + ", version=" + version + ", institute=" + institute + ", adminGroup="
+        + adminGroup + ", managerEmail=" + managerEmail + ", active=" + active + ", physicalPorts=" + physicalPorts
+        + ", virtualPortRequestLinks=" + virtualPortRequestLinks + "]";
   }
 }

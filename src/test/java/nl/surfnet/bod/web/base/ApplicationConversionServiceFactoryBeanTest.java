@@ -69,8 +69,8 @@ public class ApplicationConversionServiceFactoryBeanTest {
   }
 
   @Test
-  public void convertPhysicalResourceGroupToStringWithoutInstitute() {
-    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setInstitute(null).setInstituteId(1L).create();
+  public void convertPhysicalResourceGroupToStringWithoutInstitute() {    
+    PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setInstitute(null).create();
 
     String output = subject.getPhysicalResourceGroupToStringConverter().convert(group);
 

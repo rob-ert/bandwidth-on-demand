@@ -21,14 +21,12 @@
  */
 package nl.surfnet.bod.repo;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import java.util.Arrays;
 import java.util.Collection;
 
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
 import org.junit.Test;
@@ -40,9 +38,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml", "/spring/appCtx-nbi-client.xml",
-    "/spring/appCtx-idd-client.xml" })
+@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml",
+    "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
 @Transactional
 public class PhysicalResourceGroupRepoTest {
 
@@ -53,9 +55,13 @@ public class PhysicalResourceGroupRepoTest {
   public void testFindByInstituteId() {
     PhysicalResourceGroupFactory physicalResourceGroupFactory = new PhysicalResourceGroupFactory();
 
-    PhysicalResourceGroup physicalResourceGroupOne = physicalResourceGroupFactory.setId(null).setInstituteId(1L).create();
+    Institute instituteOne = new InstituteFactory().setId(1L).create();
+    PhysicalResourceGroup physicalResourceGroupOne = physicalResourceGroupFactory.setId(null)
+        .setInstitute(instituteOne).create();
 
-    PhysicalResourceGroup physicalResourceGroupTwo = physicalResourceGroupFactory.setId(null).setInstituteId(2L).create();
+    Institute instituteTwo = new InstituteFactory().setId(2L).create();
+    PhysicalResourceGroup physicalResourceGroupTwo = physicalResourceGroupFactory.setId(null)
+        .setInstitute(instituteTwo).create();
 
     given(physicalResourceGroupOne, physicalResourceGroupTwo);
 
@@ -71,11 +77,13 @@ public class PhysicalResourceGroupRepoTest {
     String firstAdminGroup = "urn:firstGroup";
     Collection<String> adminGroups = ImmutableList.of(firstAdminGroup, "urn:secondGroup");
 
+    Institute instituteOne = new InstituteFactory().setId(1L).create();
     PhysicalResourceGroup firstPhysicalResourceGroup = physicalResourceGroupFactory.setId(null)
-        .setAdminGroup(firstAdminGroup).setInstituteId(1L).create();
+        .setAdminGroup(firstAdminGroup).setInstitute(instituteOne).create();
 
-    given(firstPhysicalResourceGroup,
-        physicalResourceGroupFactory.setId(null).setInstituteId(2L).setAdminGroup("urn:noMatch").create());
+    Institute instituteTwo = new InstituteFactory().setId(2L).create();
+    given(firstPhysicalResourceGroup, physicalResourceGroupFactory.setId(null).setInstitute(instituteTwo)
+        .setAdminGroup("urn:noMatch").create());
 
     Collection<PhysicalResourceGroup> foundAdminGroups = subject.findByAdminGroupIn(adminGroups);
 

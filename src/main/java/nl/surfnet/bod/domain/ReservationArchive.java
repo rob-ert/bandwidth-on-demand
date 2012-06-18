@@ -56,7 +56,7 @@ public class ReservationArchive {
 
   private final String userCreated;
   private final Integer bandwidth;
-  private final  String reservationId;
+  private final String reservationId;
 
   // ////////////
   // source
@@ -120,8 +120,7 @@ public class ReservationArchive {
     this.failedReason = reservation.getFailedReason();
     this.name = reservation.getName();
     this.physicalPortDestinationManagerLabel = reservation.getDestinationPort().getPhysicalPort().getManagerLabel();
-    this.physicalPortDestinationNmsPortId = reservation.getDestinationPort().getPhysicalPort()
-        .getNmsPortId();
+    this.physicalPortDestinationNmsPortId = reservation.getDestinationPort().getPhysicalPort().getNmsPortId();
     this.physicalPortDestinationNocLabel = reservation.getDestinationPort().getPhysicalPort().getNocLabel();
     this.physicalPortDestinationBodPortId = reservation.getDestinationPort().getPhysicalPort().getBodPortId();
     this.physicalPortSourceManagerLabel = reservation.getSourcePort().getPhysicalPort().getManagerLabel();
@@ -143,14 +142,14 @@ public class ReservationArchive {
     this.physicalResourceGroupSourceAdminGroupName = reservation.getSourcePort().getPhysicalResourceGroup()
         .getAdminGroup();
     this.physicalResourceGroupSourceInstituteId = reservation.getSourcePort().getPhysicalPort()
-        .getPhysicalResourceGroup().getInstituteId();
+        .getPhysicalResourceGroup().getInstitute().getId();
     this.physicalResourceGroupSourceManagerEmail = reservation.getSourcePort().getPhysicalPort()
         .getPhysicalResourceGroup().getManagerEmail();
 
     this.physicalResourceGroupDestinationAdminGroupName = reservation.getSourcePort().getPhysicalResourceGroup()
         .getAdminGroup();
     this.physicalResourceGroupDestinationInstituteId = reservation.getSourcePort().getPhysicalPort()
-        .getPhysicalResourceGroup().getInstituteId();
+        .getPhysicalResourceGroup().getInstitute().getId();
     this.physicalResourceGroupDestinationManagerEmail = reservation.getSourcePort().getPhysicalPort()
         .getPhysicalResourceGroup().getManagerEmail();
   }

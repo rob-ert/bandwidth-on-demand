@@ -48,14 +48,7 @@ public class PhysicalResourceGroupFactory {
     PhysicalResourceGroup group = new PhysicalResourceGroup();
     group.setId(id);
 
-    // To prevent sequence issues, since the setter has some logic.
-    if (setInstituteIdFirst) {
-      group.setInstituteId(instituteId);
-    }
-    else {
-      group.setInstitute(institute);
-    }
-
+    group.setInstitute(institute);
     group.setAdminGroup(adminGroup);
     group.setPhysicalPorts(physicalPorts);
     for (PhysicalPort port : physicalPorts) {
@@ -85,12 +78,6 @@ public class PhysicalResourceGroupFactory {
   public PhysicalResourceGroupFactory setInstitute(Institute institute) {
     this.setInstituteIdFirst = false;
     this.institute = institute;
-    return this;
-  }
-
-  public PhysicalResourceGroupFactory setInstituteId(Long instituteId) {
-    this.setInstituteIdFirst = true;
-    this.instituteId = instituteId;
     return this;
   }
 

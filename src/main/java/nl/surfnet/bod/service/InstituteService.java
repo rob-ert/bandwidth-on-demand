@@ -27,9 +27,28 @@ import nl.surfnet.bod.domain.Institute;
 
 public interface InstituteService {
 
+  /**
+   * Finds the {@link Institute} related to the given Id.
+   * 
+   * @param id
+   *          Id to search for.
+   * @return {@link Institute} related to the id
+   */
   Institute find(Long id);
 
-  Collection<Institute> findAll();
+  /**
+   * Finds all {@link Institute}s which are aligned with IDD.
+   * 
+   * @return
+   */
+  Collection<Institute> findAlignedWithIDD();
 
+  /**
+   * Retrieves all {@link Institute}s from the external IDD system, updates and
+   * persist them. All {@link Institute}s that are present in BoD but not in the
+   * IDD system anymore are marked as <strong>not aligned</strong> with IDD
+   * {@link Institute#isAlignedWithIDD()}. All other institutes are marked
+   * alignedWithIDD.
+   */
   void refreshInstitutes();
 }

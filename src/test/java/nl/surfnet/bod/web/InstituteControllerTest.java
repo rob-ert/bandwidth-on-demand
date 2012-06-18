@@ -62,7 +62,7 @@ public class InstituteControllerTest {
         new InstituteFactory().setId(1L).setName("Universiteit Utrecht").setShortName("UU").create(),
         new InstituteFactory().setId(2L).setName("Universiteit Amsterdam").setShortName("UA").create());
 
-    when(instituteServiceMock.findAll()).thenReturn(unfilteredInstitutes);
+    when(instituteServiceMock.findAlignedWithIDD()).thenReturn(unfilteredInstitutes);
 
     Collection<Institute> institutesInAmsterdam = subject.jsonList("amsterdam");
 
@@ -82,7 +82,7 @@ public class InstituteControllerTest {
     List<PhysicalResourceGroup> existingGroups = newArrayList(new PhysicalResourceGroupFactory().setInstitute(
         instituteAmsterdam).create());
 
-    when(instituteServiceMock.findAll()).thenReturn(unfilteredInstitutes);
+    when(instituteServiceMock.findAlignedWithIDD()).thenReturn(unfilteredInstitutes);
     when(prgServiceMock.findAll()).thenReturn(existingGroups);
 
     Collection<Institute> institutes = subject.jsonList("");
@@ -94,7 +94,7 @@ public class InstituteControllerTest {
   @Test
   public void institutesJsonListShouldAcceptNullAsQueryParam() {
     Collection<Institute> institutes = newArrayList(new InstituteFactory().create());
-    when(instituteServiceMock.findAll()).thenReturn(institutes);
+    when(instituteServiceMock.findAlignedWithIDD()).thenReturn(institutes);
 
     Collection<Institute> result = subject.jsonList(null);
 
@@ -106,7 +106,7 @@ public class InstituteControllerTest {
     Collection<Institute> institutes = newArrayList(
         new InstituteFactory().setId(1L).setName(null).create());
 
-    when(instituteServiceMock.findAll()).thenReturn(institutes);
+    when(instituteServiceMock.findAlignedWithIDD()).thenReturn(institutes);
 
     Collection<Institute> institutesInAmsterdam = subject.jsonList("");
 

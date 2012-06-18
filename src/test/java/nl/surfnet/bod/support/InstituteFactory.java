@@ -35,9 +35,10 @@ public class InstituteFactory {
   private Long id = null;
   private String name = "Customer One";
   private String shortName = "One";
+  private boolean alignedWithIDD = false;
 
   public Institute create() {
-    Institute institute = new Institute(id, name, shortName);
+    Institute institute = new Institute(id, name, shortName, alignedWithIDD);
 
     return institute;
   }
@@ -57,4 +58,8 @@ public class InstituteFactory {
     return this;
   }
 
+  public InstituteFactory setAlignedWithIDD(boolean alignedWithIDD) {
+    this.alignedWithIDD = alignedWithIDD;
+    return this;
+  }
 }

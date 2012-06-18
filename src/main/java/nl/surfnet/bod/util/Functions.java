@@ -122,23 +122,23 @@ public final class Functions {
     return transformers;
   }
 
-  public static Institute transformKlant(Klanten klant) {
+  public static Institute transformKlant(Klanten klant, boolean alignedWithIDD) {
     Institute institute = null;
 
     if (!(Strings.isNullOrEmpty(klant.getKlantnaam()) && (Strings.isNullOrEmpty(klant.getKlantafkorting())))) {
       institute = new Institute(Long.valueOf(klant.getKlant_id()), klant.getKlantnaam().trim(), klant
-          .getKlantafkorting().trim());
+          .getKlantafkorting().trim(), alignedWithIDD);
     }
 
     return institute;
   }
 
-  public static List<Institute> transformKlanten(Collection<Klanten> klanten) {
+  public static List<Institute> transformKlanten(Collection<Klanten> klanten, boolean alignedWithIDD) {
     List<Institute> transformers = new ArrayList<Institute>();
 
     Institute institute = null;
     for (Klanten klant : klanten) {
-      institute = transformKlant(klant);
+      institute = transformKlant(klant, alignedWithIDD);
       if (institute != null) {
         transformers.add(institute);
       }
