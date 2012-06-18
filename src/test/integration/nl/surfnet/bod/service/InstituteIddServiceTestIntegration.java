@@ -10,6 +10,7 @@ import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.support.InstituteFactory;
 
 import org.hibernate.internal.SessionImpl;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -40,7 +40,7 @@ public class InstituteIddServiceTestIntegration {
   public void shouldInsertInstitutes() {
     instituteService.refreshInstitutes();
 
-    assertThat(instituteService.findAlignedWithIDD(), hasSize(218));
+    Assert.assertTrue(instituteService.findAlignedWithIDD().size() > 200);
   }
 
   @Test
