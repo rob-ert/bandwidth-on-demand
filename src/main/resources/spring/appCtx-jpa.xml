@@ -46,6 +46,7 @@
 
     <bean id="flyway" class="com.googlecode.flyway.core.Flyway" init-method="migrate">
         <property name="dataSource" ref="dataSource"/>
+        <property name="basePackage" value="nl.surfnet.bod.db.migrate"/>
     </bean>
 
     <bean class="org.springframework.orm.jpa.JpaTransactionManager" id="transactionManager">
