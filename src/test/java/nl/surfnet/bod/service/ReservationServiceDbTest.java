@@ -29,6 +29,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -67,6 +68,9 @@ public class ReservationServiceDbTest {
 
   @Autowired
   private PhysicalPortRepo physicalPortRepo;
+
+  @Autowired
+  private InstituteRepo instituteRepo;
 
   @Autowired
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
@@ -113,7 +117,7 @@ public class ReservationServiceDbTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
         .setStatus(status).create();
 
-    //Force save of vrg only once, since they all use the same reference
+    // Force save of vrg only once, since they all use the same reference
     reservation.getVirtualResourceGroup().setId(null);
 
     persistReservation(reservation);
@@ -124,6 +128,7 @@ public class ReservationServiceDbTest {
   private void persistReservation(Reservation reservation) {
     // Source port stuff
     reservation.getSourcePort().getPhysicalResourceGroup().setId(null);
+    instituteRepo.save(reservation.getSourcePort().getPhysicalResourceGroup().getInstitute());
     physicalResourceGroupRepo.save(reservation.getSourcePort().getPhysicalPort().getPhysicalResourceGroup());
 
     reservation.getSourcePort().getPhysicalPort().setId(null);
@@ -136,6 +141,7 @@ public class ReservationServiceDbTest {
 
     // Destination port stuff
     reservation.getDestinationPort().getPhysicalResourceGroup().setId(null);
+    instituteRepo.save(reservation.getDestinationPort().getPhysicalResourceGroup().getInstitute());
     physicalResourceGroupRepo.save(reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup());
 
     reservation.getDestinationPort().getPhysicalPort().setId(null);

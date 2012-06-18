@@ -51,15 +51,21 @@ public class PhysicalResourceGroupRepoTest {
   @Autowired
   private PhysicalResourceGroupRepo subject;
 
+  @Autowired
+  private InstituteRepo instituteRepo;
+
   @Test
   public void testFindByInstituteId() {
     PhysicalResourceGroupFactory physicalResourceGroupFactory = new PhysicalResourceGroupFactory();
 
     Institute instituteOne = new InstituteFactory().setId(1L).create();
+    instituteRepo.save(instituteOne);
+
     PhysicalResourceGroup physicalResourceGroupOne = physicalResourceGroupFactory.setId(null)
         .setInstitute(instituteOne).create();
 
     Institute instituteTwo = new InstituteFactory().setId(2L).create();
+    instituteRepo.save(instituteTwo);
     PhysicalResourceGroup physicalResourceGroupTwo = physicalResourceGroupFactory.setId(null)
         .setInstitute(instituteTwo).create();
 
@@ -67,7 +73,7 @@ public class PhysicalResourceGroupRepoTest {
 
     PhysicalResourceGroup foundPhysicalResourceGroup = subject.findByInstituteId(1L);
 
-    assertThat(foundPhysicalResourceGroup.getName(), is("1"));
+    assertThat(foundPhysicalResourceGroup.getName(), is("Customer One"));
   }
 
   @Test
@@ -78,10 +84,12 @@ public class PhysicalResourceGroupRepoTest {
     Collection<String> adminGroups = ImmutableList.of(firstAdminGroup, "urn:secondGroup");
 
     Institute instituteOne = new InstituteFactory().setId(1L).create();
+    instituteRepo.save(instituteOne);
     PhysicalResourceGroup firstPhysicalResourceGroup = physicalResourceGroupFactory.setId(null)
         .setAdminGroup(firstAdminGroup).setInstitute(instituteOne).create();
 
     Institute instituteTwo = new InstituteFactory().setId(2L).create();
+    instituteRepo.save(instituteTwo);
     given(firstPhysicalResourceGroup, physicalResourceGroupFactory.setId(null).setInstitute(instituteTwo)
         .setAdminGroup("urn:noMatch").create());
 

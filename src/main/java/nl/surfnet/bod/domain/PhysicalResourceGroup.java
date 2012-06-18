@@ -94,7 +94,7 @@ public class PhysicalResourceGroup {
    * @return Name of the related institute
    */
   public String getName() {
-    return institute.getName();
+    return institute != null ? institute.getName() : null;
   }
 
   public String getAdminGroup() {

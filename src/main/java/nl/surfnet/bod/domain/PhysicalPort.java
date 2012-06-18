@@ -158,7 +158,7 @@ public class PhysicalPort {
   public String toString() {
     return "PhysicalPort [id=" + id + ", version=" + version + ", nocLabel=" + nocLabel + ", managerLabel="
         + managerLabel + ", bodPortId=" + bodPortId + ", nmsPortId=" + nmsPortId + ", physicalResourceGroup="
-        + physicalResourceGroup.getName() + ", vlanRequired=" + vlanRequired + ", alignedWithNMS=" + alignedWithNMS + "]";
+        + physicalResourceGroup + ", vlanRequired=" + vlanRequired + ", alignedWithNMS=" + alignedWithNMS + "]";
   }
 
 }

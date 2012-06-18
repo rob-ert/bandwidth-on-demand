@@ -23,6 +23,7 @@ package nl.surfnet.bod.web.base;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalPort;
@@ -69,12 +70,12 @@ public class ApplicationConversionServiceFactoryBeanTest {
   }
 
   @Test
-  public void convertPhysicalResourceGroupToStringWithoutInstitute() {    
+  public void convertPhysicalResourceGroupToStringWithoutInstitute() {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().setInstitute(null).create();
 
     String output = subject.getPhysicalResourceGroupToStringConverter().convert(group);
 
-    assertThat(output, is("1"));
+    assertThat(output, nullValue());
   }
 
 }
