@@ -156,9 +156,50 @@ public class PhysicalPort {
 
   @Override
   public String toString() {
-    return "PhysicalPort [id=" + id + ", version=" + version + ", nocLabel=" + nocLabel + ", managerLabel="
-        + managerLabel + ", bodPortId=" + bodPortId + ", nmsPortId=" + nmsPortId + ", physicalResourceGroup="
-        + physicalResourceGroup + ", vlanRequired=" + vlanRequired + ", alignedWithNMS=" + alignedWithNMS + "]";
+    StringBuilder builder = new StringBuilder();
+    builder.append("PhysicalPort [");
+    if (id != null) {
+      builder.append("id=");
+      builder.append(id);
+      builder.append(", ");
+    }
+    if (version != null) {
+      builder.append("version=");
+      builder.append(version);
+      builder.append(", ");
+    }
+    if (nocLabel != null) {
+      builder.append("nocLabel=");
+      builder.append(nocLabel);
+      builder.append(", ");
+    }
+    if (managerLabel != null) {
+      builder.append("managerLabel=");
+      builder.append(managerLabel);
+      builder.append(", ");
+    }
+    if (bodPortId != null) {
+      builder.append("bodPortId=");
+      builder.append(bodPortId);
+      builder.append(", ");
+    }
+    if (nmsPortId != null) {
+      builder.append("nmsPortId=");
+      builder.append(nmsPortId);
+      builder.append(", ");
+    }
+    if (physicalResourceGroup != null) {
+      builder.append("physicalResourceGroup=");
+      builder.append(physicalResourceGroup.getId());
+      builder.append(", ");
+    }
+    builder.append("vlanRequired=");
+    builder.append(vlanRequired);
+    builder.append(", alignedWithNMS=");
+    builder.append(alignedWithNMS);
+    builder.append("]");
+    return builder.toString();
   }
 
+  
 }
