@@ -39,9 +39,7 @@ public class IddOfflineClient implements IddClient {
 
   private final Logger logger = LoggerFactory.getLogger(IddOfflineClient.class);
 
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(
-      value = "UPM_UNCALLED_PRIVATE_METHOD",
-      justification = "Called by IoC container")
+  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "Called by IoC container")
   @SuppressWarnings("unused")
   @PostConstruct
   private void init() {
@@ -56,25 +54,6 @@ public class IddOfflineClient implements IddClient {
 
     return Arrays.asList(klantnamen);
   }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Klanten getKlantById(final Long klantId) {
-    Klanten matchedKlant = null;
-
-    Collection<Klanten> klanten = getKlanten();
-
-    for (Klanten foundKlant : klanten) {
-      if (klantId == foundKlant.getKlant_id()) {
-        matchedKlant = foundKlant;
-        break;
-      }
-    }
-    return matchedKlant;
-  }
-
 
   private Klanten[] extractKlantNamen(Message message) {
     Klantnamen result;

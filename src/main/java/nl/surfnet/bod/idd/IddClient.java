@@ -33,18 +33,4 @@ public interface IddClient {
    * @return Collection<Klanten>
    */
   Collection<Klanten> getKlanten();
-
-  /**
-   * Finds one instance of a {@link Klanten} by the specified klantId. Assumes
-   * that the klantId is unique, so matches only the first occurence of that id
-   * in the list.
-   * 
-   * @see #getKlanten()
-   * 
-   * @param klantId
-   *          Id to search for
-   *          
-   * @return {@link Klanten} or null when not machted.
-   */
-  Klanten getKlantById(final Long klantId);
 }

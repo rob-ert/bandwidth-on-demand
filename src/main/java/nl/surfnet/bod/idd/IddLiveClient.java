@@ -21,8 +21,8 @@
  */
 package nl.surfnet.bod.idd;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentMap;
 
 import nl.surfnet.bod.idd.generated.InvoerKlant;
 import nl.surfnet.bod.idd.generated.Klanten;
@@ -33,9 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
-
-import com.google.common.collect.Maps;
 
 public class IddLiveClient implements IddClient {
 
@@ -47,8 +44,6 @@ public class IddLiveClient implements IddClient {
   private final String password;
   private final String endPoint;
 
-  private final ConcurrentMap<Long, Klanten> klantenCache = Maps.newConcurrentMap();
-
   @Autowired
   public IddLiveClient(@Value("${idd.user}") String username, @Value("${idd.password}") String password,
       @Value("${idd.url}") String endPoint) {
@@ -57,27 +52,9 @@ public class IddLiveClient implements IddClient {
     this.endPoint = endPoint;
   }
 
-  @Scheduled(fixedRate = 1000 * 60 * 60 * 8)
-  public synchronized void refreshCache() {
-    klantenCache.clear();
-    fillKlantenCache();
-  }
-
   @Override
-  public Collection<Klanten> getKlanten() {
-    if (klantenCache.isEmpty()) {
-      fillKlantenCache();
-    }
-
-    return klantenCache.values();
-  }
-
-  private synchronized void fillKlantenCache() {
-    if (!klantenCache.isEmpty()) {
-      return;
-    }
-
-    logger.info("Idd cache is empty... call idd..");
+  public synchronized Collection<Klanten> getKlanten() {
+    logger.info("Calling IDD");
 
     try {
       KsrLocator locator = new KsrLocator();
@@ -88,23 +65,10 @@ public class IddLiveClient implements IddClient {
       port.setPassword(password);
 
       Klanten[] klantnamen = port.getKlantList(new InvoerKlant("list", "", IDD_VERSION)).getKlantnamen();
-
-      for (Klanten klant : klantnamen) {
-        klantenCache.put((long) klant.getKlant_id(), klant);
-      }
+      return Arrays.asList(klantnamen);
     }
     catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
-
-  @Override
-  public Klanten getKlantById(final Long klantId) {
-    if (klantenCache.isEmpty()) {
-      fillKlantenCache();
-    }
-
-    return klantenCache.get(klantId);
-  }
-
 }

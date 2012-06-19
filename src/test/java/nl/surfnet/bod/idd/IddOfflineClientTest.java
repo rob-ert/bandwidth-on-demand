@@ -21,16 +21,15 @@
  */
 package nl.surfnet.bod.idd;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
-
 import java.util.Collection;
 
 import nl.surfnet.bod.idd.generated.Klanten;
 
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
 
 public class IddOfflineClientTest {
 
@@ -42,21 +41,4 @@ public class IddOfflineClientTest {
 
     assertThat(institutes, hasSize(greaterThan(0)));
   }
-
-  @Test
-  public void getKlantByExistingId() {
-
-    Klanten result = subject.getKlantById(564L);
-
-    Assert.assertTrue(result.getKlant_id() == 564L);
-  }
-
-  @Test
-  public void getKlantByNonExistingId() {
-
-    Klanten result = subject.getKlantById(-9999L);
-
-    Assert.assertNull(result);
-  }
-
 }
