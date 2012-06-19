@@ -8,32 +8,39 @@
 <jsp:output omit-xml-declaration="yes" />
 
 <section>
-    <h1>Physical Port Moved</h1>
+    <h1><spring:message code="label_physicalport_port_moved" /></h1>
     <div class="content">
-        <h3 class="h2">Recreated reservations</h3>
-        <table:table items="${reservations}" labelPluralCode="label_virtualport_plural">
-            <thead>
-                <tr>
-                    <th><spring:message code="label_reservation_name" /></th>
-                    <th><spring:message code="label_virtualresourcegroup" /></th>
-                    <th><spring:message code="label_reservation_bandwidth" /></th>
-                    <th><spring:message code="label_reservation_start" /></th>
-                    <th><spring:message code="label_reservation_end" /></th>
-                    <th><spring:message code="label_reservation_status" /></th>
-                </tr>
-            </thead>
-            <c:forEach items="${reservations}" var="reservation">
-                <tr>
-                    <table:column item="${reservation}" property="name" />
-                    <table:column item="${reservation}" property="virtualResourceGroup" />
-                    <spring:message code="label_bandwidth_unit" var="mbit_label" />
-                    <table:column item="${reservation}" property="bandwidth" append="${mbit_label}" />
-                    <table:column item="${reservation}" property="startDateTime" />
-                    <table:column item="${reservation}" property="endDateTime" />
-                    <table:column item="${reservation}" property="status" styleClass="status" />
-                </tr>
-            </c:forEach>
-        </table:table>
+        <c:choose>
+            <c:when test="${empty reservations}">
+                <spring:message code="info_physcialport_no_reservations_moved" />
+            </c:when>
+            <c:otherwise>
+                <h3 class="h2"><spring:message code="info_physicalport_new_reservations" /></h3>
+                <table:table items="${reservations}" labelPluralCode="label_reservation">
+                    <thead>
+                        <tr>
+                            <th><spring:message code="label_reservation_name" /></th>
+                            <th><spring:message code="label_virtualresourcegroup" /></th>
+                            <th><spring:message code="label_reservation_bandwidth" /></th>
+                            <th><spring:message code="label_reservation_start" /></th>
+                            <th><spring:message code="label_reservation_end" /></th>
+                            <th><spring:message code="label_reservation_status" /></th>
+                        </tr>
+                    </thead>
+                    <c:forEach items="${reservations}" var="reservation">
+                        <tr>
+                            <table:column item="${reservation}" property="name" />
+                            <table:column item="${reservation}" property="virtualResourceGroup" />
+                            <spring:message code="label_bandwidth_unit" var="mbit_label" />
+                            <table:column item="${reservation}" property="bandwidth" append="${mbit_label}" />
+                            <table:column item="${reservation}" property="startDateTime" />
+                            <table:column item="${reservation}" property="endDateTime" />
+                            <table:column item="${reservation}" property="status" styleClass="status" />
+                        </tr>
+                    </c:forEach>
+                </table:table>
+            </c:otherwise>
+        </c:choose>
     </div>
 </section>
 
