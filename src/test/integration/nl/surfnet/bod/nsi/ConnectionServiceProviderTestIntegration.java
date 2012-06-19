@@ -1,8 +1,4 @@
-package nl.surfnet.bod.nsi.ws.v1sc;
-
-import static junit.framework.Assert.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+package nl.surfnet.bod.nsi;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -11,6 +7,16 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProvider;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.repo.VirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.support.MockHttpServer;
+import nl.surfnet.bod.support.NsiReservationFactory;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -29,20 +35,16 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
-import nl.surfnet.bod.support.MockHttpServer;
-import nl.surfnet.bod.support.NsiReservationFactory;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml",
     "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
-public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4SpringContextTests {
+public class ConnectionServiceProviderTestIntegration extends AbstractTransactionalJUnit4SpringContextTests {
 
   private static MockHttpServer requesterEndpoint = new MockHttpServer(NsiReservationFactory.PORT);
 
@@ -179,11 +181,10 @@ public class ConnectionServiceProviderTest extends AbstractTransactionalJUnit4Sp
         .setPath(path).createReservation();
 
     GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
-    
+
     assertThat(genericAcknowledgmentType.getCorrelationId(), is(reservationRequest.getCorrelationId()));
     final String lastRequest = requesterEndpoint.getOrWaitForRequest(5);
-    
-   
+
     assertTrue(lastRequest.contains(correationId));
     assertTrue(lastRequest.contains("reserveConfirmed"));
 

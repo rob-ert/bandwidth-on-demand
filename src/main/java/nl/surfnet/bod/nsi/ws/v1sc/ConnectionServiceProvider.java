@@ -28,6 +28,7 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
+import static org.mockito.Matchers.contains;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
 
 import java.util.List;
@@ -64,6 +65,7 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 
@@ -73,11 +75,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.ws.ConnectionService;
 
 @Service("nsiProvider_v1_sc")
-@WebService(serviceName = "ConnectionServiceProvider",
-    portName = "ConnectionServiceProviderPort",
-    endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
-    targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider",
-    wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
+@WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider", wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
 public class ConnectionServiceProvider extends ConnectionService {
 
   private final Logger log = getLog();
@@ -111,15 +109,13 @@ public class ConnectionServiceProvider extends ConnectionService {
       final String sourceStpId = connection.getPath().getSourceSTP().getStpId();
       final String destinationStpId = connection.getPath().getDestSTP().getStpId();
 
-      final VirtualPort sourcePort = getVirtualPortRepo().findByUserLabel(sourceStpId);
-      final VirtualPort destinationPort = getVirtualPortRepo().findByUserLabel(destinationStpId);
-      
-      
+      final VirtualPort sourcePort = getVirtualPortRepo().findByManagerLabel(sourceStpId);
+      final VirtualPort destinationPort = getVirtualPortRepo().findByManagerLabel(destinationStpId);
+
       reservation.setSourcePort(sourcePort);
       reservation.setDestinationPort(destinationPort);
       reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
-      
-      
+      reservation.setName(connection.getGlobalReservationId());
 
       // @NotNull
       // @ManyToOne(optional = false)
@@ -639,7 +635,8 @@ public class ConnectionServiceProvider extends ConnectionService {
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
-  void setDelayBeforeResponseSend(long delayInMilis) {
+  @VisibleForTesting
+  public void setDelayBeforeResponseSend(long delayInMilis) {
     this.delayBeforeResponseSend = delayInMilis;
   }
 
