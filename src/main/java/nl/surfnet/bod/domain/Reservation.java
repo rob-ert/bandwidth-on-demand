@@ -362,6 +362,11 @@ public class Reservation {
   public void setName(String name) {
     this.name = name;
   }
+  
+  // needed for nsi and integration tests
+  public final void setVirtualResourceGroup(VirtualResourceGroup virtualResourceGroup) {
+    this.virtualResourceGroup = virtualResourceGroup;
+  }
 
   @Override
   public int hashCode() {

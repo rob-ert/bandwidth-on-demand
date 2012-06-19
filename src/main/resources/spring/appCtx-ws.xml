@@ -32,12 +32,6 @@
             <ws:service bean="#nsiProvider_v1_sc" />
         </wss:service>
     </wss:binding>
-
-    <wss:binding url="/nsi/v1_sc/requester">
-        <wss:service>
-            <ws:service bean="#nsiRequester_v1_sc" />
-        </wss:service>
-    </wss:binding>
-
+    
 
 </beans>

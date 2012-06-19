@@ -6281,17 +6281,16 @@
          <int:correlationId>urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e</int:correlationId>
          <int:replyTo>http://localhost:9089/bod/nsi/v1_sc/requester</int:replyTo>
          <typ:reserve>
-            <requesterNSA>?</requesterNSA>
+            <requesterNSA>http://localhost:9089/bod/nsi/v1_sc/requester</requesterNSA>
             <providerNSA>urn:ogf:network:nsa:netherlight</providerNSA>
             <reservation>
-               <globalReservationId>?</globalReservationId>
-               <description>?</description>
-               <connectionId>?</connectionId>
+               <globalReservationId>urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e</globalReservationId>
+               <description>description:1</description>
+               <connectionId>urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e</connectionId>
                <serviceParameters>
                   <schedule>
-                     <startTime>?</startTime>
-                     <endTime>?</endTime>
-                     <duration>?</duration>
+                     <startTime>2012-12-03T13:00:00</startTime>
+                     <endTime>2011-12-04T13:00:00</endTime>
                   </schedule>
                   <bandwidth>
                      <desired>1000</desired>
@@ -6302,17 +6301,12 @@
                <path>
                   <directionality>Bidirectional</directionality>
                   <sourceSTP>
-                     <stpId>?</stpId>
+                     <stpId>RUG VP One</stpId>
                   </sourceSTP>
                   <destSTP>
-                     <stpId>?</stpId>
+                     <stpId>UT VP One</stpId>
                   </destSTP>
-                  <stpList>
-                     <!--Zero or more repetitions:-->
-                     <stp order="0">
-                        <stpId>?</stpId>
-                     </stp>
-                  </stpList>
+                  
                </path>
             </reservation>
          </typ:reserve>
