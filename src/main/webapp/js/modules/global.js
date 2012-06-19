@@ -47,14 +47,14 @@ app.global = function() {
 
             form[0].submit();
 
-        })
+        });
 
     };
 
     var _placement = function(popup, element) {
-        popup.setAttribute('data-type', element.getAttribute('data-type'))
+        popup.setAttribute('data-type', element.getAttribute('data-type'));
         return 'top';
-    }
+    };
 
     var initTooltips = function() {
 

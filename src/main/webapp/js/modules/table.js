@@ -31,22 +31,22 @@ app.table = function(){
 
                 row.animate({
                     height: rowHeight + details[0]._originalHeight + 20
-                })
+                });
 
                 details.animate({
                     height: details[0]._originalHeight,
                     opacity: 1
-                })
+                });
             } else {
 
                 row.animate({
                     height: rowHeight
-                })
+                });
 
                 details.animate({
                     height: 0,
                     opacity: 0
-                })
+                });
             }
 
             row.toggleClass('expanded');
@@ -67,7 +67,7 @@ app.table = function(){
                     table.find('tr.existing').filter(':even').addClass('odd');
                 }
 
-            }
+            };
 
             var table = component.siblings('table'),
                 rows = table.find('tr.new'),
@@ -97,18 +97,18 @@ app.table = function(){
                     }
                     rows.css({
                         display: showAll ? 'table-row' : 'none'
-                    })
-                })
+                    });
+                });
 
-            })
+            });
 
         }
 
-    }
+    };
 
     return {
         init: init
-    }
+    };
 
 }();
 

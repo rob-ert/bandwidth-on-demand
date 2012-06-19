@@ -54,7 +54,7 @@ app.reservation = function() {
 
         cell.css({
             overflow: 'hidden'
-        })
+        });
 
         span.delay(500).animate(
             {
