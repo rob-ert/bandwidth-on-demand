@@ -6290,7 +6290,7 @@
                <serviceParameters>
                   <schedule>
                      <startTime>2012-12-03T13:00:00</startTime>
-                     <endTime>2011-12-04T13:00:00</endTime>
+                     <endTime>202-12-04T13:00:00</endTime>
                   </schedule>
                   <bandwidth>
                      <desired>1000</desired>
