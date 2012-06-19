@@ -34,28 +34,26 @@
   <logger name="org.springframework">
     <level value="WARN" />
   </logger>
-  
+
   <logger name="nl.surfnet">
     <level value="WARN" />
   </logger>
-  
+
   <logger name="nl.surfnet.bod.nsi.ws.v1sc">
-    <level value="DEBUG" />
+    <level value="WARN" />
   </logger>
-  
+
   <logger name="nl.surfnet.bod.nsi">
-    <level value="DEBUG" />
+    <level value="WARN" />
   </logger>
-  
+
   <logger name="com.googlecode.ehcache" additivity="false">
     <level value="WARN" />
   </logger>
-  
+
   <logger name="nl.surfnet.bod.mtosi">
-    <level value="DEBUG" />
+    <level value="WARN" />
   </logger>
-  
-  
 
   <root>
     <level value="WARN" />
