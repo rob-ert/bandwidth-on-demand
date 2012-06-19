@@ -83,6 +83,7 @@ public class InstituteIddService implements InstituteService {
     // Align With IDD
     Collection<Klanten> klanten = iddClient.getKlanten();
     instituteRepo.save(Functions.transformKlanten(klanten, true));
+    logger.info("Retrieved {} institutes from IDD and updated them in the BoD database: ", klanten.size());
   }
 
   private void markNotAligned(List<Institute> allInstitutes) {
