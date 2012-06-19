@@ -28,7 +28,6 @@ import nl.surfnet.bod.idd.generated.InvoerKlant;
 import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.idd.generated.KsrBindingStub;
 import nl.surfnet.bod.idd.generated.KsrLocator;
-import nl.surfnet.bod.service.InstituteService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,9 +46,6 @@ public class IddLiveClient implements IddClient {
   private final String username;
   private final String password;
   private final String endPoint;
-
-  @Autowired
-  private InstituteService instituteService;
 
   private final ConcurrentMap<Long, Klanten> klantenCache = Maps.newConcurrentMap();
 

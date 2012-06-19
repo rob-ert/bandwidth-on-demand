@@ -747,6 +747,7 @@
                     <password />
                     <driver>org.postgresql.Driver</driver>
                     <url>jdbc:postgresql://localhost/bod</url>
+                    <basePackage>nl.surfnet.bod.db.migration</basePackage>
                 </configuration>
             </plugin>
             <plugin>

@@ -1,0 +1,3 @@
+ALTER TABLE institute ADD COLUMN aligned_idd BOOLEAN NOT NULL DEFAULT TRUE;
+
+ALTER TABLE institute DROP COLUMN version;
