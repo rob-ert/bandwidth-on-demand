@@ -28,9 +28,6 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static org.mockito.Matchers.contains;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -41,6 +38,10 @@ import javax.jws.WebService;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.ws.ConnectionService;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
@@ -69,10 +70,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.ws.ConnectionService;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.RESERVING;
 
 @Service("nsiProvider_v1_sc")
 @WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider", wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
