@@ -32,11 +32,19 @@ public interface VirtualPortRepo extends JpaSpecificationExecutor<VirtualPort>, 
 
   /**
    * Finds a {@link VirtualPort} by its ict manager label.
-   *
-   * @param label The label to search for
+   * 
+   * @param label
+   *          The label to search for
    * @return {@link VirtualPort} or null when no match was found.
    */
   VirtualPort findByManagerLabel(String label);
 
+  /**
+   * Finds a {@link VirtualPort} by it user label
+   * 
+   * @param label
+   *          Label to search for
+   * @return {@link VirtualPort} of null when no match was found
+   */
   VirtualPort findByUserLabel(String label);
 }
