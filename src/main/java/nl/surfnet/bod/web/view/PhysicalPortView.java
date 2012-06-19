@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.web.view;
 
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalPort;
 
 public class PhysicalPortView {
@@ -29,7 +30,7 @@ public class PhysicalPortView {
   private final String managerLabel;
   private final String nocLabel;
   private final String bodPortId;
-  private final String physicalResourceGroupName;
+  private final String instituteName;
   private final String nmsPortId;
   private ElementActionView deleteActionView;
   private Long numberOfVirtualPorts;
@@ -60,7 +61,7 @@ public class PhysicalPortView {
     this.managerLabel = physicalPort.getManagerLabel();
     this.nocLabel = physicalPort.getNocLabel();
     this.bodPortId = physicalPort.getBodPortId();
-    this.physicalResourceGroupName = physicalPort.getPhysicalResourceGroup() == null ? null : physicalPort
+    this.instituteName = physicalPort.getPhysicalResourceGroup() == null ? null : physicalPort
         .getPhysicalResourceGroup().getName();
     this.nmsPortId = physicalPort.getNmsPortId();
     this.vlanRequired = physicalPort.isVlanRequired();
@@ -91,8 +92,8 @@ public class PhysicalPortView {
     return bodPortId;
   }
 
-  public String getPhysicalResourceGroupName() {
-    return physicalResourceGroupName;
+  public String getInstituteName() {
+    return instituteName;
   }
 
   public String getNmsPortId() {
@@ -135,7 +136,7 @@ public class PhysicalPortView {
     result = prime * result + ((nmsPortId == null) ? 0 : nmsPortId.hashCode());
     result = prime * result + ((nocLabel == null) ? 0 : nocLabel.hashCode());
     result = prime * result + ((numberOfVirtualPorts == null) ? 0 : numberOfVirtualPorts.hashCode());
-    result = prime * result + ((physicalResourceGroupName == null) ? 0 : physicalResourceGroupName.hashCode());
+    result = prime * result + ((instituteName == null) ? 0 : instituteName.hashCode());
     result = prime * result + ((bodPortId == null) ? 0 : bodPortId.hashCode());
     result = prime * result + (vlanRequired ? 1231 : 1237);
     return result;
@@ -144,10 +145,10 @@ public class PhysicalPortView {
   @Override
   public String toString() {
     return "PhysicalPortView [id=" + id + ", managerLabel=" + managerLabel + ", nocLabel=" + nocLabel + ", bodPortId="
-        + bodPortId + ", physicalResourceGroupName=" + physicalResourceGroupName + ", nmsPortId="
-        + nmsPortId + ", deleteActionView=" + deleteActionView + ", numberOfVirtualPorts="
-        + numberOfVirtualPorts + ", vlanRequired=" + vlanRequired + ", alignedWithNMS=" + alignedWithNMS
-        + ", deleteRender=" + deleteRender + "]";
+        + bodPortId + ", instituteName=" + instituteName + ", nmsPortId=" + nmsPortId
+        + ", deleteActionView=" + deleteActionView + ", numberOfVirtualPorts=" + numberOfVirtualPorts
+        + ", vlanRequired=" + vlanRequired + ", alignedWithNMS=" + alignedWithNMS + ", deleteRender=" + deleteRender
+        + "]";
   }
 
   @Override
@@ -199,11 +200,11 @@ public class PhysicalPortView {
     }
     else if (!numberOfVirtualPorts.equals(other.numberOfVirtualPorts))
       return false;
-    if (physicalResourceGroupName == null) {
-      if (other.physicalResourceGroupName != null)
+    if (instituteName == null) {
+      if (other.instituteName != null)
         return false;
     }
-    else if (!physicalResourceGroupName.equals(other.physicalResourceGroupName))
+    else if (!instituteName.equals(other.instituteName))
       return false;
     if (bodPortId == null) {
       if (other.bodPortId != null)

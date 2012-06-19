@@ -54,6 +54,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
 import static nl.surfnet.bod.web.WebUtils.DELETE;
@@ -270,6 +271,15 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     model.addAttribute("movePhysicalPortCommand", new MovePhysicalPortCommand(port));
 
     return PAGE_URL + "/move";
+  }
+  
+  @Override
+  protected List<String> translateSortProperty(String sortProperty) {
+    if (sortProperty.equals("instituteName")) {
+      return ImmutableList.of("physicalResourceGroup.institute.name");
+    }
+
+    return super.translateSortProperty(sortProperty);
   }
 
   public static final class RelatedObjects {

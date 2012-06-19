@@ -14,7 +14,7 @@
         <table:rowDetailsHeader render="${not show_unallocated}" />
         <table:sortableHeader labelCode="label_physicalport_noclabel" property="nocLabel" sortable="${not show_unallocated}" />
         <table:sortableHeader labelCode="label_physicalport_bod_port_id" property="bodPortId" sortable="${not show_unallocated}" />
-        <table:sortableHeader labelCode="label_physicalresourcegroup" property="physicalResourceGroup" render="${not show_unallocated}" />
+        <table:sortableHeader labelCode="label_physicalresourcegroup" property="instituteName" render="${not show_unallocated}" />
         <table:sortableHeader labelCode="label_physicalport_nms_port_id" property="nmsPortId" sortable="${not show_unallocated}" />
         <table:actionsHeader styleClass="cw75 center small" />
       </tr>
@@ -40,7 +40,7 @@
           </table:rowDetailsColumn>
           <table:column item="${item}" property="nocLabel" />
           <table:column item="${item}" property="bodPortId" />
-          <table:column item="${item}" property="physicalResourceGroupName" render="${not show_unallocated}" />
+          <table:column item="${item}" property="instituteName" render="${not show_unallocated}" />
           <table:column item="${item}" property="nmsPortId" />
           <table:actionsColumn item="${item}" delete="${item.deleteRender}"
             deleteEnabled="${item.deleteAllowed}"

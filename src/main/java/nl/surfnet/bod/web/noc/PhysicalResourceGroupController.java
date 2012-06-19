@@ -56,6 +56,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.collect.ImmutableList;
+
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
 public class PhysicalResourceGroupController extends AbstractSortableListController<PhysicalResourceGroup> {
@@ -161,6 +163,15 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
     SecurityContextHolder.clearContext();
 
     return "redirect:";
+  }
+
+  @Override
+  protected List<String> translateSortProperty(String sortProperty) {
+    if (sortProperty.equals("institute")) {
+      return ImmutableList.of("institute.name");
+    }
+
+    return super.translateSortProperty(sortProperty);
   }
 
   private void fillInstitute(final PhysicalResourceGroupCommand command, PhysicalResourceGroup group) {

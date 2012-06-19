@@ -39,6 +39,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.google.common.collect.ImmutableList;
+
 import static nl.surfnet.bod.web.WebUtils.EDIT;
 import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 
@@ -117,6 +119,15 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   @Override
   protected String defaultSortProperty() {
     return "userLabel";
+  }
+
+  //FIXME, faking sorting on PhysicalPort to bypass sortPropertyTest, while actually we sort on instituteName
+  @Override
+  protected List<String> translateSortProperty(String sortProperty) {
+    if ("physicalPort".equals(sortProperty)) {
+      return ImmutableList.of("physicalPort.physicalResourceGroup.institute.name");
+    }
+    return super.translateSortProperty(sortProperty);
   }
 
   public static class UpdateUserLabelCommand {

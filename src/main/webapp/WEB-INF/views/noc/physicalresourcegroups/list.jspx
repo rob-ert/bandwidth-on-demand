@@ -11,7 +11,7 @@
             <thead>
                 <tr>
                     <table:rowDetailsHeader />
-                    <th><spring:message code="label_physicalresourcegroup_name" /></th>
+                    <table:sortableHeader labelCode="label_physicalresourcegroup_name" property="institute"/>
                     <table:sortableHeader labelCode="label_physicalresourcegroup_manageremail" property="managerEmail" />
                     <table:sortableHeader labelCode="label_physicalresourcegroup_active" property="active" styleClass="cw75 center" />
                     <th class="cw65"><spring:message code="label_physicalresourcegroup_physicalportcount" /></th>
