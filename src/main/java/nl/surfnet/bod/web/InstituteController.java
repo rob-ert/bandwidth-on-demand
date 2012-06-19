@@ -46,8 +46,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import sun.util.logging.resources.logging;
-
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
