@@ -58,7 +58,7 @@ app.global = function() {
 
     var initTooltips = function() {
 
-       	$('[rel="tooltip"]').tooltip({
+        $('[rel="tooltip"]').tooltip({
             placement: _placement
         });
 

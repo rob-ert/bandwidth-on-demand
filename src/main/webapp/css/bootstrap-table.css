@@ -55,7 +55,8 @@
 }
 
 .table a[rel="tooltip"],
-.table .disabled-icon {
+.table .disabled-icon,
+.table .status-icon {
     margin: 0 5px;
 }
 

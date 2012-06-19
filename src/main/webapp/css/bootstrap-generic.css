@@ -21,25 +21,35 @@ section>div.content-dense>p
 
 [class^="icon-"]:before,
 [class*=" icon-"]:before {
-	font-size: 16px;
+    font-size: 16px;
     color: #0381a4;
 }
 
-[class="icon-ok"]:before {
-	color: #008000;
+.icon-ok:before {
+    color: #008000;
 }
 
-[class="icon-ban-circle"]:before {
+.icon-ban-circle:before {
     color: #B22222;
+}
+
+.icon-exclamation-sign:before {
+    color: #B94A48;
 }
 
 .btn [class^="icon-"]:before {
     font-size: 13px;
     color: inherit;
 }
+
 .disabled-icon {
-  display: inline-block;
+    display: inline-block;
 }
+
+.status-icon {
+    display: inline-block;
+}
+
 .disabled-icon [class^="icon-"]:before,
 .disabled-icon [class*=" icon-"]:before {
     color: gray;
