@@ -358,7 +358,6 @@ public class ConnectionServiceProvider extends ConnectionService {
     connection.setCurrentState(RESERVING);
     connection = getConnectionRepo().save(connection);
 
-    System.out.println(getConnectionRepo().findAll());
 
     // Build an internal request for this reservation request.
 
@@ -447,11 +446,6 @@ public class ConnectionServiceProvider extends ConnectionService {
       @Override
       public void run() {
         Connection connection = getConnectionRepo().findByConnectionId(con.getConnectionId());
-
-        final List<Connection> connections = getConnectionRepo().findAll();
-        System.out.println(connections);
-
-        System.out.println(connection);
         connection.setCurrentState(CLEANING);
         connection = getConnectionRepo().save(connection);
         sendReservationFailed(connection);
