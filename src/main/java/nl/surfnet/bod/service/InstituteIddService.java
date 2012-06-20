@@ -24,9 +24,6 @@ package nl.surfnet.bod.service;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.idd.generated.Klanten;
@@ -48,9 +45,6 @@ public class InstituteIddService implements InstituteService {
   private static final String INSTITUTE_REFRESH_CRON_KEY = "institute.refresh.job.cron";
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-  @PersistenceContext
-  EntityManager em;
 
   @Autowired
   private IddClient iddClient;
