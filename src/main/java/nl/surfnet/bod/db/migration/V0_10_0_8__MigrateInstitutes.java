@@ -16,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.util.StringUtils;
 
+import com.google.common.base.Strings;
 import com.googlecode.flyway.core.migration.java.JavaMigration;
 
 public class V0_10_0_8__MigrateInstitutes implements JavaMigration {
@@ -30,25 +30,22 @@ public class V0_10_0_8__MigrateInstitutes implements JavaMigration {
     final Properties properties = new Properties();
     properties.load(new ClassPathResource("bod-default.properties").getInputStream());
 
-    String iddUrl = System.getProperty("idd.url");
-    String iddUser = System.getProperty("idd.user");
-    String iddPassword = System.getProperty("idd.password");
-
-    if (!StringUtils.hasText(iddUrl)) {
-      iddUrl = properties.getProperty("idd.url");
-    }
-
-    if (!StringUtils.hasText(iddUser)) {
-      iddUser = properties.getProperty("idd.user");
-    }
-
-    if (!StringUtils.hasText(iddPassword)) {
-      iddPassword = properties.getProperty("idd.password");
-    }
+    String iddUrl = getProperty("idd.url", properties);
+    String iddUser = getProperty("idd.user", properties);
+    String iddPassword = getProperty("idd.password", properties);
 
     logger.info("Using IDD @: {} with user {} and password {}", new Object[] { iddUrl, iddUser, iddPassword });
 
     iddClient = new IddLiveClient(iddUser, iddPassword, iddUrl);
+  }
+
+  private String getProperty(String name, Properties properties) {
+    String result = System.getProperty(name);
+    if (Strings.isNullOrEmpty(result)) {
+      result = properties.getProperty(name);
+    }
+
+    return result;
   }
 
   @Override
