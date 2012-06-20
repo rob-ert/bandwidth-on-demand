@@ -735,6 +735,13 @@
                     <header>src/etc/header.txt</header>
                     <excludes>
                         <exclude>src/main/webapp/**</exclude>
+                        <exclude>src/main/resources/**/*.xsd</exclude>
+                        <exclude>src/main/resources/mtosi/**/*.xml</exclude>
+                        <exclude>src/main/resources/mtosi/**/*.txt</exclude>
+                        <exclude>src/main/resources/**/*.sql</exclude>
+                        <exclude>src/test/**/*.xsd</exclude>
+                        <exclude>src/test/**/*.xml</exclude>
+                        <exclude>src/test/**/*.properties</exclude>
                     </excludes>
                 </configuration>
             </plugin>
