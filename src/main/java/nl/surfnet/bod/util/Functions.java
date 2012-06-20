@@ -27,6 +27,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.view.ElementActionView;
@@ -38,30 +39,29 @@ import com.google.common.base.Strings;
 
 public final class Functions {
 
-  public static final Function<PhysicalPort, String> TO_NMS_PORT_ID_FUNC = //
-  new Function<PhysicalPort, String>() {
+  public static final Function<PhysicalPort, String> TO_NMS_PORT_ID_FUNC =
+    new Function<PhysicalPort, String>() {
+      @Override
+      public String apply(PhysicalPort physicalPort) {
+        return physicalPort.getNmsPortId();
+      }
+    };
 
-    @Override
-    public String apply(PhysicalPort physicalPort) {
-      return physicalPort.getNmsPortId();
-    }
-  };
+  public static final Predicate<PhysicalPort> MISSING_PORTS_PRED =
+    new Predicate<PhysicalPort>() {
+      @Override
+      public boolean apply(PhysicalPort physicalPort) {
+        return !physicalPort.isAlignedWithNMS();
+      }
+    };
 
-  public static final Predicate<PhysicalPort> MISSING_PORTS_PRED = //
-  new Predicate<PhysicalPort>() {
-    @Override
-    public boolean apply(PhysicalPort physicalPort) {
-      return !physicalPort.isAlignedWithNMS();
-    }
-  };
-
-  public static final Predicate<PhysicalPort> NON_MISSING_PORTS_PRED = //
-  new Predicate<PhysicalPort>() {
-    @Override
-    public boolean apply(PhysicalPort physicalPort) {
-      return !MISSING_PORTS_PRED.apply(physicalPort);
-    }
-  };
+  public static final Predicate<PhysicalPort> NON_MISSING_PORTS_PRED =
+    new Predicate<PhysicalPort>() {
+      @Override
+      public boolean apply(PhysicalPort physicalPort) {
+        return !MISSING_PORTS_PRED.apply(physicalPort);
+      }
+    };
 
   private Functions() {
   }
@@ -69,7 +69,7 @@ public final class Functions {
   /**
    * Calculates the amount of related {@link VirtualPort}s and transforms it to
    * a {@link PhysicalPortView}
-   * 
+   *
    * @param port
    *          {@link PhysicalPort} to enrich
    * @param virtualPortService
@@ -94,9 +94,9 @@ public final class Functions {
 
   /**
    * Transforms a Collection
-   * 
+   *
    * @see #transformAllocatedPhysicalPort(PhysicalPort, VirtualPortService)
-   * 
+   *
    */
   public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<PhysicalPort> ports,
       final VirtualPortService virtualPortService) {
@@ -123,14 +123,16 @@ public final class Functions {
   }
 
   public static Institute transformKlant(Klanten klant, boolean alignedWithIDD) {
-    Institute institute = null;
-
-    if (!(Strings.isNullOrEmpty(klant.getKlantnaam()) && (Strings.isNullOrEmpty(klant.getKlantafkorting())))) {
-      institute = new Institute(Long.valueOf(klant.getKlant_id()), klant.getKlantnaam().trim(), klant
-          .getKlantafkorting().trim(), alignedWithIDD);
+    if (Strings.isNullOrEmpty(klant.getKlantnaam()) && Strings.isNullOrEmpty(klant.getKlantafkorting())) {
+      return null;
     }
 
-    return institute;
+    return new Institute(Long.valueOf(klant.getKlant_id()), trimIfNotNull(klant.getKlantnaam()),
+        trimIfNotNull(klant.getKlantafkorting()), alignedWithIDD);
+  }
+
+  private static String trimIfNotNull(String value) {
+    return value != null ? value.trim() : value;
   }
 
   public static List<Institute> transformKlanten(Collection<Klanten> klanten, boolean alignedWithIDD) {
