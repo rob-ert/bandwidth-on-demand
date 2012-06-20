@@ -23,20 +23,28 @@
       <c:forEach items="${list}" var="item">
         <tr class="rowdetails">
           <table:rowDetailsColumn render="${not show_unallocated}">
-            <dl class="dl-horizontal">
-              <dt>Manager Label</dt>
-              <dd>
-                <c:out value="${item.managerLabel}" />
-              </dd>
-              <dt>Vlan required</dt>
-              <dd>
-                <c:out value="${item.vlanRequired}" />
-              </dd>
-              <dt>Aligned with NMS</dt>
-              <dd>
-                <c:out value="${item.alignedWithNMS}" />
-              </dd>
-            </dl>
+            <div class="row-fluid">
+                <div class="span6">
+                    <dl class="dl-horizontal">
+                        <dt>Manager Label</dt>
+                        <dd>
+                            <c:out value="${item.managerLabel}" />
+                        </dd>
+                        <dt>Aligned with NMS</dt>
+                        <dd>
+                            <c:out value="${item.alignedWithNMS}" />
+                        </dd>
+                    </dl>
+                </div>
+                <div class="span6">
+                    <dl class="dl-horizontal">
+                        <dt>Vlan required</dt>
+                        <dd>
+                            <c:out value="${item.vlanRequired}" />
+                        </dd>
+                    </dl>
+                </div>
+            </div>
           </table:rowDetailsColumn>
           <table:column item="${item}" property="nocLabel" />
           <table:column item="${item}" property="bodPortId" />
@@ -54,7 +62,7 @@
 
             <c:if test="${not show_unallocated}">
               <spring:url var="moveUrl" value="/noc/physicalports/move">
-                <spring:param name="id" value="${item.nmsPortId}" />
+                <spring:param name="id" value="${item.id}" />
               </spring:url>
               <a href="${moveUrl}" rel="tooltip" data-type="info" title="Move Physical Port">
                 <i class="icon-truck"><!--  --></i>

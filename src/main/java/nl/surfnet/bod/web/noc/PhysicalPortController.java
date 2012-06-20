@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.web.noc;
 
+import static nl.surfnet.bod.web.WebUtils.*;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -30,11 +32,7 @@ import javax.validation.constraints.NotNull;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.service.NocService;
-import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.service.*;
 import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSortableListController;
@@ -56,16 +54,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.UPDATE;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 @Controller
 @RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
@@ -245,13 +233,12 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   }
 
   @RequestMapping(value = "move", method = RequestMethod.GET)
-  public String moveForm(@RequestParam(ID_KEY) String nmsPortId, Model model, RedirectAttributes redirectAttrs) {
-    PhysicalPort port;
-    try {
-      port = physicalPortService.findByNmsPortId(nmsPortId);
-    }
-    catch (IllegalStateException e) {
-      return "redirect:";
+  public String moveForm(@RequestParam Long id, Model model, RedirectAttributes redirectAttrs) {
+    PhysicalPort port = physicalPortService.find(id);
+
+    if (port == null) {
+      redirectAttrs.addFlashAttribute(WebUtils.INFO_MESSAGES_KEY, ImmutableList.of("Could not find port.."));
+      return "redirect:/noc/physicalports";
     }
 
     Collection<PhysicalPort> unallocatedPorts = physicalPortService.findUnallocated();
@@ -272,7 +259,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     return PAGE_URL + "/move";
   }
-  
+
   @Override
   protected List<String> translateSortProperty(String sortProperty) {
     if (sortProperty.equals("instituteName")) {
@@ -322,7 +309,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   * 
+   *
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
