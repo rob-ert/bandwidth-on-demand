@@ -6,6 +6,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.idd.IddClient;
+import nl.surfnet.bod.idd.IddLiveClient;
+import nl.surfnet.bod.idd.generated.Klanten;
+import nl.surfnet.bod.util.Functions;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -13,12 +19,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StringUtils;
 
 import com.googlecode.flyway.core.migration.java.JavaMigration;
-
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.idd.IddClient;
-import nl.surfnet.bod.idd.IddLiveClient;
-import nl.surfnet.bod.idd.generated.Klanten;
-import nl.surfnet.bod.util.Functions;
 
 public class V0_10_0_8__MigrateInstitutes implements JavaMigration {
 
@@ -36,13 +36,6 @@ public class V0_10_0_8__MigrateInstitutes implements JavaMigration {
 
     if (!StringUtils.hasText(iddUrl)) {
       iddUrl = properties.getProperty("idd.url");
-      
-      // OK try the selenium props
-      if (!StringUtils.hasText(iddUrl)) {
-        final Properties props = new Properties();
-        props.load(new ClassPathResource("bod-selenium.properties").getInputStream());
-        iddUrl = System.getProperty("idd.url");
-      }
     }
 
     if (!StringUtils.hasText(iddUser)) {
