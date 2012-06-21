@@ -34,6 +34,7 @@ import nl.surfnet.bod.service.ReservationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 public abstract class ConnectionService {
 
@@ -47,10 +48,8 @@ public abstract class ConnectionService {
   @Resource
   private VirtualPortRepo virtualPortRepo;
 
-
   @Resource
   private VirtualResourceGroupRepo virtualResourceGroupRepo;
-
 
   /*
    * This holds the web service request context which includes all the original
@@ -63,8 +62,8 @@ public abstract class ConnectionService {
   @Autowired
   private ReservationService reservationService;
 
-  protected boolean isValidCorrelationId(final String correlationId) {
-    return correlationId == null ? false : correlationId.startsWith(URN_UUID);
+  protected boolean isValidId(final String id) {
+    return StringUtils.hasText(id);
   }
 
   public static String getCorrelationId() {
@@ -79,7 +78,7 @@ public abstract class ConnectionService {
     return webServiceContext;
   }
 
-  protected ReservationService getReservationService() {
+  protected  ReservationService getReservationService() {
     return reservationService;
   }
 

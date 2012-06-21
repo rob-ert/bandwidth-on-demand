@@ -72,8 +72,8 @@ public class ConnectionServiceProvider extends ConnectionService {
 
   @Resource(name = "nsaProviderUrns")
   private List<String> nsaProviderUrns;
-  
-  public static final String BOD_URN_POSTFIX="urn:nl:surfnet:diensten:bod:";
+
+  public static final String BOD_URN_POSTFIX = "urn:nl:surfnet:diensten:bod:";
 
   private final Function<Connection, Reservation> TO_RESERVATION = //
   new Function<Connection, Reservation>() {
@@ -245,7 +245,6 @@ public class ConnectionServiceProvider extends ConnectionService {
     log.debug("Sendign terminate event to child nsa: {} with id: {}", nsaChild, correlationId);
   }
 
-
   private boolean isValidProviderNsa(final ReserveRequestType reserveRequest) {
     return nsaProviderUrns == null ? true : nsaProviderUrns.contains(reserveRequest.getReserve().getProviderNSA());
   }
@@ -272,29 +271,30 @@ public class ConnectionServiceProvider extends ConnectionService {
     }
 
     Connection connection = TO_CONNECTION.apply(reservationRequest);
-    
-    if(!StringUtils.hasText(connection.getGlobalReservationId())){
-      connection.setConnectionId(generateGlobalId());
+
+    if (!StringUtils.hasText(connection.getGlobalReservationId())) {
+      connection.setGlobalReservationId(generateGlobalId());
     }
-    
-    
+
     connection.setCurrentState(INITIAL);
     connection = getConnectionRepo().save(connection);
     log.info("connection: " + connection);
 
     log.debug("Received reservation request with id: {}", connection.getConnectionId());
 
-    if (!isValidCorrelationId(connection.getConnectionId())) {
+    if (!isValidId(connection.getConnectionId())) {
       connection = getConnectionRepo().findOne(connection.getId());
       connection.setCurrentState(CLEANING);
       connection = getConnectionRepo().save(connection);
-      throw new ServiceException("SVC0001", getInvalidParameterServiceException("correlationId"));
+      throw new ServiceException("SVC0001", getInvalidParameterServiceException("connectionId"));
     }
+
+    // TODO
+    // Validate CorrelationId
 
     connection = getConnectionRepo().findOne(connection.getId());
     connection.setCurrentState(RESERVING);
     connection = getConnectionRepo().save(connection);
-
 
     // Build an internal request for this reservation request.
 
@@ -344,7 +344,7 @@ public class ConnectionServiceProvider extends ConnectionService {
     // for now always fail the reservation
     // forceFailed(connection);
 
-    createReservation(connection);
+    createReservation(connection, false);
 
     /*
      * We successfully sent the message for processing so acknowledge it back to
@@ -358,24 +358,23 @@ public class ConnectionServiceProvider extends ConnectionService {
     return genericAcknowledgment;
   }
 
-  
   private String generateGlobalId() {
     return BOD_URN_POSTFIX + UUID.randomUUID();
   }
 
-  private void createReservation(final Connection connection) {
+  private void createReservation(final Connection connection, boolean autoProvision) {
     // transform connection to reservation
     final Reservation reservation = TO_RESERVATION.apply(connection);
 
     // create BoD reservation
-    getReservationService().create(reservation);
-
-    sendReserveConfirmed(connection);
+    getReservationService().create(reservation, autoProvision);
 
     // call reserveConfirmed on requester nsa
+    sendReserveConfirmed(connection);
+
+    //
 
   }
-  
 
   public GenericAcknowledgmentType provision(ProvisionRequestType parameters) throws ServiceException {
 
@@ -553,6 +552,5 @@ public class ConnectionServiceProvider extends ConnectionService {
   public void queryFailed(Holder<String> correlationId, QueryFailedType queryFailed) throws ServiceException {
     throw new UnsupportedOperationException("Not implemented yet.");
   }
-
 
 }

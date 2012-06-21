@@ -140,7 +140,7 @@ public class ReservationServiceTest {
     subject.create(reservation);
 
     verify(reservationRepoMock).save(reservation);
-    verify(reservationToNbiMock).submitNewReservation(reservation.getId());
+    verify(reservationToNbiMock).submitNewReservation(reservation.getId(), true);
   }
 
   @Test

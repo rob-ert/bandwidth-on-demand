@@ -31,6 +31,8 @@ public interface NbiClient {
 
   String VLAN_REQUIRED_SELECTOR = "ome";
 
+  boolean activateReservation(final String reservationId);
+
   /**
    * 
    * @param scheduleId
@@ -48,7 +50,7 @@ public interface NbiClient {
    * @param reservation
    * @return the reservation id returned from the underlying NMS
    */
-  Reservation createReservation(Reservation reservation);
+  Reservation createReservation(Reservation reservation, boolean autoProvision);
 
   /**
    * 

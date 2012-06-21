@@ -2,7 +2,7 @@
 // Create diagram using http://yuml.me/diagram/scruffy/class/draw
 //
 [ActivationEmailLink]..[ActivationRequestSource]
-ctivationEmailLink]..[PhysicalResourceGroup]
+[ActivationEmailLink]..[PhysicalResourceGroup]
 [ActivationRequestSource]
 [BodRole]..[RoleEnum]
 [BodRole]..[PhysicalResourceGroup]

@@ -122,7 +122,7 @@ class NbiOfflineClient implements NbiClient {
   }
 
   @Override
-  public Reservation createReservation(Reservation reservation) {
+  public Reservation createReservation(Reservation reservation, boolean autoProvision) {
     final String scheduleId = "SCHEDULE-" + System.currentTimeMillis();
 
     if (reservation.getStartDateTime() == null) {
@@ -172,6 +172,11 @@ class NbiOfflineClient implements NbiClient {
     }
   }
 
+  @Override
+  public boolean activateReservation(String reservationId) {
+    return true;
+  }
+  
   @Override
   public void cancelReservation(String scheduleId) {
     scheduleIds.put(scheduleId, CANCELLED);

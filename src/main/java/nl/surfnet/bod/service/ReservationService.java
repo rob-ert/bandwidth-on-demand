@@ -21,11 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkState;
-import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,7 +33,18 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalPort_;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationArchive;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.Reservation_;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -65,6 +71,12 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
+
+import static com.google.common.base.Preconditions.checkState;
+
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
 @Service
 @Transactional
@@ -96,12 +108,41 @@ public class ReservationService {
   private EntityManager entityManager;
 
   /**
-   * Reserves a reservation using the {@link NbiClient} asynchronously.
-   *
+   * Activates an existing reservation;
+   * 
    * @param reservation
-   * @return
+   *          {@link Reservation} to activate
+   * @return true if the reservation was succesfully activated, false otherwise
+   */
+  public boolean activate(Reservation reservation) {
+    if (reservation != null) {
+      return nbiClient.activateReservation(reservation.getReservationId());
+    }
+    else {
+      return false;
+    }
+  }
+
+  /**
+   * Creates a {@link Reservation} which is auto provisioned
+   * 
+   * @param reservation
+   * @See {@link #create(Reservation)}
    */
   public void create(Reservation reservation) {
+    create(reservation, true);
+  }
+
+  /**
+   * Reserves a reservation using the {@link NbiClient} asynchronously.
+   * 
+   * @param reservation
+   * @param autoProvision
+   *          , indicates if the reservations should be automatically
+   *          provisioned
+   * 
+   */
+  public void create(Reservation reservation, boolean autoProvision) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
 
@@ -110,7 +151,7 @@ public class ReservationService {
 
     reservationRepo.save(reservation);
 
-    reservationToNbi.submitNewReservation(reservation.getId());
+    reservationToNbi.submitNewReservation(reservation.getId(), autoProvision);
   }
 
   private void fillStartTimeIfEmpty(Reservation reservation) {
@@ -167,7 +208,7 @@ public class ReservationService {
    * Cancels a reservation if the current user has the correct role and the
    * reservation is allowed to be deleted depending on its state. Updates the
    * state of the reservation.
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to delete
    * @return true if the reservation was canceled, false otherwise.
@@ -186,7 +227,7 @@ public class ReservationService {
    * <li>and</li>
    * <li>the current status of the reservation must allow it</li>
    * </ul>
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to check
    * @param role
@@ -206,8 +247,8 @@ public class ReservationService {
       return new ElementActionView(true);
     }
     else if (role.isManagerRole()
-        && (reservation.getSourcePort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId())
-              || reservation.getDestinationPort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId()))) {
+        && (reservation.getSourcePort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId()) || reservation
+            .getDestinationPort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId()))) {
       return new ElementActionView(true);
     }
     else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
@@ -224,7 +265,7 @@ public class ReservationService {
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   *
+   * 
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations

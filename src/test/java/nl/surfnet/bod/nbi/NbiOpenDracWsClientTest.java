@@ -113,7 +113,7 @@ public class NbiOpenDracWsClientTest {
   public void shouldCreateReservationWithGivenStartTime() throws Exception {
     Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort).create();
 
-    CreateReservationScheduleRequestDocument schedule = subject.createSchedule(reservation);
+    CreateReservationScheduleRequestDocument schedule = subject.createSchedule(reservation, true);
 
     assertThat(schedule.getCreateReservationScheduleRequest().getReservationSchedule().getStartTime().getTime(),
         is(reservation.getStartDateTime().toDate()));
@@ -129,7 +129,7 @@ public class NbiOpenDracWsClientTest {
         schedulingServiceMock.createReservationSchedule(any(CreateReservationScheduleRequestDocument.class),
             any(SecurityDocument.class))).thenReturn(responseDocument);
 
-    Reservation scheduledReservation = subject.createReservation(reservation);
+    Reservation scheduledReservation = subject.createReservation(reservation, true);
 
     assertThat(scheduledReservation.getStatus(), is(ReservationStatus.FAILED));
     assertThat(scheduledReservation.getFailedReason(), is("No available bandwidth on source port"));
@@ -140,7 +140,7 @@ public class NbiOpenDracWsClientTest {
     Reservation foreverReservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort)
         .setEndDateTime(null).create();
 
-    CreateReservationScheduleRequestDocument schedule = subject.createSchedule(foreverReservation);
+    CreateReservationScheduleRequestDocument schedule = subject.createSchedule(foreverReservation, true);
 
     assertThat(schedule.getCreateReservationScheduleRequest().getReservationSchedule()
         .getReservationOccurrenceDuration(), is(Integer.MAX_VALUE));

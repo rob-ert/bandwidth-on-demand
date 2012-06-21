@@ -43,11 +43,11 @@ public class ReservationToNbi {
   private ReservationEventPublisher reservationEventPublisher;
 
   @Async
-  public void submitNewReservation(Long reservationId) {
+  public void submitNewReservation(Long reservationId, boolean autoProvision) {
     final Reservation reservation = reservationRepo.findOne(reservationId);
     final ReservationStatus orgStatus = reservation.getStatus();
 
-    Reservation reservationWithReservationId = nbiClient.createReservation(reservation);
+    Reservation reservationWithReservationId = nbiClient.createReservation(reservation, autoProvision);
 
     reservationRepo.save(reservationWithReservationId);
 
