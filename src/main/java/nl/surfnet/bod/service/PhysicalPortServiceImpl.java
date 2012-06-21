@@ -29,7 +29,6 @@ import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNA
 import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -108,15 +107,8 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public Collection<PhysicalPort> findUnallocatedMTOSIEntries(int firstResult, int sizeNo) {
-    HashMap<String, String> unallocatedPorts = mtosiClient.getUnallocatedPorts();
-
-    List<PhysicalPort> physicalPorts = Lists.newArrayList();
-    for (Entry<String, String> entry : unallocatedPorts.entrySet()) {
-      PhysicalPort physicalPort = transformMTOSIEToPhysicalPort(entry);
-      physicalPorts.add(physicalPort);
-    }
-
-    return limitPorts(physicalPorts, firstResult, sizeNo);
+    final List<PhysicalPort> unallocatedPorts = mtosiClient.getUnallocatedPorts();
+    return limitPorts(unallocatedPorts, firstResult, sizeNo);
   }
 
   @Override
@@ -124,13 +116,6 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     return physicalPortRepo.findAll(UNALIGNED_PORT_SPEC);
   }
 
-  @VisibleForTesting
-  PhysicalPort transformMTOSIEToPhysicalPort(Entry<String, String> entry) {
-    PhysicalPort physicalPort = new PhysicalPort();
-    physicalPort.setBodPortId(entry.getKey());
-    physicalPort.setNmsPortId(entry.getValue());
-    return physicalPort;
-  }
 
   private List<PhysicalPort> limitPorts(Collection<PhysicalPort> ports, int firstResult, int sizeNo) {
     return newArrayList(limit(skip(ports, firstResult), sizeNo));
@@ -338,3 +323,4 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     portToEnrich.setBodPortId(dataPort.getBodPortId());
   }
 }
+

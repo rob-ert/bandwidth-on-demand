@@ -22,12 +22,11 @@
 package nl.surfnet.bod.mtosi;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.xml.bind.JAXBElement;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
@@ -36,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.tmforum.mtop.fmw.xsd.gen.v1.AnyListType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationPatternType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationStyleType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
@@ -45,12 +43,19 @@ import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.mri.wsdl.rir.v1_0.GetInventoryException;
 import org.tmforum.mtop.mri.wsdl.rir.v1_0.ResourceInventoryRetrievalRPC;
-import org.tmforum.mtop.mri.xsd.rir.v1.*;
+import org.tmforum.mtop.mri.xsd.rir.v1.GetInventoryRequest;
+import org.tmforum.mtop.mri.xsd.rir.v1.GranularityType;
+import org.tmforum.mtop.mri.xsd.rir.v1.ObjectFactory;
+import org.tmforum.mtop.mri.xsd.rir.v1.SimpleFilterType;
 import org.tmforum.mtop.mri.xsd.rir.v1.SimpleFilterType.IncludedObjectType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.InventoryDataType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagedElementInventoryType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagementDomainInventoryType;
-import org.w3c.dom.Node;
+import org.tmforum.mtop.nrf.xsd.invdata.v1.PhysicalTerminationPointInventoryType;
+
+import com.google.common.annotations.VisibleForTesting;
+
+import nl.surfnet.bod.domain.PhysicalPort;
 
 @Service("mtosiLiveClient")
 public class MtosiLiveClient {
@@ -112,7 +117,8 @@ public class MtosiLiveClient {
     final SimpleFilterType simpleFilter = new ObjectFactory().createSimpleFilterType();
     simpleFilter.getBaseInstance().add(namingAttribute);
 
-    // includedObjectTypes, maybe we only need EH or maybe don;t use a filter after all
+    // includedObjectTypes, maybe we only need EH or maybe don;t use a filter
+    // after all
     final String[] objectTypes = { "ME", "EH", "EQ", "PTP" };
 
     for (final String objectType : objectTypes) {
@@ -121,48 +127,47 @@ public class MtosiLiveClient {
       includeObject.setGranularity(GranularityType.ATTRS);
       simpleFilter.getIncludedObjectType().add(includeObject);
     }
-    log.info("returning: {}", simpleFilter);
     return simpleFilter;
   }
 
-  public HashMap<String, String> getUnallocatedPorts() {
-    // all this ^$%# for just getting the bloody NE names and macs ....
-    final HashMap<String, String> ports = new HashMap<String, String>();
+  public List<PhysicalPort> getUnallocatedPorts() {
+
+    final List<PhysicalPort> mtosiPorts = new ArrayList<PhysicalPort>();
     final List<ManagementDomainInventoryType> mds = getInventory().getMdList().getMd();
+
     for (final ManagementDomainInventoryType md : mds) {
       final List<ManagedElementInventoryType> meInvs = md.getMeList().getMeInv();
 
-      String hostname = "";
+      String hostname = "", userLabel = "";
 
       for (final ManagedElementInventoryType meInv : meInvs) {
         final List<RelativeDistinguishNameType> rdns = meInv.getMeAttrs().getName().getValue().getRdn();
         for (final RelativeDistinguishNameType rdn : rdns) {
           if ("ME".equals(rdn.getType())) {
+            // meNm == official name
             hostname = rdn.getValue();
           }
-          log.debug("Rdn type: {}", rdn.getType());
-          log.debug("Rdn value: {}", rdn.getValue());
         }
-        final JAXBElement<AnyListType> vendorExtensions = meInv.getMeAttrs().getVendorExtensions();
 
-        if (vendorExtensions.isNil()) {
-          log.info("Vendor extensions are null");
-        }
-        else {
-          final List<Object> verndorExtensions = vendorExtensions.getValue().getAny();
-          for (final Object vendorExtension : verndorExtensions) {
-            final Node child = (Node) vendorExtension;
-            log.debug("Child node: " + child.getNodeName());
-            final String value = child.getFirstChild().getTextContent();
-            log.debug("Value: {}", value);
-            if ("meMacAddress".equals(child.getNodeName())) {
-              ports.put(hostname, value);
-            }
-          }
+        userLabel = meInv.getMeAttrs().getUserLabel().getValue();
+        final List<PhysicalTerminationPointInventoryType> ptpList = meInv.getPtpList().getPtpInv();
+        for (final PhysicalTerminationPointInventoryType ptp : ptpList) {
+          final PhysicalPort physicalPort = new PhysicalPort();
+          physicalPort.setBodPortId(hostname);
+          physicalPort.setNmsPortId(convertPortName(ptp.getPtpNm()));
+          physicalPort.setNocLabel(userLabel);
+          mtosiPorts.add(physicalPort);
         }
       }
     }
-    return ports;
+    return mtosiPorts;
+  }
+
+  @VisibleForTesting
+  public String convertPortName(final String mtosiPortName) {
+    final String converted = mtosiPortName.replace("rack=", "").replace("shelf=", "").replace("slot=", "")
+        .replace("port=", "").replaceFirst("/", "").replaceAll("/", "-");
+    return converted;
   }
 
   public long getUnallocatedMtosiPortCount() {
@@ -178,7 +183,6 @@ public class MtosiLiveClient {
     header.setMsgName("getInventoryRequest");
     header.setSenderURI(senderUri);
     header.setMsgType(MessageTypeType.REQUEST);
-    log.debug("header: {}", header);
     return new Holder<Header>(header);
   }
 

@@ -21,10 +21,8 @@
  */
 package nl.surfnet.bod.mtosi;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,32 +37,44 @@ import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagementDomainInventoryType;
 
 import com.google.common.collect.Iterables;
 
+import nl.surfnet.bod.domain.PhysicalPort;
+
 public class MtosiLiveClientTestIntegration {
 
-  private MtosiLiveClient subject;
+  private MtosiLiveClient mtosiLiveClient;
 
   @Before
   public void init() throws IOException {
-    Properties props = new Properties();
+    final Properties props = new Properties();
     props.load(new ClassPathResource("bod-default.properties").getInputStream());
 
-    subject = new MtosiLiveClient(props.getProperty("mtosi.inventory.retrieval.endpoint"), "http://atlas.dlp.surfnet.nl");
-    subject.init();
+    mtosiLiveClient = new MtosiLiveClient(props.getProperty("mtosi.inventory.retrieval.endpoint"),
+        "http://atlas.dlp.surfnet.nl");
+    mtosiLiveClient.init();
   }
 
   @Test
   public void retreiveInventory() {
-    InventoryDataType inventory = subject.getInventory();
-
+    final InventoryDataType inventory = mtosiLiveClient.getInventory();
     assertThat(inventory, notNullValue());
-
-    List<ManagementDomainInventoryType> mdits = inventory.getMdList().getMd();
-
+    final List<ManagementDomainInventoryType> mdits = inventory.getMdList().getMd();
     assertThat(mdits, hasSize(1));
-
-    ManagementDomainInventoryType mdit = Iterables.getOnlyElement(mdits);
-    List<ManagedElementInventoryType> meits = mdit.getMeList().getMeInv();
-
+    final ManagementDomainInventoryType mdit = Iterables.getOnlyElement(mdits);
+    final List<ManagedElementInventoryType> meits = mdit.getMeList().getMeInv();
     assertThat(meits, hasSize(greaterThan(0)));
+  }
+
+  @Test
+  public void getUnallocatedPorts() {
+    final List<PhysicalPort> unallocatedPorts = mtosiLiveClient.getUnallocatedPorts();
+    assertThat(unallocatedPorts, hasSize(greaterThan(0)));
+  }
+
+  @Test
+  public void convertPortName() {
+    final String mtosiPortName = "/rack=1/shelf=1/slot=1/port=48";
+    final String expectedPortName = "1-1-1-48";
+    final String convertedPortName = mtosiLiveClient.convertPortName(mtosiPortName);
+    assertThat(convertedPortName, equalTo(expectedPortName));
   }
 }
