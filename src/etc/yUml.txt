@@ -1,0 +1,22 @@
+//
+// Create diagram using http://yuml.me/diagram/scruffy/class/draw
+//
+// Retrieve image from http://yuml.me/6d3eee2d.jpg
+//
+[ActivationEmailLink]..[ActivationRequestSource]
+ctivationEmailLink]..[PhysicalResourceGroup]
+[ActivationRequestSource]
+[BodRole]..[RoleEnum]
+[BodRole]..[PhysicalResourceGroup]
+[Connection]
+[PhysicalResourceGroup]..[Institute]
+[PhysicalResourceGroup]..[PhysicalPort]
+[PhysicalResourceGroup]..[VirtualPortRequestLink]
+[Reservation]..[VirtualResourceGroup]
+[Reservation]..[ReservationStatus]
+[Reservation]..[VirtualPort]
+[ReservationArchive]..[ReservationStatus]
+[VirtualPort]..[VirtualResourceGroup]
+[VirtualPort]..[PhysicalPort]
+[VirtualPortRequestLink]..[VirtualResourceGroup]
+[VirtualPortRequestLink]..[RequestStatus]
