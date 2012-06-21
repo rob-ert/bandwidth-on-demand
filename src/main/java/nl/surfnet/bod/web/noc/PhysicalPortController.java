@@ -185,8 +185,9 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   @RequestMapping(value = "/unaligned", method = RequestMethod.GET)
   public String listUnaligned(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
-    uiModel.addAttribute("list",
-        Functions.transformAllocatedPhysicalPorts(physicalPortService.findUnalignedPhysicalPorts(), virtualPortService));
+    uiModel
+        .addAttribute("list", Functions.transformAllocatedPhysicalPorts(
+            physicalPortService.findUnalignedPhysicalPorts(), virtualPortService));
 
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnalignedPhysicalPorts()));
 
@@ -309,7 +310,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   *
+   * 
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)

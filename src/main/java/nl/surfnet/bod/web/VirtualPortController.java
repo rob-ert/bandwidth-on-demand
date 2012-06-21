@@ -121,12 +121,18 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     return "userLabel";
   }
 
-  //FIXME, faking sorting on PhysicalPort to bypass sortPropertyTest, while actually we sort on instituteName
   @Override
   protected List<String> translateSortProperty(String sortProperty) {
-    if ("physicalPort".equals(sortProperty)) {
+    if ("physicalResourceGroup".equals(sortProperty)) {
       return ImmutableList.of("physicalPort.physicalResourceGroup.institute.name");
     }
+
+    // Optional field, might be null, then sort on managerLabel which is shown
+    // when no userLabel is present
+    if ("userLabel".equals(sortProperty)) {
+      return ImmutableList.of("userLabel", "managerLabel");
+    }
+
     return super.translateSortProperty(sortProperty);
   }
 
