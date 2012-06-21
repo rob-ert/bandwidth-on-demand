@@ -29,7 +29,6 @@ import static org.hamcrest.Matchers.nullValue;
 
 import java.util.List;
 
-import javax.validation.ConstraintViolationException;
 
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
