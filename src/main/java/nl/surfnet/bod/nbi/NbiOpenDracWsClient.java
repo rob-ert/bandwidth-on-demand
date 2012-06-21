@@ -169,7 +169,7 @@ class NbiOpenDracWsClient implements NbiClient {
       reservation.setStatus(FAILED);
     }
     catch (Exception e) {
-      log.error("Unexpected Exception while request reservation to openDRAC", e);
+      log.error("Unexpected Exception while request reservation to OpenDRAC", e);
       reservation.setStatus(FAILED);
     }
 
