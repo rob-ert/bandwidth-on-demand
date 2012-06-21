@@ -73,7 +73,7 @@ public abstract class AbstractSortableListController<T> {
     model.addAttribute("sortProperty", sortProperty);
     model.addAttribute("sortDirection", sortDirection);
 
-    return sortOrder(sortProperty, sortDirection);
+    return sortOrder(translateSortProperty(sortProperty), sortDirection);
   }
 
   protected abstract String listUrl();
@@ -90,8 +90,8 @@ public abstract class AbstractSortableListController<T> {
     return ImmutableList.of(sortProperty);
   }
 
-  protected Sort sortOrder(String sortProperty, Direction direction) {
-    return sort(direction, translateSortProperty(sortProperty));
+  protected Sort sortOrder(List<String> sortProperties, Direction direction) {
+    return sort(direction, sortProperties);
   }
 
   private String sortProperty(String order) {
