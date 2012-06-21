@@ -33,35 +33,34 @@ import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.PhysicalPortView;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 
 public final class Functions {
 
-  public static final Function<PhysicalPort, String> TO_NMS_PORT_ID_FUNC =
-    new Function<PhysicalPort, String>() {
-      @Override
-      public String apply(PhysicalPort physicalPort) {
-        return physicalPort.getNmsPortId();
-      }
-    };
+  public static final Function<PhysicalPort, String> TO_NMS_PORT_ID_FUNC = new Function<PhysicalPort, String>() {
+    @Override
+    public String apply(PhysicalPort physicalPort) {
+      return physicalPort.getNmsPortId();
+    }
+  };
 
-  public static final Predicate<PhysicalPort> MISSING_PORTS_PRED =
-    new Predicate<PhysicalPort>() {
-      @Override
-      public boolean apply(PhysicalPort physicalPort) {
-        return !physicalPort.isAlignedWithNMS();
-      }
-    };
+  public static final Predicate<PhysicalPort> MISSING_PORTS_PRED = new Predicate<PhysicalPort>() {
+    @Override
+    public boolean apply(PhysicalPort physicalPort) {
+      return !physicalPort.isAlignedWithNMS();
+    }
+  };
 
-  public static final Predicate<PhysicalPort> NON_MISSING_PORTS_PRED =
-    new Predicate<PhysicalPort>() {
-      @Override
-      public boolean apply(PhysicalPort physicalPort) {
-        return !MISSING_PORTS_PRED.apply(physicalPort);
-      }
-    };
+  public static final Predicate<PhysicalPort> NON_MISSING_PORTS_PRED = new Predicate<PhysicalPort>() {
+    @Override
+    public boolean apply(PhysicalPort physicalPort) {
+      return !MISSING_PORTS_PRED.apply(physicalPort);
+    }
+  };
 
   private Functions() {
   }
@@ -122,29 +121,29 @@ public final class Functions {
     return transformers;
   }
 
-  public static Institute transformKlant(Klanten klant, boolean alignedWithIDD) {
+  public static Optional<Institute> transformKlant(Klanten klant, boolean alignedWithIDD) {
     if (Strings.isNullOrEmpty(klant.getKlantnaam()) && Strings.isNullOrEmpty(klant.getKlantafkorting())) {
-      return null;
+      return Optional.absent();
     }
 
-    return new Institute(Long.valueOf(klant.getKlant_id()), trimIfNotNull(klant.getKlantnaam()),
-        trimIfNotNull(klant.getKlantafkorting()), alignedWithIDD);
+    return Optional.of(new Institute(Long.valueOf(klant.getKlant_id()), trimIfNotNull(klant.getKlantnaam()),
+        trimIfNotNull(klant.getKlantafkorting()), alignedWithIDD));
   }
 
   private static String trimIfNotNull(String value) {
     return value != null ? value.trim() : value;
   }
 
-  public static List<Institute> transformKlanten(Collection<Klanten> klanten, boolean alignedWithIDD) {
-    List<Institute> transformers = Lists.newArrayList();
+  public static Collection<Institute> transformKlanten(Collection<Klanten> klanten, final boolean alignedWithIDD) {
+    Collection<Optional<Institute>> institutes = Collections2.transform(klanten,
+        new Function<Klanten, Optional<Institute>>() {
+          @Override
+          public Optional<Institute> apply(Klanten klant) {
+            return transformKlant(klant, alignedWithIDD);
+          }
+        });
 
-    Institute institute = null;
-    for (Klanten klant : klanten) {
-      institute = transformKlant(klant, alignedWithIDD);
-      if (institute != null) {
-        transformers.add(institute);
-      }
-    }
-    return transformers;
+    return Lists.newArrayList(Optional.presentInstances(institutes));
+
   }
 }

@@ -21,19 +21,14 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.List;
-
+import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.repo.InstituteRepo;
-import nl.surfnet.bod.support.PhysicalPortFactory;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.support.InstituteFactory;
+import nl.surfnet.bod.support.KlantenFactory;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -41,10 +36,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.ImmutableList;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InstituteIddServiceTest {
@@ -58,50 +49,18 @@ public class InstituteIddServiceTest {
   @Mock
   private InstituteRepo instituteRepoMock;
 
-  private PhysicalPort portOne = new PhysicalPortFactory().setNocLabel("onePort").create();
-
-  private PhysicalPort portTwo = new PhysicalPortFactory().setNocLabel("twoPort").create();
-
-  private List<PhysicalPort> ports = ImmutableList.of(portOne, portTwo);
-
-  private PhysicalResourceGroup groupOne = new PhysicalResourceGroupFactory().create();
-
-  private Klanten klantOne;
-
-  private Klanten klantTwo;
-
-  @Before
-  public void setUp() {
-    klantOne = newKlantWithName("klantOne", "ONE");
-    klantOne.setKlant_id(1);
-
-    klantTwo = newKlantWithName("klantTwo", "TWO");
-    klantTwo.setKlant_id(2);
-  }
-
   @Test
-  public void shouldIgnoreEmptyNames() {
-    Klanten klant = newKlantWithName("", "");
+  public void refreshingInstitutes() {
+    Institute institute1 = new InstituteFactory().create();
+    Institute institute2 = new InstituteFactory().create();
+    Klanten klant1 = new KlantenFactory().create();
+    Klanten klant2 = new KlantenFactory().create();
 
-    Institute institute = Functions.transformKlant(klant, false);
+    when(instituteRepoMock.findAll()).thenReturn(ImmutableList.of(institute1, institute2));
+    when(iddClientMock.getKlanten()).thenReturn(ImmutableList.of(klant1, klant2));
 
-    assertThat(institute, nullValue());
+    subject.refreshInstitutes();
   }
 
-  @Test
-  public void shouldRemoveTrailingWhitespaceFromNameAndAfkorting() {
-    Klanten klant = newKlantWithName("SURFnet\n", "SURF\n");
 
-    Institute institute = Functions.transformKlant(klant, false);
-
-    assertThat(institute.getName(), is("SURFnet"));
-    assertThat(institute.getShortName(), is("SURF"));
-  }
-
-  private Klanten newKlantWithName(String naam, String afkorting) {
-    Klanten klanten = new Klanten();
-    klanten.setKlantnaam(naam);
-    klanten.setKlantafkorting(afkorting);
-    return klanten;
-  }
 }
