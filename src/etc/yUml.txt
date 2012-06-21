@@ -1,8 +1,6 @@
 //
 // Create diagram using http://yuml.me/diagram/scruffy/class/draw
 //
-// Retrieve image from http://yuml.me/6d3eee2d.jpg
-//
 [ActivationEmailLink]..[ActivationRequestSource]
 ctivationEmailLink]..[PhysicalResourceGroup]
 [ActivationRequestSource]
