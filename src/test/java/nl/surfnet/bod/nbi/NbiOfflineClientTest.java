@@ -31,7 +31,6 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 
-import org.hamcrest.core.IsNot;
 import org.junit.Test;
 
 public class NbiOfflineClientTest {
