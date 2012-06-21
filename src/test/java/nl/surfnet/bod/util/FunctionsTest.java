@@ -22,13 +22,19 @@
 package nl.surfnet.bod.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+
+import java.util.List;
+
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.support.KlantenFactory;
 
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableList;
 
 public class FunctionsTest {
 
@@ -69,6 +75,18 @@ public class FunctionsTest {
     assertThat(institute.isAlignedWithIDD(), is(true));
     assertThat(institute.getId(), is(1L));
     assertThat(institute.getShortName(), is("UU"));
+  }
+
+  @Test
+  public void transformKlantenShouldLeaveOutNulls() {
+    Klanten klant = new KlantenFactory().setKlantnaam("Universiteit Utrecht").setKlantafkoring("UU").setKlantid(1)
+        .create();
+    Klanten klantWithNullValues = new KlantenFactory().setKlantnaam(null).setKlantafkoring(null).setKlantid(2)
+        .create();
+
+    List<Institute> klanten = Functions.transformKlanten(ImmutableList.of(klant, klantWithNullValues), true);
+
+    assertThat(klanten, hasSize(1));
   }
 
 }

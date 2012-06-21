@@ -21,7 +21,6 @@
  */
 package nl.surfnet.bod.util;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,6 +35,7 @@ import nl.surfnet.bod.web.view.PhysicalPortView;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 public final class Functions {
 
@@ -101,7 +101,7 @@ public final class Functions {
   public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<PhysicalPort> ports,
       final VirtualPortService virtualPortService) {
 
-    List<PhysicalPortView> transformers = new ArrayList<PhysicalPortView>();
+    List<PhysicalPortView> transformers = Lists.newArrayList();
     for (PhysicalPort port : ports) {
       transformers.add(transformAllocatedPhysicalPort(port, virtualPortService));
     }
@@ -114,7 +114,7 @@ public final class Functions {
   }
 
   public static List<PhysicalPortView> transformUnallocatedPhysicalPorts(List<PhysicalPort> unallocatedPorts) {
-    List<PhysicalPortView> transformers = new ArrayList<PhysicalPortView>();
+    List<PhysicalPortView> transformers = Lists.newArrayList();
     for (PhysicalPort port : unallocatedPorts) {
       transformers.add(transformUnallocatedPhysicalPort(port));
     }
@@ -136,7 +136,7 @@ public final class Functions {
   }
 
   public static List<Institute> transformKlanten(Collection<Klanten> klanten, boolean alignedWithIDD) {
-    List<Institute> transformers = new ArrayList<Institute>();
+    List<Institute> transformers = Lists.newArrayList();
 
     Institute institute = null;
     for (Klanten klant : klanten) {
