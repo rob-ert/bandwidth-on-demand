@@ -274,24 +274,26 @@ class NbiOpenDracWsClient implements NbiClient {
   }
 
   protected static final class OpenDracStatusTranslator {
-    private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationResultTranslations = new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleCreationResultT.FAILED, FAILED)
-        .put(ValidReservationScheduleCreationResultT.SUCCEEDED, SCHEDULED)
-        .put(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, SCHEDULED)
-        .put(ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
+    private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationResultTranslations =
+        new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
+          .put(ValidReservationScheduleCreationResultT.FAILED, FAILED)
+          .put(ValidReservationScheduleCreationResultT.SUCCEEDED, SCHEDULED)
+          .put(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, SCHEDULED)
+          .put(ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
 
-    private static ImmutableMap<ValidReservationScheduleStatusT.Enum, ReservationStatus> scheduleStatusTranslations = new ImmutableMap.Builder<ValidReservationScheduleStatusT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleStatusT.CONFIRMATION_PENDING, PREPARING)
-        .put(ValidReservationScheduleStatusT.CONFIRMATION_TIMED_OUT, FAILED)
-        .put(ValidReservationScheduleStatusT.CONFIRMATION_CANCELLED, CANCELLED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_PENDING, SCHEDULED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_IN_PROGRESS, RUNNING)
-        .put(ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED, SUCCEEDED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED, FAILED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, FAILED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_FAILED, FAILED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED, CANCELLED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_CANCELLED, CANCELLED).build();
+    private static ImmutableMap<ValidReservationScheduleStatusT.Enum, ReservationStatus> scheduleStatusTranslations =
+        new ImmutableMap.Builder<ValidReservationScheduleStatusT.Enum, ReservationStatus>()
+          .put(ValidReservationScheduleStatusT.CONFIRMATION_PENDING, PREPARING)
+          .put(ValidReservationScheduleStatusT.CONFIRMATION_TIMED_OUT, FAILED)
+          .put(ValidReservationScheduleStatusT.CONFIRMATION_CANCELLED, CANCELLED)
+          .put(ValidReservationScheduleStatusT.EXECUTION_PENDING, SCHEDULED)
+          .put(ValidReservationScheduleStatusT.EXECUTION_IN_PROGRESS, RUNNING)
+          .put(ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED, SUCCEEDED)
+          .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED, FAILED)
+          .put(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, FAILED)
+          .put(ValidReservationScheduleStatusT.EXECUTION_FAILED, FAILED)
+          .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED, CANCELLED)
+          .put(ValidReservationScheduleStatusT.EXECUTION_CANCELLED, CANCELLED).build();
 
     private OpenDracStatusTranslator() {
     }

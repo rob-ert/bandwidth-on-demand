@@ -21,7 +21,6 @@
  */
 package nl.surfnet.bod.web.view;
 
-import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalPort;
 
 public class PhysicalPortView {

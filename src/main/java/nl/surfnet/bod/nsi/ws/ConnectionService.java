@@ -26,14 +26,14 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.xml.ws.WebServiceContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.service.ReservationService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class ConnectionService {
 
@@ -43,14 +43,14 @@ public abstract class ConnectionService {
 
   @Resource
   private ConnectionRepo connectionRepo;
-  
+
   @Resource
   private VirtualPortRepo virtualPortRepo;
-  
-  
+
+
   @Resource
   private VirtualResourceGroupRepo virtualResourceGroupRepo;
-  
+
 
   /*
    * This holds the web service request context which includes all the original
@@ -86,12 +86,12 @@ public abstract class ConnectionService {
   protected ConnectionRepo getConnectionRepo() {
     return connectionRepo;
   }
-  
+
   protected VirtualPortRepo getVirtualPortRepo() {
     return virtualPortRepo;
   }
-  
-  protected VirtualResourceGroupRepo getVirtualResourceGroupRepo(){
+
+  protected VirtualResourceGroupRepo getVirtualResourceGroupRepo() {
     return virtualResourceGroupRepo;
   }
 

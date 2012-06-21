@@ -169,7 +169,7 @@ public class MtosiLiveClient {
     return getUnallocatedPorts().size();
   }
 
-  private final Holder<Header> getInventoryRequestHeaders() {
+  private Holder<Header> getInventoryRequestHeaders() {
     final Header header = new Header();
     header.setDestinationURI(resourceInventoryRetrievalUrl);
     header.setCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE);

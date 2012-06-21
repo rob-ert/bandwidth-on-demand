@@ -68,10 +68,10 @@ public class Reservation {
   @ManyToOne(optional = false)
   private VirtualPort destinationPort;
 
-  @Type(type="org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
   private LocalDateTime startDateTime;
 
-  @Type(type="org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
   private LocalDateTime endDateTime;
 
   @Column(nullable = false)
@@ -86,7 +86,7 @@ public class Reservation {
 
   @NotNull
   @Column(nullable = false)
-  @Type(type="org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
   private LocalDateTime creationDateTime;
 
   public Reservation() {
@@ -362,7 +362,7 @@ public class Reservation {
   public void setName(String name) {
     this.name = name;
   }
-  
+
   // needed for nsi and integration tests
   public final void setVirtualResourceGroup(VirtualResourceGroup virtualResourceGroup) {
     this.virtualResourceGroup = virtualResourceGroup;
