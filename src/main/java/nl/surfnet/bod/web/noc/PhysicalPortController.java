@@ -260,15 +260,6 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     return PAGE_URL + "/move";
   }
-  
-  @Override
-  protected List<String> translateSortProperty(String sortProperty) {
-    if (sortProperty.equals("physicalResourceGroup")) {
-      return ImmutableList.of("physicalResourceGroup.institute.name");
-    }
-
-    return super.translateSortProperty(sortProperty);
-  }
 
   @Override
   protected List<String> translateSortProperty(String sortProperty) {
