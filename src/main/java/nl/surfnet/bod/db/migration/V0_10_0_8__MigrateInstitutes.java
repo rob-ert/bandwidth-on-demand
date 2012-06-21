@@ -24,7 +24,6 @@ package nl.surfnet.bod.db.migration;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
 
 import nl.surfnet.bod.domain.Institute;
@@ -75,7 +74,7 @@ public class V0_10_0_8__MigrateInstitutes implements JavaMigration {
 
     Collection<Klanten> klanten = iddClient.getKlanten();
 
-    List<Institute> institutes = Functions.transformKlanten(klanten, true);
+    Collection<Institute> institutes = Functions.transformKlanten(klanten, true);
 
     PreparedStatement insertInstitute = jdbcTemplate.getDataSource().getConnection()
         .prepareStatement("INSERT INTO INSTITUTE  (id, name, short_name) VALUES (?,?,?)");
