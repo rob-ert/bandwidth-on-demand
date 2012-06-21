@@ -21,6 +21,10 @@
  */
 package nl.surfnet.bod.nsi;
 
+import static junit.framework.Assert.*;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
@@ -28,16 +32,6 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProvider;
-import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
-import nl.surfnet.bod.support.MockHttpServer;
-import nl.surfnet.bod.support.NsiReservationFactory;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -56,10 +50,15 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProvider;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.repo.VirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.support.MockHttpServer;
+import nl.surfnet.bod.support.NsiReservationFactory;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml",
@@ -147,8 +146,6 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     savedVirtualResourceGroup = virtualResourceGroupRepo.save(virtualResourceGroup);
     savedVirtualResourceGroup.setSurfconextGroupId("some:surf:conext:group:id");
     virtualResourceGroupRepo.save(savedVirtualResourceGroup);
-
-    nsiProvider.setDelayBeforeResponseSend(10);
   }
 
   @Test(expected = ServiceException.class)
@@ -173,8 +170,8 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   }
 
   @Test
-  @Ignore("Call back comes to late")
-  public void should_return_generic_acknowledgement_and_send_reservation_failed() throws Exception {
+  @Ignore
+  public void should_return_generic_acknowledgement() throws Exception {
     XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
     startTime.setDay(10);
     startTime.setMonth(10);

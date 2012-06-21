@@ -21,20 +21,17 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
+
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.ws.ConnectionService;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
@@ -58,14 +55,14 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
 
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.RESERVING;
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.ws.ConnectionService;
 
 @Service("nsiProvider_v1_sc")
 @WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider", wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
@@ -73,13 +70,10 @@ public class ConnectionServiceProvider extends ConnectionService {
 
   private final Logger log = getLog();
 
-  private Long delayBeforeResponseSend = 2000L;
-
   @Resource(name = "nsaProviderUrns")
   private List<String> nsaProviderUrns;
-
-  private List<String> nsaChildren = ImmutableList.of("urn:ogf:network:nsa:child1", "urn:ogf:network:nsa:child2",
-      "urn:ogf:network:nsa:child3");
+  
+  public static final String BOD_URN_POSTFIX="urn:nl:surfnet:diensten:bod:";
 
   private final Function<Connection, Reservation> TO_RESERVATION = //
   new Function<Connection, Reservation>() {
@@ -89,14 +83,8 @@ public class ConnectionServiceProvider extends ConnectionService {
       final Reservation reservation = new Reservation();
 
       reservation.setBandwidth(connection.getDesiredBandwidth());
-      // reservation.setDestinationPort(destinationPort);
       reservation.setEndDateTime(new LocalDateTime(connection.getEndTime()));
-      // reservation.setFailedMessage(failedMessage);
-      // reservation.setName(name);
-      // reservation.setReservationId(reservationId);
-      // reservation.setSourcePort(sourcePort);
       reservation.setStartDateTime(new LocalDateTime(connection.getStartTime()));
-      // reservation.setStatus(reservationStatus);
       reservation.setUserCreated(connection.getRequesterNsa());
 
       final String sourceStpId = connection.getPath().getSourceSTP().getStpId();
@@ -109,47 +97,6 @@ public class ConnectionServiceProvider extends ConnectionService {
       reservation.setDestinationPort(destinationPort);
       reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
       reservation.setName(connection.getGlobalReservationId());
-
-      // @NotNull
-      // @ManyToOne(optional = false)
-      // private VirtualPort sourcePort;
-      //
-      // @NotNull
-      // @ManyToOne(optional = false)
-      // private VirtualPort destinationPort;
-      //
-      // @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
-      // private LocalDateTime startDateTime;
-      //
-      // @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
-      // private LocalDateTime endDateTime;
-      //
-      // @Column(nullable = false)
-      // private String userCreated;
-      //
-      // @NotNull
-      // @Column(nullable = false)
-      // private Integer bandwidth;
-      //
-      // @Basic
-      // private String reservationId;
-      //
-      // @NotNull
-      // @Column(nullable = false)
-      // @Type(type = "org.joda.time.contrib.hibernate.PersistentLocalDateTime")
-      // private LocalDateTime creationDateTime;
-      //
-      //
-      //
-      // final Reservation reservation = new Reservation();
-      // reservation.set
-      // reservation.set
-      // reservation.set
-      // reservation.set
-      // reservation.set
-      // reservation.set
-      // reservation.set
-      // reservation.set
 
       return reservation;
     }
@@ -232,7 +179,6 @@ public class ConnectionServiceProvider extends ConnectionService {
 
     try {
       final Map<String, Object> requestContext = ((BindingProvider) connectionServiceRequesterPort).getRequestContext();
-
       // TODO: get credentials from reservation request
       requestContext.put(BindingProvider.USERNAME_PROPERTY, "nsi");
       requestContext.put(BindingProvider.PASSWORD_PROPERTY, "nsi123");
@@ -299,12 +245,8 @@ public class ConnectionServiceProvider extends ConnectionService {
     log.debug("Sendign terminate event to child nsa: {} with id: {}", nsaChild, correlationId);
   }
 
-  private void sendTerminatToNrm(final String correlationId) {
-    log.debug("Sendig terminate event to NRM.");
-  }
 
   private boolean isValidProviderNsa(final ReserveRequestType reserveRequest) {
-    log.info("reserveRequest.getReserve().getProviderNSA(): " + reserveRequest.getReserve().getProviderNSA());
     return nsaProviderUrns == null ? true : nsaProviderUrns.contains(reserveRequest.getReserve().getProviderNSA());
   }
 
@@ -330,6 +272,12 @@ public class ConnectionServiceProvider extends ConnectionService {
     }
 
     Connection connection = TO_CONNECTION.apply(reservationRequest);
+    
+    if(!StringUtils.hasText(connection.getGlobalReservationId())){
+      connection.setConnectionId(generateGlobalId());
+    }
+    
+    
     connection.setCurrentState(INITIAL);
     connection = getConnectionRepo().save(connection);
     log.info("connection: " + connection);
@@ -410,6 +358,11 @@ public class ConnectionServiceProvider extends ConnectionService {
     return genericAcknowledgment;
   }
 
+  
+  private String generateGlobalId() {
+    return BOD_URN_POSTFIX + UUID.randomUUID();
+  }
+
   private void createReservation(final Connection connection) {
     // transform connection to reservation
     final Reservation reservation = TO_RESERVATION.apply(connection);
@@ -422,34 +375,7 @@ public class ConnectionServiceProvider extends ConnectionService {
     // call reserveConfirmed on requester nsa
 
   }
-
-  /**
-   * @param correlationId
-   * @param nsaRequester
-   */
-  private void forceFailed(final Connection con) {
-
-    log.info("Searching for: {}", con.getConnectionId());
-
-    new Timer().schedule(new TimerTask() {
-      @Override
-      public void run() {
-        Connection connection = getConnectionRepo().findByConnectionId(con.getConnectionId());
-        connection.setCurrentState(CLEANING);
-        connection = getConnectionRepo().save(connection);
-        sendReservationFailed(connection);
-        for (final String nsaChild : nsaChildren) {
-          sendTerminateToChildNsa(connection.getConnectionId(), nsaChild, connection.getRequesterNsa());
-        }
-        sendTerminatToNrm(connection.getConnectionId());
-
-        // FIXME: Do I have to delete the connection or keep it for archiving
-        // purposes?
-        getConnectionRepo().delete(connection);
-
-      }
-    }, delayBeforeResponseSend);
-  }
+  
 
   public GenericAcknowledgmentType provision(ProvisionRequestType parameters) throws ServiceException {
 
@@ -628,9 +554,5 @@ public class ConnectionServiceProvider extends ConnectionService {
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
-  @VisibleForTesting
-  public void setDelayBeforeResponseSend(long delayInMilis) {
-    this.delayBeforeResponseSend = delayInMilis;
-  }
 
 }
