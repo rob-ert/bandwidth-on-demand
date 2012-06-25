@@ -119,7 +119,7 @@ public class MtosiLiveClient {
 
     // includedObjectTypes, maybe we only need EH or maybe don;t use a filter
     // after all
-    final String[] objectTypes = { "ME", "EH", "EQ", "PTP" };
+    final String[] objectTypes = { "ME", "PTP" };
 
     for (final String objectType : objectTypes) {
       final IncludedObjectType includeObject = new IncludedObjectType();
@@ -153,8 +153,9 @@ public class MtosiLiveClient {
         final List<PhysicalTerminationPointInventoryType> ptpList = meInv.getPtpList().getPtpInv();
         for (final PhysicalTerminationPointInventoryType ptp : ptpList) {
           final PhysicalPort physicalPort = new PhysicalPort();
-          physicalPort.setBodPortId(hostname);
-          physicalPort.setNmsPortId(convertPortName(ptp.getPtpNm()));
+          final String convertedPortName = convertPortName(ptp.getPtpNm());
+          physicalPort.setBodPortId(hostname + "_" + convertedPortName);
+          physicalPort.setNmsPortId(convertedPortName);
           physicalPort.setNocLabel(userLabel);
           mtosiPorts.add(physicalPort);
         }
