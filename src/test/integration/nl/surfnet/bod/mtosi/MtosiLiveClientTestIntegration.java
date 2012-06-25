@@ -54,7 +54,7 @@ public class MtosiLiveClientTestIntegration {
   }
 
   @Test
-  public void retreiveInventory() {
+  public void retrieveInventory() {
     final InventoryDataType inventory = mtosiLiveClient.getInventory();
     assertThat(inventory, notNullValue());
     final List<ManagementDomainInventoryType> mdits = inventory.getMdList().getMd();
@@ -67,6 +67,8 @@ public class MtosiLiveClientTestIntegration {
   @Test
   public void getUnallocatedPorts() {
     final List<PhysicalPort> unallocatedPorts = mtosiLiveClient.getUnallocatedPorts();
+    System.out.println(unallocatedPorts);
+    System.out.println(unallocatedPorts.size());
     assertThat(unallocatedPorts, hasSize(greaterThan(0)));
   }
 
