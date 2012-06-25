@@ -21,12 +21,6 @@
  */
 package nl.surfnet.bod.web;
 
-import static com.google.common.base.Strings.nullToEmpty;
-import static com.google.common.collect.Collections2.filter;
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
-import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -34,6 +28,7 @@ import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.web.security.Security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +43,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+
+import static com.google.common.base.Strings.nullToEmpty;
+import static com.google.common.collect.Collections2.filter;
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
+
+import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
 
 @RequestMapping("/institutes")
 @Controller
@@ -83,10 +85,14 @@ public class InstituteController {
   @RequestMapping(value = "/refresh", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
   @ResponseBody
   public String refreshInstitutes() {
-    logger.info("Manually refreshing institutes...");
-    instituteService.refreshInstitutes();
 
-    return "Refreshed institutes";
+    if (Security.isSelectedNocRole()) {
+      logger.info("Manually refreshing institutes...");
+      instituteService.refreshInstitutes();
+      return "Refreshed institutes";
+    }
+
+    return "Institutes are not refreshed, only a NOC engineer can request that";
   }
 
   private Collection<String> getExistingInstituteNames() {
