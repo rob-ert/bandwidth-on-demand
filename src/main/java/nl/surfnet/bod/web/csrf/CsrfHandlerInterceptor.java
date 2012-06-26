@@ -24,7 +24,12 @@ package nl.surfnet.bod.web.csrf;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import nl.surfnet.bod.web.WebUtils;
+
+import org.springframework.web.servlet.FlashMap;
+import org.springframework.web.servlet.FlashMapManager;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.servlet.support.RequestContextUtils;
 
 import com.google.common.collect.ImmutableList;
 
@@ -34,16 +39,32 @@ public class CsrfHandlerInterceptor extends HandlerInterceptorAdapter {
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
     if (requestCanChangeData(request)) {
+
+      if (request.getSession().isNew()) {
+
+        addInfoMessage(request, response);
+        response.sendRedirect(request.getContextPath());
+        return false;
+      }
+
       String sessionToken = CsrfTokenManager.getTokenForSession(request.getSession());
       String requestToken = CsrfTokenManager.getTokenFromRequest(request);
 
       if (!sessionToken.equals(requestToken)) {
+
         response.sendError(HttpServletResponse.SC_FORBIDDEN, "Bad or missing CSRF token");
         return false;
       }
     }
 
     return true;
+  }
+
+  private void addInfoMessage(HttpServletRequest request, HttpServletResponse response) {
+    FlashMap flashMap = RequestContextUtils.getOutputFlashMap(request);
+    flashMap.put(WebUtils.INFO_MESSAGES_KEY, "Your POST request has been ignored because your session timed out.");
+    FlashMapManager flashMapManager = RequestContextUtils.getFlashMapManager(request);
+    flashMapManager.saveOutputFlashMap(flashMap, request, response);
   }
 
   private boolean requestCanChangeData(HttpServletRequest request) {
