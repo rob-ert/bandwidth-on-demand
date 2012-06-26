@@ -61,6 +61,7 @@ public final class Emails {
         + "You have received a new Virtual Port Request.\n\n" //
         + "From: %s (%s)\n" //
         + "Team: %s\n" //
+        + "Preferred name: %s\n" //
         + "Minimum Bandwidth: %d Mbit/s\n" //
         + "Reason: %s\n" //
         + "Institute: %s\n\n" //
@@ -69,8 +70,8 @@ public final class Emails {
 
     public static String body(RichUserDetails from, VirtualPortRequestLink requestLink, String link) {
       return String.format(VIRTUAL_PORT_REQUEST_BODY, from.getDisplayName(), from.getEmail(), requestLink
-          .getVirtualResourceGroup().getName(), requestLink.getMinBandwidth(), requestLink.getMessage(), requestLink
-          .getPhysicalResourceGroup().getInstitute().getName(), link);
+          .getVirtualResourceGroup().getName(), requestLink.getUserLabel(), requestLink.getMinBandwidth(),
+          requestLink.getMessage(), requestLink.getPhysicalResourceGroup().getInstitute().getName(), link);
     }
 
     public static String subject(RichUserDetails user) {
