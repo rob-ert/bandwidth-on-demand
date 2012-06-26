@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.web.manager;
 
+import static nl.surfnet.bod.web.WebUtils.*;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -28,11 +30,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -60,14 +58,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.UPDATE;
 
 @Controller("managerVirtualPortController")
 @RequestMapping(VirtualPortController.PAGE_URL)
@@ -357,18 +347,23 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     @NotEmpty
     private String acceptOrDecline = "accept";
 
+    private String userLabel;
+
     public VirtualPortCreateCommand() {
     }
 
     public VirtualPortCreateCommand(VirtualPortRequestLink link) {
       super("", link.getMinBandwidth(), null, link.getPhysicalResourceGroup(), Iterables.get(link
           .getPhysicalResourceGroup().getPhysicalPorts(), 0), link.getVirtualResourceGroup());
+
+      this.userLabel = link.getUserLabel();
       this.virtualPortRequestLink = link;
     }
 
     public VirtualPort getPort() {
       VirtualPort port = new VirtualPort();
       port.setManagerLabel(getManagerLabel());
+      port.setUserLabel(getUserLabel());
       port.setMaxBandwidth(getMaxBandwidth());
       port.setVlanId(getVlanId());
       port.setPhysicalPort(getPhysicalPort());
@@ -399,6 +394,14 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
     public void setAcceptOrDecline(String acceptOrDecline) {
       this.acceptOrDecline = acceptOrDecline;
+    }
+
+    public String getUserLabel() {
+      return userLabel;
+    }
+
+    public void setUserLabel(String userLabel) {
+      this.userLabel = userLabel;
     }
   }
 
