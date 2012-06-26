@@ -58,7 +58,7 @@
                     <c:out value=" " />
                     <spring:message code="label_request_vp_bandwidth_help" var="help_bandwidth_msg" />
                     <a rel="popover" data-type="success" class="badge badge-success" href="#" data-content="${help_bandwidth_msg}">?</a>
-                    <form:errors cssClass="help-block" id="_message_error_id" path="bandwidth" delimiter=", " />
+                    <form:errors cssClass="help-block" path="bandwidth" />
                 </div>
             </div>
 
