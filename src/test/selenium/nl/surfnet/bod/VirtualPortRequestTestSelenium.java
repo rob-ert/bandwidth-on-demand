@@ -26,7 +26,7 @@ import nl.surfnet.bod.support.TestExternalSupport;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RequestVirtualPortTestSelenium extends TestExternalSupport {
+public class VirtualPortRequestTestSelenium extends TestExternalSupport {
 
   @Before
   public void setup() {
@@ -65,13 +65,13 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
     getUserDriver().verifyRequestVirtualPortInstituteInactive("2COLLEGE");
 
-    getUserDriver().selectInstituteAndRequest("SURFnet bv", 1200, "I would like to have a new port");
+    getUserDriver().selectInstituteAndRequest("SURFnet bv", "Mijn nieuwe poort", 1200, "I would like to have a new port");
 
     getUserDriver().switchToManager("SURFnet");
 
     getWebDriver().clickLinkInLastEmail();
 
-    getManagerDriver().verifyNewVirtualPortHasProperties("SURFnet bv", 1200);
+    getManagerDriver().verifyNewVirtualPortHasProperties("SURFnet bv", "Mijn nieuwe poort", 1200);
 
     getManagerDriver().createVirtualPort("Your vport");
 
@@ -102,7 +102,9 @@ public class RequestVirtualPortTestSelenium extends TestExternalSupport {
 
     getManagerDriver().switchToUser();
 
-    getUserDriver().editVirtualPort("Edited vport", "User label");
+    getUserDriver().verifyVirtualPortExists("Mijn nieuwe poort", "1000", "selenium-users");
+
+    getUserDriver().editVirtualPort("Mijn nieuwe poort", "User label");
 
     getUserDriver().verifyVirtualPortExists("User label", "1000", "selenium-users");
 

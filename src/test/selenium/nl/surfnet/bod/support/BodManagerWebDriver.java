@@ -27,15 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.pages.manager.EditPhysicalPortPage;
-import nl.surfnet.bod.pages.manager.EditPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.manager.EditVirtualPortPage;
-import nl.surfnet.bod.pages.manager.ListPhysicalPortsPage;
-import nl.surfnet.bod.pages.manager.ListReservationPage;
-import nl.surfnet.bod.pages.manager.ListVirtualPortPage;
-import nl.surfnet.bod.pages.manager.ListVirtualResourceGroupPage;
-import nl.surfnet.bod.pages.manager.ManagerOverviewPage;
-import nl.surfnet.bod.pages.manager.NewVirtualPortPage;
+import nl.surfnet.bod.pages.manager.*;
 import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.noc.NocOverviewPage;
 
@@ -143,12 +135,14 @@ public class BodManagerWebDriver {
     }
   }
 
-  public void verifyNewVirtualPortHasProperties(String instituteName, Integer bandwidth) {
+  public void verifyNewVirtualPortHasProperties(String instituteName, String userLabel, Integer bandwidth) {
     NewVirtualPortPage page = NewVirtualPortPage.get(driver);
 
     String group = page.getSelectedPhysicalResourceGroup();
     Integer ban = page.getBandwidth();
+    String useLabel = page.getUserLabel();
 
+    assertThat(userLabel, is(userLabel));
     assertThat(group, is(instituteName));
     assertThat(ban, is(bandwidth));
   }

@@ -44,6 +44,9 @@ public class NewVirtualPortPage extends AbstractFormPage {
   @FindBy(id = "_vlanId_id")
   private WebElement vlandIdInput;
 
+  @FindBy(id = "_userLabel_id")
+  private WebElement userLabelInput;
+
   @FindBy(id = "_physicalResourceGroup")
   private WebElement physicalResourceGroupSelect;
 
@@ -126,6 +129,10 @@ public class NewVirtualPortPage extends AbstractFormPage {
   public Integer getBandwidth() {
     String maxBandwidth = maxBandwidthInput.getAttribute("value");
     return Strings.emptyToNull(maxBandwidth) == null ? 0 : Integer.valueOf(maxBandwidth);
+  }
+
+  public String getUserLabel() {
+    return userLabelInput.getAttribute("value");
   }
 
   public void accept() {

@@ -33,6 +33,9 @@ public class RequestNewVirtualPortRequestPage extends AbstractFormPage {
   @FindBy(id = "message")
   private WebElement messageTextArea;
 
+  @FindBy(id = "userLabel")
+  private WebElement preferredLabel;
+
   @FindBy(id = "bandwidth")
   private WebElement bandwidthInput;
 
@@ -59,5 +62,10 @@ public class RequestNewVirtualPortRequestPage extends AbstractFormPage {
   public void sendBandwidth(String bandwidth) {
     bandwidthInput.clear();
     bandwidthInput.sendKeys(bandwidth);
+  }
+
+  public void sendUserLabel(String userLabel) {
+    preferredLabel.clear();
+    preferredLabel.sendKeys(userLabel);
   }
 }

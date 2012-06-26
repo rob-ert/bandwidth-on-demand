@@ -69,14 +69,19 @@ public class BodUserWebDriver {
     page.reservationShouldBe(startDate, endDate, startTime, endTime, ReservationStatus.CANCELLED);
   }
 
-  public void selectInstituteAndRequest(String institute, Integer bandwidth, String message) {
+  public void selectInstituteAndRequest(String institute, String userLabel, Integer bandwidth, String message) {
     RequestNewVirtualPortSelectInstitutePage page = RequestNewVirtualPortSelectInstitutePage.get(driver);
 
     RequestNewVirtualPortRequestPage requestPage = page.selectInstitute(institute);
 
+    requestPage.sendUserLabel(userLabel);
     requestPage.sendBandwidth("" + bandwidth);
     requestPage.sendMessage(message);
     requestPage.sentRequest();
+  }
+
+  public void selectInstituteAndRequest(String institute, Integer bandwidth, String message) {
+    selectInstituteAndRequest(institute, "", bandwidth, message);
   }
 
   public void verifyRequestVirtualPortInstituteInactive(String instituteName) {
