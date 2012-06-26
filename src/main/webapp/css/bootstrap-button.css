@@ -9,6 +9,11 @@
     background-image: linear-gradient(top, #4FB3CF, #0381a4);
 }
 
+.btn-primary.disabled,
+.btn-primary.disabled:hover {
+    background-color: gray;
+}
+
 .btn-primary:hover {
 	color: #fff;
 	background-color: #0381a4;
