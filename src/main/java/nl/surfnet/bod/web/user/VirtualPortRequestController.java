@@ -152,8 +152,8 @@ public class VirtualPortRequestController {
       shouldClearSecurityContext = true;
     }
 
-    virtualPortService.requestNewVirtualPort(Security.getUserDetails(), vrg, prg, requestCommand.getBandwidth(),
-        requestCommand.getMessage());
+    virtualPortService.requestNewVirtualPort(Security.getUserDetails(), vrg, prg, requestCommand.getUserLabel(),
+        requestCommand.getBandwidth(), requestCommand.getMessage());
 
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_send", prg.getInstitute()
         .getName());
@@ -168,17 +168,20 @@ public class VirtualPortRequestController {
   }
 
   public static class RequestCommand {
-    
-    @Length(min=1 ,max=255, message="Must be between 1 and 255 characters long")
+
+    @Length(min=0, max=255, message="Must be between 1 and 255 characters long")
+    private String userLabel;
+
+    @Length(min=1, max=255, message="Must be between 1 and 255 characters long")
     private String message;
-    
+
     @NotNull
     private Long physicalResourceGroupId;
-    
+
     @NotEmpty
     private String userGroupId;
-    
-    @Range(min=1 ,max=1000000, message="Must be between 1 and 1000000 mb/s")
+
+    @Range(min=1, max=1000000, message="Must be between 1 and 1000000 mb/s")
     private Integer bandwidth;
 
     public RequestCommand() {
@@ -218,6 +221,14 @@ public class VirtualPortRequestController {
 
     public void setBandwidth(Integer bandwidth) {
       this.bandwidth = bandwidth;
+    }
+
+    public String getUserLabel() {
+      return userLabel;
+    }
+
+    public void setUserLabel(String portName) {
+      this.userLabel = portName;
     }
   }
 

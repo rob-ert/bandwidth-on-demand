@@ -73,6 +73,8 @@ public class VirtualPortRequestLink {
   @Enumerated(EnumType.STRING)
   private RequestStatus status = RequestStatus.PENDING;
 
+  private String userLabel;
+
   private String message;
 
   private Integer minBandwidth;
@@ -157,22 +159,8 @@ public class VirtualPortRequestLink {
     this.status = status;
   }
 
-  public enum RequestStatus {
-    PENDING, APPROVED, DECLINED
-  }
-
   public boolean isPending() {
     return status == RequestStatus.PENDING;
-  }
-
-  @Override
-  public String toString() {
-    return Objects.toStringHelper(VirtualPortRequestLink.class)
-        .add("id", id)
-        .add("uuid", uuid)
-        .add("virtualResourceGroup", virtualResourceGroup)
-        .add("physicalResourceGroup", physicalResourceGroup)
-        .toString();
   }
 
   public String getRequestorName() {
@@ -191,6 +179,25 @@ public class VirtualPortRequestLink {
     this.requestorEmail = requestorEmail;
   }
 
+  public String getUserLabel() {
+    return userLabel;
+  }
 
+  public void setUserLabel(String userLabel) {
+    this.userLabel = userLabel;
+  }
 
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(VirtualPortRequestLink.class)
+        .add("id", id)
+        .add("uuid", uuid)
+        .add("virtualResourceGroup", virtualResourceGroup)
+        .add("physicalResourceGroup", physicalResourceGroup)
+        .toString();
+  }
+
+  public enum RequestStatus {
+    PENDING, APPROVED, DECLINED
+  }
 }

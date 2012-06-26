@@ -33,20 +33,12 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
@@ -89,11 +81,10 @@ public class VirtualPortServiceTest {
 
   @org.junit.Before
   public void setUp() {
-    user= new RichUserDetailsFactory().create();
-    Security.setUserDetails(user); 
+    user = new RichUserDetailsFactory().create();
+    Security.setUserDetails(user);
   }
-  
-  
+
   @Test
   public void countShouldCount() {
     when(virtualPortRepoMock.count()).thenReturn(2L);
@@ -185,7 +176,7 @@ public class VirtualPortServiceTest {
 
     ArgumentCaptor<VirtualPortRequestLink> request = ArgumentCaptor.forClass(VirtualPortRequestLink.class);
 
-    subject.requestNewVirtualPort(user, vrg, prg, 1000, "I would like to have this port, now");
+    subject.requestNewVirtualPort(user, vrg, prg, "new port", 1000, "I would like to have this port, now");
 
     verify(virtualPortRequestLinkRepoMock).save(request.capture());
     VirtualPortRequestLink link = request.getValue();

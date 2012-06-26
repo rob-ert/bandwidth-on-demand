@@ -44,6 +44,23 @@
             </div>
 
             <c:set var="errors">
+                <form:errors path="userLabel" />
+            </c:set>
+            <c:if test="${not empty errors}">
+                <c:set var="error_user_label_css" value=" error" />
+            </c:if>
+            <div class="control-group${error_user_label_css}">
+                <label class="control-label"><spring:message code="label_request_vp_user_label" /></label>
+                <div class="controls">
+                    <form:input path="userLabel" cssClass="input-large" />
+                    <c:out value=" " />
+                    <spring:message code="label_request_vp_user_label_help" var="help_label_msg" />
+                    <a rel="popover" data-type="success" class="badge badge-success" href="#" data-content="${help_label_msg}">?</a>
+                    <form:errors cssClass="help-block" id="_label_error_id" path="userLabel" delimiter=", " />
+                </div>
+            </div>
+
+            <c:set var="errors">
                 <form:errors path="bandwidth" />
             </c:set>
             <c:if test="${not empty errors}">

@@ -21,19 +21,19 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.BY_GROUP_ID_IN_LAST_MONTH_SPEC;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.BY_PHYSICAL_PORT_SPEC;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.FOR_MANAGER_SPEC;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.FOR_USER_SPEC;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
@@ -48,14 +48,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.BY_PHYSICAL_PORT_SPEC;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.FOR_MANAGER_SPEC;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.FOR_USER_SPEC;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.BY_GROUP_ID_IN_LAST_MONTH_SPEC;
 
 @Service
 @Transactional
@@ -173,10 +165,11 @@ public class VirtualPortService {
   }
 
   public void requestNewVirtualPort(RichUserDetails user, VirtualResourceGroup vGroup, PhysicalResourceGroup pGroup,
-      Integer minBandwidth, String message) {
+      String userLabel, Integer minBandwidth, String message) {
     VirtualPortRequestLink link = new VirtualPortRequestLink();
     link.setVirtualResourceGroup(vGroup);
     link.setPhysicalResourceGroup(pGroup);
+    link.setUserLabel(userLabel);
     link.setMinBandwidth(minBandwidth);
     link.setMessage(message);
     link.setRequestorEmail(user.getEmail());
