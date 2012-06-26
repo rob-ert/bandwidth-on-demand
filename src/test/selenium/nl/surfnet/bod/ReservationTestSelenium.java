@@ -78,6 +78,16 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getUserDriver().cancelReservation(startDate, endDate, startTime, endTime);
 
     getUserDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);
+
+    // Check the number of reservations, verify that we did not add a
+    // reservation (due to the reservation replicator bug...)
+    getUserDriver().switchToManager(INSTITUTE_NAME);
+    getManagerDriver().verifyStatistics();
+
+    // Verify statistics for noc, verify that we did not add a reservation (due
+    // to the reservation replicator bug...)
+    getManagerDriver().switchToNoc();
+    getNocDriver().verifyStatistics();
   }
 
   @Test

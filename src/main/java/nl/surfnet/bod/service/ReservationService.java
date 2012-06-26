@@ -149,7 +149,7 @@ public class ReservationService {
     fillStartTimeIfEmpty(reservation);
     stripSecondsAndMillis(reservation);
 
-    reservationRepo.save(reservation);
+    reservation = reservationRepo.save(reservation);
 
     reservationToNbi.submitNewReservation(reservation.getId(), autoProvision);
   }
