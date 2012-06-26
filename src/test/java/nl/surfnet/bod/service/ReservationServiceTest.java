@@ -137,6 +137,7 @@ public class ReservationServiceTest {
   public void reserveSameVirtualResourceGroupsShouldBeFine() throws InterruptedException, ExecutionException {
     final Reservation reservation = new ReservationFactory().create();
 
+    when(reservationRepoMock.save(reservation)).thenReturn(reservation);
     subject.create(reservation);
 
     verify(reservationRepoMock).save(reservation);
@@ -147,6 +148,7 @@ public class ReservationServiceTest {
   public void reserveShouldFillStartTime() {
     final Reservation reservation = new ReservationFactory().setStartDateTime(null).create();
 
+    when(reservationRepoMock.save(reservation)).thenReturn(reservation);
     subject.create(reservation);
 
     assertThat(reservation.getStartDateTime(), notNullValue());
