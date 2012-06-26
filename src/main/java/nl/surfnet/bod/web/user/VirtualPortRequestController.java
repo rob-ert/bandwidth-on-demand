@@ -38,7 +38,9 @@ import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.Security;
 
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -166,13 +168,17 @@ public class VirtualPortRequestController {
   }
 
   public static class RequestCommand {
-    @NotEmpty
+    
+    @Length(min=1 ,max=255, message="Must be between 1 and 255 characters long")
     private String message;
+    
     @NotNull
     private Long physicalResourceGroupId;
+    
     @NotEmpty
     private String userGroupId;
-    @NotNull
+    
+    @Range(min=1 ,max=1000000, message="Must be between 1 and 1000000 mb/s")
     private Integer bandwidth;
 
     public RequestCommand() {
