@@ -112,7 +112,7 @@ public class ReservationService {
    * 
    * @param reservation
    *          {@link Reservation} to activate
-   * @return true if the reservation was succesfully activated, false otherwise
+   * @return true if the reservation was successfully activated, false otherwise
    */
   public boolean activate(Reservation reservation) {
     if (reservation != null) {
