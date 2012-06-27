@@ -26,6 +26,11 @@
             <artifactId>bod-opendrac</artifactId>
             <version>0.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>nl.surfnet.bod</groupId>
+            <artifactId>bod-idd</artifactId>
+            <version>0.1.0</version>
+        </dependency>
         <!-- Begin logging -->
         <dependency>
             <groupId>log4j</groupId>
@@ -330,32 +335,6 @@
             <artifactId>opensocial-java-client</artifactId>
             <version>1.16.1-coin</version>
         </dependency>
-        <!-- Begin Axis1 for IDD (needed for rpc style encoding of IDD) -->
-        <dependency>
-            <groupId>org.apache.axis</groupId>
-            <artifactId>axis</artifactId>
-            <version>1.4</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.axis</groupId>
-            <artifactId>axis-jaxrpc</artifactId>
-            <version>1.4</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-discovery</groupId>
-            <artifactId>commons-discovery</artifactId>
-            <version>0.5</version>
-            <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <!-- End Axis1 -->
         <dependency>
             <groupId>org.apache.axis2</groupId>
             <artifactId>axis2-kernel</artifactId>
@@ -630,26 +609,6 @@
                         <version>0.1.2</version>
                     </dependency>
                 </dependencies>
-            </plugin>
-            <!-- Generates the classes for IDD based on the wsdl -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>axistools-maven-plugin</artifactId>
-                <version>1.4</version>
-                <configuration>
-                    <packageSpace>nl.surfnet.bod.idd.generated</packageSpace>
-                    <sourceDirectory>src/main/resources/wsdl/idd</sourceDirectory>
-                    <outputDirectory>target/generated-sources/axis/wsdl2code</outputDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>idd-ws</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>wsdl2java</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
