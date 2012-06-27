@@ -140,7 +140,7 @@
 
             <div class="content-dense">
                 <h3>New Reservation</h3>
-                <p>When there are at least two ports in your team, you can click on the <i class="icon-plus"><!--  --></i> icon behind one of your teams to make a reservation for that team.</p>
+                <p>When your team has two or more ports, you can click on the <i class="icon-plus"><!--  --></i> icon behind that team to make a reservation.</p>
 
                   <c:if test="${canCreateReservation}">
                     <ul class="tasks">
