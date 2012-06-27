@@ -83,8 +83,7 @@ public class NewReservationPage extends AbstractFormPage {
   }
 
   public void sendStartDate(LocalDate startDate) {
-    startDateInput.clear();
-    startDateInput.sendKeys(DATE_FORMATTER.print(startDate));
+    sendDate(startDateInput, startDate);
   }
 
   public void sendStartTime(LocalTime startTime) {
@@ -93,8 +92,16 @@ public class NewReservationPage extends AbstractFormPage {
   }
 
   public void sendEndDate(LocalDate endDate) {
-    endDateInput.clear();
-    endDateInput.sendKeys(DATE_FORMATTER.print(endDate));
+    sendDate(endDateInput, endDate);
+  }
+
+  private void sendDate(WebElement input, LocalDate date) {
+    String dateString = DATE_FORMATTER.print(date);
+
+    System.out.println("Entering a date in " + input.getAttribute("name") + " date: " + dateString);
+
+    input.clear();
+    input.sendKeys(dateString);
   }
 
   public void sendEndTime(LocalTime endTime) {
