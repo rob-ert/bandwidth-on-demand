@@ -7,21 +7,40 @@
 
     <div class="row">
          <div class="form">
-            <div class="message"><h3>Select the team</h3></div>
+           <div class="message"><h3>Select the team</h3></div>
+            <div class="form-inline" data-component="teams-datalist-filter">
+                      <label class="radio">
+                          <input type="radio" name="show" value="existing" checked="true" />
+                          Show active
+                      </label>
+                      <c:out value=" " />
+                      <label class="radio">
+                          <input type="radio" name="show" value="all" />
+                          Show all
+                      </label>
+             </div>
             <dl class="dl">
               <c:forEach var="group" items="${userGroupViews}">
                   <spring:url value="/request" var="url">
                       <spring:param value="${group.name}" name="teamLabel"/> 
                       <spring:param value="${group.surfconextGroupId}" name="teamUrn" />
                   </spring:url>
-                  <dt>
-                      <a href="${url}"><c:out value="${group.name}" /></a>
-                  </dt>
-                  <dd>
+                  <c:choose>
+                    <c:when test="${group.existing}">
+                        <c:set value="existing" var="dt_css" />
+                     </c:when>
+                     <c:otherwise>
+                        <c:set value="new" var="dt_css" />
+                     </c:otherwise>
+                   </c:choose>
+                   <dt class="${dt_css}">
+                    <a href="${url}"><c:out value="${group.name}" /></a>
+                    </dt>
+                    <dd>
                       <c:out value="${group.description}" />
-                  </dd>
+                    </dd>
               </c:forEach>
-             </dl>
+            </dl>
         </div>
     </div>
 </html>
