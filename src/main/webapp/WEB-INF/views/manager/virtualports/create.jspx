@@ -75,9 +75,7 @@
                     <label class="control-label">Explanation</label>
                     <div class="controls">
                         <sform:textarea path="declineMessage" rows="5" cssClass="xlarge" id="_declineMessage" />
-                        <c:out value=" " />
-                        <a rel="popover" data-type="success" class="badge badge-success" href="#"
-                            data-content="This message will be send to the requestor.">?</a>
+                        <form:help message="help_virtualport_decline_explanation" />
                         <sform:errors cssClass="help-block" id="_declineMessage_error_id" path="declineMessage" delimiter=", " />
                     </div>
                 </div>

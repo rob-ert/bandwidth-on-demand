@@ -151,13 +151,14 @@
                         <div class="input-append">
                             <sform:input id="_bandwidth_id" path="bandwidth" cssClass="input-mini" /><span class="add-on"><spring:message code="label_bandwidth_unit" /></span>
                         </div>
-                        <span class="help-inline">
+                        <span class="help-inline" style="padding-right: 55px">
                             <div class="btn-group">
                               <button class="btn btn-mini" data-bandwidth-multiplier="0.25">Low</button>
                               <button class="btn btn-mini active" data-bandwidth-multiplier="0.5">Med</button>
                               <button class="btn btn-mini" data-bandwidth-multiplier="1">High</button>
                             </div>
                         </span>
+                        <form:help message="help_reservation_bandwidth" />
                         <sform:errors cssClass="help-block" id="_bandwidth_error_id" path="bandwidth" delimiter=", " />
                     </div>
                 </div>

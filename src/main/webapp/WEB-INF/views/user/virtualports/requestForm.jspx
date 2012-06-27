@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <html xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core" 
-    xmlns:form="http://www.springframework.org/tags/form" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-    xmlns:spring="http://www.springframework.org/tags">
+    xmlns:sform="http://www.springframework.org/tags/form" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:form="urn:jsptagdir:/WEB-INF/tags/form" xmlns:spring="http://www.springframework.org/tags">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
     <spring:url value="/request" var="postUrl" />
 
-    <form:form action="${postUrl}" method="POST" modelAttribute="requestCommand" cssClass="form form-horizontal">
+    <sform:form action="${postUrl}" method="POST" modelAttribute="requestCommand" cssClass="form form-horizontal">
         <fieldset>
             <div class="control-group">
                 <label class="control-label"><spring:message code="label_request_vp_to" /></label>
@@ -28,7 +28,7 @@
                 <div class="controls">
                     <c:choose>
                         <c:when test="${fn:length(virtualResourceGroups) > 1}">
-                            <form:select path="virtualResourceGroupId" items="${virtualResourceGroups}" itemValue="id"
+                            <sform:select path="virtualResourceGroupId" items="${virtualResourceGroups}" itemValue="id"
                                     itemLabel="name" />
                         </c:when>
                         <c:otherwise>
@@ -44,7 +44,7 @@
             </div>
 
             <c:set var="errors">
-                <form:errors path="userLabel" />
+                <sform:errors path="userLabel" />
             </c:set>
             <c:if test="${not empty errors}">
                 <c:set var="error_user_label_css" value=" error" />
@@ -52,16 +52,14 @@
             <div class="control-group${error_user_label_css}">
                 <label class="control-label"><spring:message code="label_request_vp_user_label" /></label>
                 <div class="controls">
-                    <form:input path="userLabel" cssClass="input-large" />
-                    <c:out value=" " />
-                    <spring:message code="label_request_vp_user_label_help" var="help_label_msg" />
-                    <a rel="popover" data-type="success" class="badge badge-success" href="#" data-content="${help_label_msg}">?</a>
-                    <form:errors cssClass="help-block" id="_label_error_id" path="userLabel" delimiter=", " />
+                    <sform:input path="userLabel" cssClass="input-large" />
+                    <form:help message="label_request_vp_user_label_help" />
+                    <sform:errors cssClass="help-block" id="_label_error_id" path="userLabel" delimiter=", " />
                 </div>
             </div>
 
             <c:set var="errors">
-                <form:errors path="bandwidth" />
+                <sform:errors path="bandwidth" />
             </c:set>
             <c:if test="${not empty errors}">
                 <c:set var="error_bandwidth_css" value=" error" />
@@ -70,17 +68,15 @@
                 <label class="control-label"><spring:message code="label_request_vp_bandwidth" /></label>
                 <div class="controls">
                     <div class="input-append">
-                        <form:input path="bandwidth" cssClass="input-medium" cssStyle="width: 163px" /><span class="add-on"><spring:message code="label_bandwidth_unit" /></span>
+                        <sform:input path="bandwidth" cssClass="input-medium" cssStyle="width: 163px" /><span class="add-on"><spring:message code="label_bandwidth_unit" /></span>
                     </div>
-                    <c:out value=" " />
-                    <spring:message code="label_request_vp_bandwidth_help" var="help_bandwidth_msg" />
-                    <a rel="popover" data-type="success" class="badge badge-success" href="#" data-content="${help_bandwidth_msg}">?</a>
-                    <form:errors cssClass="help-block" path="bandwidth" />
+                    <form:help message="label_request_vp_bandwidth_help" />
+                    <sform:errors cssClass="help-block" path="bandwidth" />
                 </div>
             </div>
 
             <c:set var="errors">
-                <form:errors path="message" />
+                <sform:errors path="message" />
             </c:set>
             <c:if test="${not empty errors}">
                 <c:set var="error_motivation_css" value=" error" />
@@ -88,14 +84,12 @@
             <div class="control-group${error_motivation_css}">
                 <label class="control-label"><spring:message code="label_request_vp_message" /></label>
                 <div class="controls">
-                    <form:textarea path="message" rows="5" cssClass="xlarge" />
-                    <spring:message code="label_request_vp_motivation_help" var="help_motivation_msg" />
-                    <c:out value=" " />
-                    <a rel="popover" data-type="success" class="badge badge-success" href="#" data-content="${help_motivation_msg}">?</a>
-                    <form:errors cssClass="help-block" id="_message_error_id" path="message" delimiter=", " />
+                    <sform:textarea path="message" rows="5" cssClass="xlarge" />
+                    <form:help message="label_request_vp_motivation_help" />
+                    <sform:errors cssClass="help-block" id="_message_error_id" path="message" delimiter=", " />
                 </div>
             </div>
-            <form:hidden path="physicalResourceGroupId" />
+            <sform:hidden path="physicalResourceGroupId" />
 
             <div class="actions">
                 <spring:message code="label_request_vp_send_request" var="submitText" />
@@ -104,5 +98,5 @@
                 <a href="${cancel_url}"><spring:message code="button_cancel" /></a>
             </div>
         </fieldset>
-    </form:form>
+    </sform:form>
 </html>
