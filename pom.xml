@@ -31,6 +31,11 @@
             <artifactId>bod-idd</artifactId>
             <version>0.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>nl.surfnet.bod</groupId>
+            <artifactId>bod-nsi</artifactId>
+            <version>0.1.0</version>
+        </dependency>
         <!-- Begin logging -->
         <dependency>
             <groupId>log4j</groupId>
@@ -616,29 +621,6 @@
                 <artifactId>jaxws-maven-plugin</artifactId>
                 <version>1.12</version>
                 <executions>
-                    <execution>
-                        <id>ogf_nsi_connection-1.sc</id>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                        <configuration>
-                            <verbose>true</verbose>
-                            <keep>true</keep>
-                            <xnocompile>true</xnocompile>
-                            <wsdlDirectory>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi</wsdlDirectory>
-                            <wsdlFiles>
-                                <wsdlFile>ogf_nsi_connection_provider_v1_0.wsdl</wsdlFile>
-                                <wsdlFile>ogf_nsi_connection_requester_v1_0.wsdl</wsdlFile>
-                            </wsdlFiles>
-                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws/nsi</sourceDestDir>
-                            <destDir />
-                            <staleFile>${project.build.directory}/generated-sources/jaxws/nsi/gererate.done</staleFile>
-                            <bindingFiles>
-                                <bindingFile>${basedir}/src/main/webapp/WEB-INF/wsdl/nsi/jaxb-bindings.xml</bindingFile>
-                            </bindingFiles>
-                        </configuration>
-                    </execution>
-
                     <execution>
                         <id>mtosi-</id>
                         <goals>
