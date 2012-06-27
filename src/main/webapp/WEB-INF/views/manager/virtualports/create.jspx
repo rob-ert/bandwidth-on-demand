@@ -86,8 +86,8 @@
             <fieldset id="accept-form">
                     <div class="message"><h3>Virtual Port Details</h3></div>
 
-                    <field:input field="managerLabel" id="name" labelCode="virtualport_managerLabel" />
-                    <field:input field="userLabel" id="userLabel" labelCode="virtualport_userLabel" />
+                    <field:input field="managerLabel" id="name" labelCode="virtualport_managerLabel" helpMessageCode="virtualport_administrator_label" />
+                    <field:input field="userLabel" id="userLabel" labelCode="virtualport_userLabel" helpMessageCode="virtualport_user_label" />
 
                     <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_maxbandwidth" />
                     <field:input field="vlanId" id="vlanId" labelCode="virtualport_vlan_id" /><!-- render="${virtualPortCreateCommand.physicalPort.vlanRequired}" /> -->
