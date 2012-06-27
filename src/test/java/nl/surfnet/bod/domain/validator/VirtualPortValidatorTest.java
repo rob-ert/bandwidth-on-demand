@@ -23,10 +23,8 @@ package nl.surfnet.bod.domain.validator;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
@@ -35,26 +33,15 @@ import nl.surfnet.bod.web.security.Security;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
-@RunWith(MockitoJUnitRunner.class)
 public class VirtualPortValidatorTest {
 
-  @InjectMocks
   private VirtualPortValidator subject;
 
-  @Mock
-  private VirtualPortService virtualPortServiceMock;
-
   private VirtualPort virtualPort;
-
   private PhysicalPort physicalPort;
-
   private PhysicalPort physicalPortVlanRequired;
 
   @Before
@@ -62,6 +49,7 @@ public class VirtualPortValidatorTest {
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:my-group").addUserGroup("urn:test:group")
         .create());
 
+    subject = new VirtualPortValidator();
     physicalPort = new PhysicalPortFactory().create();
     physicalPortVlanRequired = new PhysicalPortFactory().setVlanRequired(true).create();
     virtualPort = new VirtualPortFactory().setPhysicalPort(physicalPort).create();
@@ -71,32 +59,6 @@ public class VirtualPortValidatorTest {
   public void testSupportsValidClass() {
     assertTrue(subject.supports(VirtualPort.class));
     assertFalse(subject.supports(Object.class));
-  }
-
-  @Test
-  public void testExistingName() {
-    VirtualPort existingPort = new VirtualPortFactory().setManagerLabel("one").create();
-    VirtualPort newPort = new VirtualPortFactory().setId(null).setManagerLabel("one").create();
-
-    when(virtualPortServiceMock.findByManagerLabel("one")).thenReturn(existingPort);
-    Errors errors = createErrorObject(newPort);
-
-    subject.validate(newPort, errors);
-
-    assertFalse(errors.hasGlobalErrors());
-    assertTrue(errors.hasFieldErrors("managerLabel"));
-  }
-
-  @Test
-  public void testNonExistingName() {
-    virtualPort.setManagerLabel("one");
-
-    when(virtualPortServiceMock.findByManagerLabel("one")).thenReturn(null);
-    Errors errors = createErrorObject(virtualPort);
-
-    subject.validate(virtualPort, errors);
-
-    assertFalse(errors.hasErrors());
   }
 
   @Test

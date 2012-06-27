@@ -23,10 +23,8 @@ package nl.surfnet.bod.domain.validator;
 
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.security.Security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -34,17 +32,12 @@ import org.springframework.validation.Validator;
 /**
  * Validator for the {@link VirtualPort}. Validates that the
  * {@link VirtualPort#getManagerLabel()} is unique.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 @Component
 public class VirtualPortValidator implements Validator {
-
-  @Autowired
-  private VirtualPortService virtualPortService;
-
-  private ValidatorHelper validatorHelper = new ValidatorHelper();
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -55,7 +48,6 @@ public class VirtualPortValidator implements Validator {
   public void validate(Object objToValidate, Errors errors) {
     VirtualPort virtualPort = (VirtualPort) objToValidate;
 
-    validateUniquenessOfName(virtualPort, errors);
     validatePhysicalPort(virtualPort, errors);
     validateBandwidth(virtualPort, errors);
     validateVlanRequired(virtualPort, errors);
@@ -68,19 +60,6 @@ public class VirtualPortValidator implements Validator {
       errors.rejectValue("physicalPort", "validation.virtualport.physicalport.security",
           "You do not have the right permissions for this port");
     }
-  }
-
-  private void validateUniquenessOfName(VirtualPort virtualPort, Errors errors) {
-    VirtualPort existingVirtualPort = virtualPortService.findByManagerLabel(virtualPort.getManagerLabel());
-
-    if (existingVirtualPort != null && labelsAreNotUnique(virtualPort, existingVirtualPort)) {
-      errors.rejectValue("managerLabel", "validation.not.unique");
-    }
-  }
-
-  private boolean labelsAreNotUnique(VirtualPort virtualPort, VirtualPort existingVirtualPort) {
-    return !validatorHelper.validateNameUniqueness(existingVirtualPort.getId().equals(virtualPort.getId()), virtualPort
-        .getManagerLabel().equalsIgnoreCase(existingVirtualPort.getManagerLabel()), virtualPort.getId() != null);
   }
 
   private void validateBandwidth(VirtualPort virtualPort, Errors errors) {
