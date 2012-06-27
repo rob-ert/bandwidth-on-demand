@@ -6,7 +6,7 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <div class="form">
-        <div class="message"><h3>Select the institute</h3></div>
+        <div class="message"><h3>Select the institute for team '<c:out value="${teamLabel}"/>'</h3></div>
         <ul class="ul">
             <c:forEach var="group" items="${physicalResourceGroups}">
                     <c:choose>
@@ -14,7 +14,7 @@
                             <li>
                                 <spring:url value="/request" var="requestUrl">
                                     <spring:param name="id" value="${group.id}" />
-                                    <spring:param name="team" value="${teamUrn}" />
+                                    <spring:param name="teamUrn" value="${teamUrn}" />
                                 </spring:url>
                                 <a href="${requestUrl}">${group.institute.name}</a>
                             </li>

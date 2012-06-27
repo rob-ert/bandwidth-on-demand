@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<html xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:spring="http://www.springframework.org/tags">
+
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+
+    <div class="row">
+         <div class="form">
+            <div class="message"><h3>Select the team</h3></div>
+            <dl class="dl">
+              <c:forEach var="group" items="${userGroupViews}">
+                  <spring:url value="/request" var="url">
+                      <spring:param value="${group.name}" name="teamLabel"/> 
+                      <spring:param value="${group.surfconextGroupId}" name="teamUrn" />
+                  </spring:url>
+                  <dt>
+                      <a href="${url}"><c:out value="${group.name}" /></a>
+                  </dt>
+                  <dd>
+                      <c:out value="${group.description}" />
+                  </dd>
+              </c:forEach>
+             </dl>
+        </div>
+    </div>
+</html>

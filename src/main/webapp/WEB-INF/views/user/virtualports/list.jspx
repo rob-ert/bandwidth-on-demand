@@ -6,7 +6,11 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <page:list id="pl_virtualport">
+    <page:list id="pl_virtualport" renderActions="false">
+        <spring:url value="/request" var="new_vp_url"/>
+        <div class="actions">
+            <a href="${new_vp_url}" class="btn btn-primary"><i class="icon-envelope"><!--  --></i><c:out value=" "/><spring:message code="label_action_request_vp" /></a>
+        </div>
         <table:table items="${list}" labelPluralCode="label_virtualport_plural">
             <thead>
                 <tr>

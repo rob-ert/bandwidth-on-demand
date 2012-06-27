@@ -11,6 +11,10 @@
         <put-attribute name="active_menu" value="virtualport" cascade="true" />
     </definition>
 
+    <definition extends="requestVirtualPortLayout" name="virtualports/selectTeam">
+        <put-attribute name="requestBody" value="/WEB-INF/views/user/virtualports/selectTeam.jspx" cascade="true" />
+    </definition>
+
     <definition extends="requestVirtualPortLayout" name="virtualports/selectInstitute">
         <put-attribute name="requestBody" value="/WEB-INF/views/user/virtualports/selectInstitute.jspx" cascade="true" />
     </definition>

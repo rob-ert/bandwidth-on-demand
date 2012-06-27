@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.web.user;
 
-import static nl.surfnet.bod.util.Orderings.prgNameOrdering;
-
 import java.util.Collection;
 import java.util.Collections;
 
@@ -35,8 +33,10 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.UserGroupView;
 
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -53,8 +53,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+
+import static nl.surfnet.bod.util.Orderings.prgNameOrdering;
 
 @Controller
 @RequestMapping("/request")
@@ -69,18 +78,56 @@ public class VirtualPortRequestController {
   @Autowired
   private MessageSource messageSource;
 
-  @RequestMapping(method = RequestMethod.GET, params = "team")
-  public String selectInstitute(@RequestParam(value = "team") String teamUrn, Model model) {
+  /**
+   * In case no team is selected yet, present the team selection.
+   * 
+   * @param model
+   * @return SelectTeam view
+   */
+  @RequestMapping(method = RequestMethod.GET)
+  public String selectTeam(Model model) {
+    // Find related virtual resource groups
+    Collection<VirtualResourceGroup> vrgs = virtualResourceGroupService.findAllForUser(Security.getUserDetails());
+    final Collection<String> existingIds = Lists.newArrayList(Collections2.transform(vrgs,
+        new Function<VirtualResourceGroup, String>() {
+          @Override
+          public String apply(VirtualResourceGroup group) {
+            return group.getSurfconextGroupId();
+          }
+        }));
+
+    // Transform to view
+    Collection<UserGroupView> existingTeams = ImmutableList.copyOf(Collections2.transform(vrgs,
+        Functions.FROM_VRG_TO_USER_GROUP_VIEW));
+
+    // Filter new teams
+    ImmutableList<UserGroupView> newTeams = FluentIterable.from(Security.getUserDetails().getUserGroups())
+        .filter(new Predicate<UserGroup>() {
+          @Override
+          public boolean apply(UserGroup group) {
+            return !existingIds.contains(group.getId());
+          }
+        }).transform(Functions.FROM_USER_GROUP_TO_USER_GROUP_VIEW).toImmutableList();
+
+    // Put result sorted on model
+    model.addAttribute("userGroupViews", Ordering.natural().sortedCopy(Iterables.concat(existingTeams, newTeams)));
+
+    return "virtualports/selectTeam";
+  }
+
+  @RequestMapping(method = RequestMethod.GET, params = { "teamLabel", "teamUrn" })
+  public String selectInstitute(@RequestParam String teamLabel, @RequestParam String teamUrn, Model model) {
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllWithPorts();
 
     model.addAttribute("physicalResourceGroups", prgNameOrdering().sortedCopy(groups));
+    model.addAttribute("teamLabel", teamLabel);
     model.addAttribute("teamUrn", teamUrn);
 
     return "virtualports/selectInstitute";
   }
 
-  @RequestMapping(method = RequestMethod.GET, params = { "id", "team" })
-  public String requestForm(@RequestParam Long id, @RequestParam("team") String teamUrn, Model model,
+  @RequestMapping(method = RequestMethod.GET, params = { "id", "teamUrn" })
+  public String requestForm(@RequestParam Long id, @RequestParam String teamUrn, Model model,
       RedirectAttributes redirectAttributes) {
 
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
@@ -158,7 +205,8 @@ public class VirtualPortRequestController {
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_send", prg.getInstitute()
         .getName());
 
-    // in case a new vrg was created and the user has no user role, clear the security context
+    // in case a new vrg was created and the user has no user role, clear the
+    // security context
     // prevent switching to a different role when it is not needed
     if (shouldClearSecurityContext && !Security.hasUserRole()) {
       SecurityContextHolder.clearContext();
@@ -169,10 +217,10 @@ public class VirtualPortRequestController {
 
   public static class RequestCommand {
 
-    @Length(min=0, max=255, message="Must be between 1 and 255 characters long")
+    @Length(min = 0, max = 255, message = "Must be between 1 and 255 characters long")
     private String userLabel;
 
-    @Length(min=1, max=255, message="Must be between 1 and 255 characters long")
+    @Length(min = 1, max = 255, message = "Must be between 1 and 255 characters long")
     private String message;
 
     @NotNull
@@ -181,7 +229,7 @@ public class VirtualPortRequestController {
     @NotEmpty
     private String userGroupId;
 
-    @Range(min=1, max=1000000, message="Must be between 1 and 1000000 mb/s")
+    @Range(min = 1, max = 1000000, message = "Must be between 1 and 1000000 mb/s")
     private Integer bandwidth;
 
     public RequestCommand() {
