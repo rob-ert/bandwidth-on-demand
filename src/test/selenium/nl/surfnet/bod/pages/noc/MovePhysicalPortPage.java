@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.pages.noc;
 
+import nl.surfnet.bod.pages.AbstractPage;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -28,9 +30,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 
-public final class MovePhysicalPortPage {
-
-  private final RemoteWebDriver driver;
+public final class MovePhysicalPortPage extends AbstractPage {
 
   @FindBy(id = "_c_new_physicalport")
   private WebElement newPhysicalPort;
@@ -54,7 +54,7 @@ public final class MovePhysicalPortPage {
   private WebElement nrReservationsDiv;
 
   private MovePhysicalPortPage(RemoteWebDriver driver) {
-    this.driver = driver;
+    super(driver);
   }
 
   public static MovePhysicalPortPage get(RemoteWebDriver driver) {

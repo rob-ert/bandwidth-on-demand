@@ -53,13 +53,13 @@ public class ListAllocatedPortsPage extends AbstractPhysicalPortListPage {
   public EditPhysicalPortPage edit(String nmsPortId) {
     editRow(nmsPortId);
 
-    return EditPhysicalPortPage.get(driver);
+    return EditPhysicalPortPage.get(getDriver());
   }
 
   public MovePhysicalPortPage movePort(String name) {
     clickRowIcon("icon-truck", name);
 
-    return MovePhysicalPortPage.get(driver);
+    return MovePhysicalPortPage.get(getDriver());
   }
 
 }

@@ -33,7 +33,7 @@ public class AbstractFormPage extends AbstractPage {
   public AbstractFormPage(RemoteWebDriver driver) {
     super(driver);
   }
-  
+
   public void save() {
     saveButton.click();
   }

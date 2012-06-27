@@ -49,7 +49,7 @@ public class ListUnallocatedPortsPage extends AbstractPhysicalPortListPage {
   public EditPhysicalPortPage edit(String nmsPortId) {
     clickRowIcon("icon-resize-small", nmsPortId);
 
-    return EditPhysicalPortPage.get(driver);
+    return EditPhysicalPortPage.get(getDriver());
   }
 
 }

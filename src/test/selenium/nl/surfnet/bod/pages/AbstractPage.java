@@ -23,6 +23,8 @@ package nl.surfnet.bod.pages;
 
 import java.util.List;
 
+import nl.surfnet.bod.support.Probes;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
@@ -36,7 +38,9 @@ import com.google.common.collect.Lists;
 
 public class AbstractPage {
 
-  protected final RemoteWebDriver driver;
+  private final RemoteWebDriver driver;
+
+  private final Probes probes;
 
   @FindBy(id = "alerts")
   private WebElement messagesDiv;
@@ -46,6 +50,7 @@ public class AbstractPage {
 
   public AbstractPage(RemoteWebDriver driver) {
     this.driver = driver;
+    probes = new Probes(driver);
   }
 
   public List<String> getInfoMessages() {
@@ -76,6 +81,14 @@ public class AbstractPage {
             return input.getText();
           }
         })));
+  }
+
+  protected Probes getProbes() {
+    return probes;
+  }
+
+  protected RemoteWebDriver getDriver() {
+    return driver;
   }
 
   private boolean containsAll(String input, String[] needles) {

@@ -25,8 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import nl.surfnet.bod.support.Probes;
-
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -42,14 +40,11 @@ import com.google.common.util.concurrent.Uninterruptibles;
 
 public class AbstractListPage extends AbstractPage {
 
-  private final Probes probes;
-
   @FindBy(css = "table.table tbody")
   private WebElement table;
 
   public AbstractListPage(RemoteWebDriver driver) {
     super(driver);
-    probes = new Probes(driver);
   }
 
   public String getTable() {
@@ -66,7 +61,7 @@ public class AbstractListPage extends AbstractPage {
 
   protected void deleteForIconAndVerifyAlert(String icon, String alertText, String... fields) {
     delete(icon, fields);
-    Alert alert = driver.switchTo().alert();
+    Alert alert = getDriver().switchTo().alert();
     alert.getText().contains(alertText);
     alert.accept();
 
@@ -76,7 +71,7 @@ public class AbstractListPage extends AbstractPage {
 
   protected void deleteForIcon(String icon, String... fields) {
     delete(icon, fields);
-    driver.switchTo().alert().accept();
+    getDriver().switchTo().alert().accept();
 
     // wait for the reload, row should be gone..
     Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
@@ -95,10 +90,6 @@ public class AbstractListPage extends AbstractPage {
 
     WebElement deleteButton = row.findElement(By.cssSelector(String.format("a i[class~=%s]", icon)));
     deleteButton.click();
-  }
-
-  protected Probes getProbes() {
-    return probes;
   }
 
   public boolean isTableEmpty() {

@@ -35,7 +35,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
-public class UserOverviewPage extends AbstractListPage {
+public final class UserOverviewPage extends AbstractListPage {
 
   private UserOverviewPage(RemoteWebDriver driver) {
     super(driver);
@@ -60,7 +60,7 @@ public class UserOverviewPage extends AbstractListPage {
 
   public void selectInstitute(String team) {
     try {
-      driver.findElementByPartialLinkText(team).click();
+      getDriver().findElementByPartialLinkText(team).click();
     }
     catch (NoSuchElementException e) {
       clickRowIcon("icon-envelope", team);

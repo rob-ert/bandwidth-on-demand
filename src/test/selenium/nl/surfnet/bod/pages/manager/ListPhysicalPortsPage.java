@@ -50,7 +50,7 @@ public class ListPhysicalPortsPage extends AbstractPhysicalPortListPage {
   public EditPhysicalPortPage edit(String nmsPortId) {
     editRow(nmsPortId);
 
-    return EditPhysicalPortPage.get(driver);
+    return EditPhysicalPortPage.get(getDriver());
   }
 
   public void newVirtualPort(String nmsPortId) {
