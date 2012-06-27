@@ -36,6 +36,11 @@
             <artifactId>bod-nsi</artifactId>
             <version>0.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>nl.surfnet.bod</groupId>
+            <artifactId>bod-mtosi</artifactId>
+            <version>0.1.0</version>
+        </dependency>
         <!-- Begin logging -->
         <dependency>
             <groupId>log4j</groupId>
@@ -614,32 +619,6 @@
                         <version>0.1.2</version>
                     </dependency>
                 </dependencies>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxws-maven-plugin</artifactId>
-                <version>1.12</version>
-                <executions>
-                    <execution>
-                        <id>mtosi-</id>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                        <configuration>
-                            <verbose>true</verbose>
-                            <keep>true</keep>
-                            <xnocompile>true</xnocompile>
-                            <wsdlDirectory>${basedir}/src/main/resources/mtosi/2.1/DDPs/ManageResourceInventory/IIS/wsdl/ResourceInventoryRetrieval</wsdlDirectory>
-                            <wsdlFiles>
-                                <wsdlFile>ResourceInventoryRetrievalHttp.wsdl</wsdlFile>
-                            </wsdlFiles>
-                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws/mtosi</sourceDestDir>
-                            <destDir />
-                            <staleFile>${project.build.directory}/generated-sources/jaxws/mtosi/gererate.done</staleFile>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
