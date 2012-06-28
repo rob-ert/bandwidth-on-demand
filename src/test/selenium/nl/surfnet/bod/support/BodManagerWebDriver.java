@@ -178,8 +178,13 @@ public class BodManagerWebDriver {
   }
 
   public void createVirtualPort(String name) {
+    createVirtualPort(name, null);
+  }
+
+  public void createVirtualPort(String name, String vpUserLabel) {
     NewVirtualPortPage page = NewVirtualPortPage.get(driver);
     page.sendName(name);
+    page.sendUserLabel(vpUserLabel);
     page.sendVlanId("23");
 
     page.save();

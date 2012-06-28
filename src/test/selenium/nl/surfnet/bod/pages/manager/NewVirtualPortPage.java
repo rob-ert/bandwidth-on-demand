@@ -91,6 +91,11 @@ public class NewVirtualPortPage extends AbstractFormPage {
     vlandIdInput.sendKeys(vlandId);
   }
 
+  public void sendUserLabel(String userLabel) {
+    userLabelInput.clear();
+    userLabelInput.sendKeys(userLabel);
+  }
+
   public String getSelectedPhysicalResourceGroup() {
     try {
       return new Select(physicalResourceGroupSelect).getFirstSelectedOption().getText();
