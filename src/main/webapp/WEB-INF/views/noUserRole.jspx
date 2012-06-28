@@ -26,11 +26,12 @@
 
                             <dl class="dl">
                                 <c:forEach var="group" items="${userGroups}">
-                                    <spring:url value="/request" var="url">
-                                        <spring:param value="${group.id}" name="team" />
+                                    <spring:url value="/request" var="new_vp_url">
+                                        <spring:param value="${group.name}" name="teamLabel"/> 
+                                        <spring:param value="${group.id}" name="teamUrn" />
                                     </spring:url>
                                     <dt>
-                                        <a href="${url}"><c:out value="${group.name}" /></a>
+                                        <a href="${new_vp_url}"><c:out value="${group.name}" /></a>
                                     </dt>
                                     <dd>
                                         <c:out value="${group.description}" />

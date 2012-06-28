@@ -109,21 +109,22 @@ app.table = function(){
 
     var initTeamsDataListFilter = function() {
 
-        var component = $('[data-component="teams-datalist-filter"]');
+        var component = $('[data-component="teams-datalist-filter"]');        
 
         if(component.length) {
-        	  console.log("Found datalist filter");
+        	  var radio = component.find(':radio');
+        	  radio.find('existing').val(true);
 
             var datalist = component.siblings('dl'),
                 rows = datalist.find('dt.new');
 
-                component.find(':radio').on('change', function() {
+                radio.on('change', function() {
                     var showAll = component.find(':radio:checked').val() === 'all';
 
                     rows.each (function (i, item){
-                    	var dt = $(item);
-                    	dt.css({display: showAll ? 'block' : 'none'});
-                    	dt.next('dd').css({display: showAll ? 'block' : 'none'});
+                      var dt = $(item);
+                      dt.css({display: showAll ? 'block' : 'none'});
+                      dt.next('dd').css({display: showAll ? 'block' : 'none'});
                     })
                 });
         }

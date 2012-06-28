@@ -89,9 +89,8 @@ public class VirtualPortRequestControllerTest {
     when(
         messageSourceMock.getMessage(eq("info_virtualport_request_invalid_group"), any(Object[].class),
             any(Locale.class))).thenReturn("Invalid");
-    when(
-        messageSourceMock.getMessage(eq("info_virtualport_request_send"), any(Object[].class),
-            any(Locale.class))).thenReturn("Send");
+    when(messageSourceMock.getMessage(eq("info_virtualport_request_send"), any(Object[].class), any(Locale.class)))
+        .thenReturn("Send");
   }
 
   @SuppressWarnings("unchecked")
@@ -108,7 +107,7 @@ public class VirtualPortRequestControllerTest {
 
     when(physicalResourceGroupServiceMock.findAllWithPorts()).thenReturn(Lists.newArrayList(group3, group1, group2));
 
-    subject.selectInstitute("", model);
+    subject.selectInstitute("label", "urn", model);
 
     assertThat(model.asMap(), hasKey("physicalResourceGroups"));
     assertThat(((Collection<PhysicalResourceGroup>) model.asMap().get("physicalResourceGroups")),
