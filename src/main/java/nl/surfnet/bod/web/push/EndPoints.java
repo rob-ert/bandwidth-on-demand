@@ -66,10 +66,14 @@ public class EndPoints {
     connection.setAsyncContext(asyncContext);
 
     if (count == 1) {
-      endPoints.put(id, connection);
+      addClient(id, connection);
       connection.sendMessage(" ");
-      logger.debug("Added a new client {}, total {}", id, endPoints.size());
     }
+  }
+
+  protected void addClient(String id, EndPoint connection) {
+    endPoints.put(id, connection);
+    logger.debug("Added a new client {}, total {}", id, endPoints.size());
   }
 
   public void removeClient(String id) {
