@@ -32,6 +32,5 @@
             <ws:service bean="#nsiProvider_v1_sc" />
         </wss:service>
     </wss:binding>
-    
 
 </beans>
