@@ -70,6 +70,7 @@ section h2 {
     list-style: none;
 }
 
+.form .filter,
 .dl,
 .ul {
     margin-left: 3em;

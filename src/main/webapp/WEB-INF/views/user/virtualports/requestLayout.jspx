@@ -23,7 +23,7 @@
                 <h2><spring:message code="label_help_text_header" /></h2>
                 <div class="content-dense">
                     <h3>Select the Team</h3>
-                    <p>Choose the team for which you want to request the port. 
+                    <p>Choose the team for which you want to request a port. 
                     When changing the selection to 'Show all', all teams will be shown. 
                     Default only the teams which already have ports associated are displayed.</p>
                     <h3>Choose the Institute</h3>

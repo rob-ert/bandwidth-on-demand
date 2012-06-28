@@ -109,24 +109,26 @@ app.table = function(){
 
     var initTeamsDataListFilter = function() {
 
-        var component = $('[data-component="teams-datalist-filter"]');        
+        var component = $('[data-component="teams-datalist-filter"]');
 
         if(component.length) {
-        	  var radio = component.find(':radio');
-        	  radio.find('existing').val(true);
+            var radio = component.find(':radio'),
+                  datalist = component.siblings('dl'),
+                  rows = datalist.find('dt.new'),
+                  showSelected = function () {
+                      var showAll = component.find(':radio:checked').val() === 'all';
 
-            var datalist = component.siblings('dl'),
-                rows = datalist.find('dt.new');
+                      rows.each (function (i, item){
+                            var dt = $(item);
+                            dt.css({display: showAll ? 'block' : 'none'});
+                            dt.next('dd').css({display: showAll ? 'block' : 'none'});
+                      });
+                  }
+            radio.on('change', function() {
+                showSelected();
+            });
 
-                radio.on('change', function() {
-                    var showAll = component.find(':radio:checked').val() === 'all';
-
-                    rows.each (function (i, item){
-                      var dt = $(item);
-                      dt.css({display: showAll ? 'block' : 'none'});
-                      dt.next('dd').css({display: showAll ? 'block' : 'none'});
-                    })
-                });
+            showSelected();
         }
     };
 
