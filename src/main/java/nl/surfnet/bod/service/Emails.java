@@ -42,7 +42,7 @@ public final class Emails {
 
   public static class ActivationEmail {
     private static final String ACTIVATION_BODY = //
-    "Dear ICT Administrator,\n\n" //
+    "Dear BoD Administrator,\n\n" //
         + "Please click the link to activate the email address for institute: %s" //
         + FOOTER;
 
@@ -57,7 +57,7 @@ public final class Emails {
 
   public static class VirtualPortRequestMail {
     private static final String VIRTUAL_PORT_REQUEST_BODY = //
-    "Dear ICT Administrator,\n\n" //
+    "Dear BoD Administrator,\n\n" //
         + "You have received a new Virtual Port Request.\n\n" //
         + "From: %s (%s)\n" //
         + "Team: %s\n" //
