@@ -21,44 +21,35 @@
  */
 package nl.surfnet.bod.pages.user;
 
-import nl.surfnet.bod.pages.AbstractListPage;
+import nl.surfnet.bod.pages.AbstractPage;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class ListVirtualPortPage extends AbstractListPage {
+public final class RequestNewVirtualPortSelectTeamPage extends AbstractPage {
 
-  private static final String PAGE = "/virtualports";
+  @FindBy(name = "all")
+  private WebElement radioButtonAll;
 
-  @FindBy(id = "reqVpId")
-  private WebElement requestVirtualPortLink;
-  
-  public ListVirtualPortPage(RemoteWebDriver driver) {
+  private RequestNewVirtualPortSelectTeamPage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public static ListVirtualPortPage get(RemoteWebDriver driver) {
-    ListVirtualPortPage page = new ListVirtualPortPage(driver);
+  public static RequestNewVirtualPortSelectTeamPage get(RemoteWebDriver driver) {
+    RequestNewVirtualPortSelectTeamPage page = new RequestNewVirtualPortSelectTeamPage(driver);
     PageFactory.initElements(driver, page);
 
     return page;
   }
 
-  public static ListVirtualPortPage get(RemoteWebDriver driver, String urlUnderTest) {
-    driver.get(urlUnderTest + PAGE);
-    return get(driver);
+  public RequestNewVirtualPortRequestPage selectTeam(String team) {
+
+    radioButtonAll.click();
+    getDriver().findElementByLinkText(team).click();
+
+    return RequestNewVirtualPortRequestPage.get(getDriver());
   }
 
-  public EditVirtualPortPage edit(String oldLabel) {
-    editRow(oldLabel);
-    return EditVirtualPortPage.get(getDriver());
-  }
-
-  public RequestNewVirtualPortSelectTeamPage requestVirtualPort() {
-    requestVirtualPortLink.click();
-
-    return RequestNewVirtualPortSelectTeamPage.get(getDriver());
-  }
 }

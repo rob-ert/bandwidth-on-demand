@@ -69,6 +69,15 @@ public class BodUserWebDriver {
     page.reservationShouldBe(startDate, endDate, startTime, endTime, ReservationStatus.CANCELLED);
   }
 
+  public void selectTeamInstituteAndRequest(String team, String institute, String userLabel, Integer bandwidth, String message) {
+    ListVirtualPortPage page = ListVirtualPortPage.get(driver);
+
+    RequestNewVirtualPortSelectTeamPage selectTeamPage = page.requestVirtualPort();
+    selectTeamPage.selectTeam(team);
+
+    selectInstituteAndRequest(institute, userLabel, bandwidth, message);
+  }
+
   public void selectInstituteAndRequest(String institute, String userLabel, Integer bandwidth, String message) {
     RequestNewVirtualPortSelectInstitutePage page = RequestNewVirtualPortSelectInstitutePage.get(driver);
 
@@ -167,7 +176,7 @@ public class BodUserWebDriver {
   public void verifyReservationWasCreated(String label) {
     ListReservationPage page = ListReservationPage.get(driver);
 
-    assertThat(page.getInfoMessages(), Matchers.<String>hasItem(containsString(label)));
+    assertThat(page.getInfoMessages(), Matchers.<String> hasItem(containsString(label)));
 
     page.verifyReservationExists(label);
   }

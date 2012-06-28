@@ -65,7 +65,8 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
 
     getUserDriver().verifyRequestVirtualPortInstituteInactive("2COLLEGE");
 
-    getUserDriver().selectInstituteAndRequest("SURFnet bv", "Mijn nieuwe poort", 1200, "I would like to have a new port");
+    getUserDriver().selectInstituteAndRequest("SURFnet bv", "Mijn nieuwe poort", 1200,
+        "I would like to have a new port");
 
     getUserDriver().switchToManager("SURFnet");
 
@@ -111,6 +112,23 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
     getUserDriver().switchToManager("SURFnet");
 
     getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "selenium-users");
+  }
+
+  @Test
+  public void requestAVirtualPortUsingButtonOnListPage() {
+    getManagerDriver().switchToUser();
+
+    getUserDriver().selectTeamInstituteAndRequest("selenium-users", "SURFnet bv", "myVP", 1000, "Doe mijn een nieuw poort...");
+
+    getUserDriver().switchToManager("SURFnet");
+
+    getWebDriver().clickLinkInLastEmail();
+
+    getManagerDriver().acceptVirtualPort("New VP");
+
+    getManagerDriver().switchToUser();
+
+    getUserDriver().verifyVirtualPortExists("myVP", "1000", "SURFnet bv");
   }
 
 }
