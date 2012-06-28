@@ -177,4 +177,16 @@ public class PhysicalResourceGroupControllerTest {
     verify(physicalResourceGroupServiceMock, never()).update(group);
   }
 
+  @Test
+  public void commandShouldTrimGroupUrn() {
+    PhysicalResourceGroupCommand subject = new PhysicalResourceGroupCommand();
+    subject.setAdminGroup("  urn:surfguest:group-one ");
+
+    PhysicalResourceGroup group = new PhysicalResourceGroup();
+
+    subject.copyFieldsTo(group);
+
+    assertThat(group.getAdminGroup(), is("urn:surfguest:group-one"));
+  }
+
 }
