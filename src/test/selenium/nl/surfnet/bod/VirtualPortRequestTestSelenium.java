@@ -102,9 +102,9 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
 
     getManagerDriver().switchToUser();
 
-    getUserDriver().verifyVirtualPortExists("Mijn nieuwe poort", "1000", "selenium-users");
+    getUserDriver().verifyVirtualPortExists("Edited vport", "1000", "selenium-users");
 
-    getUserDriver().editVirtualPort("Mijn nieuwe poort", "User label");
+    getUserDriver().editVirtualPort("Edited vport", "User label");
 
     getUserDriver().verifyVirtualPortExists("User label", "1000", "selenium-users");
 
