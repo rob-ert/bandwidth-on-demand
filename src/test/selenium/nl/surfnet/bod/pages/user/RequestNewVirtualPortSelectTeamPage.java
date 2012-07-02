@@ -30,8 +30,8 @@ import org.openqa.selenium.support.PageFactory;
 
 public final class RequestNewVirtualPortSelectTeamPage extends AbstractPage {
 
-  @FindBy(name = "all")
-  private WebElement radioButtonAll;
+  @FindBy(id="_all")
+  private WebElement radioButton;
 
   private RequestNewVirtualPortSelectTeamPage(RemoteWebDriver driver) {
     super(driver);
@@ -46,7 +46,7 @@ public final class RequestNewVirtualPortSelectTeamPage extends AbstractPage {
 
   public RequestNewVirtualPortRequestPage selectTeam(String team) {
 
-    radioButtonAll.click();
+    radioButton.click();
     getDriver().findElementByLinkText(team).click();
 
     return RequestNewVirtualPortRequestPage.get(getDriver());

@@ -118,7 +118,8 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
   public void requestAVirtualPortUsingButtonOnListPage() {
     getManagerDriver().switchToUser();
 
-    getUserDriver().selectTeamInstituteAndRequest("selenium-users", "SURFnet bv", "myVP", 1000, "Doe mijn een nieuw poort...");
+    getUserDriver().selectTeamInstituteAndRequest("selenium-users", "SURFnet bv", "myVP", 1000,
+        "Doe mijn een nieuw poort...");
 
     getUserDriver().switchToManager("SURFnet");
 
@@ -128,7 +129,7 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
 
     getManagerDriver().switchToUser();
 
-    getUserDriver().verifyVirtualPortExists("myVP", "1000", "SURFnet bv");
+    getUserDriver().verifyVirtualPortExists("myVP", "1000", "selenium-users", "SURFnet bv");
   }
 
 }

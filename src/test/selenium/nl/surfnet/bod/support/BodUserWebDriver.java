@@ -70,7 +70,7 @@ public class BodUserWebDriver {
   }
 
   public void selectTeamInstituteAndRequest(String team, String institute, String userLabel, Integer bandwidth, String message) {
-    ListVirtualPortPage page = ListVirtualPortPage.get(driver);
+    ListVirtualPortPage page = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
 
     RequestNewVirtualPortSelectTeamPage selectTeamPage = page.requestVirtualPort();
     selectTeamPage.selectTeam(team);
