@@ -38,6 +38,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.annotations.VisibleForTesting;
+
 @Service
 @Transactional
 public class InstituteIddService implements InstituteService {
@@ -51,6 +53,9 @@ public class InstituteIddService implements InstituteService {
 
   @Autowired
   private InstituteRepo instituteRepo;
+
+  @Autowired
+  LogEventService logEventService;
 
   @Override
   public Institute find(Long id) {
@@ -76,8 +81,11 @@ public class InstituteIddService implements InstituteService {
 
     // Align With IDD
     Collection<Klanten> klanten = iddClient.getKlanten();
-    instituteRepo.save(Functions.transformKlanten(klanten, true));
+    Collection<Institute> institutes = Functions.transformKlanten(klanten, true);
+    instituteRepo.save(institutes);
     logger.info("Retrieved {} institutes from IDD and updated them in the BoD database: ", klanten.size());
+
+    logEventService.logUpdateEvent(institutes);
   }
 
   private void markNotAligned(List<Institute> allInstitutes) {

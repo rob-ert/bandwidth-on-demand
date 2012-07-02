@@ -58,6 +58,10 @@ public class EmailSenderOnlineTest {
   @Mock
   private MailSender mailSenderMock;
 
+  @SuppressWarnings(value = "unused")
+  @Mock
+  private LogEventService logEventService;
+
   @Captor
   private ArgumentCaptor<SimpleMailMessage> messageCaptor;
 

@@ -31,6 +31,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.web.security.Security;
 
 import org.opensocial.Client;
 import org.opensocial.RequestException;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
@@ -56,10 +58,15 @@ public class GroupOpenSocialService implements GroupService {
   @Autowired
   private Environment env;
 
+  @Autowired
+  private LogEventService logEventService;
+
   @Override
   public Collection<UserGroup> getGroups(String nameId) {
     try {
+
       List<Group> osGroups = getClient(nameId).send(GroupsService.getGroups()).getEntries();
+      logEventService.logReadEvent(Security.getUserDetails(), osGroups);
 
       return Lists.newArrayList(Lists.transform(osGroups, new Function<Group, UserGroup>() {
         @Override
@@ -95,5 +102,10 @@ public class GroupOpenSocialService implements GroupService {
 
   protected void setEnvironment(Environment environment) {
     this.env = environment;
+  }
+  
+  @VisibleForTesting
+  void setLogEventService(LogEventService logEventService) {
+    this.logEventService = logEventService;
   }
 }

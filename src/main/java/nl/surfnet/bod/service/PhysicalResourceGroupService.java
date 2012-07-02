@@ -21,9 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +36,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import nl.surfnet.bod.web.security.Security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +48,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Function;
+
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
 
 @Service
 @Transactional
@@ -65,6 +66,9 @@ public class PhysicalResourceGroupService {
 
   @Autowired
   private EmailSender emailSender;
+
+  @Autowired
+  private LogEventService logEventService;
 
   public long count() {
     return physicalResourceGroupRepo.count();
@@ -91,6 +95,7 @@ public class PhysicalResourceGroupService {
   }
 
   public PhysicalResourceGroup update(final PhysicalResourceGroup physicalResourceGroup) {
+    logEventService.logUpdateEvent(Security.getUserDetails(), physicalResourceGroup);
     return physicalResourceGroupRepo.save(physicalResourceGroup);
   }
 
@@ -119,8 +124,8 @@ public class PhysicalResourceGroupService {
 
   @SuppressWarnings("unchecked")
   public ActivationEmailLink<PhysicalResourceGroup> findActivationLink(String uuid) {
-    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = (ActivationEmailLink<PhysicalResourceGroup>)
-        activationEmailLinkRepo.findByUuid(uuid);
+    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo
+        .findByUuid(uuid);
 
     if (activationEmailLink != null) {
       activationEmailLink.setSourceObject(find(activationEmailLink.getSourceId()));
@@ -146,6 +151,7 @@ public class PhysicalResourceGroupService {
     activationEmailLink.activate();
     activationEmailLink.getSourceObject().setActive(true);
 
+    logEventService.logCreateEvent(Security.getUserDetails(), activationEmailLink);
     activationEmailLinkRepo.save(activationEmailLink);
     update(activationEmailLink.getSourceObject());
   }

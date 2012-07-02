@@ -77,6 +77,10 @@ public class VirtualPortServiceTest {
   @Mock
   private EmailSender emailSenderMock;
 
+  @SuppressWarnings(value = "unused")
+  @Mock
+  private LogEventService logEventService;
+
   private RichUserDetails user;
 
   @org.junit.Before

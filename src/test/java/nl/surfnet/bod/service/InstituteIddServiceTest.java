@@ -48,6 +48,10 @@ public class InstituteIddServiceTest {
 
   @Mock
   private InstituteRepo instituteRepoMock;
+  
+  @SuppressWarnings(value = "unused")
+  @Mock
+  private LogEventService logEventService;
 
   @Test
   public void refreshingInstitutes() {

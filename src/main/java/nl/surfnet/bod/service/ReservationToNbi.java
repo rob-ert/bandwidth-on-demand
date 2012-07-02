@@ -29,6 +29,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.web.security.Security;
 
 @Service
 @Transactional
@@ -36,17 +37,21 @@ public class ReservationToNbi {
 
   @Autowired
   private NbiClient nbiClient;
-  
+
   @Autowired
   private ReservationRepo reservationRepo;
-  
+
   @Autowired
   private ReservationEventPublisher reservationEventPublisher;
+
+  @Autowired
+  LogEventService logEventService;
 
   public void submitNewReservation(Long reservationId, boolean autoProvision) {
     Reservation reservation = reservationRepo.findOne(reservationId);
     final ReservationStatus orgStatus = reservation.getStatus();
     final Reservation reservationWithReservationId = nbiClient.createReservation(reservation, autoProvision);
+
     reservation = reservationRepo.save(reservationWithReservationId);
     publishStatusChanged(reservationWithReservationId, orgStatus);
   }
@@ -56,6 +61,8 @@ public class ReservationToNbi {
       return;
     }
     ReservationStatusChangeEvent createEvent = new ReservationStatusChangeEvent(originalStatus, reservation);
+
+    logEventService.logUpdateEvent(Security.getUserDetails(), reservation, "State change: " + createEvent);
     reservationEventPublisher.notifyListeners(createEvent);
   }
 }

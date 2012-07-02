@@ -63,6 +63,10 @@ public class VirtualResourceGroupServiceTest {
   @Mock
   private VirtualResourceGroupRepo groupRepoMock;
 
+  @SuppressWarnings(value = "unused")
+  @Mock
+  private LogEventService logEventService;
+
   @Test
   public void findVirtualResourceGroupsForUser() {
     String groupOfLoggedInUser = "urn:myfirstgroup";
@@ -144,8 +148,8 @@ public class VirtualResourceGroupServiceTest {
   @Test
   public void findByUserGroupsShouldMatchingGroups() {
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
-    when(groupRepoMock.findBySurfconextGroupIdIn(Lists.newArrayList("urn:mygroup"))).thenReturn(
-        Lists.newArrayList(vrg));
+    when(groupRepoMock.findBySurfconextGroupIdIn(Lists.newArrayList("urn:mygroup")))
+        .thenReturn(Lists.newArrayList(vrg));
 
     Collection<VirtualResourceGroup> vrgs = subject.findByUserGroups(Lists.newArrayList(new UserGroupFactory().setId(
         "urn:mygroup").create()));

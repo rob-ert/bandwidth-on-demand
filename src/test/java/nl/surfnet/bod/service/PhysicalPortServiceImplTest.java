@@ -71,16 +71,20 @@ public class PhysicalPortServiceImplTest {
   @Mock
   private PhysicalPortRepo physicalPortRepoMock;
 
+  @SuppressWarnings(value = "unused")
   @Mock
   private Environment environmentMock;
+
+  @SuppressWarnings(value = "unused")
+  @Mock
+  private LogEventService logEventService;
 
   private Map<String, PhysicalPort> physicalPortMap = Maps.newHashMap();
 
   @Before
   public void setUp() {
-    ArrayList<PhysicalPort> physicalPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("1")
-        .create(), new PhysicalPortFactory().setNmsPortId("2").create(), new PhysicalPortFactory()
-        .setNmsPortId("3").create());
+    ArrayList<PhysicalPort> physicalPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("1").create(),
+        new PhysicalPortFactory().setNmsPortId("2").create(), new PhysicalPortFactory().setNmsPortId("3").create());
 
     physicalPortMap.put(physicalPorts.get(0).getNmsPortId(), physicalPorts.get(0));
     physicalPortMap.put(physicalPorts.get(1).getNmsPortId(), physicalPorts.get(1));
@@ -89,9 +93,9 @@ public class PhysicalPortServiceImplTest {
 
   @Test
   public void findAllShouldMergePorts() {
-    List<PhysicalPort> nbiPorts = Lists.newArrayList(new PhysicalPortFactory().setNocLabel("noc label")
-        .setNmsPortId("first").setId(null).create(), new PhysicalPortFactory().setNocLabel("noc label")
-        .setNmsPortId("second").setId(null).create());
+    List<PhysicalPort> nbiPorts = Lists.newArrayList(
+        new PhysicalPortFactory().setNocLabel("noc label").setNmsPortId("first").setId(null).create(),
+        new PhysicalPortFactory().setNocLabel("noc label").setNmsPortId("second").setId(null).create());
 
     List<PhysicalPort> repoPorts = Lists.newArrayList(new PhysicalPortFactory().setNocLabel("overwrite")
         .setNmsPortId("first").setId(1L).setVersion(2).create());

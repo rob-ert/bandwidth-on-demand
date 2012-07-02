@@ -70,10 +70,15 @@ public class ReservationServiceTest {
   @Mock
   private ReservationRepo reservationRepoMock;
 
-  @Mock private ReservationToNbi reservationToNbiMock;
+  @Mock
+  private ReservationToNbi reservationToNbiMock;
 
   @Mock
   private NbiClient nbiClientMock;
+
+  @SuppressWarnings(value = "unused")
+  @Mock
+  private LogEventService logEventService;
 
   @Test
   public void whenTheUserHasNoGroupsTheReservationsShouldBeEmpty() {
@@ -127,8 +132,7 @@ public class ReservationServiceTest {
     VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg1).create();
     VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg2).create();
 
-    Reservation reservation = new ReservationFactory().setSourcePort(source)
-        .setDestinationPort(destination).create();
+    Reservation reservation = new ReservationFactory().setSourcePort(source).setDestinationPort(destination).create();
 
     subject.create(reservation);
   }
@@ -155,7 +159,6 @@ public class ReservationServiceTest {
     assertThat(reservation.getStartDateTime(), isAfterNow());
   }
 
-
   @Test(expected = IllegalStateException.class)
   public void updatingDifferentVirtualResrouceGroupsShouldGiveAnIllegalStateException() {
     VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().create();
@@ -163,8 +166,7 @@ public class ReservationServiceTest {
     VirtualPort source = new VirtualPortFactory().setVirtualResourceGroup(vrg1).create();
     VirtualPort destination = new VirtualPortFactory().setVirtualResourceGroup(vrg2).create();
 
-    Reservation reservation = new ReservationFactory().setSourcePort(source)
-        .setDestinationPort(destination).create();
+    Reservation reservation = new ReservationFactory().setSourcePort(source).setDestinationPort(destination).create();
 
     subject.update(reservation);
   }
@@ -182,8 +184,7 @@ public class ReservationServiceTest {
   public void cancelAReservationAsAUserInGroupShouldChangeItsStatus() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole()
-        .addUserGroup(reservation.getVirtualResourceGroup().getSurfconextGroupId())
-        .setDisplayname("Piet Puk").create();
+        .addUserGroup(reservation.getVirtualResourceGroup().getSurfconextGroupId()).setDisplayname("Piet Puk").create();
     Security.setUserDetails(richUserDetails);
 
     boolean result = subject.cancel(reservation, richUserDetails);
@@ -226,9 +227,8 @@ public class ReservationServiceTest {
   public void cancelAReservationAsAManagerInSourcePortPrgShouldChangeItsStatus() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
 
-    RichUserDetails richUserDetails = new RichUserDetailsFactory()
-      .addManagerRole(reservation.getSourcePort().getPhysicalPort().getPhysicalResourceGroup())
-      .create();
+    RichUserDetails richUserDetails = new RichUserDetailsFactory().addManagerRole(
+        reservation.getSourcePort().getPhysicalPort().getPhysicalResourceGroup()).create();
     Security.setUserDetails(richUserDetails);
 
     boolean cancelled = subject.cancel(reservation, richUserDetails);
@@ -244,9 +244,8 @@ public class ReservationServiceTest {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
     reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup().setAdminGroup("urn:different");
 
-    RichUserDetails richUserDetails = new RichUserDetailsFactory()
-        .addManagerRole(reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup())
-        .create();
+    RichUserDetails richUserDetails = new RichUserDetailsFactory().addManagerRole(
+        reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup()).create();
     Security.setUserDetails(richUserDetails);
 
     boolean cancelled = subject.cancel(reservation, richUserDetails);
@@ -316,8 +315,7 @@ public class ReservationServiceTest {
       reservations.add(new ReservationFactory().create());
     }
 
-    final Collection<ReservationArchive> flattenedReservations = subject
-        .transformToReservationArchives(reservations);
+    final Collection<ReservationArchive> flattenedReservations = subject.transformToReservationArchives(reservations);
 
     assertThat(flattenedReservations, hasSize(10));
   }

@@ -107,6 +107,9 @@ public class ReservationService {
   @PersistenceContext
   private EntityManager entityManager;
 
+  @Autowired
+  private LogEventService logEventService;
+
   /**
    * Activates an existing reservation;
    * 
@@ -149,8 +152,9 @@ public class ReservationService {
     fillStartTimeIfEmpty(reservation);
     stripSecondsAndMillis(reservation);
 
-    reservation = reservationRepo.save(reservation);
+    logEventService.logCreateEvent(Security.getUserDetails(), reservation);
 
+    reservation = reservationRepo.save(reservation);
     reservationToNbi.submitNewReservation(reservation.getId(), autoProvision);
   }
 
@@ -201,6 +205,7 @@ public class ReservationService {
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
 
     log.debug("Updating reservation: {}", reservation.getReservationId());
+    logEventService.logUpdateEvent(Security.getUserDetails(), reservation);
     return reservationRepo.save(reservation);
   }
 
@@ -492,7 +497,12 @@ public class ReservationService {
         nbiClient.cancelReservation(reservation.getReservationId());
       }
     }
-    reservationArchiveRepo.save(transformToReservationArchives(reservations));
+
+    Collection<ReservationArchive> reservationArchives = transformToReservationArchives(reservations);
+    logEventService.logCreateEvent(Security.getUserDetails(), reservationArchives);
+    reservationArchiveRepo.save(reservationArchives);
+
+    logEventService.logDeleteEvent(Security.getUserDetails(), reservations);
     reservationRepo.delete(reservations);
   }
 
@@ -517,6 +527,9 @@ public class ReservationService {
   }
 
   public boolean cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user) {
+
+    logEventService.logDeleteEvent(Security.getUserDetails(), reservation, cancelReason);
+
     if (isDeleteAllowed(reservation, user.getSelectedRole()).isAllowed()) {
       nbiClient.cancelReservation(reservation.getReservationId());
       reservation.setStatus(CANCELLED);

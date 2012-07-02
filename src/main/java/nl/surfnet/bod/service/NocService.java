@@ -47,6 +47,9 @@ public class NocService {
   @Autowired
   private PhysicalPortService physicalPortService;
 
+  @Autowired
+  private LogEventService logEventService;
+
   @Transactional
   public Collection<Reservation> movePort(PhysicalPort oldPort, PhysicalPort newPort) {
     Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(oldPort);

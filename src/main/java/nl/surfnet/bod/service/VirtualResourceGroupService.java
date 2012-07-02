@@ -37,6 +37,7 @@ import javax.persistence.criteria.Subquery;
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -54,6 +55,9 @@ public class VirtualResourceGroupService {
   @Autowired
   private VirtualResourceGroupRepo virtualResourceGroupRepo;
 
+  @Autowired
+  private LogEventService logEventService;
+
   public long count() {
     return virtualResourceGroupRepo.count();
   }
@@ -65,6 +69,7 @@ public class VirtualResourceGroupService {
   }
 
   public void delete(final VirtualResourceGroup virtualResourceGroup) {
+    logEventService.logDeleteEvent(Security.getUserDetails(), virtualResourceGroup);
     virtualResourceGroupRepo.delete(virtualResourceGroup);
   }
 
@@ -112,10 +117,12 @@ public class VirtualResourceGroupService {
   }
 
   public void save(final VirtualResourceGroup virtualResourceGroup) {
+    logEventService.logCreateEvent(Security.getUserDetails(), virtualResourceGroup);
     virtualResourceGroupRepo.save(virtualResourceGroup);
   }
 
   public VirtualResourceGroup update(final VirtualResourceGroup virtualResourceGroup) {
+    logEventService.logUpdateEvent(Security.getUserDetails(), virtualResourceGroup);
     return virtualResourceGroupRepo.save(virtualResourceGroup);
   }
 

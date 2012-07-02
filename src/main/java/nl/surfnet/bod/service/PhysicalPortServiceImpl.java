@@ -36,6 +36,7 @@ import nl.surfnet.bod.mtosi.MtosiLiveClient;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.web.security.Security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,15 +54,15 @@ import com.google.common.collect.Sets.SetView;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
- *
+ * 
  * The {@link PhysicalPort}s found in the {@link NbiPortService} are leading and
  * when more data is available in our repository they will be enriched.
- *
+ * 
  * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
- *
- *
+ * 
+ * 
  * @author Frank Mölder
  */
 @Service
@@ -79,6 +80,9 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Autowired
   private MtosiLiveClient mtosiClient;
+
+  @Autowired
+  private LogEventService logEventService;
 
   /**
    * Finds all ports using the North Bound Interface and enhances these ports
@@ -115,7 +119,6 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   public List<PhysicalPort> findUnalignedPhysicalPorts() {
     return physicalPortRepo.findAll(UNALIGNED_PORT_SPEC);
   }
-
 
   private List<PhysicalPort> limitPorts(Collection<PhysicalPort> ports, int firstResult, int sizeNo) {
     return newArrayList(limit(skip(ports, firstResult), sizeNo));
@@ -162,6 +165,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public void delete(final PhysicalPort physicalPort) {
+    logEventService.logDeleteEvent(Security.getUserDetails(), physicalPort);
     physicalPortRepo.delete(physicalPort);
   }
 
@@ -172,17 +176,19 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Override
   public void save(final PhysicalPort physicalPort) {
+    logEventService.logCreateEvent(Security.getUserDetails(), physicalPort);
     physicalPortRepo.save(physicalPort);
   }
 
   @Override
   public PhysicalPort update(final PhysicalPort physicalPort) {
+    logEventService.logUpdateEvent(Security.getUserDetails(), physicalPort);
     return physicalPortRepo.save(physicalPort);
   }
 
   /**
    * Adds data found in given ports to the specified ports, enriches them.
-   *
+   * 
    * @param nbiPorts
    *          {@link PhysicalPort}s to add the data to
    * @param repoPorts
@@ -228,8 +234,8 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Scheduled(cron = "${" + PORT_DETECTION_CRON_KEY + "}")
   public void detectAndPersistPortInconsistencies() {
-    logger
-        .info("Detecting port inconssistencies with the NMS, job based on configuration key: {}", PORT_DETECTION_CRON_KEY);
+    logger.info("Detecting port inconssistencies with the NMS, job based on configuration key: {}",
+        PORT_DETECTION_CRON_KEY);
     final ImmutableSet<String> nbiPortIds = ImmutableSet.copyOf(Lists.transform(nbiClient.findAllPhysicalPorts(),
         Functions.TO_NMS_PORT_ID_FUNC));
 
@@ -241,9 +247,11 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     final ImmutableMap<String, PhysicalPort> immutablePorts = ImmutableMap.copyOf(physicalPorts);
 
     List<PhysicalPort> reappearedPortsInNMS = markRealignedPortsInNMS(immutablePorts, nbiPortIds);
+    logEventService.logCreateEvent(reappearedPortsInNMS);
     physicalPortRepo.save(reappearedPortsInNMS);
 
     List<PhysicalPort> dissapearedPortsFromNMS = markUnalignedWithNMS(immutablePorts, nbiPortIds);
+    logEventService.logCreateEvent(dissapearedPortsFromNMS);
     physicalPortRepo.save(dissapearedPortsFromNMS);
   }
 
@@ -273,7 +281,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    * <strong>not</strong> indicated as missing have disappeared from the NMS by
    * finding the differences between the ports in the given list and the ports
    * returned by the NMS based on the {@link PhysicalPort#getNmsPortId()} .
-   *
+   * 
    * @param bodPorts
    *          List with ports from BoD
    * @param nbiPortIds
@@ -302,10 +310,10 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Enriches the port with additional data.
-   *
+   * 
    * Clones JPA attributes (id and version), so a find will return these
    * preventing a additional save instead of an update.
-   *
+   * 
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort
@@ -323,4 +331,3 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     portToEnrich.setBodPortId(dataPort.getBodPortId());
   }
 }
-

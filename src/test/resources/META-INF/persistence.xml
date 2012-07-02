@@ -35,6 +35,7 @@
         <class>nl.surfnet.bod.domain.VirtualPortRequestLink</class>
         <class>nl.surfnet.bod.domain.Connection</class>
         <class>nl.surfnet.bod.domain.Institute</class>
+        <class>nl.surfnet.bod.event.LogEvent</class>
         <properties>
             <!-- value="create" to build a new database on each run; value="update" to modify an existing database; value="create-drop" means the same as "create" but also drops tables when Hibernate closes; value="validate" makes no changes to the database -->
             <property name="hibernate.hbm2ddl.auto" value="update"/>
