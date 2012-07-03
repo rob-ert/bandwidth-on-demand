@@ -130,6 +130,9 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
           physicalResourceGroup.getName(), physicalResourceGroup.getManagerEmail());
     }
 
+    // Force refresh of roles
+    SecurityContextHolder.clearContext();
+
     return "redirect:" + PAGE_URL;
   }
 

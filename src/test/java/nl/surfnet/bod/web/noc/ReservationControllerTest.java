@@ -34,6 +34,7 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
@@ -73,6 +74,7 @@ public class ReservationControllerTest {
 
   @Before
   public void setUp() {
+    Security.setUserDetails(new RichUserDetailsFactory().create());
 
     List<Reservation> reservations = Lists.newArrayList();
     for (int i = 0; i <= WebUtils.MAX_ITEMS_PER_PAGE; i++) {
