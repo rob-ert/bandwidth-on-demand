@@ -154,6 +154,10 @@ public class VirtualResourceGroupService {
   }
 
   private Collection<VirtualResourceGroup> findBySurfconextGroupId(Collection<String> groupIds) {
+    if (groupIds.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     return virtualResourceGroupRepo.findBySurfconextGroupIdIn(groupIds);
   }
 
