@@ -107,7 +107,22 @@ public class RequestHeaderAuthenticationFilterTest {
 
     assertThat(principal, is(instanceOf(RichPrincipal.class)));
     assertThat(((RichPrincipal) principal).getDisplayName(), is("Frank Mölder"));
+  }
 
+  @Test
+  public void immitatingAndHaveRequestParameters() {
+    HttpServletRequest requestMock = mock(HttpServletRequest.class);
+    subject.setEnvironment(new Environment(true, "urn:dummy", "Dummy", "dummy@dummy.com", "shiblogout"));
+
+    when(requestMock.getHeader(ShibbolethConstants.NAME_ID)).thenReturn(null);
+    when(requestMock.getHeader(ShibbolethConstants.DISPLAY_NAME)).thenReturn(null);
+    when(requestMock.getParameter("nameId")).thenReturn("urn:Henk");
+    when(requestMock.getParameter("displayName")).thenReturn("Henk");
+
+    Object principal = subject.getPreAuthenticatedPrincipal(requestMock);
+
+    assertThat(((RichPrincipal) principal).getNameId(), is("urn:Henk"));
+    assertThat(((RichPrincipal) principal).getDisplayName(), is("Henk"));
   }
 
 }
