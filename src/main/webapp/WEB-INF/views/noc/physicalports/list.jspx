@@ -26,11 +26,11 @@
             <div class="row-fluid">
                 <div class="span6">
                     <dl class="dl-horizontal">
-                        <dt>Manager Label</dt>
+                        <dt><spring:message code="label_physicalport_managerlabel_short"/></dt>
                         <dd>
                             <c:out value="${item.managerLabel}" />
                         </dd>
-                        <dt>Aligned with NMS</dt>
+                        <dt><spring:message code="label_phsyicalport_aligned"/></dt>
                         <dd>
                             <c:out value="${item.alignedWithNMS}" />
                         </dd>
@@ -38,7 +38,7 @@
                 </div>
                 <div class="span6">
                     <dl class="dl-horizontal">
-                        <dt>Vlan required</dt>
+                        <dt><spring:message code="label_physicalport_vlan"/></dt>
                         <dd>
                             <c:out value="${item.vlanRequired}" />
                         </dd>
