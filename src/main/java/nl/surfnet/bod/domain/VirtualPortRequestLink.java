@@ -23,14 +23,20 @@ package nl.surfnet.bod.domain;
 
 import java.util.UUID;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.LocalDateTime;
-
-import com.google.common.base.Objects;
 
 @Entity
 public class VirtualPortRequestLink {
@@ -189,12 +195,74 @@ public class VirtualPortRequestLink {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(VirtualPortRequestLink.class)
-        .add("id", id)
-        .add("uuid", uuid)
-        .add("virtualResourceGroup", virtualResourceGroup)
-        .add("physicalResourceGroup", physicalResourceGroup)
-        .toString();
+    StringBuilder builder = new StringBuilder();
+    builder.append("VirtualPortRequestLink [");
+    if (id != null) {
+      builder.append("id=");
+      builder.append(id);
+      builder.append(", ");
+    }
+    if (version != null) {
+      builder.append("version=");
+      builder.append(version);
+      builder.append(", ");
+    }
+    if (uuid != null) {
+      builder.append("uuid=");
+      builder.append(uuid);
+      builder.append(", ");
+    }
+    if (requestorName != null) {
+      builder.append("requestorName=");
+      builder.append(requestorName);
+      builder.append(", ");
+    }
+    if (requestorEmail != null) {
+      builder.append("requestorEmail=");
+      builder.append(requestorEmail);
+      builder.append(", ");
+    }
+    if (requestorUrn != null) {
+      builder.append("requestorUrn=");
+      builder.append(requestorUrn);
+      builder.append(", ");
+    }
+    if (requestDateTime != null) {
+      builder.append("requestDateTime=");
+      builder.append(requestDateTime);
+      builder.append(", ");
+    }
+    if (virtualResourceGroup != null) {
+      builder.append("virtualResourceGroup=");
+      builder.append(virtualResourceGroup);
+      builder.append(", ");
+    }
+    if (physicalResourceGroup != null) {
+      builder.append("physicalResourceGroup=");
+      builder.append(physicalResourceGroup.getName());
+      builder.append(", ");
+    }
+    if (status != null) {
+      builder.append("status=");
+      builder.append(status);
+      builder.append(", ");
+    }
+    if (userLabel != null) {
+      builder.append("userLabel=");
+      builder.append(userLabel);
+      builder.append(", ");
+    }
+    if (message != null) {
+      builder.append("message=");
+      builder.append(message);
+      builder.append(", ");
+    }
+    if (minBandwidth != null) {
+      builder.append("minBandwidth=");
+      builder.append(minBandwidth);
+    }
+    builder.append("]");
+    return builder.toString();
   }
 
   public enum RequestStatus {

@@ -333,18 +333,84 @@ public class Reservation {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(Reservation.class)
-        .add("id", id)
-        .add("name", name)
-        .add("reservationId", reservationId)
-        .add("startDateTime", startDateTime)
-        .add("endDateTime", endDateTime)
-        .add("sourcePort", sourcePort.getUserLabel())
-        .add("destinationPort", destinationPort.getUserLabel())
-        .add("status", status)
-        .add("userCreated", userCreated)
-        .add("creationDT", creationDateTime)
-        .toString();
+    StringBuilder builder = new StringBuilder();
+    builder.append("Reservation [");
+    if (id != null) {
+      builder.append("id=");
+      builder.append(id);
+      builder.append(", ");
+    }
+    if (version != null) {
+      builder.append("version=");
+      builder.append(version);
+      builder.append(", ");
+    }
+    if (name != null) {
+      builder.append("name=");
+      builder.append(name);
+      builder.append(", ");
+    }
+    if (virtualResourceGroup != null) {
+      builder.append("virtualResourceGroup=");
+      builder.append(virtualResourceGroup);
+      builder.append(", ");
+    }
+    if (status != null) {
+      builder.append("status=");
+      builder.append(status);
+      builder.append(", ");
+    }
+    if (failedReason != null) {
+      builder.append("failedReason=");
+      builder.append(failedReason);
+      builder.append(", ");
+    }
+    if (cancelReason != null) {
+      builder.append("cancelReason=");
+      builder.append(cancelReason);
+      builder.append(", ");
+    }
+    if (sourcePort != null) {
+      builder.append("sourcePort=");
+      builder.append(sourcePort);
+      builder.append(", ");
+    }
+    if (destinationPort != null) {
+      builder.append("destinationPort=");
+      builder.append(destinationPort);
+      builder.append(", ");
+    }
+    if (startDateTime != null) {
+      builder.append("startDateTime=");
+      builder.append(startDateTime);
+      builder.append(", ");
+    }
+    if (endDateTime != null) {
+      builder.append("endDateTime=");
+      builder.append(endDateTime);
+      builder.append(", ");
+    }
+    if (userCreated != null) {
+      builder.append("userCreated=");
+      builder.append(userCreated);
+      builder.append(", ");
+    }
+    if (bandwidth != null) {
+      builder.append("bandwidth=");
+      builder.append(bandwidth);
+      builder.append(", ");
+    }
+    if (reservationId != null) {
+      builder.append("reservationId=");
+      builder.append(reservationId);
+      builder.append(", ");
+    }
+    if (creationDateTime != null) {
+      builder.append("creationDateTime=");
+      builder.append(creationDateTime);
+    }
+    builder.append("]");
+    return builder.toString();
   }
 
   public String getFailedReason() {

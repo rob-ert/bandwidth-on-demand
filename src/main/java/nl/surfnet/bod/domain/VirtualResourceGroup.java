@@ -30,9 +30,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 /**
  * Entity which represents a List of {@link VirtualPort}s which belong together
  * and to the {@link Reservation}s which are related to this group.
- *
+ * 
  * @author Franky
- *
+ * 
  */
 @Entity
 public class VirtualResourceGroup {
@@ -128,9 +128,9 @@ public class VirtualResourceGroup {
     return virtualPortRequestLinks;
   }
 
-
-
-
+  public void setVirtualPortRequestLinks(Collection<VirtualPortRequestLink> virtualPortRequestLinks) {
+    this.virtualPortRequestLinks = virtualPortRequestLinks;
+  }
 
   @Override
   public int hashCode() {
@@ -181,9 +181,58 @@ public class VirtualResourceGroup {
 
   @Override
   public String toString() {
-    return "VirtualResourceGroup [id=" + id + ", version=" + version + ", name=" + name + ", description="
-        + description + ", surfconextGroupId=" + surfconextGroupId + ", virtualPorts=" + virtualPorts
-        + ", reservations=" + reservations + ", virtualPortRequestLinks=" + virtualPortRequestLinks + "]";
-  }
+    StringBuilder builder = new StringBuilder();
+    builder.append("VirtualResourceGroup [");
+    if (id != null) {
+      builder.append("id=");
+      builder.append(id);
+      builder.append(", ");
+    }
+    if (version != null) {
+      builder.append("version=");
+      builder.append(version);
+      builder.append(", ");
+    }
+    if (name != null) {
+      builder.append("name=");
+      builder.append(name);
+      builder.append(", ");
+    }
+    if (description != null) {
+      builder.append("description=");
+      builder.append(description);
+      builder.append(", ");
+    }
+    if (surfconextGroupId != null) {
+      builder.append("surfconextGroupId=");
+      builder.append(surfconextGroupId);
+      builder.append(", ");
+    }
+    if (virtualPorts != null) {
+      builder.append("virtualPorts=[");
+      for (VirtualPort vp : virtualPorts) {
+        builder.append("mgrLabel: ").append(vp.getManagerLabel());
+        builder.append(", ");
+      }
+      builder.append("]");
+    }
+    if (reservations != null) {
+      builder.append("reservations=");
+      for (Reservation res : reservations) {
+        builder.append("SchId: ").append(res.getReservationId());
+        builder.append(", ");
+      }
+      builder.append("]");
+    }
+    if (virtualPortRequestLinks != null) {
+      builder.append("virtualPortRequestLinks=[");
+      for (VirtualPortRequestLink link : virtualPortRequestLinks) {
+        builder.append("Link for: ").append(link.getVirtualResourceGroup().getName());
+      }
+      builder.append("]");
 
+    }
+    builder.append("]");
+    return builder.toString();
+  }
 }

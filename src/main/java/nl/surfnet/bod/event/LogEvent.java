@@ -10,6 +10,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 import org.hibernate.annotations.Type;
 import org.joda.time.LocalDateTime;
@@ -38,10 +39,10 @@ public class LogEvent {
   @Column(nullable = true)
   private final String className;
 
-  @Column(nullable = true)
+  @Lob
   private final String serializedObject;
 
-  @Column(nullable = true)
+  @Lob
   private final String details;
 
   public LogEvent(String userId, String groupId, LogEventType type, Object domainObject) {

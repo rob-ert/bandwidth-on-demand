@@ -133,8 +133,48 @@ public class PhysicalResourceGroup {
 
   @Override
   public String toString() {
-    return "PhysicalResourceGroup [id=" + id + ", version=" + version + ", institute=" + institute + ", adminGroup="
-        + adminGroup + ", managerEmail=" + managerEmail + ", active=" + active + ", physicalPorts=" + physicalPorts
-        + ", virtualPortRequestLinks=" + virtualPortRequestLinks + "]";
+    StringBuilder builder = new StringBuilder();
+    builder.append("PhysicalResourceGroup [");
+    if (id != null) {
+      builder.append("id=");
+      builder.append(id);
+      builder.append(", ");
+    }
+    if (version != null) {
+      builder.append("version=");
+      builder.append(version);
+      builder.append(", ");
+    }
+    if (institute != null) {
+      builder.append("institute=");
+      builder.append(institute);
+      builder.append(", ");
+    }
+    if (adminGroup != null) {
+      builder.append("adminGroup=");
+      builder.append(adminGroup);
+      builder.append(", ");
+    }
+    if (managerEmail != null) {
+      builder.append("managerEmail=");
+      builder.append(managerEmail);
+      builder.append(", ");
+    }
+    if (active != null) {
+      builder.append("active=");
+      builder.append(active);
+      builder.append(", ");
+    }
+    if (physicalPorts != null) {
+      builder.append("physicalPorts=");
+      builder.append(physicalPorts);
+      builder.append(", ");
+    }
+    if (virtualPortRequestLinks != null) {
+      builder.append("virtualPortRequestLinks=");
+      builder.append(virtualPortRequestLinks);
+    }
+    builder.append("]");
+    return builder.toString();
   }
 }

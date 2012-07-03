@@ -144,9 +144,49 @@ public class VirtualPort {
 
   @Override
   public String toString() {
-    return "VirtualPort [id=" + id + ", version=" + version + ", managerLabel=" + managerLabel + ", userLabel="
-        + userLabel + ", virtualResourceGroup=" + virtualResourceGroup + ", physicalPort=" + physicalPort
-        + ", maxBandwidth=" + maxBandwidth + ", vlanId=" + vlanId + "]";
+    StringBuilder builder = new StringBuilder();
+    builder.append("VirtualPort [");
+    if (id != null) {
+      builder.append("id=");
+      builder.append(id);
+      builder.append(", ");
+    }
+    if (version != null) {
+      builder.append("version=");
+      builder.append(version);
+      builder.append(", ");
+    }
+    if (managerLabel != null) {
+      builder.append("managerLabel=");
+      builder.append(managerLabel);
+      builder.append(", ");
+    }
+    if (userLabel != null) {
+      builder.append("userLabel=");
+      builder.append(userLabel);
+      builder.append(", ");
+    }
+    if (virtualResourceGroup != null) {
+      builder.append("virtualResourceGroup=");
+      builder.append(virtualResourceGroup.getName());
+      builder.append(", ");
+    }
+    if (physicalPort != null) {
+      builder.append("physicalPort=");
+      builder.append(physicalPort);
+      builder.append(", ");
+    }
+    if (maxBandwidth != null) {
+      builder.append("maxBandwidth=");
+      builder.append(maxBandwidth);
+      builder.append(", ");
+    }
+    if (vlanId != null) {
+      builder.append("vlanId=");
+      builder.append(vlanId);
+    }
+    builder.append("]");
+    return builder.toString();
   }
 
 }

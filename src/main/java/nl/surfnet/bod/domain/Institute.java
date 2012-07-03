@@ -83,4 +83,30 @@ public class Institute {
   public void setAlignedWithIDD(boolean alignedWithIDD) {
     this.alignedWithIDD = alignedWithIDD;
   }
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("Institute [");
+    if (id != null) {
+      builder.append("id=");
+      builder.append(id);
+      builder.append(", ");
+    }
+    if (name != null) {
+      builder.append("name=");
+      builder.append(name);
+      builder.append(", ");
+    }
+    if (shortName != null) {
+      builder.append("shortName=");
+      builder.append(shortName);
+      builder.append(", ");
+    }
+    builder.append("alignedWithIDD=");
+    builder.append(alignedWithIDD);
+    builder.append("]");
+    return builder.toString();
+  }
+
 }
