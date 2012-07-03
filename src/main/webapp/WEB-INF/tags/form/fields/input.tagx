@@ -62,7 +62,17 @@
                         <input id="_${sec_field}_id" name="${sec_field}" type="${fn:escapeXml(type)}" />
                     </c:when>
                     <c:otherwise>
-                        <form:input id="_${sec_field}_id" path="${sec_field}" disabled="${disabled}" type="${fn:escapeXml(type)}" cssClass="${cssClass}"/>
+                        <c:choose>
+                            <c:when test="${empty appendCode}">
+                                <form:input id="_${sec_field}_id" path="${sec_field}" disabled="${disabled}" type="${fn:escapeXml(type)}" cssClass="${cssClass}"/>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="input-append">
+                                    <form:input id="_${sec_field}_id" path="${sec_field}" disabled="${disabled}" type="${fn:escapeXml(type)}" cssClass="${cssClass}"/>
+                                    <span class="add-on"><spring:message code="${appendCode}" /></span>
+                                </div>
+                            </c:otherwise>
+                        </c:choose>
                     </c:otherwise>
                 </c:choose>
                 <c:if test="${not empty helpMessageCode}">

@@ -87,8 +87,8 @@
                     <field:input field="managerLabel" id="name" labelCode="virtualport_managerLabel" helpMessageCode="virtualport_administrator_label" />
                     <field:input field="userLabel" id="userLabel" labelCode="virtualport_userLabel" helpMessageCode="virtualport_user_label" />
 
-                    <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_maxbandwidth" />
-                    <field:input field="vlanId" id="vlanId" labelCode="virtualport_vlan_id" /><!-- render="${virtualPortCreateCommand.physicalPort.vlanRequired}" /> -->
+                    <field:input field="maxBandwidth" id="maxBandwidth" labelCode="virtualport_maxbandwidth" appendCode="label_bandwidth_unit" cssClass="input-bandwidth" />
+                    <field:input field="vlanId" id="vlanId" labelCode="virtualport_vlan_id" />
 
                     <field:select items="${virtualResourceGroups}" field="virtualResourceGroup"
                         labelCode="virtualresourcegroup" id="virtualresourcegroup" itemValue="id"

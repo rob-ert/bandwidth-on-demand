@@ -68,7 +68,7 @@
                 <label class="control-label"><spring:message code="label_request_vp_bandwidth" /></label>
                 <div class="controls">
                     <div class="input-append">
-                        <sform:input path="bandwidth" cssClass="input-medium" cssStyle="width: 163px" /><span class="add-on"><spring:message code="label_bandwidth_unit" /></span>
+                        <sform:input path="bandwidth" cssClass="input-bandwidth" /><span class="add-on"><spring:message code="label_bandwidth_unit" /></span>
                     </div>
                     <form:help message="label_request_vp_bandwidth_help" />
                     <sform:errors cssClass="help-block" path="bandwidth" />

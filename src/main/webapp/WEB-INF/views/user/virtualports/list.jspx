@@ -25,7 +25,8 @@
                 <c:forEach items="${list}" var="item">
                     <tr>
                         <table:column item="${item}" property="userLabel" />
-                        <table:column item="${item}" property="maxBandwidth" />
+                        <spring:message code="label_bandwidth_unit" var="mbit_label" />
+                        <table:column item="${item}" property="maxBandwidth" append="${mbit_label}" />
                         <table:column item="${item}" property="virtualResourceGroup" />
                         <td>${item.physicalPort.physicalResourceGroup.name}</td>
                         <table:actionsColumn item="${item}" delete="false" path="/virtualports" labelCode="label_virtualport" />
