@@ -43,18 +43,19 @@ import com.googlecode.flyway.core.migration.java.JavaMigration;
 public class V0_10_0_8__MigrateInstitutes implements JavaMigration {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+  private final String iddUrl;
+  private final String iddUser;
+  private final String iddPassword;
   private IddClient iddClient;
 
   public V0_10_0_8__MigrateInstitutes() throws IOException {
-
     final Properties properties = new Properties();
     properties.load(new ClassPathResource("bod-default.properties").getInputStream());
 
-    String iddUrl = getProperty("idd.url", properties);
-    String iddUser = getProperty("idd.user", properties);
-    String iddPassword = getProperty("idd.password", properties);
-
-    logger.info("Using IDD @: {} with user {} and password {}", new Object[] { iddUrl, iddUser, iddPassword });
+    iddUrl = getProperty("idd.url", properties);
+    iddUser = getProperty("idd.user", properties);
+    iddPassword = getProperty("idd.password", properties);
 
     iddClient = new IddLiveClient(iddUser, iddPassword, iddUrl);
   }
@@ -70,7 +71,8 @@ public class V0_10_0_8__MigrateInstitutes implements JavaMigration {
 
   @Override
   public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
-    logger.info("Migrating institutes");
+    logger.info("Migrating institutes using IDD @: {} with user {} and password {}",
+        new Object[] { iddUrl, iddUser, iddPassword });
 
     Collection<Klanten> klanten = iddClient.getKlanten();
 
