@@ -77,13 +77,34 @@ public class LogEventService {
       return new LogEvent(SYSTEM_USER, ALL_GROUPS, eventType, domainObject, details);
     }
     else {
-      return new LogEvent(user.getUsername(), user.getUserGroupIds(), eventType, domainObject);
+      return new LogEvent(user.getUsername(), user.getUserGroupIds(), eventType, domainObject, details);
     }
   }
 
+  /**
+   * Delegates to {@link #handleEvent(Logger, LogEvent)}
+   * 
+   * @param logEvent
+   */
+  private void handleEvent(LogEvent logEvent) {
+    handleEvent(logger, logEvent);
+  }
+
+  /**
+   * Handles the event. Writes it to the given logger and persists it in the
+   * {@link LogEventRepo}
+   * 
+   * @param logger
+   *          Logger to write to
+   * 
+   * @param logEvent
+   *          LogEvent to handle
+   */
   @VisibleForTesting
-  void handleEvent(LogEvent logEvent) {
+  void handleEvent(Logger logger, LogEvent logEvent) {
     logger.info("Handling event: {}", logEvent);
+
     logEventRepo.save(logEvent);
   }
+
 }
