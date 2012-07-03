@@ -35,8 +35,6 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-
 import nl.surfnet.bod.nsi.ws.ConnectionService;
 
 public class NsiReservationFactory {
@@ -51,14 +49,24 @@ public class NsiReservationFactory {
   private int desiredBandwidth = 1000;
   private int maxBandwidth = 1000;
   private int minBandwidth = 950;
-  private XMLGregorianCalendar scheduleEndTime = new XMLGregorianCalendarImpl();
-  private XMLGregorianCalendar scheduleStartTime = new XMLGregorianCalendarImpl();
+  private XMLGregorianCalendar scheduleEndTime;
+  private XMLGregorianCalendar scheduleStartTime;
   private String description = "Some example Description";
   private String providerNsa = "urn:example:nsa:provider", requesterNsa = "urn:example:nsa:provider";
   private PathType path = new PathType();
   private ServiceParametersType serviceParameters = new ServiceParametersType();
 
   public NsiReservationFactory() {
+    
+    
+    try {
+      scheduleEndTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
+      scheduleStartTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
+    }
+    catch (DatatypeConfigurationException e) {
+      log.error("Error: ", e);
+    }
+    
     scheduleStartTime.setDay(1);
     scheduleStartTime.setMonth(1);
     scheduleStartTime.setYear(2013);
