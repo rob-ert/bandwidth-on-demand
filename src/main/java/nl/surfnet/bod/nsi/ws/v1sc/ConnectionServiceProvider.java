@@ -21,17 +21,22 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
-
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.jws.WebService;
+import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.ws.ConnectionService;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
@@ -57,12 +62,13 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import sun.misc.URLClassPath;
+
 import com.google.common.base.Function;
 
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.ws.ConnectionService;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.RESERVING;
 
 @Service("nsiProvider_v1_sc")
 @WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider", wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
@@ -196,13 +202,22 @@ public class ConnectionServiceProvider extends ConnectionService {
     log.info("Calling sendReserveConfirmed on endpoint: {} with id: {}", connection.getReplyTo(),
         connection.getGlobalReservationId());
 
-    final ConnectionServiceRequester requester = new ConnectionServiceRequester();
+    ConnectionServiceRequester requester;
+
+    // requester = new ConnectionServiceRequester(new
+    // URL("file:/Users/Franky/Projects/surfnet/bandwidth-on-demand/src/main/webapp/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl"),
+    // new QName("http://schemas.ogf.org/nsi/2011/10/connection/requester",
+    // "ConnectionServiceRequester"));
+    URL[] urls = URLClassPath.pathToURLs("ogf_nsi_connection_provider_v1_0.wsdl");
+    requester = new ConnectionServiceRequester(urls[0], new QName(
+        "http://schemas.ogf.org/nsi/2011/10/connection/requester", "ConnectionServiceRequester"));
+
     final ConnectionRequesterPort connectionServiceRequesterPort = requester.getConnectionServiceRequesterPort();
     final ReserveConfirmedType reserveConfirmedType = new ObjectFactory().createReserveConfirmedType();
     reserveConfirmedType.setRequesterNSA(connection.getRequesterNsa());
     reserveConfirmedType.setProviderNSA(connection.getProviderNsa());
-    final ReservationInfoType reservationInfoType = new ObjectFactory().createReservationInfoType();
 
+    final ReservationInfoType reservationInfoType = new ObjectFactory().createReservationInfoType();
     reservationInfoType.setConnectionId(connection.getConnectionId());
     reservationInfoType.setDescription(connection.getDescription());
     reservationInfoType.setGlobalReservationId(connection.getGlobalReservationId());
@@ -345,6 +360,7 @@ public class ConnectionServiceProvider extends ConnectionService {
     // forceFailed(connection);
 
     createReservation(connection, false);
+    getConnectionRepo().save(connection);
 
     /*
      * We successfully sent the message for processing so acknowledge it back to
@@ -367,7 +383,8 @@ public class ConnectionServiceProvider extends ConnectionService {
     final Reservation reservation = TO_RESERVATION.apply(connection);
 
     // create BoD reservation
-    getReservationService().create(reservation, autoProvision);
+    String reservationId = getReservationService().create(reservation, autoProvision);
+    connection.setReservationId(reservationId);
 
     // call reserveConfirmed on requester nsa
     sendReserveConfirmed(connection);

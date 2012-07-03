@@ -132,8 +132,8 @@ public class ReservationService {
    * @param reservation
    * @See {@link #create(Reservation)}
    */
-  public void create(Reservation reservation) {
-    create(reservation, true);
+  public String create(Reservation reservation) {
+    return create(reservation, true);
   }
 
   /**
@@ -143,9 +143,10 @@ public class ReservationService {
    * @param autoProvision
    *          , indicates if the reservations should be automatically
    *          provisioned
+   * @return ReservationId, scheduleId from NMS
    * 
    */
-  public void create(Reservation reservation, boolean autoProvision) {
+  public String create(Reservation reservation, boolean autoProvision) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
 
@@ -155,7 +156,7 @@ public class ReservationService {
     logEventService.logCreateEvent(Security.getUserDetails(), reservation);
 
     reservation = reservationRepo.save(reservation);
-    reservationToNbi.submitNewReservation(reservation.getId(), autoProvision);
+    return reservationToNbi.submitNewReservation(reservation.getId(), autoProvision);
   }
 
   private void fillStartTimeIfEmpty(Reservation reservation) {

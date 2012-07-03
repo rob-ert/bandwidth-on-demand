@@ -47,13 +47,15 @@ public class ReservationToNbi {
   @Autowired
   LogEventService logEventService;
 
-  public void submitNewReservation(Long reservationId, boolean autoProvision) {
-    Reservation reservation = reservationRepo.findOne(reservationId);
+  public String submitNewReservation(Long id, boolean autoProvision) {
+    Reservation reservation = reservationRepo.findOne(id);
     final ReservationStatus orgStatus = reservation.getStatus();
     final Reservation reservationWithReservationId = nbiClient.createReservation(reservation, autoProvision);
 
     reservation = reservationRepo.save(reservationWithReservationId);
     publishStatusChanged(reservationWithReservationId, orgStatus);
+
+    return reservation.getReservationId();
   }
 
   private void publishStatusChanged(final Reservation reservation, final ReservationStatus originalStatus) {

@@ -84,8 +84,8 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   private final String virtualResourceGroupName = "nsi:group";
 
-  private final String sourceLabel = "Asd001A_OME3T_ETH-1-1-1";
-  private final String destinationLabel = "Asd001A_OME3T_ETH-1-12-3";
+  private final String sourceLabel = "00-20-D8-DF-33-59_ETH-1-1-4";
+  private final String destinationLabel = "00-20-D8-DF-33-86_ETH-1-13-1";
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {

@@ -48,6 +48,7 @@ public interface NbiClient {
   /**
    * 
    * @param reservation
+   * @param autoProvision, when true the reservation is automatically started
    * @return the reservation id returned from the underlying NMS
    */
   Reservation createReservation(Reservation reservation, boolean autoProvision);
