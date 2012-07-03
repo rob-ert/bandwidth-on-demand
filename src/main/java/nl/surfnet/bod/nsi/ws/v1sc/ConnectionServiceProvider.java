@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -29,14 +31,11 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.jws.WebService;
+import javax.servlet.ServletContext;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.ws.ConnectionService;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
@@ -61,23 +60,29 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import sun.misc.URLClassPath;
+import org.springframework.web.context.ServletContextAware;
 
 import com.google.common.base.Function;
 
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.RESERVING;
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.ws.ConnectionService;
 
 @Service("nsiProvider_v1_sc")
-@WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider", wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
-public class ConnectionServiceProvider extends ConnectionService {
+@WebService(serviceName = "ConnectionServiceProvider",
+    portName = "ConnectionServiceProviderPort",
+    endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
+    targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider",
+    wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
+public class ConnectionServiceProvider extends ConnectionService implements ServletContextAware {
 
   private final Logger log = getLog();
 
   @Resource(name = "nsaProviderUrns")
   private List<String> nsaProviderUrns;
+
+  private ServletContext servletContext;
 
   public static final String BOD_URN_POSTFIX = "urn:nl:surfnet:diensten:bod:";
 
@@ -204,13 +209,16 @@ public class ConnectionServiceProvider extends ConnectionService {
 
     ConnectionServiceRequester requester;
 
-    // requester = new ConnectionServiceRequester(new
-    // URL("file:/Users/Franky/Projects/surfnet/bandwidth-on-demand/src/main/webapp/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl"),
-    // new QName("http://schemas.ogf.org/nsi/2011/10/connection/requester",
-    // "ConnectionServiceRequester"));
-    URL[] urls = URLClassPath.pathToURLs("ogf_nsi_connection_provider_v1_0.wsdl");
-    requester = new ConnectionServiceRequester(urls[0], new QName(
-        "http://schemas.ogf.org/nsi/2011/10/connection/requester", "ConnectionServiceRequester"));
+    try {
+
+      final String path = servletContext.getContextPath() + "/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl";
+      requester = new ConnectionServiceRequester(new URL("file:" + path), new QName(
+          "http://schemas.ogf.org/nsi/2011/10/connection/requester", "ConnectionServiceRequester"));
+    }
+    catch (MalformedURLException e) {
+      log.error("Error: ", e);
+      return;
+    }
 
     final ConnectionRequesterPort connectionServiceRequesterPort = requester.getConnectionServiceRequesterPort();
     final ReserveConfirmedType reserveConfirmedType = new ObjectFactory().createReserveConfirmedType();
@@ -325,8 +333,8 @@ public class ConnectionServiceProvider extends ConnectionService {
      */
 
     /*
-     * Save the calling NSA security context and pass it along for use during
-     * processing of request (when implemented).
+     * Save the calling NSA security context and pass it along for use
+     * during processing of request (when implemented).
      */
 
     /*
@@ -407,8 +415,8 @@ public class ConnectionServiceProvider extends ConnectionService {
      */
 
     /*
-     * Save the calling NSA security context and pass it along for use during
-     * processing of request.
+     * Save the calling NSA security context and pass it along for use
+     * during processing of request.
      */
 
     // Extract the reservation information.
@@ -450,8 +458,8 @@ public class ConnectionServiceProvider extends ConnectionService {
      */
 
     /*
-     * Save the calling NSA security context and pass it along for use during
-     * processing of request.
+     * Save the calling NSA security context and pass it along for use
+     * during processing of request.
      */
 
     // Extract the reservation information.
@@ -493,8 +501,8 @@ public class ConnectionServiceProvider extends ConnectionService {
      */
 
     /*
-     * Save the calling NSA security context and pass it along for use during
-     * processing of request.
+     * Save the calling NSA security context and pass it along for use
+     * during processing of request.
      */
 
     // Extract the reservation information.
@@ -536,8 +544,8 @@ public class ConnectionServiceProvider extends ConnectionService {
      */
 
     /*
-     * Save the calling NSA security context and pass it along for use during
-     * processing of request.
+     * Save the calling NSA security context and pass it along for use
+     * during processing of request.
      */
 
     // Extract the query information.
@@ -568,6 +576,11 @@ public class ConnectionServiceProvider extends ConnectionService {
 
   public void queryFailed(Holder<String> correlationId, QueryFailedType queryFailed) throws ServiceException {
     throw new UnsupportedOperationException("Not implemented yet.");
+  }
+
+  @Override
+  public void setServletContext(ServletContext servletContext) {
+    this.servletContext = servletContext;
   }
 
 }
