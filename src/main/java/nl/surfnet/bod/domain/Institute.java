@@ -53,7 +53,7 @@ public class Institute {
   private boolean alignedWithIDD;
 
   // No version!
-
+  @SuppressWarnings("unused")
   private Institute() {
   }
 
