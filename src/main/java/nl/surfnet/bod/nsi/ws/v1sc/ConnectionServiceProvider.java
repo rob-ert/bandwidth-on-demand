@@ -77,10 +77,10 @@ import nl.surfnet.bod.nsi.ws.ConnectionService;
     wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
 public class ConnectionServiceProvider extends ConnectionService implements ServletContextAware {
 
-  private final Logger log = getLog();
-
   @Resource(name = "nsaProviderUrns")
   private List<String> nsaProviderUrns;
+
+  private final Logger log = getLog();
 
   private ServletContext servletContext;
 
@@ -120,6 +120,8 @@ public class ConnectionServiceProvider extends ConnectionService implements Serv
 
       final Connection connection = new Connection();
 
+      System.out.println(reserveRequestType);
+
       connection.setConnectionId(reserveRequestType.getReserve().getReservation().getConnectionId());
       connection.setCurrentState(INITIAL);
       connection.setDescription(null);
@@ -137,6 +139,7 @@ public class ConnectionServiceProvider extends ConnectionService implements Serv
 
       connection.setPath(reserveRequestType.getReserve().getReservation().getPath());
       connection.setProviderNsa(reserveRequestType.getReserve().getProviderNSA());
+
       connection.setReplyTo(reserveRequestType.getReplyTo());
       connection.setRequesterNsa(reserveRequestType.getReserve().getRequesterNSA());
       connection.setReservationId(null);
@@ -204,14 +207,14 @@ public class ConnectionServiceProvider extends ConnectionService implements Serv
   }
 
   private void sendReserveConfirmed(final Connection connection) {
-    log.info("Calling sendReserveConfirmed on endpoint: {} with id: {}", connection.getReplyTo(),
+    log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", connection.getReplyTo(),
         connection.getGlobalReservationId());
 
     ConnectionServiceRequester requester;
 
     try {
-
-      final String path = servletContext.getContextPath() + "/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl";
+      // does this work when running a war file?
+      final String path = servletContext.getRealPath("/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl");
       requester = new ConnectionServiceRequester(new URL("file:" + path), new QName(
           "http://schemas.ogf.org/nsi/2011/10/connection/requester", "ConnectionServiceRequester"));
     }
@@ -301,7 +304,6 @@ public class ConnectionServiceProvider extends ConnectionService implements Serv
 
     connection.setCurrentState(INITIAL);
     connection = getConnectionRepo().save(connection);
-    log.info("connection: " + connection);
 
     log.debug("Received reservation request with id: {}", connection.getConnectionId());
 
@@ -333,8 +335,8 @@ public class ConnectionServiceProvider extends ConnectionService implements Serv
      */
 
     /*
-     * Save the calling NSA security context and pass it along for use
-     * during processing of request (when implemented).
+     * Save the calling NSA security context and pass it along for use during
+     * processing of request (when implemented).
      */
 
     /*
@@ -378,7 +380,7 @@ public class ConnectionServiceProvider extends ConnectionService implements Serv
     final GenericAcknowledgmentType genericAcknowledgment = new GenericAcknowledgmentType();
     genericAcknowledgment.setCorrelationId(reservationRequest.getCorrelationId());
 
-    log.info("Returning GenericAcknowledgmentType with id: {}", genericAcknowledgment.getCorrelationId());
+    log.debug("Returning GenericAcknowledgmentType with id: {}", genericAcknowledgment.getCorrelationId());
     return genericAcknowledgment;
   }
 
@@ -415,8 +417,8 @@ public class ConnectionServiceProvider extends ConnectionService implements Serv
      */
 
     /*
-     * Save the calling NSA security context and pass it along for use
-     * during processing of request.
+     * Save the calling NSA security context and pass it along for use during
+     * processing of request.
      */
 
     // Extract the reservation information.
@@ -458,8 +460,8 @@ public class ConnectionServiceProvider extends ConnectionService implements Serv
      */
 
     /*
-     * Save the calling NSA security context and pass it along for use
-     * during processing of request.
+     * Save the calling NSA security context and pass it along for use during
+     * processing of request.
      */
 
     // Extract the reservation information.
@@ -501,8 +503,8 @@ public class ConnectionServiceProvider extends ConnectionService implements Serv
      */
 
     /*
-     * Save the calling NSA security context and pass it along for use
-     * during processing of request.
+     * Save the calling NSA security context and pass it along for use during
+     * processing of request.
      */
 
     // Extract the reservation information.
@@ -544,8 +546,8 @@ public class ConnectionServiceProvider extends ConnectionService implements Serv
      */
 
     /*
-     * Save the calling NSA security context and pass it along for use
-     * during processing of request.
+     * Save the calling NSA security context and pass it along for use during
+     * processing of request.
      */
 
     // Extract the query information.
