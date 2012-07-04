@@ -21,16 +21,41 @@
  */
 package nl.surfnet.bod.support;
 
-import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.pages.noc.*;
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.event.LogEventType;
+import nl.surfnet.bod.pages.noc.AddPhysicalPortPage;
+import nl.surfnet.bod.pages.noc.EditPhysicalPortPage;
+import nl.surfnet.bod.pages.noc.EditPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.noc.ListAllocatedPortsPage;
+import nl.surfnet.bod.pages.noc.ListLogEventsPage;
+import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.noc.ListReservationPage;
+import nl.surfnet.bod.pages.noc.ListUnallocatedPortsPage;
+import nl.surfnet.bod.pages.noc.ListVirtualResourceGroupPage;
+import nl.surfnet.bod.pages.noc.MovePhysicalPortPage;
+import nl.surfnet.bod.pages.noc.MovePhysicalPortResultPage;
+import nl.surfnet.bod.pages.noc.NewPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.noc.NocOverviewPage;
+import nl.surfnet.bod.web.InstituteController;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
+import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 public class BodNocWebDriver {
+
+  public static final String DEFAULT_DATE_TIME_PATTERN = "yyyy-MM-dd H:mm";
+  public static final DateTimeFormatter DEFAULT_DATE_TIME_FORMATTER = DateTimeFormat
+      .forPattern(DEFAULT_DATE_TIME_PATTERN);
 
   private final RemoteWebDriver driver;
 
@@ -219,7 +244,26 @@ public class BodNocWebDriver {
     ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
     assertThat(page.getNumberOfReservations(), is(i));
+  }
 
+  public void verifyHasLogEvents(int i) {
+    ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
+
+    assertThat(page.getNumberOfLogEvents(), is(i));
+  }
+
+  public void verifyLogEvents() {
+    ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
+
+    page.logEventShouldBe(LocalDateTime.now(), "selenium-user", LogEventType.CREATE,
+        PhysicalResourceGroup.class.getSimpleName());
+  }
+
+  /**
+   * Fetches all {@link Institute}s from IDD and updates the database
+   */
+  public void refreshInstitutes() {
+    driver.get(URL_UNDER_TEST + InstituteController.REFRESH_URL);
   }
 
   public void verifyVirtualResourceGroupExists(String... fields) {

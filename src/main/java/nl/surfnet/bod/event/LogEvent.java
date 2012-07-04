@@ -31,7 +31,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 
 import org.hibernate.annotations.Type;
 import org.joda.time.LocalDateTime;
@@ -100,7 +99,7 @@ public class LogEvent {
       this.serializedObject = null;
     }
     else {
-      this.className = domainObject.getClass().getName();
+      this.className = domainObject.getClass().getSimpleName();
       this.serializedObject = serializeObject(domainObject);
     }
   }

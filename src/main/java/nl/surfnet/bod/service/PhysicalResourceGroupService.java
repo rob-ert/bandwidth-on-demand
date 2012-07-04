@@ -91,6 +91,7 @@ public class PhysicalResourceGroupService {
   }
 
   public void save(final PhysicalResourceGroup physicalResourceGroup) {
+    logEventService.logCreateEvent(Security.getUserDetails(), physicalResourceGroup);
     physicalResourceGroupRepo.save(physicalResourceGroup);
   }
 

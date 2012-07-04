@@ -76,7 +76,7 @@ public class LogEventServiceTest {
       assertThat(logEvent.getGroupIds(), is("[" + GROUP_ID + "]"));
       assertThat(logEvent.getEventType(), is(LogEventType.CREATE));
 
-      assertThat(logEvent.getClassName(), is(vrg.getClass().getName()));
+      assertThat(logEvent.getClassName(), is(vrg.getClass().getSimpleName()));
       assertThat(logEvent.getDetails(), is(LOG_DETAILS));
 
       assertThat(logEvent.getSerializedObject(), is(vrg.toString()));
