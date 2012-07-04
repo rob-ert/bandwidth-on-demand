@@ -144,6 +144,18 @@ public class ActivationEmailControllerTest {
   }
 
   @Test
+  public void sourceObjectHasBeenDeleted() {
+    ActivationEmailLink<PhysicalResourceGroup> link = new ActivationEmailLink<PhysicalResourceGroup>();
+
+    when(physicalResourceGroupServiceMock.findActivationLink("123")).thenReturn(link);
+
+    ModelStub model = new ModelStub();
+    String page = subject.activateEmail("123", model, model);
+
+    assertThat(page, is("redirect:/"));
+  }
+
+  @Test
   public void activationLinkIsAlreadyActivated() {
     when(linkMock.isActivated()).thenReturn(true);
     when(physicalResourceGroupServiceMock.findActivationLink("1234567890")).thenReturn(linkMock);

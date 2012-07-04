@@ -38,6 +38,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.collect.ImmutableList;
+
 @RequestMapping(ActivationEmailController.ACTIVATION_MANAGER_PATH)
 @Controller
 public class ActivationEmailController {
@@ -56,7 +58,8 @@ public class ActivationEmailController {
   public String activateEmail(@PathVariable String uuid, Model model, RedirectAttributes redirectAttrs) {
     ActivationEmailLink<PhysicalResourceGroup> link = physicalResourceGroupService.findActivationLink(uuid);
 
-    if (link == null) {
+    if (link == null || link.getSourceObject() == null) {
+      redirectAttrs.addFlashAttribute(WebUtils.INFO_MESSAGES_KEY, ImmutableList.of("Activation link is not valid"));
       return "redirect:/";
     }
 
