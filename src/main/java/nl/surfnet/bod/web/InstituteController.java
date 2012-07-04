@@ -51,9 +51,14 @@ import static com.google.common.collect.Lists.newArrayList;
 
 import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
 
-@RequestMapping("/institutes")
+@RequestMapping(InstituteController.PAGE_URL)
 @Controller
 public class InstituteController {
+
+  static final String REFRESH = "/refresh";
+
+  public static final String PAGE_URL = "/institutes";
+  public static final String REFRESH_URL = PAGE_URL + REFRESH;
 
   static final String MODEL_KEY = "institute";
   static final String MODEL_KEY_LIST = MODEL_KEY + LIST_POSTFIX;
@@ -82,7 +87,7 @@ public class InstituteController {
     });
   }
 
-  @RequestMapping(value = "/refresh", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
+  @RequestMapping(value = REFRESH, method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
   @ResponseBody
   public String refreshInstitutes() {
 

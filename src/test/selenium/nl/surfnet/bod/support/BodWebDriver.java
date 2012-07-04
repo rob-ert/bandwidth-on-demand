@@ -21,15 +21,13 @@
  */
 package nl.surfnet.bod.support;
 
-import static junit.framework.Assert.fail;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
@@ -40,8 +38,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
+import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
+import javax.sql.DataSource;
 
+import nl.surfnet.bod.web.InstituteController;
+
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -51,13 +54,19 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 import com.google.common.io.Files;
+import com.googlecode.flyway.core.Flyway;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
+
+import static junit.framework.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 
 public class BodWebDriver {
 
@@ -74,9 +83,6 @@ public class BodWebDriver {
   private static final int MAIL_SMTP_PORT = 4025;
   private static final InputStream PROP_DEFAULT = BodWebDriver.class.getResourceAsStream("/bod-default.properties");
   private static final InputStream PROP_SELENIUM = BodWebDriver.class.getResourceAsStream("/bod-selenium.properties");
-
-  private static final String CLEAR_DATABASE_QUERY =
-      "truncate physical_resource_group, virtual_resource_group, reservation_archive CASCADE;";
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -127,34 +133,17 @@ public class BodWebDriver {
   }
 
   public void clearDatabase() {
-    Connection connection = createDbConnection(getProperty(DB_URL), getProperty(DB_USER), getProperty(DB_PASS),
-        getProperty(DB_DRIVER_CLASS));
+    DataSource dataSource = new SimpleDriverDataSource(new org.postgresql.Driver(), getProperty(DB_URL),
+        getProperty(DB_USER), getProperty(DB_PASS));
 
-    Statement statement = null;
-    try {
-      statement = connection.createStatement();
-      statement.executeUpdate(CLEAR_DATABASE_QUERY);
-    }
-    catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
-    finally {
-      try {
-        if (statement != null) {
-          statement.close();
-        }
+    Flyway flyway = new Flyway();
+    flyway.setDataSource(dataSource);
 
-        if (connection != null) {
-          connection.close();
-        }
-      }
-      catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
-    }
+    flyway.clean();
+    flyway.init();
+    flyway.migrate();
 
-    log.info("Database cleared");
-
+    log.info("Cleared database");
   }
 
   private String getProperty(String key) {
@@ -302,6 +291,8 @@ public class BodWebDriver {
     assertThat(modal.getText(), containsString(text));
   }
 
-
+  public void fetchInstitutes() {
+    getNocDriver().refreshInstitutes();
+  }
 
 }

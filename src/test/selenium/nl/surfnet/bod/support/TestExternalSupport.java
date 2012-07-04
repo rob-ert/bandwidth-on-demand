@@ -43,6 +43,7 @@ public abstract class TestExternalSupport {
   public final void initialize() {
     webDriver.clearDatabase();
     webDriver.initializeOnce();
+    webDriver.fetchInstitutes();
   }
 
   protected BodWebDriver getWebDriver() {
