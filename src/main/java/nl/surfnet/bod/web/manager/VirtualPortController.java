@@ -248,7 +248,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   }
 
   @Override
-  protected String defaultSortProperty() {
+  protected String getDefaultSortProperty() {
     return "managerLabel";
   }
 

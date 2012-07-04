@@ -62,7 +62,7 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
   private ReservationFilterViewFactory reservationFilterViewFactory;
 
   @Override
-  public String defaultSortProperty() {
+  public String getDefaultSortProperty() {
     return "name";
   }
 

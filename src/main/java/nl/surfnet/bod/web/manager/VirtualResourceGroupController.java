@@ -109,7 +109,7 @@ public class VirtualResourceGroupController extends AbstractSortableListControll
   }
 
   @Override
-  protected String defaultSortProperty() {
+  protected String getDefaultSortProperty() {
     return "name";
   }
 

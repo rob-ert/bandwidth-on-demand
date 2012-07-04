@@ -336,7 +336,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   }
 
   @Override
-  protected String defaultSortProperty() {
+  protected String getDefaultSortProperty() {
     return "nocLabel";
   }
 

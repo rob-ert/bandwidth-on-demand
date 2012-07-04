@@ -146,7 +146,7 @@ public class ReservationController extends AbstractFilteredReservationController
   }
 
   @Override
-  public String defaultSortProperty() {
+  public String getDefaultSortProperty() {
     return "name";
   }
 
