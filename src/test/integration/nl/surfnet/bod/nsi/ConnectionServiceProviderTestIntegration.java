@@ -26,7 +26,6 @@ import static org.hamcrest.Matchers.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.xml.datatype.DatatypeFactory;
@@ -39,11 +38,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -146,25 +143,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     savedVirtualResourceGroup.setSurfconextGroupId("some:surf:conext:group:id");
     virtualResourceGroupRepo.save(savedVirtualResourceGroup);
   }
-
-  @Test(expected = ServiceException.class)
-  public void should_throw_exeption_because_of_null_reservervation() throws ServiceException {
-    nsiProvider.reserve(null);
-  }
-
-  @Test(expected = ServiceException.class)
-  public void should_throw_exeption_because_of_invalid_provider_urn() throws ServiceException {
-    final ReserveRequestType reservationRequest = new NsiReservationFactory().setNsaProviderUrn(
-        "urn:ogf:network:nsa:no:such:provider").createReservation();
-    nsiProvider.reserve(reservationRequest);
-  }
-
-  @Test(expected = ServiceException.class)
-  public void should_throw_exeption_because_of_invalid_correlation_id() throws ServiceException {
-    final ReserveRequestType reservationRequest = new NsiReservationFactory()
-        .setCorrelationId(UUID.randomUUID().toString()).setDesiredBandwidth(1000).createReservation();
-    nsiProvider.reserve(reservationRequest);
-  }
+ 
 
   @Test
   public void should_return_generic_acknowledgement() throws Exception {
@@ -199,12 +178,9 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     assertThat(genericAcknowledgmentType.getCorrelationId(), is(reservationRequest.getCorrelationId()));
 
     // The rest does not really work on jenkins
-    
-    // final String lastRequest = requesterEndpoint.getOrWaitForRequest(5);
-    //
-    // assertTrue(lastRequest.contains(correationId));
-    // assertTrue(lastRequest.contains("reserveConfirmed"));
-    //
-    // assertEquals(1, requesterEndpoint.getCallCounter());
+    final String lastRequest = requesterEndpoint.getOrWaitForRequest(15);
+    assertThat(lastRequest, containsString(correationId));
+    assertThat(lastRequest, containsString("reserveConfirmed"));
+    assertThat(requesterEndpoint.getCallCounter(), is(1));
   }
 }
