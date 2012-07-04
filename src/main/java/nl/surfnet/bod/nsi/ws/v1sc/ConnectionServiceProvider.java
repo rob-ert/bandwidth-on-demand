@@ -412,10 +412,7 @@ public class ConnectionServiceProvider extends ConnectionService {
 
     final Connection connection = getConnectionRepo().findByConnectionId(connectionId);
     
-    System.out.println(getConnectionRepo().findAll());
-    
     final Reservation reservation = getReservationService().findByReservationId(connection.getReservationId());
-    System.out.println(reservation);
     final boolean isActivated = getReservationService().activate(reservation);
     
     System.out.println(isActivated);
