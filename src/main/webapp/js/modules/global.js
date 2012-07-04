@@ -6,13 +6,11 @@ app.global = function() {
 
         initEventHandlers();
         initPlugins();
-
     };
 
     var initEventHandlers = function() {
 
         initUserSelection();
-
     };
 
     var initPlugins = function() {
@@ -20,24 +18,23 @@ app.global = function() {
         initCsrfFilter();
         initTooltips();
         initPopovers();
-
     };
 
     var initCsrfFilter = function() {
         var token = $("#csrf-token").text();
+
         $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
             options.data = options.data + "&csrf-token=" + token;
         });
     };
 
     var initUserSelection = function() {
-
-        var form = $('.dropdown-menu');
+        var form = $('form.dropdown-menu');
 
         form.on('click', 'li', function(event) {
 
-            var item = $(event.target).closest('li')[0];
-            var roleId = item.getAttribute('data-roleId');
+            var item = $(event.target).closest('li')[0],
+                roleId = item.getAttribute('data-roleId');
 
             $('<input>').attr({
                 type: 'hidden',
@@ -46,9 +43,7 @@ app.global = function() {
             }).appendTo(form);
 
             form[0].submit();
-
         });
-
     };
 
     var _placement = function(popup, element) {
