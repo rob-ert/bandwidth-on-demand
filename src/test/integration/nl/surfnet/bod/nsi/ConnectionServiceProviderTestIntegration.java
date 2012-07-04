@@ -25,6 +25,7 @@ import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashSet;
 
 import javax.annotation.Resource;
@@ -136,6 +137,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     destinationPort.setMaxBandwidth(1000);
     destinationPort.setPhysicalPort(savedDestinationPp);
     destinationPort.setVirtualResourceGroup(savedVirtualResourceGroup);
+
     final VirtualPort savedDestination = virtualPortRepo.save(destinationPort);
     final VirtualPort[] ports = new VirtualPort[] { savedSourcePort, savedDestination };
     savedVirtualResourceGroup.setVirtualPorts(new HashSet<VirtualPort>(Arrays.asList(ports)));
@@ -143,21 +145,17 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     savedVirtualResourceGroup.setSurfconextGroupId("some:surf:conext:group:id");
     virtualResourceGroupRepo.save(savedVirtualResourceGroup);
   }
- 
 
   @Test
   public void should_return_generic_acknowledgement() throws Exception {
     final XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
-    startTime.setDay(10);
-    startTime.setMonth(10);
-    startTime.setYear(2012);
-    startTime.setMinute(0);
-    startTime.setHour(0);
-    startTime.setSecond(0);
+    startTime.setDay(Calendar.getInstance().get(Calendar.DATE) + 1);
+    startTime.setMonth(Calendar.getInstance().get(Calendar.MONTH) + 1);
+    startTime.setYear(Calendar.getInstance().get(Calendar.YEAR));
 
     final XMLGregorianCalendar endTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(
         startTime.toGregorianCalendar());
-    endTime.setDay(startTime.getDay() + 5);
+    endTime.setDay(startTime.getDay() + 1);
 
     final PathType path = new PathType();
 
