@@ -38,7 +38,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
 import org.springframework.core.io.ClassPathResource;
@@ -77,7 +79,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   @Resource
   private VirtualResourceGroupRepo virtualResourceGroupRepo;
 
-  private final String correationId = "urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e";
+  private final String correlationId = "urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e";
 
   private final String virtualResourceGroupName = "nsi:group";
 
@@ -126,7 +128,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     final VirtualPort sourcePort = new VirtualPort();
     sourcePort.setUserLabel(sourceLabel);
     sourcePort.setManagerLabel(sourceLabel);
-    sourcePort.setMaxBandwidth(1000);
+    sourcePort.setMaxBandwidth(100);
     sourcePort.setPhysicalPort(savedSourcePp);
     sourcePort.setVirtualResourceGroup(savedVirtualResourceGroup);
     final VirtualPort savedSourcePort = virtualPortRepo.save(sourcePort);
@@ -134,7 +136,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     final VirtualPort destinationPort = new VirtualPort();
     destinationPort.setUserLabel(destinationLabel);
     destinationPort.setManagerLabel(destinationLabel);
-    destinationPort.setMaxBandwidth(1000);
+    destinationPort.setMaxBandwidth(100);
     destinationPort.setPhysicalPort(savedDestinationPp);
     destinationPort.setVirtualResourceGroup(savedVirtualResourceGroup);
 
@@ -149,9 +151,9 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   @Test
   public void should_return_generic_acknowledgement() throws Exception {
     final XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
-    startTime.setDay(Calendar.getInstance().get(Calendar.DATE) + 1);
-    startTime.setMonth(Calendar.getInstance().get(Calendar.MONTH) + 1);
-    startTime.setYear(Calendar.getInstance().get(Calendar.YEAR));
+    startTime.setDay(Calendar.getInstance().get(Calendar.DATE) + 7);
+    startTime.setMonth(Calendar.getInstance().get(Calendar.MONTH));
+    startTime.setYear(Calendar.getInstance().get(Calendar.YEAR) + 1);
 
     final XMLGregorianCalendar endTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(
         startTime.toGregorianCalendar());
@@ -168,7 +170,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     path.setSourceSTP(source);
 
     final ReserveRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
-        .setScheduleEndTime(endTime).setCorrelationId(correationId).setProviderNsa("urn:ogf:network:nsa:netherlight")
+        .setScheduleEndTime(endTime).setCorrelationId(correlationId).setProviderNsa("urn:ogf:network:nsa:netherlight")
         .setPath(path).createReservation();
 
     final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
@@ -177,8 +179,24 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     // The rest does not really work on jenkins
     final String lastRequest = requesterEndpoint.getOrWaitForRequest(15);
-    assertThat(lastRequest, containsString(correationId));
+    assertThat(lastRequest, containsString(correlationId));
     assertThat(lastRequest, containsString("reserveConfirmed"));
     assertThat(requesterEndpoint.getCallCounter(), is(1));
+
+    final ProvisionRequestType provisionRequestType = new ProvisionRequestType();
+    provisionRequestType.setCorrelationId(correlationId);
+    provisionRequestType.setReplyTo(reservationRequest.getReplyTo());
+    final GenericRequestType genericRequestType = new GenericRequestType();
+    genericRequestType.setProviderNSA(reservationRequest.getReserve().getProviderNSA());
+    genericRequestType.setRequesterNSA(reservationRequest.getReserve().getRequesterNSA());
+    genericRequestType.setConnectionId(reservationRequest.getReserve().getReservation().getConnectionId());
+    provisionRequestType.setProvision(genericRequestType);
+    
+    
+    //parameters.getProvision().getConnectionId();
+
+    final GenericAcknowledgmentType provisionAck = nsiProvider.provision(provisionRequestType);
+    assertThat(provisionAck.getCorrelationId(), is(reservationRequest.getCorrelationId()));
+
   }
 }

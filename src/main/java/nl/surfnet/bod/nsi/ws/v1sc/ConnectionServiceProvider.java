@@ -48,6 +48,7 @@ import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ObjectFactory;
@@ -204,19 +205,7 @@ public class ConnectionServiceProvider extends ConnectionService {
     log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", connection.getReplyTo(),
         connection.getGlobalReservationId());
 
-    URL url;
-    try {
-      url = new ClassPathResource("/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl").getURL();
-    }
-    catch (IOException e) {
-      log.error("Error: ", e);
-      return;
-    }
-
-    final ConnectionServiceRequester requester = new ConnectionServiceRequester(url, new QName(
-        "http://schemas.ogf.org/nsi/2011/10/connection/requester", "ConnectionServiceRequester"));
-
-    final ConnectionRequesterPort connectionServiceRequesterPort = requester.getConnectionServiceRequesterPort();
+    final ConnectionRequesterPort connectionServiceRequesterPort = getConnectionRequesterPort();
     final ReserveConfirmedType reserveConfirmedType = new ObjectFactory().createReserveConfirmedType();
     reserveConfirmedType.setRequesterNSA(connection.getRequesterNsa());
     reserveConfirmedType.setProviderNSA(connection.getProviderNsa());
@@ -245,6 +234,25 @@ public class ConnectionServiceProvider extends ConnectionService {
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
       log.error("Error: ", e);
     }
+  }
+
+  /**
+   * @return
+   */
+  private ConnectionRequesterPort getConnectionRequesterPort() {
+    URL url;
+    try {
+      url = new ClassPathResource("/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl").getURL();
+    }
+    catch (IOException e) {
+      log.error("Error: ", e);
+      return null;
+    }
+
+    final ConnectionServiceRequester requester = new ConnectionServiceRequester(url, new QName(
+        "http://schemas.ogf.org/nsi/2011/10/connection/requester", "ConnectionServiceRequester"));
+
+    return requester.getConnectionServiceRequesterPort();
   }
 
   private void sendTerminateToChildNsa(final String correlationId, final String nsaChild, final String nsaRequester) {
@@ -388,6 +396,7 @@ public class ConnectionServiceProvider extends ConnectionService {
     // create BoD reservation
     String reservationId = getReservationService().create(reservation, autoProvision);
     connection.setReservationId(reservationId);
+    getConnectionRepo().save(connection);
 
     // call reserveConfirmed on requester nsa
     sendReserveConfirmed(connection);
@@ -397,6 +406,27 @@ public class ConnectionServiceProvider extends ConnectionService {
   }
 
   public GenericAcknowledgmentType provision(ProvisionRequestType parameters) throws ServiceException {
+
+    final String connectionId = parameters.getProvision().getConnectionId();
+    log.debug("Received provision request with id: {}", connectionId);
+
+    final Connection connection = getConnectionRepo().findByConnectionId(connectionId);
+    
+    System.out.println(getConnectionRepo().findAll());
+    
+    final Reservation reservation = getReservationService().findByReservationId(connection.getReservationId());
+    System.out.println(reservation);
+    final boolean isActivated = getReservationService().activate(reservation);
+    
+    System.out.println(isActivated);
+
+    // / call provisionConfirmed on requester nsa
+    if (isActivated) {
+      sendProvisionConfirmed(connection);
+    }
+    else {
+      sendProvisionFailed(connection);
+    }
 
     // Build an internal request for this reservation request.
 
@@ -435,8 +465,43 @@ public class ConnectionServiceProvider extends ConnectionService {
      * the sending.
      */
     GenericAcknowledgmentType ack = new GenericAcknowledgmentType();
-    ack.setCorrelationId(null);
+    ack.setCorrelationId(parameters.getCorrelationId());
     return ack;
+  }
+
+  private void sendProvisionFailed(Connection connection) {
+    // TODO Auto-generated method stub
+
+  }
+
+  private void sendProvisionConfirmed(final Connection connection) {
+
+    log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", connection.getReplyTo(),
+        connection.getGlobalReservationId());
+
+    final ConnectionRequesterPort connectionServiceRequesterPort = getConnectionRequesterPort();
+
+    final GenericConfirmedType generic = new GenericConfirmedType();
+    generic.setProviderNSA(connection.getProviderNsa());
+    generic.setRequesterNSA(connection.getRequesterNsa());
+    generic.setConnectionId(connection.getConnectionId());
+    generic.setGlobalReservationId(connection.getGlobalReservationId());
+
+    try {
+      final Map<String, Object> requestContext = ((BindingProvider) connectionServiceRequesterPort).getRequestContext();
+
+      // TODO: get credentials from reservation request
+      requestContext.put(BindingProvider.USERNAME_PROPERTY, "nsi");
+      requestContext.put(BindingProvider.PASSWORD_PROPERTY, "nsi123");
+      requestContext.put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
+
+      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, connection.getReplyTo());
+      connectionServiceRequesterPort.provisionConfirmed(new Holder<String>(connection.getConnectionId()), generic);
+    }
+    catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
+      log.error("Error: ", e);
+    }
+
   }
 
   public GenericAcknowledgmentType release(ReleaseRequestType parameters) throws ServiceException {

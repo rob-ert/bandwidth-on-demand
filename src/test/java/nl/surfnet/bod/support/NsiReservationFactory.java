@@ -46,9 +46,9 @@ public class NsiReservationFactory {
 
   private String correlationId = ConnectionService.getCorrelationId();
   private String connectionId = ConnectionService.getCorrelationId();
-  private int desiredBandwidth = 1000;
-  private int maxBandwidth = 1000;
-  private int minBandwidth = 950;
+  private int desiredBandwidth = 100;
+  private int maxBandwidth = 100;
+  private int minBandwidth = 100;
   private XMLGregorianCalendar scheduleEndTime;
   private XMLGregorianCalendar scheduleStartTime;
   private String description = "Some example Description";

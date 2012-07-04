@@ -543,4 +543,8 @@ public class ReservationService {
     }
     return false;
   }
+  
+  public Reservation findByReservationId(final String reservationId) {
+    return reservationRepo.findByReservationId(reservationId);
+  }
 }
