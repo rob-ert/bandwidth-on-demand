@@ -22,7 +22,6 @@
 package nl.surfnet.bod.service;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -79,25 +78,10 @@ public class ReservationPoller {
     LocalDateTime dateTime = LocalDateTime.now().withSecondOfMinute(0).withMillisOfSecond(0);
     Collection<Reservation> reservations = reservationService.findReservationsToPoll(dateTime);
 
-    logger.debug("Found {} reservations that are about to change status or should have change", reservations.size());
+    logger.debug("Found {} reservations that are running or could start running", reservations.size());
 
     for (Reservation reservation : reservations) {
       executorService.submit(new ReservationStatusChecker(reservation, maxPollingTries));
-    }
-  }
-
-  @Scheduled(cron = "0 * * * * *")
-  public void pollReservationsThatHaveARunningStatus() {
-    // Only check for RUNNING state, otherwise it might interfere with other
-    // schedule jobs. Status PREPARING and SCHEDULED are
-    // temporary status which might change fast which will lead to concurrent
-    // updates and staleObjectExceptions
-    List<Reservation> reservations = reservationService.findRunningReservations();
-
-    logger.debug("Found {} reservations that have a running state.", reservations.size());
-
-    for (Reservation reservation : reservations) {
-      executorService.submit(new ReservationStatusChecker(reservation, 1));
     }
   }
 
@@ -134,7 +118,7 @@ public class ReservationPoller {
         logger.debug("Checking status update for: '{}' (try {})", reservation.getReservationId(), numberOfTries);
 
         currentStatus = reservationService.getStatus(reservation);
-        numberOfTries++;
+        logger.debug("Got back status {}", currentStatus);
 
         if (!currentStatus.equals(startStatus)) {
           logger.info("Startstatus {} will be updated to {} for reservation {}", new Object[] { startStatus,
@@ -148,6 +132,7 @@ public class ReservationPoller {
           return;
         }
 
+        numberOfTries++;
         Uninterruptibles.sleepUninterruptibly(pollingIntervalInMillis, TimeUnit.MILLISECONDS);
       }
     }

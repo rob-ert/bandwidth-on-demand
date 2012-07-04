@@ -23,6 +23,7 @@ package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkState;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.PREPARING;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
@@ -259,8 +260,10 @@ public class ReservationService {
    * @return list of found Reservations
    */
   public Collection<Reservation> findReservationsToPoll(LocalDateTime dateTime) {
-    Set<Reservation> reservations = Sets.newHashSet(reservationRepo.findAll(specReservationsToPoll(dateTime)));
-    reservations.addAll(reservationRepo.findAll(specReservationsShouldHaveStarted(dateTime)));
+    Set<Reservation> reservations = Sets.newHashSet();
+    reservations.addAll(reservationRepo.findAll(specReservationsThatCouldStart(dateTime)));
+    reservations.addAll(findReservationWithStatus(RUNNING, PREPARING));
+
     return reservations;
   }
 
@@ -310,29 +313,15 @@ public class ReservationService {
     };
   }
 
-  private Specification<Reservation> specReservationsShouldHaveStarted(final LocalDateTime startOrEndDateTime) {
+  private Specification<Reservation> specReservationsThatCouldStart(final LocalDateTime startDateTime) {
     return new Specification<Reservation>() {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
           CriteriaBuilder cb) {
 
         return cb.and(
-            cb.lessThan(reservation.get(Reservation_.startDateTime), startOrEndDateTime),
-            cb.equal(reservation.get(Reservation_.status), ReservationStatus.SCHEDULED));
-      }
-    };
-  }
-
-  private Specification<Reservation> specReservationsToPoll(final LocalDateTime startOrEndDateTime) {
-    return new Specification<Reservation>() {
-      @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
-
-        return cb.and(
-            cb.or(cb.equal(reservation.get(Reservation_.startDateTime), startOrEndDateTime),
-                cb.equal(reservation.get(Reservation_.endDateTime), startOrEndDateTime)),
-            reservation.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES));
+            cb.lessThanOrEqualTo(reservation.get(Reservation_.startDateTime), startDateTime),
+            reservation.get(Reservation_.status).in(ImmutableList.of(ReservationStatus.REQUESTED, ReservationStatus.SCHEDULED)));
       }
     };
   }
