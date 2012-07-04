@@ -45,7 +45,7 @@ public class ReservationToNbi {
   private ReservationEventPublisher reservationEventPublisher;
 
   @Autowired
-  LogEventService logEventService;
+  private LogEventService logEventService;
 
   public String submitNewReservation(Long id, boolean autoProvision) {
     Reservation reservation = reservationRepo.findOne(id);
