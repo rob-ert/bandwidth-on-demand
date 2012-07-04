@@ -21,10 +21,12 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import static com.google.common.base.Preconditions.checkState;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+
+import java.util.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -33,18 +35,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalPort_;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationArchive;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.Reservation_;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPort_;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -67,16 +58,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Ordering;
-
-import static com.google.common.base.Preconditions.checkState;
-
-import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import com.google.common.collect.*;
 
 @Service
 @Transactional
@@ -112,7 +94,7 @@ public class ReservationService {
 
   /**
    * Activates an existing reservation;
-   * 
+   *
    * @param reservation
    *          {@link Reservation} to activate
    * @return true if the reservation was successfully activated, false otherwise
@@ -128,7 +110,7 @@ public class ReservationService {
 
   /**
    * Creates a {@link Reservation} which is auto provisioned
-   * 
+   *
    * @param reservation
    * @See {@link #create(Reservation)}
    */
@@ -138,13 +120,13 @@ public class ReservationService {
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   * 
+   *
    * @param reservation
    * @param autoProvision
    *          , indicates if the reservations should be automatically
    *          provisioned
    * @return ReservationId, scheduleId from NMS
-   * 
+   *
    */
   public String create(Reservation reservation, boolean autoProvision) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
@@ -214,7 +196,7 @@ public class ReservationService {
    * Cancels a reservation if the current user has the correct role and the
    * reservation is allowed to be deleted depending on its state. Updates the
    * state of the reservation.
-   * 
+   *
    * @param reservation
    *          {@link Reservation} to delete
    * @return true if the reservation was canceled, false otherwise.
@@ -233,7 +215,7 @@ public class ReservationService {
    * <li>and</li>
    * <li>the current status of the reservation must allow it</li>
    * </ul>
-   * 
+   *
    * @param reservation
    *          {@link Reservation} to check
    * @param role
@@ -271,13 +253,15 @@ public class ReservationService {
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   * 
+   *
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
    */
-  public List<Reservation> findReservationsToPoll(LocalDateTime dateTime) {
-    return reservationRepo.findAll(specReservationsToPoll(dateTime));
+  public Collection<Reservation> findReservationsToPoll(LocalDateTime dateTime) {
+    Set<Reservation> reservations = Sets.newHashSet(reservationRepo.findAll(specReservationsToPoll(dateTime)));
+    reservations.addAll(reservationRepo.findAll(specReservationsShouldHaveStarted(dateTime)));
+    return reservations;
   }
 
   private Specification<Reservation> forVirtualResourceGroup(final VirtualResourceGroup vrg) {
@@ -322,6 +306,19 @@ public class ReservationService {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         return cb.equal(root.get(Reservation_.status), status);
+      }
+    };
+  }
+
+  private Specification<Reservation> specReservationsShouldHaveStarted(final LocalDateTime startOrEndDateTime) {
+    return new Specification<Reservation>() {
+      @Override
+      public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
+          CriteriaBuilder cb) {
+
+        return cb.and(
+            cb.lessThan(reservation.get(Reservation_.startDateTime), startOrEndDateTime),
+            cb.equal(reservation.get(Reservation_.status), ReservationStatus.SCHEDULED));
       }
     };
   }

@@ -71,7 +71,7 @@ public class ReservationPollerTest {
         Lists.newArrayList(reservation));
     when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.SCHEDULED);
 
-    subject.pollReservationsThatAreAboutToStartOrEnd();
+    subject.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
 
     awaitPollerReady();
 
@@ -96,7 +96,7 @@ public class ReservationPollerTest {
 
     subject.setMaxPollingTries(3);
     subject.setPollingInterval(1, TimeUnit.MILLISECONDS);
-    subject.pollReservationsThatAreAboutToStartOrEnd();
+    subject.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
 
     awaitPollerReady();
 
@@ -107,7 +107,7 @@ public class ReservationPollerTest {
   public void findReservationShouldBeForWholeMinutes() throws InterruptedException {
     ArgumentCaptor<LocalDateTime> argument = ArgumentCaptor.forClass(LocalDateTime.class);
 
-    subject.pollReservationsThatAreAboutToStartOrEnd();
+    subject.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
 
     verify(reservationServiceMock).findReservationsToPoll(argument.capture());
 

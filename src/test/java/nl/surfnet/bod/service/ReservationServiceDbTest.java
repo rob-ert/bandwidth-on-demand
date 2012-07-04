@@ -25,16 +25,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 
+import java.util.Collection;
 import java.util.List;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.repo.InstituteRepo;
-import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
-import nl.surfnet.bod.repo.ReservationRepo;
-import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.repo.*;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.DateMidnight;
@@ -85,6 +81,7 @@ public class ReservationServiceDbTest {
   public void setUp() {
     rightReservationOnStartTime = createAndPersist(rightDateTime, beforeDateTime, ReservationStatus.SCHEDULED);
     rightReservationOnEndTime = createAndPersist(beforeDateTime, rightDateTime, ReservationStatus.SCHEDULED);
+    createAndPersist(beforeDateTime.minusMinutes(10), rightDateTime.plusHours(1), ReservationStatus.SCHEDULED);
     createAndPersist(rightDateTime, beforeDateTime, ReservationStatus.CANCELLED);
     createAndPersist(rightDateTime, rightDateTime, ReservationStatus.CANCELLED);
     createAndPersist(beforeDateTime, beforeDateTime, ReservationStatus.SCHEDULED);
@@ -94,22 +91,22 @@ public class ReservationServiceDbTest {
   public void shouldFindAll() {
     List<Reservation> allReservations = reservationRepo.findAll();
 
-    assertThat(allReservations, hasSize(5));
+    assertThat(allReservations, hasSize(6));
   }
 
   @Test
-  public void shouldFindNoReservations() {
-    List<Reservation> reservations = reservationService.findReservationsToPoll(LocalDateTime.now().withHourOfDay(1));
+  public void shouldFindScheduledReservations() {
+    Collection<Reservation> reservations = reservationService.findReservationsToPoll(LocalDateTime.now().withHourOfDay(1));
 
-    assertThat(reservations, hasSize(0));
+    assertThat(reservations, hasSize(4));
   }
 
   @Test
   public void shouldFindReservationsAfterMidnight() {
     DateTimeUtils.setCurrentMillisFixed(DateMidnight.now().getMillis());
-    List<Reservation> reservations = reservationService.findReservationsToPoll(rightDateTime);
+    Collection<Reservation> reservations = reservationService.findReservationsToPoll(rightDateTime);
 
-    assertThat(reservations, hasSize(2));
+    assertThat(reservations, hasSize(4));
     assertThat(reservations, hasItems(rightReservationOnEndTime, rightReservationOnStartTime));
   }
 

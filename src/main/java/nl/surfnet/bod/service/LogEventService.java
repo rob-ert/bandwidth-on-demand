@@ -89,7 +89,7 @@ public class LogEventService {
 
   /**
    * Delegates to {@link #handleEvent(Logger, LogEvent)}
-   * 
+   *
    * @param logEvent
    */
   private void handleEvent(LogEvent logEvent) {
@@ -99,10 +99,10 @@ public class LogEventService {
   /**
    * Handles the event. Writes it to the given logger and persists it in the
    * {@link LogEventRepo}
-   * 
+   *
    * @param logger
    *          Logger to write to
-   * 
+   *
    * @param logEvent
    *          LogEvent to handle
    */

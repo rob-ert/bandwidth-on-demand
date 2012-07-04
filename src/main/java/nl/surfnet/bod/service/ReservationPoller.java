@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,9 +47,9 @@ import com.google.common.util.concurrent.Uninterruptibles;
  * {@link #monitorStatus(Reservation)}, whenever a state change is detected the
  * new state will be updated in the specific {@link Reservation} object and will
  * be persisted. The scheduler will be cancelled afterwards.
- * 
+ *
  * @author Franky
- * 
+ *
  */
 @Component
 @Transactional
@@ -74,11 +75,11 @@ public class ReservationPoller {
    * precision of reservations is in minutes.
    */
   @Scheduled(cron = "0 * * * * *")
-  public void pollReservationsThatAreAboutToStartOrEnd() {
+  public void pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged() {
     LocalDateTime dateTime = LocalDateTime.now().withSecondOfMinute(0).withMillisOfSecond(0);
-    List<Reservation> reservations = reservationService.findReservationsToPoll(dateTime);
+    Collection<Reservation> reservations = reservationService.findReservationsToPoll(dateTime);
 
-    logger.debug("Found {} reservations that are about to start or end", reservations.size());
+    logger.debug("Found {} reservations that are about to change status or should have change", reservations.size());
 
     for (Reservation reservation : reservations) {
       executorService.submit(new ReservationStatusChecker(reservation, maxPollingTries));

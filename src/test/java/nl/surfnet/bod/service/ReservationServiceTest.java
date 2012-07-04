@@ -76,7 +76,6 @@ public class ReservationServiceTest {
   @Mock
   private NbiClient nbiClientMock;
 
-  @SuppressWarnings(value = "unused")
   @Mock
   private LogEventService logEventService;
 
