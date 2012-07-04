@@ -21,11 +21,9 @@
  */
 package nl.surfnet.bod.web;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -34,6 +32,8 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationView;
+
+import org.junit.Test;
 
 public class ReservationViewTest {
 
@@ -49,8 +49,11 @@ public class ReservationViewTest {
 
     ReservationView view = new ReservationView(reservation, new ElementActionView(false));
 
-    assertThat(view.getSourcePort(), is("My source label"));
-    assertThat(view.getDestinationPort(), is("My dest label"));
+    assertThat(view.getSourcePort().getUserLabel(), is("My source label"));
+    assertThat(view.getSourcePort().getManagerLabel(), is("Label of boss"));
+
+    assertThat(view.getDestinationPort().getUserLabel(), is("My dest label"));
+    assertThat(view.getDestinationPort().getManagerLabel(), is("Label of boss"));
   }
 
   @Test

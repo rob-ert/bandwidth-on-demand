@@ -23,6 +23,7 @@ package nl.surfnet.bod.web.view;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.LocalDateTime;
@@ -33,9 +34,9 @@ public class ReservationView {
   private final Long id;
   private final String name;
   private final String virtualResourceGroup;
-  private final String sourcePort;
-  private final String destinationPort;
   private final ReservationStatus status;
+  private final PortView sourcePort;
+  private final PortView destinationPort;
   private final String failedReason;
   private final String cancelReason;
   @JsonSerialize(using = JsonLocalDateTimeSerializer.class)
@@ -51,8 +52,8 @@ public class ReservationView {
   public ReservationView(final Reservation reservation, final ElementActionView deleteActionView) {
     this.id = reservation.getId();
     this.virtualResourceGroup = reservation.getVirtualResourceGroup().getName();
-    this.sourcePort = reservation.getSourcePort().getUserLabel();
-    this.destinationPort = reservation.getDestinationPort().getUserLabel();
+    this.sourcePort = new PortView(reservation.getSourcePort());
+    this.destinationPort = new PortView(reservation.getDestinationPort());
     this.status = reservation.getStatus();
     this.failedReason = reservation.getFailedReason();
     this.cancelReason = reservation.getCancelReason();
@@ -70,11 +71,11 @@ public class ReservationView {
     return virtualResourceGroup;
   }
 
-  public String getSourcePort() {
+  public PortView getSourcePort() {
     return sourcePort;
   }
 
-  public String getDestinationPort() {
+  public PortView getDestinationPort() {
     return destinationPort;
   }
 
@@ -161,4 +162,39 @@ public class ReservationView {
     return cancelReason;
   }
 
+  public class PortView {
+    private final String userLabel;
+    private final String managerLabel;
+    private final String physicalPortNocLabel;
+    private final String physicalPortManagerLabel;
+    private final String bodPortId;
+
+    public PortView(VirtualPort port) {
+      this.userLabel = port.getUserLabel();
+      this.managerLabel = port.getManagerLabel();
+      this.physicalPortManagerLabel = port.getPhysicalPort().getManagerLabel();
+      this.physicalPortNocLabel = port.getPhysicalPort().getNocLabel();
+      this.bodPortId = port.getPhysicalPort().getBodPortId();
+    }
+
+    public String getUserLabel() {
+      return userLabel;
+    }
+
+    public String getManagerLabel() {
+      return managerLabel;
+    }
+
+    public String getPhysicalPortNocLabel() {
+      return physicalPortNocLabel;
+    }
+
+    public String getPhysicalPortManagerLabel() {
+      return physicalPortManagerLabel;
+    }
+
+    public String getBodPortId() {
+      return bodPortId;
+    }
+  }
 }

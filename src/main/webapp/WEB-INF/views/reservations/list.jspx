@@ -2,7 +2,8 @@
 <html xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
      xmlns:tiles="http://tiles.apache.org/tags-tiles" xmlns:table="urn:jsptagdir:/WEB-INF/tags/table"
      xmlns:sform="http://www.springframework.org/tags/form" xmlns:c="http://java.sun.com/jsp/jstl/core"
-     xmlns:spring="http://www.springframework.org/tags" xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields">
+     xmlns:sec="http://www.springframework.org/security/tags" xmlns:spring="http://www.springframework.org/tags"
+     xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
@@ -40,29 +41,42 @@
                             <div class="row-fluid">
                                 <div class="span6">
                                     <dl class="dl-horizontal">
-                                        <dt>Source port</dt>
-                                        <dd>
-                                            <spring:eval expression="item['sourcePort']" htmlEscape="true" />
-                                        </dd>
-                                        <dt>Reservation id</dt>
-                                        <dd>
-                                            <spring:eval expression="item['reservationId']" htmlEscape="true" />
-                                        </dd>
+                                        <dt><spring:message code="label_reservation_sourceport" /></dt>
+                                        <dd><c:out value="${item.sourcePort.userLabel}" /></dd>
+
+                                        <sec:authorize access="hasRole('NOC_ENGINEER') or hasRole('ICT_MANAGER')">
+                                            <dt><spring:message code="label_virtualport_managerlabel_short" /></dt>
+                                            <dd><c:out value="${item.sourcePort.managerLabel}" /></dd>
+                                            <dt>PP Admin. Label</dt>
+                                            <dd><c:out value="${item.sourcePort.physicalPortManagerLabel}" /></dd>
+                                        </sec:authorize>
+
+                                        <sec:authorize access="hasRole('NOC_ENGINEER')">
+                                            <dt><spring:message code="label_physicalport_name" /></dt>
+                                            <dd><c:out value="${item.sourcePort.physicalPortNocLabel}"/></dd>
+                                            <dt><spring:message code="label_physicalport_bod_port_id" /></dt>
+                                            <dd><c:out value="${item.sourcePort.bodPortId}"/></dd>
+                                        </sec:authorize>
+
+                                        <dt><spring:message code="label_reservation_reservationid" /></dt>
+                                        <dd><c:out value="${item.reservationId}" /></dd>
+
                                         <c:if test="${item.status eq 'FAILED'}">
-                                            <dt>Failed reason</dt>
+                                            <dt><spring:message code="label_reservation_failedreason" /></dt>
                                             <dd>
                                                 <c:choose>
                                                     <c:when test="${empty item.failedReason}">
                                                         -
                                                     </c:when>
                                                     <c:otherwise>
-                                                        <spring:eval expression="item['failedReason']" htmlEscape="true" />
+                                                        <c:out value="${item.failedReason}" />
                                                     </c:otherwise>
                                                 </c:choose>
                                             </dd>
                                         </c:if>
+
                                         <c:if test="${item.status eq 'CANCELLED'}">
-                                            <dt>Cancelled reason</dt>
+                                            <dt><spring:message code="label_reservation_cancelledreason" /></dt>
                                             <dd>
                                                 <c:choose>
                                                     <c:when test="${empty item.cancelReason}">
@@ -78,18 +92,27 @@
                                 </div>
                                 <div class="span6">
                                     <dl class="dl-horizontal">
-                                        <dt>Destination port</dt>
-                                        <dd>
-                                            <spring:eval expression="item['destinationPort']" htmlEscape="true" />
-                                        </dd>
-                                        <dt>Creation date</dt>
-                                        <dd>
-                                            <spring:eval expression="item['creationDateTime']" htmlEscape="true" />
-                                        </dd>
-                                        <dt>User created</dt>
-                                        <dd>
-                                            <spring:eval expression="item['userCreated']" htmlEscape="true" />
-                                        </dd>
+                                        <dt><spring:message code="label_reservation_destinationport" /></dt>
+                                        <dd><c:out value="${item.destinationPort.userLabel}" /></dd>
+
+                                        <sec:authorize access="hasRole('NOC_ENGINEER') or hasRole('ICT_MANAGER')">
+                                            <dt><spring:message code="label_virtualport_managerlabel_short" /></dt>
+                                            <dd><c:out value="${item.destinationPort.managerLabel}" /></dd>
+                                            <dt>PP Admin. Label</dt>
+                                            <dd><c:out value="${item.destinationPort.physicalPortManagerLabel}" /></dd>
+                                        </sec:authorize>
+
+                                        <sec:authorize access="hasRole('NOC_ENGINEER')">
+                                            <dt><spring:message code="label_physicalport_name" /></dt>
+                                            <dd><c:out value="${item.destinationPort.physicalPortNocLabel}"/></dd>
+                                            <dt><spring:message code="label_physicalport_bod_port_id" /></dt>
+                                            <dd><c:out value="${item.destinationPort.bodPortId}"/></dd>
+                                        </sec:authorize>
+
+                                        <dt><spring:message code="label_reservation_creationdatetime" /></dt>
+                                        <dd><spring:eval expression="item['creationDateTime']" htmlEscape="true" /></dd>
+                                        <dt><spring:message code="label_reservation_usercreated" /></dt>
+                                        <dd><spring:eval expression="item['userCreated']" htmlEscape="true" /></dd>
                                     </dl>
                                 </div>
                             </div>
