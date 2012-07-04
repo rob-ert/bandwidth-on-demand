@@ -44,7 +44,7 @@
                                         <dt><spring:message code="label_reservation_sourceport" /></dt>
                                         <dd><c:out value="${item.sourcePort.userLabel}" /></dd>
 
-                                        <sec:authorize access="hasRole('NOC_ENGINEER') or hasRole('ICT_MANAGER')">
+                                        <sec:authorize ifAnyGranted="ICT_MANAGER, NOC_ENGINEER">
                                             <dt><spring:message code="label_virtualport_managerlabel_short" /></dt>
                                             <dd><c:out value="${item.sourcePort.managerLabel}" /></dd>
                                             <dt>PP Admin. Label</dt>
@@ -95,7 +95,7 @@
                                         <dt><spring:message code="label_reservation_destinationport" /></dt>
                                         <dd><c:out value="${item.destinationPort.userLabel}" /></dd>
 
-                                        <sec:authorize access="hasRole('NOC_ENGINEER') or hasRole('ICT_MANAGER')">
+                                        <sec:authorize ifAnyGranted="ICT_MANAGER, NOC_ENGINEER">
                                             <dt><spring:message code="label_virtualport_managerlabel_short" /></dt>
                                             <dd><c:out value="${item.destinationPort.managerLabel}" /></dd>
                                             <dt>PP Admin. Label</dt>
