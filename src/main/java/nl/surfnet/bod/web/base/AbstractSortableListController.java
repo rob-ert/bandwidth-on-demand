@@ -51,8 +51,6 @@ import com.google.common.collect.ImmutableList;
  */
 public abstract class AbstractSortableListController<T> {
 
-  public static final Direction DEFAULT_SORT_DIRECTION = Direction.ASC;
-
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
@@ -82,8 +80,12 @@ public abstract class AbstractSortableListController<T> {
 
   protected abstract long count();
 
-  protected String defaultSortProperty() {
+  protected String getDefaultSortProperty() {
     return "id";
+  }
+
+  protected Direction getDefaultSortOrder() {
+    return Direction.ASC;
   }
 
   protected List<String> translateSortProperty(String sortProperty) {
@@ -96,7 +98,7 @@ public abstract class AbstractSortableListController<T> {
 
   private String sortProperty(String order) {
     if (Strings.emptyToNull(order) == null || !doesPropertyExist(order)) {
-      return defaultSortProperty();
+      return getDefaultSortProperty();
     }
 
     return order;
@@ -129,14 +131,14 @@ public abstract class AbstractSortableListController<T> {
 
   private Direction sortDirection(String order) {
     if (Strings.isNullOrEmpty(order)) {
-      return DEFAULT_SORT_DIRECTION;
+      return getDefaultSortOrder();
     }
 
     try {
       return Direction.fromString(order);
     }
     catch (IllegalArgumentException e) {
-      return DEFAULT_SORT_DIRECTION;
+      return getDefaultSortOrder();
     }
   }
 
