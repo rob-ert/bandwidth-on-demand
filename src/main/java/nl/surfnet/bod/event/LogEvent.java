@@ -39,11 +39,19 @@ public class LogEvent {
   @Column(nullable = true)
   private final String className;
 
-  @Lob
+  @Type(type = "text")
   private final String serializedObject;
 
-  @Lob
+  @Type(type = "text")
   private final String details;
+
+  /**
+   * Default constructor for Hibernate
+   */
+  @SuppressWarnings("unused")
+  private LogEvent() {
+    this((String) null, (String) null, (LogEventType) null, null);
+  }
 
   public LogEvent(String userId, String groupId, LogEventType type, Object domainObject) {
     this(userId, Lists.newArrayList(groupId), type, domainObject);

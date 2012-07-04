@@ -1,5 +1,7 @@
 package nl.surfnet.bod.service;
 
+import java.util.List;
+
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
@@ -8,6 +10,8 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -105,6 +109,10 @@ public class LogEventService {
     logger.info("Handling event: {}", logEvent);
 
     logEventRepo.save(logEvent);
+  }
+
+  public List<LogEvent> findAllOrderedByCreatedAndUserId() {
+    return logEventRepo.findAll(new Sort(Direction.DESC, "created", "userId"));
   }
 
 }

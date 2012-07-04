@@ -4,4 +4,5 @@
     <item id="i_prg_list" messageCode="menu_physicalresourcegroup_label" url="/noc/physicalresourcegroups" menu="physicalresourcegroup" />
     <item id="i_pp_list" messageCode="menu_physicalport_label" url="/noc/physicalports" menu="physicalport" />
     <item id="i_pp_free" messageCode="menu_physicalport_free_label" url="/noc/physicalports/free" menu="physicalport_free" />
+    <item id="i_events" messageCode="menu_logevent_label" url="/noc/logevents" menu="logevents" />
 </menu>

@@ -30,6 +30,11 @@
 
 /* table column/cell layout */
 
+
+.table .cw35 {
+    width: 35px;
+}
+
 .table .cw55 {
     width: 55px;
 }

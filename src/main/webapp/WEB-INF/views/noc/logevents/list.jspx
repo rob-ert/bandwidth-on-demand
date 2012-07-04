@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<html xmlns:jsp="http://java.sun.com/JSP/Page"
+  xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+  xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:spring="http://www.springframework.org/tags"
+  xmlns:table="urn:jsptagdir:/WEB-INF/tags/table">
+
+<jsp:directive.page contentType="text/html;charset=UTF-8" />
+<jsp:output omit-xml-declaration="yes" />
+
+<page:list id="pl_logEvent" path="/noc/events" renderActions="false">
+  <table:table items="${list}" labelPluralCode="label_logevent_plural">
+    <thead>
+      <tr>
+        <table:rowDetailsHeader />
+        <table:sortableHeader labelCode="label_logevent_created" property="created" />
+        <table:sortableHeader labelCode="label_logevent_userid" property="userId" styleClass="cw35"/>
+        <table:sortableHeader labelCode="label_logevent_eventtype" property="eventType" styleClass="cw35"/>
+        <table:sortableHeader labelCode="label_logevent_className" property="className" />
+      </tr>
+    </thead>
+    <tbody>
+      <c:forEach items="${list}" var="item">
+        <tr class="rowdetails">
+          <table:rowDetailsColumn>
+            <dl class="dl-horizontal">
+              <dt>Object</dt>
+              <dd>
+                <c:out value="${item.serializedObject}" />
+              </dd>
+              <dt>Details</dt>
+              <dd>
+                <c:out value="${item.details}" />
+              </dd>
+            </dl>
+          </table:rowDetailsColumn>
+          <table:column item="${item}" property="created" />
+          <table:column item="${item}" property="userId" />
+          <table:column item="${item}" property="eventType" />
+          <table:column item="${item}" property="className" />
+        </tr>
+      </c:forEach>
+    </tbody>
+  </table:table>
+</page:list>
+</html>
