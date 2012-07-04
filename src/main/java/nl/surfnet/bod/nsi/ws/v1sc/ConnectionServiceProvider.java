@@ -23,7 +23,7 @@ package nl.surfnet.bod.nsi.ws.v1sc;
 
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +31,6 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.jws.WebService;
-import javax.servlet.ServletContext;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
@@ -58,9 +57,9 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.context.ServletContextAware;
 
 import com.google.common.base.Function;
 
@@ -73,16 +72,13 @@ import nl.surfnet.bod.nsi.ws.ConnectionService;
 @WebService(serviceName = "ConnectionServiceProvider",
     portName = "ConnectionServiceProviderPort",
     endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
-    targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider",
-    wsdlLocation = "/WEB-INF/wsdl/nsi/ogf_nsi_connection_provider_v1_0.wsdl")
-public class ConnectionServiceProvider extends ConnectionService implements ServletContextAware {
+    targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider")
+public class ConnectionServiceProvider extends ConnectionService {
 
   @Resource(name = "nsaProviderUrns")
   private List<String> nsaProviderUrns;
 
   private final Logger log = getLog();
-
-  private ServletContext servletContext;
 
   public static final String BOD_URN_POSTFIX = "urn:nl:surfnet:diensten:bod:";
 
@@ -119,8 +115,6 @@ public class ConnectionServiceProvider extends ConnectionService implements Serv
     public Connection apply(ReserveRequestType reserveRequestType) {
 
       final Connection connection = new Connection();
-
-      System.out.println(reserveRequestType);
 
       connection.setConnectionId(reserveRequestType.getReserve().getReservation().getConnectionId());
       connection.setCurrentState(INITIAL);
@@ -210,18 +204,17 @@ public class ConnectionServiceProvider extends ConnectionService implements Serv
     log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", connection.getReplyTo(),
         connection.getGlobalReservationId());
 
-    ConnectionServiceRequester requester;
-
+    URL url;
     try {
-      // does this work when running a war file?
-      final String path = servletContext.getRealPath("/WEB-INF/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl");
-      requester = new ConnectionServiceRequester(new URL("file:" + path), new QName(
-          "http://schemas.ogf.org/nsi/2011/10/connection/requester", "ConnectionServiceRequester"));
+      url = new ClassPathResource("/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl").getURL();
     }
-    catch (MalformedURLException e) {
+    catch (IOException e) {
       log.error("Error: ", e);
       return;
     }
+
+    final ConnectionServiceRequester requester = new ConnectionServiceRequester(url, new QName(
+        "http://schemas.ogf.org/nsi/2011/10/connection/requester", "ConnectionServiceRequester"));
 
     final ConnectionRequesterPort connectionServiceRequesterPort = requester.getConnectionServiceRequesterPort();
     final ReserveConfirmedType reserveConfirmedType = new ObjectFactory().createReserveConfirmedType();
@@ -578,11 +571,6 @@ public class ConnectionServiceProvider extends ConnectionService implements Serv
 
   public void queryFailed(Holder<String> correlationId, QueryFailedType queryFailed) throws ServiceException {
     throw new UnsupportedOperationException("Not implemented yet.");
-  }
-
-  @Override
-  public void setServletContext(ServletContext servletContext) {
-    this.servletContext = servletContext;
   }
 
 }

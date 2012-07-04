@@ -100,9 +100,6 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   @Before
   public void setup() {
-    final MockServletContext context = new MockServletContext();
-    context.setContextPath("src/main/webapp/WEB-INF");
-    nsiProvider.setServletContext(context);
 
     final VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroup();
     virtualResourceGroup.setDescription("description");
@@ -159,7 +156,6 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   public void should_throw_exeption_because_of_invalid_provider_urn() throws ServiceException {
     final ReserveRequestType reservationRequest = new NsiReservationFactory().setNsaProviderUrn(
         "urn:ogf:network:nsa:no:such:provider").createReservation();
-
     nsiProvider.reserve(reservationRequest);
   }
 
@@ -167,13 +163,12 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   public void should_throw_exeption_because_of_invalid_correlation_id() throws ServiceException {
     final ReserveRequestType reservationRequest = new NsiReservationFactory()
         .setCorrelationId(UUID.randomUUID().toString()).setDesiredBandwidth(1000).createReservation();
-
     nsiProvider.reserve(reservationRequest);
   }
 
   @Test
   public void should_return_generic_acknowledgement() throws Exception {
-    XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
+    final XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
     startTime.setDay(10);
     startTime.setMonth(10);
     startTime.setYear(2012);
@@ -181,7 +176,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     startTime.setHour(0);
     startTime.setSecond(0);
 
-    XMLGregorianCalendar endTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(
+    final XMLGregorianCalendar endTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(
         startTime.toGregorianCalendar());
     endTime.setDay(startTime.getDay() + 5);
 
@@ -199,7 +194,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
         .setScheduleEndTime(endTime).setCorrelationId(correationId).setProviderNsa("urn:ogf:network:nsa:netherlight")
         .setPath(path).createReservation();
 
-    GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
+    final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
 
     assertThat(genericAcknowledgmentType.getCorrelationId(), is(reservationRequest.getCorrelationId()));
 
