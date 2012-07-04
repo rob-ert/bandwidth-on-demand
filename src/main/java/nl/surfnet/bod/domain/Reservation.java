@@ -352,7 +352,7 @@ public class Reservation {
     }
     if (virtualResourceGroup != null) {
       builder.append("virtualResourceGroup=");
-      builder.append(virtualResourceGroup);
+      builder.append(virtualResourceGroup.getName());
       builder.append(", ");
     }
     if (status != null) {
