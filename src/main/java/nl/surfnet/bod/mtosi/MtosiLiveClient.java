@@ -30,6 +30,8 @@ import javax.annotation.PostConstruct;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
+import nl.surfnet.bod.domain.PhysicalPort;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +45,7 @@ import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.mri.wsdl.rir.v1_0.GetInventoryException;
 import org.tmforum.mtop.mri.wsdl.rir.v1_0.ResourceInventoryRetrievalRPC;
-import org.tmforum.mtop.mri.xsd.rir.v1.GetInventoryRequest;
-import org.tmforum.mtop.mri.xsd.rir.v1.GranularityType;
-import org.tmforum.mtop.mri.xsd.rir.v1.ObjectFactory;
-import org.tmforum.mtop.mri.xsd.rir.v1.SimpleFilterType;
+import org.tmforum.mtop.mri.xsd.rir.v1.*;
 import org.tmforum.mtop.mri.xsd.rir.v1.SimpleFilterType.IncludedObjectType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.InventoryDataType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagedElementInventoryType;
@@ -54,8 +53,6 @@ import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagementDomainInventoryType;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.PhysicalTerminationPointInventoryType;
 
 import com.google.common.annotations.VisibleForTesting;
-
-import nl.surfnet.bod.domain.PhysicalPort;
 
 @Service("mtosiLiveClient")
 public class MtosiLiveClient {

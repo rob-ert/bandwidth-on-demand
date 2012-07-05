@@ -21,14 +21,20 @@
  */
 package nl.surfnet.bod.mtosi;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
+import nl.surfnet.bod.domain.PhysicalPort;
+
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.tmforum.mtop.nrf.xsd.invdata.v1.InventoryDataType;
@@ -37,15 +43,13 @@ import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagementDomainInventoryType;
 
 import com.google.common.collect.Iterables;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-
 public class MtosiLiveClientTestIntegration {
 
   private MtosiLiveClient mtosiLiveClient;
 
   @Before
   public void init() throws IOException {
-    final Properties props = new Properties();
+    Properties props = new Properties();
     props.load(new ClassPathResource("bod-default.properties").getInputStream());
 
     mtosiLiveClient = new MtosiLiveClient(props.getProperty("mtosi.inventory.retrieval.endpoint"),
@@ -54,29 +58,34 @@ public class MtosiLiveClientTestIntegration {
   }
 
   @Test
+  @Ignore("MTOSI gives no MDList..")
   public void retrieveInventory() {
-    final InventoryDataType inventory = mtosiLiveClient.getInventory();
+    InventoryDataType inventory = mtosiLiveClient.getInventory();
     assertThat(inventory, notNullValue());
-    final List<ManagementDomainInventoryType> mdits = inventory.getMdList().getMd();
+
+    List<ManagementDomainInventoryType> mdits = inventory.getMdList().getMd();
     assertThat(mdits, hasSize(1));
-    final ManagementDomainInventoryType mdit = Iterables.getOnlyElement(mdits);
-    final List<ManagedElementInventoryType> meits = mdit.getMeList().getMeInv();
+
+    ManagementDomainInventoryType mdit = Iterables.getOnlyElement(mdits);
+    List<ManagedElementInventoryType> meits = mdit.getMeList().getMeInv();
     assertThat(meits, hasSize(greaterThan(0)));
   }
 
   @Test
+  @Ignore("MTOSI gives no MDList..")
   public void getUnallocatedPorts() {
-    final List<PhysicalPort> unallocatedPorts = mtosiLiveClient.getUnallocatedPorts();
-    System.out.println(unallocatedPorts);
-    System.out.println(unallocatedPorts.size());
+    List<PhysicalPort> unallocatedPorts = mtosiLiveClient.getUnallocatedPorts();
+
     assertThat(unallocatedPorts, hasSize(greaterThan(0)));
   }
 
   @Test
   public void convertPortName() {
-    final String mtosiPortName = "/rack=1/shelf=1/slot=1/port=48";
-    final String expectedPortName = "1-1-1-48";
-    final String convertedPortName = mtosiLiveClient.convertPortName(mtosiPortName);
+    String mtosiPortName = "/rack=1/shelf=1/slot=1/port=48";
+    String expectedPortName = "1-1-1-48";
+
+    String convertedPortName = mtosiLiveClient.convertPortName(mtosiPortName);
+
     assertThat(convertedPortName, equalTo(expectedPortName));
   }
 }
