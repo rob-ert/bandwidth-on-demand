@@ -35,21 +35,20 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import com.googlecode.flyway.core.Flyway;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml", "/spring/appCtx-nbi-client.xml",
-    "/spring/appCtx-idd-client.xml" })
+@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
+    "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
 public class DatabaseMigrationTestIntegration extends AbstractTransactionalJUnit4SpringContextTests {
 
   @Autowired
   private DataSource dataSource;
 
-  @Test
-  public void preventError() {
-    //
+  @Ignore("By loading the spring context to current database will be migrated")
+  public void shouldMigrateToLatestVersion() {
   }
 
-  @Ignore("should run against a specific integration test postgres database, because of incompatible sql statemens")
-  public void shouldInsertInstitutes() {
+  @Test
+  public void shouldBuildDatabaseFromScratch() {
     Flyway flyway = new Flyway();
     flyway.setDataSource(dataSource);
     flyway.setBasePackage("nl.surfnet.bod.db.migration");
