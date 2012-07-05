@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -36,8 +38,8 @@ import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import javax.sql.DataSource;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -47,12 +49,10 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 import com.google.common.io.Files;
-import com.googlecode.flyway.core.Flyway;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
@@ -73,10 +73,10 @@ public class BodWebDriver {
 
   public static final DateTimeFormatter RESERVATION_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd H:mm");
 
-  private static boolean databaseCleared =false;
   private static final int MAIL_SMTP_PORT = 4025;
   private static final InputStream PROP_DEFAULT = BodWebDriver.class.getResourceAsStream("/bod-default.properties");
   private static final InputStream PROP_SELENIUM = BodWebDriver.class.getResourceAsStream("/bod-selenium.properties");
+  private static boolean institutesRefreshed = false;
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -94,11 +94,6 @@ public class BodWebDriver {
   }
 
   public synchronized void initializeOnce() {
-
-    if (!databaseCleared) {
-      clearDatabase();
-      databaseCleared = true;
-    }
 
     if (driver == null) {
       this.driver = new FirefoxDriver();
@@ -127,25 +122,75 @@ public class BodWebDriver {
       });
     }
 
-    managerDriver = new BodManagerWebDriver(driver);
-    nocDriver = new BodNocWebDriver(driver);
-    userDriver = new BodUserWebDriver(driver);
+    if (managerDriver == null) {
+      managerDriver = new BodManagerWebDriver(driver);
+    }
+
+    if (nocDriver == null) {
+      nocDriver = new BodNocWebDriver(driver);
+    }
+
+    if (userDriver == null) {
+      userDriver = new BodUserWebDriver(driver);
+    }
+
+    // Every test a clean database
+    clearDatabaseSkipBaseData();
+
+    // Only at suite start refresh from idd
+    if (!institutesRefreshed) {
+      nocDriver.refreshInstitutes();
+      institutesRefreshed = true;
+    }
   }
 
-  private void clearDatabase() {
-    DataSource dataSource = new SimpleDriverDataSource(new org.postgresql.Driver(), getProperty(DB_URL),
-        getProperty(DB_USER), getProperty(DB_PASS));
+  private void clearDatabaseSkipBaseData() {
+    Connection connection = createDbConnection(getProperty(DB_URL), getProperty(DB_USER), getProperty(DB_PASS),
+        getProperty(DB_DRIVER_CLASS));
 
-    Flyway flyway = new Flyway();
-    flyway.setDataSource(dataSource);
-    // Make sure java migration are found
-    flyway.setBasePackage("nl.surfnet.bod.db.migration");
+    String truncateQuery;
+    Statement statement = null;
+    try {
+      truncateQuery = createDeleteQueriesWithoutBaseData(connection);
+      statement = connection.createStatement();
+      statement.executeUpdate(truncateQuery);
+    }
+    catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+    finally {
+      try {
+        if (statement != null) {
+          statement.close();
+        }
 
-    flyway.clean();
-    flyway.init();
-    int migratedCount = flyway.migrate();
+        if (connection != null) {
+          connection.close();
+        }
+      }
+      catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
+    }
 
-    log.warn("Cleared database, migrated {} tables", migratedCount);
+    log.warn("Cleared database, deleted tables: {}", truncateQuery);
+  }
+
+  private String createDeleteQueriesWithoutBaseData(Connection connection) throws SQLException {
+    StringBuilder truncateQuery = new StringBuilder("TRUNCATE ");
+
+    ResultSet tables = connection.getMetaData().getTables(null, null, "%", new String[] { "TABLE" });
+    String tableName = null;
+    while (tables.next()) {
+      tableName = tables.getString(3);
+      if ("schema_version".equals(tableName) || "institute".equals(tableName)) {
+        log.debug("Skipping truncate of table to preserve data: {}", tableName);
+      }
+      else {
+        truncateQuery.append(tableName).append(", ");
+      }
+    }
+    return StringUtils.removeEnd(truncateQuery.toString(), ", ").concat(" CASCADE");
   }
 
   private String getProperty(String key) {
