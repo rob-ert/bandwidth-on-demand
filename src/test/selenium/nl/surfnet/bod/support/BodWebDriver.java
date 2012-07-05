@@ -25,11 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.Driver;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -38,13 +35,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
-import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 
-import nl.surfnet.bod.web.InstituteController;
-
-import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -80,6 +73,7 @@ public class BodWebDriver {
 
   public static final DateTimeFormatter RESERVATION_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd H:mm");
 
+  private static boolean databaseCleared =false;
   private static final int MAIL_SMTP_PORT = 4025;
   private static final InputStream PROP_DEFAULT = BodWebDriver.class.getResourceAsStream("/bod-default.properties");
   private static final InputStream PROP_SELENIUM = BodWebDriver.class.getResourceAsStream("/bod-selenium.properties");
@@ -100,6 +94,12 @@ public class BodWebDriver {
   }
 
   public synchronized void initializeOnce() {
+
+    if (!databaseCleared) {
+      clearDatabase();
+      databaseCleared = true;
+    }
+
     if (driver == null) {
       this.driver = new FirefoxDriver();
       this.driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
@@ -132,18 +132,20 @@ public class BodWebDriver {
     userDriver = new BodUserWebDriver(driver);
   }
 
-  public void clearDatabase() {
+  private void clearDatabase() {
     DataSource dataSource = new SimpleDriverDataSource(new org.postgresql.Driver(), getProperty(DB_URL),
         getProperty(DB_USER), getProperty(DB_PASS));
 
     Flyway flyway = new Flyway();
     flyway.setDataSource(dataSource);
+    // Make sure java migration are found
+    flyway.setBasePackage("nl.surfnet.bod.db.migration");
 
     flyway.clean();
     flyway.init();
-    flyway.migrate();
+    int migratedCount = flyway.migrate();
 
-    log.info("Cleared database");
+    log.warn("Cleared database, migrated {} tables", migratedCount);
   }
 
   private String getProperty(String key) {
