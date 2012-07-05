@@ -103,7 +103,7 @@ public class PhysicalResourceGroupControllerTest {
     String page = subject.update(command, new BeanPropertyBindingResult(changedGroup,
         PhysicalResourceGroupController.MODEL_KEY), model, redirectAttribs);
 
-    assertThat(page, is("redirect:physicalresourcegroups"));
+    assertThat(page, is("redirect:" + PhysicalResourceGroupController.PAGE_URL));
     assertThat(WebUtils.getFirstInfoMessage(redirectAttribs), containsString("SEND"));
 
     verify(physicalResourceGroupServiceMock).sendActivationRequest(any(PhysicalResourceGroup.class));
@@ -122,7 +122,7 @@ public class PhysicalResourceGroupControllerTest {
     String page = subject.update(command, new BeanPropertyBindingResult(group,
         PhysicalResourceGroupController.MODEL_KEY), model, redirectAttribs);
 
-    assertThat(page, is("redirect:physicalresourcegroups"));
+    assertThat(page, is("redirect:" + PhysicalResourceGroupController.PAGE_URL));
     assertThat(redirectAttribs.getFlashAttributes().keySet(), hasSize(0));
 
     verify(physicalResourceGroupServiceMock, never()).sendActivationRequest(group);
@@ -149,7 +149,7 @@ public class PhysicalResourceGroupControllerTest {
     PhysicalResourceGroupCommand command = new PhysicalResourceGroupController.PhysicalResourceGroupCommand(group);
     String page = subject.update(command, result, model, redirectAtribs);
 
-    assertThat(page, is("physicalresourcegroups/update"));
+    assertThat(page, is(PhysicalResourceGroupController.PAGE_URL + "/update"));
     PhysicalResourceGroupCommand newCommand = (PhysicalResourceGroupCommand) model.asMap().get(
         PhysicalResourceGroupController.MODEL_KEY);
 
@@ -171,7 +171,7 @@ public class PhysicalResourceGroupControllerTest {
     String page = subject.update(command, new BeanPropertyBindingResult(group,
         PhysicalResourceGroupController.MODEL_KEY), model, model);
 
-    assertThat(page, is("redirect:physicalresourcegroups"));
+    assertThat(page, is("redirect:" + PhysicalResourceGroupController.PAGE_URL));
 
     verify(physicalResourceGroupServiceMock, never()).sendActivationRequest(group);
     verify(physicalResourceGroupServiceMock, never()).update(group);

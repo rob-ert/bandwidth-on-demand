@@ -7,7 +7,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <form:create id="fc_PhysicalResourceGroup" modelAttribute="physicalResourceGroupCommand" path="/noc/physicalresourcegroups">
+    <form:create id="fc_PhysicalResourceGroup" modelAttribute="physicalResourceGroupCommand" path="/noc/institutes">
 
         <field:suggestion-input field="instituteId" labelCode="physicalresourcegroup_instituteName"
             suggestionUrl="/institutes" preFillId="${physicalResourceGroupCommand.instituteId}" preFillName="${physicalResourceGroupCommand.institute.name}"/>

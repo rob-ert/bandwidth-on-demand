@@ -55,7 +55,7 @@ import com.google.common.collect.ImmutableList;
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
 public class PhysicalResourceGroupController extends AbstractSortableListController<PhysicalResourceGroup> {
 
-  static final String PAGE_URL = "physicalresourcegroups";
+  public static final String PAGE_URL = "institutes";
   static final String MODEL_KEY = "physicalResourceGroupCommand";
   static final String MODEL_KEY_LIST = "physicalResourceGroup" + WebUtils.LIST_POSTFIX;
 
@@ -99,7 +99,7 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
   public String createForm(final Model model) {
     model.addAttribute(MODEL_KEY, new PhysicalResourceGroupCommand());
 
-    return PAGE_URL + CREATE;
+    return "noc/" + PAGE_URL + CREATE;
   }
 
   @RequestMapping(method = RequestMethod.PUT)
@@ -141,7 +141,7 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
 
     uiModel.addAttribute(MODEL_KEY, new PhysicalResourceGroupCommand(group));
-    return PAGE_URL + UPDATE;
+    return "noc/" +PAGE_URL + UPDATE;
   }
 
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
@@ -182,7 +182,7 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
 
   @Override
   protected String listUrl() {
-    return PAGE_URL + LIST;
+    return "noc/" + PAGE_URL + LIST;
   }
 
   @Override

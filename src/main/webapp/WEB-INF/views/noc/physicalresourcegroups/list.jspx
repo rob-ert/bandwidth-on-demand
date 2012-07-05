@@ -6,7 +6,7 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <page:list id="pl_physicalResourceGroup" path="/noc/physicalresourcegroups">
+    <page:list id="pl_physicalResourceGroup" path="/noc/institutes">
         <table:table items="${list}" labelPluralCode="label_physicalresourcegroup_plural">
             <thead>
                 <tr>
@@ -31,7 +31,7 @@
                         <table:column item="${item}" property="managerEmail"/>
                         <table:column item="${item}" property="active" type="boolean" styleClass="center" />
                         <table:column item="${item}" property="physicalPortCount" />
-                        <table:actionsColumn item="${item}" path="/noc/physicalresourcegroups" labelCode="label_physicalresourcegroup">
+                        <table:actionsColumn item="${item}" path="/noc/institutes" labelCode="label_physicalresourcegroup">
                             <spring:url var="add_url" value="/noc/physicalports/add">
                                 <spring:param name="prg" value="${item.id}" />
                             </spring:url>

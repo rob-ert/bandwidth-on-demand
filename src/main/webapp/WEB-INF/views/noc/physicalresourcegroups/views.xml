@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN" "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
 <tiles-definitions>
-    <definition extends="noc" name="physicalresourcegroups/list">
+    <definition extends="noc" name="noc/institutes/list">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalresourcegroups/list.jspx" />
-        <put-attribute name="active_menu" value="physicalresourcegroup" cascade="true" />
+        <put-attribute name="active_menu" value="institutes" cascade="true" />
     </definition>
-    <definition extends="noc" name="physicalresourcegroups/create">
+    <definition extends="noc" name="noc/institutes/create">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalresourcegroups/create.jspx" />
-        <put-attribute name="active_menu" value="physicalresourcegroup" cascade="true" />
+        <put-attribute name="active_menu" value="institutes" cascade="true" />
     </definition>
-    <definition extends="noc" name="physicalresourcegroups/update">
+    <definition extends="noc" name="noc/institutes/update">
         <put-attribute name="body" value="/WEB-INF/views/noc/physicalresourcegroups/update.jspx" />
-        <put-attribute name="active_menu" value="physicalresourcegroup" cascade="true" />
+        <put-attribute name="active_menu" value="institutes" cascade="true" />
     </definition>
 </tiles-definitions>

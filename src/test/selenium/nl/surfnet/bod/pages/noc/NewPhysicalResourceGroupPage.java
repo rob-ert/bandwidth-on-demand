@@ -25,6 +25,8 @@ import java.util.List;
 
 import nl.surfnet.bod.pages.AbstractFormPage;
 import nl.surfnet.bod.support.Probes;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.noc.PhysicalResourceGroupController;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -35,7 +37,7 @@ import org.openqa.selenium.support.PageFactory;
 
 public class NewPhysicalResourceGroupPage extends AbstractFormPage {
 
-  private static final String PAGE = "noc/physicalresourcegroups/create";
+  private static final String PAGE = "noc/" + PhysicalResourceGroupController.PAGE_URL + WebUtils.CREATE;
 
   private final Probes probes;
 
