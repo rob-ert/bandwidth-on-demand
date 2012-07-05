@@ -83,6 +83,8 @@ public class ConnectionServiceProvider extends ConnectionService {
 
   public static final String BOD_URN_POSTFIX = "urn:nl:surfnet:diensten:bod:";
 
+  private final ConnectionRequesterPort connectionServiceRequesterPort = getConnectionRequesterPort();
+
   private final Function<Connection, Reservation> TO_RESERVATION = //
   new Function<Connection, Reservation>() {
     @Override
@@ -187,13 +189,7 @@ public class ConnectionServiceProvider extends ConnectionService {
     reservationFailed.setServiceException(serviceException);
 
     try {
-      final Map<String, Object> requestContext = ((BindingProvider) connectionServiceRequesterPort).getRequestContext();
-      // TODO: get credentials from reservation request
-      requestContext.put(BindingProvider.USERNAME_PROPERTY, "nsi");
-      requestContext.put(BindingProvider.PASSWORD_PROPERTY, "nsi123");
-      requestContext.put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
-
-      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, connection.getReplyTo());
+      prepareRequestContext(connection, connectionServiceRequesterPort);
       connectionServiceRequesterPort.reserveFailed(new Holder<String>(connection.getConnectionId()), reservationFailed);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -205,7 +201,6 @@ public class ConnectionServiceProvider extends ConnectionService {
     log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", connection.getReplyTo(),
         connection.getGlobalReservationId());
 
-    final ConnectionRequesterPort connectionServiceRequesterPort = getConnectionRequesterPort();
     final ReserveConfirmedType reserveConfirmedType = new ObjectFactory().createReserveConfirmedType();
     reserveConfirmedType.setRequesterNSA(connection.getRequesterNsa());
     reserveConfirmedType.setProviderNSA(connection.getProviderNsa());
@@ -220,14 +215,7 @@ public class ConnectionServiceProvider extends ConnectionService {
     reserveConfirmedType.setReservation(reservationInfoType);
 
     try {
-      final Map<String, Object> requestContext = ((BindingProvider) connectionServiceRequesterPort).getRequestContext();
-
-      // TODO: get credentials from reservation request
-      requestContext.put(BindingProvider.USERNAME_PROPERTY, "nsi");
-      requestContext.put(BindingProvider.PASSWORD_PROPERTY, "nsi123");
-      requestContext.put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
-
-      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, connection.getReplyTo());
+      prepareRequestContext(connection, connectionServiceRequesterPort);
       connectionServiceRequesterPort.reserveConfirmed(new Holder<String>(connection.getConnectionId()),
           reserveConfirmedType);
     }
@@ -411,10 +399,10 @@ public class ConnectionServiceProvider extends ConnectionService {
     log.debug("Received provision request with id: {}", connectionId);
 
     final Connection connection = getConnectionRepo().findByConnectionId(connectionId);
-    
+
     final Reservation reservation = getReservationService().findByReservationId(connection.getReservationId());
     final boolean isActivated = getReservationService().activate(reservation);
-    
+
     System.out.println(isActivated);
 
     // / call provisionConfirmed on requester nsa
@@ -467,16 +455,45 @@ public class ConnectionServiceProvider extends ConnectionService {
   }
 
   private void sendProvisionFailed(Connection connection) {
-    // TODO Auto-generated method stub
+    log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", connection.getReplyTo(),
+        connection.getGlobalReservationId());
 
+    final GenericFailedType generic = new GenericFailedType();
+
+    generic.setProviderNSA(connection.getProviderNsa());
+    generic.setRequesterNSA(connection.getRequesterNsa());
+    generic.setConnectionId(connection.getConnectionId());
+    generic.setGlobalReservationId(connection.getGlobalReservationId());
+
+    try {
+      prepareRequestContext(connection, connectionServiceRequesterPort);
+      connectionServiceRequesterPort.provisionFailed(new Holder<String>(connection.getConnectionId()), generic);
+    }
+    catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
+      log.error("Error: ", e);
+    }
+
+  }
+
+  /**
+   * @param connection
+   * @param connectionServiceRequesterPort
+   */
+  private void prepareRequestContext(Connection connection, final ConnectionRequesterPort connectionServiceRequesterPort) {
+    final Map<String, Object> requestContext = ((BindingProvider) connectionServiceRequesterPort).getRequestContext();
+
+    // TODO: get credentials from reservation request
+    requestContext.put(BindingProvider.USERNAME_PROPERTY, "nsi");
+    requestContext.put(BindingProvider.PASSWORD_PROPERTY, "nsi123");
+    requestContext.put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
+
+    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, connection.getReplyTo());
   }
 
   private void sendProvisionConfirmed(final Connection connection) {
 
     log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", connection.getReplyTo(),
         connection.getGlobalReservationId());
-
-    final ConnectionRequesterPort connectionServiceRequesterPort = getConnectionRequesterPort();
 
     final GenericConfirmedType generic = new GenericConfirmedType();
     generic.setProviderNSA(connection.getProviderNsa());
@@ -485,14 +502,7 @@ public class ConnectionServiceProvider extends ConnectionService {
     generic.setGlobalReservationId(connection.getGlobalReservationId());
 
     try {
-      final Map<String, Object> requestContext = ((BindingProvider) connectionServiceRequesterPort).getRequestContext();
-
-      // TODO: get credentials from reservation request
-      requestContext.put(BindingProvider.USERNAME_PROPERTY, "nsi");
-      requestContext.put(BindingProvider.PASSWORD_PROPERTY, "nsi123");
-      requestContext.put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
-
-      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, connection.getReplyTo());
+      prepareRequestContext(connection, connectionServiceRequesterPort);
       connectionServiceRequesterPort.provisionConfirmed(new Holder<String>(connection.getConnectionId()), generic);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
