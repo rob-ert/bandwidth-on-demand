@@ -37,6 +37,7 @@ import nl.surfnet.bod.pages.noc.MovePhysicalPortPage;
 import nl.surfnet.bod.pages.noc.MovePhysicalPortResultPage;
 import nl.surfnet.bod.pages.noc.NewPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.noc.NocOverviewPage;
+import nl.surfnet.bod.web.InstituteController;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -257,7 +258,7 @@ public class BodNocWebDriver {
    * Fetches all {@link Institute}s from IDD and updates the database
    */
   public void refreshInstitutes() {
-    //driver.get(URL_UNDER_TEST + InstituteController.REFRESH_URL);
+    driver.get(URL_UNDER_TEST + InstituteController.REFRESH_URL);
   }
 
   public void verifyVirtualResourceGroupExists(String... fields) {
