@@ -221,4 +221,9 @@ public class BodNocWebDriver {
     assertThat(page.getNumberOfReservations(), is(i));
 
   }
+
+  public void verifyVirtualResourceGroupExists(String... fields) {
+    ListVirtualResourceGroupPage page = ListVirtualResourceGroupPage.get(driver, URL_UNDER_TEST);
+    page.findRow(fields);
+  }
 }

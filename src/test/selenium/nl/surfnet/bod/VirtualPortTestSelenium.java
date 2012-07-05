@@ -59,9 +59,12 @@ public class VirtualPortTestSelenium extends TestExternalSupport {
     getUserDriver().verifyMemberOf("selenium-users");
 
     getUserDriver().switchToManager("2COLLEGE");
-
     getManagerDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
 
+    getManagerDriver().switchToNoc();
+    getNocDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
+
+    getUserDriver().switchToManager("2COLLEGE");
     getManagerDriver().deleteVirtualPortAndVerifyAlertText("Second port", VP_DELETE_ALERT_TEXT);
 
     getManagerDriver().verifyVirtualResourceGroupsEmpty();
