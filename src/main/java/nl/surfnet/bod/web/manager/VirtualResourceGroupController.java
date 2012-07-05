@@ -51,7 +51,7 @@ import com.google.common.collect.FluentIterable;
 @Controller("managerVirtualResourceGroupController")
 @RequestMapping("/manager/" + VirtualResourceGroupController.PAGE_URL)
 public class VirtualResourceGroupController extends AbstractSortableListController<VirtualResourceGroupView> {
-  public static final String PAGE_URL = "virtualresourcegroups";
+  public static final String PAGE_URL = "teams";
   public static final String MODEL_KEY = "virtualResourceGroup";
 
   private static final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW =
@@ -93,7 +93,7 @@ public class VirtualResourceGroupController extends AbstractSortableListControll
 
   @Override
   protected String listUrl() {
-    return PAGE_URL + LIST;
+    return "manager/" + PAGE_URL + LIST;
   }
 
   @Override
