@@ -26,6 +26,8 @@ import java.util.List;
 
 import nl.surfnet.bod.web.security.Security;
 
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.ui.Model;
@@ -61,6 +63,10 @@ public final class WebUtils {
 
   public static final String PARAM_MARKUP_START = "<b>";
   public static final String PARAM_MARKUP_END = "</b>";
+
+  public static final String DEFAULT_DATE_TIME_PATTERN = "yyyy-MM-dd H:mm:ss";
+  public static final DateTimeFormatter DEFAULT_DATE_TIME_FORMATTER = DateTimeFormat
+      .forPattern(DEFAULT_DATE_TIME_PATTERN);
 
   private WebUtils() {
   }

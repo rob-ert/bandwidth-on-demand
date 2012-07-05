@@ -37,13 +37,10 @@ import nl.surfnet.bod.pages.noc.MovePhysicalPortPage;
 import nl.surfnet.bod.pages.noc.MovePhysicalPortResultPage;
 import nl.surfnet.bod.pages.noc.NewPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.noc.NocOverviewPage;
-import nl.surfnet.bod.web.InstituteController;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
@@ -53,10 +50,7 @@ import static org.hamcrest.Matchers.is;
 
 public class BodNocWebDriver {
 
-  public static final String DEFAULT_DATE_TIME_PATTERN = "yyyy-MM-dd H:mm";
-  public static final DateTimeFormatter DEFAULT_DATE_TIME_FORMATTER = DateTimeFormat
-      .forPattern(DEFAULT_DATE_TIME_PATTERN);
-
+  
   private final RemoteWebDriver driver;
 
   public BodNocWebDriver(RemoteWebDriver driver) {
@@ -263,7 +257,7 @@ public class BodNocWebDriver {
    * Fetches all {@link Institute}s from IDD and updates the database
    */
   public void refreshInstitutes() {
-    driver.get(URL_UNDER_TEST + InstituteController.REFRESH_URL);
+    //driver.get(URL_UNDER_TEST + InstituteController.REFRESH_URL);
   }
 
   public void verifyVirtualResourceGroupExists(String... fields) {

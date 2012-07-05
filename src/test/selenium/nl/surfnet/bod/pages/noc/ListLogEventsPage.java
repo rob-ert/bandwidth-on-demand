@@ -40,8 +40,8 @@ public class ListLogEventsPage extends AbstractListPage {
 
     LocalDateTime logEventCreated = getLocalDateTimeFromRow(created.getYear(), row);
 
-    // Allow a 10 second margin
-    //TODO 
-    //assertThat((created.toDate().getTime() - logEventCreated.toDate().getTime()), lessThan(10000L));
+    long duration = created.getMillisOfDay() - logEventCreated.getMillisOfDay();
+    // Allow a 15 second margin
+    assertThat(duration, lessThan(15000L));
   }
 }

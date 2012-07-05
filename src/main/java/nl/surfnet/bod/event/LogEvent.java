@@ -32,6 +32,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.base.ApplicationConversionServiceFactoryBean;
+
 import org.hibernate.annotations.Type;
 import org.joda.time.LocalDateTime;
 
@@ -110,6 +113,17 @@ public class LogEvent {
 
   public LocalDateTime getCreated() {
     return created;
+  }
+
+  /**
+   * Includes seconds in the string since the default conversion defined in the
+   * {@link ApplicationConversionServiceFactoryBean} does not.
+   * 
+   * @return Time stamp formatted like
+   *         {@link WebUtils#DEFAULT_DATE_TIME_FORMATTER}
+   */
+  public String getCreatedAsText() {
+    return created != null ? created.toString(WebUtils.DEFAULT_DATE_TIME_FORMATTER) : "";
   }
 
   public String getGroupIds() {

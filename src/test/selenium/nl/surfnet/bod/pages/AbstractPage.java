@@ -23,8 +23,8 @@ package nl.surfnet.bod.pages;
 
 import java.util.List;
 
-import nl.surfnet.bod.support.BodNocWebDriver;
 import nl.surfnet.bod.support.Probes;
+import nl.surfnet.bod.web.WebUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDateTime;
@@ -97,8 +97,8 @@ public class AbstractPage {
    */
   protected LocalDateTime getLocalDateTimeFromRow(int year, WebElement row) {
     int start = StringUtils.indexOf(row.getText(), String.valueOf(year));
-    String dateFromRow = row.getText().substring(start, start + BodNocWebDriver.DEFAULT_DATE_TIME_PATTERN.length() + 1);
-    LocalDateTime logEventCreated = BodNocWebDriver.DEFAULT_DATE_TIME_FORMATTER.parseLocalDateTime(dateFromRow);
+    String dateFromRow = row.getText().substring(start, start + WebUtils.DEFAULT_DATE_TIME_PATTERN.length() + 1);
+    LocalDateTime logEventCreated = WebUtils.DEFAULT_DATE_TIME_FORMATTER.parseLocalDateTime(dateFromRow);
     return logEventCreated;
   }
 
