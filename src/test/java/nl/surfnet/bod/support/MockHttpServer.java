@@ -158,7 +158,7 @@ public class MockHttpServer extends AbstractHandler {
   public final int getCallCounter() {
     return requests.size();
   }
- 
+
 
   public final String getOrWaitForRequest(final long seconds) {
     try {
