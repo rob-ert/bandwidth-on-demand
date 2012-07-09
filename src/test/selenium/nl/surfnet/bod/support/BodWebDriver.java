@@ -21,14 +21,14 @@
  */
 package nl.surfnet.bod.support;
 
+import static junit.framework.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -57,10 +57,6 @@ import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 
-import static junit.framework.Assert.fail;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-
 public class BodWebDriver {
 
   public static final String URL_UNDER_TEST = withEndingSlash(System.getProperty("selenium.test.url",
@@ -76,7 +72,6 @@ public class BodWebDriver {
   private static final int MAIL_SMTP_PORT = 4025;
   private static final InputStream PROP_DEFAULT = BodWebDriver.class.getResourceAsStream("/bod-default.properties");
   private static final InputStream PROP_SELENIUM = BodWebDriver.class.getResourceAsStream("/bod-selenium.properties");
-  private static boolean institutesRefreshed = false;
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -136,12 +131,6 @@ public class BodWebDriver {
 
     // Every test a clean database
     clearDatabaseSkipBaseData();
-
-    // Only at suite start refresh from idd
-    if (!institutesRefreshed) {
-      nocDriver.refreshInstitutes();
-      institutesRefreshed = true;
-    }
   }
 
   private void clearDatabaseSkipBaseData() {
@@ -336,10 +325,6 @@ public class BodWebDriver {
     WebElement modal = driver.findElement(By.className("modal-body"));
 
     assertThat(modal.getText(), containsString(text));
-  }
-
-  public void fetchInstitutes() {
-    getNocDriver().refreshInstitutes();
   }
 
 }
