@@ -1,0 +1,2126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project activeEnvironment="Default" name="Services" resourceRoot="" soapui-version="4.5.0" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.actions.iface.tools.soapui.TestRunnerAction@values-local"><![CDATA[<xml-fragment xmlns:con="http://eviware.com/soapui/config">
+  <con:entry key="Environment" value="Default"/>
+  <con:entry key="Global Properties" value=""/>
+  <con:entry key="TestSuite" value="ServiceInventoryRetrievalSoapHttpBinding TestSuite"/>
+  <con:entry key="Report to Generate" value=""/>
+  <con:entry key="Password" value=""/>
+  <con:entry key="soapui-setings.xml Password" value=""/>
+  <con:entry key="TestRunner Path" value=""/>
+  <con:entry key="Tool Args" value=""/>
+  <con:entry key="Ignore Errors" value="false"/>
+  <con:entry key="Host:Port" value=""/>
+  <con:entry key="WSS Password Type" value=""/>
+  <con:entry key="Save Project" value="false"/>
+  <con:entry key="Enable UI" value="false"/>
+  <con:entry key="System Properties" value=""/>
+  <con:entry key="Domain" value=""/>
+  <con:entry key="Coverage Report" value="false"/>
+  <con:entry key="Export JUnit Results" value="false"/>
+  <con:entry key="Open Report" value="false"/>
+  <con:entry key="Project Properties" value=""/>
+  <con:entry key="Project Password" value=""/>
+  <con:entry key="Export All" value="false"/>
+  <con:entry key="Report Format(s)" value=""/>
+  <con:entry key="TestCase" value="&lt;all>"/>
+  <con:entry key="Print Report" value="false"/>
+  <con:entry key="Username" value=""/>
+  <con:entry key="Root Folder" value=""/>
+  <con:entry key="Save After" value="false"/>
+  <con:entry key="Add Settings" value="false"/>
+  <con:entry key="Endpoint" value=""/>
+</xml-fragment>]]></con:setting></con:settings><con:interface xsi:type="con:WsdlInterface" wsaVersion="NONE" name="ServiceInventoryRetrievalSoapHttpBinding" type="wsdl" bindingName="{http://www.tmforum.org/mtop/msi/wsdl/sir/v1-0}ServiceInventoryRetrievalSoapHttpBinding" soapVersion="1_1" anonymous="optional" definition="file:/UMS/UMS/docs/TMF/MTOSI-2.1/DDPs/ManageServiceInventory/IIS/wsdl/ServiceInventoryRetrieval/ServiceInventoryRetrievalHttp.wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="file:/UMS/UMS/docs/TMF/MTOSI-2.1/DDPs/ManageServiceInventory/IIS/wsdl/ServiceInventoryRetrieval/ServiceInventoryRetrievalHttp.wsdl"><con:part><con:url>file:/UMS/UMS/docs/TMF/MTOSI-2.1/DDPs/ManageServiceInventory/IIS/wsdl/ServiceInventoryRetrieval/ServiceInventoryRetrievalHttp.wsdl</con:url><con:content><![CDATA[<!--mTOP DDP - OM ManageServiceInventory - Copyright TeleManagement Forum 2008-->
+<wsdl:definitions name="mTOP-ServiceInventoryRetrievalV1-0" targetNamespace="http://www.tmforum.org/mtop/msi/wsdl/sir/v1-0" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://www.tmforum.org/mtop/msi/wsdl/sir/v1-0">
+  <wsdl:documentation>
+    <p>DDP: ManageServiceInventory</p>
+    <p>Module: ServiceInventoryRetrieval Service Interface WSDL HTTP Module</p>
+    <p>Description: This module contains all the mTOP ServiceInventoryRetrieval Service Interface WSDL definitions for the Web Service deployment profile with SOAP/HTTP binding.</p>
+    <p>Version: 1.0</p>
+  </wsdl:documentation>
+  <wsdl:import namespace="http://www.tmforum.org/mtop/msi/wsdl/sir/v1-0" location="ServiceInventoryRetrievalMessages.wsdl"/>
+  <wsdl:portType name="ServiceInventoryRetrieval_RPC">
+    <wsdl:documentation>
+      <p>The ServiceInventoryRetrieval porttype (interface) for RPC (synchronous) based client/server communication patterns. All SIT operations use the specific get"ObjectType"Iterator operation to handle multiple responses.</p>
+    </wsdl:documentation>
+    <wsdl:operation name="getServiceInventory">
+      <wsdl:input message="tns:getServiceInventoryRequest"/>
+      <wsdl:output message="tns:getServiceInventoryResponse"/>
+      <wsdl:fault name="getServiceInventoryException" message="tns:getServiceInventoryException"/>
+    </wsdl:operation>
+    <wsdl:operation name="getServiceInventoryIterator">
+      <wsdl:input message="tns:getServiceInventoryIteratorRequest"/>
+      <wsdl:output message="tns:getServiceInventoryIteratorResponse"/>
+      <wsdl:fault name="getServiceInventoryIteratorException" message="tns:getServiceInventoryIteratorException"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ServiceInventoryRetrievalSoapHttpBinding" type="tns:ServiceInventoryRetrieval_RPC">
+    <wsdl:documentation>
+      <p>SOAP HTTP binding definitions of the operations of the ServiceInventoryRetrieval RPC portType (interface)</p>
+    </wsdl:documentation>
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="getServiceInventory">
+      <soap:operation soapAction="getServiceInventory" style="document"/>
+      <wsdl:input>
+        <soap:header message="tns:getServiceInventoryRequest" part="mtopHeader" use="literal"/>
+        <soap:body parts="mtopBody" use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:header message="tns:getServiceInventoryResponse" part="mtopHeader" use="literal"/>
+        <soap:body parts="mtopBody" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="getServiceInventoryException">
+        <soap:fault name="getServiceInventoryException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getServiceInventoryIterator">
+      <soap:operation soapAction="getServiceInventoryIterator" style="document"/>
+      <wsdl:input>
+        <soap:header message="tns:getServiceInventoryIteratorRequest" part="mtopHeader" use="literal"/>
+        <soap:body parts="mtopBody" use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:header message="tns:getServiceInventoryIteratorResponse" part="mtopHeader" use="literal"/>
+        <soap:body parts="mtopBody" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="getServiceInventoryIteratorException">
+        <soap:fault name="getServiceInventoryIteratorException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ServiceInventoryRetrievalHttp">
+    <wsdl:documentation>
+      <p>Example of the ServiceInventoryRetrieval WSDL Service definition as a deployment example of this mTOP Service Interface. It is expected to be modified to match the specific deployment configuration in a service provider's CCV.</p>
+    </wsdl:documentation>
+    <wsdl:port name="ServiceInventoryRetrievalSoapHttp" binding="tns:ServiceInventoryRetrievalSoapHttpBinding">
+      <soap:address location="http://aserver/mtosi/ServiceInventoryRetrieval"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part><con:part><con:url>file:/UMS/UMS/docs/TMF/MTOSI-2.1/DDPs/ManageServiceInventory/IIS/wsdl/ServiceInventoryRetrieval/ServiceInventoryRetrievalMessages.wsdl</con:url><con:content><![CDATA[<!--mTOP DDP - OM ManageServiceInventory - Copyright TeleManagement Forum 2008-->
+<wsdl:definitions name="mTOP-ServiceInventoryRetrievalV1-0" targetNamespace="http://www.tmforum.org/mtop/msi/wsdl/sir/v1-0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:hdr="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1" xmlns:sir="http://www.tmforum.org/mtop/msi/xsd/sir/v1" xmlns:tns="http://www.tmforum.org/mtop/msi/wsdl/sir/v1-0">
+  <wsdl:documentation>
+    <p>DDP: ManageServiceInventory</p>
+    <p>Module: ServiceInventoryRetrieval Service Interface WSDL Message Module</p>
+    <p>Description: This module contains all the mTOP ServiceInventoryRetrieval Service Interface WSDL message definitions.</p>
+    <p>Version: 1.0</p>
+  </wsdl:documentation>
+  <wsdl:types>
+    <xsd:schema>
+      <xsd:import namespace="http://www.tmforum.org/mtop/msi/xsd/sir/v1" schemaLocation="../../xsd/ServiceInventoryRetrievalMessages.xsd"/>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="getServiceInventoryRequest">
+    <wsdl:documentation>
+      <p>The getServiceInventory request message.</p>
+    </wsdl:documentation>
+    <wsdl:part name="mtopHeader" element="hdr:header"/>
+    <wsdl:part name="mtopBody" element="sir:getServiceInventoryRequest"/>
+  </wsdl:message>
+  <wsdl:message name="getServiceInventoryResponse">
+    <wsdl:documentation>
+      <p>The getServiceInventory response message.</p>
+    </wsdl:documentation>
+    <wsdl:part name="mtopHeader" element="hdr:header"/>
+    <wsdl:part name="mtopBody" element="sir:getServiceInventoryResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getServiceInventoryException">
+    <wsdl:documentation>
+      <p>The getServiceInventory exception message.</p>
+    </wsdl:documentation>
+    <wsdl:part name="mtopBody" element="sir:getServiceInventoryException"/>
+  </wsdl:message>
+  <wsdl:message name="getServiceInventoryIteratorRequest">
+    <wsdl:documentation>
+      <p>The getServiceInventoryIterator request message.</p>
+    </wsdl:documentation>
+    <wsdl:part name="mtopHeader" element="hdr:header"/>
+    <wsdl:part name="mtopBody" element="sir:getServiceInventoryIteratorRequest"/>
+  </wsdl:message>
+  <wsdl:message name="getServiceInventoryIteratorResponse">
+    <wsdl:documentation>
+      <p>The getServiceInventoryIterator response message.</p>
+    </wsdl:documentation>
+    <wsdl:part name="mtopHeader" element="hdr:header"/>
+    <wsdl:part name="mtopBody" element="sir:getServiceInventoryIteratorResponse"/>
+  </wsdl:message>
+  <wsdl:message name="getServiceInventoryIteratorException">
+    <wsdl:documentation>
+      <p>The getServiceInventoryIterator exception message.</p>
+    </wsdl:documentation>
+    <wsdl:part name="mtopBody" element="sir:getServiceInventoryIteratorException"/>
+  </wsdl:message>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part><con:part><con:url>file:/UMS/UMS/docs/TMF/MTOSI-2.1/DDPs/ManageServiceInventory/IIS/xsd/ServiceInventoryRetrievalMessages.xsd</con:url><con:content><![CDATA[<!--mTOP DDP - OM Service Inventory Retrieval Interface (SIR) - Copyright TeleManagement Forum 2008-->
+<xsd:schema targetNamespace="http://www.tmforum.org/mtop/msi/xsd/sir/v1" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.tmforum.org/mtop/msi/xsd/sir/v1" xmlns:gen="http://www.tmforum.org/mtop/fmw/xsd/gen/v1" xmlns:msg="http://www.tmforum.org/mtop/fmw/xsd/msg/v1" xmlns:csi="http://www.tmforum.org/mtop/sb/xsd/csi/v1" xmlns:svc="http://www.tmforum.org/mtop/sb/xsd/svc/v1" xmlns:nam="http://www.tmforum.org/mtop/fmw/xsd/nam/v1">
+  <xsd:annotation>
+    <xsd:documentation>
+      <p>DDP: Manage Service Inventory</p>
+      <p>Module: Message XSD Module</p>
+      <p>Description: This module contains the XML Schema type definitions of all the mTOP Service Inventory Interface (SI) XML message structures.</p>
+    </xsd:documentation>
+  </xsd:annotation>
+  <!--================-->
+  <xsd:import namespace="http://www.tmforum.org/mtop/fmw/xsd/gen/v1" schemaLocation="../../../Framework/IIS/xsd/GeneralDefinitions.xsd"/>
+  <xsd:import namespace="http://www.tmforum.org/mtop/fmw/xsd/nam/v1" schemaLocation="../../../Framework/IIS/xsd/NamingDefinitions.xsd"/>
+  <xsd:import namespace="http://www.tmforum.org/mtop/fmw/xsd/msg/v1" schemaLocation="../../../Framework/IIS/xsd/MessageDefinitions.xsd"/>
+  <xsd:import namespace="http://www.tmforum.org/mtop/sb/xsd/csi/v1" schemaLocation="../../../ServiceBasic/IIS/xsd/CommonServiceInfo.xsd"/>
+  <xsd:import namespace="http://www.tmforum.org/mtop/sb/xsd/svc/v1" schemaLocation="../../../ServiceBasic/IIS/xsd/Service.xsd"/>
+  <!--=== Service Inventory Retrieval ===-->
+  <xsd:element name="getServiceInventoryRequest">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Request message structure of the getServiceInventory operation</p>
+        <p>This operation returns a specified portion of the inventory data from the Target OS. 
+				The target OS returns all objects satisfying the filter constraints of the requesting OS 
+				that have a modification/creation date equal to or later than the Diff Date and Time.</p>
+        <p>The operation can only be directed to a top-level OS and not to a subordinate OS.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="filter" type="tns:SimpleServiceFilterType" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>defines the subset of the total inventory to be returned to the requesting OS.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="diffDateAndTime" type="xsd:dateTime" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>All objects with a modification date equal to or greater than this value are in scope of this operation.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <!--==================-->
+  <xsd:element name="getServiceInventoryResponse">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Response message structure of the getServiceInventory operation</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="inventoryData" type="tns:ServiceInventoryDataType" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>The inventory data which may vary based on the MEP.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <!--==================-->
+  <xsd:element name="getServiceInventoryException">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Exception message structure of the getServiceInventory operation</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:complexContent>
+        <xsd:restriction base="msg:AllExceptionsType">
+          <xsd:choice>
+            <xsd:element ref="msg:commLoss"/>
+            <xsd:element ref="msg:internalError"/>
+            <xsd:element ref="msg:invalidInput"/>
+            <xsd:element ref="msg:tooManyOpenIterators"/>
+            <xsd:element ref="msg:unableToComply"/>
+            <xsd:element ref="msg:unsupportedCompressionFormat"/>
+            <xsd:element ref="msg:unsupportedPackingFormat"/>
+          </xsd:choice>
+        </xsd:restriction>
+      </xsd:complexContent>
+    </xsd:complexType>
+  </xsd:element>
+  <!--=================-->
+  <xsd:element name="getServiceInventoryIteratorRequest" type="msg:GetAllDataIteratorRequestType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Request message structure of the getServiceInventoryIterator operation</p>
+        <p>This is the iterator request to return the next batch of ServiceInventoryData from the target OS.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--==================-->
+  <xsd:element name="getServiceInventoryIteratorResponse">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Response message structure of the getServiceInventoryIterator operation</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="inventoryData" type="tns:ServiceInventoryDataType" minOccurs="0"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <!--==================-->
+  <xsd:element name="getServiceInventoryIteratorException" type="msg:GetAllDataIteratorExceptionType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Exception message structure of the getInventoryIterator operation</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--=================-->
+  <!--All local types-->
+  <!--=================-->
+  <xsd:complexType name="ServiceInventoryDataType">
+    <xsd:sequence>
+      <xsd:element name="serviceDefinitionList" minOccurs="0">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="sd" type="svc:ServiceDefinitionType" maxOccurs="unbounded"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="serviceTemplateList" minOccurs="0">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="st" type="svc:ServiceTemplateType" maxOccurs="unbounded"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="serviceCatalogList" minOccurs="0">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="sc" type="svc:ServiceCatalogType" maxOccurs="unbounded"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="cfsList" minOccurs="0">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="cfs" type="svc:CustomerFacingServiceType" maxOccurs="unbounded"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="rfsList" minOccurs="0">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="rfs" type="svc:ResourceFacingServiceType" maxOccurs="unbounded"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="sscList" minOccurs="0">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="ssc" type="svc:ServiceSpecCharacteristicType" maxOccurs="unbounded"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="sapSpecList" minOccurs="0">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="sapSpec" type="svc:SapSpecificationType" maxOccurs="unbounded"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="sapList" minOccurs="0">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="sap" type="svc:ServiceAccessPointType" maxOccurs="unbounded"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--==================-->
+  <xsd:simpleType name="GranularityType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Filter attribute used to select the granularity of the Inventory report.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="NAME">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>Retrieve the name only.</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="FULL">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>Retrieve the name and the other object attributes including the reference attributes</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="DEREFERENCE_NOT_RECURSIVE">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>Retrieve the name, the object attributes and the reference attributes</p>
+            <p>of the object instances in the scope AND</p>
+            <p>of all the objects in reference</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="DEREFERENCE_RECURSIVE">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>Same as for DEREFERENCE_NOT_RECURSIVE except that for entities of the 3 classes CFS, RFS and ServiceSpecCharacteristic,</p>
+            <p>which are in the scope, the complete recursive structure must be returned:</p>
+            <p>- for ServiceSpecCharacteristic objects the “containsSSCReferenceList” attribute must be recursively dereferenced,</p>
+            <p>- for RFS objects the “containsRFSReferenceList” attribute must be recursively dereferenced,</p>
+            <p>- for CFS objects the attribute “containsCFSReferenceList”must be recursively dereferenced.</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!--=================-->
+  <xsd:complexType name="SimpleServiceFilterType">
+    <xsd:sequence maxOccurs="unbounded">
+      <xsd:element name="scope">
+        <xsd:complexType>
+          <xsd:choice>
+            <xsd:element name="baseInstance" type="nam:NamingAttributeType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="serviceObjectType" type="tns:ServiceObjectTypeType"/>
+            <xsd:element name="queryExpression" type="gen:QueryExpressionType" minOccurs="0"/>
+          </xsd:choice>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="selection" type="tns:GranularityType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:simpleType name="ServiceObjectTypeType">
+    <xsd:restriction base="xsd:string"/>
+  </xsd:simpleType>
+  <!--=================-->
+  <xsd:simpleType name="ServiceObjectEnumType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="CFS"/>
+      <xsd:enumeration value="RFS"/>
+      <xsd:enumeration value="SAP"/>
+      <xsd:enumeration value="SAP_SPECIFICATION"/>
+      <xsd:enumeration value="SERVICE_CATALOG"/>
+      <xsd:enumeration value="SERVICE_DEFINITION"/>
+      <xsd:enumeration value="SERVICE_TEMPLATE"/>
+      <xsd:enumeration value="SERVICE_SPEC_CHARACTERISTIC"/>
+      <xsd:enumeration value="SERVICE_ORDER"/>
+      <xsd:enumeration value="SERVICE_ORDER_ITEM"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>file:/UMS/UMS/docs/TMF/MTOSI-2.1/DDPs/Framework/IIS/xsd/GeneralDefinitions.xsd</con:url><con:content><![CDATA[<!--mTOP DDP - Framework - Copyright TeleManagement Forum 2008-->
+<xsd:schema targetNamespace="http://www.tmforum.org/mtop/fmw/xsd/gen/v1" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.tmforum.org/mtop/fmw/xsd/gen/v1">
+  <xsd:annotation>
+    <xsd:documentation>
+      <p>DDP: Framework</p>
+      <p>Module: Dataset XSD Module</p>
+      <p>Description: This module contains the XML Schema definitions of generic mTOP simple data types.</p>
+    </xsd:documentation>
+  </xsd:annotation>
+  <!--=================-->
+  <xsd:complexType name="NameAndStringValueType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Specifies a generic name and value pair</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="name" type="xsd:string"/>
+      <xsd:element name="value" type="xsd:string" nillable="true"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:element name="nvsList" type="tns:NameAndValueStringListType"/>
+  <!--=================-->
+  <xsd:complexType name="NameAndValueStringListType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>A list of NameAndStringValue</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="nvs" type="tns:NameAndStringValueType" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="NameAndAnyValueType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Specifies a generic name and value pair</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="name" type="xsd:string"/>
+      <xsd:any namespace="##any" processContents="lax" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:element name="nvList" type="tns:NameAndAnyValueListType"/>
+  <!--=================-->
+  <xsd:complexType name="NameAndAnyValueListType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>A list of NameAndAnyValueType</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="nv" type="tns:NameAndAnyValueType" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="AliasNameListType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>This is the definition of the object attribute that contains the list of aliases for the network entity. The attribute is a name-value list. The name refers to the type of alias (e.g., nativeEMSname) and the value component holds the alias itself</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="alias" minOccurs="0" maxOccurs="unbounded">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="aliasName" type="xsd:string"/>
+            <xsd:element name="aliasValue" type="xsd:string" nillable="true"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="AnyListType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>A generic list of any type of elements. Used for vendor Extensions or loose element encapsulation from other namespaces.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--================-->
+  <xsd:simpleType name="DiscoveredNameType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>This is the definition of the name of the object when its existence is first published on the CCV but only in the case where the OS that publishes the object on the CCV is not the naming OS. If the naming OS first publishes the object on the CCV, this attribute may be left empty.</p>
+        <p>The discovered name is assumed to be unique from the perspective of the publishing OS.</p>
+        <p>The discovered name published on the CCV does not necessarily need to be the name of the object as discovered by the OS from the subtending network.</p>
+        <p>There are no specific rules concerning the relationship between the "name" and "discovered name" of the object. They could be set to the same value or they could be different.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string"/>
+  </xsd:simpleType>
+  <!--=================-->
+  <xsd:simpleType name="ManufactureDateType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>This data type identifies the production date of the resource.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:date"/>
+  </xsd:simpleType>
+  <!--=================-->
+  <xsd:complexType name="MultiEventInventoryAttributesType">
+    <xsd:annotation>
+      <xsd:documentation>This attribute is used when a object instance is embedded in the inventory
+			layout payload of a Multi-Event Inventory (MEI) notification.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="neTime" type="xsd:date" nillable="true" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>This is the time at which the NE detected the inventory change (if available)</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="eventIndication" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>This is an indication of the type of inventory update.</p>
+            <p>Possible values are Object Creation (OC), Object Discovery (ODsc), Object Deletion (OD), 
+				  Attribute Value Change (AVC), State Change (SC) and AVC_SC_and_Childern. Only the acronym (e.g., OC) 
+				  is used in the actual attribute value. The following conventions apply:</p>
+            <p>If an object creation or object discovery indicator is applied to a parent object, 
+					it implicitly applies to all the children, i.e., the OS sending the notification only needs 
+					to set the indicator attribute in the parent object.</p>
+            <p>If an object deletion is applied to a parent object, it is assumed that all the children 
+					are also deleted. The childern should not be listed.</p>
+            <p>The AVC_SC_and_Childern indication may be applied to a parent object to imply that there 
+					may be AVC or SC changes to the parent and some or all of the children.</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:simpleType name="NetworkAccessDomainType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>A free-format string used to associate a resource to a Network Access Domain.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string"/>
+  </xsd:simpleType>
+  <!--================-->
+  <xsd:simpleType name="NotificationIdentifierType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>The type definition of the notification ID.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string"/>
+  </xsd:simpleType>
+  <!--=================-->
+  <xsd:complexType name="NotificationIdentifierListType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>List of notification IDs  (free string). Also,  the value found in notificationId field of the event.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="notificationId" type="tns:NotificationIdentifierType" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:simpleType name="ObjectTypeType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>This is the definition of all the object types. It is left as a string for maximum compatibility with future supported object types.</p>
+        <p>Refer to the SD2-7 ObjectNaming for the list of all supported values.</p>
+        <p>Otherwise, one can also refer to the ObjectEnumTypedefined in CommonResourceInfo (see NRB DDP), which is provided as XML Schema enumerations solely as a helper (not used in any messaging validation).</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string"/>
+  </xsd:simpleType>
+  <!--=================-->
+  <xsd:simpleType name="OwnerType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>This is the definition of the object attribute that represents an identifier for the owner of the object.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string"/>
+  </xsd:simpleType>
+  <!--=================-->
+  <xsd:simpleType name="QueryDialectEnumType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>The enumeration of all the supported query dialect types.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:anyURI">
+      <xsd:enumeration value="ANSI-92"/>
+      <xsd:enumeration value="http://www.w3.org/TR/xpath"/>
+      <xsd:enumeration value="http://www.w3.org/TR/xpath20/"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!--=================-->
+  <xsd:simpleType name="QueryDialectTypeType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>The loose definition of all the supported query dialect types.</p>
+        <p>Refer to QueryDialectEnumType definition to the enumeration of recommended query dialect types.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:anyURI"/>
+  </xsd:simpleType>
+  <!--==============-->
+  <xsd:complexType name="QueryExpressionType" mixed="true">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>The generic schema datatype definition for the query expression used in most filters.</p>
+        <p>This definition is borrowed from WS-Notification v1.3.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:any processContents="lax" minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="Dialect" type="tns:QueryDialectTypeType" use="required">
+      <xsd:annotation>
+        <xsd:documentation>
+          <p>The dialect of the given query expression</p>
+        </xsd:documentation>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:complexType>
+</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>file:/UMS/UMS/docs/TMF/MTOSI-2.1/DDPs/Framework/IIS/xsd/NamingDefinitions.xsd</con:url><con:content><![CDATA[<!--mTOP DDP - Framework - Copyright TeleManagement Forum 2008-->
+<xsd:schema targetNamespace="http://www.tmforum.org/mtop/fmw/xsd/nam/v1" attributeFormDefault="unqualified" elementFormDefault="qualified" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.tmforum.org/mtop/fmw/xsd/nam/v1" xmlns:gen="http://www.tmforum.org/mtop/fmw/xsd/gen/v1">
+  <xsd:annotation>
+    <xsd:documentation>
+      <p>DDP: Framework</p>
+      <p>Module: XSD Aggregate Module</p>
+      <p>Description: This module contains the XML Schema definitions of all the generic mTOP XML naming structures.</p>
+    </xsd:documentation>
+  </xsd:annotation>
+  <!--=================-->
+  <xsd:import namespace="http://www.tmforum.org/mtop/fmw/xsd/gen/v1" schemaLocation="GeneralDefinitions.xsd"/>
+  <!--=================-->
+  <xsd:complexType name="RelativeDistinguishNameType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>This is the type definition of relative distinguish name (RDN) data structure used in all object names.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="type" type="gen:ObjectTypeType">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>the RDN object type acronym.</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="value" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>the RDN value.</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="NamingAttributeType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>This is the type definition of the MTOSI object name data structure as a sequence of RDNs, which represents a unique identifier for the MTOSI object on the CCV. Once set by the naming OS, the name is invariant for the life of the object and should be used when referring to the object over the CCV. Name attribute of an object instance shall always be assigned a value, unless the object instance is first discovered by an OS that is not the naming OS for the object instance. In such a case, the discovering OS shall provide a value for the Discovered Name attribute of the object. The naming OS shall provide a value for the Name attribute of the object once it becomes aware of the new object.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="rdn" type="tns:RelativeDistinguishNameType" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="NamingAttributeListType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>This is the definition for the list of MTOSI object names.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="name" type="tns:NamingAttributeType" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>file:/UMS/UMS/docs/TMF/MTOSI-2.1/DDPs/Framework/IIS/xsd/MessageDefinitions.xsd</con:url><con:content><![CDATA[<!--mTOP DDP - Framework - Copyright TeleManagement Forum 2008-->
+<xsd:schema targetNamespace="http://www.tmforum.org/mtop/fmw/xsd/msg/v1" attributeFormDefault="unqualified" elementFormDefault="qualified" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.tmforum.org/mtop/fmw/xsd/msg/v1" xmlns:hdr="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1" xmlns:gen="http://www.tmforum.org/mtop/fmw/xsd/gen/v1">
+  <xsd:annotation>
+    <xsd:documentation>
+      <p>DDP: Framework</p>
+      <p>Module: XSD Aggregate Module</p>
+      <p>Description: This module contains the XML Schema definitions of all the generic mTOP XML message structures.</p>
+    </xsd:documentation>
+  </xsd:annotation>
+  <!--==============-->
+  <xsd:import namespace="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1" schemaLocation="HeaderDefinitions.xsd"/>
+  <xsd:import namespace="http://www.tmforum.org/mtop/fmw/xsd/gen/v1" schemaLocation="GeneralDefinitions.xsd"/>
+  <!--==============-->
+  <xsd:complexType name="BaseExceptionMessageType" abstract="false">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>The (abstract) base type definition of all exception messages.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element ref="hdr:header" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>The mTOP header as it cannot be part of the SOAP Header in a SOAP v1.1 Fault message</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="reason" type="xsd:string" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>A string indicating further details about the exception. It is a free format string filled by the OS.</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="vendorExtensions" type="gen:AnyListType" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>The extension for specific vendor exception information.</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--================-->
+  <xsd:element name="notImplemented" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised by OS for an optional operation that is not implemented</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="internalError" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised in case of non-specific OS internal failure</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="invalidInput" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when one or many operation input (request) parameters are invalid</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="tooManyOpenIterators" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when data retrieval iterator capacity is full</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="entityNotFound" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when one or many operation input (request) parameters do not refer to an existing object</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="commLoss" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when communication to an entity (needed to help fulfill the request) is lost</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="unsupportedCompressionFormat" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when the given data compression format is not supported.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="unsupportedPackingFormat" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when the given file packing format is not supported.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="invalidFilterDefinition" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when the filter is invalid.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="objectInUse" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when .</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="tpInvalidEndPoint" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when .</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="timeslotInUse" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when .</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="protectionEffortNotMet" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when .</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="notInValidState" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when .</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="unableToComply" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when .</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="capacityExceeded" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when .</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="accessDenied" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when .</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="unsupportedRoutingConstraints" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when .</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="userlabelInUse" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when .</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="invalidTopic" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when the topic is not supported.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:element name="notificationServiceProblem" type="tns:BaseExceptionMessageType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Raised when there is a failure with the Broker.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:complexType name="AllExceptionsType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Reference to all supported exception types.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:choice>
+      <xsd:element ref="tns:accessDenied"/>
+      <xsd:element ref="tns:capacityExceeded"/>
+      <xsd:element ref="tns:commLoss"/>
+      <xsd:element ref="tns:entityNotFound"/>
+      <xsd:element ref="tns:internalError"/>
+      <xsd:element ref="tns:invalidFilterDefinition"/>
+      <xsd:element ref="tns:invalidInput"/>
+      <xsd:element ref="tns:invalidTopic"/>
+      <xsd:element ref="tns:notificationServiceProblem"/>
+      <xsd:element ref="tns:notImplemented"/>
+      <xsd:element ref="tns:notInValidState"/>
+      <xsd:element ref="tns:objectInUse"/>
+      <xsd:element ref="tns:protectionEffortNotMet"/>
+      <xsd:element ref="tns:timeslotInUse"/>
+      <xsd:element ref="tns:tooManyOpenIterators"/>
+      <xsd:element ref="tns:tpInvalidEndPoint"/>
+      <xsd:element ref="tns:unableToComply"/>
+      <xsd:element ref="tns:unsupportedCompressionFormat"/>
+      <xsd:element ref="tns:unsupportedPackingFormat"/>
+      <xsd:element ref="tns:unsupportedRoutingConstraints"/>
+      <xsd:element ref="tns:userlabelInUse"/>
+    </xsd:choice>
+  </xsd:complexType>
+  <!--================-->
+  <xsd:complexType name="GetAllDataIteratorExceptionType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Profile of exception types supported by all mTOP iterator operations.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:restriction base="tns:AllExceptionsType">
+        <xsd:choice>
+          <xsd:element ref="tns:commLoss"/>
+          <xsd:element ref="tns:internalError"/>
+          <xsd:element ref="tns:invalidInput"/>
+          <xsd:element ref="tns:notImplemented"/>
+        </xsd:choice>
+      </xsd:restriction>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <!--==================-->
+  <xsd:complexType name="GetAllDataIteratorRequestType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Generic request message structure for all data iterator operations</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence/>
+  </xsd:complexType>
+</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>file:/UMS/UMS/docs/TMF/MTOSI-2.1/DDPs/Framework/IIS/xsd/HeaderDefinitions.xsd</con:url><con:content><![CDATA[<!--mTOP DDP - Framework - Copyright TeleManagement Forum 2008-->
+<xsd:schema targetNamespace="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1" attributeFormDefault="unqualified" elementFormDefault="qualified" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1" xmlns:gen="http://www.tmforum.org/mtop/fmw/xsd/gen/v1">
+  <xsd:annotation>
+    <xsd:documentation>
+      <p>DDP: Framework</p>
+      <p>Module: XSD Aggregate Module</p>
+      <p>Description: This module contains the XML Schema definitions of the mTOP XML header.</p>
+    </xsd:documentation>
+  </xsd:annotation>
+  <!--==============-->
+  <xsd:import namespace="http://www.tmforum.org/mtop/fmw/xsd/gen/v1" schemaLocation="GeneralDefinitions.xsd"/>
+  <!--==============-->
+  <xsd:simpleType name="ActivityStatusEnumType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Specifies the high-level response status for an activity.  Required for response messages, including error responses.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="SUCCESS"/>
+      <xsd:enumeration value="FAILURE"/>
+      <xsd:enumeration value="WARNING"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!--==============-->
+  <xsd:complexType name="ActivityStatusType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Add to the initial enumerations the Qualifiable extension.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="tns:ActivityStatusEnumType">
+        <xsd:attribute name="qualifier" type="xsd:string" use="optional"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <!--==============-->
+  <xsd:simpleType name="MessageTypeType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>The type of the message that is being exchanged as part of an activity.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="REQUEST"/>
+      <xsd:enumeration value="RESPONSE"/>
+      <xsd:enumeration value="NOTIFICATION"/>
+      <xsd:enumeration value="ERROR"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!--==============-->
+  <xsd:simpleType name="CommunicationPatternType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>See Communication Styles supporting document</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="SimpleResponse"/>
+      <xsd:enumeration value="MultipleBatchResponse"/>
+      <xsd:enumeration value="BulkResponse"/>
+      <xsd:enumeration value="Notification"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!--==============-->
+  <xsd:simpleType name="CommunicationStyleType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>See Communication Style supporting document</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="MSG"/>
+      <xsd:enumeration value="RPC"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!--=================-->
+  <xsd:complexType name="CompressionTypeType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Specify if compression is to be performed.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="tns:CompressionEnumType">
+        <xsd:attribute name="extension" type="xsd:string" use="optional"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:simpleType name="CompressionEnumType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Enumeration of supported compressions. All extensions allowed.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="NO_COMPRESSION"/>
+      <xsd:enumeration value="GZIP"/>
+      <xsd:enumeration value="VENDOR_EXT"/>
+      <xsd:enumeration value="MINOR_EXT"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!--=================-->
+  <xsd:complexType name="PackingTypeType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Specify if the output file(s) are to be packed.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:extension base="tns:PackingEnumType">
+        <xsd:attribute name="extension" type="xsd:string" use="optional"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:simpleType name="PackingEnumType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Enumeration of supported packing/packaging. All extensions allowed.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="NO_PACKING"/>
+      <xsd:enumeration value="ZIP"/>
+      <xsd:enumeration value="TAR"/>
+      <xsd:enumeration value="VENDOR_EXT"/>
+      <xsd:enumeration value="MINOR_EXT"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!--==============-->
+  <xsd:element name="header">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>MTOSI Standard Header.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="activityName" type="xsd:string" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Identifies the name of the business transaction activity for the message being exchanged.
+      The value is usually the name of the mTOP operation, e.g. getInventory.
+      This value corresponds to the “operation” in the WSDL.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="msgName" type="xsd:string" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Identifies the name of the message (or contract) that is being exchanged as part of an activity.
+E.g. getInventoryResponse.
+This field corresponds to the message name in the WSDL.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="msgType" type="tns:MessageTypeType" minOccurs="0"></xsd:element>
+        <xsd:element name="senderURI" type="xsd:anyURI" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Identifies the application sending this message.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="destinationURI" type="xsd:anyURI" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Identifies the final destination of the message (the OS that will process the content of the message). This field may point to a logical end point or abstract topic name to be resolved by the communication transport middleware in order to deliver the message.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="replyToURI" type="xsd:anyURI" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Used by request messages to specify destination for response message.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="originatorURI" type="xsd:anyURI" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Identifies the originating application of the message that resulted in this response or notification message.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="failureReplytoURI" type="xsd:anyURI" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Identifies the application receiving the potential error notification message. Required for all response messages and notifications which are triggered by request/response. If not specified the replyToURI is used. If the replyToURI is also not specified, senderURI endpoint is used to send back the failure response.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="activityStatus" type="tns:ActivityStatusType" minOccurs="0"></xsd:element>
+        <xsd:element name="correlationId" type="xsd:string" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>An identifier that could be set by the originator of an asynchronous request that will allow it to correlate the response to the request.  If this field is set, it should be reflected in the header of the response message.  Not required for notification headers.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="security" type="xsd:string" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Provides credential nformation for use by a security service for identification, authentication, or authorization.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="securityType" type="xsd:string" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Identifies the type of credential contained in the security element.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="priority" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Indicates message-handling priority for asynchronous messages.  It must be in the range 0-9 (lowest-highest). Default: 4</p>
+            </xsd:documentation>
+          </xsd:annotation>
+          <xsd:simpleType>
+            <xsd:restriction base="xsd:string"></xsd:restriction>
+          </xsd:simpleType>
+        </xsd:element>
+        <xsd:element name="msgSpecificProperties" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Conditionally required for request, response, and notification messages as identified by the documentation for a specific interface message.  The communications infrastructure or the receiving application can use this value for routing or filtering messages.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="property" minOccurs="0" maxOccurs="unbounded">
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name="propName" type="xsd:string"/>
+                    <xsd:element name="propValue" type="xsd:string"/>
+                  </xsd:sequence>
+                </xsd:complexType>
+              </xsd:element>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="communicationPattern" type="tns:CommunicationPatternType" minOccurs="0"></xsd:element>
+        <xsd:element name="communicationStyle" type="tns:CommunicationStyleType" minOccurs="0"></xsd:element>
+        <xsd:element name="requestedBatchSize" type="xsd:unsignedInt" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>The RequestedBatchSize parameter provides the control for the batch segmentation of the full set of output data generated by a coarse-grained operation such as getInventory or getActiveAlarms. The unit is any of the MTOSI objects. And, it defines the maximum number of MTOSI objects that can be included in all the batches of data sent as part of a multiple responses MEP.</p>
+              <p>However, they are cases where a batch may exceed the number of objects defined in the RequestedBatchSize parameter. This is true if the granularity of a response atomic data representation is greater than just one object. This is true for the getInventory response.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="batchSequenceNumber" type="xsd:unsignedInt" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Used in a multiple response Comm. Pattern to identify the batch seq number in a sequence.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="batchSequenceEndOfReply" type="xsd:boolean" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Used in a multiple response Comm. Pattern, true if it is the last result batch in a sequence</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="iteratorReferenceURI" type="xsd:anyURI" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Mandatory for all SIT (iterators) MEP to allow description of the data retrieval iterator.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="fileLocationURI" type="xsd:anyURI" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Used for file retrieval. Specify the base name of the file(s) to be generated and the remote destination.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="compressionType" type="tns:CompressionTypeType" minOccurs="0"></xsd:element>
+        <xsd:element name="packingType" type="tns:PackingTypeType" minOccurs="0"></xsd:element>
+        <xsd:element name="timestamp" type="xsd:dateTime" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Message originating timestamp</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+        <xsd:element name="vendorExtensions" type="gen:AnyListType" minOccurs="0">
+          <xsd:annotation>
+            <xsd:documentation>
+              <p>Location for all vendor extensions to the MTOSI standard header.</p>
+            </xsd:documentation>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <!--==============-->
+</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>file:/UMS/UMS/docs/TMF/MTOSI-2.1/DDPs/ServiceBasic/IIS/xsd/CommonServiceInfo.xsd</con:url><con:content><![CDATA[<!--mTOP DDP - DM Service Basic - Copyright TeleManagement Forum 2006-->
+<!--=================-->
+<xsd:schema targetNamespace="http://www.tmforum.org/mtop/sb/xsd/csi/v1" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.tmforum.org/mtop/sb/xsd/csi/v1" xmlns:nam="http://www.tmforum.org/mtop/fmw/xsd/nam/v1" xmlns:coi="http://www.tmforum.org/mtop/fmw/xsd/coi/v1">
+  <xsd:annotation>
+    <xsd:documentation>
+      <p>DDP: Data Model service Basic</p>
+      <p>Module: CommonServiceInfo XSD Module</p>
+      <p>Description: This module contains the XML Schema type definition of the mTOP XML CommonServiceInfo structure.</p>
+      <p>Change Policy: TBD.</p>
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:import namespace="http://www.tmforum.org/mtop/fmw/xsd/coi/v1" schemaLocation="../../../Framework/IIS/xsd/CommonObjectInfo.xsd"/>
+  <xsd:import namespace="http://www.tmforum.org/mtop/fmw/xsd/nam/v1" schemaLocation="../../../Framework/IIS/xsd/NamingDefinitions.xsd"/>
+  <!--=================-->
+  <!--======== Common Data Types for Services =========-->
+  <!--=== Common Service Info ===-->
+  <xsd:complexType name="CommonServiceInfoType" abstract="true">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>This aggregate defines attributes common to all mTOP service objects.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="coi:CommonObjectInfoType">
+        <xsd:sequence>
+          <xsd:element name="description" type="xsd:string" nillable="true" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>file:/UMS/UMS/docs/TMF/MTOSI-2.1/DDPs/Framework/IIS/xsd/CommonObjectInfo.xsd</con:url><con:content><![CDATA[<!--mTOP DDP - Framework - Copyright TeleManagement Forum 2008-->
+<xsd:schema targetNamespace="http://www.tmforum.org/mtop/fmw/xsd/coi/v1" attributeFormDefault="unqualified" elementFormDefault="qualified" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:nam="http://www.tmforum.org/mtop/fmw/xsd/nam/v1" xmlns:tns="http://www.tmforum.org/mtop/fmw/xsd/coi/v1" xmlns:gen="http://www.tmforum.org/mtop/fmw/xsd/gen/v1">
+  <xsd:annotation>
+    <xsd:documentation>
+      <p>DDP: Framework</p>
+      <p>Module: XSD Aggregate Module</p>
+      <p>Description: This module contains the XML Schema definitions of the common object information.</p>
+    </xsd:documentation>
+  </xsd:annotation>
+  <!--================-->
+  <xsd:import namespace="http://www.tmforum.org/mtop/fmw/xsd/nam/v1" schemaLocation="NamingDefinitions.xsd"/>
+  <xsd:import namespace="http://www.tmforum.org/mtop/fmw/xsd/gen/v1" schemaLocation="GeneralDefinitions.xsd"/>
+  <!--==============-->
+  <xsd:element name="commonObjectInfo" type="tns:CommonObjectInfoType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+  </xsd:element>
+  <!--================-->
+  <xsd:complexType name="CommonObjectInfoType" abstract="true">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>The aggregate of all common object attributes.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="name" type="nam:NamingAttributeType" nillable="true" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>This attribute represents a unique name/identifier for the object on the CCV. Consult the SD2-7 about object naming for additional normative references.</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="userLabel" type="xsd:string" nillable="true" minOccurs="0"></xsd:element>
+      <xsd:element name="discoveredName" type="gen:DiscoveredNameType" minOccurs="0"></xsd:element>
+      <xsd:element name="namingOs" type="xsd:string" nillable="true" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>This is the object attribute definition to identify the name of the OS that provided the unique MTOSI name for the object. It is assumed that each object (that is published on the CCV) has a unique naming OS. This attribute is optional in a point to point NMS-EMS paradigm.</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element name="owner" type="gen:OwnerType" nillable="true" minOccurs="0"></xsd:element>
+      <xsd:element name="aliasNameList" type="gen:AliasNameListType" nillable="true" minOccurs="0"></xsd:element>
+      <xsd:element name="vendorExtensions" type="gen:AnyListType" nillable="true" minOccurs="0">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>This is a container for all vendor extensions.</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>file:/UMS/UMS/docs/TMF/MTOSI-2.1/DDPs/ServiceBasic/IIS/xsd/Service.xsd</con:url><con:content><![CDATA[<!--edited with XMLSpy v2011 sp1 (http://www.altova.com) by Jessie Jewitt (Ciena)-->
+<!--mTOP DDP - DM Service Basic - Copyright TeleManagement Forum 2008-->
+<xsd:schema targetNamespace="http://www.tmforum.org/mtop/sb/xsd/svc/v1" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.tmforum.org/mtop/sb/xsd/svc/v1" xmlns:nam="http://www.tmforum.org/mtop/fmw/xsd/nam/v1" xmlns:csi="http://www.tmforum.org/mtop/sb/xsd/csi/v1" xmlns:gen="http://www.tmforum.org/mtop/fmw/xsd/gen/v1">
+  <xsd:annotation>
+    <xsd:documentation>
+      <p>DDP: Data Model service Basic</p>
+      <p>Module: Service XSD Module</p>
+      <p>Description: This module contains the XML Schema type definition of the mTOP XML Service structure.</p>
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:import namespace="http://www.tmforum.org/mtop/sb/xsd/csi/v1" schemaLocation="../../../ServiceBasic/IIS/xsd/CommonServiceInfo.xsd"/>
+  <xsd:import namespace="http://www.tmforum.org/mtop/fmw/xsd/nam/v1" schemaLocation="../../../Framework/IIS/xsd/NamingDefinitions.xsd"/>
+  <!--=================-->
+  <xsd:element name="serviceSpecification" type="tns:ServiceSpecificationType"/>
+  <xsd:complexType name="ServiceSpecificationType" abstract="true">
+    <xsd:complexContent>
+      <xsd:annotation>
+        <xsd:documentation>
+          <p>Service Specification is an abstract type which will be further specialized into Service Definition and Service Template</p>
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:extension base="csi:CommonServiceInfoType">
+        <xsd:sequence>
+          <xsd:element name="serviceSpecType" type="tns:ServiceSpecificationTypeType"/>
+          <xsd:element name="serviceSpecVersion" type="tns:ServiceSpecificationVersionType" minOccurs="0"/>
+          <xsd:element name="productSpecRefList" type="nam:NamingAttributeListType" minOccurs="0"/>
+          <xsd:element name="serviceCatalogRefList" type="nam:NamingAttributeListType" minOccurs="0"/>
+          <xsd:element name="describedByList" type="tns:ServiceSpecCharInUseType" maxOccurs="unbounded"/>
+          <xsd:element name="containedByServiceSpecRef" type="tns:ServiceSpecRelationshipType" minOccurs="0" maxOccurs="1"/>
+          <xsd:element name="containsServiceSpecRefList" type="tns:ServiceSpecRelationshipType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="ServiceSpecificationTypeType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>This aggregate is used to distinguish the kind of service</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="name" type="xsd:string"/>
+      <xsd:element name="description" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="version" type="xsd:string" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="ServiceSpecificationVersionType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>This is used to identify the version of the service specification</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="svcSpecRevisionName" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="svcSpecRevisionNumber" type="xsd:string"/>
+      <xsd:element name="svcSpecRevisionReason" type="xsd:string" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:element name="serviceSpecCharInUseType" type="tns:ServiceSpecCharInUseType"/>
+  <xsd:complexType name="ServiceSpecCharInUseType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>This aggregate indicates the usage characteristics of a given SSC</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="sscRef" type="nam:NamingAttributeType"/>
+      <xsd:element name="sscUse" type="tns:ServiceSpecCharacteristicUseType" minOccurs="0"/>
+      <xsd:element name="valueList" type="tns:ServiceSpecCharacteristicValueType" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:element name="serviceSpecRelationshipType" type="tns:ServiceSpecRelationshipType"/>
+  <xsd:complexType name="ServiceSpecRelationshipType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>Indicates relationship of a Service Spec to another Service Spec</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="serviceSpecRef" type="nam:NamingAttributeType"/>
+      <xsd:element name="type" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="validFor" type="tns:TimePeriodType" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:element name="serviceSpecCharacteristicUseType" type="tns:ServiceSpecCharacteristicUseType"/>
+  <xsd:complexType name="ServiceSpecCharacteristicUseType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>This aggregate is used differently in the case of a Service Definition or a Service Template; 
+				refer to the Service Basic BA document</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="globallySet" type="xsd:boolean" minOccurs="0"/>
+      <!--mandatory for Service Defnition, not applicable for Service Template-->
+      <xsd:element name="canBeOveridden" type="xsd:boolean" minOccurs="0"/>
+      <!--mandatory for Service Template, not applicable for Service Definition-->
+      <xsd:element name="charRole" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="minCardinality" type="xsd:int" minOccurs="0"/>
+      <xsd:element name="maxCardinality" type="xsd:int" minOccurs="0"/>
+      <xsd:element name="extensible" type="xsd:boolean" minOccurs="0"/>
+      <xsd:element name="validFor" type="tns:TimePeriodType" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:element name="serviceDefinition" type="tns:ServiceDefinitionType"/>
+  <xsd:complexType name="ServiceDefinitionType">
+    <xsd:complexContent>
+      <xsd:annotation>
+        <xsd:documentation>
+          <p>Service Definition is an extension to the Service Specification abstract type.
+					It defines ALL the ServiceSpecCharacteristics that must be used to create corresponding Service instances</p>
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:extension base="tns:ServiceSpecificationType">
+        <xsd:sequence>
+          <xsd:element name="activationMode" type="xsd:string"/>
+          <xsd:element name="sdStatus" type="tns:ServiceDefinitionStatusType" minOccurs="0"/>
+          <xsd:element name="sapSpecificationRefList" type="nam:NamingAttributeListType"/>
+          <xsd:element name="dependencyRefList" type="nam:NamingAttributeListType" minOccurs="0"/>
+          <xsd:element name="containedRefList" type="nam:NamingAttributeListType" minOccurs="0"/>
+          <xsd:element name="validatesRefList" type="nam:NamingAttributeListType" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:element name="serviceTemplate" type="tns:ServiceTemplateType"/>
+  <xsd:complexType name="ServiceTemplateType">
+    <xsd:complexContent>
+      <xsd:annotation>
+        <xsd:documentation>
+          <p>The service template is an extension to the Service Specification abstract type.
+					It defines specific ServiceSpecCharacteristics for the globally set ServiceSpecCharacteristics that can be 
+					dynamically referenced by multiple Service instances during their lifecycle span</p>
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:extension base="tns:ServiceSpecificationType">
+        <xsd:sequence>
+          <xsd:element name="source" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="serviceLocation" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="stStatus" type="tns:ServiceTemplateStatusType" minOccurs="0"/>
+          <xsd:element name="containedRefList" type="nam:NamingAttributeListType" minOccurs="0"/>
+          <xsd:element name="validatedByRef" type="nam:NamingAttributeType"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:element name="serviceCatalog" type="tns:ServiceCatalogType"/>
+  <xsd:complexType name="ServiceCatalogType">
+    <xsd:complexContent>
+      <xsd:annotation>
+        <xsd:documentation>
+          <p>A service catalog represents a grouping of SSCs and Service Specifications</p>
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:extension base="csi:CommonServiceInfoType">
+        <xsd:sequence>
+          <xsd:element name="sscRefList" type="nam:NamingAttributeListType" minOccurs="0"/>
+          <xsd:element name="ssDefinitionRefList" type="nam:NamingAttributeListType" minOccurs="0"/>
+          <xsd:element name="ssTemplateRefList" type="nam:NamingAttributeListType" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="ServiceType" abstract="true">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>This defines the abstract service</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="csi:CommonServiceInfoType">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>This element entails the attributes common to all mTOP service objects.</p>
+          </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element name="hasStarted" type="xsd:boolean"/>
+          <xsd:element name="isMandatory" type="xsd:boolean"/>
+          <xsd:element name="startMode" type="tns:StartModeType"/>
+          <xsd:element name="isStateful" type="xsd:boolean"/>
+          <xsd:element name="adminState" type="tns:AdminStateType"/>
+          <xsd:element name="serviceState" type="tns:ServiceStateType"/>
+          <xsd:element name="operationalState" type="tns:OperationalStateType"/>
+          <xsd:element name="serviceTemplateRef" type="nam:NamingAttributeType"/>
+          <xsd:element name="subscriberRef" type="nam:NamingAttributeType" minOccurs="0"/>
+          <xsd:element name="userRefList" type="nam:NamingAttributeListType" minOccurs="0"/>
+          <xsd:element name="sapList" type="tns:ServiceAccessPointType" maxOccurs="unbounded"/>
+          <xsd:element name="describedByList" type="tns:ServiceCharacteristicValueType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="CustomerFacingServiceType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>A CFS (Customer Facing Service) represents the instantiation of a given service 
+				that is bound to a particular product. 
+				It is an abstraction that defines the characteristics and behavior of a particular service as seen by the customer.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="tns:ServiceType">
+        <xsd:sequence>
+          <xsd:element name="productRef" type="nam:NamingAttributeType" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="ResourceFacingServiceType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>A RFS (Resource Facing Service) is an abstraction that defines the characteristics 
+				and behavior of a service that is not directly seen or purchased by a customer. 
+				It is an “internal” service that is required to support one or more customer facing services.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="tns:ServiceType">
+        <xsd:sequence>
+          <xsd:element name="cfsRef" type="nam:NamingAttributeType"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="ServiceSpecCharacteristicType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>A SSC (Service Spec Characteristic) object represents a characteristic quality 
+				or distinctive feature of a Service as represented in a ServiceSpecification 
+				(specialized as ServiceDefinition or ServiceTemplate). 
+				The ServiceSpecCharacteristic takes on ServiceSpecCharacteristicValues</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="csi:CommonServiceInfoType">
+        <xsd:sequence>
+          <xsd:element name="id" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="unique" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="valueType" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="minCardinality" type="xsd:int" minOccurs="0"/>
+          <xsd:element name="maxCardinality" type="xsd:int" minOccurs="0"/>
+          <xsd:element name="extensible" type="xsd:boolean" minOccurs="0"/>
+          <xsd:element name="derivationFormula" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="validFor" type="tns:TimePeriodType" minOccurs="0"/>
+          <xsd:element name="containedBySscRefList" type="nam:NamingAttributeListType" minOccurs="0"/>
+          <xsd:element name="containsSscRefList" type="nam:NamingAttributeListType" minOccurs="0"/>
+          <xsd:element name="productScRef" type="nam:NamingAttributeType" minOccurs="0"/>
+          <xsd:element name="serviceCatalogRefList" type="nam:NamingAttributeListType" minOccurs="0"/>
+          <xsd:element name="valueList" type="tns:ServiceSpecCharacteristicValueType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="ServiceSpecCharacteristicValueType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>A Service Specification is characterized by Service Spec Characteristic Values</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="valueType" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="default" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="unitOfMeasure" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="valueFrom" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="valueTo" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="rangeInterval" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="validFor" type="tns:TimePeriodType" minOccurs="0"/>
+      <xsd:element name="containsSscvList" type="tns:ServiceSpecCharacteristicValueType" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="ServiceCharacteristicValueType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>A Service is described by Service Characteristic Values</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="value" type="xsd:string"/>
+      <xsd:element name="validFor" type="tns:TimePeriodType" minOccurs="0"/>
+      <xsd:element name="sscRef" type="nam:NamingAttributeType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="SapSpecificationType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>The SapSpecification defines a set of attributes and (optionally) associated values. 
+				A SapSpecification may be applied to one or more SAPs</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="csi:CommonServiceInfoType">
+        <xsd:sequence>
+          <xsd:element name="type" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="applicableServiceList" type="tns:ServiceSpecificationTypeType" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element name="applicableStateValueList" type="xsd:string"/>
+          <xsd:element name="supportedSdRefList" type="nam:NamingAttributeListType" minOccurs="0"/>
+          <xsd:element name="describedByList" type="tns:ServiceSpecCharInUseType" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="ServiceAccessPointType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>A SAP (Service Access Point) represents a set of parameters associated (directly or indirectly) 
+				with a unique (logical and/or physical) resource where the single Service can be accessed.
+				A Service is often associated with a list of SAPs</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="csi:CommonServiceInfoType">
+        <xsd:sequence>
+          <xsd:element name="adminState" type="tns:AdminStateType" minOccurs="0"/>
+          <xsd:element name="serviceState" type="tns:ServiceStateType" minOccurs="0"/>
+          <xsd:element name="operationalState" type="tns:OperationalStateType" minOccurs="0"/>
+          <xsd:element name="subscriberRef" type="nam:NamingAttributeType" minOccurs="0"/>
+          <xsd:element name="userRefList" type="nam:NamingAttributeListType" minOccurs="0"/>
+          <xsd:element name="resourceRef" type="nam:NamingAttributeType" minOccurs="0"/>
+          <xsd:element name="sapSpecRef" type="nam:NamingAttributeType" minOccurs="0"/>
+          <xsd:element name="describedByList" type="tns:ServiceCharacteristicValueType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="PartyRoleType">
+    <xsd:sequence>
+      <xsd:element name="partyRoleId" type="xsd:anyType" minOccurs="0"/>
+      <xsd:element name="status" type="xsd:anyType" minOccurs="0"/>
+      <xsd:element name="validFor" type="tns:TimePeriodType" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="SubscriberType">
+    <xsd:complexContent>
+      <xsd:extension base="tns:PartyRoleType">
+        <xsd:sequence/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="UserType">
+    <xsd:complexContent>
+      <xsd:extension base="tns:PartyRoleType">
+        <xsd:sequence/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:complexType name="TimePeriodType">
+    <xsd:sequence>
+      <xsd:element name="startDateTime" type="xsd:anyType" minOccurs="0"/>
+      <xsd:element name="endDateTime" type="xsd:anyType" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <!--=================-->
+  <xsd:simpleType name="ServiceDefinitionStatusType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="DRAFT"/>
+      <xsd:enumeration value="STANDARD"/>
+      <xsd:enumeration value="PROPRIETARY"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!--=================-->
+  <xsd:simpleType name="ServiceTemplateStatusType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="DRAFT"/>
+      <xsd:enumeration value="PILOT"/>
+      <xsd:enumeration value="COMMERCIAL"/>
+      <xsd:enumeration value="RETIRED"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!--=================-->
+  <xsd:simpleType name="StartModeType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="UNKNOWN"/>
+      <xsd:enumeration value="AUTOMATICALLY_BY_MANAGEMENT_ENVIRONMENT"/>
+      <xsd:enumeration value="AUTOMATICALLY_BY_OWNING_DEVICE"/>
+      <xsd:enumeration value="MANUALLY_BY_SERVICE_PROVIDER"/>
+      <xsd:enumeration value="MANUALLY_BY_A_CUSTOMER"/>
+      <xsd:enumeration value="ANY"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!--=================-->
+  <xsd:simpleType name="AdminStateType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="LOCKED"/>
+      <xsd:enumeration value="UNLOCKED"/>
+      <xsd:enumeration value="SHUTTING_DOWN"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!--=================-->
+  <xsd:simpleType name="OperationalStateType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="DISABLED"/>
+      <xsd:enumeration value="ENABLED"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <!--=================-->
+  <xsd:simpleType name="ServiceStateType">
+    <xsd:annotation>
+      <xsd:documentation>
+        <p>This "service state" is used by the Service Management interfaces.</p>
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="PLANNING_FEASIBILITY_CHECK">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>The initial phase of the service planning process.</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="PLANNING_DESIGNED">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>The phase where a service order is designed and assembled for the CFS instance</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="RESERVED">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>A CFS/RFS has been reserved for activation at a later time</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="PROVISIONED_INACTIVE">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>The CFS/RFS has been provisioned yet has not been activated</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="PROVISIONED_ACTIVE">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>The CFS/RFS has been activated</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+      <xsd:enumeration value="TERMINATED">
+        <xsd:annotation>
+          <xsd:documentation>
+            <p>The CFS instance is deactivated and the supporting RFSs are deallocated from the CFS</p>
+          </xsd:documentation>
+        </xsd:annotation>
+      </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://aserver/mtosi/ServiceInventoryRetrieval</con:endpoint><con:endpoint>http://localhost:9006/mtosi/msi/ServiceInventoryRetrieval</con:endpoint></con:endpoints><con:operation isOneWay="false" action="getServiceInventory" name="getServiceInventory" bindingOperationName="getServiceInventory" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://aserver/mtosi/ServiceInventoryRetrieval</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1" xmlns:v11="http://www.tmforum.org/mtop/msi/xsd/sir/v1" xmlns:v12="http://www.tmforum.org/mtop/fmw/xsd/nam/v1">
+   <soapenv:Header>
+      <v1:header>
+         <!--Optional:-->
+         <v1:activityName>?</v1:activityName>
+         <!--Optional:-->
+         <v1:msgName>?</v1:msgName>
+         <!--Optional:-->
+         <v1:msgType>?</v1:msgType>
+         <!--Optional:-->
+         <v1:senderURI>?</v1:senderURI>
+         <!--Optional:-->
+         <v1:destinationURI>?</v1:destinationURI>
+         <!--Optional:-->
+         <v1:replyToURI>?</v1:replyToURI>
+         <!--Optional:-->
+         <v1:originatorURI>?</v1:originatorURI>
+         <!--Optional:-->
+         <v1:failureReplytoURI>?</v1:failureReplytoURI>
+         <!--Optional:-->
+         <v1:activityStatus qualifier="?">?</v1:activityStatus>
+         <!--Optional:-->
+         <v1:correlationId>?</v1:correlationId>
+         <!--Optional:-->
+         <v1:security>?</v1:security>
+         <!--Optional:-->
+         <v1:securityType>?</v1:securityType>
+         <!--Optional:-->
+         <v1:priority>?</v1:priority>
+         <!--Optional:-->
+         <v1:msgSpecificProperties>
+            <!--Zero or more repetitions:-->
+            <v1:property>
+               <v1:propName>?</v1:propName>
+               <v1:propValue>?</v1:propValue>
+            </v1:property>
+         </v1:msgSpecificProperties>
+         <!--Optional:-->
+         <v1:communicationPattern>?</v1:communicationPattern>
+         <!--Optional:-->
+         <v1:communicationStyle>?</v1:communicationStyle>
+         <!--Optional:-->
+         <v1:requestedBatchSize>?</v1:requestedBatchSize>
+         <!--Optional:-->
+         <v1:batchSequenceNumber>?</v1:batchSequenceNumber>
+         <!--Optional:-->
+         <v1:batchSequenceEndOfReply>?</v1:batchSequenceEndOfReply>
+         <!--Optional:-->
+         <v1:iteratorReferenceURI>?</v1:iteratorReferenceURI>
+         <!--Optional:-->
+         <v1:fileLocationURI>?</v1:fileLocationURI>
+         <!--Optional:-->
+         <v1:compressionType extension="?">?</v1:compressionType>
+         <!--Optional:-->
+         <v1:packingType extension="?">?</v1:packingType>
+         <!--Optional:-->
+         <v1:timestamp>?</v1:timestamp>
+         <!--Optional:-->
+         <v1:vendorExtensions>
+            <!--You may enter ANY elements at this point-->
+         </v1:vendorExtensions>
+      </v1:header>
+   </soapenv:Header>
+   <soapenv:Body>
+      <v11:getServiceInventoryRequest>
+         <!--Optional:-->
+         <v11:filter>
+            <v11:scope>
+               <!--You have a CHOICE of the next 3 items at this level-->
+               <!--Zero or more repetitions:-->
+               <v11:baseInstance>
+                  <!--1 or more repetitions:-->
+                  <v12:rdn>
+                     <v12:type>?</v12:type>
+                     <v12:value>?</v12:value>
+                  </v12:rdn>
+               </v11:baseInstance>
+               <v11:serviceObjectType>?</v11:serviceObjectType>
+               <!--Optional:-->
+               <v11:queryExpression Dialect="?">
+                  e
+                  <!--You may enter ANY elements at this point-->
+                  gero
+               </v11:queryExpression>
+            </v11:scope>
+            <v11:selection>?</v11:selection>
+         </v11:filter>
+         <!--Optional:-->
+         <v11:diffDateAndTime>?</v11:diffDateAndTime>
+      </v11:getServiceInventoryRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="getServiceInventory"/></con:call></con:operation><con:operation isOneWay="false" action="getServiceInventoryIterator" name="getServiceInventoryIterator" bindingOperationName="getServiceInventoryIterator" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://aserver/mtosi/ServiceInventoryRetrieval</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1" xmlns:v11="http://www.tmforum.org/mtop/msi/xsd/sir/v1">
+   <soapenv:Header>
+      <v1:header>
+         <!--Optional:-->
+         <v1:activityName>?</v1:activityName>
+         <!--Optional:-->
+         <v1:msgName>?</v1:msgName>
+         <!--Optional:-->
+         <v1:msgType>?</v1:msgType>
+         <!--Optional:-->
+         <v1:senderURI>?</v1:senderURI>
+         <!--Optional:-->
+         <v1:destinationURI>?</v1:destinationURI>
+         <!--Optional:-->
+         <v1:replyToURI>?</v1:replyToURI>
+         <!--Optional:-->
+         <v1:originatorURI>?</v1:originatorURI>
+         <!--Optional:-->
+         <v1:failureReplytoURI>?</v1:failureReplytoURI>
+         <!--Optional:-->
+         <v1:activityStatus qualifier="?">?</v1:activityStatus>
+         <!--Optional:-->
+         <v1:correlationId>?</v1:correlationId>
+         <!--Optional:-->
+         <v1:security>?</v1:security>
+         <!--Optional:-->
+         <v1:securityType>?</v1:securityType>
+         <!--Optional:-->
+         <v1:priority>?</v1:priority>
+         <!--Optional:-->
+         <v1:msgSpecificProperties>
+            <!--Zero or more repetitions:-->
+            <v1:property>
+               <v1:propName>?</v1:propName>
+               <v1:propValue>?</v1:propValue>
+            </v1:property>
+         </v1:msgSpecificProperties>
+         <!--Optional:-->
+         <v1:communicationPattern>?</v1:communicationPattern>
+         <!--Optional:-->
+         <v1:communicationStyle>?</v1:communicationStyle>
+         <!--Optional:-->
+         <v1:requestedBatchSize>?</v1:requestedBatchSize>
+         <!--Optional:-->
+         <v1:batchSequenceNumber>?</v1:batchSequenceNumber>
+         <!--Optional:-->
+         <v1:batchSequenceEndOfReply>?</v1:batchSequenceEndOfReply>
+         <!--Optional:-->
+         <v1:iteratorReferenceURI>?</v1:iteratorReferenceURI>
+         <!--Optional:-->
+         <v1:fileLocationURI>?</v1:fileLocationURI>
+         <!--Optional:-->
+         <v1:compressionType extension="?">?</v1:compressionType>
+         <!--Optional:-->
+         <v1:packingType extension="?">?</v1:packingType>
+         <!--Optional:-->
+         <v1:timestamp>?</v1:timestamp>
+         <!--Optional:-->
+         <v1:vendorExtensions>
+            <!--You may enter ANY elements at this point-->
+         </v1:vendorExtensions>
+      </v1:header>
+   </soapenv:Header>
+   <soapenv:Body>
+      <v11:getServiceInventoryIteratorRequest/>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="getServiceInventoryIterator"/></con:call></con:operation></con:interface><con:testSuite name="ServiceInventoryRetrievalSoapHttpBinding TestSuite"><con:settings/><con:runType>SEQUENTIAL</con:runType><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="getServiceInventory TestCase" searchProperties="true" id="d02f0a9e-12fe-4134-9731-24aa8d48edca"><con:settings/><con:testStep type="request" name="getServiceInventory"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>ServiceInventoryRetrievalSoapHttpBinding</con:interface><con:operation>getServiceInventory</con:operation><con:request name="getServiceInventory"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:9006/mtosi/msi/ServiceInventoryRetrieval</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1" xmlns:v11="http://www.tmforum.org/mtop/msi/xsd/sir/v1" xmlns:v12="http://www.tmforum.org/mtop/fmw/xsd/nam/v1">
+   <soapenv:Header>
+      <v1:header>
+         <!--Optional:-->
+         <v1:destinationURI>http://localhost:9006/mtosi/mri/ConnectionRetrieval</v1:destinationURI>
+         <v1:communicationStyle>RPC</v1:communicationStyle>
+         <v1:activityName>getServiceInventory</v1:activityName>
+         <v1:msgName>getServiceInventoryRequest</v1:msgName>
+         <v1:senderURI>http://localhost:9009</v1:senderURI>
+         <v1:msgType>REQUEST</v1:msgType>
+         <v1:communicationPattern>SimpleResponse</v1:communicationPattern>
+      </v1:header>
+   </soapenv:Header>
+   <soapenv:Body>
+      <v11:getServiceInventoryRequest>
+
+      </v11:getServiceInventoryRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="Simple Contains" name="Contains"><con:configuration><token>>SUCCESS&lt;</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="getServiceInventory" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="getServiceInventory TestCase - just with SAP" searchProperties="true" id="7e43c0b0-800f-4ddc-882b-b1d5749c06fb"><con:settings/><con:testStep type="request" name="getServiceInventory"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>ServiceInventoryRetrievalSoapHttpBinding</con:interface><con:operation>getServiceInventory</con:operation><con:request name="getServiceInventory"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:9006/mtosi/msi/ServiceInventoryRetrieval</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1" xmlns:v11="http://www.tmforum.org/mtop/msi/xsd/sir/v1" xmlns:v12="http://www.tmforum.org/mtop/fmw/xsd/nam/v1">
+   <soapenv:Header>
+      <v1:header>
+         <!--Optional:-->
+         <v1:destinationURI>http://localhost:9006/mtosi/mri/ConnectionRetrieval</v1:destinationURI>
+         <v1:communicationStyle>RPC</v1:communicationStyle>
+         <v1:activityName>getServiceInventory</v1:activityName>
+         <v1:msgName>getServiceInventoryRequest</v1:msgName>
+         <v1:senderURI>http://localhost:9009</v1:senderURI>
+         <v1:msgType>REQUEST</v1:msgType>
+         <v1:communicationPattern>SimpleResponse</v1:communicationPattern>
+      </v1:header>
+   </soapenv:Header>
+   <soapenv:Body>
+      <v11:getServiceInventoryRequest> 
+          <!--Optional:-->
+         <v11:filter>
+            <v11:scope>
+               <v11:serviceObjectType>SAP</v11:serviceObjectType>
+               <!--Optional:-->   
+            </v11:scope>
+            <v11:selection>FULL</v11:selection>
+         </v11:filter>
+      </v11:getServiceInventoryRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="Simple Contains" name="Contains"><con:configuration><token>>SUCCESS&lt;</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="getServiceInventory" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="getServiceInventory TestCase - with baseInstance" searchProperties="true" id="afa7571e-5f57-43ee-8308-d0b69c1c18a9"><con:settings/><con:testStep type="request" name="getServiceInventory"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>ServiceInventoryRetrievalSoapHttpBinding</con:interface><con:operation>getServiceInventory</con:operation><con:request name="getServiceInventory"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:9006/mtosi/msi/ServiceInventoryRetrieval</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1" xmlns:v11="http://www.tmforum.org/mtop/msi/xsd/sir/v1" xmlns:v12="http://www.tmforum.org/mtop/fmw/xsd/nam/v1">
+   <soapenv:Header>
+      <v1:header>
+         <!--Optional:-->
+         <v1:destinationURI>http://localhost:9006/mtosi/mri/ConnectionRetrieval</v1:destinationURI>
+         <v1:communicationStyle>RPC</v1:communicationStyle>
+         <v1:activityName>getServiceInventory</v1:activityName>
+         <v1:msgName>getServiceInventoryRequest</v1:msgName>
+         <v1:senderURI>http://localhost:9009</v1:senderURI>
+         <v1:msgType>REQUEST</v1:msgType>
+         <v1:communicationPattern>SimpleResponse</v1:communicationPattern>
+      </v1:header>
+   </soapenv:Header>
+   <soapenv:Body>
+      <v11:getServiceInventoryRequest> 
+          <!--Optional:-->
+         <v11:filter>
+            <v11:scope>
+               <!--You have a CHOICE of the next 3 items at this level-->
+               <!--Zero or more repetitions:-->
+               <v11:baseInstance>
+                  <!--1 or more repetitions:-->
+                  <v12:rdn>
+                     <v12:type>MD</v12:type>
+                     <v12:value>Ciena/OneControl</v12:value>
+                  </v12:rdn>
+                  <v12:rdn>
+                     <v12:type>ME</v12:type>
+                     <v12:value>10.10.132.172</v12:value>
+                  </v12:rdn>                  
+                  <v12:rdn>
+                     <v12:type>PTP</v12:type>
+                     <v12:value>1</v12:value>
+                  </v12:rdn> 
+               </v11:baseInstance>
+            </v11:scope>
+         </v11:filter>         
+      </v11:getServiceInventoryRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="Simple Contains" name="Contains"><con:configuration><token>>ERROR&lt;</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="getServiceInventory" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="getServiceInventory TestCase - with DiffDateAndTime" searchProperties="true" id="7ba9a172-b850-4e6c-8be1-c8063c2bf4d7"><con:settings/><con:testStep type="request" name="getServiceInventory"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>ServiceInventoryRetrievalSoapHttpBinding</con:interface><con:operation>getServiceInventory</con:operation><con:request name="getServiceInventory"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:9006/mtosi/msi/ServiceInventoryRetrieval</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1" xmlns:v11="http://www.tmforum.org/mtop/msi/xsd/sir/v1" xmlns:v12="http://www.tmforum.org/mtop/fmw/xsd/nam/v1">
+   <soapenv:Header>
+      <v1:header>
+         <!--Optional:-->
+         <v1:destinationURI>http://localhost:9006/mtosi/mri/ConnectionRetrieval</v1:destinationURI>
+         <v1:communicationStyle>RPC</v1:communicationStyle>
+         <v1:activityName>getServiceInventory</v1:activityName>
+         <v1:msgName>getServiceInventoryRequest</v1:msgName>
+         <v1:senderURI>http://localhost:9009</v1:senderURI>
+         <v1:msgType>REQUEST</v1:msgType>
+         <v1:communicationPattern>SimpleResponse</v1:communicationPattern>
+      </v1:header>
+   </soapenv:Header>
+   <soapenv:Body>
+      <v11:getServiceInventoryRequest> 
+          <!--Optional:-->
+         <v11:filter>
+            <v11:scope>
+               <!--You have a CHOICE of the next 3 items at this level-->
+               <!--Zero or more repetitions:-->
+               <v11:serviceObjectType>SAP</v11:serviceObjectType>
+               <!--Optional:-->   
+            </v11:scope>
+            <v11:selection>FULL</v11:selection>
+         </v11:filter>
+         <!--Optional:-->
+         <v11:diffDateAndTime>2001-10-26T21:32:52</v11:diffDateAndTime>            
+      </v11:getServiceInventoryRequest>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="Simple Contains" name="Contains"><con:configuration><token>>ERROR&lt;</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig action="getServiceInventory" mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="getServiceInventory - MultiBatchResponse" searchProperties="true" id="3675b85f-1e4a-4b41-bba1-3c4a41d5680d"><con:settings/><con:testStep type="request" name="First Request"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>ServiceInventoryRetrievalSoapHttpBinding</con:interface><con:operation>getServiceInventory</con:operation><con:request name="First Request"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:9006/mtosi/msi/ServiceInventoryRetrieval</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1" xmlns:v11="http://www.tmforum.org/mtop/msi/xsd/sir/v1">
+   <soapenv:Header>
+      <v1:header>
+         <!--Optional:-->
+         <v1:destinationURI>http://localhost:9006/mtosi/mri/ConnectionRetrieval</v1:destinationURI>
+         <v1:communicationStyle>RPC</v1:communicationStyle>
+         <v1:activityName>getServiceInventory</v1:activityName>
+         <v1:msgName>getServiceInventoryRequest</v1:msgName>
+         <v1:senderURI>http://localhost:9009</v1:senderURI>
+         <v1:msgType>REQUEST</v1:msgType>
+         <v1:communicationPattern>MultipleBatchResponse</v1:communicationPattern>
+         <v1:requestedBatchSize>20</v1:requestedBatchSize>
+      </v1:header>
+   </soapenv:Header>
+   <soapenv:Body>
+      <v11:getServiceInventoryRequest/>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response"/><con:assertion type="Simple Contains" name="Contains"><con:configuration><token>>ERROR&lt;</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="getServiceInventoryIterator" searchProperties="true"><con:settings/><con:testStep type="request" name="Test Request"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>ServiceInventoryRetrievalSoapHttpBinding</con:interface><con:operation>getServiceInventoryIterator</con:operation><con:request name="Test Request"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:9006/mtosi/msi/ServiceInventoryRetrieval</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:v1="http://www.tmforum.org/mtop/fmw/xsd/hdr/v1" xmlns:v11="http://www.tmforum.org/mtop/msi/xsd/sir/v1">
+   <soapenv:Header>
+      <v1:header>
+         <!--Optional:-->
+         <v1:destinationURI>http://localhost:9006/mtosi/mri/ConnectionRetrieval</v1:destinationURI>
+         <v1:communicationStyle>RPC</v1:communicationStyle>
+         <v1:activityName>getServiceInventoryIterator</v1:activityName>
+         <v1:msgName>getServiceInventoryIteratorRequest</v1:msgName>
+         <v1:senderURI>http://localhost:9009</v1:senderURI>
+         <v1:msgType>REQUEST</v1:msgType>
+         <v1:communicationPattern>MultipleBatchResponse</v1:communicationPattern>
+         <v1:iteratorReferenceURI>http://localhost:9006/mtosi/mri/ConnectionRetrieval/1</v1:iteratorReferenceURI>
+         <v1:requestedBatchSize>0</v1:requestedBatchSize>
+      </v1:header>
+   </soapenv:Header>
+   <soapenv:Body>
+      <v11:getServiceInventoryIteratorRequest/>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response"/><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:properties/></con:testSuite><con:properties/><con:wssContainer/><con:databaseConnectionContainer/><con:sensitiveInformation/></con:soapui-project>
