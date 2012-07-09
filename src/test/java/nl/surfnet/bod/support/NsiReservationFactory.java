@@ -25,17 +25,12 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProvider;
+
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection.types.BandwidthType;
-import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReserveType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
+import org.ogf.schemas.nsi._2011._10.connection.types.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import nl.surfnet.bod.nsi.ws.ConnectionService;
 
 public class NsiReservationFactory {
 
@@ -44,8 +39,8 @@ public class NsiReservationFactory {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private String correlationId = ConnectionService.getCorrelationId();
-  private String connectionId = ConnectionService.getCorrelationId();
+  private String correlationId = ConnectionServiceProvider.getCorrelationId();
+  private String connectionId = ConnectionServiceProvider.getCorrelationId();
   private int desiredBandwidth = 100;
   private int maxBandwidth = 100;
   private int minBandwidth = 100;
@@ -57,8 +52,7 @@ public class NsiReservationFactory {
   private ServiceParametersType serviceParameters = new ServiceParametersType();
 
   public NsiReservationFactory() {
-    
-    
+
     try {
       scheduleEndTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
       scheduleStartTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
@@ -66,7 +60,7 @@ public class NsiReservationFactory {
     catch (DatatypeConfigurationException e) {
       log.error("Error: ", e);
     }
-    
+
     scheduleStartTime.setDay(1);
     scheduleStartTime.setMonth(1);
     scheduleStartTime.setYear(2013);

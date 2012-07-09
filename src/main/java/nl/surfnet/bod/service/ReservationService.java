@@ -115,8 +115,8 @@ public class ReservationService {
    * @param reservation
    * @See {@link #create(Reservation)}
    */
-  public String create(Reservation reservation) {
-    return create(reservation, true);
+  public void create(Reservation reservation) {
+    create(reservation, true);
   }
 
   /**
@@ -129,7 +129,7 @@ public class ReservationService {
    * @return ReservationId, scheduleId from NMS
    *
    */
-  public String create(Reservation reservation, boolean autoProvision) {
+  public Reservation create(Reservation reservation, boolean autoProvision) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
 
@@ -139,7 +139,11 @@ public class ReservationService {
     logEventService.logCreateEvent(Security.getUserDetails(), reservation);
 
     reservation = reservationRepo.save(reservation);
-    return reservationToNbi.submitNewReservation(reservation.getId(), autoProvision);
+
+    // Async call to nbi
+    reservationToNbi.submitNewReservation(reservation, autoProvision);
+
+    return reservation;
   }
 
   private void fillStartTimeIfEmpty(Reservation reservation) {
@@ -236,8 +240,8 @@ public class ReservationService {
       return new ElementActionView(true);
     }
     else if (role.isManagerRole()
-        && (reservation.getSourcePort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId()) || reservation
-            .getDestinationPort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId()))) {
+        && (reservation.getSourcePort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId())
+            || reservation.getDestinationPort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId()))) {
       return new ElementActionView(true);
     }
     else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
@@ -529,7 +533,7 @@ public class ReservationService {
     }
     return false;
   }
-  
+
   public Reservation findByReservationId(final String reservationId) {
     return reservationRepo.findByReservationId(reservationId);
   }

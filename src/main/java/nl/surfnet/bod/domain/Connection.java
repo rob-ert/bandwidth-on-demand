@@ -23,15 +23,7 @@ package nl.surfnet.bod.domain;
 
 import java.util.Date;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Version;
+import javax.persistence.*;
 
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
@@ -52,19 +44,19 @@ public class Connection {
   // /////////////////////////////////////////////////////
 
   // Requester NSA for this reservation.
-  @Column(unique = false, nullable = false, length = 255)
+  @Column(nullable = false)
   private String requesterNsa = null;
 
   // This will be my NSA.
-  @Column(unique = false, nullable = false, length = 255)
+  @Column(nullable = false)
   private String providerNsa = null;
 
   // Global Id of the reservation which may be null.
-  @Column(unique = true, nullable = false, length = 255)
+  @Column(unique = true, nullable = false)
   private String globalReservationId = null;
 
   // Reservation description.
-  @Column(unique = false, nullable = false, length = 255)
+  @Column(nullable = false)
   private String description = null;
 
   /**
@@ -73,24 +65,24 @@ public class Connection {
    * save time and assume it is unique. This will also be the primary key used
    * in the storage structure
    */
-  @Column(unique = true, nullable = false, length = 255)
+  @Column(unique = true, nullable = false)
   private String connectionId = null;
 
   // replyTo field for forcedEnd messages (my be moed to topology).
-  @Column(unique = false, nullable = false, length = 255)
+  @Column(nullable = false)
   private String replyTo = null;
 
   // State of the reservation.
   @Enumerated(EnumType.STRING)
-  @Column(unique = false, nullable = false, length = 50)
+  @Column(nullable = false, length = 50)
   private ConnectionStateType currentState = ConnectionStateType.INITIAL;
 
   // // The original request service parameters.
-  @Column(unique = false, nullable = false, length = 4096)
+  @Column(nullable = false, length = 4096)
   private ServiceParametersType serviceParameters = null;
 
   // // Original path information.
-  @Column(unique = false, nullable = false, length = 4096)
+  @Column(nullable = false, length = 4096)
   private PathType path = null;
 
   // //////////////////////////////////////////////////
@@ -98,158 +90,158 @@ public class Connection {
   // //////////////////////////////////////////////////
 
   // // The date and time of the reservation.
-  @Column(unique = false, nullable = false, length = 255)
+  @Column(nullable = false)
   private Date startTime = null;
 
-  @Column(unique = false, nullable = false, length = 255)
+  @Column(nullable = false)
   private Date endTime = null;
 
   // Use only desired bandwidth for now.
-  @Column(unique = false, nullable = false, length = 255)
+  @Column(nullable = false)
   private int desiredBandwidth = -1;
 
-  @Column(unique = false, nullable = false, length = 255)
+  @Column(nullable = false)
   private int minimumBandwidth;
 
-  @Column(unique = false, nullable = false, length = 255)
+  @Column(nullable = false)
   private int maximumBandwidth;
 
-  @Basic
-  private String reservationId;
+  @OneToOne
+  private Reservation reservation;
 
-  public final Long getId() {
+  public Long getId() {
     return id;
   }
 
-  public final void setId(Long id) {
+  public void setId(Long id) {
     this.id = id;
   }
 
-  public final Integer getVersion() {
+  public Integer getVersion() {
     return version;
   }
 
-  public final void setVersion(Integer version) {
+  public void setVersion(Integer version) {
     this.version = version;
   }
 
-  public final String getRequesterNsa() {
+  public String getRequesterNsa() {
     return requesterNsa;
   }
 
-  public final void setRequesterNsa(String requesterNSA) {
+  public void setRequesterNsa(String requesterNSA) {
     this.requesterNsa = requesterNSA;
   }
 
-  public final String getProviderNsa() {
+  public String getProviderNsa() {
     return providerNsa;
   }
 
-  public final void setProviderNsa(String providerNSA) {
+  public void setProviderNsa(String providerNSA) {
     this.providerNsa = providerNSA;
   }
 
-  public final String getGlobalReservationId() {
+  public String getGlobalReservationId() {
     return globalReservationId;
   }
 
-  public final void setGlobalReservationId(String globalReservationId) {
+  public void setGlobalReservationId(String globalReservationId) {
     this.globalReservationId = globalReservationId;
   }
 
-  public final String getDescription() {
+  public String getDescription() {
     return description;
   }
 
-  public final void setDescription(String description) {
+  public void setDescription(String description) {
     this.description = description;
   }
 
-  public final String getConnectionId() {
+  public String getConnectionId() {
     return connectionId;
   }
 
-  public final void setConnectionId(String connectionId) {
+  public void setConnectionId(String connectionId) {
     this.connectionId = connectionId;
   }
 
-  public final String getReplyTo() {
+  public String getReplyTo() {
     return replyTo;
   }
 
-  public final void setReplyTo(String replyTo) {
+  public void setReplyTo(String replyTo) {
     this.replyTo = replyTo;
   }
 
-  public final ConnectionStateType getCurrentState() {
+  public ConnectionStateType getCurrentState() {
     return currentState;
   }
 
-  public final void setCurrentState(ConnectionStateType currentState) {
+  public void setCurrentState(ConnectionStateType currentState) {
     this.currentState = currentState;
   }
 
-  public final int getDesiredBandwidth() {
+  public int getDesiredBandwidth() {
     return desiredBandwidth;
   }
 
-  public final void setDesiredBandwidth(int desiredBandwidth) {
+  public void setDesiredBandwidth(int desiredBandwidth) {
     this.desiredBandwidth = desiredBandwidth;
   }
 
-  public final int getMinimumBandwidth() {
+  public int getMinimumBandwidth() {
     return minimumBandwidth;
   }
 
-  public final void setMinimumBandwidth(int minimumBandwidth) {
+  public void setMinimumBandwidth(int minimumBandwidth) {
     this.minimumBandwidth = minimumBandwidth;
   }
 
-  public final int getMaximumBandwidth() {
+  public int getMaximumBandwidth() {
     return maximumBandwidth;
   }
 
-  public final void setMaximumBandwidth(int maximumBandwidth) {
+  public void setMaximumBandwidth(int maximumBandwidth) {
     this.maximumBandwidth = maximumBandwidth;
   }
 
-  public final String getReservationId() {
-    return reservationId;
+  public Reservation getReservation() {
+    return reservation;
   }
 
-  public final void setReservationId(String reservationId) {
-    this.reservationId = reservationId;
+  public void setReservation(Reservation reservation) {
+    this.reservation = reservation;
   }
 
-  public final Date getStartTime() {
+  public Date getStartTime() {
     return startTime;
   }
 
-  public final void setStartTime(Date startTime) {
+  public void setStartTime(Date startTime) {
     this.startTime = startTime;
   }
 
-  public final Date getEndTime() {
+  public Date getEndTime() {
     return endTime;
   }
 
-  public final void setEndTime(Date endTime) {
+  public void setEndTime(Date endTime) {
     this.endTime = endTime;
   }
 
-  public final ServiceParametersType getServiceParameters() {
+  public ServiceParametersType getServiceParameters() {
     return serviceParameters;
   }
 
-  public final void setServiceParameters(ServiceParametersType serviceParameters) {
+  public void setServiceParameters(ServiceParametersType serviceParameters) {
     this.serviceParameters = serviceParameters;
   }
 
-  public final PathType getPath() {
+  public PathType getPath() {
     return path;
   }
 
-  public final void setPath(PathType path) {
+  public void setPath(PathType path) {
     this.path = path;
   }
 
@@ -288,8 +280,8 @@ public class Connection {
     builder.append(minimumBandwidth);
     builder.append(", maximumBandwidth=");
     builder.append(maximumBandwidth);
-    builder.append(", reservationId=");
-    builder.append(reservationId);
+    builder.append(", reservation=");
+    builder.append(reservation);
     builder.append("]");
     return builder.toString();
   }

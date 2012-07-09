@@ -21,14 +21,15 @@
         http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
+
     <context:component-scan base-package="nl.surfnet.bod">
-        <context:exclude-filter expression="org.springframework.stereotype.Controller"
-            type="annotation" />
+        <context:exclude-filter expression="org.springframework.stereotype.Controller" type="annotation" />
     </context:component-scan>
 
-    <task:annotation-driven mode="aspectj" />
-    <tx:annotation-driven mode="aspectj"
-        transaction-manager="transactionManager" />
+    <!-- [AvD] removed mode="aspectj" (this fixes async methods??) -->
+    <aop:aspectj-autoproxy proxy-target-class="true" />
+    <task:annotation-driven proxy-target-class="true" />
+    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
 
     <bean
         class="org.springframework.context.support.ReloadableResourceBundleMessageSource"
@@ -41,8 +42,7 @@
         <constructor-arg>
             <bean class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
                 <property name="config">
-                    <bean
-                        class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+                    <bean class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
                         <property name="algorithm" value="PBEWithMD5AndTripleDES" />
                         <property name="passwordEnvName" value="BOD_ENCRYPTION_PASSWORD" />
                     </bean>
@@ -78,6 +78,5 @@
     <util:list id="nsaProviderUrns" list-class="java.util.ArrayList">
         <value>urn:ogf:network:nsa:netherlight</value>
     </util:list>
-
 
 </beans>

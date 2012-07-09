@@ -89,6 +89,9 @@ public class Reservation {
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
   private LocalDateTime creationDateTime;
 
+  @OneToOne(mappedBy = "reservation")
+  private Connection connection;
+
   public Reservation() {
     creationDateTime = LocalDateTime.now();
   }
@@ -434,6 +437,22 @@ public class Reservation {
     this.virtualResourceGroup = virtualResourceGroup;
   }
 
+  public String getCancelReason() {
+    return cancelReason;
+  }
+
+  public void setCancelReason(String cancelReason) {
+    this.cancelReason = cancelReason;
+  }
+
+  public Connection getConnection() {
+    return connection;
+  }
+
+  public void setConnection(Connection connection) {
+    this.connection = connection;
+  }
+
   @Override
   public int hashCode() {
     return Objects.hashCode(id, name, virtualResourceGroup, status, failedReason, sourcePort, destinationPort,
@@ -460,13 +479,5 @@ public class Reservation {
     else {
       return false;
     }
-  }
-
-  public String getCancelReason() {
-    return cancelReason;
-  }
-
-  public void setCancelReason(String cancelReason) {
-    this.cancelReason = cancelReason;
   }
 }

@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
@@ -44,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.base.*;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Uninterruptibles;
 
 class NbiOfflineClient implements NbiClient {
 
@@ -134,6 +136,9 @@ class NbiOfflineClient implements NbiClient {
     reservation.setStatus(SCHEDULED);
 
     log.warn("Created reservation using MOCK with id: {}", reservation.getReservationId());
+
+    // Imitate the offline client..
+    Uninterruptibles.sleepUninterruptibly(3, TimeUnit.SECONDS);
 
     return reservation;
   }

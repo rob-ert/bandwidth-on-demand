@@ -27,13 +27,16 @@ import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.Security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 public class ReservationToNbi {
+
+  private Logger logger = LoggerFactory.getLogger(ReservationToNbi.class);
 
   @Autowired
   private NbiClient nbiClient;
@@ -47,24 +50,28 @@ public class ReservationToNbi {
   @Autowired
   private LogEventService logEventService;
 
-  public String submitNewReservation(Long id, boolean autoProvision) {
-    Reservation reservation = reservationRepo.findOne(id);
-    final ReservationStatus orgStatus = reservation.getStatus();
-    final Reservation reservationWithReservationId = nbiClient.createReservation(reservation, autoProvision);
+  @Async
+  public void submitNewReservation(Reservation reservation, boolean autoProvision) {
+    logger.debug("Requesting a new reservation from the Nbi, {} ({})", reservation);
 
-    reservation = reservationRepo.save(reservationWithReservationId);
-    publishStatusChanged(reservationWithReservationId, orgStatus);
+    ReservationStatus orgStatus = reservation.getStatus();
+    reservation = nbiClient.createReservation(reservation, autoProvision);
 
-    return reservation.getReservationId();
+    reservation = reservationRepo.save(reservation);
+    publishStatusChanged(reservation, orgStatus);
   }
 
   private void publishStatusChanged(final Reservation reservation, final ReservationStatus originalStatus) {
     if (originalStatus == reservation.getStatus()) {
+      logger.debug("No status change detected from {} to {}", originalStatus, reservation.getStatus());
       return;
     }
+
     ReservationStatusChangeEvent createEvent = new ReservationStatusChangeEvent(originalStatus, reservation);
 
     logEventService.logUpdateEvent(Security.getUserDetails(), reservation, "State change: " + createEvent);
+
     reservationEventPublisher.notifyListeners(createEvent);
   }
+
 }
