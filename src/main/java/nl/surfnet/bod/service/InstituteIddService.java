@@ -53,7 +53,7 @@ public class InstituteIddService implements InstituteService {
   private InstituteRepo instituteRepo;
 
   @Autowired
-  LogEventService logEventService;
+  private LogEventService logEventService;
 
   @Override
   public Institute find(Long id) {

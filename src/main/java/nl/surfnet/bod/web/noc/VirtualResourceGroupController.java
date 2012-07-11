@@ -41,16 +41,16 @@ import com.google.common.collect.Lists;
 @RequestMapping("/noc/teams")
 public class VirtualResourceGroupController extends AbstractSortableListController<VirtualResourceGroupView> {
 
-  @Autowired
-  private VirtualResourceGroupService virtualResourceGroupService;
-
-  private final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW =
+  private static final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW =
       new Function<VirtualResourceGroup, VirtualResourceGroupView>() {
         @Override
         public VirtualResourceGroupView apply(VirtualResourceGroup input) {
           return new VirtualResourceGroupView(input, input.getVirtualPortCount());
         }
   };
+
+  @Autowired
+  private VirtualResourceGroupService virtualResourceGroupService;
 
   @Override
   protected String listUrl() {

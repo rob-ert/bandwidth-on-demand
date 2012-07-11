@@ -82,7 +82,8 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
     return new RichPrincipal(nameId, displayName, email);
   }
 
-  private String getRequestHeaderOrImitate(HttpServletRequest request, String header, Function<HttpServletRequest, String> imitateValue) {
+  private String getRequestHeaderOrImitate(
+      HttpServletRequest request, String header, Function<HttpServletRequest, String> imitateValue) {
     String value = nullToEmpty(request.getHeader(header));
 
     String headerValue = value.isEmpty() && env.getImitateShibboleth() ? imitateValue.apply(request) : value;

@@ -23,7 +23,6 @@ package nl.surfnet.bod.service;
 
 import java.util.List;
 
-import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
@@ -34,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;

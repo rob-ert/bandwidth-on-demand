@@ -21,6 +21,12 @@
  */
 package nl.surfnet.bod.web;
 
+import static com.google.common.base.Strings.nullToEmpty;
+import static com.google.common.collect.Collections2.filter;
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
+import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -44,19 +50,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
-import static com.google.common.base.Strings.nullToEmpty;
-import static com.google.common.collect.Collections2.filter;
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
-
-import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
-
 @RequestMapping(InstituteController.PAGE_URL)
 @Controller
 public class InstituteController {
 
-  static final String REFRESH = "/refresh";
-
+  public static final String REFRESH = "/refresh";
   public static final String PAGE_URL = "/institutes";
   public static final String REFRESH_URL = PAGE_URL + REFRESH;
 

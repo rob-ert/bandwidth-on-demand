@@ -21,17 +21,17 @@
  */
 package nl.surfnet.bod.mtosi;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
+
+import nl.surfnet.bod.domain.PhysicalPort;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,17 +46,11 @@ import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalHttp;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalRPC;
-import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryRequest;
-import org.tmforum.mtop.msi.xsd.sir.v1.GranularityType;
-import org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory;
-import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType;
+import org.tmforum.mtop.msi.xsd.sir.v1.*;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.SapList;
-import org.tmforum.mtop.msi.xsd.sir.v1.SimpleServiceFilterType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 
 import com.google.common.annotations.VisibleForTesting;
-
-import nl.surfnet.bod.domain.PhysicalPort;
 
 @Service("mtosiLiveClient")
 public class MtosiLiveClient {

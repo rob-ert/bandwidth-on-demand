@@ -141,7 +141,7 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
 
     uiModel.addAttribute(MODEL_KEY, new PhysicalResourceGroupCommand(group));
-    return "noc/" +PAGE_URL + UPDATE;
+    return "noc/" + PAGE_URL + UPDATE;
   }
 
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)

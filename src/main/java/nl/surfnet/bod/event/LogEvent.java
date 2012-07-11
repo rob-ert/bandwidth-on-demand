@@ -23,17 +23,9 @@ package nl.surfnet.bod.event;
 
 import java.util.Collection;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.ApplicationConversionServiceFactoryBean;
 
 import org.hibernate.annotations.Type;
 import org.joda.time.LocalDateTime;
@@ -116,9 +108,8 @@ public class LogEvent {
   }
 
   /**
-   * Includes seconds in the string since the default conversion defined in the
-   * {@link ApplicationConversionServiceFactoryBean} does not.
-   * 
+   * Includes seconds in the string since the default conversion does not.
+   *
    * @return Time stamp formatted like
    *         {@link WebUtils#DEFAULT_DATE_TIME_FORMATTER}
    */

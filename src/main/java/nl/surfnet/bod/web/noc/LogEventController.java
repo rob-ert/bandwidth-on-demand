@@ -44,7 +44,7 @@ public class LogEventController extends AbstractSortableListController<LogEvent>
   static final String MODEL_KEY = "list";
 
   @Autowired
-  LogEventService logEventService;
+  private LogEventService logEventService;
 
   @Override
   protected String getDefaultSortProperty() {
