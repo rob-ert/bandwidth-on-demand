@@ -21,71 +21,56 @@
  */
 package nl.surfnet.bod.mtosi;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
+
+import javax.annotation.Resource;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.tmforum.mtop.nrf.xsd.invdata.v1.InventoryDataType;
-import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagedElementInventoryType;
-import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagementDomainInventoryType;
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
+    "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
+@TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
+public class MtosiLiveClientTestIntegration extends AbstractTransactionalJUnit4SpringContextTests {
 
-import com.google.common.collect.Iterables;
-
-public class MtosiLiveClientTestIntegration {
-
+  @Resource(name = "mtosiLiveClient")
   private MtosiLiveClient mtosiLiveClient;
 
   @Before
-  public void init() throws IOException {
-    Properties props = new Properties();
-    props.load(new ClassPathResource("bod-default.properties").getInputStream());
-
-    mtosiLiveClient = new MtosiLiveClient(props.getProperty("mtosi.inventory.retrieval.endpoint"),
-        "http://atlas.dlp.surfnet.nl");
-    mtosiLiveClient.init();
+  public void setup() throws IOException {
   }
-
+  
   @Test
-  @Ignore("MTOSI gives no MDList..")
-  public void retrieveInventory() {
-    InventoryDataType inventory = mtosiLiveClient.getInventory();
-    assertThat(inventory, notNullValue());
-
-    List<ManagementDomainInventoryType> mdits = inventory.getMdList().getMd();
-    assertThat(mdits, hasSize(1));
-
-    ManagementDomainInventoryType mdit = Iterables.getOnlyElement(mdits);
-    List<ManagedElementInventoryType> meits = mdit.getMeList().getMeInv();
-    assertThat(meits, hasSize(greaterThan(0)));
-  }
-
-  @Test
-  @Ignore("MTOSI gives no MDList..")
   public void getUnallocatedPorts() {
-    List<PhysicalPort> unallocatedPorts = mtosiLiveClient.getUnallocatedPorts();
-
+    final List<PhysicalPort> unallocatedPorts = mtosiLiveClient.getUnallocatedPorts();
     assertThat(unallocatedPorts, hasSize(greaterThan(0)));
   }
 
   @Test
   public void convertPortName() {
-    String mtosiPortName = "/rack=1/shelf=1/slot=1/port=48";
-    String expectedPortName = "1-1-1-48";
+    final String mtosiPortName = "/rack=1/shelf=1/slot=1/port=48";
+    final String expectedPortName = "1-1-1-48";
+    final String convertedPortName = mtosiLiveClient.convertPortName(mtosiPortName);
+    assertThat(convertedPortName, equalTo(expectedPortName));
+  }
 
-    String convertedPortName = mtosiLiveClient.convertPortName(mtosiPortName);
-
+  @Test
+  public void convertSubPortName() {
+    final String mtosiPortName = "/rack=1/shelf=1/slot=3/sub_slot=1";
+    final String expectedPortName = "1-1-1-48";
+    final String convertedPortName = mtosiLiveClient.convertPortName(mtosiPortName);
     assertThat(convertedPortName, equalTo(expectedPortName));
   }
 }

@@ -22,15 +22,16 @@
 package nl.surfnet.bod.mtosi;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
-
-import nl.surfnet.bod.domain.PhysicalPort;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,29 +42,33 @@ import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationPatternType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationStyleType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.MessageTypeType;
-import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
-import org.tmforum.mtop.mri.wsdl.rir.v1_0.GetInventoryException;
-import org.tmforum.mtop.mri.wsdl.rir.v1_0.ResourceInventoryRetrievalRPC;
-import org.tmforum.mtop.mri.xsd.rir.v1.*;
-import org.tmforum.mtop.mri.xsd.rir.v1.SimpleFilterType.IncludedObjectType;
-import org.tmforum.mtop.nrf.xsd.invdata.v1.InventoryDataType;
-import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagedElementInventoryType;
-import org.tmforum.mtop.nrf.xsd.invdata.v1.ManagementDomainInventoryType;
-import org.tmforum.mtop.nrf.xsd.invdata.v1.PhysicalTerminationPointInventoryType;
+import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
+import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalHttp;
+import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalRPC;
+import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryRequest;
+import org.tmforum.mtop.msi.xsd.sir.v1.GranularityType;
+import org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory;
+import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType;
+import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.SapList;
+import org.tmforum.mtop.msi.xsd.sir.v1.SimpleServiceFilterType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 
 import com.google.common.annotations.VisibleForTesting;
+
+import nl.surfnet.bod.domain.PhysicalPort;
 
 @Service("mtosiLiveClient")
 public class MtosiLiveClient {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private ResourceInventoryRetrievalRPC resourceInventoryRetrievalRpcPort = null;
+  private ServiceInventoryRetrievalHttp serviceInventoryRetrievalHttp;
 
-  private final GetInventoryRequest getInventoryRequest = new ObjectFactory().createGetInventoryRequest();
   private final String resourceInventoryRetrievalUrl;
   private final String senderUri;
+
+  private boolean isInited = false;
 
   @Autowired
   public MtosiLiveClient(@Value("${mtosi.inventory.retrieval.endpoint}") String retrievalUrl,
@@ -72,28 +77,40 @@ public class MtosiLiveClient {
     this.senderUri = senderUri;
   }
 
-  @PostConstruct
-  public void init() {
-    try {
-      final BodResourceInventoryRetrieval bodResourceInventoryRetrieval = new BodResourceInventoryRetrieval();
-      getInventoryRequest.setFilter(getInventoryRequestSimpleFilter());
-      resourceInventoryRetrievalRpcPort = bodResourceInventoryRetrieval.getPort(ResourceInventoryRetrievalRPC.class);
-      final Map<String, Object> requestContext = ((BindingProvider) resourceInventoryRetrievalRpcPort)
-          .getRequestContext();
-      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, resourceInventoryRetrievalUrl);
+  // If a do this using a postconstruct then spring will not initialise this
+  // bean and therefore the complete context will fail during (junit) testing when there is no
+  // connection with the mtosi server.
+  private void init() {
+    if (isInited) {
+      return;
     }
-    catch (IOException e) {
-      log.error("Error: ", e);
+    else {
+      try {
+        serviceInventoryRetrievalHttp = new ServiceInventoryRetrievalHttp(new URL(resourceInventoryRetrievalUrl),
+            new QName("http://www.tmforum.org/mtop/msi/wsdl/sir/v1-0", "ServiceInventoryRetrievalHttp"));
+
+        final Map<String, Object> requestContext = ((BindingProvider) serviceInventoryRetrievalHttp
+            .getPort(ServiceInventoryRetrievalRPC.class)).getRequestContext();
+
+        requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, resourceInventoryRetrievalUrl);
+        isInited = true;
+      }
+      catch (MalformedURLException e) {
+        log.error("Error: ", e);
+      }
     }
+
   }
 
-  public InventoryDataType getInventory() {
-    log.info("Retrieving inventory at: {}", resourceInventoryRetrievalUrl);
+  private ServiceInventoryDataType getInventory() {
+    log.info("Retrieving inventory at: {} ", resourceInventoryRetrievalUrl);
     try {
-      return resourceInventoryRetrievalRpcPort.getInventory(getInventoryRequestHeaders(), getInventoryRequest)
-          .getInventoryData();
+      final GetServiceInventoryRequest inventoryRequest = new ObjectFactory().createGetServiceInventoryRequest();
+      inventoryRequest.setFilter(getInventoryRequestSimpleFilter());
+      return serviceInventoryRetrievalHttp.getServiceInventoryRetrievalSoapHttp()
+          .getServiceInventory(getInventoryRequestHeaders(), inventoryRequest).getInventoryData();
     }
-    catch (GetInventoryException e) {
+    catch (GetServiceInventoryException e) {
       log.error("Error: ", e);
       return null;
     }
@@ -102,61 +119,45 @@ public class MtosiLiveClient {
   /**
    * @return
    */
-  private SimpleFilterType getInventoryRequestSimpleFilter() {
-    // baseInstance
-    final RelativeDistinguishNameType relativeDistinguishName = new RelativeDistinguishNameType();
-    relativeDistinguishName.setType("MD");
-    relativeDistinguishName.setValue("Ciena");
+  private SimpleServiceFilterType getInventoryRequestSimpleFilter() {
 
-    final NamingAttributeType namingAttribute = new NamingAttributeType();
-    namingAttribute.getRdn().add(relativeDistinguishName);
+    final SimpleServiceFilterType simpleFilter = new ObjectFactory().createSimpleServiceFilterType();
+    simpleFilter.getScopeAndSelection().add(GranularityType.FULL);
 
-    final SimpleFilterType simpleFilter = new ObjectFactory().createSimpleFilterType();
-    simpleFilter.getBaseInstance().add(namingAttribute);
+    final SimpleServiceFilterType.Scope scope = new ObjectFactory().createSimpleServiceFilterTypeScope();
+    scope.setServiceObjectType("SAP");
+    simpleFilter.getScopeAndSelection().add(scope);
 
-    // includedObjectTypes, maybe we only need EH or maybe don;t use a filter
-    // after all
-    final String[] objectTypes = { "ME", "PTP" };
-
-    for (final String objectType : objectTypes) {
-      final IncludedObjectType includeObject = new IncludedObjectType();
-      includeObject.setObjectType(objectType);
-      includeObject.setGranularity(GranularityType.ATTRS);
-      simpleFilter.getIncludedObjectType().add(includeObject);
-    }
     return simpleFilter;
   }
 
   public List<PhysicalPort> getUnallocatedPorts() {
-
+    this.init();
     final List<PhysicalPort> mtosiPorts = new ArrayList<PhysicalPort>();
-    final List<ManagementDomainInventoryType> mds = getInventory().getMdList().getMd();
+    final SapList saps = getInventory().getSapList();
 
-    for (final ManagementDomainInventoryType md : mds) {
-      final List<ManagedElementInventoryType> meInvs = md.getMeList().getMeInv();
-
-      String hostname = "", userLabel = "";
-
-      for (final ManagedElementInventoryType meInv : meInvs) {
-        final List<RelativeDistinguishNameType> rdns = meInv.getMeAttrs().getName().getValue().getRdn();
-        for (final RelativeDistinguishNameType rdn : rdns) {
-          if ("ME".equals(rdn.getType())) {
-            // meNm == official name
-            hostname = rdn.getValue();
-          }
+    for (final ServiceAccessPointType sap : saps.getSap()) {
+      String hostname = "", userLabel = "", portName = "";
+      for (final RelativeDistinguishNameType rdnResourceRef : sap.getResourceRef().getRdn()) {
+        if (rdnResourceRef.getType().equalsIgnoreCase("PTP")) {
+          portName = rdnResourceRef.getValue();
         }
-
-        userLabel = meInv.getMeAttrs().getUserLabel().getValue();
-        final List<PhysicalTerminationPointInventoryType> ptpList = meInv.getPtpList().getPtpInv();
-        for (final PhysicalTerminationPointInventoryType ptp : ptpList) {
-          final PhysicalPort physicalPort = new PhysicalPort();
-          final String convertedPortName = convertPortName(ptp.getPtpNm());
-          physicalPort.setBodPortId(hostname + "_" + convertedPortName);
-          physicalPort.setNmsPortId(convertedPortName);
-          physicalPort.setNocLabel(userLabel);
-          mtosiPorts.add(physicalPort);
+        else if (rdnResourceRef.getType().equalsIgnoreCase("ME")) {
+          userLabel = rdnResourceRef.getValue();
         }
       }
+      final List<RelativeDistinguishNameType> rdns = sap.getName().getValue().getRdn();
+
+      for (final RelativeDistinguishNameType name : rdns) {
+        hostname = name.getValue();
+      }
+      final PhysicalPort physicalPort = new PhysicalPort();
+      final String convertedPortName = convertPortName(portName);
+      physicalPort.setNocLabel(hostname + "_" + convertedPortName);
+      physicalPort.setNmsPortId(userLabel);
+      physicalPort.setBodPortId(convertedPortName);
+      mtosiPorts.add(physicalPort);
+
     }
     return mtosiPorts;
   }
@@ -177,11 +178,15 @@ public class MtosiLiveClient {
     header.setDestinationURI(resourceInventoryRetrievalUrl);
     header.setCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE);
     header.setCommunicationStyle(CommunicationStyleType.RPC);
-    header.setActivityName("getInventory");
-    header.setMsgName("getInventoryRequest");
+    header.setActivityName("getServiceInventory");
+    header.setMsgName("getServiceInventoryRequest");
     header.setSenderURI(senderUri);
     header.setMsgType(MessageTypeType.REQUEST);
     return new Holder<Header>(header);
+  }
+
+  static {
+    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", Boolean.toString(true));
   }
 
 }
