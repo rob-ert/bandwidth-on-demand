@@ -19,6 +19,16 @@
     shibboleth.imitate.userId = urn:collab:person:surfguest.nl:johndoe
     shibboleth.imitate.email = johndoe@example.com
 
+### Java 7
+BoD requires Java 7. Mainly because of jax-ws 2.2 which bundled in java 7, java 6 uses jax-ws 2.1. If you are on a Mac like me, you need to download the dmg from [Oracle](http://www.oracle.com/technetwork/java/javase/downloads/index.html). After installation you have a `/Library/Java/JavaVirtualMachines/1.7.0.jdk` directory.
+
+If you are using Eclipse you have to add the jdk. Eclipse > Properties > Java > Installed JREs. Add a JRE with JRE home set to `/Library/Java/JavaVirtualMachines/1.7.0.jdk/Contents/Home`.
+
+To make sure maven is using your jdk 7 set your env JAVA_HOME to `/Library/Java/JavaVirtualMachines/1.7.0.jdk/Contents/Home`. Check with `mvn -version`.
+
+To change the default jre in mac os X open java preferences.
+
+To decypt some properties you need to replace your `policy.jar` and `US_export_policy.jar`. The unlimited strength policy files are also on the [Oracle download site](http://www.oracle.com/technetwork/java/javase/downloads/index.html) at the bottom. Go to `/Library/Java/JavaVirtualMachines/1.7.0.jdk/Contents/Home/jre/lib/security` and replace the tow jar files with the ones in the jce zip file.
 
 ## Running the Selenium tests
 
