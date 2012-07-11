@@ -621,31 +621,11 @@
             </plugin>
 
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>2.5.1</version>
-                <configuration>
-                    <instrumentation>
-                        <excludes>
-                            <exclude>nl/surfnet/bod/idd/generated/*.class</exclude>
-                            <exclude>nl/surfnet/bod/nbi/generated/*.class</exclude>
-                            <exclude>nl/surfnet/bod/domain/*_.class</exclude>
-                            <exclude>org/oasis_open/**/*.class</exclude>
-                            <exclude>org/ogf/**/*.class</exclude>
-                            <exclude>oasis/names/**/*.class</exclude>
-                            <exclude>org/w3/**/*.class</exclude>
-                            <exclude>org/tmforum/**/*.class</exclude>
-                        </excludes>
-                    </instrumentation>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-clover2-plugin</artifactId>
+                <version>3.1.6</version>
             </plugin>
+
             <plugin>
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
