@@ -14,7 +14,6 @@
                     <table:sortableHeader labelCode="label_virtualport_managerlabel" property="managerLabel" />
                     <table:sortableHeader labelCode="label_virtualport_maxbandwidth" property="maxBandwidth" />
                     <table:sortableHeader labelCode="label_virtualresourcegroup" property="virtualResourceGroup" />
-                    <table:sortableHeader labelCode="label_physicalport_managerlabel" property="physicalPort"/>
                     <table:actionsHeader />
                 </tr>
             </thead>
@@ -54,8 +53,7 @@
                         <spring:message code="label_bandwidth_unit" var="mbit_label" />
                         <table:column item="${item}" property="maxBandwidth" append="${mbit_label}" />
                         <table:column item="${item}" property="virtualResourceGroup" />
-                        <table:column item="${item}" property="physicalPort"/>
-                        <table:actionsColumn item="${item }" path="/manager/virtualports" labelCode="label_virtualport" delete="true" deleteConfirmLabelCode="vp_delete_confirm" deleteConfirmLabelArgument="${item.reservationCounter}"/>
+                        <table:actionsColumn item="${item}" path="/manager/virtualports" labelCode="label_virtualport" delete="true" deleteConfirmLabelCode="vp_delete_confirm" deleteConfirmLabelArgument="${item.reservationCounter}"/>
                     </tr>
                 </c:forEach>
             </tbody>
