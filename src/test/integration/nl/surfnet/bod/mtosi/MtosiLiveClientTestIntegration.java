@@ -30,6 +30,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -56,6 +57,7 @@ public class MtosiLiveClientTestIntegration extends AbstractTransactionalJUnit4S
   public void getUnallocatedPorts() {
     final List<PhysicalPort> unallocatedPorts = mtosiLiveClient.getUnallocatedPorts();
     assertThat(unallocatedPorts, hasSize(greaterThan(0)));
+    System.out.println(unallocatedPorts);
   }
 
   @Test
@@ -67,6 +69,7 @@ public class MtosiLiveClientTestIntegration extends AbstractTransactionalJUnit4S
   }
 
   @Test
+  @Ignore("Currently not needed")
   public void convertSubPortName() {
     final String mtosiPortName = "/rack=1/shelf=1/slot=3/sub_slot=1";
     final String expectedPortName = "1-1-1-48";
