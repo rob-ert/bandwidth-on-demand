@@ -57,7 +57,6 @@ public class MtosiLiveClientTestIntegration extends AbstractTransactionalJUnit4S
   public void getUnallocatedPorts() {
     final List<PhysicalPort> unallocatedPorts = mtosiLiveClient.getUnallocatedPorts();
     assertThat(unallocatedPorts, hasSize(greaterThan(0)));
-    System.out.println(unallocatedPorts);
   }
 
   @Test
