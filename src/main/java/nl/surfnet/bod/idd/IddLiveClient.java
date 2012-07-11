@@ -68,6 +68,8 @@ public class IddLiveClient implements IddClient {
       return Arrays.asList(klantnamen);
     }
     catch (Exception e) {
+      // Keep this logger because somehow we lost all acix realted errors by re-throwing.
+      logger.error("Error: ", e);
       throw new RuntimeException(e);
     }
   }
