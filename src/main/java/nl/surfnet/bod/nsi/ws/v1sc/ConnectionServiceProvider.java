@@ -81,56 +81,7 @@ public class ConnectionServiceProvider implements NsiProvider {
     System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
   }
 
-  private final Logger logger = LoggerFactory.getLogger(ConnectionServiceProvider.class);
-
-  @Autowired
-  private ConnectionRepo connectionRepo;
-
-  @Autowired
-  private VirtualPortRepo virtualPortRepo;
-
-  @Autowired
-  private VirtualResourceGroupRepo virtualResourceGroupRepo;
-
-  @Resource
-  private WebServiceContext webServiceContext;
-
-  @Autowired
-  private ReservationService reservationService;
-
-  @Resource(name = "nsaProviderUrns")
-  private List<String> nsaProviderUrns;
-
-  private final Function<Connection, Reservation> TO_RESERVATION = //
-    new Function<Connection, Reservation>() {
-      @Override
-      public Reservation apply(final Connection connection) {
-
-        final Reservation reservation = new Reservation();
-
-        reservation.setConnection(connection);
-
-        reservation.setName(connection.getGlobalReservationId());
-        reservation.setStartDateTime(new LocalDateTime(connection.getStartTime()));
-        reservation.setEndDateTime(new LocalDateTime(connection.getEndTime()));
-
-        String sourceStpId = connection.getPath().getSourceSTP().getStpId();
-        String destinationStpId = connection.getPath().getDestSTP().getStpId();
-        VirtualPort sourcePort = virtualPortRepo.findByManagerLabel(sourceStpId);
-        VirtualPort destinationPort = virtualPortRepo.findByManagerLabel(destinationStpId);
-
-        reservation.setSourcePort(sourcePort);
-        reservation.setDestinationPort(destinationPort);
-        reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
-
-        reservation.setBandwidth(connection.getDesiredBandwidth());
-        reservation.setUserCreated(connection.getRequesterNsa());
-
-        return reservation;
-      }
-    };
-
-  private static final Function<ReserveRequestType, Connection> TO_CONNECTION = //
+  private static final Function<ReserveRequestType, Connection> TO_CONNECTION =
     new Function<ReserveRequestType, Connection>() {
       @Override
       public Connection apply(ReserveRequestType reserveRequestType) {
@@ -165,6 +116,56 @@ public class ConnectionServiceProvider implements NsiProvider {
         return connection;
       }
     };
+
+  private final Logger logger = LoggerFactory.getLogger(ConnectionServiceProvider.class);
+
+  @Autowired
+  private ConnectionRepo connectionRepo;
+
+  @Autowired
+  private VirtualPortRepo virtualPortRepo;
+
+  @Autowired
+  private VirtualResourceGroupRepo virtualResourceGroupRepo;
+
+  @Resource
+  private WebServiceContext webServiceContext;
+
+  @Autowired
+  private ReservationService reservationService;
+
+  @Resource(name = "nsaProviderUrns")
+  private List<String> nsaProviderUrns;
+
+  private final Function<Connection, Reservation> TO_RESERVATION =
+    new Function<Connection, Reservation>() {
+      @Override
+      public Reservation apply(final Connection connection) {
+
+        final Reservation reservation = new Reservation();
+
+        reservation.setConnection(connection);
+
+        reservation.setName(connection.getDescription());
+        reservation.setStartDateTime(new LocalDateTime(connection.getStartTime()));
+        reservation.setEndDateTime(new LocalDateTime(connection.getEndTime()));
+
+        String sourceStpId = connection.getPath().getSourceSTP().getStpId();
+        String destinationStpId = connection.getPath().getDestSTP().getStpId();
+        VirtualPort sourcePort = virtualPortRepo.findByManagerLabel(sourceStpId);
+        VirtualPort destinationPort = virtualPortRepo.findByManagerLabel(destinationStpId);
+
+        reservation.setSourcePort(sourcePort);
+        reservation.setDestinationPort(destinationPort);
+        reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
+
+        reservation.setBandwidth(connection.getDesiredBandwidth());
+        reservation.setUserCreated(connection.getRequesterNsa());
+
+        return reservation;
+      }
+    };
+
 
   private ServiceExceptionType getInvalidParameterServiceException(final String attributeName) {
     final ServiceExceptionType serviceException = new ServiceExceptionType();
@@ -262,28 +263,11 @@ public class ConnectionServiceProvider implements NsiProvider {
     // Validate CorrelationId
     // Validate if virtual ports are known..
 
-    if (!isValidId(connection.getConnectionId())) {
-      connection.setCurrentState(CLEANING);
-      connection = connectionRepo.save(connection);
-      throw new ServiceException("SVC0001", getInvalidParameterServiceException("connectionId"));
-    }
-
-    if (!isValidProviderNsa(reservationRequest)) {
-      connection = connectionRepo.findOne(connection.getId());
-      connection.setCurrentState(CLEANING);
-      connection = connectionRepo.save(connection);
-      throw new ServiceException("SVC0001", getInvalidParameterServiceException("providerNSA"));
-    }
-
     connection = connectionRepo.save(connection);
 
-    createReservation(connection, false);
+    validateConnection(connection, reservationRequest);
 
-    /*
-     * We will send the confirmation, or failed message back to this location.
-     * In the future we may remove this parameter and add a csRequesterEndpoint
-     * field to NSA topology.
-     */
+    createReservation(connection, false);
 
     /*
      * Save the calling NSA security context and pass it along for use during
@@ -303,6 +287,20 @@ public class ConnectionServiceProvider implements NsiProvider {
         connection.getConnectionId(), genericAcknowledgment.getCorrelationId());
 
     return genericAcknowledgment;
+  }
+
+  private void validateConnection(Connection connection, ReserveRequestType reservationRequest) throws ServiceException {
+    if (!isValidId(connection.getConnectionId())) {
+      connection.setCurrentState(CLEANING);
+      connection = connectionRepo.save(connection);
+      throw new ServiceException("SVC0001", getInvalidParameterServiceException("connectionId"));
+    }
+
+    if (!isValidProviderNsa(reservationRequest)) {
+      connection.setCurrentState(CLEANING);
+      connection = connectionRepo.save(connection);
+      throw new ServiceException("SVC0001", getInvalidParameterServiceException("providerNSA"));
+    }
   }
 
   @Override
