@@ -26,7 +26,6 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.IddClient;
-import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.util.Functions;
 
@@ -36,6 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.Lists;
 
 @Service
 @Transactional
@@ -68,20 +69,28 @@ public class InstituteIddService implements InstituteService {
   @Scheduled(cron = "${" + INSTITUTE_REFRESH_CRON_KEY + "}")
   public void refreshInstitutes() {
     logger
-        .info("Refreshing institutes from IDD to BoD, job based on configuration key: {}", INSTITUTE_REFRESH_CRON_KEY);
+        .info("Refreshing institutes from IDD, job based on configuration key: {}", INSTITUTE_REFRESH_CRON_KEY);
 
-    // Mark not aligned
     List<Institute> currentInstitutes = instituteRepo.findAll();
-    markNotAligned(currentInstitutes);
-    instituteRepo.save(currentInstitutes);
+    Collection<Institute> iddInstitutes = Functions.transformKlanten(iddClient.getKlanten(), true);
 
-    // Align With IDD
-    Collection<Klanten> klanten = iddClient.getKlanten();
-    Collection<Institute> institutes = Functions.transformKlanten(klanten, true);
-    instituteRepo.save(institutes);
-    logger.info("Retrieved {} institutes from IDD and updated them in the BoD database: ", klanten.size());
+    List<Institute> unalignedInstitutes = Lists.newArrayList(currentInstitutes);
+    unalignedInstitutes.removeAll(iddInstitutes);
 
-    logEventService.logUpdateEvent(institutes);
+    logger.info(String.format(
+        "Found %d institutes that are not in IDD anymore, marking them not aligned",
+        unalignedInstitutes.size()));
+    markNotAligned(unalignedInstitutes);
+    instituteRepo.save(unalignedInstitutes);
+
+    logEventService.logUpdateEvent(unalignedInstitutes);
+
+    iddInstitutes.removeAll(currentInstitutes);
+
+    logger.info(String.format("Found %d new or updated institutes from IDD", iddInstitutes.size()));
+    instituteRepo.save(iddInstitutes);
+
+    logEventService.logUpdateEvent(iddInstitutes);
   }
 
   private void markNotAligned(List<Institute> allInstitutes) {

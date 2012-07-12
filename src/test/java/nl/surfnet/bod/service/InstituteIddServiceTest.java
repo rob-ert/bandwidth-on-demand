@@ -21,7 +21,19 @@
  */
 package nl.surfnet.bod.service;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.List;
+
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.idd.generated.Klanten;
@@ -48,22 +60,72 @@ public class InstituteIddServiceTest {
 
   @Mock
   private InstituteRepo instituteRepoMock;
-  
-  @SuppressWarnings(value = "unused")
+
   @Mock
   private LogEventService logEventService;
 
   @Test
-  public void refreshingInstitutes() {
-    Institute institute1 = new InstituteFactory().create();
-    Institute institute2 = new InstituteFactory().create();
-    Klanten klant1 = new KlantenFactory().create();
-    Klanten klant2 = new KlantenFactory().create();
+  public void whenAllInstituesEqualDontUpdate() {
+    List<Institute> institutes = ImmutableList.of(
+        new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").create(),
+        new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").create());
+    List<Klanten> klanten = ImmutableList.of(
+        new KlantenFactory().setKlantid(1).setKlantnaam("SURFnet").setKlantafkorting("SURF").create(),
+        new KlantenFactory().setKlantid(2).setKlantnaam("Zilverline").setKlantafkorting("Z").create());
 
-    when(instituteRepoMock.findAll()).thenReturn(ImmutableList.of(institute1, institute2));
-    when(iddClientMock.getKlanten()).thenReturn(ImmutableList.of(klant1, klant2));
+
+    when(instituteRepoMock.findAll()).thenReturn(institutes);
+    when(iddClientMock.getKlanten()).thenReturn(klanten);
 
     subject.refreshInstitutes();
+
+    verify(instituteRepoMock, times(2)).save(eq(Collections.<Institute>emptyList()));
+  }
+
+  @Test
+  public void whenAKlantHasChangedUpdateIt() {
+    List<Institute> institutes = ImmutableList.of(
+        new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").create(),
+        new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").create());
+    List<Klanten> klanten = ImmutableList.of(
+        new KlantenFactory().setKlantid(1).setKlantnaam("SURFnet").setKlantafkorting("SURF").create(),
+        new KlantenFactory().setKlantid(2).setKlantnaam("Zilverline BV").setKlantafkorting("Z").create());
+
+    when(instituteRepoMock.findAll()).thenReturn(institutes);
+    when(iddClientMock.getKlanten()).thenReturn(klanten);
+
+    subject.refreshInstitutes();
+
+    verify(instituteRepoMock).save(argThat(contains(
+        new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").create())));
+    verify(instituteRepoMock).save(argThat(contains(
+        new InstituteFactory().setId(2L).setName("Zilverline BV").setShortName("Z").create())));
+
+    verify(instituteRepoMock).findAll();
+    verifyNoMoreInteractions(instituteRepoMock);
+  }
+
+  @Test
+  public void whenAKlantIsRemovedFromIddItShouldBeUnAlligned() {
+    List<Institute> institutes = ImmutableList.of(
+        new InstituteFactory().setId(1L).setName("SURFnet").setShortName("SURF").setAlignedWithIDD(true).create(),
+        new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").setAlignedWithIDD(true).create());
+    List<Klanten> klanten = ImmutableList.of(
+        new KlantenFactory().setKlantid(1).setKlantnaam("SURFnet").setKlantafkorting("SURF").create());
+
+    when(instituteRepoMock.findAll()).thenReturn(institutes);
+    when(iddClientMock.getKlanten()).thenReturn(klanten);
+
+    subject.refreshInstitutes();
+
+    verify(instituteRepoMock).save(argThat(contains(
+        new InstituteFactory().setId(2L).setName("Zilverline").setShortName("Z").create())));
+    verify(instituteRepoMock).save(eq(Collections.<Institute>emptyList()));
+
+    verify(instituteRepoMock).findAll();
+    verifyNoMoreInteractions(instituteRepoMock);
+
+    assertThat(institutes.get(1).isAlignedWithIDD(), is(false));
   }
 
 

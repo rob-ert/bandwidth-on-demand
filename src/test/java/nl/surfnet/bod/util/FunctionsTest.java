@@ -40,7 +40,7 @@ public class FunctionsTest {
 
   @Test
   public void bothNaamAndAfkortingAreEmptyShouldGiveNull() {
-    Klanten klant = new KlantenFactory().setKlantnaam("").setKlantafkoring(null).create();
+    Klanten klant = new KlantenFactory().setKlantnaam("").setKlantafkorting(null).create();
 
     Optional<Institute> institute = Functions.transformKlant(klant, true);
 
@@ -49,7 +49,7 @@ public class FunctionsTest {
 
   @Test
   public void transformKlantWithoutAfkorting() {
-    Klanten klant = new KlantenFactory().setKlantnaam(" SURF ").setKlantafkoring(null).create();
+    Klanten klant = new KlantenFactory().setKlantnaam(" SURF ").setKlantafkorting(null).create();
 
     Optional<Institute> institute = Functions.transformKlant(klant, true);
 
@@ -58,7 +58,7 @@ public class FunctionsTest {
 
   @Test
   public void transformKlantWithoutNaam() {
-    Klanten klant = new KlantenFactory().setKlantnaam(null).setKlantafkoring(" UU ").create();
+    Klanten klant = new KlantenFactory().setKlantnaam(null).setKlantafkorting(" UU ").create();
 
     Optional<Institute> institute = Functions.transformKlant(klant, true);
 
@@ -67,7 +67,7 @@ public class FunctionsTest {
 
   @Test
   public void transformKlantWithId() {
-    Klanten klant = new KlantenFactory().setKlantnaam("Universiteit Utrecht").setKlantafkoring("UU").setKlantid(1)
+    Klanten klant = new KlantenFactory().setKlantnaam("Universiteit Utrecht").setKlantafkorting("UU").setKlantid(1)
         .create();
 
     Optional<Institute> institute = Functions.transformKlant(klant, true);
@@ -79,9 +79,9 @@ public class FunctionsTest {
 
   @Test
   public void transformKlantenShouldLeaveOutNulls() {
-    Klanten klant = new KlantenFactory().setKlantnaam("Universiteit Utrecht").setKlantafkoring("UU").setKlantid(1)
+    Klanten klant = new KlantenFactory().setKlantnaam("Universiteit Utrecht").setKlantafkorting("UU").setKlantid(1)
         .create();
-    Klanten klantWithNullValues = new KlantenFactory().setKlantnaam(null).setKlantafkoring(null).setKlantid(2)
+    Klanten klantWithNullValues = new KlantenFactory().setKlantnaam(null).setKlantafkorting(null).setKlantid(2)
         .create();
 
     Collection<Institute> klanten = Functions.transformKlanten(ImmutableList.of(klant, klantWithNullValues), true);

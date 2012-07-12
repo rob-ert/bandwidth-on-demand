@@ -21,6 +21,11 @@
  */
 package nl.surfnet.bod.service;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+
 import java.util.Collection;
 
 import javax.persistence.EntityManager;
@@ -31,16 +36,12 @@ import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.support.InstituteFactory;
 
 import org.hibernate.internal.SessionImpl;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml", "/spring/appCtx-nbi-client.xml",
@@ -61,7 +62,7 @@ public class InstituteIddServiceTestIntegration {
   public void shouldInsertInstitutes() {
     instituteService.refreshInstitutes();
 
-    Assert.assertTrue(instituteService.findAlignedWithIDD().size() > 200);
+    assertThat(instituteService.findAlignedWithIDD(), hasSize(greaterThan(200)));
   }
 
   @Test
@@ -82,16 +83,15 @@ public class InstituteIddServiceTestIntegration {
 
   @Test
   public void shouldMarkInstituteAsNotAlignedWithIDD() {
-    final Long BIG_ID = 999999999L;
-
-    // Pretend it is alignedWithIDD
-    Institute instituteNotInIDD = new InstituteFactory().setId(BIG_ID).setName("Wesaidso Software Engineering")
+    Institute instituteNotInIDD = new InstituteFactory().setId(9999L).setName("Wesaidso Software Engineering")
         .setShortName("WSE").setAlignedWithIDD(true).create();
-    instituteRepo.save(instituteNotInIDD);
+
+    instituteNotInIDD = instituteRepo.save(instituteNotInIDD);
 
     instituteService.refreshInstitutes();
 
-    Institute institute = instituteService.find(BIG_ID);
+    Institute institute = instituteService.find(instituteNotInIDD.getId());
+
     assertThat(institute.isAlignedWithIDD(), is(false));
   }
 }

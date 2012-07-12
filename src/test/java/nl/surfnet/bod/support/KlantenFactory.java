@@ -48,7 +48,7 @@ public class KlantenFactory {
     return this;
   }
 
-  public KlantenFactory setKlantafkoring(String afkorting) {
+  public KlantenFactory setKlantafkorting(String afkorting) {
     this.klantafkorting = afkorting;
     return this;
   }
