@@ -573,7 +573,7 @@
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                     <compilerArgument>-proc:none</compilerArgument>
                 </configuration>
             </plugin>
@@ -666,6 +666,7 @@
                         </goals>
                         <phase>generate-sources</phase>
                         <configuration>
+                            <encoding>${project.build.sourceEncoding}</encoding>
                             <processors>
                                 <processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</processor>
                             </processors>
