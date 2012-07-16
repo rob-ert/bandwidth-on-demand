@@ -52,7 +52,6 @@ import org.springframework.core.io.Resource;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Closeables;
 
 public class MockHttpServer extends AbstractHandler {
 
@@ -62,7 +61,7 @@ public class MockHttpServer extends AbstractHandler {
   private final HandlerCollection mainHandlers;
 
   private Map<String, Resource> responseResource = Maps.newHashMap();
-  private final LinkedBlockingDeque<String> lastRequests = new LinkedBlockingDeque<String>();
+  private final LinkedBlockingDeque<String> lastRequests = new LinkedBlockingDeque<>();
   private final List<String> requests = Lists.newArrayList();
 
   private String username;
@@ -122,10 +121,10 @@ public class MockHttpServer extends AbstractHandler {
     saveRequestBody(request);
 
     if (responseResource.containsKey(target)) {
-      ServletOutputStream outputStream = response.getOutputStream();
-      response.setStatus(HttpServletResponse.SC_OK);
-      ByteStreams.copy(responseResource.get(target).getInputStream(), outputStream);
-      Closeables.close(outputStream, false);
+      try (ServletOutputStream outputStream = response.getOutputStream()) {
+        response.setStatus(HttpServletResponse.SC_OK);
+        ByteStreams.copy(responseResource.get(target).getInputStream(), outputStream);
+      }
     }
     else {
       response.setStatus(HttpServletResponse.SC_NOT_FOUND);
