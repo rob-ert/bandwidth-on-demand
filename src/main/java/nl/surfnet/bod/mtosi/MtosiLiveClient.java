@@ -179,8 +179,8 @@ public class MtosiLiveClient {
     return new Holder<Header>(header);
   }
 
-  static {
-    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", Boolean.toString(true));
-  }
+//  static {
+//    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", Boolean.toString(true));
+//  }
 
 }
