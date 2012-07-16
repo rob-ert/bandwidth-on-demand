@@ -63,6 +63,9 @@ public class Environment {
   @Value("${google.analytics.code}")
   private String googleAnalyticsCode;
 
+  @Value("${bod.ui.logevent.disabled}")
+  private boolean logEventTabDisabled;
+
   public Environment() {
   }
 
@@ -135,6 +138,10 @@ public class Environment {
 
   public String getVersion() {
     return version;
+  }
+
+  public boolean getLogEventTabDisabled() {
+    return logEventTabDisabled;
   }
 
 }
