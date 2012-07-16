@@ -76,7 +76,7 @@
 
     <!-- Supported NSA providers -->
     <util:list id="nsaProviderUrns" list-class="java.util.ArrayList">
-        <value>urn:ogf:network:nsa:netherlight</value>
+        <value>urn:ogf:network:nsa:surfnet.nl</value>
     </util:list>
 
 </beans>
