@@ -24,7 +24,7 @@ BoD requires Java 7. Mainly because of jax-ws 2.2 which bundled in java 7, java 
 
 If you are using Eclipse you have to add the jdk. Eclipse > Properties > Java > Installed JREs. Add a JRE with JRE home set to `/Library/Java/JavaVirtualMachines/1.7.0.jdk/Contents/Home`.
 
-To make sure maven is using your jdk 7 set your env JAVA_HOME to `/Library/Java/JavaVirtualMachines/1.7.0.jdk/Contents/Home`. Check with `mvn -version`.
+To make sure maven is using your jdk 7 set your env JAVA_HOME to ``/usr/libexec/java_home --version 1.7``. Check with `mvn -version`.
 
 To change the default jre in mac os X open java preferences.
 
