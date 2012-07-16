@@ -12,10 +12,10 @@
     <thead>
       <tr>
         <table:rowDetailsHeader render="${not show_unallocated}" />
-        <table:sortableHeader labelCode="label_physicalport_noclabel" property="nocLabel" sortable="${not show_unallocated}" />
-        <table:sortableHeader labelCode="label_physicalport_bod_port_id" property="bodPortId" sortable="${not show_unallocated}" />
+        <table:sortableHeader labelCode="label_physicalport_noclabel" property="nocLabel"  />
+        <table:sortableHeader labelCode="label_physicalport_bod_port_id" property="bodPortId"  />
         <table:sortableHeader labelCode="label_physicalresourcegroup" property="instituteName" render="${not show_unallocated}" />
-        <table:sortableHeader labelCode="label_physicalport_nms_port_id" property="nmsPortId" sortable="${not show_unallocated}" />
+        <table:sortableHeader labelCode="label_physicalport_nms_port_id" property="nmsPortId"  />
         <table:actionsHeader styleClass="cw75 center small" />
       </tr>
     </thead>

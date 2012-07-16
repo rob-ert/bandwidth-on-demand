@@ -24,19 +24,12 @@ package nl.surfnet.bod.web.noc;
 import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.service.*;
-import nl.surfnet.bod.util.Functions;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
-import nl.surfnet.bod.web.view.PhysicalPortView;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +37,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,6 +48,20 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.service.NocService;
+import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.util.ReflectiveFieldComparator;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.view.PhysicalPortView;
 
 @Controller
 @RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
@@ -171,14 +179,26 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   }
 
   @RequestMapping(value = "/free", method = RequestMethod.GET)
-  public String listUnallocated(@RequestParam(value = PAGE_KEY, required = false) final Integer page,
-      final Model uiModel) {
+  public String listUnallocated(@RequestParam(value = PAGE_KEY, required = false) Integer page,
+      @RequestParam(value = "sort", required = false) String sort,
+      @RequestParam(value = "order", required = false) String order, Model model) {
 
-    uiModel.addAttribute("list", Functions.transformUnallocatedPhysicalPorts((List<PhysicalPort>) physicalPortService
-        .findUnallocatedEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE)));
+    final List<PhysicalPortView> transformedUnallocatedPhysicalPorts = Functions
+        .transformUnallocatedPhysicalPorts((List<PhysicalPort>) physicalPortService.findUnallocatedEntries(
+            calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
-    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocated()));
-
+    if (StringUtils.hasText(sort)) {
+      prepareSortOptions(sort, order, model);
+      Collections.sort(transformedUnallocatedPhysicalPorts, new ReflectiveFieldComparator(sort));
+    }
+    
+    if (StringUtils.hasText(order)) {
+      if ("DESC".equals(order)) {
+        Collections.reverse(transformedUnallocatedPhysicalPorts);
+      }
+    }
+    model.addAttribute(WebUtils.DATA_LIST, transformedUnallocatedPhysicalPorts);
+    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocated()));
     return PAGE_URL + "/listunallocated";
   }
 

@@ -139,7 +139,7 @@ public class PhysicalPortControllerTest {
 
     when(physicalPortServiceMock.findUnallocatedEntries(eq(0), anyInt())).thenReturn(ports);
 
-    subject.listUnallocated(1, model);
+    subject.listUnallocated(1, null, null, model);
 
     List<PhysicalPortView> modelList = WebUtils.getAttributeFromModel("list", model);
     assertThat(modelList.get(0), is(transformedPorts.get(0)));
