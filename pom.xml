@@ -4,7 +4,7 @@
     <groupId>nl.surfnet.bod</groupId>
     <artifactId>bod</artifactId>
     <packaging>war</packaging>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0</version>
     <name>bod</name>
     <properties>
         <spring.version>3.1.1.RELEASE</spring.version>
@@ -575,7 +575,7 @@
                     <target>1.7</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <!-- Disable annotation processors during normal compilation -->
-                    <compilerArgument>-proc:none</compilerArgument>>
+                    <compilerArgument>-proc:none</compilerArgument>&gt;
                 </configuration>
             </plugin>
             <plugin>
