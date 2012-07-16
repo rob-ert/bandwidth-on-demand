@@ -15,6 +15,7 @@ public class ReflectiveFieldComparator implements Comparator<Object> {
     try {
       if (one != null && two != null) {
         one = one.getClass().getMethod(getter, new Class[0]).invoke(one, new Object[0]);
+        two = two.getClass().getMethod(getter, new Class[0]).invoke(two, new Object[0]);
       }
     }
     catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
