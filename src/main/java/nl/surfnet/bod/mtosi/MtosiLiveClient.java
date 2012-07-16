@@ -71,7 +71,7 @@ public class MtosiLiveClient {
     this.senderUri = senderUri;
   }
 
-  // If a do this using a postconstruct then spring will not initialise this
+  // If we do this using a postconstruct then spring will not initialise this
   // bean and therefore the complete context will fail during (junit) testing when there is no
   // connection with the mtosi server.
   private void init() {
