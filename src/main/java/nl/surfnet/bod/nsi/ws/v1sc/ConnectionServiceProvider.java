@@ -28,6 +28,7 @@ import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,14 +40,13 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceContext;
 
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nsi.ws.NsiProvider;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
@@ -65,6 +65,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 
 @Service("nsiProvider_v1_sc")
 @WebService(serviceName = "ConnectionServiceProvider",
@@ -78,6 +79,7 @@ public class ConnectionServiceProvider implements NsiProvider {
   private static final String URN_UUID = "urn:uuid:";
 
   static {
+    // Don't show full stack trace in soap result if an exception occurs
     System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
   }
 
@@ -85,7 +87,6 @@ public class ConnectionServiceProvider implements NsiProvider {
     new Function<ReserveRequestType, Connection>() {
       @Override
       public Connection apply(ReserveRequestType reserveRequestType) {
-
         final Connection connection = new Connection();
 
         connection.setConnectionId(reserveRequestType.getReserve().getReservation().getConnectionId());
@@ -94,17 +95,15 @@ public class ConnectionServiceProvider implements NsiProvider {
 
         connection.setStartTime(reserveRequestType.getReserve().getReservation().getServiceParameters().getSchedule()
             .getStartTime().toGregorianCalendar().getTime());
+        // TODO [AvD] end time is optional could also set duration...
         connection.setEndTime(reserveRequestType.getReserve().getReservation().getServiceParameters().getSchedule()
             .getEndTime().toGregorianCalendar().getTime());
+        reserveRequestType.getReserve().getReservation().getServiceParameters().getSchedule().getDuration();
 
         connection.setGlobalReservationId(reserveRequestType.getReserve().getReservation().getGlobalReservationId());
 
         connection.setDesiredBandwidth(reserveRequestType.getReserve().getReservation().getServiceParameters()
             .getBandwidth().getDesired());
-        connection.setMaximumBandwidth(reserveRequestType.getReserve().getReservation().getServiceParameters()
-            .getBandwidth().getMaximum());
-        connection.setMinimumBandwidth(reserveRequestType.getReserve().getReservation().getServiceParameters()
-            .getBandwidth().getMinimum());
 
         connection.setPath(reserveRequestType.getReserve().getReservation().getPath());
         connection.setProviderNsa(reserveRequestType.getReserve().getProviderNSA());
@@ -380,6 +379,7 @@ public class ConnectionServiceProvider implements NsiProvider {
 
     Connection connection = connectionRepo.findByConnectionId(connectionId);
 
+    // TODO [AvD] make async??
     boolean isActivated = reservationService.activate(connection.getReservation());
 
     // / call provisionConfirmed on requester nsa
@@ -390,41 +390,16 @@ public class ConnectionServiceProvider implements NsiProvider {
       sendProvisionFailed(connection);
     }
 
-    // Build an internal request for this reservation request.
-
-    /*
-     * Break out the attributes we need for handling. correlationId is needed
-     * for any acknowledgment, confirmation, or failed message.
-     */
-
-    /*
-     * We will send the confirmation, or failed message back to this location.
-     */
-
     /*
      * Save the calling NSA security context and pass it along for use during
      * processing of request.
      */
 
-    // Extract the reservation information.
-
     // Extract NSA fields.
-
-    /*
-     * Verify that this message was targeting this NSA by looking at the
-     * ProviderNSA field. If invalid we will throw an exception.
-     */
 
     /*
      * Get the connectionId from the reservation as we will use this to
      * serialize related requests.
-     */
-
-    // Route this message to the appropriate actor for processing.
-
-    /*
-     * We successfully sent the message for processing so acknowledge it back to
-     * the sending.
      */
     GenericAcknowledgmentType ack = new GenericAcknowledgmentType();
     ack.setCorrelationId(parameters.getCorrelationId());
@@ -519,45 +494,21 @@ public class ConnectionServiceProvider implements NsiProvider {
 
   @Override
   public GenericAcknowledgmentType terminate(TerminateRequestType parameters) throws ServiceException {
+    String connectionId = parameters.getTerminate().getConnectionId();
 
-    // Build an internal request for this reservation request.
+    Connection connection = connectionRepo.findByConnectionId(connectionId);
 
-    /*
-     * Break out the attributes we need for handling. correlationId is needed
-     * for any acknowledgment, confirmation, or failed message.
-     */
+    Reservation reservation = connection.getReservation();
 
-    /*
-     * We will send the confirmation, or failed message back to this location.
-     */
+    reservationService.cancel(reservation, new RichUserDetails(
+        parameters.getTerminate().getRequesterNSA(), "", "",
+        Collections.<UserGroup> emptyList(), ImmutableList.of(BodRole.createNocEngineer())));
 
-    /*
-     * Save the calling NSA security context and pass it along for use during
-     * processing of request.
-     */
+    // TODO [AvD] have to sent a confirmed or failed...
 
-    // Extract the reservation information.
-
-    // Extract NSA fields.
-
-    /*
-     * Verify that this message was targeting this NSA by looking at the
-     * ProviderNSA field. If invalid we will throw an exception.
-     */
-
-    /*
-     * Get the connectionId from the reservation as we will use this to
-     * serialize related requests.
-     */
-
-    // Route this message to the appropriate actor for processing.
-
-    /*
-     * We successfully sent the message for processing so acknowledge it back to
-     * the sending.
-     */
     GenericAcknowledgmentType ack = new GenericAcknowledgmentType();
-    ack.setCorrelationId(null);
+    ack.setCorrelationId(parameters.getCorrelationId());
+
     return ack;
   }
 

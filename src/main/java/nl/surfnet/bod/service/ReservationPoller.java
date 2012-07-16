@@ -78,7 +78,8 @@ public class ReservationPoller {
     LocalDateTime dateTime = LocalDateTime.now().withSecondOfMinute(0).withMillisOfSecond(0);
     Collection<Reservation> reservations = reservationService.findReservationsToPoll(dateTime);
 
-    logger.debug("Found {} reservations that are running or could start running", reservations.size());
+    logger.info("Found {} reservations that are running or could start running", reservations.size());
+    logger.debug("The reservations {}", reservations);
 
     for (Reservation reservation : reservations) {
       executorService.submit(new ReservationStatusChecker(reservation, maxPollingTries));
