@@ -138,10 +138,7 @@ class NbiOpenDracWsClient implements NbiClient {
       return completionResponseDocument.getCompletionResponse().getResult() == Enum.forInt(1);
 
     }
-    catch (RemoteException e) {
-      log.error("Error: ", e);
-    }
-    catch (ResourceAllocationAndSchedulingServiceFault e) {
+    catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
       log.error("Error: ", e);
     }
 
@@ -159,10 +156,7 @@ class NbiOpenDracWsClient implements NbiClient {
           getSecurityDocument());
       log.info("Status: {}", response.getCompletionResponse().getResult());
     }
-    catch (RemoteException e) {
-      log.error("Error: ", e);
-    }
-    catch (ResourceAllocationAndSchedulingServiceFault e) {
+    catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
       log.error("Error: ", e);
     }
 
@@ -384,10 +378,7 @@ class NbiOpenDracWsClient implements NbiClient {
           queryReservationScheduleDocument, getSecurityDocument());
       return responseDocument.getQueryReservationScheduleResponse().getReservationSchedule().getOccurrenceIdArray()[0];
     }
-    catch (RemoteException e) {
-      log.error("Error: ", e);
-    }
-    catch (ResourceAllocationAndSchedulingServiceFault e) {
+    catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
       log.error("Error: ", e);
     }
     return null;
