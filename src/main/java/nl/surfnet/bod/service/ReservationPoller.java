@@ -116,19 +116,22 @@ public class ReservationPoller {
 
       // No need to retrieve status when there is no reservationId
       while ((numberOfTries < maxPollingTries) && (reservation.getReservationId() != null)) {
+        // Get the latest version of the reservation..
+        Reservation reservationFresh = reservationService.find(reservation.getId());
+
         logger.debug("Checking status update for: '{}' (try {})", reservation.getReservationId(), numberOfTries);
 
-        currentStatus = reservationService.getStatus(reservation);
+        currentStatus = reservationService.getStatus(reservationFresh);
         logger.debug("Got back status {}", currentStatus);
 
         if (!currentStatus.equals(startStatus)) {
           logger.info("Startstatus {} will be updated to {} for reservation {}", new Object[] { startStatus,
-              currentStatus, reservation.getReservationId() });
+              currentStatus, reservationFresh.getReservationId() });
 
-          reservation.setStatus(currentStatus);
-          reservationService.update(reservation);
+          reservationFresh.setStatus(currentStatus);
+          reservationService.update(reservationFresh);
 
-          reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservation));
+          reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservationFresh));
 
           return;
         }

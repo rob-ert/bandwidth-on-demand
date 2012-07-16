@@ -65,11 +65,12 @@ public class ReservationPollerTest {
 
   @Test
   public void pollerShouldRaiseOneChangingReservation() throws InterruptedException {
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.REQUESTED).create();
+    Reservation reservation = new ReservationFactory().setId(1L).setStatus(ReservationStatus.REQUESTED).create();
 
     when(reservationServiceMock.findReservationsToPoll(any(LocalDateTime.class))).thenReturn(
         Lists.newArrayList(reservation));
     when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.SCHEDULED);
+    when(reservationServiceMock.find(1L)).thenReturn(reservation);
 
     subject.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
 
@@ -87,12 +88,13 @@ public class ReservationPollerTest {
 
   @Test
   public void pollerShouldPollMaxTimes() throws InterruptedException {
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
+    Reservation reservation = new ReservationFactory().setId(1L).setStatus(ReservationStatus.SCHEDULED).create();
     int maxTries = 3;
 
     when(reservationServiceMock.findReservationsToPoll(any(LocalDateTime.class))).thenReturn(
         Lists.newArrayList(reservation));
     when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.SCHEDULED);
+    when(reservationServiceMock.find(1L)).thenReturn(reservation);
 
     subject.setMaxPollingTries(3);
     subject.setPollingInterval(1, TimeUnit.MILLISECONDS);
