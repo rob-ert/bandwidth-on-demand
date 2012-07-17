@@ -3,12 +3,19 @@ package nl.surfnet.bod.util;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 
+import org.springframework.util.StringUtils;
+
 public class ReflectiveFieldComparator implements Comparator<Object> {
 
   private final String getter;
 
   public ReflectiveFieldComparator(final String field) {
-    this.getter = "get" + field.substring(0, 1).toUpperCase() + field.substring(1);
+    if (StringUtils.hasText(field)) {
+      this.getter = "get" + field.substring(0, 1).toUpperCase() + field.substring(1);
+    }
+    else {
+      this.getter = null;
+    }
   }
 
   public int compare(Object one, Object two) {
