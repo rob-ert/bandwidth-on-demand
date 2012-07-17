@@ -39,25 +39,18 @@ public class Connection {
   @Version
   private Integer version;
 
-  // /////////////////////////////////////////////////////
-  // Store all the parameters relating to the schedule.
-  // /////////////////////////////////////////////////////
-
-  // Requester NSA for this reservation.
   @Column(nullable = false)
-  private String requesterNsa = null;
+  private String requesterNsa;
 
-  // This will be my NSA.
   @Column(nullable = false)
-  private String providerNsa = null;
+  private String providerNsa;
 
-  // Global Id of the reservation which may be null.
   @Column(unique = true, nullable = false)
-  private String globalReservationId = null;
+  private String globalReservationId;
 
   // Reservation description.
   @Column(nullable = false)
-  private String description = null;
+  private String description;
 
   /**
    * Connection id for the reservation is unique, but there have been
@@ -66,44 +59,34 @@ public class Connection {
    * in the storage structure
    */
   @Column(unique = true, nullable = false)
-  private String connectionId = null;
+  private String connectionId;
 
-  // replyTo field for forcedEnd messages (my be moed to topology).
   @Column(nullable = false)
-  private String replyTo = null;
+  private String replyTo;
 
-  // State of the reservation.
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 50)
   private ConnectionStateType currentState = ConnectionStateType.INITIAL;
 
-  // // The original request service parameters.
   @Column(nullable = false, length = 4096)
-  private ServiceParametersType serviceParameters = null;
+  private ServiceParametersType serviceParameters;
 
-  // // Original path information.
   @Column(nullable = false, length = 4096)
-  private PathType path = null;
-
-  // //////////////////////////////////////////////////
-  // The reservation parameters to which we committed.
-  // //////////////////////////////////////////////////
-
-  // // The date and time of the reservation.
-  @Column(nullable = false)
-  private Date startTime = null;
+  private PathType path;
 
   @Column(nullable = false)
-  private Date endTime = null;
-
-  // Use only desired bandwidth for now.
-  @Column(nullable = false)
-  private int desiredBandwidth = -1;
+  private Date startTime;
 
   @Column(nullable = false)
+  private Date endTime;
+
+  @Column(nullable = false)
+  private int desiredBandwidth;
+
+  @Column
   private int minimumBandwidth;
 
-  @Column(nullable = false)
+  @Column
   private int maximumBandwidth;
 
   @OneToOne
@@ -189,22 +172,6 @@ public class Connection {
     this.desiredBandwidth = desiredBandwidth;
   }
 
-  public int getMinimumBandwidth() {
-    return minimumBandwidth;
-  }
-
-  public void setMinimumBandwidth(int minimumBandwidth) {
-    this.minimumBandwidth = minimumBandwidth;
-  }
-
-  public int getMaximumBandwidth() {
-    return maximumBandwidth;
-  }
-
-  public void setMaximumBandwidth(int maximumBandwidth) {
-    this.maximumBandwidth = maximumBandwidth;
-  }
-
   public Reservation getReservation() {
     return reservation;
   }
@@ -276,10 +243,6 @@ public class Connection {
     builder.append(endTime);
     builder.append(", desiredBandwidth=");
     builder.append(desiredBandwidth);
-    builder.append(", minimumBandwidth=");
-    builder.append(minimumBandwidth);
-    builder.append(", maximumBandwidth=");
-    builder.append(maximumBandwidth);
     builder.append(", reservation=");
     builder.append(reservation);
     builder.append("]");

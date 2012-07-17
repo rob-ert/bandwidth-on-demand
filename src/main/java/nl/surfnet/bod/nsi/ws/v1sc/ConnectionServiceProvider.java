@@ -28,13 +28,11 @@ import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.jws.WebService;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
@@ -76,47 +74,64 @@ public class ConnectionServiceProvider implements NsiProvider {
 
   public static final String BOD_URN_POSTFIX = "urn:nl:surfnet:diensten:bod:";
 
+  protected static final Function<ReserveRequestType, Connection> TO_CONNECTION =
+    new Function<ReserveRequestType, Connection>() {
+      @Override
+      public Connection apply(ReserveRequestType reserveRequestType) {
+
+        ReservationInfoType reservation = reserveRequestType.getReserve().getReservation();
+
+        final Connection connection = new Connection();
+
+        connection.setCurrentState(INITIAL);
+        connection.setConnectionId(reservation.getConnectionId());
+        connection.setDescription(reservation.getDescription());
+
+        connection.setStartTime(getDateFrom(reservation.getServiceParameters().getSchedule().getStartTime()));
+        connection.setEndTime(getDateFrom(reservation.getServiceParameters().getSchedule().getEndTime()));
+
+        // TODO [AvD] end time is optional could also set duration...
+        // reserveRequestType.getReserve().getReservation().getServiceParameters().getSchedule().getDuration();
+
+        // Ignoring the max. and min. bandwidth attributes...
+        connection.setDesiredBandwidth(reservation.getServiceParameters().getBandwidth().getDesired());
+
+        connection.setPath(reservation.getPath());
+
+        connection.setProviderNsa(reserveRequestType.getReserve().getProviderNSA());
+        connection.setRequesterNsa(reserveRequestType.getReserve().getRequesterNSA());
+        connection.setReplyTo(reserveRequestType.getReplyTo());
+
+        // should we use the service parameters later?
+        connection.setServiceParameters(reservation.getServiceParameters());
+
+        String globalReservationId = reservation.getGlobalReservationId();
+        if (!StringUtils.hasText(globalReservationId)) {
+          globalReservationId = generateGlobalId();
+        }
+        connection.setGlobalReservationId(generateGlobalId());
+
+        return connection;
+      }
+
+      private Date getDateFrom(XMLGregorianCalendar calendar) {
+        return calendar.toGregorianCalendar().getTime();
+      }
+
+      private String generateGlobalId() {
+        return BOD_URN_POSTFIX + UUID.randomUUID();
+      }
+
+    };
+
   private static final String URN_UUID = "urn:uuid:";
+
+  private final Logger logger = LoggerFactory.getLogger(ConnectionServiceProvider.class);
 
   static {
     // Don't show full stack trace in soap result if an exception occurs
     System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
   }
-
-  private static final Function<ReserveRequestType, Connection> TO_CONNECTION =
-    new Function<ReserveRequestType, Connection>() {
-      @Override
-      public Connection apply(ReserveRequestType reserveRequestType) {
-        final Connection connection = new Connection();
-
-        connection.setConnectionId(reserveRequestType.getReserve().getReservation().getConnectionId());
-        connection.setCurrentState(INITIAL);
-        connection.setDescription(reserveRequestType.getReserve().getReservation().getDescription());
-
-        connection.setStartTime(reserveRequestType.getReserve().getReservation().getServiceParameters().getSchedule()
-            .getStartTime().toGregorianCalendar().getTime());
-        // TODO [AvD] end time is optional could also set duration...
-        connection.setEndTime(reserveRequestType.getReserve().getReservation().getServiceParameters().getSchedule()
-            .getEndTime().toGregorianCalendar().getTime());
-        reserveRequestType.getReserve().getReservation().getServiceParameters().getSchedule().getDuration();
-
-        connection.setGlobalReservationId(reserveRequestType.getReserve().getReservation().getGlobalReservationId());
-
-        connection.setDesiredBandwidth(reserveRequestType.getReserve().getReservation().getServiceParameters()
-            .getBandwidth().getDesired());
-
-        connection.setPath(reserveRequestType.getReserve().getReservation().getPath());
-        connection.setProviderNsa(reserveRequestType.getReserve().getProviderNSA());
-
-        connection.setReplyTo(reserveRequestType.getReplyTo());
-        connection.setRequesterNsa(reserveRequestType.getReserve().getRequesterNSA());
-        connection.setServiceParameters(reserveRequestType.getReserve().getReservation().getServiceParameters());
-
-        return connection;
-      }
-    };
-
-  private final Logger logger = LoggerFactory.getLogger(ConnectionServiceProvider.class);
 
   @Autowired
   private ConnectionRepo connectionRepo;
@@ -134,7 +149,7 @@ public class ConnectionServiceProvider implements NsiProvider {
   private ReservationService reservationService;
 
   @Resource(name = "nsaProviderUrns")
-  private List<String> nsaProviderUrns;
+  private List<String> nsaProviderUrns = new ArrayList<>();
 
   private final Function<Connection, Reservation> TO_RESERVATION =
     new Function<Connection, Reservation>() {
@@ -167,9 +182,9 @@ public class ConnectionServiceProvider implements NsiProvider {
 
 
   private ServiceExceptionType getInvalidParameterServiceException(final String attributeName) {
-    final ServiceExceptionType serviceException = new ServiceExceptionType();
-    serviceException.setErrorId("SVC0001");
-    serviceException.setText("Invalid or missing parameter");
+    final ServiceExceptionType serviceExceptionType = new ServiceExceptionType();
+    serviceExceptionType.setErrorId("SVC0001");
+    serviceExceptionType.setText("Invalid or missing parameter");
 
     final AttributeType attribute = new AttributeType();
     attribute.setName(attributeName);
@@ -178,8 +193,8 @@ public class ConnectionServiceProvider implements NsiProvider {
     final AttributeStatementType attributeStatement = new AttributeStatementType();
     attributeStatement.getAttributeOrEncryptedAttribute().add(attribute);
 
-    serviceException.setVariables(attributeStatement);
-    return serviceException;
+    serviceExceptionType.setVariables(attributeStatement);
+    return serviceExceptionType;
   }
 
   private ConnectionRequesterPort getConnectionRequesterPort(Connection connection) {
@@ -198,11 +213,6 @@ public class ConnectionServiceProvider implements NsiProvider {
       ).getConnectionServiceRequesterPort();
 
     final Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
-
-    // TODO: get credentials from reservation request
-//    requestContext.put(BindingProvider.USERNAME_PROPERTY, "nsi");
-//    requestContext.put(BindingProvider.PASSWORD_PROPERTY, "nsi123");
-//    requestContext.put(BindingProvider.SESSION_MAINTAIN_PROPERTY, true);
 
     requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, connection.getReplyTo());
 
@@ -226,9 +236,6 @@ public class ConnectionServiceProvider implements NsiProvider {
 //    log.debug("Sendign terminate event to child nsa: {} with id: {}", nsaChild, correlationId);
 //  }
 
-  private boolean isValidProviderNsa(final ReserveRequestType reserveRequest) {
-    return nsaProviderUrns == null ? true : nsaProviderUrns.contains(reserveRequest.getReserve().getProviderNSA());
-  }
 
   /**
    * The reservation method processes an NSI reservation request for
@@ -250,55 +257,62 @@ public class ConnectionServiceProvider implements NsiProvider {
     checkNotNull(reservationRequest);
 
     Connection connection = TO_CONNECTION.apply(reservationRequest);
-
-    if (!StringUtils.hasText(connection.getGlobalReservationId())) {
-      connection.setGlobalReservationId(generateGlobalId());
-    }
-
-    logger.debug("Received reservation request connectionId: {}", connection.getConnectionId());
-
-    // TODO validating
-    // Validate if connection id is unique (gives db constraint exception now)
-    // Validate CorrelationId
-    // Validate if virtual ports are known..
-
     connection = connectionRepo.save(connection);
 
-    validateConnection(connection, reservationRequest);
+    return reserve(connection, new RequestDetails(reservationRequest.getReplyTo(), reservationRequest.getCorrelationId()));
+  }
 
+  public GenericAcknowledgmentType reserve(Connection connection, RequestDetails request) throws ServiceException {
+    logger.debug("Received reservation request connectionId: {}", connection.getConnectionId());
+
+    validateConnection(connection);
     createReservation(connection, false);
 
-    /*
-     * Save the calling NSA security context and pass it along for use during
-     * processing of request (when implemented).
-     */
-
-    /*
-     * We successfully sent the message for processing so acknowledge it back to
-     * the requesting NSA. We hope this returns before the confirmation makes it
-     * back to the requesting NSA.
-     */
+    logger.debug("Returning acknowledgment for connection {} with correlationId {}",
+        connection.getConnectionId(), request.getCorrelationId());
 
     GenericAcknowledgmentType genericAcknowledgment = new GenericAcknowledgmentType();
-    genericAcknowledgment.setCorrelationId(reservationRequest.getCorrelationId());
-
-    logger.debug("Returning acknowledgment for connection {} with correlationId {}",
-        connection.getConnectionId(), genericAcknowledgment.getCorrelationId());
+    genericAcknowledgment.setCorrelationId(request.getCorrelationId());
 
     return genericAcknowledgment;
   }
 
-  private void validateConnection(Connection connection, ReserveRequestType reservationRequest) throws ServiceException {
-    if (!isValidId(connection.getConnectionId())) {
+  private void validateConnection(Connection connection) throws ServiceException {
+    // TODO Validate if connection id is unique (gives db constraint exception now)
+
+    try {
+      validateProviderNsa(connection.getProviderNsa());
+      validateConnectionId(connection.getConnectionId());
+      validatePortExists(connection.getPath().getSourceSTP().getStpId(), "sourceSTP");
+      validatePortExists(connection.getPath().getDestSTP().getStpId(), "destSTP");
+    }
+    catch (ServiceException e) {
       connection.setCurrentState(CLEANING);
-      connection = connectionRepo.save(connection);
-      throw new ServiceException("SVC0001", getInvalidParameterServiceException("connectionId"));
+      connectionRepo.save(connection);
+      throw e;
+    }
+  }
+
+  private void validateProviderNsa(String providerNsa) throws ServiceException {
+      if (nsaProviderUrns.contains(providerNsa)) {
+        return;
+      }
+
+      throw new ServiceException("SVC0001", getInvalidParameterServiceException("providerNSA"));
+  }
+
+  private void validateConnectionId(String connectionId) throws ServiceException {
+    if (StringUtils.hasText(connectionId)) {
+      return;
     }
 
-    if (!isValidProviderNsa(reservationRequest)) {
-      connection.setCurrentState(CLEANING);
-      connection = connectionRepo.save(connection);
-      throw new ServiceException("SVC0001", getInvalidParameterServiceException("providerNSA"));
+    throw new ServiceException("SVC0001", getInvalidParameterServiceException("connectionId"));
+  }
+
+  private void validatePortExists(String label, String attribute) throws ServiceException {
+    VirtualPort port = virtualPortRepo.findByManagerLabel(label);
+    if (port == null) {
+      throw new ServiceException("SVC0001", getInvalidParameterServiceException(attribute));
     }
   }
 
@@ -307,9 +321,8 @@ public class ConnectionServiceProvider implements NsiProvider {
     logger.debug("Sending a reserveConfirmed on endpoint: {} with id: {}", connection.getReplyTo(),
         connection.getGlobalReservationId());
 
-    ReserveConfirmedType reserveConfirmedType = new ObjectFactory().createReserveConfirmedType();
-    reserveConfirmedType.setRequesterNSA(connection.getRequesterNsa());
-    reserveConfirmedType.setProviderNSA(connection.getProviderNsa());
+    connection.setCurrentState(ConnectionStateType.RESERVED);
+    connectionRepo.save(connection);
 
     ReservationInfoType reservationInfoType = new ObjectFactory().createReservationInfoType();
     reservationInfoType.setConnectionId(connection.getConnectionId());
@@ -318,10 +331,14 @@ public class ConnectionServiceProvider implements NsiProvider {
     reservationInfoType.setPath(connection.getPath());
     reservationInfoType.setServiceParameters(connection.getServiceParameters());
 
+    ReserveConfirmedType reserveConfirmedType = new ObjectFactory().createReserveConfirmedType();
+    reserveConfirmedType.setRequesterNSA(connection.getRequesterNsa());
+    reserveConfirmedType.setProviderNSA(connection.getProviderNsa());
     reserveConfirmedType.setReservation(reservationInfoType);
 
     try {
       ConnectionRequesterPort port = getConnectionRequesterPort(connection);
+      // FIXME [AvD] reserve Confirmed should send back the correlation Id not the connection Id...
       port.reserveConfirmed(new Holder<String>(connection.getConnectionId()), reserveConfirmedType);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -333,6 +350,9 @@ public class ConnectionServiceProvider implements NsiProvider {
   public void reserveFailed(final Connection connection) {
     logger.debug("Sending a reserveFailed on endpoint: {} with id: {}", connection.getReplyTo(),
         connection.getGlobalReservationId());
+
+    connection.setCurrentState(ConnectionStateType.CLEANING);
+    connectionRepo.save(connection);
 
     GenericFailedType reservationFailed = new GenericFailedType();
     reservationFailed.setRequesterNSA(connection.getRequesterNsa());
@@ -356,10 +376,6 @@ public class ConnectionServiceProvider implements NsiProvider {
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
       logger.error("Error: ", e);
     }
-  }
-
-  private String generateGlobalId() {
-    return BOD_URN_POSTFIX + UUID.randomUUID();
   }
 
   private void createReservation(final Connection connection, boolean autoProvision) {
@@ -563,12 +579,31 @@ public class ConnectionServiceProvider implements NsiProvider {
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
-  protected boolean isValidId(final String id) {
-    return StringUtils.hasText(id);
-  }
-
   public static String getCorrelationId() {
     return URN_UUID + UUID.randomUUID().toString();
+  }
+
+  public static class RequestDetails {
+    private final String replyTo;
+    private final String correlationId;
+
+    public RequestDetails(String replyTo, String correlationId) {
+      this.replyTo = replyTo;
+      this.correlationId = correlationId;
+    }
+
+    public String getReplyTo() {
+      return replyTo;
+    }
+
+    public String getCorrelationId() {
+      return correlationId;
+    }
+
+  }
+
+  protected void addNsaProvider(String provider) {
+    this.nsaProviderUrns.add(provider);
   }
 
 }
