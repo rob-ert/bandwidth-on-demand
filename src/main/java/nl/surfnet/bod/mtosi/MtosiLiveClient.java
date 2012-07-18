@@ -78,8 +78,7 @@ public class MtosiLiveClient {
 
   // If we do this using a postconstruct then spring will not initialise this
   // bean and therefore the complete context will fail during (junit) testing
-  // when there is no
-  // connection with the mtosi server.
+  // when there is no connection with the mtosi server.
   private void init() {
     if (isInited) {
       return;
@@ -149,8 +148,10 @@ public class MtosiLiveClient {
     final SapList saps = getInventory().getSapList();
 
     for (final ServiceAccessPointType sap : saps.getSap()) {
-      String nocLabel = "NA", nmsNeId = "", nmsPortId = "", nmsSapName = "", vlanRequired = "", nmsPortSpeed = "";
+      String nocLabel = "NA", nmsNeId = "", nmsPortId = "", nmsSapName = "", nmsPortSpeed = "";
+      boolean isVlanRequiered = false;
       nmsSapName = sap.getName().getValue().getRdn().get(0).getValue();
+      
 
       final List<RelativeDistinguishNameType> resourceRefsRdns = sap.getResourceRef().getRdn();
 
@@ -166,17 +167,25 @@ public class MtosiLiveClient {
       final List<ServiceCharacteristicValueType> describedByList = sap.getDescribedByList();
 
       String tmpSpeed = "";
+      String tmpVlan = "";
+      
       for (final ServiceCharacteristicValueType serviceCharacteristicValueType : describedByList) {
         tmpSpeed = serviceCharacteristicValueType.getValue();
+        tmpVlan = serviceCharacteristicValueType.getValue();
         final List<RelativeDistinguishNameType> rdns = serviceCharacteristicValueType.getSscRef().getRdn();
         for (final RelativeDistinguishNameType rdn : rdns) {
           if ("AdministrativeSpeedRate".equals(rdn.getValue())) {
             nmsPortSpeed = tmpSpeed;
           }
+          if ("SupportedServiceType".equals(rdn.getValue())) {
+            if ("EVPL".equals(tmpVlan) || "EVPLAN".equals(tmpVlan)) {
+              isVlanRequiered = true;
+            }
+          }
         }
       }
 
-      final PhysicalPort physicalPort = new PhysicalPort();
+      final PhysicalPort physicalPort = new PhysicalPort(isVlanRequiered);
       physicalPort.setNmsPortId(convertPortName(nmsPortId));
       physicalPort.setNmsNeId(nmsNeId);
       physicalPort.setBodPortId(nmsNeId + "_" + convertPortName(nmsPortId));
