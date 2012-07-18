@@ -25,7 +25,6 @@ import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -187,26 +186,37 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
         .transformUnallocatedPhysicalPorts((List<PhysicalPort>) physicalPortService.findUnallocatedEntries(
             calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
+    sortExternalResources(sort, order, model, transformedUnallocatedPhysicalPorts);
+    model.addAttribute(WebUtils.DATA_LIST, transformedUnallocatedPhysicalPorts);
+    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocated()));
+    return PAGE_URL + "/listunallocated";
+  }
+
+  /**
+   * @param sort
+   * @param order
+   * @param model
+   * @param transformedUnallocatedPhysicalPorts
+   */
+  private void sortExternalResources(String sort, String order, Model model,
+      final List<PhysicalPortView> transformedUnallocatedPhysicalPorts) {
     if (StringUtils.hasText(sort)) {
       prepareSortOptions(sort, order, model);
       Collections.sort(transformedUnallocatedPhysicalPorts, new ReflectiveFieldComparator(sort));
     }
-    
+
     if (StringUtils.hasText(order)) {
       if ("DESC".equals(order)) {
         Collections.reverse(transformedUnallocatedPhysicalPorts);
       }
     }
-    model.addAttribute(WebUtils.DATA_LIST, transformedUnallocatedPhysicalPorts);
-    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocated()));
-    return PAGE_URL + "/listunallocated";
   }
 
   @RequestMapping(value = "/unaligned", method = RequestMethod.GET)
   public String listUnaligned(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
     uiModel
-        .addAttribute("list", Functions.transformAllocatedPhysicalPorts(
+        .addAttribute(WebUtils.DATA_LIST, Functions.transformAllocatedPhysicalPorts(
             physicalPortService.findUnalignedPhysicalPorts(), virtualPortService));
 
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnalignedPhysicalPorts()));
@@ -215,12 +225,19 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   }
 
   @RequestMapping(value = "/mtosi", method = RequestMethod.GET)
-  public String listMtosi(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
+  public String listMtosi(@RequestParam(value = PAGE_KEY, required = false) final Integer page,
+      @RequestParam(value = "sort", required = false) String sort,
+      @RequestParam(value = "order", required = false) String order, final Model model) {
 
-    uiModel.addAttribute("list", Functions.transformUnallocatedPhysicalPorts((List<PhysicalPort>) physicalPortService
-        .findUnallocatedMTOSIEntries(calculateFirstPage(page), MAX_ITEMS_PER_PAGE)));
+    final List<PhysicalPortView> transformUnallocatedPhysicalPorts = Functions
+        .transformUnallocatedPhysicalPorts((List<PhysicalPort>) physicalPortService.findUnallocatedMTOSIEntries(
+            calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
-    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocatedMTOSI()));
+    sortExternalResources(sort, order, model, transformUnallocatedPhysicalPorts);
+
+    model.addAttribute(WebUtils.DATA_LIST, transformUnallocatedPhysicalPorts);
+
+    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocatedMTOSI()));
 
     return PAGE_URL + "/listunallocated";
   }

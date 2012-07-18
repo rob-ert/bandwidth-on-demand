@@ -68,6 +68,17 @@ public class PhysicalPort {
   @Basic
   @Column(name = "aligned_nms")
   private boolean alignedWithNMS;
+  
+  
+  @Basic
+  private String nmsNeId;
+  
+  @Basic
+  private String nmsPortSpeed;
+  
+  @Basic
+  private String nmsSapName;
+  
 
   public PhysicalPort() {
     this(false);
@@ -154,6 +165,30 @@ public class PhysicalPort {
     return alignedWithNMS;
   }
 
+  public String getNmsNeId() {
+    return nmsNeId;
+  }
+
+  public void setNmsNeId(String nmsNeId) {
+    this.nmsNeId = nmsNeId;
+  }
+
+  public String getNmsPortSpeed() {
+    return nmsPortSpeed;
+  }
+
+  public void setNmsPortSpeed(String nmsPortSpeed) {
+    this.nmsPortSpeed = nmsPortSpeed;
+  }
+
+  public String getNmsSapName() {
+    return nmsSapName;
+  }
+
+  public void setNmsSapName(String nmsSapName) {
+    this.nmsSapName = nmsSapName;
+  }
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
@@ -193,6 +228,21 @@ public class PhysicalPort {
       builder.append(physicalResourceGroup.getId());
       builder.append(", ");
     }
+    if (nmsNeId != null) {
+      builder.append("nmsNeId=");
+      builder.append(nmsNeId);
+      builder.append(", ");
+    }
+    if (nmsPortSpeed != null) {
+      builder.append("nmsPortSpeed=");
+      builder.append(nmsPortSpeed);
+      builder.append(", ");
+    }
+    if (nmsSapName != null) {
+      builder.append("nmsSapName=");
+      builder.append(nmsSapName);
+      builder.append(", ");
+    }
     builder.append("vlanRequired=");
     builder.append(vlanRequired);
     builder.append(", alignedWithNMS=");
@@ -200,6 +250,8 @@ public class PhysicalPort {
     builder.append("]");
     return builder.toString();
   }
+
+ 
 
   
 }

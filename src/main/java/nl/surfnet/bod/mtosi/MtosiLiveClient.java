@@ -49,6 +49,7 @@ import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalRPC;
 import org.tmforum.mtop.msi.xsd.sir.v1.*;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.SapList;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
+import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -72,7 +73,8 @@ public class MtosiLiveClient {
   }
 
   // If we do this using a postconstruct then spring will not initialise this
-  // bean and therefore the complete context will fail during (junit) testing when there is no
+  // bean and therefore the complete context will fail during (junit) testing
+  // when there is no
   // connection with the mtosi server.
   private void init() {
     if (isInited) {
@@ -125,33 +127,60 @@ public class MtosiLiveClient {
     return simpleFilter;
   }
 
+  // [x] nmsPortId = sapList.sap.resourceRef.rdn.value where
+  // sapList.sap.resourceRef.rdn.type == PTP
+
+  // [x] nmsNEId = sapList.sap.resourceRef.rdn.value where
+  // sapList.sap.resourceRef.rdn.type == ME
+
+  // [x] nsmPortSpeed = sapList.sap.describedByList.value where
+  // sapList.sap.describedByList.sscRef.rdn.value == AdministrativeSpeedRate
+
+  // [x] bodPortId = <nmsNEId>_<nmsPortId> (until furter notice)
+
   public List<PhysicalPort> getUnallocatedPorts() {
     this.init();
+
     final List<PhysicalPort> mtosiPorts = new ArrayList<PhysicalPort>();
     final SapList saps = getInventory().getSapList();
 
     for (final ServiceAccessPointType sap : saps.getSap()) {
-      String hostname = "", userLabel = "", portName = "";
-      for (final RelativeDistinguishNameType rdnResourceRef : sap.getResourceRef().getRdn()) {
-        if (rdnResourceRef.getType().equalsIgnoreCase("PTP")) {
-          portName = rdnResourceRef.getValue();
-        }
-        else if (rdnResourceRef.getType().equalsIgnoreCase("ME")) {
-          userLabel = rdnResourceRef.getValue();
-        }
-      }
-      final List<RelativeDistinguishNameType> rdns = sap.getName().getValue().getRdn();
+      String nocLabel = "NA", nmsNeId = "", nmsPortId = "", nmsSapName = "", vlanRequired = "", nmsPortSpeed = "";
+      nmsSapName = sap.getName().getValue().getRdn().get(0).getValue();
 
-      for (final RelativeDistinguishNameType name : rdns) {
-        hostname = name.getValue();
+      final List<RelativeDistinguishNameType> resourceRefsRdns = sap.getResourceRef().getRdn();
+
+      for (final RelativeDistinguishNameType relativeDistinguishNameType : resourceRefsRdns) {
+        if (relativeDistinguishNameType.getType().equals("ME")) {
+          nmsNeId = relativeDistinguishNameType.getValue();
+        }
+        else if (relativeDistinguishNameType.getType().equals("PTP")) {
+          nmsPortId = relativeDistinguishNameType.getValue();
+        }
       }
+
+      final List<ServiceCharacteristicValueType> describedByList = sap.getDescribedByList();
+
+      String tmpSpeed = "";
+      for (final ServiceCharacteristicValueType serviceCharacteristicValueType : describedByList) {
+        tmpSpeed = serviceCharacteristicValueType.getValue();
+        final List<RelativeDistinguishNameType> rdns = serviceCharacteristicValueType.getSscRef().getRdn();
+        for (final RelativeDistinguishNameType rdn : rdns) {
+          if ("AdministrativeSpeedRate".equals(rdn.getValue())) {
+            nmsPortSpeed = tmpSpeed;
+          }
+        }
+      }
+
       final PhysicalPort physicalPort = new PhysicalPort();
-      final String convertedPortName = convertPortName(portName);
-      physicalPort.setNocLabel(hostname + "_" + convertedPortName);
-      physicalPort.setNmsPortId(userLabel);
-      physicalPort.setBodPortId(convertedPortName);
-      mtosiPorts.add(physicalPort);
+      physicalPort.setNmsPortId(convertPortName(nmsPortId));
+      physicalPort.setNmsNeId(nmsNeId);
+      physicalPort.setBodPortId(nmsNeId + "_" + convertPortName(nmsPortId));
+      physicalPort.setNmsPortSpeed(nmsPortSpeed);
+      physicalPort.setNmsSapName(nmsSapName);
+      physicalPort.setNocLabel(nocLabel);
 
+      mtosiPorts.add(physicalPort);
     }
     return mtosiPorts;
   }
@@ -179,8 +208,9 @@ public class MtosiLiveClient {
     return new Holder<Header>(header);
   }
 
-//  static {
-//    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", Boolean.toString(true));
-//  }
+  // static {
+  // System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump",
+  // Boolean.toString(true));
+  // }
 
 }

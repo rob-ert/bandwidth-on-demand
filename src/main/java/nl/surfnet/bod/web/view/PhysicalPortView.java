@@ -36,6 +36,11 @@ public class PhysicalPortView {
   private final boolean vlanRequired;
   private final boolean alignedWithNMS;
   private boolean deleteRender;
+  
+  private String nmsNeId;
+  private String nmsPortSpeed;
+  private String nmsSapName;
+  
 
   public PhysicalPortView(final PhysicalPort physicalPort, final ElementActionView deleteActionView,
       final long virtualPortSize) {
@@ -69,6 +74,10 @@ public class PhysicalPortView {
     this.numberOfVirtualPorts = 0L;
     this.deleteActionView = new ElementActionView(false, "");
     this.deleteRender = true;
+    
+    this.nmsNeId = physicalPort.getNmsNeId();
+    this.nmsPortSpeed = physicalPort.getNmsPortSpeed();
+    this.nmsSapName = physicalPort.getNmsSapName();
   }
 
   public String getDeleteReasonKey() {
@@ -214,6 +223,30 @@ public class PhysicalPortView {
     if (vlanRequired != other.vlanRequired)
       return false;
     return true;
+  }
+
+  public final String getNmsNeId() {
+    return nmsNeId;
+  }
+
+  public final void setNmsNeId(String nmsNeId) {
+    this.nmsNeId = nmsNeId;
+  }
+
+  public final String getNmsPortSpeed() {
+    return nmsPortSpeed;
+  }
+
+  public final void setNmsPortSpeed(String nmsPortSpeed) {
+    this.nmsPortSpeed = nmsPortSpeed;
+  }
+
+  public final String getNmsSapName() {
+    return nmsSapName;
+  }
+
+  public final void setNmsSapName(String nmsSapName) {
+    this.nmsSapName = nmsSapName;
   }
 
 }

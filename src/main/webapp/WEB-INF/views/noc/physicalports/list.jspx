@@ -16,6 +16,17 @@
         <table:sortableHeader labelCode="label_physicalport_bod_port_id" property="bodPortId"  />
         <table:sortableHeader labelCode="label_physicalresourcegroup" property="instituteName" render="${not show_unallocated}" />
         <table:sortableHeader labelCode="label_physicalport_nms_port_id" property="nmsPortId"  />
+        
+        <c:if test="${not empty list[0].nmsNeId}">
+          <table:sortableHeader labelCode="label_physicalport_nms_ne_id" property="nmsNeId"  />
+        </c:if>
+        <c:if test="${not empty list[0].nmsPortSpeed}">
+          <table:sortableHeader labelCode="label_physicalport_nms_port_speed" property="nmsPortSpeed"  />
+        </c:if>
+        <c:if test="${not empty list[0].nmsSapName}">
+            <table:sortableHeader labelCode="label_physicalport_nms_sap_name" property="nmsSapName"  />
+        </c:if>
+        
         <table:actionsHeader styleClass="cw75 center small" />
       </tr>
     </thead>
@@ -50,6 +61,19 @@
           <table:column item="${item}" property="bodPortId" />
           <table:column item="${item}" property="instituteName" render="${not show_unallocated}" />
           <table:column item="${item}" property="nmsPortId" />
+          
+          <c:if test="${not empty item.nmsNeId}">
+            <table:column item="${item}" property="nmsNeId" />
+          </c:if>
+          
+          <c:if test="${not empty item.nmsPortSpeed}">
+            <table:column item="${item}" property="nmsPortSpeed" />
+          </c:if>
+          
+          <c:if test="${not empty item.nmsSapName}">
+            <table:column item="${item}" property="nmsSapName" />
+          </c:if>
+          
           <table:actionsColumn item="${item}" delete="${item.deleteRender}"
             deleteEnabled="${item.deleteAllowed}"
             deleteLabelCode="${item.deleteReasonKey}"
