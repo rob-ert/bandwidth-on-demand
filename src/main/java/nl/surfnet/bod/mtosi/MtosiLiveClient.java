@@ -48,7 +48,6 @@ import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryRequest;
 import org.tmforum.mtop.msi.xsd.sir.v1.GranularityType;
 import org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType;
-import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.SapList;
 import org.tmforum.mtop.msi.xsd.sir.v1.SimpleServiceFilterType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
@@ -76,9 +75,10 @@ public class MtosiLiveClient {
     this.senderUri = senderUri;
   }
 
-  // If we do this using a postconstruct then spring will not initialise this
-  // bean and therefore the complete context will fail during (junit) testing
-  // when there is no connection with the mtosi server.
+  // If we do this using a postconstruct then spring will try to initialise this
+  // bean (using it's annotation scan path thingie), fails and therefore the
+  // complete context will fail during (junit) testing when there is no
+  // connection with the mtosi server.
   private void init() {
     if (isInited) {
       return;
@@ -141,7 +141,7 @@ public class MtosiLiveClient {
     // [x] nsmPortSpeed = sapList.sap.describedByList.value where
     // sapList.sap.describedByList.sscRef.rdn.value == AdministrativeSpeedRate
 
-    // [x] bodPortId = <nmsNEId>_<nmsPortId> (until furter notice)
+    // [x] bodPortId = <nmsNEId>_<nmsPortId> (until further notice)
 
     // [x] vlanRequired = true if sapList.sap.describedByList.value in (EVPL,
     // EVPLAN) where sapList.sap.describedByList.sscRef.rdn.value ==
@@ -154,16 +154,13 @@ public class MtosiLiveClient {
     this.init();
 
     final List<PhysicalPort> mtosiPorts = new ArrayList<PhysicalPort>();
-    final SapList saps = getInventory().getSapList();
 
-    for (final ServiceAccessPointType sap : saps.getSap()) {
-      String nocLabel = "NA", nmsNeId = "", nmsPortId = "", nmsSapName = "", nmsPortSpeed = "";
+    for (final ServiceAccessPointType sap : getInventory().getSapList().getSap()) {
+      final String nmsSapName = sap.getName().getValue().getRdn().get(0).getValue();
+      String nocLabel = "NA", nmsNeId = null, nmsPortId = null, nmsPortSpeed = null;
       boolean isVlanRequired = false;
-      nmsSapName = sap.getName().getValue().getRdn().get(0).getValue();
 
-      final List<RelativeDistinguishNameType> resourceRefsRdns = sap.getResourceRef().getRdn();
-
-      for (final RelativeDistinguishNameType relativeDistinguishNameType : resourceRefsRdns) {
+      for (final RelativeDistinguishNameType relativeDistinguishNameType : sap.getResourceRef().getRdn()) {
         if (relativeDistinguishNameType.getType().equals("ME")) {
           nmsNeId = relativeDistinguishNameType.getValue();
         }
@@ -172,12 +169,9 @@ public class MtosiLiveClient {
         }
       }
 
-      final List<ServiceCharacteristicValueType> describedByList = sap.getDescribedByList();
-
-      for (final ServiceCharacteristicValueType serviceCharacteristicValueType : describedByList) {
+      for (final ServiceCharacteristicValueType serviceCharacteristicValueType : sap.getDescribedByList()) {
         final String tmp = serviceCharacteristicValueType.getValue();
-        final List<RelativeDistinguishNameType> rdns = serviceCharacteristicValueType.getSscRef().getRdn();
-        for (final RelativeDistinguishNameType rdn : rdns) {
+        for (final RelativeDistinguishNameType rdn : serviceCharacteristicValueType.getSscRef().getRdn()) {
           if ("AdministrativeSpeedRate".equals(rdn.getValue())) {
             nmsPortSpeed = tmp;
           }
@@ -202,9 +196,8 @@ public class MtosiLiveClient {
 
   @VisibleForTesting
   public String convertPortName(final String mtosiPortName) {
-    final String converted = mtosiPortName.replace("rack=", "").replace("shelf=", "").replace("slot=", "")
+    return mtosiPortName.replace("rack=", "").replace("shelf=", "").replace("sub_slot=", "").replace("slot=", "")
         .replace("port=", "").replaceFirst("/", "").replaceAll("/", "-");
-    return converted;
   }
 
   public long getUnallocatedMtosiPortCount() {
