@@ -285,6 +285,7 @@ public class RichUserDetailsServiceTest {
         .getPhysicalResourceGroupId()));
   }
 
+  @SafeVarargs
   private static <E> ImmutableList<E> listOf(E... elements) {
     return ImmutableList.copyOf(elements);
   }

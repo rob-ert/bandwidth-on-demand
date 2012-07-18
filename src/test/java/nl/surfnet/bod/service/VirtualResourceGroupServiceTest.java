@@ -63,7 +63,6 @@ public class VirtualResourceGroupServiceTest {
   @Mock
   private VirtualResourceGroupRepo groupRepoMock;
 
-  @SuppressWarnings(value = "unused")
   @Mock
   private LogEventService logEventService;
 

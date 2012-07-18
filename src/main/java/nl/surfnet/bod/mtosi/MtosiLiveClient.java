@@ -31,8 +31,6 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,12 +44,18 @@ import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.GetServiceInventoryException;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalHttp;
 import org.tmforum.mtop.msi.wsdl.sir.v1_0.ServiceInventoryRetrievalRPC;
-import org.tmforum.mtop.msi.xsd.sir.v1.*;
+import org.tmforum.mtop.msi.xsd.sir.v1.GetServiceInventoryRequest;
+import org.tmforum.mtop.msi.xsd.sir.v1.GranularityType;
+import org.tmforum.mtop.msi.xsd.sir.v1.ObjectFactory;
+import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType;
 import org.tmforum.mtop.msi.xsd.sir.v1.ServiceInventoryDataType.SapList;
+import org.tmforum.mtop.msi.xsd.sir.v1.SimpleServiceFilterType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 
 import com.google.common.annotations.VisibleForTesting;
+
+import nl.surfnet.bod.domain.PhysicalPort;
 
 @Service("mtosiLiveClient")
 public class MtosiLiveClient {

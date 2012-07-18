@@ -71,11 +71,9 @@ public class PhysicalPortServiceImplTest {
   @Mock
   private PhysicalPortRepo physicalPortRepoMock;
 
-  @SuppressWarnings(value = "unused")
   @Mock
   private Environment environmentMock;
 
-  @SuppressWarnings(value = "unused")
   @Mock
   private LogEventService logEventService;
 
