@@ -52,11 +52,20 @@ public class MtosiLiveClientTestIntegration extends AbstractTransactionalJUnit4S
   @Before
   public void setup() throws IOException {
   }
-  
+
   @Test
   public void getUnallocatedPorts() {
     final List<PhysicalPort> unallocatedPorts = mtosiLiveClient.getUnallocatedPorts();
     assertThat(unallocatedPorts, hasSize(greaterThan(0)));
+    final PhysicalPort firstPhysicalPort = unallocatedPorts.get(0);
+
+    // It's always /rack=1/shelf=1 for every NE so we can use 1-1 safely
+    assertThat(firstPhysicalPort.getBodPortId(), containsString("1-1"));
+    assertThat(firstPhysicalPort.getBodPortId(), containsString("1-1"));
+    assertThat(firstPhysicalPort.getNmsPortId(), containsString("1-1"));
+    assertThat(firstPhysicalPort.getNmsPortSpeed(), notNullValue());
+    assertThat(firstPhysicalPort.getNmsSapName(), startsWith("SAP-"));
+    assertThat(firstPhysicalPort.isAlignedWithNMS(), is(true));
   }
 
   @Test
