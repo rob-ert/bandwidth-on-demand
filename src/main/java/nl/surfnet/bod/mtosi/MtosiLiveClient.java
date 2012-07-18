@@ -166,19 +166,17 @@ public class MtosiLiveClient {
 
       final List<ServiceCharacteristicValueType> describedByList = sap.getDescribedByList();
 
-      String tmpSpeed = "";
-      String tmpVlan = "";
+      String tmp = "";
       
       for (final ServiceCharacteristicValueType serviceCharacteristicValueType : describedByList) {
-        tmpSpeed = serviceCharacteristicValueType.getValue();
-        tmpVlan = serviceCharacteristicValueType.getValue();
+        tmp = serviceCharacteristicValueType.getValue();
         final List<RelativeDistinguishNameType> rdns = serviceCharacteristicValueType.getSscRef().getRdn();
         for (final RelativeDistinguishNameType rdn : rdns) {
           if ("AdministrativeSpeedRate".equals(rdn.getValue())) {
-            nmsPortSpeed = tmpSpeed;
+            nmsPortSpeed = tmp;
           }
           if ("SupportedServiceType".equals(rdn.getValue())) {
-            if ("EVPL".equals(tmpVlan) || "EVPLAN".equals(tmpVlan)) {
+            if ("EVPL".equals(tmp) || "EVPLAN".equals(tmp)) {
               isVlanRequiered = true;
             }
           }
