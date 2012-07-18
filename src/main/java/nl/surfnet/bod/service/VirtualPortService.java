@@ -31,9 +31,12 @@ import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.FOR_
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+import nl.surfnet.bod.nsi.ws.NsiConstants;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
@@ -231,5 +234,18 @@ public class VirtualPortService {
     virtualPortRequestLinkRepo.save(link);
 
     emailSender.sendVirtualPortRequestDeclineMail(link, declineMessage);
+  }
+
+  public VirtualPort findByNsiStpId(String sourceStpId) {
+    Pattern pattern = Pattern.compile(NsiConstants.NS_NETWORK + ":([0-9]+)");
+    Matcher matcher = pattern.matcher(sourceStpId);
+
+    if (!matcher.matches()) {
+      return null;
+    }
+
+    Long id = Long.valueOf(matcher.group(1));
+
+    return find(id);
   }
 }

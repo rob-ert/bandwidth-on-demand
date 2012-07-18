@@ -41,9 +41,9 @@ import javax.xml.ws.WebServiceContext;
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nsi.ws.NsiProvider;
 import nl.surfnet.bod.repo.ConnectionRepo;
-import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
@@ -96,20 +96,22 @@ public class ConnectionServiceProvider implements NsiProvider {
         // Ignoring the max. and min. bandwidth attributes...
         connection.setDesiredBandwidth(reservation.getServiceParameters().getBandwidth().getDesired());
 
-        connection.setPath(reservation.getPath());
+        connection.setSourceStpId(reservation.getPath().getSourceSTP().getStpId());
+        connection.setDestinationStpId(reservation.getPath().getDestSTP().getStpId());
 
         connection.setProviderNsa(reserveRequestType.getReserve().getProviderNSA());
         connection.setRequesterNsa(reserveRequestType.getReserve().getRequesterNSA());
         connection.setReplyTo(reserveRequestType.getReplyTo());
 
-        // should we use the service parameters later?
-        connection.setServiceParameters(reservation.getServiceParameters());
-
         String globalReservationId = reservation.getGlobalReservationId();
         if (!StringUtils.hasText(globalReservationId)) {
           globalReservationId = generateGlobalId();
         }
-        connection.setGlobalReservationId(generateGlobalId());
+        connection.setGlobalReservationId(globalReservationId);
+
+        // store the path and service parameters, needed to send back the response...
+        connection.setPath(reservation.getPath());
+        connection.setServiceParameters(reservation.getServiceParameters());
 
         return connection;
       }
@@ -137,7 +139,7 @@ public class ConnectionServiceProvider implements NsiProvider {
   private ConnectionRepo connectionRepo;
 
   @Autowired
-  private VirtualPortRepo virtualPortRepo;
+  private VirtualPortService virtualPortService;
 
   @Autowired
   private VirtualResourceGroupRepo virtualResourceGroupRepo;
@@ -164,10 +166,8 @@ public class ConnectionServiceProvider implements NsiProvider {
         reservation.setStartDateTime(new LocalDateTime(connection.getStartTime()));
         reservation.setEndDateTime(new LocalDateTime(connection.getEndTime()));
 
-        String sourceStpId = connection.getPath().getSourceSTP().getStpId();
-        String destinationStpId = connection.getPath().getDestSTP().getStpId();
-        VirtualPort sourcePort = virtualPortRepo.findByManagerLabel(sourceStpId);
-        VirtualPort destinationPort = virtualPortRepo.findByManagerLabel(destinationStpId);
+        VirtualPort sourcePort = virtualPortService.findByNsiStpId(connection.getSourceStpId());
+        VirtualPort destinationPort = virtualPortService.findByNsiStpId(connection.getDestinationStpId());
 
         reservation.setSourcePort(sourcePort);
         reservation.setDestinationPort(destinationPort);
@@ -283,8 +283,8 @@ public class ConnectionServiceProvider implements NsiProvider {
     try {
       validateProviderNsa(connection.getProviderNsa());
       validateConnectionId(connection.getConnectionId());
-      validatePortExists(connection.getPath().getSourceSTP().getStpId(), "sourceSTP");
-      validatePortExists(connection.getPath().getDestSTP().getStpId(), "destSTP");
+      validatePortExists(connection.getSourceStpId(), "sourceSTP");
+      validatePortExists(connection.getDestinationStpId(), "destSTP");
     }
     catch (ServiceException e) {
       connection.setCurrentState(CLEANING);
@@ -309,8 +309,8 @@ public class ConnectionServiceProvider implements NsiProvider {
     throw new ServiceException("SVC0001", getInvalidParameterServiceException("connectionId"));
   }
 
-  private void validatePortExists(String label, String attribute) throws ServiceException {
-    VirtualPort port = virtualPortRepo.findByManagerLabel(label);
+  private void validatePortExists(String stpId, String attribute) throws ServiceException {
+    VirtualPort port = virtualPortService.findByNsiStpId(stpId);
     if (port == null) {
       throw new ServiceException("SVC0001", getInvalidParameterServiceException(attribute));
     }
@@ -328,6 +328,7 @@ public class ConnectionServiceProvider implements NsiProvider {
     reservationInfoType.setConnectionId(connection.getConnectionId());
     reservationInfoType.setDescription(connection.getDescription());
     reservationInfoType.setGlobalReservationId(connection.getGlobalReservationId());
+
     reservationInfoType.setPath(connection.getPath());
     reservationInfoType.setServiceParameters(connection.getServiceParameters());
 
@@ -371,6 +372,7 @@ public class ConnectionServiceProvider implements NsiProvider {
 
     try {
       ConnectionRequesterPort port = getConnectionRequesterPort(connection);
+      // FIXME [AvD] This should be the correlationId not the connection Id
       port.reserveFailed(new Holder<String>(connection.getConnectionId()), reservationFailed);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {

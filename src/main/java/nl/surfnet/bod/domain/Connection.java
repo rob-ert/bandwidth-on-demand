@@ -36,6 +36,15 @@ public class Connection {
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
+  /**
+   * Connection id for the reservation is unique, but there have been
+   * discussions that it is only unique in the context of the requesting NSA. We
+   * save time and assume it is unique. This will also be the primary key used
+   * in the storage structure
+   */
+  @Column(unique = true, nullable = false)
+  private String connectionId;
+
   @Version
   private Integer version;
 
@@ -52,27 +61,12 @@ public class Connection {
   @Column(nullable = false)
   private String description;
 
-  /**
-   * Connection id for the reservation is unique, but there have been
-   * discussions that it is only unique in the context of the requesting NSA. We
-   * save time and assume it is unique. This will also be the primary key used
-   * in the storage structure
-   */
-  @Column(unique = true, nullable = false)
-  private String connectionId;
-
   @Column(nullable = false)
   private String replyTo;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 50)
   private ConnectionStateType currentState = ConnectionStateType.INITIAL;
-
-  @Column(nullable = false, length = 4096)
-  private ServiceParametersType serviceParameters;
-
-  @Column(nullable = false, length = 4096)
-  private PathType path;
 
   @Column(nullable = false)
   private Date startTime;
@@ -83,11 +77,17 @@ public class Connection {
   @Column(nullable = false)
   private int desiredBandwidth;
 
-  @Column
-  private int minimumBandwidth;
+  @Column(nullable = false)
+  private String sourceStpId;
 
-  @Column
-  private int maximumBandwidth;
+  @Column(nullable = false)
+  private String destinationStpId;
+
+  @Column(nullable = false, length = 4096)
+  private PathType path;
+
+  @Column(nullable = false, length = 4096)
+  private ServiceParametersType serviceParameters;
 
   @OneToOne
   private Reservation reservation;
@@ -196,12 +196,20 @@ public class Connection {
     this.endTime = endTime;
   }
 
-  public ServiceParametersType getServiceParameters() {
-    return serviceParameters;
+  public String getSourceStpId() {
+    return sourceStpId;
   }
 
-  public void setServiceParameters(ServiceParametersType serviceParameters) {
-    this.serviceParameters = serviceParameters;
+  public void setSourceStpId(String sourceStpId) {
+    this.sourceStpId = sourceStpId;
+  }
+
+  public String getDestinationStpId() {
+    return destinationStpId;
+  }
+
+  public void setDestinationStpId(String destitnationStpId) {
+    this.destinationStpId = destitnationStpId;
   }
 
   public PathType getPath() {
@@ -210,6 +218,14 @@ public class Connection {
 
   public void setPath(PathType path) {
     this.path = path;
+  }
+
+  public ServiceParametersType getServiceParameters() {
+    return serviceParameters;
+  }
+
+  public void setServiceParameters(ServiceParametersType serviceParameters) {
+    this.serviceParameters = serviceParameters;
   }
 
   @Override
@@ -223,6 +239,10 @@ public class Connection {
     builder.append(requesterNsa);
     builder.append(", providerNsa=");
     builder.append(providerNsa);
+    builder.append(", sourceStpId=");
+    builder.append(sourceStpId);
+    builder.append(", destinationStpId=");
+    builder.append(destinationStpId);
     builder.append(", globalReservationId=");
     builder.append(globalReservationId);
     builder.append(", description=");
@@ -233,10 +253,6 @@ public class Connection {
     builder.append(replyTo);
     builder.append(", currentState=");
     builder.append(currentState);
-    builder.append(", serviceParameters=");
-    builder.append(serviceParameters);
-    builder.append(", path=");
-    builder.append(path);
     builder.append(", startTime=");
     builder.append(startTime);
     builder.append(", endTime=");

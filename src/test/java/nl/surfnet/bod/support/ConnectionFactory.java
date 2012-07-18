@@ -21,6 +21,8 @@ public class ConnectionFactory {
     connection.setRequesterNsa(requesterNSA);
     connection.setProviderNsa(providerNSA);
     connection.setConnectionId(connectionId);
+    connection.setSourceStpId(sourceStpId);
+    connection.setDestinationStpId(destinationStpId);
 
     ServiceTerminationPointType sourceStp = new ServiceTerminationPointType();
     sourceStp.setStpId(sourceStpId);

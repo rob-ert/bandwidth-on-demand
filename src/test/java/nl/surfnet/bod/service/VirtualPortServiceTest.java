@@ -25,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -35,6 +36,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+import nl.surfnet.bod.nsi.ws.NsiConstants;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
@@ -220,4 +222,29 @@ public class VirtualPortServiceTest {
     verify(emailSenderMock).sendVirtualPortRequestDeclineMail(link, "I don't like you");
   }
 
+  @Test
+  public void findByNsiStpId() {
+    VirtualPort port = new VirtualPortFactory().create();
+    when(virtualPortRepoMock.findOne(25L)).thenReturn(port);
+
+    VirtualPort foundPort = subject.findByNsiStpId(NsiConstants.NS_NETWORK + ":25");
+
+    assertThat(foundPort, is(port));
+  }
+
+  @Test
+  public void findByIllegalNsiStpIdWithWrongNetworkId() {
+    VirtualPort foundPort = subject.findByNsiStpId(NsiConstants.NS_NETWORK + ":asdfasfasdf");
+
+    assertThat(foundPort, is(nullValue()));
+    verifyZeroInteractions(virtualPortRepoMock);
+  }
+
+  @Test
+  public void findByIllegalNsiStpIdWithWrongNsNetwork() {
+    VirtualPort foundPort = subject.findByNsiStpId("urn:ogf:network:nsnetwork:zilverline.nl" + ":25");
+
+    assertThat(foundPort, is(nullValue()));
+    verifyZeroInteractions(virtualPortRepoMock);
+  }
 }

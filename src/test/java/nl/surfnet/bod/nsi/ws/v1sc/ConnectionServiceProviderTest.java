@@ -13,8 +13,8 @@ import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProvider.RequestDetails;
 import nl.surfnet.bod.repo.ConnectionRepo;
-import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.ConnectionFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 
@@ -29,6 +29,9 @@ import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.types.*;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Throwables;
+
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderTest {
 
@@ -38,7 +41,7 @@ public class ConnectionServiceProviderTest {
   @Mock
   private ConnectionRepo connectionRepoMock;
   @Mock
-  private VirtualPortRepo virtualPortRepoMock;
+  private VirtualPortService virtualPortServiceMock;
   @Mock
   private ReservationService reservationServiceMock;
 
@@ -59,8 +62,8 @@ public class ConnectionServiceProviderTest {
     VirtualPort sourcePort = new VirtualPortFactory().create();
     VirtualPort destinationPort = new VirtualPortFactory().setVirtualResourceGroup(sourcePort.getVirtualResourceGroup()).create();
 
-    when(virtualPortRepoMock.findByManagerLabel("Source Port")).thenReturn(sourcePort);
-    when(virtualPortRepoMock.findByManagerLabel("Destination Port")).thenReturn(destinationPort);
+    when(virtualPortServiceMock.findByNsiStpId("Source Port")).thenReturn(sourcePort);
+    when(virtualPortServiceMock.findByNsiStpId("Destination Port")).thenReturn(destinationPort);
 
     subject.reserve(connection, request);
   }
@@ -74,8 +77,8 @@ public class ConnectionServiceProviderTest {
 
     VirtualPort sourcePort = new VirtualPortFactory().create();
 
-    when(virtualPortRepoMock.findByManagerLabel("Source Port")).thenReturn(sourcePort);
-    when(virtualPortRepoMock.findByManagerLabel("Destination Port")).thenReturn(null);
+    when(virtualPortServiceMock.findByNsiStpId("Source Port")).thenReturn(sourcePort);
+    when(virtualPortServiceMock.findByNsiStpId("Destination Port")).thenReturn(null);
 
     subject.reserve(connection, request);
   }
@@ -90,15 +93,15 @@ public class ConnectionServiceProviderTest {
     VirtualPort sourcePort = new VirtualPortFactory().create();
     VirtualPort destinationPort = new VirtualPortFactory().setVirtualResourceGroup(sourcePort.getVirtualResourceGroup()).create();
 
-    when(virtualPortRepoMock.findByManagerLabel("Source Port")).thenReturn(sourcePort);
-    when(virtualPortRepoMock.findByManagerLabel("Destination Port")).thenReturn(destinationPort);
+    when(virtualPortServiceMock.findByNsiStpId("Source Port")).thenReturn(sourcePort);
+    when(virtualPortServiceMock.findByNsiStpId("Destination Port")).thenReturn(destinationPort);
 
     subject.reserve(connection, request);
   }
 
   @Test
-  public void reserveTypeWithoutGlobalReservationIdShouldGetOne() throws DatatypeConfigurationException {
-    ReserveRequestType reserveRequestType = createReservationRequestType(1000);
+  public void reserveTypeWithoutGlobalReservationIdShouldGetOne() {
+    ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.<String>absent());
 
     Connection connection = ConnectionServiceProvider.TO_CONNECTION.apply(reserveRequestType);
 
@@ -106,13 +109,36 @@ public class ConnectionServiceProviderTest {
     assertThat(connection.getDesiredBandwidth(), is(1000));
   }
 
-  private ReserveRequestType createReservationRequestType(int desiredBandwidth) throws DatatypeConfigurationException {
+  @Test
+  public void reserveTypeWithGlobalReservationId() {
+    ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.of("urn:surfnet.nl:12345"));
+
+    Connection connection = ConnectionServiceProvider.TO_CONNECTION.apply(reserveRequestType);
+
+    assertThat(connection.getGlobalReservationId(), is("urn:surfnet.nl:12345"));
+  }
+
+  private ReserveRequestType createReservationRequestType(int desiredBandwidth, Optional<String> globalReservationId) {
+    ServiceTerminationPointType dest = new ServiceTerminationPointType();
+    dest.setStpId("urn:stp:1");
+
+    ServiceTerminationPointType source = new ServiceTerminationPointType();
+    source.setStpId("urn:stp:1");
+
     PathType path = new PathType();
+    path.setDestSTP(dest);
+    path.setSourceSTP(source);
 
     ScheduleType schedule = new ScheduleType();
-    XMLGregorianCalendar xmlGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar();
-    schedule.setStartTime(xmlGregorianCalendar);
-    schedule.setEndTime(xmlGregorianCalendar);
+    XMLGregorianCalendar xmlGregorianCalendar;
+    try {
+      xmlGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar();
+      schedule.setStartTime(xmlGregorianCalendar);
+      schedule.setEndTime(xmlGregorianCalendar);
+    }
+    catch (DatatypeConfigurationException e) {
+      Throwables.propagate(e);
+    }
 
     BandwidthType bandwidth = new BandwidthType();
     bandwidth.setDesired(desiredBandwidth);
@@ -124,6 +150,7 @@ public class ConnectionServiceProviderTest {
     ReservationInfoType reservation = new ReservationInfoType();
     reservation.setPath(path);
     reservation.setServiceParameters(serviceParameters);
+    reservation.setGlobalReservationId(globalReservationId.orNull());
 
     ReserveType reserve = new ReserveType();
     reserve.setReservation(reservation);
