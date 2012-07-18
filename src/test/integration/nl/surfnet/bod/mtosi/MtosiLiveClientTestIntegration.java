@@ -67,5 +67,9 @@ public class MtosiLiveClientTestIntegration extends AbstractTransactionalJUnit4S
     assertThat(firstPhysicalPort.isAlignedWithNMS(), is(true));
   }
 
-  
+  @Test
+  public void getUnallocatedPortsCount() {
+    assertThat(mtosiLiveClient.getUnallocatedMtosiPortCount(), greaterThan(0));
+  }
+
 }
