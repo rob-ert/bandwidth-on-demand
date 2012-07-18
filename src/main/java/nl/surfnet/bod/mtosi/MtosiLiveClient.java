@@ -130,18 +130,27 @@ public class MtosiLiveClient {
     return simpleFilter;
   }
 
-  // [x] nmsPortId = sapList.sap.resourceRef.rdn.value where
-  // sapList.sap.resourceRef.rdn.type == PTP
-
-  // [x] nmsNEId = sapList.sap.resourceRef.rdn.value where
-  // sapList.sap.resourceRef.rdn.type == ME
-
-  // [x] nsmPortSpeed = sapList.sap.describedByList.value where
-  // sapList.sap.describedByList.sscRef.rdn.value == AdministrativeSpeedRate
-
-  // [x] bodPortId = <nmsNEId>_<nmsPortId> (until furter notice)
-
   public List<PhysicalPort> getUnallocatedPorts() {
+
+    // [x] nmsPortId = sapList.sap.resourceRef.rdn.value where
+    // sapList.sap.resourceRef.rdn.type == PTP
+
+    // [x] nmsNEId = sapList.sap.resourceRef.rdn.value where
+    // sapList.sap.resourceRef.rdn.type == ME
+
+    // [x] nsmPortSpeed = sapList.sap.describedByList.value where
+    // sapList.sap.describedByList.sscRef.rdn.value == AdministrativeSpeedRate
+
+    // [x] bodPortId = <nmsNEId>_<nmsPortId> (until furter notice)
+
+    // [x] vlanRequired = true if sapList.sap.describedByList.value in (EVPL,
+    // EVPLAN) where sapList.sap.describedByList.sscRef.rdn.value ==
+    // SupportedServiceType
+
+    // [] nocLabel = mdList.md.meList.meInv.meAttrs.userLabel +
+    // mdList.md.meList.meInv.ptpList.ptpInv.ptpAttrs.userLabel both referenced
+    // by sapList.sap.resourceRef
+
     this.init();
 
     final List<PhysicalPort> mtosiPorts = new ArrayList<PhysicalPort>();
@@ -149,9 +158,8 @@ public class MtosiLiveClient {
 
     for (final ServiceAccessPointType sap : saps.getSap()) {
       String nocLabel = "NA", nmsNeId = "", nmsPortId = "", nmsSapName = "", nmsPortSpeed = "";
-      boolean isVlanRequiered = false;
+      boolean isVlanRequired = false;
       nmsSapName = sap.getName().getValue().getRdn().get(0).getValue();
-      
 
       final List<RelativeDistinguishNameType> resourceRefsRdns = sap.getResourceRef().getRdn();
 
@@ -166,24 +174,20 @@ public class MtosiLiveClient {
 
       final List<ServiceCharacteristicValueType> describedByList = sap.getDescribedByList();
 
-      String tmp = "";
-      
       for (final ServiceCharacteristicValueType serviceCharacteristicValueType : describedByList) {
-        tmp = serviceCharacteristicValueType.getValue();
+        final String tmp = serviceCharacteristicValueType.getValue();
         final List<RelativeDistinguishNameType> rdns = serviceCharacteristicValueType.getSscRef().getRdn();
         for (final RelativeDistinguishNameType rdn : rdns) {
           if ("AdministrativeSpeedRate".equals(rdn.getValue())) {
             nmsPortSpeed = tmp;
           }
-          if ("SupportedServiceType".equals(rdn.getValue())) {
-            if ("EVPL".equals(tmp) || "EVPLAN".equals(tmp)) {
-              isVlanRequiered = true;
-            }
+          if ("SupportedServiceType".equals(rdn.getValue()) && ("EVPL".equals(tmp) || "EVPLAN".equals(tmp))) {
+            isVlanRequired = true;
           }
         }
       }
 
-      final PhysicalPort physicalPort = new PhysicalPort(isVlanRequiered);
+      final PhysicalPort physicalPort = new PhysicalPort(isVlanRequired);
       physicalPort.setNmsPortId(convertPortName(nmsPortId));
       physicalPort.setNmsNeId(nmsNeId);
       physicalPort.setBodPortId(nmsNeId + "_" + convertPortName(nmsPortId));
