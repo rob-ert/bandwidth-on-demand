@@ -138,13 +138,9 @@ public class BodManagerWebDriver {
   public void verifyNewVirtualPortHasProperties(String instituteName, String userLabel, Integer bandwidth) {
     NewVirtualPortPage page = NewVirtualPortPage.get(driver);
 
-    String group = page.getSelectedPhysicalResourceGroup();
-    Integer ban = page.getBandwidth();
-    String useLabel = page.getUserLabel();
-
-    assertThat(userLabel, is(userLabel));
-    assertThat(group, is(instituteName));
-    assertThat(ban, is(bandwidth));
+    assertThat(page.getUserLabel(), is(userLabel));
+    assertThat(page.getSelectedPhysicalResourceGroup(), is(instituteName));
+    assertThat(page.getBandwidth(), is(bandwidth));
   }
 
   public void editVirtualPort(String orignalName, String newName, int bandwidth, String vlanId) {
