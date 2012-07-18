@@ -44,7 +44,7 @@
   </logger>
 
   <logger name="com.googlecode.flyway">
-    <level value="WAR" />
+    <level value="WARN" />
   </logger>
 
   <logger name="nl.surfnet.bod.mtosi">
