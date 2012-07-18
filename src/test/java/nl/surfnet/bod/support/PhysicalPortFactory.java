@@ -33,7 +33,7 @@ public class PhysicalPortFactory {
 
   private Long id = COUNTER.incrementAndGet();
   private String nocLabel = "nameDefault " + id;
-  private String managerLabel = "";
+  private String managerLabel = "managedLabel " + id;
   private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
   private Integer version = 0;
   private String nmsPortId = UUID.randomUUID().toString();
@@ -50,7 +50,7 @@ public class PhysicalPortFactory {
     port.setManagerLabel(managerLabel);
     port.setNmsPortId(nmsPortId);
     port.setPhysicalResourceGroup(physicalResourceGroup);
-    
+
     return port;
   }
 

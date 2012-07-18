@@ -24,23 +24,17 @@ package nl.surfnet.bod.nsi;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashSet;
 
 import javax.annotation.Resource;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.nsi.ws.NsiConstants;
 import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProvider;
-import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
-import nl.surfnet.bod.support.MockHttpServer;
-import nl.surfnet.bod.support.NsiReservationFactory;
+import nl.surfnet.bod.repo.*;
+import nl.surfnet.bod.support.*;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -58,6 +52,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
+
+import com.google.common.collect.Lists;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
@@ -79,12 +75,16 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   @Resource
   private VirtualResourceGroupRepo virtualResourceGroupRepo;
 
+  @Resource
+  private PhysicalResourceGroupRepo physicalResourceGroupRepo;
+
+  @Resource
+  private InstituteRepo instituteRepo;
+
   private final String correlationId = "urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e";
-
   private final String virtualResourceGroupName = "nsi:group";
-
-  private final String sourceLabel = "00-20-D8-DF-33-59_ETH-1-1-4";
-  private final String destinationLabel = "00-20-D8-DF-33-86_ETH-1-13-1";
+  private VirtualPort sourceVirtualPort;
+  private VirtualPort destinationVirtualPort;
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -100,56 +100,40 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   @Before
   public void setup() {
+    VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory()
+      .setName(virtualResourceGroupName)
+      .create();
+    virtualResourceGroup = virtualResourceGroupRepo.save(virtualResourceGroup);
 
-    final VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroup();
-    virtualResourceGroup.setDescription("description");
-    virtualResourceGroup.setName(virtualResourceGroupName);
-    // final VirtualPort[] ports = new VirtualPort[]{sourcePort,
-    // destinationPort};
-    // virtualResourceGroup.setVirtualPorts(new
-    // HashSet<VirtualPort>(Arrays.asList(ports)));
+    Institute institute = instituteRepo.findAll().get(0);
+    PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setInstitute(institute).create();
+    physicalResourceGroup = physicalResourceGroupRepo.save(physicalResourceGroup);
+
+    PhysicalPort savedSourcePp = physicalPortRepo.save(
+        new PhysicalPortFactory().setPhysicalResourceGroup(physicalResourceGroup).create());
+    PhysicalPort savedDestinationPp = physicalPortRepo.save(
+        new PhysicalPortFactory().setPhysicalResourceGroup(physicalResourceGroup).create());
+
+    VirtualPort sourcePort = new VirtualPortFactory()
+      .setMaxBandwidth(100)
+      .setPhysicalPort(savedSourcePp)
+      .setVirtualResourceGroup(virtualResourceGroup).create();
+    sourceVirtualPort = virtualPortRepo.save(sourcePort);
+
+    VirtualPort destinationPort = new VirtualPortFactory()
+      .setMaxBandwidth(100)
+      .setPhysicalPort(savedDestinationPp)
+      .setVirtualResourceGroup(virtualResourceGroup)
+      .create();
+    destinationVirtualPort = virtualPortRepo.save(destinationPort);
+
+    virtualResourceGroup.setVirtualPorts(Lists.newArrayList(sourceVirtualPort, destinationVirtualPort));
     virtualResourceGroup.setSurfconextGroupId("some:surf:conext:group:id");
-    VirtualResourceGroup savedVirtualResourceGroup = virtualResourceGroupRepo.save(virtualResourceGroup);
-
-    final PhysicalPort ppSource = new PhysicalPort();
-    ppSource.setManagerLabel(sourceLabel);
-    ppSource.setNocLabel(sourceLabel);
-    ppSource.setBodPortId(sourceLabel);
-    ppSource.setNmsPortId(sourceLabel);
-    final PhysicalPort savedSourcePp = physicalPortRepo.save(ppSource);
-
-    final PhysicalPort ppDest = new PhysicalPort();
-    ppDest.setManagerLabel(destinationLabel);
-    ppDest.setNocLabel(destinationLabel);
-    ppDest.setBodPortId(destinationLabel);
-    ppDest.setNmsPortId(destinationLabel);
-    final PhysicalPort savedDestinationPp = physicalPortRepo.save(ppDest);
-
-    final VirtualPort sourcePort = new VirtualPort();
-    sourcePort.setUserLabel(sourceLabel);
-    sourcePort.setManagerLabel(sourceLabel);
-    sourcePort.setMaxBandwidth(100);
-    sourcePort.setPhysicalPort(savedSourcePp);
-    sourcePort.setVirtualResourceGroup(savedVirtualResourceGroup);
-    final VirtualPort savedSourcePort = virtualPortRepo.save(sourcePort);
-
-    final VirtualPort destinationPort = new VirtualPort();
-    destinationPort.setUserLabel(destinationLabel);
-    destinationPort.setManagerLabel(destinationLabel);
-    destinationPort.setMaxBandwidth(100);
-    destinationPort.setPhysicalPort(savedDestinationPp);
-    destinationPort.setVirtualResourceGroup(savedVirtualResourceGroup);
-
-    final VirtualPort savedDestination = virtualPortRepo.save(destinationPort);
-    final VirtualPort[] ports = new VirtualPort[] { savedSourcePort, savedDestination };
-    savedVirtualResourceGroup.setVirtualPorts(new HashSet<VirtualPort>(Arrays.asList(ports)));
-    savedVirtualResourceGroup = virtualResourceGroupRepo.save(virtualResourceGroup);
-    savedVirtualResourceGroup.setSurfconextGroupId("some:surf:conext:group:id");
-    virtualResourceGroupRepo.save(savedVirtualResourceGroup);
+    virtualResourceGroup = virtualResourceGroupRepo.save(virtualResourceGroup);
   }
 
   @Test
-  public void should_return_generic_acknowledgement() throws Exception {
+  public void shouldReturnGenericAcknowledgement() throws Exception {
     final XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
     startTime.setDay(Calendar.getInstance().get(Calendar.DATE) + 7);
     startTime.setMonth(Calendar.getInstance().get(Calendar.MONTH));
@@ -162,21 +146,23 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     final PathType path = new PathType();
 
     final ServiceTerminationPointType dest = new ServiceTerminationPointType();
-    dest.setStpId(destinationLabel);
+    dest.setStpId(NsiConstants.NS_NETWORK + ":" + sourceVirtualPort.getId());
     path.setDestSTP(dest);
 
     final ServiceTerminationPointType source = new ServiceTerminationPointType();
-    source.setStpId(sourceLabel);
+    source.setStpId(NsiConstants.NS_NETWORK + ":" + destinationVirtualPort.getId());
     path.setSourceSTP(source);
 
     final ReserveRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
-        .setScheduleEndTime(endTime).setCorrelationId(correlationId).setProviderNsa("urn:ogf:network:nsa:netherlight")
+        .setScheduleEndTime(endTime).setCorrelationId(correlationId).setProviderNsa(NsiConstants.PROVIDER_NSA)
         .setPath(path).createReservation();
 
+    // send reserve request
     final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
 
-    assertThat(genericAcknowledgmentType.getCorrelationId(), is(reservationRequest.getCorrelationId()));
+    assertThat(genericAcknowledgmentType.getCorrelationId(), is(correlationId));
 
+    // send provision request
     final ProvisionRequestType provisionRequestType = new ProvisionRequestType();
     provisionRequestType.setCorrelationId(correlationId);
     provisionRequestType.setReplyTo(reservationRequest.getReplyTo());
@@ -188,7 +174,6 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
 
     final GenericAcknowledgmentType provisionAck = nsiProvider.provision(provisionRequestType);
-    assertThat(provisionAck.getCorrelationId(), is(reservationRequest.getCorrelationId()));
-
+    assertThat(provisionAck.getCorrelationId(), is(correlationId));
   }
 }

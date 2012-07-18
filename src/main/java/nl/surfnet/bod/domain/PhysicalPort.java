@@ -21,15 +21,8 @@
  */
 package nl.surfnet.bod.domain;
 
-import javax.annotation.Nullable;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Version;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -46,20 +39,19 @@ public class PhysicalPort {
   private Integer version;
 
   @NotEmpty
-  @Column(name = "noc_label", nullable = false)
   private String nocLabel;
 
   private String managerLabel;
 
   @NotEmpty
-  @Column(nullable = false)
   private String bodPortId;
 
-  @Nullable
-  @Column(unique = true, nullable = false)
+  @NotEmpty
+  @Column(unique = true)
   private String nmsPortId;
 
-  @ManyToOne
+  @NotNull
+  @ManyToOne(optional = false)
   private PhysicalResourceGroup physicalResourceGroup;
 
   @Basic
@@ -68,17 +60,15 @@ public class PhysicalPort {
   @Basic
   @Column(name = "aligned_nms")
   private boolean alignedWithNMS;
-  
-  
+
   @Basic
   private String nmsNeId;
-  
+
   @Basic
   private String nmsPortSpeed;
-  
+
   @Basic
   private String nmsSapName;
-  
 
   public PhysicalPort() {
     this(false);
@@ -251,7 +241,7 @@ public class PhysicalPort {
     return builder.toString();
   }
 
- 
 
-  
+
+
 }
