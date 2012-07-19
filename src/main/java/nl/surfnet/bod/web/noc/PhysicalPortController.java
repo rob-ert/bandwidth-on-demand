@@ -92,8 +92,8 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     Collection<PhysicalPort> unallocatedPorts = physicalPortService.findUnallocated();
 
     if (unallocatedPorts.isEmpty()) {
-    addInfoMessage(redirectAttrs, messageSource, "info_physicalport_nounallocated");
-      return "redirect:/noc/institutes";
+      WebUtils.addInfoMessage(redirectAttrs, messageSource, "info_physicalport_nounallocated");
+      return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
     }
 
     AddPhysicalPortCommand addCommand = new AddPhysicalPortCommand();
@@ -140,7 +140,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_physicalport_added", port.getNocLabel(), port
         .getPhysicalResourceGroup().getName());
 
-    return "redirect:/noc/institutes";
+    return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
   }
 
   @RequestMapping(method = RequestMethod.PUT)
@@ -245,7 +245,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     Collection<PhysicalPort> unallocatedPorts = physicalPortService.findUnallocated();
     if (unallocatedPorts.isEmpty()) {
       WebUtils.addInfoMessage(redirectAttrs, messageSource, "info_physicalport_nounallocated");
-      return "redirect:/noc/institutes";
+      return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
     }
 
     long numberOfVirtualPorts = virtualPortService.countForPhysicalPort(port);

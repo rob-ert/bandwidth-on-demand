@@ -220,7 +220,7 @@ public class PhysicalPortControllerTest {
 
     String page = subject.addPhysicalPortForm(1L, model, model);
 
-    assertThat(page, is("redirect:/noc/physicalresourcegroups"));
+    assertThat(page, is("redirect:/noc/institutes"));
     assertThat(model.getFlashAttributes(),
         Matchers.<String, Object> hasEntry(WebUtils.INFO_MESSAGES_KEY, Lists.newArrayList("no more ports")));
   }
