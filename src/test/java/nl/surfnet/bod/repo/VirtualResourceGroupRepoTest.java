@@ -58,12 +58,10 @@ public class VirtualResourceGroupRepoTest {
     VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().setName("one").setSurfconextGroupId(nameOne)
         .create();
 
-    System.err.println(subject.findAll());
-
     subject.save(vrGroup);
   }
 
-  @Test(expected = JpaSystemException.class)
+  @Test
   public void testSaveNameNotUnique() {
     String nameOne = "groupOne";
     VirtualResourceGroup vrGroupOne = new VirtualResourceGroupFactory().setName("one").setSurfconextGroupId(nameOne)
@@ -74,13 +72,13 @@ public class VirtualResourceGroupRepoTest {
     VirtualResourceGroup vrGroupTwo = new VirtualResourceGroupFactory().setSurfconextGroupId(nameOne).create();
 
     try {
-      System.err.println(subject.findAll());
       subject.save(vrGroupTwo);
 
       fail("ConstraintViolation excpected");
     }
     catch (JpaSystemException exc) {
-      assertEquals(exc.getCause().getClass(), ConstraintViolationException.class);
+
+      assertEquals(exc.getCause().getCause().getClass(), ConstraintViolationException.class);
     }
   }
 
