@@ -237,7 +237,7 @@ public class VirtualPortService {
   }
 
   public VirtualPort findByNsiStpId(String sourceStpId) {
-    Pattern pattern = Pattern.compile(NsiConstants.NS_NETWORK + ":([0-9]+)");
+    Pattern pattern = Pattern.compile(NsiConstants.URN_STP + ":([0-9]+)");
     Matcher matcher = pattern.matcher(sourceStpId);
 
     if (!matcher.matches()) {

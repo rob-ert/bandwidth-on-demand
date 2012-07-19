@@ -154,7 +154,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     path.setSourceSTP(source);
 
     final ReserveRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
-        .setScheduleEndTime(endTime).setCorrelationId(correlationId).setProviderNsa(NsiConstants.PROVIDER_NSA)
+        .setScheduleEndTime(endTime).setCorrelationId(correlationId).setProviderNsa(NsiConstants.URN_PROVIDER_NSA)
         .setPath(path).createReservation();
 
     // send reserve request

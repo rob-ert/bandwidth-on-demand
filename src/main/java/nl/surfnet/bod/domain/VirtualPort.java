@@ -24,6 +24,8 @@ package nl.surfnet.bod.domain;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+import nl.surfnet.bod.nsi.ws.NsiConstants;
+
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
 
@@ -132,6 +134,10 @@ public class VirtualPort {
 
   public void setUserLabel(String userLabel) {
     this.userLabel = userLabel;
+  }
+
+  public String getNsiStpId() {
+    return NsiConstants.URN_STP + ":" + getId();
   }
 
   @Override

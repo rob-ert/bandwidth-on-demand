@@ -226,14 +226,14 @@ public class VirtualPortServiceTest {
     VirtualPort port = new VirtualPortFactory().create();
     when(virtualPortRepoMock.findOne(25L)).thenReturn(port);
 
-    VirtualPort foundPort = subject.findByNsiStpId(NsiConstants.NS_NETWORK + ":25");
+    VirtualPort foundPort = subject.findByNsiStpId(NsiConstants.URN_STP + ":25");
 
     assertThat(foundPort, is(port));
   }
 
   @Test
   public void findByIllegalNsiStpIdWithWrongNetworkId() {
-    VirtualPort foundPort = subject.findByNsiStpId(NsiConstants.NS_NETWORK + ":asdfasfasdf");
+    VirtualPort foundPort = subject.findByNsiStpId(NsiConstants.URN_STP + ":asdfasfasdf");
 
     assertThat(foundPort, is(nullValue()));
     verifyZeroInteractions(virtualPortRepoMock);
@@ -241,7 +241,7 @@ public class VirtualPortServiceTest {
 
   @Test
   public void findByIllegalNsiStpIdWithWrongNsNetwork() {
-    VirtualPort foundPort = subject.findByNsiStpId("urn:ogf:network:nsnetwork:zilverline.nl" + ":25");
+    VirtualPort foundPort = subject.findByNsiStpId("urn:ogf:network:stp:zilverline.nl" + ":25");
 
     assertThat(foundPort, is(nullValue()));
     verifyZeroInteractions(virtualPortRepoMock);
