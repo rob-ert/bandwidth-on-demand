@@ -185,7 +185,9 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     final List<PhysicalPortView> transformedUnallocatedPhysicalPorts = Functions
         .transformUnallocatedPhysicalPorts((List<PhysicalPort>) physicalPortService.findUnallocatedEntries(
             calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
-
+    if (!StringUtils.hasText(sort)) {
+      sort = "nocLabel";
+    }
     sortExternalResources(sort, order, model, transformedUnallocatedPhysicalPorts);
     model.addAttribute(WebUtils.DATA_LIST, transformedUnallocatedPhysicalPorts);
     model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocated()));
@@ -200,10 +202,8 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
    */
   private void sortExternalResources(String sort, String order, Model model,
       final List<PhysicalPortView> transformedUnallocatedPhysicalPorts) {
-    if (StringUtils.hasText(sort)) {
-      prepareSortOptions(sort, order, model);
-      Collections.sort(transformedUnallocatedPhysicalPorts, new ReflectiveFieldComparator(sort));
-    }
+    prepareSortOptions(sort, order, model);
+    Collections.sort(transformedUnallocatedPhysicalPorts, new ReflectiveFieldComparator(sort));
 
     if (StringUtils.hasText(order)) {
       if ("DESC".equals(order)) {
@@ -233,12 +233,12 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
         .transformUnallocatedPhysicalPorts((List<PhysicalPort>) physicalPortService.findUnallocatedMTOSIEntries(
             calculateFirstPage(page), MAX_ITEMS_PER_PAGE));
 
+    if (!StringUtils.hasText(sort)) {
+      sort = "nocLabel";
+    }
     sortExternalResources(sort, order, model, transformUnallocatedPhysicalPorts);
-
     model.addAttribute(WebUtils.DATA_LIST, transformUnallocatedPhysicalPorts);
-
     model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnallocatedMTOSI()));
-
     return PAGE_URL + "/listunallocated";
   }
 
