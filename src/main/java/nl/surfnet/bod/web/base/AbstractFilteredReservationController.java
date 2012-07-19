@@ -47,8 +47,6 @@ import com.google.common.collect.Lists;
  *
  * @see AbstractSortableListController
  *
- * @author Franky
- *
  */
 public abstract class AbstractFilteredReservationController extends AbstractSortableListController<ReservationView> {
   public static final String FILTER_URL = "filter/";

@@ -26,9 +26,7 @@ import java.util.Set;
 
 /**
  * Enum representing the status of a {@link Reservation}.
- * 
- * @author Franky
- * 
+ *
  */
 public enum ReservationStatus {
 
@@ -59,7 +57,7 @@ public enum ReservationStatus {
   /**
    * @return true if a Reservation is allowed to be delete, only based on its
    *         state.
-   * 
+   *
    */
   public boolean isDeleteAllowed() {
     return isTransitionState();

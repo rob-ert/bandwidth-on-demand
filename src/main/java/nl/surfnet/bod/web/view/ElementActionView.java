@@ -28,9 +28,7 @@ package nl.surfnet.bod.web.view;
  * indicates if the action is allowed, the {@link #getReason()} contains the
  * message key for the reason why or why not. The convention is that the
  * reasonKey is retrieved from a {@link MessageSource} and shown as a tooltip.
- * 
- * @author Franky
- * 
+ *
  */
 public class ElementActionView {
 

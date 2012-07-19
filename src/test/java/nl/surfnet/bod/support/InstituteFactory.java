@@ -26,9 +26,7 @@ import nl.surfnet.bod.domain.Institute;
 /**
  * Factory for the {@link Institute} class. Enables custom values by using the
  * supplied setters, otherwise a anonymous instance will be created.
- * 
- * @author Franky
- * 
+ *
  */
 public class InstituteFactory {
 

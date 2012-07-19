@@ -28,7 +28,10 @@ import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNA
 import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALLOCATED_PORTS_PRED;
 import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -62,8 +65,6 @@ import com.google.common.collect.Sets.SetView;
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
  *
- *
- * @author Frank Mölder
  */
 @Service
 public class PhysicalPortServiceImpl implements PhysicalPortService {

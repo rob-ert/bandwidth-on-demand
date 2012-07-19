@@ -47,8 +47,6 @@ import com.google.common.util.concurrent.Uninterruptibles;
  * new state will be updated in the specific {@link Reservation} object and will
  * be persisted. The scheduler will be cancelled afterwards.
  *
- * @author Franky
- *
  */
 @Component
 @Transactional

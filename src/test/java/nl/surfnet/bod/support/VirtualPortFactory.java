@@ -31,9 +31,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Factory for creation of {@link VirtualPort}
- * 
- * @author Franky
- * 
+ *
  */
 public class VirtualPortFactory {
 

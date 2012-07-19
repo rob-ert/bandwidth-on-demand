@@ -33,8 +33,6 @@ import com.google.common.base.Strings;
  * Entity which represents a VirtualPort which is mapped to a
  * {@link PhysicalPort} and is related to a {@link VirtualResourceGroup}
  *
- * @author Franky
- *
  */
 @Entity
 public class VirtualPort {

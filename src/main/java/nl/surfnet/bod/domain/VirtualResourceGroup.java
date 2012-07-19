@@ -31,8 +31,6 @@ import org.hibernate.validator.constraints.NotEmpty;
  * Entity which represents a List of {@link VirtualPort}s which belong together
  * and to the {@link Reservation}s which are related to this group.
  *
- * @author Franky
- *
  */
 @Entity
 public class VirtualResourceGroup {

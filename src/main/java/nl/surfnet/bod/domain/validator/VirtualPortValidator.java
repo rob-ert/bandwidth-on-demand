@@ -33,8 +33,6 @@ import org.springframework.validation.Validator;
  * Validator for the {@link VirtualPort}. Validates that the
  * {@link VirtualPort#getManagerLabel()} is unique.
  *
- * @author Franky
- *
  */
 @Component
 public class VirtualPortValidator implements Validator {

@@ -35,8 +35,6 @@ import com.google.common.base.Objects;
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
  *
- * @author Franky
- *
  */
 @Entity
 public class Reservation {

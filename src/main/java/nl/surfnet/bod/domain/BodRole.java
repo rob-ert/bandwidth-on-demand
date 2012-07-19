@@ -36,8 +36,6 @@ import com.google.common.base.Objects;
  * different groups. Multiple {@link RoleEnum#ICT_MANAGER} roles are allowed, as
  * long as they are related to different {@link #instituteId}s.
  *
- * @author Franky
- *
  */
 public final class BodRole {
 

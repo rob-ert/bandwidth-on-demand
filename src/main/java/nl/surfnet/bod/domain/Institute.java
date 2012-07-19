@@ -36,8 +36,6 @@ import org.hibernate.validator.constraints.NotEmpty;
  * duplicate key exceptions because hibernate tries to insert them instead of
  * updating the existing content of the database.
  *
- * @author Franky
- *
  */
 @Entity
 public class Institute {
