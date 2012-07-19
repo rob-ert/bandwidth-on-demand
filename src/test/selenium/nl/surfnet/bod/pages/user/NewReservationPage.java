@@ -101,7 +101,10 @@ public class NewReservationPage extends AbstractFormPage {
     System.out.println("Entering a date in " + input.getAttribute("name") + " date: " + dateString);
 
     input.clear();
+    input.click();
+    System.out.println(String.format("Text before send keys of %s: %s/%s", input.getAttribute("name"), input.getText(), input.getAttribute("value")));
     input.sendKeys(dateString);
+    System.out.println(String.format("Text after send keys of %s: %s/%s", input.getAttribute("name"), input.getText(), input.getAttribute("value")));
   }
 
   public void sendEndTime(LocalTime endTime) {
