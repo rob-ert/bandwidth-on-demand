@@ -135,29 +135,24 @@ public class MtosiLiveClient {
     // [x] nsmPortSpeed = sapList.sap.describedByList.value where
     // sapList.sap.describedByList.sscRef.rdn.value == AdministrativeSpeedRate
 
-    // [x] bodPortId = <nmsNEId>_<nmsPortId> (until further notice)
+    // [x] bodPortId = spaList.sap.name
 
     // [x] vlanRequired = true if sapList.sap.describedByList.value in (EVPL,
     // EVPLAN) where sapList.sap.describedByList.sscRef.rdn.value ==
     // SupportedServiceType
 
-    // [] nocLabel = mdList.md.meList.meInv.meAttrs.userLabel +
-    // mdList.md.meList.meInv.ptpList.ptpInv.ptpAttrs.userLabel both referenced
-    // by sapList.sap.resourceRef
-    
-    // [] nocLabel = sapList.sap.discoveredName
+    // [] nocLabel = nmsNeId + nmsPortId
 
+    // [] nmsNeId = will be human friendly name for NE + snmp ifalias
     this.init();
 
     final List<PhysicalPort> mtosiPorts = new ArrayList<>();
 
     for (final ServiceAccessPointType sap : getInventory().getSapList().getSap()) {
       final String nmsSapName = sap.getName().getValue().getRdn().get(0).getValue();
-      final String nocLabel = sap.getDiscoveredName();
-      
-      String nmsNeId = null, nmsPortId = null, nmsPortSpeed = null;
+
+      String nmsNeId = null, nmsPortId = null, nmsPortSpeed = null, supportedServiceType = null;
       boolean isVlanRequired = false;
-      
 
       for (final RelativeDistinguishNameType relativeDistinguishNameType : sap.getResourceRef().getRdn()) {
         if (relativeDistinguishNameType.getType().equals("ME")) {
@@ -175,8 +170,11 @@ public class MtosiLiveClient {
           if ("AdministrativeSpeedRate".equals(rdnValue)) {
             nmsPortSpeed = value;
           }
-          else if ("SupportedServiceType".equals(rdnValue) && ("EVPL".equals(value) || "EVPLAN".equals(value))) {
-            isVlanRequired = true;
+          else if ("SupportedServiceType".equals(rdnValue)) {
+            supportedServiceType = value;
+            if ("EVPL".equals(value) || "EVPLAN".equals(value)) {
+              isVlanRequired = true;
+            }
           }
         }
       }
@@ -185,10 +183,12 @@ public class MtosiLiveClient {
       final String convertedPortName = convertPortName(nmsPortId);
       physicalPort.setNmsPortId(convertedPortName);
       physicalPort.setNmsNeId(nmsNeId);
-      physicalPort.setBodPortId(nmsNeId + "_" + convertedPortName);
+      physicalPort.setBodPortId(nmsSapName);
       physicalPort.setNmsPortSpeed(nmsPortSpeed);
       physicalPort.setNmsSapName(nmsSapName);
-      physicalPort.setNocLabel(nocLabel);
+      physicalPort.setNocLabel(nmsNeId + " " + convertedPortName);
+      physicalPort.setSupportedServiceType(supportedServiceType);
+      physicalPort.setSignalingType("NA");
 
       mtosiPorts.add(physicalPort);
     }

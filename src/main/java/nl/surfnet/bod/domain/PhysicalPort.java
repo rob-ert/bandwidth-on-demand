@@ -70,6 +70,12 @@ public class PhysicalPort {
   @Basic
   private String nmsSapName;
 
+  @Basic
+  private String signalingType;
+
+  @Basic
+  private String supportedServiceType;
+
   public PhysicalPort() {
     this(false);
   }
@@ -179,6 +185,22 @@ public class PhysicalPort {
     this.nmsSapName = nmsSapName;
   }
 
+  public final String getSignalingType() {
+    return signalingType;
+  }
+
+  public final void setSignalingType(String signalingType) {
+    this.signalingType = signalingType;
+  }
+
+  public final String getSupportedServiceType() {
+    return supportedServiceType;
+  }
+
+  public final void setSupportedServiceType(String supportedServiceType) {
+    this.supportedServiceType = supportedServiceType;
+  }
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
@@ -233,6 +255,17 @@ public class PhysicalPort {
       builder.append(nmsSapName);
       builder.append(", ");
     }
+
+    if (signalingType != null) {
+      builder.append("signalingType=");
+      builder.append(signalingType);
+      builder.append(", ");
+    }
+    if (supportedServiceType != null) {
+      builder.append("supportedServiceType=");
+      builder.append(supportedServiceType);
+      builder.append(", ");
+    }
     builder.append("vlanRequired=");
     builder.append(vlanRequired);
     builder.append(", alignedWithNMS=");
@@ -240,8 +273,5 @@ public class PhysicalPort {
     builder.append("]");
     return builder.toString();
   }
-
-
-
 
 }
