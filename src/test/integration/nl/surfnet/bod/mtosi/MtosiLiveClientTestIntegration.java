@@ -63,6 +63,7 @@ public class MtosiLiveClientTestIntegration extends AbstractTransactionalJUnit4S
     assertThat(firstPhysicalPort.getNmsPortId(), containsString("1-1"));
     assertThat(firstPhysicalPort.getNmsPortSpeed(), notNullValue());
     assertThat(firstPhysicalPort.getNmsSapName(), startsWith("SAP-"));
+    assertThat(firstPhysicalPort.getNmsSapName(), equalTo(firstPhysicalPort.getBodPortId()));
     assertThat(firstPhysicalPort.isAlignedWithNMS(), is(true));
     
   }
