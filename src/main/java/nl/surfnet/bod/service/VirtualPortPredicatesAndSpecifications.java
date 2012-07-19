@@ -40,7 +40,7 @@ public final class VirtualPortPredicatesAndSpecifications {
   private VirtualPortPredicatesAndSpecifications() {
   }
 
-  static Specification<VirtualPort> FOR_USER_SPEC(final RichUserDetails user) {
+  static Specification<VirtualPort> forUserSpec(final RichUserDetails user) {
     return new Specification<VirtualPort>() {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
@@ -51,7 +51,7 @@ public final class VirtualPortPredicatesAndSpecifications {
     };
   }
 
-  static Specification<VirtualPort> FOR_MANAGER_SPEC(final BodRole managerRole) {
+  static Specification<VirtualPort> forManagerSpec(final BodRole managerRole) {
     return new Specification<VirtualPort>() {
 
       @Override
@@ -65,7 +65,7 @@ public final class VirtualPortPredicatesAndSpecifications {
     };
   }
 
-  static Specification<VirtualPort> BY_PHYSICAL_PORT_SPEC(final PhysicalPort physicalPort) {
+  static Specification<VirtualPort> byPhysicalPortSpec(final PhysicalPort physicalPort) {
     return new Specification<VirtualPort>() {
 
       private Long physicalPortId = physicalPort.getId();

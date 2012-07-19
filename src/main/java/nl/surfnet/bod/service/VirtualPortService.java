@@ -24,9 +24,9 @@ package nl.surfnet.bod.service;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.BY_GROUP_ID_IN_LAST_MONTH_SPEC;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.BY_PHYSICAL_PORT_SPEC;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.FOR_MANAGER_SPEC;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.FOR_USER_SPEC;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byPhysicalPortSpec;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forManagerSpec;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forUserSpec;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -80,17 +80,17 @@ public class VirtualPortService {
     if (user.getUserGroups().isEmpty()) {
       return 0;
     }
-    return virtualPortRepo.count(FOR_USER_SPEC(user));
+    return virtualPortRepo.count(forUserSpec(user));
   }
 
   public long countForManager(BodRole managerRole) {
     checkArgument(managerRole.isManagerRole());
 
-    return virtualPortRepo.count(FOR_MANAGER_SPEC(managerRole));
+    return virtualPortRepo.count(forManagerSpec(managerRole));
   }
 
   public long countForPhysicalPort(PhysicalPort physicalPort) {
-    return virtualPortRepo.count(BY_PHYSICAL_PORT_SPEC(physicalPort));
+    return virtualPortRepo.count(byPhysicalPortSpec(physicalPort));
   }
 
   public void delete(final VirtualPort virtualPort, RichUserDetails user) {
@@ -123,7 +123,7 @@ public class VirtualPortService {
       return Collections.emptyList();
     }
 
-    return virtualPortRepo.findAll(FOR_USER_SPEC(user));
+    return virtualPortRepo.findAll(forUserSpec(user));
   }
 
   public List<VirtualPort> findEntries(final int firstResult, final int maxResults) {
@@ -140,7 +140,7 @@ public class VirtualPortService {
       return Collections.emptyList();
     }
 
-    return virtualPortRepo.findAll(FOR_USER_SPEC(user), new PageRequest(firstResult / maxResults, maxResults, sort))
+    return virtualPortRepo.findAll(forUserSpec(user), new PageRequest(firstResult / maxResults, maxResults, sort))
         .getContent();
   }
 
@@ -148,7 +148,7 @@ public class VirtualPortService {
     checkArgument(maxResults > 0);
     checkArgument(managerRole.isManagerRole());
 
-    return virtualPortRepo.findAll(FOR_MANAGER_SPEC(managerRole),
+    return virtualPortRepo.findAll(forManagerSpec(managerRole),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
@@ -173,7 +173,7 @@ public class VirtualPortService {
   public Collection<VirtualPort> findAllForPhysicalPort(PhysicalPort physicalPort) {
     checkNotNull(physicalPort);
 
-    return virtualPortRepo.findAll(BY_PHYSICAL_PORT_SPEC(physicalPort));
+    return virtualPortRepo.findAll(byPhysicalPortSpec(physicalPort));
   }
 
   public void requestNewVirtualPort(RichUserDetails user, VirtualResourceGroup vGroup, PhysicalResourceGroup pGroup,
