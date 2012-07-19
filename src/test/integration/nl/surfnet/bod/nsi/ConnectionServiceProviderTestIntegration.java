@@ -146,11 +146,11 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     final PathType path = new PathType();
 
     final ServiceTerminationPointType dest = new ServiceTerminationPointType();
-    dest.setStpId(NsiConstants.NS_NETWORK + ":" + sourceVirtualPort.getId());
+    dest.setStpId(NsiConstants.URN_STP + ":" + sourceVirtualPort.getId());
     path.setDestSTP(dest);
 
     final ServiceTerminationPointType source = new ServiceTerminationPointType();
-    source.setStpId(NsiConstants.NS_NETWORK + ":" + destinationVirtualPort.getId());
+    source.setStpId(NsiConstants.URN_STP + ":" + destinationVirtualPort.getId());
     path.setSourceSTP(source);
 
     final ReserveRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
