@@ -76,7 +76,7 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
 
     getManagerDriver().createVirtualPort("Your vport");
 
-    getManagerDriver().verifyVirtualPortExists("Your vport", "selenium-users", "1200", "Request a virtual port");
+    getManagerDriver().verifyVirtualPortExists("Your vport", "selenium-users", "1200");
 
     getManagerDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
 
