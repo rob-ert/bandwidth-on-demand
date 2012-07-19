@@ -30,6 +30,16 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.service.*;
+import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.util.ReflectiveFieldComparator;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.view.PhysicalPortView;
+
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -47,20 +57,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.service.NocService;
-import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.util.Functions;
-import nl.surfnet.bod.util.ReflectiveFieldComparator;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
-import nl.surfnet.bod.web.view.PhysicalPortView;
 
 @Controller
 @RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
@@ -100,7 +96,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
     if (unallocatedPorts.isEmpty()) {
       WebUtils.addInfoMessage(redirectAttrs, messageSource, "info_physicalport_nounallocated");
-      return "redirect:/noc/physicalresourcegroups";
+      return "redirect:/noc/institutes";
     }
 
     AddPhysicalPortCommand addCommand = new AddPhysicalPortCommand();
@@ -147,7 +143,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_physicalport_added", port.getNocLabel(), port
         .getPhysicalResourceGroup().getName());
 
-    return "redirect:/noc/physicalresourcegroups";
+    return "redirect:/noc/institutes";
   }
 
   @RequestMapping(method = RequestMethod.PUT)
@@ -282,7 +278,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     Collection<PhysicalPort> unallocatedPorts = physicalPortService.findUnallocated();
     if (unallocatedPorts.isEmpty()) {
       WebUtils.addInfoMessage(redirectAttrs, messageSource, "info_physicalport_nounallocated");
-      return "redirect:/noc/physicalresourcegroups";
+      return "redirect:/noc/institutes";
     }
 
     long numberOfVirtualPorts = virtualPortService.countForPhysicalPort(port);
@@ -347,7 +343,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   * 
+   *
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
