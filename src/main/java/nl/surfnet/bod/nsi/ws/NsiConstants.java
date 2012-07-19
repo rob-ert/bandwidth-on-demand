@@ -29,6 +29,8 @@ public final class NsiConstants {
   public static final String PROVIDER_NSA = URN_OGF + ":nsa:" + NETWORK_ID;
   public static final String NS_NETWORK = URN_OGF + ":nsnetwork:" + NETWORK_ID;
 
+  public static final String URN_GLOBAL_RESERVATION_ID = "urn:nl:surfnet:diensten:bod";
+
   private NsiConstants() {
   }
 

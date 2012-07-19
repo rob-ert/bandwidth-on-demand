@@ -39,6 +39,7 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceContext;
 
 import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.nsi.ws.NsiConstants;
 import nl.surfnet.bod.nsi.ws.NsiProvider;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
@@ -71,8 +72,6 @@ import com.google.common.collect.ImmutableList;
     endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
     targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider")
 public class ConnectionServiceProvider implements NsiProvider {
-
-  public static final String BOD_URN_POSTFIX = "urn:nl:surfnet:diensten:bod:";
 
   protected static final Function<ReserveRequestType, Connection> TO_CONNECTION =
     new Function<ReserveRequestType, Connection>() {
@@ -121,7 +120,7 @@ public class ConnectionServiceProvider implements NsiProvider {
       }
 
       private String generateGlobalId() {
-        return BOD_URN_POSTFIX + UUID.randomUUID();
+        return NsiConstants.URN_GLOBAL_RESERVATION_ID + ":" + UUID.randomUUID();
       }
 
     };
