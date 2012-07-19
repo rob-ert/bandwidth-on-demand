@@ -186,7 +186,7 @@ public class BodNocWebDriver {
   }
 
   public void verifyPhysicalPortWasAllocated(String nmsPortId, String label) {
-    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver);
+    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
 
     page.verifyPhysicalPortWasAllocated(nmsPortId, label);
   }
