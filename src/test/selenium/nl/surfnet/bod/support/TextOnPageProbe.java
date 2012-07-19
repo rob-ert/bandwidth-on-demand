@@ -28,11 +28,17 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+
 public class TextOnPageProbe implements Probe {
   private final WebDriver webDriver;
   private final String expectedText;
-  private boolean satisfied;
   private final By locator;
+
+  private boolean satisfied;
+  private List<WebElement> elements;
 
   public TextOnPageProbe(WebDriver webDriver, By locator, String textPresent) {
     this.webDriver = webDriver;
@@ -43,7 +49,7 @@ public class TextOnPageProbe implements Probe {
   @Override
   public void sample() {
     try {
-      List<WebElement> elements = webDriver.findElements(locator);
+      elements = webDriver.findElements(locator);
       for (WebElement element : elements) {
         boolean textFound = element.getText().contains(expectedText);
         if (textFound) {
@@ -64,7 +70,19 @@ public class TextOnPageProbe implements Probe {
 
   @Override
   public String message() {
-    return String.format("Expected page to contain '%s' in element '%s' but does not.", this.expectedText,
-        this.locator.toString());
+    String foundText = Joiner.on(" || ").join(
+      Lists.transform(elements, new Function<WebElement, String>() {
+        @Override
+        public String apply(WebElement input) {
+          return input.getText();
+        }
+      })
+    );
+
+    return String.format(
+        "Expected element with locator '%s' to contain '%s' but it contains '%s'.",
+        this.locator.toString(),
+        this.expectedText,
+        foundText);
   }
 }

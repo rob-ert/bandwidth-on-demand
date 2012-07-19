@@ -24,7 +24,6 @@ package nl.surfnet.bod.support;
 import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.pages.noc.*;
@@ -240,9 +239,6 @@ public class BodNocWebDriver {
         PhysicalResourceGroup.class.getSimpleName());
   }
 
-  /**
-   * Fetches all {@link Institute}s from IDD and updates the database
-   */
   public void refreshInstitutes() {
     driver.get(URL_UNDER_TEST + InstituteController.REFRESH_URL);
   }
