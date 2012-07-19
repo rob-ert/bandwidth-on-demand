@@ -56,6 +56,8 @@ public class VirtualResourceGroupRepoTest {
     VirtualResourceGroup vrGroup = new VirtualResourceGroupFactory().setName("one").setSurfconextGroupId(nameOne)
         .create();
 
+    System.err.println(subject.findAll());
+
     subject.save(vrGroup);
   }
 
@@ -70,6 +72,7 @@ public class VirtualResourceGroupRepoTest {
     VirtualResourceGroup vrGroupTwo = new VirtualResourceGroupFactory().setSurfconextGroupId(nameOne).create();
 
     try {
+      System.err.println(subject.findAll());
       subject.save(vrGroupTwo);
 
       fail("ConstraintViolation excpected");
