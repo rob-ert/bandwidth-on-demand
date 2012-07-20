@@ -12,6 +12,7 @@
         <jetty.version>8.0.4.v20111024</jetty.version>
         <spring-security.version>3.0.7.RELEASE</spring-security.version>
         <selenium.version>2.25.0</selenium.version>
+        <flyway.version>1.7</flyway.version>
         <jetty.port>8888</jetty.port>
         <selenium.test.url>http://localhost:8888/bod</selenium.test.url>
         <sos.version>0.1.2</sos.version>
@@ -446,7 +447,7 @@
         <dependency>
             <groupId>com.googlecode.flyway</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>1.6.1</version>
+            <version>${flyway.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework</groupId>
@@ -649,7 +650,7 @@
             <plugin>
                 <groupId>com.googlecode.flyway</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
-                <version>1.5</version>
+                <version>${flyway.version}</version>
                 <configuration>
                     <user>bod_user</user>
                     <password />
