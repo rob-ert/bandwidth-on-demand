@@ -35,6 +35,7 @@ import org.openqa.selenium.support.PageFactory;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.ObjectArrays;
 
 public class NewReservationPage extends AbstractFormPage {
 
@@ -105,11 +106,16 @@ public class NewReservationPage extends AbstractFormPage {
     System.out.println("Entering a date in " + input.getAttribute("name") + " date: " + dateString);
 
     input.click();
-    input.sendKeys(Keys.chord(FluentIterable.from(Iterables.cycle(Keys.BACK_SPACE)).limit(15).toArray(Keys.class)));
 
-    System.out.println(String.format("Text before send keys of %s: %s", input.getAttribute("name"), input.getAttribute("value")));
+    input.sendKeys(ObjectArrays.concat(Keys.END, FluentIterable.from(Iterables.cycle(Keys.BACK_SPACE)).limit(15).toArray(Keys.class)));
 
-    input.sendKeys(dateString);
+    System.out.println(String.format("Text before send keys 1 of %s: %s", input.getAttribute("name"), input.getAttribute("value")));
+
+    input.clear();
+
+    System.out.println(String.format("Text before send keys  2 of %s: %s", input.getAttribute("name"), input.getAttribute("value")));
+
+    input.sendKeys(Keys.chord(Keys.CONTROL, "a"), dateString);
 
     System.out.println(String.format("Text after send keys of %s: %s", input.getAttribute("name"), input.getAttribute("value")));
   }
