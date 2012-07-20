@@ -27,10 +27,14 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
 
 public class NewReservationPage extends AbstractFormPage {
 
@@ -101,9 +105,12 @@ public class NewReservationPage extends AbstractFormPage {
     System.out.println("Entering a date in " + input.getAttribute("name") + " date: " + dateString);
 
     input.click();
-    input.clear();
+    input.sendKeys(Keys.chord(FluentIterable.from(Iterables.cycle(Keys.BACK_SPACE)).limit(15).toArray(Keys.class)));
+
     System.out.println(String.format("Text before send keys of %s: %s", input.getAttribute("name"), input.getAttribute("value")));
+
     input.sendKeys(dateString);
+
     System.out.println(String.format("Text after send keys of %s: %s", input.getAttribute("name"), input.getAttribute("value")));
   }
 
