@@ -67,9 +67,10 @@ public class NewPhysicalResourceGroupPage extends AbstractFormPage {
     instituteInput.clear();
     instituteInput.sendKeys(institute);
 
-    probes.assertTextPresent(By.className("as-results"), institute);
+    By resultListSelector = By.cssSelector(".as-results ul.as-list");
+    probes.assertTextPresent(resultListSelector, institute);
 
-    List<WebElement> results = getDriver().findElement(By.className("as-list")).findElements(By.className("as-result-item"));
+    List<WebElement> results = getDriver().findElement(resultListSelector).findElements(By.className("as-result-item"));
     for (WebElement result : results) {
       if (result.getText().equals(institute)) {
         result.click();
