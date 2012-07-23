@@ -59,6 +59,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -144,7 +145,7 @@ public class ReservationServiceTest {
     subject.create(reservation);
 
     verify(reservationRepoMock).save(reservation);
-    verify(reservationToNbiMock).submitNewReservation(reservation, true);
+    verify(reservationToNbiMock).submitNewReservation(reservation, true, Optional.<NsiRequestDetails>absent());
   }
 
   @Test

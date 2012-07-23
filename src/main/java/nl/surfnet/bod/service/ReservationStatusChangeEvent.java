@@ -21,19 +21,29 @@
  */
 package nl.surfnet.bod.service;
 
+import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 
 public class ReservationStatusChangeEvent {
 
-  private ReservationStatus oldStatus;
-  private Reservation reservation;
+  private final ReservationStatus oldStatus;
+  private final Reservation reservation;
+  private final Optional<NsiRequestDetails> nsiRequestDetails;
 
-  public ReservationStatusChangeEvent(final ReservationStatus oldStatus, final Reservation reservation) {
+
+  public ReservationStatusChangeEvent(ReservationStatus oldStatus, Reservation reservation) {
+    this(oldStatus, reservation, Optional.<NsiRequestDetails>absent());
+  }
+
+  public ReservationStatusChangeEvent(ReservationStatus oldStatus, Reservation reservation,
+      Optional<NsiRequestDetails> nsiRequestDetails) {
     this.oldStatus = oldStatus;
     this.reservation = reservation;
+    this.nsiRequestDetails = nsiRequestDetails;
   }
 
   public ReservationStatus getOldStatus() {
@@ -44,10 +54,17 @@ public class ReservationStatusChangeEvent {
     return reservation;
   }
 
+  public Optional<NsiRequestDetails> getNsiRequestDetails() {
+    return nsiRequestDetails;
+  }
+
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("reservationId", reservation.getId()).add("oldStatus", oldStatus)
-        .add("newStatus", reservation.getStatus()).toString();
+    return Objects.toStringHelper(this)
+        .add("reservationId", reservation.getId())
+        .add("oldStatus", oldStatus)
+        .add("newStatus", reservation.getStatus())
+        .add("nsiRequest", nsiRequestDetails).toString();
   }
 
 }

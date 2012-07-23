@@ -64,6 +64,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 @Service("nsiProvider_v1_sc")
@@ -100,7 +101,6 @@ public class ConnectionServiceProvider implements NsiProvider {
 
         connection.setProviderNsa(reserveRequestType.getReserve().getProviderNSA());
         connection.setRequesterNsa(reserveRequestType.getReserve().getRequesterNSA());
-        connection.setReplyTo(reserveRequestType.getReplyTo());
 
         String globalReservationId = reservation.getGlobalReservationId();
         if (!StringUtils.hasText(globalReservationId)) {
@@ -196,7 +196,7 @@ public class ConnectionServiceProvider implements NsiProvider {
     return serviceExceptionType;
   }
 
-  private ConnectionRequesterPort getConnectionRequesterPort(Connection connection) {
+  private ConnectionRequesterPort getConnectionRequesterPort(NsiRequestDetails requestDetails) {
     URL url;
     try {
       url = new ClassPathResource("/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl").getURL();
@@ -213,7 +213,7 @@ public class ConnectionServiceProvider implements NsiProvider {
 
     final Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
 
-    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, connection.getReplyTo());
+    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, requestDetails.getReplyTo());
 
     return port;
   }
@@ -258,14 +258,14 @@ public class ConnectionServiceProvider implements NsiProvider {
     Connection connection = TO_CONNECTION.apply(reservationRequest);
     connection = connectionRepo.save(connection);
 
-    return reserve(connection, new RequestDetails(reservationRequest.getReplyTo(), reservationRequest.getCorrelationId()));
+    return reserve(connection, new NsiRequestDetails(reservationRequest.getReplyTo(), reservationRequest.getCorrelationId()));
   }
 
-  public GenericAcknowledgmentType reserve(Connection connection, RequestDetails request) throws ServiceException {
+  public GenericAcknowledgmentType reserve(Connection connection, NsiRequestDetails request) throws ServiceException {
     logger.debug("Received reservation request connectionId: {}", connection.getConnectionId());
 
     validateConnection(connection);
-    createReservation(connection, false);
+    createReservation(connection, request, false);
 
     logger.debug("Returning acknowledgment for connection {} with correlationId {}",
         connection.getConnectionId(), request.getCorrelationId());
@@ -316,8 +316,8 @@ public class ConnectionServiceProvider implements NsiProvider {
   }
 
   @Override
-  public void reserveConfirmed(final Connection connection) {
-    logger.debug("Sending a reserveConfirmed on endpoint: {} with id: {}", connection.getReplyTo(),
+  public void reserveConfirmed(final Connection connection, final NsiRequestDetails requestDetails) {
+    logger.debug("Sending a reserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(),
         connection.getGlobalReservationId());
 
     connection.setCurrentState(ConnectionStateType.RESERVED);
@@ -337,9 +337,8 @@ public class ConnectionServiceProvider implements NsiProvider {
     reserveConfirmedType.setReservation(reservationInfoType);
 
     try {
-      ConnectionRequesterPort port = getConnectionRequesterPort(connection);
-      // FIXME [AvD] reserve Confirmed should send back the correlation Id not the connection Id...
-      port.reserveConfirmed(new Holder<String>(connection.getConnectionId()), reserveConfirmedType);
+      ConnectionRequesterPort port = getConnectionRequesterPort(requestDetails);
+      port.reserveConfirmed(new Holder<String>(requestDetails.getCorrelationId()), reserveConfirmedType);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
       logger.error("Error: ", e);
@@ -347,8 +346,8 @@ public class ConnectionServiceProvider implements NsiProvider {
   }
 
   @Override
-  public void reserveFailed(final Connection connection) {
-    logger.debug("Sending a reserveFailed on endpoint: {} with id: {}", connection.getReplyTo(),
+  public void reserveFailed(final Connection connection, final NsiRequestDetails requestDetails) {
+    logger.debug("Sending a reserveFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(),
         connection.getGlobalReservationId());
 
     connection.setCurrentState(ConnectionStateType.CLEANING);
@@ -370,18 +369,17 @@ public class ConnectionServiceProvider implements NsiProvider {
     reservationFailed.setServiceException(serviceException);
 
     try {
-      ConnectionRequesterPort port = getConnectionRequesterPort(connection);
-      // FIXME [AvD] This should be the correlationId not the connection Id
-      port.reserveFailed(new Holder<String>(connection.getConnectionId()), reservationFailed);
+      ConnectionRequesterPort port = getConnectionRequesterPort(requestDetails);
+      port.reserveFailed(new Holder<String>(requestDetails.getCorrelationId()), reservationFailed);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
       logger.error("Error: ", e);
     }
   }
 
-  private void createReservation(final Connection connection, boolean autoProvision) {
+  private void createReservation(final Connection connection, NsiRequestDetails requestDetails, boolean autoProvision) {
     Reservation reservation = TO_RESERVATION.apply(connection);
-    reservation = reservationService.create(reservation, autoProvision);
+    reservation = reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
 
     connection.setCurrentState(RESERVING);
     connection.setReservation(reservation);
@@ -390,7 +388,6 @@ public class ConnectionServiceProvider implements NsiProvider {
 
   @Override
   public GenericAcknowledgmentType provision(ProvisionRequestType parameters) throws ServiceException {
-
     String connectionId = parameters.getProvision().getConnectionId();
     logger.debug("Received provision request with id: {}", connectionId);
 
@@ -399,12 +396,12 @@ public class ConnectionServiceProvider implements NsiProvider {
     // TODO [AvD] make async??
     boolean isActivated = reservationService.activate(connection.getReservation());
 
-    // / call provisionConfirmed on requester nsa
+    NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
     if (isActivated) {
-      sendProvisionConfirmed(connection);
+      sendProvisionConfirmed(connection, requestDetails);
     }
     else {
-      sendProvisionFailed(connection);
+      sendProvisionFailed(connection, requestDetails);
     }
 
     /*
@@ -420,11 +417,12 @@ public class ConnectionServiceProvider implements NsiProvider {
      */
     GenericAcknowledgmentType ack = new GenericAcknowledgmentType();
     ack.setCorrelationId(parameters.getCorrelationId());
+
     return ack;
   }
 
-  private void sendProvisionFailed(Connection connection) {
-    logger.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", connection.getReplyTo(),
+  private void sendProvisionFailed(Connection connection, NsiRequestDetails requestDetails) {
+    logger.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(),
         connection.getGlobalReservationId());
 
     final GenericFailedType generic = new GenericFailedType();
@@ -435,7 +433,7 @@ public class ConnectionServiceProvider implements NsiProvider {
     generic.setGlobalReservationId(connection.getGlobalReservationId());
 
     try {
-      ConnectionRequesterPort port = getConnectionRequesterPort(connection);
+      ConnectionRequesterPort port = getConnectionRequesterPort(requestDetails);
       port.provisionFailed(new Holder<String>(connection.getConnectionId()), generic);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -444,9 +442,9 @@ public class ConnectionServiceProvider implements NsiProvider {
 
   }
 
-  private void sendProvisionConfirmed(final Connection connection) {
+  private void sendProvisionConfirmed(final Connection connection, NsiRequestDetails requestDetails) {
 
-    logger.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", connection.getReplyTo(),
+    logger.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(),
         connection.getGlobalReservationId());
 
     final GenericConfirmedType generic = new GenericConfirmedType();
@@ -456,7 +454,7 @@ public class ConnectionServiceProvider implements NsiProvider {
     generic.setGlobalReservationId(connection.getGlobalReservationId());
 
     try {
-      ConnectionRequesterPort port = getConnectionRequesterPort(connection);
+      ConnectionRequesterPort port = getConnectionRequesterPort(requestDetails);
       port.provisionConfirmed(new Holder<String>(connection.getConnectionId()), generic);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -582,25 +580,6 @@ public class ConnectionServiceProvider implements NsiProvider {
 
   public static String getCorrelationId() {
     return URN_UUID + UUID.randomUUID().toString();
-  }
-
-  public static class RequestDetails {
-    private final String replyTo;
-    private final String correlationId;
-
-    public RequestDetails(String replyTo, String correlationId) {
-      this.replyTo = replyTo;
-      this.correlationId = correlationId;
-    }
-
-    public String getReplyTo() {
-      return replyTo;
-    }
-
-    public String getCorrelationId() {
-      return correlationId;
-    }
-
   }
 
   protected void addNsaProvider(String provider) {

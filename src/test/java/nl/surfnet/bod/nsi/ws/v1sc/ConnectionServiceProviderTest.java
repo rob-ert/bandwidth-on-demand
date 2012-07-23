@@ -31,8 +31,8 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProvider.RequestDetails;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -75,7 +75,7 @@ public class ConnectionServiceProviderTest {
 
   @Test(expected = ServiceException.class)
   public void shouldComplainAboutTheProviderNsa() throws ServiceException {
-    RequestDetails request = new RequestDetails("http://localhost", "123456");
+    NsiRequestDetails request = new NsiRequestDetails("http://localhost", "123456");
     Connection connection = new ConnectionFactory()
       .setSourceStpId("Source Port").setDestinationStpId("Destination Port")
       .setProviderNSA("non:existingh").create();
@@ -91,7 +91,7 @@ public class ConnectionServiceProviderTest {
 
   @Test(expected = ServiceException.class)
   public void shouldComplainAboutNonExistingPort() throws ServiceException {
-    RequestDetails request = new RequestDetails("http://localhost", "123456");
+    NsiRequestDetails request = new NsiRequestDetails("http://localhost", "123456");
     Connection connection = new ConnectionFactory()
       .setSourceStpId("Source Port").setDestinationStpId("Destination Port")
       .setProviderNSA(nsaProvider).create();
@@ -106,7 +106,7 @@ public class ConnectionServiceProviderTest {
 
   @Test
   public void shouldMakeAReservation() throws ServiceException {
-    RequestDetails request = new RequestDetails("http://localhost", "123456");
+    NsiRequestDetails request = new NsiRequestDetails("http://localhost", "123456");
     Connection connection = new ConnectionFactory()
       .setSourceStpId("Source Port").setDestinationStpId("Destination Port")
       .setProviderNSA(nsaProvider).create();

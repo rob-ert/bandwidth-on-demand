@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
+import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -32,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import com.google.common.base.Optional;
 
 @Service
 public class ReservationToNbi {
@@ -51,23 +54,24 @@ public class ReservationToNbi {
   private LogEventService logEventService;
 
   @Async
-  public void submitNewReservation(Reservation reservation, boolean autoProvision) {
+  public void submitNewReservation(Reservation reservation, boolean autoProvision, Optional<NsiRequestDetails> nsiRequestDetails) {
     logger.debug("Requesting a new reservation from the Nbi, {} ({})", reservation);
 
     ReservationStatus orgStatus = reservation.getStatus();
     reservation = nbiClient.createReservation(reservation, autoProvision);
 
     reservation = reservationRepo.save(reservation);
-    publishStatusChanged(reservation, orgStatus);
+    publishStatusChanged(reservation, orgStatus, nsiRequestDetails);
   }
 
-  private void publishStatusChanged(final Reservation reservation, final ReservationStatus originalStatus) {
+  private void publishStatusChanged(
+      Reservation reservation, ReservationStatus originalStatus, Optional<NsiRequestDetails> nsiRequestDetails) {
     if (originalStatus == reservation.getStatus()) {
       logger.debug("No status change detected from {} to {}", originalStatus, reservation.getStatus());
       return;
     }
 
-    ReservationStatusChangeEvent createEvent = new ReservationStatusChangeEvent(originalStatus, reservation);
+    ReservationStatusChangeEvent createEvent = new ReservationStatusChangeEvent(originalStatus, reservation, nsiRequestDetails);
 
     logEventService.logUpdateEvent(Security.getUserDetails(), reservation, "State change: " + createEvent);
 

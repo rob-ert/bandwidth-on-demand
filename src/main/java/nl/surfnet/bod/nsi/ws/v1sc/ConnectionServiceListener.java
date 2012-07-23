@@ -56,15 +56,19 @@ public class ConnectionServiceListener implements ReservationListener {
 
   @Override
   public void onStatusChange(ReservationStatusChangeEvent event) {
+    if (!event.getNsiRequestDetails().isPresent()) {
+      return;
+    }
     logger.debug("Got a reservation status change event {}", event);
+
     Reservation reservation = event.getReservation();
 
     switch (reservation.getStatus()) {
     case SCHEDULED:
-      nsiProvider.reserveConfirmed(reservation.getConnection());
+      nsiProvider.reserveConfirmed(reservation.getConnection(), event.getNsiRequestDetails().get());
       break;
     case FAILED:
-      nsiProvider.reserveFailed(reservation.getConnection());
+      nsiProvider.reserveFailed(reservation.getConnection(), event.getNsiRequestDetails().get());
       break;
     default:
       logger.error("Unhandled status {} of reservation {}", reservation.getStatus(), event.getReservation());

@@ -58,6 +58,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.*;
 
@@ -116,7 +117,7 @@ public class ReservationService {
    * @See {@link #create(Reservation)}
    */
   public void create(Reservation reservation) {
-    create(reservation, true);
+    create(reservation, true, Optional.<NsiRequestDetails>absent());
   }
 
   /**
@@ -129,7 +130,7 @@ public class ReservationService {
    * @return ReservationId, scheduleId from NMS
    *
    */
-  public Reservation create(Reservation reservation, boolean autoProvision) {
+  public Reservation create(Reservation reservation, boolean autoProvision, Optional<NsiRequestDetails> nsiRequestDetails) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
 
@@ -141,7 +142,7 @@ public class ReservationService {
     reservation = reservationRepo.save(reservation);
 
     // Async call to nbi
-    reservationToNbi.submitNewReservation(reservation, autoProvision);
+    reservationToNbi.submitNewReservation(reservation, autoProvision, nsiRequestDetails);
 
     return reservation;
   }

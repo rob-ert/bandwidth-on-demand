@@ -61,9 +61,6 @@ public class Connection {
   @Column(nullable = false)
   private String description;
 
-  @Column(nullable = false)
-  private String replyTo;
-
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 50)
   private ConnectionStateType currentState = ConnectionStateType.INITIAL;
@@ -146,14 +143,6 @@ public class Connection {
 
   public void setConnectionId(String connectionId) {
     this.connectionId = connectionId;
-  }
-
-  public String getReplyTo() {
-    return replyTo;
-  }
-
-  public void setReplyTo(String replyTo) {
-    this.replyTo = replyTo;
   }
 
   public ConnectionStateType getCurrentState() {
@@ -249,8 +238,6 @@ public class Connection {
     builder.append(description);
     builder.append(", connectionId=");
     builder.append(connectionId);
-    builder.append(", replyTo=");
-    builder.append(replyTo);
     builder.append(", currentState=");
     builder.append(currentState);
     builder.append(", startTime=");
@@ -262,6 +249,7 @@ public class Connection {
     builder.append(", reservation=");
     builder.append(reservation);
     builder.append("]");
+
     return builder.toString();
   }
 
