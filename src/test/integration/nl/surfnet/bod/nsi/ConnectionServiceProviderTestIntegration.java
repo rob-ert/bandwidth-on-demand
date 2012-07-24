@@ -134,31 +134,33 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   @Test
   public void shouldReturnGenericAcknowledgement() throws Exception {
-    final XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
-    startTime.setDay(Calendar.getInstance().get(Calendar.DATE) + 7);
+    XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
+    startTime.setDay(1);
     startTime.setMonth(Calendar.getInstance().get(Calendar.MONTH));
     startTime.setYear(Calendar.getInstance().get(Calendar.YEAR) + 1);
 
-    final XMLGregorianCalendar endTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(
+    XMLGregorianCalendar endTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(
         startTime.toGregorianCalendar());
-    endTime.setDay(startTime.getDay() + 1);
+    endTime.setDay(2);
+    endTime.setMonth(Calendar.getInstance().get(Calendar.MONTH));
+    endTime.setYear(Calendar.getInstance().get(Calendar.YEAR) + 1);
 
-    final PathType path = new PathType();
+    PathType path = new PathType();
 
-    final ServiceTerminationPointType dest = new ServiceTerminationPointType();
+    ServiceTerminationPointType dest = new ServiceTerminationPointType();
     dest.setStpId(NsiConstants.URN_STP + ":" + sourceVirtualPort.getId());
     path.setDestSTP(dest);
 
-    final ServiceTerminationPointType source = new ServiceTerminationPointType();
+    ServiceTerminationPointType source = new ServiceTerminationPointType();
     source.setStpId(NsiConstants.URN_STP + ":" + destinationVirtualPort.getId());
     path.setSourceSTP(source);
 
-    final ReserveRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
+    ReserveRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
         .setScheduleEndTime(endTime).setCorrelationId(correlationId).setProviderNsa(NsiConstants.URN_PROVIDER_NSA)
         .setPath(path).createReservation();
 
     // send reserve request
-    final GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
+    GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
 
     assertThat(genericAcknowledgmentType.getCorrelationId(), is(correlationId));
 
