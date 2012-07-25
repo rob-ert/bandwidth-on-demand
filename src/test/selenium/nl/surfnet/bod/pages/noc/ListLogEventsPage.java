@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.pages.noc;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.lessThan;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.pages.AbstractListPage;
 
@@ -28,9 +30,6 @@ import org.joda.time.LocalDateTime;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.lessThan;
 
 public class ListLogEventsPage extends AbstractListPage {
   private static final String PAGE = "/noc/logevents";
@@ -59,7 +58,7 @@ public class ListLogEventsPage extends AbstractListPage {
 
     WebElement row = findRow(userId, type.name(), entity);
 
-    LocalDateTime logEventCreated = getLocalDateTimeFromRow(created.getYear(), row);
+    LocalDateTime logEventCreated = getLocalDateTimeFromRow(row);
 
     long duration = created.getMillisOfDay() - logEventCreated.getMillisOfDay();
     // Allow a 15 second margin

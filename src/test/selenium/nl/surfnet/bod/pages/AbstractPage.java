@@ -24,9 +24,7 @@ package nl.surfnet.bod.pages;
 import java.util.List;
 
 import nl.surfnet.bod.support.Probes;
-import nl.surfnet.bod.web.WebUtils;
 
-import org.apache.commons.lang.StringUtils;
 import org.joda.time.LocalDateTime;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -36,6 +34,7 @@ import org.openqa.selenium.support.FindBy;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
@@ -88,18 +87,19 @@ public class AbstractPage {
 
   /**
    * Gets a time stamp from the specific row starting with the given year
-   * 
+   *
    * @param year
    *          Timestamp should start with this year
    * @param row
    *          Row to search
    * @return {@link LocalDateTime} time stamp
    */
-  protected LocalDateTime getLocalDateTimeFromRow(int year, WebElement row) {
-    int start = StringUtils.indexOf(row.getText(), String.valueOf(year));
-    String dateFromRow = row.getText().substring(start, start + WebUtils.DEFAULT_DATE_TIME_PATTERN.length() + 1);
-    LocalDateTime logEventCreated = WebUtils.DEFAULT_DATE_TIME_FORMATTER.parseLocalDateTime(dateFromRow);
-    return logEventCreated;
+  protected LocalDateTime getLocalDateTimeFromRow(WebElement row) {
+    Optional<LocalDateTime> extractedDateTime = PageUtils.extractDateTime(row.getText());
+    if (!extractedDateTime.isPresent()) {
+      throw new AssertionError("Could not find date time form row: " + row.getText());
+    }
+    return extractedDateTime.get();
   }
 
   protected Probes getProbes() {
