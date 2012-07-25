@@ -34,21 +34,22 @@ public class OpenDracStatusTranslatorTest {
 
   @Test
   public void failedShouldTranslateToFailed() {
-    ReservationStatus status = OpenDracStatusTranslator.translate(ValidReservationScheduleCreationResultT.FAILED);
+    ReservationStatus status = OpenDracStatusTranslator.translate(ValidReservationScheduleCreationResultT.FAILED, true);
 
     assertThat(status, is(ReservationStatus.FAILED));
   }
 
   @Test
   public void succeededPartiallyShouldTranslateToScheduled() {
-    ReservationStatus status = OpenDracStatusTranslator.translate(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY);
+    ReservationStatus status =
+        OpenDracStatusTranslator.translate(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, true);
 
     assertThat(status, is(ReservationStatus.SCHEDULED));
   }
 
   @Test
   public void unknownShouldTranslateToFailed() {
-    ReservationStatus status = OpenDracStatusTranslator.translate(ValidReservationScheduleCreationResultT.UNKNOWN);
+    ReservationStatus status = OpenDracStatusTranslator.translate(ValidReservationScheduleCreationResultT.UNKNOWN, true);
 
     assertThat(status, is(ReservationStatus.FAILED));
   }

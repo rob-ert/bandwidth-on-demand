@@ -64,8 +64,8 @@ public class GroupOpenSocialService implements GroupService {
   @Override
   public Collection<UserGroup> getGroups(String nameId) {
     try {
-
       List<Group> osGroups = getClient(nameId).send(GroupsService.getGroups()).getEntries();
+
       logEventService.logReadEvent(Security.getUserDetails(), osGroups);
 
       return Lists.newArrayList(Lists.transform(osGroups, new Function<Group, UserGroup>() {
@@ -103,7 +103,7 @@ public class GroupOpenSocialService implements GroupService {
   protected void setEnvironment(Environment environment) {
     this.env = environment;
   }
-  
+
   @VisibleForTesting
   void setLogEventService(LogEventService logEventService) {
     this.logEventService = logEventService;

@@ -22,6 +22,7 @@
 package nl.surfnet.bod.nbi;
 
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
 import java.util.HashMap;
@@ -129,10 +130,16 @@ class NbiOfflineClient implements NbiClient {
       log.info("No startTime specified, using now: {}", reservation.getStartDateTime());
     }
 
-    scheduleIds.put(scheduleId, SCHEDULED);
+    if (autoProvision) {
+      reservation.setStatus(SCHEDULED);
+    }
+    else {
+      reservation.setStatus(RESERVED);
+    }
 
     reservation.setReservationId(scheduleId);
-    reservation.setStatus(SCHEDULED);
+
+    scheduleIds.put(scheduleId, reservation.getStatus());
 
     log.warn("Created reservation using MOCK with id: {}", reservation.getReservationId());
 
@@ -159,9 +166,9 @@ class NbiOfflineClient implements NbiClient {
     switch (status) {
     case REQUESTED:
       return ReservationStatus.SCHEDULED;
+//    case SCHEDULED:
+//      return ReservationStatus.PREPARING;
     case SCHEDULED:
-      return ReservationStatus.PREPARING;
-    case PREPARING:
       return ReservationStatus.RUNNING;
     case RUNNING:
       return ReservationStatus.SUCCEEDED;

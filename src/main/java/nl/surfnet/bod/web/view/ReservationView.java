@@ -46,6 +46,7 @@ public class ReservationView {
   private final Integer bandwidth;
   private final String userCreated;
   private final String reservationId;
+  private final String connectionId;
   private final LocalDateTime creationDateTime;
   private final ElementActionView deleteActionView;
 
@@ -65,6 +66,7 @@ public class ReservationView {
     this.creationDateTime = reservation.getCreationDateTime();
     this.name = reservation.getName();
     this.deleteActionView = deleteActionView;
+    this.connectionId = reservation.getConnection() == null ? null : reservation.getConnection().getConnectionId();
   }
 
   public String getVirtualResourceGroup() {
@@ -125,6 +127,10 @@ public class ReservationView {
 
   public String getDeleteReasonKey() {
     return deleteActionView.getReasonKey();
+  }
+
+  public String getConnectionId() {
+    return connectionId;
   }
 
   @Override

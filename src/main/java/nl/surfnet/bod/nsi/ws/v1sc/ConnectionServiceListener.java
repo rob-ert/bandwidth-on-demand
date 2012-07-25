@@ -23,6 +23,7 @@ package nl.surfnet.bod.nsi.ws.v1sc;
 
 import javax.annotation.PostConstruct;
 
+import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.nsi.ws.NsiProvider;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -30,6 +31,7 @@ import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 
+import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,13 +64,30 @@ public class ConnectionServiceListener implements ReservationListener {
     logger.debug("Got a reservation status change event {}", event);
 
     Reservation reservation = event.getReservation();
+    Connection connection = reservation.getConnection();
 
     switch (reservation.getStatus()) {
+    case RESERVED:
+      nsiProvider.reserveConfirmed(connection, event.getNsiRequestDetails().get());
+      break;
     case SCHEDULED:
-      nsiProvider.reserveConfirmed(reservation.getConnection(), event.getNsiRequestDetails().get());
+      // no need to send back any confirms
       break;
     case FAILED:
-      nsiProvider.reserveFailed(reservation.getConnection(), event.getNsiRequestDetails().get());
+      if (connection.getCurrentState() == ConnectionStateType.AUTO_PROVISION
+        || connection.getCurrentState() == ConnectionStateType.SCHEDULED) {
+        nsiProvider.provisionFailed(connection, event.getNsiRequestDetails().get());
+      }
+      else if (connection.getCurrentState() == ConnectionStateType.RESERVING) {
+        nsiProvider.reserveFailed(connection, event.getNsiRequestDetails().get());
+      }
+      break;
+    case RUNNING:
+      nsiProvider.provisionConfirmed(connection, event.getNsiRequestDetails().get());
+      break;
+    case CANCELLED:
+      // FIXME [AvD] not called yet.. cancel is not async
+      nsiProvider.terminateConfirmed(connection, event.getNsiRequestDetails().get());
       break;
     default:
       logger.error("Unhandled status {} of reservation {}", reservation.getStatus(), event.getReservation());

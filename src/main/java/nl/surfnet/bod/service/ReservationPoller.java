@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 
@@ -38,6 +39,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Uninterruptibles;
 
 /**
@@ -129,7 +131,14 @@ public class ReservationPoller {
           reservationFresh.setStatus(currentStatus);
           reservationService.update(reservationFresh);
 
-          reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservationFresh));
+          if (reservationFresh.getConnection() == null) {
+            reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservationFresh));
+          }
+          else {
+            NsiRequestDetails requestDetails = reservationFresh.getConnection().getProvisionRequestDetails();
+            reservationEventPublisher.notifyListeners(
+                new ReservationStatusChangeEvent(startStatus, reservationFresh, Optional.of(requestDetails)));
+          }
 
           return;
         }

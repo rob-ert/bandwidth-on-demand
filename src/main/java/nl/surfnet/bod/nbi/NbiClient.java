@@ -33,20 +33,16 @@ public interface NbiClient {
 
   boolean activateReservation(final String reservationId);
 
-  /**
-   * 
-   * @param scheduleId
-   */
   void cancelReservation(String scheduleId);
 
   /**
-   * 
+   *
    * @return the amount of all available {@link PhysicalPort}'s
    */
   long getPhysicalPortsCount();
 
   /**
-   * 
+   *
    * @param reservation
    * @param autoProvision, when true the reservation is automatically started
    * @return the reservation id returned from the underlying NMS
@@ -54,14 +50,14 @@ public interface NbiClient {
   Reservation createReservation(Reservation reservation, boolean autoProvision);
 
   /**
-   * 
+   *
    * @return all available {@link PhysicalPort}'s
    */
   List<PhysicalPort> findAllPhysicalPorts();
 
   /**
    * Retrieve the status of a reservation.
-   * 
+   *
    * @param scheduleId
    *          the id of the schedule of interest
    * @return status of the reservation
@@ -69,7 +65,7 @@ public interface NbiClient {
   ReservationStatus getReservationStatus(String scheduleId);
 
   /**
-   * 
+   *
    * @param name
    * @return a {@link PhysicalPort} identified by a certain name, in OpenDRAC's
    *         case the network elements pk

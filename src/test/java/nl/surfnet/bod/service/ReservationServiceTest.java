@@ -145,7 +145,7 @@ public class ReservationServiceTest {
     subject.create(reservation);
 
     verify(reservationRepoMock).save(reservation);
-    verify(reservationToNbiMock).submitNewReservation(reservation, true, Optional.<NsiRequestDetails>absent());
+    verify(reservationToNbiMock).reserve(reservation, true, Optional.<NsiRequestDetails>absent());
   }
 
   @Test

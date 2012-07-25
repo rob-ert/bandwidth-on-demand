@@ -27,10 +27,16 @@ import java.util.Set;
 /**
  * Enum representing the status of a {@link Reservation}.
  *
+ * /-----------\    /----------\    /-----------\    /-----------\    /---------\    /-----------\
+ * | Requested | -> | Reserved | -> | Scheduled | -> | Preparing | -> | Running | -> | Succeeded |
+ * |           |    |          |    |           |    | not used  |    |         |    |           |
+ * \-----------/    \----------/    \-----------/    \-----------/    \---------/    \-----------/
+ *      |                                ^
+ *       \------(auto provision)--------/
  */
 public enum ReservationStatus {
 
-  REQUESTED, SCHEDULED, PREPARING, RUNNING, SUCCEEDED, CANCELLED, FAILED;
+  REQUESTED, RESERVED, SCHEDULED, PREPARING, RUNNING, SUCCEEDED, CANCELLED, FAILED;
 
   /**
    * All states which are allowed to transition to an other state. All other

@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.PREPARING;
@@ -101,13 +102,10 @@ public class ReservationService {
    *          {@link Reservation} to activate
    * @return true if the reservation was successfully activated, false otherwise
    */
-  public boolean activate(Reservation reservation) {
-    if (reservation != null) {
-      return nbiClient.activateReservation(reservation.getReservationId());
-    }
-    else {
-      return false;
-    }
+  public void provision(Reservation reservation, Optional<NsiRequestDetails> requestDetails) {
+    checkNotNull(reservation);
+
+    reservationToNbi.provision(reservation, requestDetails);
   }
 
   /**
@@ -142,7 +140,7 @@ public class ReservationService {
     reservation = reservationRepo.save(reservation);
 
     // Async call to nbi
-    reservationToNbi.submitNewReservation(reservation, autoProvision, nsiRequestDetails);
+    reservationToNbi.reserve(reservation, autoProvision, nsiRequestDetails);
 
     return reservation;
   }
@@ -519,7 +517,6 @@ public class ReservationService {
   }
 
   public boolean cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user) {
-
     logEventService.logDeleteEvent(Security.getUserDetails(), reservation, cancelReason);
 
     if (isDeleteAllowed(reservation, user.getSelectedRole()).isAllowed()) {

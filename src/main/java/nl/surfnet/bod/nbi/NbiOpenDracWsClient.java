@@ -77,7 +77,7 @@ class NbiOpenDracWsClient implements NbiClient {
   private static final ValidProtectionTypeT.Enum DEFAULT_PROTECTIONTYPE = ValidProtectionTypeT.X_1_PLUS_1_PATH;
   private static final Minutes MAX_DURATION = Minutes.MAX_VALUE;
 
-  private final Logger log = LoggerFactory.getLogger(getClass());
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   private NetworkMonitoringService_v30Stub networkingService;
   private ResourceAllocationAndSchedulingService_v30Stub schedulingService;
@@ -114,7 +114,7 @@ class NbiOpenDracWsClient implements NbiClient {
       getSecurityDocument();
     }
     catch (IOException e) {
-      log.error("Error: ", e);
+      logger.error("Error: ", e);
     }
   }
 
@@ -137,7 +137,7 @@ class NbiOpenDracWsClient implements NbiClient {
 
     }
     catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
-      log.error("Error: ", e);
+      logger.error("Error: ", e);
     }
 
     return false;
@@ -145,17 +145,15 @@ class NbiOpenDracWsClient implements NbiClient {
 
   @Override
   public void cancelReservation(final String reservationId) {
-    final CancelReservationScheduleRequestDocument requestDocument = CancelReservationScheduleRequestDocument.Factory
-        .newInstance();
-    final CancelReservationScheduleRequest request = requestDocument.addNewCancelReservationScheduleRequest();
+    CancelReservationScheduleRequestDocument requestDocument = CancelReservationScheduleRequestDocument.Factory.newInstance();
+    CancelReservationScheduleRequest request = requestDocument.addNewCancelReservationScheduleRequest();
     request.setReservationScheduleId(reservationId);
     try {
-      final CompletionResponseDocument response = schedulingService.cancelReservationSchedule(requestDocument,
-          getSecurityDocument());
-      log.info("Status: {}", response.getCompletionResponse().getResult());
+      CompletionResponseDocument response = schedulingService.cancelReservationSchedule(requestDocument, getSecurityDocument());
+      logger.info("Status: {}", response.getCompletionResponse().getResult());
     }
     catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
-      log.error("Error: ", e);
+      logger.error("Error: ", e);
     }
 
   }
@@ -166,11 +164,11 @@ class NbiOpenDracWsClient implements NbiClient {
       CreateReservationScheduleResponseDocument responseDocument = schedulingService.createReservationSchedule(
           createSchedule(reservation, autoProvision), getSecurityDocument());
 
-      log.debug("Create reservation response: {}", responseDocument.getCreateReservationScheduleResponse());
+      logger.debug("Create reservation response: {}", responseDocument.getCreateReservationScheduleResponse());
 
       String reservationId = responseDocument.getCreateReservationScheduleResponse().getReservationScheduleId();
       ReservationStatus status = OpenDracStatusTranslator.translate(responseDocument
-          .getCreateReservationScheduleResponse().getResult());
+          .getCreateReservationScheduleResponse().getResult(), autoProvision);
 
       if (status == FAILED) {
         List<String> reasons = Lists.newArrayList();
@@ -182,18 +180,18 @@ class NbiOpenDracWsClient implements NbiClient {
         String failedReason = Joiner.on(", ").join(reasons);
         reservation.setFailedReason(failedReason);
 
-        log.info("Create reservation ({}) failed with '{}'", reservationId, failedReason);
+        logger.info("Create reservation ({}) failed with '{}'", reservationId, failedReason);
       }
 
       reservation.setReservationId(reservationId);
       reservation.setStatus(status);
     }
     catch (ResourceAllocationAndSchedulingServiceFault e) {
-      log.warn("Creating a reservation failed", e);
+      logger.warn("Creating a reservation failed", e);
       reservation.setStatus(FAILED);
     }
     catch (Exception e) {
-      log.error("Unexpected Exception while request reservation to OpenDRAC", e);
+      logger.error("Unexpected Exception while request reservation to OpenDRAC", e);
       reservation.setStatus(FAILED);
     }
 
@@ -212,7 +210,7 @@ class NbiOpenDracWsClient implements NbiClient {
       return ports;
     }
     catch (NetworkMonitoringServiceFault e) {
-      log.warn("Could not query OpenDrac for all endpoints", e);
+      logger.warn("Could not query OpenDrac for all endpoints", e);
       throw new RuntimeException(e);
     }
   }
@@ -224,7 +222,7 @@ class NbiOpenDracWsClient implements NbiClient {
       return getPhysicalPort(endpoint);
     }
     catch (NetworkMonitoringServiceFault e) {
-      log.warn("Could not query OpenDrac for end point by id '{}'", nmsPortId);
+      logger.warn("Could not query OpenDrac for end point by id '{}'", nmsPortId);
       throw new RuntimeException(e);
     }
   }
@@ -280,7 +278,7 @@ class NbiOpenDracWsClient implements NbiClient {
       responseDocument = schedulingService.queryReservationSchedule(requestDocument, getSecurityDocument());
     }
     catch (Exception e) {
-      log.error("Error: ", e);
+      logger.error("Error: ", e);
     }
 
     if (responseDocument != null && responseDocument.getQueryReservationScheduleResponse().getIsFound()) {
@@ -291,27 +289,37 @@ class NbiOpenDracWsClient implements NbiClient {
       return OpenDracStatusTranslator.translate(status);
     }
     else {
-      log.info("No reservation found for reservationId: {}, returning FAILED", reservationId);
+      logger.info("No reservation found for reservationId: {}, returning FAILED", reservationId);
       return FAILED;
     }
 
   }
 
   protected static final class OpenDracStatusTranslator {
-    private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationResultTranslations = new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
+    private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationAutoProvionResultTranslations =
+      new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
         .put(ValidReservationScheduleCreationResultT.FAILED, FAILED)
         .put(ValidReservationScheduleCreationResultT.SUCCEEDED, SCHEDULED)
         .put(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, SCHEDULED)
         .put(ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
 
-    private static ImmutableMap<ValidReservationScheduleStatusT.Enum, ReservationStatus> scheduleStatusTranslations = new ImmutableMap.Builder<ValidReservationScheduleStatusT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleStatusT.CONFIRMATION_PENDING, PREPARING)
+    private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationResultTranslations =
+      new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
+        .put(ValidReservationScheduleCreationResultT.FAILED, FAILED)
+        .put(ValidReservationScheduleCreationResultT.SUCCEEDED, RESERVED)
+        .put(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, RESERVED)
+        .put(ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
+
+    private static ImmutableMap<ValidReservationScheduleStatusT.Enum, ReservationStatus> scheduleStatusTranslations =
+      new ImmutableMap.Builder<ValidReservationScheduleStatusT.Enum, ReservationStatus>()
+        .put(ValidReservationScheduleStatusT.CONFIRMATION_PENDING, REQUESTED)
         .put(ValidReservationScheduleStatusT.CONFIRMATION_TIMED_OUT, FAILED)
         .put(ValidReservationScheduleStatusT.CONFIRMATION_CANCELLED, CANCELLED)
         .put(ValidReservationScheduleStatusT.EXECUTION_PENDING, SCHEDULED)
         .put(ValidReservationScheduleStatusT.EXECUTION_IN_PROGRESS, RUNNING)
         .put(ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED, SUCCEEDED)
         .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED, FAILED)
+         // means that the start time has passed and the reservation did not get an activate will activation was manual
         .put(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, FAILED)
         .put(ValidReservationScheduleStatusT.EXECUTION_FAILED, FAILED)
         .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED, CANCELLED)
@@ -320,7 +328,11 @@ class NbiOpenDracWsClient implements NbiClient {
     private OpenDracStatusTranslator() {
     }
 
-    public static ReservationStatus translate(ValidReservationScheduleCreationResultT.Enum status) {
+    public static ReservationStatus translate(ValidReservationScheduleCreationResultT.Enum status, boolean autoProvision) {
+      if (autoProvision) {
+        return creationAutoProvionResultTranslations.get(status);
+      }
+
       return creationResultTranslations.get(status);
     }
 
@@ -341,11 +353,11 @@ class NbiOpenDracWsClient implements NbiClient {
     schedule.setName(reservation.getUserCreated() + "-" + System.currentTimeMillis());
     if (autoProvision) {
       schedule.setType(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC);
-      log.info("Created autoprovisioned reservation: {}", schedule.getName());
+      logger.info("Created autoprovisioned reservation: {}", schedule.getName());
     }
     else {
       schedule.setType(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_MANUAL);
-      log.info("Created manual provisioned reservation: {}", schedule.getName());
+      logger.info("Created manual provisioned reservation: {}", schedule.getName());
     }
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(reservation.getStartDateTime().toDate());
@@ -377,7 +389,7 @@ class NbiOpenDracWsClient implements NbiClient {
       return responseDocument.getQueryReservationScheduleResponse().getReservationSchedule().getOccurrenceIdArray()[0];
     }
     catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
-      log.error("Error: ", e);
+      logger.error("Error: ", e);
     }
     return null;
   }
@@ -429,7 +441,7 @@ class NbiOpenDracWsClient implements NbiClient {
       final QueryEndpointsResponseDocument response = networkingService.queryEndpoints(requestDocument,
           getSecurityDocument());
 
-      log.debug("Find all endpoints response: {}", response);
+      logger.debug("Find all endpoints response: {}", response);
 
       final List<EndpointT> endPoints = Lists.newArrayList();
       for (final String tna : response.getQueryEndpointsResponse().getTnaArray()) {
@@ -439,7 +451,7 @@ class NbiOpenDracWsClient implements NbiClient {
       return endPoints;
     }
     catch (RemoteException e) {
-      log.warn("Could not query openDRAC for end points", e);
+      logger.warn("Could not query openDRAC for end points", e);
       throw new RuntimeException(e);
     }
   }
@@ -458,7 +470,7 @@ class NbiOpenDracWsClient implements NbiClient {
       return endpointFound;
     }
     catch (RemoteException e) {
-      log.warn("Can query openDrac for end point by tna", e);
+      logger.warn("Can query openDrac for end point by tna", e);
       throw new RuntimeException(e);
     }
   }

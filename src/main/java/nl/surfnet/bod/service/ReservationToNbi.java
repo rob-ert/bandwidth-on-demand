@@ -54,14 +54,30 @@ public class ReservationToNbi {
   private LogEventService logEventService;
 
   @Async
-  public void submitNewReservation(Reservation reservation, boolean autoProvision, Optional<NsiRequestDetails> nsiRequestDetails) {
+  public void reserve(Reservation reservation, boolean autoProvision, Optional<NsiRequestDetails> requestDetails) {
     logger.debug("Requesting a new reservation from the Nbi, {} ({})", reservation);
 
     ReservationStatus orgStatus = reservation.getStatus();
     reservation = nbiClient.createReservation(reservation, autoProvision);
 
     reservation = reservationRepo.save(reservation);
-    publishStatusChanged(reservation, orgStatus, nsiRequestDetails);
+    publishStatusChanged(reservation, orgStatus, requestDetails);
+  }
+
+  @Async
+  public void provision(Reservation reservation, Optional<NsiRequestDetails> requestDetails) {
+    logger.debug("Activating a reservation {}", reservation);
+
+    boolean activateReservation = nbiClient.activateReservation(reservation.getReservationId());
+
+    if (activateReservation) {
+      ReservationStatus orgStatus = reservation.getStatus();
+
+      reservation.setStatus(ReservationStatus.SCHEDULED);
+      reservationRepo.save(reservation);
+
+      publishStatusChanged(reservation, orgStatus, requestDetails);
+    }
   }
 
   private void publishStatusChanged(

@@ -89,6 +89,9 @@ public class Connection {
   @OneToOne
   private Reservation reservation;
 
+  @OneToOne(cascade = CascadeType.ALL)
+  private NsiRequestDetails provisionRequestDetails;
+
   public Long getId() {
     return id;
   }
@@ -251,6 +254,14 @@ public class Connection {
     builder.append("]");
 
     return builder.toString();
+  }
+
+  public NsiRequestDetails getProvisionRequestDetails() {
+    return provisionRequestDetails;
+  }
+
+  public void setProvisionRequestDetails(NsiRequestDetails provisionRequestDetails) {
+    this.provisionRequestDetails = provisionRequestDetails;
   }
 
 }

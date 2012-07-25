@@ -61,6 +61,11 @@
                                         <dt><spring:message code="label_reservation_reservationid" /></dt>
                                         <dd><c:out value="${item.reservationId}" /></dd>
 
+                                        <c:if test="${not empty item.connectionId}">
+                                            <dt><spring:message code="label_reservation_connectionid" /></dt>
+                                            <dd><c:out value="${item.connectionId}" /></dd>
+                                        </c:if>
+
                                         <c:if test="${item.status eq 'FAILED'}">
                                             <dt><spring:message code="label_reservation_failedreason" /></dt>
                                             <dd>

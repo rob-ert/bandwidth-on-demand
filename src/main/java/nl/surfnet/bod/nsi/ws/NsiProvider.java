@@ -31,4 +31,12 @@ public interface NsiProvider extends ConnectionProviderPort {
   void reserveConfirmed(Connection connection, NsiRequestDetails requestDetails);
 
   void reserveFailed(Connection connection, NsiRequestDetails requestDetails);
+
+  void provisionConfirmed(Connection connection, NsiRequestDetails requestDetails);
+
+  void provisionFailed(Connection connection, NsiRequestDetails requestDetails);
+
+  void terminateConfirmed(Connection connection, NsiRequestDetails requestDetails);
+
+  void terminateFailed(Connection connection, NsiRequestDetails requestDetails);
 }
