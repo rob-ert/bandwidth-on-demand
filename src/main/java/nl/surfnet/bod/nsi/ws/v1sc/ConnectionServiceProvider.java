@@ -562,32 +562,41 @@ public class ConnectionServiceProvider implements NsiProvider {
   public GenericAcknowledgmentType query(QueryRequestType parameters) throws ServiceException {
     final String correlationId = parameters.getCorrelationId();
     final String replyTo = parameters.getReplyTo();
+
     List<String> ids = parameters.getQuery().getQueryFilter().getConnectionId();
 
-    boolean isConnectionId = true;
+    boolean isSearchByConnectionId = true;
+    boolean isSearchByRequesterNsa = false;
 
     if (ids == null || ids.size() == 0) {
       // use global reservation id
       ids = parameters.getQuery().getQueryFilter().getGlobalReservationId();
-      isConnectionId = false;
+      if (ids == null || ids.size() == 0) {
+        isSearchByRequesterNsa = true;
+      }
+      isSearchByConnectionId = false;
     }
 
     final QueryConfirmedType confirmedType = new QueryConfirmedType();
+    final String requesterNSA = parameters.getQuery().getRequesterNSA();
 
-    for (final String id : ids) {
-      Connection connection;
-      if (isConnectionId) {
-        connection = connectionRepo.findByConnectionId(id);
+    if (isSearchByRequesterNsa) {
+      final List<Connection> connectionsByRequesterNsa = connectionRepo.findByRequesterNsa(requesterNSA);
+      for (final Connection connection : connectionsByRequesterNsa) {
+        confirmedType.getReservationDetails().add(getQueryResultType(connection));
       }
-      else {
-        connection = connectionRepo.findByGlobalReservationId(id);
+    }
+    else {
+      for (final String id : ids) {
+        Connection connection;
+        if (isSearchByConnectionId) {
+          connection = connectionRepo.findByConnectionId(id);
+        }
+        else {
+          connection = connectionRepo.findByGlobalReservationId(id);
+        }
+        confirmedType.getReservationDetails().add(getQueryResultType(connection));
       }
-      final QueryDetailsResultType queryDetailsResultType = new QueryDetailsResultType();
-      queryDetailsResultType.setConnectionId(connection.getConnectionId());
-      queryDetailsResultType.setDescription("description");
-      queryDetailsResultType.setGlobalReservationId(connection.getGlobalReservationId());
-      queryDetailsResultType.setServiceParameters(connection.getServiceParameters());
-      confirmedType.getReservationDetails().add(queryDetailsResultType);
     }
 
     final NsiRequestDetails requestDetails = new NsiRequestDetails(replyTo, correlationId);
@@ -625,6 +634,19 @@ public class ConnectionServiceProvider implements NsiProvider {
     GenericAcknowledgmentType ack = new GenericAcknowledgmentType();
     ack.setCorrelationId(correlationId);
     return ack;
+  }
+
+  /**
+   * @param connection
+   * @return
+   */
+  private QueryDetailsResultType getQueryResultType(Connection connection) {
+    final QueryDetailsResultType queryDetailsResultType = new QueryDetailsResultType();
+    queryDetailsResultType.setConnectionId(connection.getConnectionId());
+    queryDetailsResultType.setDescription("description");
+    queryDetailsResultType.setGlobalReservationId(connection.getGlobalReservationId());
+    queryDetailsResultType.setServiceParameters(connection.getServiceParameters());
+    return queryDetailsResultType;
   }
 
   @Override
