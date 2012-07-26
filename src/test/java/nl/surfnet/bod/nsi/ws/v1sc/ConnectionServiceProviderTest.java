@@ -135,7 +135,7 @@ public class ConnectionServiceProviderTest {
   public void reserveTypeWithoutGlobalReservationIdShouldGetOne() {
     ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.<String>absent());
 
-    Connection connection = ConnectionServiceProviderService.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequestType);
+    Connection connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequestType);
 
     assertThat(connection.getGlobalReservationId(), not(IsEmptyString.isEmptyOrNullString()));
     assertThat(connection.getDesiredBandwidth(), is(1000));
@@ -145,7 +145,7 @@ public class ConnectionServiceProviderTest {
   public void reserveTypeWithGlobalReservationId() {
     ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.of("urn:surfnet.nl:12345"));
 
-    Connection connection = ConnectionServiceProviderService.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequestType);
+    Connection connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequestType);
 
     assertThat(connection.getGlobalReservationId(), is("urn:surfnet.nl:12345"));
   }

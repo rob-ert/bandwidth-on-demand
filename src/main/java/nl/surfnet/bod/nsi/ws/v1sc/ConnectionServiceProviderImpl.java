@@ -23,7 +23,7 @@ package nl.surfnet.bod.nsi.ws.v1sc;
 
 import static com.google.common.base.Preconditions.*;
 import static nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD.*;
-import static nl.surfnet.bod.service.ConnectionServiceProviderService.*;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.*;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
 
 import java.util.ArrayList;
