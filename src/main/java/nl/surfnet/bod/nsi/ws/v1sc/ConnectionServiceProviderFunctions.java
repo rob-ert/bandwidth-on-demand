@@ -1,5 +1,6 @@
 package nl.surfnet.bod.nsi.ws.v1sc;
 
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.*;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
 
 import java.io.IOException;
@@ -26,7 +27,6 @@ import com.google.common.base.Function;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderConstants;
 
 public class ConnectionServiceProviderFunctions {
 
@@ -131,7 +131,7 @@ public class ConnectionServiceProviderFunctions {
     }
 
     private String generateGlobalId() {
-      return ConnectionServiceProviderConstants.URN_GLOBAL_RESERVATION_ID + ":" + UUID.randomUUID();
+      return URN_GLOBAL_RESERVATION_ID + ":" + UUID.randomUUID();
     }
 
   };

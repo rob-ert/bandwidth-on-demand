@@ -27,6 +27,14 @@ import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 
 public interface ConnectionServiceProvider extends ConnectionProviderPort {
+  
+  public static final String URN_OGF = "urn:ogf:network";
+  public static final String NETWORK_ID = "surfnet.nl";
+
+  public static final String URN_PROVIDER_NSA = URN_OGF + ":nsa:" + NETWORK_ID;
+  public static final String URN_STP = URN_OGF + ":stp:" + NETWORK_ID;
+
+  public static final String URN_GLOBAL_RESERVATION_ID = "urn:nl:surfnet:diensten:bod";
 
   void reserveConfirmed(Connection connection, NsiRequestDetails requestDetails);
 

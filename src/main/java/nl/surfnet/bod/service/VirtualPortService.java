@@ -22,6 +22,7 @@
 package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.*;
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.*;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.*;
 
 import java.util.Collection;
@@ -50,7 +51,6 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderConstants;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
@@ -241,7 +241,7 @@ public class VirtualPortService {
   }
 
   public VirtualPort findByNsiStpId(String sourceStpId) {
-    Pattern pattern = Pattern.compile(ConnectionServiceProviderConstants.URN_STP + ":([0-9]+)");
+    Pattern pattern = Pattern.compile(URN_STP + ":([0-9]+)");
     Matcher matcher = pattern.matcher(sourceStpId);
 
     if (!matcher.matches()) {

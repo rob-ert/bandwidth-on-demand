@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.nsi;
 
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
@@ -54,7 +55,6 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderConstants;
 import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderImpl;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
@@ -161,15 +161,15 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     PathType path = new PathType();
 
     ServiceTerminationPointType dest = new ServiceTerminationPointType();
-    dest.setStpId(ConnectionServiceProviderConstants.URN_STP + ":" + sourceVirtualPort.getId());
+    dest.setStpId(URN_STP + ":" + sourceVirtualPort.getId());
     path.setDestSTP(dest);
 
     ServiceTerminationPointType source = new ServiceTerminationPointType();
-    source.setStpId(ConnectionServiceProviderConstants.URN_STP + ":" + destinationVirtualPort.getId());
+    source.setStpId(URN_STP + ":" + destinationVirtualPort.getId());
     path.setSourceSTP(source);
 
     ReserveRequestType reservationRequest = new ConnectionServiceProviderFactory().setScheduleStartTime(startTime)
-        .setScheduleEndTime(endTime).setCorrelationId(correlationId).setProviderNsa(ConnectionServiceProviderConstants.URN_PROVIDER_NSA)
+        .setScheduleEndTime(endTime).setCorrelationId(correlationId).setProviderNsa(URN_PROVIDER_NSA)
         .setPath(path).createReservation();
 
     // send reserve request

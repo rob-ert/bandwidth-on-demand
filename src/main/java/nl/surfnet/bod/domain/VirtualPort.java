@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.domain;
 
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.*;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -34,8 +36,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
 
 import com.google.common.base.Strings;
-
-import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderConstants;
 
 /**
  * Entity which represents a VirtualPort which is mapped to a
@@ -143,7 +143,7 @@ public class VirtualPort {
   }
 
   public String getNsiStpId() {
-    return ConnectionServiceProviderConstants.URN_STP + ":" + getId();
+    return URN_STP + ":" + getId();
   }
 
   @Override
