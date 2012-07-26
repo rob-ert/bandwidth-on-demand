@@ -36,7 +36,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
-import nl.surfnet.bod.nsi.ws.NsiConstants;
+import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderConstants;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
@@ -226,14 +226,14 @@ public class VirtualPortServiceTest {
     VirtualPort port = new VirtualPortFactory().create();
     when(virtualPortRepoMock.findOne(25L)).thenReturn(port);
 
-    VirtualPort foundPort = subject.findByNsiStpId(NsiConstants.URN_STP + ":25");
+    VirtualPort foundPort = subject.findByNsiStpId(ConnectionServiceProviderConstants.URN_STP + ":25");
 
     assertThat(foundPort, is(port));
   }
 
   @Test
   public void findByIllegalNsiStpIdWithWrongNetworkId() {
-    VirtualPort foundPort = subject.findByNsiStpId(NsiConstants.URN_STP + ":asdfasfasdf");
+    VirtualPort foundPort = subject.findByNsiStpId(ConnectionServiceProviderConstants.URN_STP + ":asdfasfasdf");
 
     assertThat(foundPort, is(nullValue()));
     verifyZeroInteractions(virtualPortRepoMock);

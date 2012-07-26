@@ -21,7 +21,7 @@
  */
 package nl.surfnet.bod.nsi.ws;
 
-public class ConnectionServiceErrorCodes {
+public class ConnectionServiceProviderErrorCodes {
 
   public enum PAYLOAD {
     PAYLOAD_ERROR("00100", ""), MISSING_PARAMETER("00101", ""), NOT_IMPLEMENTED("00102", "");

@@ -31,8 +31,8 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.nsi.ws.NsiConstants;
-import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProvider;
+import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderConstants;
+import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderImpl;
 import nl.surfnet.bod.repo.*;
 import nl.surfnet.bod.support.*;
 
@@ -64,7 +64,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   private static MockHttpServer requesterEndpoint = new MockHttpServer(NsiReservationFactory.PORT);
 
   @Resource(name = "nsiProvider_v1_sc")
-  private ConnectionServiceProvider nsiProvider;
+  private ConnectionServiceProviderImpl nsiProvider;
 
   @Resource
   private VirtualPortRepo virtualPortRepo;
@@ -148,15 +148,15 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     PathType path = new PathType();
 
     ServiceTerminationPointType dest = new ServiceTerminationPointType();
-    dest.setStpId(NsiConstants.URN_STP + ":" + sourceVirtualPort.getId());
+    dest.setStpId(ConnectionServiceProviderConstants.URN_STP + ":" + sourceVirtualPort.getId());
     path.setDestSTP(dest);
 
     ServiceTerminationPointType source = new ServiceTerminationPointType();
-    source.setStpId(NsiConstants.URN_STP + ":" + destinationVirtualPort.getId());
+    source.setStpId(ConnectionServiceProviderConstants.URN_STP + ":" + destinationVirtualPort.getId());
     path.setSourceSTP(source);
 
     ReserveRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
-        .setScheduleEndTime(endTime).setCorrelationId(correlationId).setProviderNsa(NsiConstants.URN_PROVIDER_NSA)
+        .setScheduleEndTime(endTime).setCorrelationId(correlationId).setProviderNsa(ConnectionServiceProviderConstants.URN_PROVIDER_NSA)
         .setPath(path).createReservation();
 
     // send reserve request

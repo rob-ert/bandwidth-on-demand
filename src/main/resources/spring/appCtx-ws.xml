@@ -27,7 +27,7 @@
     <!-- NSI WS -->
     <wss:binding url="/nsi/v1_sc/provider">
         <wss:service>
-            <ws:service bean="#nsiProvider_v1_sc" />
+            <ws:service bean="#connectionServiceProviderImpl_v1sc" />
         </wss:service>
     </wss:binding>
 

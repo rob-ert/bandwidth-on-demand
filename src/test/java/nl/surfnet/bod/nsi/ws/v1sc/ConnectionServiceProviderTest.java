@@ -21,23 +21,13 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.repo.ConnectionRepo;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.support.ConnectionFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
 
 import org.hamcrest.text.IsEmptyString;
 import org.junit.Before;
@@ -48,23 +38,44 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
+import org.ogf.schemas.nsi._2011._10.connection.types.BandwidthType;
+import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReserveType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
+
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.repo.ConnectionRepo;
+import nl.surfnet.bod.service.ConnectionServiceProviderService;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderTest {
 
   @InjectMocks
-  private ConnectionServiceProvider subject;
+  private ConnectionServiceProviderImpl subject;
 
   @Mock
   private ConnectionRepo connectionRepoMock;
+  
   @Mock
   private VirtualPortService virtualPortServiceMock;
+  
   @Mock
   private ReservationService reservationServiceMock;
+  
+  @Mock
+  private ConnectionServiceProviderService connectionServiceProviderService;
 
   private String nsaProvider = "nsa:surfnet.nl";
 
@@ -124,7 +135,7 @@ public class ConnectionServiceProviderTest {
   public void reserveTypeWithoutGlobalReservationIdShouldGetOne() {
     ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.<String>absent());
 
-    Connection connection = ConnectionServiceProvider.TO_CONNECTION.apply(reserveRequestType);
+    Connection connection = ConnectionServiceProviderService.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequestType);
 
     assertThat(connection.getGlobalReservationId(), not(IsEmptyString.isEmptyOrNullString()));
     assertThat(connection.getDesiredBandwidth(), is(1000));
@@ -134,7 +145,7 @@ public class ConnectionServiceProviderTest {
   public void reserveTypeWithGlobalReservationId() {
     ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.of("urn:surfnet.nl:12345"));
 
-    Connection connection = ConnectionServiceProvider.TO_CONNECTION.apply(reserveRequestType);
+    Connection connection = ConnectionServiceProviderService.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequestType);
 
     assertThat(connection.getGlobalReservationId(), is("urn:surfnet.nl:12345"));
   }

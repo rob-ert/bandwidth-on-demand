@@ -25,7 +25,7 @@ import javax.annotation.PostConstruct;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.nsi.ws.NsiProvider;
+import nl.surfnet.bod.nsi.ws.ConnectionServiceProvider;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
@@ -38,15 +38,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ConnectionServiceListener implements ReservationListener {
+public class ConnectionServiceProviderListener implements ReservationListener {
 
-  private final Logger logger = LoggerFactory.getLogger(ConnectionServiceListener.class);
+  private final Logger logger = LoggerFactory.getLogger(ConnectionServiceProviderListener.class);
 
   @Autowired
   private ReservationEventPublisher reservationEventPublisher;
 
   @Autowired
-  private NsiProvider nsiProvider;
+  private ConnectionServiceProvider connectionServiceProvider;
 
   @Autowired
   private ReservationRepo reservationRepo;
@@ -68,7 +68,7 @@ public class ConnectionServiceListener implements ReservationListener {
 
     switch (reservation.getStatus()) {
     case RESERVED:
-      nsiProvider.reserveConfirmed(connection, event.getNsiRequestDetails().get());
+      connectionServiceProvider.reserveConfirmed(connection, event.getNsiRequestDetails().get());
       break;
     case SCHEDULED:
       // no need to send back any confirms
@@ -76,18 +76,18 @@ public class ConnectionServiceListener implements ReservationListener {
     case FAILED:
       if (connection.getCurrentState() == ConnectionStateType.AUTO_PROVISION
         || connection.getCurrentState() == ConnectionStateType.SCHEDULED) {
-        nsiProvider.provisionFailed(connection, event.getNsiRequestDetails().get());
+        connectionServiceProvider.provisionFailed(connection, event.getNsiRequestDetails().get());
       }
       else if (connection.getCurrentState() == ConnectionStateType.RESERVING) {
-        nsiProvider.reserveFailed(connection, event.getNsiRequestDetails().get());
+        connectionServiceProvider.reserveFailed(connection, event.getNsiRequestDetails().get());
       }
       break;
     case RUNNING:
-      nsiProvider.provisionConfirmed(connection, event.getNsiRequestDetails().get());
+      connectionServiceProvider.provisionConfirmed(connection, event.getNsiRequestDetails().get());
       break;
     case CANCELLED:
       // FIXME [AvD] not called yet.. cancel is not async
-      nsiProvider.terminateConfirmed(connection, event.getNsiRequestDetails().get());
+      connectionServiceProvider.terminateConfirmed(connection, event.getNsiRequestDetails().get());
       break;
     default:
       logger.error("Unhandled status {} of reservation {}", reservation.getStatus(), event.getReservation());

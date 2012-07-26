@@ -21,22 +21,17 @@
  */
 package nl.surfnet.bod.nsi.ws;
 
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.NsiRequestDetails;
+public final class ConnectionServiceProviderConstants {
 
-import org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort;
+  public static final String URN_OGF = "urn:ogf:network";
+  public static final String NETWORK_ID = "surfnet.nl";
 
-public interface NsiProvider extends ConnectionProviderPort {
+  public static final String URN_PROVIDER_NSA = URN_OGF + ":nsa:" + NETWORK_ID;
+  public static final String URN_STP = URN_OGF + ":stp:" + NETWORK_ID;
 
-  void reserveConfirmed(Connection connection, NsiRequestDetails requestDetails);
+  public static final String URN_GLOBAL_RESERVATION_ID = "urn:nl:surfnet:diensten:bod";
 
-  void reserveFailed(Connection connection, NsiRequestDetails requestDetails);
+  private ConnectionServiceProviderConstants() {
+  }
 
-  void provisionConfirmed(Connection connection, NsiRequestDetails requestDetails);
-
-  void provisionFailed(Connection connection, NsiRequestDetails requestDetails);
-
-  void terminateConfirmed(Connection connection, NsiRequestDetails requestDetails);
-
-  void terminateFailed(Connection connection, NsiRequestDetails requestDetails);
 }

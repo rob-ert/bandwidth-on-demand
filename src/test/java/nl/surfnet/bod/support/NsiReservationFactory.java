@@ -25,7 +25,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProvider;
+import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderImpl;
 
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.types.*;
@@ -39,8 +39,8 @@ public class NsiReservationFactory {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private String correlationId = ConnectionServiceProvider.getCorrelationId();
-  private String connectionId = ConnectionServiceProvider.getCorrelationId();
+  private String correlationId = ConnectionServiceProviderImpl.getCorrelationId();
+  private String connectionId = ConnectionServiceProviderImpl.getCorrelationId();
   private int desiredBandwidth = 100;
   private int maxBandwidth = 100;
   private int minBandwidth = 100;
