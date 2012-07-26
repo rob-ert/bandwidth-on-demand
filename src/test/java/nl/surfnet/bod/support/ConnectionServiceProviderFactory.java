@@ -21,14 +21,19 @@
  */
 package nl.surfnet.bod.support;
 
+import java.util.UUID;
+
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderImpl;
-
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
+import org.ogf.schemas.nsi._2011._10.connection.types.BandwidthType;
+import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReserveType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,10 +42,12 @@ public class ConnectionServiceProviderFactory {
   public static final int PORT = 9082;
   public static final String NSI_REQUESTER_ENDPOINT = "http://localhost:" + PORT + "/bod/nsi/requester";
 
+  private static final String URN_UUID = "urn:uuid:";
+
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private String correlationId = ConnectionServiceProviderImpl.getCorrelationId();
-  private String connectionId = ConnectionServiceProviderImpl.getCorrelationId();
+  private String correlationId = getCorrelationId();
+  private String connectionId = getCorrelationId();
   private int desiredBandwidth = 100;
   private int maxBandwidth = 100;
   private int minBandwidth = 100;
@@ -116,6 +123,10 @@ public class ConnectionServiceProviderFactory {
     return reservationRequestType;
   }
 
+  private static String getCorrelationId() {
+    return URN_UUID + UUID.randomUUID().toString();
+  }
+
   public final ConnectionServiceProviderFactory setCorrelationId(String correlationId) {
     this.correlationId = correlationId;
     return this;
@@ -131,12 +142,14 @@ public class ConnectionServiceProviderFactory {
     return this;
   }
 
-  // public final ConnectionServiceProviderFactory setMaxBandwidth(long maxBandwidth) {
+  // public final ConnectionServiceProviderFactory setMaxBandwidth(long
+  // maxBandwidth) {
   // this.maxBandwidth = maxBandwidth;
   // return this;
   // }
   //
-  // public final ConnectionServiceProviderFactory setMinBandwidth(long minBandwidth) {
+  // public final ConnectionServiceProviderFactory setMinBandwidth(long
+  // minBandwidth) {
   // this.minBandwidth = minBandwidth;
   // return this;
   // }

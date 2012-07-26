@@ -2,16 +2,22 @@ package nl.surfnet.bod.service;
 
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 
 import org.joda.time.LocalDateTime;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
+import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
@@ -22,6 +28,7 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -53,6 +60,26 @@ public class ConnectionServiceProviderService {
 
   @Autowired
   private VirtualPortService virtualPortService;
+
+  public static final Function<NsiRequestDetails, ConnectionRequesterPort> NSI_REQUEST_TO_CONNECTION_REQUESTER = new Function<NsiRequestDetails, ConnectionRequesterPort>() {
+    @Override
+    public ConnectionRequesterPort apply(final NsiRequestDetails requestDetails) {
+      URL url;
+      try {
+        url = new ClassPathResource("/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl").getURL();
+      }
+      catch (IOException e) {
+        throw new RuntimeException("Could not find the requester wsdl", e);
+      }
+      final ConnectionRequesterPort port = new ConnectionServiceRequester(url, new QName(
+          "http://schemas.ogf.org/nsi/2011/10/connection/requester", "ConnectionServiceRequester"))
+          .getConnectionServiceRequesterPort();
+
+      final Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
+      requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, requestDetails.getReplyTo());
+      return port;
+    }
+  };
 
   public static final Function<Connection, GenericFailedType> CONNECTION_TO_GENERIC_FAILED = new Function<Connection, GenericFailedType>() {
     @Override

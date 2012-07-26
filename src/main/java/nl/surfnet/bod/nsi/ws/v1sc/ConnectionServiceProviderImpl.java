@@ -21,22 +21,16 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD.*;
 import static com.google.common.base.Preconditions.*;
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD.*;
 import static nl.surfnet.bod.service.ConnectionServiceProviderService.*;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.jws.WebService;
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceContext;
 
@@ -51,7 +45,6 @@ import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
@@ -64,7 +57,6 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -76,8 +68,6 @@ import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProvider;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.service.ConnectionServiceProviderService;
@@ -93,8 +83,6 @@ import nl.surfnet.bod.service.VirtualPortService;
 public class ConnectionServiceProviderImpl implements ConnectionServiceProvider {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderImpl.class);
-
-  private static final String URN_UUID = "urn:uuid:";
 
   @Autowired
   private ConnectionRepo connectionRepo;
@@ -132,25 +120,6 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     serviceExceptionType.setVariables(attributeStatement);
 
     return new ServiceException("SVC0001", serviceExceptionType);
-  }
-
-  private ConnectionRequesterPort getConnectionRequesterPort(NsiRequestDetails requestDetails) {
-    URL url;
-    try {
-      url = new ClassPathResource("/wsdl/nsi/ogf_nsi_connection_requester_v1_0.wsdl").getURL();
-    }
-    catch (IOException e) {
-      log.error("Error: ", e);
-      throw new RuntimeException("Could not find the requester wsdl", e);
-    }
-
-    final ConnectionRequesterPort port = new ConnectionServiceRequester(url, new QName(
-        "http://schemas.ogf.org/nsi/2011/10/connection/requester", "ConnectionServiceRequester"))
-        .getConnectionServiceRequesterPort();
-
-    final Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
-    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, requestDetails.getReplyTo());
-    return port;
   }
 
   /**
@@ -257,7 +226,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     reserveConfirmedType.setReservation(reservationInfoType);
 
     try {
-      ConnectionRequesterPort port = getConnectionRequesterPort(requestDetails);
+      ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER.apply(requestDetails);
       port.reserveConfirmed(new Holder<>(requestDetails.getCorrelationId()), reserveConfirmedType);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -286,7 +255,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     reservationFailed.setServiceException(serviceException);
 
     try {
-      final ConnectionRequesterPort port = getConnectionRequesterPort(requestDetails);
+      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER.apply(requestDetails);
       port.reserveFailed(new Holder<>(requestDetails.getCorrelationId()), reservationFailed);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -347,7 +316,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     generic.setGlobalReservationId(connection.getGlobalReservationId());
 
     try {
-      final ConnectionRequesterPort port = getConnectionRequesterPort(requestDetails);
+      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER.apply(requestDetails);
       port.provisionFailed(new Holder<>(requestDetails.getCorrelationId()), generic);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -367,7 +336,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     final GenericConfirmedType genericConfirm = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
 
     try {
-      final ConnectionRequesterPort port = getConnectionRequesterPort(requestDetails);
+      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER.apply(requestDetails);
       port.provisionConfirmed(new Holder<>(requestDetails.getCorrelationId()), genericConfirm);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -407,7 +376,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     final GenericConfirmedType genericConfirmed = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
 
     try {
-      final ConnectionRequesterPort port = getConnectionRequesterPort(requestDetails);
+      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER.apply(requestDetails);
       port.terminateConfirmed(new Holder<>(requestDetails.getCorrelationId()), genericConfirmed);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -423,7 +392,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     final GenericFailedType genericFailed = CONNECTION_TO_GENERIC_FAILED.apply(connection);
 
     try {
-      final ConnectionRequesterPort port = getConnectionRequesterPort(requestDetails);
+      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER.apply(requestDetails);
       port.terminateFailed(new Holder<>(requestDetails.getCorrelationId()), genericFailed);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -473,7 +442,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     }
 
     connectionServiceProviderService.sendQueryConfirmed(correlationId, confirmedType,
-        getConnectionRequesterPort(new NsiRequestDetails(replyTo, correlationId)));
+        NSI_REQUEST_TO_CONNECTION_REQUESTER.apply(new NsiRequestDetails(replyTo, correlationId)));
 
     /*
      * Break out the attributes we need for handling. correlationId is needed
@@ -519,10 +488,6 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
-  public static String getCorrelationId() {
-    return URN_UUID + UUID.randomUUID().toString();
-  }
-
   protected void addNsaProvider(String provider) {
     this.nsaProviderUrns.add(provider);
   }
@@ -532,7 +497,6 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     if (connection == null) {
       throw getInvalidParameterServiceException("connectionId");
     }
-
     return connection;
   }
 
