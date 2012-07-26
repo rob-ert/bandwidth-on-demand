@@ -13,6 +13,8 @@ import org.joda.time.LocalDateTime;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryDetailsResultType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
@@ -51,6 +53,33 @@ public class ConnectionServiceProviderService {
 
   @Autowired
   private VirtualPortService virtualPortService;
+
+  public static final Function<Connection, GenericFailedType> CONNECTION_TO_GENERIC_FAILED = new Function<Connection, GenericFailedType>() {
+    @Override
+    public GenericFailedType apply(final Connection connection) {
+      final GenericFailedType generic = new GenericFailedType();
+      generic.setProviderNSA(connection.getProviderNsa());
+      generic.setRequesterNSA(connection.getRequesterNsa());
+      generic.setConnectionId(connection.getConnectionId());
+      generic.setGlobalReservationId(connection.getGlobalReservationId());
+      generic.setConnectionState(connection.getCurrentState());
+      return generic;
+
+    }
+  };
+
+  public static final Function<Connection, GenericConfirmedType> CONNECTION_TO_GENERIC_CONFIRMED = new Function<Connection, GenericConfirmedType>() {
+    @Override
+    public GenericConfirmedType apply(final Connection connection) {
+      final GenericConfirmedType generic = new GenericConfirmedType();
+      generic.setProviderNSA(connection.getProviderNsa());
+      generic.setRequesterNSA(connection.getRequesterNsa());
+      generic.setConnectionId(connection.getConnectionId());
+      generic.setGlobalReservationId(connection.getGlobalReservationId());
+      return generic;
+
+    }
+  };
 
   private final Function<Connection, Reservation> CONNECTION_TO_RESERVATION = new Function<Connection, Reservation>() {
     @Override

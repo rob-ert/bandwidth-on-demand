@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD.*;
 import static com.google.common.base.Preconditions.*;
 import static nl.surfnet.bod.service.ConnectionServiceProviderService.*;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
@@ -281,7 +282,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     AttributeStatementType values = new AttributeStatementType();
     serviceException.setVariables(values);
 
-    GenericFailedType reservationFailed = createGenericFailed(connection);
+    GenericFailedType reservationFailed = CONNECTION_TO_GENERIC_FAILED.apply(connection);
     reservationFailed.setServiceException(serviceException);
 
     try {
@@ -363,7 +364,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     connection.setCurrentState(ConnectionStateType.PROVISIONED);
     connectionRepo.save(connection);
 
-    final GenericConfirmedType genericConfirm = createGenericConfirmed(connection);
+    final GenericConfirmedType genericConfirm = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
 
     try {
       final ConnectionRequesterPort port = getConnectionRequesterPort(requestDetails);
@@ -377,11 +378,9 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
 
   @Override
   public GenericAcknowledgmentType release(ReleaseRequestType parameters) throws ServiceException {
-    final PAYLOAD error = ConnectionServiceProviderErrorCodes.PAYLOAD.NOT_IMPLEMENTED;
     final ServiceExceptionType exceptionType = new ServiceExceptionType();
-    exceptionType.setErrorId(error.getId());
-    exceptionType.setText(error.getText());
-
+    exceptionType.setErrorId(NOT_IMPLEMENTED.getId());
+    exceptionType.setText(NOT_IMPLEMENTED.getText());
     throw new ServiceException("Not supported", exceptionType);
   }
 
@@ -405,7 +404,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     connection.setCurrentState(ConnectionStateType.TERMINATED);
     connectionRepo.save(connection);
 
-    final GenericConfirmedType genericConfirmed = createGenericConfirmed(connection);
+    final GenericConfirmedType genericConfirmed = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
 
     try {
       final ConnectionRequesterPort port = getConnectionRequesterPort(requestDetails);
@@ -421,7 +420,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     connection.setCurrentState(ConnectionStateType.TERMINATED);
     connectionRepo.save(connection);
 
-    final GenericFailedType genericFailed = createGenericFailed(connection);
+    final GenericFailedType genericFailed = CONNECTION_TO_GENERIC_FAILED.apply(connection);
 
     try {
       final ConnectionRequesterPort port = getConnectionRequesterPort(requestDetails);
@@ -535,29 +534,6 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     }
 
     return connection;
-  }
-
-  private GenericFailedType createGenericFailed(Connection connection) {
-    final GenericFailedType generic = new GenericFailedType();
-
-    generic.setProviderNSA(connection.getProviderNsa());
-    generic.setRequesterNSA(connection.getRequesterNsa());
-    generic.setConnectionId(connection.getConnectionId());
-    generic.setGlobalReservationId(connection.getGlobalReservationId());
-    generic.setConnectionState(connection.getCurrentState());
-
-    return generic;
-  }
-
-  private GenericConfirmedType createGenericConfirmed(Connection connection) {
-    final GenericConfirmedType generic = new GenericConfirmedType();
-
-    generic.setProviderNSA(connection.getProviderNsa());
-    generic.setRequesterNSA(connection.getRequesterNsa());
-    generic.setConnectionId(connection.getConnectionId());
-    generic.setGlobalReservationId(connection.getGlobalReservationId());
-
-    return generic;
   }
 
   static {
