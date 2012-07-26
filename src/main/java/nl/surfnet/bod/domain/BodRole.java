@@ -23,10 +23,10 @@ package nl.surfnet.bod.domain;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.google.common.base.Objects;
+
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.security.Security.RoleEnum;
-
-import com.google.common.base.Objects;
 
 /**
  * Represents a role so the user can switch between them. Note that only the

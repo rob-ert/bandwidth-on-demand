@@ -21,18 +21,18 @@
  */
 package nl.surfnet.bod.web.view;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import java.io.IOException;
-
-import nl.surfnet.bod.support.ReservationFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.web.security.Security;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
+
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.web.security.Security;
 
 public class ReservationViewJsonRenderTest {
 

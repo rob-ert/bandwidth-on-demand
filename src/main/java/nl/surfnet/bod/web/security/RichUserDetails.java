@@ -21,17 +21,11 @@
  */
 package nl.surfnet.bod.web.security;
 
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Collections2.*;
+import static com.google.common.collect.Lists.*;
 
 import java.util.Collection;
 import java.util.List;
-
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.util.Orderings;
-import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
@@ -41,7 +35,17 @@ import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.util.Orderings;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 @SuppressWarnings("serial")
 public class RichUserDetails implements UserDetails {

@@ -24,10 +24,10 @@ package nl.surfnet.bod.service;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
+
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-
-import org.springframework.data.domain.Sort;
 
 public interface PhysicalPortService {
 

@@ -24,17 +24,8 @@ package nl.surfnet.bod.web;
 import java.util.Collection;
 import java.util.List;
 
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.util.Orderings;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.TeamView;
+import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,17 +39,27 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
+import nl.surfnet.bod.util.Orderings;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.TeamView;
+
 @RequestMapping("/user")
 @Controller
 public class DashboardController {
 
-  @Autowired
+  @Resource
   private VirtualPortService virtualPortService;
 
-  @Autowired
+  @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
 
-  @Autowired
+  @Resource
   private ReservationService reservationService;
 
   @RequestMapping(method = RequestMethod.GET)

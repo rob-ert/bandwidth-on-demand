@@ -22,6 +22,12 @@
 package nl.surfnet.bod.nsi.ws.v1sc;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.Reservation;
@@ -31,24 +37,18 @@ import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 @Component
 public class ConnectionServiceProviderListener implements ReservationListener {
 
   private final Logger logger = LoggerFactory.getLogger(ConnectionServiceProviderListener.class);
 
-  @Autowired
+  @Resource
   private ReservationEventPublisher reservationEventPublisher;
 
-  @Autowired
+  @Resource
   private ConnectionServiceProvider connectionServiceProvider;
 
-  @Autowired
+  @Resource
   private ReservationRepo reservationRepo;
 
   @PostConstruct

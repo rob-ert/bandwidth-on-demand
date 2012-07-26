@@ -21,15 +21,14 @@
  */
 package nl.surfnet.bod.idd;
 
-import java.util.Collection;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
-import nl.surfnet.bod.idd.generated.Klanten;
+import java.util.Collection;
 
 import org.junit.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
+import nl.surfnet.bod.idd.generated.Klanten;
 
 public class IddOfflineClientTest {
 

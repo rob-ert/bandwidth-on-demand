@@ -21,20 +21,27 @@
  */
 package nl.surfnet.bod.support;
 
-import static junit.framework.Assert.fail;
-import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.pages.manager.*;
-import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.noc.NocOverviewPage;
+import static junit.framework.Assert.*;
+import static nl.surfnet.bod.support.BodWebDriver.*;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.remote.RemoteWebDriver;
+
+import nl.surfnet.bod.pages.manager.EditPhysicalPortPage;
+import nl.surfnet.bod.pages.manager.EditPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.manager.EditVirtualPortPage;
+import nl.surfnet.bod.pages.manager.ListPhysicalPortsPage;
+import nl.surfnet.bod.pages.manager.ListReservationPage;
+import nl.surfnet.bod.pages.manager.ListVirtualPortPage;
+import nl.surfnet.bod.pages.manager.ListVirtualResourceGroupPage;
+import nl.surfnet.bod.pages.manager.ManagerOverviewPage;
+import nl.surfnet.bod.pages.manager.NewVirtualPortPage;
+import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
+import nl.surfnet.bod.pages.noc.NocOverviewPage;
 
 public class BodManagerWebDriver {
 

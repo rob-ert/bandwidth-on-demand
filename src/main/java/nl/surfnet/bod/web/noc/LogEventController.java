@@ -23,12 +23,8 @@ package nl.surfnet.bod.web.noc;
 
 import java.util.List;
 
-import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.service.LogEventService;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
-import nl.surfnet.bod.web.security.Security;
+import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Controller;
@@ -37,13 +33,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.google.common.collect.Lists;
 
+import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.service.LogEventService;
+import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.security.Security;
+
 @Controller
 @RequestMapping(value = "/noc/" + LogEventController.PAGE_URL)
 public class LogEventController extends AbstractSortableListController<LogEvent> {
   public static final String PAGE_URL = "logevents";
   static final String MODEL_KEY = "list";
 
-  @Autowired
+  @Resource
   private LogEventService logEventService;
 
   @Override

@@ -21,13 +21,10 @@
  */
 package nl.surfnet.bod.service;
 
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.event.LogEventType;
-import nl.surfnet.bod.repo.LogEventRepo;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
-import nl.surfnet.bod.web.security.RichUserDetails;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDateTime;
@@ -38,11 +35,13 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.event.LogEventType;
+import nl.surfnet.bod.repo.LogEventRepo;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LogEventServiceTest {

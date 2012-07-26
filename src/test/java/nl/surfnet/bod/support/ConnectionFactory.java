@@ -21,10 +21,10 @@
  */
 package nl.surfnet.bod.support;
 
-import nl.surfnet.bod.domain.Connection;
-
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
+
+import nl.surfnet.bod.domain.Connection;
 
 public class ConnectionFactory {
 

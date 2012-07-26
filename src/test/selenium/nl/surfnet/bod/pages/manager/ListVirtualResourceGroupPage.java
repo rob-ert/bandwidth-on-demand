@@ -21,11 +21,11 @@
  */
 package nl.surfnet.bod.pages.manager;
 
-import nl.surfnet.bod.pages.AbstractListPage;
-import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
-
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
+
+import nl.surfnet.bod.pages.AbstractListPage;
+import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 
 public class ListVirtualResourceGroupPage extends AbstractListPage {
 

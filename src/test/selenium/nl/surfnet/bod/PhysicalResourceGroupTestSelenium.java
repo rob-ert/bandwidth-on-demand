@@ -21,9 +21,9 @@
  */
 package nl.surfnet.bod;
 
-import nl.surfnet.bod.support.TestExternalSupport;
-
 import org.junit.Test;
+
+import nl.surfnet.bod.support.TestExternalSupport;
 
 public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
 

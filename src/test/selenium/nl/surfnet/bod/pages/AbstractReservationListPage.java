@@ -21,10 +21,8 @@
  */
 package nl.surfnet.bod.pages;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.support.BodWebDriver;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.LocalDate;
@@ -33,6 +31,9 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.support.BodWebDriver;
 
 public abstract class AbstractReservationListPage extends AbstractListPage {
 

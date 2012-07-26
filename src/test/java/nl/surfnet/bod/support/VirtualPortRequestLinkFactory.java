@@ -21,12 +21,12 @@
  */
 package nl.surfnet.bod.support;
 
+import org.joda.time.LocalDateTime;
+
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-
-import org.joda.time.LocalDateTime;
 
 public class VirtualPortRequestLinkFactory {
 

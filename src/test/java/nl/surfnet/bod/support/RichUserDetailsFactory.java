@@ -25,12 +25,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.web.security.RichUserDetails;
-
-import com.google.common.collect.Lists;
 
 public class RichUserDetailsFactory {
 

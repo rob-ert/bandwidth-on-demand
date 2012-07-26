@@ -25,11 +25,11 @@ import java.io.IOException;
 
 import javax.servlet.jsp.JspException;
 
-import nl.surfnet.bod.util.Environment;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import nl.surfnet.bod.util.Environment;
 
 public class EnvironmentTag extends BodTagSupport {
 

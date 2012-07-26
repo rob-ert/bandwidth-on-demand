@@ -21,33 +21,39 @@
  */
 package nl.surfnet.bod.web.base;
 
-import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
+import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.format.number.NumberFormatAnnotationFormatterFactory;
 import org.springframework.format.support.FormattingConversionServiceFactoryBean;
+
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
 
 /**
  * A central place to register application converters and formatters.
  */
 public class ApplicationConversionServiceFactoryBean extends FormattingConversionServiceFactoryBean {
 
-  @Autowired
+  @Resource
   private PhysicalPortService physicalPortService;
 
-  @Autowired
+  @Resource
   private PhysicalResourceGroupService physicalResourceGroupService;
 
-  @Autowired
+  @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
 
-  @Autowired
+  @Resource
   private VirtualPortService virtualPortService;
 
   @Override

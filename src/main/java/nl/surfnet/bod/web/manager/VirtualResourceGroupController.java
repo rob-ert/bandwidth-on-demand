@@ -21,21 +21,12 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.List;
 
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
-import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
-import nl.surfnet.bod.web.security.Security;
+import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -47,6 +38,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
+import nl.surfnet.bod.web.security.Security;
 
 @Controller("managerVirtualResourceGroupController")
 @RequestMapping("/manager/" + VirtualResourceGroupController.PAGE_URL)
@@ -72,7 +70,7 @@ public class VirtualResourceGroupController extends AbstractSortableListControll
         }
       };
 
-  @Autowired
+  @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
 
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)

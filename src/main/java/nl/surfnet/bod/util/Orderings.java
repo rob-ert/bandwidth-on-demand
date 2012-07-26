@@ -21,9 +21,13 @@
  */
 package nl.surfnet.bod.util;
 
-import nl.surfnet.bod.domain.*;
-
 import com.google.common.collect.Ordering;
+
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 
 public final class Orderings {
 

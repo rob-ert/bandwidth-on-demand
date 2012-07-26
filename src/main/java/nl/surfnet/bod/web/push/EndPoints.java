@@ -26,15 +26,15 @@ import java.util.Map;
 
 import javax.servlet.AsyncContext;
 
-import nl.surfnet.bod.web.push.EndPoint.LongPollEndPoint;
-import nl.surfnet.bod.web.security.RichUserDetails;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
+
+import nl.surfnet.bod.web.push.EndPoint.LongPollEndPoint;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 @Component
 public class EndPoints {

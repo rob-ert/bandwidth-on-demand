@@ -21,29 +21,19 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.collect.Iterables.limit;
-import static com.google.common.collect.Iterables.skip;
-import static com.google.common.collect.Lists.newArrayList;
-import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC;
-import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALLOCATED_PORTS_PRED;
-import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec;
+import static com.google.common.collect.Iterables.*;
+import static com.google.common.collect.Lists.*;
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.*;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.mtosi.MtosiLiveClient;
-import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.util.Functions;
-import nl.surfnet.bod.web.security.Security;
+import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -52,8 +42,23 @@ import org.springframework.stereotype.Service;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
+
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.mtosi.MtosiLiveClient;
+import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.web.security.Security;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
@@ -73,16 +78,16 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   private Logger logger = LoggerFactory.getLogger(PhysicalPortServiceImpl.class);
 
-  @Autowired
+  @Resource
   private PhysicalPortRepo physicalPortRepo;
 
-  @Autowired
+  @Resource
   private NbiClient nbiClient;
 
-  @Autowired
+  @Resource
   private MtosiLiveClient mtosiClient;
 
-  @Autowired
+  @Resource
   private LogEventService logEventService;
 
   /**

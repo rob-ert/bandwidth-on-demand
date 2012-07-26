@@ -21,15 +21,16 @@
  */
 package nl.surfnet.bod.pages.noc;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.lessThan;
-import nl.surfnet.bod.event.LogEventType;
-import nl.surfnet.bod.pages.AbstractListPage;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import org.joda.time.LocalDateTime;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
+
+import nl.surfnet.bod.event.LogEventType;
+import nl.surfnet.bod.pages.AbstractListPage;
 
 public class ListLogEventsPage extends AbstractListPage {
   private static final String PAGE = "/noc/logevents";

@@ -23,14 +23,14 @@ package nl.surfnet.bod.web;
 
 import java.util.Map;
 
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.security.Security.RoleEnum;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 @RequestMapping("/")
 @Controller

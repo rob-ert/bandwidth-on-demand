@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.pages.user;
 
-import nl.surfnet.bod.pages.AbstractFormPage;
-
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
@@ -36,6 +34,8 @@ import org.openqa.selenium.support.PageFactory;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ObjectArrays;
+
+import nl.surfnet.bod.pages.AbstractFormPage;
 
 public class NewReservationPage extends AbstractFormPage {
 

@@ -21,16 +21,11 @@
  */
 package nl.surfnet.bod.web.manager;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
-
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.Security;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,14 +35,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.Security;
+
 @Controller("managerPhysicalResourceGroupController")
 @RequestMapping("/manager/physicalresourcegroups")
 public class PhysicalResourceGroupController {
 
-  @Autowired
+  @Resource
   private PhysicalResourceGroupService physicalResourceGroupService;
 
-  @Autowired
+  @Resource
   private MessageSource messageSource;
 
   @RequestMapping(value = "/edit", params = "id", method = RequestMethod.GET)

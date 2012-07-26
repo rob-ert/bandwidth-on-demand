@@ -21,10 +21,10 @@
  */
 package nl.surfnet.bod;
 
-import nl.surfnet.bod.support.TestExternalSupport;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import nl.surfnet.bod.support.TestExternalSupport;
 
 public class LogEventTestSelenium extends TestExternalSupport {
 

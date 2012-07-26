@@ -2,6 +2,7 @@ package nl.surfnet.bod.service;
 
 import java.util.Collections;
 
+import javax.annotation.Resource;
 import javax.xml.ws.Holder;
 
 import org.joda.time.LocalDateTime;
@@ -11,7 +12,6 @@ import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -32,13 +32,13 @@ public class ConnectionServiceProviderService {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderService.class);
 
-  @Autowired
+  @Resource
   private ConnectionRepo connectionRepo;
 
-  @Autowired
+  @Resource
   private ReservationService reservationService;
 
-  @Autowired
+  @Resource
   private VirtualPortService virtualPortService;
 
   public Reservation createReservation(final Connection connection, NsiRequestDetails requestDetails,

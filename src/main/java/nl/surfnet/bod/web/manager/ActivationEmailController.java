@@ -21,15 +21,10 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import nl.surfnet.bod.domain.ActivationEmailLink;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.Security;
+import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,6 +35,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.ImmutableList;
 
+import nl.surfnet.bod.domain.ActivationEmailLink;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.Security;
+
 @RequestMapping(ActivationEmailController.ACTIVATION_MANAGER_PATH)
 @Controller
 public class ActivationEmailController {
@@ -48,10 +49,10 @@ public class ActivationEmailController {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-  @Autowired
+  @Resource
   private PhysicalResourceGroupService physicalResourceGroupService;
 
-  @Autowired
+  @Resource
   private MessageSource messageSource;
 
   @RequestMapping(value = "/{uuid}", method = RequestMethod.GET)

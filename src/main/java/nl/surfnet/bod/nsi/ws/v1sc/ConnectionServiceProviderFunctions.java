@@ -30,7 +30,7 @@ import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderConstants;
 
 public class ConnectionServiceProviderFunctions {
 
-  public static final Function<NsiRequestDetails, ConnectionRequesterPort> NSI_REQUEST_TO_CONNECTION_REQUESTER = new Function<NsiRequestDetails, ConnectionRequesterPort>() {
+  public static final Function<NsiRequestDetails, ConnectionRequesterPort> NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT = new Function<NsiRequestDetails, ConnectionRequesterPort>() {
     @Override
     public ConnectionRequesterPort apply(final NsiRequestDetails requestDetails) {
       URL url;

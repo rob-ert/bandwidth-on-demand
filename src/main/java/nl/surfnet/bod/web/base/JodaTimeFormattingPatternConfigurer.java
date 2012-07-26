@@ -21,7 +21,7 @@
  */
 package nl.surfnet.bod.web.base;
 
-import static com.google.common.base.Strings.nullToEmpty;
+import static com.google.common.base.Strings.*;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;

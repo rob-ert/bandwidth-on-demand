@@ -21,17 +21,16 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.junit.Test;
+
 import nl.surfnet.bod.service.Emails.ErrorMail;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
-
-import org.junit.Test;
 
 public class ErrorMailTest {
 

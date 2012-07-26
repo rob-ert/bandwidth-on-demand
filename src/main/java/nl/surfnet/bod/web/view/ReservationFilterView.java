@@ -21,11 +21,16 @@
  */
 package nl.surfnet.bod.web.view;
 
-import nl.surfnet.bod.domain.ReservationStatus;
-
-import org.joda.time.*;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+import org.joda.time.ReadablePeriod;
 
 import com.google.common.base.Objects;
+
+import nl.surfnet.bod.domain.ReservationStatus;
 
 /**
  * View object which holds filter related data regarding Reservations.

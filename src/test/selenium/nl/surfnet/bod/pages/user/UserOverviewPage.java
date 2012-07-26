@@ -23,8 +23,6 @@ package nl.surfnet.bod.pages.user;
 
 import java.util.List;
 
-import nl.surfnet.bod.pages.AbstractListPage;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
@@ -34,6 +32,8 @@ import org.openqa.selenium.support.PageFactory;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.pages.AbstractListPage;
 
 public final class UserOverviewPage extends AbstractListPage {
 

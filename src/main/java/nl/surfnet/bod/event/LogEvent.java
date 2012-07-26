@@ -23,14 +23,21 @@ package nl.surfnet.bod.event;
 
 import java.util.Collection;
 
-import javax.persistence.*;
-
-import nl.surfnet.bod.web.WebUtils;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 import org.hibernate.annotations.Type;
 import org.joda.time.LocalDateTime;
 
 import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.web.WebUtils;
 
 @Entity
 public class LogEvent {

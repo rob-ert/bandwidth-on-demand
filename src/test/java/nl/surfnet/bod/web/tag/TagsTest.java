@@ -21,10 +21,9 @@
  */
 package nl.surfnet.bod.web.tag;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import javax.servlet.http.HttpServletRequest;
 

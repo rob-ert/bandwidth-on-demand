@@ -21,12 +21,12 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.support.PhysicalPortFactory;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
+
+import nl.surfnet.bod.support.PhysicalPortFactory;
 
 public class PhysicalPortTest {
 

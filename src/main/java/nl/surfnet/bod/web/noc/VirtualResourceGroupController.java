@@ -23,12 +23,8 @@ package nl.surfnet.bod.web.noc;
 
 import java.util.List;
 
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
-import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
+import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,6 +32,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
 
 @Controller("nocVirtualResourceGroupController")
 @RequestMapping("/noc/teams")
@@ -49,7 +50,7 @@ public class VirtualResourceGroupController extends AbstractSortableListControll
         }
   };
 
-  @Autowired
+  @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
 
   @Override

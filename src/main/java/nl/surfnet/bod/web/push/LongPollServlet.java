@@ -25,17 +25,21 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.*;
+import javax.annotation.Resource;
+import javax.servlet.AsyncContext;
+import javax.servlet.AsyncEvent;
+import javax.servlet.AsyncListener;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nl.surfnet.bod.web.security.Security;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
+import nl.surfnet.bod.web.security.Security;
 
 @SuppressWarnings("serial")
 public class LongPollServlet extends HttpServlet {
@@ -44,7 +48,7 @@ public class LongPollServlet extends HttpServlet {
 
   private Logger logger = LoggerFactory.getLogger(LongPollServlet.class);
 
-  @Autowired
+  @Resource
   private EndPoints connections;
 
   @Override

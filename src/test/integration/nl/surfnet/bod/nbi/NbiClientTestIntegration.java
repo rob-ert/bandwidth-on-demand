@@ -21,27 +21,25 @@
  */
 package nl.surfnet.bod.nbi;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import java.util.List;
 
-import nl.surfnet.bod.domain.PhysicalPort;
+import javax.annotation.Resource;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import nl.surfnet.bod.domain.PhysicalPort;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:/spring/bod-opendrac-test.xml")
 public class NbiClientTestIntegration {
 
-  @Autowired
+  @Resource
   private NbiClient nbiClient;
 
   @Test

@@ -30,6 +30,8 @@ import static nl.surfnet.bod.web.WebUtils.LIST_POSTFIX;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.InstituteService;
@@ -66,13 +68,13 @@ public class InstituteController {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  @Autowired
+  @Resource
   private InstituteService instituteService;
 
-  @Autowired
+  @Resource
   private PhysicalResourceGroupService physicalResourceGroupService;
 
-  @Autowired
+  @Resource
   private MessageSource messageSource;
 
   @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

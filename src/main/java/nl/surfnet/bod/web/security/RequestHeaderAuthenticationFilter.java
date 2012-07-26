@@ -21,20 +21,20 @@
  */
 package nl.surfnet.bod.web.security;
 
-import static com.google.common.base.Strings.nullToEmpty;
+import static com.google.common.base.Strings.*;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-
-import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.util.ShibbolethConstants;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
+
+import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.util.ShibbolethConstants;
 
 public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
 
@@ -64,7 +64,7 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
       }
     };
 
-  @Autowired
+  @Resource
   private Environment env;
 
   @Override

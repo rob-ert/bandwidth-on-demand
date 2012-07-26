@@ -21,12 +21,12 @@
  */
 package nl.surfnet.bod.web;
 
-import nl.surfnet.bod.web.security.Security;
-
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import nl.surfnet.bod.web.security.Security;
 
 @Controller
 public class ShibbolethController {

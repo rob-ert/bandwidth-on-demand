@@ -23,13 +23,13 @@ package nl.surfnet.bod.web.push;
 
 import java.io.IOException;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.context.MessageSource;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.web.WebUtils;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.springframework.context.MessageSource;
 
 public final class PushMessages {
 

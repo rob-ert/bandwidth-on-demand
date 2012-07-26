@@ -21,6 +21,15 @@
  */
 package nl.surfnet.bod.service;
 
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -28,29 +37,21 @@ import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.Security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-
-import com.google.common.base.Optional;
-
 @Service
 public class ReservationToNbi {
 
   private Logger logger = LoggerFactory.getLogger(ReservationToNbi.class);
 
-  @Autowired
+  @Resource
   private NbiClient nbiClient;
 
-  @Autowired
+  @Resource
   private ReservationRepo reservationRepo;
 
-  @Autowired
+  @Resource
   private ReservationEventPublisher reservationEventPublisher;
 
-  @Autowired
+  @Resource
   private LogEventService logEventService;
 
   @Async

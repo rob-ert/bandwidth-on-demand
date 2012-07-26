@@ -23,17 +23,17 @@ package nl.surfnet.bod.pages.noc;
 
 import java.util.List;
 
-import nl.surfnet.bod.pages.AbstractFormPage;
-import nl.surfnet.bod.support.Probes;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.noc.PhysicalResourceGroupController;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+
+import nl.surfnet.bod.pages.AbstractFormPage;
+import nl.surfnet.bod.support.Probes;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.noc.PhysicalResourceGroupController;
 
 public class NewPhysicalResourceGroupPage extends AbstractFormPage {
 

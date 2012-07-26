@@ -3,11 +3,11 @@ package nl.surfnet.bod.pages;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import nl.surfnet.bod.web.WebUtils;
-
 import org.joda.time.LocalDateTime;
 
 import com.google.common.base.Optional;
+
+import nl.surfnet.bod.web.WebUtils;
 
 public final class PageUtils {
 

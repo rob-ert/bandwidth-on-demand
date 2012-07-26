@@ -21,15 +21,11 @@
  */
 package nl.surfnet.bod.web;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
-
-import nl.surfnet.bod.support.ModelStub;
 
 import org.junit.Test;
 import org.springframework.context.MessageSource;
@@ -38,6 +34,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.Iterables;
+
+import nl.surfnet.bod.support.ModelStub;
 
 public class WebUtilsTest {
 

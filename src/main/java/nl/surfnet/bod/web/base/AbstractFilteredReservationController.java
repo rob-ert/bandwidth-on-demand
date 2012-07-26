@@ -25,6 +25,20 @@ import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.List;
 
+import javax.annotation.Resource;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
@@ -32,15 +46,6 @@ import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 
 /**
  * Base controller for filtering and sorting {@link Reservation}s.
@@ -53,10 +58,10 @@ public abstract class AbstractFilteredReservationController extends AbstractSort
 
   private static final String DEFAULT_FILTER_ID = ReservationFilterViewFactory.COMING;
 
-  @Autowired
+  @Resource
   private ReservationService reservationService;
 
-  @Autowired
+  @Resource
   private ReservationFilterViewFactory reservationFilterViewFactory;
 
   @Override

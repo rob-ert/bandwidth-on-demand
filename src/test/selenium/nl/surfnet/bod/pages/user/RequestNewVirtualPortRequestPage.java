@@ -21,12 +21,12 @@
  */
 package nl.surfnet.bod.pages.user;
 
-import nl.surfnet.bod.pages.AbstractFormPage;
-
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+
+import nl.surfnet.bod.pages.AbstractFormPage;
 
 public class RequestNewVirtualPortRequestPage extends AbstractFormPage {
 

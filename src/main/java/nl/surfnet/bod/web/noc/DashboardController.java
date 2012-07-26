@@ -23,17 +23,10 @@ package nl.surfnet.bod.web.noc;
 
 import java.util.List;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.view.NocStatisticsView;
+import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,6 +34,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.common.annotations.VisibleForTesting;
+
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
+import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.view.NocStatisticsView;
 
 @Controller("nocDashboardController")
 @RequestMapping(DashboardController.PAGE_URL)
@@ -52,16 +53,16 @@ public class DashboardController {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-  @Autowired
+  @Resource
   private PhysicalPortService physicalPortService;
 
-  @Autowired
+  @Resource
   private ReservationService reservationService;
 
-  @Autowired
+  @Resource
   private MessageSource messageSource;
 
-  @Autowired
+  @Resource
   private Environment environment;
 
   @RequestMapping(method = RequestMethod.GET)

@@ -23,9 +23,6 @@ package nl.surfnet.bod.support;
 
 import java.util.List;
 
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.web.view.ReservationFilterView;
-
 import org.joda.time.DurationFieldType;
 import org.joda.time.Months;
 import org.joda.time.ReadablePeriod;
@@ -33,6 +30,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.NumberUtils;
 
 import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.web.view.ReservationFilterView;
 
 @Component
 public class ReservationFilterViewFactory {

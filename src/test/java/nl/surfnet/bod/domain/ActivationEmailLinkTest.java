@@ -21,19 +21,17 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 import junit.framework.Assert;
-import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Test;
+
+import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 
 public class ActivationEmailLinkTest {
 

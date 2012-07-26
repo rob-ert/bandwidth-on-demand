@@ -25,7 +25,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.util.StringUtils;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -41,17 +52,6 @@ import nl.surfnet.bod.web.manager.VirtualPortController;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.util.StringUtils;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-
 public class EmailSenderOnline implements EmailSender {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -65,10 +65,10 @@ public class EmailSenderOnline implements EmailSender {
   @Value("${external.bod.url}")
   private String externalBodUrl;
 
-  @Autowired
+  @Resource
   private MailSender mailSender;
 
-  @Autowired
+  @Resource
   private LogEventService logEventService;
 
   /**

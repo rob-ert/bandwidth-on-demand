@@ -24,8 +24,6 @@ package nl.surfnet.bod.web;
 import java.util.Arrays;
 import java.util.List;
 
-import nl.surfnet.bod.web.security.Security;
-
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.context.MessageSource;
@@ -36,6 +34,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.web.security.Security;
 
 public final class WebUtils {
 

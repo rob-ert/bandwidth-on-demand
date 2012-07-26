@@ -21,10 +21,10 @@
  */
 package nl.surfnet.bod.nsi.ws;
 
+import org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort;
+
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
-
-import org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort;
 
 public interface ConnectionServiceProvider extends ConnectionProviderPort {
 

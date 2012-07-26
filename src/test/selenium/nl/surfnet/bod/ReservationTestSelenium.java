@@ -21,12 +21,12 @@
  */
 package nl.surfnet.bod;
 
-import nl.surfnet.bod.support.TestExternalSupport;
-
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
+
+import nl.surfnet.bod.support.TestExternalSupport;
 
 public class ReservationTestSelenium extends TestExternalSupport {
 

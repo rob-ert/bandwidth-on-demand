@@ -21,18 +21,17 @@
  */
 package nl.surfnet.bod.web;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import java.util.Collection;
+
+import org.junit.Test;
 
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.security.Security;
-
-import org.junit.Test;
 
 public class ShibbolethControllerTest {
 

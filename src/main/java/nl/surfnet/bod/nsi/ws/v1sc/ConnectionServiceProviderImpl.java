@@ -56,10 +56,10 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.sun.xml.ws.developer.SchemaValidation;
 
@@ -84,22 +84,22 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderImpl.class);
 
-  @Autowired
+  @Resource
   private ConnectionRepo connectionRepo;
 
-  @Autowired
+  @Resource
   private VirtualPortService virtualPortService;
 
-  @Autowired
+  @Resource
   private VirtualResourceGroupRepo virtualResourceGroupRepo;
 
   @Resource
   private WebServiceContext webServiceContext;
 
-  @Autowired
+  @Resource
   private ReservationService reservationService;
 
-  @Autowired
+  @Resource
   private ConnectionServiceProviderService connectionServiceProviderService;
 
   @Resource(name = "nsaProviderUrns")
@@ -149,10 +149,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
 
     reserve(connection, requestDetails);
 
-    GenericAcknowledgmentType genericAcknowledgment = new GenericAcknowledgmentType();
-    genericAcknowledgment.setCorrelationId(requestDetails.getCorrelationId());
-
-    return genericAcknowledgment;
+    return createGenericAcknowledgment(requestDetails.getCorrelationId());
   }
 
   protected void reserve(Connection connection, NsiRequestDetails request) throws ServiceException {
@@ -226,7 +223,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     reserveConfirmedType.setReservation(reservationInfoType);
 
     try {
-      ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER.apply(requestDetails);
+      ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
       port.reserveConfirmed(new Holder<>(requestDetails.getCorrelationId()), reserveConfirmedType);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -255,7 +252,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     reservationFailed.setServiceException(serviceException);
 
     try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER.apply(requestDetails);
+      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
       port.reserveFailed(new Holder<>(requestDetails.getCorrelationId()), reservationFailed);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -275,11 +272,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     final NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(),
         parameters.getCorrelationId());
     provision(connection, requestDetails);
-
-    final GenericAcknowledgmentType ack = new GenericAcknowledgmentType();
-    ack.setCorrelationId(requestDetails.getCorrelationId());
-
-    return ack;
+    return createGenericAcknowledgment(requestDetails.getCorrelationId());
   }
 
   private void provision(Connection connection, NsiRequestDetails requestDetails) {
@@ -316,7 +309,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     generic.setGlobalReservationId(connection.getGlobalReservationId());
 
     try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER.apply(requestDetails);
+      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
       port.provisionFailed(new Holder<>(requestDetails.getCorrelationId()), generic);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -336,7 +329,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     final GenericConfirmedType genericConfirm = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
 
     try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER.apply(requestDetails);
+      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
       port.provisionConfirmed(new Holder<>(requestDetails.getCorrelationId()), genericConfirm);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -361,11 +354,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     final NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(),
         parameters.getCorrelationId());
     connectionServiceProviderService.terminate(connection, parameters.getTerminate().getRequesterNSA(), requestDetails);
-
-    final GenericAcknowledgmentType ack = new GenericAcknowledgmentType();
-    ack.setCorrelationId(requestDetails.getCorrelationId());
-
-    return ack;
+    return createGenericAcknowledgment(requestDetails.getCorrelationId());
   }
 
   @Override
@@ -376,7 +365,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     final GenericConfirmedType genericConfirmed = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
 
     try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER.apply(requestDetails);
+      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
       port.terminateConfirmed(new Holder<>(requestDetails.getCorrelationId()), genericConfirmed);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -392,7 +381,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     final GenericFailedType genericFailed = CONNECTION_TO_GENERIC_FAILED.apply(connection);
 
     try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER.apply(requestDetails);
+      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
       port.terminateFailed(new Holder<>(requestDetails.getCorrelationId()), genericFailed);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
@@ -422,9 +411,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     final QueryConfirmedType confirmedType = new QueryConfirmedType();
 
     if (isQueryByRequesterNsa) {
-      final List<Connection> connectionsByRequesterNsa = connectionRepo.findByRequesterNsa(parameters.getQuery()
-          .getRequesterNSA());
-      for (final Connection connection : connectionsByRequesterNsa) {
+      for (final Connection connection : connectionRepo.findByRequesterNsa(parameters.getQuery().getRequesterNSA())) {
         confirmedType.getReservationDetails().add(CONNECTION_TO_QUERY_RESULT.apply(connection));
       }
     }
@@ -442,40 +429,9 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     }
 
     connectionServiceProviderService.sendQueryConfirmed(correlationId, confirmedType,
-        NSI_REQUEST_TO_CONNECTION_REQUESTER.apply(new NsiRequestDetails(replyTo, correlationId)));
+        NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(new NsiRequestDetails(replyTo, correlationId)));
 
-    /*
-     * Break out the attributes we need for handling. correlationId is needed
-     * for any acknowledgment, confirmation, or failed message.
-     */
-
-    /*
-     * We will send the confirmation, or failed message back to this location.
-     */
-
-    /*
-     * Save the calling NSA security context and pass it along for use during
-     * processing of request.
-     */
-
-    // Extract the query information.
-
-    // We want to route to operation specific provider.
-
-    // Extract NSA fields.
-
-    /*
-     * Verify that this message was targeting this NSA by looking at the
-     * ProviderNSA field. If invalid we will throw an exception.
-     */
-
-    /*
-     * We successfully sent the message for processing so acknowledge it back to
-     * the sending.
-     */
-    final GenericAcknowledgmentType ack = new GenericAcknowledgmentType();
-    ack.setCorrelationId(correlationId);
-    return ack;
+    return createGenericAcknowledgment(correlationId);
   }
 
   @Override
@@ -488,6 +444,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
+  @VisibleForTesting
   protected void addNsaProvider(String provider) {
     this.nsaProviderUrns.add(provider);
   }
@@ -500,6 +457,12 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     return connection;
   }
 
+  private GenericAcknowledgmentType createGenericAcknowledgment(final String correlationId) {
+    final GenericAcknowledgmentType genericAcknowledgmentType = new GenericAcknowledgmentType();
+    genericAcknowledgmentType.setCorrelationId(correlationId);
+    return genericAcknowledgmentType;
+  }
+
   static {
     // Don't show full stack trace in soap result if an exception occurs
     System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
@@ -507,5 +470,4 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
     System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
   }
-
 }

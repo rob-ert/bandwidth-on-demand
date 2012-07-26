@@ -21,21 +21,22 @@
  */
 package nl.surfnet.bod.web;
 
-import nl.surfnet.bod.idd.IddClient;
-import nl.surfnet.bod.nbi.NbiClient;
+import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import nl.surfnet.bod.idd.IddClient;
+import nl.surfnet.bod.nbi.NbiClient;
+
 @Controller
 public class HealthCheckController {
 
-  @Autowired
+  @Resource
   private IddClient iddClient;
 
-  @Autowired
+  @Resource
   private NbiClient nbiClient;
 
   @RequestMapping(value = "/healthcheck")

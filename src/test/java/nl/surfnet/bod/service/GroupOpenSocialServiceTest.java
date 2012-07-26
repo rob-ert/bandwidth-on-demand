@@ -21,17 +21,11 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import java.util.Collection;
-
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.repo.LogEventRepo;
-import nl.surfnet.bod.support.MockHttpServer;
-import nl.surfnet.bod.util.Environment;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -41,6 +35,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.io.ByteArrayResource;
+
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.repo.LogEventRepo;
+import nl.surfnet.bod.support.MockHttpServer;
+import nl.surfnet.bod.util.Environment;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GroupOpenSocialServiceTest {

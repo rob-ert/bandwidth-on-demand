@@ -24,19 +24,20 @@ package nl.surfnet.bod.service;
 import java.util.Collection;
 import java.util.List;
 
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.idd.IddClient;
-import nl.surfnet.bod.repo.InstituteRepo;
-import nl.surfnet.bod.util.Functions;
+import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.idd.IddClient;
+import nl.surfnet.bod.repo.InstituteRepo;
+import nl.surfnet.bod.util.Functions;
 
 @Service
 @Transactional
@@ -46,13 +47,13 @@ public class InstituteIddService implements InstituteService {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  @Autowired
+  @Resource
   private IddClient iddClient;
 
-  @Autowired
+  @Resource
   private InstituteRepo instituteRepo;
 
-  @Autowired
+  @Resource
   private LogEventService logEventService;
 
   @Override

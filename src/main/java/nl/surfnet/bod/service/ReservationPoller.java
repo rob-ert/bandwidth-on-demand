@@ -26,14 +26,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
+import javax.annotation.Resource;
 
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -41,6 +38,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Uninterruptibles;
+
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 
 /**
  * This class is responsible for monitoring changes of a
@@ -57,10 +58,10 @@ public class ReservationPoller {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
   private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-  @Autowired
+  @Resource
   private ReservationService reservationService;
 
-  @Autowired
+  @Resource
   private ReservationEventPublisher reservationEventPublisher;
 
   @Value("${reservation.poll.max.tries}")

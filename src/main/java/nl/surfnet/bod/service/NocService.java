@@ -23,31 +23,32 @@ package nl.surfnet.bod.service;
 
 import java.util.Collection;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.web.security.Security;
+import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.web.security.Security;
+
 @Service
 public class NocService {
 
-  @Autowired
+  @Resource
   private ReservationService reservationService;
 
-  @Autowired
+  @Resource
   private VirtualPortService virtualPortService;
 
-  @Autowired
+  @Resource
   private PhysicalPortService physicalPortService;
 
-  @Autowired
+  @Resource
   private LogEventService logEventService;
 
   @Transactional

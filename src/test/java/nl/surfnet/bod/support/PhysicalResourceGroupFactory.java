@@ -25,11 +25,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-
-import com.google.common.collect.Lists;
 
 public class PhysicalResourceGroupFactory {
   private static final AtomicLong COUNTER = new AtomicLong();

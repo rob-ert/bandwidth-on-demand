@@ -21,17 +21,15 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Strings.emptyToNull;
+import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Strings.*;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.web.security.Security;
+import javax.annotation.Resource;
 
 import org.opensocial.Client;
 import org.opensocial.RequestException;
@@ -43,22 +41,25 @@ import org.opensocial.providers.ShindigProvider;
 import org.opensocial.services.GroupsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.web.security.Security;
+
 @Service
 public class GroupOpenSocialService implements GroupService {
 
   private Logger logger = LoggerFactory.getLogger(GroupOpenSocialService.class);
 
-  @Autowired
+  @Resource
   private Environment env;
 
-  @Autowired
+  @Resource
   private LogEventService logEventService;
 
   @Override

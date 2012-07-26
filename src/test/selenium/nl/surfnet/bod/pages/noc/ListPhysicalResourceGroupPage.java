@@ -21,11 +21,11 @@
  */
 package nl.surfnet.bod.pages.noc;
 
-import nl.surfnet.bod.pages.AbstractListPage;
-import nl.surfnet.bod.web.noc.PhysicalResourceGroupController;
-
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
+
+import nl.surfnet.bod.pages.AbstractListPage;
+import nl.surfnet.bod.web.noc.PhysicalResourceGroupController;
 
 public class ListPhysicalResourceGroupPage extends AbstractListPage {
 

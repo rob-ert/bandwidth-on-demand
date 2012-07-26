@@ -21,17 +21,18 @@
  */
 package nl.surfnet.bod.pages.user;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.AbstractReservationListPage;
-import nl.surfnet.bod.support.BodWebDriver;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
+
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.pages.AbstractReservationListPage;
+import nl.surfnet.bod.support.BodWebDriver;
 
 public class ListReservationPage extends AbstractReservationListPage {
 

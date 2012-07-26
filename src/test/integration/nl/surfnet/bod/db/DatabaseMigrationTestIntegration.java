@@ -21,12 +21,12 @@
  */
 package nl.surfnet.bod.db;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -40,7 +40,7 @@ import com.googlecode.flyway.core.Flyway;
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
 public class DatabaseMigrationTestIntegration extends AbstractTransactionalJUnit4SpringContextTests {
 
-  @Autowired
+  @Resource
   private DataSource dataSource;
 
   @Ignore("By loading the spring context to current database will be migrated")

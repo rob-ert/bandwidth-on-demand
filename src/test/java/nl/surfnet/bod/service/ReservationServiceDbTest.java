@@ -21,17 +21,13 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import java.util.Collection;
 import java.util.List;
 
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.repo.*;
-import nl.surfnet.bod.support.ReservationFactory;
+import javax.annotation.Resource;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeUtils;
@@ -39,10 +35,19 @@ import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.repo.InstituteRepo;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.repo.VirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.support.ReservationFactory;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml",
@@ -50,25 +55,25 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ReservationServiceDbTest {
 
-  @Autowired
+  @Resource
   private ReservationService reservationService;
 
-  @Autowired
+  @Resource
   private ReservationRepo reservationRepo;
 
-  @Autowired
+  @Resource
   private VirtualResourceGroupRepo virtualResourceGroupRepo;
 
-  @Autowired
+  @Resource
   private VirtualPortRepo virtualPortRepo;
 
-  @Autowired
+  @Resource
   private PhysicalPortRepo physicalPortRepo;
 
-  @Autowired
+  @Resource
   private InstituteRepo instituteRepo;
 
-  @Autowired
+  @Resource
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
 
   private LocalDateTime rightDateTime = LocalDateTime.now().withTime(0, 0, 0, 0);

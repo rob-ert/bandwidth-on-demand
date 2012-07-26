@@ -25,17 +25,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.service.GroupService;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
+import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
@@ -46,6 +39,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.GroupService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+
 public class RichUserDetailsService implements AuthenticationUserDetailsService {
 
   private final Logger logger = LoggerFactory.getLogger(RichUserDetailsService.class);
@@ -53,13 +54,13 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
   @Value("${os.group.noc}")
   private String nocEngineerGroupId;
 
-  @Autowired
+  @Resource
   private GroupService groupService;
 
-  @Autowired
+  @Resource
   private PhysicalResourceGroupService physicalResourceGroupService;
 
-  @Autowired
+  @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
 
   @Override

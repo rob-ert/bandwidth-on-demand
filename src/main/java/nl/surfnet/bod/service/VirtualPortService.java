@@ -21,12 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.BY_GROUP_ID_IN_LAST_MONTH_SPEC;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byPhysicalPortSpec;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forManagerSpec;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forUserSpec;
+import static com.google.common.base.Preconditions.*;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -34,17 +30,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderConstants;
-import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
+import javax.annotation.Resource;
 
 import org.joda.time.LocalDateTime;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -53,23 +41,39 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderConstants;
+import nl.surfnet.bod.repo.VirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+
 @Service
 @Transactional
 public class VirtualPortService {
 
-  @Autowired
+  @Resource
   private VirtualPortRepo virtualPortRepo;
-  @Autowired
+  @Resource
   private VirtualResourceGroupRepo virtualResourceGroupReppo;
-  @Autowired
+  @Resource
   private VirtualPortRequestLinkRepo virtualPortRequestLinkRepo;
-  @Autowired
+  @Resource
   private EmailSender emailSender;
 
-  @Autowired
+  @Resource
   private ReservationService reservationService;
 
-  @Autowired
+  @Resource
   private LogEventService logEventService;
 
   public long count() {

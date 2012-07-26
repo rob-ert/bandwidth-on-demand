@@ -21,19 +21,19 @@
  */
 package nl.surfnet.bod.web.push;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import java.util.List;
 
 import javax.servlet.AsyncContext;
 
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.web.security.RichUserDetails;
-
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 public class EndPointsTest {
 

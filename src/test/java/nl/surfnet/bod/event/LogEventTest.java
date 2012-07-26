@@ -21,15 +21,15 @@
  */
 package nl.surfnet.bod.event;
 
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.support.VirtualPortFactory;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.support.VirtualPortFactory;
 
 public class LogEventTest {
   private final static String USER_ID = "user";

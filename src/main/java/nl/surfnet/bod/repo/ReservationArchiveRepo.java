@@ -21,11 +21,11 @@
  */
 package nl.surfnet.bod.repo;
 
-import nl.surfnet.bod.domain.ReservationArchive;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
+
+import nl.surfnet.bod.domain.ReservationArchive;
 
 @Repository
 public interface ReservationArchiveRepo extends JpaSpecificationExecutor<ReservationArchive>,

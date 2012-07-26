@@ -24,15 +24,17 @@ package nl.surfnet.bod.idd;
 import java.util.Arrays;
 import java.util.Collection;
 
-import nl.surfnet.bod.idd.generated.InvoerKlant;
-import nl.surfnet.bod.idd.generated.Klanten;
-import nl.surfnet.bod.idd.generated.KsrBindingStub;
-import nl.surfnet.bod.idd.generated.KsrLocator;
+import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
+import nl.surfnet.bod.idd.generated.InvoerKlant;
+import nl.surfnet.bod.idd.generated.Klanten;
+import nl.surfnet.bod.idd.generated.KsrBindingStub;
+import nl.surfnet.bod.idd.generated.KsrLocator;
 
 public class IddLiveClient implements IddClient {
 

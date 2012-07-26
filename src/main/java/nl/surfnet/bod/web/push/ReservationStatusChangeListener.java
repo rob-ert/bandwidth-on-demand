@@ -22,25 +22,25 @@
 package nl.surfnet.bod.web.push;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
 
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Component;
-
 @Component
 public class ReservationStatusChangeListener implements ReservationListener {
 
-  @Autowired
+  @Resource
   private ReservationEventPublisher reservationEventPublisher;
 
-  @Autowired
+  @Resource
   private EndPoints connections;
 
-  @Autowired
+  @Resource
   private MessageSource messageSource;
 
   @PostConstruct

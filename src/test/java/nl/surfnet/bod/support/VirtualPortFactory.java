@@ -23,11 +23,11 @@ package nl.surfnet.bod.support;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.springframework.util.StringUtils;
+
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-
-import org.springframework.util.StringUtils;
 
 /**
  * Factory for creation of {@link VirtualPort}

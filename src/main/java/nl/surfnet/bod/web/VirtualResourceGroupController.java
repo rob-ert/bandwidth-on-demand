@@ -24,14 +24,8 @@ package nl.surfnet.bod.web;
 import java.util.Collections;
 import java.util.List;
 
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.util.Orderings;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.VirtualPortJsonView;
+import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,11 +35,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.util.Orderings;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.VirtualPortJsonView;
+
 @Controller
 @RequestMapping("/virtualresourcegroups")
 public class VirtualResourceGroupController {
 
-  @Autowired
+  @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
 
   @RequestMapping(value = "/{id}/ports", method = RequestMethod.GET, produces = "application/json")

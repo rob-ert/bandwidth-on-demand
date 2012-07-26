@@ -23,8 +23,6 @@ package nl.surfnet.bod.pages;
 
 import java.util.List;
 
-import nl.surfnet.bod.support.Probes;
-
 import org.joda.time.LocalDateTime;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -37,6 +35,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.support.Probes;
 
 public class AbstractPage {
 

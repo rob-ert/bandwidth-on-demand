@@ -21,14 +21,12 @@
  */
 package nl.surfnet.bod.web;
 
+import static nl.surfnet.bod.web.WebUtils.*;
+
 import java.util.List;
 
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
-import nl.surfnet.bod.web.security.Security;
+import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,14 +39,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.ImmutableList;
 
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.security.Security;
 
 @Controller
 @RequestMapping("/virtualports")
 public class VirtualPortController extends AbstractSortableListController<VirtualPort> {
 
-  @Autowired
+  @Resource
   private VirtualPortService virtualPortService;
 
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)

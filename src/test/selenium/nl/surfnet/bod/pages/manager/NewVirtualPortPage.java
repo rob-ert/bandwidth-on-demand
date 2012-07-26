@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.pages.manager;
 
-import nl.surfnet.bod.pages.AbstractFormPage;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -32,6 +30,8 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.UnexpectedTagNameException;
 
 import com.google.common.base.Strings;
+
+import nl.surfnet.bod.pages.AbstractFormPage;
 
 public class NewVirtualPortPage extends AbstractFormPage {
 

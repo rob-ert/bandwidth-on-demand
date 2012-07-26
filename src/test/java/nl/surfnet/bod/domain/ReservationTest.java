@@ -21,17 +21,15 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import nl.surfnet.bod.support.ReservationFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
+
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 public class ReservationTest {
 

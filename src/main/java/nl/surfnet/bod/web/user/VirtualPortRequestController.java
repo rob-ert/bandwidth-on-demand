@@ -21,27 +21,18 @@
  */
 package nl.surfnet.bod.web.user;
 
+import static nl.surfnet.bod.util.Orderings.*;
+
 import java.util.Collection;
 import java.util.Collections;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.util.Functions;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.UserGroupView;
 
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -63,19 +54,28 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 
-import static nl.surfnet.bod.util.Orderings.prgNameOrdering;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.UserGroupView;
 
 @Controller
 @RequestMapping("/request")
 public class VirtualPortRequestController {
 
-  @Autowired
+  @Resource
   private PhysicalResourceGroupService physicalResourceGroupService;
-  @Autowired
+  @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
-  @Autowired
+  @Resource
   private VirtualPortService virtualPortService;
-  @Autowired
+  @Resource
   private MessageSource messageSource;
 
   /**

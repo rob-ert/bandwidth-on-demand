@@ -23,11 +23,11 @@ package nl.surfnet.bod.repo;
 
 import java.util.List;
 
-import nl.surfnet.bod.domain.Institute;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
+
+import nl.surfnet.bod.domain.Institute;
 
 @Repository
 public interface InstituteRepo extends JpaSpecificationExecutor<Institute>, JpaRepository<Institute, Long> {

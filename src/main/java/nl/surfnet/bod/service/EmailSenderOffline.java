@@ -22,19 +22,19 @@
 package nl.surfnet.bod.service;
 
 import javax.annotation.PostConstruct;
-
-import nl.surfnet.bod.web.security.Security;
+import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
+
+import nl.surfnet.bod.web.security.Security;
 
 public class EmailSenderOffline extends EmailSenderOnline {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-  @Autowired
+  @Resource
   private LogEventService logEventService;
 
   @Override

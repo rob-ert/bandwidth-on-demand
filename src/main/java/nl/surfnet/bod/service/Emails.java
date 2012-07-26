@@ -23,16 +23,16 @@ package nl.surfnet.bod.service;
 
 import javax.servlet.http.HttpServletRequest;
 
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.web.security.RichUserDetails;
-
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
+
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 public final class Emails {
 

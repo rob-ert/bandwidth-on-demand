@@ -21,20 +21,20 @@
  */
 package nl.surfnet.bod.web;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import java.util.List;
-
-import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.support.ModelStub;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
 public class DetermineRoleControllerTest {
 

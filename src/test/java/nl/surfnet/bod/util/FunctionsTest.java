@@ -21,20 +21,19 @@
  */
 package nl.surfnet.bod.util;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import java.util.Collection;
-
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.idd.generated.Klanten;
-import nl.surfnet.bod.support.KlantenFactory;
 
 import org.junit.Test;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.idd.generated.Klanten;
+import nl.surfnet.bod.support.KlantenFactory;
 
 public class FunctionsTest {
 

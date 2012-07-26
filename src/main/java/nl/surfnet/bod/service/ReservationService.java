@@ -21,15 +21,16 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
-import static nl.surfnet.bod.domain.ReservationStatus.PREPARING;
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import static com.google.common.base.Preconditions.*;
+import static nl.surfnet.bod.domain.ReservationStatus.*;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -37,19 +38,9 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.repo.ReservationArchiveRepo;
-import nl.surfnet.bod.repo.ReservationRepo;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.ElementActionView;
-import nl.surfnet.bod.web.view.ReservationFilterView;
-
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -61,7 +52,32 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
-import com.google.common.collect.*;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
+
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalPort_;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationArchive;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.Reservation_;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.repo.ReservationArchiveRepo;
+import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ElementActionView;
+import nl.surfnet.bod.web.view.ReservationFilterView;
 
 @Service
 @Transactional
@@ -77,22 +93,22 @@ public class ReservationService {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  @Autowired
+  @Resource
   private ReservationRepo reservationRepo;
 
-  @Autowired
+  @Resource
   private ReservationArchiveRepo reservationArchiveRepo;
 
-  @Autowired
+  @Resource
   private NbiClient nbiClient;
 
-  @Autowired
+  @Resource
   private ReservationToNbi reservationToNbi;
 
   @PersistenceContext
   private EntityManager entityManager;
 
-  @Autowired
+  @Resource
   private LogEventService logEventService;
 
   /**

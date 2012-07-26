@@ -23,19 +23,20 @@ package nl.surfnet.bod.service;
 
 import java.util.List;
 
-import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.event.LogEventType;
-import nl.surfnet.bod.repo.LogEventRepo;
-import nl.surfnet.bod.web.security.RichUserDetails;
+import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
+
+import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.event.LogEventType;
+import nl.surfnet.bod.repo.LogEventRepo;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 @Service
 public class LogEventService {
@@ -45,7 +46,7 @@ public class LogEventService {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  @Autowired
+  @Resource
   private LogEventRepo logEventRepo;
 
   public void logCreateEvent(Object domainObject) {

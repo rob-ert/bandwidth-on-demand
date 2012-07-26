@@ -21,11 +21,12 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
+
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 public class VirtualResourceGroupTest {
 

@@ -21,32 +21,18 @@
  */
 package nl.surfnet.bod.web.user;
 
-import static nl.surfnet.bod.util.Orderings.vpUserLabelOrdering;
-import static nl.surfnet.bod.util.Orderings.vrgNameOrdering;
+import static nl.surfnet.bod.util.Orderings.*;
 import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
-
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.domain.validator.ReservationValidator;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
-import nl.surfnet.bod.web.base.MessageView;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.ReservationFilterView;
-import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.Hours;
 import org.joda.time.LocalDateTime;
 import org.joda.time.ReadablePeriod;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
@@ -61,6 +47,19 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.validator.ReservationValidator;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
+import nl.surfnet.bod.web.base.MessageView;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ReservationFilterView;
+import nl.surfnet.bod.web.view.ReservationView;
+
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller(value = "userReservationController")
 public class ReservationController extends AbstractFilteredReservationController {
@@ -71,10 +70,10 @@ public class ReservationController extends AbstractFilteredReservationController
 
   static final String MODEL_KEY = "reservation";
 
-  @Autowired
+  @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
 
-  @Autowired
+  @Resource
   private MessageSource messageSource;
 
   private ReservationValidator reservationValidator = new ReservationValidator();

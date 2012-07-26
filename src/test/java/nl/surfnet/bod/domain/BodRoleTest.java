@@ -21,11 +21,12 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
 public class BodRoleTest {
 

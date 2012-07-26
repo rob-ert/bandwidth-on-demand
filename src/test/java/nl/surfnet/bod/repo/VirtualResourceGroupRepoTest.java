@@ -21,21 +21,16 @@
  */
 package nl.surfnet.bod.repo;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 import java.util.Collection;
 
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import javax.annotation.Resource;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -43,13 +38,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml", "/spring/appCtx-nbi-client.xml",
     "/spring/appCtx-idd-client.xml" })
 @Transactional
 public class VirtualResourceGroupRepoTest {
 
-  @Autowired
+  @Resource
   private VirtualResourceGroupRepo subject;
 
   @Test

@@ -26,23 +26,13 @@ import static nl.surfnet.bod.web.WebUtils.*;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.domain.validator.VirtualPortValidator;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
-import nl.surfnet.bod.web.base.MessageView;
-import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortView;
-import nl.surfnet.bod.web.security.Security;
-
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
@@ -59,6 +49,20 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.validator.VirtualPortValidator;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.base.MessageView;
+import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortView;
+import nl.surfnet.bod.web.security.Security;
+
 @Controller("managerVirtualPortController")
 @RequestMapping(VirtualPortController.PAGE_URL)
 public class VirtualPortController extends AbstractSortableListController<VirtualPortView> {
@@ -73,16 +77,16 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     }
   };
 
-  @Autowired
+  @Resource
   private VirtualPortService virtualPortService;
 
-  @Autowired
+  @Resource
   private VirtualPortValidator virtualPortValidator;
 
-  @Autowired
+  @Resource
   private MessageSource messageSource;
 
-  @Autowired
+  @Resource
   private ReservationService reservationService;
 
   @RequestMapping(method = RequestMethod.POST)

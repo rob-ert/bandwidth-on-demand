@@ -21,12 +21,12 @@
  */
 package nl.surfnet.bod.service;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 
 public class ReservationStatusChangeEvent {
 

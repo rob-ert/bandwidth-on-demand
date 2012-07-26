@@ -21,13 +21,13 @@
  */
 package nl.surfnet.bod.pages.noc;
 
-import nl.surfnet.bod.pages.AbstractFormPage;
-
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
+
+import nl.surfnet.bod.pages.AbstractFormPage;
 
 public class AddPhysicalPortPage extends AbstractFormPage {
 

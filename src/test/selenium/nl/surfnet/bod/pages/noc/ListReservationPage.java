@@ -21,10 +21,10 @@
  */
 package nl.surfnet.bod.pages.noc;
 
-import nl.surfnet.bod.pages.AbstractReservationListPage;
-
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
+
+import nl.surfnet.bod.pages.AbstractReservationListPage;
 
 public class ListReservationPage extends AbstractReservationListPage {
   private static final String PAGE = "/noc/reservations";

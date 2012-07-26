@@ -21,20 +21,14 @@
  */
 package nl.surfnet.bod.nsi;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import java.util.Calendar;
 
 import javax.annotation.Resource;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderConstants;
-import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderImpl;
-import nl.surfnet.bod.repo.*;
-import nl.surfnet.bod.support.*;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -54,6 +48,25 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 
 import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderConstants;
+import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderImpl;
+import nl.surfnet.bod.repo.InstituteRepo;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import nl.surfnet.bod.repo.VirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.support.ConnectionServiceProviderFactory;
+import nl.surfnet.bod.support.MockHttpServer;
+import nl.surfnet.bod.support.PhysicalPortFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",

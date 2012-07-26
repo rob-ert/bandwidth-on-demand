@@ -21,11 +21,12 @@
  */
 package nl.surfnet.bod.web.security;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
+
+import nl.surfnet.bod.support.RichUserDetailsFactory;
 
 public class SecurityTest {
 

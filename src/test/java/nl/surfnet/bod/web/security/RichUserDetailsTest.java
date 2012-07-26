@@ -21,19 +21,19 @@
  */
 package nl.surfnet.bod.web.security;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
 import java.util.List;
+
+import org.hamcrest.Matchers;
+import org.junit.Test;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
-
-import org.hamcrest.Matchers;
-import org.junit.Test;
 
 public class RichUserDetailsTest {
 

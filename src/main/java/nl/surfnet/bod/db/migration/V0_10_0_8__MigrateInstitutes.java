@@ -26,12 +26,6 @@ import java.sql.PreparedStatement;
 import java.util.Collection;
 import java.util.Properties;
 
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.idd.IddClient;
-import nl.surfnet.bod.idd.IddLiveClient;
-import nl.surfnet.bod.idd.generated.Klanten;
-import nl.surfnet.bod.util.Functions;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -39,6 +33,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.google.common.base.Strings;
 import com.googlecode.flyway.core.migration.java.JavaMigration;
+
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.idd.IddClient;
+import nl.surfnet.bod.idd.IddLiveClient;
+import nl.surfnet.bod.idd.generated.Klanten;
+import nl.surfnet.bod.util.Functions;
 
 public class V0_10_0_8__MigrateInstitutes implements JavaMigration {
 

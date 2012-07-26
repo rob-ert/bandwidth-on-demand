@@ -21,9 +21,9 @@
  */
 package nl.surfnet.bod.web.base;
 
-import nl.surfnet.bod.web.WebUtils;
-
 import org.springframework.context.MessageSource;
+
+import nl.surfnet.bod.web.WebUtils;
 
 public class MessageView {
   public static final String PAGE_URL = "message";

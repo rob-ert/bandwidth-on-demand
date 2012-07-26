@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.web.view;
 
+import org.springframework.context.MessageSource;
+
 
 /**
  * View responsible for holding state related to an element in the user

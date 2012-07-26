@@ -24,14 +24,14 @@ package nl.surfnet.bod.web.csrf;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nl.surfnet.bod.web.WebUtils;
-
 import org.springframework.web.servlet.FlashMap;
 import org.springframework.web.servlet.FlashMapManager;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import com.google.common.collect.ImmutableList;
+
+import nl.surfnet.bod.web.WebUtils;
 
 public class CsrfHandlerInterceptor extends HandlerInterceptorAdapter {
 

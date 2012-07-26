@@ -21,10 +21,10 @@
  */
 package nl.surfnet.bod.pages.noc;
 
-import nl.surfnet.bod.pages.AbstractListPage;
-
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
+
+import nl.surfnet.bod.pages.AbstractListPage;
 
 public class MovePhysicalPortResultPage extends AbstractListPage {
 
