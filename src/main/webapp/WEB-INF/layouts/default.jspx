@@ -46,11 +46,13 @@
                         <c:if test="${dev}">
                             <spring:url value="/admin/refreshMessages" var="refresh_messages_url" />
                             <spring:url value="/shibboleth/refresh" var="refresh_roles_url" />
+                            <spring:url value="/institutes/refresh" var="refresh_institutes_url" />
                             <spring:url value="/teams" var="teams_url" />
                             <ul class="dev-nav">
                                 <li><a href="${refresh_messages_url}" rel="tooltip" data-type="info" title="Refresh Messages">RM</a></li>
                                 <li><a href="${refresh_roles_url}" rel="tooltip" data-type="info" title="Refresh Roles">RR</a></li>
-                                <li><a href="${teams_url}" rel="tooltip" data-type="info" title="Show Teams">ST</a></li>
+                                <li><a href="${refresh_institutes_url}" rel="tooltip" data-type="info" title="Refresh Institutes">RI</a></li>
+                                <li><a href="${teams_url}" rel="tooltip" data-type="info" title="Show Teams">T</a></li>
                             </ul>
                         </c:if>
                     </span>

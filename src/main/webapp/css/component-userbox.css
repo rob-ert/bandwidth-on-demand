@@ -74,6 +74,8 @@
 .dev-nav {
     display: inline;
     list-style-type: none;
+    margin: 0;
+    padding: 0 10px;
 }
 .dev-nav li {
     display: inline;
