@@ -31,5 +31,6 @@ import org.springframework.stereotype.Repository;
 public interface ConnectionRepo extends JpaSpecificationExecutor<Connection>, JpaRepository<Connection, Long> {
 
   Connection findByConnectionId(final String connectionId);
+  Connection findByGlobalReservationId(final String globalReservationId);
 
 }

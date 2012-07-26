@@ -21,14 +21,17 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.RESERVING;
+import static com.google.common.base.Preconditions.*;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.jws.WebService;
@@ -38,26 +41,29 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceContext;
 
-import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceErrorCodes;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceErrorCodes.PAYLOAD;
-import nl.surfnet.bod.nsi.ws.NsiConstants;
-import nl.surfnet.bod.nsi.ws.NsiProvider;
-import nl.surfnet.bod.repo.ConnectionRepo;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.web.security.RichUserDetails;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
 import org.joda.time.LocalDateTime;
-import org.ogf.schemas.nsi._2011._10.connection._interface.*;
+import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReleaseRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
+import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ObjectFactory;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryDetailsResultType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +74,23 @@ import org.springframework.util.StringUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.ws.ConnectionServiceErrorCodes;
+import nl.surfnet.bod.nsi.ws.ConnectionServiceErrorCodes.PAYLOAD;
+import nl.surfnet.bod.nsi.ws.NsiConstants;
+import nl.surfnet.bod.nsi.ws.NsiProvider;
+import nl.surfnet.bod.repo.ConnectionRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.service.NsiConnectionService;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 @Service("nsiProvider_v1_sc")
 @WebService(serviceName = "ConnectionServiceProvider",
@@ -150,6 +173,9 @@ public class ConnectionServiceProvider implements NsiProvider {
 
   @Autowired
   private ReservationService reservationService;
+  
+  @Autowired
+  private NsiConnectionService nsiConnectionService; 
 
   @Resource(name = "nsaProviderUrns")
   private List<String> nsaProviderUrns = new ArrayList<>();
@@ -530,9 +556,43 @@ public class ConnectionServiceProvider implements NsiProvider {
       logger.error("Error: ", e);
     }
   }
+  
 
   @Override
   public GenericAcknowledgmentType query(QueryRequestType parameters) throws ServiceException {
+    final String correlationId = parameters.getCorrelationId();
+    final String replyTo = parameters.getReplyTo();
+    List<String> ids = parameters.getQuery().getQueryFilter().getConnectionId();
+
+    boolean isConnectionId = true;
+
+    if (ids == null || ids.size() == 0) {
+      // use global reservation id
+      ids = parameters.getQuery().getQueryFilter().getGlobalReservationId();
+      isConnectionId = false;
+    }
+
+    final QueryConfirmedType confirmedType = new QueryConfirmedType();
+
+    for (final String id : ids) {
+      Connection connection;
+      if (isConnectionId) {
+        connection = connectionRepo.findByConnectionId(id);
+      }
+      else {
+        connection = connectionRepo.findByGlobalReservationId(id);
+      }
+      final QueryDetailsResultType queryDetailsResultType = new QueryDetailsResultType();
+      queryDetailsResultType.setConnectionId(connection.getConnectionId());
+      queryDetailsResultType.setDescription("description");
+      queryDetailsResultType.setGlobalReservationId(connection.getGlobalReservationId());
+      queryDetailsResultType.setServiceParameters(connection.getServiceParameters());
+      confirmedType.getReservationDetails().add(queryDetailsResultType);
+    }
+
+    final NsiRequestDetails requestDetails = new NsiRequestDetails(replyTo, correlationId);
+    nsiConnectionService.sendQueryConfirmed(correlationId, confirmedType, getConnectionRequesterPort(requestDetails));
+
     /*
      * Break out the attributes we need for handling. correlationId is needed
      * for any acknowledgment, confirmation, or failed message.
@@ -563,7 +623,7 @@ public class ConnectionServiceProvider implements NsiProvider {
      * the sending.
      */
     GenericAcknowledgmentType ack = new GenericAcknowledgmentType();
-    ack.setCorrelationId(null);
+    ack.setCorrelationId(correlationId);
     return ack;
   }
 
