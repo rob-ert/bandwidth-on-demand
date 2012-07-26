@@ -61,6 +61,7 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ObjectFactory;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryDetailsResultType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
@@ -74,6 +75,7 @@ import org.springframework.util.StringUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.sun.xml.ws.developer.SchemaValidation;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.Connection;
@@ -97,6 +99,7 @@ import nl.surfnet.bod.web.security.RichUserDetails;
     portName = "ConnectionServiceProviderPort",
     endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
     targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider")
+@SchemaValidation
 public class ConnectionServiceProvider implements NsiProvider {
 
   protected static final Function<ReserveRequestType, Connection> TO_CONNECTION =
@@ -562,6 +565,10 @@ public class ConnectionServiceProvider implements NsiProvider {
   public GenericAcknowledgmentType query(QueryRequestType parameters) throws ServiceException {
     final String correlationId = parameters.getCorrelationId();
     final String replyTo = parameters.getReplyTo();
+    
+    if(!parameters.getQuery().getOperation().equals(QueryOperationType.SUMMARY)){
+      throw new ServiceException(ConnectionServiceErrorCodes.PAYLOAD.NOT_IMPLEMENTED.getText(), new ServiceExceptionType()); 
+    }
 
     List<String> ids = parameters.getQuery().getQueryFilter().getConnectionId();
 
@@ -643,7 +650,9 @@ public class ConnectionServiceProvider implements NsiProvider {
   private QueryDetailsResultType getQueryResultType(Connection connection) {
     final QueryDetailsResultType queryDetailsResultType = new QueryDetailsResultType();
     queryDetailsResultType.setConnectionId(connection.getConnectionId());
-    queryDetailsResultType.setDescription("description");
+    
+    // RH: We don't have a description......
+    //    queryDetailsResultType.setDescription("description");
     queryDetailsResultType.setGlobalReservationId(connection.getGlobalReservationId());
     queryDetailsResultType.setServiceParameters(connection.getServiceParameters());
     return queryDetailsResultType;
