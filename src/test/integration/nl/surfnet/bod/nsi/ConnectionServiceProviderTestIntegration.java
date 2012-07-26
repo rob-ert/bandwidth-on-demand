@@ -63,7 +63,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   private static MockHttpServer requesterEndpoint = new MockHttpServer(NsiReservationFactory.PORT);
 
-  @Resource(name = "nsiProvider_v1_sc")
+  @Resource
   private ConnectionServiceProviderImpl nsiProvider;
 
   @Resource
