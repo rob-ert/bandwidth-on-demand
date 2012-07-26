@@ -61,7 +61,7 @@ import com.google.common.collect.Lists;
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
 public class ConnectionServiceProviderTestIntegration extends AbstractTransactionalJUnit4SpringContextTests {
 
-  private static MockHttpServer requesterEndpoint = new MockHttpServer(NsiReservationFactory.PORT);
+  private static MockHttpServer requesterEndpoint = new MockHttpServer(ConnectionServiceProviderFactory.PORT);
 
   @Resource
   private ConnectionServiceProviderImpl nsiProvider;
@@ -155,7 +155,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     source.setStpId(ConnectionServiceProviderConstants.URN_STP + ":" + destinationVirtualPort.getId());
     path.setSourceSTP(source);
 
-    ReserveRequestType reservationRequest = new NsiReservationFactory().setScheduleStartTime(startTime)
+    ReserveRequestType reservationRequest = new ConnectionServiceProviderFactory().setScheduleStartTime(startTime)
         .setScheduleEndTime(endTime).setCorrelationId(correlationId).setProviderNsa(ConnectionServiceProviderConstants.URN_PROVIDER_NSA)
         .setPath(path).createReservation();
 

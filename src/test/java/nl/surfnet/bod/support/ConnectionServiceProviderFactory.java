@@ -32,7 +32,7 @@ import org.ogf.schemas.nsi._2011._10.connection.types.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NsiReservationFactory {
+public class ConnectionServiceProviderFactory {
 
   public static final int PORT = 9082;
   public static final String NSI_REQUESTER_ENDPOINT = "http://localhost:" + PORT + "/bod/nsi/requester";
@@ -51,7 +51,7 @@ public class NsiReservationFactory {
   private PathType path = new PathType();
   private ServiceParametersType serviceParameters = new ServiceParametersType();
 
-  public NsiReservationFactory() {
+  public ConnectionServiceProviderFactory() {
 
     try {
       scheduleEndTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
@@ -116,67 +116,67 @@ public class NsiReservationFactory {
     return reservationRequestType;
   }
 
-  public final NsiReservationFactory setCorrelationId(String correlationId) {
+  public final ConnectionServiceProviderFactory setCorrelationId(String correlationId) {
     this.correlationId = correlationId;
     return this;
   }
 
-  public final NsiReservationFactory setNsaProviderUrn(String nsaProviderUrn) {
+  public final ConnectionServiceProviderFactory setNsaProviderUrn(String nsaProviderUrn) {
     this.providerNsa = nsaProviderUrn;
     return this;
   }
 
-  public final NsiReservationFactory setDesiredBandwidth(int desiredBandwidth) {
+  public final ConnectionServiceProviderFactory setDesiredBandwidth(int desiredBandwidth) {
     this.desiredBandwidth = desiredBandwidth;
     return this;
   }
 
-  // public final NsiReservationFactory setMaxBandwidth(long maxBandwidth) {
+  // public final ConnectionServiceProviderFactory setMaxBandwidth(long maxBandwidth) {
   // this.maxBandwidth = maxBandwidth;
   // return this;
   // }
   //
-  // public final NsiReservationFactory setMinBandwidth(long minBandwidth) {
+  // public final ConnectionServiceProviderFactory setMinBandwidth(long minBandwidth) {
   // this.minBandwidth = minBandwidth;
   // return this;
   // }
 
-  public final NsiReservationFactory setScheduleEndTime(XMLGregorianCalendar scheduleEndTime) {
+  public final ConnectionServiceProviderFactory setScheduleEndTime(XMLGregorianCalendar scheduleEndTime) {
     this.scheduleEndTime = scheduleEndTime;
     return this;
   }
 
-  public final NsiReservationFactory setScheduleStartTime(XMLGregorianCalendar scheduleStartTime) {
+  public final ConnectionServiceProviderFactory setScheduleStartTime(XMLGregorianCalendar scheduleStartTime) {
     this.scheduleStartTime = scheduleStartTime;
     return this;
   }
 
-  public final NsiReservationFactory setConnectionId(String connectionId) {
+  public final ConnectionServiceProviderFactory setConnectionId(String connectionId) {
     this.connectionId = connectionId;
     return this;
   }
 
-  public final NsiReservationFactory setDescription(String description) {
+  public final ConnectionServiceProviderFactory setDescription(String description) {
     this.description = description;
     return this;
   }
 
-  public NsiReservationFactory setProviderNsa(String providerNSA) {
+  public ConnectionServiceProviderFactory setProviderNsa(String providerNSA) {
     this.providerNsa = providerNSA;
     return this;
   }
 
-  public NsiReservationFactory setRequesterNsa(String requesterNSA) {
+  public ConnectionServiceProviderFactory setRequesterNsa(String requesterNSA) {
     this.requesterNsa = requesterNSA;
     return this;
   }
 
-  public final NsiReservationFactory setPath(PathType path) {
+  public final ConnectionServiceProviderFactory setPath(PathType path) {
     this.path = path;
     return this;
   }
 
-  public final NsiReservationFactory setServiceParameters(ServiceParametersType serviceParameters) {
+  public final ConnectionServiceProviderFactory setServiceParameters(ServiceParametersType serviceParameters) {
     this.serviceParameters = serviceParameters;
     return this;
   }
