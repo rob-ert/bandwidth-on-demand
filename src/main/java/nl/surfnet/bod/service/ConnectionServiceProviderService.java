@@ -14,6 +14,7 @@ import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryDetailsResultType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
 import org.slf4j.Logger;
@@ -51,7 +52,7 @@ public class ConnectionServiceProviderService {
   @Autowired
   private VirtualPortService virtualPortService;
 
-  public final Function<Connection, Reservation> CONNECTION_TO_RESERVATION = new Function<Connection, Reservation>() {
+  private final Function<Connection, Reservation> CONNECTION_TO_RESERVATION = new Function<Connection, Reservation>() {
     @Override
     public Reservation apply(final Connection connection) {
 
@@ -70,6 +71,20 @@ public class ConnectionServiceProviderService {
       reservation.setUserCreated(connection.getRequesterNsa());
 
       return reservation;
+    }
+  };
+
+  public static final Function<Connection, QueryDetailsResultType> CONNECTION_TO_QUERY_RESULT = new Function<Connection, QueryDetailsResultType>() {
+    @Override
+    public QueryDetailsResultType apply(final Connection connection) {
+      final QueryDetailsResultType queryDetailsResultType = new QueryDetailsResultType();
+      queryDetailsResultType.setConnectionId(connection.getConnectionId());
+
+      // RH: We don't have a description......
+      // queryDetailsResultType.setDescription("description");
+      queryDetailsResultType.setGlobalReservationId(connection.getGlobalReservationId());
+      queryDetailsResultType.setServiceParameters(connection.getServiceParameters());
+      return queryDetailsResultType;
     }
   };
 

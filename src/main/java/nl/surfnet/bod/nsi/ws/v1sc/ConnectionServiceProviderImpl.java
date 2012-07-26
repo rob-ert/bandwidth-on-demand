@@ -22,6 +22,7 @@
 package nl.surfnet.bod.nsi.ws.v1sc;
 
 import static com.google.common.base.Preconditions.*;
+import static nl.surfnet.bod.service.ConnectionServiceProviderService.*;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
 
 import java.io.IOException;
@@ -55,7 +56,6 @@ import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ObjectFactory;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryDetailsResultType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
@@ -171,7 +171,7 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
   public GenericAcknowledgmentType reserve(final ReserveRequestType reservationRequest) throws ServiceException {
     checkNotNull(reservationRequest);
 
-    Connection connection = ConnectionServiceProviderService.RESERVE_REQUEST_TO_CONNECTION.apply(reservationRequest);
+    Connection connection = RESERVE_REQUEST_TO_CONNECTION.apply(reservationRequest);
     connection = connectionRepo.save(connection);
 
     final NsiRequestDetails requestDetails = new NsiRequestDetails(reservationRequest.getReplyTo(),
@@ -217,7 +217,6 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     if (nsaProviderUrns.contains(providerNsa)) {
       return;
     }
-
     throw getInvalidParameterServiceException("providerNSA");
   }
 
@@ -225,7 +224,6 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     if (StringUtils.hasText(connectionId)) {
       return;
     }
-
     throw getInvalidParameterServiceException("connectionId");
   }
 
@@ -304,7 +302,8 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     final Connection connection = getConnectionOrFail(connectionId);
     validateProviderNsa(parameters.getProvision().getProviderNSA());
 
-    final NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
+    final NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(),
+        parameters.getCorrelationId());
     provision(connection, requestDetails);
 
     final GenericAcknowledgmentType ack = new GenericAcknowledgmentType();
@@ -391,7 +390,8 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     final Connection connection = getConnectionOrFail(parameters.getTerminate().getConnectionId());
     validateProviderNsa(parameters.getTerminate().getProviderNSA());
 
-    final NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
+    final NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(),
+        parameters.getCorrelationId());
     connectionServiceProviderService.terminate(connection, parameters.getTerminate().getRequesterNSA(), requestDetails);
 
     final GenericAcknowledgmentType ack = new GenericAcknowledgmentType();
@@ -439,43 +439,42 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
 
     List<String> ids = parameters.getQuery().getQueryFilter().getConnectionId();
 
-    boolean isSearchByConnectionId = true;
-    boolean isSearchByRequesterNsa = false;
+    boolean isQueryByConnectionId = true;
+    boolean isQueryByRequesterNsa = false;
 
     if (ids == null || ids.size() == 0) {
-      // use global reservation id
+      isQueryByConnectionId = false;
+      // try to use global reservation id
       ids = parameters.getQuery().getQueryFilter().getGlobalReservationId();
       if (ids == null || ids.size() == 0) {
-        isSearchByRequesterNsa = true;
+        isQueryByRequesterNsa = true;
       }
-      isSearchByConnectionId = false;
     }
 
     final QueryConfirmedType confirmedType = new QueryConfirmedType();
-    final String requesterNSA = parameters.getQuery().getRequesterNSA();
 
-    if (isSearchByRequesterNsa) {
-      final List<Connection> connectionsByRequesterNsa = connectionRepo.findByRequesterNsa(requesterNSA);
+    if (isQueryByRequesterNsa) {
+      final List<Connection> connectionsByRequesterNsa = connectionRepo.findByRequesterNsa(parameters.getQuery()
+          .getRequesterNSA());
       for (final Connection connection : connectionsByRequesterNsa) {
-        confirmedType.getReservationDetails().add(getQueryResultType(connection));
+        confirmedType.getReservationDetails().add(CONNECTION_TO_QUERY_RESULT.apply(connection));
       }
     }
     else {
       for (final String id : ids) {
         Connection connection;
-        if (isSearchByConnectionId) {
+        if (isQueryByConnectionId) {
           connection = connectionRepo.findByConnectionId(id);
         }
         else {
           connection = connectionRepo.findByGlobalReservationId(id);
         }
-        confirmedType.getReservationDetails().add(getQueryResultType(connection));
+        confirmedType.getReservationDetails().add(CONNECTION_TO_QUERY_RESULT.apply(connection));
       }
     }
 
-    final NsiRequestDetails requestDetails = new NsiRequestDetails(replyTo, correlationId);
     connectionServiceProviderService.sendQueryConfirmed(correlationId, confirmedType,
-        getConnectionRequesterPort(requestDetails));
+        getConnectionRequesterPort(new NsiRequestDetails(replyTo, correlationId)));
 
     /*
      * Break out the attributes we need for handling. correlationId is needed
@@ -509,21 +508,6 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
     final GenericAcknowledgmentType ack = new GenericAcknowledgmentType();
     ack.setCorrelationId(correlationId);
     return ack;
-  }
-
-  /**
-   * @param connection
-   * @return
-   */
-  private QueryDetailsResultType getQueryResultType(Connection connection) {
-    final QueryDetailsResultType queryDetailsResultType = new QueryDetailsResultType();
-    queryDetailsResultType.setConnectionId(connection.getConnectionId());
-
-    // RH: We don't have a description......
-    // queryDetailsResultType.setDescription("description");
-    queryDetailsResultType.setGlobalReservationId(connection.getGlobalReservationId());
-    queryDetailsResultType.setServiceParameters(connection.getServiceParameters());
-    return queryDetailsResultType;
   }
 
   @Override
