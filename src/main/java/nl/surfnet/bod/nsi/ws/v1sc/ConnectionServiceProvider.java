@@ -565,10 +565,6 @@ public class ConnectionServiceProvider implements NsiProvider {
   public GenericAcknowledgmentType query(QueryRequestType parameters) throws ServiceException {
     final String correlationId = parameters.getCorrelationId();
     final String replyTo = parameters.getReplyTo();
-    
-    if(!parameters.getQuery().getOperation().equals(QueryOperationType.SUMMARY)){
-      throw new ServiceException(ConnectionServiceErrorCodes.PAYLOAD.NOT_IMPLEMENTED.getText(), new ServiceExceptionType()); 
-    }
 
     List<String> ids = parameters.getQuery().getQueryFilter().getConnectionId();
 
