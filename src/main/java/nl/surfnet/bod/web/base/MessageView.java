@@ -31,19 +31,31 @@ public class MessageView {
 
   private final String header;
   private final String message;
+  private final MessageType type;
+
   private String textButton;
   private String hrefButton;
 
-  public MessageView(String header, String message) {
+  public MessageView(MessageType type, String header, String message) {
+    this.type = type;
     this.header = header;
     this.message = message;
   }
 
+  public static MessageView createErrorMessage(MessageSource messageSource, String titleKey, String messageKey, String... args) {
+    return create(MessageType.ERROR, messageSource, titleKey, messageKey, args);
+  }
+
   public static MessageView createInfoMessage(MessageSource messageSource, String titleKey, String messageKey, String... args) {
+    return create(MessageType.INFO, messageSource, titleKey, messageKey, args);
+  }
+
+  private static MessageView create(
+      MessageType type, MessageSource messageSource, String titleKey, String messageKey, String... args) {
     String title = WebUtils.getMessage(messageSource, titleKey, args);
     String message = WebUtils.getMessage(messageSource, messageKey, args);
 
-    MessageView messageView = new MessageView(title, message);
+    MessageView messageView = new MessageView(type, title, message);
 
     return messageView;
   }
@@ -51,6 +63,10 @@ public class MessageView {
   public void addButton(String text, String url) {
     this.textButton = text;
     this.hrefButton = url;
+  }
+
+  public MessageType getType() {
+    return type;
   }
 
   public String getHeader() {
@@ -69,4 +85,7 @@ public class MessageView {
     return hrefButton;
   }
 
+  enum MessageType {
+    SUCCESS, INFO, WARNING, ERROR
+  }
 }
