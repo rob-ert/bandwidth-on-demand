@@ -60,7 +60,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.sun.xml.ws.developer.SchemaValidation;
 
 import nl.surfnet.bod.domain.Connection;
@@ -71,7 +70,6 @@ import nl.surfnet.bod.nsi.ws.ConnectionServiceProvider;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.service.ConnectionServiceProviderService;
-import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 
 @Service("connectionServiceProviderImpl_v1sc")
@@ -95,9 +93,6 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
 
   @Resource
   private WebServiceContext webServiceContext;
-
-  @Resource
-  private ReservationService reservationService;
 
   @Resource
   private ConnectionServiceProviderService connectionServiceProviderService;
@@ -271,27 +266,10 @@ public class ConnectionServiceProviderImpl implements ConnectionServiceProvider 
 
     final NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(),
         parameters.getCorrelationId());
-    provision(connection, requestDetails);
+    connectionServiceProviderService.provision(connection, requestDetails);
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
   }
 
-  private void provision(Connection connection, NsiRequestDetails requestDetails) {
-    // TODO [AvD] check if connection is in correct state to receive a provision
-    // request..
-    // for now we always go to auto provision but this is only correct if the
-    // state is reserved.
-    // in case it is scheduled we should start the reservation (go to
-    // provisioning) But this is not supported
-    // by OpenDRAC right now??
-    // If we are already in the provisioned state send back a confirm and we are
-    // done..
-    // Any other state we have to send back a provision failed...
-    connection.setCurrentState(ConnectionStateType.AUTO_PROVISION);
-    connection.setProvisionRequestDetails(requestDetails);
-    connectionRepo.save(connection);
-
-    reservationService.provision(connection.getReservation(), Optional.of(requestDetails));
-  }
 
   @Override
   public void provisionFailed(Connection connection, NsiRequestDetails requestDetails) {

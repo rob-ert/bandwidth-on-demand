@@ -60,6 +60,24 @@ public class ConnectionServiceProviderService {
 
     return reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
   }
+  
+  public void provision(Connection connection, NsiRequestDetails requestDetails) {
+    // TODO [AvD] check if connection is in correct state to receive a provision
+    // request..
+    // for now we always go to auto provision but this is only correct if the
+    // state is reserved.
+    // in case it is scheduled we should start the reservation (go to
+    // provisioning) But this is not supported
+    // by OpenDRAC right now??
+    // If we are already in the provisioned state send back a confirm and we are
+    // done..
+    // Any other state we have to send back a provision failed...
+    connection.setCurrentState(ConnectionStateType.AUTO_PROVISION);
+    connection.setProvisionRequestDetails(requestDetails);
+    connectionRepo.save(connection);
+
+    reservationService.provision(connection.getReservation(), Optional.of(requestDetails));
+  }
 
   @Async
   public void terminate(final Connection connection, final String requesterNsa, final NsiRequestDetails requestDetails) {
