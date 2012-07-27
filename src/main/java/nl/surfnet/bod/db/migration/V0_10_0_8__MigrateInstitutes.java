@@ -32,7 +32,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.google.common.base.Strings;
-import com.googlecode.flyway.core.migration.java.JavaMigration;
+import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
 
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.IddClient;
@@ -40,7 +40,7 @@ import nl.surfnet.bod.idd.IddLiveClient;
 import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.util.Functions;
 
-public class V0_10_0_8__MigrateInstitutes implements JavaMigration {
+public class V0_10_0_8__MigrateInstitutes implements SpringJdbcMigration {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
