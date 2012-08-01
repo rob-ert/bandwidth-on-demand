@@ -72,15 +72,15 @@ import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.service.ConnectionServiceProviderService;
 import nl.surfnet.bod.service.VirtualPortService;
 
-@Service("connectionServiceProviderImpl_v1sc")
+@Service("connectionServiceProviderWs_v1sc")
 @WebService(serviceName = "ConnectionServiceProvider",
     portName = "ConnectionServiceProviderPort",
     endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
     targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider")
 @SchemaValidation
-public class ConnectionServiceProviderImpl implements ConnectionServiceProvider {
+public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
-  private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderImpl.class);
+  private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderWs.class);
 
   @Resource
   private ConnectionRepo connectionRepo;

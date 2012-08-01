@@ -55,7 +55,7 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderImpl;
+import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderWs;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
@@ -77,7 +77,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   private static MockHttpServer requesterEndpoint = new MockHttpServer(ConnectionServiceProviderFactory.PORT);
 
   @Resource
-  private ConnectionServiceProviderImpl nsiProvider;
+  private ConnectionServiceProviderWs nsiProvider;
 
   @Resource
   private VirtualPortRepo virtualPortRepo;

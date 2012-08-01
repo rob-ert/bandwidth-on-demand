@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -63,7 +64,7 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 public class ConnectionServiceProviderTest {
 
   @InjectMocks
-  private ConnectionServiceProviderImpl subject;
+  private ConnectionServiceProviderWs subject;
 
   @Mock
   private ConnectionRepo connectionRepoMock;
@@ -75,7 +76,7 @@ public class ConnectionServiceProviderTest {
   private ReservationService reservationServiceMock;
   
   @Mock
-  private ConnectionServiceProviderService connectionServiceProviderService;
+  private ConnectionServiceProviderService connectionServiceProviderComponent;
 
   private String nsaProvider = "nsa:surfnet.nl";
 
@@ -135,7 +136,7 @@ public class ConnectionServiceProviderTest {
   public void reserveTypeWithoutGlobalReservationIdShouldGetOne() {
     ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.<String>absent());
 
-    Connection connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequestType);
+    Connection connection = RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequestType);
 
     assertThat(connection.getGlobalReservationId(), not(IsEmptyString.isEmptyOrNullString()));
     assertThat(connection.getDesiredBandwidth(), is(1000));
@@ -145,7 +146,7 @@ public class ConnectionServiceProviderTest {
   public void reserveTypeWithGlobalReservationId() {
     ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.of("urn:surfnet.nl:12345"));
 
-    Connection connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequestType);
+    Connection connection = RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequestType);
 
     assertThat(connection.getGlobalReservationId(), is("urn:surfnet.nl:12345"));
   }
