@@ -13,7 +13,7 @@
         <field:input field="bodPortId" id="c_PhysicalPort_bod_port_id" />
 
         <field:select field="physicalResourceGroup" id="c_PhysicalPort_physicalResourceGroup" itemValue="id"
-            items="${physicalResourceGroupList}" path="/noc/physicalresourcegroups" />
+            items="${physicalResourceGroupList}" path="/noc/institutes" />
 
     </form:update>
 
