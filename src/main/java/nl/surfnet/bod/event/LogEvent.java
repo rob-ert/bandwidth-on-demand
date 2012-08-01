@@ -45,7 +45,7 @@ import com.google.common.collect.Lists;
 public class LogEvent {
 
   @VisibleForTesting
-  static final String LIST_PREFIX = "List of  ";
+  static final String LIST_STRING = "List with %d %s(s)";
 
   @VisibleForTesting
   static final String LIST_EMPTY = "Empty list";
@@ -127,7 +127,7 @@ public class LogEvent {
     if (it.hasNext()) {
       Object object = it.next();
       if (object != null) {
-        return LIST_PREFIX.concat(object.getClass().getSimpleName());
+        return String.format(LIST_STRING, list.size(), object.getClass().getSimpleName());
       }
     }
     return LIST_EMPTY;

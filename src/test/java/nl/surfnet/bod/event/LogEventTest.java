@@ -68,7 +68,7 @@ public class LogEventTest {
     List<PhysicalPort> ports = Lists.newArrayList(port);
 
     LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, ports);
-    assertThat(logEvent.getClassName(), is(LogEvent.LIST_PREFIX + port.getClass().getSimpleName()));
+    assertThat(logEvent.getClassName(), is(String.format(LogEvent.LIST_STRING, 1, port.getClass().getSimpleName())));
   }
 
   @Test
