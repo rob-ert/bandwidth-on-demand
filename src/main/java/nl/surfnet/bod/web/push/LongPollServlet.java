@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Resource;
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
@@ -35,24 +34,26 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-
 import nl.surfnet.bod.web.security.Security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
 @SuppressWarnings("serial")
-public class LongPollServlet extends HttpServlet {
+public class LongPollServlet extends HttpServlet{
 
   private static final Pattern SOCKET_ID_PATTERN = Pattern.compile(".*\"socket\":\"([a-z0-9\\-]+).*", Pattern.DOTALL);
 
   private Logger logger = LoggerFactory.getLogger(LongPollServlet.class);
 
-  @Resource
+  @Autowired
   private EndPoints connections;
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
+    logger.warn("doGet: " + request);
     String transport = request.getParameter("transport");
     if (transport == null) {
       logger.error("No transport defined for the long polling call");
@@ -109,6 +110,7 @@ public class LongPollServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    logger.warn("doPost: " + request);
     request.setCharacterEncoding("utf-8");
 
     String socketId = extractSocketId(request.getReader().readLine());
