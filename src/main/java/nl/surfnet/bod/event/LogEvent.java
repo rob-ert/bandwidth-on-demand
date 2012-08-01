@@ -22,6 +22,7 @@
 package nl.surfnet.bod.event;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -32,15 +33,22 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import nl.surfnet.bod.web.WebUtils;
+
 import org.hibernate.annotations.Type;
 import org.joda.time.LocalDateTime;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-
-import nl.surfnet.bod.web.WebUtils;
 
 @Entity
 public class LogEvent {
+
+  @VisibleForTesting
+  static final String LIST_PREFIX = "List of  ";
+
+  @VisibleForTesting
+  static final String LIST_EMPTY = "Empty list";
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -101,9 +109,28 @@ public class LogEvent {
       this.serializedObject = null;
     }
     else {
-      this.className = domainObject.getClass().getSimpleName();
+      // Incase of collection, determine class of elements
+      if (domainObject instanceof Collection<?>) {
+        this.className = getClassNameOfFirstElement(domainObject);
+      }
+      else {
+        this.className = domainObject.getClass().getSimpleName();
+      }
+
       this.serializedObject = serializeObject(domainObject);
     }
+  }
+
+  private String getClassNameOfFirstElement(Object domainObject) {
+    Collection<?> list = (Collection<?>) domainObject;
+    Iterator<?> it = list.iterator();
+    if (it.hasNext()) {
+      Object object = it.next();
+      if (object != null) {
+        return LIST_PREFIX.concat(object.getClass().getSimpleName());
+      }
+    }
+    return LIST_EMPTY;
   }
 
   private String serializeObject(Object domainObject) {
@@ -116,7 +143,7 @@ public class LogEvent {
 
   /**
    * Includes seconds in the string since the default conversion does not.
-   *
+   * 
    * @return Time stamp formatted like
    *         {@link WebUtils#DEFAULT_DATE_TIME_FORMATTER}
    */

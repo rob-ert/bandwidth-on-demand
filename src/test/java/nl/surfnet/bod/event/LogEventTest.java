@@ -21,15 +21,22 @@
  */
 package nl.surfnet.bod.event;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import java.util.List;
+
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.support.PhysicalPortFactory;
+import nl.surfnet.bod.support.VirtualPortFactory;
 
 import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
 
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.support.VirtualPortFactory;
+import com.google.common.collect.Lists;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 public class LogEventTest {
   private final static String USER_ID = "user";
@@ -45,7 +52,7 @@ public class LogEventTest {
       LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, virtualPort);
 
       assertThat(logEvent.getUserId(), is(USER_ID));
-      assertThat(logEvent.getGroupIds(), is("["+GROUP_ID+"]"));
+      assertThat(logEvent.getGroupIds(), is("[" + GROUP_ID + "]"));
       assertThat(logEvent.getCreated(), is(now));
       assertThat(logEvent.getClassName(), is(virtualPort.getClass().getSimpleName()));
       assertThat(logEvent.getSerializedObject().toString(), is(virtualPort.toString()));
@@ -53,5 +60,28 @@ public class LogEventTest {
     finally {
       DateTimeUtils.setCurrentMillisSystem();
     }
+  }
+
+  @Test
+  public void shouldLogClassOfElementInCaseOfList() {
+    PhysicalPort port = new PhysicalPortFactory().create();
+    List<PhysicalPort> ports = Lists.newArrayList(port);
+
+    LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, ports);
+    assertThat(logEvent.getClassName(), is(LogEvent.LIST_PREFIX + port.getClass().getSimpleName()));
+  }
+
+  @Test
+  public void shouldLogEmptyList() {
+    LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, Lists.newArrayList());
+
+    assertThat(logEvent.getClassName(), is(LogEvent.LIST_EMPTY));
+  }
+
+  @Test
+  public void shouldLogNullDomainObject() {
+    LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, null);
+
+    assertThat(logEvent.getClassName(), nullValue());
   }
 }
