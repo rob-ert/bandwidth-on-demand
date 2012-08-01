@@ -42,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 @SuppressWarnings("serial")
-public class LongPollServlet extends HttpServlet{
+public class LongPollServlet extends HttpServlet {
 
   private static final Pattern SOCKET_ID_PATTERN = Pattern.compile(".*\"socket\":\"([a-z0-9\\-]+).*", Pattern.DOTALL);
 
@@ -53,7 +53,6 @@ public class LongPollServlet extends HttpServlet{
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
-    logger.warn("doGet: " + request);
     String transport = request.getParameter("transport");
     if (transport == null) {
       logger.error("No transport defined for the long polling call");
@@ -110,7 +109,6 @@ public class LongPollServlet extends HttpServlet{
 
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    logger.warn("doPost: " + request);
     request.setCharacterEncoding("utf-8");
 
     String socketId = extractSocketId(request.getReader().readLine());
