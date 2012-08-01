@@ -79,11 +79,17 @@ public class ConnectionServiceProviderFunctions {
     @Override
     public QueryDetailsResultType apply(final Connection connection) {
       final QueryDetailsResultType queryDetailsResultType = new QueryDetailsResultType();
-      queryDetailsResultType.setConnectionId(connection.getConnectionId());
+      
+      if(StringUtils.hasText(connection.getConnectionId())){
+        queryDetailsResultType.setConnectionId(connection.getConnectionId());
+      }
 
       // RH: We don't have a description......
-      // queryDetailsResultType.setDescription("description");
-      queryDetailsResultType.setGlobalReservationId(connection.getGlobalReservationId());
+      // queryDetailsResultType.setDescription("description")
+
+      if(StringUtils.hasText(connection.getGlobalReservationId())){
+        queryDetailsResultType.setGlobalReservationId(connection.getGlobalReservationId());
+      };
       queryDetailsResultType.setServiceParameters(connection.getServiceParameters());
       return queryDetailsResultType;
     }

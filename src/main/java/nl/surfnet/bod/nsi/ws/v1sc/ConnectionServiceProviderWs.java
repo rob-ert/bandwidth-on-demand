@@ -270,7 +270,6 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
   }
 
-
   @Override
   public void provisionFailed(Connection connection, NsiRequestDetails requestDetails) {
     log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(),
@@ -402,7 +401,9 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
         else {
           connection = connectionRepo.findByGlobalReservationId(id);
         }
-        confirmedType.getReservationDetails().add(CONNECTION_TO_QUERY_RESULT.apply(connection));
+        if (connection != null) {
+          confirmedType.getReservationDetails().add(CONNECTION_TO_QUERY_RESULT.apply(connection));
+        }
       }
     }
 
