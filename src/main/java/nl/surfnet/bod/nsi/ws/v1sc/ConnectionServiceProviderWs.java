@@ -370,6 +370,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   public GenericAcknowledgmentType query(QueryRequestType parameters) throws ServiceException {
     final String correlationId = parameters.getCorrelationId();
     final String replyTo = parameters.getReplyTo();
+    
 
     List<String> ids = parameters.getQuery().getQueryFilter().getConnectionId();
 
@@ -408,7 +409,8 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     }
 
     connectionServiceProviderService.sendQueryConfirmed(correlationId, confirmedType,
-        NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(new NsiRequestDetails(replyTo, correlationId)));
+        NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(new NsiRequestDetails(replyTo, correlationId)), parameters
+            .getQuery().getProviderNSA(), parameters.getQuery().getRequesterNSA());
 
     return createGenericAcknowledgment(correlationId);
   }

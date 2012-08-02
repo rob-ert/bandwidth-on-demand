@@ -10,6 +10,7 @@ import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPor
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -24,6 +25,7 @@ import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -94,12 +96,21 @@ public class ConnectionServiceProviderService {
 
   @Async
   public void sendQueryConfirmed(final String correlationId, final QueryConfirmedType confirmedType,
-      final ConnectionRequesterPort port) {
+      final ConnectionRequesterPort port, final String providerNsa,final  String requesterNsa) {
     try {
       port.queryConfirmed(new Holder<>(correlationId), confirmedType);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
       log.error("Error: ", e);
+      final QueryFailedType failedType = new QueryFailedType();
+      
+      failedType.setProviderNSA(providerNsa);
+      failedType.setRequesterNSA(requesterNsa);
+      
+      final ServiceExceptionType error = new ServiceExceptionType();
+      error.setErrorId(ConnectionServiceProviderErrorCodes.CONNECTION.CONNECTION_ERROR.getId());
+      failedType.setServiceException(error );
+      sendQueryFailed(correlationId, failedType , port);
     }
   }
 
