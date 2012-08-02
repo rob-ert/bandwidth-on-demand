@@ -36,7 +36,7 @@
   </logger>
 
   <logger name="nl.surfnet.bod.nsi">
-    <level value="WARN" />
+    <level value="DEBUG" />
   </logger>
 
   <logger name="com.googlecode.ehcache" additivity="false">

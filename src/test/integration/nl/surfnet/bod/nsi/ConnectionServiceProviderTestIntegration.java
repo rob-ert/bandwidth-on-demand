@@ -41,6 +41,7 @@ import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgment
 import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
@@ -154,11 +155,27 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   @Test
   public void shouldValidateQuery() throws ServiceException {
-
     QueryRequestType queryRequest = createQueryRequest();
+
     GenericAcknowledgmentType genericAcknowledgment = nsiProvider.query(queryRequest);
 
     assertThat(genericAcknowledgment.getCorrelationId(), is(correlationId));
+  }
+
+  @Test
+  public void shouldValidateTerminate() throws ServiceException, DatatypeConfigurationException {
+    // First reserve
+    ReserveRequestType reservationRequest = createReserveRequest();
+    nsiProvider.reserve(reservationRequest);
+
+    // Then terminate
+    TerminateRequestType terminateRequest = createTerminateRequest(reservationRequest.getReserve().getReservation()
+        .getConnectionId(), reservationRequest.getCorrelationId());
+
+    GenericAcknowledgmentType terminateAck = nsiProvider.terminate(terminateRequest);
+
+    // Assert
+    assertThat(terminateAck.getCorrelationId(), is(correlationId));
   }
 
   @Test
@@ -207,16 +224,21 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     path.setSourceSTP(source);
 
     ReserveRequestType reservationRequest = new ConnectionServiceProviderFactory().setScheduleStartTime(startTime)
-        .setScheduleEndTime(endTime).setCorrelationId(correlationId).setProviderNsa(URN_PROVIDER_NSA).setPath(path)
-        .createReservation();
+        .setScheduleEndTime(endTime).setConnectionId(connectionId).setCorrelationId(correlationId)
+        .setConnectionId(connectionId).setProviderNsa(URN_PROVIDER_NSA).setPath(path).createReservation();
 
     return reservationRequest;
   }
 
   private QueryRequestType createQueryRequest() {
-    QueryRequestType queryRequest = new ConnectionServiceProviderFactory().setConnectionId(connectionId)
-        .setCorrelationId(correlationId).setProviderNsa(URN_PROVIDER_NSA).createQueryRequest();
+    return new ConnectionServiceProviderFactory().setConnectionId(connectionId).setCorrelationId(correlationId)
+        .setProviderNsa(URN_PROVIDER_NSA).createQueryRequest();
 
-    return queryRequest;
   }
+
+  private TerminateRequestType createTerminateRequest(String connId, String corrId) {
+    return new ConnectionServiceProviderFactory().setCorrelationId(corrId).setConnectionId(connId)
+        .setProviderNsa(URN_PROVIDER_NSA).createTerminateRequest();
+  }
+
 }
