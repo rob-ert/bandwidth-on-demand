@@ -72,10 +72,10 @@ public class InstituteIddService implements InstituteService {
     logger
         .info("Refreshing institutes from IDD, job based on configuration key: {}", INSTITUTE_REFRESH_CRON_KEY);
 
-    List<Institute> currentInstitutes = instituteRepo.findAll();
+    List<Institute> currentAlignedInstitutes = instituteRepo.findByAlignedWithIDD(true);
     Collection<Institute> iddInstitutes = Functions.transformKlanten(iddClient.getKlanten(), true);
 
-    List<Institute> unalignedInstitutes = Lists.newArrayList(currentInstitutes);
+    List<Institute> unalignedInstitutes = Lists.newArrayList(currentAlignedInstitutes);
     unalignedInstitutes.removeAll(iddInstitutes);
 
     logger.info(String.format(
@@ -84,14 +84,14 @@ public class InstituteIddService implements InstituteService {
     markNotAligned(unalignedInstitutes);
     instituteRepo.save(unalignedInstitutes);
 
-    logEventService.logUpdateEvent(unalignedInstitutes);
+    logEventService.logUpdateEvent(unalignedInstitutes, "Marked unaligned with IDD");
 
-    iddInstitutes.removeAll(currentInstitutes);
+    iddInstitutes.removeAll(currentAlignedInstitutes);
 
     logger.info(String.format("Found %d new or updated institutes from IDD", iddInstitutes.size()));
     instituteRepo.save(iddInstitutes);
 
-    logEventService.logUpdateEvent(iddInstitutes);
+    logEventService.logUpdateEvent(iddInstitutes, "Marked new or realigned with IDD");
   }
 
   private void markNotAligned(List<Institute> allInstitutes) {

@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
@@ -51,6 +52,10 @@ public class LogEventService {
 
   public void logCreateEvent(Object domainObject) {
     logCreateEvent(null, domainObject);
+  }
+
+  public void logCreateEvent(Object domainObject, String details) {
+    logCreateEvent(null, domainObject, details);
   }
 
   public void logCreateEvent(RichUserDetails user, Object domainObject) {
@@ -77,6 +82,10 @@ public class LogEventService {
     logUpdateEvent(null, domainObject);
   }
 
+  public void logUpdateEvent(Object domainObject, String details) {
+    logUpdateEvent(null, domainObject, details);
+  }
+
   public void logUpdateEvent(RichUserDetails user, Object domainObject) {
     logUpdateEvent(user, domainObject, null);
   }
@@ -86,7 +95,11 @@ public class LogEventService {
   }
 
   public void logDeleteEvent(Object domainObject) {
-    logUpdateEvent(null, domainObject);
+    logDeleteEvent(null, domainObject);
+  }
+
+  public void logDeleteEvent(Object domainObject, String details) {
+    logDeleteEvent(null, domainObject, details);
   }
 
   public void logDeleteEvent(RichUserDetails user, Object domainObject) {
@@ -109,7 +122,7 @@ public class LogEventService {
 
   /**
    * Delegates to {@link #handleEvent(Logger, LogEvent)}
-   *
+   * 
    * @param logEvent
    */
   private void handleEvent(LogEvent logEvent) {
@@ -119,16 +132,16 @@ public class LogEventService {
   /**
    * Handles the event. Writes it to the given logger and persists it in the
    * {@link LogEventRepo}
-   *
+   * 
    * @param logger
    *          Logger to write to
-   *
+   * 
    * @param logEvent
    *          LogEvent to handle
    */
   @VisibleForTesting
-  void handleEvent(Logger logger, LogEvent logEvent) {
-    logger.info("Handling event: {}", logEvent);
+  void handleEvent(Logger log, LogEvent logEvent) {
+    log.info("Handling event: {}", logEvent);
 
     logEventRepo.save(logEvent);
   }
