@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.*;
 import java.util.Calendar;
 
 import javax.annotation.Resource;
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -38,7 +39,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
@@ -95,6 +98,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   private InstituteRepo instituteRepo;
 
   private final String correlationId = "urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e";
+  private final String connectionId = "urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2f";
   private final String virtualResourceGroupName = "nsi:group";
   private VirtualPort sourceVirtualPort;
   private VirtualPort destinationVirtualPort;
@@ -113,31 +117,25 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   @Before
   public void setup() {
-    VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory()
-      .setName(virtualResourceGroupName)
-      .create();
+    VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().setName(virtualResourceGroupName)
+        .create();
     virtualResourceGroup = virtualResourceGroupRepo.save(virtualResourceGroup);
 
     Institute institute = instituteRepo.findAll().get(0);
     PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setInstitute(institute).create();
     physicalResourceGroup = physicalResourceGroupRepo.save(physicalResourceGroup);
 
-    PhysicalPort savedSourcePp = physicalPortRepo.save(
-        new PhysicalPortFactory().setPhysicalResourceGroup(physicalResourceGroup).create());
-    PhysicalPort savedDestinationPp = physicalPortRepo.save(
-        new PhysicalPortFactory().setPhysicalResourceGroup(physicalResourceGroup).create());
+    PhysicalPort savedSourcePp = physicalPortRepo.save(new PhysicalPortFactory().setPhysicalResourceGroup(
+        physicalResourceGroup).create());
+    PhysicalPort savedDestinationPp = physicalPortRepo.save(new PhysicalPortFactory().setPhysicalResourceGroup(
+        physicalResourceGroup).create());
 
-    VirtualPort sourcePort = new VirtualPortFactory()
-      .setMaxBandwidth(100)
-      .setPhysicalPort(savedSourcePp)
-      .setVirtualResourceGroup(virtualResourceGroup).create();
+    VirtualPort sourcePort = new VirtualPortFactory().setMaxBandwidth(100).setPhysicalPort(savedSourcePp)
+        .setVirtualResourceGroup(virtualResourceGroup).create();
     sourceVirtualPort = virtualPortRepo.save(sourcePort);
 
-    VirtualPort destinationPort = new VirtualPortFactory()
-      .setMaxBandwidth(100)
-      .setPhysicalPort(savedDestinationPp)
-      .setVirtualResourceGroup(virtualResourceGroup)
-      .create();
+    VirtualPort destinationPort = new VirtualPortFactory().setMaxBandwidth(100).setPhysicalPort(savedDestinationPp)
+        .setVirtualResourceGroup(virtualResourceGroup).create();
     destinationVirtualPort = virtualPortRepo.save(destinationPort);
 
     virtualResourceGroup.setVirtualPorts(Lists.newArrayList(sourceVirtualPort, destinationVirtualPort));
@@ -146,7 +144,47 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   }
 
   @Test
+  public void shouldValidateReserve() throws DatatypeConfigurationException, ServiceException {
+    ReserveRequestType reservationRequest = createReserveRequest();
+
+    GenericAcknowledgmentType genericAcknowledgment = nsiProvider.reserve(reservationRequest);
+
+    assertThat(genericAcknowledgment.getCorrelationId(), is(correlationId));
+  }
+
+  @Test
+  public void shouldValidateQuery() throws ServiceException {
+
+    QueryRequestType queryRequest = createQueryRequest();
+    GenericAcknowledgmentType genericAcknowledgment = nsiProvider.query(queryRequest);
+
+    assertThat(genericAcknowledgment.getCorrelationId(), is(correlationId));
+  }
+
+  @Test
   public void shouldReturnGenericAcknowledgement() throws Exception {
+    ReserveRequestType reservationRequest = createReserveRequest();
+
+    // send reserve request
+    GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
+
+    assertThat(genericAcknowledgmentType.getCorrelationId(), is(correlationId));
+
+    // send provision request
+    final ProvisionRequestType provisionRequestType = new ProvisionRequestType();
+    provisionRequestType.setCorrelationId(correlationId);
+    provisionRequestType.setReplyTo(reservationRequest.getReplyTo());
+    final GenericRequestType genericRequestType = new GenericRequestType();
+    genericRequestType.setProviderNSA(reservationRequest.getReserve().getProviderNSA());
+    genericRequestType.setRequesterNSA(reservationRequest.getReserve().getRequesterNSA());
+    genericRequestType.setConnectionId(reservationRequest.getReserve().getReservation().getConnectionId());
+    provisionRequestType.setProvision(genericRequestType);
+
+    final GenericAcknowledgmentType provisionAck = nsiProvider.provision(provisionRequestType);
+    assertThat(provisionAck.getCorrelationId(), is(correlationId));
+  }
+
+  private ReserveRequestType createReserveRequest() throws DatatypeConfigurationException {
     XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
     startTime.setDay(1);
     startTime.setMonth(Calendar.getInstance().get(Calendar.MONTH));
@@ -169,26 +207,16 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     path.setSourceSTP(source);
 
     ReserveRequestType reservationRequest = new ConnectionServiceProviderFactory().setScheduleStartTime(startTime)
-        .setScheduleEndTime(endTime).setCorrelationId(correlationId).setProviderNsa(URN_PROVIDER_NSA)
-        .setPath(path).createReservation();
+        .setScheduleEndTime(endTime).setCorrelationId(correlationId).setProviderNsa(URN_PROVIDER_NSA).setPath(path)
+        .createReservation();
 
-    // send reserve request
-    GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
+    return reservationRequest;
+  }
 
-    assertThat(genericAcknowledgmentType.getCorrelationId(), is(correlationId));
+  private QueryRequestType createQueryRequest() {
+    QueryRequestType queryRequest = new ConnectionServiceProviderFactory().setConnectionId(connectionId)
+        .setCorrelationId(correlationId).setProviderNsa(URN_PROVIDER_NSA).createQueryRequest();
 
-    // send provision request
-    final ProvisionRequestType provisionRequestType = new ProvisionRequestType();
-    provisionRequestType.setCorrelationId(correlationId);
-    provisionRequestType.setReplyTo(reservationRequest.getReplyTo());
-    final GenericRequestType genericRequestType = new GenericRequestType();
-    genericRequestType.setProviderNSA(reservationRequest.getReserve().getProviderNSA());
-    genericRequestType.setRequesterNSA(reservationRequest.getReserve().getRequesterNSA());
-    genericRequestType.setConnectionId(reservationRequest.getReserve().getReservation().getConnectionId());
-    provisionRequestType.setProvision(genericRequestType);
-
-
-    final GenericAcknowledgmentType provisionAck = nsiProvider.provision(provisionRequestType);
-    assertThat(provisionAck.getCorrelationId(), is(correlationId));
+    return queryRequest;
   }
 }

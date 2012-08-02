@@ -27,15 +27,22 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.types.BandwidthType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryFilterType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReserveType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tmforum.mtop.mri.xsd.mer.v1.FilterType;
+
+import com.google.common.collect.Lists;
 
 public class ConnectionServiceProviderFactory {
 
@@ -123,6 +130,24 @@ public class ConnectionServiceProviderFactory {
     return reservationRequestType;
   }
 
+  public QueryRequestType createQueryRequest() {
+    final MutableQueryFilterType queryFilter = new MutableQueryFilterType();
+    queryFilter.setConnectionId(connectionId);
+
+    final QueryType query = new QueryType();
+    query.setOperation(QueryOperationType.SUMMARY);
+    query.setProviderNSA(providerNsa);
+    query.setQueryFilter(queryFilter);
+    query.setSessionSecurityAttr(null);
+
+    final QueryRequestType queryRequest = new QueryRequestType();
+    queryRequest.setCorrelationId(correlationId);
+    queryRequest.setQuery(query);
+    queryRequest.setReplyTo(NSI_REQUESTER_ENDPOINT);
+
+    return queryRequest;
+  }
+
   private static String getCorrelationId() {
     return URN_UUID + UUID.randomUUID().toString();
   }
@@ -192,6 +217,18 @@ public class ConnectionServiceProviderFactory {
   public final ConnectionServiceProviderFactory setServiceParameters(ServiceParametersType serviceParameters) {
     this.serviceParameters = serviceParameters;
     return this;
+  }
+
+  private class MutableQueryFilterType extends QueryFilterType {
+    private static final long serialVersionUID = 1L;
+
+    public void setConnectionId(String connectionId) {
+      super.connectionId = Lists.newArrayList(connectionId);
+    }
+
+    public void setGlobalReservationId(String globalReservationId) {
+      super.globalReservationId = Lists.newArrayList(globalReservationId);
+    }
   }
 
 }
