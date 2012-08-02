@@ -42,7 +42,7 @@ public enum ReservationStatus {
    * All states which are allowed to transition to an other state. All other
    * states will automatically be regarded as endStates.
    */
-  public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, SCHEDULED, RUNNING, PREPARING);
+  public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, RESERVED, SCHEDULED, RUNNING, PREPARING);
 
   /**
    * @return true if the reservationStatus is an endState, meaning no further
