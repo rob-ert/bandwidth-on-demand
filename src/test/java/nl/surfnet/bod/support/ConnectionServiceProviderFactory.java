@@ -29,7 +29,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.types.BandwidthType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryFilterType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
@@ -40,7 +42,6 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tmforum.mtop.mri.xsd.mer.v1.FilterType;
 
 import com.google.common.collect.Lists;
 
@@ -53,8 +54,8 @@ public class ConnectionServiceProviderFactory {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private String correlationId = getCorrelationId();
-  private String connectionId = getCorrelationId();
+  private String correlationId = null;
+  private String connectionId = null;
   private int desiredBandwidth = 100;
   private int maxBandwidth = 100;
   private int minBandwidth = 100;
@@ -148,7 +149,26 @@ public class ConnectionServiceProviderFactory {
     return queryRequest;
   }
 
-  private static String getCorrelationId() {
+  public TerminateRequestType createTerminateRequest() {
+    final TerminateRequestType terminateRequest = new TerminateRequestType();
+    terminateRequest.setCorrelationId(correlationId);
+    terminateRequest.setReplyTo(NSI_REQUESTER_ENDPOINT);
+
+    terminateRequest.setTerminate(createGenericRequest());
+    return terminateRequest;
+  }
+
+  private GenericRequestType createGenericRequest() {
+    GenericRequestType genericRequest = new GenericRequestType();
+    genericRequest.setConnectionId(connectionId);
+    genericRequest.setProviderNSA(providerNsa);
+    genericRequest.setRequesterNSA(requesterNsa);
+    genericRequest.setSessionSecurityAttr(null);
+
+    return genericRequest;
+  }
+
+  private static String generateId() {
     return URN_UUID + UUID.randomUUID().toString();
   }
 

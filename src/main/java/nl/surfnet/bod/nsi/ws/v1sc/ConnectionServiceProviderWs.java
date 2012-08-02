@@ -73,10 +73,7 @@ import nl.surfnet.bod.service.ConnectionServiceProviderService;
 import nl.surfnet.bod.service.VirtualPortService;
 
 @Service("connectionServiceProviderWs_v1sc")
-@WebService(serviceName = "ConnectionServiceProvider",
-    portName = "ConnectionServiceProviderPort",
-    endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
-    targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider")
+@WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider")
 @SchemaValidation
 public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
@@ -368,46 +365,50 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public GenericAcknowledgmentType query(QueryRequestType parameters) throws ServiceException {
-
     final String correlationId = parameters.getCorrelationId();
     final String replyTo = parameters.getReplyTo();
-    final List<String> connectionIds = parameters.getQuery().getQueryFilter().getConnectionId();
-    final List<String> globalReservationIds = parameters.getQuery().getQueryFilter().getGlobalReservationId();
+
+    List<String> ids = parameters.getQuery().getQueryFilter().getConnectionId();
+
+    boolean isQueryByConnectionId = true;
+    boolean isQueryByRequesterNsa = false;
+
+    if (ids == null || ids.size() == 0) {
+      isQueryByConnectionId = false;
+      // try to use global reservation id
+      ids = parameters.getQuery().getQueryFilter().getGlobalReservationId();
+      if (ids == null || ids.size() == 0) {
+        isQueryByRequesterNsa = true;
+      }
+    }
+
     final QueryConfirmedType confirmedType = new QueryConfirmedType();
 
-    // no criteria, return all connections related to this requester nsa
-    if (connectionIds == null || connectionIds.size() == 0 || globalReservationIds == null
-        || globalReservationIds.size() == 0) {
+    if (isQueryByRequesterNsa) {
       for (final Connection connection : connectionRepo.findByRequesterNsa(parameters.getQuery().getRequesterNSA())) {
-        addQueryResult(confirmedType, connection);
+        confirmedType.getReservationDetails().add(CONNECTION_TO_QUERY_RESULT.apply(connection));
+      }
+    }
+    else {
+      for (final String id : ids) {
+        Connection connection;
+        if (isQueryByConnectionId) {
+          connection = connectionRepo.findByConnectionId(id);
+        }
+        else {
+          connection = connectionRepo.findByGlobalReservationId(id);
+        }
+        if (connection != null) {
+          confirmedType.getReservationDetails().add(CONNECTION_TO_QUERY_RESULT.apply(connection));
+        }
       }
     }
 
-    if (connectionIds != null) {
-      for (final String connectionId : connectionIds) {
-        addQueryResult(confirmedType, connectionRepo.findByConnectionId(connectionId));
-      }
-    }
-
-    if (globalReservationIds != null) {
-      for (final String globalReservationId : globalReservationIds) {
-        addQueryResult(confirmedType, connectionRepo.findByGlobalReservationId(globalReservationId));
-      }
-    }
-    
     connectionServiceProviderService.sendQueryConfirmed(correlationId, confirmedType,
         NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(new NsiRequestDetails(replyTo, correlationId)), parameters
             .getQuery().getProviderNSA(), parameters.getQuery().getRequesterNSA());
 
     return createGenericAcknowledgment(correlationId);
-  }
-
-  /**
-   * @param confirmedType
-   * @param connection
-   */
-  private void addQueryResult(final QueryConfirmedType confirmedType, final Connection connection) {
-    confirmedType.getReservationDetails().add(CONNECTION_TO_QUERY_RESULT.apply(connection));
   }
 
   @Override
@@ -426,6 +427,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   }
 
   private Connection getConnectionOrFail(String connectionId) throws ServiceException {
+
     final Connection connection = connectionRepo.findByConnectionId(connectionId);
     if (connection == null) {
       throw getInvalidParameterServiceException("connectionId");
