@@ -408,11 +408,18 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
    * @param connection
    */
   private void addQueryResult(final QueryConfirmedType confirmedType, final Connection connection) {
-    final QueryDetailsResultType queryResult = CONNECTION_TO_QUERY_RESULT.apply(connection);
-    
-    if (!confirmedType.getReservationDetails().contains(queryResult)) {
-      confirmedType.getReservationDetails().add(queryResult);
+
+    if (connection == null) {
+      return;
     }
+
+    for (final QueryDetailsResultType query : confirmedType.getReservationDetails()) {
+      if (query.getGlobalReservationId().equals(connection.getGlobalReservationId())) {
+        return;
+      }
+    }
+    final QueryDetailsResultType queryResult = CONNECTION_TO_QUERY_RESULT.apply(connection);
+    confirmedType.getReservationDetails().add(queryResult);
   }
 
   @Override
