@@ -21,7 +21,9 @@
  */
 package nl.surfnet.bod.event;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -33,14 +35,15 @@ import org.joda.time.LocalDateTime;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
 public class LogEventTest {
-  private final static String USER_ID = "user";
-  private final static String GROUP_ID = "urn:group";
+  private static final String USER_ID = "user";
+  private static final String GROUP_ID = "urn:group";
 
   @Test
   public void shouldCreateLogEvent() {
@@ -66,6 +69,24 @@ public class LogEventTest {
   public void shouldLogClassOfElementInCaseOfList() {
     PhysicalPort port = new PhysicalPortFactory().create();
     List<PhysicalPort> ports = Lists.newArrayList(port);
+
+    LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, ports);
+    assertThat(logEvent.getClassName(), is(String.format(LogEvent.LIST_STRING, 1, port.getClass().getSimpleName())));
+  }
+
+  @Test
+  public void shouldLogClassOfElementInCaseOfCollection() {
+    PhysicalPort port = new PhysicalPortFactory().create();
+    Collection<PhysicalPort> ports = Lists.newArrayList(port);
+
+    LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, ports);
+    assertThat(logEvent.getClassName(), is(String.format(LogEvent.LIST_STRING, 1, port.getClass().getSimpleName())));
+  }
+
+  @Test
+  public void shouldLogClassOfElementInCaseOfSet() {
+    PhysicalPort port = new PhysicalPortFactory().create();
+    Set<PhysicalPort> ports = Sets.newHashSet(port);
 
     LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, ports);
     assertThat(logEvent.getClassName(), is(String.format(LogEvent.LIST_STRING, 1, port.getClass().getSimpleName())));

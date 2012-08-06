@@ -109,8 +109,8 @@ public class LogEvent {
       this.serializedObject = null;
     }
     else {
-      // Incase of collection, determine class of elements
-      if (domainObject instanceof Collection<?>) {
+      // In case of collection, determine class of elements
+      if (Iterable.class.isAssignableFrom(domainObject.getClass())) {
         this.className = getClassNameOfFirstElement(domainObject);
       }
       else {
