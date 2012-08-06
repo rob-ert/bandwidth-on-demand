@@ -45,7 +45,7 @@ import com.google.common.collect.Lists;
 public class LogEvent {
 
   @VisibleForTesting
-  static final String LIST_STRING = "List with %d %s(s)";
+  static final String LIST_STRING = "List of %d %s(s)";
 
   @VisibleForTesting
   static final String LIST_EMPTY = "Empty list";
