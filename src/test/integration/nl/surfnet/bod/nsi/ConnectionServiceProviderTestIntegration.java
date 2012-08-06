@@ -179,6 +179,23 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   }
 
   @Test
+  public void shouldValidateProvision() throws ServiceException, DatatypeConfigurationException {
+    // Setup
+    // First reserve
+    ReserveRequestType reservationRequest = createReserveRequest();
+    nsiProvider.reserve(reservationRequest);
+
+    ProvisionRequestType provisionRequest = createProvisionRequest(reservationRequest.getReserve().getReservation()
+        .getConnectionId(), reservationRequest.getCorrelationId());
+
+    // Execute
+    GenericAcknowledgmentType provisionAck = nsiProvider.provision(provisionRequest);
+
+    // Verify
+    assertThat(provisionAck.getCorrelationId(), is(correlationId));
+  }
+
+  @Test
   public void shouldReturnGenericAcknowledgement() throws Exception {
     ReserveRequestType reservationRequest = createReserveRequest();
 
@@ -239,6 +256,11 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   private TerminateRequestType createTerminateRequest(String connId, String corrId) {
     return new ConnectionServiceProviderFactory().setCorrelationId(corrId).setConnectionId(connId)
         .setProviderNsa(URN_PROVIDER_NSA).createTerminateRequest();
+  }
+
+  private ProvisionRequestType createProvisionRequest(String connId, String corrId) {
+    return new ConnectionServiceProviderFactory().setConnectionId(connId).setCorrelationId(corrId)
+        .setProviderNsa(URN_PROVIDER_NSA).createProvisionRequest();
   }
 
 }

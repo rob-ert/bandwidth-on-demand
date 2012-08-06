@@ -27,6 +27,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
@@ -156,6 +157,16 @@ public class ConnectionServiceProviderFactory {
 
     terminateRequest.setTerminate(createGenericRequest());
     return terminateRequest;
+  }
+
+  public ProvisionRequestType createProvisionRequest() {
+    final ProvisionRequestType provisionRequest = new ProvisionRequestType();
+    provisionRequest.setCorrelationId(correlationId);
+    provisionRequest.setReplyTo(NSI_REQUESTER_ENDPOINT);
+    
+    provisionRequest.setProvision(createGenericRequest());
+    return provisionRequest;
+
   }
 
   private GenericRequestType createGenericRequest() {
