@@ -58,6 +58,7 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -377,22 +378,22 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     final QueryConfirmedType confirmedType = new QueryConfirmedType();
 
     // no criteria, return all connections related to this requester nsa
-    if (connectionIds == null || connectionIds.size() == 0 || globalReservationIds == null
-        || globalReservationIds.size() == 0) {
+    if (CollectionUtils.isEmpty(connectionIds) && CollectionUtils.isEmpty(globalReservationIds)) {
       for (final Connection connection : connectionRepo.findByRequesterNsa(parameters.getQuery().getRequesterNSA())) {
         addQueryResult(confirmedType, connection);
       }
     }
-
-    if (connectionIds != null) {
-      for (final String connectionId : connectionIds) {
-        addQueryResult(confirmedType, connectionRepo.findByConnectionId(connectionId));
+    else {
+      if (!CollectionUtils.isEmpty(connectionIds)) {
+        for (final String connectionId : connectionIds) {
+          addQueryResult(confirmedType, connectionRepo.findByConnectionId(connectionId));
+        }
       }
-    }
 
-    if (globalReservationIds != null) {
-      for (final String globalReservationId : globalReservationIds) {
-        addQueryResult(confirmedType, connectionRepo.findByGlobalReservationId(globalReservationId));
+      if (!CollectionUtils.isEmpty(globalReservationIds)) {
+        for (final String globalReservationId : globalReservationIds) {
+          addQueryResult(confirmedType, connectionRepo.findByGlobalReservationId(globalReservationId));
+        }
       }
     }
 
@@ -408,11 +409,9 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
    * @param connection
    */
   private void addQueryResult(final QueryConfirmedType confirmedType, final Connection connection) {
-
     if (connection == null) {
       return;
     }
-
     for (final QueryDetailsResultType query : confirmedType.getReservationDetails()) {
       if (query.getGlobalReservationId().equals(connection.getGlobalReservationId())) {
         return;
