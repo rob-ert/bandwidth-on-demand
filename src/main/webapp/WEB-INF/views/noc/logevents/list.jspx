@@ -15,7 +15,7 @@
   <spring:url value="/noc/logevents/search" var="search_url"/>
   
   <table:table items="${list}" labelPluralCode="label_logevent_plural">
-    <a href="#" rel="tooltip" title="Search for text" data-type="info"  onclick="alert(${search_url}?text=$('s_id').val())"><i class="icon-search"><!--  --></i></a>
+    <a href="#" rel="tooltip" title="Search for text" data-type="info" onclick="window.location.replace('${search_url}?text='+$('#s_id').val());"><i class="icon-search"><!--  --></i></a>
     <thead>
       <tr>
         <table:rowDetailsHeader />
