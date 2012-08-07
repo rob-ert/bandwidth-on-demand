@@ -36,12 +36,15 @@ import javax.persistence.Id;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.hibernate.annotations.Type;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 import org.joda.time.LocalDateTime;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
 @Entity
+@Indexed
 public class LogEvent {
 
   @VisibleForTesting
@@ -66,12 +69,15 @@ public class LogEvent {
   @Enumerated(EnumType.STRING)
   private final LogEventType eventType;
 
+  @Field
   @Column(nullable = true)
   private final String className;
 
+  @Field
   @Type(type = "text")
   private final String serializedObject;
 
+  @Field
   @Type(type = "text")
   private final String details;
 

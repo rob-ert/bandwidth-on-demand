@@ -3,13 +3,19 @@
   xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
   xmlns:c="http://java.sun.com/jsp/jstl/core"
   xmlns:spring="http://www.springframework.org/tags"
-  xmlns:table="urn:jsptagdir:/WEB-INF/tags/table">
+  xmlns:table="urn:jsptagdir:/WEB-INF/tags/table"
+  xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields">
 
 <jsp:directive.page contentType="text/html;charset=UTF-8" />
 <jsp:output omit-xml-declaration="yes" />
 
 <page:list id="pl_logEvent" path="/noc/events" renderActions="false">
+
+  <input id="s_id" labelCode="search_Label" helpMessageCode="search_label" />  
+  <spring:url value="/noc/logevents/search" var="search_url"/>
+  
   <table:table items="${list}" labelPluralCode="label_logevent_plural">
+    <a href="#" rel="tooltip" title="Search for text" data-type="info"  onclick="alert(${search_url}?text=$('s_id').val())"><i class="icon-search"><!--  --></i></a>
     <thead>
       <tr>
         <table:rowDetailsHeader />

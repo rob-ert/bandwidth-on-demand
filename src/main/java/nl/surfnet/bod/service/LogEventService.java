@@ -24,12 +24,17 @@ package nl.surfnet.bod.service;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
+import nl.surfnet.bod.util.FullTextSearchContext;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
+import org.apache.lucene.search.Query;
+import org.hibernate.search.query.dsl.QueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +42,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 
 @Service
 public class LogEventService {
@@ -48,6 +54,9 @@ public class LogEventService {
 
   @Resource
   private LogEventRepo logEventRepo;
+
+  @PersistenceContext
+  private EntityManager entityManager;
 
   public void logCreateEvent(Object domainObject) {
     logCreateEvent(null, domainObject);
@@ -119,13 +128,28 @@ public class LogEventService {
     }
   }
 
-  /**
-   * Delegates to {@link #handleEvent(Logger, LogEvent)}
-   * 
-   * @param logEvent
-   */
-  private void handleEvent(LogEvent logEvent) {
-    handleEvent(logger, logEvent);
+  public List<LogEvent> findAll(int firstResult, int maxResults, Sort sort) {
+    return logEventRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+  }
+
+  public long count() {
+    return logEventRepo.count();
+  }
+
+  public List<LogEvent> searchFor(String searchText) {
+    List<LogEvent> result = Lists.newArrayList();
+
+    FullTextSearchContext fullTextSearchContext = new FullTextSearchContext(entityManager, LogEvent.class);
+    QueryBuilder queryBuilder = fullTextSearchContext.getFullTextQueryBuilder();
+
+    Query luceneQuery = queryBuilder.keyword().onFields("className", "serializedObject", "details")
+        .matching(searchText).createQuery();
+
+    javax.persistence.Query jpaQuery = fullTextSearchContext.getJpaQuery(luceneQuery);
+
+    result = jpaQuery.getResultList();
+
+    return result;
   }
 
   /**
@@ -145,12 +169,13 @@ public class LogEventService {
     logEventRepo.save(logEvent);
   }
 
-  public List<LogEvent> findAll(int firstResult, int maxResults, Sort sort) {
-    return logEventRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
-  }
-
-  public long count() {
-    return logEventRepo.count();
+  /**
+   * Delegates to {@link #handleEvent(Logger, LogEvent)}
+   * 
+   * @param logEvent
+   */
+  private void handleEvent(LogEvent logEvent) {
+    handleEvent(logger, logEvent);
   }
 
 }

@@ -25,18 +25,20 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.service.LogEventService;
+import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.security.Security;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.Lists;
-
-import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.service.LogEventService;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
-import nl.surfnet.bod.web.security.Security;
 
 @Controller
 @RequestMapping(value = "/noc/" + LogEventController.PAGE_URL)
@@ -75,5 +77,16 @@ public class LogEventController extends AbstractSortableListController<LogEvent>
   @Override
   protected long count() {
     return logEventService.count();
+  }
+
+  @RequestMapping(value = "search", method = RequestMethod.GET)
+  public String addPhysicalPort(@RequestParam String text, Model model) {
+    List<LogEvent> list = Lists.newArrayList();
+
+    if (org.springframework.util.StringUtils.hasText(text)) {
+      list = logEventService.searchFor(text);
+    }
+    model.addAttribute(MODEL_KEY, list);
+    return listUrl();
   }
 }
