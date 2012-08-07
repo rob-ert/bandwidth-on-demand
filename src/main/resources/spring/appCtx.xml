@@ -59,6 +59,8 @@
         <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
     </bean>
 
+    <bean name="BoD Initializer" class="nl.surfnet.bod.util.BoDInitializer" init-method="init" depends-on="messageSource"/>
+
     <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
         <property name="defaultEncoding" value="UTF-8" />
         <property name="host" value="${mail.host}" />

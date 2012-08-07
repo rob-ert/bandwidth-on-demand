@@ -26,10 +26,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.hibernate.search.jpa.FullTextEntityManager;
-import org.hibernate.search.jpa.Search;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import nl.surfnet.bod.util.BoDInitializer;
+
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,13 +36,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 @RequestMapping("admin")
 public class AdminController {
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @PersistenceContext
   private EntityManager entityManager;
 
   @Resource
   private ReloadableResourceBundleMessageSource messageSource;
+
+  @Resource
+  private BoDInitializer boDInitializer;
 
   @RequestMapping(value = "refreshMessages", method = RequestMethod.GET)
   public String refreshMessageSource(HttpServletRequest request) {
@@ -60,15 +60,8 @@ public class AdminController {
 
   @RequestMapping(value = "index", method = RequestMethod.GET)
   public String indexData() {
-    FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
-    try {
-      fullTextEntityManager.createIndexer().startAndWait();
-    }
-    catch (InterruptedException e) {
-      logger.error("Error indexing current database content", e);
-    }
+    boDInitializer.indexDatabaseContent();
 
-    logger.info("Succesfully indexed database content for full text search");
     return "redirect:/";
   }
 }
