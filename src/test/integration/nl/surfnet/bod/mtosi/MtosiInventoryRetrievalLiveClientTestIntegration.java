@@ -33,22 +33,22 @@ import org.junit.Test;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 
-public class MtosiLiveClientTestIntegration {
+public class MtosiInventoryRetrievalLiveClientTestIntegration {
 
   private final Properties properties = new Properties();
 
-  private MtosiLiveClient mtosiLiveClient;
+  private MtosiInventoryRetrievalLiveClient mtosiInventoryRetrievalLiveClient;
 
   @Before
   public void setup() throws IOException {
     properties.load(ClassLoader.class.getResourceAsStream("/bod-default.properties"));
-    mtosiLiveClient = new MtosiLiveClient(properties.get("mtosi.inventory.retrieval.endpoint").toString(), properties
+    mtosiInventoryRetrievalLiveClient = new MtosiInventoryRetrievalLiveClient(properties.get("mtosi.inventory.retrieval.endpoint").toString(), properties
         .get("mtosi.inventory.sender.uri").toString());
   }
 
   @Test
   public void getUnallocatedPorts() {
-    final List<PhysicalPort> unallocatedPorts = mtosiLiveClient.getUnallocatedPorts();
+    final List<PhysicalPort> unallocatedPorts = mtosiInventoryRetrievalLiveClient.getUnallocatedPorts();
     assertThat(unallocatedPorts, hasSize(greaterThan(0)));
     final PhysicalPort firstPhysicalPort = unallocatedPorts.get(0);
 
@@ -64,7 +64,7 @@ public class MtosiLiveClientTestIntegration {
 
   @Test
   public void getUnallocatedPortsCount() {
-    assertThat(mtosiLiveClient.getUnallocatedMtosiPortCount(), greaterThan(0));
+    assertThat(mtosiInventoryRetrievalLiveClient.getUnallocatedMtosiPortCount(), greaterThan(0));
   }
 
 }

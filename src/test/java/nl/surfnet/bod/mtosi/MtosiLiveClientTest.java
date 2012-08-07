@@ -52,7 +52,7 @@ public class MtosiLiveClientTest {
   public void convertPortName() {
     final String mtosiPortName = "/rack=1/shelf=1/slot=1/port=48";
     final String expectedPortName = "1-1-1-48";
-    final String convertedPortName = new MtosiLiveClient(null, null).convertPortName(mtosiPortName);
+    final String convertedPortName = new MtosiInventoryRetrievalLiveClient(null, null).convertPortName(mtosiPortName);
     assertThat(convertedPortName, equalTo(expectedPortName));
   }
 
@@ -60,7 +60,7 @@ public class MtosiLiveClientTest {
   public void convertSubPortName() {
     final String mtosiPortName = "/rack=1/shelf=1/slot=3/sub_slot=1";
     final String expectedPortName = "1-1-3-1";
-    final String convertedPortName = new MtosiLiveClient(null, null).convertPortName(mtosiPortName);
+    final String convertedPortName = new MtosiInventoryRetrievalLiveClient(null, null).convertPortName(mtosiPortName);
     assertThat(convertedPortName, equalTo(expectedPortName));
   }
 

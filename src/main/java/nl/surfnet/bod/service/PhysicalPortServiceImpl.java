@@ -54,7 +54,7 @@ import com.google.common.collect.Sets.SetView;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.mtosi.MtosiLiveClient;
+import nl.surfnet.bod.mtosi.MtosiInventoryRetrievalLiveClient;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.util.Functions;
@@ -85,7 +85,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
   private NbiClient nbiClient;
 
   @Resource
-  private MtosiLiveClient mtosiClient;
+  private MtosiInventoryRetrievalLiveClient mtosiClient;
 
   @Resource
   private LogEventService logEventService;

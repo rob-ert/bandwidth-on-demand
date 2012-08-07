@@ -42,8 +42,8 @@ import org.tmforum.mtop.fmw.xsd.hdr.v1.MessageTypeType;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.SubscribeRequest;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.SubscribeResponse;
 
-//@Service("mtosiEventLiveClient")
-public class MtosiEventLiveClient {
+//@Service("mtosiNotificationLiveClient")
+public class MtosiNotificationLiveClient {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -53,7 +53,7 @@ public class MtosiEventLiveClient {
 
   private boolean isInited = false;
 
-  public MtosiEventLiveClient() {
+  public MtosiNotificationLiveClient() {
     init();
   }
 

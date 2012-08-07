@@ -56,8 +56,8 @@ import com.google.common.annotations.VisibleForTesting;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 
-@Service("mtosiLiveClient")
-public class MtosiLiveClient {
+@Service("mtosiInventoryRetrievalLiveClient")
+public class MtosiInventoryRetrievalLiveClient {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -69,7 +69,7 @@ public class MtosiLiveClient {
   private boolean isInited = false;
 
   @Autowired
-  public MtosiLiveClient(@Value("${mtosi.inventory.retrieval.endpoint}") String retrievalUrl,
+  public MtosiInventoryRetrievalLiveClient(@Value("${mtosi.inventory.retrieval.endpoint}") String retrievalUrl,
       @Value("${mtosi.inventory.sender.uri}") String senderUri) {
     this.resourceInventoryRetrievalUrl = retrievalUrl;
     this.senderUri = senderUri;
