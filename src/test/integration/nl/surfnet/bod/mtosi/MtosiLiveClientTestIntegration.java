@@ -26,30 +26,24 @@ import static org.hamcrest.Matchers.*;
 
 import java.io.IOException;
 import java.util.List;
-
-import javax.annotation.Resource;
+import java.util.Properties;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
-    "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
-@TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
-public class MtosiLiveClientTestIntegration extends AbstractTransactionalJUnit4SpringContextTests {
+public class MtosiLiveClientTestIntegration {
 
-  @Resource(name = "mtosiLiveClient")
+  private final Properties properties = new Properties();
+
   private MtosiLiveClient mtosiLiveClient;
 
   @Before
   public void setup() throws IOException {
+    properties.load(ClassLoader.class.getResourceAsStream("/bod-default.properties"));
+    mtosiLiveClient = new MtosiLiveClient(properties.get("mtosi.inventory.retrieval.endpoint").toString(), properties
+        .get("mtosi.inventory.sender.uri").toString());
   }
 
   @Test
@@ -65,7 +59,7 @@ public class MtosiLiveClientTestIntegration extends AbstractTransactionalJUnit4S
     assertThat(firstPhysicalPort.getNmsSapName(), startsWith("SAP-"));
     assertThat(firstPhysicalPort.getNmsSapName(), equalTo(firstPhysicalPort.getBodPortId()));
     assertThat(firstPhysicalPort.isAlignedWithNMS(), is(true));
-    
+
   }
 
   @Test
