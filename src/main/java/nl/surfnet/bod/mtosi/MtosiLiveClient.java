@@ -103,6 +103,7 @@ public class MtosiLiveClient {
 
   private ServiceInventoryDataType getInventory() {
     log.info("Retrieving inventory at: {} ", resourceInventoryRetrievalUrl);
+    this.init();
     try {
       final GetServiceInventoryRequest inventoryRequest = new ObjectFactory().createGetServiceInventoryRequest();
       inventoryRequest.setFilter(getInventoryRequestSimpleFilter());
@@ -144,7 +145,6 @@ public class MtosiLiveClient {
     // [] nocLabel = nmsNeId + nmsPortId
 
     // [] nmsNeId = will be human friendly name for NE + snmp ifalias
-    this.init();
 
     final List<PhysicalPort> mtosiPorts = new ArrayList<>();
 
