@@ -31,7 +31,6 @@ import javax.xml.ws.Holder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.NotificationProducer;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.NotificationProducerHttp;
 import org.tmforum.mtop.fmw.wsdl.notp.v1_0.SubscribeException;
@@ -41,6 +40,7 @@ import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.MessageTypeType;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.SubscribeRequest;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.SubscribeResponse;
+import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeRequest;
 
 //@Service("mtosiNotificationLiveClient")
 public class MtosiNotificationLiveClient {
@@ -83,20 +83,38 @@ public class MtosiNotificationLiveClient {
 
   }
 
-  public void subscribe() {
+  public String subscribe(final String topic, final String consumerErp) {
     final SubscribeRequest subscribeRequest = new org.tmforum.mtop.fmw.xsd.notmsg.v1.ObjectFactory()
         .createSubscribeRequest();
-    
-    subscribeRequest.setConsumerEpr("http://145.96.0.119:9009/mtosi/fmw/NotificationConsumer");
-    subscribeRequest.setTopic("fault");
-    
+    // subscribeRequest.setConsumerEpr("http://145.96.0.119:9009/mtosi/fmw/NotificationConsumer");
+    subscribeRequest.setConsumerEpr(consumerErp);
+    subscribeRequest.setTopic(topic);
+
     try {
-      final SubscribeResponse subscribe = notificationConsumerHttp.getNotificationProducerSoapHttp().subscribe(getRequestHeaders(), subscribeRequest);
+      final SubscribeResponse subscribe = notificationConsumerHttp.getNotificationProducerSoapHttp().subscribe(
+          getRequestHeaders(), subscribeRequest);
       log.info("Subscription id {}", subscribe.getSubscriptionID());
+      return subscribe.getSubscriptionID();
     }
     catch (SubscribeException e) {
       log.error("Error: ", e);
+      return null;
     }
+  }
+
+  public void unsubscribe(final String id, final String topic) {
+    final UnsubscribeRequest unsubscribeRequest = new org.tmforum.mtop.fmw.xsd.notmsg.v1.ObjectFactory()
+        .createUnsubscribeRequest();
+
+    unsubscribeRequest.setSubscriptionID(id);
+    unsubscribeRequest.setTopic(topic);
+    try {
+      notificationConsumerHttp.getNotificationProducerSoapHttp().unsubscribe(getRequestHeaders(), unsubscribeRequest);
+    }
+    catch (org.tmforum.mtop.fmw.wsdl.notp.v1_0.UnsubscribeException e) {
+      log.error("Error: ", e);
+    }
+
   }
 
   private Holder<Header> getRequestHeaders() {
@@ -106,7 +124,7 @@ public class MtosiNotificationLiveClient {
     header.setCommunicationStyle(CommunicationStyleType.RPC);
     header.setActivityName("subscribe");
     header.setMsgName("subscribeRequest");
-     header.setSenderURI("http://localhost:9009");
+    header.setSenderURI("http://localhost:9009");
     header.setMsgType(MessageTypeType.REQUEST);
     return new Holder<Header>(header);
   }
