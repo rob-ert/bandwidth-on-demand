@@ -42,8 +42,8 @@ public class MtosiInventoryRetrievalLiveClientTestIntegration {
   @Before
   public void setup() throws IOException {
     properties.load(ClassLoader.class.getResourceAsStream("/bod-default.properties"));
-    mtosiInventoryRetrievalLiveClient = new MtosiInventoryRetrievalLiveClient(properties.get("mtosi.inventory.retrieval.endpoint").toString(), properties
-        .get("mtosi.inventory.sender.uri").toString());
+    mtosiInventoryRetrievalLiveClient = new MtosiInventoryRetrievalLiveClient(properties.get(
+        "mtosi.inventory.retrieval.endpoint").toString(), properties.get("mtosi.inventory.sender.uri").toString());
   }
 
   @Test
