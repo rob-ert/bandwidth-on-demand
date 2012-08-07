@@ -31,4 +31,11 @@
         </wss:service>
     </wss:binding>
 
+    <!-- MTOSI WS -->
+    <wss:binding url="/mtosi/fmw/notificationconsumer">
+        <wss:service>
+            <ws:service bean="#mtosiNotificationCenterWs" />
+        </wss:service>
+    </wss:binding>
+
 </beans>

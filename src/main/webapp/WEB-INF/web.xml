@@ -30,6 +30,11 @@
         <servlet-name>jaxws-servlet</servlet-name>
         <url-pattern>/nsi/*</url-pattern>
     </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>jaxws-servlet</servlet-name>
+        <url-pattern>/mtosi/*</url-pattern>
+    </servlet-mapping>
 
     <filter>
         <filter-name>CharacterEncodingFilter</filter-name>
@@ -135,7 +140,17 @@
             <role-name>nsi_group</role-name>
         </auth-constraint>
     </security-constraint>
-
+    
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>NSI</web-resource-name>
+            <url-pattern>/mtosi/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>nsi_group</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
     <login-config>
         <auth-method>BASIC</auth-method>
     </login-config>

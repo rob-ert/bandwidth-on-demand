@@ -51,7 +51,7 @@ public class MtosiNotificationLiveClient {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private NotificationProducerHttp notificationConsumerHttp;
+  private NotificationProducerHttp notificationProducerHttp;
 
   private final String notificationRetrievalUrl;
 
@@ -76,10 +76,10 @@ public class MtosiNotificationLiveClient {
     }
     else {
       try {
-        notificationConsumerHttp = new NotificationProducerHttp(new URL(notificationRetrievalUrl), new QName(
+        notificationProducerHttp = new NotificationProducerHttp(new URL(notificationRetrievalUrl), new QName(
             "http://www.tmforum.org/mtop/fmw/wsdl/notp/v1-0", "NotificationProducerHttp"));
 
-        final Map<String, Object> requestContext = ((BindingProvider) notificationConsumerHttp
+        final Map<String, Object> requestContext = ((BindingProvider) notificationProducerHttp
             .getPort(NotificationProducer.class)).getRequestContext();
 
         requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, notificationRetrievalUrl);
@@ -98,7 +98,7 @@ public class MtosiNotificationLiveClient {
         .createSubscribeRequest();
     subscribeRequest.setConsumerEpr(consumerErp);
     subscribeRequest.setTopic(topic);
-    final SubscribeResponse subscribe = notificationConsumerHttp.getNotificationProducerSoapHttp().subscribe(
+    final SubscribeResponse subscribe = notificationProducerHttp.getNotificationProducerSoapHttp().subscribe(
         getRequestHeaders(), subscribeRequest);
     log.info("Subscription id {}", subscribe.getSubscriptionID());
     return subscribe.getSubscriptionID();
@@ -110,7 +110,7 @@ public class MtosiNotificationLiveClient {
         .createUnsubscribeRequest();
     unsubscribeRequest.setSubscriptionID(id);
     unsubscribeRequest.setTopic(topic);
-    notificationConsumerHttp.getNotificationProducerSoapHttp().unsubscribe(getRequestHeaders(), unsubscribeRequest);
+    notificationProducerHttp.getNotificationProducerSoapHttp().unsubscribe(getRequestHeaders(), unsubscribeRequest);
 
   }
 
