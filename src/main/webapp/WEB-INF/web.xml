@@ -141,7 +141,7 @@
         </auth-constraint>
     </security-constraint>
     
-    <security-constraint>
+    <!-- <security-constraint>
         <web-resource-collection>
             <web-resource-name>NSI</web-resource-name>
             <url-pattern>/mtosi/*</url-pattern>
@@ -149,7 +149,7 @@
         <auth-constraint>
             <role-name>nsi_group</role-name>
         </auth-constraint>
-    </security-constraint>
+    </security-constraint> -->
     
     <login-config>
         <auth-method>BASIC</auth-method>
