@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 public class LuceneSortFieldTypeTest {
 
@@ -20,14 +21,14 @@ public class LuceneSortFieldTypeTest {
     assertThat(LuceneSortFieldType.getLuceneTypeFor(Integer.class), is(SortField.INT));
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void testLucenTypeNonExisting() {
-    LuceneSortFieldType.getLuceneTypeFor(PhysicalPort.class);
+    assertThat(LuceneSortFieldType.getLuceneTypeFor(PhysicalPort.class), is(SortField.STRING_VAL));
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void testLucenTypeNull() {
-    LuceneSortFieldType.getLuceneTypeFor(null);
+    assertThat(LuceneSortFieldType.getLuceneTypeFor(null), is(SortField.STRING_VAL));
   }
 
 }
