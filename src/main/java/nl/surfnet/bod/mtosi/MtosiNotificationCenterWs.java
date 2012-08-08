@@ -36,7 +36,7 @@ import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 @Service("mtosiNotificationCenterWs")
 @WebService(serviceName = "NotificationConsumerHttp",
     portName = "NotificationConsumer",
-    targetNamespace = "http://www.tmforum.org/mtop/fmw/wsdl/notc/v1-0")
+    targetNamespace = "http://www.tmforum.org/mtop/fmw/xsd/notmsg/v1")
 public class MtosiNotificationCenterWs implements NotificationConsumer {
 
   private final Logger log = LoggerFactory.getLogger(MtosiNotificationCenterWs.class);
