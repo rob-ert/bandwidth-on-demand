@@ -26,6 +26,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
@@ -134,10 +135,21 @@ public class LogEventService {
   }
 
   @SuppressWarnings("unchecked")
-  public List<LogEvent> searchFor(String searchText) {
-    FullTextSearchContext fullTextSearchContext = new FullTextSearchContext(entityManager, LogEvent.class);
+  public List<LogEvent> searchFor(String searchText, int firstResult, int maxResults, Sort sort) {
+    Query jpaQuery = createSearchQuery(searchText);
 
-    return fullTextSearchContext.getJpaQueryForKeywordOnAllAnnotedFields(searchText).getResultList();
+    jpaQuery.setFirstResult(firstResult);
+    jpaQuery.setMaxResults(maxResults);
+
+    return (List<LogEvent>) jpaQuery.getResultList();
+  }
+
+  public long countSearchFor(String searchText) {
+    Query jpaQuery = createSearchQuery(searchText);
+
+    long size = jpaQuery.getResultList().size();
+    logger.warn("CountSearchFor: {}", size);
+    return size;
   }
 
   /**
@@ -155,6 +167,13 @@ public class LogEventService {
     log.info("Handling event: {}", logEvent);
 
     logEventRepo.save(logEvent);
+  }
+
+  private Query createSearchQuery(String searchText) {
+    FullTextSearchContext fullTextSearchContext = new FullTextSearchContext(entityManager, LogEvent.class);
+
+    Query jpaQuery = fullTextSearchContext.getJpaQueryForKeywordOnAllAnnotedFields(searchText);
+    return jpaQuery;
   }
 
   /**

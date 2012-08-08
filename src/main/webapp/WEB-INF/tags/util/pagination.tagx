@@ -23,6 +23,9 @@
                     </c:when>
                     <c:otherwise>
                         <spring:url value="" var="prev_page_url">
+                            <c:if test="${not empty text}">
+                                <spring:param name="text" value="${text}"/>
+                            </c:if>
                             <spring:param name="page" value="${page - 1}" />
                             <spring:param name="sort" value="${sortProperty}" />
                             <spring:param name="order" value="${sortDirection}" />
@@ -40,6 +43,9 @@
                         </c:otherwise>
                     </c:choose>
                     <spring:url value="" var="page_url">
+                        <c:if test="${not empty text}">
+                            <spring:param name="text" value="${text}"/>
+                        </c:if>
                         <spring:param name="page" value="${i}" />
                         <spring:param name="sort" value="${sortProperty}" />
                         <spring:param name="order" value="${sortDirection}" />
@@ -53,6 +59,9 @@
                     </c:when>
                     <c:otherwise>
                         <spring:url value="" var="next_page_url">
+                            <c:if test="${not empty text}">
+                                <spring:param name="text" value="${text}"/>
+                            </c:if>
                             <spring:param name="page" value="${page + 1}" />
                             <spring:param name="sort" value="${sortProperty}" />
                             <spring:param name="order" value="${sortDirection}" />

@@ -5,7 +5,6 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
@@ -40,8 +39,8 @@ public class FullTextSearchContext {
 
   /**
    * 
-   * @return Comma separated String containing all fieldNames of the
-   *         {@link #entity} annotated with @link {@Field}
+   * @return String array containing all fieldNames of the given entity which
+   *         are annotated with @link {@Field} to mark them indexable.
    */
   @VisibleForTesting
   String[] getIndexedFields(Class<?> entity) {

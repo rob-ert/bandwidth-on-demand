@@ -27,6 +27,7 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.service.LogEventService;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSortableListController;
 import nl.surfnet.bod.web.security.Security;
 
@@ -39,6 +40,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.Lists;
+
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 @Controller
 @RequestMapping(value = "/noc/" + LogEventController.PAGE_URL)
@@ -80,13 +86,21 @@ public class LogEventController extends AbstractSortableListController<LogEvent>
   }
 
   @RequestMapping(value = "search", method = RequestMethod.GET)
-  public String addPhysicalPort(@RequestParam String text, Model model) {
+  public String search(@RequestParam(value = PAGE_KEY, required = false) Integer page,
+      @RequestParam(value = "sort", required = false) String sort,
+      @RequestParam(value = "order", required = false) String order, @RequestParam String text, Model model) {
     List<LogEvent> list = Lists.newArrayList();
 
-    if (org.springframework.util.StringUtils.hasText(text)) {
-      list = logEventService.searchFor(text);
+    Sort sortOptions = prepareSortOptions(sort, order, model);
+    if (Security.isSelectedNocRole() && (org.springframework.util.StringUtils.hasText(text))) {
+      list = logEventService.searchFor(text, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions);
     }
-    model.addAttribute(MODEL_KEY, list);
+
+    model.addAttribute("maxPages", calculateMaxPages(logEventService.countSearchFor(text)));
+    model.addAttribute("text", text);
+    model.addAttribute(WebUtils.DATA_LIST, list);
+
     return listUrl();
   }
+
 }
