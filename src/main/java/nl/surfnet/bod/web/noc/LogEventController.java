@@ -26,9 +26,9 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.service.FullTextSearchableService;
 import nl.surfnet.bod.service.LogEventService;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.data.domain.Sort;
@@ -36,19 +36,12 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.Lists;
 
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
-
 @Controller
 @RequestMapping(value = "/noc/" + LogEventController.PAGE_URL)
-public class LogEventController extends AbstractSortableListController<LogEvent> {
+public class LogEventController extends AbstractSearchableSortableListController<LogEvent> {
   public static final String PAGE_URL = "logevents";
   static final String MODEL_KEY = "list";
 
@@ -58,6 +51,11 @@ public class LogEventController extends AbstractSortableListController<LogEvent>
   @Override
   protected String getDefaultSortProperty() {
     return "created";
+  }
+
+  @Override
+  protected FullTextSearchableService<LogEvent> getFullTextSearchableService() {
+    return logEventService;
   }
 
   @Override
@@ -83,24 +81,6 @@ public class LogEventController extends AbstractSortableListController<LogEvent>
   @Override
   protected long count() {
     return logEventService.count();
-  }
-
-  @RequestMapping(value = "search", method = RequestMethod.GET)
-  public String search(@RequestParam(value = PAGE_KEY, required = false) Integer page,
-      @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order, @RequestParam String text, Model model) {
-    List<LogEvent> list = Lists.newArrayList();
-
-    Sort sortOptions = prepareSortOptions(sort, order, model);
-    if (Security.isSelectedNocRole() && (org.springframework.util.StringUtils.hasText(text))) {
-      list = logEventService.searchFor(text, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions);
-    }
-
-    model.addAttribute("maxPages", calculateMaxPages(logEventService.countSearchFor(text)));
-    model.addAttribute("text", text);
-    model.addAttribute(WebUtils.DATA_LIST, list);
-
-    return listUrl();
   }
 
 }

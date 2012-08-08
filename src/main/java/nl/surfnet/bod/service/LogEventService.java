@@ -43,7 +43,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.annotations.VisibleForTesting;
 
 @Service
-public class LogEventService {
+public class LogEventService implements FullTextSearchableService<LogEvent> {
 
   private static final String SYSTEM_USER = "system";
   private static final String ALL_GROUPS = "all";
@@ -134,6 +134,14 @@ public class LogEventService {
     return logEventRepo.count();
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * nl.surfnet.bod.service.FullTextSearchableService#searchFor(java.lang.String
+   * , int, int, org.springframework.data.domain.Sort)
+   */
+  @Override
   @SuppressWarnings("unchecked")
   public List<LogEvent> searchFor(String searchText, int firstResult, int maxResults, Sort sort) {
     Query jpaQuery = createSearchQuery(searchText);
@@ -144,11 +152,19 @@ public class LogEventService {
     return (List<LogEvent>) jpaQuery.getResultList();
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * nl.surfnet.bod.service.FullTextSearchableService#countSearchFor(java.lang
+   * .String)
+   */
+  @Override
   public long countSearchFor(String searchText) {
     Query jpaQuery = createSearchQuery(searchText);
 
     long size = jpaQuery.getResultList().size();
-    logger.warn("CountSearchFor: {}", size);
+    logger.debug("CountSearchFor: {}", size);
     return size;
   }
 
@@ -172,8 +188,7 @@ public class LogEventService {
   private Query createSearchQuery(String searchText) {
     FullTextSearchContext fullTextSearchContext = new FullTextSearchContext(entityManager, LogEvent.class);
 
-    Query jpaQuery = fullTextSearchContext.getJpaQueryForKeywordOnAllAnnotedFields(searchText);
-    return jpaQuery;
+    return fullTextSearchContext.getJpaQueryForKeywordOnAllAnnotedFields(searchText);
   }
 
   /**
