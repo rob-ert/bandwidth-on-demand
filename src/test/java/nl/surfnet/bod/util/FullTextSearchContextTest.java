@@ -66,7 +66,7 @@ public class FullTextSearchContextTest {
     Sort springSort = new Sort(Sort.Direction.ASC, "notIndexed");
     org.apache.lucene.search.Sort luceneSort = ftsContext.convertToLuceneSort(springSort, indexedFields);
 
-    assertThat(luceneSort.getSort()[0].getType(), is(SortField.STRING_VAL));
+    assertThat(luceneSort, nullValue());
   }
 
   public class TestEntity {
