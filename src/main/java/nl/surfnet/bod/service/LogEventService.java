@@ -33,8 +33,6 @@ import nl.surfnet.bod.repo.LogEventRepo;
 import nl.surfnet.bod.util.FullTextSearchContext;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
-import org.apache.lucene.search.Query;
-import org.hibernate.search.query.dsl.QueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -42,7 +40,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 
 @Service
 public class LogEventService {
@@ -136,20 +133,11 @@ public class LogEventService {
     return logEventRepo.count();
   }
 
+  @SuppressWarnings("unchecked")
   public List<LogEvent> searchFor(String searchText) {
-    List<LogEvent> result = Lists.newArrayList();
-
     FullTextSearchContext fullTextSearchContext = new FullTextSearchContext(entityManager, LogEvent.class);
-    QueryBuilder queryBuilder = fullTextSearchContext.getFullTextQueryBuilder();
 
-    Query luceneQuery = queryBuilder.keyword().onFields("className", "serializedObject", "details")
-        .matching(searchText).createQuery();
-
-    javax.persistence.Query jpaQuery = fullTextSearchContext.getJpaQuery(luceneQuery);
-
-    result = jpaQuery.getResultList();
-
-    return result;
+    return fullTextSearchContext.getJpaQueryForKeywordOnAllAnnotedFields(searchText).getResultList();
   }
 
   /**
