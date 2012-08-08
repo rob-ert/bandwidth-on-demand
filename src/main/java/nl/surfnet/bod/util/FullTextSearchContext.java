@@ -1,14 +1,21 @@
 package nl.surfnet.bod.util;
 
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.jpa.FullTextEntityManager;
+import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -27,14 +34,16 @@ public class FullTextSearchContext {
     this.entityManager = em;
   }
 
-  public Query getJpaQueryForKeywordOnAllAnnotedFields(String keyword) {
+  public FullTextQuery getFullTextQueryForKeywordOnAllAnnotedFields(String keyword,
+      org.springframework.data.domain.Sort springSort) {
     QueryBuilder fullTextQueryBuilder = getFullTextEntityManager(entityManager).getSearchFactory().buildQueryBuilder()
         .forEntity(entity).get();
 
-    org.apache.lucene.search.Query luceneQuery = fullTextQueryBuilder.keyword().onFields(getIndexedFields(entity))
+    String[] indexedFields = getIndexedFields(entity);
+    org.apache.lucene.search.Query luceneQuery = fullTextQueryBuilder.keyword().onFields(indexedFields)
         .matching(keyword).createQuery();
 
-    return getJpaQuery(luceneQuery);
+    return getFullTextQuery(luceneQuery, convertToLuceneSort(springSort, indexedFields));
   }
 
   /**
@@ -64,8 +73,45 @@ public class FullTextSearchContext {
     return Search.getFullTextEntityManager(em);
   }
 
-  private Query getJpaQuery(org.apache.lucene.search.Query luceneQuery) {
-    return getFullTextEntityManager(entityManager).createFullTextQuery(luceneQuery, entity);
+  @VisibleForTesting
+  Sort convertToLuceneSort(org.springframework.data.domain.Sort springSort, String[] indexedFields) {
+    List<SortField> sortFields = Lists.newArrayList();
+
+    if (springSort != null) {
+      Iterator<Order> orderIt = springSort.iterator();
+      while (orderIt.hasNext()) {
+        Order order = orderIt.next();
+        if (order != null) {
+          String propertyName = order.getProperty();
+          // Is it an indexed field?
+          if (Arrays.asList(indexedFields).contains(propertyName)) {
+            int luceneType = LuceneSortFieldType.getLuceneTypeFor(ReflectionUtils.findField(entity, propertyName)
+                .getType());
+
+            SortField sortField = new SortField(propertyName, luceneType, !(order.isAscending()));
+            sortFields.add(sortField);
+          }
+        }
+      }
+    }
+
+    if (CollectionUtils.isEmpty(sortFields)) {
+      return null;
+    }
+    else {
+      return new Sort(sortFields.toArray(new SortField[(sortFields.size())]));
+    }
+
+  }
+
+  private FullTextQuery getFullTextQuery(org.apache.lucene.search.Query luceneQuery, Sort sort) {
+    FullTextQuery fullTextQuery = getFullTextEntityManager(entityManager).createFullTextQuery(luceneQuery, entity);
+
+    if (sort != null) {
+      fullTextQuery.setSort(sort);
+    }
+
+    return fullTextQuery;
   }
 
 }

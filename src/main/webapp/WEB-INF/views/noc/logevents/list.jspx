@@ -11,7 +11,7 @@
 
 <page:list id="pl_logEvent" path="/noc/events" renderActions="false">
 
-  <input id="s_id" labelCode="search_Label" helpMessageCode="search_label" />  
+  <input id="s_id" labelCode="search_Label" value="${text}" helpMessageCode="search_label" />  
   <spring:url value="/noc/logevents/search" var="search_url"/>
   
   <table:table items="${list}" labelPluralCode="label_logevent_plural">

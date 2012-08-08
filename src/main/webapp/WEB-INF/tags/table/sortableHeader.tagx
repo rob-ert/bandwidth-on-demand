@@ -18,6 +18,9 @@
                             <c:when test="${sortDirection eq 'DESC'}">
                                 <c:set var="headClass" value="sortable headerSortDown" />
                                 <spring:url value="" var="sortLink">
+                                    <c:if test="${not empty text}">
+                                        <spring:param name="text" value="${text}"/>
+                                    </c:if>
                                     <spring:param name="sort" value="${property}" />
                                     <spring:param name="order" value="ASC" />
                                 </spring:url>
@@ -25,6 +28,9 @@
                             <c:otherwise>
                                 <c:set var="headClass" value="sortable headerSortUp" />
                                 <spring:url value="" var="sortLink">
+                                    <c:if test="${not empty text}">
+                                        <spring:param name="text" value="${text}"/>
+                                    </c:if>
                                     <spring:param name="sort" value="${property}" />
                                     <spring:param name="order" value="DESC" />
                                 </spring:url>
@@ -34,6 +40,9 @@
                     <c:otherwise>
                         <c:set var="headClass" value="sortable"/>
                         <spring:url value="" var="sortLink">
+                            <c:if test="${not empty text}">
+                                <spring:param name="text" value="${text}"/>
+                            </c:if>
                             <spring:param name="sort" value="${property}" />
                         </spring:url>
                     </c:otherwise>

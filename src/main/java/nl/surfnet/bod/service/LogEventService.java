@@ -34,6 +34,7 @@ import nl.surfnet.bod.repo.LogEventRepo;
 import nl.surfnet.bod.util.FullTextSearchContext;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
+import org.hibernate.search.jpa.FullTextQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -144,7 +145,7 @@ public class LogEventService implements FullTextSearchableService<LogEvent> {
   @Override
   @SuppressWarnings("unchecked")
   public List<LogEvent> searchFor(String searchText, int firstResult, int maxResults, Sort sort) {
-    Query jpaQuery = createSearchQuery(searchText);
+    Query jpaQuery = createSearchQuery(searchText, sort);
 
     jpaQuery.setFirstResult(firstResult);
     jpaQuery.setMaxResults(maxResults);
@@ -161,11 +162,9 @@ public class LogEventService implements FullTextSearchableService<LogEvent> {
    */
   @Override
   public long countSearchFor(String searchText) {
-    Query jpaQuery = createSearchQuery(searchText);
+    FullTextQuery jpaQuery = createSearchQuery(searchText, null);
 
-    long size = jpaQuery.getResultList().size();
-    logger.debug("CountSearchFor: {}", size);
-    return size;
+    return jpaQuery.getResultList().size();
   }
 
   /**
@@ -185,10 +184,10 @@ public class LogEventService implements FullTextSearchableService<LogEvent> {
     logEventRepo.save(logEvent);
   }
 
-  private Query createSearchQuery(String searchText) {
+  private FullTextQuery createSearchQuery(String searchText, Sort sort) {
     FullTextSearchContext fullTextSearchContext = new FullTextSearchContext(entityManager, LogEvent.class);
 
-    return fullTextSearchContext.getJpaQueryForKeywordOnAllAnnotedFields(searchText);
+    return fullTextSearchContext.getFullTextQueryForKeywordOnAllAnnotedFields(searchText, sort);
   }
 
   /**

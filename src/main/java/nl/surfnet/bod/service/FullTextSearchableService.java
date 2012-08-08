@@ -11,8 +11,7 @@ import org.springframework.data.domain.Sort;
  *          DomainObject
  */
 public interface FullTextSearchableService<T> {
+  long countSearchFor(String searchText);
 
   List<T> searchFor(String searchText, int firstResult, int maxResults, Sort sort);
-
-  long countSearchFor(String searchText);
 }
