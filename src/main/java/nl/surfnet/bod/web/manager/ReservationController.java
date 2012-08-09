@@ -21,21 +21,22 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.web.WebUtils.*;
-
 import java.util.List;
 
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 
 @Controller("managerReservationController")
 @RequestMapping(ReservationController.PAGE_URL)
@@ -50,8 +51,11 @@ public class ReservationController extends AbstractFilteredReservationController
   protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
-    model.addAttribute("maxPages",
-        WebUtils.calculateMaxPages(getReservationService().countForFilterAndManager(Security.getUserDetails(), filter)));
+    model
+        .addAttribute(
+            "maxPages",
+            WebUtils.calculateMaxPages(getReservationService().countForFilterAndManager(Security.getUserDetails(),
+                filter)));
 
     List<ReservationView> reservationViews = transformReservationToReservationView(getReservationService()
         .findEntriesForManagerUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems, sort),
@@ -65,4 +69,8 @@ public class ReservationController extends AbstractFilteredReservationController
     return PAGE_URL + WebUtils.LIST;
   }
 
+  @Override
+  protected Class<Reservation> getEntityClass() {
+    return Reservation.class;
+  }
 }

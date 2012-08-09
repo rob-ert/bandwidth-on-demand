@@ -30,7 +30,6 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -52,13 +51,11 @@ import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
-import nl.surfnet.bod.util.FullTextSearchContext;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 
-import org.hibernate.search.jpa.FullTextQuery;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +86,7 @@ import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
 @Service
 @Transactional
-public class ReservationService implements FullTextSearchableService<Reservation> {
+public class ReservationService extends AbstractFullTextSearchService<Reservation> {
 
   private static final Function<Reservation, ReservationArchive> TO_RESERVATION_ARCHIVE = //
   new Function<Reservation, ReservationArchive>() {
@@ -561,26 +558,10 @@ public class ReservationService implements FullTextSearchableService<Reservation
   }
 
   @Override
-  public long countSearchFor(String searchText) {
-    FullTextQuery jpaQuery = createSearchQuery(searchText, null);
-
-    return jpaQuery.getResultList().size();
+  protected EntityManager getEntityManager() {
+   return entityManager;
   }
-
-  @Override
-  public List<Reservation> searchFor(String searchText, int firstResult, int maxResults, Sort sort) {
-    Query jpaQuery = createSearchQuery(searchText, sort);
-
-    jpaQuery.setFirstResult(firstResult);
-    jpaQuery.setMaxResults(maxResults);
-
-    return (List<Reservation>) jpaQuery.getResultList();
-  }
-
-  private FullTextQuery createSearchQuery(String searchText, Sort sort) {
-    FullTextSearchContext fullTextSearchContext = new FullTextSearchContext(entityManager, Reservation.class);
-
-    return fullTextSearchContext.getFullTextQueryForKeywordOnAllAnnotedFields(searchText, sort);
-  }
-
+  
+  
+  
 }

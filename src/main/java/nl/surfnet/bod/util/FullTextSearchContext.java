@@ -24,13 +24,13 @@ import com.google.common.collect.Lists;
  * Class which holds state related to creating and executing a full text search
  * 
  */
-public class FullTextSearchContext {
+public class FullTextSearchContext<T> {
 
-  private final Class<?> entity;
+  private final Class<T> entity;
   private final EntityManager entityManager;
 
-  public FullTextSearchContext(EntityManager em, Class<?> entityType) {
-    this.entity = entityType;
+  public FullTextSearchContext(EntityManager em, Class<T> entityClass) {
+    this.entity = entityClass;
     this.entityManager = em;
   }
 

@@ -2,7 +2,7 @@ package nl.surfnet.bod.web.base;
 
 import java.util.List;
 
-import nl.surfnet.bod.service.FullTextSearchableService;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.springframework.data.domain.Sort;
@@ -25,8 +25,9 @@ import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
  * 
  * @param <T>
  *          DomainObject
+ * @param <K>
  */
-public abstract class AbstractSearchableSortableListController<T> extends AbstractSortableListController<T> {
+public abstract class AbstractSearchableSortableListController<T, K> extends AbstractSortableListController<K> {
 
   @RequestMapping(value = "search", method = RequestMethod.GET)
   public String search(@RequestParam(value = PAGE_KEY, required = false) Integer page,
@@ -36,16 +37,20 @@ public abstract class AbstractSearchableSortableListController<T> extends Abstra
 
     Sort sortOptions = prepareSortOptions(sort, order, model);
     if (StringUtils.hasText(text)) {
-      list = getFullTextSearchableService().searchFor(text, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions);
+      list = getFullTextSearchableService().searchFor(getEntityClass(), text, calculateFirstPage(page),
+          MAX_ITEMS_PER_PAGE, sortOptions, null);
     }
 
-    model.addAttribute("maxPages", calculateMaxPages(getFullTextSearchableService().countSearchFor(text)));
+    model.addAttribute("maxPages",
+        calculateMaxPages(getFullTextSearchableService().countSearchFor(getEntityClass(), text, list)));
     model.addAttribute("text", text);
     model.addAttribute(WebUtils.DATA_LIST, list);
 
     return listUrl();
   }
 
-  protected abstract FullTextSearchableService<T> getFullTextSearchableService();
+  protected abstract Class<T> getEntityClass();
+
+  protected abstract AbstractFullTextSearchService<T> getFullTextSearchableService();
 
 }

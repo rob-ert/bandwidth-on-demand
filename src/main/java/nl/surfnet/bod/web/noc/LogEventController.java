@@ -26,7 +26,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.service.FullTextSearchableService;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.LogEventService;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.Security;
@@ -41,7 +41,7 @@ import com.google.common.collect.Lists;
 
 @Controller
 @RequestMapping(value = "/noc/" + LogEventController.PAGE_URL)
-public class LogEventController extends AbstractSearchableSortableListController<LogEvent> {
+public class LogEventController extends AbstractSearchableSortableListController<LogEvent, LogEvent> {
   public static final String PAGE_URL = "logevents";
   static final String MODEL_KEY = "list";
 
@@ -51,11 +51,6 @@ public class LogEventController extends AbstractSearchableSortableListController
   @Override
   protected String getDefaultSortProperty() {
     return "created";
-  }
-
-  @Override
-  protected FullTextSearchableService<LogEvent> getFullTextSearchableService() {
-    return logEventService;
   }
 
   @Override
@@ -81,6 +76,16 @@ public class LogEventController extends AbstractSearchableSortableListController
   @Override
   protected long count() {
     return logEventService.count();
+  }
+
+  @Override
+  protected Class<LogEvent> getEntityClass() {
+    return LogEvent.class;
+  }
+
+  @Override
+  protected AbstractFullTextSearchService<LogEvent> getFullTextSearchableService() {
+    return logEventService;
   }
 
 }

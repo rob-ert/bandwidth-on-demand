@@ -160,16 +160,9 @@ public class ReservationController extends AbstractFilteredReservationController
     return "index";
   }
 
-  private List<VirtualResourceGroup> findVirtualResourceGroups() {
-    RichUserDetails user = Security.getUserDetails();
-
-    return vrgNameOrdering().sortedCopy(
-        Collections2.filter(virtualResourceGroupService.findAllForUser(user), new Predicate<VirtualResourceGroup>() {
-          @Override
-          public boolean apply(VirtualResourceGroup group) {
-            return group.getVirtualPorts().size() > 1;
-          }
-        }));
+  @Override
+  protected Class<Reservation> getEntityClass() {
+    return Reservation.class;
   }
 
   @Override
@@ -182,6 +175,18 @@ public class ReservationController extends AbstractFilteredReservationController
     return transformReservationToReservationView(
         getReservationService().findEntriesForUserUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems,
             sort), Security.getUserDetails());
+  }
+
+  private List<VirtualResourceGroup> findVirtualResourceGroups() {
+    RichUserDetails user = Security.getUserDetails();
+
+    return vrgNameOrdering().sortedCopy(
+        Collections2.filter(virtualResourceGroupService.findAllForUser(user), new Predicate<VirtualResourceGroup>() {
+          @Override
+          public boolean apply(VirtualResourceGroup group) {
+            return group.getVirtualPorts().size() > 1;
+          }
+        }));
   }
 
   private Reservation createDefaultReservation(VirtualResourceGroup vrg) {

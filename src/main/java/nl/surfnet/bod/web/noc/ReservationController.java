@@ -30,6 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
@@ -59,6 +60,11 @@ public class ReservationController extends AbstractFilteredReservationController
 
     return transformReservationToReservationView(getReservationService().//
         findAllEntriesUsingFilter(filter, firstPage, maxItems, sort), Security.getUserDetails());
+  }
+
+  @Override
+  protected Class<Reservation> getEntityClass() {
+    return Reservation.class;
   }
 
 }

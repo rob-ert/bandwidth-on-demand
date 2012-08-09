@@ -26,15 +26,12 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
-import nl.surfnet.bod.util.FullTextSearchContext;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
-import org.hibernate.search.jpa.FullTextQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -44,7 +41,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.annotations.VisibleForTesting;
 
 @Service
-public class LogEventService implements FullTextSearchableService<LogEvent> {
+public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   private static final String SYSTEM_USER = "system";
   private static final String ALL_GROUPS = "all";
@@ -135,38 +132,6 @@ public class LogEventService implements FullTextSearchableService<LogEvent> {
     return logEventRepo.count();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * nl.surfnet.bod.service.FullTextSearchableService#searchFor(java.lang.String
-   * , int, int, org.springframework.data.domain.Sort)
-   */
-  @Override
-  @SuppressWarnings("unchecked")
-  public List<LogEvent> searchFor(String searchText, int firstResult, int maxResults, Sort sort) {
-    Query jpaQuery = createSearchQuery(searchText, sort);
-
-    jpaQuery.setFirstResult(firstResult);
-    jpaQuery.setMaxResults(maxResults);
-
-    return (List<LogEvent>) jpaQuery.getResultList();
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * nl.surfnet.bod.service.FullTextSearchableService#countSearchFor(java.lang
-   * .String)
-   */
-  @Override
-  public long countSearchFor(String searchText) {
-    FullTextQuery jpaQuery = createSearchQuery(searchText, null);
-
-    return jpaQuery.getResultList().size();
-  }
-
   /**
    * Handles the event. Writes it to the given logger and persists it in the
    * {@link LogEventRepo}
@@ -184,10 +149,9 @@ public class LogEventService implements FullTextSearchableService<LogEvent> {
     logEventRepo.save(logEvent);
   }
 
-  private FullTextQuery createSearchQuery(String searchText, Sort sort) {
-    FullTextSearchContext fullTextSearchContext = new FullTextSearchContext(entityManager, LogEvent.class);
-
-    return fullTextSearchContext.getFullTextQueryForKeywordOnAllAnnotedFields(searchText, sort);
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
   }
 
   /**
