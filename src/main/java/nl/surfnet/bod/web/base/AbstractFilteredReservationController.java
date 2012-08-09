@@ -31,6 +31,7 @@ import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
@@ -51,6 +52,7 @@ import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 /**
  * Base controller for filtering and sorting {@link Reservation}s.
@@ -112,17 +114,32 @@ public abstract class AbstractFilteredReservationController extends
   @RequestMapping(value = FILTER_URL + "{filterId}", method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order, @PathVariable(value = "filterId") String filterId,
-      Model model) {
+      @RequestParam(value = "order", required = false) String order,//
+      @RequestParam(value = "search", required = false) String search, //
+      @PathVariable(value = "filterId") String filterId, Model model) {
 
+    List<Reservation> result = Lists.newArrayList();
+    Sort sortOptions = prepareSortOptions(sort, order, model);
     ReservationFilterView reservationFilter = reservationFilterViewFactory.create(filterId);
     model.addAttribute(FILTER_SELECT, reservationFilter);
 
-    Sort sortOptions = prepareSortOptions(sort, order, model);
-    List<ReservationView> reservationViews = list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model);
+    List<Reservation> filterList = reservationService.findAllEntriesUsingFilter(reservationFilter,
+        calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions);
 
-    model.addAttribute(WebUtils.DATA_LIST, reservationViews);
+    if (StringUtils.hasText(search)) {
+      model.addAttribute(WebUtils.PARAM_SEARCH, search);
 
+      result = getFullTextSearchableService().searchFor(getEntityClass(), search, calculateFirstPage(page),
+          MAX_ITEMS_PER_PAGE, sortOptions, filterList);
+
+      model.addAttribute("maxPages",
+          calculateMaxPages(getFullTextSearchableService().countSearchFor(getEntityClass(), search, filterList)));
+    }
+    else {
+      result = filterList;
+    }
+
+    model.addAttribute(WebUtils.DATA_LIST, transformReservationToReservationView(result, Security.getUserDetails()));
     return listUrl();
   }
 

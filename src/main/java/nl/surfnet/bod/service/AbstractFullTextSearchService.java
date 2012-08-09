@@ -9,7 +9,6 @@ import nl.surfnet.bod.util.FullTextSearchContext;
 
 import org.hibernate.search.jpa.FullTextQuery;
 import org.springframework.data.domain.Sort;
-import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.collect.Lists;
@@ -72,10 +71,24 @@ public abstract class AbstractFullTextSearchService<T> {
     return fullTextSearchContext.getFullTextQueryForKeywordOnAllAnnotedFields(searchText, sort);
   }
 
+  /**
+   * FInds the object that both list have in common. When one or both lists are
+   * empty, no elements are found
+   * 
+   * @param filteredItems
+   *          List<T> List with result of filter
+   * @param resultList
+   *          List<T> List with result of search
+   * @return List<T> List with common objects
+   */
   private List<T> intersectFullTextResultAndFilterResult(List<T> filteredItems, List<T> resultList) {
     if (!CollectionUtils.isEmpty(filteredItems)) {
       resultList = Lists.newArrayList(Sets.intersection(Sets.newHashSet(resultList), Sets.newHashSet(filteredItems)));
     }
+    else {
+      resultList = filteredItems;
+    }
+
     return resultList;
   }
 

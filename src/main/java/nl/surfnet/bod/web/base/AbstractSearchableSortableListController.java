@@ -35,10 +35,10 @@ public abstract class AbstractSearchableSortableListController<T, K> extends Abs
       @RequestParam(value = "order", required = false) String order, //
       @RequestParam(value = "search", required = false) String search, //
       Model model) {
-    List<T> list = Lists.newArrayList();
     Sort sortOptions = prepareSortOptions(sort, order, model);
 
     if (StringUtils.hasText(search)) {
+      List<T> list = Lists.newArrayList();
       model.addAttribute(WebUtils.PARAM_SEARCH, search);
 
       list = getFullTextSearchableService().searchFor(getEntityClass(), search, calculateFirstPage(page),

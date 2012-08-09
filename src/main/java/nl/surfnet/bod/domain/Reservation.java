@@ -35,6 +35,8 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -44,9 +46,10 @@ import com.google.common.base.Objects;
 /**
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
- *
+ * 
  */
 @Entity
+@Indexed
 public class Reservation {
 
   @Id
@@ -56,6 +59,7 @@ public class Reservation {
   @Version
   private Integer version;
 
+  @Field
   private String name;
 
   @ManyToOne
@@ -64,8 +68,10 @@ public class Reservation {
   @Enumerated(EnumType.STRING)
   private ReservationStatus status = ReservationStatus.REQUESTED;
 
+  @Field
   private String failedReason;
 
+  @Field
   private String cancelReason;
 
   @NotNull
@@ -82,6 +88,7 @@ public class Reservation {
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
   private LocalDateTime endDateTime;
 
+  @Field
   @Column(nullable = false)
   private String userCreated;
 
@@ -139,7 +146,7 @@ public class Reservation {
   /**
    * Sets the {@link #sourcePort} and the {@link #virtualResourceGroup} related
    * to this port.
-   *
+   * 
    * @param sourcePort
    *          The source port to set
    * @throws IllegalStateException
@@ -165,7 +172,7 @@ public class Reservation {
   /**
    * Sets the {@link #destinationPort} and the {@link #virtualResourceGroup}
    * related to this port.
-   *
+   * 
    * @param destinationPort
    *          The destinationPort port to set
    * @throws IllegalStateException
@@ -185,7 +192,7 @@ public class Reservation {
   }
 
   /**
-   *
+   * 
    * @return LocalTime the time part of the {@link #startDateTime}
    */
   public LocalTime getStartTime() {
@@ -194,7 +201,7 @@ public class Reservation {
 
   /**
    * Sets the time part of the {@link #startDateTime}
-   *
+   * 
    * @param startTime
    */
   public void setStartTime(LocalTime startTime) {
@@ -222,7 +229,7 @@ public class Reservation {
   }
 
   /**
-   *
+   * 
    * @return LocalDate The date part of the {@link #getStartDateTime()}
    */
   public LocalDate getStartDate() {
@@ -231,7 +238,7 @@ public class Reservation {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   *
+   * 
    * @param startDate
    */
   public void setStartDate(LocalDate startDate) {
@@ -251,7 +258,7 @@ public class Reservation {
   }
 
   /**
-   *
+   * 
    * @return LocalDate the date part of the {@link #endDateTime}
    */
   public LocalDate getEndDate() {
@@ -260,7 +267,7 @@ public class Reservation {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   *
+   * 
    * @param endDate
    */
   public void setEndDate(LocalDate endDate) {
@@ -278,7 +285,7 @@ public class Reservation {
   }
 
   /**
-   *
+   * 
    * @return LocalTime The time part of the {@link #endDateTime}
    */
   public LocalTime getEndTime() {
@@ -287,7 +294,7 @@ public class Reservation {
 
   /**
    * Sets the time part of the {@link #endDateTime}
-   *
+   * 
    * @param endTime
    */
   public void setEndTime(LocalTime endTime) {
