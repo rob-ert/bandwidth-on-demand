@@ -29,22 +29,30 @@ import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
  */
 public abstract class AbstractSearchableSortableListController<T, K> extends AbstractSortableListController<K> {
 
-  @RequestMapping(value = "search", method = RequestMethod.GET)
-  public String search(@RequestParam(value = PAGE_KEY, required = false) Integer page,
+  @RequestMapping(method = RequestMethod.GET)
+  public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order, @RequestParam String text, Model model) {
+      @RequestParam(value = "order", required = false) String order, //
+      @RequestParam(value = "search", required = false) String search, //
+      Model model) {
     List<T> list = Lists.newArrayList();
-
     Sort sortOptions = prepareSortOptions(sort, order, model);
-    if (StringUtils.hasText(text)) {
-      list = getFullTextSearchableService().searchFor(getEntityClass(), text, calculateFirstPage(page),
-          MAX_ITEMS_PER_PAGE, sortOptions, null);
-    }
 
-    model.addAttribute("maxPages",
-        calculateMaxPages(getFullTextSearchableService().countSearchFor(getEntityClass(), text, list)));
-    model.addAttribute("text", text);
-    model.addAttribute(WebUtils.DATA_LIST, list);
+    if (StringUtils.hasText(search)) {
+      model.addAttribute(WebUtils.PARAM_SEARCH, search);
+
+      list = getFullTextSearchableService().searchFor(getEntityClass(), search, calculateFirstPage(page),
+          MAX_ITEMS_PER_PAGE, sortOptions, null);
+
+      model.addAttribute("maxPages",
+          calculateMaxPages(getFullTextSearchableService().countSearchFor(getEntityClass(), search, list)));
+
+      model.addAttribute(WebUtils.DATA_LIST, list);
+    }
+    else {
+      model.addAttribute("maxPages", calculateMaxPages(count()));
+      model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
+    }
 
     return listUrl();
   }

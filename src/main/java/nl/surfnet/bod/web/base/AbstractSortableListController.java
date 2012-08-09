@@ -48,7 +48,7 @@ import nl.surfnet.bod.web.WebUtils;
  */
 public abstract class AbstractSortableListController<T> {
 
-  @RequestMapping(method = RequestMethod.GET)
+  @RequestMapping(value="old", method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
       @RequestParam(value = "order", required = false) String order, Model model) {
