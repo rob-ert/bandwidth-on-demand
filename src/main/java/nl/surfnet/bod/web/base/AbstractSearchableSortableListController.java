@@ -29,7 +29,7 @@ import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
  */
 public abstract class AbstractSearchableSortableListController<T, K> extends AbstractSortableListController<K> {
 
-  @RequestMapping(method = RequestMethod.GET)
+  @RequestMapping(value="search", method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
       @RequestParam(value = "order", required = false) String order, //
