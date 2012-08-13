@@ -69,13 +69,13 @@ public abstract class AbstractFullTextSearchService<T, K> {
   public List<T> searchForInFilteredList(Class<K> entityClass, String searchText, int firstResult, int maxResults,
       Sort sort, RichUserDetails userDetails, List<T> filteredItems) {
 
-    List<K> resultList = searchFor(entityClass, searchText, firstResult, maxResults, sort);
+    List<T> viewList = transformToView(searchFor(entityClass, searchText, firstResult, maxResults, sort), userDetails);
+    List<T> intersectedList = intersectFullTextResultAndFilterResult(filteredItems, viewList);
 
-    List<T> viewList = transformToView(resultList, userDetails);
-    viewList = intersectFullTextResultAndFilterResult(filteredItems, viewList);
-
-    // limit to size of resultList
-    return viewList.subList(firstResult, Math.min(firstResult + maxResults, firstResult + resultList.size()));
+    // limit to size of list
+    int toSize = Math.min(firstResult + maxResults, firstResult + intersectedList.size());
+    toSize = Math.min(toSize, intersectedList.size());
+    return intersectedList.subList(firstResult, toSize);
   }
 
   public long countSearchFor(Class<K> entityClass, String searchText) {
@@ -127,15 +127,18 @@ public abstract class AbstractFullTextSearchService<T, K> {
    * @return List<K> List with common objects
    */
   @VisibleForTesting
-   List<T> intersectFullTextResultAndFilterResult(List<T> filteredItems, List<T> resultList) {
+  List<T> intersectFullTextResultAndFilterResult(List<T> filteredItems, List<T> resultList) {
+    List<T> intersectedList;
+
     if (!CollectionUtils.isEmpty(filteredItems)) {
-      resultList = Lists.newArrayList(Sets.intersection(Sets.newHashSet(resultList), Sets.newHashSet(filteredItems)));
+      intersectedList = Lists.newArrayList(Sets.intersection(Sets.newHashSet(resultList),
+          Sets.newHashSet(filteredItems)));
     }
     else {
-      resultList = filteredItems;
+      intersectedList = filteredItems;
     }
 
-    return resultList;
+    return intersectedList;
   }
 
 }
