@@ -21,23 +21,17 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.matchers.DateMatchers.isAfterNow;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationArchive;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -46,6 +40,8 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ElementActionView;
+import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.LocalDateTime;
 import org.junit.Assert;
@@ -62,8 +58,23 @@ import org.springframework.data.jpa.domain.Specification;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
+import static nl.surfnet.bod.matchers.DateMatchers.isAfterNow;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationServiceTest {
+
+  private ReservationService reservationService = new ReservationService();
 
   @InjectMocks
   private ReservationService subject;
@@ -113,6 +124,7 @@ public class ReservationServiceTest {
     assertThat(count, is(0L));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void countShouldFilterOnUserGroups() {
     RichUserDetails richUserDetailsWithGroups = new RichUserDetailsFactory().addUserGroup("urn:mygroup").create();
@@ -145,7 +157,7 @@ public class ReservationServiceTest {
     subject.create(reservation);
 
     verify(reservationRepoMock).save(reservation);
-    verify(reservationToNbiMock).reserve(reservation, true, Optional.<NsiRequestDetails>absent());
+    verify(reservationToNbiMock).reserve(reservation, true, Optional.<NsiRequestDetails> absent());
   }
 
   @Test
@@ -320,4 +332,78 @@ public class ReservationServiceTest {
     assertThat(flattenedReservations, hasSize(10));
   }
 
+  @Test
+  public void intersectTwoEqualSizedLists() {
+    List<ReservationView> filterResult = Lists.newArrayList();
+    for (int i = 0; i < 3; i++) {
+      filterResult.add(new ReservationView(new ReservationFactory().create(), new ElementActionView(true)));
+    }
+
+    List<ReservationView> searchResult = new ArrayList<>(filterResult);
+    List<ReservationView> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(filterResult,
+        searchResult);
+
+    assertThat(intersectedResult, hasSize(filterResult.size()));
+    Assert.assertTrue(intersectedResult.containsAll(filterResult));
+  }
+
+  @Test
+  public void intersectMoreFilterResultsAndSearchResults() {
+    List<ReservationView> filterResult = Lists.newArrayList();
+    for (int i = 0; i < 4; i++) {
+      filterResult.add(new ReservationView(new ReservationFactory().create(), new ElementActionView(true)));
+    }
+
+    List<ReservationView> searchResult = filterResult.subList(0, 2);
+    List<ReservationView> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(filterResult,
+        searchResult);
+
+    assertThat(intersectedResult, hasSize(searchResult.size()));
+    Assert.assertTrue(intersectedResult.containsAll(searchResult));
+  }
+
+  @Test
+  public void intersectLessFilterResultsAndSearchResults() {
+    ReservationView reservationView = new ReservationView(new ReservationFactory().create(),
+        new ElementActionView(true));
+    ReservationView searchResultView = (new ReservationView(new ReservationFactory().create(), new ElementActionView(
+        true)));
+
+    List<ReservationView> filterResult = Lists.newArrayList(reservationView);
+    List<ReservationView> searchResult = Lists.newArrayList(reservationView, searchResultView);
+
+    List<ReservationView> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(filterResult,
+        searchResult);
+
+    assertThat(intersectedResult, hasSize(1));
+    Assert.assertTrue(intersectedResult.contains(reservationView));
+  }
+
+  @Test
+  public void intersectEmptyFilterResultsAndSearchResults() {
+    ReservationView searchResultView = (new ReservationView(new ReservationFactory().create(), new ElementActionView(
+        true)));
+
+    List<ReservationView> filterResult = Lists.newArrayList();
+    List<ReservationView> searchResult = Lists.newArrayList(searchResultView, searchResultView);
+
+    List<ReservationView> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(filterResult,
+        searchResult);
+
+    assertThat(intersectedResult, hasSize(0));
+  }
+
+  @Test
+  public void intersectFilterResultsAndEmptySearchResults() {
+    ReservationView reservationView = new ReservationView(new ReservationFactory().create(),
+        new ElementActionView(true));
+
+    List<ReservationView> filterResult = Lists.newArrayList(reservationView);
+    List<ReservationView> searchResult = Lists.newArrayList();
+
+    List<ReservationView> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(filterResult,
+        searchResult);
+
+    assertThat(intersectedResult, hasSize(0));
+  }
 }
