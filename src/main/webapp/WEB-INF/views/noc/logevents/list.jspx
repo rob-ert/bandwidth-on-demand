@@ -12,7 +12,7 @@
 <page:list id="pl_logEvent" path="/noc/events" renderActions="false">
 
   <input id="s_id" labelCode="search_Label" value="${search}" helpMessageCode="search_label" />
-  <spring:url value="/noc/logevents/search" var="search_url"/>
+  <spring:url value="/noc/logevents/" var="search_url"/>
 
   <table:table items="${list}" labelPluralCode="label_logevent_plural">
     <a href="#" rel="tooltip" title="Search for text" data-type="info" onclick="window.location.replace('${search_url}?search='+$('#s_id').val());"><i class="icon-search"><!--  --></i></a>

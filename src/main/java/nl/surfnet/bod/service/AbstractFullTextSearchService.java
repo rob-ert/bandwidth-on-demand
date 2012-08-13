@@ -12,6 +12,7 @@ import org.hibernate.search.jpa.FullTextQuery;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -125,7 +126,8 @@ public abstract class AbstractFullTextSearchService<T, K> {
    *          List<K> List with result of search
    * @return List<K> List with common objects
    */
-  private List<T> intersectFullTextResultAndFilterResult(List<T> filteredItems, List<T> resultList) {
+  @VisibleForTesting
+   List<T> intersectFullTextResultAndFilterResult(List<T> filteredItems, List<T> resultList) {
     if (!CollectionUtils.isEmpty(filteredItems)) {
       resultList = Lists.newArrayList(Sets.intersection(Sets.newHashSet(resultList), Sets.newHashSet(filteredItems)));
     }
