@@ -84,7 +84,7 @@ public class LogEventController extends AbstractSearchableSortableListController
   }
 
   @Override
-  protected AbstractFullTextSearchService<LogEvent> getFullTextSearchableService() {
+  protected AbstractFullTextSearchService<LogEvent, LogEvent> getFullTextSearchableService() {
     return logEventService;
   }
 

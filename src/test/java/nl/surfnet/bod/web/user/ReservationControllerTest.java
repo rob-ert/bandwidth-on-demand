@@ -51,7 +51,9 @@ import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.MessageView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
+import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.DurationFieldType;
 import org.joda.time.LocalDateTime;
@@ -166,7 +168,7 @@ public class ReservationControllerTest {
             any(ReservationFilterView.class), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
         Lists.newArrayList(reservation));
 
-    subject.list(0, "name", "asc", "2012", model);
+    subject.search(0, "name", "asc", "2012", model);
 
     assertThat(model.asMap(), hasKey("list"));
     assertThat(model.asMap(), hasKey("sortProperty"));
@@ -176,6 +178,9 @@ public class ReservationControllerTest {
   @Test
   public void listWithNonExistingSortProperty() {
     Reservation reservation = new ReservationFactory().create();
+    List<Reservation> reservations = Lists.newArrayList(reservation);
+    List<ReservationView> reservationViews = Lists.newArrayList(new ReservationView(reservation, new ElementActionView(
+        true)));
 
     ReservationFilterView filter2012 = new ReservationFilterViewFactory().create("2012");
     when(reservationFilterViewFactoryMock.create(filter2012.getId())).thenReturn(filter2012);
@@ -183,8 +188,11 @@ public class ReservationControllerTest {
     when(
         reservationServiceMock.findEntriesForUserUsingFilter(any(RichUserDetails.class),
             any(ReservationFilterView.class), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
-        Lists.newArrayList(reservation));
-    subject.list(1, "nonExistingProperty", "nonExistingDirection", "2012", model);
+        reservations);
+
+    when(reservationServiceMock.transformToView(reservations, user)).thenReturn(reservationViews);
+
+    subject.filter(1, "nonExistingProperty", "nonExistingDirection", "", "2012", model);
 
     assertThat(model.asMap(), hasKey("list"));
     assertThat(model.asMap(), hasKey("sortProperty"));

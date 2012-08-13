@@ -54,6 +54,8 @@ import com.google.common.collect.Lists;
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationControllerTest {
 
+  private ReservationService reservationService = new ReservationService();
+
   @Mock
   private ReservationService reservationServiceMock;
 
@@ -85,10 +87,12 @@ public class ReservationControllerTest {
     reservationsFor2012.addAll(reservations);
     size = new Integer(reservationsFor2012.size());
 
-    reservationViewsFor2012.addAll(subject.transformReservationToReservationView(reservationsFor2012,
-        Security.getUserDetails()));
+    reservationViewsFor2012.addAll(reservationService.transformToView(reservationsFor2012, Security.getUserDetails()));
 
     when(reservationFilterViewFactoryMock.create(filter2012.getId())).thenReturn(filter2012);
+
+    when(reservationServiceMock.transformToView(reservations, Security.getUserDetails())).thenReturn(
+        reservationViewsFor2012);
 
     when(reservationServiceMock.countAllEntriesUsingFilter(filter2012)).thenReturn((long) reservationsFor2012.size());
 
@@ -99,9 +103,9 @@ public class ReservationControllerTest {
 
   @Test
   public void shouldHaveMaxPageOnModel() {
-    subject.list(page, "id", "asc", filter2012.getId(), model);
+    subject.filter(page, "id", "asc", "", filter2012.getId(), model);
 
-    assertThat((Integer) model.asMap().get("maxPages"),
+    assertThat((Integer) model.asMap().get(WebUtils.MAX_PAGES_KEY),
         is(Integer.valueOf(WebUtils.calculateMaxPages(size.longValue()))));
   }
 
@@ -114,7 +118,7 @@ public class ReservationControllerTest {
 
   @Test
   public void filteredViewShouldRedirectToListView() {
-    String viewName = subject.list(page, "id", "asc", filter2012.getId(), model);
+    String viewName = subject.search(page, "id", "asc", filter2012.getId(), model);
 
     assertThat(viewName, is(subject.listUrl()));
   }

@@ -53,13 +53,13 @@ public class ReservationController extends AbstractFilteredReservationController
 
     model
         .addAttribute(
-            "maxPages",
+            WebUtils.MAX_PAGES_KEY,
             WebUtils.calculateMaxPages(getReservationService().countForFilterAndManager(Security.getUserDetails(),
                 filter)));
 
-    List<ReservationView> reservationViews = transformReservationToReservationView(getReservationService()
-        .findEntriesForManagerUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems, sort),
-        Security.getUserDetails());
+    List<ReservationView> reservationViews = getFullTextSearchableService().transformToView(
+        getReservationService().findEntriesForManagerUsingFilter(Security.getUserDetails(), filter, firstPage,
+            maxItems, sort), Security.getUserDetails());
 
     return reservationViews;
   }

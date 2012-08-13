@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import nl.surfnet.bod.util.FullTextSearchContext;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.hibernate.search.jpa.FullTextQuery;
 import org.springframework.data.domain.Sort;
@@ -17,10 +18,10 @@ import com.google.common.collect.Sets;
 /**
  * Service interface to abstract full text search functionality
  * 
- * @param <T>
+ * @param <K>
  *          DomainObject
  */
-public abstract class AbstractFullTextSearchService<T> {
+public abstract class AbstractFullTextSearchService<T, K> {
 
   /**
    * Performs a full text search on the given searchText.
@@ -34,10 +35,10 @@ public abstract class AbstractFullTextSearchService<T> {
    * @param sort
    *          {@link Sort} sorting options
    * 
-   * @return List<T> result list
+   * @return List<K> result list
    */
   @SuppressWarnings("unchecked")
-  public List<T> searchFor(Class<T> entityClass, String searchText, int firstResult, int maxResults, Sort sort) {
+  public List<K> searchFor(Class<K> entityClass, String searchText, int firstResult, int maxResults, Sort sort) {
     Query jpaQuery = createSearchQuery(searchText, sort, entityClass);
 
     jpaQuery.setFirstResult(firstResult);
@@ -62,38 +63,54 @@ public abstract class AbstractFullTextSearchService<T> {
    * @param filteredItems
    *          list of already found items
    * 
-   * @return List<T> result list
+   * @return List<K> result list
    */
-  public List<T> searchForInFilteredList(Class<T> entityClass, String searchText, int firstResult, int maxResults,
-      Sort sort, List<T> filteredItems) {
+  public List<T> searchForInFilteredList(Class<K> entityClass, String searchText, int firstResult, int maxResults,
+      Sort sort, RichUserDetails userDetails, List<T> filteredItems) {
 
-    List<T> resultList = searchFor(entityClass, searchText, firstResult, maxResults, sort);
+    List<K> resultList = searchFor(entityClass, searchText, firstResult, maxResults, sort);
 
-    resultList = intersectFullTextResultAndFilterResult(filteredItems, resultList);
+    List<T> viewList = transformToView(resultList, userDetails);
+    viewList = intersectFullTextResultAndFilterResult(filteredItems, viewList);
 
     // limit to size of resultList
-    return resultList.subList(firstResult, Math.min(firstResult + maxResults, firstResult + resultList.size()));
+    return viewList.subList(firstResult, Math.min(firstResult + maxResults, firstResult + resultList.size()));
   }
 
-  public long countSearchFor(Class<T> entityClass, String searchText) {
+  public long countSearchFor(Class<K> entityClass, String searchText) {
     FullTextQuery jpaQuery = createSearchQuery(searchText, null, entityClass);
 
     return jpaQuery.getResultList().size();
   }
 
   @SuppressWarnings("unchecked")
-  public long countSearchForInFilteredList(Class<T> entityClass, String searchText, List<T> filteredItems) {
-    FullTextQuery jpaQuery = createSearchQuery(searchText, null, entityClass);
+  public long countSearchForInFilteredList(Class<K> entityClass, String searchText, List<T> filteredItems) {
+    FullTextQuery jpaQuery = createSearchQuery(searchText, entityClass);
 
-    List<T> resultList = intersectFullTextResultAndFilterResult(filteredItems, jpaQuery.getResultList());
-
-    return resultList.size();
+    return intersectFullTextResultAndFilterResult(filteredItems, jpaQuery.getResultList()).size();
   }
+
+  /**
+   * Transforms the given list to the corresponding view and applies some user
+   * specific restrictions if appropiate.
+   * 
+   * @param List
+   *          <K> listToTransform list to be transformed
+   * @param user
+   *          {@link RichUserDetails} to check user specific restrictions
+   * 
+   * @return {@link List<T>} transformed reservations
+   */
+  public abstract List<T> transformToView(List<K> listToTransform, final RichUserDetails user);
 
   protected abstract EntityManager getEntityManager();
 
-  private FullTextQuery createSearchQuery(String searchText, Sort sort, Class<T> entityClass) {
-    FullTextSearchContext<T> fullTextSearchContext = new FullTextSearchContext<T>(getEntityManager(), entityClass);
+  private FullTextQuery createSearchQuery(String searchText, Class<K> entityClass) {
+    return createSearchQuery(searchText, null, entityClass);
+  }
+
+  private FullTextQuery createSearchQuery(String searchText, Sort sort, Class<K> entityClass) {
+    FullTextSearchContext<K> fullTextSearchContext = new FullTextSearchContext<K>(getEntityManager(), entityClass);
 
     return fullTextSearchContext.getFullTextQueryForKeywordOnAllAnnotedFields(searchText, sort);
   }
@@ -103,10 +120,10 @@ public abstract class AbstractFullTextSearchService<T> {
    * empty, no elements are found
    * 
    * @param filteredItems
-   *          List<T> List with result of filter
+   *          List<K> List with result of filter
    * @param resultList
-   *          List<T> List with result of search
-   * @return List<T> List with common objects
+   *          List<K> List with result of search
+   * @return List<K> List with common objects
    */
   private List<T> intersectFullTextResultAndFilterResult(List<T> filteredItems, List<T> resultList) {
     if (!CollectionUtils.isEmpty(filteredItems)) {

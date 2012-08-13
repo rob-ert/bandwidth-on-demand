@@ -4,6 +4,7 @@ import java.util.List;
 
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
@@ -27,10 +28,10 @@ import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
  *          DomainObject
  * @param <K>
  */
-public abstract class AbstractSearchableSortableListController<T, K> extends AbstractSortableListController<K> {
+public abstract class AbstractSearchableSortableListController<T, K> extends AbstractSortableListController<T> {
 
   @RequestMapping(value = "search", method = RequestMethod.GET)
-  public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
+  public String search(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
       @RequestParam(value = "order", required = false) String order, //
       @RequestParam(value = "search") String search, //
@@ -38,27 +39,28 @@ public abstract class AbstractSearchableSortableListController<T, K> extends Abs
     Sort sortOptions = prepareSortOptions(sort, order, model);
 
     if (StringUtils.hasText(search)) {
-      List<T> list = Lists.newArrayList();
+      List<K> list = Lists.newArrayList();
       model.addAttribute(WebUtils.PARAM_SEARCH, search);
 
       list = getFullTextSearchableService().searchFor(getEntityClass(), search, calculateFirstPage(page),
           MAX_ITEMS_PER_PAGE, sortOptions);
 
-      model.addAttribute("maxPages",
+      model.addAttribute(WebUtils.MAX_PAGES_KEY,
           calculateMaxPages(getFullTextSearchableService().countSearchFor(getEntityClass(), search)));
 
-      model.addAttribute(WebUtils.DATA_LIST, list);
+      model.addAttribute(WebUtils.DATA_LIST,
+          getFullTextSearchableService().transformToView(list, Security.getUserDetails()));
+
     }
     else {
-      model.addAttribute("maxPages", calculateMaxPages(count()));
+      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count()));
       model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
     }
 
     return listUrl();
   }
 
-  protected abstract Class<T> getEntityClass();
+  protected abstract Class<K> getEntityClass();
 
-  protected abstract AbstractFullTextSearchService<T> getFullTextSearchableService();
-
+  protected abstract AbstractFullTextSearchService<T, K> getFullTextSearchableService();
 }

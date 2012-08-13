@@ -41,7 +41,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.annotations.VisibleForTesting;
 
 @Service
-public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
+public class LogEventService extends AbstractFullTextSearchService<LogEvent, LogEvent> {
 
   private static final String SYSTEM_USER = "system";
   private static final String ALL_GROUPS = "all";
@@ -161,6 +161,11 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    */
   private void handleEvent(LogEvent logEvent) {
     handleEvent(logger, logEvent);
+  }
+
+  @Override
+  public List<LogEvent> transformToView(List<LogEvent> listToTransform, RichUserDetails user) {
+    return listToTransform;
   }
 
 }

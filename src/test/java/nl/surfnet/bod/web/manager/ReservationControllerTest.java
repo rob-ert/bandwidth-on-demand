@@ -61,8 +61,7 @@ public class ReservationControllerTest {
 
   private final RichUserDetails manager = new RichUserDetailsFactory().create();
 
-  private ReservationFilterView filter = new ReservationFilterViewFactory()
-      .create(ReservationFilterViewFactory.COMING);
+  private ReservationFilterView filter = new ReservationFilterViewFactory().create(ReservationFilterViewFactory.COMING);
 
   @Before
   public void login() {
@@ -81,7 +80,7 @@ public class ReservationControllerTest {
         reservationServiceMock.findEntriesForManagerUsingFilter(eq(manager), eq(filter), eq(0),
             eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(Lists.newArrayList(reservation));
 
-    subject.list(0, "id", "asc", filter.getId(), model);
+    subject.search(0, "id", "asc", filter.getId(), model);
 
     assertThat(model.asMap(), hasKey("list"));
 

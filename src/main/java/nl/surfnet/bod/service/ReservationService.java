@@ -55,6 +55,7 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
+import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -73,6 +74,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
@@ -86,7 +88,7 @@ import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
 @Service
 @Transactional
-public class ReservationService extends AbstractFullTextSearchService<Reservation> {
+public class ReservationService extends AbstractFullTextSearchService<ReservationView, Reservation> {
 
   private static final Function<Reservation, ReservationArchive> TO_RESERVATION_ARCHIVE = //
   new Function<Reservation, ReservationArchive>() {
@@ -559,9 +561,28 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   @Override
   protected EntityManager getEntityManager() {
-   return entityManager;
+    return entityManager;
   }
   
-  
-  
+  /**
+   * Transforms the given reservations to {@link ReservationView}s and
+   * determines if the reservation is allowed to be delete by the given user.
+   * 
+   * @param reservationsToTransform
+   *          {@link Reservation}s to be transformed
+   * @param user
+   *          {@link RichUserDetails} to check if this user is allowed to delete
+   *          the reservation
+   * @return {@link List<ReservationView>} transformed reservations
+   */
+  @Override
+  public List<ReservationView> transformToView(List<Reservation> reservationsToTransform, final RichUserDetails user) {
+
+    return Lists.transform(reservationsToTransform, new Function<Reservation, ReservationView>() {
+      @Override
+      public ReservationView apply(Reservation reservation) {
+        return new ReservationView(reservation, isDeleteAllowed(reservation, user.getSelectedRole()));
+      }
+    });
+  }
 }

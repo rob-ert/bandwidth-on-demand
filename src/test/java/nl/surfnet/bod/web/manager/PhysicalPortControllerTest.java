@@ -111,7 +111,7 @@ public class PhysicalPortControllerTest {
     subject.list(null, null, null, model);
 
     assertThat(model.asMap(), hasKey("list"));
-    assertThat(model.asMap(), hasKey("maxPages"));
+    assertThat(model.asMap(), hasKey(WebUtils.MAX_PAGES_KEY));
 
     Collection<PhysicalPortView> ports = (Collection<PhysicalPortView>) model.asMap().get("list");
     assertThat(ports, hasSize(1));

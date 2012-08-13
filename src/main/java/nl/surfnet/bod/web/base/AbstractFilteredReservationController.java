@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.web.base;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -30,7 +31,6 @@ import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
@@ -44,7 +44,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
@@ -61,7 +60,7 @@ import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
  * 
  */
 public abstract class AbstractFilteredReservationController extends
-    AbstractSearchableSortableListController<Reservation, ReservationView> {
+    AbstractSearchableSortableListController<ReservationView, Reservation> {
   public static final String FILTER_URL = "filter/";
 
   private static final String DEFAULT_FILTER_ID = ReservationFilterViewFactory.COMING;
@@ -89,7 +88,7 @@ public abstract class AbstractFilteredReservationController extends
       filterName = DEFAULT_FILTER_ID;
     }
 
-    return list(page, sort, order, "", filterName, model);
+    return filter(page, sort, order, "", filterName, model);
   }
 
   /**
@@ -112,57 +111,36 @@ public abstract class AbstractFilteredReservationController extends
    * @return
    */
   @RequestMapping(value = FILTER_URL + "{filterId}", method = RequestMethod.GET)
-  public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
+  public String filter(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
       @RequestParam(value = "order", required = false) String order,//
       @RequestParam(value = "search", required = false) String search, //
-      @PathVariable(value = "filterId") String filterId, Model model) {
+      @PathVariable(value = "filterId") String filterId, //
+      Model model) {
 
-    List<Reservation> result = Lists.newArrayList();
+    List<ReservationView> result = new ArrayList<>();
     Sort sortOptions = prepareSortOptions(sort, order, model);
     ReservationFilterView reservationFilter = reservationFilterViewFactory.create(filterId);
     model.addAttribute(FILTER_SELECT, reservationFilter);
 
-    List<Reservation> filterList = reservationService.findAllEntriesUsingFilter(reservationFilter,
-        calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions);
+    List<ReservationView> filterList = list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model);
 
     if (StringUtils.hasText(search)) {
       model.addAttribute(WebUtils.PARAM_SEARCH, search);
 
       result = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), search,
-          calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, filterList);
+          calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, Security.getUserDetails(), filterList);
 
-      model.addAttribute("maxPages",
-          calculateMaxPages(getFullTextSearchableService().countSearchForInFilteredList(getEntityClass(), search, filterList)));
+      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(getFullTextSearchableService()
+          .countSearchForInFilteredList(getEntityClass(), search, filterList)));
     }
     else {
       result = filterList;
+      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(result.size()));
     }
 
-    model.addAttribute(WebUtils.DATA_LIST, transformReservationToReservationView(result, Security.getUserDetails()));
+    model.addAttribute(WebUtils.DATA_LIST, result);
     return listUrl();
-  }
-
-  /**
-   * Transforms the given reservations to {@link ReservationView}s and
-   * determines if the reservation is allowed to be delete by the given user.
-   * 
-   * @param reservationsToTransform
-   *          {@link Reservation}s to be transformed
-   * @param user
-   *          {@link RichUserDetails} to check if this user is allowed to delete
-   *          the reservation
-   * @return {@link List<ReservationView>} transformed reservations
-   */
-  public List<ReservationView> transformReservationToReservationView(List<Reservation> reservationsToTransform,
-      final RichUserDetails user) {
-
-    return Lists.transform(reservationsToTransform, new Function<Reservation, ReservationView>() {
-      @Override
-      public ReservationView apply(Reservation reservation) {
-        return new ReservationView(reservation, reservationService.isDeleteAllowed(reservation, user.getSelectedRole()));
-      }
-    });
   }
 
   @Override
@@ -188,7 +166,7 @@ public abstract class AbstractFilteredReservationController extends
   }
 
   @Override
-  protected AbstractFullTextSearchService<Reservation> getFullTextSearchableService() {
+  protected AbstractFullTextSearchService<ReservationView, Reservation> getFullTextSearchableService() {
     return getReservationService();
   }
 

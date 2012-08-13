@@ -169,10 +169,10 @@ public class ReservationController extends AbstractFilteredReservationController
   protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
-    model.addAttribute("maxPages",
+    model.addAttribute(WebUtils.MAX_PAGES_KEY,
         WebUtils.calculateMaxPages(getReservationService().countForFilterAndUser(Security.getUserDetails(), filter)));
 
-    return transformReservationToReservationView(
+    return getFullTextSearchableService().transformToView(
         getReservationService().findEntriesForUserUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems,
             sort), Security.getUserDetails());
   }

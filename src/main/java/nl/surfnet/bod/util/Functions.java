@@ -24,23 +24,22 @@ package nl.surfnet.bod.util;
 import java.util.Collection;
 import java.util.List;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
-
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.PhysicalPortView;
 import nl.surfnet.bod.web.view.UserGroupView;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 
 public final class Functions {
 
@@ -65,13 +64,27 @@ public final class Functions {
     }
   };
 
+  public static final Function<UserGroup, UserGroupView> FROM_USER_GROUP_TO_USER_GROUP_VIEW = new Function<UserGroup, UserGroupView>() {
+    @Override
+    public UserGroupView apply(UserGroup group) {
+      return new UserGroupView(group);
+    }
+  };
+
+  public static final Function<VirtualResourceGroup, UserGroupView> FROM_VRG_TO_USER_GROUP_VIEW = new Function<VirtualResourceGroup, UserGroupView>() {
+    @Override
+    public UserGroupView apply(VirtualResourceGroup group) {
+      return new UserGroupView(group);
+    }
+  };
+
   private Functions() {
   }
 
   /**
    * Calculates the amount of related {@link VirtualPort}s and transforms it to
    * a {@link PhysicalPortView}
-   *
+   * 
    * @param port
    *          {@link PhysicalPort} to enrich
    * @param virtualPortService
@@ -96,9 +109,9 @@ public final class Functions {
 
   /**
    * Transforms a Collection
-   *
+   * 
    * @see #transformAllocatedPhysicalPort(PhysicalPort, VirtualPortService)
-   *
+   * 
    */
   public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<PhysicalPort> ports,
       final VirtualPortService virtualPortService) {
@@ -149,17 +162,4 @@ public final class Functions {
     return Lists.newArrayList(Optional.presentInstances(institutes));
   }
 
-  public static final Function<UserGroup, UserGroupView> FROM_USER_GROUP_TO_USER_GROUP_VIEW = new Function<UserGroup, UserGroupView>() {
-    @Override
-    public UserGroupView apply(UserGroup group) {
-      return new UserGroupView(group);
-    }
-  };
-
-  public static final Function<VirtualResourceGroup, UserGroupView> FROM_VRG_TO_USER_GROUP_VIEW = new Function<VirtualResourceGroup, UserGroupView>() {
-    @Override
-    public UserGroupView apply(VirtualResourceGroup group) {
-      return new UserGroupView(group);
-    }
-  };
 }

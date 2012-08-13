@@ -21,14 +21,7 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.*;
-
 import java.util.List;
-
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
@@ -37,6 +30,14 @@ import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
+import static nl.surfnet.bod.web.WebUtils.LIST;
 
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller(value = "nocReservationController")
@@ -55,11 +56,12 @@ public class ReservationController extends AbstractFilteredReservationController
   protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
-    model.addAttribute("maxPages",
+    model.addAttribute(WebUtils.MAX_PAGES_KEY,
         WebUtils.calculateMaxPages(getReservationService().countAllEntriesUsingFilter((filter))));
 
-    return transformReservationToReservationView(getReservationService().//
-        findAllEntriesUsingFilter(filter, firstPage, maxItems, sort), Security.getUserDetails());
+    return getFullTextSearchableService()
+        .transformToView(getReservationService().findAllEntriesUsingFilter(filter, firstPage, maxItems, sort),
+            Security.getUserDetails());
   }
 
   @Override
