@@ -89,7 +89,7 @@ public abstract class AbstractFilteredReservationController extends
       filterName = DEFAULT_FILTER_ID;
     }
 
-    return list(page, sort, order, filterName, model);
+    return list(page, sort, order, "", filterName, model);
   }
 
   /**
@@ -129,11 +129,11 @@ public abstract class AbstractFilteredReservationController extends
     if (StringUtils.hasText(search)) {
       model.addAttribute(WebUtils.PARAM_SEARCH, search);
 
-      result = getFullTextSearchableService().searchFor(getEntityClass(), search, calculateFirstPage(page),
-          MAX_ITEMS_PER_PAGE, sortOptions, filterList);
+      result = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), search,
+          calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, filterList);
 
       model.addAttribute("maxPages",
-          calculateMaxPages(getFullTextSearchableService().countSearchFor(getEntityClass(), search, filterList)));
+          calculateMaxPages(getFullTextSearchableService().countSearchForInFilteredList(getEntityClass(), search, filterList)));
     }
     else {
       result = filterList;

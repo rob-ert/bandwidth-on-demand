@@ -29,11 +29,11 @@ import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
  */
 public abstract class AbstractSearchableSortableListController<T, K> extends AbstractSortableListController<K> {
 
-  @RequestMapping(value="search", method = RequestMethod.GET)
+  @RequestMapping(value = "search", method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
       @RequestParam(value = "order", required = false) String order, //
-      @RequestParam(value = "search", required = false) String search, //
+      @RequestParam(value = "search") String search, //
       Model model) {
     Sort sortOptions = prepareSortOptions(sort, order, model);
 
@@ -42,10 +42,10 @@ public abstract class AbstractSearchableSortableListController<T, K> extends Abs
       model.addAttribute(WebUtils.PARAM_SEARCH, search);
 
       list = getFullTextSearchableService().searchFor(getEntityClass(), search, calculateFirstPage(page),
-          MAX_ITEMS_PER_PAGE, sortOptions, null);
+          MAX_ITEMS_PER_PAGE, sortOptions);
 
       model.addAttribute("maxPages",
-          calculateMaxPages(getFullTextSearchableService().countSearchFor(getEntityClass(), search, list)));
+          calculateMaxPages(getFullTextSearchableService().countSearchFor(getEntityClass(), search)));
 
       model.addAttribute(WebUtils.DATA_LIST, list);
     }

@@ -23,8 +23,33 @@ import com.google.common.collect.Sets;
 public abstract class AbstractFullTextSearchService<T> {
 
   /**
-   * Peforms a full text search on the given searchText, if filteredItems are
-   * present both result will be combined, and the intersection will be returned
+   * Performs a full text search on the given searchText.
+   * 
+   * @param searchText
+   *          String text to search for
+   * @param firstResult
+   *          int startItem
+   * @param maxResults
+   *          int max amount of items
+   * @param sort
+   *          {@link Sort} sorting options
+   * 
+   * @return List<T> result list
+   */
+  @SuppressWarnings("unchecked")
+  public List<T> searchFor(Class<T> entityClass, String searchText, int firstResult, int maxResults, Sort sort) {
+    Query jpaQuery = createSearchQuery(searchText, sort, entityClass);
+
+    jpaQuery.setFirstResult(firstResult);
+    jpaQuery.setMaxResults(maxResults);
+
+    return jpaQuery.getResultList();
+  }
+
+  /**
+   * Performs a full text search on the given searchText and combines it with
+   * the specified filteredItems. The intersection of both lists will be
+   * returned.
    * 
    * @param searchText
    *          String text to search for
@@ -35,18 +60,14 @@ public abstract class AbstractFullTextSearchService<T> {
    * @param sort
    *          {@link Sort} sorting options
    * @param filteredItems
-   *          nullable list of already found items
+   *          list of already found items
    * 
    * @return List<T> result list
    */
-  public List<T> searchFor(Class<T> entityClass, String searchText, int firstResult, int maxResults, Sort sort,
-      List<T> filteredItems) {
-    Query jpaQuery = createSearchQuery(searchText, sort, entityClass);
+  public List<T> searchForInFilteredList(Class<T> entityClass, String searchText, int firstResult, int maxResults,
+      Sort sort, List<T> filteredItems) {
 
-    jpaQuery.setFirstResult(firstResult);
-    jpaQuery.setMaxResults(maxResults);
-    @SuppressWarnings("unchecked")
-    List<T> resultList = jpaQuery.getResultList();
+    List<T> resultList = searchFor(entityClass, searchText, firstResult, maxResults, sort);
 
     resultList = intersectFullTextResultAndFilterResult(filteredItems, resultList);
 
@@ -54,8 +75,14 @@ public abstract class AbstractFullTextSearchService<T> {
     return resultList.subList(firstResult, Math.min(firstResult + maxResults, firstResult + resultList.size()));
   }
 
+  public long countSearchFor(Class<T> entityClass, String searchText) {
+    FullTextQuery jpaQuery = createSearchQuery(searchText, null, entityClass);
+
+    return jpaQuery.getResultList().size();
+  }
+
   @SuppressWarnings("unchecked")
-  public long countSearchFor(Class<T> entityClass, String searchText, List<T> filteredItems) {
+  public long countSearchForInFilteredList(Class<T> entityClass, String searchText, List<T> filteredItems) {
     FullTextQuery jpaQuery = createSearchQuery(searchText, null, entityClass);
 
     List<T> resultList = intersectFullTextResultAndFilterResult(filteredItems, jpaQuery.getResultList());
@@ -72,7 +99,7 @@ public abstract class AbstractFullTextSearchService<T> {
   }
 
   /**
-   * FInds the object that both list have in common. When one or both lists are
+   * FInds objects that both list have in common. When one or both lists are
    * empty, no elements are found
    * 
    * @param filteredItems
