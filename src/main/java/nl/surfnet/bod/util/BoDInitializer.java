@@ -19,7 +19,10 @@ public class BoDInitializer {
   EntityManager entityManager;
 
   public void init() {
+    logger.info("Initializing BoD");
     indexDatabaseContent();
+    //IBM humor...
+    logger.info("Ready for eBusiness");
   }
 
   public void indexDatabaseContent() {

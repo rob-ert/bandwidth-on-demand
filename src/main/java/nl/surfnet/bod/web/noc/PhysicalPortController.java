@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.*;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +28,21 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.NocService;
+import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.util.ReflectiveFieldComparator;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.view.PhysicalPortView;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.context.MessageSource;
@@ -48,23 +61,19 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.service.NocService;
-import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.util.Functions;
-import nl.surfnet.bod.util.ReflectiveFieldComparator;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
-import nl.surfnet.bod.web.view.PhysicalPortView;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.MAX_PAGES_KEY;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.UPDATE;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 @Controller
 @RequestMapping("/noc/" + PhysicalPortController.PAGE_URL)
-public class PhysicalPortController extends AbstractSortableListController<PhysicalPortView> {
+public class PhysicalPortController extends AbstractSearchableSortableListController<PhysicalPortView, PhysicalPort> {
 
   public static final String PAGE_URL = "physicalports";
   public static final String PAGE_UNALIGNED_URL = "/noc/" + PAGE_URL + "/unaligned";
@@ -347,7 +356,7 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   /**
    * Puts all {@link PhysicalResourceGroup}s on the model, needed to relate a
    * group to a {@link PhysicalPort}.
-   *
+   * 
    * @return Collection<PhysicalResourceGroup>
    */
   @ModelAttribute(PhysicalResourceGroupController.MODEL_KEY_LIST)
@@ -495,6 +504,16 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
       this.version = version;
     }
 
+  }
+
+  @Override
+  protected Class<PhysicalPort> getEntityClass() {
+    return PhysicalPort.class;
+  }
+
+  @Override
+  protected AbstractFullTextSearchService<PhysicalPortView, PhysicalPort> getFullTextSearchableService() {
+    return (AbstractFullTextSearchService<PhysicalPortView, PhysicalPort>) physicalPortService;
   }
 
 }

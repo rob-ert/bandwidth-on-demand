@@ -21,16 +21,24 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.collect.Iterables.*;
-import static com.google.common.collect.Lists.*;
-import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.*;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.mtosi.MtosiInventoryRetrievalLiveClient;
+import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.PhysicalPortView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,31 +60,31 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.mtosi.MtosiInventoryRetrievalLiveClient;
-import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.util.Functions;
-import nl.surfnet.bod.web.security.Security;
+import static com.google.common.collect.Iterables.limit;
+import static com.google.common.collect.Iterables.skip;
+import static com.google.common.collect.Lists.newArrayList;
+
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC;
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALLOCATED_PORTS_PRED;
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
- *
+ * 
  * The {@link PhysicalPort}s found in the {@link NbiPortService} are leading and
  * when more data is available in our repository they will be enriched.
- *
+ * 
  * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
- *
+ * 
  */
 @Service
-public class PhysicalPortServiceImpl implements PhysicalPortService {
+public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalPortView, PhysicalPort> {
 
   private static final String PORT_DETECTION_CRON_KEY = "physicalport.detection.job.cron";
 
-  private Logger logger = LoggerFactory.getLogger(PhysicalPortServiceImpl.class);
+  private Logger logger = LoggerFactory.getLogger(PhysicalPortService.class);
 
   @Resource
   private PhysicalPortRepo physicalPortRepo;
@@ -89,6 +97,12 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   @Resource
   private LogEventService logEventService;
+
+  @Resource
+  private VirtualPortService virtualPortService;
+
+  @PersistenceContext
+  private EntityManager entityManager;
 
   /**
    * Finds all ports using the North Bound Interface and enhances these ports
@@ -105,23 +119,19 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     return nbiPorts;
   }
 
-  @Override
   public List<PhysicalPort> findAllocatedEntries(int firstResult, int maxResults, Sort sort) {
     return physicalPortRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
-  @Override
   public Collection<PhysicalPort> findUnallocatedEntries(int firstResult, int sizeNo) {
     return limitPorts(findUnallocated(), firstResult, sizeNo);
   }
 
-  @Override
   public Collection<PhysicalPort> findUnallocatedMTOSIEntries(int firstResult, int sizeNo) {
     final List<PhysicalPort> unallocatedPorts = mtosiClient.getUnallocatedPorts();
     return limitPorts(unallocatedPorts, firstResult, sizeNo);
   }
 
-  @Override
   public List<PhysicalPort> findUnalignedPhysicalPorts() {
     return physicalPortRepo.findAll(UNALIGNED_PORT_SPEC);
   }
@@ -130,34 +140,28 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     return newArrayList(limit(skip(ports, firstResult), sizeNo));
   }
 
-  @Override
   public Collection<PhysicalPort> findUnallocated() {
     List<PhysicalPort> allPorts = findAll();
 
     return Collections2.filter(allPorts, UNALLOCATED_PORTS_PRED);
   }
 
-  @Override
   public long countAllocated() {
     return physicalPortRepo.count();
   }
 
-  @Override
   public long countUnallocated() {
     return nbiClient.getPhysicalPortsCount() - physicalPortRepo.count();
   }
 
-  @Override
   public long countUnallocatedMTOSI() {
     return mtosiClient.getUnallocatedMtosiPortCount();
   }
 
-  @Override
   public long countUnalignedPhysicalPorts() {
     return physicalPortRepo.count(UNALIGNED_PORT_SPEC);
   }
 
-  @Override
   public PhysicalPort findByNmsPortId(final String nmsPortId) {
     PhysicalPort nbiPort = nbiClient.findPhysicalPortByNmsPortId(nmsPortId);
     PhysicalPort repoPort = physicalPortRepo.findByNmsPortId(nmsPortId);
@@ -169,24 +173,20 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     return nbiPort;
   }
 
-  @Override
   public void delete(final PhysicalPort physicalPort) {
     logEventService.logDeleteEvent(Security.getUserDetails(), physicalPort);
     physicalPortRepo.delete(physicalPort);
   }
 
-  @Override
   public PhysicalPort find(final Long id) {
     return physicalPortRepo.findOne(id);
   }
 
-  @Override
   public void save(final PhysicalPort physicalPort) {
     logEventService.logCreateEvent(Security.getUserDetails(), physicalPort);
     physicalPortRepo.save(physicalPort);
   }
 
-  @Override
   public PhysicalPort update(final PhysicalPort physicalPort) {
     logEventService.logUpdateEvent(Security.getUserDetails(), physicalPort);
     return physicalPortRepo.save(physicalPort);
@@ -194,7 +194,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Adds data found in given ports to the specified ports, enriches them.
-   *
+   * 
    * @param nbiPorts
    *          {@link PhysicalPort}s to add the data to
    * @param repoPorts
@@ -218,7 +218,6 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     }
   }
 
-  @Override
   public List<PhysicalPort> findAllocatedEntriesForPhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup,
       int firstResult, int maxResults, Sort sort) {
 
@@ -226,14 +225,12 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
-  @Override
   public long countAllocatedForPhysicalResourceGroup(final PhysicalResourceGroup physicalResourceGroup) {
 
     return physicalPortRepo.count(PhysicalPortPredicatesAndSpecifications
         .byPhysicalResourceGroupSpec(physicalResourceGroup));
   }
 
-  @Override
   public void forceCheckForPortInconsitencies() {
     detectAndPersistPortInconsistencies();
   }
@@ -287,7 +284,7 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
    * <strong>not</strong> indicated as missing have disappeared from the NMS by
    * finding the differences between the ports in the given list and the ports
    * returned by the NMS based on the {@link PhysicalPort#getNmsPortId()} .
-   *
+   * 
    * @param bodPorts
    *          List with ports from BoD
    * @param nbiPortIds
@@ -316,10 +313,10 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
 
   /**
    * Enriches the port with additional data.
-   *
+   * 
    * Clones JPA attributes (id and version), so a find will return these
    * preventing a additional save instead of an update.
-   *
+   * 
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort
@@ -336,4 +333,15 @@ public class PhysicalPortServiceImpl implements PhysicalPortService {
     portToEnrich.setManagerLabel(dataPort.getManagerLabel());
     portToEnrich.setBodPortId(dataPort.getBodPortId());
   }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
+  }
+
+  @Override
+  public List<PhysicalPortView> transformToView(List<PhysicalPort> listToTransform, RichUserDetails user) {
+    return Functions.transformAllocatedPhysicalPorts(listToTransform, virtualPortService);
+  }
+
 }
