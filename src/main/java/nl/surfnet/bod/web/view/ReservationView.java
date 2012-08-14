@@ -23,7 +23,6 @@ package nl.surfnet.bod.web.view;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.LocalDateTime;
@@ -131,6 +130,33 @@ public class ReservationView {
     return connectionId;
   }
 
+  public String getCancelReason() {
+    return cancelReason;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((bandwidth == null) ? 0 : bandwidth.hashCode());
+    result = prime * result + ((cancelReason == null) ? 0 : cancelReason.hashCode());
+    result = prime * result + ((connectionId == null) ? 0 : connectionId.hashCode());
+    result = prime * result + ((creationDateTime == null) ? 0 : creationDateTime.hashCode());
+    result = prime * result + ((deleteActionView == null) ? 0 : deleteActionView.hashCode());
+    result = prime * result + ((destinationPort == null) ? 0 : destinationPort.hashCode());
+    result = prime * result + ((endDateTime == null) ? 0 : endDateTime.hashCode());
+    result = prime * result + ((failedReason == null) ? 0 : failedReason.hashCode());
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + ((reservationId == null) ? 0 : reservationId.hashCode());
+    result = prime * result + ((sourcePort == null) ? 0 : sourcePort.hashCode());
+    result = prime * result + ((startDateTime == null) ? 0 : startDateTime.hashCode());
+    result = prime * result + ((status == null) ? 0 : status.hashCode());
+    result = prime * result + ((userCreated == null) ? 0 : userCreated.hashCode());
+    result = prime * result + ((virtualResourceGroup == null) ? 0 : virtualResourceGroup.hashCode());
+    return result;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -235,66 +261,4 @@ public class ReservationView {
     return true;
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((bandwidth == null) ? 0 : bandwidth.hashCode());
-    result = prime * result + ((cancelReason == null) ? 0 : cancelReason.hashCode());
-    result = prime * result + ((connectionId == null) ? 0 : connectionId.hashCode());
-    result = prime * result + ((creationDateTime == null) ? 0 : creationDateTime.hashCode());
-    result = prime * result + ((deleteActionView == null) ? 0 : deleteActionView.hashCode());
-    result = prime * result + ((destinationPort == null) ? 0 : destinationPort.hashCode());
-    result = prime * result + ((endDateTime == null) ? 0 : endDateTime.hashCode());
-    result = prime * result + ((failedReason == null) ? 0 : failedReason.hashCode());
-    result = prime * result + ((id == null) ? 0 : id.hashCode());
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result + ((reservationId == null) ? 0 : reservationId.hashCode());
-    result = prime * result + ((sourcePort == null) ? 0 : sourcePort.hashCode());
-    result = prime * result + ((startDateTime == null) ? 0 : startDateTime.hashCode());
-    result = prime * result + ((status == null) ? 0 : status.hashCode());
-    result = prime * result + ((userCreated == null) ? 0 : userCreated.hashCode());
-    result = prime * result + ((virtualResourceGroup == null) ? 0 : virtualResourceGroup.hashCode());
-    return result;
-  }
-
-  public String getCancelReason() {
-    return cancelReason;
-  }
-
-  public class PortView {
-    private final String userLabel;
-    private final String managerLabel;
-    private final String physicalPortNocLabel;
-    private final String physicalPortManagerLabel;
-    private final String bodPortId;
-
-    public PortView(VirtualPort port) {
-      this.userLabel = port.getUserLabel();
-      this.managerLabel = port.getManagerLabel();
-      this.physicalPortManagerLabel = port.getPhysicalPort().getManagerLabel();
-      this.physicalPortNocLabel = port.getPhysicalPort().getNocLabel();
-      this.bodPortId = port.getPhysicalPort().getBodPortId();
-    }
-
-    public String getUserLabel() {
-      return userLabel;
-    }
-
-    public String getManagerLabel() {
-      return managerLabel;
-    }
-
-    public String getPhysicalPortNocLabel() {
-      return physicalPortNocLabel;
-    }
-
-    public String getPhysicalPortManagerLabel() {
-      return physicalPortManagerLabel;
-    }
-
-    public String getBodPortId() {
-      return bodPortId;
-    }
-  }
 }

@@ -349,17 +349,21 @@ public class ReservationServiceTest {
 
   @Test
   public void intersectMoreFilterResultsAndSearchResults() {
-    List<ReservationView> filterResult = Lists.newArrayList();
+    List<Reservation> filterResult = Lists.newArrayList();
     for (int i = 0; i < 4; i++) {
-      filterResult.add(new ReservationView(new ReservationFactory().create(), new ElementActionView(true)));
+      filterResult.add(new ReservationFactory().create());
     }
 
-    List<ReservationView> searchResult = filterResult.subList(0, 2);
-    List<ReservationView> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(filterResult,
-        searchResult);
+    List<Reservation> searchResult = Lists.newArrayList(filterResult.subList(0, 2));
 
-    assertThat(intersectedResult, hasSize(searchResult.size()));
-    Assert.assertTrue(intersectedResult.containsAll(searchResult));
+    List<ReservationView> searchViews = reservationService.transformToView(searchResult, Security.getUserDetails());
+    List<ReservationView> filterViews = reservationService.transformToView(filterResult, Security.getUserDetails());
+
+    List<ReservationView> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(filterViews,
+        searchViews);
+
+    assertThat(intersectedResult, hasSize(2));
+    Assert.assertTrue(intersectedResult.containsAll(searchViews));
   }
 
   @Test

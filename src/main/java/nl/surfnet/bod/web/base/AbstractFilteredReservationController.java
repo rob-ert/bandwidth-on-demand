@@ -123,7 +123,7 @@ public abstract class AbstractFilteredReservationController extends
     ReservationFilterView reservationFilter = reservationFilterViewFactory.create(filterId);
     model.addAttribute(FILTER_SELECT, reservationFilter);
 
-    List<ReservationView> filterList = list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model);
+    List<ReservationView> filterList = new ArrayList<ReservationView>(list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
 
     if (StringUtils.hasText(search)) {
       model.addAttribute(WebUtils.PARAM_SEARCH, search);

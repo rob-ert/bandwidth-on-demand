@@ -165,6 +165,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
 
   @Override
   public List<LogEvent> transformToView(List<LogEvent> listToTransform, RichUserDetails user) {
+    //No transformation needed
     return listToTransform;
   }
 

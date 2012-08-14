@@ -1,5 +1,6 @@
 package nl.surfnet.bod.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -13,8 +14,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * Service interface to abstract full text search functionality
@@ -67,10 +66,12 @@ public abstract class AbstractFullTextSearchService<T, K> {
    * @return List<K> result list
    */
   public List<T> searchForInFilteredList(Class<K> entityClass, String searchText, int firstResult, int maxResults,
-      Sort sort, RichUserDetails userDetails, List<T> filteredItems) {
+      Sort sort, RichUserDetails userDetails, List<T> filterResult) {
 
-    List<T> viewList = transformToView(searchFor(entityClass, searchText, firstResult, maxResults, sort), userDetails);
-    List<T> intersectedList = intersectFullTextResultAndFilterResult(filteredItems, viewList);
+    List<T> searchResult = transformToView(searchFor(entityClass, searchText, firstResult, maxResults, sort),
+        userDetails);
+
+    List<T> intersectedList = intersectFullTextResultAndFilterResult(searchResult, filterResult);
 
     // limit to size of list
     int toSize = Math.min(firstResult + maxResults, firstResult + intersectedList.size());
@@ -88,7 +89,7 @@ public abstract class AbstractFullTextSearchService<T, K> {
   public long countSearchForInFilteredList(Class<K> entityClass, String searchText, List<T> filteredItems) {
     FullTextQuery jpaQuery = createSearchQuery(searchText, entityClass);
 
-    return intersectFullTextResultAndFilterResult(filteredItems, jpaQuery.getResultList()).size();
+    return intersectFullTextResultAndFilterResult(filteredItems, new ArrayList<T>(jpaQuery.getResultList())).size();
   }
 
   /**
@@ -120,22 +121,19 @@ public abstract class AbstractFullTextSearchService<T, K> {
    * FInds objects that both list have in common. When one or both lists are
    * empty, no elements are found
    * 
-   * @param filteredItems
+   * @param searchResults
    *          List<K> List with result of filter
-   * @param resultList
+   * @param filterResults
    *          List<K> List with result of search
    * @return List<K> List with common objects
    */
   @VisibleForTesting
-  List<T> intersectFullTextResultAndFilterResult(List<T> filteredItems, List<T> resultList) {
-    List<T> intersectedList;
+  List<T> intersectFullTextResultAndFilterResult(List<T> searchResults, List<T> filterResults) {
+    // Prevent modification of the searchResults
+    ArrayList<T> intersectedList = new ArrayList<T>(searchResults);
 
-    if (!CollectionUtils.isEmpty(filteredItems)) {
-      intersectedList = Lists.newArrayList(Sets.intersection(Sets.newHashSet(resultList),
-          Sets.newHashSet(filteredItems)));
-    }
-    else {
-      intersectedList = filteredItems;
+    if (!CollectionUtils.isEmpty(intersectedList)) {
+      intersectedList.retainAll(filterResults);
     }
 
     return intersectedList;
