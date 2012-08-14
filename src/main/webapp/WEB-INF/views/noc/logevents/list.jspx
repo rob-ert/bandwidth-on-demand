@@ -12,9 +12,8 @@
 <page:list id="pl_logEvent" path="/noc/events" renderActions="false">
 
   <div class="div-search">
-    <spring:url value="/noc/logevents/search" var="search_url"/>
-    <input id="s_id" labelCode="search_Label" value="${search}" placeholder="Search text" helpMessageCode="search_label" />
-    <button type="button" class="btn btn-primary" onclick="window.location.replace('${search_url}?search='+$('#s_id').val());"><i class="icon-search"><!--  --></i></button>
+     <input id="si_id" labelCode="search_Label" value="${search}" placeholder="Search text" helpMessageCode="search_label" />
+     <button id="sb_id" type="button" class="btn btn-primary" ><i class="icon-search"><!--  --></i></button>
   </div>
 
   <table:table items="${list}" labelPluralCode="label_logevent_plural">

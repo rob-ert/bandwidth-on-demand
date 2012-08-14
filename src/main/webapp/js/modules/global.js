@@ -11,6 +11,7 @@ app.global = function() {
     var initEventHandlers = function() {
 
         initUserSelection();
+        initTextSearch();
     };
 
     var initPlugins = function() {
@@ -44,6 +45,25 @@ app.global = function() {
 
             form[0].submit();
         });
+    };
+
+        
+    var initTextSearch = function () {
+       var searchButton = $('#sb_id');
+       var searchInput = $('#si_id');
+       var currentUrl = document.URL;
+       var searchPart = "/search?search=";
+       
+       searchButton.on('click', function(event) {
+    	   if ("$('currentUrl').contains('search')"){
+    		   alert("contains");
+    		   //replace after = with searchInput
+    	   } else {
+    		   alert("Not contains"); 
+    		   //add searchPart and searchInput
+    	   }
+    	   window.location.href=(currentUrl + searchPart + searchInput.val());
+       });
     };
 
     var _placement = function(popup, element) {
