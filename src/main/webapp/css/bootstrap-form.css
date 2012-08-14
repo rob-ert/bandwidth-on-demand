@@ -97,3 +97,9 @@ select.input-xlarge {
 .input-append .add-on {
     border-radius: 3px;
 }
+
+.form-search label,
+.form-search input,
+.form-search select {  
+  margin-right: 5px;
+}

@@ -69,3 +69,9 @@ a[rel="tooltip"]:hover {
 .datepicker.dropdown-menu {
     width: auto;
 }
+
+.div-search input,
+.div-search button{
+  margin-right: 5px;
+  vertical-align: top;
+}
