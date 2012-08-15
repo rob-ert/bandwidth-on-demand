@@ -31,10 +31,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.google.common.base.Strings;
 
+@Indexed
 @Entity
 public class PhysicalPort {
 
@@ -45,14 +48,18 @@ public class PhysicalPort {
   @Version
   private Integer version;
 
+  @Field
   @NotEmpty
   private String nocLabel;
 
+  @Field
   private String managerLabel;
 
+  @Field
   @NotEmpty
   private String bodPortId;
 
+  @Field
   @NotEmpty
   @Column(unique = true)
   private String nmsPortId;
@@ -68,18 +75,23 @@ public class PhysicalPort {
   @Column(name = "aligned_nms")
   private boolean alignedWithNMS;
 
+  @Field
   @Basic
   private String nmsNeId;
 
+  @Field
   @Basic
   private String nmsPortSpeed;
 
+  @Field
   @Basic
   private String nmsSapName;
 
+  @Field
   @Basic
   private String signalingType;
 
+  @Field
   @Basic
   private String supportedServiceType;
 
