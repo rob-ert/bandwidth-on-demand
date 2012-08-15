@@ -21,8 +21,8 @@
  */
 package nl.surfnet.bod.pages;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.support.BodWebDriver;
 
 import org.hamcrest.core.CombinableMatcher;
 import org.joda.time.LocalDate;
@@ -31,25 +31,37 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.ui.Select;
 
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.support.BodWebDriver;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 
 public abstract class AbstractReservationListPage extends AbstractListPage {
+
+  @FindBy(id = "si_id")
+  private WebElement searchInputField;
+
+  @FindBy(id = "sb_id")
+  private WebElement searchButton;
+
+  @FindBy(id = "f_id")
+  private WebElement reservationFilter;
 
   public AbstractReservationListPage(RemoteWebDriver driver) {
     super(driver);
   }
 
-  public WebElement verifyReservationExists(String label, LocalDate startDate, LocalDate endDate,
-      LocalTime startTime, LocalTime endTime) {
+  public WebElement verifyReservationExists(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
+      LocalTime endTime) {
 
     return findReservationRow(label, startDate, endDate, startTime, endTime);
   }
 
-  public WebElement verifyReservationExists(String label) {
-
-    return findRow(label);
+  public void verifyReservationExists(String... reservationLabels) {
+    for (String label : reservationLabels) {
+      findRow(label);
+    }
   }
 
   public void verifyReservationIsCancellable(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
@@ -75,6 +87,27 @@ public abstract class AbstractReservationListPage extends AbstractListPage {
     String deleteTooltip = deleteElement.getAttribute("data-original-title");
 
     assertThat(deleteTooltip, containsString(toolTipText));
+  }
+
+  public Integer getNumberOfReservations() {
+    int numberOfRows;
+    try {
+      numberOfRows = getRows().size();
+    }
+    catch (NoSuchElementException e) {
+      numberOfRows = 0;
+    }
+
+    return numberOfRows;
+  }
+
+  public void filterReservations(String filterValue) {
+    new Select(reservationFilter).selectByValue(filterValue);
+  }
+
+  public void searchReservations(String searchString) {
+    searchInputField.sendKeys(searchString);
+    searchButton.click();
   }
 
   private WebElement findReservationRow(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,

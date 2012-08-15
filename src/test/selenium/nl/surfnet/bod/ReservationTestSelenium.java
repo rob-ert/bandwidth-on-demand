@@ -21,12 +21,16 @@
  */
 package nl.surfnet.bod;
 
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
+import nl.surfnet.bod.support.TestExternalSupport;
+import nl.surfnet.bod.web.noc.ReservationController;
+import nl.surfnet.bod.web.view.ReservationFilterView;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
-
-import nl.surfnet.bod.support.TestExternalSupport;
 
 public class ReservationTestSelenium extends TestExternalSupport {
 
@@ -124,4 +128,27 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getUserDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);
   }
 
+  @Test
+  public void searchReservations() {
+    final String EVEN = "Even reservation ";
+    final String ODD = "Odd reservation ";
+    final LocalDate date = LocalDate.now().plusDays(1);
+    final LocalTime startTime = new LocalTime(8, 0);
+
+    // User, create reservation
+    getManagerDriver().switchToUser();
+
+    for (int i = 1; i <= 5; i++) {
+      String label = (i % 2 == 0 ? EVEN + i : ODD + i);
+      getUserDriver().createNewReservation(label, date, date, startTime.plusHours(i), startTime.plusHours(i + 1));
+    }
+
+    getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.ELAPSED, EVEN.trim());
+
+    getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.COMING, EVEN.trim(), EVEN + 2,
+        EVEN + 4);
+
+    getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.COMING, ODD.trim(), ODD + 1,
+        ODD + 3, ODD + 5);    
+  }
 }
