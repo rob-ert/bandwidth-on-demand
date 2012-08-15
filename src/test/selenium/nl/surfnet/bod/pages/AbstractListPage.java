@@ -38,10 +38,19 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.Uninterruptibles;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 public class AbstractListPage extends AbstractPage {
 
   @FindBy(css = "table.table tbody")
   private WebElement table;
+
+  @FindBy(id = "si_id")
+  private WebElement searchInputField;
+
+  @FindBy(id = "sb_id")
+  private WebElement searchButton;
 
   public AbstractListPage(RemoteWebDriver driver) {
     super(driver);
@@ -144,6 +153,18 @@ public class AbstractListPage extends AbstractPage {
     return true;
   }
 
+  public Integer getNumberOfRows() {
+    int numberOfRows;
+    try {
+      numberOfRows = getRows().size();
+    }
+    catch (NoSuchElementException e) {
+      numberOfRows = 0;
+    }
+
+    return numberOfRows;
+  }
+
   /**
    * Overrides the default selected table by the given one in case there are
    * multiple tables on a page.
@@ -153,6 +174,26 @@ public class AbstractListPage extends AbstractPage {
    */
   protected void setTable(WebElement table) {
     this.table = table;
+  }
+
+  public void verifyRowsWithLabelExists(String... labels) {
+    for (String label : labels) {
+      findRow(label);
+    }
+  }
+
+  public void search(String searchString) {
+    searchInputField.sendKeys(searchString);
+    searchButton.click();
+  }
+
+  public void verifyRowsBySearch(String searchString, String... labels) {
+    search(searchString);
+
+    int expectedAmount = labels == null ? 0 : labels.length;
+    assertThat(getNumberOfRows(), is(expectedAmount));
+
+    verifyRowsWithLabelExists(labels);
   }
 
 }

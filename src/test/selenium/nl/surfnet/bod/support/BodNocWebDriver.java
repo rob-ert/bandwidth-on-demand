@@ -22,6 +22,7 @@
 package nl.surfnet.bod.support;
 
 import static nl.surfnet.bod.support.BodWebDriver.*;
+
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
@@ -48,7 +49,6 @@ import nl.surfnet.bod.pages.noc.NocOverviewPage;
 import nl.surfnet.bod.web.InstituteController;
 
 public class BodNocWebDriver {
-
 
   private final RemoteWebDriver driver;
 
@@ -236,7 +236,7 @@ public class BodNocWebDriver {
   public void verifyHasReservations(int i) {
     ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
-    assertThat(page.getNumberOfReservations(), is(i));
+    assertThat(page.getNumberOfRows(), is(i));
   }
 
   public void verifyHasLogEvents(int i) {
@@ -259,5 +259,27 @@ public class BodNocWebDriver {
   public void verifyVirtualResourceGroupExists(String... fields) {
     ListVirtualResourceGroupPage page = ListVirtualResourceGroupPage.get(driver, URL_UNDER_TEST);
     page.findRow(fields);
+  }
+
+  public void verifyUnallocatedPortsBySearch(String searchString, String... portLabels) {
+    ListUnallocatedPortsPage page = ListUnallocatedPortsPage.get(driver, URL_UNDER_TEST);
+
+    page.search(searchString);
+
+    int expectedAmount = portLabels == null ? 0 : portLabels.length;
+    assertThat(page.getNumberOfRows(), is(expectedAmount));
+
+    page.verifyRowsWithLabelExists(portLabels);
+  }
+
+  public void verifyAllocatedPortsBySearch(String searchString, String... portLabels) {
+    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+
+    page.search(searchString);
+
+    int expectedAmount = portLabels == null ? 0 : portLabels.length;
+    assertThat(page.getNumberOfRows(), is(expectedAmount));
+
+    page.verifyRowsWithLabelExists(portLabels);
   }
 }

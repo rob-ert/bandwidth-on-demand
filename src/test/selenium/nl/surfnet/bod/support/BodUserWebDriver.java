@@ -185,7 +185,7 @@ public class BodUserWebDriver {
 
     assertThat(page.getInfoMessages(), Matchers.<String> hasItem(containsString(label)));
 
-    page.verifyReservationExists(label);
+    page.verifyRowsWithLabelExists(label);
   }
 
   public void verifyNotMemberOf(String teamName) {
@@ -204,11 +204,11 @@ public class BodUserWebDriver {
     ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
 
     page.filterReservations(filterValue);
-    page.searchReservations(searchString);
+    page.search(searchString);
 
     int expectedAmount = reservationLabels == null ? 0 : reservationLabels.length;
-    assertThat(page.getNumberOfReservations(), is(expectedAmount));
+    assertThat(page.getNumberOfRows(), is(expectedAmount));
 
-    page.verifyReservationExists(reservationLabels);
+    page.verifyRowsWithLabelExists(reservationLabels);
   }
 }

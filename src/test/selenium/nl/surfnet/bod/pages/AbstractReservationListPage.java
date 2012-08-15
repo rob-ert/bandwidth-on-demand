@@ -39,12 +39,6 @@ import static org.hamcrest.Matchers.containsString;
 
 public abstract class AbstractReservationListPage extends AbstractListPage {
 
-  @FindBy(id = "si_id")
-  private WebElement searchInputField;
-
-  @FindBy(id = "sb_id")
-  private WebElement searchButton;
-
   @FindBy(id = "f_id")
   private WebElement reservationFilter;
 
@@ -56,12 +50,6 @@ public abstract class AbstractReservationListPage extends AbstractListPage {
       LocalTime endTime) {
 
     return findReservationRow(label, startDate, endDate, startTime, endTime);
-  }
-
-  public void verifyReservationExists(String... reservationLabels) {
-    for (String label : reservationLabels) {
-      findRow(label);
-    }
   }
 
   public void verifyReservationIsCancellable(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
@@ -89,25 +77,8 @@ public abstract class AbstractReservationListPage extends AbstractListPage {
     assertThat(deleteTooltip, containsString(toolTipText));
   }
 
-  public Integer getNumberOfReservations() {
-    int numberOfRows;
-    try {
-      numberOfRows = getRows().size();
-    }
-    catch (NoSuchElementException e) {
-      numberOfRows = 0;
-    }
-
-    return numberOfRows;
-  }
-
   public void filterReservations(String filterValue) {
     new Select(reservationFilter).selectByValue(filterValue);
-  }
-
-  public void searchReservations(String searchString) {
-    searchInputField.sendKeys(searchString);
-    searchButton.click();
   }
 
   private WebElement findReservationRow(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
