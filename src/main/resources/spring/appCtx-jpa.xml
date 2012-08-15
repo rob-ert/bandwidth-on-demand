@@ -42,7 +42,7 @@
         <property name="minConnectionsPerPartition" value="3"/>
         <property name="idleMaxAgeInMinutes" value="3"/>
         <property name="partitionCount" value="3"/>
-        <property name="statementsCacheSize" value="100"/>
+        <property name="statementsCacheSize" value="10"/>
         <property name="releaseHelperThreads" value="3"/>
     </bean>
 
