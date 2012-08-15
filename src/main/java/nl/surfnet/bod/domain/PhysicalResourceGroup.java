@@ -36,9 +36,14 @@ import javax.persistence.OneToOne;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.search.annotations.ContainedIn;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
+@Indexed
 @Entity
 public class PhysicalResourceGroup {
 
@@ -49,13 +54,16 @@ public class PhysicalResourceGroup {
   @Version
   private Integer version;
 
+  @IndexedEmbedded
   @OneToOne(optional = false)
   @JoinColumn(name = "institute_id")
   private Institute institute;
 
+  @Field
   @NotEmpty
   private String adminGroup;
 
+  @Field
   @NotEmpty
   @Email(message = "Not a valid email address")
   private String managerEmail;
@@ -64,6 +72,7 @@ public class PhysicalResourceGroup {
   @Column(nullable = false)
   private Boolean active = false;
 
+  @ContainedIn
   @OneToMany(mappedBy = "physicalResourceGroup", cascade = CascadeType.REMOVE)
   private Collection<PhysicalPort> physicalPorts;
 

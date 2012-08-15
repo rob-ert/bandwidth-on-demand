@@ -33,6 +33,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.google.common.base.Strings;
@@ -64,6 +65,7 @@ public class PhysicalPort {
   @Column(unique = true)
   private String nmsPortId;
 
+  @IndexedEmbedded
   @NotNull
   @ManyToOne(optional = false)
   private PhysicalResourceGroup physicalResourceGroup;

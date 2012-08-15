@@ -26,26 +26,34 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Represents a customer of SURFnet, a local copy of IDD data, which is regarded
  * by the rest of the team as a good idea...
- *
+ * 
  * Note that this class has <strong>no version</strong> field, since this causes
  * duplicate key exceptions because hibernate tries to insert them instead of
  * updating the existing content of the database.
- *
+ * 
  */
+@Indexed
 @Entity
 public class Institute {
 
   @Id
   private Long id;
+
+  @Field
   @NotEmpty
   private String name;
+
+  @Field
   @NotEmpty
   private String shortName;
+
   @Basic
   @Column(name = "aligned_idd")
   private boolean alignedWithIDD;
