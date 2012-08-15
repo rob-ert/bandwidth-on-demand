@@ -9,3 +9,5 @@
 log.roo
 rebel.xml
 bod.log
+
+src/main/resources/log4j.xml
