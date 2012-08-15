@@ -31,20 +31,18 @@
 
     <jpa:repositories base-package="nl.surfnet.bod" />
 
-    <bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
-        <property name="driverClass" value="${jdbc.driverClass}" />
-            <!-- FEATURE... just add INTEGRATION to database url -->
-        <property name="jdbcUrl" value="${jdbc.jdbcUrl}-integration" />        
-        <property name="username" value="${jdbc.user}" />
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="user" value="${jdbc.user}" />
         <property name="password" value="${jdbc.password}" />
-        <property name="idleConnectionTestPeriodInMinutes" value="${jdbc.idleConnectionTestPeriodInMinutes}" /> 
-        <property name="acquireIncrement" value="5"/>
-        <property name="maxConnectionsPerPartition" value="10"/>
-        <property name="minConnectionsPerPartition" value="3"/>
-        <property name="idleMaxAgeInMinutes" value="3"/>
-        <property name="partitionCount" value="3"/>
-        <property name="statementsCacheSize" value="100"/>
-        <property name="releaseHelperThreads" value="3"/>
+        <property name="driverClass" value="${jdbc.driverClass}" />
+        <!-- FEATURE... just add INTEGRATION to database url -->
+        <property name="jdbcUrl" value="${jdbc.jdbcUrl}-integration" />
+        <property name="initialPoolSize" value="${jdbc.initialPoolSize}" />
+        <property name="maxPoolSize" value="${jdbc.maxPoolSize}" />
+        <property name="minPoolSize" value="${jdbc.minPoolSize}" />
+        <property name="acquireIncrement" value="${jdbc.acquireIncrement}" />
+        <property name="acquireRetryAttempts" value="${jdbc.acquireRetryAttempts}" />
+        <property name="idleConnectionTestPeriod" value="${jdbc.idleConnectionTestPeriod}" />
     </bean>
 
     <bean id="flyway" class="com.googlecode.flyway.core.Flyway" init-method="migrate">
