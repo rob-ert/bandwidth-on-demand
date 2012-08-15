@@ -32,18 +32,19 @@
     <jpa:repositories base-package="nl.surfnet.bod" />
 
     <bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
-        <property name="driverClass" value="${jdbc.driverClass}" />
         <property name="jdbcUrl" value="${jdbc.jdbcUrl}" />
+        <property name="driverClass" value="${jdbc.driverClass}" />
         <property name="username" value="${jdbc.user}" />
         <property name="password" value="${jdbc.password}" />
         <property name="idleConnectionTestPeriodInMinutes" value="${jdbc.idleConnectionTestPeriodInMinutes}" /> 
-        <property name="acquireIncrement" value="5"/>
-        <property name="maxConnectionsPerPartition" value="10"/>
-        <property name="minConnectionsPerPartition" value="3"/>
-        <property name="idleMaxAgeInMinutes" value="3"/>
-        <property name="partitionCount" value="3"/>
-        <property name="statementsCacheSize" value="10"/>
-        <property name="releaseHelperThreads" value="3"/>
+        <property name="acquireIncrement" value="${jdbc.acquireIncrement}"/>
+        <property name="acquireRetryAttempts" value="${jdbc.acquireRetryAttempts}"/>
+        <property name="maxConnectionsPerPartition" value="${jdbc.maxConnectionsPerPartition}"/>
+        <property name="minConnectionsPerPartition" value="${jdbc.minConnectionsPerPartition}"/>
+        <property name="idleMaxAgeInMinutes" value="${jdbc.idleMaxAgeInMinutes}"/>
+        <property name="partitionCount" value="${jdbc.partitionCount}"/>
+        <property name="statementsCacheSize" value="${jdbc.statementsCachSize}"/>
+        <property name="releaseHelperThreads" value="${jdbc.releaseHelperThreads}"/>
     </bean>
 
     <bean id="flyway" class="com.googlecode.flyway.core.Flyway" init-method="migrate">
