@@ -55,12 +55,15 @@ app.global = function() {
        var searchPart = "/search?search=";
        
        searchButton.on('click', function(event) {
-    	   if (currentUrl.indexOf('search') != -1){
-    		   window.location.href = jQuery.param.querystring(window.location.href, 'search='+searchInput.val());
-    	     
+    	   if (currentUrl.indexOf('search') == -1){
+    	     window.location.href = (currentUrl + searchPart + searchInput.val());    		   
     	   } 
     	   else {
-    		 window.location.href=(currentUrl + searchPart + searchInput.val());
+    	     var url = jQuery.param.querystring(window.location.href, 'search='+searchInput.val());
+    		 if(window.location.href.indexOf('?') != window.location.href.lastIndexOf('?')){
+    		   url = url.replace('/search?search', '&search?search')
+    		 }
+    		window.location.href = url;
     	   }
        });
     };
