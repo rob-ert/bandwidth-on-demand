@@ -9,6 +9,8 @@
 
     <bod:script value="/resources/js/jquery/jquery-1.7.2.min.js" />
     <bod:script value="/resources/js/bootstrap/bootstrap-2.0.3.min.js" />
+    <bod:script value="/resources/js/jquery/jquery.ba-bbq.min.js" />
+    
     <c:choose>
         <c:when test="${dev}">
             <bod:script value="/resources/js/main.js" />

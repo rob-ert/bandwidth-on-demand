@@ -55,11 +55,12 @@ app.global = function() {
        var searchPart = "/search?search=";
        
        searchButton.on('click', function(event) {
-    	   if (currentUrl.indexOf('search') == -1){
-    	     window.location.href=(currentUrl + searchPart + searchInput.val());
+    	   if (currentUrl.indexOf('search') != -1){
+    		   window.location.href = jQuery.param.querystring(window.location.href, 'search='+searchInput.val());
+    	     
     	   } 
     	   else {
-    	     window.location.href = currentUrl.substring(0, currentUrl.lastIndexOf('/search?')) + searchPart + searchInput.val();
+    		 window.location.href=(currentUrl + searchPart + searchInput.val());
     	   }
        });
     };
