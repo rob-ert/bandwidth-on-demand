@@ -34,7 +34,7 @@
   <logger name="org.springframework">
     <level value="WARN" />
   </logger>
-
+  
   <logger name="com.googlecode.ehcache">
     <level value="WARN" />
   </logger>
@@ -60,11 +60,16 @@
     <level value="DEBUG" />
   </logger>
 
+   <logger name="org.hibernate.search">
+    <level value="DEBUG"/>
+   </logger>
+
   <logger name="org.hibernate.type">
     <level value="TRACE" />
   </logger>
 -->
 
+  
   <!-- ======================= -->
   <!-- Setup the Root category -->
   <!-- ======================= -->
