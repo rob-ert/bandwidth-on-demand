@@ -55,14 +55,12 @@ app.global = function() {
        var searchPart = "/search?search=";
        
        searchButton.on('click', function(event) {
-    	   if ("$('currentUrl').contains('search')"){
-    		   alert("contains");
-    		   //replace after = with searchInput
-    	   } else {
-    		   alert("Not contains"); 
-    		   //add searchPart and searchInput
+    	   if (currentUrl.indexOf('search') == -1){
+    	     window.location.href=(currentUrl + searchPart + searchInput.val());
+    	   } 
+    	   else {
+    	     window.location.href = currentUrl.substring(0, currentUrl.lastIndexOf('/search?')) + searchPart + searchInput.val();
     	   }
-    	   window.location.href=(currentUrl + searchPart + searchInput.val());
        });
     };
 
