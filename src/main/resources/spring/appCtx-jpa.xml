@@ -30,21 +30,17 @@
     http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.1.xsd">
 
     <jpa:repositories base-package="nl.surfnet.bod" />
-
-    <bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+      <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">        
         <property name="jdbcUrl" value="${jdbc.jdbcUrl}" />
         <property name="driverClass" value="${jdbc.driverClass}" />
-        <property name="username" value="${jdbc.user}" />
+        <property name="user" value="${jdbc.user}" />
         <property name="password" value="${jdbc.password}" />
-        <property name="idleConnectionTestPeriodInMinutes" value="${jdbc.idleConnectionTestPeriodInMinutes}" /> 
-        <property name="acquireIncrement" value="${jdbc.acquireIncrement}"/>
-        <property name="acquireRetryAttempts" value="${jdbc.acquireRetryAttempts}"/>
-        <property name="maxConnectionsPerPartition" value="${jdbc.maxConnectionsPerPartition}"/>
-        <property name="minConnectionsPerPartition" value="${jdbc.minConnectionsPerPartition}"/>
-        <property name="idleMaxAgeInMinutes" value="${jdbc.idleMaxAgeInMinutes}"/>
-        <property name="partitionCount" value="${jdbc.partitionCount}"/>
-        <property name="statementsCacheSize" value="${jdbc.statementsCachSize}"/>
-        <property name="releaseHelperThreads" value="${jdbc.releaseHelperThreads}"/>
+        <property name="initialPoolSize" value="${jdbc.initialPoolSize}" />
+        <property name="maxPoolSize" value="${jdbc.maxPoolSize}" />
+        <property name="minPoolSize" value="${jdbc.minPoolSize}" />
+        <property name="acquireIncrement" value="${jdbc.acquireIncrement}" />
+        <property name="acquireRetryAttempts" value="${jdbc.acquireRetryAttempts}" />
+        <property name="idleConnectionTestPeriod" value="${jdbc.idleConnectionTestPeriod}" />
     </bean>
 
     <bean id="flyway" class="com.googlecode.flyway.core.Flyway" init-method="migrate">
