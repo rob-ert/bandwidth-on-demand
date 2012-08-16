@@ -126,6 +126,7 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getUserDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);
   }
 
+  @Ignore("URL after search should contain /filter/[filterid]")
   @Test
   public void searchReservations() {
     final String EVEN = "Even reservation ";
