@@ -55,11 +55,14 @@ app.global = function() {
 
        searchButton.on('click', function(event) {
            currentUrl = currentUrl.replace(window.location.search, "");
-           currentUrl = currentUrl + searchPart + searchInput.val();
-           if(currentUrl.lastIndexOf("/search/search") != -1){
-             currentUrl = currentUrl.replace("/search/search", "/search");
+           if(searchInput.val().length == 0){
+             currentUrl = currentUrl.replace("/search","");
+           }else{
+               currentUrl = currentUrl + searchPart + searchInput.val();
+               if(currentUrl.lastIndexOf("/search/search") != -1){
+                 currentUrl = currentUrl.replace("/search/search", "/search");
+               }
            }
-         alert(currentUrl);
        window.location.href = currentUrl;
        });
     };
