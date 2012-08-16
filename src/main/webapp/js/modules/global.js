@@ -34,37 +34,47 @@ app.global = function() {
 
         form.on('click', 'li', function(event) {
 
-            var item = $(event.target).closest('li')[0],
-                roleId = item.getAttribute('data-roleId');
+            var item = $(event.target).closest('li')[0], roleId = item
+                    .getAttribute('data-roleId');
 
             $('<input>').attr({
-                type: 'hidden',
-                name: 'roleId',
-                value: roleId
+                type : 'hidden',
+                name : 'roleId',
+                value : roleId
             }).appendTo(form);
 
             form[0].submit();
         });
     };
 
-    var initTextSearch = function () {
-       var searchButton = $('#sb_id');
-       var searchInput = $('#si_id');
-       var currentUrl = document.URL;
-       var searchPart = "/search?search=";
+    var initTextSearch = function() {
+        var searchButton = $('#sb_id');
+        var searchInput = $('#si_id');
+        var currentUrl = document.URL;
+        var searchPart = "/search?search=";
 
-       searchButton.on('click', function(event) {
-           currentUrl = currentUrl.replace(window.location.search, "");
-           if(searchInput.val().length == 0){
-             currentUrl = currentUrl.replace("/search","");
-           }else{
-               currentUrl = currentUrl + searchPart + searchInput.val();
-               if(currentUrl.lastIndexOf("/search/search") != -1){
-                 currentUrl = currentUrl.replace("/search/search", "/search");
-               }
-           }
-       window.location.href = currentUrl;
-       });
+        searchButton.on('click', function(event) {
+            currentUrl = currentUrl.replace(window.location.search, "");
+            // Is a search text entered?
+            if (searchInput.val().length == 0) {
+                // Remove from url
+                currentUrl = currentUrl.replace("/search", "");
+            } else {
+                // Are we filtering?
+                if (currentUrl.indexOf("filter") == -1) {
+                    // Add search url and param
+                    currentUrl = currentUrl + searchPart + searchInput.val();
+                    if (currentUrl.lastIndexOf("/search/search") != -1) {
+                        currentUrl = currentUrl.replace("/search/search",
+                                "/search");
+                    }
+                } else {
+                    // Only add param
+                    currentUrl = currentUrl + "?search=" + searchInput.val();
+                }
+            }
+            window.location.href = currentUrl;
+        });
     };
 
     var _placement = function(popup, element) {
@@ -75,7 +85,7 @@ app.global = function() {
     var initTooltips = function() {
 
         $('[rel="tooltip"]').tooltip({
-            placement: _placement
+            placement : _placement
         });
 
     };
@@ -83,13 +93,13 @@ app.global = function() {
     var initPopovers = function() {
 
         $('[rel="popover"]').popover({
-            placement: _placement
+            placement : _placement
         });
 
     };
 
     return {
-        init: init
+        init : init
     };
 
 }();
