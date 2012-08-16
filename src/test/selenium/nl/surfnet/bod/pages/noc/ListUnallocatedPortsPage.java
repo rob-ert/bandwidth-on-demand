@@ -26,9 +26,6 @@ import nl.surfnet.bod.pages.AbstractPhysicalPortListPage;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-
 public class ListUnallocatedPortsPage extends AbstractPhysicalPortListPage {
 
   private static final String PAGE = "noc/physicalports/free";

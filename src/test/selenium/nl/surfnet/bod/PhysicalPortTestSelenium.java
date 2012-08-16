@@ -21,11 +21,10 @@
  */
 package nl.surfnet.bod;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import nl.surfnet.bod.support.TestExternalSupport;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class PhysicalPortTestSelenium extends TestExternalSupport {
 
@@ -108,20 +107,19 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_1);
   }
 
-  @Ignore("Functionallity not working yet")
   @Test
   public void searchPorts() {
     getNocDriver().addPhysicalPortToInstitute(GROUP_NAME, "NOC 1 label", "Mock_Poort 1de verdieping toren1a");
     getNocDriver().addPhysicalPortToInstitute(GROUP_NAME, "NOC 2 label", "Mock_Poort 2de verdieping toren1b");
     getNocDriver().addPhysicalPortToInstitute(GROUP_NAME, "NOC 3 label", "Mock_Poort 3de verdieping toren1c");
 
-    getNocDriver().verifyAllocatedPortsBySearch(BOD_PORT_ID_1, NMS_PORT_ID_1);
-    getNocDriver().verifyAllocatedPortsBySearch(BOD_PORT_ID_2, NMS_PORT_ID_2);
-    getNocDriver().verifyAllocatedPortsBySearch(GROUP_NAME, BOD_PORT_ID_1, BOD_PORT_ID_2, BOD_PORT_ID_3);
+    getNocDriver().verifyAllocatedPortsBySearch("1", BOD_PORT_ID_1, BOD_PORT_ID_2, BOD_PORT_ID_4);
+    getNocDriver().verifyAllocatedPortsBySearch("2", BOD_PORT_ID_2);
+    getNocDriver().verifyAllocatedPortsBySearch("3", BOD_PORT_ID_4);
 
     getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_1);
     getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_2);
-    getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_3);
+    getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_4);
   }
 
 }

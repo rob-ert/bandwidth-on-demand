@@ -31,12 +31,13 @@ public abstract class TestExternalSupport {
 
   protected static final String BOD_PORT_ID_1 = "Mock_ETH10G-1-13-1";
   protected static final String BOD_PORT_ID_2 = "Mock_ETH10G-1-13-2";
-  protected static final String BOD_PORT_ID_3 = "Mock_ETH-1-13-5";
+  protected static final String BOD_PORT_ID_4 = "Mock_ETH-1-13-4";
 
   protected static final String USERS_GROUP = "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:selenium-users";
   protected static final String NMS_PORT_ID_1 = "00-21-E1-D6-D6-70_ETH10G-1-13-1";
   protected static final String NMS_PORT_ID_2 = "00-21-E1-D6-D6-70_ETH10G-1-13-2";
   protected static final String NMS_PORT_ID_3 = "00-21-E1-D6-D5-DC_ETH-1-13-5";
+  protected static final String NMS_PORT_ID_4 = "00-21-E1-D6-D5-DC_ETH-1-13-4";
 
   private static BodWebDriver webDriver = new BodWebDriver();
 
