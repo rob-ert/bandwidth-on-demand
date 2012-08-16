@@ -1,10 +1,10 @@
 package nl.surfnet.bod.web.base;
 
+import static nl.surfnet.bod.web.WebUtils.*;
+
 import java.util.List;
 
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.Security;
+import javax.annotation.Resource;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
@@ -15,10 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.Lists;
 
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ReservationFilterView;
 
 /**
  * Base controller which adds full text search functionality to the
@@ -29,6 +30,9 @@ import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
  * @param <K>
  */
 public abstract class AbstractSearchableSortableListController<T, K> extends AbstractSortableListController<T> {
+  
+  @Resource
+  private ReservationFilterViewFactory reservationFilterViewFactory;
 
   @RequestMapping(value = "search", method = RequestMethod.GET)
   public String search(@RequestParam(value = PAGE_KEY, required = false) Integer page,
@@ -56,6 +60,10 @@ public abstract class AbstractSearchableSortableListController<T, K> extends Abs
       model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count()));
       model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
     }
+    if (WebUtils.getAttributeFromModel(FILTER_SELECT, model) == null) {
+      model.addAttribute(FILTER_SELECT, reservationFilterViewFactory.create(ReservationFilterViewFactory.COMING));
+    }
+    System.out.println(model);
 
     return listUrl();
   }
