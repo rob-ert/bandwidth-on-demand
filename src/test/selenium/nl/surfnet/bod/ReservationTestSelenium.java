@@ -126,33 +126,42 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getUserDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);
   }
 
-  @Ignore("Functionallity not working yet")
   @Test
   public void searchReservations() {
     final String EVEN = "Even reservation ";
     final String ODD = "Odd reservation ";
     final LocalDate date = LocalDate.now().plusDays(1);
     final LocalTime startTime = new LocalTime(8, 0);
-
+    final short reservationCount = 5;
     // User, create reservation
     getManagerDriver().switchToUser();
 
-    for (int i = 1; i <= 5; i++) {
+    for (int i = 1; i <= reservationCount; i++) {
       String label = (i % 2 == 0 ? EVEN + i : ODD + i);
       getUserDriver().createNewReservation(label, date, date, startTime.plusHours(i), startTime.plusHours(i + 1));
     }
 
-    // Filter on past, none should be found
-    getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.ELAPSED, EVEN.trim());
+    try {
+      // Filter on past, none should be found
+      getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.ELAPSED, "even");
 
-    // Filter on this year, and no search String. All should be found.
-    getUserDriver().verifyReservationByFilterAndSearch(String.valueOf(date.getYear()), "", ODD + 1, EVEN + 2, ODD + 3,
-        EVEN + 4, ODD + 5);
+      // Filter on this year, and no search String. All should be found.
+      getUserDriver().verifyReservationByFilterAndSearch(String.valueOf(date.getYear()), "", ODD + 1, EVEN + 2,
+          ODD + 3, EVEN + 4, ODD + 5);
 
-    getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.COMING, EVEN.trim(), EVEN + 2,
-        EVEN + 4);
+      // Search on even
+      getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.COMING, "EveN", EVEN + 2,
+          EVEN + 4);
 
-    getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.COMING, ODD.trim(), ODD + 1,
-        ODD + 3, ODD + 5);
+      // Search on odd
+      getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.COMING, "oDd", ODD + 1, ODD + 3,
+          ODD + 5);
+    }
+    finally {
+      // Always clean up
+      for (int i = 1; i <= reservationCount; i++) {
+        getUserDriver().cancelReservation(date, date, startTime.plusHours(i), startTime.plusHours(i + 1));
+      }
+    }
   }
 }
