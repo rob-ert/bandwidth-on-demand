@@ -47,24 +47,20 @@ app.global = function() {
         });
     };
 
-        
     var initTextSearch = function () {
        var searchButton = $('#sb_id');
        var searchInput = $('#si_id');
        var currentUrl = document.URL;
        var searchPart = "/search?search=";
-       
+
        searchButton.on('click', function(event) {
-         if(searchInput.val().length > 0){
-           alert('search found');
            currentUrl = currentUrl.replace(window.location.search, "");
            currentUrl = currentUrl + searchPart + searchInput.val();
            if(currentUrl.lastIndexOf("/search/search") != -1){
              currentUrl = currentUrl.replace("/search/search", "/search");
            }
-         }
          alert(currentUrl);
-    	   window.location.href = currentUrl;
+       window.location.href = currentUrl;
        });
     };
 
