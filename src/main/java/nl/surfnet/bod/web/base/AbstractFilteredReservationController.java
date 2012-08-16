@@ -63,8 +63,6 @@ public abstract class AbstractFilteredReservationController extends
     AbstractSearchableSortableListController<ReservationView, Reservation> {
   public static final String FILTER_URL = "filter/";
 
-  private static final String DEFAULT_FILTER_ID = ReservationFilterViewFactory.COMING;
-
   @Resource
   private ReservationService reservationService;
 
@@ -77,18 +75,21 @@ public abstract class AbstractFilteredReservationController extends
   }
 
   /**
-   * Selects a default filter when no filter is selected yet, never show all
-   * reservations at once....
+   * Make sure we always filter never show all reservations at once, delegate to
+   * {@link #filter(Integer, String, String, String, String, Model)}
    */
   @Override
   public String list(Integer page, String sort, String order, Model model) {
-    String filterName = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
+    return filter(page, sort, order, "", null, model);
+  }
 
-    if (!StringUtils.hasText(filterName)) {
-      filterName = DEFAULT_FILTER_ID;
-    }
-
-    return filter(page, sort, order, "", filterName, model);
+  /**
+   * Make sure we always filter in combination with searching, delegate to
+   * {@link #filter(Integer, String, String, String, String, Model)}
+   */
+  @Override
+  public String search(Integer page, String sort, String order, String search, Model model) {
+    return filter(page, sort, order, "", null, model);
   }
 
   /**
@@ -103,7 +104,9 @@ public abstract class AbstractFilteredReservationController extends
    * @param order
    *          Order for the sort
    * @param filterId
-   *          Id of the filter to apply
+   *          Id of the filter to apply. Nullable, will default to
+   *          {@link ReservationFilterViewFactory#DEFAULT_FILTER} when empty or
+   *          null.
    * @param model
    *          Model to place the state on {@link WebUtils#FILTER_SELECT} and
    *          {@link WebUtils#DATA_LIST}
@@ -120,10 +123,12 @@ public abstract class AbstractFilteredReservationController extends
 
     List<ReservationView> result = new ArrayList<>();
     Sort sortOptions = prepareSortOptions(sort, order, model);
+    // Null or empty string will force Default Filter
     ReservationFilterView reservationFilter = reservationFilterViewFactory.create(filterId);
     model.addAttribute(FILTER_SELECT, reservationFilter);
 
-    List<ReservationView> filterList = new ArrayList<ReservationView>(list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
+    List<ReservationView> filterList = new ArrayList<ReservationView>(list(calculateFirstPage(page),
+        MAX_ITEMS_PER_PAGE, sortOptions, model));
 
     if (StringUtils.hasText(search)) {
       model.addAttribute(WebUtils.PARAM_SEARCH, search);
