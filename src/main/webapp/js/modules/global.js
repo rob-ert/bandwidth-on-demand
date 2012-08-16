@@ -55,12 +55,16 @@ app.global = function() {
        var searchPart = "/search?search=";
        
        searchButton.on('click', function(event) {
-    	   currentUrl = currentUrl.replace(window.location.search, "");
-    	   var url = currentUrl + searchPart + searchInput.val();
-    	   if(url.lastIndexOf("/search/search") != -1){
-    	     url = url.replace("/search/search", "/search");
-    	   }
-    	   window.location.href = url;
+         if(searchInput.val().length > 0){
+           alert('search found');
+           currentUrl = currentUrl.replace(window.location.search, "");
+           currentUrl = currentUrl + searchPart + searchInput.val();
+           if(currentUrl.lastIndexOf("/search/search") != -1){
+             currentUrl = currentUrl.replace("/search/search", "/search");
+           }
+         }
+         alert(currentUrl);
+    	   window.location.href = currentUrl;
        });
     };
 
