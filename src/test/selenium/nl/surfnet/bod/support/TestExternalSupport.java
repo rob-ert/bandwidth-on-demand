@@ -37,7 +37,7 @@ public abstract class TestExternalSupport {
   protected static final String NMS_PORT_ID_1 = "00-21-E1-D6-D6-70_ETH10G-1-13-1";
   protected static final String NMS_PORT_ID_2 = "00-21-E1-D6-D6-70_ETH10G-1-13-2";
   protected static final String NMS_PORT_ID_3 = "00-21-E1-D6-D5-DC_ETH-1-13-5";
-  protected static final String NMS_PORT_ID_4 = "00-21-E1-D6-D5-DC_ETH-1-13-4";
+  protected static final String NMS_PORT_ID_4 = "00-21-E1-D6-D5-DC_ETvH-1-13-4";
 
   private static BodWebDriver webDriver = new BodWebDriver();
 
