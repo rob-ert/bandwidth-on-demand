@@ -1,21 +1,22 @@
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
+
 import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.xml.ws.Holder;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
+import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.joda.time.LocalDateTime;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
+import org.ogf.schemas.nsi._2011._10.connection.types.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -80,7 +81,7 @@ public class ConnectionServiceProviderService {
   public void terminate(final Connection connection, final String requesterNsa, final NsiRequestDetails requestDetails) {
     connection.setCurrentState(ConnectionStateType.TERMINATING);
     connectionRepo.save(connection);
-    // TODO [AvD] make asyn, strange richUserDetails here...
+
     reservationService.cancel(
         connection.getReservation(),
         new RichUserDetails(requesterNsa, "", "", Collections.<UserGroup> emptyList(), ImmutableList.of(BodRole
@@ -88,10 +89,31 @@ public class ConnectionServiceProviderService {
   }
 
   @Async
-  public void sendQueryConfirmed(final String correlationId, final QueryConfirmedType confirmedType,
-      final ConnectionRequesterPort port, final String providerNsa, final  String requesterNsa) {
+  public void query(NsiRequestDetails requestDetails, List<String> connectionIds, List<String> globalReservationIds,
+      String providerNsa, final  String requesterNsa) {
+
+    QueryConfirmedType confirmedType = new QueryConfirmedType();
+
+    // no criteria, return all connections related to this requester nsa
+    if (connectionIds.isEmpty() && globalReservationIds.isEmpty()) {
+      for (Connection connection : connectionRepo.findByRequesterNsa(requesterNsa)) {
+        addQueryResult(confirmedType, connection);
+      }
+    }
+    else if (globalReservationIds.isEmpty()) {
+      for (String connectionId : connectionIds) {
+        addQueryResult(confirmedType, connectionRepo.findByConnectionId(connectionId));
+      }
+    }
+    else {
+      for (String globalReservationId : globalReservationIds) {
+        addQueryResult(confirmedType, connectionRepo.findByGlobalReservationId(globalReservationId));
+      }
+    }
+
+    ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
     try {
-      port.queryConfirmed(new Holder<>(correlationId), confirmedType);
+      port.queryConfirmed(new Holder<>(requestDetails.getCorrelationId()), confirmedType);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
       log.error("Error: ", e);
@@ -103,8 +125,23 @@ public class ConnectionServiceProviderService {
       final ServiceExceptionType error = new ServiceExceptionType();
       error.setErrorId(ConnectionServiceProviderErrorCodes.CONNECTION.CONNECTION_ERROR.getId());
       failedType.setServiceException(error);
-      sendQueryFailed(correlationId, failedType , port);
+      sendQueryFailed(requestDetails.getCorrelationId(), failedType, port);
     }
+  }
+
+  private void addQueryResult(final QueryConfirmedType confirmedType, final Connection connection) {
+    if (connection == null) {
+      return;
+    }
+
+    for (final QueryDetailsResultType query : confirmedType.getReservationDetails()) {
+      if (query.getGlobalReservationId().equals(connection.getGlobalReservationId())) {
+        return;
+      }
+    }
+
+    final QueryDetailsResultType queryResult = ConnectionServiceProviderFunctions.CONNECTION_TO_QUERY_RESULT.apply(connection);
+    confirmedType.getReservationDetails().add(queryResult);
   }
 
   @Async

@@ -21,10 +21,14 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static com.google.common.base.Preconditions.*;
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD.*;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.*;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD.NOT_IMPLEMENTED;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_CONFIRMED;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_FAILED;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.RESERVING;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,36 +37,6 @@ import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceContext;
-
-import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
-import oasis.names.tc.saml._2_0.assertion.AttributeType;
-
-import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ReleaseRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
-import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
-import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ObjectFactory;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryDetailsResultType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.sun.xml.ws.developer.SchemaValidation;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
@@ -73,6 +47,21 @@ import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.service.ConnectionServiceProviderService;
 import nl.surfnet.bod.service.VirtualPortService;
+import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
+import oasis.names.tc.saml._2_0.assertion.AttributeType;
+
+import org.ogf.schemas.nsi._2011._10.connection._interface.*;
+import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
+import org.ogf.schemas.nsi._2011._10.connection.types.*;
+import org.ogf.schemas.nsi._2011._10.connection.types.ObjectFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.sun.xml.ws.developer.SchemaValidation;
 
 @Service("connectionServiceProviderWs_v1sc")
 @WebService(serviceName = "ConnectionServiceProvider",
@@ -124,7 +113,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
    * inter-domain bandwidth. Those parameters required for the request to
    * proceed to a processing actor will be validated, however, all other
    * parameters will be validated in the processing actor.
-   * 
+   *
    * @param parameters
    *          The un-marshaled JAXB object holding the NSI reservation request.
    * @return The GenericAcknowledgmentType object returning the correlationId
@@ -266,9 +255,9 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     final Connection connection = getConnectionOrFail(connectionId);
     validateProviderNsa(parameters.getProvision().getProviderNSA());
 
-    final NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(),
-        parameters.getCorrelationId());
+    final NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
     connectionServiceProviderService.provision(connection, requestDetails);
+
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
   }
 
@@ -281,7 +270,6 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     connectionRepo.save(connection);
 
     final GenericFailedType generic = new GenericFailedType();
-
     generic.setProviderNSA(connection.getProviderNsa());
     generic.setRequesterNSA(connection.getRequesterNsa());
     generic.setConnectionId(connection.getConnectionId());
@@ -314,7 +302,6 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
       log.error("Error: ", e);
     }
-
   }
 
   @Override
@@ -322,6 +309,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     final ServiceExceptionType exceptionType = new ServiceExceptionType();
     exceptionType.setErrorId(NOT_IMPLEMENTED.getId());
     exceptionType.setText(NOT_IMPLEMENTED.getText());
+
     throw new ServiceException("Not supported", exceptionType);
   }
 
@@ -333,6 +321,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     final NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(),
         parameters.getCorrelationId());
     connectionServiceProviderService.terminate(connection, parameters.getTerminate().getRequesterNSA(), requestDetails);
+
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
   }
 
@@ -370,64 +359,29 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public GenericAcknowledgmentType query(QueryRequestType parameters) throws ServiceException {
+    String correlationId = parameters.getCorrelationId();
+    String replyTo = parameters.getReplyTo();
 
-    final String correlationId = parameters.getCorrelationId();
-    final String replyTo = parameters.getReplyTo();
-    final List<String> connectionIds = parameters.getQuery().getQueryFilter().getConnectionId();
-    final List<String> globalReservationIds = parameters.getQuery().getQueryFilter().getGlobalReservationId();
-    final QueryConfirmedType confirmedType = new QueryConfirmedType();
-
-    // no criteria, return all connections related to this requester nsa
-    if (CollectionUtils.isEmpty(connectionIds) && CollectionUtils.isEmpty(globalReservationIds)) {
-      for (final Connection connection : connectionRepo.findByRequesterNsa(parameters.getQuery().getRequesterNSA())) {
-        addQueryResult(confirmedType, connection);
-      }
-    }
-    else {
-      if (!CollectionUtils.isEmpty(connectionIds)) {
-        for (final String connectionId : connectionIds) {
-          addQueryResult(confirmedType, connectionRepo.findByConnectionId(connectionId));
-        }
-      }
-
-      if (!CollectionUtils.isEmpty(globalReservationIds)) {
-        for (final String globalReservationId : globalReservationIds) {
-          addQueryResult(confirmedType, connectionRepo.findByGlobalReservationId(globalReservationId));
-        }
-      }
-    }
-
-    connectionServiceProviderService.sendQueryConfirmed(correlationId, confirmedType,
-        NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(new NsiRequestDetails(replyTo, correlationId)), parameters
-            .getQuery().getProviderNSA(), parameters.getQuery().getRequesterNSA());
+    connectionServiceProviderService.query(
+      new NsiRequestDetails(replyTo, correlationId),
+      parameters.getQuery().getQueryFilter().getConnectionId(),
+      parameters.getQuery().getQueryFilter().getGlobalReservationId(),
+      parameters.getQuery().getProviderNSA(),
+      parameters.getQuery().getRequesterNSA()
+    );
 
     return createGenericAcknowledgment(correlationId);
   }
 
-  /**
-   * @param confirmedType
-   * @param connection
-   */
-  private void addQueryResult(final QueryConfirmedType confirmedType, final Connection connection) {
-    if (connection == null) {
-      return;
-    }
-    for (final QueryDetailsResultType query : confirmedType.getReservationDetails()) {
-      if (query.getGlobalReservationId().equals(connection.getGlobalReservationId())) {
-        return;
-      }
-    }
-    final QueryDetailsResultType queryResult = CONNECTION_TO_QUERY_RESULT.apply(connection);
-    confirmedType.getReservationDetails().add(queryResult);
-  }
-
   @Override
   public void queryConfirmed(Holder<String> correlationId, QueryConfirmedType queryConfirmed) throws ServiceException {
+    // This is an incoming response. But for now we don't do any queries.
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
   @Override
   public void queryFailed(Holder<String> correlationId, QueryFailedType queryFailed) throws ServiceException {
+    // This is an incoming response. But for now we don't do any queries.
     throw new UnsupportedOperationException("Not implemented yet.");
   }
 
