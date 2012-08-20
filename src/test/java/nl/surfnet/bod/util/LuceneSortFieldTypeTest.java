@@ -21,14 +21,12 @@
  */
 package nl.surfnet.bod.util;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.domain.PhysicalPort;
 
 import org.apache.lucene.search.SortField;
 import org.junit.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
 public class LuceneSortFieldTypeTest {
 
@@ -38,17 +36,17 @@ public class LuceneSortFieldTypeTest {
   }
 
   @Test
-  public void testLucenTypeInteger() {
+  public void testLuceneTypeInteger() {
     assertThat(LuceneSortFieldType.getLuceneTypeFor(Integer.class), is(SortField.INT));
   }
 
   @Test
-  public void testLucenTypeNonExisting() {
+  public void testLuceneTypeNonExisting() {
     assertThat(LuceneSortFieldType.getLuceneTypeFor(PhysicalPort.class), is(SortField.STRING_VAL));
   }
 
   @Test
-  public void testLucenTypeNull() {
+  public void testLuceneTypeNull() {
     assertThat(LuceneSortFieldType.getLuceneTypeFor(null), is(SortField.STRING_VAL));
   }
 

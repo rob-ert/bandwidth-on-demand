@@ -21,6 +21,11 @@
  */
 package nl.surfnet.bod.web.base;
 
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -39,21 +44,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.Lists;
 
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
-
 /**
  * Base controller which adds full text search functionality to the
  * {@link AbstractSortableListController}
- * 
+ *
  * @param <T>
  *          DomainObject
  * @param <K>
  */
 public abstract class AbstractSearchableSortableListController<T, K> extends AbstractSortableListController<T> {
-  
+
   @Resource
   private ReservationFilterViewFactory reservationFilterViewFactory;
 

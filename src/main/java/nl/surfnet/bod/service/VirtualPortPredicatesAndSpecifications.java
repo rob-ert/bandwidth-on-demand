@@ -86,7 +86,7 @@ public final class VirtualPortPredicatesAndSpecifications {
     };
   }
 
-  static Specification<VirtualPortRequestLink> BY_GROUP_ID_IN_LAST_MONTH_SPEC(final Collection<String> vrgUrns) {
+  static Specification<VirtualPortRequestLink> byGroupIdInLastMonthSpec(final Collection<String> vrgUrns) {
     return new Specification<VirtualPortRequestLink>() {
 
       @Override

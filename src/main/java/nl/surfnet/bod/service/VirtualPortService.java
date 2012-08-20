@@ -228,7 +228,7 @@ public class VirtualPortService {
       }
     });
 
-    return virtualPortRequestLinkRepo.findAll(BY_GROUP_ID_IN_LAST_MONTH_SPEC(groups));
+    return virtualPortRequestLinkRepo.findAll(byGroupIdInLastMonthSpec(groups));
   }
 
   public void requestLinkDeclined(VirtualPortRequestLink link, String declineMessage) {
