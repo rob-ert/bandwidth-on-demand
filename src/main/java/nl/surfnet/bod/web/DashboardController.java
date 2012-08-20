@@ -72,6 +72,10 @@ public class DashboardController {
       return "noUserRole";
     }
 
+    if (!Security.isSelectedUserRole()) {
+      Security.switchToUser();
+    }
+
     List<TeamView> views = getTeamViews(userGroups);
 
     model.addAttribute("requests",
