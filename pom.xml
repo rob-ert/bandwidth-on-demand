@@ -633,6 +633,13 @@
                 <version>3.1.6</version>
                 <configuration>
                     <jdk>1.7</jdk>
+                    <license><![CDATA[oQMOOOsVVvrFnPIkGxnDXjAmpMNKxxDPNovXJgDUmHktQA
+                        mi2KpM0gaiqLsi8rqQYCIJ8o2KM3CHjK6nPqWGHfyhvjeu
+                        oomRSXprnnrMPMMQpqqwUqMPONnMNqMqOrxUwTVWvWVmPU
+                        tuStxxTsnStRUXuvUvxWonnMPnmqmUUnpqqntrommmmmUU
+                        npqqntrommmmmUUJLI6kbqtW2XkatfaqeWlkW4bjXkaUUn
+                        mmmm]]>
+                    </license>
                 </configuration>
             </plugin>
 
