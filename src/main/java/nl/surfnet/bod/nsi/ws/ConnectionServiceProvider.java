@@ -21,18 +21,18 @@
  */
 package nl.surfnet.bod.nsi.ws;
 
-import org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort;
-
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 
+import org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort;
+
 public interface ConnectionServiceProvider extends ConnectionProviderPort {
 
-  static final String URN_OGF = "urn:ogf:network";
-  static final String NETWORK_ID = "surfnet.nl";
-  static final String URN_PROVIDER_NSA = URN_OGF + ":nsa:" + NETWORK_ID;
-  static final String URN_STP = URN_OGF + ":stp:" + NETWORK_ID;
-  static final String URN_GLOBAL_RESERVATION_ID = "urn:nl:surfnet:diensten:bod";
+  String URN_OGF = "urn:ogf:network";
+  String NETWORK_ID = "surfnet.nl";
+  String URN_PROVIDER_NSA = URN_OGF + ":nsa:" + NETWORK_ID;
+  String URN_STP = URN_OGF + ":stp:" + NETWORK_ID;
+  String URN_GLOBAL_RESERVATION_ID = "urn:nl:surfnet:diensten:bod";
 
   void reserveConfirmed(Connection connection, NsiRequestDetails requestDetails);
 

@@ -5,6 +5,11 @@ import java.util.Collections;
 import javax.annotation.Resource;
 import javax.xml.ws.Holder;
 
+import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
+import nl.surfnet.bod.repo.ConnectionRepo;
+import nl.surfnet.bod.web.security.RichUserDetails;
+
 import org.joda.time.LocalDateTime;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
@@ -18,18 +23,6 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
-import nl.surfnet.bod.repo.ConnectionRepo;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.web.security.RichUserDetails;
 
 @Service
 public class ConnectionServiceProviderService {
@@ -64,7 +57,7 @@ public class ConnectionServiceProviderService {
 
     return reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
   }
-  
+
   public void provision(Connection connection, NsiRequestDetails requestDetails) {
     // TODO [AvD] check if connection is in correct state to receive a provision
     // request..
@@ -96,20 +89,20 @@ public class ConnectionServiceProviderService {
 
   @Async
   public void sendQueryConfirmed(final String correlationId, final QueryConfirmedType confirmedType,
-      final ConnectionRequesterPort port, final String providerNsa,final  String requesterNsa) {
+      final ConnectionRequesterPort port, final String providerNsa, final  String requesterNsa) {
     try {
       port.queryConfirmed(new Holder<>(correlationId), confirmedType);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
       log.error("Error: ", e);
       final QueryFailedType failedType = new QueryFailedType();
-      
+
       failedType.setProviderNSA(providerNsa);
       failedType.setRequesterNSA(requesterNsa);
-      
+
       final ServiceExceptionType error = new ServiceExceptionType();
       error.setErrorId(ConnectionServiceProviderErrorCodes.CONNECTION.CONNECTION_ERROR.getId());
-      failedType.setServiceException(error );
+      failedType.setServiceException(error);
       sendQueryFailed(correlationId, failedType , port);
     }
   }
