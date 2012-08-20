@@ -12,7 +12,7 @@
 <page:list id="pl_logEvent" path="/noc/events" renderActions="false">
 
   <div class="div-search">
-     <input id="si_id" labelCode="search_Label" value="${search}" placeholder="Search text" helpMessageCode="search_label" />
+     <input id="si_id" value="${search}" placeholder="Search text" />
      <button id="sb_id" type="button" class="btn btn-primary" ><i class="icon-search"><!--  --></i></button>
   </div>
 
@@ -20,14 +20,10 @@
     <thead>
       <tr>
         <table:rowDetailsHeader />
-        <table:sortableHeader labelCode="label_logevent_created"
-          property="created" />
-        <table:sortableHeader labelCode="label_logevent_userid"
-          property="userId" styleClass="cw35" />
-        <table:sortableHeader labelCode="label_logevent_eventtype"
-          property="eventType" styleClass="cw35" />
-        <table:sortableHeader labelCode="label_logevent_className"
-          property="className" />
+        <table:sortableHeader labelCode="label_logevent_created" property="created" />
+        <table:sortableHeader labelCode="label_logevent_userid" property="userId" styleClass="cw35" />
+        <table:sortableHeader labelCode="label_logevent_eventtype" property="eventType" styleClass="cw35" />
+        <table:sortableHeader labelCode="label_logevent_className" property="className" />
       </tr>
     </thead>
     <tbody>

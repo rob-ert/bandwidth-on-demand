@@ -13,11 +13,11 @@
 
     <tiles:useAttribute name="renderActions" classname="java.lang.Boolean" />
 
-    <page:list id="pl_reservation" path="/reservations" renderActions="${renderActions}">        
+    <page:list id="pl_reservation" path="/reservations" renderActions="${renderActions}">
         <form class="form-inline form-search" action="${filterUrl}" data-component="reservation-filter">
            <sform:select id="f_id"  path="filterSelect.id" items="${filterList}" itemLabel="label" itemValue="id" cssClass="input-medium" />
 
-            <input id="si_id" labelCode="search_Label" value="${search}" placeholder="Search text" helpMessageCode="search_label" />
+            <input id="si_id" value="${search}" placeholder="Search text" />
             <button id="sb_id" type="button" class="btn btn-primary" onclick="window.location.replace('${filterUrl}${filterSelect}?search='+$('#s_id').val());"><i class="icon-search"><!--  --></i></button>
         </form>
 

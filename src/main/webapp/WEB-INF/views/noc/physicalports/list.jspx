@@ -9,7 +9,7 @@
 
 <page:list id="pl_PhysicalPort" pluralLabelCode="${show_unallocated ? 'label_physicalport_unallocated_plural' : ''}">
    <div class="div-search">
-     <input id="si_id" labelCode="search_Label" value="${search}" placeholder="Search text" helpMessageCode="search_label" />
+     <input id="si_id" value="${search}" placeholder="Search text" />
      <button id="sb_id" type="button" class="btn btn-primary" ><i class="icon-search"><!--  --></i></button>
   </div>
   <table:table items="${list}" labelPluralCode="${show_unallocated ? 'label_physicalport_unallocated_plural' : 'label_physicalport_plural'}">
@@ -20,7 +20,7 @@
         <table:sortableHeader labelCode="label_physicalport_bod_port_id" property="bodPortId"  />
         <table:sortableHeader labelCode="label_physicalresourcegroup" property="instituteName" render="${not show_unallocated}" />
         <table:sortableHeader labelCode="label_physicalport_nms_port_id" property="nmsPortId"  />
-        
+
         <c:if test="${not empty list[0].nmsNeId}">
           <table:sortableHeader labelCode="label_physicalport_nms_ne_id" property="nmsNeId"  />
         </c:if>
@@ -33,7 +33,7 @@
             <table:sortableHeader labelCode="label_physicalport_nms_sap_name" property="nmsSapName"  />
         </c:if>
         -->
-        
+
         <table:actionsHeader styleClass="cw75 center small" />
       </tr>
     </thead>
