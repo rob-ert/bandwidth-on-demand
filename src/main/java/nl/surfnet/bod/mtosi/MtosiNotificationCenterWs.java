@@ -21,10 +21,8 @@
  */
 package nl.surfnet.bod.mtosi;
 
-import javax.jws.Oneway;
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.xml.ws.Endpoint;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,25 +32,16 @@ import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 
 @Service("mtosiNotificationCenterWs")
-@WebService(serviceName = "NotificationConsumerHttp",
-    portName = "NotificationConsumer",
-    targetNamespace = "http://www.tmforum.org/mtop/fmw/xsd/notmsg/v1")
+@WebService(endpointInterface = "org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer")
 public class MtosiNotificationCenterWs implements NotificationConsumer {
 
   private final Logger log = LoggerFactory.getLogger(MtosiNotificationCenterWs.class);
 
   @Override
-  @WebMethod(action = "notify")
-  @Oneway
-  public void notify(@WebParam(name = "header",
-      targetNamespace = "http://www.tmforum.org/mtop/fmw/xsd/hdr/v1",
-      header = true,
-      partName = "mtopHeader") Header header, @WebParam(name = "notify",
-      targetNamespace = "http://www.tmforum.org/mtop/fmw/xsd/notmsg/v1",
-      partName = "mtopBody") Notify body) {
-    
+  public void notify(final Header header, final Notify body) {
     log.info("Received: {}, {}", header, body);
-
+    log.info("Activity name: {}", header.getActivityName());
+    log.info("Topic: {}", body.getTopic());
   }
 
   static {
@@ -61,6 +50,10 @@ public class MtosiNotificationCenterWs implements NotificationConsumer {
     System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
     System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
     System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
+  }
+
+  public static void main(String[] args) {
+    Endpoint.publish("http://localhost:8082/bod/mtosi/fmw/notificationconsumer", new MtosiNotificationCenterWs());
   }
 
 }
