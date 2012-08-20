@@ -16,10 +16,10 @@ import org.slf4j.LoggerFactory;
  * decrypting of properties
  */
 public class BoDInitializer {
-  private final static Logger logger = LoggerFactory.getLogger(BoDInitializer.class);
+  private final Logger logger = LoggerFactory.getLogger(BoDInitializer.class);
 
   @PersistenceContext
-  EntityManager entityManager;
+  private EntityManager entityManager;
 
   public void init() {
     logger.info("Initializing BoD");
@@ -34,7 +34,7 @@ public class BoDInitializer {
     MassIndexerProgressMonitor indexMonitor = new SimpleIndexingProgressMonitor(10);
     try {
       MassIndexer indexer = fullTextEntityManager.createIndexer();
-      //Set threads to one, to workaround bug of mass indexer 
+      //Set threads to one, to workaround bug of mass indexer
       //see (https://hibernate.onjira.com/browse/HSEARCH-598)
       indexer.threadsForSubsequentFetching(1);
       indexer.threadsToLoadObjects(1);
