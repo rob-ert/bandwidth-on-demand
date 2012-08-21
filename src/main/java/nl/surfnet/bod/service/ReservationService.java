@@ -159,7 +159,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     fillStartTimeIfEmpty(reservation);
     stripSecondsAndMillis(reservation);
 
-    logEventService.logCreateEvent(Security.getUserDetails(), reservation);
+    logEventService.logCreateEvent(Security.getUserDetails(), reservation, reservation.getName());
 
     reservation = reservationRepo.save(reservation);
 
@@ -216,7 +216,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
 
     log.debug("Updating reservation: {}", reservation.getReservationId());
-    logEventService.logUpdateEvent(Security.getUserDetails(), reservation);
+    logEventService.logUpdateEvent(Security.getUserDetails(), reservation, reservation.getName());
     return reservationRepo.save(reservation);
   }
 
@@ -540,7 +540,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public boolean cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user) {
-    logEventService.logDeleteEvent(Security.getUserDetails(), reservation, cancelReason);
+    logEventService.logDeleteEvent(Security.getUserDetails(), reservation, reservation.getName() + " " + cancelReason);
 
     if (isDeleteAllowed(reservation, user.getSelectedRole()).isAllowed()) {
       nbiClient.cancelReservation(reservation.getReservationId());

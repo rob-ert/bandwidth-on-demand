@@ -30,6 +30,7 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.mtosi.MtosiInventoryRetrievalLiveClient;
@@ -38,6 +39,7 @@ import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
 import nl.surfnet.bod.web.view.PhysicalPortView;
 
 import org.slf4j.Logger;
@@ -174,7 +176,8 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   public void delete(final PhysicalPort physicalPort) {
-    logEventService.logDeleteEvent(Security.getUserDetails(), physicalPort);
+    logEventService.logDeleteEvent(Security.getUserDetails(), physicalPort,
+        getLogLabel(Security.getSelectedRole(), physicalPort));
     physicalPortRepo.delete(physicalPort);
   }
 
@@ -183,12 +186,14 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   }
 
   public void save(final PhysicalPort physicalPort) {
-    logEventService.logCreateEvent(Security.getUserDetails(), physicalPort);
+    logEventService.logCreateEvent(Security.getUserDetails(), physicalPort,
+        getLogLabel(Security.getSelectedRole(), physicalPort));
     physicalPortRepo.save(physicalPort);
   }
 
   public PhysicalPort update(final PhysicalPort physicalPort) {
-    logEventService.logUpdateEvent(Security.getUserDetails(), physicalPort);
+    logEventService.logUpdateEvent(Security.getUserDetails(), physicalPort,
+        getLogLabel(Security.getSelectedRole(), physicalPort));
     return physicalPortRepo.save(physicalPort);
   }
 
@@ -344,4 +349,19 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     return Functions.transformAllocatedPhysicalPorts(listToTransform, virtualPortService);
   }
 
+  /**
+   * Determines the label to log for the given Role
+   * 
+   * @param bodRole
+   *          Role
+   * @param physicalPort
+   *          Port
+   * @return Label to log for the given {@link PhysicalPort}
+   */
+  private String getLogLabel(BodRole bodRole, PhysicalPort physicalPort) {
+    if (bodRole.isManagerRole() && (physicalPort.hasManagerLabel())) {
+      return physicalPort.getManagerLabel();
+    }
+    return physicalPort.getNocLabel();
+  }
 }

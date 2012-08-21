@@ -27,6 +27,10 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
@@ -133,7 +137,9 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   }
 
   /**
-   * Handles the event. Writes it to the given logger and persists it in the
+   * Handles the event. Writes it to the given logger. Only events with a
+   * domainObject with one a specific type, as determined by
+   * {@link #shouldPersistEvent(LogEvent)} are persisted to the
    * {@link LogEventRepo}
    * 
    * @param logger
@@ -146,7 +152,38 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   void handleEvent(Logger log, LogEvent logEvent) {
     log.info("Handling event: {}", logEvent);
 
-    logEventRepo.save(logEvent);
+    if (shouldPersistEvent(logEvent)) {
+      logEventRepo.save(logEvent);
+    }
+  }
+
+  /**
+   * Determines if an Event should be persisted. Only the following types are
+   * supported:
+   * <ul>
+   * <li>Reservation</li>
+   * <li>PhysicalPort</li>
+   * <li>VirtualPort</li>
+   * <li>Institute</li>
+   * </ul>
+   * 
+   * @param logEvent
+   * @return true incase the {@link LogEvent#getClassName()} matches one of the
+   *         listed above, false otherwise.
+   */
+  private boolean shouldPersistEvent(LogEvent logEvent) {
+    String[] supportedClasses = { //
+    Reservation.class.getSimpleName(), //
+        PhysicalPort.class.getSimpleName(), //
+        VirtualPort.class.getSimpleName(),//
+        Institute.class.getSimpleName() };
+
+    for (String clazz : supportedClasses) {
+      if ((logEvent.getClassName() != null) && (logEvent.getClassName().contains(clazz))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
@@ -165,7 +202,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
 
   @Override
   public List<LogEvent> transformToView(List<LogEvent> listToTransform, RichUserDetails user) {
-    //No transformation needed
+    // No transformation needed
     return listToTransform;
   }
 

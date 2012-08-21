@@ -38,6 +38,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
@@ -102,7 +103,8 @@ public class VirtualPortService {
         virtualPort);
     reservationService.cancelAndArchiveReservations(reservations, user);
 
-    logEventService.logDeleteEvent(Security.getUserDetails(), virtualPort);
+    logEventService.logDeleteEvent(Security.getUserDetails(), virtualPort,
+        getLogLabel(Security.getSelectedRole(), virtualPort));
 
     virtualPort.getVirtualResourceGroup().removeVirtualPort(virtualPort);
     virtualPortRepo.delete(virtualPort);
@@ -110,6 +112,14 @@ public class VirtualPortService {
     if (virtualPort.getVirtualResourceGroup().getVirtualPortCount() == 0) {
       virtualResourceGroupReppo.delete(virtualPort.getVirtualResourceGroup());
     }
+  }
+
+  private String getLogLabel(BodRole selectedRole, VirtualPort virtualPort) {
+    if ((selectedRole.isUserRole()) && StringUtils.hasText(virtualPort.getUserLabel())) {
+      return virtualPort.getUserLabel();
+    }
+
+    return virtualPort.getManagerLabel();
   }
 
   public VirtualPort find(final Long id) {
@@ -165,12 +175,12 @@ public class VirtualPortService {
   }
 
   public void save(final VirtualPort virtualPort) {
-    logEventService.logCreateEvent(Security.getUserDetails(), virtualPort);
+    logEventService.logCreateEvent(Security.getUserDetails(), virtualPort,getLogLabel(Security.getSelectedRole(), virtualPort));
     virtualPortRepo.save(virtualPort);
   }
 
   public VirtualPort update(final VirtualPort virtualPort) {
-    logEventService.logUpdateEvent(Security.getUserDetails(), virtualPort);
+    logEventService.logUpdateEvent(Security.getUserDetails(), virtualPort,getLogLabel(Security.getSelectedRole(), virtualPort));
     return virtualPortRepo.save(virtualPort);
   }
 
@@ -193,7 +203,7 @@ public class VirtualPortService {
     link.setRequestorUrn(user.getUsername());
     link.setRequestDateTime(LocalDateTime.now());
 
-    logEventService.logCreateEvent(Security.getUserDetails(), link);
+    logEventService.logCreateEvent(Security.getUserDetails(), link, link.getUserLabel());
     virtualPortRequestLinkRepo.save(link);
     emailSender.sendVirtualPortRequestMail(user, link);
   }
@@ -209,7 +219,7 @@ public class VirtualPortService {
   public void requestLinkApproved(VirtualPortRequestLink link, VirtualPort port) {
     link.setStatus(RequestStatus.APPROVED);
 
-    logEventService.logUpdateEvent(Security.getUserDetails(), link, "Approved request link");
+    logEventService.logUpdateEvent(Security.getUserDetails(), link, "Approved request link " + link.getUserLabel());
     virtualPortRequestLinkRepo.save(link);
 
     emailSender.sendVirtualPortRequestApproveMail(link, port);
@@ -234,7 +244,7 @@ public class VirtualPortService {
   public void requestLinkDeclined(VirtualPortRequestLink link, String declineMessage) {
     link.setStatus(RequestStatus.DECLINED);
 
-    logEventService.logUpdateEvent(Security.getUserDetails(), link, "Declined request link");
+    logEventService.logUpdateEvent(Security.getUserDetails(), link, "Declined request link " + link.getUserLabel());
     virtualPortRequestLinkRepo.save(link);
 
     emailSender.sendVirtualPortRequestDeclineMail(link, declineMessage);

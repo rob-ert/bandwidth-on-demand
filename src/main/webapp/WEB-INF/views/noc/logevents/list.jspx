@@ -41,10 +41,10 @@
               </dd>
             </dl>
           </table:rowDetailsColumn>
-          <table:column item="${item}" property="createdAsText" />
+          <table:column item="${item}" property="createdAsText" styleClass="cw65" />
           <table:column item="${item}" property="userId" />
           <table:column item="${item}" property="eventType" />
-          <table:column item="${item}" property="className" />
+          <table:column item="${item}" property="classNameWithDetails"/>
         </tr>
       </c:forEach>
     </tbody>

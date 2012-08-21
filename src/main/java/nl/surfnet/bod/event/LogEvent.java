@@ -39,6 +39,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.joda.time.LocalDateTime;
+import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -136,7 +137,7 @@ public class LogEvent {
         return String.format(LIST_STRING, list.size(), object.getClass().getSimpleName());
       }
     }
-    return LIST_EMPTY;
+    return null;
   }
 
   private String serializeObject(Object domainObject) {
@@ -179,6 +180,10 @@ public class LogEvent {
 
   public String getDetails() {
     return details;
+  }
+
+  public String getClassNameWithDetails() {
+    return (StringUtils.hasText(details) ? className + ": " + details : className);
   }
 
   @Override

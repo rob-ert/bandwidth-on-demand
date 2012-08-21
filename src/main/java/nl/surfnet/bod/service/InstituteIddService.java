@@ -69,8 +69,7 @@ public class InstituteIddService implements InstituteService {
   @Override
   @Scheduled(cron = "${" + INSTITUTE_REFRESH_CRON_KEY + "}")
   public void refreshInstitutes() {
-    logger
-        .info("Refreshing institutes from IDD, job based on configuration key: {}", INSTITUTE_REFRESH_CRON_KEY);
+    logger.info("Refreshing institutes from IDD, job based on configuration key: {}", INSTITUTE_REFRESH_CRON_KEY);
 
     List<Institute> currentAlignedInstitutes = instituteRepo.findByAlignedWithIDD(true);
     Collection<Institute> iddInstitutes = Functions.transformKlanten(iddClient.getKlanten(), true);
@@ -78,8 +77,7 @@ public class InstituteIddService implements InstituteService {
     List<Institute> unalignedInstitutes = Lists.newArrayList(currentAlignedInstitutes);
     unalignedInstitutes.removeAll(iddInstitutes);
 
-    logger.info(String.format(
-        "Found %d institutes that are not in IDD anymore, marking them not aligned",
+    logger.info(String.format("Found %d institutes that are not in IDD anymore, marking them not aligned",
         unalignedInstitutes.size()));
     markNotAligned(unalignedInstitutes);
     instituteRepo.save(unalignedInstitutes);

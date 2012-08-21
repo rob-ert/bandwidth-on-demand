@@ -81,18 +81,23 @@ public class ReservationToNbi {
     }
   }
 
-  private void publishStatusChanged(
-      Reservation reservation, ReservationStatus originalStatus, Optional<NsiRequestDetails> nsiRequestDetails) {
+  private void publishStatusChanged(Reservation reservation, ReservationStatus originalStatus,
+      Optional<NsiRequestDetails> nsiRequestDetails) {
     if (originalStatus == reservation.getStatus()) {
       logger.debug("No status change detected from {} to {}", originalStatus, reservation.getStatus());
       return;
     }
 
-    ReservationStatusChangeEvent createEvent = new ReservationStatusChangeEvent(originalStatus, reservation, nsiRequestDetails);
+    ReservationStatusChangeEvent createEvent = new ReservationStatusChangeEvent(originalStatus, reservation,
+        nsiRequestDetails);
 
-    logEventService.logUpdateEvent(Security.getUserDetails(), reservation, "State change: " + createEvent);
+    logEventService.logUpdateEvent(Security.getUserDetails(), reservation, logStateChange(createEvent));
 
     reservationEventPublisher.notifyListeners(createEvent);
   }
 
+  private String logStateChange(ReservationStatusChangeEvent createEvent) {
+    return createEvent.getReservation().getName() + " Changed state from [" + createEvent.getOldStatus() + "] to ["
+        + createEvent.getReservation().getStatus() + "]";
+  }
 }

@@ -21,10 +21,17 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import java.util.List;
+
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.event.LogEventType;
+import nl.surfnet.bod.repo.LogEventRepo;
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDateTime;
@@ -35,13 +42,14 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.event.LogEventType;
-import nl.surfnet.bod.repo.LogEventRepo;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
-import nl.surfnet.bod.web.security.RichUserDetails;
+import com.google.common.collect.Lists;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LogEventServiceTest {
@@ -86,8 +94,19 @@ public class LogEventServiceTest {
   }
 
   @Test
-  public void shouldPersistEvent() {
+  public void shouldOnlyLogEvent() {
     LogEvent logEvent = new LogEvent(user.getUsername(), GROUP_ID, LogEventType.UPDATE, vrg);
+
+    subject.handleEvent(logMock, logEvent);
+
+    verify(logMock).info(anyString(), eq(logEvent));
+    verifyZeroInteractions(repoMock);
+  }
+
+  @Test
+  public void shouldPersistEventForReservation() {
+    LogEvent logEvent = new LogEvent(user.getUsername(), GROUP_ID, LogEventType.UPDATE,
+        new ReservationFactory().create());
 
     subject.handleEvent(logMock, logEvent);
 
@@ -95,4 +114,36 @@ public class LogEventServiceTest {
     verify(repoMock).save(logEvent);
   }
 
+  @Test
+  public void shouldPersistEventForListOfReservation() {
+    List<Reservation> reservations = Lists.newArrayList(new ReservationFactory().create(),
+        new ReservationFactory().create());
+
+    LogEvent logEvent = new LogEvent(user.getUsername(), GROUP_ID, LogEventType.UPDATE, reservations);
+
+    subject.handleEvent(logMock, logEvent);
+
+    verify(logMock).info(anyString(), eq(logEvent));
+    verify(repoMock).save(logEvent);
+  }
+
+  @Test
+  public void shouldNotPersistNullDomainObject() {
+    LogEvent logEvent = new LogEvent(user.getUsername(), GROUP_ID, LogEventType.UPDATE, null);
+
+    subject.handleEvent(logMock, logEvent);
+
+    verify(logMock).info(anyString(), eq(logEvent));
+    verifyZeroInteractions(repoMock);
+  }
+
+  @Test
+  public void shouldNotPersistEmptyList() {
+    LogEvent logEvent = new LogEvent(user.getUsername(), GROUP_ID, LogEventType.UPDATE, Lists.newArrayList());
+
+    subject.handleEvent(logMock, logEvent);
+
+    verify(logMock).info(anyString(), eq(logEvent));
+    verifyZeroInteractions(repoMock);
+  }
 }

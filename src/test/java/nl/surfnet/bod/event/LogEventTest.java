@@ -40,6 +40,7 @@ import com.google.common.collect.Sets;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.isNull;
 
 public class LogEventTest {
   private static final String USER_ID = "user";
@@ -93,10 +94,10 @@ public class LogEventTest {
   }
 
   @Test
-  public void shouldLogEmptyList() {
+  public void shouldHandleEmptyList() {
     LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, Lists.newArrayList());
 
-    assertThat(logEvent.getClassName(), is(LogEvent.LIST_EMPTY));
+    assertThat(logEvent.getClassName(), nullValue());
   }
 
   @Test
