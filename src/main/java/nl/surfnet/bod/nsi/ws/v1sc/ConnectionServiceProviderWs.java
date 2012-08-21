@@ -359,18 +359,20 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public GenericAcknowledgmentType query(QueryRequestType parameters) throws ServiceException {
-    String correlationId = parameters.getCorrelationId();
-    String replyTo = parameters.getReplyTo();
+    NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
+    List<String> connectionIds = parameters.getQuery().getQueryFilter().getConnectionId();
+    List<String> globalReservationIds = parameters.getQuery().getQueryFilter().getGlobalReservationId();
+    QueryOperationType operation = parameters.getQuery().getOperation();
 
-    connectionServiceProviderService.query(
-      new NsiRequestDetails(replyTo, correlationId),
-      parameters.getQuery().getQueryFilter().getConnectionId(),
-      parameters.getQuery().getQueryFilter().getGlobalReservationId(),
-      parameters.getQuery().getProviderNSA(),
-      parameters.getQuery().getRequesterNSA()
-    );
+    if (connectionIds.isEmpty() && globalReservationIds.isEmpty()) {
+      connectionServiceProviderService.queryAllForRequesterNsa(
+          requestDetails, parameters.getQuery().getRequesterNSA(), operation);
+    }
+    else {
+      connectionServiceProviderService.queryConnections(requestDetails, connectionIds, globalReservationIds, operation);
+    }
 
-    return createGenericAcknowledgment(correlationId);
+    return createGenericAcknowledgment(parameters.getCorrelationId());
   }
 
   @Override

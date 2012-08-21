@@ -42,7 +42,6 @@ import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPor
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryDetailsResultType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StringUtils;
@@ -96,27 +95,6 @@ public final class ConnectionServiceProviderFunctions {
         generic.setConnectionId(connection.getConnectionId());
         generic.setGlobalReservationId(connection.getGlobalReservationId());
         return generic;
-      }
-    };
-
-  public static final Function<Connection, QueryDetailsResultType> CONNECTION_TO_QUERY_RESULT =
-    new Function<Connection, QueryDetailsResultType>() {
-      @Override
-      public QueryDetailsResultType apply(final Connection connection) {
-        final QueryDetailsResultType queryDetailsResultType = new QueryDetailsResultType();
-
-        if (StringUtils.hasText(connection.getConnectionId())) {
-          queryDetailsResultType.setConnectionId(connection.getConnectionId());
-        }
-
-        // RH: We don't have a description......
-        // queryDetailsResultType.setDescription("description")
-
-        if (StringUtils.hasText(connection.getGlobalReservationId())) {
-          queryDetailsResultType.setGlobalReservationId(connection.getGlobalReservationId());
-        }
-        queryDetailsResultType.setServiceParameters(connection.getServiceParameters());
-        return queryDetailsResultType;
       }
     };
 
