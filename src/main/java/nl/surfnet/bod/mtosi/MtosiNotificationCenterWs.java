@@ -21,6 +21,9 @@
  */
 package nl.surfnet.bod.mtosi;
 
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 
@@ -31,21 +34,60 @@ import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 
+import nl.surfnet.bod.domain.MtosiNotificationHolder;
+
 @Service("mtosiNotificationCenterWs")
 @WebService(endpointInterface = "org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer")
 public class MtosiNotificationCenterWs implements NotificationConsumer {
 
   private final Logger log = LoggerFactory.getLogger(MtosiNotificationCenterWs.class);
+  private final LinkedBlockingDeque<MtosiNotificationHolder> queue = new LinkedBlockingDeque<>();
 
   @Override
   public void notify(final Header header, final Notify body) {
     log.info("Received: {}, {}", header, body);
     log.info("Activity name: {}", header.getActivityName());
     log.info("Topic: {}", body.getTopic());
+    queue.add(new MtosiNotificationHolder(header, body));
+  }
+
+  public MtosiNotificationHolder getFirstMessage(long timeout, final TimeUnit timeUnit) {
+    try {
+      return queue.pollFirst(timeout, timeUnit);
+    }
+    catch (InterruptedException e) {
+      return null;
+    }
+  }
+
+  public MtosiNotificationHolder getLastMessage(long timeout, final TimeUnit timeUnit) {
+    try {
+      return queue.pollLast(timeout, timeUnit);
+    }
+    catch (InterruptedException e) {
+      return null;
+    }
+  }
+
+  public MtosiNotificationHolder getFirstMessage() {
+    try {
+      return queue.pollFirst(0, TimeUnit.SECONDS);
+    }
+    catch (InterruptedException e) {
+      return null;
+    }
+  }
+
+  public MtosiNotificationHolder getLastMessage() {
+    try {
+      return queue.pollLast(0, TimeUnit.SECONDS);
+    }
+    catch (InterruptedException e) {
+      return null;
+    }
   }
 
   static {
-    // Don't show full stack trace in soap result if an exception occurs
     System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
     System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
     System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
