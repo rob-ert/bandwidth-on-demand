@@ -16,11 +16,9 @@
     <page:list id="pl_reservation" path="/reservations" renderActions="${renderActions}">
         <form class="form-inline form-search" action="${filterUrl}" data-component="reservation-filter">
            <sform:select id="f_id"  path="filterSelect.id" items="${filterList}" itemLabel="label" itemValue="id" cssClass="input-medium" />
-
             <input id="si_id" value="${search}" placeholder="Search text" />
-            <button id="sb_id" type="button" class="btn btn-primary" onclick="window.location.replace('${filterUrl}${filterSelect}?search='+$('#s_id').val());"><i class="icon-search"><!--  --></i></button>
+            <button id="sb_id" type="button" class="btn btn-primary" ><i class="icon-search"><!--  --></i></button>
         </form>
-
         <table:table-reservation
             items="${list}"
             labelPluralCode="label_reservation_plural"
