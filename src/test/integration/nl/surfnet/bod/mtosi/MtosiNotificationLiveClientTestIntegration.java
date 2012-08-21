@@ -25,10 +25,23 @@ import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+
+import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Endpoint;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.core.io.ClassPathResource;
+import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
+import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumerHttp;
+import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
+import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
+import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeResponse;
 
 public class MtosiNotificationLiveClientTestIntegration {
 
@@ -36,20 +49,45 @@ public class MtosiNotificationLiveClientTestIntegration {
 
   private MtosiNotificationLiveClient mtosiNotificationLiveClient;
 
+  private static final String notificationCenterUrl = "http://localhost:8099/bod/mtosi/fmw/notificationconsumer";
+
   @Before
   public void setup() throws IOException {
     properties.load(ClassLoader.class.getResourceAsStream("/bod-default.properties"));
-    mtosiNotificationLiveClient = new MtosiNotificationLiveClient(properties.get("mtosi.notification.retrieval.endpoint")
-        .toString(), properties.get("mtosi.notification.sender.uri").toString());
+    mtosiNotificationLiveClient = new MtosiNotificationLiveClient(properties.get(
+        "mtosi.notification.retrieval.endpoint").toString(), properties.get("mtosi.notification.sender.uri").toString());
+
   }
 
   @Test
   public void subscribeAndUnsubscribe() throws Exception {
     final String topic = "fault";
-    final String subscriberId = mtosiNotificationLiveClient.subscribe(topic,
-        "http://localhost:9009/mtosi/fmw/NotificationConsumer");
+    final String subscriberId = mtosiNotificationLiveClient.subscribe(topic, notificationCenterUrl);
     assertThat(subscriberId, notNullValue());
-    mtosiNotificationLiveClient.unsubscribe(subscriberId, topic);
+    final UnsubscribeResponse unsubscribeResponse = mtosiNotificationLiveClient.unsubscribe(subscriberId, topic);
+    assertThat(unsubscribeResponse, notNullValue());
   }
 
+  @Test
+  public void sendNotification() throws Exception {
+    final MtosiNotificationCenterWs mtosiNotificationCenterWs = new MtosiNotificationCenterWs();
+    Endpoint.publish(notificationCenterUrl, mtosiNotificationCenterWs);
+    final URL url = new ClassPathResource(
+        "/mtosi/2.1/DDPs/Framework/IIS/wsdl/NotificationConsumer/NotificationConsumerHttp.wsdl").getURL();
+    final NotificationConsumer port = new NotificationConsumerHttp(url, new QName(
+        "http://www.tmforum.org/mtop/fmw/wsdl/notc/v1-0", "NotificationConsumerHttp"))
+        .getNotificationConsumerSoapHttp();
+    final Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
+    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, notificationCenterUrl);
+    final Header header = new Header();
+    header.setActivityName("notify");
+    final Notify body = new Notify();
+    body.setTopic("fault");
+    
+    assertThat(mtosiNotificationCenterWs.getLastMessage(), nullValue());
+    
+    port.notify(header, body);
+    assertThat(mtosiNotificationCenterWs.getLastMessage(2, TimeUnit.SECONDS), notNullValue());
+    assertThat(mtosiNotificationCenterWs.getLastMessage(), nullValue());
+  }
 }
