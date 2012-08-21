@@ -88,10 +88,10 @@ public class MtosiNotificationCenterWs implements NotificationConsumer {
   }
 
   static {
-    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
-    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
-    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
-    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
+//    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
+//    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
+//    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
+//    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
   }
 
   public static void main(String[] args) {
