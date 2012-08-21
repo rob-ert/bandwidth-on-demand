@@ -8,10 +8,12 @@
 <tiles:useAttribute id="show_unallocated" name="unallocated" classname="java.lang.Boolean" />
 
 <page:list id="pl_PhysicalPort" pluralLabelCode="${show_unallocated ? 'label_physicalport_unallocated_plural' : ''}">
-   <div class="div-search">
-     <input id="si_id" value="${search}" placeholder="Search text" />
-     <button id="sb_id" type="button" class="btn btn-primary" ><i class="icon-search"><!--  --></i></button>
-  </div>
+    <c:if test="${not show_unallocated}">
+     <div class="div-search" >
+       <input id="si_id" value="${search}" placeholder="Search text" />
+       <button id="sb_id" type="button" class="btn btn-primary" ><i class="icon-search"><!--  --></i></button>
+    </div>
+  </c:if>
   <table:table items="${list}" labelPluralCode="${show_unallocated ? 'label_physicalport_unallocated_plural' : 'label_physicalport_plural'}">
     <thead>
       <tr>
