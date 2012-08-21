@@ -45,6 +45,7 @@ import org.tmforum.mtop.fmw.xsd.hdr.v1.MessageTypeType;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.SubscribeRequest;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.SubscribeResponse;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeRequest;
+import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeResponse;
 
 @Service("mtosiNotificationLiveClient")
 public class MtosiNotificationLiveClient {
@@ -104,13 +105,15 @@ public class MtosiNotificationLiveClient {
     return subscribe.getSubscriptionID();
   }
 
-  public void unsubscribe(final String id, final String topic) throws UnsubscribeException {
+  public UnsubscribeResponse unsubscribe(final String id, final String topic) throws UnsubscribeException {
     init();
     final UnsubscribeRequest unsubscribeRequest = new org.tmforum.mtop.fmw.xsd.notmsg.v1.ObjectFactory()
         .createUnsubscribeRequest();
     unsubscribeRequest.setSubscriptionID(id);
     unsubscribeRequest.setTopic(topic);
-    notificationProducerHttp.getNotificationProducerSoapHttp().unsubscribe(getRequestHeaders(), unsubscribeRequest);
+    final UnsubscribeResponse unsubscribeResponse = notificationProducerHttp.getNotificationProducerSoapHttp()
+        .unsubscribe(getRequestHeaders(), unsubscribeRequest);
+    return unsubscribeResponse;
 
   }
 
