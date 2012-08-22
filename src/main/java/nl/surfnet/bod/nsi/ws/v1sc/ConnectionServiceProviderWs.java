@@ -28,7 +28,6 @@ import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONN
 import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
 import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.RESERVING;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +39,6 @@ import javax.xml.ws.WebServiceContext;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProvider;
 import nl.surfnet.bod.repo.ConnectionRepo;
@@ -142,16 +140,11 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     log.debug("Received reservation request connectionId: {}", connection.getConnectionId());
 
     validateConnection(connection);
-    final Reservation reservation = connectionServiceProviderService.createReservation(connection, request, false);
-
-    connection.setCurrentState(RESERVING);
-    connection.setReservation(reservation);
-    connectionRepo.save(connection);
+    connectionServiceProviderService.reserve(connection, request, false);
   }
 
   private void validateConnection(Connection connection) throws ServiceException {
-    // TODO Validate if connection id is unique (gives db constraint exception
-    // now)
+    // TODO Validate if connection id is unique (gives db constraint exception now)
 
     try {
       validateProviderNsa(connection.getProviderNsa());
@@ -188,9 +181,9 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   }
 
   @Override
-  public void reserveConfirmed(final Connection connection, final NsiRequestDetails requestDetails) {
+  public void reserveConfirmed(Connection connection, NsiRequestDetails requestDetails) {
     log.debug("Sending a reserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(),
-        connection.getGlobalReservationId());
+      connection.getGlobalReservationId());
 
     connection.setCurrentState(ConnectionStateType.RESERVED);
     connectionRepo.save(connection);
@@ -318,8 +311,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     final Connection connection = getConnectionOrFail(parameters.getTerminate().getConnectionId());
     validateProviderNsa(parameters.getTerminate().getProviderNSA());
 
-    final NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(),
-        parameters.getCorrelationId());
+    NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
     connectionServiceProviderService.terminate(connection, parameters.getTerminate().getRequesterNSA(), requestDetails);
 
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
@@ -359,6 +351,8 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public GenericAcknowledgmentType query(QueryRequestType parameters) throws ServiceException {
+    validateProviderNsa(parameters.getQuery().getProviderNSA());
+
     NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
     List<String> connectionIds = parameters.getQuery().getQueryFilter().getConnectionId();
     List<String> globalReservationIds = parameters.getQuery().getQueryFilter().getGlobalReservationId();

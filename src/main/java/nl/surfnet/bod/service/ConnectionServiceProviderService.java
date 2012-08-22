@@ -61,13 +61,14 @@ public class ConnectionServiceProviderService {
   @Resource
   private VirtualPortService virtualPortService;
 
-  public Reservation createReservation(final Connection connection, NsiRequestDetails requestDetails,
-      boolean autoProvision) {
+  public void reserve(final Connection connection, NsiRequestDetails requestDetails, boolean autoProvision) {
+    connection.setCurrentState(ConnectionStateType.RESERVING);
+    connectionRepo.save(connection);
 
     final VirtualPort sourcePort = virtualPortService.findByNsiStpId(connection.getSourceStpId());
     final VirtualPort destinationPort = virtualPortService.findByNsiStpId(connection.getDestinationStpId());
 
-    final Reservation reservation = new Reservation();
+    Reservation reservation = new Reservation();
     reservation.setConnection(connection);
     reservation.setName(connection.getDescription());
     reservation.setStartDateTime(new LocalDateTime(connection.getStartTime()));
@@ -78,7 +79,10 @@ public class ConnectionServiceProviderService {
     reservation.setBandwidth(connection.getDesiredBandwidth());
     reservation.setUserCreated(connection.getRequesterNsa());
 
-    return reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
+    reservation = reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
+
+    connection.setReservation(reservation);
+    connectionRepo.save(connection);
   }
 
   public void provision(Connection connection, NsiRequestDetails requestDetails) {
@@ -99,15 +103,16 @@ public class ConnectionServiceProviderService {
     reservationService.provision(connection.getReservation(), Optional.of(requestDetails));
   }
 
-  @Async
   public void terminate(final Connection connection, final String requesterNsa, final NsiRequestDetails requestDetails) {
     connection.setCurrentState(ConnectionStateType.TERMINATING);
     connectionRepo.save(connection);
 
-    reservationService.cancel(
-        connection.getReservation(),
-        new RichUserDetails(requesterNsa, "", "", Collections.<UserGroup> emptyList(), ImmutableList.of(BodRole
-            .createNocEngineer())));
+    reservationService.cancelWithReason(connection.getReservation(),
+        "Terminate request by NSI",
+        new RichUserDetails(
+            requesterNsa, "", "", Collections.<UserGroup> emptyList(),
+            ImmutableList.of(BodRole.createNocEngineer())),
+        Optional.of(requestDetails));
   }
 
   @Async

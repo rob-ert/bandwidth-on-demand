@@ -24,18 +24,17 @@ package nl.surfnet.bod.nsi.ws.v1sc;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProvider;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
+
+import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ConnectionServiceProviderListener implements ReservationListener {
@@ -61,12 +60,12 @@ public class ConnectionServiceProviderListener implements ReservationListener {
     if (!event.getNsiRequestDetails().isPresent()) {
       return;
     }
+
     logger.debug("Got a reservation status change event {}", event);
 
-    Reservation reservation = event.getReservation();
-    Connection connection = reservation.getConnection();
+    Connection connection = event.getReservation().getConnection();
 
-    switch (reservation.getStatus()) {
+    switch (event.getNewStatus()) {
     case RESERVED:
       connectionServiceProvider.reserveConfirmed(connection, event.getNsiRequestDetails().get());
       break;
@@ -86,11 +85,10 @@ public class ConnectionServiceProviderListener implements ReservationListener {
       connectionServiceProvider.provisionConfirmed(connection, event.getNsiRequestDetails().get());
       break;
     case CANCELLED:
-      // FIXME [AvD] not called yet.. cancel is not async
       connectionServiceProvider.terminateConfirmed(connection, event.getNsiRequestDetails().get());
       break;
     default:
-      logger.error("Unhandled status {} of reservation {}", reservation.getStatus(), event.getReservation());
+      logger.error("Unhandled status {} of reservation {}", event.getNewStatus(), event.getReservation());
     }
 
   }

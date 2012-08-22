@@ -48,6 +48,7 @@ public class ReservationFactory {
   private Integer bandwidth = 10000;
   private String reservationId = "9" + String.valueOf(id);
   private String failedReason;
+  private String cancelReason;
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
 
   public Reservation create() {
@@ -70,6 +71,7 @@ public class ReservationFactory {
     reservation.setBandwidth(bandwidth);
     reservation.setReservationId(reservationId);
     reservation.setFailedReason(failedReason);
+    reservation.setCancelReason(cancelReason);
 
     return reservation;
   }
@@ -131,6 +133,11 @@ public class ReservationFactory {
 
   public ReservationFactory setReservationId(String reservationid) {
     this.reservationId = reservationid;
+    return this;
+  }
+
+  public ReservationFactory setCancelReason(String cancelReason) {
+    this.cancelReason = cancelReason;
     return this;
   }
 

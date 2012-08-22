@@ -52,4 +52,9 @@ public class NsiRequestDetails {
     return correlationId;
   }
 
+  @Override
+  public String toString() {
+    return "NsiRequestDetails [replyTo=" + replyTo + ", correlationId=" + correlationId + "]";
+  }
+
 }

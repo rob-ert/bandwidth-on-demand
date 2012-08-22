@@ -21,17 +21,23 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.matchers.DateMatchers.isAfterNow;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationArchive;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -57,19 +63,6 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-
-import static nl.surfnet.bod.matchers.DateMatchers.isAfterNow;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationServiceTest {
@@ -197,16 +190,14 @@ public class ReservationServiceTest {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole()
         .addUserGroup(reservation.getVirtualResourceGroup().getSurfconextGroupId()).setDisplayname("Piet Puk").create();
+
     Security.setUserDetails(richUserDetails);
 
     boolean result = subject.cancel(reservation, richUserDetails);
 
     assertThat(result, is(true));
-    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
-    assertThat(reservation.getCancelReason(), containsString(richUserDetails.getDisplayName()));
 
-    verify(reservationRepoMock).save(reservation);
-    verify(nbiClientMock).cancelReservation(reservation.getReservationId());
+    verify(reservationToNbiMock).terminate(reservation, "Cancelled by Piet Puk", Optional.<NsiRequestDetails>absent());
   }
 
   @Test
@@ -236,7 +227,7 @@ public class ReservationServiceTest {
   }
 
   @Test
-  public void cancelAReservationAsAManagerInSourcePortPrgShouldChangeItsStatus() {
+  public void cancelAReservationAsAManagerInSourcePortPrgShouldCallTerminate() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
 
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addManagerRole(
@@ -246,13 +237,12 @@ public class ReservationServiceTest {
     boolean cancelled = subject.cancel(reservation, richUserDetails);
 
     assertThat(cancelled, is(true));
-    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
 
-    verify(reservationRepoMock).save(reservation);
+    verify(reservationToNbiMock).terminate(reservation, "Cancelled by Truus Visscher", Optional.<NsiRequestDetails>absent());
   }
 
   @Test
-  public void cancelAReservationAsAManagerInDestinationPortPrgShouldChangeItsStatus() {
+  public void cancelAReservationAsAManagerInDestinationPortPrgShouldCallTerminate() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
     reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup().setAdminGroup("urn:different");
 
@@ -263,13 +253,12 @@ public class ReservationServiceTest {
     boolean cancelled = subject.cancel(reservation, richUserDetails);
 
     assertThat(cancelled, is(true));
-    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
 
-    verify(reservationRepoMock).save(reservation);
+    verify(reservationToNbiMock).terminate(reservation, "Cancelled by Truus Visscher", Optional.<NsiRequestDetails>absent());
   }
 
   @Test
-  public void cancelAReservationAsANocShouldChangeItsStatus() {
+  public void cancelAReservationAsANocShouldCallTerminate() {
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addNocRole().create();
 
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
@@ -277,9 +266,8 @@ public class ReservationServiceTest {
     boolean cancelled = subject.cancel(reservation, richUserDetails);
 
     assertThat(cancelled, is(true));
-    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
 
-    verify(reservationRepoMock).save(reservation);
+    verify(reservationToNbiMock).terminate(reservation, "Cancelled by Truus Visscher", Optional.<NsiRequestDetails>absent());
   }
 
   @Test

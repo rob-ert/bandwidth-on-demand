@@ -21,12 +21,12 @@
  */
 package nl.surfnet.bod.service;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Optional;
-
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+
+import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 
 public class ReservationStatusChangeEvent {
 
@@ -50,6 +50,10 @@ public class ReservationStatusChangeEvent {
     return oldStatus;
   }
 
+  public ReservationStatus getNewStatus() {
+    return reservation.getStatus();
+  }
+
   public Reservation getReservation() {
     return reservation;
   }
@@ -63,7 +67,7 @@ public class ReservationStatusChangeEvent {
     return Objects.toStringHelper(this)
         .add("reservationId", reservation.getId())
         .add("oldStatus", oldStatus)
-        .add("newStatus", reservation.getStatus())
+        .add("newStatus", getNewStatus())
         .add("nsiRequest", nsiRequestDetails).toString();
   }
 

@@ -23,19 +23,19 @@ package nl.surfnet.bod.service;
 
 import javax.annotation.Resource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-
-import com.google.common.base.Optional;
-
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.Security;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+import com.google.common.base.Optional;
 
 @Service
 public class ReservationToNbi {
@@ -62,6 +62,20 @@ public class ReservationToNbi {
     reservation = nbiClient.createReservation(reservation, autoProvision);
 
     reservation = reservationRepo.save(reservation);
+
+    publishStatusChanged(reservation, orgStatus, requestDetails);
+  }
+
+  @Async
+  public void terminate(Reservation reservation, String cancelReason, Optional<NsiRequestDetails> requestDetails) {
+    ReservationStatus orgStatus = reservation.getStatus();
+
+    nbiClient.cancelReservation(reservation.getReservationId());
+
+    reservation.setStatus(ReservationStatus.CANCELLED);
+    reservation.setCancelReason(cancelReason);
+    reservationRepo.save(reservation);
+
     publishStatusChanged(reservation, orgStatus, requestDetails);
   }
 
