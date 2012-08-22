@@ -130,8 +130,9 @@
                         <table:column item="${item}" property="endDateTime" />
                         <table:column item="${item}" property="status" styleClass="status" />
                         <table:actionsColumn item="${item}" update="false" delete="true"
-                            deleteEnabled="${item.deleteAllowedForSelectedRole}" deleteLabelCode="${item.deleteReasonKey}" 
-                            path="/reservations" labelCode="label_reservation"  />
+                            deleteEnabled="${item.deleteAllowedForSelectedRole}" deleteLabelCode="${item.deleteReasonKey}"
+                            path="/reservations" labelCode="label_reservation" successMessageCode="Termination request has been sent">
+                        </table:actionsColumn>
                     </tr>
                 </c:forEach>
             </tbody>
