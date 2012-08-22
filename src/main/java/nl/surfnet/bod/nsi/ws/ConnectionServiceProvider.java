@@ -26,6 +26,8 @@ import nl.surfnet.bod.domain.NsiRequestDetails;
 
 import org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort;
 
+import com.google.common.base.Optional;
+
 public interface ConnectionServiceProvider extends ConnectionProviderPort {
 
   String URN_OGF = "urn:ogf:network";
@@ -36,7 +38,7 @@ public interface ConnectionServiceProvider extends ConnectionProviderPort {
 
   void reserveConfirmed(Connection connection, NsiRequestDetails requestDetails);
 
-  void reserveFailed(Connection connection, NsiRequestDetails requestDetails);
+  void reserveFailed(Connection connection, NsiRequestDetails requestDetails, Optional<String> failedReason);
 
   void provisionConfirmed(Connection connection, NsiRequestDetails requestDetails);
 

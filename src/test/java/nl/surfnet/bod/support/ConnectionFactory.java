@@ -21,10 +21,11 @@
  */
 package nl.surfnet.bod.support;
 
+import nl.surfnet.bod.domain.Connection;
+
+import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
-
-import nl.surfnet.bod.domain.Connection;
 
 public class ConnectionFactory {
 
@@ -34,6 +35,7 @@ public class ConnectionFactory {
   private String connectionId = "2345-567hj-678hj";
   private String sourceStpId = "source port";
   private String destinationStpId = "destination port";
+  private ConnectionStateType currentState = ConnectionStateType.INITIAL;
 
   public Connection create() {
     Connection connection = new Connection();
@@ -44,6 +46,7 @@ public class ConnectionFactory {
     connection.setConnectionId(connectionId);
     connection.setSourceStpId(sourceStpId);
     connection.setDestinationStpId(destinationStpId);
+    connection.setCurrentState(currentState);
 
     ServiceTerminationPointType sourceStp = new ServiceTerminationPointType();
     sourceStp.setStpId(sourceStpId);
@@ -85,6 +88,11 @@ public class ConnectionFactory {
 
   public ConnectionFactory setDesiredBandwidth(int desiredBandwidth) {
     this.desiredBandwidth = desiredBandwidth;
+    return this;
+  }
+
+  public ConnectionFactory setCurrentState(ConnectionStateType currentState) {
+    this.currentState = currentState;
     return this;
   }
 }

@@ -59,6 +59,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 import com.sun.xml.ws.developer.SchemaValidation;
 
 @Service("connectionServiceProviderWs_v1sc")
@@ -211,7 +212,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   }
 
   @Override
-  public void reserveFailed(final Connection connection, final NsiRequestDetails requestDetails) {
+  public void reserveFailed(final Connection connection, final NsiRequestDetails requestDetails, Optional<String> failedReason) {
     log.debug("Sending a reserveFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(),
         connection.getGlobalReservationId());
 
@@ -220,10 +221,9 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     connection.setCurrentState(ConnectionStateType.TERMINATED);
     connectionRepo.save(connection);
 
-    // FIXME What to put into the service exception
     final ServiceExceptionType serviceException = new ServiceExceptionType();
-    serviceException.setErrorId("ERROR_ID");
-    serviceException.setText("Some text");
+    serviceException.setErrorId("00600");
+    serviceException.setText(failedReason.or("Unknown reason"));
     AttributeStatementType values = new AttributeStatementType();
     serviceException.setVariables(values);
 

@@ -26,7 +26,6 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProvider;
-import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
@@ -35,6 +34,9 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 
 @Component
 public class ConnectionServiceProviderListener implements ReservationListener {
@@ -46,9 +48,6 @@ public class ConnectionServiceProviderListener implements ReservationListener {
 
   @Resource
   private ConnectionServiceProvider connectionServiceProvider;
-
-  @Resource
-  private ReservationRepo reservationRepo;
 
   @PostConstruct
   public void registerListener() {
@@ -78,7 +77,8 @@ public class ConnectionServiceProviderListener implements ReservationListener {
         connectionServiceProvider.provisionFailed(connection, event.getNsiRequestDetails().get());
       }
       else if (connection.getCurrentState() == ConnectionStateType.RESERVING) {
-        connectionServiceProvider.reserveFailed(connection, event.getNsiRequestDetails().get());
+        Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation().getFailedReason()));
+        connectionServiceProvider.reserveFailed(connection, event.getNsiRequestDetails().get(), failedReason);
       }
       break;
     case RUNNING:

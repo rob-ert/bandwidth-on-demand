@@ -23,10 +23,7 @@ package nl.surfnet.bod.support;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.web.user.ReservationController;
 
 import org.joda.time.LocalDateTime;
@@ -50,6 +47,7 @@ public class ReservationFactory {
   private String failedReason;
   private String cancelReason;
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
+  private Connection connection;
 
   public Reservation create() {
     sourcePort = sourcePort == null ? new VirtualPortFactory().setVirtualResourceGroup(virtualResourceGroup).create()
@@ -72,6 +70,7 @@ public class ReservationFactory {
     reservation.setReservationId(reservationId);
     reservation.setFailedReason(failedReason);
     reservation.setCancelReason(cancelReason);
+    reservation.setConnection(connection);
 
     return reservation;
   }
@@ -138,6 +137,11 @@ public class ReservationFactory {
 
   public ReservationFactory setCancelReason(String cancelReason) {
     this.cancelReason = cancelReason;
+    return this;
+  }
+
+  public ReservationFactory setConnection(Connection connection) {
+    this.connection = connection;
     return this;
   }
 
