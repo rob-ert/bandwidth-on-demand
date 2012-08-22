@@ -69,17 +69,11 @@ public class ConnectionServiceProviderListener implements ReservationListener {
       connectionServiceProvider.reserveConfirmed(connection, event.getNsiRequestDetails().get());
       break;
     case SCHEDULED:
-      // no need to send back any confirms
+      // no need to send back any confirms, a provision confirm is only sent when start time has passed in which case
+      // the status would be RUNNING
       break;
     case FAILED:
-      if (connection.getCurrentState() == ConnectionStateType.AUTO_PROVISION
-        || connection.getCurrentState() == ConnectionStateType.SCHEDULED) {
-        connectionServiceProvider.provisionFailed(connection, event.getNsiRequestDetails().get());
-      }
-      else if (connection.getCurrentState() == ConnectionStateType.RESERVING) {
-        Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation().getFailedReason()));
-        connectionServiceProvider.reserveFailed(connection, event.getNsiRequestDetails().get(), failedReason);
-      }
+      handleReservationFailed(connection, event);
       break;
     case RUNNING:
       connectionServiceProvider.provisionConfirmed(connection, event.getNsiRequestDetails().get());
@@ -91,6 +85,20 @@ public class ConnectionServiceProviderListener implements ReservationListener {
       logger.error("Unhandled status {} of reservation {}", event.getNewStatus(), event.getReservation());
     }
 
+  }
+
+  private void handleReservationFailed(Connection connection, ReservationStatusChangeEvent event) {
+      if (connection.getCurrentState() == ConnectionStateType.AUTO_PROVISION
+        || connection.getCurrentState() == ConnectionStateType.SCHEDULED) {
+        connectionServiceProvider.provisionFailed(connection, event.getNsiRequestDetails().get());
+      }
+      else if (connection.getCurrentState() == ConnectionStateType.TERMINATING) {
+        connectionServiceProvider.terminateFailed(connection, event.getNsiRequestDetails().get());
+      }
+      else if (connection.getCurrentState() == ConnectionStateType.RESERVING) {
+        Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation().getFailedReason()));
+        connectionServiceProvider.reserveFailed(connection, event.getNsiRequestDetails().get(), failedReason);
+      }
   }
 
 }
