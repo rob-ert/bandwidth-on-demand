@@ -22,19 +22,11 @@
   <appender name="FILE" class="org.apache.log4j.FileAppender">
     <param name="file" value="bod.log"/>
     <layout class="org.apache.log4j.PatternLayout">
-      <param name="ConversionPattern" value="%d %p [%c] [%M] [Thread:%t] - [%m]%n" />      
+      <param name="ConversionPattern" value="%d %p [%c] [%M] [Thread:%t] - [%m]%n" />
     </layout>
   </appender>
 
   <logger name="org.springframework">
-    <level value="INFO" />
-  </logger>
-
-  <logger name="nl.surfnet.bod.nsi">
-    <level value="DEBUG" />
-  </logger>
-
-  <logger name="com.googlecode.ehcache" additivity="false">
     <level value="WARN" />
   </logger>
 
@@ -42,13 +34,20 @@
     <level value="WARN" />
   </logger>
 
+  <logger name="nl.surfnet">
+    <level value="INFO" />
+  </logger>
+
+  <logger name="nl.surfnet.bod.nsi">
+    <level value="DEBUG" />
+  </logger>
+
   <logger name="nl.surfnet.bod.mtosi">
     <level value="DEBUG" />
   </logger>
 
   <root>
-    <level value="INFO" />
+    <level value="WARN" />
     <appender-ref ref="CONSOLE" />
-    <!--<appender-ref ref="FILE"/> -->
   </root>
 </log4j:configuration>
