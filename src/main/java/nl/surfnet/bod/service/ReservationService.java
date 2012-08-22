@@ -237,15 +237,15 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   private ElementActionView isDeleteAllowedForUserOnly(Reservation reservation, BodRole role) {
     if (role.isNocRole()) {
-      return new ElementActionView(true);
+      return new ElementActionView(true, "label_cancel");
     }
     else if (role.isManagerRole()
-        && (reservation.getSourcePort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId()) || reservation
-            .getDestinationPort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId()))) {
-      return new ElementActionView(true);
+        && (reservation.getSourcePort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId())
+            || reservation.getDestinationPort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId()))) {
+      return new ElementActionView(true, "label_cancel");
     }
     else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
-      return new ElementActionView(true);
+      return new ElementActionView(true, "label_cancel");
     }
 
     return new ElementActionView(false, "reservation_cancel_user_has_no_rights");
