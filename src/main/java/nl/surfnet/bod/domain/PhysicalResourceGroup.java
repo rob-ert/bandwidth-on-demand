@@ -45,7 +45,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 @Indexed
 @Entity
-public class PhysicalResourceGroup {
+public class PhysicalResourceGroup implements Loggable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -98,7 +98,7 @@ public class PhysicalResourceGroup {
   /**
    * This class will not have a name, instead it has a one-one relation to an
    * {@link Institute} and we will use the name of an Institute instead.
-   *
+   * 
    * @return Name of the related institute
    */
   public String getName() {

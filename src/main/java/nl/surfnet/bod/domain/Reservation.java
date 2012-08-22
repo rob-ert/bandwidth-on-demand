@@ -50,7 +50,7 @@ import com.google.common.base.Objects;
  */
 @Entity
 @Indexed
-public class Reservation {
+public class Reservation implements Loggable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -347,6 +347,11 @@ public class Reservation {
 
   public LocalDateTime getCreationDateTime() {
     return creationDateTime;
+  }
+
+  @Override
+  public String getAdminGroup() {
+    return virtualResourceGroup.getAdminGroup();
   }
 
   @Override

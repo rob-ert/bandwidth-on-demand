@@ -38,6 +38,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.mtosi.MtosiInventoryRetrievalLiveClient;
@@ -245,12 +246,12 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     }
     final ImmutableMap<String, PhysicalPort> immutablePorts = ImmutableMap.copyOf(physicalPorts);
 
-    List<PhysicalPort> reappearedPortsInNMS = markRealignedPortsInNMS(immutablePorts, nbiPortIds);
-    logEventService.logCreateEvent(reappearedPortsInNMS);
+    List<PhysicalPort> reappearedPortsInNMS = markRealignedPortsInNMS(immutablePorts, nbiPortIds);    
+    logEventService.logCreateEvent(Security.getUserDetails(), reappearedPortsInNMS, "Reappeared ports in NMS");
     physicalPortRepo.save(reappearedPortsInNMS);
 
     List<PhysicalPort> dissapearedPortsFromNMS = markUnalignedWithNMS(immutablePorts, nbiPortIds);
-    logEventService.logCreateEvent(dissapearedPortsFromNMS);
+    logEventService.logCreateEvent(Security.getUserDetails(), dissapearedPortsFromNMS, "Dissapeared ports in NMS");
     physicalPortRepo.save(dissapearedPortsFromNMS);
   }
 

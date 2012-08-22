@@ -38,6 +38,7 @@ import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.repo.InstituteRepo;
 import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.web.security.Security;
 
 @Service
 @Transactional
@@ -82,14 +83,14 @@ public class InstituteIddService implements InstituteService {
     markNotAligned(unalignedInstitutes);
     instituteRepo.save(unalignedInstitutes);
 
-    logEventService.logUpdateEvent(unalignedInstitutes, "Marked unaligned with IDD");
+    logEventService.logUpdateEvent(Security.getUserDetails(), unalignedInstitutes, "Marked unaligned with IDD");
 
     iddInstitutes.removeAll(currentAlignedInstitutes);
 
     logger.info(String.format("Found %d new or updated institutes from IDD", iddInstitutes.size()));
     instituteRepo.save(iddInstitutes);
 
-    logEventService.logUpdateEvent(iddInstitutes, "Marked new or realigned with IDD");
+    logEventService.logUpdateEvent(Security.getUserDetails(), iddInstitutes, "Marked new or realigned with IDD");
   }
 
   private void markNotAligned(List<Institute> allInstitutes) {

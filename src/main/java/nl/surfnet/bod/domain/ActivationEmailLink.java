@@ -33,7 +33,7 @@ import org.joda.time.LocalDateTime;
 import com.google.common.base.Preconditions;
 
 @Entity
-public class ActivationEmailLink<T> {
+public class ActivationEmailLink<T> implements Loggable {
 
   public static final int VALID_PERIOD_DAYS = 5;
 
@@ -161,11 +161,16 @@ public class ActivationEmailLink<T> {
     return emailSentDateTime != null ? emailSentDateTime.plusDays(VALID_PERIOD_DAYS) : null;
   }
 
+  @Override
+  public String getAdminGroup() {
+    return sourceObject != null ? ((Loggable) sourceObject).getAdminGroup() : null;
+  }
+
   /**
    * This link is valid when the activationEmail was sent, this link is not
    * activated yet and the email was sent within the last
    * {@link #VALID_PERIOD_DAYS}
-   *
+   * 
    * @return true if valid, false otherwise
    */
   public boolean isValid() {

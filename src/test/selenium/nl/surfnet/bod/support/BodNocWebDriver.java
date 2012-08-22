@@ -31,6 +31,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.pages.noc.AddPhysicalPortPage;
@@ -245,11 +246,10 @@ public class BodNocWebDriver {
     assertThat(page.getNumberOfLogEvents(), is(i));
   }
 
-  public void verifyLogEvents() {
+  public void verifyLogEventExistis(String... fields) {
     ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
 
-    page.logEventShouldBe(LocalDateTime.now(), "selenium-user", LogEventType.CREATE,
-        PhysicalResourceGroup.class.getSimpleName());
+    page.logEventShouldBe(LocalDateTime.now(), fields);
   }
 
   public void refreshInstitutes() {

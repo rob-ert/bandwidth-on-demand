@@ -21,21 +21,22 @@
  */
 package nl.surfnet.bod;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import nl.surfnet.bod.support.TestExternalSupport;
+
+import org.junit.Test;
 
 public class LogEventTestSelenium extends TestExternalSupport {
 
-  @Before
-  public void setup() {
-    getNocDriver().createNewPhysicalResourceGroup("2COLLEGE", ICT_MANAGERS_GROUP, "test@test.nl");
-  }
-
   @Test
-  public void shouldShowLogEventForSetup() {
-    getNocDriver().verifyLogEvents();
+  public void shouldShowLogEventForPhysicalPortAlignment() {
+    getManagerDriver().switchToNoc();
+    try {
+      getNocDriver().addPhysicalPortToInstitute("2COLLEGE", "nocPoortLabel", "managerPoortLabel");
+      getNocDriver().verifyLogEventExistis("2COLLEGE", "nocPoortLabel", "managerPoortLabel");
+    }
+    finally {
+      getNocDriver().unlinkPhysicalPort("nocPoortLabel");
+    }
   }
 
 }

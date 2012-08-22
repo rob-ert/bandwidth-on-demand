@@ -38,10 +38,10 @@ import org.hibernate.validator.constraints.NotEmpty;
 /**
  * Entity which represents a List of {@link VirtualPort}s which belong together
  * and to the {@link Reservation}s which are related to this group.
- *
+ * 
  */
 @Entity
-public class VirtualResourceGroup {
+public class VirtualResourceGroup implements Loggable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -187,6 +187,11 @@ public class VirtualResourceGroup {
     else if (!surfconextGroupId.equals(other.surfconextGroupId))
       return false;
     return true;
+  }
+
+  @Override
+  public String getAdminGroup() {
+    return surfconextGroupId;
   }
 
   @Override

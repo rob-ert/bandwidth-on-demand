@@ -21,26 +21,16 @@
  */
 package nl.surfnet.bod.event;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 
 import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDateTime;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.isNull;
 
 public class LogEventTest {
   private static final String USER_ID = "user";
@@ -64,40 +54,6 @@ public class LogEventTest {
     finally {
       DateTimeUtils.setCurrentMillisSystem();
     }
-  }
-
-  @Test
-  public void shouldLogClassOfElementInCaseOfList() {
-    PhysicalPort port = new PhysicalPortFactory().create();
-    List<PhysicalPort> ports = Lists.newArrayList(port);
-
-    LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, ports);
-    assertThat(logEvent.getClassName(), is(String.format(LogEvent.LIST_STRING, 1, port.getClass().getSimpleName())));
-  }
-
-  @Test
-  public void shouldLogClassOfElementInCaseOfCollection() {
-    PhysicalPort port = new PhysicalPortFactory().create();
-    Collection<PhysicalPort> ports = Lists.newArrayList(port);
-
-    LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, ports);
-    assertThat(logEvent.getClassName(), is(String.format(LogEvent.LIST_STRING, 1, port.getClass().getSimpleName())));
-  }
-
-  @Test
-  public void shouldLogClassOfElementInCaseOfSet() {
-    PhysicalPort port = new PhysicalPortFactory().create();
-    Set<PhysicalPort> ports = Sets.newHashSet(port);
-
-    LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, ports);
-    assertThat(logEvent.getClassName(), is(String.format(LogEvent.LIST_STRING, 1, port.getClass().getSimpleName())));
-  }
-
-  @Test
-  public void shouldHandleEmptyList() {
-    LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, Lists.newArrayList());
-
-    assertThat(logEvent.getClassName(), nullValue());
   }
 
   @Test

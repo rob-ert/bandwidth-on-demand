@@ -28,17 +28,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.util.StringUtils;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-
 import nl.surfnet.bod.domain.ActivationEmailLink;
+import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
@@ -50,7 +41,17 @@ import nl.surfnet.bod.service.Emails.VirtualPortRequestMail;
 import nl.surfnet.bod.web.manager.ActivationEmailController;
 import nl.surfnet.bod.web.manager.VirtualPortController;
 import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.util.StringUtils;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 public class EmailSenderOnline implements EmailSender {
 
@@ -143,8 +144,7 @@ public class EmailSenderOnline implements EmailSender {
     }
   }
 
-  protected void send(SimpleMailMessage mail) {
-    logEventService.logCreateEvent(Security.getUserDetails(), mail);
+  protected void send(SimpleMailMessage mail) {    
     mailSender.send(mail);
   }
 
@@ -208,5 +208,5 @@ public class EmailSenderOnline implements EmailSender {
       return this;
     }
   }
-
+  
 }

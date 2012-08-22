@@ -22,7 +22,6 @@
 package nl.surfnet.bod.event;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -61,6 +60,7 @@ public class LogEvent {
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
   private final LocalDateTime created;
 
+  @Field
   @Basic
   private final String userId;
 
@@ -81,6 +81,9 @@ public class LogEvent {
   @Field
   @Type(type = "text")
   private final String details;
+
+  @Basic
+  private String correlationId;
 
   /**
    * Default constructor for Hibernate
@@ -116,28 +119,9 @@ public class LogEvent {
       this.serializedObject = null;
     }
     else {
-      // In case of collection, determine class of elements
-      if (Iterable.class.isAssignableFrom(domainObject.getClass())) {
-        this.className = getClassNameOfFirstElement(domainObject);
-      }
-      else {
-        this.className = domainObject.getClass().getSimpleName();
-      }
-
+      this.className = domainObject.getClass().getSimpleName();
       this.serializedObject = serializeObject(domainObject);
     }
-  }
-
-  private String getClassNameOfFirstElement(Object domainObject) {
-    Collection<?> list = (Collection<?>) domainObject;
-    Iterator<?> it = list.iterator();
-    if (it.hasNext()) {
-      Object object = it.next();
-      if (object != null) {
-        return String.format(LIST_STRING, list.size(), object.getClass().getSimpleName());
-      }
-    }
-    return null;
   }
 
   private String serializeObject(Object domainObject) {
@@ -166,10 +150,6 @@ public class LogEvent {
     return userId;
   }
 
-  public LogEventType getEventType() {
-    return eventType;
-  }
-
   public String getClassName() {
     return className;
   }
@@ -182,8 +162,35 @@ public class LogEvent {
     return details;
   }
 
+  public LogEventType getEventType() {
+    return eventType;
+  }
+
+  /**
+   * Used to relate logEvents which originates out of a List
+   * 
+   * @return String CorreleationId
+   */
+  public String getCorrelationId() {
+    return correlationId;
+  }
+
+  /**
+   * Used to relate logEvents which originates out of a List
+   * 
+   * @param correlationId
+   */
+  public void setCorrelationId(String correlationId) {
+    this.correlationId = correlationId;
+  }
+
   public String getClassNameWithDetails() {
-    return (StringUtils.hasText(details) ? className + ": " + details : className);
+    return (StringUtils.hasText(details) ? className.concat(": ").concat(details) : className);
+  }
+
+  public String getEventTypeWithCorrelationId() {
+    return (StringUtils.hasText(correlationId) ? StringUtils.capitalize(eventType.name().toLowerCase()).concat(" ")
+        .concat(correlationId) : StringUtils.capitalize(eventType.name().toLowerCase()));
   }
 
   @Override
@@ -200,14 +207,14 @@ public class LogEvent {
       builder.append(created);
       builder.append(", ");
     }
-    if (groupIds != null) {
-      builder.append("groupIds=");
-      builder.append(groupIds);
-      builder.append(", ");
-    }
     if (userId != null) {
       builder.append("userId=");
       builder.append(userId);
+      builder.append(", ");
+    }
+    if (groupIds != null) {
+      builder.append("groupIds=");
+      builder.append(groupIds);
       builder.append(", ");
     }
     if (eventType != null) {
@@ -228,6 +235,11 @@ public class LogEvent {
     if (details != null) {
       builder.append("details=");
       builder.append(details);
+      builder.append(", ");
+    }
+    if (correlationId != null) {
+      builder.append("correlationId=");
+      builder.append(correlationId);
     }
     builder.append("]");
     return builder.toString();

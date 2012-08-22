@@ -40,10 +40,10 @@ import com.google.common.base.Strings;
 /**
  * Entity which represents a VirtualPort which is mapped to a
  * {@link PhysicalPort} and is related to a {@link VirtualResourceGroup}
- *
+ * 
  */
 @Entity
-public class VirtualPort {
+public class VirtualPort implements Loggable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -144,6 +144,11 @@ public class VirtualPort {
 
   public String getNsiStpId() {
     return URN_STP + ":" + getId();
+  }
+
+  @Override
+  public String getAdminGroup() {
+    return virtualResourceGroup.getAdminGroup();
   }
 
   @Override

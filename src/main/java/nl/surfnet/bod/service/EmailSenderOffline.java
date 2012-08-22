@@ -24,11 +24,13 @@ package nl.surfnet.bod.service;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.domain.Loggable;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
-
-import nl.surfnet.bod.web.security.Security;
 
 public class EmailSenderOffline extends EmailSenderOnline {
 
@@ -46,7 +48,20 @@ public class EmailSenderOffline extends EmailSenderOnline {
 
   @Override
   public void send(SimpleMailMessage activationMessage) {
-    logEventService.logCreateEvent(Security.getUserDetails(), activationMessage);
+    logEventService.logCreateEvent(Security.getUserDetails(), new LoggableSimpleMailMessage(activationMessage));
+  }
+
+  public class LoggableSimpleMailMessage extends SimpleMailMessage implements Loggable {
+    private static final long serialVersionUID = 1L;
+
+    public LoggableSimpleMailMessage(SimpleMailMessage simpleMailMessage) {
+      super(simpleMailMessage);
+    }
+
+    @Override
+    public String getAdminGroup() {
+      return RoleEnum.NOC_ENGINEER.name();
+    }
   }
 
 }

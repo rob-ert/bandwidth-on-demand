@@ -39,7 +39,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.joda.time.LocalDateTime;
 
 @Entity
-public class VirtualPortRequestLink {
+public class VirtualPortRequestLink implements Loggable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -191,6 +191,11 @@ public class VirtualPortRequestLink {
 
   public void setUserLabel(String userLabel) {
     this.userLabel = userLabel;
+  }
+
+  @Override
+  public String getAdminGroup() {
+    return virtualResourceGroup.getAdminGroup();
   }
 
   @Override

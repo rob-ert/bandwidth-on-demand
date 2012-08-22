@@ -21,7 +21,7 @@
       <tr>
         <table:rowDetailsHeader />
         <table:sortableHeader labelCode="label_logevent_created" property="created" />
-        <table:sortableHeader labelCode="label_logevent_userid" property="userId" styleClass="cw35" />
+        <table:sortableHeader labelCode="label_logevent_groupid" property="groupIds" styleClass="cw35" />
         <table:sortableHeader labelCode="label_logevent_eventtype" property="eventType" styleClass="cw35" />
         <table:sortableHeader labelCode="label_logevent_className" property="className" />
       </tr>
@@ -35,15 +35,15 @@
               <dd>
                 <c:out value="${item.serializedObject}" />
               </dd>
-              <dt>Details</dt>
+              <dt>User</dt>
               <dd>
-                <c:out value="${item.details}" />
+                <c:out value="${item.userId}" />
               </dd>
             </dl>
           </table:rowDetailsColumn>
           <table:column item="${item}" property="createdAsText" styleClass="cw65" />
-          <table:column item="${item}" property="userId" />
-          <table:column item="${item}" property="eventType" />
+          <table:column item="${item}" property="groupIds" />
+          <table:column item="${item}" property="eventTypeWithCorrelationId" />
           <table:column item="${item}" property="classNameWithDetails"/>
         </tr>
       </c:forEach>

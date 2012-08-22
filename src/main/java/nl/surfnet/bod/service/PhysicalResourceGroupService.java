@@ -45,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.base.Function;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
+import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.domain.UserGroup;
@@ -125,8 +126,8 @@ public class PhysicalResourceGroupService {
 
   @SuppressWarnings("unchecked")
   public ActivationEmailLink<PhysicalResourceGroup> findActivationLink(String uuid) {
-    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink =
-        (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo.findByUuid(uuid);
+    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo
+        .findByUuid(uuid);
 
     if (activationEmailLink != null) {
       activationEmailLink.setSourceObject(find(activationEmailLink.getSourceId()));
@@ -170,8 +171,13 @@ public class PhysicalResourceGroupService {
     return activationEmailLinkRepo.save(link);
   }
 
+  public PhysicalResourceGroup findByInstituteId(Long instituteId) {
+    return physicalResourceGroupRepo.findByInstituteId(instituteId);
+  }
+
   private void deActivatePhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
     physicalResourceGroup.setActive(false);
     physicalResourceGroupRepo.save(physicalResourceGroup);
   }
+
 }

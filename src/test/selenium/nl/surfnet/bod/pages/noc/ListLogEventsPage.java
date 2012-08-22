@@ -55,9 +55,9 @@ public class ListLogEventsPage extends AbstractListPage {
     return getRows().size();
   }
 
-  public void logEventShouldBe(LocalDateTime created, String userId, LogEventType type, String entity) {
+  public void logEventShouldBe(LocalDateTime created, String... fields) {
 
-    WebElement row = findRow(userId, type.name(), entity);
+    WebElement row = findRow(fields);
 
     LocalDateTime logEventCreated = getLocalDateTimeFromRow(row);
 

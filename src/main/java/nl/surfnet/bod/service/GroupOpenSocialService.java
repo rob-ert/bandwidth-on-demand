@@ -21,15 +21,15 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.*;
-import static com.google.common.base.Strings.*;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.util.Environment;
 
 import org.opensocial.Client;
 import org.opensocial.RequestException;
@@ -47,9 +47,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.web.security.Security;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Strings.emptyToNull;
 
 @Service
 public class GroupOpenSocialService implements GroupService {
@@ -66,8 +65,6 @@ public class GroupOpenSocialService implements GroupService {
   public Collection<UserGroup> getGroups(String nameId) {
     try {
       List<Group> osGroups = getClient(nameId).send(GroupsService.getGroups()).getEntries();
-
-      logEventService.logReadEvent(Security.getUserDetails(), osGroups);
 
       return Lists.newArrayList(Lists.transform(osGroups, new Function<Group, UserGroup>() {
         @Override

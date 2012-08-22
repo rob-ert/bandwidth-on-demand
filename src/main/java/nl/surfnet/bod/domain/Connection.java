@@ -39,7 +39,7 @@ import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 
 @Entity
-public class Connection {
+public class Connection implements Loggable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -227,6 +227,11 @@ public class Connection {
 
   public void setServiceParameters(ServiceParametersType serviceParameters) {
     this.serviceParameters = serviceParameters;
+  }
+
+  @Override
+  public String getAdminGroup() {
+    return reservation != null ? reservation.getAdminGroup() : null;
   }
 
   @Override

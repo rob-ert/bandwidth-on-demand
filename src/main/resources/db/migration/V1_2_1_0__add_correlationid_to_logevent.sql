@@ -1,0 +1,1 @@
+ALTER TABLE log_event ADD COLUMN correlation_id character varying(255);

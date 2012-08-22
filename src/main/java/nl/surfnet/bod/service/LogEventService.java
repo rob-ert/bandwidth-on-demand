@@ -21,6 +21,9 @@
  */
 package nl.surfnet.bod.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -28,6 +31,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
@@ -35,6 +39,7 @@ import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +48,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Iterators;
 
 @Service
 public class LogEventService extends AbstractFullTextSearchService<LogEvent, LogEvent> {
@@ -53,79 +59,104 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Resource
+  private PhysicalResourceGroupService physicalResourceGroupService;
+
+  @Resource
   private LogEventRepo logEventRepo;
 
   @PersistenceContext
   private EntityManager entityManager;
 
-  public void logCreateEvent(Object domainObject) {
+  public void logCreateEvent(Loggable domainObject) {
     logCreateEvent(null, domainObject);
   }
 
-  public void logCreateEvent(Object domainObject, String details) {
+  public void logCreateEvent(Loggable domainObject, String details) {
     logCreateEvent(null, domainObject, details);
   }
 
-  public void logCreateEvent(RichUserDetails user, Object domainObject) {
+  public void logCreateEvent(RichUserDetails user, Loggable domainObject) {
     logCreateEvent(user, domainObject, null);
   }
 
-  public void logCreateEvent(RichUserDetails user, Object domainObject, String details) {
-    handleEvent(createLogEvent(user, LogEventType.CREATE, domainObject, details));
+  public void logCreateEvent(RichUserDetails user, Collection<? extends Loggable> domainObjects, String details) {
+    handleEvents(createLogEvents(user, domainObjects, LogEventType.CREATE, details));
   }
 
-  public void logReadEvent(Object domainObject) {
+  public void logCreateEvent(RichUserDetails user, Loggable domainObject, String details) {
+    handleEvent(createLogEvent(user, determineAdminGroup(user, domainObject), LogEventType.CREATE, domainObject,
+        details));
+  }
+
+  public void logReadEvent(Loggable domainObject) {
     logReadEvent(null, domainObject);
   }
 
-  public void logReadEvent(RichUserDetails user, Object domainObject) {
+  public void logReadEvent(RichUserDetails user, Loggable domainObject) {
     logReadEvent(user, domainObject, null);
   }
 
-  public void logReadEvent(RichUserDetails user, Object domainObject, String details) {
-    handleEvent(createLogEvent(user, LogEventType.READ, domainObject, details));
+  @SuppressWarnings("unchecked")
+  public void logReadEvent(RichUserDetails user, Loggable domainObject, String details) {
+    if (isIterable(domainObject)) {
+      handleEvents(createLogEvents(user, (Iterable<Loggable>) domainObject, LogEventType.READ, details));
+    }
+    else {
+      handleEvent(createLogEvent(user, determineAdminGroup(user, domainObject), LogEventType.READ, domainObject,
+          details));
+    }
   }
 
-  public void logUpdateEvent(Object domainObject) {
+  public void logUpdateEvent(Loggable domainObject) {
     logUpdateEvent(null, domainObject);
   }
 
-  public void logUpdateEvent(Object domainObject, String details) {
+  public void logUpdateEvent(Loggable domainObject, String details) {
     logUpdateEvent(null, domainObject, details);
   }
 
-  public void logUpdateEvent(RichUserDetails user, Object domainObject) {
+  public void logUpdateEvent(RichUserDetails user, Loggable domainObject) {
     logUpdateEvent(user, domainObject, null);
   }
 
-  public void logUpdateEvent(RichUserDetails user, Object domainObject, String details) {
-    handleEvent(createLogEvent(user, LogEventType.UPDATE, domainObject, details));
+  public void logUpdateEvent(RichUserDetails user, Collection<? extends Loggable> domainObjects, String details) {
+    handleEvents(createLogEvents(user, domainObjects, LogEventType.UPDATE, details));
   }
 
-  public void logDeleteEvent(Object domainObject) {
+  public void logUpdateEvent(RichUserDetails user, Loggable domainObject, String details) {
+    handleEvent(createLogEvent(user, determineAdminGroup(user, domainObject), LogEventType.UPDATE, domainObject,
+        details));
+  }
+
+  private boolean isIterable(Loggable domainObject) {
+    return Iterable.class.isAssignableFrom(domainObject.getClass());
+  }
+
+  public void logDeleteEvent(Loggable domainObject) {
     logDeleteEvent(null, domainObject);
   }
 
-  public void logDeleteEvent(Object domainObject, String details) {
+  public void logDeleteEvent(Loggable domainObject, String details) {
     logDeleteEvent(null, domainObject, details);
   }
 
-  public void logDeleteEvent(RichUserDetails user, Object domainObject) {
+  public void logDeleteEvent(RichUserDetails user, Loggable domainObject) {
     logDeleteEvent(user, domainObject, null);
   }
 
-  public void logDeleteEvent(RichUserDetails user, Object domainObject, String details) {
-    handleEvent(createLogEvent(user, LogEventType.DELETE, domainObject, details));
+  public void logDeleteEvent(RichUserDetails user, Collection<? extends Loggable> domainObject, String details) {
+    handleEvents(createLogEvents(user, domainObject, LogEventType.DELETE, details));
   }
 
-  @VisibleForTesting
-  LogEvent createLogEvent(RichUserDetails user, LogEventType eventType, Object domainObject, String details) {
-    if (user == null) {
-      return new LogEvent(SYSTEM_USER, ALL_GROUPS, eventType, domainObject, details);
-    }
-    else {
-      return new LogEvent(user.getUsername(), user.getUserGroupIds(), eventType, domainObject, details);
-    }
+  public void logDeleteEvent(RichUserDetails user, Loggable domainObject, String details) {
+    handleEvent(createLogEvent(user, determineAdminGroup(user, domainObject), LogEventType.DELETE, domainObject,
+        details));
+  }
+
+  @Override
+  public List<LogEvent> transformToView(List<LogEvent> listToTransform, RichUserDetails user) {
+    // No transformation needed
+    return listToTransform;
   }
 
   public List<LogEvent> findAll(int firstResult, int maxResults, Sort sort) {
@@ -134,6 +165,38 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
 
   public long count() {
     return logEventRepo.count();
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
+  }
+
+  @VisibleForTesting
+  String determineAdminGroup(RichUserDetails user, Loggable domainObject) {
+
+    if (domainObject != null) {
+      return domainObject.getAdminGroup();
+    }
+    else if (user.isSelectedManagerRole()) {
+      return physicalResourceGroupService.findByInstituteId(user.getSelectedRole().getPhysicalResourceGroupId())
+          .getAdminGroup();
+    }
+    else if (user.isSelectedNocRole()) {
+      return RoleEnum.NOC_ENGINEER.name();
+    }
+    throw new IllegalStateException("Could not determine adminGroup for user: " + user);
+  }
+
+  @VisibleForTesting
+  LogEvent createLogEvent(RichUserDetails user, String groupId, LogEventType eventType, Object domainObject,
+      String details) {
+    if (user == null) {
+      return new LogEvent(SYSTEM_USER, ALL_GROUPS, eventType, domainObject, details);
+    }
+    else {
+      return new LogEvent(user.getUsername(), groupId, eventType, domainObject, details);
+    }
   }
 
   /**
@@ -157,6 +220,29 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
     }
   }
 
+  @VisibleForTesting
+  List<LogEvent> createLogEvents(RichUserDetails user, Iterable<? extends Loggable> domainObjects,
+      LogEventType logEventType, String details) {
+    List<LogEvent> logEvents = new ArrayList<>();
+    int size = Iterators.size((domainObjects).iterator());
+
+    Iterator<? extends Loggable> it = (domainObjects).iterator();
+    int index = 0;
+    while (it.hasNext()) {
+      index++;
+      Loggable object = it.next();
+
+      LogEvent logEvent = createLogEvent(user, determineAdminGroup(user, object), logEventType, object, details);
+
+      // Relate list items
+      logEvent.setCorrelationId(String.valueOf(index) + "-" + String.valueOf(size));
+
+      logEvents.add(logEvent);
+    }
+
+    return logEvents;
+  }
+
   /**
    * Determines if an Event should be persisted. Only the following types are
    * supported:
@@ -174,8 +260,8 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   private boolean shouldPersistEvent(LogEvent logEvent) {
     String[] supportedClasses = { //
     Reservation.class.getSimpleName(), //
-        PhysicalPort.class.getSimpleName(), //
         VirtualPort.class.getSimpleName(),//
+        PhysicalPort.class.getSimpleName(), //
         Institute.class.getSimpleName() };
 
     for (String clazz : supportedClasses) {
@@ -186,9 +272,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
     return false;
   }
 
-  @Override
-  protected EntityManager getEntityManager() {
-    return entityManager;
+  private void handleEvents(List<LogEvent> logEvents) {
+    for (LogEvent logEvent : logEvents) {
+      handleEvent(logEvent);
+    }
   }
 
   /**
@@ -198,12 +285,6 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
    */
   private void handleEvent(LogEvent logEvent) {
     handleEvent(logger, logEvent);
-  }
-
-  @Override
-  public List<LogEvent> transformToView(List<LogEvent> listToTransform, RichUserDetails user) {
-    // No transformation needed
-    return listToTransform;
   }
 
 }

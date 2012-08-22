@@ -38,11 +38,8 @@ public class PhysicalResourceGroupFactory {
   private String adminGroup = "urn:my-group";
   private List<PhysicalPort> physicalPorts = Lists.newArrayList();
   private Institute institute = new InstituteFactory().setId(id).setName("Institute " + id).create();
-  private Long instituteId = id;
   private String managerEmail = "email@example.com";
   private boolean active;
-
-  private boolean setInstituteIdFirst = false;
 
   public PhysicalResourceGroup create() {
     PhysicalResourceGroup group = new PhysicalResourceGroup();
@@ -76,7 +73,6 @@ public class PhysicalResourceGroupFactory {
   }
 
   public PhysicalResourceGroupFactory setInstitute(Institute institute) {
-    this.setInstituteIdFirst = false;
     this.institute = institute;
     return this;
   }

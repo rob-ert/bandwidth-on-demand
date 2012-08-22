@@ -489,10 +489,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     }
 
     Collection<ReservationArchive> reservationArchives = transformToReservationArchives(reservations);
-    logEventService.logCreateEvent(Security.getUserDetails(), reservationArchives);
+    logEventService.logCreateEvent(Security.getUserDetails(), reservationArchives, "Archived by cancel");
     reservationArchiveRepo.save(reservationArchives);
 
-    logEventService.logDeleteEvent(Security.getUserDetails(), reservations);
+    logEventService.logDeleteEvent(Security.getUserDetails(), reservations, "Canceled and archived");
     reservationRepo.delete(reservations);
   }
 

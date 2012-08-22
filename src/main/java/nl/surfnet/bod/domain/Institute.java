@@ -26,6 +26,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import nl.surfnet.bod.web.security.Security.RoleEnum;
+
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -41,7 +43,7 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 @Indexed
 @Entity
-public class Institute {
+public class Institute implements Loggable {
 
   @Id
   private Long id;
@@ -88,6 +90,11 @@ public class Institute {
 
   public void setAlignedWithIDD(boolean alignedWithIDD) {
     this.alignedWithIDD = alignedWithIDD;
+  }
+
+  @Override
+  public String getAdminGroup() {
+    return RoleEnum.NOC_ENGINEER.name();
   }
 
   @Override

@@ -33,7 +33,7 @@ import org.hibernate.annotations.Type;
 import org.joda.time.LocalDateTime;
 
 @Entity
-public class ReservationArchive {
+public class ReservationArchive implements Loggable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -302,6 +302,11 @@ public class ReservationArchive {
 
   public final long getPhysicalResourceGroupDestinationInstituteId() {
     return physicalResourceGroupDestinationInstituteId;
+  }
+
+  @Override
+  public String getAdminGroup() {
+    return virtualResourceGroupSurfconextGroupId;
   }
 
   @Override

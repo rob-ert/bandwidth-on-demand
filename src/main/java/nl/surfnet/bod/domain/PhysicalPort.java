@@ -40,7 +40,7 @@ import com.google.common.base.Strings;
 
 @Indexed
 @Entity
-public class PhysicalPort {
+public class PhysicalPort implements Loggable{
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -220,6 +220,10 @@ public class PhysicalPort {
 
   public final void setSupportedServiceType(String supportedServiceType) {
     this.supportedServiceType = supportedServiceType;
+  }
+  
+  public String getAdminGroup() {
+    return physicalResourceGroup.getAdminGroup();
   }
 
   @Override
