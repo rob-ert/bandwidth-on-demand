@@ -21,25 +21,20 @@
  */
 package nl.surfnet.bod.support;
 
-import static nl.surfnet.bod.support.BodWebDriver.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.pages.user.*;
 
 import org.hamcrest.Matchers;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.Assert;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.user.EditVirtualPortPage;
-import nl.surfnet.bod.pages.user.ListReservationPage;
-import nl.surfnet.bod.pages.user.ListVirtualPortPage;
-import nl.surfnet.bod.pages.user.NewReservationPage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortRequestPage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectInstitutePage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectTeamPage;
-import nl.surfnet.bod.pages.user.UserOverviewPage;
 
 public class BodUserWebDriver {
 

@@ -23,12 +23,17 @@ package nl.surfnet.bod.support;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 public class Probes {
   private final WebDriver webDriver;
 
   public Probes(WebDriver webDriver) {
     this.webDriver = webDriver;
+  }
+
+  public void assertTextPresent(WebElement element, String textPresent) {
+    new Poller().check(new TextWithinWebElement(element, textPresent));
   }
 
   public void assertTextPresent(By locator, String textPresent) {

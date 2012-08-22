@@ -31,9 +31,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-
 public class ListReservationPage extends AbstractReservationListPage {
 
   private static final String PAGE = "/reservations";
@@ -68,7 +65,7 @@ public class ListReservationPage extends AbstractReservationListPage {
 
     WebElement reservation = findRow(start, end);
 
-    assertThat(reservation.getText(), containsString(status.name()));
+    getProbes().assertTextPresent(reservation, status.name());
   }
 
 }

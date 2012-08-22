@@ -68,6 +68,8 @@ public class ReservationToNbi {
 
   @Async
   public void terminate(Reservation reservation, String cancelReason, Optional<NsiRequestDetails> requestDetails) {
+    logger.debug("Terminating a reservation {}", reservation);
+
     ReservationStatus orgStatus = reservation.getStatus();
 
     nbiClient.cancelReservation(reservation.getReservationId());
@@ -75,6 +77,8 @@ public class ReservationToNbi {
     reservation.setStatus(ReservationStatus.CANCELLED);
     reservation.setCancelReason(cancelReason);
     reservationRepo.save(reservation);
+
+    logEventService.logDeleteEvent(Security.getUserDetails(), reservation, reservation.getName() + " " + cancelReason);
 
     publishStatusChanged(reservation, orgStatus, requestDetails);
   }

@@ -524,7 +524,6 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       Reservation reservation, String cancelReason, RichUserDetails user, Optional<NsiRequestDetails> requestDetails) {
 
     if (isDeleteAllowed(reservation, user.getSelectedRole()).isAllowed()) {
-      logEventService.logDeleteEvent(Security.getUserDetails(), reservation, reservation.getName() + " " + cancelReason);
       reservationToNbi.terminate(reservation, cancelReason, requestDetails);
 
       return true;
