@@ -29,6 +29,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;
@@ -193,5 +194,17 @@ public final class WebUtils {
 
   public static boolean not(boolean expression) {
     return !expression;
+  }
+
+  public static String shortenAdminGroup(String adminGroup) {
+    int index = -1;
+    if (StringUtils.hasText(adminGroup)) {
+      index = adminGroup.lastIndexOf(':');
+    }
+
+    if ((index >= 0)) {
+      return adminGroup.substring(index + 1);
+    }
+    return adminGroup;
   }
 }

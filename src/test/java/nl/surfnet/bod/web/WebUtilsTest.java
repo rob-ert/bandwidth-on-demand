@@ -97,4 +97,19 @@ public class WebUtilsTest {
     assertThat(infoMessages, hasSize(1));
     assertThat(Iterables.getOnlyElement(infoMessages), is("YES"));
   }
+
+  @Test
+  public void shouldShortenAdminGroup() {
+    assertThat(WebUtils.shortenAdminGroup("a:b:c:d:e"), is("e"));
+    assertThat(WebUtils.shortenAdminGroup("b:c:d:e"), is("e"));
+    assertThat(WebUtils.shortenAdminGroup("c:d:e"), is("e"));
+    assertThat(WebUtils.shortenAdminGroup("d:e"), is("e"));
+    assertThat(WebUtils.shortenAdminGroup("e"), is("e"));
+
+    assertThat(WebUtils.shortenAdminGroup(":"), is(""));
+    assertThat(WebUtils.shortenAdminGroup(null), nullValue());
+    assertThat(WebUtils.shortenAdminGroup(""), is(""));
+  }
+  
+  
 }

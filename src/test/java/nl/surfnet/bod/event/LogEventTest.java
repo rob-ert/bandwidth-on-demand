@@ -46,7 +46,8 @@ public class LogEventTest {
       LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, virtualPort);
 
       assertThat(logEvent.getUserId(), is(USER_ID));
-      assertThat(logEvent.getGroupIds(), is("[" + GROUP_ID + "]"));
+      assertThat(logEvent.getAdminGroup(), is(GROUP_ID));
+      assertThat(logEvent.getShortAdminGroup(), is("group"));
       assertThat(logEvent.getCreated(), is(now));
       assertThat(logEvent.getClassName(), is(virtualPort.getClass().getSimpleName()));
       assertThat(logEvent.getSerializedObject().toString(), is(virtualPort.toString()));

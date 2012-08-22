@@ -97,7 +97,7 @@ public class LogEventServiceTest {
       LogEvent logEvent = subject.createLogEvent(user, GROUP_ID, LogEventType.CREATE, vrg, LOG_DETAILS);
 
       assertThat(logEvent.getUserId(), is(user.getUsername()));
-      assertThat(logEvent.getGroupIds(), is("[" + GROUP_ID + "]"));
+      assertThat(logEvent.getAdminGroup(), is("[" + GROUP_ID + "]"));
       assertThat(logEvent.getEventTypeWithCorrelationId(), is("Create"));
 
       assertThat(logEvent.getClassName(), is(vrg.getClass().getSimpleName()));

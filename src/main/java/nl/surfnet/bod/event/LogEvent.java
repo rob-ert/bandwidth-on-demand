@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.event;
 
-import java.util.Collection;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,7 +39,6 @@ import org.joda.time.LocalDateTime;
 import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 
 @Entity
 @Indexed
@@ -65,7 +62,7 @@ public class LogEvent {
   private final String userId;
 
   @Basic
-  private final String groupIds;
+  private final String adminGroup;
 
   @Enumerated(EnumType.STRING)
   private final LogEventType eventType;
@@ -93,22 +90,14 @@ public class LogEvent {
     this((String) null, (String) null, (LogEventType) null, null);
   }
 
-  public LogEvent(String userId, String groupId, LogEventType type, Object domainObject) {
-    this(userId, Lists.newArrayList(groupId), type, domainObject);
+  public LogEvent(String userId, String adminGroup, LogEventType type, Object domainObject) {
+    this(userId, adminGroup, type, domainObject, null);
   }
 
-  public LogEvent(String userId, String groupId, LogEventType type, Object domainObject, String details) {
-    this(userId, Lists.newArrayList(groupId), type, domainObject, details);
-  }
-
-  public LogEvent(String userId, Collection<String> groupIds, LogEventType type, Object domainObject) {
-    this(userId, groupIds, type, domainObject, null);
-  }
-
-  public LogEvent(String userId, Collection<String> groupIds, LogEventType type, Object domainObject, String details) {
+  public LogEvent(String userId, String adminGroup, LogEventType type, Object domainObject, String details) {
     super();
     this.userId = userId;
-    this.groupIds = groupIds != null ? groupIds.toString() : null;
+    this.adminGroup = adminGroup;
     this.eventType = type;
     this.details = details;
 
@@ -142,8 +131,12 @@ public class LogEvent {
     return created != null ? created.toString(WebUtils.DEFAULT_DATE_TIME_FORMATTER) : "";
   }
 
-  public String getGroupIds() {
-    return groupIds;
+  public String getAdminGroup() {
+    return  StringUtils.deleteAny(adminGroup, "[]");
+  }
+
+  public String getShortAdminGroup() {
+    return WebUtils.shortenAdminGroup(getAdminGroup());
   }
 
   public String getUserId() {
@@ -212,9 +205,9 @@ public class LogEvent {
       builder.append(userId);
       builder.append(", ");
     }
-    if (groupIds != null) {
-      builder.append("groupIds=");
-      builder.append(groupIds);
+    if (adminGroup != null) {
+      builder.append("adminGroup=");
+      builder.append(adminGroup);
       builder.append(", ");
     }
     if (eventType != null) {

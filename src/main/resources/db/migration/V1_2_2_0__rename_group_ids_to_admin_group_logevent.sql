@@ -1,0 +1,1 @@
+ALTER TABLE log_event RENAME COLUMN group_ids TO admin_group;
