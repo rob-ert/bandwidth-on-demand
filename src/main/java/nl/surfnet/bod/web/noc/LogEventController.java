@@ -37,6 +37,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 @Controller
@@ -56,6 +57,15 @@ public class LogEventController extends AbstractSearchableSortableListController
   @Override
   protected Direction getDefaultSortOrder() {
     return Direction.DESC;
+  }
+
+  @Override
+  protected List<String> translateSortProperty(String sortProperty) {
+    if ("eventType".equals(sortProperty)) {
+      return ImmutableList.of("eventType", "correlationId");
+    }
+
+    return super.translateSortProperty(sortProperty);
   }
 
   @Override

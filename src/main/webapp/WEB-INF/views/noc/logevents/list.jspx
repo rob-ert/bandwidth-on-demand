@@ -46,9 +46,9 @@
               </dd>
             </dl>
           </table:rowDetailsColumn>
-          <table:column item="${item}" property="createdAsText" styleClass="cw65" />
-          <table:column item="${item}" property="shortAdminGroup" />
-          <table:column item="${item}" property="eventTypeWithCorrelationId" />
+          <table:column item="${item}" property="createdAsText" styleClass="cw80" />
+          <table:column item="${item}" property="shortAdminGroup" styleClass="cw80" />
+          <table:column item="${item}" property="eventTypeWithCorrelationId" styleClass="cw80"/>
           <table:column item="${item}" property="description"/>
           <table:column item="${item}" property="details"/>
         </tr>
