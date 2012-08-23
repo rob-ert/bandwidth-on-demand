@@ -21,9 +21,10 @@
  */
 package nl.surfnet.bod.nsi;
 
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_PROVIDER_NSA;
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 import java.util.Calendar;
 
@@ -32,16 +33,17 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderWs;
+import nl.surfnet.bod.repo.*;
+import nl.surfnet.bod.support.*;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.*;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
@@ -53,24 +55,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 
 import com.google.common.collect.Lists;
-
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderWs;
-import nl.surfnet.bod.repo.InstituteRepo;
-import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
-import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
-import nl.surfnet.bod.support.ConnectionServiceProviderFactory;
-import nl.surfnet.bod.support.MockHttpServer;
-import nl.surfnet.bod.support.PhysicalPortFactory;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
@@ -240,9 +224,9 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     source.setStpId(URN_STP + ":" + destinationVirtualPort.getId());
     path.setSourceSTP(source);
 
-    ReserveRequestType reservationRequest = new ConnectionServiceProviderFactory().setScheduleStartTime(startTime)
+    ReserveRequestType reservationRequest = new ReserveRequestTypeFactory().setScheduleStartTime(startTime)
         .setScheduleEndTime(endTime).setConnectionId(connectionId).setCorrelationId(correlationId)
-        .setConnectionId(connectionId).setProviderNsa(URN_PROVIDER_NSA).setPath(path).createReservation();
+        .setConnectionId(connectionId).setProviderNsa(URN_PROVIDER_NSA).setPath(path).create();
 
     return reservationRequest;
   }

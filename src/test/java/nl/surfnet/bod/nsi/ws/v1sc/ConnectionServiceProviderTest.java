@@ -21,34 +21,15 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.mockito.Mockito.when;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.hamcrest.text.IsEmptyString;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2011._10.connection.types.BandwidthType;
-import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReserveType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Throwables;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
@@ -60,6 +41,20 @@ import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.ConnectionFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 
+import org.hamcrest.text.IsEmptyString;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2011._10.connection.types.*;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Throwables;
+
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderTest {
 
@@ -68,13 +63,13 @@ public class ConnectionServiceProviderTest {
 
   @Mock
   private ConnectionRepo connectionRepoMock;
-  
+
   @Mock
   private VirtualPortService virtualPortServiceMock;
-  
+
   @Mock
   private ReservationService reservationServiceMock;
-  
+
   @Mock
   private ConnectionServiceProviderService connectionServiceProviderComponent;
 
