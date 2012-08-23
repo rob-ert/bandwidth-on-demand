@@ -29,7 +29,7 @@ public class LogEventTestSelenium extends TestExternalSupport {
 
   @Test
   public void shouldShowLogEventForPhysicalPortAlignment() {
-
+    int a=0;
     try {
       getNocDriver().addPhysicalPortToInstitute("2COLLEGE", "nocPoortLabel", "managerPoortLabel");
       getNocDriver().verifyLogEventExistis("2COLLEGE", "nocPoortLabel", "managerPoortLabel");

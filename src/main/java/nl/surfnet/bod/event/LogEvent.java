@@ -35,9 +35,7 @@ import nl.surfnet.bod.web.WebUtils;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.joda.time.LocalDateTime;
 import org.springframework.util.StringUtils;
 

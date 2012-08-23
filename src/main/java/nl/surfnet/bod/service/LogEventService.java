@@ -40,7 +40,6 @@ import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

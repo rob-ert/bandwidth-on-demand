@@ -39,7 +39,6 @@ import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDateTime;
