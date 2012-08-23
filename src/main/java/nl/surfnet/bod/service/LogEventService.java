@@ -38,6 +38,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
+import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security.RoleEnum;
 
@@ -62,6 +63,9 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
 
   @Resource
   private LogEventRepo logEventRepo;
+
+  @Resource
+  private Environment environment;
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -140,7 +144,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
           .getAdminGroup();
     }
     else if (user.isSelectedNocRole()) {
-      return RoleEnum.NOC_ENGINEER.name();
+      return environment.getNocGroup();
     }
     throw new IllegalStateException("Could not determine adminGroup for user: " + user);
   }
