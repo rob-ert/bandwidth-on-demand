@@ -26,12 +26,14 @@ import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 
+import nl.surfnet.bod.idd.generated.Klanten;
+import nl.surfnet.bod.idd.generated.Klantnamen;
+
 import org.apache.axis.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.surfnet.bod.idd.generated.Klanten;
-import nl.surfnet.bod.idd.generated.Klantnamen;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 public class IddOfflineClient implements IddClient {
 
@@ -39,7 +41,7 @@ public class IddOfflineClient implements IddClient {
 
   private final Logger logger = LoggerFactory.getLogger(IddOfflineClient.class);
 
-  @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "Called by IoC container")
+  @SuppressWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD", justification = "Called by IoC container")
   @PostConstruct
   private void init() {
     logger.info("USING OFFLINE IDD CLIENT!");

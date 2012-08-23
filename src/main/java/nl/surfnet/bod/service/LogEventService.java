@@ -30,11 +30,7 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.Loggable;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
@@ -160,10 +156,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
    * domainObject with one a specific type, as determined by
    * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
    * {@link LogEventRepo}
-   * 
+   *
    * @param logger
    *          Logger to write to
-   * 
+   *
    * @param logEvent
    *          LogEvent to handle
    */
@@ -208,7 +204,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
    * <li>VirtualPort</li>
    * <li>Institute</li>
    * </ul>
-   * 
+   *
    * @param logEvent
    * @return true when the {@link LogEvent#getDescription()} matches one of the
    *         listed above, false otherwise.
@@ -216,7 +212,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   private boolean shouldLogEventBePersisted(LogEvent logEvent) {
     String[] supportedClasses = { //
     Reservation.class.getSimpleName(), //
-        VirtualPort.class.getSimpleName(),//
+        VirtualPort.class.getSimpleName(), //
         PhysicalPort.class.getSimpleName(), //
         Institute.class.getSimpleName() };
 
@@ -236,7 +232,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
 
   /**
    * Delegates to {@link #handleEvent(Logger, LogEvent)}
-   * 
+   *
    * @param logEvent
    */
   private void handleEvent(LogEvent logEvent) {

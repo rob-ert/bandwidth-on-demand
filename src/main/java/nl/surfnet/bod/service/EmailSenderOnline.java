@@ -29,7 +29,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
-import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
@@ -41,7 +40,6 @@ import nl.surfnet.bod.service.Emails.VirtualPortRequestMail;
 import nl.surfnet.bod.web.manager.ActivationEmailController;
 import nl.surfnet.bod.web.manager.VirtualPortController;
 import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,7 +142,7 @@ public class EmailSenderOnline implements EmailSender {
     }
   }
 
-  protected void send(SimpleMailMessage mail) {    
+  protected void send(SimpleMailMessage mail) {
     mailSender.send(mail);
   }
 
@@ -208,5 +206,5 @@ public class EmailSenderOnline implements EmailSender {
       return this;
     }
   }
-  
+
 }
