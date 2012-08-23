@@ -35,7 +35,9 @@ import nl.surfnet.bod.web.WebUtils;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.joda.time.LocalDateTime;
 import org.springframework.util.StringUtils;
 
@@ -62,6 +64,7 @@ public class LogEvent {
   @Basic
   private final String userId;
 
+  @Field
   @Basic
   private final String adminGroup;
 
@@ -80,6 +83,7 @@ public class LogEvent {
   @Type(type = "text")
   private final String details;
 
+  @Field
   @Basic
   private String correlationId;
 
