@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
@@ -110,10 +111,16 @@ public final class ConnectionServiceProviderFunctions {
         connection.setConnectionId(reservation.getConnectionId());
         connection.setDescription(reservation.getDescription());
         connection.setStartTime(getDateFrom(reservation.getServiceParameters().getSchedule().getStartTime()));
-        connection.setEndTime(getDateFrom(reservation.getServiceParameters().getSchedule().getEndTime()));
 
-        // TODO [AvD] end time is optional could also set duration...
-        // reserveRequestType.getReserve().getReservation().getServiceParameters().getSchedule().getDuration();
+        XMLGregorianCalendar endTime = reservation.getServiceParameters().getSchedule().getEndTime();
+        if (endTime != null) {
+          connection.setEndTime(getDateFrom(endTime));
+        }
+
+        Duration duration = reserveRequestType.getReserve().getReservation().getServiceParameters().getSchedule().getDuration();
+        if (duration != null) {
+          connection.setEndTime(calculateEndTime(connection.getStartTime(), duration));
+        }
 
         // Ignoring the max. and min. bandwidth attributes...
         connection.setDesiredBandwidth(reservation.getServiceParameters().getBandwidth().getDesired());
@@ -147,6 +154,12 @@ public final class ConnectionServiceProviderFunctions {
     };
 
   private ConnectionServiceProviderFunctions() {
+  }
+
+  public static Date calculateEndTime(Date startTime, Duration duration) {
+    Date endTime = new Date(startTime.getTime());
+    duration.addTo(endTime);
+    return endTime;
   }
 
 }
