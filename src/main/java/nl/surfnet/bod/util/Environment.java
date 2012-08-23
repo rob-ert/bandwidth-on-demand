@@ -66,6 +66,9 @@ public class Environment {
   @Value("${bod.ui.logevent.disabled}")
   private boolean logEventTabDisabled;
 
+  @Value("${os.group.noc}")
+  private String nocGroup;
+
   public Environment() {
   }
 
@@ -144,4 +147,7 @@ public class Environment {
     return logEventTabDisabled;
   }
 
+  public String getNocGroup() {
+    return nocGroup;
+  }
 }
