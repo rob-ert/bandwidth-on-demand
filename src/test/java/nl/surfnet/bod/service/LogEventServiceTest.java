@@ -37,6 +37,7 @@ import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security.RoleEnum;
 
@@ -77,6 +78,9 @@ public class LogEventServiceTest {
   @Mock
   private RichUserDetails userMock;
 
+  @Mock
+  private Environment environmentMock;
+  
   @Mock
   private PhysicalResourceGroupService physicalResourceGroupService;
 
@@ -184,11 +188,12 @@ public class LogEventServiceTest {
 
   @Test
   public void shouldDetermineNocGroupWithoutReservation() {
+    when(environmentMock.getNocGroup()).thenReturn("nocje");
     when(userMock.isSelectedNocRole()).thenReturn(true);
 
     String adminGroup = subject.determineAdminGroup(userMock, null);
 
-    assertThat(adminGroup, is(RoleEnum.NOC_ENGINEER.name()));
+    assertThat(adminGroup, is("nocje"));
   }
 
   @Test
