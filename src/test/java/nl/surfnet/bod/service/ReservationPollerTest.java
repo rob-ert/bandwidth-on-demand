@@ -119,7 +119,7 @@ public class ReservationPollerTest {
 
   private void awaitPollerReady() throws InterruptedException {
     subject.getExecutorService().shutdown();
-    boolean terminated = subject.getExecutorService().awaitTermination(200, TimeUnit.MILLISECONDS);
+    boolean terminated = subject.getExecutorService().awaitTermination(1000, TimeUnit.MILLISECONDS);
     assertThat(terminated, is(true));
   }
 
