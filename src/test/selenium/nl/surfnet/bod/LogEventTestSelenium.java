@@ -27,15 +27,19 @@ import org.junit.Test;
 
 public class LogEventTestSelenium extends TestExternalSupport {
 
+  private static final String GROUP_NAME = "2COLLEGE";
+
   @Test
   public void shouldShowLogEventForPhysicalPortAlignment() {
-    int a=0;
+    int a = 0;
     try {
-      getNocDriver().addPhysicalPortToInstitute("2COLLEGE", "nocPoortLabel", "managerPoortLabel");
-      getNocDriver().verifyLogEventExistis("2COLLEGE", "nocPoortLabel", "managerPoortLabel");
+      getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME, ICT_MANAGERS_GROUP, "test@example.com");
+      getNocDriver().addPhysicalPortToInstitute(GROUP_NAME, "NOC label", "Mock_Poort 1de verdieping toren1a");
+      getNocDriver().verifyPhysicalPortWasAllocated(NMS_PORT_ID_1, "NOC label");
+      getNocDriver().verifyLogEventExistis("NOC label");
     }
     finally {
-      getNocDriver().unlinkPhysicalPort("nocPoortLabel");
+      getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_1);
     }
   }
 
