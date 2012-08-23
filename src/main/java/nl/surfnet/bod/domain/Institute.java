@@ -96,6 +96,11 @@ public class Institute implements Loggable {
   public String getAdminGroup() {
     return RoleEnum.NOC_ENGINEER.name();
   }
+  
+  @Override
+  public String getLabel() {
+   return getShortName();
+  }
 
   @Override
   public String toString() {

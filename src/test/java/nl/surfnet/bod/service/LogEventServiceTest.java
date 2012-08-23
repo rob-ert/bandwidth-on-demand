@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
@@ -94,13 +93,13 @@ public class LogEventServiceTest {
       LocalDateTime now = LocalDateTime.now();
       DateTimeUtils.setCurrentMillisFixed(now.toDate().getTime());
 
-      LogEvent logEvent = subject.createLogEvent(user, GROUP_ID, LogEventType.CREATE, vrg, LOG_DETAILS);
+      LogEvent logEvent = subject.createLogEvent(user, LogEventType.CREATE, vrg, LOG_DETAILS);
 
       assertThat(logEvent.getUserId(), is(user.getUsername()));
-      assertThat(logEvent.getAdminGroup(), is(GROUP_ID));
+      assertThat(logEvent.getAdminGroup(), is(vrg.getAdminGroup()));
       assertThat(logEvent.getEventTypeWithCorrelationId(), is("Create"));
 
-      assertThat(logEvent.getClassName(), is(vrg.getClass().getSimpleName()));
+      assertThat(logEvent.getDescription(), is(vrg.getClass().getSimpleName().concat(": ").concat(vrg.getLabel())));
       assertThat(logEvent.getDetails(), is(LOG_DETAILS));
 
       assertThat(logEvent.getSerializedObject(), is(vrg.toString()));
@@ -145,16 +144,6 @@ public class LogEventServiceTest {
   @Test
   public void shouldNotPersistNullDomainObject() {
     LogEvent logEvent = new LogEvent(user.getUsername(), GROUP_ID, LogEventType.UPDATE, null);
-
-    subject.handleEvent(logMock, logEvent);
-
-    verify(logMock).info(anyString(), eq(logEvent));
-    verifyZeroInteractions(repoMock);
-  }
-
-  @Test
-  public void shouldNotPersistEmptyList() {
-    LogEvent logEvent = new LogEvent(user.getUsername(), GROUP_ID, LogEventType.UPDATE, Lists.newArrayList());
 
     subject.handleEvent(logMock, logEvent);
 

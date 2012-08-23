@@ -310,6 +310,11 @@ public class ReservationArchive implements Loggable {
   }
 
   @Override
+  public String getLabel() {
+    return name;
+  }
+
+  @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("ReservationArchive [id=");

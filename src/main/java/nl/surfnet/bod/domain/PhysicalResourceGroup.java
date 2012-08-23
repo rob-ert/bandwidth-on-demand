@@ -105,8 +105,14 @@ public class PhysicalResourceGroup implements Loggable {
     return institute != null ? institute.getName() : null;
   }
 
+  @Override
   public String getAdminGroup() {
     return adminGroup;
+  }
+
+  @Override
+  public String getLabel() {
+    return institute.getLabel();
   }
 
   public void setAdminGroup(String adminGroup) {

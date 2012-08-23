@@ -48,7 +48,8 @@ public class EmailSenderOffline extends EmailSenderOnline {
 
   @Override
   public void send(SimpleMailMessage activationMessage) {
-    logEventService.logCreateEvent(Security.getUserDetails(), new LoggableSimpleMailMessage(activationMessage));
+    logEventService.logCreateEvent(Security.getUserDetails(), new LoggableSimpleMailMessage(activationMessage),
+        "Sending mail");
   }
 
   public class LoggableSimpleMailMessage extends SimpleMailMessage implements Loggable {
@@ -61,6 +62,11 @@ public class EmailSenderOffline extends EmailSenderOnline {
     @Override
     public String getAdminGroup() {
       return RoleEnum.NOC_ENGINEER.name();
+    }
+
+    @Override
+    public String getLabel() {
+      return this.getSubject();
     }
   }
 

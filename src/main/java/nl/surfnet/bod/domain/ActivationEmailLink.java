@@ -165,6 +165,11 @@ public class ActivationEmailLink<T> implements Loggable {
   public String getAdminGroup() {
     return sourceObject != null ? ((Loggable) sourceObject).getAdminGroup() : null;
   }
+  
+  @Override
+  public String getLabel() {
+   return "To: " + getToEmail();
+  }
 
   /**
    * This link is valid when the activationEmail was sent, this link is not

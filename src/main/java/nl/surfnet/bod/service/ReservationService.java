@@ -136,7 +136,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     fillStartTimeIfEmpty(reservation);
     stripSecondsAndMillis(reservation);
 
-    logEventService.logCreateEvent(Security.getUserDetails(), reservation, reservation.getName());
+    logEventService.logCreateEvent(Security.getUserDetails(), reservation);
 
     reservation = reservationRepo.save(reservation);
 
@@ -193,7 +193,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
 
     log.debug("Updating reservation: {}", reservation.getReservationId());
-    logEventService.logUpdateEvent(Security.getUserDetails(), reservation, reservation.getName());
+    logEventService.logUpdateEvent(Security.getUserDetails(), reservation);
     return reservationRepo.save(reservation);
   }
 
@@ -489,7 +489,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     }
 
     Collection<ReservationArchive> reservationArchives = transformToReservationArchives(reservations);
-    logEventService.logCreateEvent(Security.getUserDetails(), reservationArchives, "Archived by cancel");
+    logEventService.logCreateEvent(Security.getUserDetails(), reservationArchives, "Archived due to cancel");
     reservationArchiveRepo.save(reservationArchives);
 
     logEventService.logDeleteEvent(Security.getUserDetails(), reservations, "Canceled and archived");

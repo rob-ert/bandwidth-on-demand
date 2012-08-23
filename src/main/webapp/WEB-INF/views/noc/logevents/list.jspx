@@ -21,9 +21,10 @@
       <tr>
         <table:rowDetailsHeader />
         <table:sortableHeader labelCode="label_logevent_created" property="created" />
-        <table:sortableHeader labelCode="label_logevent_groupid" property="adminGroup" styleClass="cw35" />
-        <table:sortableHeader labelCode="label_logevent_eventtype" property="eventType" styleClass="cw35" />
-        <table:sortableHeader labelCode="label_logevent_className" property="className" />
+        <table:sortableHeader labelCode="label_logevent_groupid" property="adminGroup"  />
+        <table:sortableHeader labelCode="label_logevent_eventtype" property="eventType"  />
+        <table:sortableHeader labelCode="label_logevent_description" property="description" />
+        <table:sortableHeader labelCode="label_logevent_details" property="details" />
       </tr>
     </thead>
     <tbody>
@@ -48,7 +49,8 @@
           <table:column item="${item}" property="createdAsText" styleClass="cw65" />
           <table:column item="${item}" property="shortAdminGroup" />
           <table:column item="${item}" property="eventTypeWithCorrelationId" />
-          <table:column item="${item}" property="classNameWithDetails"/>
+          <table:column item="${item}" property="description"/>
+          <table:column item="${item}" property="details"/>
         </tr>
       </c:forEach>
     </tbody>

@@ -1,0 +1,1 @@
+ALTER TABLE log_event RENAME COLUMN class_name TO description;

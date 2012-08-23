@@ -54,7 +54,6 @@ import com.google.common.collect.Iterators;
 public class LogEventService extends AbstractFullTextSearchService<LogEvent, LogEvent> {
 
   private static final String SYSTEM_USER = "system";
-  private static final String ALL_GROUPS = "all";
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -67,14 +66,6 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   @PersistenceContext
   private EntityManager entityManager;
 
-  public void logCreateEvent(Loggable domainObject) {
-    logCreateEvent(null, domainObject);
-  }
-
-  public void logCreateEvent(Loggable domainObject, String details) {
-    logCreateEvent(null, domainObject, details);
-  }
-
   public void logCreateEvent(RichUserDetails user, Loggable domainObject) {
     logCreateEvent(user, domainObject, null);
   }
@@ -84,35 +75,15 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   }
 
   public void logCreateEvent(RichUserDetails user, Loggable domainObject, String details) {
-    handleEvent(createLogEvent(user, determineAdminGroup(user, domainObject), LogEventType.CREATE, domainObject,
-        details));
+    handleEvent(createLogEvent(user, LogEventType.CREATE, domainObject, details));
   }
 
-  public void logReadEvent(Loggable domainObject) {
-    logReadEvent(null, domainObject);
+  public void logReadEvent(RichUserDetails user, Collection<? extends Loggable> domainObjects, String details) {
+    handleEvents(createLogEvents(user, domainObjects, LogEventType.READ, details));
   }
 
-  public void logReadEvent(RichUserDetails user, Loggable domainObject) {
-    logReadEvent(user, domainObject, null);
-  }
-
-  @SuppressWarnings("unchecked")
   public void logReadEvent(RichUserDetails user, Loggable domainObject, String details) {
-    if (isIterable(domainObject)) {
-      handleEvents(createLogEvents(user, (Iterable<Loggable>) domainObject, LogEventType.READ, details));
-    }
-    else {
-      handleEvent(createLogEvent(user, determineAdminGroup(user, domainObject), LogEventType.READ, domainObject,
-          details));
-    }
-  }
-
-  public void logUpdateEvent(Loggable domainObject) {
-    logUpdateEvent(null, domainObject);
-  }
-
-  public void logUpdateEvent(Loggable domainObject, String details) {
-    logUpdateEvent(null, domainObject, details);
+    handleEvent(createLogEvent(user, LogEventType.READ, domainObject, details));
   }
 
   public void logUpdateEvent(RichUserDetails user, Loggable domainObject) {
@@ -124,20 +95,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   }
 
   public void logUpdateEvent(RichUserDetails user, Loggable domainObject, String details) {
-    handleEvent(createLogEvent(user, determineAdminGroup(user, domainObject), LogEventType.UPDATE, domainObject,
-        details));
-  }
-
-  private boolean isIterable(Loggable domainObject) {
-    return Iterable.class.isAssignableFrom(domainObject.getClass());
-  }
-
-  public void logDeleteEvent(Loggable domainObject) {
-    logDeleteEvent(null, domainObject);
-  }
-
-  public void logDeleteEvent(Loggable domainObject, String details) {
-    logDeleteEvent(null, domainObject, details);
+    handleEvent(createLogEvent(user, LogEventType.UPDATE, domainObject, details));
   }
 
   public void logDeleteEvent(RichUserDetails user, Loggable domainObject) {
@@ -149,8 +107,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   }
 
   public void logDeleteEvent(RichUserDetails user, Loggable domainObject, String details) {
-    handleEvent(createLogEvent(user, determineAdminGroup(user, domainObject), LogEventType.DELETE, domainObject,
-        details));
+    handleEvent(createLogEvent(user, LogEventType.DELETE, domainObject, details));
   }
 
   @Override
@@ -189,20 +146,16 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   }
 
   @VisibleForTesting
-  LogEvent createLogEvent(RichUserDetails user, String groupId, LogEventType eventType, Object domainObject,
-      String details) {
-    if (user == null) {
-      return new LogEvent(SYSTEM_USER, ALL_GROUPS, eventType, domainObject, details);
-    }
-    else {
-      return new LogEvent(user.getUsername(), groupId, eventType, domainObject, details);
-    }
+  LogEvent createLogEvent(RichUserDetails user, LogEventType eventType, Loggable domainObject, String details) {
+
+    return new LogEvent(user == null ? SYSTEM_USER : user.getUsername(), determineAdminGroup(user, domainObject),
+        eventType, domainObject, details);
   }
 
   /**
    * Handles the event. Writes it to the given logger. Only events with a
    * domainObject with one a specific type, as determined by
-   * {@link #shouldPersistEvent(LogEvent)} are persisted to the
+   * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
    * {@link LogEventRepo}
    * 
    * @param logger
@@ -215,13 +168,13 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   void handleEvent(Logger log, LogEvent logEvent) {
     log.info("Handling event: {}", logEvent);
 
-    if (shouldPersistEvent(logEvent)) {
+    if (shouldLogEventBePersisted(logEvent)) {
       logEventRepo.save(logEvent);
     }
   }
 
   @VisibleForTesting
-  List<LogEvent> createLogEvents(RichUserDetails user, Iterable<? extends Loggable> domainObjects,
+  List<LogEvent> createLogEvents(RichUserDetails user, Collection<? extends Loggable> domainObjects,
       LogEventType logEventType, String details) {
     List<LogEvent> logEvents = new ArrayList<>();
     int size = Iterators.size((domainObjects).iterator());
@@ -232,7 +185,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
       index++;
       Loggable object = it.next();
 
-      LogEvent logEvent = createLogEvent(user, determineAdminGroup(user, object), logEventType, object, details);
+      LogEvent logEvent = createLogEvent(user, logEventType, object, details);
 
       // Relate list items
       logEvent.setCorrelationId(String.valueOf(index) + "-" + String.valueOf(size));
@@ -254,10 +207,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
    * </ul>
    * 
    * @param logEvent
-   * @return true incase the {@link LogEvent#getClassName()} matches one of the
+   * @return true when the {@link LogEvent#getDescription()} matches one of the
    *         listed above, false otherwise.
    */
-  private boolean shouldPersistEvent(LogEvent logEvent) {
+  private boolean shouldLogEventBePersisted(LogEvent logEvent) {
     String[] supportedClasses = { //
     Reservation.class.getSimpleName(), //
         VirtualPort.class.getSimpleName(),//
@@ -265,7 +218,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
         Institute.class.getSimpleName() };
 
     for (String clazz : supportedClasses) {
-      if ((logEvent.getClassName() != null) && (logEvent.getClassName().contains(clazz))) {
+      if ((logEvent.getDescription() != null) && (logEvent.getDescription().contains(clazz))) {
         return true;
       }
     }

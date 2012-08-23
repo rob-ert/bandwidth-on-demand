@@ -195,6 +195,11 @@ public class VirtualResourceGroup implements Loggable {
   }
 
   @Override
+  public String getLabel() {
+    return getName();
+  }
+
+  @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("VirtualResourceGroup [");

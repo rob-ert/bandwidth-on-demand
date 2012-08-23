@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.*;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.validation.ConstraintViolationException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -135,10 +136,11 @@ public class PhysicalResourceGroupDbTest {
     assertThat(physicalResourceGroupService.find(group.getId()), nullValue());
   }
 
-  @Test(expected = JpaSystemException.class)
-  public void physicalResourceGroupWithoutANameShouldNotSave() {
+  @Test(expected = ConstraintViolationException.class)
+  public void physicalResourceGroupWithoutAEmailNotSave() {
     PhysicalResourceGroup group = new PhysicalResourceGroupFactory().create();
-    group.setInstitute(null);
+    instituteRepo.save(group.getInstitute());
+    group.setManagerEmail(null);
 
     physicalResourceGroupService.save(group);
   }

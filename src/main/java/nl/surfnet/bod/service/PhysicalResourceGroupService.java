@@ -153,7 +153,7 @@ public class PhysicalResourceGroupService {
     activationEmailLink.activate();
     activationEmailLink.getSourceObject().setActive(true);
 
-    logEventService.logCreateEvent(Security.getUserDetails(), activationEmailLink);
+    logEventService.logCreateEvent(Security.getUserDetails(), activationEmailLink, "Activating link");
     activationEmailLinkRepo.save(activationEmailLink);
     update(activationEmailLink.getSourceObject());
   }

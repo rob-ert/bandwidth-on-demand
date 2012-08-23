@@ -150,6 +150,11 @@ public class VirtualPort implements Loggable {
   public String getAdminGroup() {
     return virtualResourceGroup.getAdminGroup();
   }
+  
+  @Override
+  public String getLabel() {
+   return getManagerLabel();
+  }
 
   @Override
   public String toString() {

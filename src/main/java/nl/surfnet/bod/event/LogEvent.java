@@ -30,6 +30,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.hibernate.annotations.Type;
@@ -69,7 +70,7 @@ public class LogEvent {
 
   @Field
   @Column(nullable = true)
-  private final String className;
+  private final String description;
 
   @Field
   @Type(type = "text")
@@ -90,11 +91,11 @@ public class LogEvent {
     this((String) null, (String) null, (LogEventType) null, null);
   }
 
-  public LogEvent(String userId, String adminGroup, LogEventType type, Object domainObject) {
+  public LogEvent(String userId, String adminGroup, LogEventType type, Loggable domainObject) {
     this(userId, adminGroup, type, domainObject, null);
   }
 
-  public LogEvent(String userId, String adminGroup, LogEventType type, Object domainObject, String details) {
+  public LogEvent(String userId, String adminGroup, LogEventType type, Loggable domainObject, String details) {
     super();
     this.userId = userId;
     this.adminGroup = adminGroup;
@@ -104,11 +105,12 @@ public class LogEvent {
     this.created = LocalDateTime.now();
 
     if (domainObject == null) {
-      this.className = null;
+      this.description = null;
       this.serializedObject = null;
     }
     else {
-      this.className = domainObject.getClass().getSimpleName();
+      this.description = new StringBuffer(domainObject.getClass().getSimpleName()).append(": ")
+          .append(domainObject.getLabel()).toString();
       this.serializedObject = serializeObject(domainObject);
     }
   }
@@ -132,7 +134,7 @@ public class LogEvent {
   }
 
   public String getAdminGroup() {
-    return  StringUtils.deleteAny(adminGroup, "[]");
+    return StringUtils.deleteAny(adminGroup, "[]");
   }
 
   public String getShortAdminGroup() {
@@ -143,8 +145,8 @@ public class LogEvent {
     return userId;
   }
 
-  public String getClassName() {
-    return className;
+  public String getDescription() {
+    return description;
   }
 
   public String getSerializedObject() {
@@ -175,10 +177,6 @@ public class LogEvent {
    */
   public void setCorrelationId(String correlationId) {
     this.correlationId = correlationId;
-  }
-
-  public String getClassNameWithDetails() {
-    return (StringUtils.hasText(details) ? className.concat(": ").concat(details) : className);
   }
 
   public String getEventTypeWithCorrelationId() {
@@ -215,9 +213,9 @@ public class LogEvent {
       builder.append(eventType);
       builder.append(", ");
     }
-    if (className != null) {
-      builder.append("className=");
-      builder.append(className);
+    if (description != null) {
+      builder.append("description=");
+      builder.append(description);
       builder.append(", ");
     }
     if (serializedObject != null) {

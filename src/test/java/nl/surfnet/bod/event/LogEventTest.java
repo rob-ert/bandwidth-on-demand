@@ -49,7 +49,8 @@ public class LogEventTest {
       assertThat(logEvent.getAdminGroup(), is(GROUP_ID));
       assertThat(logEvent.getShortAdminGroup(), is("group"));
       assertThat(logEvent.getCreated(), is(now));
-      assertThat(logEvent.getClassName(), is(virtualPort.getClass().getSimpleName()));
+      assertThat(logEvent.getDescription(),
+          is(virtualPort.getClass().getSimpleName().concat(": ").concat(virtualPort.getLabel())));
       assertThat(logEvent.getSerializedObject().toString(), is(virtualPort.toString()));
     }
     finally {
@@ -61,6 +62,6 @@ public class LogEventTest {
   public void shouldLogNullDomainObject() {
     LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, null);
 
-    assertThat(logEvent.getClassName(), nullValue());
+    assertThat(logEvent.getDescription(), nullValue());
   }
 }

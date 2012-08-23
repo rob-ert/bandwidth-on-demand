@@ -199,6 +199,11 @@ public class VirtualPortRequestLink implements Loggable {
   }
 
   @Override
+  public String getLabel() {
+    return virtualResourceGroup.getLabel();
+  }
+
+  @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("VirtualPortRequestLink [");

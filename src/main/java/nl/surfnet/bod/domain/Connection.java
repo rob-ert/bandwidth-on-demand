@@ -235,6 +235,11 @@ public class Connection implements Loggable {
   }
 
   @Override
+  public String getLabel() {
+    return reservation != null ? reservation.getLabel() : connectionId;
+  }
+
+  @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("Connection [id=");
