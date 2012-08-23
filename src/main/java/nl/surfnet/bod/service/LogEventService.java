@@ -41,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -50,6 +51,8 @@ import com.google.common.collect.Iterators;
 public class LogEventService extends AbstractFullTextSearchService<LogEvent, LogEvent> {
 
   private static final String SYSTEM_USER = "system";
+
+  private static final Specification<LogEvent> SPEC_LOG_EVENTS_BY_ADMIN_GROUPS = null;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -121,6 +124,11 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
 
   public long count() {
     return logEventRepo.count();
+  }
+
+  public List<LogEvent> findByAdminGroups(Collection<String> adminGroups, int firstResult, int maxResults, Sort sort) {
+    return logEventRepo.findAll(SPEC_LOG_EVENTS_BY_ADMIN_GROUPS,
+        new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
   @Override
@@ -237,6 +245,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
    */
   private void handleEvent(LogEvent logEvent) {
     handleEvent(logger, logEvent);
+  }
+
+  public long countByAdminGroup(Collection<String> adminGroups) {
+    return logEventRepo.count(SPEC_LOG_EVENTS_BY_ADMIN_GROUPS);
   }
 
 }

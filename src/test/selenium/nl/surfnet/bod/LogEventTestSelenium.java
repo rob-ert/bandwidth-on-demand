@@ -31,7 +31,6 @@ public class LogEventTestSelenium extends TestExternalSupport {
 
   @Test
   public void shouldShowLogEventForPhysicalPortAlignment() {
-    int a = 0;
     try {
       getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME, ICT_MANAGERS_GROUP, "test@example.com");
       getNocDriver().addPhysicalPortToInstitute(GROUP_NAME, "NOC label", "Mock_Poort 1de verdieping toren1a");

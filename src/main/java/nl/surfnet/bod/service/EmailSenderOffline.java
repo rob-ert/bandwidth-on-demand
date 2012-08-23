@@ -25,8 +25,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.Loggable;
+import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +38,9 @@ public class EmailSenderOffline extends EmailSenderOnline {
 
   @Resource
   private LogEventService logEventService;
+
+  @Resource
+  private Environment environment;
 
   @Override
   @PostConstruct
@@ -61,7 +64,7 @@ public class EmailSenderOffline extends EmailSenderOnline {
 
     @Override
     public String getAdminGroup() {
-      return RoleEnum.NOC_ENGINEER.name();
+      return environment.getNocGroup();
     }
 
     @Override

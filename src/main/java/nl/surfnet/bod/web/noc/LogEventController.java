@@ -21,81 +21,16 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
-import nl.surfnet.bod.service.LogEventService;
-import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
-import nl.surfnet.bod.web.security.Security;
-
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 @Controller
 @RequestMapping(value = "/noc/" + LogEventController.PAGE_URL)
-public class LogEventController extends AbstractSearchableSortableListController<LogEvent, LogEvent> {
-  public static final String PAGE_URL = "logevents";
-  static final String MODEL_KEY = "list";
-
-  @Resource
-  private LogEventService logEventService;
-
-  @Override
-  protected String getDefaultSortProperty() {
-    return "created";
-  }
-
-  @Override
-  protected Direction getDefaultSortOrder() {
-    return Direction.DESC;
-  }
-
-  @Override
-  protected List<String> translateSortProperty(String sortProperty) {
-    if ("eventType".equals(sortProperty)) {
-      return ImmutableList.of("eventType", "correlationId");
-    }
-
-    return super.translateSortProperty(sortProperty);
-  }
+public class LogEventController extends AbstractLogEventController {
 
   @Override
   protected String listUrl() {
     return "noc/logevents";
-  }
-
-  @Override
-  protected List<LogEvent> list(int firstPage, int maxItems, Sort sort, Model model) {
-    List<LogEvent> logEvents = Lists.newArrayList();
-
-    if (Security.isSelectedNocRole()) {
-      logEvents = logEventService.findAll(firstPage, maxItems, sort);
-    }
-    return logEvents;
-  }
-
-  @Override
-  protected long count() {
-    return logEventService.count();
-  }
-
-  @Override
-  protected Class<LogEvent> getEntityClass() {
-    return LogEvent.class;
-  }
-
-  @Override
-  protected AbstractFullTextSearchService<LogEvent, LogEvent> getFullTextSearchableService() {
-    return logEventService;
   }
 
 }
