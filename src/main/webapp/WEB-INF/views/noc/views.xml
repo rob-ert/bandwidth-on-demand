@@ -13,7 +13,7 @@
     </definition>
 
     <definition extends="noc" name="noc/reservations/list">
-        <put-attribute name="body" value="/WEB-INF/views/reservations/list.jspx" />
+        <put-attribute name="body" value="/WEB-INF/views/common/reservations/list.jspx" />
         <put-attribute name="active_menu" value="reservations" cascade="true" />
         <put-attribute name="renderActions" value="false" cascade="true" />
     </definition>

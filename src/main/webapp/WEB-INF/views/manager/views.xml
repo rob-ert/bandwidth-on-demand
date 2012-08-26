@@ -27,9 +27,14 @@
         <put-attribute name="active_menu" value="overview" cascade="true" />
     </definition>
 
+    <definition extends="manager" name="manager/reservations/list">
+        <put-attribute name="body" value="/WEB-INF/views/common/reservations/list.jspx" />
+        <put-attribute name="active_menu" value="reservation" cascade="true" />
+        <put-attribute name="renderActions" value="false" cascade="true" />
+    </definition>
+
     <definition extends="manager" name="manager/logevents">
       <put-attribute name="body" value="/WEB-INF/views/common/logevents/list.jspx" />
       <put-attribute name="active_menu" value="events" cascade="true" />
     </definition>
-
 </tiles-definitions>
