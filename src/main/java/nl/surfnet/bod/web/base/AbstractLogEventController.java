@@ -69,7 +69,7 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
 
   @Override
   protected long count() {
-    return logEventService.countByAdminGroup(Security.getUserDetails().getUserGroupIds());
+    return logEventService.countByAdminGroups(Security.getUserDetails().getUserGroupIds());
   }
 
   @Override
