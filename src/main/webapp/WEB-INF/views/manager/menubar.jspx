@@ -4,4 +4,5 @@
     <item id="i_vrg_list" url="/manager/teams" messageCode="menu_virtualresourcegroup_label" menu="teams" />
     <item id="i_vp_list" url="/manager/virtualports" messageCode="menu_virtualport_label" menu="virtualport" />
     <item id="i_pp_list" url="/manager/physicalports" messageCode="menu_physicalport_label" menu="physicalport" />
+    <item id="i_le_list" url="/manager/logevents" messageCode="menu_logevent_label" menu="logevent" />
 </menu>

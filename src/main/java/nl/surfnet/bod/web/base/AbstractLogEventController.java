@@ -19,7 +19,7 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.web.noc;
+package nl.surfnet.bod.web.base;
 
 import java.util.List;
 
@@ -28,7 +28,6 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.LogEventService;
-import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.data.domain.Sort;

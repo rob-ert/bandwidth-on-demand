@@ -19,20 +19,20 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.web.noc;
+package nl.surfnet.bod.web.user;
 
 import nl.surfnet.bod.web.base.AbstractLogEventController;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@Controller("nocEventController")
-@RequestMapping(value = "/noc/" + LogEventController.PAGE_URL)
+@Controller("userEventController")
+@RequestMapping(value = "/" + AbstractLogEventController.PAGE_URL)
 public class LogEventController extends AbstractLogEventController {
 
   @Override
   protected String listUrl() {
-    return "noc/logevents";
+    return "logevents";
   }
 
 }

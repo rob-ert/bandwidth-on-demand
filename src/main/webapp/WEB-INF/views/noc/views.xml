@@ -18,4 +18,9 @@
         <put-attribute name="renderActions" value="false" cascade="true" />
     </definition>
 
+   <definition extends="noc" name="noc/logevents">
+      <put-attribute name="body" value="/WEB-INF/views/common/logevents/list.jspx" />
+      <put-attribute name="active_menu" value="events" cascade="true" />
+    </definition>
+
 </tiles-definitions>
