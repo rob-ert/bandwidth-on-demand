@@ -63,9 +63,6 @@ public class Environment {
   @Value("${google.analytics.code}")
   private String googleAnalyticsCode;
 
-  @Value("${bod.ui.logevent.disabled}")
-  private boolean logEventTabDisabled;
-
   @Value("${os.group.noc}")
   private String nocGroup;
 
@@ -141,10 +138,6 @@ public class Environment {
 
   public String getVersion() {
     return version;
-  }
-
-  public boolean getLogEventTabDisabled() {
-    return logEventTabDisabled;
   }
 
   public String getNocGroup() {
