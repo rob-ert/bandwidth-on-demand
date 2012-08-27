@@ -21,14 +21,28 @@
  */
 package nl.surfnet.bod.web.noc;
 
+import java.util.List;
+
+import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.web.base.AbstractLogEventController;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller("nocEventController")
 @RequestMapping(value = "/noc/" + LogEventController.PAGE_URL)
 public class LogEventController extends AbstractLogEventController {
+
+  protected List<LogEvent> list(int firstPage, int maxItems, Sort sort, Model model) {
+    return logEventService.findAll(firstPage, maxItems, sort);
+  }
+
+  @Override
+  protected long count() {
+    return logEventService.count();
+  }
 
   @Override
   protected String listUrl() {

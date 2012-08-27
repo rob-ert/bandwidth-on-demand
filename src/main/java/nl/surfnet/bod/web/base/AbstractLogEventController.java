@@ -41,7 +41,7 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
   static final String MODEL_KEY = "list";
 
   @Resource
-  private LogEventService logEventService;
+  protected LogEventService logEventService;
 
   @Override
   protected String getDefaultSortProperty() {
