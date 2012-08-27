@@ -28,17 +28,26 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.LogEventService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.ui.Model;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 public abstract class AbstractLogEventController extends AbstractSearchableSortableListController<LogEvent, LogEvent> {
   public static final String PAGE_URL = "logevents";
   static final String MODEL_KEY = "list";
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+  @Resource
+  protected VirtualResourceGroupService virtualResourceGroupService;
 
   @Resource
   protected LogEventService logEventService;
@@ -64,12 +73,13 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
 
   @Override
   protected List<LogEvent> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return logEventService.findByAdminGroups(Security.getUserDetails().getUserGroupIds(), firstPage, maxItems, sort);
+    return logEventService.findByAdminGroups(determinGroupsToSearchFor(Security.getUserDetails()), firstPage, maxItems,
+        sort);
   }
 
   @Override
   protected long count() {
-    return logEventService.countByAdminGroups(Security.getUserDetails().getUserGroupIds());
+    return logEventService.countByAdminGroups(determinGroupsToSearchFor(Security.getUserDetails()));
   }
 
   @Override
@@ -80,6 +90,25 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
   @Override
   protected AbstractFullTextSearchService<LogEvent, LogEvent> getFullTextSearchableService() {
     return logEventService;
+  }
+
+  private List<String> determinGroupsToSearchFor(RichUserDetails user) {
+    List<String> adminGroups = Lists.newArrayList();
+
+    if (user.getSelectedRole().isUserRole()) {
+      // Only show events related to a virtualUserGroup the user is a member of
+      for (String groupId : user.getUserGroupIds()) {
+        if (virtualResourceGroupService.findBySurfconextGroupId(groupId) != null) {
+          adminGroups.add(groupId);
+        }
+      }
+    }
+    else {
+      adminGroups.add(logEventService.determineAdminGroup(user));
+    }
+
+    logger.debug("Groups to search for: {}", adminGroups);
+    return adminGroups;
   }
 
 }

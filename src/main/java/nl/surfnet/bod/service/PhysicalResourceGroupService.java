@@ -170,10 +170,6 @@ public class PhysicalResourceGroupService {
     return activationEmailLinkRepo.save(link);
   }
 
-  public PhysicalResourceGroup findByInstituteId(Long instituteId) {
-    return physicalResourceGroupRepo.findByInstituteId(instituteId);
-  }
-
   private void deActivatePhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
     physicalResourceGroup.setActive(false);
     physicalResourceGroupRepo.save(physicalResourceGroup);

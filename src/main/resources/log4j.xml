@@ -46,6 +46,10 @@
     <level value="DEBUG" />
   </logger>
 
+   <logger name="nl.surfnet.bod.web.base">
+    <level value="DEBUG" />
+   </logger>
+
   <root>
     <level value="WARN" />
     <appender-ref ref="CONSOLE" />

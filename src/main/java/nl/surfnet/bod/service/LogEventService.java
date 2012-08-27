@@ -36,6 +36,7 @@ import javax.persistence.criteria.Root;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.event.LogEvent;
@@ -152,6 +153,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
     return entityManager;
   }
 
+  public String determineAdminGroup(RichUserDetails user) {
+    return determineAdminGroup(user, null);
+  }
+
   @VisibleForTesting
   String determineAdminGroup(RichUserDetails user, Loggable domainObject) {
 
@@ -159,8 +164,8 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
       return domainObject.getAdminGroup();
     }
     else if (user.isSelectedManagerRole()) {
-      return physicalResourceGroupService.findByInstituteId(user.getSelectedRole().getPhysicalResourceGroupId())
-          .getAdminGroup();
+      PhysicalResourceGroup prg = physicalResourceGroupService.find(user.getSelectedRole().getPhysicalResourceGroupId());
+      return prg.getAdminGroup();
     }
     else if (user.isSelectedNocRole()) {
       return environment.getNocGroup();
