@@ -162,7 +162,7 @@ public class LogEventServiceTest {
     when(userMock.isSelectedManagerRole()).thenReturn(true);
     when(userMock.getSelectedRole()).thenReturn(manager);
 
-    when(physicalResourceGroupService.findByInstituteId(prg.getId())).thenReturn(prg);
+    when(physicalResourceGroupService.find(prg.getId())).thenReturn(prg);
     prg.getAdminGroup();
     String adminGroup = subject.determineAdminGroup(userMock, null);
 
@@ -178,7 +178,7 @@ public class LogEventServiceTest {
     when(userMock.isSelectedManagerRole()).thenReturn(true);
     when(userMock.getSelectedRole()).thenReturn(manager);
 
-    when(physicalResourceGroupService.findByInstituteId(prg.getId())).thenReturn(prg);
+    when(physicalResourceGroupService.find(prg.getId())).thenReturn(prg);
     prg.getAdminGroup();
     String adminGroup = subject.determineAdminGroup(userMock, res);
 
