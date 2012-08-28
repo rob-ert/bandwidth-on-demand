@@ -21,20 +21,34 @@
  */
 package nl.surfnet.bod.support;
 
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.pages.user.EditVirtualPortPage;
+import nl.surfnet.bod.pages.user.ListLogEventsPage;
+import nl.surfnet.bod.pages.user.ListReservationPage;
+import nl.surfnet.bod.pages.user.ListVirtualPortPage;
+import nl.surfnet.bod.pages.user.NewReservationPage;
+import nl.surfnet.bod.pages.user.RequestNewVirtualPortRequestPage;
+import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectInstitutePage;
+import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectTeamPage;
+import nl.surfnet.bod.pages.user.UserOverviewPage;
+
+import org.hamcrest.Matchers;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+import org.junit.Assert;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+import static junit.framework.Assert.fail;
+
 import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.user.*;
-
-import org.hamcrest.Matchers;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
-import org.junit.Assert;
-import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class BodUserWebDriver {
 
@@ -146,6 +160,23 @@ public class BodUserWebDriver {
     listPage.findRow(fields);
   }
 
+  public void verifyLogEventExists(String... fields) {
+    ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
+
+    page.logEventShouldBe(LocalDateTime.now(), fields);
+  }
+
+  public void verifyLogEventDoesNotExist(String... fields) {
+    ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
+    try {
+      page.logEventShouldBe(LocalDateTime.now(), fields);
+      fail(String.format("LogEvent related to [%s] exists, but should not be visable", (Object[]) fields));
+    }
+    catch (NoSuchElementException e) {
+      // as expected
+    }
+  }
+
   public void switchToNoc() {
     switchTo("NOC Engineer");
   }
@@ -206,4 +237,5 @@ public class BodUserWebDriver {
 
     page.verifyRowsWithLabelExists(reservationLabels);
   }
+
 }

@@ -23,23 +23,64 @@ package nl.surfnet.bod;
 
 import nl.surfnet.bod.support.TestExternalSupport;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class LogEventTestSelenium extends TestExternalSupport {
 
-  private static final String GROUP_NAME = "2COLLEGE";
+  private static final String GROUP_NAME_ONE = "2COLLEGE";
+  private static final String GROUP_NAME_TWO = "SURFnet bv";
+  private static final String PORT_LABEL_1 = "NOC Port 1";
+  private static final String PORT_LABEL_2 = "NOC Port 2";
+  private static final String VP_LABEL_1 = "VP Port 1";
+
+  @Before
+  public void prepareUser() {
+    getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME_ONE, ICT_MANAGERS_GROUP, "test@test.nl");
+    getWebDriver().clickLinkInLastEmail();
+    getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME_TWO, ICT_MANAGERS_GROUP_2, "test2@test.nl");
+    getWebDriver().clickLinkInLastEmail();
+
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, PORT_LABEL_1, GROUP_NAME_ONE);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, PORT_LABEL_2, GROUP_NAME_TWO);
+
+    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().selectInstituteAndRequest(GROUP_NAME_ONE, 1200, "port 1");
+    getWebDriver().clickLinkInLastEmail();
+    getManagerDriver().createVirtualPort(VP_LABEL_1);
+  }
+
+  @After
+  public void unlinkPort() {
+    getUserDriver().switchToManager(GROUP_NAME_ONE);
+    getManagerDriver().deleteVirtualPort(VP_LABEL_1);
+
+    getManagerDriver().switchToNoc();
+    getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_1);
+    getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_2);
+  }
 
   @Test
   public void shouldShowLogEventForPhysicalPortAlignment() {
-    try {
-      getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME, ICT_MANAGERS_GROUP, "test@example.com");
-      getNocDriver().addPhysicalPortToInstitute(GROUP_NAME, "NOC label", "Mock_Poort 1de verdieping toren1a");
-      getNocDriver().verifyPhysicalPortWasAllocated(NMS_PORT_ID_1, "NOC label");
-      getNocDriver().verifyLogEventExistis("NOC label");
-    }
-    finally {
-      getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_1);
-    }
-  }
+    getManagerDriver().switchToNoc();
+    // Allocation of port should visible in log for noc...
+    getNocDriver().verifyLogEventExistis(PORT_LABEL_1);
 
+    // ... and for manager One ...
+    getManagerDriver().switchToManager(GROUP_NAME_ONE);
+    getManagerDriver().verifyLogEventExists(PORT_LABEL_1);
+    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
+
+    // ... and for manager One ...
+    getManagerDriver().switchToManager(GROUP_NAME_TWO);
+    getManagerDriver().verifyLogEventExists(PORT_LABEL_2);
+    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
+
+    // ... and does exist for user
+    getManagerDriver().switchToUser();
+    getUserDriver().verifyLogEventExists(VP_LABEL_1);
+    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
+    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
+  }
 }

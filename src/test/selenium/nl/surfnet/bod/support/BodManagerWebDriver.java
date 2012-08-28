@@ -21,19 +21,10 @@
  */
 package nl.surfnet.bod.support;
 
-import static junit.framework.Assert.*;
-import static nl.surfnet.bod.support.BodWebDriver.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.remote.RemoteWebDriver;
-
 import nl.surfnet.bod.pages.manager.EditPhysicalPortPage;
 import nl.surfnet.bod.pages.manager.EditPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.manager.EditVirtualPortPage;
+import nl.surfnet.bod.pages.manager.ListLogEventsPage;
 import nl.surfnet.bod.pages.manager.ListPhysicalPortsPage;
 import nl.surfnet.bod.pages.manager.ListReservationPage;
 import nl.surfnet.bod.pages.manager.ListVirtualPortPage;
@@ -42,6 +33,21 @@ import nl.surfnet.bod.pages.manager.ManagerOverviewPage;
 import nl.surfnet.bod.pages.manager.NewVirtualPortPage;
 import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.noc.NocOverviewPage;
+
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+import static junit.framework.Assert.fail;
+
+import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 
 public class BodManagerWebDriver {
 
@@ -180,6 +186,23 @@ public class BodManagerWebDriver {
     page.findRow("Reservations in", "1");
   }
 
+  public void verifyLogEventExists(String... fields) {
+    ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
+
+    page.logEventShouldBe(LocalDateTime.now(), fields);
+  }
+
+  public void verifyLogEventDoesNotExist(String... fields) {
+    ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
+    try {
+      page.logEventShouldBe(LocalDateTime.now(), fields);
+      fail(String.format("LogEvent related to [%s] exists, but should not be visable", (Object[]) fields));
+    }
+    catch (NoSuchElementException e) {
+      // as expected
+    }
+  }
+
   public void createVirtualPort(String name) {
     createVirtualPort(name, null);
   }
@@ -222,7 +245,7 @@ public class BodManagerWebDriver {
   }
 
   public void switchToUser() {
-    switchTo("User");
+    switchTo("BoD User");
   }
 
   public void switchToManager(String manager) {

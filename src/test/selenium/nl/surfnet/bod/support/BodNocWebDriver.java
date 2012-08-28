@@ -21,19 +21,6 @@
  */
 package nl.surfnet.bod.support;
 
-import static nl.surfnet.bod.support.BodWebDriver.*;
-
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.openqa.selenium.remote.RemoteWebDriver;
-
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.pages.noc.AddPhysicalPortPage;
 import nl.surfnet.bod.pages.noc.EditPhysicalPortPage;
 import nl.surfnet.bod.pages.noc.EditPhysicalResourceGroupPage;
@@ -48,6 +35,16 @@ import nl.surfnet.bod.pages.noc.MovePhysicalPortResultPage;
 import nl.surfnet.bod.pages.noc.NewPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.noc.NocOverviewPage;
 import nl.surfnet.bod.web.InstituteController;
+
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class BodNocWebDriver {
 
@@ -136,7 +133,7 @@ public class BodNocWebDriver {
   }
 
   public void switchToUser() {
-    switchTo("User");
+    switchTo("BoD User");
   }
 
   private void switchTo(String role) {
