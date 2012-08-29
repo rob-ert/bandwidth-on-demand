@@ -71,6 +71,8 @@ public class FullTextSearchContext<T> {
    * 
    * @return String array containing all fieldNames of the given entity which
    *         are annotated with @link {@Field} to mark them indexable.
+   *         Note that the field annotated with @Id will be skipped, despite the
+   *         fact that the are indexed by default.
    */
   @VisibleForTesting
   String[] getIndexedFields(Class<?> entity) {
