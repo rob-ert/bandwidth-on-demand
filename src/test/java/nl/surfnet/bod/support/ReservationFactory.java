@@ -35,7 +35,7 @@ public class ReservationFactory {
 
   private static Long id = COUNTER.incrementAndGet();
   private Integer version;
-  private String name;
+  private String name = "Default name";
   private ReservationStatus status = ReservationStatus.SCHEDULED;
   private VirtualPort sourcePort;
   private VirtualPort destinationPort;

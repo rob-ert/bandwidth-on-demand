@@ -21,10 +21,11 @@
  */
 package nl.surfnet.bod;
 
+import nl.surfnet.bod.support.TestExternalSupport;
+
+import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
-
-import nl.surfnet.bod.support.TestExternalSupport;
 
 public class MovePhysicalPortTestSelenium extends TestExternalSupport {
 
@@ -57,8 +58,10 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
     getManagerDriver().createVirtualPort("Second port");
 
     getManagerDriver().switchToUser();
-    getUserDriver().createNewReservation("First reservation");
-    getUserDriver().createNewReservation("Second reservation");
+    getUserDriver().createNewReservation(
+        "First reservation", LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(1).plusHours(2));
+    getUserDriver().createNewReservation(
+        "Second reservation", LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(5));
   }
 
   @Test

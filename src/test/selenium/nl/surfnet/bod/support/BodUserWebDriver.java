@@ -121,6 +121,11 @@ public class BodUserWebDriver {
     }
   }
 
+  public void createNewReservation(String label, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+    createNewReservation(
+        label, startDateTime.toLocalDate(), endDateTime.toLocalDate(), startDateTime.toLocalTime(), endDateTime.toLocalTime());
+  }
+
   public void createNewReservation(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
       LocalTime endTime) {
     NewReservationPage page = NewReservationPage.get(driver, URL_UNDER_TEST);

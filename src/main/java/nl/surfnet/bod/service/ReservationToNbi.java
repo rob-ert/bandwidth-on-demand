@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
+import java.util.concurrent.Future;
+
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.NsiRequestDetails;
@@ -33,6 +35,7 @@ import nl.surfnet.bod.web.security.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Optional;
@@ -55,7 +58,9 @@ public class ReservationToNbi {
   private LogEventService logEventService;
 
   @Async
-  public void reserve(Reservation reservation, boolean autoProvision, Optional<NsiRequestDetails> requestDetails) {
+  public Future<Long> reserve(Long reservationId, boolean autoProvision, Optional<NsiRequestDetails> requestDetails) {
+    Reservation reservation = reservationRepo.findOne(reservationId);
+
     logger.debug("Requesting a new reservation from the Nbi, {} ({})", reservation);
 
     ReservationStatus orgStatus = reservation.getStatus();
@@ -64,11 +69,15 @@ public class ReservationToNbi {
     reservation = reservationRepo.save(reservation);
 
     publishStatusChanged(reservation, orgStatus, requestDetails);
+
+    return new AsyncResult<Long>(reservation.getId());
   }
 
   @Async
-  public void terminate(Reservation reservation, String cancelReason, Optional<NsiRequestDetails> requestDetails) {
-    logger.debug("Terminating a reservation {}", reservation);
+  public Future<Long> terminate(Long reservationId, String cancelReason, Optional<NsiRequestDetails> requestDetails) {
+    Reservation reservation = reservationRepo.findOne(reservationId);
+
+    logger.debug("Terminating reservation {}", reservation);
 
     ReservationStatus orgStatus = reservation.getStatus();
 
@@ -76,19 +85,25 @@ public class ReservationToNbi {
 
     reservation.setStatus(ReservationStatus.CANCELLED);
     reservation.setCancelReason(cancelReason);
-    reservationRepo.save(reservation);
+    reservation = reservationRepo.save(reservation);
 
-    logEventService.logDeleteEvent(Security.getUserDetails(), reservation, reservation.getName() + " " + cancelReason);
+    logEventService.logUpdateEvent(Security.getUserDetails(), reservation, reservation.getName() + " " + cancelReason);
 
     publishStatusChanged(reservation, orgStatus, requestDetails);
+
+    return new AsyncResult<Long>(reservation.getId());
   }
 
   @Async
-  public void provision(Reservation reservation, Optional<NsiRequestDetails> requestDetails) {
+  public void provision(Long reservationId, Optional<NsiRequestDetails> requestDetails) {
+    Reservation reservation = reservationRepo.findOne(reservationId);
+
     logger.debug("Activating a reservation {}", reservation);
 
     boolean activateReservation = nbiClient.activateReservation(reservation.getReservationId());
 
+    // TODO [AvD] What should happen when the reservation did not activate???
+    // Should we send an NSI activation failed (publish a change event??)
     if (activateReservation) {
       ReservationStatus orgStatus = reservation.getStatus();
 

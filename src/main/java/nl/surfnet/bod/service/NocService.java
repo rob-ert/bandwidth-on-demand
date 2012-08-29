@@ -21,23 +21,33 @@
  */
 package nl.surfnet.bod.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.web.security.Security;
 
+import org.slf4j.Logger;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.Collections2;
+
 @Service
 public class NocService {
+
+  private Logger logger = org.slf4j.LoggerFactory.getLogger(NocService.class);
 
   @Resource
   private ReservationService reservationService;
@@ -51,13 +61,17 @@ public class NocService {
   @Resource
   private LogEventService logEventService;
 
+  @PersistenceContext
+  private EntityManager entityManager;
+
   @Transactional
   public Collection<Reservation> movePort(PhysicalPort oldPort, PhysicalPort newPort) {
     Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(oldPort);
-
     Collection<Reservation> reservations = getActiveReservations(oldPort);
 
-    cancelReservations(reservations);
+    logger.info("Move a port with {} reservations.", reservations.size());
+
+    cancelReservationsAndWait(reservations);
 
     saveNewPort(oldPort, newPort);
 
@@ -108,11 +122,31 @@ public class NocService {
     physicalPortService.save(newPort);
   }
 
-  private void cancelReservations(Collection<Reservation> reservations) {
+  private void cancelReservationsAndWait(Collection<Reservation> reservations) {
+    List<Optional<Future<Long>>> futures = new ArrayList<>();
+
     for (Reservation reservation : reservations) {
-      reservationService.cancelWithReason(reservation, "A physical port, which the reservation used was moved",
-          Security.getUserDetails());
+      futures.add(reservationService.cancelWithReason(reservation, "A physical port, which the reservation used was moved",
+          Security.getUserDetails()));
     }
+
+    for (Optional<Future<Long>> future : futures) {
+      if (future.isPresent()) {
+        try {
+          // waiting for the cancel to complete
+          future.get().get();
+        }
+        catch (InterruptedException | ExecutionException e) {
+          logger.error("Failed to wait for a reservation to terminate:", e);
+        }
+      }
+    }
+
+    for (Reservation reservation : reservations) {
+      // refresh the reservations, have been changed in different thread
+      entityManager.refresh(reservation);
+    }
+
   }
 
   private Collection<Reservation> getActiveReservations(PhysicalPort port) {

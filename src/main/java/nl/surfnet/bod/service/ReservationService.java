@@ -28,6 +28,7 @@ import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
 import java.util.*;
+import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -105,7 +106,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public void provision(Reservation reservation, Optional<NsiRequestDetails> requestDetails) {
     checkNotNull(reservation);
 
-    reservationToNbi.provision(reservation, requestDetails);
+    reservationToNbi.provision(reservation.getId(), requestDetails);
   }
 
   /**
@@ -114,8 +115,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * @param reservation
    * @See {@link #create(Reservation)}
    */
-  public void create(Reservation reservation) {
-    create(reservation, true, Optional.<NsiRequestDetails> absent());
+  public Future<Long> create(Reservation reservation) {
+    return create(reservation, true, Optional.<NsiRequestDetails> absent());
   }
 
   /**
@@ -128,7 +129,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * @return ReservationId, scheduleId from NMS
    *
    */
-  public Reservation create(Reservation reservation, boolean autoProvision,
+  public Future<Long> create(Reservation reservation, boolean autoProvision,
       Optional<NsiRequestDetails> nsiRequestDetails) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
@@ -141,9 +142,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     reservation = reservationRepo.save(reservation);
 
     // Async call to nbi
-    reservationToNbi.reserve(reservation, autoProvision, nsiRequestDetails);
-
-    return reservation;
+    return reservationToNbi.reserve(reservation.getId(), autoProvision, nsiRequestDetails);
   }
 
   private void fillStartTimeIfEmpty(Reservation reservation) {
@@ -204,9 +203,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    *
    * @param reservation
    *          {@link Reservation} to delete
-   * @return true if the reservation was canceled, false otherwise.
+   * @return the future with the resulting reservation, or null if delete is not allowed.
    */
-  public boolean cancel(Reservation reservation, RichUserDetails user) {
+  public Optional<Future<Long>> cancel(Reservation reservation, RichUserDetails user) {
     return cancelWithReason(reservation, "Cancelled by " + user.getDisplayName(), user);
   }
 
@@ -516,22 +515,20 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.count(specByPhysicalPort(port));
   }
 
-  public boolean cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user) {
+  public Optional<Future<Long>> cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user) {
     return cancelWithReason(reservation, cancelReason, user, Optional.<NsiRequestDetails>absent());
   }
 
-  public boolean cancelWithReason(
+  public Optional<Future<Long>> cancelWithReason(
       Reservation reservation, String cancelReason, RichUserDetails user, Optional<NsiRequestDetails> requestDetails) {
 
     if (isDeleteAllowed(reservation, user.getSelectedRole()).isAllowed()) {
-      reservationToNbi.terminate(reservation, cancelReason, requestDetails);
+      return Optional.of(reservationToNbi.terminate(reservation.getId(), cancelReason, requestDetails));
+    }
 
-      return true;
-    }
-    else {
-      log.info("Not allowed to cancel reservation {}", reservation.getName());
-    }
-    return false;
+    log.info("Not allowed to cancel reservation {}", reservation.getName());
+
+    return Optional.absent();
   }
 
   public Reservation findByReservationId(final String reservationId) {

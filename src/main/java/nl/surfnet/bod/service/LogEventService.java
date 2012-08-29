@@ -33,12 +33,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.Loggable;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.event.LogEvent_;
@@ -61,16 +56,6 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
 
   private static final String SYSTEM_USER = "system";
 
-  private static Specification<LogEvent> SPEC_LOG_EVENTS_BY_ADMIN_GROUPS(final Collection<String> adminGroups) {
-    return new Specification<LogEvent>() {
-      @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
-        return cb.and(root.get(LogEvent_.adminGroup).in(adminGroups));
-      }
-    };
-  }
-
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Resource
@@ -84,6 +69,16 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
 
   @PersistenceContext
   private EntityManager entityManager;
+
+  private static Specification<LogEvent> SPEC_LOG_EVENTS_BY_ADMIN_GROUPS(final Collection<String> adminGroups) {
+    return new Specification<LogEvent>() {
+      @Override
+      public javax.persistence.criteria.Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query,
+          CriteriaBuilder cb) {
+        return cb.and(root.get(LogEvent_.adminGroup).in(adminGroups));
+      }
+    };
+  }
 
   public void logCreateEvent(RichUserDetails user, Loggable domainObject) {
     logCreateEvent(user, domainObject, null);
@@ -185,10 +180,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
    * domainObject with one a specific type, as determined by
    * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
    * {@link LogEventRepo}
-   * 
+   *
    * @param logger
    *          Logger to write to
-   * 
+   *
    * @param logEvent
    *          LogEvent to handle
    */
@@ -233,7 +228,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
    * <li>VirtualPort</li>
    * <li>Institute</li>
    * </ul>
-   * 
+   *
    * @param logEvent
    * @return true when the {@link LogEvent#getDescription()} matches one of the
    *         listed above, false otherwise.
@@ -261,7 +256,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
 
   /**
    * Delegates to {@link #handleEvent(Logger, LogEvent)}
-   * 
+   *
    * @param logEvent
    */
   private void handleEvent(LogEvent logEvent) {

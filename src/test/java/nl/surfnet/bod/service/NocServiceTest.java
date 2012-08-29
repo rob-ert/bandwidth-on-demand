@@ -21,20 +21,14 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import org.joda.time.LocalDateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import java.util.concurrent.Future;
 
-import com.google.common.collect.ImmutableList;
+import javax.persistence.EntityManager;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
@@ -45,6 +39,19 @@ import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+
+import org.joda.time.LocalDateTime;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.scheduling.annotation.AsyncResult;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NocServiceTest {
@@ -60,6 +67,9 @@ public class NocServiceTest {
 
   @Mock
   private PhysicalPortService physicalPortServiceMock;
+
+  @Mock
+  private EntityManager entityManagerMock;
 
   private RichUserDetails user = new RichUserDetailsFactory().addNocRole().create();
 
@@ -84,6 +94,8 @@ public class NocServiceTest {
 
     when(virtualPortServiceMock.findAllForPhysicalPort(oldPort)).thenReturn(ImmutableList.of(vPort));
     when(reservationServiceMock.findActiveByPhysicalPort(oldPort)).thenReturn(ImmutableList.of(reservation));
+    when(reservationServiceMock.cancelWithReason(reservation, "A physical port, which the reservation used was moved", user))
+      .thenReturn(Optional.<Future<Long>>of(new AsyncResult<>(reservation.getId())));
 
     subject.movePort(oldPort, newPort);
 

@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
+import static junit.framework.Assert.assertFalse;
 import static nl.surfnet.bod.matchers.DateMatchers.isAfterNow;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
@@ -60,6 +62,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.AsyncResult;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -150,7 +153,7 @@ public class ReservationServiceTest {
     subject.create(reservation);
 
     verify(reservationRepoMock).save(reservation);
-    verify(reservationToNbiMock).reserve(reservation, true, Optional.<NsiRequestDetails> absent());
+    verify(reservationToNbiMock).reserve(reservation.getId(), true, Optional.<NsiRequestDetails> absent());
   }
 
   @Test
@@ -191,13 +194,16 @@ public class ReservationServiceTest {
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole()
         .addUserGroup(reservation.getVirtualResourceGroup().getSurfconextGroupId()).setDisplayname("Piet Puk").create();
 
+    when(
+        reservationToNbiMock.terminate(reservation.getId(), "Cancelled by Piet Puk",
+            Optional.<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(2L));
+
     Security.setUserDetails(richUserDetails);
 
-    boolean result = subject.cancel(reservation, richUserDetails);
+    subject.cancel(reservation, richUserDetails);
 
-    assertThat(result, is(true));
-
-    verify(reservationToNbiMock).terminate(reservation, "Cancelled by Piet Puk", Optional.<NsiRequestDetails>absent());
+    verify(reservationToNbiMock).terminate(reservation.getId(), "Cancelled by Piet Puk",
+        Optional.<NsiRequestDetails> absent());
   }
 
   @Test
@@ -206,7 +212,10 @@ public class ReservationServiceTest {
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole().create();
     Security.setUserDetails(richUserDetails);
 
-    Assert.assertFalse(subject.cancel(reservation, richUserDetails));
+    Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
+
+    assertFalse(cancelFuture.isPresent());
+
     assertThat(reservation.getStatus(), is(ReservationStatus.SCHEDULED));
     verifyZeroInteractions(reservationRepoMock);
   }
@@ -217,9 +226,9 @@ public class ReservationServiceTest {
 
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
 
-    boolean result = subject.cancel(reservation, richUserDetails);
+    Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
-    assertThat(result, is(false));
+    assertFalse(cancelFuture.isPresent());
     assertThat(reservation.getStatus(), is(ReservationStatus.SCHEDULED));
 
     verify(reservationRepoMock, never()).save(reservation);
@@ -227,22 +236,28 @@ public class ReservationServiceTest {
   }
 
   @Test
-  public void cancelAReservationAsAManagerInSourcePortPrgShouldCallTerminate() {
+  public void cancelAReservationAsAManagerInSourcePortPrgShouldCallTerminate() throws InterruptedException,
+      ExecutionException {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
 
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addManagerRole(
         reservation.getSourcePort().getPhysicalPort().getPhysicalResourceGroup()).create();
     Security.setUserDetails(richUserDetails);
 
-    boolean cancelled = subject.cancel(reservation, richUserDetails);
+    when(
+        reservationToNbiMock.terminate(reservation.getId(), "Cancelled by Truus Visscher",
+            Optional.<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(2L));
 
-    assertThat(cancelled, is(true));
+    Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
-    verify(reservationToNbiMock).terminate(reservation, "Cancelled by Truus Visscher", Optional.<NsiRequestDetails>absent());
+    assertThat(cancelFuture.get().get(), is(2L));
+    verify(reservationToNbiMock).terminate(reservation.getId(), "Cancelled by Truus Visscher",
+        Optional.<NsiRequestDetails> absent());
   }
 
   @Test
-  public void cancelAReservationAsAManagerInDestinationPortPrgShouldCallTerminate() {
+  public void cancelAReservationAsAManagerInDestinationPortPrgShouldCallTerminate() throws InterruptedException,
+      ExecutionException {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
     reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup().setAdminGroup("urn:different");
 
@@ -250,24 +265,31 @@ public class ReservationServiceTest {
         reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup()).create();
     Security.setUserDetails(richUserDetails);
 
-    boolean cancelled = subject.cancel(reservation, richUserDetails);
+    when(
+        reservationToNbiMock.terminate(reservation.getId(), "Cancelled by Truus Visscher",
+            Optional.<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(5L));
 
-    assertThat(cancelled, is(true));
+    Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
-    verify(reservationToNbiMock).terminate(reservation, "Cancelled by Truus Visscher", Optional.<NsiRequestDetails>absent());
+    assertThat(cancelFuture.get().get(), is(5L));
+    verify(reservationToNbiMock).terminate(reservation.getId(), "Cancelled by Truus Visscher",
+        Optional.<NsiRequestDetails> absent());
   }
 
   @Test
-  public void cancelAReservationAsANocShouldCallTerminate() {
+  public void cancelAReservationAsANocShouldCallTerminate() throws InterruptedException, ExecutionException {
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addNocRole().create();
 
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
 
-    boolean cancelled = subject.cancel(reservation, richUserDetails);
+    when(reservationToNbiMock.terminate(reservation.getId(), "Cancelled by Truus Visscher",
+        Optional.<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(3L));
 
-    assertThat(cancelled, is(true));
+    Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
-    verify(reservationToNbiMock).terminate(reservation, "Cancelled by Truus Visscher", Optional.<NsiRequestDetails>absent());
+    assertThat(cancelFuture.get().get(), is(3L));
+    verify(reservationToNbiMock).terminate(reservation.getId(), "Cancelled by Truus Visscher",
+        Optional.<NsiRequestDetails> absent());
   }
 
   @Test
@@ -276,9 +298,9 @@ public class ReservationServiceTest {
 
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).create();
 
-    boolean cancelled = subject.cancel(reservation, richUserDetails);
+    Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
-    assertThat(cancelled, is(false));
+    assertFalse(cancelFuture.isPresent());
     assertThat(reservation.getStatus(), is(ReservationStatus.FAILED));
 
     verify(reservationRepoMock, never()).save(reservation);
