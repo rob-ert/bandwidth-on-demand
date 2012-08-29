@@ -133,7 +133,7 @@ public class BodNocWebDriver {
   }
 
   public void switchToUser() {
-    switchTo("BoD User");
+    switchTo("User");
   }
 
   private void switchTo(String role) {

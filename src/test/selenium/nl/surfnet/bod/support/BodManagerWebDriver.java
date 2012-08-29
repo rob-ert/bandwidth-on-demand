@@ -245,7 +245,7 @@ public class BodManagerWebDriver {
   }
 
   public void switchToUser() {
-    switchTo("BoD User");
+    switchTo("User");
   }
 
   public void switchToManager(String manager) {
