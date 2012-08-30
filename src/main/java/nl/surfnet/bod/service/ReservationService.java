@@ -140,6 +140,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     logEventService.logCreateEvent(Security.getUserDetails(), reservation);
 
     reservation = reservationRepo.save(reservation);
+    // make sure the reservation is written to the database before we call the async reserve
+    reservationRepo.flush();
 
     return reservationToNbi.asyncReserve(reservation.getId(), autoProvision, nsiRequestDetails);
   }

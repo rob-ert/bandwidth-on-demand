@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
@@ -59,9 +61,11 @@ public class ReservationToNbi {
 
   @Async
   public Future<Long> asyncReserve(Long reservationId, boolean autoProvision, Optional<NsiRequestDetails> requestDetails) {
-    Reservation reservation = reservationRepo.findOne(reservationId);
+    checkNotNull(reservationId);
 
-    logger.debug("Requesting a new reservation from the Nbi, {}", reservation);
+    Reservation reservation = reservationRepo.findOne(reservationId);
+    logger.debug("Requesting a new reservation from the Nbi, {} ({})", reservation, reservationId);
+    checkNotNull(reservation);
 
     ReservationStatus orgStatus = reservation.getStatus();
     reservation = nbiClient.createReservation(reservation, autoProvision);

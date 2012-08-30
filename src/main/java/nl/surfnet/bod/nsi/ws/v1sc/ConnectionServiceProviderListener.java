@@ -25,9 +25,11 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProvider;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
+import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
@@ -49,6 +51,9 @@ public class ConnectionServiceProviderListener implements ReservationListener {
   @Resource
   private ConnectionServiceProvider connectionServiceProvider;
 
+  @Resource
+  private ReservationService reservationService;
+
   @PostConstruct
   public void registerListener() {
     reservationEventPublisher.addListener(this);
@@ -62,7 +67,8 @@ public class ConnectionServiceProviderListener implements ReservationListener {
 
     logger.debug("Got a reservation status change event {}", event);
 
-    Connection connection = event.getReservation().getConnection();
+    Reservation reservation = reservationService.find(event.getReservation().getId());
+    Connection connection = reservation.getConnection();
 
     switch (event.getNewStatus()) {
     case RESERVED:
@@ -88,8 +94,11 @@ public class ConnectionServiceProviderListener implements ReservationListener {
   }
 
   private void handleReservationFailed(Connection connection, ReservationStatusChangeEvent event) {
+    try {
+      logger.debug("Connection state {}, new reservation state {}", connection.getCurrentState(), event.getNewStatus());
+
       if (connection.getCurrentState() == ConnectionStateType.AUTO_PROVISION
-        || connection.getCurrentState() == ConnectionStateType.SCHEDULED) {
+          || connection.getCurrentState() == ConnectionStateType.SCHEDULED) {
         connectionServiceProvider.provisionFailed(connection, event.getNsiRequestDetails().get());
       }
       else if (connection.getCurrentState() == ConnectionStateType.TERMINATING) {
@@ -99,6 +108,10 @@ public class ConnectionServiceProviderListener implements ReservationListener {
         Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation().getFailedReason()));
         connectionServiceProvider.reserveFailed(connection, event.getNsiRequestDetails().get(), failedReason);
       }
+    }
+    catch (Exception e) {
+      logger.warn("Handeling failed, failed", e);
+    }
   }
 
 }

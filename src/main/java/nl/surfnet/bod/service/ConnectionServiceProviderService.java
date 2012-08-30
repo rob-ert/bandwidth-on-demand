@@ -78,11 +78,11 @@ public class ConnectionServiceProviderService {
     reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
     reservation.setBandwidth(connection.getDesiredBandwidth());
     reservation.setUserCreated(connection.getRequesterNsa());
-
-    reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
+    reservation.setConnection(connection);
 
     connection.setReservation(reservation);
-    connectionRepo.save(connection);
+
+    reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
   }
 
   public void provision(Connection connection, NsiRequestDetails requestDetails) {
