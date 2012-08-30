@@ -58,10 +58,10 @@ public class ReservationToNbi {
   private LogEventService logEventService;
 
   @Async
-  public Future<Long> reserve(Long reservationId, boolean autoProvision, Optional<NsiRequestDetails> requestDetails) {
+  public Future<Long> asyncReserve(Long reservationId, boolean autoProvision, Optional<NsiRequestDetails> requestDetails) {
     Reservation reservation = reservationRepo.findOne(reservationId);
 
-    logger.debug("Requesting a new reservation from the Nbi, {} ({})", reservation);
+    logger.debug("Requesting a new reservation from the Nbi, {}", reservation);
 
     ReservationStatus orgStatus = reservation.getStatus();
     reservation = nbiClient.createReservation(reservation, autoProvision);
@@ -74,7 +74,7 @@ public class ReservationToNbi {
   }
 
   @Async
-  public Future<Long> terminate(Long reservationId, String cancelReason, Optional<NsiRequestDetails> requestDetails) {
+  public Future<Long> asyncTerminate(Long reservationId, String cancelReason, Optional<NsiRequestDetails> requestDetails) {
     Reservation reservation = reservationRepo.findOne(reservationId);
 
     logger.debug("Terminating reservation {}", reservation);
@@ -95,7 +95,7 @@ public class ReservationToNbi {
   }
 
   @Async
-  public void provision(Long reservationId, Optional<NsiRequestDetails> requestDetails) {
+  public void asyncProvision(Long reservationId, Optional<NsiRequestDetails> requestDetails) {
     Reservation reservation = reservationRepo.findOne(reservationId);
 
     logger.debug("Activating a reservation {}", reservation);

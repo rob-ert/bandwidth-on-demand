@@ -68,7 +68,7 @@ public class ReservationToNbiTest {
     when(reservationRepoMock.findOne(reservation.getId())).thenReturn(reservation);
     when(reservationRepoMock.save(reservation)).thenReturn(reservation);
 
-    subject.terminate(reservation.getId(), "Cancelled by Truus", Optional.<NsiRequestDetails>absent());
+    subject.asyncTerminate(reservation.getId(), "Cancelled by Truus", Optional.<NsiRequestDetails>absent());
 
     assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
     assertThat(reservation.getCancelReason(), is("Cancelled by Truus"));
@@ -85,7 +85,7 @@ public class ReservationToNbiTest {
     when(reservationRepoMock.findOne(reservation.getId())).thenReturn(reservation);
     when(nbiClientMock.activateReservation(reservation.getReservationId())).thenReturn(true);
 
-    subject.provision(reservation.getId(), Optional.<NsiRequestDetails>absent());
+    subject.asyncProvision(reservation.getId(), Optional.<NsiRequestDetails>absent());
 
     verify(reservationRepoMock).save(reservation);
     verify(reservationEventPublisherMock).notifyListeners(any(ReservationStatusChangeEvent.class));
@@ -98,7 +98,7 @@ public class ReservationToNbiTest {
     when(reservationRepoMock.findOne(reservation.getId())).thenReturn(reservation);
     when(nbiClientMock.activateReservation(reservation.getReservationId())).thenReturn(false);
 
-    subject.provision(reservation.getId(), Optional.<NsiRequestDetails>absent());
+    subject.asyncProvision(reservation.getId(), Optional.<NsiRequestDetails>absent());
 
     verifyZeroInteractions(reservationEventPublisherMock);
     verify(reservationRepoMock).findOne(reservation.getId());

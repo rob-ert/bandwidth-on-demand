@@ -153,7 +153,7 @@ public class ReservationServiceTest {
     subject.create(reservation);
 
     verify(reservationRepoMock).save(reservation);
-    verify(reservationToNbiMock).reserve(reservation.getId(), true, Optional.<NsiRequestDetails> absent());
+    verify(reservationToNbiMock).asyncReserve(reservation.getId(), true, Optional.<NsiRequestDetails> absent());
   }
 
   @Test
@@ -195,14 +195,14 @@ public class ReservationServiceTest {
         .addUserGroup(reservation.getVirtualResourceGroup().getSurfconextGroupId()).setDisplayname("Piet Puk").create();
 
     when(
-        reservationToNbiMock.terminate(reservation.getId(), "Cancelled by Piet Puk",
+        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Piet Puk",
             Optional.<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(2L));
 
     Security.setUserDetails(richUserDetails);
 
     subject.cancel(reservation, richUserDetails);
 
-    verify(reservationToNbiMock).terminate(reservation.getId(), "Cancelled by Piet Puk",
+    verify(reservationToNbiMock).asyncTerminate(reservation.getId(), "Cancelled by Piet Puk",
         Optional.<NsiRequestDetails> absent());
   }
 
@@ -245,13 +245,13 @@ public class ReservationServiceTest {
     Security.setUserDetails(richUserDetails);
 
     when(
-        reservationToNbiMock.terminate(reservation.getId(), "Cancelled by Truus Visscher",
+        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher",
             Optional.<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(2L));
 
     Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
     assertThat(cancelFuture.get().get(), is(2L));
-    verify(reservationToNbiMock).terminate(reservation.getId(), "Cancelled by Truus Visscher",
+    verify(reservationToNbiMock).asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher",
         Optional.<NsiRequestDetails> absent());
   }
 
@@ -266,13 +266,13 @@ public class ReservationServiceTest {
     Security.setUserDetails(richUserDetails);
 
     when(
-        reservationToNbiMock.terminate(reservation.getId(), "Cancelled by Truus Visscher",
+        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher",
             Optional.<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(5L));
 
     Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
     assertThat(cancelFuture.get().get(), is(5L));
-    verify(reservationToNbiMock).terminate(reservation.getId(), "Cancelled by Truus Visscher",
+    verify(reservationToNbiMock).asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher",
         Optional.<NsiRequestDetails> absent());
   }
 
@@ -282,13 +282,13 @@ public class ReservationServiceTest {
 
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
 
-    when(reservationToNbiMock.terminate(reservation.getId(), "Cancelled by Truus Visscher",
+    when(reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher",
         Optional.<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(3L));
 
     Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
     assertThat(cancelFuture.get().get(), is(3L));
-    verify(reservationToNbiMock).terminate(reservation.getId(), "Cancelled by Truus Visscher",
+    verify(reservationToNbiMock).asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher",
         Optional.<NsiRequestDetails> absent());
   }
 

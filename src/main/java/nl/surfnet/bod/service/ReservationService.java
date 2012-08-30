@@ -106,7 +106,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public void provision(Reservation reservation, Optional<NsiRequestDetails> requestDetails) {
     checkNotNull(reservation);
 
-    reservationToNbi.provision(reservation.getId(), requestDetails);
+    reservationToNbi.asyncProvision(reservation.getId(), requestDetails);
   }
 
   /**
@@ -141,8 +141,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
     reservation = reservationRepo.save(reservation);
 
-    // Async call to nbi
-    return reservationToNbi.reserve(reservation.getId(), autoProvision, nsiRequestDetails);
+    return reservationToNbi.asyncReserve(reservation.getId(), autoProvision, nsiRequestDetails);
   }
 
   private void fillStartTimeIfEmpty(Reservation reservation) {
@@ -523,7 +522,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       Reservation reservation, String cancelReason, RichUserDetails user, Optional<NsiRequestDetails> requestDetails) {
 
     if (isDeleteAllowed(reservation, user.getSelectedRole()).isAllowed()) {
-      return Optional.of(reservationToNbi.terminate(reservation.getId(), cancelReason, requestDetails));
+      return Optional.of(reservationToNbi.asyncTerminate(reservation.getId(), cancelReason, requestDetails));
     }
 
     log.info("Not allowed to cancel reservation {}", reservation.getName());
