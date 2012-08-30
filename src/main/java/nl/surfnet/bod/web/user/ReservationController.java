@@ -145,11 +145,6 @@ public class ReservationController extends AbstractFilteredReservationController
     return PAGE_URL + LIST;
   }
 
-  @Override
-  public String getDefaultSortProperty() {
-    return "name";
-  }
-
   @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
   public String delete(@RequestParam(ID_KEY) Long id, Model model, RedirectAttributes redirectAttributes) {
 
@@ -159,11 +154,6 @@ public class ReservationController extends AbstractFilteredReservationController
 
     // Response is ignored, in js related to link
     return "index";
-  }
-
-  @Override
-  protected Class<Reservation> getEntityClass() {
-    return Reservation.class;
   }
 
   @Override

@@ -21,9 +21,11 @@
  */
 package nl.surfnet.bod.web.noc;
 
+import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+
 import java.util.List;
 
-import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractFilteredReservationController;
@@ -35,9 +37,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
-import static nl.surfnet.bod.web.WebUtils.LIST;
 
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller(value = "nocReservationController")
@@ -62,11 +61,6 @@ public class ReservationController extends AbstractFilteredReservationController
     return getFullTextSearchableService()
         .transformToView(getReservationService().findAllEntriesUsingFilter(filter, firstPage, maxItems, sort),
             Security.getUserDetails());
-  }
-
-  @Override
-  protected Class<Reservation> getEntityClass() {
-    return Reservation.class;
   }
 
 }

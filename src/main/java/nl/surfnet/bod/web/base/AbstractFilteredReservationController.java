@@ -62,7 +62,7 @@ public abstract class AbstractFilteredReservationController extends
 
   @Override
   public String getDefaultSortProperty() {
-    return "name";
+    return "startDateTime";
   }
 
   /**
@@ -180,6 +180,11 @@ public abstract class AbstractFilteredReservationController extends
     filterViews.addAll(reservationFilterViewFactory.create(uniqueReservationYears));
 
     return filterViews;
+  }
+
+  @Override
+  protected Class<Reservation> getEntityClass() {
+    return Reservation.class;
   }
 
 }
