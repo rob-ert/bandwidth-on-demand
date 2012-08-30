@@ -22,12 +22,7 @@
 package nl.surfnet.bod.web.user;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -41,12 +36,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.ReservationFactory;
-import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.MessageView;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -199,7 +189,7 @@ public class ReservationControllerTest {
     assertThat(model.asMap(), hasKey("sortDirection"));
 
     assertThat(model.asMap().get("sortDirection"), is(Object.class.cast(Direction.ASC)));
-    assertThat(model.asMap().get("sortProperty"), is(Object.class.cast("name")));
+    assertThat(model.asMap().get("sortProperty"), is(Object.class.cast("startDateTime")));
     assertThat(((List<?>) model.asMap().get("list")), hasSize(1));
   }
 

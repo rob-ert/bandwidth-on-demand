@@ -25,9 +25,11 @@ import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.support.ConnectionFactory;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -49,6 +51,9 @@ public class ConnectionServiceProviderListenerTest {
 
   @Mock
   private ConnectionServiceProviderWs connectionServiceProviderMock;
+
+  @Mock
+  private ReservationService reservationServiceMock;
 
   @Test
   public void absentNsiRequestDetailsShouldDoNothing() {
@@ -73,6 +78,8 @@ public class ConnectionServiceProviderListenerTest {
       .setFailedReason(failedReason).create();
     ReservationStatusChangeEvent event =
         new ReservationStatusChangeEvent(REQUESTED, reservation, requestDetails);
+
+    when(reservationServiceMock.find(reservation.getId())).thenReturn(reservation);
 
     subject.onStatusChange(event);
 
