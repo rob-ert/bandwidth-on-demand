@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.web.base;
 
+import static nl.surfnet.bod.web.WebUtils.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,26 +40,15 @@ import nl.surfnet.bod.web.view.ReservationView;
 import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import com.google.common.collect.Lists;
 
-import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
-import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
-
 /**
  * Base controller for filtering and sorting {@link Reservation}s.
- * 
+ *
  * @see AbstractSortableListController
- * 
+ *
  */
 public abstract class AbstractFilteredReservationController extends
     AbstractSearchableSortableListController<ReservationView, Reservation> {
@@ -96,7 +87,7 @@ public abstract class AbstractFilteredReservationController extends
    * Retrieves a list and filters by applying the filter specified by the
    * filterId. After the user selects a filter a new Http get with the selected
    * filterId can be performed.
-   * 
+   *
    * @param page
    *          StartPage
    * @param sort
@@ -116,35 +107,33 @@ public abstract class AbstractFilteredReservationController extends
   @RequestMapping(value = FILTER_URL + "{filterId}", method = RequestMethod.GET)
   public String filter(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order,//
+      @RequestParam(value = "order", required = false) String order, //
       @RequestParam(value = "search", required = false) String search, //
       @PathVariable(value = "filterId") String filterId, //
       Model model) {
 
-    List<ReservationView> result = new ArrayList<>();
     Sort sortOptions = prepareSortOptions(sort, order, model);
+
     // Null or empty string will force Default Filter
     ReservationFilterView reservationFilter = reservationFilterViewFactory.create(filterId);
     model.addAttribute(FILTER_SELECT, reservationFilter);
 
-    List<ReservationView> filterList = new ArrayList<ReservationView>(list(calculateFirstPage(page),
+    List<ReservationView> result = new ArrayList<>(list(calculateFirstPage(page),
         MAX_ITEMS_PER_PAGE, sortOptions, model));
 
     if (StringUtils.hasText(search)) {
       model.addAttribute(WebUtils.PARAM_SEARCH, search);
 
       result = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), search,
-          calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, Security.getUserDetails(), filterList);
+          calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, Security.getUserDetails(), result);
 
+      // FIXME [AvD] This is wrong
       model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(getFullTextSearchableService()
-          .countSearchForInFilteredList(getEntityClass(), search, filterList)));
-    }
-    else {
-      result = filterList;
-      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(result.size()));
+          .countSearchForInFilteredList(getEntityClass(), search, result)));
     }
 
     model.addAttribute(WebUtils.DATA_LIST, result);
+
     return listUrl();
   }
 
