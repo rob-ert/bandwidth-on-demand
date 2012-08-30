@@ -21,31 +21,45 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
-
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.xml.ws.Holder;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.joda.time.LocalDateTime;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
+import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
+import org.ogf.schemas.nsi._2011._10.connection.types.DetailedPathType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryDetailsResultType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
 
 @Service
 public class ConnectionServiceProviderService {
@@ -107,42 +121,54 @@ public class ConnectionServiceProviderService {
     connection.setCurrentState(ConnectionStateType.TERMINATING);
     connectionRepo.save(connection);
 
-    reservationService.cancelWithReason(connection.getReservation(),
-        "Terminate request by NSI",
-        new RichUserDetails(
-            requesterNsa, "", "", Collections.<UserGroup> emptyList(),
-            ImmutableList.of(BodRole.createNocEngineer())),
+    reservationService.cancelWithReason(connection.getReservation(), "Terminate request by NSI", new RichUserDetails(
+        requesterNsa, "", "", Collections.<UserGroup> emptyList(), ImmutableList.of(BodRole.createNocEngineer())),
         Optional.of(requestDetails));
   }
 
   @Async
-  public void queryConnections(
-      NsiRequestDetails requestDetails,
-      Collection<String> connectionIds, Collection<String> globalReservationIds, QueryOperationType operation) {
+  public void queryConnections(NsiRequestDetails requestDetails, Collection<String> connectionIds,
+      Collection<String> globalReservationIds, QueryOperationType operation) {
     Preconditions.checkArgument(!connectionIds.isEmpty());
 
     QueryConfirmedType confirmedType = new QueryConfirmedType();
 
     for (String connectionId : connectionIds) {
-      addQueryResult(confirmedType, connectionRepo.findByConnectionId(connectionId), operation);
+      addQueryResult(confirmedType, findByConnectionId(connectionId), operation);
     }
 
     for (String globalReservationId : globalReservationIds) {
-      addQueryResult(confirmedType, connectionRepo.findByGlobalReservationId(globalReservationId), operation);
+      addQueryResult(confirmedType, findByGlobalReservationId(globalReservationId), operation);
     }
 
     sendQueryResult(requestDetails, confirmedType);
   }
 
   @Async
-  public void queryAllForRequesterNsa(NsiRequestDetails requestDetails, String requesterNsa, QueryOperationType operation) {
+  public void queryAllForRequesterNsa(NsiRequestDetails requestDetails, String requesterNsa,
+      QueryOperationType operation) {
     QueryConfirmedType confirmedType = new QueryConfirmedType();
 
-    for (Connection connection : connectionRepo.findByRequesterNsa(requesterNsa)) {
+    for (Connection connection : findByRequesterNsa(requesterNsa)) {
       addQueryResult(confirmedType, connection, operation);
     }
 
     sendQueryResult(requestDetails, confirmedType);
+  }
+
+  @VisibleForTesting
+  Connection findByGlobalReservationId(String globalReservationId) {
+    return connectionRepo.findByGlobalReservationId(globalReservationId);
+  }
+
+  @VisibleForTesting
+  Connection findByConnectionId(String connectionId) {
+    return connectionRepo.findByConnectionId(connectionId);
+  }
+
+  @VisibleForTesting
+  List<Connection> findByRequesterNsa(String requesterNsa) {
+    return connectionRepo.findByRequesterNsa(requesterNsa);
   }
 
   private void sendQueryResult(NsiRequestDetails requestDetails, QueryConfirmedType queryResult) {

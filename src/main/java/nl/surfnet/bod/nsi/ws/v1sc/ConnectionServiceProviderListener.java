@@ -31,6 +31,7 @@ import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
+import static nl.surfnet.bod.web.WebUtils.not;
 
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.slf4j.Logger;
@@ -61,11 +62,12 @@ public class ConnectionServiceProviderListener implements ReservationListener {
 
   @Override
   public void onStatusChange(ReservationStatusChangeEvent event) {
-    if (!event.getNsiRequestDetails().isPresent()) {
+    logger.debug("Got a reservation status change event {}", event);
+
+    if (not(event.getReservation().isNSICreated())) {
+      logger.debug("Reservation {} was not created using NSI, no work to perform", event.getReservation().getLabel());
       return;
     }
-
-    logger.debug("Got a reservation status change event {}", event);
 
     Reservation reservation = reservationService.find(event.getReservation().getId());
     Connection connection = reservation.getConnection();
@@ -75,7 +77,8 @@ public class ConnectionServiceProviderListener implements ReservationListener {
       connectionServiceProvider.reserveConfirmed(connection, event.getNsiRequestDetails().get());
       break;
     case SCHEDULED:
-      // no need to send back any confirms, a provision confirm is only sent when start time has passed in which case
+      // no need to send back any confirms, a provision confirm is only sent
+      // when start time has passed in which case
       // the status would be RUNNING
       break;
     case FAILED:
@@ -90,10 +93,10 @@ public class ConnectionServiceProviderListener implements ReservationListener {
     default:
       logger.error("Unhandled status {} of reservation {}", event.getNewStatus(), event.getReservation());
     }
-
   }
 
   private void handleReservationFailed(Connection connection, ReservationStatusChangeEvent event) {
+
     try {
       logger.debug("Connection state {}, new reservation state {}", connection.getCurrentState(), event.getNewStatus());
 

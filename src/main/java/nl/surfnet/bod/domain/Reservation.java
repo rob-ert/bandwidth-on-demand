@@ -505,4 +505,12 @@ public class Reservation implements Loggable {
       return false;
     }
   }
+
+  /**
+   * 
+   * @return True if this reservation was made using NSI, false otherwise
+   */
+  public boolean isNSICreated() {
+    return connection != null;
+  }
 }
