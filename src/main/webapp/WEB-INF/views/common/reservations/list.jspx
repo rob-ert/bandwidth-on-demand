@@ -59,7 +59,16 @@
                                         </sec:authorize>
 
                                         <dt><spring:message code="label_reservation_reservationid" /></dt>
-                                        <dd><c:out value="${item.reservationId}" /></dd>
+                                        <dd>
+                                            <c:choose>
+                                                <c:when test="${empty item.reservationId}">
+                                                    -
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <c:out value="${item.reservationId}" />
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </dd>
 
                                         <c:if test="${not empty item.connectionId}">
                                             <dt><spring:message code="label_reservation_connectionid" /></dt>
