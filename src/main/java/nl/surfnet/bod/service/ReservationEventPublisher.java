@@ -23,15 +23,18 @@ package nl.surfnet.bod.service;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.annotation.Resource;
+
+import nl.surfnet.bod.web.security.Security;
+
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
 @Component
 public class ReservationEventPublisher {
-  private final Logger log = LoggerFactory.getLogger(this.getClass());
+  @Resource
+  private LogEventService logEventService;
 
   private final List<ReservationListener> listeners = Lists.newArrayList();
 
@@ -40,7 +43,12 @@ public class ReservationEventPublisher {
   }
 
   public void notifyListeners(ReservationStatusChangeEvent changeEvent) {
-    log.info("notify {} listeners of event {}", listeners.size(), changeEvent);
+
+    logEventService.logUpdateEvent(
+        Security.getUserDetails(),
+        changeEvent.getReservation(),
+        String.format("Notify about state change from [%s] to [%s]", changeEvent.getOldStatus(),
+            changeEvent.getNewStatus()));
 
     for (ReservationListener listener : listeners) {
       listener.onStatusChange(changeEvent);
