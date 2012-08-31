@@ -21,12 +21,23 @@
  */
 package nl.surfnet.bod.web.security;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+
+import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.service.GroupService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -43,21 +54,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.service.GroupService;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.InstituteFactory;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.UserGroupFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
-import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RichUserDetailsServiceTest {
@@ -161,6 +157,24 @@ public class RichUserDetailsServiceTest {
     assertThat(vrgNewName.getName(), is("new name"));
     assertThat(vrgNewDesc.getDescription(), is("new desc"));
     verify(vrgServiceMock).update(vrgNewDesc);
+    verify(vrgServiceMock).update(vrgNewName);
+  }
+
+  @Test
+  public void shouldUpdateVirtualResourceGroupIfDescriptionWasNull() {
+    ImmutableList<UserGroup> userGroups = listOf(new UserGroupFactory()
+        .setId("urn:nameGroup")
+        .setName("name")
+        .setDescription("updated desc").create());
+
+    VirtualResourceGroup vrgNewName = new VirtualResourceGroupFactory().setName("name").setDescription(null).create();
+
+    when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(userGroups);
+    when(vrgServiceMock.findBySurfconextGroupId("urn:nameGroup")).thenReturn(vrgNewName);
+
+    subject.loadUserDetails(createToken("urn:alanvdam"));
+
+    assertThat(vrgNewName.getDescription(), is("updated desc"));
     verify(vrgServiceMock).update(vrgNewName);
   }
 

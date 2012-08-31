@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.web.security;
 
+import static com.google.common.base.Strings.nullToEmpty;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -137,7 +139,8 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
         continue;
       }
 
-      if (!vrg.getName().equals(userGroup.getName()) || !vrg.getDescription().equals(userGroup.getDescription())) {
+      if (!vrg.getName().equals(userGroup.getName())
+          || !nullToEmpty(vrg.getDescription()).equals(nullToEmpty(userGroup.getDescription()))) {
         logger.info(
             "Updating virtualResourceGroup ({} -> {}) ({} -> {})",
             new String[] {vrg.getName(), userGroup.getName(), vrg.getDescription(), userGroup.getDescription()});
