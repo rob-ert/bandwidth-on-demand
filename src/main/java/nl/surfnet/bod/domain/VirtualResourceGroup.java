@@ -23,22 +23,14 @@ package nl.surfnet.bod.domain;
 
 import java.util.Collection;
 
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Version;
+import javax.persistence.*;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Entity which represents a List of {@link VirtualPort}s which belong together
  * and to the {@link Reservation}s which are related to this group.
- * 
+ *
  */
 @Entity
 public class VirtualResourceGroup implements Loggable {
@@ -228,30 +220,29 @@ public class VirtualResourceGroup implements Loggable {
       builder.append(surfconextGroupId);
       builder.append(", ");
     }
-    if (virtualPorts != null) {
-      builder.append("virtualPorts=[");
-      for (VirtualPort vp : virtualPorts) {
-        builder.append("mgrLabel: ").append(vp.getManagerLabel());
-        builder.append(", ");
-      }
-      builder.append("]");
-    }
-    if (reservations != null) {
-      builder.append("reservations=");
-      for (Reservation res : reservations) {
-        builder.append("SchId: ").append(res.getReservationId());
-        builder.append(", ");
-      }
-      builder.append("]");
-    }
-    if (virtualPortRequestLinks != null) {
-      builder.append("virtualPortRequestLinks=[");
-      for (VirtualPortRequestLink link : virtualPortRequestLinks) {
-        builder.append("Link for: ").append(link.getVirtualResourceGroup().getName());
-      }
-      builder.append("]");
-
-    }
+//    if (virtualPorts != null) {
+//      builder.append("virtualPorts=[");
+//      for (VirtualPort vp : virtualPorts) {
+//        builder.append("mgrLabel: ").append(vp.getManagerLabel());
+//        builder.append(", ");
+//      }
+//      builder.append("]");
+//    }
+//    if (reservations != null) {
+//      builder.append("reservations=");
+//      for (Reservation res : reservations) {
+//        builder.append("SchId: ").append(res.getReservationId());
+//        builder.append(", ");
+//      }
+//      builder.append("]");
+//    }
+//    if (virtualPortRequestLinks != null) {
+//      builder.append("virtualPortRequestLinks=[");
+//      for (VirtualPortRequestLink link : virtualPortRequestLinks) {
+//        builder.append("Link for: ").append(link.getVirtualResourceGroup().getName());
+//      }
+//      builder.append("]");
+//    }
     builder.append("]");
     return builder.toString();
   }

@@ -38,16 +38,20 @@
     <level value="INFO" />
   </logger>
 
+  <logger name="nl.surfnet.bod.service">
+    <level value="DEBUG" />
+  </logger>
+
   <logger name="nl.surfnet.bod.nsi">
     <level value="DEBUG" />
   </logger>
 
   <logger name="nl.surfnet.bod.mtosi">
-    <level value="DEBUG" />
+    <level value="INFO" />
   </logger>
 
    <logger name="nl.surfnet.bod.web.base">
-    <level value="DEBUG" />
+    <level value="INFO" />
    </logger>
 
    <!--<logger name="org.hibernate.type">
