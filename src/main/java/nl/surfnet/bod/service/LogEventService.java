@@ -21,10 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -139,6 +136,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   }
 
   public List<LogEvent> findByAdminGroups(Collection<String> adminGroups, int firstResult, int maxResults, Sort sort) {
+    if (adminGroups.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     return logEventRepo.findAll(SPEC_LOG_EVENTS_BY_ADMIN_GROUPS(adminGroups),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
@@ -154,7 +155,6 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
 
   @VisibleForTesting
   String determineAdminGroup(RichUserDetails user, Loggable domainObject) {
-
     if (domainObject != null) {
       return domainObject.getAdminGroup();
     }
@@ -264,6 +264,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   }
 
   public long countByAdminGroups(Collection<String> adminGroups) {
+    if (adminGroups.isEmpty()) {
+      return 0;
+    }
+
     return logEventRepo.count(SPEC_LOG_EVENTS_BY_ADMIN_GROUPS(adminGroups));
   }
 

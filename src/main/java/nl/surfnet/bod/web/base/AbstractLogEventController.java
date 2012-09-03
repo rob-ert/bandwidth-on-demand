@@ -38,6 +38,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.ui.Model;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -73,8 +75,7 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
 
   @Override
   protected List<LogEvent> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return logEventService.findByAdminGroups(determinGroupsToSearchFor(Security.getUserDetails()), firstPage, maxItems,
-        sort);
+    return logEventService.findByAdminGroups(determinGroupsToSearchFor(Security.getUserDetails()), firstPage, maxItems, sort);
   }
 
   @Override
@@ -93,22 +94,26 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
   }
 
   private List<String> determinGroupsToSearchFor(RichUserDetails user) {
-    List<String> adminGroups = Lists.newArrayList();
+    List<String> groups = Lists.newArrayList();
 
-    if (user.getSelectedRole().isUserRole()) {
-      // Only show events related to a virtualUserGroup the user is a member of
-      for (String groupId : user.getUserGroupIds()) {
-        if (virtualResourceGroupService.findBySurfconextGroupId(groupId) != null) {
-          adminGroups.add(groupId);
-        }
-      }
+    if (user.isSelectedUserRole()) {
+      groups.addAll(
+          Collections2.filter(user.getUserGroupIds(),
+          new Predicate<String>() {
+            @Override
+            public boolean apply(String groupId) {
+              return virtualResourceGroupService.findBySurfconextGroupId(groupId) != null;
+            }
+          })
+      );
     }
-    else {
-      adminGroups.add(logEventService.determineAdminGroup(user));
+    else if (user.isSelectedManagerRole()) {
+      groups.add(logEventService.determineAdminGroup(user));
     }
 
-    logger.debug("Groups to search for: {}", adminGroups);
-    return adminGroups;
+    logger.debug("Groups to search for: {}", groups);
+
+    return groups;
   }
 
 }

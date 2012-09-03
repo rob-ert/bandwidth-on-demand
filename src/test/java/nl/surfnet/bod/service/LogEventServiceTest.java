@@ -21,36 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Loggable;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.event.LogEventType;
-import nl.surfnet.bod.repo.LogEventRepo;
-import nl.surfnet.bod.support.InstituteFactory;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.ReservationFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
-import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.web.security.RichUserDetails;
-
-import org.joda.time.DateTimeUtils;
-import org.joda.time.LocalDateTime;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
-
-import com.google.common.collect.Lists;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -62,6 +32,30 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.event.LogEventType;
+import nl.surfnet.bod.repo.LogEventRepo;
+import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.web.security.RichUserDetails;
+
+import org.joda.time.DateTimeUtils;
+import org.joda.time.LocalDateTime;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.springframework.data.domain.Sort;
+
+import com.google.common.collect.Lists;
+
 @RunWith(MockitoJUnitRunner.class)
 public class LogEventServiceTest {
 
@@ -69,7 +63,7 @@ public class LogEventServiceTest {
   private static final String LOG_DETAILS = "The reason why";
 
   @Mock
-  private LogEventRepo repoMock;
+  private LogEventRepo logEventRepoMock;
 
   @Mock
   private Logger logMock;
@@ -79,7 +73,7 @@ public class LogEventServiceTest {
 
   @Mock
   private Environment environmentMock;
-  
+
   @Mock
   private PhysicalResourceGroupService physicalResourceGroupService;
 
@@ -87,7 +81,6 @@ public class LogEventServiceTest {
   private LogEventService subject;
 
   private RichUserDetails user = new RichUserDetailsFactory().addUserGroup(GROUP_ID).create();
-
   private VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
 
   @Test
@@ -120,7 +113,7 @@ public class LogEventServiceTest {
     subject.handleEvent(logMock, logEvent);
 
     verify(logMock).info(anyString(), eq(logEvent));
-    verifyZeroInteractions(repoMock);
+    verifyZeroInteractions(logEventRepoMock);
   }
 
   @Test
@@ -131,7 +124,7 @@ public class LogEventServiceTest {
     subject.handleEvent(logMock, logEvent);
 
     verify(logMock).info(anyString(), eq(logEvent));
-    verify(repoMock).save(logEvent);
+    verify(logEventRepoMock).save(logEvent);
   }
 
   @Test
@@ -141,7 +134,7 @@ public class LogEventServiceTest {
 
     subject.logUpdateEvent(userMock, reservations, "details");
 
-    verify(repoMock, times(2)).save(any(LogEvent.class));
+    verify(logEventRepoMock, times(2)).save(any(LogEvent.class));
   }
 
   @Test
@@ -151,7 +144,7 @@ public class LogEventServiceTest {
     subject.handleEvent(logMock, logEvent);
 
     verify(logMock).info(anyString(), eq(logEvent));
-    verifyZeroInteractions(repoMock);
+    verifyZeroInteractions(logEventRepoMock);
   }
 
   @Test
@@ -235,5 +228,21 @@ public class LogEventServiceTest {
     assertThat(logEvents, hasSize(2));
     assertThat(logEvents.get(0).getEventTypeWithCorrelationId().toString(), is("Update 1-2"));
     assertThat(logEvents.get(1).getEventTypeWithCorrelationId().toString(), is("Update 2-2"));
+  }
+
+  @Test
+  public void findByAdminGroupWithNoGroupsShoulBeEmpty() {
+    List<LogEvent> groups = subject.findByAdminGroups(Collections.<String>emptyList(), 1, 100, new Sort("userId"));
+
+    assertThat(groups.isEmpty(), is(true));
+    verifyZeroInteractions(logEventRepoMock);
+  }
+
+  @Test
+  public void countByAdminGroupsWithNoGroupsShouldBeZero() {
+    long groupCount = subject.countByAdminGroups(Collections.<String>emptyList());
+
+    assertThat(groupCount, is(0L));
+    verifyZeroInteractions(logEventRepoMock);
   }
 }
