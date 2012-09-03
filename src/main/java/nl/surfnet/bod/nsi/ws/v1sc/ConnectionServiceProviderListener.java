@@ -64,12 +64,13 @@ public class ConnectionServiceProviderListener implements ReservationListener {
   public void onStatusChange(ReservationStatusChangeEvent event) {
     logger.debug("Got a reservation status change event {}", event);
 
-    if (not(event.getReservation().isNSICreated())) {
-      logger.debug("Reservation {} was not created using NSI, no work to perform", event.getReservation().getLabel());
+    Reservation reservation = reservationService.find(event.getReservation().getId());
+
+    if (not(reservation.isNSICreated())) {
+      logger.debug("Reservation {} was not created using NSI, no work to perform", reservation.getLabel());
       return;
     }
 
-    Reservation reservation = reservationService.find(event.getReservation().getId());
     Connection connection = reservation.getConnection();
 
     switch (event.getNewStatus()) {
@@ -108,7 +109,8 @@ public class ConnectionServiceProviderListener implements ReservationListener {
         connectionServiceProvider.terminateFailed(connection, event.getNsiRequestDetails().get());
       }
       else if (connection.getCurrentState() == ConnectionStateType.RESERVING) {
-        Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation().getFailedReason()));
+        Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation()
+            .getFailedReason()));
         connectionServiceProvider.reserveFailed(connection, event.getNsiRequestDetails().get(), failedReason);
       }
     }
