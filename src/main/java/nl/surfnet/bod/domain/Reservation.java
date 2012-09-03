@@ -437,6 +437,11 @@ public class Reservation implements Loggable {
       builder.append("creationDateTime=");
       builder.append(creationDateTime);
     }
+
+    if (connection != null) {
+      builder.append("connection=");
+      builder.append(connection.getLabel());
+    }
     builder.append("]");
     return builder.toString();
   }
