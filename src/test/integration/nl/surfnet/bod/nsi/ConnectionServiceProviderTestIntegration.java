@@ -26,6 +26,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -123,11 +125,16 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   @Resource
   private ReservationService reservationService;
 
+  @PersistenceContext
+  private EntityManager entityManager;
+
   private final String correlationId = "urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e";
   private final String connectionId = "urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2f";
   private final String virtualResourceGroupName = "nsi:group";
   private VirtualPort sourceVirtualPort;
   private VirtualPort destinationVirtualPort;
+
+  private RichUserDetails user = new RichUserDetailsFactory().addNocRole().create();
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -170,16 +177,20 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   }
 
   @Test
-  public void shouldValidateReserve() throws DatatypeConfigurationException, ServiceException {
-    ReserveRequestType reservationRequest = createReserveRequest();
+  public void shouldReserve() throws DatatypeConfigurationException, ServiceException {
+    ReserveRequestType reservationRequest = createReserveRequest(connectionId);
 
     GenericAcknowledgmentType genericAcknowledgment = nsiProvider.reserve(reservationRequest);
 
     assertThat(genericAcknowledgment.getCorrelationId(), is(correlationId));
+
+    Connection connection = connectionRepo.findByConnectionId(connectionId);
+    assertThat(connection.getConnectionId(), is(connectionId));
+    assertThat(connection.getCurrentState(), isOneOf(ConnectionStateType.RESERVED, ConnectionStateType.RESERVING));
   }
 
   @Test
-  public void shouldValidateQuery() throws ServiceException {
+  public void shouldQuery() throws ServiceException {
     QueryRequestType queryRequest = createQueryRequest();
 
     GenericAcknowledgmentType genericAcknowledgment = nsiProvider.query(queryRequest);
@@ -190,7 +201,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   @Test
   public void shouldValidateTerminate() throws ServiceException, DatatypeConfigurationException {
     // First reserve
-    ReserveRequestType reservationRequest = createReserveRequest();
+    ReserveRequestType reservationRequest = createReserveRequest(connectionId);
     nsiProvider.reserve(reservationRequest);
 
     // Then terminate
@@ -201,13 +212,17 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     // Assert
     assertThat(terminateAck.getCorrelationId(), is(correlationId));
+
+    Connection connection = connectionRepo.findByConnectionId(connectionId);
+    assertThat(connection.getConnectionId(), is(connectionId));
+    assertThat(connection.getCurrentState(), isOneOf(ConnectionStateType.TERMINATED, ConnectionStateType.TERMINATING));
   }
 
   @Test
-  public void shouldValidateProvision() throws ServiceException, DatatypeConfigurationException {
+  public void shouldProvision() throws ServiceException, DatatypeConfigurationException {
     // Setup
     // First reserve
-    ReserveRequestType reservationRequest = createReserveRequest();
+    ReserveRequestType reservationRequest = createReserveRequest(connectionId);
     nsiProvider.reserve(reservationRequest);
 
     ProvisionRequestType provisionRequest = createProvisionRequest(reservationRequest.getReserve().getReservation()
@@ -218,11 +233,15 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     // Verify
     assertThat(provisionAck.getCorrelationId(), is(correlationId));
+
+    Connection connection = connectionRepo.findByConnectionId(connectionId);
+    assertThat(connection.getConnectionId(), is(connectionId));
+    assertThat(connection.getCurrentState(), isOneOf(ConnectionStateType.AUTO_PROVISION));
   }
 
   @Test
   public void shouldReturnGenericAcknowledgement() throws Exception {
-    ReserveRequestType reservationRequest = createReserveRequest();
+    ReserveRequestType reservationRequest = createReserveRequest(connectionId);
 
     // send reserve request
     GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
@@ -250,7 +269,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     RichUserDetails user = new RichUserDetailsFactory().addNocRole().create();
 
     // First reserve
-    ReserveRequestType reservationRequest = createReserveRequest();
+    ReserveRequestType reservationRequest = createReserveRequest(connectionId);
     nsiProvider.reserve(reservationRequest);
 
     String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
@@ -283,7 +302,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     return publisher;
   }
 
-  private ReserveRequestType createReserveRequest() throws DatatypeConfigurationException {
+  private ReserveRequestType createReserveRequest(String connId) throws DatatypeConfigurationException {
     XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
     startTime.setDay(1);
     startTime.setMonth(Calendar.getInstance().get(Calendar.MONTH));
@@ -306,8 +325,8 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     path.setSourceSTP(source);
 
     ReserveRequestType reservationRequest = new ReserveRequestTypeFactory().setScheduleStartTime(startTime)
-        .setScheduleEndTime(endTime).setConnectionId(connectionId).setCorrelationId(correlationId)
-        .setConnectionId(connectionId).setProviderNsa(URN_PROVIDER_NSA).setPath(path).create();
+        .setScheduleEndTime(endTime).setConnectionId(connId).setCorrelationId(correlationId)
+        .setProviderNsa(URN_PROVIDER_NSA).setPath(path).create();
 
     return reservationRequest;
   }

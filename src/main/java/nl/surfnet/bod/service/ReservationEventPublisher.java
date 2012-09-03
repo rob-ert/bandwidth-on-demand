@@ -33,6 +33,7 @@ import com.google.common.collect.Lists;
 
 @Component
 public class ReservationEventPublisher {
+  
   @Resource
   private LogEventService logEventService;
 
@@ -44,11 +45,11 @@ public class ReservationEventPublisher {
 
   public void notifyListeners(ReservationStatusChangeEvent changeEvent) {
 
-    logEventService.logUpdateEvent(
-        Security.getUserDetails(),
-        changeEvent.getReservation(),
-        String.format("Notify about state change from [%s] to [%s]", changeEvent.getOldStatus(),
-            changeEvent.getNewStatus()));
+//    logEventService.logUpdateEvent(
+//        Security.getUserDetails(),
+//        changeEvent.getReservation(),
+//        String.format("Notify about state change from [%s] to [%s]", changeEvent.getOldStatus(),
+//            changeEvent.getNewStatus()));
 
     for (ReservationListener listener : listeners) {
       listener.onStatusChange(changeEvent);

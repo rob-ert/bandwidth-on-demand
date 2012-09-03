@@ -23,6 +23,8 @@ package nl.surfnet.bod.nsi.ws.v1sc;
 
 import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
+
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -58,6 +60,9 @@ public class ConnectionServiceProviderListenerTest {
   @Test
   public void absentNsiRequestDetailsShouldDoNothing() {
     Reservation reservation = new ReservationFactory().create();
+    
+    when(reservationServiceMock.find(anyLong())).thenReturn(reservation);
+    
     ReservationStatusChangeEvent event =
         new ReservationStatusChangeEvent(REQUESTED, reservation, Optional.<NsiRequestDetails>absent());
 
