@@ -220,30 +220,31 @@ public class VirtualResourceGroup implements Loggable {
       builder.append(surfconextGroupId);
       builder.append(", ");
     }
-//    if (virtualPorts != null) {
-//      builder.append("virtualPorts=[");
-//      for (VirtualPort vp : virtualPorts) {
-//        builder.append("mgrLabel: ").append(vp.getManagerLabel());
-//        builder.append(", ");
-//      }
-//      builder.append("]");
-//    }
-//    if (reservations != null) {
-//      builder.append("reservations=");
-//      for (Reservation res : reservations) {
-//        builder.append("SchId: ").append(res.getReservationId());
-//        builder.append(", ");
-//      }
-//      builder.append("]");
-//    }
-//    if (virtualPortRequestLinks != null) {
-//      builder.append("virtualPortRequestLinks=[");
-//      for (VirtualPortRequestLink link : virtualPortRequestLinks) {
-//        builder.append("Link for: ").append(link.getVirtualResourceGroup().getName());
-//      }
-//      builder.append("]");
-//    }
+    if (virtualPorts != null) {
+      builder.append("virtualPorts=[");
+      for (VirtualPort vp : virtualPorts) {
+        builder.append("mgrLabel: ").append(vp.getManagerLabel());
+        builder.append(", ");
+      }
+      builder.append("], ");
+    }
+    if (reservations != null) {
+      builder.append("reservations=[");
+      for (Reservation res : reservations) {
+        builder.append("SchId: ").append(res.getReservationId());
+        builder.append(", ");
+      }
+      builder.append("], ");
+    }
+    if (virtualPortRequestLinks != null) {
+      builder.append("virtualPortRequestLinks=[");
+      for (VirtualPortRequestLink link : virtualPortRequestLinks) {
+        builder.append("Link for: ").append(link.getVirtualResourceGroup().getName());
+      }
+      builder.append("]");
+    }
     builder.append("]");
+
     return builder.toString();
   }
 }

@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -66,6 +67,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
   private VirtualResourceGroupService virtualResourceGroupService;
 
   @Override
+  @Transactional
   public RichUserDetails loadUserDetails(Authentication token) {
     RichPrincipal principal = (RichPrincipal) token.getPrincipal();
     Collection<UserGroup> groups = groupService.getGroups(principal.getNameId());
