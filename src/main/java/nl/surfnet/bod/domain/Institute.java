@@ -28,8 +28,11 @@ import javax.persistence.Id;
 
 import nl.surfnet.bod.web.security.Security.RoleEnum;
 
+import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
@@ -48,11 +51,13 @@ public class Institute implements Loggable {
   @Id
   private Long id;
 
-  @Field
   @NotEmpty
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private String name;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @NotEmpty
   private String shortName;
 

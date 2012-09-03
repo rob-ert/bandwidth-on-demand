@@ -35,8 +35,11 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
+import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -59,7 +62,8 @@ public class Reservation implements Loggable {
   @Version
   private Integer version;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private String name;
 
   @ManyToOne
@@ -68,10 +72,12 @@ public class Reservation implements Loggable {
   @Enumerated(EnumType.STRING)
   private ReservationStatus status = ReservationStatus.REQUESTED;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private String failedReason;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private String cancelReason;
 
   @NotNull
@@ -88,7 +94,8 @@ public class Reservation implements Loggable {
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
   private LocalDateTime endDateTime;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @Column(nullable = false)
   private String userCreated;
 
@@ -97,6 +104,8 @@ public class Reservation implements Loggable {
   private Integer bandwidth;
 
   @Basic
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private String reservationId;
 
   @NotNull
