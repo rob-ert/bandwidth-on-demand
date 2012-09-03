@@ -31,36 +31,58 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
+import org.apache.solr.analysis.LowerCaseFilterFactory;
+import org.apache.solr.analysis.SnowballPorterFilterFactory;
+import org.apache.solr.analysis.WhitespaceTokenizerFactory;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.AnalyzerDef;
+import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Parameter;
+import org.hibernate.search.annotations.Store;
+import org.hibernate.search.annotations.TokenFilterDef;
+import org.hibernate.search.annotations.TokenizerDef;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.google.common.base.Strings;
 
 @Indexed
+@AnalyzerDef(name = "customanalyzer",
+    tokenizer = @TokenizerDef(factory = WhitespaceTokenizerFactory.class),
+    filters = {
+        @TokenFilterDef(factory = LowerCaseFilterFactory.class),
+        @TokenFilterDef(factory = SnowballPorterFilterFactory.class, params = { @Parameter(name = "language",
+            value = "English") }) })
 @Entity
 public class PhysicalPort implements Loggable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @DocumentId
   private Long id;
 
   @Version
   private Integer version;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @NotEmpty
   private String nocLabel;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private String managerLabel;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @NotEmpty
   private String bodPortId;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @NotEmpty
   @Column(unique = true)
   private String nmsPortId;
@@ -77,15 +99,18 @@ public class PhysicalPort implements Loggable {
   @Column(name = "aligned_nms")
   private boolean alignedWithNMS;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @Basic
   private String nmsNeId;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @Basic
   private String nmsPortSpeed;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @Basic
   private String nmsSapName;
 
@@ -93,7 +118,8 @@ public class PhysicalPort implements Loggable {
   @Basic
   private String signalingType;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @Basic
   private String supportedServiceType;
 
