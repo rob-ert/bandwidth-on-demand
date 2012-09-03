@@ -108,7 +108,7 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
       );
     }
     else if (user.isSelectedManagerRole()) {
-      groups.add(logEventService.determineAdminGroup(user));
+      groups.add(user.getSelectedRole().getAdminGroup().get());
     }
 
     logger.debug("Groups to search for: {}", groups);

@@ -23,10 +23,11 @@ package nl.surfnet.bod.domain;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.google.common.base.Objects;
-
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.security.Security.RoleEnum;
+
+import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 
 /**
  * Represents a role so the user can switch between them. Note that only the
@@ -43,18 +44,22 @@ public final class BodRole {
 
   private final Long id;
   private final RoleEnum role;
+  private final Optional<String> adminGroup;
   private String instituteName;
   private Long physicalResourceGroupId;
 
   private BodRole(Security.RoleEnum role) {
-    this.id = COUNTER.incrementAndGet();
-    this.role = role;
+    this(role, null);
   }
 
   private BodRole(Security.RoleEnum role, PhysicalResourceGroup physicalResourceGroup) {
-    this(role);
-    this.instituteName = physicalResourceGroup.getName();
-    this.physicalResourceGroupId = physicalResourceGroup.getId();
+    this.role = role;
+    this.id = COUNTER.incrementAndGet();
+
+    this.instituteName = physicalResourceGroup == null ? null : physicalResourceGroup.getName();
+    this.physicalResourceGroupId = physicalResourceGroup == null ? null : physicalResourceGroup.getId();
+    this.adminGroup = physicalResourceGroup == null
+        ? Optional.<String>absent() : Optional.of(physicalResourceGroup.getAdminGroup());
   }
 
   public static BodRole createNewUser() {
@@ -83,6 +88,10 @@ public final class BodRole {
 
   public Long getPhysicalResourceGroupId() {
     return physicalResourceGroupId;
+  }
+
+  public Optional<String> getAdminGroup() {
+    return adminGroup;
   }
 
   public String getRoleName() {

@@ -149,18 +149,13 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
     return entityManager;
   }
 
-  public String determineAdminGroup(RichUserDetails user) {
-    return determineAdminGroup(user, null);
-  }
-
   @VisibleForTesting
   String determineAdminGroup(RichUserDetails user, Loggable domainObject) {
     if (domainObject != null) {
       return domainObject.getAdminGroup();
     }
     else if (user.isSelectedManagerRole()) {
-      PhysicalResourceGroup prg = physicalResourceGroupService.find(user.getSelectedRole().getPhysicalResourceGroupId());
-      return prg.getAdminGroup();
+      return user.getSelectedRole().getAdminGroup().get();
     }
     else if (user.isSelectedNocRole()) {
       return environment.getNocGroup();
