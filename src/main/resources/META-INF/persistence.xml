@@ -33,6 +33,7 @@
             <property name="hibernate.use_sql_comments" value="true" />
             <property name="hibernate.format_sql" value="true"/>
             <property name="hibernate.search.default.directory_provider" value="ram"/>
+            <property name="hibernate.search.lucene_version" value="LUCENE_35"/>
         </properties>
     </persistence-unit>
 </persistence>
