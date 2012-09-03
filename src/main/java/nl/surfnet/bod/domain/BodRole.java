@@ -44,9 +44,10 @@ public final class BodRole {
 
   private final Long id;
   private final RoleEnum role;
+
   private final Optional<String> adminGroup;
-  private String instituteName;
-  private Long physicalResourceGroupId;
+  private final Optional<String> instituteName;
+  private final Optional<Long> physicalResourceGroupId;
 
   private BodRole(Security.RoleEnum role) {
     this(role, null);
@@ -56,8 +57,10 @@ public final class BodRole {
     this.role = role;
     this.id = COUNTER.incrementAndGet();
 
-    this.instituteName = physicalResourceGroup == null ? null : physicalResourceGroup.getName();
-    this.physicalResourceGroupId = physicalResourceGroup == null ? null : physicalResourceGroup.getId();
+    this.instituteName = physicalResourceGroup == null
+        ? Optional.<String>absent() : Optional.of(physicalResourceGroup.getName());
+    this.physicalResourceGroupId = physicalResourceGroup == null
+        ? Optional.<Long>absent() : Optional.of(physicalResourceGroup.getId());
     this.adminGroup = physicalResourceGroup == null
         ? Optional.<String>absent() : Optional.of(physicalResourceGroup.getAdminGroup());
   }
@@ -82,11 +85,11 @@ public final class BodRole {
     return id;
   }
 
-  public String getInstituteName() {
+  public Optional<String> getInstituteName() {
     return instituteName;
   }
 
-  public Long getPhysicalResourceGroupId() {
+  public Optional<Long> getPhysicalResourceGroupId() {
     return physicalResourceGroupId;
   }
 

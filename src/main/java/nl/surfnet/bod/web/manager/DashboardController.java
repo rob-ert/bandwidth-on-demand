@@ -25,11 +25,6 @@ import java.util.Collection;
 
 import javax.annotation.Resource;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.service.PhysicalPortService;
@@ -42,6 +37,13 @@ import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ManagerStatisticsView;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.google.common.base.Optional;
 
 @Controller("managerDashboardController")
 @RequestMapping("/manager")
@@ -61,13 +63,13 @@ public class DashboardController {
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
-    Long groupId = WebUtils.getSelectedPhysicalResourceGroupId();
+    Optional<Long> groupId = WebUtils.getSelectedPhysicalResourceGroupId();
 
-    if (groupId == null) {
+    if (!groupId.isPresent()) {
       return "redirect:/";
     }
 
-    PhysicalResourceGroup group = physicalResourceGroupService.find(groupId);
+    PhysicalResourceGroup group = physicalResourceGroupService.find(groupId.get());
     Collection<VirtualPortRequestLink> requests = virtualPortService.findPendingRequests(group);
 
     model.addAttribute("prg", group);
@@ -82,7 +84,7 @@ public class DashboardController {
    ManagerStatisticsView determineStatistics(RichUserDetails manager) {
     ReservationFilterViewFactory reservationFilterViewFactory = new ReservationFilterViewFactory();
     PhysicalResourceGroup managerPrg = physicalResourceGroupService.find(manager.getSelectedRole()
-        .getPhysicalResourceGroupId());
+        .getPhysicalResourceGroupId().get());
 
     long countPhysicalPorts = physicalPortService.countAllocatedForPhysicalResourceGroup(managerPrg);
 

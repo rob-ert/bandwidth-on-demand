@@ -24,6 +24,14 @@ package nl.surfnet.bod.web;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.web.manager.ActivationEmailController;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -34,13 +42,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.web.manager.ActivationEmailController;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
+import com.google.common.base.Optional;
 
 @Controller
 @RequestMapping("/switchrole")
@@ -76,10 +78,10 @@ public class SwitchRoleController {
   }
 
   private String determineViewNameAndAddAttributes(BodRole selectedRole, RedirectAttributes redirectAttribs) {
-    Long groupId = WebUtils.getSelectedPhysicalResourceGroupId();
+    Optional<Long> groupId = WebUtils.getSelectedPhysicalResourceGroupId();
 
-    if (groupId != null) {
-      PhysicalResourceGroup group = physicalResourceGroupService.find(groupId);
+    if (groupId.isPresent()) {
+      PhysicalResourceGroup group = physicalResourceGroupService.find(groupId.get());
 
       if (!group.isActive()) {
         String successMessage = WebUtils.getMessageWithBoldArguments(messageSource, "info_activation_request_send",

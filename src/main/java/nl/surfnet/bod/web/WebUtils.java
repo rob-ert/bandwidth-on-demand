@@ -24,6 +24,8 @@ package nl.surfnet.bod.web;
 import java.util.Arrays;
 import java.util.List;
 
+import nl.surfnet.bod.web.security.Security;
+
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.context.MessageSource;
@@ -33,10 +35,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
-
-import nl.surfnet.bod.web.security.Security;
 
 public final class WebUtils {
 
@@ -92,12 +93,12 @@ public final class WebUtils {
   }
 
   /**
-   * 
+   *
    * @return The user selected PhysicalResourceGroupId
    */
-  public static Long getSelectedPhysicalResourceGroupId() {
-    return Security.getUserDetails().getSelectedRole() == null ? null : Security.getUserDetails().getSelectedRole()
-        .getPhysicalResourceGroupId();
+  public static Optional<Long> getSelectedPhysicalResourceGroupId() {
+    return Security.getUserDetails().getSelectedRole() == null
+        ? Optional.<Long>absent() : Security.getUserDetails().getSelectedRole().getPhysicalResourceGroupId();
   }
 
   public static void addInfoMessage(RedirectAttributes model, MessageSource messageSource, String label,

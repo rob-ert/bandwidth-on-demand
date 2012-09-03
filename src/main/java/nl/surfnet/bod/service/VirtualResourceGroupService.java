@@ -21,9 +21,9 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.*;
-import static com.google.common.collect.Collections2.*;
-import static com.google.common.collect.Lists.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +35,11 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -42,18 +47,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Function;
-
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalPort_;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPort_;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
 
 @Service
 @Transactional
@@ -104,8 +97,6 @@ public class VirtualResourceGroupService {
   }
 
   private Specification<VirtualResourceGroup> specificationForManager(final BodRole managerRole) {
-    managerRole.getPhysicalResourceGroupId();
-
     return new Specification<VirtualResourceGroup>() {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualResourceGroup> root, CriteriaQuery<?> query,
@@ -116,7 +107,7 @@ public class VirtualResourceGroupService {
         subquery.select(subRoot.get(VirtualPort_.virtualResourceGroup).get(VirtualResourceGroup_.id));
         subquery.where(cb.equal(
             subRoot.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
-                .get(PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId()));
+                .get(PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId().get()));
 
         return cb.in(root.get(VirtualResourceGroup_.id)).value(subquery);
       }

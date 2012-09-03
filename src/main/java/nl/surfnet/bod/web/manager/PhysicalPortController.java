@@ -25,16 +25,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import com.google.common.collect.Lists;
-
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.PhysicalPortService;
@@ -45,6 +35,17 @@ import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSortableListController;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.PhysicalPortView;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 
 @Controller("managerPhysicalPortController")
 @RequestMapping(PhysicalPortController.PAGE_URL)
@@ -96,19 +97,17 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
 
   @Override
   protected long count() {
-    Long groupId = WebUtils.getSelectedPhysicalResourceGroupId();
+    Optional<Long> groupId = WebUtils.getSelectedPhysicalResourceGroupId();
 
-    if (groupId == null) {
+    if (!groupId.isPresent()) {
       return 0;
     }
 
-    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(groupId);
+    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(groupId.get());
+
     return physicalPortService.countAllocatedForPhysicalResourceGroup(physicalResourceGroup);
   }
 
-  // **** **** //
-  // ** View/Command objects ** //
-  // **** **** //
   public static final class UpdateManagerLabelCommand {
     private Long id;
     private Integer version;
@@ -156,12 +155,12 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
   @Override
   protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
 
-    Long groupId = WebUtils.getSelectedPhysicalResourceGroupId();
-    if (groupId == null) {
+    Optional<Long> groupId = WebUtils.getSelectedPhysicalResourceGroupId();
+    if (!groupId.isPresent()) {
       return Lists.newArrayList();
     }
 
-    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(groupId);
+    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(groupId.get());
 
     return Functions.transformAllocatedPhysicalPorts(physicalPortService
         .findAllocatedEntriesForPhysicalResourceGroup(physicalResourceGroup, firstPage, maxItems, sort),

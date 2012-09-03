@@ -21,13 +21,9 @@
  */
 package nl.surfnet.bod.util;
 
-import com.google.common.collect.Ordering;
+import nl.surfnet.bod.domain.*;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import com.google.common.collect.Ordering;
 
 public final class Orderings {
 
@@ -55,8 +51,8 @@ public final class Orderings {
   private static final Ordering<BodRole> ROLE_ORDERING = new Ordering<BodRole>() {
     @Override
     public int compare(BodRole role1, BodRole role2) {
-      return (role1.getRole().getSortOrder() + role1.getInstituteName()).compareTo(role2.getRole().getSortOrder()
-          + role2.getInstituteName());
+      return (role1.getRole().getSortOrder() + role1.getInstituteName().or("")).compareTo(role2.getRole().getSortOrder()
+          + role2.getInstituteName().or(""));
     }
   };
 

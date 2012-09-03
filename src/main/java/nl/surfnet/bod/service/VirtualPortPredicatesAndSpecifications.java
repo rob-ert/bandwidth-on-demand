@@ -28,20 +28,12 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.web.security.RichUserDetails;
+
 import org.joda.time.DateMidnight;
 import org.joda.time.LocalDateTime;
 import org.springframework.data.jpa.domain.Specification;
-
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalPort_;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualPortRequestLink_;
-import nl.surfnet.bod.domain.VirtualPort_;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
-import nl.surfnet.bod.web.security.RichUserDetails;
 
 public final class VirtualPortPredicatesAndSpecifications {
 
@@ -68,7 +60,7 @@ public final class VirtualPortPredicatesAndSpecifications {
         return cb
             .equal(
                 root.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
-                    .get(PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId());
+                    .get(PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId().get());
       }
     };
   }

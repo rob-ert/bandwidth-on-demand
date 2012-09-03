@@ -240,8 +240,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       return new ElementActionView(true, "label_cancel");
     }
     else if (role.isManagerRole()
-        && (reservation.getSourcePort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId())
-            || reservation.getDestinationPort().getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId()))) {
+        && (reservation.getSourcePort().getPhysicalResourceGroup().getId()
+            .equals(role.getPhysicalResourceGroupId().get()) || reservation.getDestinationPort()
+            .getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId().get()))) {
       return new ElementActionView(true, "label_cancel");
     }
     else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
@@ -286,7 +287,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
-        Long prgId = manager.getSelectedRole().getPhysicalResourceGroupId();
+        Long prgId = manager.getSelectedRole().getPhysicalResourceGroupId().get();
         return cb.and(cb.or(
             cb.equal(
                 root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort)

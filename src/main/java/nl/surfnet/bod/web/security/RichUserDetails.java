@@ -21,6 +21,9 @@
  */
 package nl.surfnet.bod.web.security;
 
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -38,14 +41,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
+import com.google.common.collect.*;
 
 @SuppressWarnings("serial")
 public class RichUserDetails implements UserDetails {
@@ -201,7 +197,7 @@ public class RichUserDetails implements UserDetails {
 
     for (BodRole bodRole : bodRoles) {
       if ((bodRole.getRole() == RoleEnum.ICT_MANAGER)
-          && (physicalResourceGroup.getId().equals(bodRole.getPhysicalResourceGroupId()))) {
+          && (physicalResourceGroup.getId().equals(bodRole.getPhysicalResourceGroupId().get()))) {
 
         managerRole = bodRole;
         break;

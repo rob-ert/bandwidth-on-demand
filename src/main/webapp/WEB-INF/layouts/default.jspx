@@ -75,8 +75,9 @@
                         <div class="${dropdownClass} ${s_role_class}" data-toggle="${dataToggle}">
                             <div class="user">
                                 <spring:message code="role_${selectedRole.roleName}"/>
-                                <c:if test="${not empty selectedRole.instituteName}">
-                                    <br/><c:out value="${selectedRole.instituteName}"/>
+                                <spring:eval expression="selectedRole.instituteName.isPresent()" var="institutionNamePresent" />
+                                <c:if test="${institutionNamePresent}">
+                                    <br/><spring:eval expression="selectedRole.instituteName.get()" />
                                 </c:if>
                                 <c:if test="${fn:length(bodRoles) > 0}">
                                     <b class="caret"><!--  --></b>
@@ -91,8 +92,9 @@
                                         <li class="${role_class}" data-roleId="${bodRole.id}">
                                             <div class="user">
                                                 <spring:message code="role_${bodRole.roleName}"/>
-                                                <c:if test="${not empty bodRole.instituteName}">
-                                                    <br/><c:out value="${bodRole.instituteName}"/>
+                                                <spring:eval expression="bodRole.instituteName.isPresent()" var="institutionNamePresent" />
+                                                <c:if test="${institutionNamePresent}">
+                                                    <br/><spring:eval expression="bodRole.instituteName.get()" />
                                                 </c:if>
                                             </div>
                                         </li>

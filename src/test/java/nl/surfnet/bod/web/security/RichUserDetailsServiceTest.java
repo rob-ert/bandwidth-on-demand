@@ -219,8 +219,8 @@ public class RichUserDetailsServiceTest {
       }
     });
 
-    assertThat(managerRole.getInstituteName(), is(institute.getName()));
-    assertThat(managerRole.getPhysicalResourceGroupId(), is(prg.getId()));
+    assertThat(managerRole.getInstituteName().get(), is(institute.getName()));
+    assertThat(managerRole.getPhysicalResourceGroupId().get(), is(prg.getId()));
   }
 
   @Test
