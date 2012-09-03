@@ -59,7 +59,7 @@ public class FullTextSearchContext<T> {
   public FullTextSearchContext(EntityManager em, Class<T> entityClass) {
     this.entity = entityClass;
     this.fullTextEntityManager = getFullTextEntityManager(em);
-    this.analyzer = fullTextEntityManager.getSearchFactory().getAnalyzer("customanalyzer");
+    this.analyzer = getAnalyzer("customanalyzer");
   }
 
   public FullTextQuery getFullTextQueryForKeywordOnAllAnnotedFields(String keyword,
@@ -137,6 +137,11 @@ public class FullTextSearchContext<T> {
       return new Sort(sortFields.toArray(new SortField[(sortFields.size())]));
     }
 
+  }
+
+  @VisibleForTesting
+  Analyzer getAnalyzer(String name) {
+    return fullTextEntityManager.getSearchFactory().getAnalyzer(name);
   }
 
   private FullTextQuery getFullTextQuery(org.apache.lucene.search.Query luceneQuery, Sort sort) {

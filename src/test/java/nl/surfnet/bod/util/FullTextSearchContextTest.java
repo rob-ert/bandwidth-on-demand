@@ -23,8 +23,10 @@ package nl.surfnet.bod.util;
 
 import javax.persistence.EntityManager;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.SortField;
 import org.hibernate.search.annotations.Field;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -39,12 +41,23 @@ import static org.hamcrest.Matchers.nullValue;
 @RunWith(MockitoJUnitRunner.class)
 public class FullTextSearchContextTest {
 
-  private final Class<?> entity = TestEntity.class;
+  private final Class<TestEntity> entity = TestEntity.class;
 
   @Mock
   private EntityManager entityManager;
 
-  private FullTextSearchContext ftsContext = new FullTextSearchContext(entityManager, entity);
+  private FullTextSearchContext<TestEntity> ftsContext;
+
+  @Before
+  public void setUp() {
+
+    ftsContext = new FullTextSearchContext<TestEntity>(entityManager, entity) {
+      @Override
+      Analyzer getAnalyzer(String name) {
+        return null;
+      }
+    };
+  }
 
   @Test
   public void testGetJpaQueryForKeywordOnAllAnnotedFields() {
@@ -101,6 +114,7 @@ public class FullTextSearchContextTest {
     @Field
     private int scale;
 
+    @SuppressWarnings("unused")
     private TestEntity notIndexed;
   }
 
