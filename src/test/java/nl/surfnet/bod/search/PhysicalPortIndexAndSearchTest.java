@@ -81,6 +81,12 @@ public class PhysicalPortIndexAndSearchTest {
     assertThat(physicalPorts.size(), is(2));
     assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Mock_Ut002A_OME01_ETH-1-2-4"));
     assertThat(physicalPorts.get(1).getNocLabel(), equalTo("Mock_Ut001A_OME01_ETH-1-2-1"));
+    
+    physicalPorts = search("ETH-1-");
+    // (Mock_Ut002A_OME01_ETH-1-2-4, Mock_Ut001A_OME01_ETH-1-2-1)
+    assertThat(physicalPorts.size(), is(2));
+    assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Mock_Ut002A_OME01_ETH-1-2-4"));
+    assertThat(physicalPorts.get(1).getNocLabel(), equalTo("Mock_Ut001A_OME01_ETH-1-2-1"));
   }
 
   private void initHibernate() {
@@ -118,9 +124,7 @@ public class PhysicalPortIndexAndSearchTest {
   }
 
   private Query getSearchQuery(String keyword) {
-
-    FullTextSearchContext<PhysicalPort> ftsc = new FullTextSearchContext<>(em, PhysicalPort.class);
-
+    final FullTextSearchContext<PhysicalPort> ftsc = new FullTextSearchContext<>(em, PhysicalPort.class);
     return ftsc.getFullTextQueryForKeywordOnAllAnnotedFields(keyword, new org.springframework.data.domain.Sort("id"));
 
   }
