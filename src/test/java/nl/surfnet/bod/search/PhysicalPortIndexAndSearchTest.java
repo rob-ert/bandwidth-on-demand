@@ -1,8 +1,5 @@
 package nl.surfnet.bod.search;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-
 import java.util.HashMap;
 import java.util.List;
 
@@ -10,23 +7,22 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.queryParser.MultiFieldQueryParser;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.util.FullTextSearchContext;
+
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.util.Version;
 import org.hibernate.Session;
 import org.hibernate.ejb.Ejb3Configuration;
 import org.hibernate.search.FullTextSession;
-import org.hibernate.search.jpa.FullTextEntityManager;
-import org.hibernate.search.jpa.FullTextQuery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.surfnet.bod.domain.PhysicalPort;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 /**
  * Example testcase for Hibernate Search
@@ -79,6 +75,12 @@ public class PhysicalPortIndexAndSearchTest {
     // (Mock_Ut002A_OME01_ETH-1-2-4)
     assertThat(physicalPorts.size(), is(1));
     assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Mock_Ut002A_OME01_ETH-1-2-4"));
+
+    physicalPorts = search("OME");
+    // (Mock_Ut002A_OME01_ETH-1-2-4, Mock_Ut001A_OME01_ETH-1-2-1)
+    assertThat(physicalPorts.size(), is(2));
+    assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Mock_Ut002A_OME01_ETH-1-2-4"));
+    assertThat(physicalPorts.get(1).getNocLabel(), equalTo("Mock_Ut001A_OME01_ETH-1-2-1"));
   }
 
   private void initHibernate() {
@@ -107,24 +109,19 @@ public class PhysicalPortIndexAndSearchTest {
   }
 
   private List<PhysicalPort> search(String searchQuery) throws ParseException {
-    List<PhysicalPort> results = searchQuery(searchQuery).getResultList();
+    List<PhysicalPort> results = getSearchQuery(searchQuery).getResultList();
     if (results == null || results.size() == 0) {
       searchQuery = "*" + searchQuery + "*";
-      results = searchQuery(searchQuery).getResultList();
+      results = getSearchQuery(searchQuery).getResultList();
     }
     return results;
   }
 
-  private Query searchQuery(String searchQuery) throws ParseException {
+  private Query getSearchQuery(String keyword) {
 
-    final String[] physicalPortField = { "nocLabel", "managerLabel", "bodPortId", "nmsPortId" };
-    final FullTextEntityManager ftEm = org.hibernate.search.jpa.Search.getFullTextEntityManager(em);
-    final Analyzer customAnalyzer = ftEm.getSearchFactory().getAnalyzer("customanalyzer");
-    final QueryParser parser = new MultiFieldQueryParser(Version.LUCENE_35, physicalPortField, customAnalyzer);
-    parser.setAllowLeadingWildcard(true);
-    final org.apache.lucene.search.Query luceneQuery = parser.parse(searchQuery);
-    final FullTextQuery query = ftEm.createFullTextQuery(luceneQuery, PhysicalPort.class);
+    FullTextSearchContext<PhysicalPort> ftsc = new FullTextSearchContext<>(em, PhysicalPort.class);
 
-    return query;
+    return ftsc.getFullTextQueryForKeywordOnAllAnnotedFields(keyword, new org.springframework.data.domain.Sort("id"));
+
   }
 }

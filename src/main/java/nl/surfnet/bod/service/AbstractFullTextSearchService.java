@@ -28,8 +28,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import nl.surfnet.bod.util.FullTextSearchContext;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
@@ -65,7 +67,23 @@ public abstract class AbstractFullTextSearchService<T, K> {
     jpaQuery.setFirstResult(firstResult);
     jpaQuery.setMaxResults(maxResults);
 
-    return jpaQuery.getResultList();
+    List<K> results = jpaQuery.getResultList();
+
+    // No results, use wildcards
+    if (CollectionUtils.isEmpty(results)) {
+      if (WebUtils.not(StringUtils.contains(searchText, "*"))) {
+        searchText = "*" + searchText + "*";
+      }
+      jpaQuery = createSearchQuery(searchText, sort, entityClass);
+
+      // Limit for pageing
+      jpaQuery.setFirstResult(firstResult);
+      jpaQuery.setMaxResults(maxResults);
+
+      results = jpaQuery.getResultList();
+    }
+
+    return results;
   }
 
   /**

@@ -27,13 +27,18 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.queryParser.MultiFieldQueryParser;
+import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.util.Version;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
-import org.hibernate.search.query.dsl.QueryBuilder;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
@@ -48,21 +53,30 @@ import com.google.common.collect.Lists;
 public class FullTextSearchContext<T> {
 
   private final Class<T> entity;
-  private final EntityManager entityManager;
+  private final FullTextEntityManager fullTextEntityManager;
+  private final Analyzer analyzer;
 
   public FullTextSearchContext(EntityManager em, Class<T> entityClass) {
     this.entity = entityClass;
-    this.entityManager = em;
+    this.fullTextEntityManager = getFullTextEntityManager(em);
+    this.analyzer = fullTextEntityManager.getSearchFactory().getAnalyzer("customanalyzer");
   }
 
   public FullTextQuery getFullTextQueryForKeywordOnAllAnnotedFields(String keyword,
       org.springframework.data.domain.Sort springSort) {
-    QueryBuilder fullTextQueryBuilder = getFullTextEntityManager(entityManager).getSearchFactory().buildQueryBuilder()
-        .forEntity(entity).get();
 
     String[] indexedFields = getIndexedFields(entity);
-    org.apache.lucene.search.Query luceneQuery = fullTextQueryBuilder.keyword().onFields(indexedFields)
-        .matching(keyword).createQuery();
+
+    final QueryParser parser = new MultiFieldQueryParser(Version.LUCENE_35, indexedFields, analyzer);
+    parser.setAllowLeadingWildcard(true);
+
+    Query luceneQuery;
+    try {
+      luceneQuery = parser.parse(keyword);
+    }
+    catch (ParseException e) {
+      throw new RuntimeException(e);
+    }
 
     return getFullTextQuery(luceneQuery, convertToLuceneSort(springSort, indexedFields));
   }
@@ -71,8 +85,6 @@ public class FullTextSearchContext<T> {
    * 
    * @return String array containing all fieldNames of the given entity which
    *         are annotated with @link {@Field} to mark them indexable.
-   *         Note that the field annotated with @Id will be skipped, despite the
-   *         fact that the are indexed by default.
    */
   @VisibleForTesting
   String[] getIndexedFields(Class<?> entity) {
@@ -128,7 +140,7 @@ public class FullTextSearchContext<T> {
   }
 
   private FullTextQuery getFullTextQuery(org.apache.lucene.search.Query luceneQuery, Sort sort) {
-    FullTextQuery fullTextQuery = getFullTextEntityManager(entityManager).createFullTextQuery(luceneQuery, entity);
+    FullTextQuery fullTextQuery = fullTextEntityManager.createFullTextQuery(luceneQuery, entity);
 
     if (sort != null) {
       fullTextQuery.setSort(sort);

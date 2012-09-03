@@ -34,8 +34,11 @@ import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.hibernate.annotations.Type;
+import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 import org.joda.time.LocalDateTime;
 import org.springframework.util.StringUtils;
 
@@ -58,30 +61,36 @@ public class LogEvent {
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
   private final LocalDateTime created;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @Basic
   private final String userId;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @Basic
   private final String adminGroup;
 
   @Enumerated(EnumType.STRING)
   private final LogEventType eventType;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @Column(nullable = true)
   private final String description;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @Type(type = "text")
   private final String serializedObject;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @Type(type = "text")
   private final String details;
 
-  @Field
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @Basic
   private String correlationId;
 
