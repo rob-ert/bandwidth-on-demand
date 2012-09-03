@@ -30,20 +30,17 @@ import static org.hamcrest.Matchers.is;
 
 public class PhysicalPortIndexAndSearchTest {
 
-  private EntityManagerFactory emf;
-
   private EntityManager em;
 
   private static Logger log = LoggerFactory.getLogger(PhysicalPortIndexAndSearchTest.class);
 
   @Before
   public void setUp() {
-    initHibernate();
+    initEntityManage();
   }
 
   @After
   public void tearDown() {
-    purge();
   }
 
   @Test
@@ -81,7 +78,7 @@ public class PhysicalPortIndexAndSearchTest {
     assertThat(physicalPorts.size(), is(2));
     assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Mock_Ut002A_OME01_ETH-1-2-4"));
     assertThat(physicalPorts.get(1).getNocLabel(), equalTo("Mock_Ut001A_OME01_ETH-1-2-1"));
-    
+
     physicalPorts = search("ETH-1-");
     // (Mock_Ut002A_OME01_ETH-1-2-4, Mock_Ut001A_OME01_ETH-1-2-1)
     assertThat(physicalPorts.size(), is(2));
@@ -89,29 +86,20 @@ public class PhysicalPortIndexAndSearchTest {
     assertThat(physicalPorts.get(1).getNocLabel(), equalTo("Mock_Ut001A_OME01_ETH-1-2-1"));
   }
 
-  private void initHibernate() {
-    final Ejb3Configuration config = new Ejb3Configuration();
-    config.configure("hibernate-search-example", new HashMap());
-    emf = config.buildEntityManagerFactory();
-    em = emf.createEntityManager();
+  private void initEntityManage() {
+    final Ejb3Configuration configuration = new Ejb3Configuration();
+    configuration.configure("hibernate-search-pu", new HashMap());
+    em = configuration.buildEntityManagerFactory().createEntityManager();
   }
 
   private void index() {
-    final FullTextSession ftSession = org.hibernate.search.Search.getFullTextSession((Session) em.getDelegate());
+    final FullTextSession fullTextSession = org.hibernate.search.Search.getFullTextSession((Session) em.getDelegate());
     try {
-      ftSession.createIndexer().startAndWait();
+      fullTextSession.createIndexer().startAndWait();
     }
     catch (InterruptedException e) {
       log.error("Error", e);
     }
-  }
-
-  private void purge() {
-    final FullTextSession ftSession = org.hibernate.search.Search.getFullTextSession((Session) em.getDelegate());
-    ftSession.purgeAll(PhysicalPort.class);
-    ftSession.flushToIndexes();
-    ftSession.close();
-    emf.close();
   }
 
   private List<PhysicalPort> search(String searchQuery) throws ParseException {

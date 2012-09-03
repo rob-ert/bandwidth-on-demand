@@ -48,7 +48,7 @@
     </persistence-unit>
     
     
-    <persistence-unit name="hibernate-search-example">
+    <persistence-unit name="hibernate-search-pu">
         <class>nl.surfnet.bod.domain.PhysicalResourceGroup</class>
         <class>nl.surfnet.bod.domain.PhysicalPort</class>
         <class>nl.surfnet.bod.domain.VirtualResourceGroup</class>
@@ -67,8 +67,7 @@
             <property name="hibernate.ejb.naming_strategy" value="org.hibernate.cfg.ImprovedNamingStrategy"/>
             <property name="hibernate.connection.url" value="jdbc:h2:mem:test_mem" />
             <property name="hibernate.hbm2ddl.auto" value="create" />
-            <property name="hibernate.search.default.indexBase" value="target" />
-            <property name="hibernate.hbm2ddl.import_files" value="/db/search/physicalport.sql"/>
+            <property name="hibernate.hbm2ddl.import_files" value="/db/search-init.sql"/>
             <property name="hibernate.search.lucene_version" value="LUCENE_35"/>
             <!-- optional -->
             <property name="hibernate.search.default.directory_provider" value="ram" />
