@@ -1,11 +1,11 @@
 package nl.surfnet.bod.search;
 
-import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
-import org.hibernate.ejb.Ejb3Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
@@ -13,35 +13,40 @@ import org.springframework.data.domain.Sort;
 import nl.surfnet.bod.util.BoDInitializer;
 import nl.surfnet.bod.util.FullTextSearchContext;
 
-@SuppressWarnings({ "rawtypes", "deprecation", "unchecked" })
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class AbstractIndexAndSearch<T> {
 
   protected Logger log = LoggerFactory.getLogger(getClass());
 
   private EntityManager entityManager;
 
+  private EntityManagerFactory entityManagerFactory;
+
   private final Class entity;
+
+  private final BoDInitializer boDInitializer = new BoDInitializer();
 
   public AbstractIndexAndSearch(final Class clazz) {
     this.entity = clazz;
   }
 
-  protected void initEntityManage() {
-    final Ejb3Configuration configuration = new Ejb3Configuration();
-    configuration.configure("hibernate-search-pu", new HashMap());
-    entityManager = configuration.buildEntityManagerFactory().createEntityManager();
+  protected void initEntityManager() {
+    entityManagerFactory = Persistence.createEntityManagerFactory("hibernate-search-pu");
+    entityManager = entityManagerFactory.createEntityManager();
   }
 
   protected void index() {
-    final BoDInitializer boDInitializer = new BoDInitializer();
     boDInitializer.setEntityManager(entityManager);
     boDInitializer.indexDatabaseContent();
   }
 
-  protected List<T> getSearchQuery(String keyword) {
-    final FullTextSearchContext<T> ftsc = new FullTextSearchContext<>(entityManager, entity);
-    return ftsc.getFullTextQueryForKeywordOnAllAnnotedFields(keyword, new Sort("id")).getResultList();
+  protected List<T> getSearchQuery(String query) {
+    return new FullTextSearchContext<>(entityManager, entity).getFullTextQueryForKeywordOnAllAnnotedFields(query,
+        new Sort("id")).getResultList();
+  }
 
+  protected final EntityManagerFactory getEntityManagerFactory() {
+    return entityManagerFactory;
   }
 
 }

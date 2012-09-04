@@ -19,11 +19,12 @@ public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<Physi
 
   @Before
   public void setUp() {
-    initEntityManage();
+    initEntityManager();
   }
 
   @After
   public void tearDown() {
+    getEntityManagerFactory().close();
   }
 
   @Test
