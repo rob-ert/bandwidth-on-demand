@@ -49,8 +49,7 @@ public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<Physi
     assertThat(physicalPorts.size(), is(2));
 
     physicalPorts = getSearchQuery("Mock");
-    // (Mock_Ut002A_OME01_ETH-1-2-1, Mock_Ut001A_OME01_ETH-1-2-2, Mock_port 2de
-    // verdieping toren1b, Mock_port 1de verdieping toren1a)
+    // (All available (4) PP's)
     assertThat(physicalPorts.size(), is(4));
 
     physicalPorts = getSearchQuery("ETH-1-13-4");
@@ -65,6 +64,7 @@ public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<Physi
     assertThat(physicalPorts.get(1).getNocLabel(), equalTo("Mock_Ut001A_OME01_ETH-1-2-2"));
 
     physicalPorts = getSearchQuery("ETH-1-");
+    // (All available (4) PP's)
     assertThat(physicalPorts.size(), is(4));
     assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Mock_Ut002A_OME01_ETH-1-2-1"));
     assertThat(physicalPorts.get(1).getNocLabel(), equalTo("Mock_Ut001A_OME01_ETH-1-2-2"));
@@ -72,6 +72,7 @@ public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<Physi
     assertThat(physicalPorts.get(3).getNocLabel(), equalTo("Noc 4 label"));
 
     physicalPorts = getSearchQuery("1");
+    // (All available (4) PP's)
     assertThat(physicalPorts.size(), is(4));
     assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Mock_Ut002A_OME01_ETH-1-2-1"));
     assertThat(physicalPorts.get(1).getNocLabel(), equalTo("Mock_Ut001A_OME01_ETH-1-2-2"));
@@ -79,12 +80,14 @@ public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<Physi
     assertThat(physicalPorts.get(3).getNocLabel(), equalTo("Noc 4 label"));
 
     physicalPorts = getSearchQuery("1de");
+    // Mock_port 1de verdieping toren1a
     assertThat(physicalPorts.size(), is(1));
-    assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Noc 4 label"));
+    assertThat(physicalPorts.get(0).getBodPortId(), equalTo("Mock_port 1de verdieping toren1a"));
 
     physicalPorts = getSearchQuery("2de");
+    // Mock_port 2de verdieping toren1b
     assertThat(physicalPorts.size(), is(1));
-    assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Noc 3 label"));
+    assertThat(physicalPorts.get(0).getBodPortId(), equalTo("Mock_port 2de verdieping toren1b"));
 
     // physicalPorts = getSearchQuery("Noc 3");
     // assertThat(physicalPorts.size(), is(1));
