@@ -115,8 +115,10 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
       getNocDriver().addPhysicalPortToInstitute(GROUP_NAME, "NOC 3 label", "Mock_Poort 3de verdieping toren1c");
 
       getNocDriver().verifyAllocatedPortsBySearch("1", BOD_PORT_ID_1, BOD_PORT_ID_2, BOD_PORT_ID_4);
-      getNocDriver().verifyAllocatedPortsBySearch("2de", BOD_PORT_ID_2);
       getNocDriver().verifyAllocatedPortsBySearch("*1*", BOD_PORT_ID_1, BOD_PORT_ID_2, BOD_PORT_ID_4);
+
+      getNocDriver().verifyAllocatedPortsBySearch("'NOC 1 label'", BOD_PORT_ID_1);
+      getNocDriver().verifyAllocatedPortsBySearch("'NOC ? label'", BOD_PORT_ID_1, BOD_PORT_ID_2, BOD_PORT_ID_4);
     }
     finally {
       getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_1);
