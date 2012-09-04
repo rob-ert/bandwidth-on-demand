@@ -25,13 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 
 import nl.surfnet.bod.util.FullTextSearchContext;
-import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
@@ -62,28 +59,13 @@ public abstract class AbstractFullTextSearchService<T, K> {
    */
   @SuppressWarnings("unchecked")
   public List<K> searchFor(Class<K> entityClass, String searchText, int firstResult, int maxResults, Sort sort) {
-    Query jpaQuery = createSearchQuery(searchText, sort, entityClass);
+    FullTextQuery jpaQuery = createSearchQuery(searchText, sort, entityClass);
 
+    // Limit for paging
     jpaQuery.setFirstResult(firstResult);
     jpaQuery.setMaxResults(maxResults);
 
-    List<K> results = jpaQuery.getResultList();
-
-    // No results, use wildcards
-    if (CollectionUtils.isEmpty(results)) {
-      if (WebUtils.not(StringUtils.contains(searchText, "*"))) {
-        searchText = "*" + searchText + "*";
-      }
-      jpaQuery = createSearchQuery(searchText, sort, entityClass);
-
-      // Limit for pageing
-      jpaQuery.setFirstResult(firstResult);
-      jpaQuery.setMaxResults(maxResults);
-
-      results = jpaQuery.getResultList();
-    }
-
-    return results;
+    return jpaQuery.getResultList();
   }
 
   /**

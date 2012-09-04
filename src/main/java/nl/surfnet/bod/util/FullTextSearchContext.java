@@ -27,6 +27,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
@@ -45,6 +46,8 @@ import org.springframework.util.ReflectionUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+
+import static nl.surfnet.bod.web.WebUtils.not;
 
 /**
  * Class which holds state related to creating and executing a full text search
@@ -72,6 +75,11 @@ public class FullTextSearchContext<T> {
 
     Query luceneQuery;
     try {
+      // Add wildcards when not already in search
+      if (not(StringUtils.containsAny(keyword, new char[] { '*', '?' }))) {
+        keyword = "*" + keyword + "*";
+      }
+
       luceneQuery = parser.parse(keyword);
     }
     catch (ParseException e) {
