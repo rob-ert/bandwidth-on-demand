@@ -13,7 +13,7 @@ import org.springframework.data.domain.Sort;
 import nl.surfnet.bod.util.BoDInitializer;
 import nl.surfnet.bod.util.FullTextSearchContext;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "unchecked" })
 public class AbstractIndexAndSearch<T> {
 
   protected Logger log = LoggerFactory.getLogger(getClass());
@@ -22,11 +22,11 @@ public class AbstractIndexAndSearch<T> {
 
   private EntityManagerFactory entityManagerFactory;
 
-  private final Class entity;
+  private final Class<T> entity;
 
   private final BoDInitializer boDInitializer = new BoDInitializer();
 
-  public AbstractIndexAndSearch(final Class clazz) {
+  public AbstractIndexAndSearch(final Class<T> clazz) {
     this.entity = clazz;
   }
 
