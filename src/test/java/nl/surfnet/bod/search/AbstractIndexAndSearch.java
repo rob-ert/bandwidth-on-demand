@@ -13,7 +13,6 @@ import org.springframework.data.domain.Sort;
 import nl.surfnet.bod.util.BoDInitializer;
 import nl.surfnet.bod.util.FullTextSearchContext;
 
-@SuppressWarnings({ "unchecked" })
 public class AbstractIndexAndSearch<T> {
 
   protected Logger log = LoggerFactory.getLogger(getClass());
@@ -22,12 +21,12 @@ public class AbstractIndexAndSearch<T> {
 
   private EntityManagerFactory entityManagerFactory;
 
-  private final Class<T> entity;
+  private final Class<T> clazz;
 
   private final BoDInitializer boDInitializer = new BoDInitializer();
 
   public AbstractIndexAndSearch(final Class<T> clazz) {
-    this.entity = clazz;
+    this.clazz = clazz;
   }
 
   protected void initEntityManager() {
@@ -37,16 +36,17 @@ public class AbstractIndexAndSearch<T> {
 
   protected void index() {
     boDInitializer.setEntityManager(entityManager);
-    boDInitializer.indexDatabaseContent();
+    boDInitializer.init();
   }
 
+  @SuppressWarnings("unchecked")
   protected List<T> getSearchQuery(String query) {
-    return new FullTextSearchContext<>(entityManager, entity).getFullTextQueryForKeywordOnAllAnnotedFields(query,
+    return new FullTextSearchContext<T>(entityManager, clazz).getFullTextQueryForKeywordOnAllAnnotedFields(query,
         new Sort("id")).getResultList();
   }
 
-  protected final EntityManagerFactory getEntityManagerFactory() {
-    return entityManagerFactory;
+  protected final void closeEntityManager() {
+    entityManagerFactory.close();
   }
 
 }

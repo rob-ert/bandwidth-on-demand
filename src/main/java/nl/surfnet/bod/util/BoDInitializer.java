@@ -39,7 +39,7 @@ import com.google.common.annotations.VisibleForTesting;
  * decrypting of properties
  */
 public class BoDInitializer {
-  private final Logger logger = LoggerFactory.getLogger(BoDInitializer.class);
+  private final Logger logger = LoggerFactory.getLogger(getClass());
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -52,11 +52,10 @@ public class BoDInitializer {
   }
 
   public void indexDatabaseContent() {
-    FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
-
-    MassIndexerProgressMonitor indexMonitor = new SimpleIndexingProgressMonitor(10);
+    final FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
+    final MassIndexerProgressMonitor indexMonitor = new SimpleIndexingProgressMonitor(10);
     try {
-      MassIndexer indexer = fullTextEntityManager.createIndexer();
+      final MassIndexer indexer = fullTextEntityManager.createIndexer();
       //Set threads to one, to workaround bug of mass indexer
       //see (https://hibernate.onjira.com/browse/HSEARCH-598)
       indexer.threadsForSubsequentFetching(1);

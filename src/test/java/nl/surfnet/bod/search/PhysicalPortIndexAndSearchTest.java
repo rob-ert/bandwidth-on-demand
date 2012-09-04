@@ -24,7 +24,7 @@ public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<Physi
 
   @After
   public void tearDown() {
-    getEntityManagerFactory().close();
+    closeEntityManager();
   }
 
   @Test
