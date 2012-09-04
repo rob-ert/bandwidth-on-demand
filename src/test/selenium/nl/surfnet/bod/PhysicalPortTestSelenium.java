@@ -118,6 +118,7 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
       getNocDriver().verifyAllocatedPortsBySearch("*1*", BOD_PORT_ID_1, BOD_PORT_ID_2, BOD_PORT_ID_4);
 
       getNocDriver().verifyAllocatedPortsBySearch("'NOC 1 label'", BOD_PORT_ID_1);
+      getNocDriver().verifyAllocatedPortsBySearch("'NOC 1'", new String[] {} );
       getNocDriver().verifyAllocatedPortsBySearch("'NOC ? label'", BOD_PORT_ID_1, BOD_PORT_ID_2, BOD_PORT_ID_4);
     }
     finally {
