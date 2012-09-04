@@ -11,16 +11,11 @@ import org.junit.Test;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 
-/**
- * Example testcase for Hibernate Search
- */
-
 public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<PhysicalPort> {
 
   public PhysicalPortIndexAndSearchTest() {
     super(PhysicalPort.class);
   }
-
 
   @Before
   public void setUp() {
@@ -93,8 +88,7 @@ public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<Physi
     // physicalPorts = getSearchQuery("Noc 3");
     // assertThat(physicalPorts.size(), is(1));
     // assertThat(physicalPorts.get(0).getNocLabel(), equalTo("Noc 3 label"));
-    
+
   }
 
- 
 }
