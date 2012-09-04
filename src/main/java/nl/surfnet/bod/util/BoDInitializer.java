@@ -32,6 +32,8 @@ import org.hibernate.search.jpa.Search;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * Initializes the BoD application, will be executed by spring after loading and
  * decrypting of properties
@@ -67,6 +69,11 @@ public class BoDInitializer {
     }
 
     logger.info("Succesfully indexed database content for full text search");
+  }
+
+  @VisibleForTesting
+  public final void setEntityManager(final EntityManager entityManager) {
+    this.entityManager = entityManager;
   }
 
 }
