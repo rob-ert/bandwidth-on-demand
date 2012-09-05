@@ -21,16 +21,18 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
-
+import static nl.surfnet.bod.domain.ReservationStatus.*;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.AUTO_PROVISION;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.RESERVED;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.TERMINATING;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.support.ConnectionFactory;
@@ -60,9 +62,9 @@ public class ConnectionServiceProviderListenerTest {
   @Test
   public void absentNsiRequestDetailsShouldDoNothing() {
     Reservation reservation = new ReservationFactory().create();
-    
+
     when(reservationServiceMock.find(anyLong())).thenReturn(reservation);
-    
+
     ReservationStatusChangeEvent event =
         new ReservationStatusChangeEvent(REQUESTED, reservation, Optional.<NsiRequestDetails>absent());
 
@@ -81,8 +83,7 @@ public class ConnectionServiceProviderListenerTest {
       .setStatus(FAILED)
       .setConnection(connection)
       .setFailedReason(failedReason).create();
-    ReservationStatusChangeEvent event =
-        new ReservationStatusChangeEvent(REQUESTED, reservation, requestDetails);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(REQUESTED, reservation, requestDetails);
 
     when(reservationServiceMock.find(reservation.getId())).thenReturn(reservation);
 
@@ -92,4 +93,61 @@ public class ConnectionServiceProviderListenerTest {
         connection, requestDetails.get(), Optional.of(failedReason));
   }
 
+  @Test
+  public void terminateFailed() {
+    Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetails("http://localhost/reply", "123456789"));
+    Connection connection = new ConnectionFactory().setCurrentState(TERMINATING).create();
+    Reservation reservation = new ReservationFactory().setStatus(FAILED).setConnection(connection).create();
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(SCHEDULED, reservation, requestDetails);
+
+    when(reservationServiceMock.find(reservation.getId())).thenReturn(reservation);
+
+    subject.onStatusChange(event);
+
+    verify(connectionServiceProviderMock).terminateFailed(connection, requestDetails);
+  }
+
+  @Test
+  public void terminateSucceed() {
+    Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetails("http://localhost/reply", "123456789"));
+    Connection connection = new ConnectionFactory().setCurrentState(TERMINATING).create();
+    Reservation reservation = new ReservationFactory().setStatus(CANCELLED).setConnection(connection).create();
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(SCHEDULED, reservation, requestDetails);
+
+    when(reservationServiceMock.find(reservation.getId())).thenReturn(reservation);
+
+    subject.onStatusChange(event);
+
+    verify(connectionServiceProviderMock).terminateConfirmed(connection, requestDetails);
+  }
+
+  @Test
+  public void provisionSucceed() {
+    Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetails("http://localhost/reply", "123456789"));
+    Connection connection = new ConnectionFactory().setCurrentState(RESERVED).create();
+    Reservation reservation = new ReservationFactory().setStatus(SCHEDULED).setConnection(connection).create();
+    ReservationStatusChangeEvent event =
+        new ReservationStatusChangeEvent(ReservationStatus.RESERVED, reservation, requestDetails);
+
+    when(reservationServiceMock.find(reservation.getId())).thenReturn(reservation);
+
+    subject.onStatusChange(event);
+
+    verifyZeroInteractions(connectionServiceProviderMock);
+  }
+
+  @Test
+  public void reservationStarts() {
+    Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetails("http://localhost/reply", "123456789"));
+    Connection connection = new ConnectionFactory().setCurrentState(AUTO_PROVISION).create();
+    Reservation reservation = new ReservationFactory().setStatus(RUNNING).setConnection(connection).create();
+    ReservationStatusChangeEvent event =
+        new ReservationStatusChangeEvent(SCHEDULED, reservation, requestDetails);
+
+    when(reservationServiceMock.find(reservation.getId())).thenReturn(reservation);
+
+    subject.onStatusChange(event);
+
+    verify(connectionServiceProviderMock).provisionConfirmed(connection, requestDetails.get());
+  }
 }
