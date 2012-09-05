@@ -11,6 +11,10 @@
         <div class="actions">
             <a id="reqVpId" href="${new_vp_url}" class="btn btn-primary"><i class="icon-envelope"><!--  --></i><c:out value=" "/><spring:message code="label_action_request_vp" /></a>
         </div>
+        <div class="div-search" >
+          <input id="si_id" value="${search}" placeholder="Search text" />
+          <button id="sb_id" type="button" class="btn btn-primary" ><i class="icon-search"><!--  --></i></button>
+        </div>
         <table:table items="${list}" labelPluralCode="label_virtualport_plural">
             <thead>
                 <tr>
@@ -56,7 +60,7 @@
                         <spring:message code="label_bandwidth_unit" var="mbit_label" />
                         <table:column item="${item}" property="maxBandwidth" append="${mbit_label}" />
                         <table:column item="${item}" property="virtualResourceGroup" />
-                        <td>${item.physicalPort.physicalResourceGroup.name}</td>
+                        <table:column item="${item}" property="physicalResourceGroup" />
                         <table:actionsColumn item="${item}" delete="false" path="/virtualports" labelCode="label_virtualport" />
                     </tr>
                 </c:forEach>

@@ -25,6 +25,11 @@ import java.util.Collection;
 
 import javax.persistence.*;
 
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
@@ -33,6 +38,7 @@ import org.hibernate.validator.constraints.NotEmpty;
  *
  */
 @Entity
+@Indexed
 public class VirtualResourceGroup implements Loggable {
 
   @Id
@@ -42,13 +48,19 @@ public class VirtualResourceGroup implements Loggable {
   @Version
   private Integer version;
 
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @NotEmpty
   @Column(nullable = false)
   private String name;
 
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @Basic
   private String description;
 
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @NotEmpty
   @Column(unique = true, nullable = false)
   private String surfconextGroupId;

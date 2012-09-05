@@ -21,13 +21,9 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byGroupIdInLastMonthSpec;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byPhysicalPortSpec;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forManagerSpec;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forUserSpec;
+import static com.google.common.base.Preconditions.*;
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.*;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -36,14 +32,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
-
-import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
-import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.joda.time.LocalDateTime;
 import org.springframework.data.domain.PageRequest;
@@ -54,17 +44,36 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.repo.VirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortView;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
 @Service
 @Transactional
-public class VirtualPortService {
+public class VirtualPortService extends AbstractFullTextSearchService<VirtualPortView, VirtualPort>{
 
   @Resource
   private VirtualPortRepo virtualPortRepo;
   @Resource
   private VirtualResourceGroupRepo virtualResourceGroupReppo;
+  
   @Resource
   private VirtualPortRequestLinkRepo virtualPortRequestLinkRepo;
+  
   @Resource
   private EmailSender emailSender;
 
@@ -73,6 +82,17 @@ public class VirtualPortService {
 
   @Resource
   private LogEventService logEventService;
+  
+  @PersistenceContext
+  private EntityManager entityManager;
+  
+  
+  private final Function<VirtualPort, VirtualPortView> toVitualPortView = new Function<VirtualPort, VirtualPortView>() {
+    @Override
+    public VirtualPortView apply(VirtualPort port) {
+      return new VirtualPortView(port, reservationService.countForVirtualResourceGroup(port.getVirtualResourceGroup()));
+    }
+  };
 
   public long count() {
     return virtualPortRepo.count();
@@ -172,12 +192,12 @@ public class VirtualPortService {
   }
 
   public void save(final VirtualPort virtualPort) {
-    logEventService.logCreateEvent(Security.getUserDetails(), virtualPort, getLogLabel(Security.getSelectedRole(), virtualPort));
+    logEventService.logCreateEvent(Security.getUserDetails(), virtualPort,getLogLabel(Security.getSelectedRole(), virtualPort));
     virtualPortRepo.save(virtualPort);
   }
 
   public VirtualPort update(final VirtualPort virtualPort) {
-    logEventService.logUpdateEvent(Security.getUserDetails(), virtualPort, getLogLabel(Security.getSelectedRole(), virtualPort));
+    logEventService.logUpdateEvent(Security.getUserDetails(), virtualPort,getLogLabel(Security.getSelectedRole(), virtualPort));
     return virtualPortRepo.save(virtualPort);
   }
 
@@ -258,5 +278,20 @@ public class VirtualPortService {
     Long id = Long.valueOf(matcher.group(1));
 
     return find(id);
+  }
+
+  @Override
+  public List<VirtualPortView> transformToView(List<VirtualPort> listToTransform, RichUserDetails user) {
+    return Lists.transform(listToTransform, toVitualPortView);
+//    if (user.isSelectedManagerRole()){
+//      return Lists.transform(listToTransform, toVitualPortView);
+//    } else if (user.isSelectedUserRole()){
+//   //TODO
+//    }
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
   }
 }

@@ -130,6 +130,8 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
     getManagerDriver().switchToUser();
 
     getUserDriver().verifyVirtualPortExists("myVP", "1000", "selenium-users", "SURFnet bv");
+    
+    
   }
 
 }

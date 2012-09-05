@@ -21,21 +21,11 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.*;
 
 import java.util.List;
 
 import javax.annotation.Resource;
-
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
-import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
-import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,34 +35,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
+import nl.surfnet.bod.web.security.Security;
 
 @Controller("managerVirtualResourceGroupController")
 @RequestMapping("/manager/" + VirtualResourceGroupController.PAGE_URL)
-public class VirtualResourceGroupController extends AbstractSortableListController<VirtualResourceGroupView> {
+public class VirtualResourceGroupController extends AbstractSearchableSortableListController<VirtualResourceGroupView, VirtualResourceGroup>  {
   public static final String PAGE_URL = "teams";
   public static final String MODEL_KEY = "virtualResourceGroup";
-
-  private static final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW =
-      new Function<VirtualResourceGroup, VirtualResourceGroupView>() {
-        @Override
-        public VirtualResourceGroupView apply(VirtualResourceGroup group) {
-          final Optional<Long> managersPrgId = Security.getSelectedRole().getPhysicalResourceGroupId();
-
-          Integer count = FluentIterable.from(group.getVirtualPorts())
-              .filter(new Predicate<VirtualPort>() {
-                @Override
-                public boolean apply(VirtualPort port) {
-                  return port.getPhysicalResourceGroup().getId().equals(managersPrgId.get());
-                }
-              }).size();
-
-          return new VirtualResourceGroupView(group, count);
-        }
-      };
 
   @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
@@ -100,9 +74,8 @@ public class VirtualResourceGroupController extends AbstractSortableListControll
 
   @Override
   protected List<VirtualResourceGroupView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return FluentIterable
-        .from(virtualResourceGroupService.findEntriesForManager(Security.getSelectedRole(), firstPage, maxItems, sort))
-        .transform(TO_VIEW).toImmutableList();
+    return virtualResourceGroupService.transformToView(virtualResourceGroupService.findEntries(firstPage, maxItems, sort), Security.getUserDetails());
+    
   }
 
   @Override
@@ -150,6 +123,16 @@ public class VirtualResourceGroupController extends AbstractSortableListControll
       return managerPortCount;
     }
 
+  }
+
+  @Override
+  protected Class<VirtualResourceGroup> getEntityClass() {
+    return VirtualResourceGroup.class;
+  }
+
+  @Override
+  protected AbstractFullTextSearchService<VirtualResourceGroupView, VirtualResourceGroup> getFullTextSearchableService() {
+    return virtualResourceGroupService;
   }
 
 }

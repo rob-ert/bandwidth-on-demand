@@ -25,17 +25,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.util.Functions;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.PhysicalPortView;
-
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,9 +36,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.PhysicalPortView;
+
 @Controller("managerPhysicalPortController")
 @RequestMapping(PhysicalPortController.PAGE_URL)
-public class PhysicalPortController extends AbstractSortableListController<PhysicalPortView> {
+public class PhysicalPortController extends AbstractSearchableSortableListController<PhysicalPortView, PhysicalPort> {
 
   public static final String PAGE_URL = "/manager/physicalports";
 
@@ -165,5 +166,15 @@ public class PhysicalPortController extends AbstractSortableListController<Physi
     return Functions.transformAllocatedPhysicalPorts(physicalPortService
         .findAllocatedEntriesForPhysicalResourceGroup(physicalResourceGroup, firstPage, maxItems, sort),
         virtualPortService);
+  }
+
+  @Override
+  protected Class<PhysicalPort> getEntityClass() {
+    return PhysicalPort.class;
+  }
+
+  @Override
+  protected AbstractFullTextSearchService<PhysicalPortView, PhysicalPort> getFullTextSearchableService() {
+    return (AbstractFullTextSearchService<PhysicalPortView, PhysicalPort>) physicalPortService;
   }
 }

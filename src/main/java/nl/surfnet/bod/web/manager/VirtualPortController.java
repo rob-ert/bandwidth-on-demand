@@ -44,10 +44,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -55,27 +53,23 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.base.MessageView;
 import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortView;
 import nl.surfnet.bod.web.security.Security;
 
 @Controller("managerVirtualPortController")
 @RequestMapping(VirtualPortController.PAGE_URL)
-public class VirtualPortController extends AbstractSortableListController<VirtualPortView> {
+public class VirtualPortController extends AbstractSearchableSortableListController<VirtualPortView, VirtualPort> {
 
   public static final String MODEL_KEY = "virtualPort";
   public static final String PAGE_URL = "/manager/virtualports";
 
-  private final Function<VirtualPort, VirtualPortView> toVitualPortView = new Function<VirtualPort, VirtualPortView>() {
-    @Override
-    public VirtualPortView apply(VirtualPort port) {
-      return new VirtualPortView(port, reservationService.countForVirtualResourceGroup(port.getVirtualResourceGroup()));
-    }
-  };
+  
 
   @Resource
   private VirtualPortService virtualPortService;
@@ -241,9 +235,8 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
 
   @Override
   protected List<VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return Lists.transform(
-        virtualPortService.findEntriesForManager(Security.getSelectedRole(), firstPage, maxItems, sort),
-        toVitualPortView);
+    final List<VirtualPort> entriesForManager = virtualPortService.findEntriesForManager(Security.getSelectedRole(), firstPage, maxItems, sort);
+    return virtualPortService.transformToView(entriesForManager, Security.getUserDetails());
   }
 
   @Override
@@ -450,6 +443,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     private final String physicalPort;
     private final String userLabel;
     private final long reservationCounter;
+    private final String nsiStpId;
 
     public VirtualPortView(VirtualPort port, final long reservationCounter) {
       id = port.getId();
@@ -461,6 +455,7 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
       physicalResourceGroup = port.getPhysicalResourceGroup().getName();
       physicalPort = port.getPhysicalPort().getManagerLabel();
       this.reservationCounter = reservationCounter;
+      this.nsiStpId = port.getNsiStpId();
     }
 
     public String getManagerLabel() {
@@ -499,5 +494,46 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
       return reservationCounter;
     }
 
+    public String getNsiStpId() {
+      return nsiStpId;
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder builder = new StringBuilder();
+      builder.append("VirtualPortView [id=");
+      builder.append(id);
+      builder.append(", managerLabel=");
+      builder.append(managerLabel);
+      builder.append(", maxBandwidth=");
+      builder.append(maxBandwidth);
+      builder.append(", vlanId=");
+      builder.append(vlanId);
+      builder.append(", virtualResourceGroup=");
+      builder.append(virtualResourceGroup);
+      builder.append(", physicalResourceGroup=");
+      builder.append(physicalResourceGroup);
+      builder.append(", physicalPort=");
+      builder.append(physicalPort);
+      builder.append(", userLabel=");
+      builder.append(userLabel);
+      builder.append(", reservationCounter=");
+      builder.append(reservationCounter);
+      builder.append(", nsiStpId=");
+      builder.append(nsiStpId);
+      builder.append("]");
+      return builder.toString();
+    }
+
+  }
+
+  @Override
+  protected Class<VirtualPort> getEntityClass() {
+    return VirtualPort.class;
+  }
+
+  @Override
+  protected AbstractFullTextSearchService<VirtualPortView, VirtualPort> getFullTextSearchableService() {
+    return virtualPortService;
   }
 }

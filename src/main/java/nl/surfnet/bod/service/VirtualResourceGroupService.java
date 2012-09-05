@@ -21,24 +21,21 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.base.Preconditions.*;
+import static com.google.common.collect.Collections2.*;
+import static com.google.common.collect.Lists.*;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
-
-import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -47,16 +44,61 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalPort_;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
+import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
 @Service
 @Transactional
-public class VirtualResourceGroupService {
+public class VirtualResourceGroupService extends
+    AbstractFullTextSearchService<VirtualResourceGroupView, VirtualResourceGroup> {
 
   @Resource
   private VirtualResourceGroupRepo virtualResourceGroupRepo;
 
   @Resource
   private LogEventService logEventService;
+
+  @PersistenceContext
+  private EntityManager entityManager;
+
+  private static final Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView> TO_MANAGER_VIEW = new Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView>() {
+    @Override
+    public VirtualResourceGroupController.VirtualResourceGroupView apply(VirtualResourceGroup group) {
+      final Optional<Long> managersPrgId = Security.getSelectedRole().getPhysicalResourceGroupId();
+
+      Integer count = FluentIterable.from(group.getVirtualPorts()).filter(new Predicate<VirtualPort>() {
+        @Override
+        public boolean apply(VirtualPort port) {
+          return port.getPhysicalResourceGroup().getId().equals(managersPrgId.get());
+        }
+      }).size();
+
+      return new VirtualResourceGroupController.VirtualResourceGroupView(group, count);
+    }
+  };
+
+  private static final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW = new Function<VirtualResourceGroup, VirtualResourceGroupView>() {
+    @Override
+    public VirtualResourceGroupView apply(VirtualResourceGroup input) {
+      return new VirtualResourceGroupView(input, input.getVirtualPortCount());
+    }
+  };
 
   public long count() {
     return virtualResourceGroupRepo.count();
@@ -157,6 +199,22 @@ public class VirtualResourceGroupService {
     }
 
     return virtualResourceGroupRepo.findBySurfconextGroupIdIn(groupIds);
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
+  }
+
+  @Override
+  public List<VirtualResourceGroupView> transformToView(List<VirtualResourceGroup> listToTransform, RichUserDetails user) {
+    if (user == null) {
+      return Lists.transform(listToTransform, VirtualResourceGroupService.TO_VIEW);
+    }
+    else if (user.getSelectedRole().isManagerRole()) {
+      return Lists.transform(listToTransform, VirtualResourceGroupService.TO_MANAGER_VIEW);
+    }
+    return Lists.transform(listToTransform, VirtualResourceGroupService.TO_VIEW);
   }
 
 }

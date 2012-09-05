@@ -30,25 +30,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
 
 @Controller("nocVirtualResourceGroupController")
 @RequestMapping("/noc/teams")
-public class VirtualResourceGroupController extends AbstractSortableListController<VirtualResourceGroupView> {
-
-  private static final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW =
-      new Function<VirtualResourceGroup, VirtualResourceGroupView>() {
-        @Override
-        public VirtualResourceGroupView apply(VirtualResourceGroup input) {
-          return new VirtualResourceGroupView(input, input.getVirtualPortCount());
-        }
-  };
+public class VirtualResourceGroupController extends AbstractSearchableSortableListController<VirtualResourceGroupView, VirtualResourceGroup> {
 
   @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
@@ -60,12 +50,22 @@ public class VirtualResourceGroupController extends AbstractSortableListControll
 
   @Override
   protected List<VirtualResourceGroupView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return Lists.transform(virtualResourceGroupService.findEntries(firstPage, maxItems, sort), TO_VIEW);
+    return virtualResourceGroupService.transformToView(virtualResourceGroupService.findEntries(firstPage, maxItems, sort), null);
   }
 
   @Override
   protected long count() {
     return virtualResourceGroupService.count();
+  }
+
+  @Override
+  protected Class<VirtualResourceGroup> getEntityClass() {
+    return VirtualResourceGroup.class;
+  }
+
+  @Override
+  protected AbstractFullTextSearchService<VirtualResourceGroupView, VirtualResourceGroup> getFullTextSearchableService() {
+    return virtualResourceGroupService;
   }
 
 }

@@ -40,13 +40,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortView;
 import nl.surfnet.bod.web.security.Security;
 
 @Controller
 @RequestMapping("/virtualports")
-public class VirtualPortController extends AbstractSortableListController<VirtualPort> {
+public class VirtualPortController extends AbstractSearchableSortableListController<VirtualPortView, VirtualPort> {
 
   @Resource
   private VirtualPortService virtualPortService;
@@ -107,8 +109,12 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
   }
 
   @Override
-  protected List<VirtualPort> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return virtualPortService.findEntriesForUser(Security.getUserDetails(), firstPage, maxItems, sort);
+  protected List<VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
+    final List<VirtualPortView> transformToView = virtualPortService.transformToView(
+        virtualPortService.findEntriesForUser(Security.getUserDetails(), firstPage, maxItems, sort),
+        Security.getUserDetails());
+    System.out.println(transformToView);
+    return transformToView;
   }
 
   @Override
@@ -173,6 +179,16 @@ public class VirtualPortController extends AbstractSortableListController<Virtua
     public void setVersion(Integer version) {
       this.version = version;
     }
+  }
+
+  @Override
+  protected Class<VirtualPort> getEntityClass() {
+    return VirtualPort.class;
+  }
+
+  @Override
+  protected AbstractFullTextSearchService<VirtualPortView, VirtualPort> getFullTextSearchableService() {
+    return virtualPortService;
   }
 
 }
