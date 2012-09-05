@@ -26,6 +26,7 @@ import javax.persistence.EntityManager;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.SortField;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +35,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.Sort;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
@@ -60,8 +61,14 @@ public class FullTextSearchContextTest {
   }
 
   @Test
-  public void testGetJpaQueryForKeywordOnAllAnnotedFields() {
-    assertThat(ftsContext.getIndexedFields(entity), arrayContaining("firstName", "lastName", "scale"));
+  public void testAnnotedFields() {
+    assertThat(ftsContext.findAllIndexedFields(entity), arrayContainingInAnyOrder("firstName", "lastName", "scale"));
+  }
+
+  @Test
+  public void testAllAnnotedFields() {
+    assertThat(ftsContext.findAllIndexedFields(new TestEntityWithEmbededEntity().getClass()),
+        arrayContainingInAnyOrder("shoeSize", "embed.firstName", "embed.lastName", "embed.scale"));
   }
 
   @Test
@@ -103,7 +110,19 @@ public class FullTextSearchContextTest {
     assertThat(luceneSort, nullValue());
   }
 
-  public class TestEntity {
+  class TestEntityWithEmbededEntity {
+
+    @IndexedEmbedded
+    private TestEntity embed;
+
+    @SuppressWarnings("unused")
+    private String noIndex;
+
+    @Field
+    private int shoeSize;
+  }
+
+  class TestEntity {
 
     @Field
     private String firstName;

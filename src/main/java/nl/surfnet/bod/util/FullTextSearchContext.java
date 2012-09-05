@@ -37,6 +37,7 @@ import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.Version;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
@@ -45,6 +46,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
 import static nl.surfnet.bod.web.WebUtils.not;
@@ -68,7 +70,7 @@ public class FullTextSearchContext<T> {
   public FullTextQuery getFullTextQueryForKeywordOnAllAnnotedFields(String keyword,
       org.springframework.data.domain.Sort springSort) {
 
-    String[] indexedFields = getIndexedFields(entity);
+    String[] indexedFields = findAllIndexedFields(entity);
 
     final QueryParser parser = new MultiFieldQueryParser(Version.LUCENE_35, indexedFields, analyzer);
     parser.setAllowLeadingWildcard(true);
@@ -89,23 +91,60 @@ public class FullTextSearchContext<T> {
     return getFullTextQuery(luceneQuery, convertToLuceneSort(springSort, indexedFields));
   }
 
+  @VisibleForTesting
+  String[] findAllIndexedFields(Class<?> entity) {
+    List<String> indexedFields = null;
+
+    indexedFields = getIndexedFields(entity, Optional.<String> absent());
+    indexedFields.addAll(getIndexedEmbeddedFields(entity));
+
+    return indexedFields.toArray(new String[indexedFields.size()]);
+  }
+
   /**
    * 
+   * @param entity
+   *          entity to inspect
+   * @param prefix
+   *          optional prefix for fieldNames (@see
+   *          {@link #getIndexedEmbeddedFields(Class)}
    * @return String array containing all fieldNames of the given entity which
-   *         are annotated with @link {@Field} to mark them indexable.
+   *         are annotated with {@link Field} to mark them indexable.
    */
-  @VisibleForTesting
-  String[] getIndexedFields(Class<?> entity) {
+  private List<String> getIndexedFields(Class<?> entity, Optional<String> prefix) {
     List<String> fieldNames = Lists.newArrayList();
 
     java.lang.reflect.Field[] declaredFields = entity.getDeclaredFields();
     for (java.lang.reflect.Field field : declaredFields) {
       if (field.getAnnotation(Field.class) != null) {
-        fieldNames.add(field.getName());
+        fieldNames.add(prefix.isPresent() ? prefix.get() + "." + field.getName() : field.getName());
       }
     }
 
-    return fieldNames.toArray(new String[fieldNames.size()]);
+    return fieldNames;
+  }
+
+  /**
+   * 
+   * @param entity
+   *          entity to inspect
+   * 
+   * @return String array containing the fieldNames of all references in the
+   *         entity which are annotated with {@link IndexedEmbedded}. These
+   *         names will be prefixed with the name of the field.
+   */
+
+  private List<String> getIndexedEmbeddedFields(Class<?> entity) {
+    List<String> nestedFieldNames = Lists.newArrayList();
+
+    java.lang.reflect.Field[] declaredFields = entity.getDeclaredFields();
+    for (java.lang.reflect.Field field : declaredFields) {
+      if (field.getAnnotation(IndexedEmbedded.class) != null) {
+        nestedFieldNames.addAll(getIndexedFields(field.getType(), Optional.of(field.getName())));
+      }
+    }
+
+    return nestedFieldNames;
   }
 
   /**

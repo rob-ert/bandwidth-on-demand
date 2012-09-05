@@ -21,13 +21,19 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.*;
-
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.InstituteService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -44,16 +50,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.ImmutableList;
 
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.service.InstituteService;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSortableListController;
+import static nl.surfnet.bod.web.WebUtils.CREATE;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.EDIT;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.UPDATE;
+import static nl.surfnet.bod.web.WebUtils.addInfoMessage;
 
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
-public class PhysicalResourceGroupController extends AbstractSortableListController<PhysicalResourceGroup> {
+public class PhysicalResourceGroupController extends AbstractSearchableSortableListController<PhysicalResourceGroup, PhysicalResourceGroup> {
 
   public static final String PAGE_URL = "institutes";
   static final String MODEL_KEY = "physicalResourceGroupCommand";
@@ -305,5 +313,15 @@ public class PhysicalResourceGroupController extends AbstractSortableListControl
       return institute != null ? institute.getName() : String.valueOf(instituteId);
     }
 
+  }
+
+  @Override
+  protected Class<PhysicalResourceGroup> getEntityClass() {
+    return PhysicalResourceGroup.class;
+  }
+
+  @Override
+  protected AbstractFullTextSearchService<PhysicalResourceGroup, PhysicalResourceGroup> getFullTextSearchableService() {
+    return physicalResourceGroupService;
   }
 }

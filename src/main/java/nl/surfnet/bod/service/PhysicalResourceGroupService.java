@@ -29,6 +29,8 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -40,6 +42,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.slf4j.Logger;
@@ -54,7 +57,8 @@ import com.google.common.base.Function;
 
 @Service
 @Transactional
-public class PhysicalResourceGroupService {
+public class PhysicalResourceGroupService extends
+    AbstractFullTextSearchService<PhysicalResourceGroup, PhysicalResourceGroup> {
 
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -69,6 +73,9 @@ public class PhysicalResourceGroupService {
 
   @Resource
   private LogEventService logEventService;
+
+  @PersistenceContext
+  private EntityManager entityManager;
 
   public long count() {
     return physicalResourceGroupRepo.count();
@@ -173,6 +180,16 @@ public class PhysicalResourceGroupService {
   private void deActivatePhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
     physicalResourceGroup.setActive(false);
     physicalResourceGroupRepo.save(physicalResourceGroup);
+  }
+
+  @Override
+  public List<PhysicalResourceGroup> transformToView(List<PhysicalResourceGroup> listToTransform, RichUserDetails user) {
+    return listToTransform;
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
   }
 
 }
