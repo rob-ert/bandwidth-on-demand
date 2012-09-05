@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
+import static nl.surfnet.bod.web.WebUtils.not;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
@@ -31,7 +33,6 @@ import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
-import static nl.surfnet.bod.web.WebUtils.not;
 
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.slf4j.Logger;
@@ -89,7 +90,7 @@ public class ConnectionServiceProviderListener implements ReservationListener {
       connectionServiceProvider.provisionConfirmed(connection, event.getNsiRequestDetails().get());
       break;
     case CANCELLED:
-      connectionServiceProvider.terminateConfirmed(connection, event.getNsiRequestDetails().get());
+      connectionServiceProvider.terminateConfirmed(connection, event.getNsiRequestDetails());
       break;
     default:
       logger.error("Unhandled status {} of reservation {}", event.getNewStatus(), event.getReservation());
@@ -97,7 +98,6 @@ public class ConnectionServiceProviderListener implements ReservationListener {
   }
 
   private void handleReservationFailed(Connection connection, ReservationStatusChangeEvent event) {
-
     try {
       logger.debug("Connection state {}, new reservation state {}", connection.getCurrentState(), event.getNewStatus());
 
@@ -106,7 +106,7 @@ public class ConnectionServiceProviderListener implements ReservationListener {
         connectionServiceProvider.provisionFailed(connection, event.getNsiRequestDetails().get());
       }
       else if (connection.getCurrentState() == ConnectionStateType.TERMINATING) {
-        connectionServiceProvider.terminateFailed(connection, event.getNsiRequestDetails().get());
+        connectionServiceProvider.terminateFailed(connection, event.getNsiRequestDetails());
       }
       else if (connection.getCurrentState() == ConnectionStateType.RESERVING) {
         Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation()

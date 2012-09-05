@@ -24,6 +24,7 @@ package nl.surfnet.bod.service;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
@@ -41,6 +42,7 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.Uninterruptibles;
 
 @Service
 public class ReservationToNbi {
@@ -64,7 +66,14 @@ public class ReservationToNbi {
     checkNotNull(reservationId);
 
     Reservation reservation = reservationRepo.findOne(reservationId);
+    while (reservation == null) {
+      logger.debug("Could not find reservation {} in the database, waiting..", reservationId);
+      Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
+      reservation = reservationRepo.findOne(reservationId);
+    }
+
     logger.debug("Requesting a new reservation from the Nbi, {} ({})", reservation, reservationId);
+
     checkNotNull(reservation);
 
     ReservationStatus orgStatus = reservation.getStatus();
@@ -82,6 +91,7 @@ public class ReservationToNbi {
     Reservation reservation = reservationRepo.findOne(reservationId);
 
     logger.debug("Terminating reservation {}", reservation);
+    checkNotNull(reservation);
 
     ReservationStatus orgStatus = reservation.getStatus();
 

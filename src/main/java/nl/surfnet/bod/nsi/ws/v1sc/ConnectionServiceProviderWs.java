@@ -127,7 +127,6 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     checkNotNull(reservationRequest);
 
     Connection connection = RESERVE_REQUEST_TO_CONNECTION.apply(reservationRequest);
-    connection = connectionRepo.save(connection);
 
     final NsiRequestDetails requestDetails = new NsiRequestDetails(reservationRequest.getReplyTo(),
         reservationRequest.getCorrelationId());
@@ -249,18 +248,18 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     validateProviderNsa(parameters.getProvision().getProviderNSA());
 
     final NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
-    connectionServiceProviderService.provision(connection, requestDetails);
+    connectionServiceProviderService.provision(connection.getId(), requestDetails);
 
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
   }
 
   @Override
   public void provisionFailed(Connection connection, NsiRequestDetails requestDetails) {
-    log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(),
-        connection.getGlobalReservationId());
-
     connection.setCurrentState(ConnectionStateType.SCHEDULED);
     connectionRepo.save(connection);
+
+    log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(),
+        connection.getGlobalReservationId());
 
     final GenericFailedType generic = new GenericFailedType();
     generic.setProviderNSA(connection.getProviderNsa());
@@ -280,11 +279,11 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public void provisionConfirmed(final Connection connection, NsiRequestDetails requestDetails) {
-    log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(),
-        connection.getGlobalReservationId());
-
     connection.setCurrentState(ConnectionStateType.PROVISIONED);
     connectionRepo.save(connection);
+
+    log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(),
+        connection.getGlobalReservationId());
 
     final GenericConfirmedType genericConfirm = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
 
@@ -312,21 +311,24 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     validateProviderNsa(parameters.getTerminate().getProviderNSA());
 
     NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
-    connectionServiceProviderService.terminate(connection, parameters.getTerminate().getRequesterNSA(), requestDetails);
+    connectionServiceProviderService.terminate(connection.getId(), parameters.getTerminate().getRequesterNSA(), requestDetails);
 
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
   }
 
   @Override
-  public void terminateConfirmed(Connection connection, NsiRequestDetails requestDetails) {
+  public void terminateConfirmed(Connection connection, Optional<NsiRequestDetails> requestDetails) {
     connection.setCurrentState(ConnectionStateType.TERMINATED);
     connectionRepo.save(connection);
 
-    final GenericConfirmedType genericConfirmed = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
+    if (!requestDetails.isPresent()) {
+      return;
+    }
 
+    final GenericConfirmedType genericConfirmed = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
     try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
-      port.terminateConfirmed(new Holder<>(requestDetails.getCorrelationId()), genericConfirmed);
+      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails.get());
+      port.terminateConfirmed(new Holder<>(requestDetails.get().getCorrelationId()), genericConfirmed);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
       log.error("Error: ", e);
@@ -334,15 +336,19 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   }
 
   @Override
-  public void terminateFailed(Connection connection, NsiRequestDetails requestDetails) {
+  public void terminateFailed(Connection connection, Optional<NsiRequestDetails> requestDetails) {
     connection.setCurrentState(ConnectionStateType.TERMINATED);
     connectionRepo.save(connection);
+
+    if (!requestDetails.isPresent()) {
+      return;
+    }
 
     final GenericFailedType genericFailed = CONNECTION_TO_GENERIC_FAILED.apply(connection);
 
     try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
-      port.terminateFailed(new Holder<>(requestDetails.getCorrelationId()), genericFailed);
+      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails.get());
+      port.terminateFailed(new Holder<>(requestDetails.get().getCorrelationId()), genericFailed);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
       log.error("Error: ", e);

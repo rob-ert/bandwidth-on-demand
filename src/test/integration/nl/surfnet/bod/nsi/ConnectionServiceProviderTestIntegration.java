@@ -21,82 +21,58 @@
  */
 package nl.surfnet.bod.nsi;
 
-import java.util.Calendar;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import static com.jayway.awaitility.Awaitility.await;
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_PROVIDER_NSA;
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderListener;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderWs;
-import nl.surfnet.bod.repo.ConnectionRepo;
-import nl.surfnet.bod.repo.InstituteRepo;
-import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
-import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.repo.*;
 import nl.surfnet.bod.service.ReservationEventPublisher;
+import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
-import nl.surfnet.bod.support.ConnectionServiceProviderFactory;
-import nl.surfnet.bod.support.MockHttpServer;
-import nl.surfnet.bod.support.PhysicalPortFactory;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.ReserveRequestTypeFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
-import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.support.*;
 
+import org.hibernate.SQLQuery;
+import org.hibernate.Session;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.*;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
-import org.ogf.schemas.nsi._2011._10.connection.types.GenericRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.AfterTransaction;
+import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_PROVIDER_NSA;
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isOneOf;
-import static org.hamcrest.Matchers.notNullValue;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
     "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
-@TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
+@TransactionConfiguration(defaultRollback = false, transactionManager = "transactionManager")
+@Transactional
 public class ConnectionServiceProviderTestIntegration extends AbstractTransactionalJUnit4SpringContextTests {
 
   private static MockHttpServer requesterEndpoint = new MockHttpServer(ConnectionServiceProviderFactory.PORT);
@@ -125,16 +101,18 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   @Resource
   private ReservationService reservationService;
 
+  @Resource
+  private ReservationEventPublisher reservationEventPublisher;
+
   @PersistenceContext
   private EntityManager entityManager;
 
-  private final String correlationId = "urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2e";
-  private final String connectionId = "urn:uuid:f32cc82e-4d87-45ab-baab-4b7011652a2f";
+  @Resource
+  private EntityManagerFactory entityManagerFactory;
+
   private final String virtualResourceGroupName = "nsi:group";
   private VirtualPort sourceVirtualPort;
   private VirtualPort destinationVirtualPort;
-
-  private RichUserDetails user = new RichUserDetailsFactory().addNocRole().create();
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -148,7 +126,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     requesterEndpoint.stopServer();
   }
 
-  @Before
+  @BeforeTransaction
   public void setup() {
     VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().setName(virtualResourceGroupName)
         .create();
@@ -176,17 +154,95 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     virtualResourceGroup = virtualResourceGroupRepo.save(virtualResourceGroup);
   }
 
+  @AfterTransaction
+  public void teardown() {
+    EntityManager em = entityManagerFactory.createEntityManager();
+    SQLQuery query = ((Session) em.getDelegate())
+        .createSQLQuery("truncate physical_resource_group, virtual_resource_group, connection cascade;");
+    query.executeUpdate();
+  }
+
   @Test
-  public void shouldReserve() throws DatatypeConfigurationException, ServiceException {
-    ReserveRequestType reservationRequest = createReserveRequest(connectionId);
+  public void shouldReserveProvisionTerminate() throws Exception {
+    ReserveRequestType reservationRequest = createReserveRequest();
+    final String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
+    final String reserveCorrelationId = reservationRequest.getCorrelationId();
 
-    GenericAcknowledgmentType genericAcknowledgment = nsiProvider.reserve(reservationRequest);
+    final DummyReservationListener listener = new DummyReservationListener();
+    reservationEventPublisher.addListener(listener);
 
-    assertThat(genericAcknowledgment.getCorrelationId(), is(correlationId));
+    GenericAcknowledgmentType reserveAcknowledgment = nsiProvider.reserve(reservationRequest);
 
-    Connection connection = connectionRepo.findByConnectionId(connectionId);
+    assertThat(reserveAcknowledgment.getCorrelationId(), is(reserveCorrelationId));
+
+    final Connection connection = connectionRepo.findByConnectionId(connectionId);
     assertThat(connection.getConnectionId(), is(connectionId));
-    assertThat(connection.getCurrentState(), isOneOf(ConnectionStateType.RESERVED, ConnectionStateType.RESERVING));
+
+    listener.waitForEventWithNewStatus(ReservationStatus.RESERVED);
+
+    Reservation reservation = reservationService.find(connection.getReservation().getId());
+    entityManager.refresh(reservation);
+    entityManager.refresh(connection);
+
+    assertThat(reservation.getStatus(), is(ReservationStatus.RESERVED));
+    assertThat(connection.getCurrentState(), is(ConnectionStateType.RESERVED));
+
+    ProvisionRequestType provisionRequest = createProvisionRequest(connectionId);
+
+    GenericAcknowledgmentType provisionAck = nsiProvider.provision(provisionRequest);
+    final String provisionCorrelationId = provisionAck.getCorrelationId();
+
+    assertThat(provisionAck.getCorrelationId(), is(provisionCorrelationId));
+
+    listener.waitForEventWithNewStatus(ReservationStatus.SCHEDULED);
+
+    entityManager.refresh(reservation);
+    entityManager.refresh(connection);
+    assertThat(reservation.getStatus(), is(ReservationStatus.SCHEDULED));
+    assertThat(connection.getCurrentState(), is(ConnectionStateType.AUTO_PROVISION));
+
+    TerminateRequestType terminateRequest = createTerminateRequest(connectionId);
+    GenericAcknowledgmentType terminateAck = nsiProvider.terminate(terminateRequest);
+    final String terminateCorrelationId = terminateAck.getCorrelationId();
+
+    assertThat(terminateCorrelationId, is(terminateRequest.getCorrelationId()));
+
+    listener.waitForEventWithNewStatus(ReservationStatus.CANCELLED);
+
+    entityManager.refresh(reservation);
+    entityManager.refresh(connection);
+    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
+    assertThat(connection.getCurrentState(), is(ConnectionStateType.TERMINATED));
+  }
+
+  private class DummyReservationListener implements ReservationListener {
+    private Optional<ReservationStatusChangeEvent> event = Optional.absent();
+
+    @Override
+    public void onStatusChange(ReservationStatusChangeEvent event) {
+      this.event = Optional.of(event);
+    }
+
+    public Optional<ReservationStatusChangeEvent> getEvent() {
+      return event;
+    }
+
+    public void reset() {
+      event = Optional.absent();
+    }
+
+    public void waitForEventWithNewStatus(final ReservationStatus status) throws Exception {
+      await().atMost(5, TimeUnit.SECONDS).until(new Callable<Boolean>() {
+        @Override
+        public Boolean call() throws Exception {
+          return getEvent().isPresent()
+              && getEvent().get().getNewStatus().equals(status);
+        }
+      });
+
+      reset();
+    }
+
   }
 
   @Test
@@ -195,125 +251,37 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     GenericAcknowledgmentType genericAcknowledgment = nsiProvider.query(queryRequest);
 
-    assertThat(genericAcknowledgment.getCorrelationId(), is(correlationId));
+    assertThat(genericAcknowledgment.getCorrelationId(), is(queryRequest.getCorrelationId()));
+
+
   }
 
   @Test
-  public void shouldValidateTerminate() throws ServiceException, DatatypeConfigurationException {
-    // First reserve
-    ReserveRequestType reservationRequest = createReserveRequest(connectionId);
+  public void shouldTerminateWhenCancelledByGUI() throws Exception {
+    final DummyReservationListener listener = new DummyReservationListener();
+    reservationEventPublisher.addListener(listener);
+
+    ReserveRequestType reservationRequest = createReserveRequest();
+    final String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
+
     nsiProvider.reserve(reservationRequest);
 
-    // Then terminate
-    TerminateRequestType terminateRequest = createTerminateRequest(reservationRequest.getReserve().getReservation()
-        .getConnectionId(), reservationRequest.getCorrelationId());
-
-    GenericAcknowledgmentType terminateAck = nsiProvider.terminate(terminateRequest);
-
-    // Assert
-    assertThat(terminateAck.getCorrelationId(), is(correlationId));
+    listener.waitForEventWithNewStatus(ReservationStatus.RESERVED);
 
     Connection connection = connectionRepo.findByConnectionId(connectionId);
-    assertThat(connection.getConnectionId(), is(connectionId));
-    assertThat(connection.getCurrentState(), isOneOf(ConnectionStateType.TERMINATED, ConnectionStateType.TERMINATING));
+    reservationService.cancel(connection.getReservation(), new RichUserDetailsFactory().addNocRole().create());
+
+    listener.waitForEventWithNewStatus(ReservationStatus.CANCELLED);
+
+    Reservation reservation = connection.getReservation();
+    entityManager.refresh(connection);
+    entityManager.refresh(reservation);
+
+    assertThat(connection.getCurrentState(), is(ConnectionStateType.TERMINATED));
+    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
   }
 
-  @Test
-  public void shouldProvision() throws ServiceException, DatatypeConfigurationException {
-    // Setup
-    // First reserve
-    ReserveRequestType reservationRequest = createReserveRequest(connectionId);
-    nsiProvider.reserve(reservationRequest);
-
-    ProvisionRequestType provisionRequest = createProvisionRequest(reservationRequest.getReserve().getReservation()
-        .getConnectionId(), reservationRequest.getCorrelationId());
-
-    // Execute
-    GenericAcknowledgmentType provisionAck = nsiProvider.provision(provisionRequest);
-
-    // Verify
-    assertThat(provisionAck.getCorrelationId(), is(correlationId));
-
-    Connection connection = connectionRepo.findByConnectionId(connectionId);
-    assertThat(connection.getConnectionId(), is(connectionId));
-    assertThat(connection.getCurrentState(), isOneOf(ConnectionStateType.AUTO_PROVISION));
-  }
-
-  @Test
-  public void shouldReturnGenericAcknowledgement() throws Exception {
-    ReserveRequestType reservationRequest = createReserveRequest(connectionId);
-
-    // send reserve request
-    GenericAcknowledgmentType genericAcknowledgmentType = nsiProvider.reserve(reservationRequest);
-
-    assertThat(genericAcknowledgmentType.getCorrelationId(), is(correlationId));
-
-    // send provision request
-    final ProvisionRequestType provisionRequestType = new ProvisionRequestType();
-    provisionRequestType.setCorrelationId(correlationId);
-    provisionRequestType.setReplyTo(reservationRequest.getReplyTo());
-    final GenericRequestType genericRequestType = new GenericRequestType();
-    genericRequestType.setProviderNSA(reservationRequest.getReserve().getProviderNSA());
-    genericRequestType.setRequesterNSA(reservationRequest.getReserve().getRequesterNSA());
-    genericRequestType.setConnectionId(reservationRequest.getReserve().getReservation().getConnectionId());
-    provisionRequestType.setProvision(genericRequestType);
-
-    final GenericAcknowledgmentType provisionAck = nsiProvider.provision(provisionRequestType);
-    assertThat(provisionAck.getCorrelationId(), is(correlationId));
-  }
-
-  @Test
-  @Ignore("transaction issues")
-  public void shouldTerminateWhenCancelledByGUI() throws ServiceException, DatatypeConfigurationException,
-      InterruptedException, ExecutionException {
-    RichUserDetails user = new RichUserDetailsFactory().addNocRole().create();
-
-    // First reserve
-    ReserveRequestType reservationRequest = createReserveRequest(connectionId);
-    nsiProvider.reserve(reservationRequest);
-
-    String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
-    Connection connection = connectionRepo.findByConnectionId(connectionId);
-
-    assertThat(connection.getCurrentState(), isOneOf(ConnectionStateType.RESERVED, ConnectionStateType.RESERVING));
-    assertThat(connection.getReservation(), notNullValue());
-
-    // Then terminate
-    Optional<Future<Long>> cancelFuture = reservationService.cancel(connection.getReservation(), user);
-    // Wait for cancel to finish
-    cancelFuture.get().get();
-
-    // Manually notify listener
-    setupListener().notifyListeners(
-        new ReservationStatusChangeEvent(ReservationStatus.RESERVED, connection.getReservation()));
-
-    // Verify
-    // connection =
-    // connectionServiceProviderService.findByConnectionId(connectionId);
-    assertThat(connection.getConnectionId(), is(connectionId));
-    assertThat(connection.getCurrentState(), isOneOf(ConnectionStateType.TERMINATED, ConnectionStateType.TERMINATING));
-    assertThat(connection.getReservation().getStatus(), is(ReservationStatus.CANCELLED));
-  }
-
-  private ReservationEventPublisher setupListener() {
-    ReservationEventPublisher publisher = new ReservationEventPublisher();
-    publisher.addListener(new ConnectionServiceProviderListener());
-
-    return publisher;
-  }
-
-  private ReserveRequestType createReserveRequest(String connId) throws DatatypeConfigurationException {
-    XMLGregorianCalendar startTime = DatatypeFactory.newInstance().newXMLGregorianCalendar();
-    startTime.setDay(1);
-    startTime.setMonth(Calendar.getInstance().get(Calendar.MONTH));
-    startTime.setYear(Calendar.getInstance().get(Calendar.YEAR) + 1);
-
-    XMLGregorianCalendar endTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(
-        startTime.toGregorianCalendar());
-    endTime.setDay(2);
-    endTime.setMonth(Calendar.getInstance().get(Calendar.MONTH));
-    endTime.setYear(Calendar.getInstance().get(Calendar.YEAR) + 1);
-
+  private ReserveRequestType createReserveRequest() throws DatatypeConfigurationException {
     PathType path = new PathType();
 
     ServiceTerminationPointType dest = new ServiceTerminationPointType();
@@ -324,27 +292,25 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     source.setStpId(URN_STP + ":" + destinationVirtualPort.getId());
     path.setSourceSTP(source);
 
-    ReserveRequestType reservationRequest = new ReserveRequestTypeFactory().setScheduleStartTime(startTime)
-        .setScheduleEndTime(endTime).setConnectionId(connId).setCorrelationId(correlationId)
-        .setProviderNsa(URN_PROVIDER_NSA).setPath(path).create();
+    ReserveRequestType reservationRequest = new ReserveRequestTypeFactory()
+       .setProviderNsa(URN_PROVIDER_NSA).setPath(path).create();
 
     return reservationRequest;
   }
 
   private QueryRequestType createQueryRequest() {
-    return new ConnectionServiceProviderFactory().setConnectionId(connectionId).setCorrelationId(correlationId)
-        .setProviderNsa(URN_PROVIDER_NSA).createQueryRequest();
+    return new ConnectionServiceProviderFactory().setProviderNsa(URN_PROVIDER_NSA).createQueryRequest();
 
   }
 
-  private TerminateRequestType createTerminateRequest(String connId, String corrId) {
-    return new ConnectionServiceProviderFactory().setCorrelationId(corrId).setConnectionId(connId)
-        .setProviderNsa(URN_PROVIDER_NSA).createTerminateRequest();
+  private TerminateRequestType createTerminateRequest(String connId) {
+    return new ConnectionServiceProviderFactory().setConnectionId(connId).setProviderNsa(URN_PROVIDER_NSA)
+        .createTerminateRequest();
   }
 
-  private ProvisionRequestType createProvisionRequest(String connId, String corrId) {
-    return new ConnectionServiceProviderFactory().setConnectionId(connId).setCorrelationId(corrId)
-        .setProviderNsa(URN_PROVIDER_NSA).createProvisionRequest();
+  private ProvisionRequestType createProvisionRequest(String connId) {
+    return new ConnectionServiceProviderFactory().setConnectionId(connId).setProviderNsa(URN_PROVIDER_NSA)
+        .createProvisionRequest();
   }
 
 }

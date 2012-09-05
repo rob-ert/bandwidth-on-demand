@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.support;
 
+import java.util.UUID;
+
 import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
@@ -36,7 +38,7 @@ public class ConnectionServiceProviderFactory {
   public static final int PORT = 9082;
   public static final String NSI_REQUESTER_ENDPOINT = "http://localhost:" + PORT + "/bod/nsi/requester";
 
-  private String correlationId = null;
+  private String correlationId = UUID.randomUUID().toString();
   private String connectionId = null;
   private String providerNsa = "urn:example:nsa:provider", requesterNsa = "urn:example:nsa:provider";
 

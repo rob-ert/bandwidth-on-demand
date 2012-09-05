@@ -25,15 +25,17 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.web.security.Security;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
 @Component
 public class ReservationEventPublisher {
-  
+
+  private Logger logger = LoggerFactory.getLogger(ReservationEventPublisher.class);
+
   @Resource
   private LogEventService logEventService;
 
@@ -44,15 +46,16 @@ public class ReservationEventPublisher {
   }
 
   public void notifyListeners(ReservationStatusChangeEvent changeEvent) {
+    logger.debug("Notifying {} listeners of event", listeners.size());
 
-//    logEventService.logUpdateEvent(
-//        Security.getUserDetails(),
-//        changeEvent.getReservation(),
-//        String.format("Notify about state change from [%s] to [%s]", changeEvent.getOldStatus(),
-//            changeEvent.getNewStatus()));
-
-    for (ReservationListener listener : listeners) {
-      listener.onStatusChange(changeEvent);
+    try {
+      for (ReservationListener listener : listeners) {
+        logger.debug("Listern {}", listener.getClass());
+        listener.onStatusChange(changeEvent);
+      }
+    }
+    catch (Throwable e) {
+      e.printStackTrace();
     }
   }
 

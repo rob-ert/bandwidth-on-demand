@@ -44,7 +44,7 @@ public interface ConnectionServiceProvider extends ConnectionProviderPort {
 
   void provisionFailed(Connection connection, NsiRequestDetails requestDetails);
 
-  void terminateConfirmed(Connection connection, NsiRequestDetails requestDetails);
+  void terminateConfirmed(Connection connection, Optional<NsiRequestDetails> requestDetails);
 
-  void terminateFailed(Connection connection, NsiRequestDetails requestDetails);
+  void terminateFailed(Connection connection, Optional<NsiRequestDetails> requestDetails);
 }

@@ -37,8 +37,8 @@ public class ReserveRequestTypeFactory {
   private static final int PORT = 9082;
   private static final String NSI_REQUESTER_ENDPOINT = "http://localhost:" + PORT + "/bod/nsi/requester";
 
-  private String correlationId = null;
-  private String connectionId = null;
+  private String correlationId = UUID.randomUUID().toString();
+  private String connectionId = UUID.randomUUID().toString();
   private String providerNsa = "urn:example:nsa:provider";
   private String requesterNsa = "urn:example:nsa:provider";
 

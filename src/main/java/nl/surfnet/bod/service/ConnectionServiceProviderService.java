@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -28,38 +30,26 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.xml.ws.Holder;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.joda.time.LocalDateTime;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
-import org.ogf.schemas.nsi._2011._10.connection.types.DetailedPathType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryDetailsResultType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
+import org.ogf.schemas.nsi._2011._10.connection.types.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
 
 @Service
 public class ConnectionServiceProviderService {
@@ -75,9 +65,10 @@ public class ConnectionServiceProviderService {
   @Resource
   private VirtualPortService virtualPortService;
 
-  public void reserve(final Connection connection, NsiRequestDetails requestDetails, boolean autoProvision) {
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void reserve(Connection connection, NsiRequestDetails requestDetails, boolean autoProvision) {
     connection.setCurrentState(ConnectionStateType.RESERVING);
-    connectionRepo.save(connection);
+    connection = connectionRepo.saveAndFlush(connection);
 
     final VirtualPort sourcePort = virtualPortService.findByNsiStpId(connection.getSourceStpId());
     final VirtualPort destinationPort = virtualPortService.findByNsiStpId(connection.getDestinationStpId());
@@ -99,7 +90,8 @@ public class ConnectionServiceProviderService {
     reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
   }
 
-  public void provision(Connection connection, NsiRequestDetails requestDetails) {
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void provision(Long connectionId, NsiRequestDetails requestDetails) {
     // TODO [AvD] check if connection is in correct state to receive a provision
     // request..
     // for now we always go to auto provision but this is only correct if the
@@ -110,16 +102,18 @@ public class ConnectionServiceProviderService {
     // If we are already in the provisioned state send back a confirm and we are
     // done..
     // Any other state we have to send back a provision failed...
+    Connection connection = connectionRepo.findOne(connectionId);
     connection.setCurrentState(ConnectionStateType.AUTO_PROVISION);
     connection.setProvisionRequestDetails(requestDetails);
-    connectionRepo.save(connection);
+    connection = connectionRepo.saveAndFlush(connection);
 
     reservationService.provision(connection.getReservation(), Optional.of(requestDetails));
   }
 
-  public void terminate(final Connection connection, final String requesterNsa, final NsiRequestDetails requestDetails) {
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void terminate(final Long connectionId, final String requesterNsa, final NsiRequestDetails requestDetails) {
+    Connection connection = connectionRepo.findOne(connectionId);
     connection.setCurrentState(ConnectionStateType.TERMINATING);
-    connectionRepo.save(connection);
 
     reservationService.cancelWithReason(connection.getReservation(), "Terminate request by NSI", new RichUserDetails(
         requesterNsa, "", "", Collections.<UserGroup> emptyList(), ImmutableList.of(BodRole.createNocEngineer())),
