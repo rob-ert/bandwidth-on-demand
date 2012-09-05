@@ -30,7 +30,7 @@ public class LogEventIndexAndSearchTest extends AbstractIndexAndSearch<LogEvent>
   @Test
   public void testIndexAndSearch() throws Exception {
 
-    List<LogEvent> logEvents = getSearchQuery("CREATE");
+    List<LogEvent> logEvents = getSearchQuery("klimaat");
     // nothing indexed so nothing should be found
     assertThat(logEvents.size(), is(0));
 
