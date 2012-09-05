@@ -47,12 +47,13 @@ import com.google.common.collect.Lists;
 /**
  * Base controller which adds full text search functionality to the
  * {@link AbstractSortableListController}
- *
+ * 
  * @param <T>
  *          DomainObject
  * @param <K>
  */
-public abstract class AbstractSearchableSortableListController<T, K> extends AbstractSortableListController<T> {
+public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> extends
+    AbstractSortableListController<VIEW> {
 
   @Resource
   private ReservationFilterViewFactory reservationFilterViewFactory;
@@ -66,7 +67,7 @@ public abstract class AbstractSearchableSortableListController<T, K> extends Abs
     Sort sortOptions = prepareSortOptions(sort, order, model);
 
     if (StringUtils.hasText(search)) {
-      List<K> list = Lists.newArrayList();
+      List<ENTITY> list = Lists.newArrayList();
       model.addAttribute(WebUtils.PARAM_SEARCH, search);
 
       list = getFullTextSearchableService().searchFor(getEntityClass(), search, calculateFirstPage(page),
@@ -87,7 +88,7 @@ public abstract class AbstractSearchableSortableListController<T, K> extends Abs
     return listUrl();
   }
 
-  protected abstract Class<K> getEntityClass();
+  protected abstract Class<ENTITY> getEntityClass();
 
-  protected abstract AbstractFullTextSearchService<T, K> getFullTextSearchableService();
+  protected abstract AbstractFullTextSearchService<VIEW, ENTITY> getFullTextSearchableService();
 }
