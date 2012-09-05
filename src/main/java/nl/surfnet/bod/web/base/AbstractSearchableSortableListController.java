@@ -21,11 +21,6 @@
  */
 package nl.surfnet.bod.web.base;
 
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
-
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -43,6 +38,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.Lists;
+
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 /**
  * Base controller which adds full text search functionality to the
@@ -67,17 +67,18 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
     Sort sortOptions = prepareSortOptions(sort, order, model);
 
     if (StringUtils.hasText(search)) {
-      List<ENTITY> list = Lists.newArrayList();
+      List<VIEW> list = Lists.newArrayList();
       model.addAttribute(WebUtils.PARAM_SEARCH, search);
 
-      list = getFullTextSearchableService().searchFor(getEntityClass(), search, calculateFirstPage(page),
-          MAX_ITEMS_PER_PAGE, sortOptions);
+      List<VIEW> listFromController = list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model);
 
-      model.addAttribute(WebUtils.MAX_PAGES_KEY,
-          calculateMaxPages(getFullTextSearchableService().countSearchFor(getEntityClass(), search)));
+      list = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), search, calculateFirstPage(page),
+          MAX_ITEMS_PER_PAGE, sortOptions, Security.getUserDetails(), listFromController);
 
-      model.addAttribute(WebUtils.DATA_LIST,
-          getFullTextSearchableService().transformToView(list, Security.getUserDetails()));
+      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(getFullTextSearchableService()
+          .countSearchForInFilteredList(getEntityClass(), search, listFromController)));
+
+      model.addAttribute(WebUtils.DATA_LIST, list);
 
     }
     else {

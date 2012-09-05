@@ -58,7 +58,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    * @return List<ENTITY> result list
    */
   @SuppressWarnings("unchecked")
-  public List<ENTITY> searchFor(Class<ENTITY> entityClass, String searchText, int firstResult, int maxResults, Sort sort) {
+  private List<ENTITY> searchFor(Class<ENTITY> entityClass, String searchText, int firstResult, int maxResults, Sort sort) {
     FullTextQuery jpaQuery = createSearchQuery(searchText, sort, entityClass);
 
     // Limit for paging
@@ -100,12 +100,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
     return intersectedList.subList(firstResult, toSize);
   }
 
-  public long countSearchFor(Class<ENTITY> entityClass, String searchText) {
-    FullTextQuery jpaQuery = createSearchQuery(searchText, null, entityClass);
-
-    return jpaQuery.getResultList().size();
-  }
-
+  
   @SuppressWarnings("unchecked")
   public long countSearchForInFilteredList(Class<ENTITY> entityClass, String searchText, List<VIEW> filteredItems) {
     FullTextQuery jpaQuery = createSearchQuery(searchText, entityClass);

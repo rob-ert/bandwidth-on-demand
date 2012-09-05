@@ -46,7 +46,7 @@ import nl.surfnet.bod.web.WebUtils;
  * Base controller class which facilitates sorting
  * 
  */
-public abstract class AbstractSortableListController<T> {
+public abstract class AbstractSortableListController<VIEW> {
 
   @RequestMapping(method = RequestMethod.GET)
   public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
@@ -74,7 +74,7 @@ public abstract class AbstractSortableListController<T> {
 
   protected abstract String listUrl();
 
-  protected abstract List<T> list(int firstPage, int maxItems, Sort sort, Model model);
+  protected abstract List<VIEW> list(int firstPage, int maxItems, Sort sort, Model model);
 
   protected abstract long count();
 
