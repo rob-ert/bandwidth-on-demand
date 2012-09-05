@@ -232,7 +232,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     }
 
     public void waitForEventWithNewStatus(final ReservationStatus status) throws Exception {
-      await().atMost(5, TimeUnit.SECONDS).until(new Callable<Boolean>() {
+      await().atMost(10, TimeUnit.SECONDS).until(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
           return getEvent().isPresent()
