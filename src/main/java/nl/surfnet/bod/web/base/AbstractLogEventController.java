@@ -49,7 +49,7 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Resource
-  protected VirtualResourceGroupService virtualResourceGroupService;
+  private VirtualResourceGroupService virtualResourceGroupService;
 
   @Resource
   protected LogEventService logEventService;

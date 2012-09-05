@@ -21,6 +21,9 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -48,9 +51,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Function;
-
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
 
 @Service
 @Transactional
@@ -125,8 +125,8 @@ public class PhysicalResourceGroupService {
 
   @SuppressWarnings("unchecked")
   public ActivationEmailLink<PhysicalResourceGroup> findActivationLink(String uuid) {
-    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo
-        .findByUuid(uuid);
+    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink =
+        (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo.findByUuid(uuid);
 
     if (activationEmailLink != null) {
       activationEmailLink.setSourceObject(find(activationEmailLink.getSourceId()));

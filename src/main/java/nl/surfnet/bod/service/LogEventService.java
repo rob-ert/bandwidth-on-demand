@@ -67,7 +67,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   @PersistenceContext
   private EntityManager entityManager;
 
-  private static Specification<LogEvent> SPEC_LOG_EVENTS_BY_ADMIN_GROUPS(final Collection<String> adminGroups) {
+  private static Specification<LogEvent> specLogEentsByAdminGroups(final Collection<String> adminGroups) {
     return new Specification<LogEvent>() {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query,
@@ -140,7 +140,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
       return Collections.emptyList();
     }
 
-    return logEventRepo.findAll(SPEC_LOG_EVENTS_BY_ADMIN_GROUPS(adminGroups),
+    return logEventRepo.findAll(specLogEentsByAdminGroups(adminGroups),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
@@ -263,7 +263,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
       return 0;
     }
 
-    return logEventRepo.count(SPEC_LOG_EVENTS_BY_ADMIN_GROUPS(adminGroups));
+    return logEventRepo.count(specLogEentsByAdminGroups(adminGroups));
   }
 
 }

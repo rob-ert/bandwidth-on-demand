@@ -41,11 +41,11 @@ public enum LuceneSortFieldType {
   SHORT(SortField.SHORT, Short.class), SHORT_PRIMITIVE(SortField.SHORT, short.class), //
   BYTE(SortField.BYTE, Byte.class), BYTE_PRIMITIVE(SortField.BYTE, byte.class);
 
-  private static final Map<Class<?>, Integer> lookup = new HashMap<>();
+  private static final Map<Class<?>, Integer> LOOKUP = new HashMap<>();
 
   static {
     for (LuceneSortFieldType luceneType : EnumSet.allOf(LuceneSortFieldType.class))
-      lookup.put(luceneType.getJavaType(), luceneType.getLuceneType());
+      LOOKUP.put(luceneType.getJavaType(), luceneType.getLuceneType());
   }
 
   private Integer luceneType;
@@ -57,7 +57,7 @@ public enum LuceneSortFieldType {
   }
 
   public static int getLuceneTypeFor(Class<?> javaType) {
-    Integer luceneTypeCode = lookup.get(javaType);
+    Integer luceneTypeCode = LOOKUP.get(javaType);
     return luceneTypeCode == null ? SortField.STRING_VAL : luceneTypeCode;
   }
 
