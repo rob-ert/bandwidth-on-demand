@@ -30,7 +30,7 @@ public class AbstractIndexAndSearch<T> {
   }
 
   protected void initEntityManager() {
-    entityManagerFactory = Persistence.createEntityManagerFactory("hibernate-search-pu");
+    entityManagerFactory = Persistence.createEntityManagerFactory("search-pu");
     entityManager = entityManagerFactory.createEntityManager();
   }
 
