@@ -56,7 +56,7 @@ app.global = function() {
         });
 
         searchInput.keydown(function(event){
-            if (event.which == 13) {
+            if (event.which === 13) {
                search(event);
             }
         });
@@ -67,6 +67,9 @@ app.global = function() {
         var searchInput = $('#si_id');
         var currentUrl = document.URL;
         var searchPart = "/search?search=";
+
+        //Remove jsessionid, this mixes up the url mappings
+        currentUrl = currentUrl.replace(/;jsessionid.*\//,"/");
 
         currentUrl = currentUrl.replace(window.location.search, "");
         // Is a search text entered?
