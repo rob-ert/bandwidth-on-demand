@@ -365,7 +365,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     QueryOperationType operation = parameters.getQuery().getOperation();
 
     if (connectionIds.isEmpty() && globalReservationIds.isEmpty()) {
-      connectionServiceProviderService.queryAllForRequesterNsa(
+      connectionServiceProviderService.asyncQueryAllForRequesterNsa(
           requestDetails, parameters.getQuery().getRequesterNSA(), operation);
     }
     else {

@@ -139,7 +139,7 @@ public class ConnectionServiceProviderService {
   }
 
   @Async
-  public void queryAllForRequesterNsa(NsiRequestDetails requestDetails, String requesterNsa,
+  public void asyncQueryAllForRequesterNsa(NsiRequestDetails requestDetails, String requesterNsa,
       QueryOperationType operation) {
     QueryConfirmedType confirmedType = new QueryConfirmedType();
 
