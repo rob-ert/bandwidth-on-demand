@@ -369,7 +369,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
           requestDetails, parameters.getQuery().getRequesterNSA(), operation);
     }
     else {
-      connectionServiceProviderService.queryConnections(requestDetails, connectionIds, globalReservationIds, operation);
+      connectionServiceProviderService.asyncQueryConnections(requestDetails, connectionIds, globalReservationIds, operation);
     }
 
     return createGenericAcknowledgment(parameters.getCorrelationId());

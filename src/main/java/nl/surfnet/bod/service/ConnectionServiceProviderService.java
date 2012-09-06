@@ -121,7 +121,7 @@ public class ConnectionServiceProviderService {
   }
 
   @Async
-  public void queryConnections(NsiRequestDetails requestDetails, Collection<String> connectionIds,
+  public void asyncQueryConnections(NsiRequestDetails requestDetails, Collection<String> connectionIds,
       Collection<String> globalReservationIds, QueryOperationType operation) {
     Preconditions.checkArgument(!connectionIds.isEmpty());
 
