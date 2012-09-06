@@ -42,6 +42,7 @@ import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.util.ReflectiveFieldComparator;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.PhysicalPortView;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -229,6 +230,29 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
             physicalPortService.findUnalignedPhysicalPorts(), virtualPortService));
 
     uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnalignedPhysicalPorts()));
+
+    return listUrl();
+  }
+
+  @RequestMapping(value = "/unaligned/search", method = RequestMethod.GET)
+  public String listUnalignedSearch(@RequestParam(value = PAGE_KEY, required = false) final Integer page, //
+      @RequestParam final String search, //
+      final Model uiModel) {
+
+    List<PhysicalPortView> unalignedPorts = getFullTextSearchableService().transformToView(
+        physicalPortService.findUnalignedPhysicalPorts(), Security.getUserDetails());
+
+    List<PhysicalPortView> searchedUnalignedPortViews = getFullTextSearchableService().searchForInFilteredList(
+        PhysicalPort.class, search, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, null,
+        Security.getUserDetails(), unalignedPorts);
+
+    uiModel.addAttribute(WebUtils.PARAM_SEARCH, search);
+
+    uiModel.addAttribute(WebUtils.DATA_LIST, searchedUnalignedPortViews);
+
+    uiModel
+        .addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countSearchForInFilteredList(
+            PhysicalPort.class, search, unalignedPorts)));
 
     return listUrl();
   }

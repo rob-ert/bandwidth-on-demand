@@ -91,6 +91,7 @@ public class FullTextSearchContext<T> {
     return getFullTextQuery(luceneQuery, convertToLuceneSort(springSort, indexedFields));
   }
 
+  //TODO make call recursive to find double and tripple nested classes
   @VisibleForTesting
   String[] findAllIndexedFields(Class<?> entity) {
     List<String> indexedFields = null;
