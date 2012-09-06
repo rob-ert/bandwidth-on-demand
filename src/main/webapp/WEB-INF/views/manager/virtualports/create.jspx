@@ -130,10 +130,9 @@
 
                     <h3>Physical Port</h3>
                     <p>To which physical port this virtual port is mapped to can be selected
-                    from the list of physical ports that are available to your institute.</p>
+                    from the list of physical ports gti that are available to your institute.</p>
                 </div>
             </section>
         </div>
-
     </div>
 </html>
