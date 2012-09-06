@@ -75,6 +75,12 @@
                                             <dd><c:out value="${item.connectionId}" /></dd>
                                         </c:if>
 
+                                        <dt><spring:message code="label_reservation_protectiontype"/></dt>
+                                        <dd>
+                                            <c:set value="${item.protectionType}" var="type"/>
+                                            <spring:message code="label_reservation_${type}" />
+                                        </dd>
+
                                         <c:if test="${item.status eq 'FAILED'}">
                                             <dt><spring:message code="label_reservation_failedreason" /></dt>
                                             <dd>

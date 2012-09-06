@@ -162,6 +162,17 @@
                         <sform:errors cssClass="help-block" id="_bandwidth_error_id" path="bandwidth" delimiter=", " />
                     </div>
                 </div>
+                <div class="control-group${error_bandwidth_css}" data-component="protection-type">
+                    <label class="control-label"><spring:message code="label_reservation_otheroptions" /></label>
+                    <div class="controls">
+                    <label class="checkbox">
+                        <input type="checkbox" id="protected" />
+                        <spring:message code="label_reservation_protection" />
+                        <form:help message="help_reservation_protectiontype" />
+                    </label>
+                        <input type="hidden" value="${reservation.protectionType}" name="protectionType"  />
+                    </div>
+                </div>
             </form:create>
         </div>
         <div class="span4">

@@ -54,7 +54,7 @@ public class ReservationTestSelenium extends TestExternalSupport {
   }
 
   @Test
-  public void createAndDeleteAReservation() {
+  public void createAndCancelAReservation() {
     final LocalDate startDate = LocalDate.now().plusDays(3);
     final LocalDate endDate = LocalDate.now().plusDays(5);
     final LocalTime startTime = LocalTime.now().plusHours(1);
@@ -64,32 +64,20 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getManagerDriver().switchToUser();
     getUserDriver().createNewReservation(reservationLabel, startDate, endDate, startTime, endTime);
     getUserDriver().verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
+    getUserDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
 
     getUserDriver().switchToManager(INSTITUTE_NAME);
     getManagerDriver().verifyReservationWasCreated(reservationLabel, startDate, endDate, startTime, endTime);
-
-    // Verify statistics for manager
+    getManagerDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
     getManagerDriver().verifyStatistics();
 
-    // Verify statistics for noc
     getManagerDriver().switchToNoc();
+    getNocDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
     getNocDriver().verifyStatistics();
 
     getManagerDriver().switchToUser();
-
     getUserDriver().cancelReservation(startDate, endDate, startTime, endTime);
-
     getUserDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);
-
-    // Check the number of reservations, verify that we did not add a
-    // reservation (due to the reservation replicator bug...)
-    getUserDriver().switchToManager(INSTITUTE_NAME);
-    getManagerDriver().verifyStatistics();
-
-    // Verify statistics for noc, verify that we did not add a reservation (due
-    // to the reservation replicator bug...)
-    getManagerDriver().switchToNoc();
-    getNocDriver().verifyStatistics();
   }
 
   @Test
@@ -101,36 +89,11 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getUserDriver().verifyReservationWasCreated("Starts now and forever");
   }
 
-  @Test
-  public void cancelReservation() {
-    final LocalDate startDate = LocalDate.now().plusDays(3);
-    final LocalDate endDate = LocalDate.now().plusDays(5);
-    final LocalTime startTime = LocalTime.now().plusHours(1);
-    final LocalTime endTime = LocalTime.now();
-    final String reservationLabel = "Selenium Reservation";
-
-    // User, create reservation
-    getManagerDriver().switchToUser();
-    getUserDriver().createNewReservation(reservationLabel, startDate, endDate, startTime, endTime);
-    getUserDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
-
-    getUserDriver().switchToManager(INSTITUTE_NAME);
-    getManagerDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
-
-    getManagerDriver().switchToNoc();
-    getNocDriver().verifyReservationIsCancellable(reservationLabel, startDate, endDate, startTime, endTime);
-
-    getManagerDriver().switchToUser();
-
-    getUserDriver().cancelReservation(startDate, endDate, startTime, endTime);
-    getUserDriver().verifyReservationWasCanceled(startDate, endDate, startTime, endTime);
-  }
-
   @Ignore("URL after search should contain /filter/[filterid]")
   @Test
   public void searchReservations() {
-    final String EVEN = "Even reservation ";
-    final String ODD = "Odd reservation ";
+    final String even = "Even reservation ";
+    final String odd = "Odd reservation ";
     final LocalDate date = LocalDate.now().plusDays(1);
     final LocalTime startTime = new LocalTime(8, 0);
     final short reservationCount = 5;
@@ -138,7 +101,7 @@ public class ReservationTestSelenium extends TestExternalSupport {
     getManagerDriver().switchToUser();
 
     for (int i = 1; i <= reservationCount; i++) {
-      String label = (i % 2 == 0 ? EVEN + i : ODD + i);
+      String label = (i % 2 == 0 ? even + i : odd + i);
       getUserDriver().createNewReservation(label, date, date, startTime.plusHours(i), startTime.plusHours(i + 1));
     }
 
@@ -147,16 +110,16 @@ public class ReservationTestSelenium extends TestExternalSupport {
       getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.ELAPSED, "even");
 
       // Filter on this year, and no search String. All should be found.
-      getUserDriver().verifyReservationByFilterAndSearch(String.valueOf(date.getYear()), "", ODD + 1, EVEN + 2,
-          ODD + 3, EVEN + 4, ODD + 5);
+      getUserDriver().verifyReservationByFilterAndSearch(String.valueOf(date.getYear()), "", odd + 1, even + 2,
+          odd + 3, even + 4, odd + 5);
 
       // Search on even
-      getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.COMING, "EveN", EVEN + 2,
-          EVEN + 4);
+      getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.COMING, "EveN", even + 2,
+          even + 4);
 
       // Search on odd
-      getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.COMING, "oDd", ODD + 1, ODD + 3,
-          ODD + 5);
+      getUserDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.COMING, "oDd", odd + 1, odd + 3,
+          odd + 5);
     }
     finally {
       // Always clean up

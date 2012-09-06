@@ -48,6 +48,7 @@ public class ReservationFactory {
   private String cancelReason;
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
   private Connection connection;
+  private ProtectionType protectionType = ProtectionType.PROTECTED;
 
   public Reservation create() {
     sourcePort = sourcePort == null ? new VirtualPortFactory().setVirtualResourceGroup(virtualResourceGroup).create()
@@ -71,8 +72,19 @@ public class ReservationFactory {
     reservation.setFailedReason(failedReason);
     reservation.setCancelReason(cancelReason);
     reservation.setConnection(connection);
+    reservation.setProtectionType(protectionType);
 
     return reservation;
+  }
+
+  public ReservationFactory withProtection() {
+    protectionType = ProtectionType.PROTECTED;
+    return this;
+  }
+
+  public ReservationFactory withoutProtection() {
+    protectionType = ProtectionType.UNPROTECTED;
+    return this;
   }
 
   public ReservationFactory setName(String name) {

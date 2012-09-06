@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.web.view;
 
+import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 
@@ -46,6 +47,7 @@ public class ReservationView {
   private final String connectionId;
   private final LocalDateTime creationDateTime;
   private final ElementActionView deleteActionView;
+  private final ProtectionType protectionType;
 
   public ReservationView(final Reservation reservation, final ElementActionView deleteActionView) {
     this.id = reservation.getId();
@@ -61,6 +63,7 @@ public class ReservationView {
     this.userCreated = reservation.getUserCreated();
     this.reservationId = reservation.getReservationId();
     this.creationDateTime = reservation.getCreationDateTime();
+    this.protectionType = reservation.getProtectionType();
     this.name = reservation.getName();
     this.deleteActionView = deleteActionView;
     this.connectionId = reservation.getConnection() == null ? null : reservation.getConnection().getConnectionId();
@@ -132,6 +135,10 @@ public class ReservationView {
 
   public String getCancelReason() {
     return cancelReason;
+  }
+
+  public ProtectionType getProtectionType() {
+    return protectionType;
   }
 
   @Override

@@ -21,25 +21,11 @@
  */
 package nl.surfnet.bod.domain;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Version;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.search.annotations.Analyzer;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Index;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.Store;
+import org.hibernate.search.annotations.*;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -49,7 +35,7 @@ import com.google.common.base.Objects;
 /**
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
- * 
+ *
  */
 @Entity
 @Indexed
@@ -116,6 +102,9 @@ public class Reservation implements Loggable {
   @OneToOne(mappedBy = "reservation")
   private Connection connection;
 
+  @Enumerated(EnumType.STRING)
+  private ProtectionType protectionType = ProtectionType.PROTECTED;
+
   public Reservation() {
     creationDateTime = LocalDateTime.now();
   }
@@ -155,7 +144,7 @@ public class Reservation implements Loggable {
   /**
    * Sets the {@link #sourcePort} and the {@link #virtualResourceGroup} related
    * to this port.
-   * 
+   *
    * @param sourcePort
    *          The source port to set
    * @throws IllegalStateException
@@ -181,7 +170,7 @@ public class Reservation implements Loggable {
   /**
    * Sets the {@link #destinationPort} and the {@link #virtualResourceGroup}
    * related to this port.
-   * 
+   *
    * @param destinationPort
    *          The destinationPort port to set
    * @throws IllegalStateException
@@ -201,7 +190,7 @@ public class Reservation implements Loggable {
   }
 
   /**
-   * 
+   *
    * @return LocalTime the time part of the {@link #startDateTime}
    */
   public LocalTime getStartTime() {
@@ -210,7 +199,7 @@ public class Reservation implements Loggable {
 
   /**
    * Sets the time part of the {@link #startDateTime}
-   * 
+   *
    * @param startTime
    */
   public void setStartTime(LocalTime startTime) {
@@ -238,7 +227,7 @@ public class Reservation implements Loggable {
   }
 
   /**
-   * 
+   *
    * @return LocalDate The date part of the {@link #getStartDateTime()}
    */
   public LocalDate getStartDate() {
@@ -247,7 +236,7 @@ public class Reservation implements Loggable {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   * 
+   *
    * @param startDate
    */
   public void setStartDate(LocalDate startDate) {
@@ -267,7 +256,7 @@ public class Reservation implements Loggable {
   }
 
   /**
-   * 
+   *
    * @return LocalDate the date part of the {@link #endDateTime}
    */
   public LocalDate getEndDate() {
@@ -276,7 +265,7 @@ public class Reservation implements Loggable {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   * 
+   *
    * @param endDate
    */
   public void setEndDate(LocalDate endDate) {
@@ -294,7 +283,7 @@ public class Reservation implements Loggable {
   }
 
   /**
-   * 
+   *
    * @return LocalTime The time part of the {@link #endDateTime}
    */
   public LocalTime getEndTime() {
@@ -303,7 +292,7 @@ public class Reservation implements Loggable {
 
   /**
    * Sets the time part of the {@link #endDateTime}
-   * 
+   *
    * @param endTime
    */
   public void setEndTime(LocalTime endTime) {
@@ -521,10 +510,18 @@ public class Reservation implements Loggable {
   }
 
   /**
-   * 
+   *
    * @return True if this reservation was made using NSI, false otherwise
    */
   public boolean isNSICreated() {
     return connection != null;
+  }
+
+  public ProtectionType getProtectionType() {
+    return protectionType;
+  }
+
+  public void setProtectionType(ProtectionType protectionType) {
+    this.protectionType = protectionType;
   }
 }

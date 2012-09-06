@@ -12,12 +12,15 @@ app.form = function(){
     var initEventHandlers = function() {
 
         initFormLinks();
-        initBandwidthSelector();
-        initStartNow();
         initReservationFilter();
         initPhysicalPortSelector();
         initAcceptDeclineSelector();
         initPhysicalPortSelectorForVirtualPort();
+
+        // create reservation
+        initBandwidthSelector();
+        initStartNow();
+        initProtectionType();
     };
 
     var initPlugins = function() {
@@ -327,6 +330,26 @@ app.form = function(){
             var state = component.find(':radio:checked').val();
             $('#' + (state === 'accept' ? 'decline' : 'accept') + '-form').toggle();
             submitButton.val(eval(state+'Label'));
+        }
+    };
+
+    var initProtectionType = function() {
+        var component = $('[data-component="protection-type"]');
+
+        if (component.length) {
+            var hidden = component.find(":hidden");
+
+            component.on('click', ':checkbox', function(event) {
+                if ($(event.target).attr("checked")) {
+                    hidden.val("PROTECTED");
+                } else {
+                    hidden.val("UNPROTECTED");
+                }
+            });
+
+            if (hidden.val() == "PROTECTED") {
+                component.find(":checkbox").attr("checked", "checked");
+            }
         }
     };
 

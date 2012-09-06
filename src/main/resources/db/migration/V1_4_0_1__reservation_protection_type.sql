@@ -1,0 +1,1 @@
+ALTER TABLE reservation ADD COLUMN protection_type VARCHAR(50) NOT NULL DEFAULT 'PROTECTED';

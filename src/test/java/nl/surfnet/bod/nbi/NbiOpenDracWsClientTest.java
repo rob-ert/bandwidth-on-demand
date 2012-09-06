@@ -54,6 +54,8 @@ import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsRequ
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsResponseDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleResponseDocument;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.PathRequestT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidProtectionTypeT;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NbiOpenDracWsClientTest {
@@ -67,9 +69,7 @@ public class NbiOpenDracWsClientTest {
   private ResourceAllocationAndSchedulingService_v30Stub schedulingServiceMock;
 
   private QueryEndpointsResponseDocument endpointsResponse;
-
   private QueryEndpointResponseDocument endpointResponse;
-
   private VirtualPort sourcePort;
   private VirtualPort destPort;
 
@@ -144,5 +144,25 @@ public class NbiOpenDracWsClientTest {
 
     assertThat(schedule.getCreateReservationScheduleRequest().getReservationSchedule()
         .getReservationOccurrenceDuration(), is(Integer.MAX_VALUE));
+  }
+
+  @Test
+  public void aProtectedResevationShouldCreateAProtectedPath() throws NetworkMonitoringServiceFault {
+    Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort)
+        .withProtection().create();
+
+    PathRequestT path = subject.createPath(reservation);
+
+    assertThat(path.getProtectionType(), is(ValidProtectionTypeT.X_1_PLUS_1_PATH));
+  }
+
+  @Test
+  public void aUnProtectedReservationShouldCreateAUnProtectedPath() throws NetworkMonitoringServiceFault {
+    Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort)
+        .withoutProtection().create();
+
+    PathRequestT path = subject.createPath(reservation);
+
+    assertThat(path.getProtectionType(), is(ValidProtectionTypeT.UNPROTECTED));
   }
 }
