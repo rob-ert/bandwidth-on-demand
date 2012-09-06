@@ -45,14 +45,13 @@
             <section>
                 <h2><spring:message code="label_help_text_header" /></h2>
                 <div class="content">
-                    <h3>Port properties</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sagittis, mi vel ultrices
-                        pellentesque, dui purus varius eros, et malesuada justo neque pulvinar nulla. Donec lacus purus, semper
-                        eget blandit vel, hendrerit vitae elit.</p>
-                    <h3>Physical port</h3>
-                    <p>Nam commodo odio in nisl eleifend auctor posuere arcu ornare. Mauris eu magna diam. Suspendisse
-                        pellentesque quam eget leo blandit vitae venenatis ligula hendrerit. Aliquam eget turpis non ipsum
-                        dictum cursus at sed massa.</p>
+                    <h3>Port Properties</h3>
+                    <p>To easily identify this virtual port you can specify your own BoD
+                    Administrator Label. The user's bandwidth usage is limited by the Maximum Bandwidth.</p>
+
+                    <h3>Physical Port</h3>
+                    <p>To which physical port this virtual port is mapped to can be selected
+                    from the list of physical ports that are available to your institute.</p>
                 </div>
             </section>
         </div>
