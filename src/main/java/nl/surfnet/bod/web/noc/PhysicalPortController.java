@@ -298,8 +298,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   public String delete(@RequestParam(ID_KEY) final String nmsPortId,
       @RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
-    PhysicalPort physicalPort = physicalPortService.findByNmsPortId(nmsPortId);
-    physicalPortService.delete(physicalPort);
+    physicalPortService.deleteByNmsPortId(nmsPortId);
 
     uiModel.asMap().clear();
     uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());

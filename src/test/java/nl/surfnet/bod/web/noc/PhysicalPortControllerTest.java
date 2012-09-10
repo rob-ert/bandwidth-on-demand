@@ -187,13 +187,14 @@ public class PhysicalPortControllerTest {
   public void deleteShouldStayOnSamePage() {
     Model model = new ModelStub();
     PhysicalPort port = new PhysicalPortFactory().create();
-    when(physicalPortServiceMock.findByNmsPortId("port_name")).thenReturn(port);
+    final String nmsPortId = "port_name";
+    when(physicalPortServiceMock.findByNmsPortId(nmsPortId)).thenReturn(port);
 
-    subject.delete("port_name", 3, model);
+    subject.delete(nmsPortId, 3, model);
 
     assertThat(model.asMap(), hasEntry(PAGE_KEY, Object.class.cast("3")));
 
-    verify(physicalPortServiceMock, times(1)).delete(port);
+    verify(physicalPortServiceMock, times(1)).deleteByNmsPortId(nmsPortId);
   }
 
   @Test

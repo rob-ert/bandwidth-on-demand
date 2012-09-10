@@ -176,6 +176,10 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
         "Unallocated port " + getLogLabel(Security.getSelectedRole(), physicalPort));
     physicalPortRepo.delete(physicalPort);
   }
+  
+  public void deleteByNmsPortId(final String nmsPortId) {
+    this.delete(physicalPortRepo.findByNmsPortId(nmsPortId));
+  }
 
   public PhysicalPort find(final Long id) {
     return physicalPortRepo.findOne(id);
