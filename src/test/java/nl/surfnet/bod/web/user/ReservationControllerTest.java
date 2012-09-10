@@ -24,7 +24,9 @@ package nl.surfnet.bod.web.user;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -79,7 +81,8 @@ public class ReservationControllerTest {
   private MessageSource messageSource;
 
   @Mock
-  private ReservationFilterViewFactory reservationFilterViewFactoryMock;
+  private ReservationFilterViewFactory reservationFilterViewFactoryMock =
+    when(mock(ReservationFilterViewFactory.class).create(anyString())).thenCallRealMethod().getMock();
 
   private RichUserDetails user = new RichUserDetailsFactory().create();
   private Model model = new ModelStub();
@@ -150,9 +153,6 @@ public class ReservationControllerTest {
   public void listShouldSetListOnModel() {
     Reservation reservation = new ReservationFactory().setStartDateTime(LocalDateTime.now().plusDays(1)).create();
 
-    ReservationFilterView filter2012 = new ReservationFilterViewFactory().create("2012");
-    when(reservationFilterViewFactoryMock.create(filter2012.getId())).thenReturn(filter2012);
-
     when(
         reservationServiceMock.findEntriesForUserUsingFilter(any(RichUserDetails.class),
             any(ReservationFilterView.class), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
@@ -172,9 +172,6 @@ public class ReservationControllerTest {
     List<ReservationView> reservationViews = Lists.newArrayList(new ReservationView(reservation, new ElementActionView(
         true)));
 
-    ReservationFilterView filter2012 = new ReservationFilterViewFactory().create("2012");
-    when(reservationFilterViewFactoryMock.create(filter2012.getId())).thenReturn(filter2012);
-
     when(
         reservationServiceMock.findEntriesForUserUsingFilter(any(RichUserDetails.class),
             any(ReservationFilterView.class), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(
@@ -191,6 +188,15 @@ public class ReservationControllerTest {
     assertThat(model.asMap().get("sortDirection"), is(Object.class.cast(Direction.ASC)));
     assertThat(model.asMap().get("sortProperty"), is(Object.class.cast("startDateTime")));
     assertThat(((List<?>) model.asMap().get("list")), hasSize(1));
+  }
+
+  @Test
+  public void listWithNonExistingFilter() {
+    when(reservationFilterViewFactoryMock.create(anyString())).thenCallRealMethod();
+
+    String page = subject.filter(1, "name", "asc", "", "nonExistingFilter", model);
+
+    assertThat(page, is("redirect:../"));
   }
 
   @Test

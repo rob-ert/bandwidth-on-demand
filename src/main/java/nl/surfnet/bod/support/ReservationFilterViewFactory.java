@@ -23,6 +23,9 @@ package nl.surfnet.bod.support;
 
 import java.util.List;
 
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.web.view.ReservationFilterView;
+
 import org.joda.time.DurationFieldType;
 import org.joda.time.Months;
 import org.joda.time.ReadablePeriod;
@@ -31,9 +34,6 @@ import org.springframework.util.NumberUtils;
 import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Lists;
-
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.web.view.ReservationFilterView;
 
 @Component
 public class ReservationFilterViewFactory {
@@ -49,7 +49,6 @@ public class ReservationFilterViewFactory {
       "In %d months", DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, false);
 
   public ReservationFilterView create(String id) {
-
     // No filter, use default
     if (!StringUtils.hasText(id)) {
       return DEFAULT_FILTER;
@@ -61,18 +60,16 @@ public class ReservationFilterViewFactory {
       return new ReservationFilterView(year);
     }
     catch (IllegalArgumentException exc) {
-      if (ELAPSED.equals(id)) {
+      switch (id) {
+      case ELAPSED:
         return new ReservationFilterView(ELAPSED, String.format("Past %d months",
             DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, true);
-      }
-      else if (COMING.equals(id)) {
+      case COMING:
         return new ReservationFilterView(COMING, String.format("In %d months",
             DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, false);
-      }
-      else if (ACTIVE.equals(id)) {
+      case ACTIVE:
         return new ReservationFilterView(ACTIVE, "Active", ReservationStatus.RUNNING);
-      }
-      else {
+      default:
         throw new IllegalArgumentException("No filter related to: " + id);
       }
     }

@@ -21,10 +21,14 @@
  */
 package nl.surfnet.bod.support;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 
 import java.util.List;
+
+import nl.surfnet.bod.web.view.ReservationFilterView;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,16 +39,14 @@ import org.springframework.context.MessageSource;
 
 import com.google.common.collect.Lists;
 
-import nl.surfnet.bod.web.view.ReservationFilterView;
-
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationFilterViewFactoryTest {
 
   @InjectMocks
-  ReservationFilterViewFactory subject = new ReservationFilterViewFactory();
+  private ReservationFilterViewFactory subject = new ReservationFilterViewFactory();
 
   @Mock
-  MessageSource messageSource;
+  private MessageSource messageSource;
 
   @Test
   public void testCreateYearBasedOnString() {

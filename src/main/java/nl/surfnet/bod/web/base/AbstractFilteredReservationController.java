@@ -114,8 +114,15 @@ public abstract class AbstractFilteredReservationController extends
 
     Sort sortOptions = prepareSortOptions(sort, order, model);
 
-    // Null or empty string will force Default Filter
-    ReservationFilterView reservationFilter = reservationFilterViewFactory.create(filterId);
+    ReservationFilterView reservationFilter;
+    try {
+      reservationFilter = reservationFilterViewFactory.create(filterId);
+    }
+    catch (IllegalArgumentException e) {
+      model.asMap().clear();
+      return "redirect:../";
+    }
+
     model.addAttribute(FILTER_SELECT, reservationFilter);
 
     List<ReservationView> result = new ArrayList<>(list(calculateFirstPage(page),
