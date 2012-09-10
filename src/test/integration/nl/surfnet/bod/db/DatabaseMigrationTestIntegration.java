@@ -21,10 +21,16 @@
  */
 package nl.surfnet.bod.db;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -33,6 +39,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 
 import com.googlecode.flyway.core.Flyway;
+import com.googlecode.flyway.core.metadatatable.MetaDataTableRow;
+import com.googlecode.flyway.core.migration.MigrationState;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
@@ -43,18 +51,22 @@ public class DatabaseMigrationTestIntegration extends AbstractTransactionalJUnit
   @Resource
   private DataSource dataSource;
 
-  @Ignore("By loading the spring context to current database will be migrated")
-  public void shouldMigrateToLatestVersion() {
-  }
-
   @Test
   public void shouldBuildDatabaseFromScratch() {
     Flyway flyway = new Flyway();
     flyway.setDataSource(dataSource);
-    flyway.setBasePackage("nl.surfnet.bod.db.migration");
+    flyway.setLocations("nl.surfnet.bod.db.migration");
 
     flyway.clean();
     flyway.init();
     flyway.migrate();
+
+    List<MetaDataTableRow> history = flyway.history();
+
+    assertThat(history, hasSize(greaterThan(0)));
+
+    for (MetaDataTableRow metaDataTableRow : history) {
+      assertThat(metaDataTableRow.getState(), is(MigrationState.SUCCESS));
+    }
   }
 }
