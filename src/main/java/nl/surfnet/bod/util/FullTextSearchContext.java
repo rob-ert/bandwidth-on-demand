@@ -91,13 +91,11 @@ public class FullTextSearchContext<T> {
     return getFullTextQuery(luceneQuery, convertToLuceneSort(springSort, indexedFields));
   }
 
-  //TODO make call recursive to find double and tripple nested classes
   @VisibleForTesting
   String[] findAllIndexedFields(Class<?> entity) {
-    List<String> indexedFields = null;
+    List<String> indexedFields = Lists.newArrayList();
 
-    indexedFields = getIndexedFields(entity, Optional.<String> absent());
-    indexedFields.addAll(getIndexedEmbeddedFields(entity));
+    indexedFields.addAll(getIndexedFields(entity, Optional.<String> absent()));
 
     return indexedFields.toArray(new String[indexedFields.size()]);
   }
@@ -109,43 +107,25 @@ public class FullTextSearchContext<T> {
    * @param prefix
    *          optional prefix for fieldNames (@see
    *          {@link #getIndexedEmbeddedFields(Class)}
+   * @param declaredFields
    * @return String array containing all fieldNames of the given entity which
    *         are annotated with {@link Field} to mark them indexable.
    */
   private List<String> getIndexedFields(Class<?> entity, Optional<String> prefix) {
-    List<String> fieldNames = Lists.newArrayList();
 
     java.lang.reflect.Field[] declaredFields = entity.getDeclaredFields();
+    List<String> fieldNames = Lists.newArrayList();
     for (java.lang.reflect.Field field : declaredFields) {
       if (field.getAnnotation(Field.class) != null) {
         fieldNames.add(prefix.isPresent() ? prefix.get() + "." + field.getName() : field.getName());
       }
-    }
-
-    return fieldNames;
-  }
-
-  /**
-   * 
-   * @param entity
-   *          entity to inspect
-   * 
-   * @return String array containing the fieldNames of all references in the
-   *         entity which are annotated with {@link IndexedEmbedded}. These
-   *         names will be prefixed with the name of the field.
-   */
-
-  private List<String> getIndexedEmbeddedFields(Class<?> entity) {
-    List<String> nestedFieldNames = Lists.newArrayList();
-
-    java.lang.reflect.Field[] declaredFields = entity.getDeclaredFields();
-    for (java.lang.reflect.Field field : declaredFields) {
-      if (field.getAnnotation(IndexedEmbedded.class) != null) {
-        nestedFieldNames.addAll(getIndexedFields(field.getType(), Optional.of(field.getName())));
+      else if (field.getAnnotation(IndexedEmbedded.class) != null) {
+        fieldNames.addAll(getIndexedFields(field.getType(),
+            Optional.of((prefix.isPresent() ? prefix.get() + "." : "") + field.getName())));
       }
     }
 
-    return nestedFieldNames;
+    return fieldNames;
   }
 
   /**

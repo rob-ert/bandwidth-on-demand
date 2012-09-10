@@ -66,9 +66,19 @@ public class FullTextSearchContextTest {
   }
 
   @Test
-  public void testAllAnnotedFields() {
+  public void testWithEmbededFields() {
     assertThat(ftsContext.findAllIndexedFields(new TestEntityWithEmbededEntity().getClass()),
         arrayContainingInAnyOrder("shoeSize", "embed.firstName", "embed.lastName", "embed.scale"));
+  }
+
+  @Test
+  public void testWithNestedEmbededFields() {
+    String[] indexedFields = ftsContext.findAllIndexedFields(new TestEntityWithNestedEmbededEntity().getClass());
+
+    assertThat(
+        indexedFields,
+        arrayContainingInAnyOrder("bloodPressure", "nestedEmbeded.shoeSize", "nestedEmbeded.embed.firstName",
+            "nestedEmbeded.embed.lastName", "nestedEmbeded.embed.scale"));
   }
 
   @Test
@@ -108,6 +118,17 @@ public class FullTextSearchContextTest {
     org.apache.lucene.search.Sort luceneSort = ftsContext.convertToLuceneSort(springSort, indexedFields);
 
     assertThat(luceneSort, nullValue());
+  }
+
+  class TestEntityWithNestedEmbededEntity {
+    @IndexedEmbedded
+    private TestEntityWithEmbededEntity nestedEmbeded;
+
+    @Field
+    private Double bloodPressure;
+
+    @SuppressWarnings("unused")
+    private Long notIndex;
   }
 
   class TestEntityWithEmbededEntity {
