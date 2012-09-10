@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
+import static org.junit.Assert.*;
+
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -47,7 +49,9 @@ public class DomainModelTest {
   private VirtualPortRequestLinkFactory vprlFactory = new VirtualPortRequestLinkFactory();
 
   private Reservation reservation;
+  private Reservation reservationTwo;
   private VirtualPortRequestLink link;
+  private VirtualResourceGroup vrg;
 
   @Before
   public void onSetup() {
@@ -57,7 +61,7 @@ public class DomainModelTest {
     pp1.setPhysicalResourceGroup(prg);
     pp2.setPhysicalResourceGroup(prg);
 
-    VirtualResourceGroup vrg = vrgFactory.create();
+    vrg = vrgFactory.create();
     VirtualPort vp1 = vpFactory.setVirtualResourceGroup(vrg).create();
     VirtualPort vp2 = vpFactory.setVirtualResourceGroup(vrg).create();
     vrg.setVirtualPorts(Lists.newArrayList(vp1, vp2));
@@ -65,8 +69,11 @@ public class DomainModelTest {
     reservationFactory.setSourcePort(vp1);
     reservationFactory.setDestinationPort(vp2);
     reservation = reservationFactory.create();
+    reservationTwo = reservationFactory.create();
+
     reservation.setVirtualResourceGroup(vrg);
-    vrg.setReservations(Lists.newArrayList(reservation));
+    reservationTwo.setVirtualResourceGroup(vrg);
+    vrg.setReservations(Lists.newArrayList(reservation, reservationTwo));
 
     link = vprlFactory.setVirtualResourceGroup(vrg).create();
     vrg.setVirtualPortRequestLinks(Lists.newArrayList(link));
@@ -90,4 +97,61 @@ public class DomainModelTest {
     logger.info(link.toString());
   }
 
+  /**
+   * Bidirectional relations between the domains are treaded different in the
+   * specific equal methods, to prevent stackoverFlow.
+   */
+  @Test
+  public void shouldNotOverflowInReservationEquals() {
+    assertTrue(reservation.equals(reservationTwo));
+  }
+
+  /**
+   * Bidirectional relations between the domains are treaded different in the
+   * specific equal methods, to prevent stackoverFlow.
+   */
+  @Test
+  public void shouldNotOverflowInReservationHashCode() {
+    assertTrue(reservation.hashCode() == reservationTwo.hashCode());
+  }
+
+  /**
+   * Bidirectional relations between the domains are treaded different in the
+   * specific equal methods, to prevent stackoverFlow.
+   */
+  @Test
+  public void shouldOnlyConsiderIdInVirtualPortRequestLinkEquals() {
+    VirtualPortRequestLink requestLink = new VirtualPortRequestLink();
+    requestLink.setId(link.getId());
+    assertTrue("Only on Id", link.equals(requestLink));
+  }
+
+  /**
+   * Bidirectional relations between the domains are treaded different in the
+   * specific equal methods, to prevent stackoverFlow.
+   */
+  @Test
+  public void shouldOnlyConsiderIdInVirtualPortRequestLinkHashCode() {
+    VirtualPortRequestLink requestLink = new VirtualPortRequestLink();
+    requestLink.setId(link.getId());
+    assertTrue("Only on Id", link.hashCode() == requestLink.hashCode());
+  }
+
+  /**
+   * Bidirectional relations between the domains are treaded different in the
+   * specific equal methods, to prevent stackoverFlow.
+   */
+  @Test
+  public void shouldOnlyConsiderIdInVirtualResourceGroupEquals() {
+    VirtualResourceGroup vrgTwo = new VirtualResourceGroup();
+    vrgTwo.setId(vrg.getId());
+    assertTrue("Only on Id", vrg.equals(vrgTwo));
+  }
+
+  @Test
+  public void shouldOnlyconsiderIdInVirturalResourceGroupHashCode() {
+    VirtualResourceGroup vrgTwo = new VirtualResourceGroup();
+    vrgTwo.setId(vrg.getId());
+    assertTrue("Only on Id", vrg.hashCode() == vrgTwo.hashCode());
+  }
 }

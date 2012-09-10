@@ -21,21 +21,33 @@
  */
 package nl.surfnet.bod.domain;
 
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
-import com.google.common.base.Objects;
-
 /**
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
- *
+ * 
  */
 @Entity
 @Indexed
@@ -144,7 +156,7 @@ public class Reservation implements Loggable {
   /**
    * Sets the {@link #sourcePort} and the {@link #virtualResourceGroup} related
    * to this port.
-   *
+   * 
    * @param sourcePort
    *          The source port to set
    * @throws IllegalStateException
@@ -170,7 +182,7 @@ public class Reservation implements Loggable {
   /**
    * Sets the {@link #destinationPort} and the {@link #virtualResourceGroup}
    * related to this port.
-   *
+   * 
    * @param destinationPort
    *          The destinationPort port to set
    * @throws IllegalStateException
@@ -190,7 +202,7 @@ public class Reservation implements Loggable {
   }
 
   /**
-   *
+   * 
    * @return LocalTime the time part of the {@link #startDateTime}
    */
   public LocalTime getStartTime() {
@@ -199,7 +211,7 @@ public class Reservation implements Loggable {
 
   /**
    * Sets the time part of the {@link #startDateTime}
-   *
+   * 
    * @param startTime
    */
   public void setStartTime(LocalTime startTime) {
@@ -227,7 +239,7 @@ public class Reservation implements Loggable {
   }
 
   /**
-   *
+   * 
    * @return LocalDate The date part of the {@link #getStartDateTime()}
    */
   public LocalDate getStartDate() {
@@ -236,7 +248,7 @@ public class Reservation implements Loggable {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   *
+   * 
    * @param startDate
    */
   public void setStartDate(LocalDate startDate) {
@@ -256,7 +268,7 @@ public class Reservation implements Loggable {
   }
 
   /**
-   *
+   * 
    * @return LocalDate the date part of the {@link #endDateTime}
    */
   public LocalDate getEndDate() {
@@ -265,7 +277,7 @@ public class Reservation implements Loggable {
 
   /**
    * Sets the date part of the {@link #endDateTime}
-   *
+   * 
    * @param endDate
    */
   public void setEndDate(LocalDate endDate) {
@@ -283,7 +295,7 @@ public class Reservation implements Loggable {
   }
 
   /**
-   *
+   * 
    * @return LocalTime The time part of the {@link #endDateTime}
    */
   public LocalTime getEndTime() {
@@ -292,7 +304,7 @@ public class Reservation implements Loggable {
 
   /**
    * Sets the time part of the {@link #endDateTime}
-   *
+   * 
    * @param endTime
    */
   public void setEndTime(LocalTime endTime) {
@@ -444,6 +456,136 @@ public class Reservation implements Loggable {
     return builder.toString();
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((bandwidth == null) ? 0 : bandwidth.hashCode());
+    result = prime * result + ((cancelReason == null) ? 0 : cancelReason.hashCode());
+    result = prime * result + ((connection == null) ? 0 : connection.hashCode());
+    result = prime * result + ((creationDateTime == null) ? 0 : creationDateTime.hashCode());
+    result = prime * result + ((destinationPort == null) ? 0 : destinationPort.hashCode());
+    result = prime * result + ((endDateTime == null) ? 0 : endDateTime.hashCode());
+    result = prime * result + ((failedReason == null) ? 0 : failedReason.hashCode());
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + ((protectionType == null) ? 0 : protectionType.hashCode());
+    result = prime * result + ((reservationId == null) ? 0 : reservationId.hashCode());
+    result = prime * result + ((sourcePort == null) ? 0 : sourcePort.hashCode());
+    result = prime * result + ((startDateTime == null) ? 0 : startDateTime.hashCode());
+    result = prime * result + ((status == null) ? 0 : status.hashCode());
+    result = prime * result + ((userCreated == null) ? 0 : userCreated.hashCode());
+    result = prime * result + ((version == null) ? 0 : version.hashCode());
+    result = prime * result + ((virtualResourceGroup == null) ? 0 : virtualResourceGroup.getLabel().hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Reservation other = (Reservation) obj;
+    if (bandwidth == null) {
+      if (other.bandwidth != null)
+        return false;
+    }
+    else if (!bandwidth.equals(other.bandwidth))
+      return false;
+    if (cancelReason == null) {
+      if (other.cancelReason != null)
+        return false;
+    }
+    else if (!cancelReason.equals(other.cancelReason))
+      return false;
+    if (connection == null) {
+      if (other.connection != null)
+        return false;
+    }
+    else if (!connection.equals(other.connection))
+      return false;
+    if (creationDateTime == null) {
+      if (other.creationDateTime != null)
+        return false;
+    }
+    else if (!creationDateTime.equals(other.creationDateTime))
+      return false;
+    if (destinationPort == null) {
+      if (other.destinationPort != null)
+        return false;
+    }
+    else if (!destinationPort.equals(other.destinationPort))
+      return false;
+    if (endDateTime == null) {
+      if (other.endDateTime != null)
+        return false;
+    }
+    else if (!endDateTime.equals(other.endDateTime))
+      return false;
+    if (failedReason == null) {
+      if (other.failedReason != null)
+        return false;
+    }
+    else if (!failedReason.equals(other.failedReason))
+      return false;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    }
+    else if (!id.equals(other.id))
+      return false;
+    if (name == null) {
+      if (other.name != null)
+        return false;
+    }
+    else if (!name.equals(other.name))
+      return false;
+    if (protectionType != other.protectionType)
+      return false;
+    if (reservationId == null) {
+      if (other.reservationId != null)
+        return false;
+    }
+    else if (!reservationId.equals(other.reservationId))
+      return false;
+    if (sourcePort == null) {
+      if (other.sourcePort != null)
+        return false;
+    }
+    else if (!sourcePort.equals(other.sourcePort))
+      return false;
+    if (startDateTime == null) {
+      if (other.startDateTime != null)
+        return false;
+    }
+    else if (!startDateTime.equals(other.startDateTime))
+      return false;
+    if (status != other.status)
+      return false;
+    if (userCreated == null) {
+      if (other.userCreated != null)
+        return false;
+    }
+    else if (!userCreated.equals(other.userCreated))
+      return false;
+    if (version == null) {
+      if (other.version != null)
+        return false;
+    }
+    else if (!version.equals(other.version))
+      return false;
+    if (virtualResourceGroup == null) {
+      if (other.virtualResourceGroup != null)
+        return false;
+    }
+    else if (!virtualResourceGroup.getLabel().equals(other.virtualResourceGroup.getLabel()))
+      return false;
+    return true;
+  }
+
   public String getFailedReason() {
     return failedReason;
   }
@@ -481,36 +623,8 @@ public class Reservation implements Loggable {
     this.connection = connection;
   }
 
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(id, name, virtualResourceGroup, status, failedReason, sourcePort, destinationPort,
-        startDateTime, endDateTime, userCreated, bandwidth, creationDateTime);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-
-    if (obj instanceof Reservation) {
-      Reservation res = (Reservation) obj;
-
-      return Objects.equal(this.id, res.id) && Objects.equal(this.name, res.name)
-          && Objects.equal(this.virtualResourceGroup, res.virtualResourceGroup)
-          && Objects.equal(this.status, res.status) && Objects.equal(this.failedReason, res.failedReason)
-          && Objects.equal(this.sourcePort, res.sourcePort) && Objects.equal(this.destinationPort, res.destinationPort)
-          && Objects.equal(this.startDateTime, res.startDateTime) && Objects.equal(this.endDateTime, res.endDateTime)
-          && Objects.equal(this.userCreated, res.userCreated) && Objects.equal(this.bandwidth, res.bandwidth)
-          && Objects.equal(this.creationDateTime, res.creationDateTime);
-    }
-    else {
-      return false;
-    }
-  }
-
   /**
-   *
+   * 
    * @return True if this reservation was made using NSI, false otherwise
    */
   public boolean isNSICreated() {

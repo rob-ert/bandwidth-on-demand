@@ -206,4 +206,79 @@ public class PhysicalResourceGroup implements Loggable {
     builder.append("]");
     return builder.toString();
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((active == null) ? 0 : active.hashCode());
+    result = prime * result + ((adminGroup == null) ? 0 : adminGroup.hashCode());
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((institute == null) ? 0 : institute.hashCode());
+    result = prime * result + ((managerEmail == null) ? 0 : managerEmail.hashCode());
+    result = prime * result + ((physicalPorts == null) ? 0 : physicalPorts.hashCode());
+    result = prime * result + ((version == null) ? 0 : version.hashCode());
+    result = prime * result + ((virtualPortRequestLinks == null) ? 0 : virtualPortRequestLinks.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    PhysicalResourceGroup other = (PhysicalResourceGroup) obj;
+    if (active == null) {
+      if (other.active != null)
+        return false;
+    }
+    else if (!active.equals(other.active))
+      return false;
+    if (adminGroup == null) {
+      if (other.adminGroup != null)
+        return false;
+    }
+    else if (!adminGroup.equals(other.adminGroup))
+      return false;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    }
+    else if (!id.equals(other.id))
+      return false;
+    if (institute == null) {
+      if (other.institute != null)
+        return false;
+    }
+    else if (!institute.equals(other.institute))
+      return false;
+    if (managerEmail == null) {
+      if (other.managerEmail != null)
+        return false;
+    }
+    else if (!managerEmail.equals(other.managerEmail))
+      return false;
+    if (physicalPorts == null) {
+      if (other.physicalPorts != null)
+        return false;
+    }
+    else if (!physicalPorts.equals(other.physicalPorts))
+      return false;
+    if (version == null) {
+      if (other.version != null)
+        return false;
+    }
+    else if (!version.equals(other.version))
+      return false;
+    if (virtualPortRequestLinks == null) {
+      if (other.virtualPortRequestLinks != null)
+        return false;
+    }
+    else if (!virtualPortRequestLinks.equals(other.virtualPortRequestLinks))
+      return false;
+    return true;
+  }
 }

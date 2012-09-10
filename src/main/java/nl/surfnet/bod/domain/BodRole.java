@@ -36,7 +36,7 @@ import com.google.common.base.Optional;
  * {@link Security.RoleEnum#USER} are prevented even if the are related to
  * different groups. Multiple {@link RoleEnum#ICT_MANAGER} roles are allowed, as
  * long as they are related to different {@link #instituteId}s.
- *
+ * 
  */
 public final class BodRole {
 
@@ -57,12 +57,12 @@ public final class BodRole {
     this.role = role;
     this.id = COUNTER.incrementAndGet();
 
-    this.instituteName = physicalResourceGroup == null
-        ? Optional.<String>absent() : Optional.of(physicalResourceGroup.getName());
-    this.physicalResourceGroupId = physicalResourceGroup == null
-        ? Optional.<Long>absent() : Optional.of(physicalResourceGroup.getId());
-    this.adminGroup = physicalResourceGroup == null
-        ? Optional.<String>absent() : Optional.of(physicalResourceGroup.getAdminGroup());
+    this.instituteName = physicalResourceGroup == null ? Optional.<String> absent() : Optional.of(physicalResourceGroup
+        .getName());
+    this.physicalResourceGroupId = physicalResourceGroup == null ? Optional.<Long> absent() : Optional
+        .of(physicalResourceGroup.getId());
+    this.adminGroup = physicalResourceGroup == null ? Optional.<String> absent() : Optional.of(physicalResourceGroup
+        .getAdminGroup());
   }
 
   public static BodRole createNewUser() {
@@ -118,30 +118,58 @@ public final class BodRole {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-
-    if (obj instanceof BodRole) {
-      BodRole other = (BodRole) obj;
-
-      return Objects.equal(this.role, other.getRole())
-          && Objects.equal(this.physicalResourceGroupId, other.getPhysicalResourceGroupId());
-    }
-    else {
-      return false;
-    }
+  public String toString() {
+    return Objects.toStringHelper(this).add("id", id).add("role", role).add("instituteName", instituteName)
+        .add("physicalResourceGroupId", physicalResourceGroupId).toString();
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(role, physicalResourceGroupId);
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((adminGroup == null) ? 0 : adminGroup.hashCode());
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((instituteName == null) ? 0 : instituteName.hashCode());
+    result = prime * result + ((physicalResourceGroupId == null) ? 0 : physicalResourceGroupId.hashCode());
+    result = prime * result + ((role == null) ? 0 : role.hashCode());
+    return result;
   }
 
   @Override
-  public String toString() {
-    return Objects.toStringHelper(this).add("id", id).add("role", role)
-        .add("instituteName", instituteName).add("physicalResourceGroupId", physicalResourceGroupId).toString();
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    BodRole other = (BodRole) obj;
+    if (adminGroup == null) {
+      if (other.adminGroup != null)
+        return false;
+    }
+    else if (!adminGroup.equals(other.adminGroup))
+      return false;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    }
+    else if (!id.equals(other.id))
+      return false;
+    if (instituteName == null) {
+      if (other.instituteName != null)
+        return false;
+    }
+    else if (!instituteName.equals(other.instituteName))
+      return false;
+    if (physicalResourceGroupId == null) {
+      if (other.physicalResourceGroupId != null)
+        return false;
+    }
+    else if (!physicalResourceGroupId.equals(other.physicalResourceGroupId))
+      return false;
+    if (role != other.role)
+      return false;
+    return true;
   }
 }

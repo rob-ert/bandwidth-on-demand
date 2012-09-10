@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.domain;
 
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.*;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -42,6 +40,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
 
 import com.google.common.base.Strings;
+
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
 
 /**
  * Entity which represents a VirtualPort which is mapped to a
@@ -167,10 +167,10 @@ public class VirtualPort implements Loggable {
   public String getAdminGroup() {
     return virtualResourceGroup.getAdminGroup();
   }
-  
+
   @Override
   public String getLabel() {
-   return getManagerLabel();
+    return getManagerLabel();
   }
 
   @Override
@@ -220,4 +220,78 @@ public class VirtualPort implements Loggable {
     return builder.toString();
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((managerLabel == null) ? 0 : managerLabel.hashCode());
+    result = prime * result + ((maxBandwidth == null) ? 0 : maxBandwidth.hashCode());
+    result = prime * result + ((physicalPort == null) ? 0 : physicalPort.hashCode());
+    result = prime * result + ((userLabel == null) ? 0 : userLabel.hashCode());
+    result = prime * result + ((version == null) ? 0 : version.hashCode());
+    result = prime * result + ((virtualResourceGroup == null) ? 0 : virtualResourceGroup.getLabel().hashCode());
+    result = prime * result + ((vlanId == null) ? 0 : vlanId.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    VirtualPort other = (VirtualPort) obj;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    }
+    else if (!id.equals(other.id))
+      return false;
+    if (managerLabel == null) {
+      if (other.managerLabel != null)
+        return false;
+    }
+    else if (!managerLabel.equals(other.managerLabel))
+      return false;
+    if (maxBandwidth == null) {
+      if (other.maxBandwidth != null)
+        return false;
+    }
+    else if (!maxBandwidth.equals(other.maxBandwidth))
+      return false;
+    if (physicalPort == null) {
+      if (other.physicalPort != null)
+        return false;
+    }
+    else if (!physicalPort.equals(other.physicalPort))
+      return false;
+    if (userLabel == null) {
+      if (other.userLabel != null)
+        return false;
+    }
+    else if (!userLabel.equals(other.userLabel))
+      return false;
+    if (version == null) {
+      if (other.version != null)
+        return false;
+    }
+    else if (!version.equals(other.version))
+      return false;
+    if (virtualResourceGroup == null) {
+      if (other.virtualResourceGroup != null)
+        return false;
+    }
+    else if (!virtualResourceGroup.getLabel().equals(other.virtualResourceGroup.getLabel()))
+      return false;
+    if (vlanId == null) {
+      if (other.vlanId != null)
+        return false;
+    }
+    else if (!vlanId.equals(other.vlanId))
+      return false;
+    return true;
+  }
 }

@@ -35,7 +35,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 /**
  * Entity which represents a List of {@link VirtualPort}s which belong together
  * and to the {@link Reservation}s which are related to this group.
- *
+ * 
  */
 @Entity
 @Indexed
@@ -147,13 +147,20 @@ public class VirtualResourceGroup implements Loggable {
   }
 
   @Override
+  public String getAdminGroup() {
+    return surfconextGroupId;
+  }
+
+  @Override
+  public String getLabel() {
+    return getName();
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + ((id == null) ? 0 : id.hashCode());
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result = prime * result + ((surfconextGroupId == null) ? 0 : surfconextGroupId.hashCode());
     return result;
   }
 
@@ -166,41 +173,13 @@ public class VirtualResourceGroup implements Loggable {
     if (getClass() != obj.getClass())
       return false;
     VirtualResourceGroup other = (VirtualResourceGroup) obj;
-    if (description == null) {
-      if (other.description != null)
-        return false;
-    }
-    else if (!description.equals(other.description))
-      return false;
     if (id == null) {
       if (other.id != null)
         return false;
     }
     else if (!id.equals(other.id))
       return false;
-    if (name == null) {
-      if (other.name != null)
-        return false;
-    }
-    else if (!name.equals(other.name))
-      return false;
-    if (surfconextGroupId == null) {
-      if (other.surfconextGroupId != null)
-        return false;
-    }
-    else if (!surfconextGroupId.equals(other.surfconextGroupId))
-      return false;
     return true;
-  }
-
-  @Override
-  public String getAdminGroup() {
-    return surfconextGroupId;
-  }
-
-  @Override
-  public String getLabel() {
-    return getName();
   }
 
   @Override
