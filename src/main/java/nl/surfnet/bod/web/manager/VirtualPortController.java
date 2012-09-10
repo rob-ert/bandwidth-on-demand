@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.web.manager;
 
+import static nl.surfnet.bod.web.WebUtils.*;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -29,11 +31,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.validator.VirtualPortValidator;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
@@ -59,14 +57,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.UPDATE;
 
 @Controller("managerVirtualPortController")
 @RequestMapping(VirtualPortController.PAGE_URL)
@@ -241,6 +231,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   protected List<VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
     final List<VirtualPort> entriesForManager = virtualPortService.findEntriesForManager(Security.getSelectedRole(),
         firstPage, maxItems, sort);
+
     return virtualPortService.transformToView(entriesForManager, Security.getUserDetails());
   }
 

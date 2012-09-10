@@ -21,6 +21,9 @@
  */
 package nl.surfnet.bod.web;
 
+import static nl.surfnet.bod.web.WebUtils.EDIT;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -43,9 +46,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.ImmutableList;
-
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 
 @Controller
 @RequestMapping("/virtualports")
@@ -114,7 +114,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     final List<VirtualPortView> transformToView = virtualPortService.transformToView(
         virtualPortService.findEntriesForUser(Security.getUserDetails(), firstPage, maxItems, sort),
         Security.getUserDetails());
-    System.out.println(transformToView);
+
     return transformToView;
   }
 

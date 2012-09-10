@@ -21,6 +21,14 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byGroupIdInLastMonthSpec;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byPhysicalPortSpec;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forManagerSpec;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forUserSpec;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -31,15 +39,8 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
@@ -58,15 +59,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byGroupIdInLastMonthSpec;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byPhysicalPortSpec;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forManagerSpec;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forUserSpec;
 
 @Service
 @Transactional
@@ -91,14 +83,6 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
 
   @PersistenceContext
   private EntityManager entityManager;
-
-  private final Function<VirtualPort, VirtualPortView> toVirtualPortViewForManager = new Function<VirtualPort, VirtualPortView>() {
-    @Override
-    public VirtualPortView apply(VirtualPort port) {
-      return new VirtualPortView(port, Optional.<Long> of(reservationService.countForVirtualResourceGroup(port
-          .getVirtualResourceGroup())));
-    }
-  };
 
   public long count() {
     return virtualPortRepo.count();
@@ -290,9 +274,14 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
 
   @Override
   public List<VirtualPortView> transformToView(List<VirtualPort> listToTransform, RichUserDetails user) {
-
     if (user.isSelectedManagerRole()) {
-      return Lists.transform(listToTransform, toVirtualPortViewForManager);
+      return Lists.transform(listToTransform, new Function<VirtualPort, VirtualPortView>() {
+        @Override
+        public VirtualPortView apply(VirtualPort port) {
+          return new VirtualPortView(port, Optional.<Long> of(reservationService.countForVirtualResourceGroup(port
+              .getVirtualResourceGroup())));
+        }
+      });
     }
     else {
       return Lists.transform(listToTransform, nl.surfnet.bod.util.Functions.FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW);

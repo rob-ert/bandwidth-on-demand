@@ -21,11 +21,21 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
+import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,13 +44,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
-import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
-import nl.surfnet.bod.web.security.Security;
 
 @Controller("managerVirtualResourceGroupController")
 @RequestMapping("/manager/" + VirtualResourceGroupController.PAGE_URL)
@@ -74,8 +77,10 @@ public class VirtualResourceGroupController extends AbstractSearchableSortableLi
 
   @Override
   protected List<VirtualResourceGroupView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return virtualResourceGroupService.transformToView(virtualResourceGroupService.findEntries(firstPage, maxItems, sort), Security.getUserDetails());
-    
+    List<VirtualResourceGroup> entriesForManager =
+        virtualResourceGroupService.findEntriesForManager(Security.getSelectedRole(), firstPage, maxItems, sort);
+
+    return virtualResourceGroupService.transformToView(entriesForManager, Security.getUserDetails());
   }
 
   @Override

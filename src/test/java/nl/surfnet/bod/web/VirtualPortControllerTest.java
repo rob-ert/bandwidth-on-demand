@@ -26,8 +26,8 @@ import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -45,7 +45,6 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -53,7 +52,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.Sort;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.tmforum.mtop.fmw.xsd.gen.v1.AnyListType;
 
 import com.google.common.collect.Lists;
 
@@ -74,7 +72,6 @@ public class VirtualPortControllerTest {
     Security.setUserDetails(user);
   }
 
-  @Ignore("Fix later, mock tarnsform")
   @Test
   public void list() {
     when(virtualPortServiceMock.transformToView(anyList(), eq(user))).thenCallRealMethod();

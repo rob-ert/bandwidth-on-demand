@@ -118,7 +118,6 @@ public class PhysicalPortControllerTest {
     assertThat(ports.iterator().next().getId(), is(2L));
   }
 
-  // @Ignore("issue with lazy list?")
   @SuppressWarnings("unchecked")
   public void listPortsWithFilter() {
     Model model = new ModelStub();
