@@ -5,16 +5,16 @@
 * BoD connects to the SURFnet Customer Relation Management system called IDD to retrieve customer information and to a Network Management System (NMS) to retrieve network information and to delegate the reservation requests. Currently OpenDrac is the underlying NMS, but in 2013 the newly build OneControl NMS of Cienna will be used.
 * This project consists out of the following projects:
 
-|Project name|Description|Repository url|
-|:-|:-|:-|
-|**Bandwidth-on-demand**|Web UI, NSI services|gitolite@atlas.dlp.surfnet.nl:bandwidth-on-demand |
-|**BoD IDD**|Soap client for the SURFnet CRM system|gitolite@atlas.dlp.surfnet.nl:bod-idd|
-|**BoD mtosi**| MTOSI webservices to interact with the OneControl NMS|gitolite@atlas.dlp.surfnet.nl:bod-mtosi|
-|**Open social server**|Mock implementation of an open social autorisation server which returns configurable groups for a specific user|gitolite@atlas.dlp.surfnet.nl:sos-server|
-|**Nsi requester**|Web UI, which acts as test client for the NSI services|gitolite@atlas.dlp.surfnet.nl:nsi-requester|
-|**Open DRAC**|Legacy Network Management System|https://svn.surfnet.nl/svn/opendrac/|
-|**BoD infra**|Configuration scripts runtime environment| gitolite@atlas.dlp.surfnet.nl:bod-infra|
-|**BoD build tools**|Tools and configuration files for the development environment|gitolite@atlas.dlp.surfnet.nl:bod-build-tools|
+|Project name           |Description                                                   |Repository url                                    |
+|:-                     |:-                                                            |:-                                                |
+|**Bandwidth-on-demand**|Web UI, NSI services                                          |gitolite@atlas.dlp.surfnet.nl:bandwidth-on-demand |
+|**BoD IDD**            |Soap client for the SURFnet CRM system                        |gitolite@atlas.dlp.surfnet.nl:bod-idd             |
+|**BoD mtosi**          |MTOSI webservices to interact with the OneControl NMS         |gitolite@atlas.dlp.surfnet.nl:bod-mtosi           |
+|**Open social server** |Mock implementation of an open social autorisation            |gitolite@atlas.dlp.surfnet.nl:sos-server          |
+|**Nsi requester**      |Web UI, which acts as test client for the NSI services        |gitolite@atlas.dlp.surfnet.nl:nsi-requester       |
+|**Open DRAC**          |Legacy Network Management System                              |https://svn.surfnet.nl/svn/opendrac/              |
+|**BoD infra**          |Configuration scripts runtime environment                     |gitolite@atlas.dlp.surfnet.nl:bod-infra           |
+|**BoD build tools**    |Tools and configuration files for the development environment |gitolite@atlas.dlp.surfnet.nl:bod-build-tools     |
 
 
 ## Getting the project to work
@@ -46,6 +46,22 @@ To make sure maven is using your jdk 7 set your env JAVA_HOME to ``/usr/libexec/
 To change the default jre in mac os X open java preferences.
 
 To decypt some properties you need to replace your `policy.jar` and `US_export_policy.jar`. The unlimited strength policy files are also on the [Oracle download site](http://www.oracle.com/technetwork/java/javase/downloads/index.html) at the bottom. Go to `/Library/Java/JavaVirtualMachines/1.7.0.jdk/Contents/Home/jre/lib/security` and replace the tow jar files with the ones in the jce zip file.
+
+### Postgresql
+When running postgresql on a Mac installed through Homebrew your conf file says it can have a maximum of 20 connections. When you would like to increase this because you are running out of connections you could do the following. Edit the `/usr/local/var/postgres/postgresl.conf` and change the `max_connections` to 100 for example. 
+To make postgresql happy you should change some memmory settings by editing `/etc/sysctl.conf`
+
+    kern.sysv.shmmax=1073741824
+    kern.sysv.shmmin=1
+    kern.sysv.shmmni=4096
+    kern.sysv.shmseg=32
+    kern.sysv.shmall=1179648
+
+And restarting postgresql (for example) like
+
+    launchctl unload ~/Library/LaunchAgents/org.postgresql.postgres.plist
+    launchctl load ~/Library/LaunchAgents/org.postgresql.postgres.plist
+
 
 ## Running the Selenium tests
 
