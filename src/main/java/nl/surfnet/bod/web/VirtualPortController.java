@@ -21,11 +21,16 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.*;
-
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.VirtualPortView;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
@@ -39,12 +44,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.ImmutableList;
 
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
-import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortView;
-import nl.surfnet.bod.web.security.Security;
+import static nl.surfnet.bod.web.WebUtils.EDIT;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 
 @Controller
 @RequestMapping("/virtualports")

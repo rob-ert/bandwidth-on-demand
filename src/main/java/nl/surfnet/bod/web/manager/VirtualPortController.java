@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static nl.surfnet.bod.web.WebUtils.*;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -30,6 +28,21 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.validator.VirtualPortValidator;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.base.MessageView;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.VirtualPortView;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.constraints.Range;
@@ -47,20 +60,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.domain.validator.VirtualPortValidator;
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
-import nl.surfnet.bod.web.base.MessageView;
-import nl.surfnet.bod.web.manager.VirtualPortController.VirtualPortView;
-import nl.surfnet.bod.web.security.Security;
+import static nl.surfnet.bod.web.WebUtils.CREATE;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.EDIT;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.UPDATE;
 
 @Controller("managerVirtualPortController")
 @RequestMapping(VirtualPortController.PAGE_URL)
@@ -68,8 +74,6 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
   public static final String MODEL_KEY = "virtualPort";
   public static final String PAGE_URL = "/manager/virtualports";
-
-  
 
   @Resource
   private VirtualPortService virtualPortService;
@@ -235,7 +239,8 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
   @Override
   protected List<VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    final List<VirtualPort> entriesForManager = virtualPortService.findEntriesForManager(Security.getSelectedRole(), firstPage, maxItems, sort);
+    final List<VirtualPort> entriesForManager = virtualPortService.findEntriesForManager(Security.getSelectedRole(),
+        firstPage, maxItems, sort);
     return virtualPortService.transformToView(entriesForManager, Security.getUserDetails());
   }
 
@@ -431,100 +436,6 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     public void setVersion(Integer version) {
       this.version = version;
     }
-  }
-
-  public static final class VirtualPortView {
-    private final Long id;
-    private final String managerLabel;
-    private final Integer maxBandwidth;
-    private final Integer vlanId;
-    private final String virtualResourceGroup;
-    private final String physicalResourceGroup;
-    private final String physicalPort;
-    private final String userLabel;
-    private final long reservationCounter;
-    private final String nsiStpId;
-
-    public VirtualPortView(VirtualPort port, final long reservationCounter) {
-      id = port.getId();
-      managerLabel = port.getManagerLabel();
-      userLabel = port.getUserLabel();
-      maxBandwidth = port.getMaxBandwidth();
-      vlanId = port.getVlanId();
-      virtualResourceGroup = port.getVirtualResourceGroup().getName();
-      physicalResourceGroup = port.getPhysicalResourceGroup().getName();
-      physicalPort = port.getPhysicalPort().getManagerLabel();
-      this.reservationCounter = reservationCounter;
-      this.nsiStpId = port.getNsiStpId();
-    }
-
-    public String getManagerLabel() {
-      return managerLabel;
-    }
-
-    public Integer getMaxBandwidth() {
-      return maxBandwidth;
-    }
-
-    public Integer getVlanId() {
-      return vlanId;
-    }
-
-    public String getVirtualResourceGroup() {
-      return virtualResourceGroup;
-    }
-
-    public String getPhysicalResourceGroup() {
-      return physicalResourceGroup;
-    }
-
-    public String getPhysicalPort() {
-      return physicalPort;
-    }
-
-    public Long getId() {
-      return id;
-    }
-
-    public String getUserLabel() {
-      return userLabel;
-    }
-
-    public long getReservationCounter() {
-      return reservationCounter;
-    }
-
-    public String getNsiStpId() {
-      return nsiStpId;
-    }
-
-    @Override
-    public String toString() {
-      StringBuilder builder = new StringBuilder();
-      builder.append("VirtualPortView [id=");
-      builder.append(id);
-      builder.append(", managerLabel=");
-      builder.append(managerLabel);
-      builder.append(", maxBandwidth=");
-      builder.append(maxBandwidth);
-      builder.append(", vlanId=");
-      builder.append(vlanId);
-      builder.append(", virtualResourceGroup=");
-      builder.append(virtualResourceGroup);
-      builder.append(", physicalResourceGroup=");
-      builder.append(physicalResourceGroup);
-      builder.append(", physicalPort=");
-      builder.append(physicalPort);
-      builder.append(", userLabel=");
-      builder.append(userLabel);
-      builder.append(", reservationCounter=");
-      builder.append(reservationCounter);
-      builder.append(", nsiStpId=");
-      builder.append(nsiStpId);
-      builder.append("]");
-      return builder.toString();
-    }
-
   }
 
   @Override

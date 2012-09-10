@@ -21,8 +21,21 @@
  */
 package nl.surfnet.bod.domain;
 
+/**
+ * Enables logging domain objects in a consistent way.
+ * 
+ */
 public interface Loggable {
+
+  /**
+   * 
+   * @return String the group which has the right to view the domain object.
+   */
   String getAdminGroup();
 
+  /**
+   * 
+   * @return String A short label which represents the domain object.
+   */
   String getLabel();
 }
