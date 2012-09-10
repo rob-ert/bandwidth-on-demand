@@ -92,7 +92,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   @PersistenceContext
   private EntityManager entityManager;
 
-  private final Function<VirtualPort, VirtualPortView> toVitualPortView = new Function<VirtualPort, VirtualPortView>() {
+  private final Function<VirtualPort, VirtualPortView> toVirtualPortViewForManager = new Function<VirtualPort, VirtualPortView>() {
     @Override
     public VirtualPortView apply(VirtualPort port) {
       return new VirtualPortView(port, Optional.<Long> of(reservationService.countForVirtualResourceGroup(port
@@ -292,7 +292,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   public List<VirtualPortView> transformToView(List<VirtualPort> listToTransform, RichUserDetails user) {
 
     if (user.isSelectedManagerRole()) {
-      return Lists.transform(listToTransform, toVitualPortView);
+      return Lists.transform(listToTransform, toVirtualPortViewForManager);
     }
     else {
       return Lists.transform(listToTransform, nl.surfnet.bod.util.Functions.FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW);
