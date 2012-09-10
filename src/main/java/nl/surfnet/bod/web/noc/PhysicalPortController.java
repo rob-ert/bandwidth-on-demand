@@ -223,13 +223,17 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @RequestMapping(value = "/unaligned", method = RequestMethod.GET)
-  public String listUnaligned(@RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
+  public String listUnaligned(@RequestParam(value = PAGE_KEY, required = false) Integer page,
+      @RequestParam(value = "sort", required = false) String sort,
+      @RequestParam(value = "order", required = false) String order, //
+      Model model) {
 
-    uiModel
-        .addAttribute(WebUtils.DATA_LIST, Functions.transformAllocatedPhysicalPorts(
-            physicalPortService.findUnalignedPhysicalPorts(), virtualPortService));
+    Sort sortOptions = prepareSortOptions(sort, order, model);
+    model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnalignedPhysicalPorts()));
 
-    uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnalignedPhysicalPorts()));
+    model.addAttribute(WebUtils.DATA_LIST, Functions.transformAllocatedPhysicalPorts(
+        physicalPortService.findUnalignedPhysicalPorts(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions),
+        virtualPortService));
 
     return listUrl();
   }
@@ -243,8 +247,8 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
         physicalPortService.findUnalignedPhysicalPorts(), Security.getUserDetails());
 
     List<PhysicalPortView> searchedUnalignedPortViews = getFullTextSearchableService().searchForInFilteredList(
-        PhysicalPort.class, search, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, null,
-        Security.getUserDetails(), unalignedPorts);
+        PhysicalPort.class, search, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, null, Security.getUserDetails(),
+        unalignedPorts);
 
     uiModel.addAttribute(WebUtils.PARAM_SEARCH, search);
 
