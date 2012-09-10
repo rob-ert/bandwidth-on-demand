@@ -130,7 +130,8 @@ public class ReservationPoller {
               currentStatus, reservationFresh.getReservationId() });
 
           reservationFresh.setStatus(currentStatus);
-          reservationService.update(reservationFresh);
+          reservationService.updateWithReason(reservationFresh,
+              reservationService.getStateChangeLogStatement(reservationFresh.getName(), currentStatus, startStatus));
 
           if (reservationFresh.getConnection() == null) {
             reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservationFresh));

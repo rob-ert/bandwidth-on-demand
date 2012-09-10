@@ -57,6 +57,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -188,11 +189,19 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public Reservation update(Reservation reservation) {
+    return updateWithReason(reservation, null);
+  }
+  
+  public Reservation updateWithReason(Reservation reservation, final String reason) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
-
     log.debug("Updating reservation: {}", reservation.getReservationId());
-    logEventService.logUpdateEvent(Security.getUserDetails(), reservation);
+    if (StringUtils.hasLength(reason)) {
+      logEventService.logUpdateEvent(Security.getUserDetails(), reservation, reason);
+    }
+    else {
+      logEventService.logUpdateEvent(Security.getUserDetails(), reservation);
+    }
     return reservationRepo.save(reservation);
   }
 
@@ -561,5 +570,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
         return new ReservationView(reservation, isDeleteAllowed(reservation, user.getSelectedRole()));
       }
     });
+  }
+  
+  public String getStateChangeLogStatement(final String reservationName, ReservationStatus currentStatus, ReservationStatus startStatus){
+    return reservationToNbi.logStateChange(reservationName, currentStatus, startStatus);
   }
 }

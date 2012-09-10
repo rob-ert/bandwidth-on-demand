@@ -138,13 +138,17 @@ public class ReservationToNbi {
     ReservationStatusChangeEvent createEvent = new ReservationStatusChangeEvent(originalStatus, reservation,
         nsiRequestDetails);
 
-    logEventService.logUpdateEvent(Security.getUserDetails(), reservation, logStateChange(createEvent));
+    logEventService.logUpdateEvent(
+        Security.getUserDetails(),
+        reservation,
+        logStateChange(createEvent.getReservation().getName(), createEvent.getReservation().getStatus(),
+            createEvent.getOldStatus()));
 
     reservationEventPublisher.notifyListeners(createEvent);
   }
 
-  private String logStateChange(ReservationStatusChangeEvent createEvent) {
-    return createEvent.getReservation().getName() + " Changed state from [" + createEvent.getOldStatus() + "] to ["
-        + createEvent.getReservation().getStatus() + "]";
+  
+  public String logStateChange(final String reservationName, final ReservationStatus newStatus, final ReservationStatus oldStatus) {
+    return reservationName+": changed state from [" + oldStatus + "] to [" + newStatus + "]";
   }
 }
