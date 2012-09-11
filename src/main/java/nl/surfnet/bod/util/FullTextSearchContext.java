@@ -91,8 +91,15 @@ public class FullTextSearchContext<T> {
     return getFullTextQuery(luceneQuery, convertToLuceneSort(springSort, indexedFields));
   }
 
-  @VisibleForTesting
-  String[] findAllIndexedFields(Class<?> entity) {
+  /**
+   * Default implementation which returns all fields and related fields of the
+   * given entity. Can be overridden to limit the fields to search for.
+   * 
+   * @param entity
+   *          Entity to inspect
+   * @return String[] with (nested)fieldnames
+   */
+  public String[] findAllIndexedFields(Class<?> entity) {
     List<String> indexedFields = Lists.newArrayList();
 
     indexedFields.addAll(getIndexedFields(entity, Optional.<String> absent()));
