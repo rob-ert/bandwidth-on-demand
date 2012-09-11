@@ -8,6 +8,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 
+import org.apache.lucene.queryParser.ParseException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -90,7 +91,7 @@ public class PhysicalPortIndexAndSearchTest extends AbstractIndexAndSearch<Physi
   }
 
   @Test
-  public void shouldNotCrashOnColon() {
+  public void shouldNotCrashOnColon() throws ParseException {
     index();
     List<PhysicalPort> physicalPorts = getSearchQuery("nocLabel:\"Noc 3 label\"");
 

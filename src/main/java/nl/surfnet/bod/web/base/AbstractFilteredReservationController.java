@@ -33,7 +33,6 @@ import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
@@ -128,16 +127,16 @@ public abstract class AbstractFilteredReservationController extends
     List<ReservationView> result = new ArrayList<>(list(calculateFirstPage(page),
         MAX_ITEMS_PER_PAGE, sortOptions, model));
 
-    if (StringUtils.hasText(search)) {
-      model.addAttribute(WebUtils.PARAM_SEARCH, search);
-
-      result = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), search,
-          calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, Security.getUserDetails(), result);
-
-      // FIXME [AvD] This is wrong
-      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(getFullTextSearchableService()
-          .countSearchForInFilteredList(getEntityClass(), search, result)));
-    }
+//    if (StringUtils.hasText(search)) {
+//      model.addAttribute(WebUtils.PARAM_SEARCH, search);
+//
+//      result = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), search,
+//          calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, Security.getUserDetails(), result);
+//
+//      // FIXME [AvD] This is wrong
+//      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(getFullTextSearchableService()
+//          .countSearchForInFilteredList(getEntityClass(), search, result)));
+//    }
 
     model.addAttribute(WebUtils.DATA_LIST, result);
 

@@ -29,6 +29,7 @@ import javax.persistence.EntityManager;
 import nl.surfnet.bod.util.FullTextSearchContext;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
+import org.apache.lucene.queryParser.ParseException;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
@@ -56,10 +57,11 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    *          {@link Sort} sorting options
    *
    * @return List<ENTITY> result list
+   * @throws ParseException
    */
   @SuppressWarnings("unchecked")
   private List<ENTITY> searchFor(Class<ENTITY> entityClass, String searchText, int firstResult, int maxResults,
-      Sort sort) {
+      Sort sort) throws ParseException {
     FullTextQuery jpaQuery = createSearchQuery(searchText, sort, entityClass);
 
     // Limit for paging
@@ -86,9 +88,10 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    *          list of already found items
    *
    * @return List<ENTITY> result list
+   * @throws ParseException
    */
   public List<VIEW> searchForInFilteredList(Class<ENTITY> entityClass, String searchText, int firstResult,
-      int maxResults, Sort sort, RichUserDetails userDetails, List<VIEW> filterResult) {
+      int maxResults, Sort sort, RichUserDetails userDetails, List<VIEW> filterResult) throws ParseException {
 
     List<VIEW> searchResult = transformToView(searchFor(entityClass, searchText, firstResult, maxResults, sort),
         userDetails);
@@ -99,7 +102,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
   }
 
   @SuppressWarnings("unchecked")
-  public long countSearchForInFilteredList(Class<ENTITY> entityClass, String searchText, List<VIEW> filteredItems) {
+  public long countSearchForInFilteredList(Class<ENTITY> entityClass, String searchText, List<VIEW> filteredItems) throws ParseException {
     FullTextQuery jpaQuery = createSearchQuery(searchText, entityClass);
 
     return intersectFullTextResultAndFilterResult(filteredItems, new ArrayList<VIEW>(jpaQuery.getResultList())).size();
@@ -120,11 +123,11 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
 
   protected abstract EntityManager getEntityManager();
 
-  private FullTextQuery createSearchQuery(String searchText, Class<ENTITY> entityClass) {
+  private FullTextQuery createSearchQuery(String searchText, Class<ENTITY> entityClass) throws ParseException {
     return createSearchQuery(searchText, null, entityClass);
   }
 
-  private FullTextQuery createSearchQuery(String searchText, Sort sort, Class<ENTITY> entityClass) {
+  private FullTextQuery createSearchQuery(String searchText, Sort sort, Class<ENTITY> entityClass) throws ParseException {
     FullTextSearchContext<ENTITY> fullTextSearchContext = new FullTextSearchContext<ENTITY>(getEntityManager(),
         entityClass);
 

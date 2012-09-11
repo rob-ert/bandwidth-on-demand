@@ -6,12 +6,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import nl.surfnet.bod.util.BoDInitializer;
+import nl.surfnet.bod.util.FullTextSearchContext;
+
+import org.apache.lucene.queryParser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
-
-import nl.surfnet.bod.util.BoDInitializer;
-import nl.surfnet.bod.util.FullTextSearchContext;
 
 public class AbstractIndexAndSearch<T> {
 
@@ -40,7 +41,7 @@ public class AbstractIndexAndSearch<T> {
   }
 
   @SuppressWarnings("unchecked")
-  protected List<T> getSearchQuery(String query) {
+  protected List<T> getSearchQuery(String query) throws ParseException {
     return new FullTextSearchContext<T>(entityManager, clazz).getFullTextQueryForKeywordOnAllAnnotedFields(query,
         new Sort("id")).getResultList();
   }

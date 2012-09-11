@@ -68,25 +68,19 @@ public class FullTextSearchContext<T> {
   }
 
   public FullTextQuery getFullTextQueryForKeywordOnAllAnnotedFields(String keyword,
-      org.springframework.data.domain.Sort springSort) {
+      org.springframework.data.domain.Sort springSort) throws ParseException {
 
     String[] indexedFields = findAllIndexedFields(entity);
 
     final QueryParser parser = new MultiFieldQueryParser(Version.LUCENE_35, indexedFields, analyzer);
     parser.setAllowLeadingWildcard(true);
 
-    Query luceneQuery;
-    try {
-      // Add wildcards when not already in search
-      if (not(StringUtils.containsAny(keyword, new char[] { '*', '?', ':' }))) {
-        keyword = "*" + keyword + "*";
-      }
+    // Add wildcards when not already in search
+    if (not(StringUtils.containsAny(keyword, new char[] { '*', '?', ':' }))) {
+      keyword = "*" + keyword + "*";
+    }
 
-      luceneQuery = parser.parse(keyword);
-    }
-    catch (ParseException e) {
-      throw new RuntimeException(e);
-    }
+    Query luceneQuery = parser.parse(keyword);
 
     return getFullTextQuery(luceneQuery, convertToLuceneSort(springSort, indexedFields));
   }

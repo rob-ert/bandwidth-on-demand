@@ -62,6 +62,7 @@ public final class WebUtils {
 
   public static final String INFO_MESSAGES_KEY = "infoMessages";
   public static final String ERROR_MESSAGES_KEY = "errorMessages";
+  public static final String WARN_MESSAGES_KEY = "warnMessages";
 
   public static final String PARAM_MARKUP_START = "<b>";
   public static final String PARAM_MARKUP_END = "</b>";

@@ -36,12 +36,15 @@ import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.Security;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.lucene.queryParser.ParseException;
 import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.google.common.collect.Lists;
 
 /**
  * Base controller which adds full text search functionality to the
@@ -71,8 +74,17 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
       String translatedSearchString = translateSearchString(search);
 
       List<VIEW> listFromController = list(0, Integer.MAX_VALUE, sortOptions, model);
-      List<VIEW> list = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), translatedSearchString, 0,
-          Integer.MAX_VALUE, sortOptions, Security.getUserDetails(), listFromController);
+      List<VIEW> list;
+      try {
+        list = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), translatedSearchString, 0,
+            Integer.MAX_VALUE, sortOptions, Security.getUserDetails(), listFromController);
+      }
+      catch (ParseException e) {
+        model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count()));
+        model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
+        model.addAttribute(WebUtils.WARN_MESSAGES_KEY, Lists.newArrayList("Sorry, we could not process your search query."));
+        return listUrl();
+      }
 
       int toSize = Math.min(firstItem + MAX_ITEMS_PER_PAGE, list.size());
 
