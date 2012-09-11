@@ -51,8 +51,23 @@ app.global = function() {
         var searchButton = $('#sb_id');
         var searchInput = $('#si_id');
 
+        function search(event) {
+            var searchString = $('#si_id').val();
+
+            if (searchString.length === 0) {
+                return;
+            }
+
+            var path = window.location.pathname;
+            if (!path.match(/search$/)) {
+                path += "/search";
+            }
+
+            window.location.href = "//" + window.location.host + path + "?search=" + escape(searchInput.val());
+        }
+
         searchButton.click(function(event){
-            search(event); 
+            search(event);
         });
 
         searchInput.keydown(function(event){
@@ -60,38 +75,8 @@ app.global = function() {
                search(event);
             }
         });
-    }
+    };
 
-    function search (event) {
-        var searchButton = $('#sb_id');
-        var searchInput = $('#si_id');
-        var currentUrl = document.URL;
-        var searchPart = "/search?search=";
-
-        //Remove jsessionid, this mixes up the url mappings
-        currentUrl = currentUrl.replace(/;jsessionid.*\//,"/");
-
-        currentUrl = currentUrl.replace(window.location.search, "");
-        // Is a search text entered?
-        if (searchInput.val().length == 0) {
-            // Remove from url
-            currentUrl = currentUrl.replace("/search", "");
-        } else {
-            // Are we filtering?
-            if (currentUrl.indexOf("filter") == -1) {
-                // Add search url and param
-                currentUrl = currentUrl + searchPart + searchInput.val();
-                if (currentUrl.lastIndexOf("/search/search") != -1) {
-                    currentUrl = currentUrl.replace("/search/search",
-                            "/search");
-                }
-            } else {
-                // Only add param
-                currentUrl = currentUrl + "?search=" + searchInput.val();
-            }
-        }
-        window.location.href = currentUrl;
-    }
 
     var _placement = function(popup, element) {
         popup.setAttribute('data-type', element.getAttribute('data-type'));
