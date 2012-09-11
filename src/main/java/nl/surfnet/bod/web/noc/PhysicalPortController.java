@@ -45,6 +45,7 @@ import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.PhysicalPortView;
 
+import org.apache.lucene.queryParser.ParseException;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
@@ -61,6 +62,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 import static nl.surfnet.bod.web.WebUtils.DELETE;
 import static nl.surfnet.bod.web.WebUtils.ID_KEY;
@@ -246,17 +248,24 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     List<PhysicalPortView> unalignedPorts = getFullTextSearchableService().transformToView(
         physicalPortService.findUnalignedPhysicalPorts(), Security.getUserDetails());
 
-    List<PhysicalPortView> searchedUnalignedPortViews = getFullTextSearchableService().searchForInFilteredList(
-        PhysicalPort.class, search, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, null, Security.getUserDetails(),
-        unalignedPorts);
+    int firstItem = calculateFirstPage(page);
+    List<PhysicalPortView> searchedUnalignedPortViews = Lists.newArrayList();
+    try {
+      searchedUnalignedPortViews = getFullTextSearchableService().searchForInFilteredList(PhysicalPort.class, search,
+          0, Integer.MAX_VALUE, null, Security.getUserDetails(), unalignedPorts);
 
-    uiModel.addAttribute(WebUtils.PARAM_SEARCH, search);
+      uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(searchedUnalignedPortViews.size()));
+      int toSize = Math.min(firstItem + MAX_ITEMS_PER_PAGE, searchedUnalignedPortViews.size());
 
-    uiModel.addAttribute(WebUtils.DATA_LIST, searchedUnalignedPortViews);
+      searchedUnalignedPortViews = searchedUnalignedPortViews.subList(firstItem, toSize);
 
-    uiModel
-        .addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countSearchForInFilteredList(
-            PhysicalPort.class, search, unalignedPorts)));
+      uiModel.addAttribute(WebUtils.PARAM_SEARCH, search);
+      uiModel.addAttribute(WebUtils.DATA_LIST, searchedUnalignedPortViews);
+    }
+    catch (ParseException e) {
+      uiModel.addAttribute(WebUtils.WARN_MESSAGES_KEY,
+          Lists.newArrayList("Sorry, we could not process your search query."));
+    }
 
     return listUrl();
   }
