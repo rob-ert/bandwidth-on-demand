@@ -76,7 +76,8 @@ public class FullTextSearchContext<T> {
     parser.setAllowLeadingWildcard(true);
 
     // Add wildcards when not already in search
-    if (not(StringUtils.containsAny(keyword, new char[] { '*', '?', ':' }))) {
+    if (not(StringUtils.containsAny(keyword, new char[] { '*', '?', ':' }) || keyword.startsWith("\"")
+        && keyword.endsWith("\""))) {
       keyword = "*" + keyword + "*";
     }
 
