@@ -71,6 +71,8 @@ public class LogEvent {
   @Basic
   private final String adminGroup;
 
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   @Enumerated(EnumType.STRING)
   private final LogEventType eventType;
 
