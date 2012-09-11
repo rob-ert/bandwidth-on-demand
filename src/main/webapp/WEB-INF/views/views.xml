@@ -24,7 +24,7 @@
     </definition>
     <definition extends="default" name="logevents">
       <put-attribute name="body" value="/WEB-INF/views/common/logevents/list.jspx" />
-      <put-attribute name="active_menu" value="events" cascade="true" />
+      <put-attribute name="active_menu" value="logevent" cascade="true" />
     </definition>
 
     <definition extends="error" name="dataAccessFailure">

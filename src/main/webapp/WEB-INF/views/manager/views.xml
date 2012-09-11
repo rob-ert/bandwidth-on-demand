@@ -35,6 +35,6 @@
 
     <definition extends="manager" name="manager/logevents">
       <put-attribute name="body" value="/WEB-INF/views/common/logevents/list.jspx" />
-      <put-attribute name="active_menu" value="events" cascade="true" />
+      <put-attribute name="active_menu" value="logevent" cascade="true" />
     </definition>
 </tiles-definitions>
