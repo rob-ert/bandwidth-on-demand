@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.util;
 
+import static nl.surfnet.bod.web.WebUtils.not;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -49,11 +51,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
-import static nl.surfnet.bod.web.WebUtils.not;
-
 /**
  * Class which holds state related to creating and executing a full text search
- * 
+ *
  */
 public class FullTextSearchContext<T> {
 
@@ -78,7 +78,7 @@ public class FullTextSearchContext<T> {
     Query luceneQuery;
     try {
       // Add wildcards when not already in search
-      if (not(StringUtils.containsAny(keyword, new char[] { '*', '?' }))) {
+      if (not(StringUtils.containsAny(keyword, new char[] { '*', '?', ':' }))) {
         keyword = "*" + keyword + "*";
       }
 
@@ -94,7 +94,7 @@ public class FullTextSearchContext<T> {
   /**
    * Default implementation which returns all fields and related fields of the
    * given entity. Can be overridden to limit the fields to search for.
-   * 
+   *
    * @param entity
    *          Entity to inspect
    * @return String[] with (nested)fieldnames
@@ -108,7 +108,7 @@ public class FullTextSearchContext<T> {
   }
 
   /**
-   * 
+   *
    * @param entity
    *          entity to inspect
    * @param prefix

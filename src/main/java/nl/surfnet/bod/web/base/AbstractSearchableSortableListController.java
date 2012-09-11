@@ -21,6 +21,11 @@
  */
 package nl.surfnet.bod.web.base;
 
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -30,6 +35,7 @@ import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.Security;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -39,15 +45,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.Lists;
 
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
-
 /**
  * Base controller which adds full text search functionality to the
  * {@link AbstractSortableListController}
- * 
+ *
  * @param <T>
  *          DomainObject
  * @param <K>
@@ -68,15 +69,18 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
 
     if (StringUtils.hasText(search)) {
       List<VIEW> list = Lists.newArrayList();
-      model.addAttribute(WebUtils.PARAM_SEARCH, search);
+
+      model.addAttribute(WebUtils.PARAM_SEARCH, StringEscapeUtils.escapeHtml(search));
 
       List<VIEW> listFromController = list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model);
 
-      list = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), search, calculateFirstPage(page),
+      String translatedSearch = translateSearchString(search);
+      list = getFullTextSearchableService().searchForInFilteredList(
+          getEntityClass(), translatedSearch, calculateFirstPage(page),
           MAX_ITEMS_PER_PAGE, sortOptions, Security.getUserDetails(), listFromController);
 
       model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(getFullTextSearchableService()
-          .countSearchForInFilteredList(getEntityClass(), search, listFromController)));
+          .countSearchForInFilteredList(getEntityClass(), translatedSearch, listFromController)));
 
       model.addAttribute(WebUtils.DATA_LIST, list);
 
@@ -87,6 +91,10 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
     }
 
     return listUrl();
+  }
+
+  protected String translateSearchString(String search) {
+    return search;
   }
 
   protected abstract Class<ENTITY> getEntityClass();

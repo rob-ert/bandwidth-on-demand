@@ -21,6 +21,11 @@
  */
 package nl.surfnet.bod.util;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+
 import javax.persistence.EntityManager;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -33,11 +38,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.Sort;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FullTextSearchContextTest {
@@ -120,6 +120,7 @@ public class FullTextSearchContextTest {
     assertThat(luceneSort, nullValue());
   }
 
+
   class TestEntityWithNestedEmbededEntity {
     @IndexedEmbedded
     private TestEntityWithEmbededEntity nestedEmbeded;
@@ -144,7 +145,6 @@ public class FullTextSearchContextTest {
   }
 
   class TestEntity {
-
     @Field
     private String firstName;
 

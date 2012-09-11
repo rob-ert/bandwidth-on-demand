@@ -57,7 +57,12 @@
                                 <td class="center">
                                     <c:choose>
                                         <c:when test="${team.existing}">
-                                            <c:out value="${team.numberOfPorts}"/>
+                                            <spring:url value="/virtualports/search" var="vp_url">
+                                                <spring:param name="search" value="team:&quot;${team.name}&quot;"/>
+                                            </spring:url>
+                                            <a href="${vp_url}">
+                                                <c:out value="${team.numberOfPorts}"/>
+                                            </a>
                                         </c:when>
                                         <c:otherwise>
                                             -
@@ -67,9 +72,24 @@
 
                                 <c:choose>
                                     <c:when test="${team.existing}">
-                                        <td class="center"><c:out value="${team.activeReservations}"/></td>
-                                        <td class="center"><c:out value="${team.scheduledReservations}"/></td>
-                                        <td class="center"><c:out value="${team.totalReservations}"/></td>
+                                        <td class="center">
+                                            <spring:url value="/reservations/filter/active" var="reservations_url" />
+                                            <a href="${reservations_url}">
+                                                <c:out value="${team.activeReservations}" />
+                                            </a>
+                                        </td>
+                                        <td class="center">
+                                            <spring:url value="/reservations/filter/coming" var="reservations_url" />
+                                            <a href="${reservations_url}">
+                                                <c:out value="${team.scheduledReservations}" />
+                                            </a>
+                                        </td>
+                                        <td class="center">
+                                            <spring:url value="/reservations/filter/elapsed" var="reservations_url" />
+                                            <a href="${reservations_url}">
+                                                <c:out value="${team.totalReservations}"/>
+                                            </a>
+                                        </td>
                                     </c:when>
                                     <c:otherwise>
                                         <td class="center">-</td>
