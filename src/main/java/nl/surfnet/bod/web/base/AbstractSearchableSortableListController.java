@@ -43,8 +43,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.google.common.collect.Lists;
-
 /**
  * Base controller which adds full text search functionality to the
  * {@link AbstractSortableListController}
@@ -70,23 +68,17 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
     if (StringUtils.hasText(search)) {
       int firstItem = calculateFirstPage(page);
 
-      List<VIEW> list = Lists.newArrayList();
-
-      model.addAttribute(WebUtils.PARAM_SEARCH, StringEscapeUtils.escapeHtml(search));
+      String translatedSearchString = translateSearchString(search);
 
       List<VIEW> listFromController = list(0, Integer.MAX_VALUE, sortOptions, model);
+      List<VIEW> list = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), translatedSearchString, 0,
+          Integer.MAX_VALUE, sortOptions, Security.getUserDetails(), listFromController);
 
-      String translatedSearch = translateSearchString(search);
-
-      list = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), translatedSearch, 0, Integer.MAX_VALUE,
-          sortOptions, Security.getUserDetails(), listFromController);
-
-      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(list.size()));
-
-      // limit to size of list
       int toSize = Math.min(firstItem + MAX_ITEMS_PER_PAGE, list.size());
 
       model.addAttribute(WebUtils.DATA_LIST, list.subList(firstItem, toSize));
+      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(list.size()));
+      model.addAttribute(WebUtils.PARAM_SEARCH, StringEscapeUtils.escapeHtml(search));
     }
     else {
       model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count()));

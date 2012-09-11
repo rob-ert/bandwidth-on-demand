@@ -37,7 +37,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Service interface to abstract full text search functionality
- * 
+ *
  * @param <ENTITY>
  *          DomainObject
  */
@@ -45,7 +45,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
 
   /**
    * Performs a full text search on the given searchText.
-   * 
+   *
    * @param searchText
    *          String text to search for
    * @param firstResult
@@ -54,7 +54,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    *          int max amount of items
    * @param sort
    *          {@link Sort} sorting options
-   * 
+   *
    * @return List<ENTITY> result list
    */
   @SuppressWarnings("unchecked")
@@ -73,7 +73,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    * Performs a full text search on the given searchText and combines it with
    * the specified filteredItems. The intersection of both lists will be
    * returned.
-   * 
+   *
    * @param searchText
    *          String text to search for
    * @param firstResult
@@ -84,7 +84,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    *          {@link Sort} sorting options
    * @param filteredItems
    *          list of already found items
-   * 
+   *
    * @return List<ENTITY> result list
    */
   public List<VIEW> searchForInFilteredList(Class<ENTITY> entityClass, String searchText, int firstResult,
@@ -108,12 +108,12 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
   /**
    * Transforms the given list to the corresponding view and applies some user
    * specific restrictions if appropiate.
-   * 
+   *
    * @param List
    *          <ENTITY> listToTransform list to be transformed
    * @param user
    *          {@link RichUserDetails} to check user specific restrictions
-   * 
+   *
    * @return {@link List<VIEW>} transformed reservations
    */
   public abstract List<VIEW> transformToView(List<ENTITY> listToTransform, final RichUserDetails user);
@@ -134,7 +134,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
   /**
    * FInds objects that both list have in common. When one or both lists are
    * empty, no elements are found
-   * 
+   *
    * @param searchResults
    *          List<ENTITY> List with result of filter
    * @param filterResults

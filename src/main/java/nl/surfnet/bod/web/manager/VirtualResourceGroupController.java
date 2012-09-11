@@ -94,6 +94,7 @@ public class VirtualResourceGroupController extends AbstractSearchableSortableLi
   }
 
   public static class VirtualResourceGroupView {
+    private final Long id;
     private final String name;
     private final String description;
     private final Integer allPortCount;
@@ -105,6 +106,7 @@ public class VirtualResourceGroupController extends AbstractSearchableSortableLi
       this.description = group.getDescription();
       this.allPortCount = group.getVirtualPortCount();
       this.managerPortCount = managerPortCount;
+      this.id = group.getId();
       this.surfconextGroupId = group.getSurfconextGroupId();
     }
 
@@ -128,6 +130,32 @@ public class VirtualResourceGroupController extends AbstractSearchableSortableLi
       return managerPortCount;
     }
 
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((id == null) ? 0 : id.hashCode());
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      VirtualResourceGroupView other = (VirtualResourceGroupView) obj;
+      if (id == null) {
+        if (other.id != null)
+          return false;
+      }
+      else if (!id.equals(other.id))
+        return false;
+      return true;
+    }
+
   }
 
   @Override
@@ -139,5 +167,7 @@ public class VirtualResourceGroupController extends AbstractSearchableSortableLi
   protected AbstractFullTextSearchService<VirtualResourceGroupView, VirtualResourceGroup> getFullTextSearchableService() {
     return virtualResourceGroupService;
   }
+
+
 
 }
