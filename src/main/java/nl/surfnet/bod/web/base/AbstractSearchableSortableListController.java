@@ -68,22 +68,25 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
     Sort sortOptions = prepareSortOptions(sort, order, model);
 
     if (StringUtils.hasText(search)) {
+      int firstItem = calculateFirstPage(page);
+
       List<VIEW> list = Lists.newArrayList();
 
       model.addAttribute(WebUtils.PARAM_SEARCH, StringEscapeUtils.escapeHtml(search));
 
-      List<VIEW> listFromController = list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model);
+      List<VIEW> listFromController = list(0, Integer.MAX_VALUE, sortOptions, model);
 
       String translatedSearch = translateSearchString(search);
-      list = getFullTextSearchableService().searchForInFilteredList(
-          getEntityClass(), translatedSearch, calculateFirstPage(page),
-          MAX_ITEMS_PER_PAGE, sortOptions, Security.getUserDetails(), listFromController);
 
-      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(getFullTextSearchableService()
-          .countSearchForInFilteredList(getEntityClass(), translatedSearch, listFromController)));
+      list = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), translatedSearch, 0, Integer.MAX_VALUE,
+          sortOptions, Security.getUserDetails(), listFromController);
 
-      model.addAttribute(WebUtils.DATA_LIST, list);
+      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(list.size()));
 
+      // limit to size of list
+      int toSize = Math.min(firstItem + MAX_ITEMS_PER_PAGE, list.size());
+
+      model.addAttribute(WebUtils.DATA_LIST, list.subList(firstItem, toSize));
     }
     else {
       model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count()));
