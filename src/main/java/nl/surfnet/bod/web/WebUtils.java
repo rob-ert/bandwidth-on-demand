@@ -112,12 +112,22 @@ public final class WebUtils {
     addInfoFlashMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs) + " " + extraHtml);
   }
 
-  public static void addErrorFlashMessage(RedirectAttributes model, MessageSource messageSource, String label, String... messageArgs) {
+  public static void addErrorFlashMessage(
+      RedirectAttributes model, MessageSource messageSource, String label, String... messageArgs) {
     addErrorFlashMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs));
+  }
+
+  public static void addWarnFlashMessage(
+      RedirectAttributes model, MessageSource messageSource, String label, String... messageArgs) {
+    addWarnFlashMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs));
   }
 
   public static void addInfoMessage(Model model, MessageSource messageSource, String label, String... messageArgs) {
     addInfoMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs));
+  }
+
+  public static void addWarnMessage(Model model, MessageSource messageSource, String label, String... messageArgs) {
+    addWarnMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs));
   }
 
   public static void addErrorMessage(String extraHtml, Model model, MessageSource messageSource, String label,
@@ -166,6 +176,10 @@ public final class WebUtils {
     addFlashMessage(model, message, INFO_MESSAGES_KEY);
   }
 
+  private static void addWarnFlashMessage(RedirectAttributes model, String message) {
+    addFlashMessage(model, message, WARN_MESSAGES_KEY);
+  }
+
   private static void addErrorFlashMessage(RedirectAttributes model, String message) {
     addFlashMessage(model, message, ERROR_MESSAGES_KEY);
   }
@@ -184,15 +198,10 @@ public final class WebUtils {
 
   private static void addInfoMessage(Model model, String message) {
     addMessage(model, message, INFO_MESSAGES_KEY);
-    @SuppressWarnings("unchecked")
-    List<String> messages = (List<String>) model.asMap().get(INFO_MESSAGES_KEY);
+  }
 
-    if (messages == null) {
-      model.addAttribute(INFO_MESSAGES_KEY, Lists.newArrayList(message));
-    }
-    else {
-      messages.add(message);
-    }
+  private static void addWarnMessage(Model model, String message) {
+    addMessage(model, message, WARN_MESSAGES_KEY);
   }
 
   private static void addErrorMessage(Model model, String message) {

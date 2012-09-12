@@ -23,14 +23,14 @@ package nl.surfnet.bod.web;
 
 import java.util.Map;
 
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.security.Security.RoleEnum;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 @RequestMapping("/")
 @Controller
@@ -39,7 +39,7 @@ public class DetermineRoleController {
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model, RedirectAttributes redirectAttributes) {
 
-    preserveInfoMessages(model, redirectAttributes);
+    preserveFlashMessages(model, redirectAttributes);
 
     if (Security.isSelectedNocRole()) {
       return RoleEnum.NOC_ENGINEER.getViewName();
@@ -52,12 +52,18 @@ public class DetermineRoleController {
     return RoleEnum.USER.getViewName();
   }
 
-  private void preserveInfoMessages(Model model, RedirectAttributes redirectAttributes) {
+  private void preserveFlashMessages(Model model, RedirectAttributes redirectAttributes) {
+    preserveFlashAttributes(model, redirectAttributes, WebUtils.INFO_MESSAGES_KEY);
+    preserveFlashAttributes(model, redirectAttributes, WebUtils.WARN_MESSAGES_KEY);
+    preserveFlashAttributes(model, redirectAttributes, WebUtils.ERROR_MESSAGES_KEY);
+  }
+
+  private void preserveFlashAttributes(Model model, RedirectAttributes redirectAttributes, String key) {
     Map<String, Object> modelMap = model.asMap();
 
-    if (modelMap.containsKey(WebUtils.INFO_MESSAGES_KEY)) {
-      Object messages = modelMap.remove(WebUtils.INFO_MESSAGES_KEY);
-      redirectAttributes.addFlashAttribute(WebUtils.INFO_MESSAGES_KEY, messages);
+    if (modelMap.containsKey(key)) {
+      Object messages = modelMap.remove(key);
+      redirectAttributes.addFlashAttribute(key, messages);
     }
   }
 

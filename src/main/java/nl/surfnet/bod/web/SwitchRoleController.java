@@ -59,7 +59,7 @@ public class SwitchRoleController {
   private MessageSource messageSource;
 
   @RequestMapping(method = RequestMethod.POST)
-  public String switchRole(final String roleId, final Model uiModel, final RedirectAttributes redirectAttribs) {
+  public String switchRole(final String roleId, final Model model, final RedirectAttributes redirectAttribs) {
     RichUserDetails userDetails = Security.getUserDetails();
 
     if (StringUtils.hasText(roleId)) {
@@ -67,6 +67,15 @@ public class SwitchRoleController {
     }
 
     return determineViewNameAndAddAttributes(userDetails.getSelectedRole(), redirectAttribs);
+  }
+
+  @RequestMapping(method = RequestMethod.GET)
+  public String wrongSwitchRoleRequest(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    logger.error("Could not process get request for switch role: {}", request);
+
+    WebUtils.addErrorFlashMessage(redirectAttributes, messageSource, "error_post_when_shibboleth_timeout");
+
+    return "redirect:/";
   }
 
   @RequestMapping(value = "logout", method = RequestMethod.GET)
