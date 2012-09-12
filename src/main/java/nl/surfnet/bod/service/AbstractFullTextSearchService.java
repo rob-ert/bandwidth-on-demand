@@ -94,9 +94,13 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
 
     List<VIEW> intersectedList = intersectFullTextResultAndFilterResult(searchResult, filterResult);
 
-    // Determine count and page list
+    // Determine count and chop list in to page
     int intersectedSize = intersectedList.size();
     int lastResult = Math.min(firstResult + maxResults, intersectedSize);
+    // FirstResult may not be bigger then list
+    if (firstResult > lastResult) {
+      firstResult = lastResult;
+    }
     return new FullTextSearchResult<VIEW>(intersectedSize, intersectedList.subList(firstResult, lastResult));
   }
 
