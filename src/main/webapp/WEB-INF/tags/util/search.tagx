@@ -1,0 +1,13 @@
+<jsp:root xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:spring="http://www.springframework.org/tags" xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
+    <jsp:output omit-xml-declaration="yes" />
+
+  <div class="div-search">
+     <c:set var="searchInput">
+         <c:out value="${search}" />
+     </c:set>
+     <input id="si_id" value="${searchInput}" placeholder="Search text" />
+     <button id="sb_id" type="button" class="btn btn-primary" ><i class="icon-search"><!--  --></i></button>
+  </div>
+  
+</jsp:root>

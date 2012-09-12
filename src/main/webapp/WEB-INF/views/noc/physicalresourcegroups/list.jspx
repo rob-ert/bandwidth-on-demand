@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <html xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
     xmlns:spring="http://www.springframework.org/tags" xmlns:table="urn:jsptagdir:/WEB-INF/tags/table">
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
     <page:list id="pl_physicalResourceGroup" path="/noc/institutes">
-
-      <div class="div-search">
-           <input id="si_id" value="${search}" placeholder="Search text" />
-           <button id="sb_id" type="button" class="btn btn-primary" ><i class="icon-search"><!--  --></i></button>
-       </div>
+        <util:search />
 
         <table:table items="${list}" labelPluralCode="label_physicalresourcegroup_plural">
             <thead>

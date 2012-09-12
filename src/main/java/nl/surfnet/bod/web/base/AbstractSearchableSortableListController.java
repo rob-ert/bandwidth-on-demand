@@ -21,6 +21,11 @@
  */
 package nl.surfnet.bod.web.base;
 
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -31,7 +36,6 @@ import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.Security;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.queryParser.ParseException;
 import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
@@ -42,15 +46,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.Lists;
 
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
-
 /**
  * Base controller which adds full text search functionality to the
  * {@link AbstractSortableListController}
- * 
+ *
  * @param <T>
  *          DomainObject
  * @param <K>
@@ -78,7 +77,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
         searchResult = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), translatedSearchString,
             calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, Security.getUserDetails(), listFromController);
 
-        model.addAttribute(WebUtils.PARAM_SEARCH, StringEscapeUtils.escapeHtml(translatedSearchString));
+        model.addAttribute(WebUtils.PARAM_SEARCH, translatedSearchString);
         model.addAttribute(WebUtils.DATA_LIST, searchResult.getResultList());
         model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(searchResult.getCount()));
 
@@ -97,7 +96,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
   }
 
   protected String translateSearchString(String search) {
-    return StringEscapeUtils.unescapeHtml(search);
+    return search;
   }
 
   protected abstract Class<ENTITY> getEntityClass();
