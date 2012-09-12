@@ -10,7 +10,7 @@
     <div class="row">
 
         <div class="span8">
-            <form:create id="fc_virtualport" modelAttribute="virtualPortCreateCommand" path="/manager/virtualports">
+            <form:create id="fc_virtualport" modelAttribute="virtualPortCreateCommand" path="/manager/virtualports" cancelPath="/manager">
                 <div class="message"><h3>Request Details</h3></div>
 
                 <div class="control-group">
