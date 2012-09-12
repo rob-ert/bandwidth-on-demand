@@ -21,15 +21,6 @@
  */
 package nl.surfnet.bod.domain;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
-
-import static org.junit.Assert.*;
-
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -37,16 +28,27 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 public class DomainModelTest {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  private ReservationFactory reservationFactory = new ReservationFactory();
-  private PhysicalResourceGroupFactory prgFactory = new PhysicalResourceGroupFactory();
-  private VirtualResourceGroupFactory vrgFactory = new VirtualResourceGroupFactory();
-  private VirtualPortFactory vpFactory = new VirtualPortFactory();
-  private PhysicalPortFactory ppFactory = new PhysicalPortFactory();
-  private VirtualPortRequestLinkFactory vprlFactory = new VirtualPortRequestLinkFactory();
+  private final ReservationFactory reservationFactory = new ReservationFactory();
+  private final PhysicalResourceGroupFactory prgFactory = new PhysicalResourceGroupFactory();
+  private final VirtualResourceGroupFactory vrgFactory = new VirtualResourceGroupFactory();
+  private final VirtualPortFactory vpFactory = new VirtualPortFactory();
+  private final PhysicalPortFactory ppFactory = new PhysicalPortFactory();
+  private final VirtualPortRequestLinkFactory vprlFactory = new VirtualPortRequestLinkFactory();
 
   private Reservation reservation;
   private Reservation reservationTwo;
@@ -112,7 +114,7 @@ public class DomainModelTest {
    */
   @Test
   public void shouldNotOverflowInReservationHashCode() {
-    assertTrue(reservation.hashCode() == reservationTwo.hashCode());
+    assertThat(reservation.hashCode(), is(reservationTwo.hashCode()));
   }
 
   /**
@@ -134,7 +136,7 @@ public class DomainModelTest {
   public void shouldOnlyConsiderIdInVirtualPortRequestLinkHashCode() {
     VirtualPortRequestLink requestLink = new VirtualPortRequestLink();
     requestLink.setId(link.getId());
-    assertTrue("Only on Id", link.hashCode() == requestLink.hashCode());
+    assertThat("Only on Id", link.hashCode(), is(requestLink.hashCode()));
   }
 
   /**
