@@ -27,6 +27,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import nl.surfnet.bod.util.FullTextSearchContext;
+import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.apache.lucene.queryParser.ParseException;
@@ -38,7 +39,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Service interface to abstract full text search functionality
- *
+ * 
  * @param <ENTITY>
  *          DomainObject
  */
@@ -46,7 +47,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
 
   /**
    * Performs a full text search on the given searchText.
-   *
+   * 
    * @param searchText
    *          String text to search for
    * @param firstResult
@@ -55,27 +56,20 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    *          int max amount of items
    * @param sort
    *          {@link Sort} sorting options
-   *
+   * 
    * @return List<ENTITY> result list
    * @throws ParseException
    */
   @SuppressWarnings("unchecked")
-  private List<ENTITY> searchFor(Class<ENTITY> entityClass, String searchText, int firstResult, int maxResults,
-      Sort sort) throws ParseException {
-    FullTextQuery jpaQuery = createSearchQuery(searchText, sort, entityClass);
-
-    // Limit for paging
-    jpaQuery.setFirstResult(firstResult);
-    jpaQuery.setMaxResults(maxResults);
-
-    return jpaQuery.getResultList();
+  private List<ENTITY> searchFor(Class<ENTITY> entityClass, String searchText, Sort sort) throws ParseException {
+    return createSearchQuery(searchText, sort, entityClass).getResultList();
   }
 
   /**
    * Performs a full text search on the given searchText and combines it with
    * the specified filteredItems. The intersection of both lists will be
    * returned.
-   *
+   * 
    * @param searchText
    *          String text to search for
    * @param firstResult
@@ -86,48 +80,41 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    *          {@link Sort} sorting options
    * @param filteredItems
    *          list of already found items
-   *
+   * 
    * @return List<ENTITY> result list
    * @throws ParseException
    */
-  public List<VIEW> searchForInFilteredList(Class<ENTITY> entityClass, String searchText, int firstResult,
-      int maxResults, Sort sort, RichUserDetails userDetails, List<VIEW> filterResult) throws ParseException {
+  public FullTextSearchResult<VIEW> searchForInFilteredList(Class<ENTITY> entityClass, String searchText,
+      int firstResult, int maxResults, Sort sort, RichUserDetails userDetails, List<VIEW> filterResult)
+      throws ParseException {
 
-    List<VIEW> searchResult = transformToView(searchFor(entityClass, searchText, firstResult, maxResults, sort),
-        userDetails);
+    List<VIEW> searchResult = transformToView(searchFor(entityClass, searchText, sort), userDetails);
 
     List<VIEW> intersectedList = intersectFullTextResultAndFilterResult(searchResult, filterResult);
 
-    return intersectedList;
-  }
-
-  @SuppressWarnings("unchecked")
-  public long countSearchForInFilteredList(Class<ENTITY> entityClass, String searchText, List<VIEW> filteredItems) throws ParseException {
-    FullTextQuery jpaQuery = createSearchQuery(searchText, entityClass);
-
-    return intersectFullTextResultAndFilterResult(filteredItems, new ArrayList<VIEW>(jpaQuery.getResultList())).size();
+    // Determine count and page list
+    int intersectedSize = intersectedList.size();
+    int lastResult = Math.min(firstResult + maxResults, intersectedSize);
+    return new FullTextSearchResult<VIEW>(intersectedSize, intersectedList.subList(firstResult, lastResult));
   }
 
   /**
    * Transforms the given list to the corresponding view and applies some user
-   * specific restrictions if appropiate.
-   *
+   * specific restrictions if appropriate.
+   * 
    * @param List
    *          <ENTITY> listToTransform list to be transformed
    * @param user
    *          {@link RichUserDetails} to check user specific restrictions
-   *
+   * 
    * @return {@link List<VIEW>} transformed reservations
    */
   public abstract List<VIEW> transformToView(List<ENTITY> listToTransform, final RichUserDetails user);
 
   protected abstract EntityManager getEntityManager();
 
-  private FullTextQuery createSearchQuery(String searchText, Class<ENTITY> entityClass) throws ParseException {
-    return createSearchQuery(searchText, null, entityClass);
-  }
-
-  private FullTextQuery createSearchQuery(String searchText, Sort sort, Class<ENTITY> entityClass) throws ParseException {
+  private FullTextQuery createSearchQuery(String searchText, Sort sort, Class<ENTITY> entityClass)
+      throws ParseException {
     FullTextSearchContext<ENTITY> fullTextSearchContext = new FullTextSearchContext<ENTITY>(getEntityManager(),
         entityClass);
 
@@ -137,7 +124,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
   /**
    * FInds objects that both list have in common. When one or both lists are
    * empty, no elements are found
-   *
+   * 
    * @param searchResults
    *          List<ENTITY> List with result of filter
    * @param filterResults

@@ -21,17 +21,13 @@
  */
 package nl.surfnet.bod.web.base;
 
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
-
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
+import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.Security;
 
@@ -46,10 +42,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.Lists;
 
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+
 /**
  * Base controller which adds full text search functionality to the
  * {@link AbstractSortableListController}
- *
+ * 
  * @param <T>
  *          DomainObject
  * @param <K>
@@ -69,33 +70,28 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
     Sort sortOptions = prepareSortOptions(sort, order, model);
 
     if (StringUtils.hasText(search)) {
-      int firstItem = calculateFirstPage(page);
-
       String translatedSearchString = translateSearchString(search);
 
       List<VIEW> listFromController = list(0, Integer.MAX_VALUE, sortOptions, model);
-      List<VIEW> list;
+      FullTextSearchResult<VIEW> searchResult;
       try {
-        list = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), translatedSearchString, 0,
-            Integer.MAX_VALUE, sortOptions, Security.getUserDetails(), listFromController);
-      }
-      catch (ParseException e) {
-        model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count()));
-        model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
-        model.addAttribute(WebUtils.WARN_MESSAGES_KEY, Lists.newArrayList("Sorry, we could not process your search query."));
+        searchResult = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), translatedSearchString,
+            calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, Security.getUserDetails(), listFromController);
+
+        model.addAttribute(WebUtils.PARAM_SEARCH, StringEscapeUtils.escapeHtml(search));
+        model.addAttribute(WebUtils.DATA_LIST, searchResult.getResultList());
+        model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(searchResult.getCount()));
+
         return listUrl();
       }
-
-      int toSize = Math.min(firstItem + MAX_ITEMS_PER_PAGE, list.size());
-
-      model.addAttribute(WebUtils.DATA_LIST, list.subList(firstItem, toSize));
-      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(list.size()));
-      model.addAttribute(WebUtils.PARAM_SEARCH, StringEscapeUtils.escapeHtml(search));
+      catch (ParseException e) {
+        // Do not search, but show default list
+        model.addAttribute(WebUtils.WARN_MESSAGES_KEY,
+            Lists.newArrayList("Sorry, we could not process your search query."));
+      }
     }
-    else {
-      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count()));
-      model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
-    }
+    model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count()));
+    model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
 
     return listUrl();
   }
