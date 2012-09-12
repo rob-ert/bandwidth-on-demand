@@ -38,6 +38,7 @@ import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.util.ReflectiveFieldComparator;
 import nl.surfnet.bod.web.WebUtils;
@@ -45,6 +46,7 @@ import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.PhysicalPortView;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.queryParser.ParseException;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.context.MessageSource;
@@ -248,23 +250,19 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     List<PhysicalPortView> unalignedPorts = getFullTextSearchableService().transformToView(
         physicalPortService.findUnalignedPhysicalPorts(), Security.getUserDetails());
 
-    int firstItem = calculateFirstPage(page);
-    List<PhysicalPortView> searchedUnalignedPortViews = Lists.newArrayList();
     try {
-      searchedUnalignedPortViews = getFullTextSearchableService().searchForInFilteredList(PhysicalPort.class, search,
-          0, Integer.MAX_VALUE, null, Security.getUserDetails(), unalignedPorts);
+      FullTextSearchResult<PhysicalPortView> searchResult = getFullTextSearchableService().searchForInFilteredList(
+          PhysicalPort.class, search, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, null, Security.getUserDetails(),
+          unalignedPorts);
 
-      uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(searchedUnalignedPortViews.size()));
-      int toSize = Math.min(firstItem + MAX_ITEMS_PER_PAGE, searchedUnalignedPortViews.size());
-
-      searchedUnalignedPortViews = searchedUnalignedPortViews.subList(firstItem, toSize);
-
-      uiModel.addAttribute(WebUtils.PARAM_SEARCH, search);
-      uiModel.addAttribute(WebUtils.DATA_LIST, searchedUnalignedPortViews);
+      uiModel.addAttribute(WebUtils.PARAM_SEARCH, StringEscapeUtils.escapeHtml(search));
+      uiModel.addAttribute(MAX_PAGES_KEY, calculateMaxPages(searchResult.getCount()));
+      uiModel.addAttribute(WebUtils.DATA_LIST, searchResult.getResultList());
     }
     catch (ParseException e) {
       uiModel.addAttribute(WebUtils.WARN_MESSAGES_KEY,
           Lists.newArrayList("Sorry, we could not process your search query."));
+
     }
 
     return listUrl();
@@ -549,7 +547,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @Override
   protected AbstractFullTextSearchService<PhysicalPortView, PhysicalPort> getFullTextSearchableService() {
-    return (AbstractFullTextSearchService<PhysicalPortView, PhysicalPort>) physicalPortService;
+    return physicalPortService;
   }
 
 }
