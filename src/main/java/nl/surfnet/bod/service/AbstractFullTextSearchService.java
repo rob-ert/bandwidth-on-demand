@@ -31,7 +31,6 @@ import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.apache.lucene.queryParser.ParseException;
-import org.hibernate.search.jpa.FullTextQuery;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
@@ -62,7 +61,10 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    */
   @SuppressWarnings("unchecked")
   private List<ENTITY> searchFor(Class<ENTITY> entityClass, String searchText, Sort sort) throws ParseException {
-    return createSearchQuery(searchText, sort, entityClass).getResultList();
+    FullTextSearchContext<ENTITY> fullTextSearchContext = new FullTextSearchContext<ENTITY>(getEntityManager(),
+        entityClass);
+
+    return fullTextSearchContext.getFullTextQueryForKeywordOnAllAnnotedFields(searchText, sort).getResultList();
   }
 
   /**
@@ -113,14 +115,6 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
 
   protected abstract EntityManager getEntityManager();
 
-  private FullTextQuery createSearchQuery(String searchText, Sort sort, Class<ENTITY> entityClass)
-      throws ParseException {
-    FullTextSearchContext<ENTITY> fullTextSearchContext = new FullTextSearchContext<ENTITY>(getEntityManager(),
-        entityClass);
-
-    return fullTextSearchContext.getFullTextQueryForKeywordOnAllAnnotedFields(searchText, sort);
-  }
-
   /**
    * FInds objects that both list have in common. When one or both lists are
    * empty, no elements are found
@@ -133,11 +127,9 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    */
   @VisibleForTesting
   List<VIEW> intersectFullTextResultAndFilterResult(List<VIEW> searchResults, List<VIEW> filterResults) {
-    // Prevent modification of the searchResults
-    ArrayList<VIEW> intersectedList = new ArrayList<VIEW>(searchResults);
-
+    List<VIEW> intersectedList = new ArrayList<>(filterResults);
     if (!CollectionUtils.isEmpty(intersectedList)) {
-      intersectedList.retainAll(filterResults);
+      intersectedList.retainAll(searchResults);
     }
 
     return intersectedList;
