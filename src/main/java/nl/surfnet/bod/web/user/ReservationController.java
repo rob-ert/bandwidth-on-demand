@@ -98,7 +98,7 @@ public class ReservationController extends AbstractFilteredReservationController
 
     getReservationService().create(reservation);
 
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_reservation_created", reservation.getName(),
+    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_reservation_created", reservation.getName(),
         reservation.getVirtualResourceGroup().getName());
 
     return "redirect:" + PAGE_URL;

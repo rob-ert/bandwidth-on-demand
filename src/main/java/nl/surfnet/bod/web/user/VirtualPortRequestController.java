@@ -132,7 +132,7 @@ public class VirtualPortRequestController {
 
     PhysicalResourceGroup group = physicalResourceGroupService.find(id);
     if (group == null || !group.isActive()) {
-      WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_invalid_group");
+      WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualport_request_invalid_group");
 
       return "redirect:/virtualports/request";
     }
@@ -202,7 +202,7 @@ public class VirtualPortRequestController {
     virtualPortService.requestNewVirtualPort(Security.getUserDetails(), vrg, prg, requestCommand.getUserLabel(),
         requestCommand.getBandwidth(), requestCommand.getMessage());
 
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_request_send", prg.getInstitute()
+    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualport_request_send", prg.getInstitute()
         .getName());
 
     // in case a new vrg was created and the user has no user role, clear the

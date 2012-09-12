@@ -102,14 +102,18 @@ public final class WebUtils {
         ? Optional.<Long>absent() : Security.getUserDetails().getSelectedRole().getPhysicalResourceGroupId();
   }
 
-  public static void addInfoMessage(RedirectAttributes model, MessageSource messageSource, String label,
+  public static void addInfoFlashMessage(RedirectAttributes model, MessageSource messageSource, String label,
       String... messageArgs) {
-    addMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs));
+    addInfoFlashMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs));
   }
 
-  public static void addInfoMessage(String extraHtml, RedirectAttributes model, MessageSource messageSource,
+  public static void addInfoFlashMessage(String extraHtml, RedirectAttributes model, MessageSource messageSource,
       String label, String... messageArgs) {
-    addMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs) + " " + extraHtml);
+    addInfoFlashMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs) + " " + extraHtml);
+  }
+
+  public static void addErrorFlashMessage(RedirectAttributes model, MessageSource messageSource, String label, String... messageArgs) {
+    addErrorFlashMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs));
   }
 
   public static void addInfoMessage(Model model, MessageSource messageSource, String label, String... messageArgs) {
@@ -158,12 +162,20 @@ public final class WebUtils {
     return message;
   }
 
-  private static void addMessage(RedirectAttributes model, String message) {
+  private static void addInfoFlashMessage(RedirectAttributes model, String message) {
+    addFlashMessage(model, message, INFO_MESSAGES_KEY);
+  }
+
+  private static void addErrorFlashMessage(RedirectAttributes model, String message) {
+    addFlashMessage(model, message, ERROR_MESSAGES_KEY);
+  }
+
+  private static void addFlashMessage(RedirectAttributes model, String message, String key) {
     @SuppressWarnings("unchecked")
-    List<String> messages = (List<String>) model.getFlashAttributes().get(INFO_MESSAGES_KEY);
+    List<String> messages = (List<String>) model.getFlashAttributes().get(key);
 
     if (messages == null) {
-      model.addFlashAttribute(INFO_MESSAGES_KEY, Lists.newArrayList(message));
+      model.addFlashAttribute(key, Lists.newArrayList(message));
     }
     else {
       messages.add(message);
@@ -171,6 +183,7 @@ public final class WebUtils {
   }
 
   private static void addInfoMessage(Model model, String message) {
+    addMessage(model, message, INFO_MESSAGES_KEY);
     @SuppressWarnings("unchecked")
     List<String> messages = (List<String>) model.asMap().get(INFO_MESSAGES_KEY);
 
@@ -183,11 +196,15 @@ public final class WebUtils {
   }
 
   private static void addErrorMessage(Model model, String message) {
+    addMessage(model, message, ERROR_MESSAGES_KEY);
+  }
+
+  private static void addMessage(Model model, String message, String key) {
     @SuppressWarnings("unchecked")
-    List<String> messages = (List<String>) model.asMap().get(ERROR_MESSAGES_KEY);
+    List<String> messages = (List<String>) model.asMap().get(key);
 
     if (messages == null) {
-      model.addAttribute(ERROR_MESSAGES_KEY, Lists.newArrayList(message));
+      model.addAttribute(key, Lists.newArrayList(message));
     }
     else {
       messages.add(message);

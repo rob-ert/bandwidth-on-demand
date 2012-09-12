@@ -74,7 +74,7 @@ public class WebUtilsTest {
         messageSourceMock.getMessage("info_message", new String[] { "<b>een</b>", "<b>twee</b>" },
             LocaleContextHolder.getLocale())).thenReturn("YES");
 
-    WebUtils.addInfoMessage(redirectModel, messageSourceMock, "info_message", "een", "twee");
+    WebUtils.addInfoFlashMessage(redirectModel, messageSourceMock, "info_message", "een", "twee");
 
     List<String> infoMessages = (List<String>) redirectModel.getFlashAttributes().get(WebUtils.INFO_MESSAGES_KEY);
 

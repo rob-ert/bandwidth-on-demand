@@ -103,7 +103,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     virtualPortService.save(port);
     virtualPortService.requestLinkApproved(createCommand.getVirtualPortRequestLink(), port);
 
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_created", port.getManagerLabel());
+    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualport_created", port.getManagerLabel());
 
     return "redirect:" + PAGE_URL;
   }
@@ -127,12 +127,12 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     VirtualPortRequestLink requestLink = virtualPortService.findRequest(link);
 
     if (requestLink == null) {
-      WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualportrequestlink_notvalid");
+      WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualportrequestlink_notvalid");
       return "redirect:/";
     }
 
     if (!Security.isManagerMemberOf(requestLink.getPhysicalResourceGroup())) {
-      WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualportrequestlink_notmanager");
+      WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualportrequestlink_notmanager");
       return "redirect:/";
     }
 
@@ -181,7 +181,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
     }
 
     model.asMap().clear();
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_updated", port.getManagerLabel());
+    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualport_updated", port.getManagerLabel());
 
     virtualPortService.update(port);
 
@@ -216,7 +216,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
     virtualPortService.delete(virtualPort, Security.getUserDetails());
 
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_virtualport_deleted",
+    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualport_deleted",
         virtualPort.getManagerLabel());
 
     return "redirect:" + PAGE_URL;

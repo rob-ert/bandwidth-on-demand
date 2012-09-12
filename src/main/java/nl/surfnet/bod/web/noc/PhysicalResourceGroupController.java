@@ -57,7 +57,7 @@ import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 import static nl.surfnet.bod.web.WebUtils.LIST;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 import static nl.surfnet.bod.web.WebUtils.UPDATE;
-import static nl.surfnet.bod.web.WebUtils.addInfoMessage;
+import static nl.surfnet.bod.web.WebUtils.addInfoFlashMessage;
 
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
@@ -94,7 +94,7 @@ public class PhysicalResourceGroupController extends AbstractSearchableSortableL
     physicalResourceGroupService.save(physicalResourceGroup);
     physicalResourceGroupService.sendActivationRequest(physicalResourceGroup);
 
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_activation_request_send",
+    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_activation_request_send",
         physicalResourceGroup.getName(), physicalResourceGroup.getManagerEmail());
 
     // Force refresh of roles
@@ -134,7 +134,7 @@ public class PhysicalResourceGroupController extends AbstractSearchableSortableL
 
     if (command.isManagerEmailChanged()) {
       physicalResourceGroupService.sendActivationRequest(physicalResourceGroup);
-      addInfoMessage(redirectAttributes, messageSource, "info_activation_request_send",
+      addInfoFlashMessage(redirectAttributes, messageSource, "info_activation_request_send",
           physicalResourceGroup.getName(), physicalResourceGroup.getManagerEmail());
     }
 

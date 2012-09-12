@@ -89,7 +89,7 @@ public class SwitchRoleController {
         String newLinkButton = createNewActivationLinkForm(environment.getExternalBodUrl()
             + ActivationEmailController.ACTIVATION_MANAGER_PATH, group.getId().toString(), successMessage);
 
-        WebUtils.addInfoMessage(newLinkButton, redirectAttribs, messageSource,
+        WebUtils.addInfoFlashMessage(newLinkButton, redirectAttribs, messageSource,
             "info_physicalresourcegroup_not_activated");
 
         return "redirect:manager/physicalresourcegroups/edit?id=" + group.getId();

@@ -83,7 +83,7 @@ public class PhysicalResourceGroupController {
       group.setManagerEmail(command.getManagerEmail());
       physicalResourceGroupService.sendActivationRequest(group);
 
-      WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_activation_request_resend", group.getManagerEmail());
+      WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_activation_request_resend", group.getManagerEmail());
     }
 
     redirectAttributes.addFlashAttribute("prg", group);

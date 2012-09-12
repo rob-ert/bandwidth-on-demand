@@ -113,7 +113,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     Collection<PhysicalPort> unallocatedPorts = physicalPortService.findUnallocated();
 
     if (unallocatedPorts.isEmpty()) {
-      WebUtils.addInfoMessage(redirectAttrs, messageSource, "info_physicalport_nounallocated");
+      WebUtils.addInfoFlashMessage(redirectAttrs, messageSource, "info_physicalport_nounallocated");
       return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
     }
 
@@ -158,7 +158,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     physicalPortService.save(port);
 
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_physicalport_added", port.getNocLabel(), port
+    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_physicalport_added", port.getNocLabel(), port
         .getPhysicalResourceGroup().getName());
 
     return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
@@ -185,7 +185,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     model.asMap().clear();
 
-    WebUtils.addInfoMessage(redirectAttributes, messageSource, "info_physicalport_updated", portToSave.getNocLabel(),
+    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_physicalport_updated", portToSave.getNocLabel(),
         portToSave.getPhysicalResourceGroup().getName());
 
     return "redirect:physicalports";
@@ -324,7 +324,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     Collection<PhysicalPort> unallocatedPorts = physicalPortService.findUnallocated();
     if (unallocatedPorts.isEmpty()) {
-      WebUtils.addInfoMessage(redirectAttrs, messageSource, "info_physicalport_nounallocated");
+      WebUtils.addInfoFlashMessage(redirectAttrs, messageSource, "info_physicalport_nounallocated");
       return "redirect:/noc/" + PhysicalResourceGroupController.PAGE_URL;
     }
 

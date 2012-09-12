@@ -67,7 +67,7 @@ public class ActivationEmailController {
     PhysicalResourceGroup physicalResourceGroup = link.getSourceObject();
 
     if (!Security.isManagerMemberOf(physicalResourceGroup)) {
-      WebUtils.addInfoMessage(redirectAttrs, messageSource, "info_activation_request_notallowed", Security
+      WebUtils.addInfoFlashMessage(redirectAttrs, messageSource, "info_activation_request_notallowed", Security
           .getUserDetails().getDisplayName(), physicalResourceGroup.getName());
 
       log.debug("Manager [{}] has no right to access physical resourcegroup: {}", Security.getUserDetails()
