@@ -1,5 +1,15 @@
 package nl.surfnet.bod.web.base;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -24,16 +34,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 
 import com.google.common.collect.Lists;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractSearchableSortableListControllerTest {
@@ -100,7 +100,7 @@ public class AbstractSearchableSortableListControllerTest {
 
     subject.search(0, "id", "ASC", "\"test\"", model);
 
-    assertThat((String) WebUtils.getAttributeFromModel(WebUtils.PARAM_SEARCH, model), is("&quot;test&quot;"));
+    assertThat((String) WebUtils.getAttributeFromModel(WebUtils.PARAM_SEARCH, model), is("\"test\""));
     assertThat((List<TestEntity>) WebUtils.getAttributeFromModel(WebUtils.DATA_LIST, model), hasSize(1));
     assertThat((List<TestView>) WebUtils.getAttributeFromModel(WebUtils.DATA_LIST, model), contains(testView));
     assertThat((Integer) WebUtils.getAttributeFromModel(WebUtils.MAX_PAGES_KEY, model), is(1));
@@ -110,7 +110,7 @@ public class AbstractSearchableSortableListControllerTest {
   public void testTranslateSearchString() {
     assertThat(subject.translateSearchString("test"), is("test"));
     assertThat(subject.translateSearchString("\"test\""), is("\"test\""));
-    assertThat(subject.translateSearchString("&quot;test&quot;"), is("\"test\""));
+    assertThat(subject.translateSearchString("&quot;test&quot;"), is("&quot;test&quot;"));
   }
 
   @Test
