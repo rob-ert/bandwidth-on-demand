@@ -53,12 +53,13 @@ app.global = function() {
 
         function search(event) {
             var searchString = $('#si_id').val();
+            var path = window.location.pathname;
 
-            if (searchString.length === 0) {
+            //Users did not search yet, has an empty search field and searches
+            if ((searchString.length === 0) && (!path.match(/search$/))) {
                 return;
             }
 
-            var path = window.location.pathname;
             if (!path.match(/search$/)) {
                 path += "/search";
             }
