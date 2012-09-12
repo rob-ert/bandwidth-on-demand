@@ -716,6 +716,7 @@
                         <id>default-minify</id>
                         <phase>process-resources</phase>
                         <configuration>
+                            <charset>UTF-8</charset>
                             <cssSourceDir>css</cssSourceDir>
                             <cssSourceIncludes>
                                 <cssSourceInclude>*.css</cssSourceInclude>
