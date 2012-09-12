@@ -78,7 +78,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
         searchResult = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), translatedSearchString,
             calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, Security.getUserDetails(), listFromController);
 
-        model.addAttribute(WebUtils.PARAM_SEARCH, StringEscapeUtils.escapeHtml(search));
+        model.addAttribute(WebUtils.PARAM_SEARCH, StringEscapeUtils.escapeHtml(translatedSearchString));
         model.addAttribute(WebUtils.DATA_LIST, searchResult.getResultList());
         model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(searchResult.getCount()));
 
@@ -97,7 +97,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
   }
 
   protected String translateSearchString(String search) {
-    return search;
+    return StringEscapeUtils.unescapeHtml(search);
   }
 
   protected abstract Class<ENTITY> getEntityClass();
