@@ -66,18 +66,20 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
       @RequestParam(value = "order", required = false) String order, //
       @RequestParam(value = "search") String search, //
       Model model) {
+
     Sort sortOptions = prepareSortOptions(sort, order, model);
 
     if (StringUtils.hasText(search)) {
       String translatedSearchString = translateSearchString(search);
 
       List<VIEW> listFromController = list(0, Integer.MAX_VALUE, sortOptions, model);
-      FullTextSearchResult<VIEW> searchResult;
       try {
-        searchResult = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), translatedSearchString,
-            calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, Security.getUserDetails(), listFromController);
+        FullTextSearchResult<VIEW> searchResult = getFullTextSearchableService().searchForInFilteredList(
+            getEntityClass(), translatedSearchString,
+            calculateFirstPage(page), MAX_ITEMS_PER_PAGE,
+            sortOptions, Security.getUserDetails(), listFromController);
 
-        model.addAttribute(WebUtils.PARAM_SEARCH, translatedSearchString);
+        model.addAttribute(WebUtils.PARAM_SEARCH, search);
         model.addAttribute(WebUtils.DATA_LIST, searchResult.getResultList());
         model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(searchResult.getCount()));
 
@@ -85,10 +87,10 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
       }
       catch (ParseException e) {
         // Do not search, but show default list
-        model.addAttribute(WebUtils.WARN_MESSAGES_KEY,
-            Lists.newArrayList("Sorry, we could not process your search query."));
+        model.addAttribute(WebUtils.WARN_MESSAGES_KEY, Lists.newArrayList("Sorry, we could not process your search query."));
       }
     }
+
     model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count()));
     model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
 
