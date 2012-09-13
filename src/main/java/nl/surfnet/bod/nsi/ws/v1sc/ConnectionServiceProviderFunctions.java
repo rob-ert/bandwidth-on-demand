@@ -48,6 +48,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StringUtils;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 
 public final class ConnectionServiceProviderFunctions {
 
@@ -110,17 +111,15 @@ public final class ConnectionServiceProviderFunctions {
         connection.setCurrentState(INITIAL);
         connection.setConnectionId(reservation.getConnectionId());
         connection.setDescription(reservation.getDescription());
-        connection.setStartTime(getDateFrom(reservation.getServiceParameters().getSchedule().getStartTime()));
 
-        XMLGregorianCalendar endTime = reservation.getServiceParameters().getSchedule().getEndTime();
-        if (endTime != null) {
-          connection.setEndTime(getDateFrom(endTime));
-        }
+        Optional<Date> startTime = getDateFrom(reservation.getServiceParameters().getSchedule().getStartTime());
+        connection.setStartTime(startTime);
 
-        Duration duration = reserveRequestType.getReserve().getReservation().getServiceParameters().getSchedule().getDuration();
-        if (duration != null) {
-          connection.setEndTime(calculateEndTime(connection.getStartTime(), duration));
-        }
+        Optional<Date> endTime = calculateEndTime(
+            reservation.getServiceParameters().getSchedule().getEndTime(),
+            reservation.getServiceParameters().getSchedule().getDuration(),
+            startTime);
+        connection.setEndTime(endTime);
 
         // Ignoring the max. and min. bandwidth attributes...
         connection.setDesiredBandwidth(reservation.getServiceParameters().getBandwidth().getDesired());
@@ -143,8 +142,26 @@ public final class ConnectionServiceProviderFunctions {
         return connection;
       }
 
-      private Date getDateFrom(XMLGregorianCalendar calendar) {
-        return calendar.toGregorianCalendar().getTime();
+      private Optional<Date> getDateFrom(XMLGregorianCalendar calendar) {
+        if (calendar == null) {
+          return Optional.absent();
+        }
+
+        return Optional.of(calendar.toGregorianCalendar().getTime());
+      }
+
+      private Optional<Date> calculateEndTime(XMLGregorianCalendar endTimeCalendar, Duration duration, Optional<Date> startTime) {
+        if (endTimeCalendar != null) {
+          return getDateFrom(endTimeCalendar);
+        }
+
+        if (duration != null && startTime.isPresent()) {
+          Date endTime = new Date(startTime.get().getTime());
+          duration.addTo(endTime);
+          return Optional.of(endTime);
+        }
+
+        return Optional.absent();
       }
 
       private String generateGlobalId() {
@@ -156,10 +173,5 @@ public final class ConnectionServiceProviderFunctions {
   private ConnectionServiceProviderFunctions() {
   }
 
-  public static Date calculateEndTime(Date startTime, Duration duration) {
-    Date endTime = new Date(startTime.getTime());
-    duration.addTo(endTime);
-    return endTime;
-  }
 
 }

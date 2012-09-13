@@ -25,6 +25,7 @@ import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -47,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -73,11 +75,18 @@ public class ConnectionServiceProviderService {
     final VirtualPort sourcePort = virtualPortService.findByNsiStpId(connection.getSourceStpId());
     final VirtualPort destinationPort = virtualPortService.findByNsiStpId(connection.getDestinationStpId());
 
+    Function<Date, LocalDateTime> dateToLocalDateTime = new Function<Date, LocalDateTime>() {
+      @Override
+      public LocalDateTime apply(Date input) {
+        return new LocalDateTime(input);
+      }
+    };
+
     Reservation reservation = new Reservation();
     reservation.setConnection(connection);
     reservation.setName(connection.getDescription());
-    reservation.setStartDateTime(new LocalDateTime(connection.getStartTime()));
-    reservation.setEndDateTime(new LocalDateTime(connection.getEndTime()));
+    reservation.setStartDateTime(connection.getStartTime().transform(dateToLocalDateTime).orNull());
+    reservation.setEndDateTime(connection.getEndTime().transform(dateToLocalDateTime).orNull());
     reservation.setSourcePort(sourcePort);
     reservation.setDestinationPort(destinationPort);
     reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());

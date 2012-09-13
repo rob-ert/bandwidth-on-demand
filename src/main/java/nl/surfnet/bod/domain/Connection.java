@@ -23,20 +23,13 @@ package nl.surfnet.bod.domain;
 
 import java.util.Date;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.Version;
+import javax.persistence.*;
 
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
+
+import com.google.common.base.Optional;
 
 @Entity
 public class Connection implements Loggable {
@@ -66,7 +59,6 @@ public class Connection implements Loggable {
   @Column(unique = true, nullable = false)
   private String globalReservationId;
 
-  // Reservation description.
   @Column(nullable = false)
   private String description;
 
@@ -74,10 +66,8 @@ public class Connection implements Loggable {
   @Column(nullable = false, length = 50)
   private ConnectionStateType currentState = ConnectionStateType.INITIAL;
 
-  @Column(nullable = false)
   private Date startTime;
 
-  @Column(nullable = false)
   private Date endTime;
 
   @Column(nullable = false)
@@ -181,20 +171,20 @@ public class Connection implements Loggable {
     this.reservation = reservation;
   }
 
-  public Date getStartTime() {
-    return startTime;
+  public Optional<Date> getStartTime() {
+    return Optional.fromNullable(startTime);
   }
 
-  public void setStartTime(Date startTime) {
-    this.startTime = startTime;
+  public void setStartTime(Optional<Date> startTime) {
+    this.startTime = startTime.orNull();
   }
 
-  public Date getEndTime() {
-    return endTime;
+  public Optional<Date> getEndTime() {
+    return Optional.fromNullable(endTime);
   }
 
-  public void setEndTime(Date endTime) {
-    this.endTime = endTime;
+  public void setEndTime(Optional<Date> endTime) {
+    this.endTime = endTime.orNull();
   }
 
   public String getSourceStpId() {
