@@ -72,7 +72,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
     if (StringUtils.hasText(search)) {
       String translatedSearchString = translateSearchString(search);
 
-      List<VIEW> listFromController = list(0, Integer.MAX_VALUE, sortOptions, model);
+      List<VIEW> listFromController = list(1, Integer.MAX_VALUE, sortOptions, model);
       try {
         FullTextSearchResult<VIEW> searchResult = getFullTextSearchableService().searchForInFilteredList(
             getEntityClass(), translatedSearchString,

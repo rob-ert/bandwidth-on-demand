@@ -22,6 +22,7 @@
 package nl.surfnet.bod.web;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -32,6 +33,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+import java.util.List;
 
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -40,10 +42,13 @@ import nl.surfnet.bod.support.ModelStub;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.VirtualPortController.UpdateUserLabelCommand;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.VirtualPortView;
 
+import org.apache.lucene.queryParser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -134,6 +139,27 @@ public class VirtualPortControllerTest {
     String page = subject.update(command, new BeanPropertyBindingResult(command, "command"), new ModelStub());
 
     assertThat(page, is("redirect:/virtualports"));
+  }
+
+  @Test
+  public void shouldTranslateSearch() throws ParseException {
+    ModelStub model = new ModelStub();
+
+    VirtualPort port = new VirtualPortFactory().create();
+    List<VirtualPort> result = Lists.newArrayList(port);
+    List<VirtualPortView> views = Lists.newArrayList(new VirtualPortView(port));
+
+    when(virtualPortServiceMock.findEntriesForUser(eq(user), eq(1), eq(Integer.MAX_VALUE), any(Sort.class))).thenReturn(result);
+    when(virtualPortServiceMock.transformToView(result, user)).thenCallRealMethod();
+    when(virtualPortServiceMock.searchForInFilteredList(
+        eq(VirtualPort.class), eq("virtualResourceGroup.name:\"some-team\""),
+        eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class), eq(user), eq(views)))
+    .thenReturn(new FullTextSearchResult<>(1, views));
+
+    String page = subject.search(1, "userLabel", null, "team:\"some-team\"", model);
+
+    assertThat(page, is("virtualports/list"));
+    assertThat(model.asMap(), hasEntry("search", (Object) "team:\"some-team\""));
   }
 
 }
