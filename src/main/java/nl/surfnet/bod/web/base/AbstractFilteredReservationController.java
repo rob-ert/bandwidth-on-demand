@@ -157,9 +157,15 @@ public abstract class AbstractFilteredReservationController extends
       }
     }
 
-    // Do not search, but show empty list
-    model.addAttribute(WebUtils.MAX_PAGES_KEY, 0);
-    model.addAttribute(WebUtils.DATA_LIST, Lists.newArrayList());
+    // Do not search, list from controller, paged
+    int firstResult = calculateFirstPage(page);
+    int lastResult = Math.min(firstResult + MAX_ITEMS_PER_PAGE, listFromController.size());
+    // FirstResult may not be bigger then list
+    if (firstResult > lastResult) {
+      firstResult = lastResult;
+    }
+    model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(listFromController.size()));
+    model.addAttribute(WebUtils.DATA_LIST, listFromController.subList(firstResult, lastResult));
 
     return listUrl();
   }
