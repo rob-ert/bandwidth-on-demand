@@ -21,17 +21,6 @@
  */
 package nl.surfnet.bod.web;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -59,6 +48,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.validation.BeanPropertyBindingResult;
 
 import com.google.common.collect.Lists;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VirtualPortControllerTest {
@@ -149,14 +149,16 @@ public class VirtualPortControllerTest {
     List<VirtualPort> result = Lists.newArrayList(port);
     List<VirtualPortView> views = Lists.newArrayList(new VirtualPortView(port));
 
-    when(virtualPortServiceMock.findEntriesForUser(eq(user), eq(1), eq(Integer.MAX_VALUE), any(Sort.class))).thenReturn(result);
+    when(virtualPortServiceMock.findEntriesForUser(eq(user), eq(0), eq(Integer.MAX_VALUE), any(Sort.class)))
+        .thenReturn(result);
     when(virtualPortServiceMock.transformToView(result, user)).thenCallRealMethod();
-    when(virtualPortServiceMock.searchForInFilteredList(
-        eq(VirtualPort.class), eq("virtualResourceGroup.name:\"some-team\""),
-        eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class), eq(user), eq(views)))
-    .thenReturn(new FullTextSearchResult<>(1, views));
 
-    String page = subject.search(1, "userLabel", null, "team:\"some-team\"", model);
+    when(
+        virtualPortServiceMock.searchForInFilteredList(eq(VirtualPort.class),
+            eq("virtualResourceGroup.name:\"some-team\""), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class),
+            eq(user), eq(views))).thenReturn(new FullTextSearchResult<>(1, views));
+
+    String page = subject.search(0, "userLabel", null, "team:\"some-team\"", model);
 
     assertThat(page, is("virtualports/list"));
     assertThat(model.asMap(), hasEntry("search", (Object) "team:\"some-team\""));

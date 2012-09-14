@@ -49,7 +49,7 @@ import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 /**
  * Base controller which adds full text search functionality to the
  * {@link AbstractSortableListController}
- *
+ * 
  * @param <T>
  *          DomainObject
  * @param <K>
@@ -68,36 +68,73 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
       Model model) {
 
     Sort sortOptions = prepareSortOptions(sort, order, model);
+    Integer firstItem = calculateFirstPage(page);
+    List<VIEW> listFromController = handleListFromController(firstItem, model, sortOptions);
 
+    // Do we need to search?
     if (StringUtils.hasText(search)) {
-      String translatedSearchString = translateSearchString(search);
+      String translatedSearchString = mapLabelToTechnicalName(search);
 
-      List<VIEW> listFromController = list(0, Integer.MAX_VALUE, sortOptions, model);
       try {
         FullTextSearchResult<VIEW> searchResult = getFullTextSearchableService().searchForInFilteredList(
-            getEntityClass(), translatedSearchString,
-            calculateFirstPage(page), MAX_ITEMS_PER_PAGE,
-            sortOptions, Security.getUserDetails(), listFromController);
+            getEntityClass(), translatedSearchString, firstItem, MAX_ITEMS_PER_PAGE, sortOptions,
+            Security.getUserDetails(), listFromController);
 
         model.addAttribute(WebUtils.PARAM_SEARCH, search);
         model.addAttribute(WebUtils.DATA_LIST, searchResult.getResultList());
         model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(searchResult.getCount()));
 
-        return listUrl();
       }
       catch (ParseException e) {
         // Do not search, but show default list
-        model.addAttribute(WebUtils.WARN_MESSAGES_KEY, Lists.newArrayList("Sorry, we could not process your search query."));
+        model.addAttribute(WebUtils.WARN_MESSAGES_KEY,
+            Lists.newArrayList("Sorry, we could not process your search query."));
       }
     }
-
-    model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count()));
-    model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
 
     return listUrl();
   }
 
-  protected String translateSearchString(String search) {
+  /**
+   * Handles the list from a specific controller and places the results an the
+   * model. When a search must be performed, these result will be overriden by
+   * the search results.
+   * 
+   * @param firstResult
+   *          Integer page number
+   * @param model
+   *          UI Model
+   * @param sortOptions
+   *          Sort options
+   * @return List of VIEW
+   */
+  private List<VIEW> handleListFromController(Integer firstResult, Model model, Sort sortOptions) {
+    // Get full list from specific list from controller, can filter 'normal' or
+    // filtered
+    List<VIEW> listFromController = list(0, Integer.MAX_VALUE, sortOptions, model);
+
+    // Place nr of pages based on size on model
+    model.addAttribute(WebUtils.MAX_PAGES_KEY,
+        calculateMaxPages(listFromController == null ? 0 : listFromController.size()));
+
+    List<VIEW> pagedList = getFullTextSearchableService().pageList(firstResult, MAX_ITEMS_PER_PAGE, listFromController);
+
+    model.addAttribute(WebUtils.DATA_LIST, pagedList);
+    return listFromController;
+  }
+
+  /**
+   * Maps a search string with a label from a column to a search with a field in
+   * the domain model. Must be overridden for a specific implementation, this
+   * default implementation does not map. E.g. 'name:test' might be mapped to
+   * 'virtualResourceGroup.name:test'
+   * 
+   * @param search
+   *          The string to search for, may contain lucene specific syntax e.g.
+   *          'name:test'
+   * @return String the input value
+   */
+  protected String mapLabelToTechnicalName(String search) {
     return search;
   }
 

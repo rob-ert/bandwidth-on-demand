@@ -21,7 +21,6 @@
  */
 package nl.surfnet.bod.web.base;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -30,14 +29,10 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
-import org.apache.lucene.queryParser.ParseException;
-import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -50,10 +45,7 @@ import com.google.common.collect.Lists;
 
 import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
 import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 /**
  * Base controller for filtering and sorting {@link Reservation}s.
@@ -123,51 +115,17 @@ public abstract class AbstractFilteredReservationController extends
       @PathVariable(value = "filterId") String filterId, //
       Model model) {
 
-    Sort sortOptions = prepareSortOptions(sort, order, model);
-
     ReservationFilterView reservationFilter;
     try {
       reservationFilter = reservationFilterViewFactory.create(filterId);
+      model.addAttribute(FILTER_SELECT, reservationFilter);
     }
     catch (IllegalArgumentException e) {
       model.asMap().clear();
       return "redirect:../";
     }
 
-    model.addAttribute(FILTER_SELECT, reservationFilter);
-
-    List<ReservationView> listFromController = new ArrayList<>(list(0, Integer.MAX_VALUE, sortOptions, model));
-
-    if (StringUtils.hasText(search)) {
-      String translatedSearch = translateSearchString(search);
-      FullTextSearchResult<ReservationView> searchResult = null;
-      try {
-        searchResult = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), translatedSearch,
-            calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, Security.getUserDetails(), listFromController);
-
-        model.addAttribute(WebUtils.PARAM_SEARCH, search);
-        model.addAttribute(WebUtils.DATA_LIST, searchResult.getResultList());
-        model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(searchResult.getCount()));
-
-        return listUrl();
-      }
-      catch (ParseException e) {
-        model.addAttribute(WebUtils.WARN_MESSAGES_KEY,
-            Lists.newArrayList("Sorry, we could not process your search query."));
-      }
-    }
-
-    // Do not search, list from controller, paged
-    int firstResult = calculateFirstPage(page);
-    int lastResult = Math.min(firstResult + MAX_ITEMS_PER_PAGE, listFromController.size());
-    // FirstResult may not be bigger then list
-    if (firstResult > lastResult) {
-      firstResult = lastResult;
-    }
-    model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(listFromController.size()));
-    model.addAttribute(WebUtils.DATA_LIST, listFromController.subList(firstResult, lastResult));
-
-    return listUrl();
+    return super.search(page, sort, order, search, model);
   }
 
   @Override
@@ -198,11 +156,11 @@ public abstract class AbstractFilteredReservationController extends
   }
 
   @Override
-  protected String translateSearchString(String search) {
+  protected String mapLabelToTechnicalName(String search) {
     if (search.startsWith("team:")) {
       return search.replace("team:", "virtualResourceGroup.surfconextGroupId:");
     }
-    return super.translateSearchString(search);
+    return super.mapLabelToTechnicalName(search);
   }
 
   private List<ReservationFilterView> determineFilters() {

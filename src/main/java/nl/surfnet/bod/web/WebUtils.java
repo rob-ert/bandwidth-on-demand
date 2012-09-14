@@ -76,7 +76,7 @@ public final class WebUtils {
   }
 
   public static int calculateFirstPage(Integer page) {
-    return page == null ? 0 : (page.intValue() - 1) * MAX_ITEMS_PER_PAGE;
+    return (page == null  || page == 0) ? 0 : (page.intValue() - 1) * MAX_ITEMS_PER_PAGE;
   }
 
   public static int calculateMaxPages(long totalEntries) {

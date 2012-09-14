@@ -193,12 +193,12 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   }
 
   @Override
-  protected String translateSearchString(String search) {
+  protected String mapLabelToTechnicalName(String search) {
     if (search.startsWith("team:")) {
       return search.replace("team:", "virtualResourceGroup.name:");
     }
 
-    return super.translateSearchString(search);
+    return super.mapLabelToTechnicalName(search);
   }
 
 }

@@ -39,7 +39,7 @@ import com.google.common.base.Preconditions;
 
 /**
  * Service interface to abstract full text search functionality
- *
+ * 
  * @param <ENTITY>
  *          DomainObject
  */
@@ -47,7 +47,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
 
   /**
    * Performs a full text search on the given searchText.
-   *
+   * 
    * @param searchText
    *          String text to search for
    * @param firstResult
@@ -56,7 +56,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    *          int max amount of items
    * @param sort
    *          {@link Sort} sorting options
-   *
+   * 
    * @return List<ENTITY> result list
    * @throws ParseException
    */
@@ -72,7 +72,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    * Performs a full text search on the given searchText and combines it with
    * the specified filteredItems. The intersection of both lists will be
    * returned.
-   *
+   * 
    * @param searchText
    *          String text to search for
    * @param firstResult
@@ -83,7 +83,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    *          {@link Sort} sorting options
    * @param filteredItems
    *          list of already found items
-   *
+   * 
    * @return List<ENTITY> result list
    * @throws ParseException
    */
@@ -97,25 +97,39 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
 
     List<VIEW> intersectedList = intersectFullTextResultAndFilterResult(searchResult, filterResult);
 
+    return new FullTextSearchResult<VIEW>(intersectedList.size(), pageList(firstResult, maxResults, intersectedList));
+  }
+
+  /**
+   * 
+   * @param firstResult
+   *          firstResult in page
+   * @param maxResults
+   *          Max. number of results, can be limited due to size of list
+   * @param listToPage
+   *          List to page
+   * @return {@link FullTextSearchResult} containing one page of data
+   */
+  public List<VIEW> pageList(int firstResult, int maxResults, List<VIEW> listToPage) {
     // Determine count and chop list in to page
-    int intersectedSize = intersectedList.size();
+    int intersectedSize = listToPage.size();
     int lastResult = Math.min(firstResult + maxResults, intersectedSize);
     // FirstResult may not be bigger then list
     if (firstResult > lastResult) {
       firstResult = lastResult;
     }
-    return new FullTextSearchResult<VIEW>(intersectedSize, intersectedList.subList(firstResult, lastResult));
+    return listToPage.subList(firstResult, lastResult);
   }
 
   /**
    * Transforms the given list to the corresponding view and applies some user
    * specific restrictions if appropriate.
-   *
+   * 
    * @param List
    *          <ENTITY> listToTransform list to be transformed
    * @param user
    *          {@link RichUserDetails} to check user specific restrictions
-   *
+   * 
    * @return {@link List<VIEW>} transformed reservations
    */
   public abstract List<VIEW> transformToView(List<ENTITY> listToTransform, final RichUserDetails user);
@@ -125,7 +139,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
   /**
    * FInds objects that both list have in common. When one or both lists are
    * empty, no elements are found
-   *
+   * 
    * @param searchResults
    *          List<ENTITY> List with result of filter
    * @param filterResults

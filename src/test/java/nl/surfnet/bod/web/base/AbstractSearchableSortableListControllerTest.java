@@ -108,9 +108,9 @@ public class AbstractSearchableSortableListControllerTest {
 
   @Test
   public void testTranslateSearchString() {
-    assertThat(subject.translateSearchString("test"), is("test"));
-    assertThat(subject.translateSearchString("\"test\""), is("\"test\""));
-    assertThat(subject.translateSearchString("&quot;test&quot;"), is("&quot;test&quot;"));
+    assertThat(subject.mapLabelToTechnicalName("test"), is("test"));
+    assertThat(subject.mapLabelToTechnicalName("\"test\""), is("\"test\""));
+    assertThat(subject.mapLabelToTechnicalName("&quot;test&quot;"), is("&quot;test&quot;"));
   }
 
   @Test
