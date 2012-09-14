@@ -73,19 +73,25 @@
                                 <c:choose>
                                     <c:when test="${team.existing}">
                                         <td class="center">
-                                            <spring:url value="/reservations/filter/active" var="reservations_url" />
+                                            <spring:url value="/reservations/filter/active" var="reservations_url" >
+                                                <spring:param name="search" value="team:&quot;${team.surfconextGroupId}&quot;" />
+                                            </spring:url>
                                             <a href="${reservations_url}">
                                                 <c:out value="${team.activeReservations}" />
                                             </a>
                                         </td>
                                         <td class="center">
-                                            <spring:url value="/reservations/filter/coming" var="reservations_url" />
+                                            <spring:url value="/reservations/filter/coming" var="reservations_url" >
+                                                <spring:param name="search" value="team:&quot;${team.surfconextGroupId}&quot;" />
+                                            </spring:url>
                                             <a href="${reservations_url}">
                                                 <c:out value="${team.comingReservations}" />
                                             </a>
                                         </td>
                                         <td class="center">
-                                            <spring:url value="/reservations/filter/elapsed" var="reservations_url" />
+                                            <spring:url value="/reservations/filter/elapsed" var="reservations_url" >
+                                                <spring:param name="search" value="team:&quot;${team.surfconextGroupId}&quot;" />
+                                            </spring:url>
                                             <a href="${reservations_url}">
                                                 <c:out value="${team.elapsedReservations}"/>
                                             </a>

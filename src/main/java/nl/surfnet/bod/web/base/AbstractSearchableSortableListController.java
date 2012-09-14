@@ -21,11 +21,6 @@
  */
 package nl.surfnet.bod.web.base;
 
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
-
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -45,6 +40,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.Lists;
+
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 /**
  * Base controller which adds full text search functionality to the
@@ -72,7 +72,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
     if (StringUtils.hasText(search)) {
       String translatedSearchString = translateSearchString(search);
 
-      List<VIEW> listFromController = list(1, Integer.MAX_VALUE, sortOptions, model);
+      List<VIEW> listFromController = list(0, Integer.MAX_VALUE, sortOptions, model);
       try {
         FullTextSearchResult<VIEW> searchResult = getFullTextSearchableService().searchForInFilteredList(
             getEntityClass(), translatedSearchString,

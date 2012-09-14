@@ -39,6 +39,7 @@ import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -64,6 +65,7 @@ public class Reservation implements Loggable {
   @Analyzer(definition = "customanalyzer")
   private String name;
 
+  @IndexedEmbedded
   @ManyToOne
   private VirtualResourceGroup virtualResourceGroup;
 
@@ -109,7 +111,7 @@ public class Reservation implements Loggable {
   @NotNull
   @Column(nullable = false)
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
-  private LocalDateTime creationDateTime;
+  private final LocalDateTime creationDateTime;
 
   @OneToOne(mappedBy = "reservation")
   private Connection connection;

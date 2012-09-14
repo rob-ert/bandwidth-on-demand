@@ -974,6 +974,11 @@
             <url>http://maven.springframework.org/release</url>
         </repository>
         <repository>
+            <id>surfnet</id>
+            <url>https://atlas.dlp.surfnet.nl/nexus/content/repositories/releases</url>
+            <name>surfnet</name> 
+        </repository>
+        <!-- <repository>
             <id>JBoss Repo</id>
             <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
             <name>JBoss Repo</name>
@@ -982,7 +987,7 @@
             <id>surfnet-third-party</id>
             <name>surfnet-third-party</name>
             <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/thirdparty</url>
-        </repository>
+        </repository> -->
     </repositories>
     <pluginRepositories>
         <pluginRepository>

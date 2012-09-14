@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.web.base;
 
-import static nl.surfnet.bod.web.WebUtils.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,22 +30,36 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
+import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
+import org.apache.lucene.queryParser.ParseException;
 import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.Lists;
 
+import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
+import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+
 /**
  * Base controller for filtering and sorting {@link Reservation}s.
- *
+ * 
  * @see AbstractSortableListController
- *
+ * 
  */
 public abstract class AbstractFilteredReservationController extends
     AbstractSearchableSortableListController<ReservationView, Reservation> {
@@ -86,7 +98,7 @@ public abstract class AbstractFilteredReservationController extends
    * Retrieves a list and filters by applying the filter specified by the
    * filterId. After the user selects a filter a new Http get with the selected
    * filterId can be performed.
-   *
+   * 
    * @param page
    *          StartPage
    * @param sort
@@ -124,21 +136,30 @@ public abstract class AbstractFilteredReservationController extends
 
     model.addAttribute(FILTER_SELECT, reservationFilter);
 
-    List<ReservationView> result = new ArrayList<>(list(calculateFirstPage(page),
-        MAX_ITEMS_PER_PAGE, sortOptions, model));
+    List<ReservationView> listFromController = new ArrayList<>(list(0, Integer.MAX_VALUE, sortOptions, model));
 
-//    if (StringUtils.hasText(search)) {
-//      model.addAttribute(WebUtils.PARAM_SEARCH, search);
-//
-//      result = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), search,
-//          calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, Security.getUserDetails(), result);
-//
-//      // FIXME [AvD] This is wrong
-//      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(getFullTextSearchableService()
-//          .countSearchForInFilteredList(getEntityClass(), search, result)));
-//    }
+    if (StringUtils.hasText(search)) {
+      String translatedSearch = translateSearchString(search);
+      FullTextSearchResult<ReservationView> searchResult = null;
+      try {
+        searchResult = getFullTextSearchableService().searchForInFilteredList(getEntityClass(), translatedSearch,
+            calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, Security.getUserDetails(), listFromController);
 
-    model.addAttribute(WebUtils.DATA_LIST, result);
+        model.addAttribute(WebUtils.PARAM_SEARCH, search);
+        model.addAttribute(WebUtils.DATA_LIST, searchResult.getResultList());
+        model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(searchResult.getCount()));
+
+        return listUrl();
+      }
+      catch (ParseException e) {
+        model.addAttribute(WebUtils.WARN_MESSAGES_KEY,
+            Lists.newArrayList("Sorry, we could not process your search query."));
+      }
+    }
+
+    // Do not search, but show empty list
+    model.addAttribute(WebUtils.MAX_PAGES_KEY, 0);
+    model.addAttribute(WebUtils.DATA_LIST, Lists.newArrayList());
 
     return listUrl();
   }
@@ -168,6 +189,14 @@ public abstract class AbstractFilteredReservationController extends
   @Override
   protected AbstractFullTextSearchService<ReservationView, Reservation> getFullTextSearchableService() {
     return getReservationService();
+  }
+
+  @Override
+  protected String translateSearchString(String search) {
+    if (search.startsWith("team:")) {
+      return search.replace("team:", "virtualResourceGroup.surfconextGroupId:");
+    }
+    return super.translateSearchString(search);
   }
 
   private List<ReservationFilterView> determineFilters() {
