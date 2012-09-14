@@ -43,7 +43,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 
 @RequestMapping("/user")
 @Controller
@@ -102,10 +106,10 @@ public class DashboardController {
     Collection<TeamView> existingTeams = Collections2.transform(vrgs, new Function<VirtualResourceGroup, TeamView>() {
       @Override
       public TeamView apply(VirtualResourceGroup group) {
-        long total = reservationService.countForVirtualResourceGroup(group);
-        long scheduled = reservationService.countScheduledReservationForVirtualResourceGroup(group);
-        long active = reservationService.countActiveReservationForVirtualResourceGroup(group);
-        return new TeamView(group, active, scheduled, total);
+        long active = reservationService.countActiveReservationsForGroup(group);
+        long coming = reservationService.countComingReservationsForGroup(group);
+        long elapsed = reservationService.countElapsedReservationsForGroup(group);
+        return new TeamView(group, active, coming, elapsed);
       }
     });
 

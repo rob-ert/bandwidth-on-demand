@@ -28,9 +28,9 @@ public class TeamView implements Comparable<TeamView> {
   private final Long id;
   private final String name;
   private final long numberOfPorts;
-  private final long totalReservations;
-  private final long scheduledReservations;
   private final long activeReservations;
+  private final long comingReservations;
+  private final long elapsedReservations;
   private final String surfconextGroupId;
   private final boolean existing;
 
@@ -39,21 +39,20 @@ public class TeamView implements Comparable<TeamView> {
     this.name = group.getName();
     this.surfconextGroupId = group.getId();
     this.numberOfPorts = 0;
-    this.totalReservations = 0;
-    this.scheduledReservations = 0;
     this.activeReservations = 0;
+    this.comingReservations = 0;
+    this.elapsedReservations = 0;
     this.existing = false;
   }
 
-  public TeamView(VirtualResourceGroup group, long activeReservations, long scheduledReservations,
-      long totalReservations) {
+  public TeamView(VirtualResourceGroup group, long activeReservations, long comingReservations, long elapsedReservations) {
     this.id = group.getId();
     this.name = group.getName();
     this.numberOfPorts = group.getVirtualPortCount();
     this.surfconextGroupId = group.getSurfconextGroupId();
-    this.totalReservations = totalReservations;
-    this.scheduledReservations = scheduledReservations;
     this.activeReservations = activeReservations;
+    this.comingReservations = comingReservations;
+    this.elapsedReservations = elapsedReservations;
     this.existing = true;
   }
 
@@ -73,16 +72,16 @@ public class TeamView implements Comparable<TeamView> {
     return existing;
   }
 
-  public long getTotalReservations() {
-    return totalReservations;
-  }
-
-  public long getScheduledReservations() {
-    return scheduledReservations;
-  }
-
   public long getActiveReservations() {
     return activeReservations;
+  }
+
+  public long getComingReservations() {
+    return comingReservations;
+  }
+
+  public long getElapsedReservations() {
+    return elapsedReservations;
   }
 
   @Override

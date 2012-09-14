@@ -330,7 +330,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     long numberOfVirtualPorts = virtualPortService.countForPhysicalPort(port);
     long numberOfReservations = reservationService.countForPhysicalPort(port);
-    long numberOfActiveReservations = reservationService.countActiveForPhysicalPort(port);
+    long numberOfActiveReservations = reservationService.countActiveReservationsForPhysicalPort(port);
 
     model.addAttribute("relatedObjects", new RelatedObjects(numberOfVirtualPorts, numberOfReservations,
         numberOfActiveReservations));
