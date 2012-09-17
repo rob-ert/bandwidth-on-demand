@@ -74,7 +74,7 @@
                                     <c:when test="${team.existing}">
                                         <td class="center">
                                             <spring:url value="/reservations/filter/active" var="reservations_url" >
-                                                <spring:param name="search" value="team:&quot;${team.surfconextGroupId}&quot;" />
+                                                <spring:param name="search" value="team:&quot;${team.name}&quot;" />
                                             </spring:url>
                                             <a href="${reservations_url}">
                                                 <c:out value="${team.activeReservations}" />
@@ -82,7 +82,7 @@
                                         </td>
                                         <td class="center">
                                             <spring:url value="/reservations/filter/coming" var="reservations_url" >
-                                                <spring:param name="search" value="team:&quot;${team.surfconextGroupId}&quot;" />
+                                                <spring:param name="search" value="team:&quot;${team.name}&quot;" />
                                             </spring:url>
                                             <a href="${reservations_url}">
                                                 <c:out value="${team.comingReservations}" />
@@ -90,7 +90,7 @@
                                         </td>
                                         <td class="center">
                                             <spring:url value="/reservations/filter/elapsed" var="reservations_url" >
-                                                <spring:param name="search" value="team:&quot;${team.surfconextGroupId}&quot;" />
+                                                <spring:param name="search" value="team:&quot;${team.name}&quot;" />
                                             </spring:url>
                                             <a href="${reservations_url}">
                                                 <c:out value="${team.elapsedReservations}"/>
