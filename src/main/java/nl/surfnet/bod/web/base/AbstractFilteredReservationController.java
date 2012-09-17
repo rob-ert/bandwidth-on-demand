@@ -79,7 +79,7 @@ public abstract class AbstractFilteredReservationController extends
    */
   @Override
   public String search(Integer page, String sort, String order, String search, Model model) {
-    return filter(page, sort, order, "", null, model);
+    return filter(page, sort, order, search, null, model);
   }
 
   @RequestMapping(value = FILTER_URL + "{filterId}/search", method = RequestMethod.GET)
