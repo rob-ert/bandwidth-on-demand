@@ -16,7 +16,10 @@ public class TimeStampBridge implements StringBridge {
   public String objectToString(Object object) {
     String result = null;
 
-    if (LocalDateTime.class.isAssignableFrom(object.getClass())) {
+    if(object == null){
+      result = "n/a";
+    }
+    else if (LocalDateTime.class.isAssignableFrom(object.getClass())) {
       LocalDateTime localDateTime = (LocalDateTime) object;
       result = localDateTime.toString();
     }
