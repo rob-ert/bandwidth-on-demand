@@ -21,6 +21,9 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.*;
+import static nl.surfnet.bod.domain.ReservationStatus.*;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,29 +38,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalPort_;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationArchive;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.Reservation_;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPort_;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
-import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.repo.ReservationArchiveRepo;
-import nl.surfnet.bod.repo.ReservationRepo;
-import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.ElementActionView;
-import nl.surfnet.bod.web.view.ReservationFilterView;
-import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -81,11 +61,28 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
-import static nl.surfnet.bod.domain.ReservationStatus.PREPARING;
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalPort_;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationArchive;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.Reservation_;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.repo.ReservationArchiveRepo;
+import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ElementActionView;
+import nl.surfnet.bod.web.view.ReservationFilterView;
+import nl.surfnet.bod.web.view.ReservationView;
 
 @Service
 @Transactional
@@ -160,7 +157,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     fillStartTimeIfEmpty(reservation);
     stripSecondsAndMillis(reservation);
 
-    logEventService.logCreateEvent(Security.getUserDetails(), reservation);
+    logEventService.logCreateEvent(Security.getUserDetails(), reservation, "Created reservation with name: "
+        + reservation.getName());
 
     // make sure the reservation is written to the database before we call the
     // async reserve
