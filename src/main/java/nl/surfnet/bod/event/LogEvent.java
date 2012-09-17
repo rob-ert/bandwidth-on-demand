@@ -31,11 +31,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import nl.surfnet.bod.domain.Loggable;
+import nl.surfnet.bod.util.TimeStampBridge;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
@@ -59,6 +61,9 @@ public class LogEvent {
   private Long id;
 
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
+  @FieldBridge(impl = TimeStampBridge.class)
   private final LocalDateTime created;
 
   @Field(index = Index.YES, store = Store.YES)

@@ -35,10 +35,12 @@ import javax.persistence.OneToOne;
 import javax.persistence.Version;
 
 import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Resolution;
 import org.hibernate.search.annotations.Store;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
@@ -94,8 +96,14 @@ public class Connection implements Loggable {
   @Analyzer(definition = "customanalyzer")
   private ConnectionStateType currentState = ConnectionStateType.INITIAL;
 
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
+  @DateBridge(resolution = Resolution.MINUTE)
   private Date startTime;
 
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
+  @DateBridge(resolution = Resolution.MINUTE)
   private Date endTime;
 
   @Column(nullable = false)

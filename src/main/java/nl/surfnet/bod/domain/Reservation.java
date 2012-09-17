@@ -34,9 +34,12 @@ import javax.persistence.OneToOne;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
+import nl.surfnet.bod.util.TimeStampBridge;
+
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -93,9 +96,15 @@ public class Reservation implements Loggable {
   private VirtualPort destinationPort;
 
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
+  @FieldBridge(impl = TimeStampBridge.class)
   private LocalDateTime startDateTime;
 
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
+  @FieldBridge(impl = TimeStampBridge.class)
   private LocalDateTime endDateTime;
 
   @Field(index = Index.YES, store = Store.YES)
