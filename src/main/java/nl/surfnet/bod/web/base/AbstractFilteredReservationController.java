@@ -86,6 +86,16 @@ public abstract class AbstractFilteredReservationController extends
     return filter(page, sort, order, "", null, model);
   }
 
+  @RequestMapping(value = FILTER_URL + "{filterId}/search", method = RequestMethod.GET)
+  public String filterAndSearch(@RequestParam(value = PAGE_KEY, required = false) Integer page,
+      @RequestParam(value = "sort", required = false) String sort,
+      @RequestParam(value = "order", required = false) String order, //
+      @RequestParam(value = "search", required = false) String search, //
+      @PathVariable(value = "filterId") String filterId, //
+      Model model) {
+    return filter(page, sort, order, search, filterId, model);
+  }
+
   /**
    * Retrieves a list and filters by applying the filter specified by the
    * filterId. After the user selects a filter a new Http get with the selected
