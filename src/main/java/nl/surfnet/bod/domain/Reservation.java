@@ -70,6 +70,7 @@ public class Reservation implements Loggable {
   private VirtualResourceGroup virtualResourceGroup;
 
   @Enumerated(EnumType.STRING)
+  @Field(index = Index.YES, store = Store.YES)
   private ReservationStatus status = ReservationStatus.REQUESTED;
 
   @Field(index = Index.YES, store = Store.YES)
@@ -82,10 +83,12 @@ public class Reservation implements Loggable {
 
   @NotNull
   @ManyToOne(optional = false)
+  @IndexedEmbedded
   private VirtualPort sourcePort;
 
   @NotNull
   @ManyToOne(optional = false)
+  @IndexedEmbedded
   private VirtualPort destinationPort;
 
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
@@ -101,6 +104,7 @@ public class Reservation implements Loggable {
 
   @NotNull
   @Column(nullable = false)
+  @Field(index = Index.YES, store = Store.YES)
   private Integer bandwidth;
 
   @Basic
@@ -114,6 +118,7 @@ public class Reservation implements Loggable {
   private final LocalDateTime creationDateTime;
 
   @OneToOne(mappedBy = "reservation")
+  @IndexedEmbedded
   private Connection connection;
 
   @Enumerated(EnumType.STRING)
