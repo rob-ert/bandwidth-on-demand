@@ -104,13 +104,16 @@ public class ConnectionServiceProviderService {
     reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
     reservation.setBandwidth(connection.getDesiredBandwidth());
     reservation.setUserCreated(connection.getRequesterNsa());
-    reservation.setConnection(connection);
+    
     
     final LocalDateTime now = new LocalDateTime();
     if (reservation.getStartDateTime() != null && reservation.getStartDateTime().isBefore(now)) {
       log.info("Reservation startdate is in past: {} setting it to now {}", reservation.getStartDateTime(), now);
       reservation.setStartDateTime(now);
+      connection.setStartTime(Optional.of(now.toDate()));
     }
+    
+    reservation.setConnection(connection);
     connection.setReservation(reservation);
     reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
   }
