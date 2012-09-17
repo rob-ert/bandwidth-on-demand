@@ -983,6 +983,11 @@
             <name>surfnet-third-party</name>
             <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/thirdparty</url>
         </repository>
+        <repository>
+            <id>surfnet-releases</id>
+            <name>surfnet-releases</name>
+            <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/releases</url>
+        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
