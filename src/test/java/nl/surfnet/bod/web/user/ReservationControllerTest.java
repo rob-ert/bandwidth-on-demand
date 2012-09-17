@@ -168,7 +168,7 @@ public class ReservationControllerTest {
             any(ReservationFilterView.class), eq(0), eq(Integer.MAX_VALUE), any(Sort.class))).thenReturn(
         Lists.newArrayList(reservation));
 
-    subject.search(0, "name", "asc", "2012", model);
+    subject.list(0, "name", "asc", model);
 
     assertThat(model.asMap(), hasKey("list"));
     assertThat(model.asMap(), hasKey("sortProperty"));
