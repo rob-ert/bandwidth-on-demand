@@ -71,6 +71,7 @@ public class Reservation implements Loggable {
 
   @Enumerated(EnumType.STRING)
   @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private ReservationStatus status = ReservationStatus.REQUESTED;
 
   @Field(index = Index.YES, store = Store.YES)
@@ -105,6 +106,7 @@ public class Reservation implements Loggable {
   @NotNull
   @Column(nullable = false)
   @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private Integer bandwidth;
 
   @Basic
@@ -122,6 +124,8 @@ public class Reservation implements Loggable {
   private Connection connection;
 
   @Enumerated(EnumType.STRING)
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private ProtectionType protectionType = ProtectionType.PROTECTED;
 
   public Reservation() {

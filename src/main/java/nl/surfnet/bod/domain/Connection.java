@@ -23,8 +23,23 @@ package nl.surfnet.bod.domain;
 
 import java.util.Date;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.Version;
 
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Store;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
@@ -32,6 +47,7 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 import com.google.common.base.Optional;
 
 @Entity
+@Indexed
 public class Connection implements Loggable {
 
   @Id
@@ -45,25 +61,37 @@ public class Connection implements Loggable {
    * in the storage structure
    */
   @Column(unique = true, nullable = false)
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private String connectionId;
 
   @Version
   private Integer version;
 
   @Column(nullable = false)
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private String requesterNsa;
 
   @Column(nullable = false)
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private String providerNsa;
 
   @Column(unique = true, nullable = false)
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private String globalReservationId;
 
   @Column(nullable = false)
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private String description;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 50)
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private ConnectionStateType currentState = ConnectionStateType.INITIAL;
 
   private Date startTime;
@@ -71,12 +99,18 @@ public class Connection implements Loggable {
   private Date endTime;
 
   @Column(nullable = false)
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private int desiredBandwidth;
 
   @Column(nullable = false)
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private String sourceStpId;
 
   @Column(nullable = false)
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private String destinationStpId;
 
   @Column(nullable = false, length = 4096)
@@ -89,6 +123,7 @@ public class Connection implements Loggable {
   private Reservation reservation;
 
   @OneToOne(cascade = CascadeType.ALL)
+  @IndexedEmbedded
   private NsiRequestDetails provisionRequestDetails;
 
   public Long getId() {

@@ -26,16 +26,29 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
+
 @Entity
+@Indexed
 public class NsiRequestDetails {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private String replyTo;
+
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
   private String correlationId;
 
+  @SuppressWarnings("unused")
   private NsiRequestDetails() {
   }
 
