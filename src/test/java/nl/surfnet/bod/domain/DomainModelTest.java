@@ -21,23 +21,23 @@
  */
 package nl.surfnet.bod.domain;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import com.google.common.collect.Lists;
+
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class DomainModelTest {
 
@@ -71,7 +71,10 @@ public class DomainModelTest {
     reservationFactory.setSourcePort(vp1);
     reservationFactory.setDestinationPort(vp2);
     reservation = reservationFactory.create();
+    
     reservationTwo = reservationFactory.create();
+    
+    ReflectionTestUtils.setField(reservationTwo, "creationDateTime", reservation.getCreationDateTime());
 
     reservation.setVirtualResourceGroup(vrg);
     reservationTwo.setVirtualResourceGroup(vrg);
@@ -115,6 +118,14 @@ public class DomainModelTest {
   @Test
   public void shouldNotOverflowInReservationHashCode() {
     assertThat(reservation.hashCode(), is(reservationTwo.hashCode()));
+    // for (int i = 0; i < 200; i++) {
+    // this.onSetup();
+    // // assertThat(reservation.hashCode(), is(reservationTwo.hashCode()));
+    // assertEquals(
+    // "Run: " + i + ", reservation# " + reservation.hashCode() +
+    // ", reservationTwo#: " + reservationTwo.hashCode(),
+    // reservationTwo.hashCode(), reservation.hashCode());
+    // }
   }
 
   /**
