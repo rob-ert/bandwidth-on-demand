@@ -21,12 +21,6 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 
 import nl.surfnet.bod.domain.Reservation;
@@ -51,10 +45,16 @@ import org.springframework.ui.Model;
 
 import com.google.common.collect.Lists;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationControllerTest {
 
-  private ReservationService reservationService = new ReservationService();
+  private final ReservationService reservationService = new ReservationService();
 
   @Mock
   private ReservationService reservationServiceMock;
@@ -118,7 +118,7 @@ public class ReservationControllerTest {
 
   @Test
   public void filteredViewShouldRedirectToListView() {
-    String viewName = subject.search(page, "id", "asc", filter2012.getId(), model);
+    String viewName = subject.filter(page, "id", "asc", null, filter2012.getId(), model);
 
     assertThat(viewName, is(subject.listUrl()));
   }

@@ -21,11 +21,6 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasKey;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ModelStub;
@@ -47,6 +42,12 @@ import org.springframework.data.domain.Sort;
 
 import com.google.common.collect.Lists;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasKey;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationControllerTest {
 
@@ -61,7 +62,8 @@ public class ReservationControllerTest {
 
   private final RichUserDetails manager = new RichUserDetailsFactory().create();
 
-  private ReservationFilterView filter = new ReservationFilterViewFactory().create(ReservationFilterViewFactory.COMING);
+  private final ReservationFilterView filter = new ReservationFilterViewFactory()
+      .create(ReservationFilterViewFactory.COMING);
 
   @Before
   public void login() {
@@ -80,12 +82,8 @@ public class ReservationControllerTest {
         reservationServiceMock.findEntriesForManagerUsingFilter(eq(manager), eq(filter), eq(0),
             eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class))).thenReturn(Lists.newArrayList(reservation));
 
-    subject.search(0, "id", "asc", filter.getId(), model);
+    subject.list(0, "id", "asc", model);
 
     assertThat(model.asMap(), hasKey("list"));
-
-    // TODO move to abstractReservationController
-    // assertThat(((List<Reservation>) model.asMap().get("list")),
-    // contains(reservation));
   }
 }
