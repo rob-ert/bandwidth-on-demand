@@ -10,7 +10,7 @@
 
 <page:list id="pl_PhysicalPort" pluralLabelCode="${show_unallocated ? 'label_physicalport_unallocated_plural' : ''}">
   <spring:url value="/noc/physicalports" var="pp_url" />
-  <form action="${pp_url}" data-component="dropdown-filter" class="form-search">
+  <form action="${pp_url}" data-component="dropdown-filter" class="form-inline form-search">
     <sform:select path="filterSelect.path" items="${filterList}" itemLabel="name" itemValue="path" cssClass="input-medium" />
   </form>
   <c:if test="${not show_unallocated}">
