@@ -25,7 +25,7 @@
             <tbody>
                 <c:forEach items="${list}" var="item">
                     <tr class="rowdetails">
-                      <table:rowDetailsColumn render="${not show_unallocated}">
+                      <table:rowDetailsColumn>
                         <div class="row-fluid">
                           <div class="span6">
                               <dl class="dl-horizontal">
@@ -35,7 +35,7 @@
                                   </dd>
                               </dl>
                           </div>
-                      </div>
+                        </div>
                       </table:rowDetailsColumn>
                         <table:column item="${item}" property="managerLabel" />
                         <table:column item="${item}" property="bodPortId" />
