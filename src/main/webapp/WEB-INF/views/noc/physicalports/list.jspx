@@ -61,6 +61,10 @@
                         <dd>
                             <c:out value="${item.vlanRequired}" />
                         </dd>
+                        <dt><spring:message code="label_physicalport_nms_port_id"/></dt>
+                        <dd>
+                            <c:out value="${item.nmsPortId}" />
+                        </dd>
                     </dl>
                 </div>
             </div>
