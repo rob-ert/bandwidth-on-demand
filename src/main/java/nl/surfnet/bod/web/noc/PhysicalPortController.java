@@ -172,8 +172,8 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     model.asMap().clear();
 
-    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_physicalport_updated", portToSave.getNocLabel(),
-        portToSave.getPhysicalResourceGroup().getName());
+    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_physicalport_updated",
+        portToSave.getNocLabel(), portToSave.getPhysicalResourceGroup().getName());
 
     return "redirect:physicalports";
   }

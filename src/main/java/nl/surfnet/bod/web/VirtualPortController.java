@@ -21,9 +21,6 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -46,6 +43,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.ImmutableList;
+
+import static nl.surfnet.bod.web.WebUtils.EDIT;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 
 @Controller
 @RequestMapping("/virtualports")
@@ -185,15 +185,6 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   @Override
   protected AbstractFullTextSearchService<VirtualPortView, VirtualPort> getFullTextSearchableService() {
     return virtualPortService;
-  }
-
-  @Override
-  protected String mapLabelToTechnicalName(String search) {
-    if (search.startsWith("team:")) {
-      return search.replace("team:", "virtualResourceGroup.name:");
-    }
-
-    return super.mapLabelToTechnicalName(search);
   }
 
 }

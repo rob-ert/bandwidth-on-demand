@@ -39,8 +39,8 @@
                       </table:rowDetailsColumn>
                         <table:column item="${item}" property="managerLabel" />
                         <table:column item="${item}" property="bodPortId" />
-                        <table:column item="${item}" property="numberOfVirtualPorts"/>
-                        <!-- <table:column item="${item}" property="nmsPortId" /> -->
+                        <table:searchColumn value="${item.numberOfVirtualPorts}" searchField="physicalPort" searchValue="${item.id}" viewName="/manager/virtualports"/>
+                        <table:column item="${item}" property="nmsPortId" />
                         <table:actionsColumn item="${item}"  delete="${item.deleteRender}" deleteEnabled="${item.deleteAllowed}" deleteLabelCode="${item.deleteReasonKey}"
                             deleteIcon="icon-resize-full" path="/manager/physicalports" labelCode="label_physicalport" update="${item.alignedWithNMS}">
                           <c:if test="${not item.alignedWithNMS}">

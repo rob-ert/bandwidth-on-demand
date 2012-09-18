@@ -16,8 +16,8 @@
                     <table:rowDetailsHeader />
                     <table:sortableHeader property="name" labelCode="label_virtualresourcegroup_name" />
                     <table:sortableHeader property="description" labelCode="label_virtualresourcegroup_description" />
-                    <th><spring:message code="label_virtualresourcegroup_allvirtualportcount" /></th>
-                    <th><spring:message code="label_virtualresourcegroup_myvirtualportcount" /></th>
+                    <th class="center cw80"><spring:message code="label_virtualresourcegroup_allvirtualportcount" /></th>
+                    <th class="center cw80"><spring:message code="label_virtualresourcegroup_myvirtualportcount" /></th>
                 </tr>
             </thead>
             <tbody>
@@ -33,8 +33,8 @@
                         </table:rowDetailsColumn>
                         <table:column item="${item}" property="name" />
                         <table:column item="${item}" property="description" />
-                        <table:column item="${item}" property="allPortCount" />
-                        <table:column item="${item}" property="managerPortCount" />
+                        <table:column item="${item}" property="allPortCount" styleClass="center"/>
+                        <table:searchColumn value="${item.managerPortCount}" searchField="team" searchValue="${item.name}" viewName="/manager/virtualports"/>
                     </tr>
                 </c:forEach>
             </tbody>

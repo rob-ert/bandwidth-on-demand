@@ -21,11 +21,9 @@
  */
 package nl.surfnet.bod.web;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import java.util.List;
+
+import nl.surfnet.bod.support.ModelStub;
 
 import org.junit.Test;
 import org.springframework.context.MessageSource;
@@ -35,7 +33,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.Iterables;
 
-import nl.surfnet.bod.support.ModelStub;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class WebUtilsTest {
 
@@ -110,6 +113,21 @@ public class WebUtilsTest {
     assertThat(WebUtils.shortenAdminGroup(null), nullValue());
     assertThat(WebUtils.shortenAdminGroup(""), is(""));
   }
-  
-  
+
+  @Test
+  public void shouldMapTeam() {
+    assertThat(WebUtils.replaceSearchWith("bladieblateam:hierendaar", "team", "virtualResourceGroup.name"),
+        is("bladieblavirtualResourceGroup.name:hierendaar"));
+  }
+
+  @Test
+  public void shouldNotMapWithoutColon() {
+    assertThat(WebUtils.replaceSearchWith("bladieblateamhierendaar", "team", "virtualResourceGroup.name"),
+        is("bladieblateamhierendaar"));
+  }
+
+  @Test
+  public void shouldMapNull() {
+    assertThat(WebUtils.replaceSearchWith("bladieblateamhierendaar", null, null), is("bladieblateamhierendaar"));
+  }
 }

@@ -16,7 +16,7 @@
                     <table:sortableHeader labelCode="label_physicalresourcegroup_name" property="institute"/>
                     <table:sortableHeader labelCode="label_physicalresourcegroup_manageremail" property="managerEmail" />
                     <table:sortableHeader labelCode="label_physicalresourcegroup_active" property="active" styleClass="cw75 center" />
-                    <th class="cw65"><spring:message code="label_physicalresourcegroup_physicalportcount" /></th>
+                    <th class="center cw85"><spring:message code="label_physicalresourcegroup_physicalportcount" /></th>
                     <table:actionsHeader styleClass="cw75 center small" />
                 </tr>
             </thead>
@@ -32,7 +32,7 @@
                         <table:column item="${item}" property="name"/>
                         <table:column item="${item}" property="managerEmail"/>
                         <table:column item="${item}" property="active" type="boolean" styleClass="center" />
-                        <table:column item="${item}" property="physicalPortCount" />
+                        <table:searchColumn value="${item.physicalPortCount}" searchField="institute" searchValue="${item.institute.name}" viewName="/noc/physicalports"/>
                         <table:actionsColumn item="${item}" path="/noc/institutes" labelCode="label_physicalresourcegroup">
                             <spring:url var="add_url" value="/noc/physicalports/add">
                                 <spring:param name="prg" value="${item.id}" />
@@ -44,5 +44,4 @@
             </tbody>
         </table:table>
     </page:list>
-
 </html>

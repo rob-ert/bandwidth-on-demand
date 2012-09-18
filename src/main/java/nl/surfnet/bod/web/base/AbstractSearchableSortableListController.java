@@ -21,11 +21,6 @@
  */
 package nl.surfnet.bod.web.base;
 
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
-
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
@@ -45,12 +40,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 /**
  * Base controller which adds full text search functionality to the
  * {@link AbstractSortableListController}
- *
+ * 
  * @param <T>
  *          DomainObject
  * @param <K>
@@ -100,7 +101,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
    * Handles the list from a specific controller and places the results an the
    * model. When a search must be performed, these result will be overridden by
    * the search results.
-   *
+   * 
    * @param firstResult
    *          Integer page number
    * @param model
@@ -126,19 +127,23 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
 
   /**
    * Maps a search string with a label from a column to a search with a field in
-   * the domain model. Must be overridden for a specific implementation, this
-   * default implementation does not map. E.g. 'name:test' might be mapped to
-   * 'virtualResourceGroup.name:test'
-   *
+   * the domain model. Can be overridden for a specific implementation, this
+   * default implementation maps to the most common used fields.
+   * 
    * @param search
    *          The string to search for, may contain lucene specific syntax e.g.
    *          'name:test'
-   * @return String the input value
+   * @return String replaced string
    */
   protected String mapLabelToTechnicalName(String search) {
+    search = WebUtils.replaceSearchWith(search, "team", "virtualResourceGroup.name");
+    search = WebUtils.replaceSearchWith(search, "institute", "physicalResourceGroup.institute.name");
+    search = WebUtils.replaceSearchWith(search, "physicalPort", "physicalPort.id");
     return search;
   }
 
+  @SuppressWarnings("unchecked")
+  @VisibleForTesting
   private Class<ENTITY> getEntityClass() {
     return (Class<ENTITY>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1];
   }

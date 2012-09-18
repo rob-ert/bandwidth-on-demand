@@ -1,15 +1,5 @@
 package nl.surfnet.bod.web.base;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -34,6 +24,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 
 import com.google.common.collect.Lists;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractSearchableSortableListControllerTest {
@@ -111,6 +112,29 @@ public class AbstractSearchableSortableListControllerTest {
     assertThat(subject.mapLabelToTechnicalName("test"), is("test"));
     assertThat(subject.mapLabelToTechnicalName("\"test\""), is("\"test\""));
     assertThat(subject.mapLabelToTechnicalName("&quot;test&quot;"), is("&quot;test&quot;"));
+  }
+
+  @Test
+  public void shouldMapTeamToVirtualResourceGroupName() {
+    assertThat(subject.mapLabelToTechnicalName("blateam:bla"), is("blavirtualResourceGroup.name:bla"));
+    assertThat(subject.mapLabelToTechnicalName("institute:test"), is("physicalResourceGroup.institute.name:test"));
+    assertThat(subject.mapLabelToTechnicalName("blaphysicalPort:test"), is("blaphysicalPort.id:test"));
+  }
+
+  @Test
+  public void shouldNotMapWithoutColon() {
+    assertThat(subject.mapLabelToTechnicalName("institutetest"), is("institutetest"));
+  }
+
+  @Test
+  public void shouldNotMapUnknownLabel() {
+    assertThat(subject.mapLabelToTechnicalName("person:"), is("person:"));
+  }
+
+  @Test
+  public void shouldNotMapNullAndEmpty() {
+    assertThat(subject.mapLabelToTechnicalName(null), nullValue());
+    assertThat(subject.mapLabelToTechnicalName(""), is(""));
   }
 
 }

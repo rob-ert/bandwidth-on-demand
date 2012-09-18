@@ -76,7 +76,7 @@ public final class WebUtils {
   }
 
   public static int calculateFirstPage(Integer page) {
-    return (page == null  || page == 0) ? 0 : (page.intValue() - 1) * MAX_ITEMS_PER_PAGE;
+    return (page == null || page == 0) ? 0 : (page.intValue() - 1) * MAX_ITEMS_PER_PAGE;
   }
 
   public static int calculateMaxPages(long totalEntries) {
@@ -94,12 +94,12 @@ public final class WebUtils {
   }
 
   /**
-   *
+   * 
    * @return The user selected PhysicalResourceGroupId
    */
   public static Optional<Long> getSelectedPhysicalResourceGroupId() {
-    return Security.getUserDetails().getSelectedRole() == null
-        ? Optional.<Long>absent() : Security.getUserDetails().getSelectedRole().getPhysicalResourceGroupId();
+    return Security.getUserDetails().getSelectedRole() == null ? Optional.<Long> absent() : Security.getUserDetails()
+        .getSelectedRole().getPhysicalResourceGroupId();
   }
 
   public static void addInfoFlashMessage(RedirectAttributes model, MessageSource messageSource, String label,
@@ -112,13 +112,13 @@ public final class WebUtils {
     addInfoFlashMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs) + " " + extraHtml);
   }
 
-  public static void addErrorFlashMessage(
-      RedirectAttributes model, MessageSource messageSource, String label, String... messageArgs) {
+  public static void addErrorFlashMessage(RedirectAttributes model, MessageSource messageSource, String label,
+      String... messageArgs) {
     addErrorFlashMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs));
   }
 
-  public static void addWarnFlashMessage(
-      RedirectAttributes model, MessageSource messageSource, String label, String... messageArgs) {
+  public static void addWarnFlashMessage(RedirectAttributes model, MessageSource messageSource, String label,
+      String... messageArgs) {
     addWarnFlashMessage(model, getMessageWithBoldArguments(messageSource, label, messageArgs));
   }
 
@@ -234,5 +234,27 @@ public final class WebUtils {
       return adminGroup.substring(index + 1);
     }
     return adminGroup;
+  }
+
+  /**
+   * Replaces the logicalName with the given technialName in the searchString
+   * E.g. 'name:test' might be mapped to 'virtualResourceGroup.name:test'
+   * 
+   * @param searchString
+   *          String to replace
+   * @param logicalName
+   *          String to search for
+   * @param technicalName
+   *          String to replace with
+   * @return String When logicalName is contained in the searchString the
+   *         replaced version, otherwise the unchanged searchString
+   */
+  public static String replaceSearchWith(String searchString, String logicalName, String technicalName) {
+    if (StringUtils.hasText(logicalName) && (StringUtils.hasText(technicalName) && (StringUtils.hasText(searchString)))) {
+      if (searchString.contains(logicalName + ":")) {
+        return searchString.replace(logicalName, technicalName);
+      }
+    }
+    return searchString;
   }
 }

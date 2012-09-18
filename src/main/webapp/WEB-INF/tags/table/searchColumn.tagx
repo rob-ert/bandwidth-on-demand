@@ -1,0 +1,24 @@
+<jsp:root xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:spring="http://www.springframework.org/tags" xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
+    <jsp:output omit-xml-declaration="yes" />
+
+    <jsp:directive.attribute name="value" type="java.lang.Object" required="true" rtexprvalue="true" description="Value to display in the link"/>
+    <jsp:directive.attribute name="searchField" type="java.lang.String" required="true" rtexprvalue="true"  description="Name of the field to search for. Make sure this field is mapped in the controller to a technicalName"/>
+    <jsp:directive.attribute name="searchValue" type="java.lang.String" required="true" rtexprvalue="true" description="Value to search for"/>
+    <jsp:directive.attribute name="viewName" type="java.lang.String" required="true" rtexprvalue="true" description="View in which the search must be performed" />
+
+    <td class="center">
+      <c:choose>
+        <!-- Are there items to link to? -->
+        <c:when test="${value eq 0}">
+           <c:out value="${value}"/>
+        </c:when>
+        <c:otherwise>
+           <spring:url value="${viewName}/search" var="search_url">
+            <spring:param name="search" value="${searchField}:&quot;${searchValue}&quot;"/>
+           </spring:url>
+           <a href="${search_url}"><c:out value="${value}"/></a>
+        </c:otherwise>
+      </c:choose>
+    </td>
+</jsp:root>

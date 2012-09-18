@@ -21,10 +21,6 @@
  */
 package nl.surfnet.bod.web.base;
 
-import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
-import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -39,15 +35,23 @@ import nl.surfnet.bod.web.view.ReservationView;
 
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.Lists;
 
+import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
+import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+
 /**
  * Base controller for filtering and sorting {@link Reservation}s.
- *
+ * 
  * @see AbstractSortableListController
- *
+ * 
  */
 public abstract class AbstractFilteredReservationController extends
     AbstractSearchableSortableListController<ReservationView, Reservation> {
@@ -96,7 +100,7 @@ public abstract class AbstractFilteredReservationController extends
    * Retrieves a list and filters by applying the filter specified by the
    * filterId. After the user selects a filter a new Http get with the selected
    * filterId can be performed.
-   *
+   * 
    * @param page
    *          StartPage
    * @param sort
@@ -159,14 +163,6 @@ public abstract class AbstractFilteredReservationController extends
   @Override
   protected AbstractFullTextSearchService<ReservationView, Reservation> getFullTextSearchableService() {
     return getReservationService();
-  }
-
-  @Override
-  protected String mapLabelToTechnicalName(String search) {
-    if (search.startsWith("team:")) {
-      return search.replace("team:", "virtualResourceGroup.name:");
-    }
-    return super.mapLabelToTechnicalName(search);
   }
 
   private List<ReservationFilterView> determineFilters() {

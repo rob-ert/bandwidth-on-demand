@@ -52,50 +52,21 @@
                             </c:choose>
                             <tr class="${row_css}">
 
-                                <table:column item="${team}" property="name" />
-
-                                <td class="center">
-                                    <c:choose>
-                                        <c:when test="${team.existing}">
-                                            <spring:url value="/virtualports/search" var="vp_url">
-                                                <spring:param name="search" value="team:&quot;${team.name}&quot;"/>
-                                            </spring:url>
-                                            <a href="${vp_url}">
-                                                <c:out value="${team.numberOfPorts}"/>
-                                            </a>
-                                        </c:when>
-                                        <c:otherwise>
-                                            -
-                                        </c:otherwise>
-                                    </c:choose>
-                                </td>
+                            <table:column item="${team}" property="name" />
+                                <c:choose>
+                                    <c:when test="${team.existing}">
+                                        <table:searchColumn  value="${team.numberOfPorts}"  searchField="team" searchValue="${team.name}"  viewName="/virtualports"/>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <td class="center">-</td>
+                                    </c:otherwise>
+                                </c:choose>
 
                                 <c:choose>
                                     <c:when test="${team.existing}">
-                                        <td class="center">
-                                            <spring:url value="/reservations/filter/active" var="reservations_url" >
-                                                <spring:param name="search" value="team:&quot;${team.name}&quot;" />
-                                            </spring:url>
-                                            <a href="${reservations_url}">
-                                                <c:out value="${team.activeReservations}" />
-                                            </a>
-                                        </td>
-                                        <td class="center">
-                                            <spring:url value="/reservations/filter/coming" var="reservations_url" >
-                                                <spring:param name="search" value="team:&quot;${team.name}&quot;" />
-                                            </spring:url>
-                                            <a href="${reservations_url}">
-                                                <c:out value="${team.comingReservations}" />
-                                            </a>
-                                        </td>
-                                        <td class="center">
-                                            <spring:url value="/reservations/filter/elapsed" var="reservations_url" >
-                                                <spring:param name="search" value="team:&quot;${team.name}&quot;" />
-                                            </spring:url>
-                                            <a href="${reservations_url}">
-                                                <c:out value="${team.elapsedReservations}"/>
-                                            </a>
-                                        </td>
+                                            <table:searchColumn  value="${team.activeReservations}"  searchField="team" searchValue="${team.name}"  viewName="/reservations/filter/active"/>
+                                            <table:searchColumn  value="${team.comingReservations}"  searchField="team" searchValue="${team.name}"  viewName="/reservations/filter/coming"/>
+                                            <table:searchColumn  value="${team.elapsedReservations}"  searchField="team" searchValue="${team.name}"  viewName="/reservations/filter/elapsed"/>
                                     </c:when>
                                     <c:otherwise>
                                         <td class="center">-</td>
