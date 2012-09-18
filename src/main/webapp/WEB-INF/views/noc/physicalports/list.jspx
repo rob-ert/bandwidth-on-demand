@@ -76,7 +76,7 @@
           <table:column item="${item}" property="instituteName" render="${not show_unallocated}" />
 
           <c:if test="${not show_unallocated}">
-            <table:column item="${item}" property="numberOfVirtualPorts" />
+            <table:searchColumn value="${item.numberOfVirtualPorts}" searchField="physicalPort" searchValue="${item.id}" viewName="/noc/virtualports"/>
           </c:if>
 
           <table:column item="${item}" property="nmsPortId" render="${show_unallocated}"/>
