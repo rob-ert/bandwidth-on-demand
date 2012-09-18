@@ -121,12 +121,6 @@ public class WebUtilsTest {
   }
 
   @Test
-  public void shouldNotMapWithoutColon() {
-    assertThat(WebUtils.replaceSearchWith("bladieblateamhierendaar", "team", "virtualResourceGroup.name"),
-        is("bladieblateamhierendaar"));
-  }
-
-  @Test
   public void shouldMapNull() {
     assertThat(WebUtils.replaceSearchWith("bladieblateamhierendaar", null, null), is("bladieblateamhierendaar"));
   }

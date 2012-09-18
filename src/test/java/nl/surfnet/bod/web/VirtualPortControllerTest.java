@@ -155,7 +155,7 @@ public class VirtualPortControllerTest {
 
     when(
         virtualPortServiceMock.searchForInFilteredList(eq(VirtualPort.class),
-            eq("team:\"some-team\""), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class),
+            eq("virtualResourceGroup.name:\"some-team\""), eq(0), eq(WebUtils.MAX_ITEMS_PER_PAGE), any(Sort.class),
             eq(user), eq(views))).thenReturn(new FullTextSearchResult<>(1, views));
 
     String page = subject.search(0, "userLabel", null, "team:\"some-team\"", model);
