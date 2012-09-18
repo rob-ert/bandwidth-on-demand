@@ -136,9 +136,9 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
    * @return String replaced string
    */
   protected String mapLabelToTechnicalName(String search) {
-    search = WebUtils.replaceSearchWith(search, "team", "virtualResourceGroup.name");
-    search = WebUtils.replaceSearchWith(search, "institute", "physicalResourceGroup.institute.name");
-    search = WebUtils.replaceSearchWith(search, "physicalPort", "physicalPort.id");
+    search = WebUtils.replaceSearchWith(search, "team:", "virtualResourceGroup.name:");
+    search = WebUtils.replaceSearchWith(search, "institute:", "physicalResourceGroup.institute.name:");
+    search = WebUtils.replaceSearchWith(search, "physicalPort:", "physicalPort.id:");
     return search;
   }
 

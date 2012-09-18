@@ -251,7 +251,7 @@ public final class WebUtils {
    */
   public static String replaceSearchWith(String searchString, String logicalName, String technicalName) {
     if (StringUtils.hasText(logicalName) && (StringUtils.hasText(technicalName) && (StringUtils.hasText(searchString)))) {
-      if (searchString.contains(logicalName + ":")) {
+      if (searchString.contains(logicalName)) {
         return searchString.replace(logicalName, technicalName);
       }
     }

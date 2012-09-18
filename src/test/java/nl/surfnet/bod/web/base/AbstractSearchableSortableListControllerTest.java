@@ -119,6 +119,7 @@ public class AbstractSearchableSortableListControllerTest {
     assertThat(subject.mapLabelToTechnicalName("blateam:bla"), is("blavirtualResourceGroup.name:bla"));
     assertThat(subject.mapLabelToTechnicalName("institute:test"), is("physicalResourceGroup.institute.name:test"));
     assertThat(subject.mapLabelToTechnicalName("blaphysicalPort:test"), is("blaphysicalPort.id:test"));
+    assertThat(subject.mapLabelToTechnicalName("team:\"some-team\""), is("virtualResourceGroup.name:\"some-team\""));
   }
 
   @Test
