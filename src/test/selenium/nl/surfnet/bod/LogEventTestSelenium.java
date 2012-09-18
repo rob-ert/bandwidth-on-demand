@@ -21,11 +21,11 @@
  */
 package nl.surfnet.bod;
 
-import nl.surfnet.bod.support.TestExternalSupport;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import nl.surfnet.bod.support.TestExternalSupport;
 
 public class LogEventTestSelenium extends TestExternalSupport {
 
@@ -57,8 +57,8 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getManagerDriver().deleteVirtualPort(VP_LABEL_1);
 
     getManagerDriver().switchToNoc();
-    getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_1);
-    getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_2);
+    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
+    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_2);
   }
 
   @Test

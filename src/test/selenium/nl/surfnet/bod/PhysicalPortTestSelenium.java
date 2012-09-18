@@ -21,10 +21,10 @@
  */
 package nl.surfnet.bod;
 
-import nl.surfnet.bod.support.TestExternalSupport;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import nl.surfnet.bod.support.TestExternalSupport;
 
 public class PhysicalPortTestSelenium extends TestExternalSupport {
 
@@ -39,9 +39,9 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
   public void allocatePhysicalPortFromInstitutePage() {
     getNocDriver().addPhysicalPortToInstitute(GROUP_NAME, "NOC label", "Mock_Poort 1de verdieping toren1a");
 
-    getNocDriver().verifyPhysicalPortWasAllocated(NMS_PORT_ID_1, "NOC label");
+    getNocDriver().verifyPhysicalPortWasAllocated(BOD_PORT_ID_1, "NOC label");
 
-    getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_1);
+    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
   }
 
   @Test
@@ -52,23 +52,23 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
 
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, nocLabel, managerLabel1, GROUP_NAME);
 
-    getNocDriver().verifyPhysicalPortWasAllocated(NMS_PORT_ID_1, nocLabel);
+    getNocDriver().verifyPhysicalPortWasAllocated(BOD_PORT_ID_1, nocLabel);
 
-    getNocDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NMS_PORT_ID_1, nocLabel);
+    getNocDriver().verifyPhysicalPortHasEnabledUnallocateIcon(BOD_PORT_ID_1, nocLabel);
 
-    getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(NMS_PORT_ID_1, managerLabel1);
+    getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(BOD_PORT_ID_1, managerLabel1);
 
     getNocDriver().switchToManager();
 
-    getManagerDriver().changeManagerLabelOfPhyiscalPort(NMS_PORT_ID_1, managerLabel2);
+    getManagerDriver().changeManagerLabelOfPhyiscalPort(BOD_PORT_ID_1, managerLabel2);
 
-    getManagerDriver().verifyManagerLabelChanged(NMS_PORT_ID_1, managerLabel2);
+    getManagerDriver().verifyManagerLabelChanged(BOD_PORT_ID_1, managerLabel2);
 
     getManagerDriver().switchToNoc();
 
-    getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(NMS_PORT_ID_1, managerLabel2);
+    getNocDriver().gotoEditPhysicalPortAndVerifyManagerLabel(BOD_PORT_ID_1, managerLabel2);
 
-    getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_1);
+    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
   }
 
   @Test
@@ -79,9 +79,9 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
 
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, nocLabel, managerLabel1, GROUP_NAME);
     getWebDriver().clickLinkInLastEmail();
-    getNocDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NMS_PORT_ID_1, nocLabel);
+    getNocDriver().verifyPhysicalPortHasEnabledUnallocateIcon(BOD_PORT_ID_1, nocLabel);
 
-    getManagerDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NMS_PORT_ID_1, managerLabel1);
+    getManagerDriver().verifyPhysicalPortHasEnabledUnallocateIcon(BOD_PORT_ID_1, managerLabel1);
 
     // Link a VirtualPort to the PhysicalPort, PhysicalPort cannot be
     // unallocated anymore
@@ -92,19 +92,19 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().acceptVirtualPort(vpOne);
 
-    getManagerDriver().verifyPhysicalPortHasDisabeldUnallocateIcon(NMS_PORT_ID_1, managerLabel1, "related");
+    getManagerDriver().verifyPhysicalPortHasDisabeldUnallocateIcon(BOD_PORT_ID_1, managerLabel1, "related");
 
     getManagerDriver().switchToNoc();
-    getNocDriver().verifyPhysicalPortIsNotOnUnallocatedPage(NMS_PORT_ID_1, nocLabel);
+    getNocDriver().verifyPhysicalPortIsNotOnUnallocatedPage(BOD_PORT_ID_1, nocLabel);
 
     // Delete Vp
     getNocDriver().switchToManager();
     getManagerDriver().deleteVirtualPort(vpOne);
 
     // After delete VP, the PysicalPort should be able to unallocate
-    getManagerDriver().verifyPhysicalPortHasEnabledUnallocateIcon(NMS_PORT_ID_1, managerLabel1);
+    getManagerDriver().verifyPhysicalPortHasEnabledUnallocateIcon(BOD_PORT_ID_1, managerLabel1);
     getManagerDriver().switchToNoc();
-    getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_1);
+    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
   }
 
   @Test
@@ -122,9 +122,9 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
       getNocDriver().verifyAllocatedPortsBySearch("'NOC ? label'", BOD_PORT_ID_1, BOD_PORT_ID_2, BOD_PORT_ID_4);
     }
     finally {
-      getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_1);
-      getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_2);
-      getNocDriver().unlinkPhysicalPort(NMS_PORT_ID_4);
+      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
+      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_2);
+      getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_4);
     }
   }
 }

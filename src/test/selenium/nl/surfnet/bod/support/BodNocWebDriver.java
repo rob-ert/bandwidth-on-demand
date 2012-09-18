@@ -114,10 +114,10 @@ public class BodNocWebDriver {
     editPage.save();
   }
 
-  public void unlinkPhysicalPort(String nmsPortId) {
+  public void unlinkPhysicalPort(String bodPortId) {
     ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
 
-    page.unlinkPhysicalPort(nmsPortId);
+    page.unlinkPhysicalPort(bodPortId);
   }
 
   public void gotoEditPhysicalPortAndVerifyManagerLabel(String nmsPortId, String managerLabel) {

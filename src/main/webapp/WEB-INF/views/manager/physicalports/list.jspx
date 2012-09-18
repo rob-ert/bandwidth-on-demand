@@ -17,7 +17,7 @@
                     <table:sortableHeader labelCode="label_physicalport_managerlabel" property="managerLabel" />
                     <table:sortableHeader labelCode="label_physicalport_bod_port_id" property="bodPortId" />
                     <th># of Virtual Ports</th>
-                    <table:sortableHeader labelCode="label_physicalport_nms_port_id" property="nmsPortId" />
+                    <!-- <table:sortableHeader labelCode="label_physicalport_nms_port_id" property="nmsPortId" /> -->
                     <table:actionsHeader />
                 </tr>
             </thead>
@@ -27,7 +27,7 @@
                         <table:column item="${item}" property="managerLabel" />
                         <table:column item="${item}" property="bodPortId" />
                         <table:column item="${item}" property="numberOfVirtualPorts"/>
-                        <table:column item="${item}" property="nmsPortId" />
+                        <!-- <table:column item="${item}" property="nmsPortId" /> -->
                         <table:actionsColumn item="${item}"  delete="${item.deleteRender}" deleteEnabled="${item.deleteAllowed}" deleteLabelCode="${item.deleteReasonKey}"
                             deleteIcon="icon-resize-full" path="/manager/physicalports" labelCode="label_physicalport" update="${item.alignedWithNMS}">
                           <c:if test="${not item.alignedWithNMS}">

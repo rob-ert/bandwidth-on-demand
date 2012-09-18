@@ -19,8 +19,9 @@
         <table:sortableHeader labelCode="label_physicalport_noclabel" property="nocLabel"  />
         <table:sortableHeader labelCode="label_physicalport_bod_port_id" property="bodPortId"  />
         <table:sortableHeader labelCode="label_physicalresourcegroup" property="instituteName" render="${not show_unallocated}" />
-        <table:sortableHeader labelCode="label_physicalport_nms_port_id" property="nmsPortId"  />
-
+        <c:if test="${show_unallocated}">
+          <table:sortableHeader labelCode="label_physicalport_nms_port_id" property="nmsPortId"  />
+        </c:if>
         <c:if test="${not empty list[0].nmsNeId}">
           <table:sortableHeader labelCode="label_physicalport_nms_ne_id" property="nmsNeId"  />
         </c:if>
@@ -67,7 +68,9 @@
           <table:column item="${item}" property="nocLabel" />
           <table:column item="${item}" property="bodPortId" />
           <table:column item="${item}" property="instituteName" render="${not show_unallocated}" />
-          <table:column item="${item}" property="nmsPortId" />
+          
+          
+          <table:column item="${item}" property="nmsPortId" render="${show_unallocated}"/>
           
           <c:if test="${not empty item.nmsNeId}">
             <table:column item="${item}" property="nmsNeId" />
