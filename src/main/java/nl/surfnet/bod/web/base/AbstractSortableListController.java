@@ -21,7 +21,10 @@
  */
 package nl.surfnet.bod.web.base;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -29,6 +32,8 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+
+import nl.surfnet.bod.web.WebUtils;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -40,11 +45,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
-import nl.surfnet.bod.web.WebUtils;
-
 /**
  * Base controller class which facilitates sorting
- * 
+ *
  */
 public abstract class AbstractSortableListController<VIEW> {
 
@@ -55,8 +58,8 @@ public abstract class AbstractSortableListController<VIEW> {
       Model model) {
 
     Sort sortOptions = prepareSortOptions(sort, order, model);
-    model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count()));
 
+    model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count()));
     model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
 
     return listUrl();

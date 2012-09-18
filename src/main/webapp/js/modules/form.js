@@ -12,7 +12,7 @@ app.form = function(){
     var initEventHandlers = function() {
 
         initFormLinks();
-        initReservationFilter();
+        initDropdownFilter();
         initPhysicalPortSelector();
         initAcceptDeclineSelector();
         initPhysicalPortSelectorForVirtualPort();
@@ -272,12 +272,14 @@ app.form = function(){
 
     };
 
-    var initReservationFilter = function() {
+    var initDropdownFilter = function() {
 
         // Do new get based on selected item
-        $('[data-component="reservation-filter"] select').on('change', function(event) {
+        $('[data-component="dropdown-filter"] select').on('change', function(event) {
             var element = $(event.target);
-            window.location.href = element.closest('form').attr('action') + element.val();
+            var newPath = element.closest('form').attr('action') + element.val();
+
+            window.location.href = "//" + window.location.host + newPath;
         });
 
     };

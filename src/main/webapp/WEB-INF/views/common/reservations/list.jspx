@@ -14,7 +14,7 @@
     <tiles:useAttribute name="renderActions" classname="java.lang.Boolean" />
 
     <page:list id="pl_reservation" path="/reservations" renderActions="${renderActions}">
-        <form class="form-inline form-search" action="${filterUrl}" data-component="reservation-filter" style="float:left">
+        <form class="form-inline form-search" action="${filterUrl}" data-component="dropdown-filter">
            <sform:select id="f_id"  path="filterSelect.id" items="${filterList}" itemLabel="label" itemValue="id" cssClass="input-medium" />
         </form>
         <util:search />

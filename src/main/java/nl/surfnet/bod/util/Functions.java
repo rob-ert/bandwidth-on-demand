@@ -24,11 +24,7 @@ package nl.surfnet.bod.util;
 import java.util.Collection;
 import java.util.List;
 
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.view.ElementActionView;
@@ -93,7 +89,7 @@ public final class Functions {
   /**
    * Calculates the amount of related {@link VirtualPort}s and transforms it to
    * a {@link PhysicalPortView}
-   * 
+   *
    * @param port
    *          {@link PhysicalPort} to enrich
    * @param virtualPortService
@@ -118,9 +114,9 @@ public final class Functions {
 
   /**
    * Transforms a Collection
-   * 
+   *
    * @see #transformAllocatedPhysicalPort(PhysicalPort, VirtualPortService)
-   * 
+   *
    */
   public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<PhysicalPort> ports,
       final VirtualPortService virtualPortService) {
@@ -137,7 +133,7 @@ public final class Functions {
     return new PhysicalPortView(unallocatedPort, null);
   }
 
-  public static List<PhysicalPortView> transformUnallocatedPhysicalPorts(List<PhysicalPort> unallocatedPorts) {
+  public static List<PhysicalPortView> transformUnallocatedPhysicalPorts(Collection<PhysicalPort> unallocatedPorts) {
     List<PhysicalPortView> transformers = Lists.newArrayList();
     for (PhysicalPort port : unallocatedPorts) {
       transformers.add(transformUnallocatedPhysicalPort(port));

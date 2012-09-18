@@ -98,8 +98,11 @@ select.input-xlarge {
     border-radius: 3px;
 }
 
+.form-search {
+    float: left;
+}
 .form-search label,
 .form-search input,
-.form-search select {  
-  margin-right: 5px;
+.form-search select {
+    margin-right: 5px;
 }
