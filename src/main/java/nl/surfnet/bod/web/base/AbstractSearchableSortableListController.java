@@ -22,6 +22,7 @@
 package nl.surfnet.bod.web.base;
 
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -143,9 +144,22 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
   }
 
   @SuppressWarnings("unchecked")
-  @VisibleForTesting
   private Class<ENTITY> getEntityClass() {
-    return (Class<ENTITY>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+    return (Class<ENTITY>) resolveParameterizedType(this.getClass(), AbstractSearchableSortableListController.class)
+        .getActualTypeArguments()[1];
+  }
+
+  private ParameterizedType resolveParameterizedType(Type initialType, Class<?> targetType) {
+    if (initialType instanceof ParameterizedType && ((ParameterizedType) initialType).getRawType().equals(targetType)) {
+      return (ParameterizedType) initialType;
+    }
+
+    Class<?> rawType = (Class<?>) initialType;
+    Type superType = rawType.getGenericSuperclass();
+    if (superType != null && !superType.equals(Object.class))
+      return resolveParameterizedType(superType, targetType);
+
+    throw new IllegalStateException();
   }
 
   protected abstract AbstractFullTextSearchService<VIEW, ENTITY> getFullTextSearchableService();
