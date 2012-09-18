@@ -3,21 +3,45 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <jsp:directive.attribute name="value" type="java.lang.Object" required="true" rtexprvalue="true" description="Value to display in the link"/>
-    <jsp:directive.attribute name="searchField" type="java.lang.String" required="true" rtexprvalue="true"  description="Name of the field to search for. Make sure this field is mapped in the controller to a technicalName"/>
-    <jsp:directive.attribute name="searchValue" type="java.lang.String" required="true" rtexprvalue="true" description="Value to search for"/>
     <jsp:directive.attribute name="viewName" type="java.lang.String" required="true" rtexprvalue="true" description="View in which the search must be performed" />
+    <jsp:directive.attribute name="searchField" type="java.lang.String" required="false" rtexprvalue="true"  description="Name of the field to search for. Make sure this field is mapped in the controller to a technicalName"/>
+    <jsp:directive.attribute name="searchValue" type="java.lang.String" required="false" rtexprvalue="true" description="Value to search for"/>
+    <jsp:directive.attribute name="styleClass" type="java.lang.String" required="false" rtexprvalue="true" description="Style class the td"/>
 
-    <td class="center">
+     <jsp:directive.attribute name="tooltipTitle" type="java.lang.String" required="false" rtexprvalue="true" description="Title for the tooltip"/>
+    <jsp:directive.attribute name="tooltipDataType" type="java.lang.String" required="false" rtexprvalue="true" description="Data type for tooltip, defaults to info"/>
+
+    <c:set var="search_url" value="${viewName}" />
+    <c:if test="${empty styleClass}">
+        <c:set var="styleClass" value="center" />
+    </c:if>
+    <c:if test="${empty tooltipDateType}">
+        <c:set var="tooltipDataType" value="info"/>
+    </c:if>
+
+    <td class="${styleClass}">
       <c:choose>
         <!-- Are there items to link to? -->
         <c:when test="${value eq 0}">
            <c:out value="${value}"/>
         </c:when>
         <c:otherwise>
-           <spring:url value="${viewName}/search" var="search_url">
-            <spring:param name="search" value="${searchField}:&quot;${searchValue}&quot;"/>
-           </spring:url>
-           <a href="${search_url}"><c:out value="${value}"/></a>
+               <!-- Do we need to search or just link? -->
+              <c:if test="${not empty searchValue}"> 
+                <spring:url value="${viewName}/search" var="search_url">
+                    <spring:param name="search" value="${searchField}:&quot;${searchValue}&quot;"/>
+                </spring:url>
+              </c:if>
+
+               <!-- To tooltip or not to tooltip, that is the question -->
+              <c:choose>
+                <c:when test="${not empty tooltipTitle}"> 
+                  <a href="${search_url}" rel="tooltip" title="${tooltipTitle}" data-type="${tooltipDataType}"><c:out value="${value}"/></a>
+                </c:when>
+                <c:otherwise>
+                  <a href="${search_url}"><c:out value="${value}"/></a>
+                </c:otherwise>
+              </c:choose>
         </c:otherwise>
       </c:choose>
     </td>
