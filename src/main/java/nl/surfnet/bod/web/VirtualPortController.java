@@ -183,11 +183,6 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   }
 
   @Override
-  protected Class<VirtualPort> getEntityClass() {
-    return VirtualPort.class;
-  }
-
-  @Override
   protected AbstractFullTextSearchService<VirtualPortView, VirtualPort> getFullTextSearchableService() {
     return virtualPortService;
   }
