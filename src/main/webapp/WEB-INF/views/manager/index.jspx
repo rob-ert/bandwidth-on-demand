@@ -68,45 +68,32 @@
                 <sec:authentication property="principal.selectedRole" var="selectedRole" />
                 <table id="idStats" class="table table-bordered table-striped">
                     <thead>
-                    	<tr>
-                            <th>Item</th>
-                            <th>Amount for <spring:eval expression="selectedRole.instituteName.get()" /></th>
-                        </tr>
+                    <tr>
+                      <th>Item</th>
+                      <th>Amount for <spring:eval expression="selectedRole.instituteName.get()" /></th>
+                    </tr>
                     </thead>
                     <tbody>
-                    	<tr>
-                            <td>Physical ports</td>
-                            <td><a href="${ppsUrl}" rel="tooltip" title="Physical Ports"
-                                data-type="info"> <c:out
-                                        value="${stats.physicalPortsAmount}" />
-                            </a></td>
-                        </tr>
-                    	<tr>
-                            <td>Virtual ports</td>
-                            <td><a href="${vpsUrl}" rel="tooltip" title="Virtual Ports"
-                                data-type="info"> <c:out value="${stats.virtualPortsAmount}" />
-                            </a></td>
-                        </tr>
-                    	<tr>
-                            <td>Reservations past ${defaultDuration}</td>
-                        	<td>
-                                <a href="${elapsedReservationsUrl}" rel="tooltip" title="Elapsed Reservations" data-type="info"> <c:out value="${stats.elapsedReservationsAmount}" /> </a>
-                            </td>
-                        </tr>
-                    	<tr>
-                            <td>Active reservations</td>
-                            <td><a href="${activeReservationsUrl}" rel="tooltip"
-                                title="Active Reservations" data-type="info"> <c:out
-                                        value="${stats.activeReservationsAmount}" />
-                            </a></td>
-                        </tr>
-                    	<tr>
-                            <td>Reservations in ${defaultDuration}</td>
-                            <td><a href="${comingReservationsUrl}" rel="tooltip"
-                                title="Coming Reservations" data-type="info"> <c:out
-                                        value="${stats.comingReservationsAmount}" />
-                            </a></td>
-                        </tr>
+                    <tr>
+                      <td>Physical ports</td>
+                      <table:searchColumn value="${stats.physicalPortsAmount}" viewName="${ppsUrl}" styleClass="left" tooltipTitle="Available physical ports"/>
+                     </tr>
+                    <tr>
+                      <td>Virtual ports</td>
+                      <table:searchColumn value="${stats.virtualPortsAmount}" viewName="${vpsUrl}" styleClass="left" tooltipTitle="Available virtual ports"/>
+                    </tr>
+                    <tr>
+                      <td>Reservations past ${defaultDuration}</td>
+                      <table:searchColumn value="${stats.elapsedReservationsAmount}" viewName="${elapsedReservationsUrl}" styleClass="left" tooltipTitle="Reservations from the past"/>
+                    </tr>
+                    <tr>
+                      <td>Active reservations</td>
+                      <table:searchColumn value="${stats.activeReservationsAmount}" viewName="${activeReservationsUrl}" styleClass="left" tooltipTitle="Active reservations"/>
+                    </tr>
+                    <tr>
+                      <td>Reservations in ${defaultDuration}</td>
+                      <table:searchColumn value="${stats.comingReservationsAmount}" viewName="${comingReservationsUrl}" styleClass="left" tooltipTitle="Reservations for the coming period"/>
+                    </tr>
                     </tbody>
                 </table>
             </div>
