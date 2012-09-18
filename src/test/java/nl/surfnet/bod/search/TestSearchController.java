@@ -32,11 +32,6 @@ public class TestSearchController extends AbstractSearchableSortableListControll
   }
 
   @Override
-  public Class<TestEntity> getEntityClass() {
-    return TestEntity.class;
-  }
-
-  @Override
   protected AbstractFullTextSearchService<TestView, TestEntity> getFullTextSearchableService() {
     return testFullTextService;
   }

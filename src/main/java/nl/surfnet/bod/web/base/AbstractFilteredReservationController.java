@@ -186,10 +186,4 @@ public abstract class AbstractFilteredReservationController extends
 
     return filterViews;
   }
-
-  @Override
-  protected Class<Reservation> getEntityClass() {
-    return Reservation.class;
-  }
-
 }

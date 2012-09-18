@@ -563,11 +563,6 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @Override
-  protected Class<PhysicalPort> getEntityClass() {
-    return PhysicalPort.class;
-  }
-
-  @Override
   protected AbstractFullTextSearchService<PhysicalPortView, PhysicalPort> getFullTextSearchableService() {
     return physicalPortService;
   }

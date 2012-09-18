@@ -159,11 +159,6 @@ public class VirtualResourceGroupController extends AbstractSearchableSortableLi
   }
 
   @Override
-  protected Class<VirtualResourceGroup> getEntityClass() {
-    return VirtualResourceGroup.class;
-  }
-
-  @Override
   protected AbstractFullTextSearchService<VirtualResourceGroupView, VirtualResourceGroup> getFullTextSearchableService() {
     return virtualResourceGroupService;
   }

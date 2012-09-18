@@ -84,11 +84,6 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
   }
 
   @Override
-  protected Class<LogEvent> getEntityClass() {
-    return LogEvent.class;
-  }
-
-  @Override
   protected AbstractFullTextSearchService<LogEvent, LogEvent> getFullTextSearchableService() {
     return logEventService;
   }

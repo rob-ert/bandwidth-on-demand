@@ -113,9 +113,4 @@ public class AbstractSearchableSortableListControllerTest {
     assertThat(subject.mapLabelToTechnicalName("&quot;test&quot;"), is("&quot;test&quot;"));
   }
 
-  @Test
-  public void testGetEntityClass() {
-    assertThat(subject.getEntityClass().getSimpleName(), is("TestEntity"));
-  }
-
 }

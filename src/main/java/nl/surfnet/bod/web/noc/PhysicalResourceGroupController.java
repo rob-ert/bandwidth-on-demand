@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.web.noc;
 
+import static nl.surfnet.bod.web.WebUtils.*;
+
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -49,15 +51,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.ImmutableList;
-
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.UPDATE;
-import static nl.surfnet.bod.web.WebUtils.addInfoFlashMessage;
 
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
@@ -313,11 +306,6 @@ public class PhysicalResourceGroupController extends AbstractSearchableSortableL
       return institute != null ? institute.getName() : String.valueOf(instituteId);
     }
 
-  }
-
-  @Override
-  protected Class<PhysicalResourceGroup> getEntityClass() {
-    return PhysicalResourceGroup.class;
   }
 
   @Override

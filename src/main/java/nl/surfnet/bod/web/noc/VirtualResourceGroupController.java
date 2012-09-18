@@ -25,16 +25,16 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller("nocVirtualResourceGroupController")
 @RequestMapping("/noc/teams")
@@ -56,11 +56,6 @@ public class VirtualResourceGroupController extends AbstractSearchableSortableLi
   @Override
   protected long count() {
     return virtualResourceGroupService.count();
-  }
-
-  @Override
-  protected Class<VirtualResourceGroup> getEntityClass() {
-    return VirtualResourceGroup.class;
   }
 
   @Override
