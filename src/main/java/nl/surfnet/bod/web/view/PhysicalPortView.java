@@ -71,11 +71,11 @@ public class PhysicalPortView {
   }
 
   public String getDeleteReasonKey() {
-    return deleteActionView.getReasonKey();
+    return deleteActionView == null ? "" : deleteActionView.getReasonKey();
   }
 
   public boolean isDeleteAllowed() {
-    return deleteActionView.isAllowed();
+    return deleteActionView == null ? false : deleteActionView.isAllowed();
   }
 
   public long getId() {
