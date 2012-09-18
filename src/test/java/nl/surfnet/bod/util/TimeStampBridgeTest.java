@@ -1,14 +1,15 @@
 package nl.surfnet.bod.util;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-
 import java.sql.Timestamp;
 import java.util.Date;
 
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 public class TimeStampBridgeTest {
 
@@ -42,6 +43,6 @@ public class TimeStampBridgeTest {
   
   @Test
   public void shouldReturnStringWhenArgumentIsNull() {
-    assertThat(timeStampBridge.objectToString(null), is("n/a"));
+    assertThat(timeStampBridge.objectToString(null), nullValue());
   }
 }
