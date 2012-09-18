@@ -3,6 +3,7 @@
     <item id="i_res_list" messageCode="menu_reservation_label" url="/noc/reservations" menu="reservations" />
     <item id="i_res_list" messageCode="menu_virtualresourcegroup_label" url="/noc/teams" menu="teams" />
     <item id="i_prg_list" messageCode="menu_physicalresourcegroup_label" url="/noc/institutes" menu="institutes" />
+    <item id="i_vp_list" messageCode="menu_virtualport_label" url="/noc/virtualports" menu="virtualport" />
     <item id="i_pp_list" messageCode="menu_physicalport_label" url="/noc/physicalports" menu="physicalport" />
     <item id="i_le_list" url="/noc/logevents" messageCode="menu_logevent_label" menu="logevent" />
 </menu>
