@@ -21,11 +21,11 @@
       <tr>
         <table:rowDetailsHeader render="${not show_unallocated}" />
         <table:sortableHeader labelCode="label_physicalport_noclabel" property="nocLabel"  />
-        <table:sortableHeader labelCode="label_physicalport_bod_port_id" property="bodPortId"  />
-        <table:sortableHeader labelCode="label_physicalresourcegroup" property="instituteName" render="${not show_unallocated}" />
+        <table:sortableHeader labelCode="label_physicalport_bod_port_id" property="bodPortId"/>
+        <table:sortableHeader labelCode="label_physicalresourcegroup" property="instituteName" render="${not show_unallocated}" styleClass="cw80"/>
 
         <c:if test="${not show_unallocated}">
-            <th class="cw55"><spring:message code="label_physicalport_virtualportcount" /></th>
+            <th class="cw55 center small"><spring:message code="label_physicalport_virtualportcount" /></th>
         </c:if>
         <c:if test="${show_unallocated}">
           <table:sortableHeader labelCode="label_physicalport_nms_port_id" property="nmsPortId"  />
