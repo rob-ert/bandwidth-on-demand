@@ -22,6 +22,7 @@
 package nl.surfnet.bod.support;
 
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.pages.user.DashboardPage;
 import nl.surfnet.bod.pages.user.EditVirtualPortPage;
 import nl.surfnet.bod.pages.user.ListLogEventsPage;
 import nl.surfnet.bod.pages.user.ListReservationPage;
@@ -122,8 +123,8 @@ public class BodUserWebDriver {
   }
 
   public void createNewReservation(String label, LocalDateTime startDateTime, LocalDateTime endDateTime) {
-    createNewReservation(
-        label, startDateTime.toLocalDate(), endDateTime.toLocalDate(), startDateTime.toLocalTime(), endDateTime.toLocalTime());
+    createNewReservation(label, startDateTime.toLocalDate(), endDateTime.toLocalDate(), startDateTime.toLocalTime(),
+        endDateTime.toLocalTime());
   }
 
   public void createNewReservation(String label, LocalDate startDate, LocalDate endDate, LocalTime startTime,
@@ -241,6 +242,36 @@ public class BodUserWebDriver {
     assertThat(page.getNumberOfRows(), is(expectedAmount));
 
     page.verifyRowsWithLabelExists(reservationLabels);
+  }
+
+  public void verifyDashboardToComingReservationsLink(String string) {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+
+    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick("selenium-users",
+        "reservations/filter/coming/search?search=team:%22selenium-users%22", "Show");
+
+    ListReservationPage reservationPage = ListReservationPage.get(driver, URL_UNDER_TEST);
+    assertThat(numberOfItems, is(reservationPage.getNumberOfRows()));
+  }
+
+  public void verifyDashboardToElapsedReservationsLink(String string) {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+
+    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick("selenium-users",
+        "reservations/filter/elapsed/search?search=team:%22selenium-users%22", "Show");
+
+    ListReservationPage reservationPage = ListReservationPage.get(driver, URL_UNDER_TEST);
+    assertThat(numberOfItems, is(reservationPage.getNumberOfRows()));
+
+  }
+
+  public void verifyDashboardToActiveReservationsLink(String string) {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick("selenium-users",
+        "reservations/filter/active/search?search=team:%22selenium-users%22", "Show");
+
+    ListReservationPage reservationPage = ListReservationPage.get(driver, URL_UNDER_TEST);
+    assertThat(numberOfItems, is(reservationPage.getNumberOfRows()));
   }
 
 }
