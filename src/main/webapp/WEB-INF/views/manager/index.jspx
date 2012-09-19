@@ -76,23 +76,23 @@
                     <tbody>
                     <tr>
                       <td>Physical ports</td>
-                      <table:searchColumn value="${stats.physicalPortsAmount}" viewName="${ppsUrl}" styleClass="left" tooltipTitle="Available physical ports"/>
+                      <table:searchColumn value="${stats.physicalPortsAmount}" viewName="${ppsUrl}"  tooltipTitle="Available physical ports"/>
                      </tr>
                     <tr>
                       <td>Virtual ports</td>
-                      <table:searchColumn value="${stats.virtualPortsAmount}" viewName="${vpsUrl}" styleClass="left" tooltipTitle="Available virtual ports"/>
+                      <table:searchColumn value="${stats.virtualPortsAmount}" viewName="${vpsUrl}"  tooltipTitle="Available virtual ports"/>
                     </tr>
                     <tr>
                       <td>Reservations past ${defaultDuration}</td>
-                      <table:searchColumn value="${stats.elapsedReservationsAmount}" viewName="${elapsedReservationsUrl}" styleClass="left" tooltipTitle="Reservations from the past"/>
+                      <table:searchColumn value="${stats.elapsedReservationsAmount}" viewName="${elapsedReservationsUrl}"  tooltipTitle="Reservations from the past"/>
                     </tr>
                     <tr>
                       <td>Active reservations</td>
-                      <table:searchColumn value="${stats.activeReservationsAmount}" viewName="${activeReservationsUrl}" styleClass="left" tooltipTitle="Active reservations"/>
+                      <table:searchColumn value="${stats.activeReservationsAmount}" viewName="${activeReservationsUrl}"  tooltipTitle="Active reservations"/>
                     </tr>
                     <tr>
                       <td>Reservations in ${defaultDuration}</td>
-                      <table:searchColumn value="${stats.comingReservationsAmount}" viewName="${comingReservationsUrl}" styleClass="left" tooltipTitle="Reservations for the coming period"/>
+                      <table:searchColumn value="${stats.comingReservationsAmount}" viewName="${comingReservationsUrl}"  tooltipTitle="Reservations for the coming period"/>
                     </tr>
                     </tbody>
                 </table>

@@ -39,14 +39,16 @@
                                         </dd>
                                         <dt>User Label</dt>
                                         <dd><c:out value="${item.userLabel}" /></dd>
+                                        <dt><spring:message code="label_physicalport" /></dt>
+                                        <dd><c:out value="${item.physicalPort}" /></dd>
                                     </dl>
                                 </div>
                                 <div class="span6">
                                     <dl class="dl-horizontal">
                                         <dt><spring:message code="label_physicalresourcegroup" /></dt>
                                         <dd><c:out value="${item.physicalResourceGroup}" /></dd>
-                                        <dt><spring:message code="label_physicalport" /></dt>
-                                        <dd><c:out value="${item.physicalPort}" /></dd>
+                                        <dt><spring:message code="label_physicalport_nms_port_id"/></dt>
+                                        <dd><c:out value="${item.nmsPortId}"/></dd>
                                     </dl>
                                 </div>
                             </div>
