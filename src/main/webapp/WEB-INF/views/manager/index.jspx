@@ -76,23 +76,23 @@
                     <tbody>
                     <tr>
                       <td>Physical ports</td>
-                      <table:searchColumn value="${stats.physicalPortsAmount}" viewName="${ppsUrl}"  tooltipTitle="Available physical ports"/>
+                      <table:searchColumn value="${stats.physicalPortsAmount}" viewName="${ppsUrl}"  tooltipTitleCode="label_physicalport_link"/>
                      </tr>
                     <tr>
                       <td>Virtual ports</td>
-                      <table:searchColumn value="${stats.virtualPortsAmount}" viewName="${vpsUrl}"  tooltipTitle="Available virtual ports"/>
+                      <table:searchColumn value="${stats.virtualPortsAmount}" viewName="${vpsUrl}"  tooltipTitleCode="label_virtualport_link"/>
                     </tr>
                     <tr>
                       <td>Reservations past ${defaultDuration}</td>
-                      <table:searchColumn value="${stats.elapsedReservationsAmount}" viewName="${elapsedReservationsUrl}"  tooltipTitle="Reservations from the past"/>
+                      <table:searchColumn value="${stats.elapsedReservationsAmount}" viewName="${elapsedReservationsUrl}"  tooltipTitleCode="label_reservation_link"/>
                     </tr>
                     <tr>
                       <td>Active reservations</td>
-                      <table:searchColumn value="${stats.activeReservationsAmount}" viewName="${activeReservationsUrl}"  tooltipTitle="Active reservations"/>
+                      <table:searchColumn value="${stats.activeReservationsAmount}" viewName="${activeReservationsUrl}"  tooltipTitleCode="label_reservation_link"/>
                     </tr>
                     <tr>
                       <td>Reservations in ${defaultDuration}</td>
-                      <table:searchColumn value="${stats.comingReservationsAmount}" viewName="${comingReservationsUrl}"  tooltipTitle="Reservations for the coming period"/>
+                      <table:searchColumn value="${stats.comingReservationsAmount}" viewName="${comingReservationsUrl}"  tooltipTitleCode="label_reservation_link"/>
                     </tr>
                     </tbody>
                 </table>

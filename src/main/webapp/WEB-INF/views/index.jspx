@@ -55,7 +55,7 @@
                             <table:column item="${team}" property="name" />
                                 <c:choose>
                                     <c:when test="${team.existing}">
-                                        <table:searchColumn  value="${team.numberOfPorts}"  searchField="team" searchValue="${team.name}"  viewName="/virtualports"/>
+                                        <table:searchColumn  value="${team.numberOfPorts}"  searchField="team" searchValue="${team.name}"  viewName="/virtualports" tooltipTitleCode="label_virtualport_link" />
                                     </c:when>
                                     <c:otherwise>
                                         <td class="center">-</td>
@@ -64,9 +64,9 @@
 
                                 <c:choose>
                                     <c:when test="${team.existing}">
-                                            <table:searchColumn  value="${team.activeReservations}"  searchField="team" searchValue="${team.name}"  viewName="/reservations/filter/active"/>
-                                            <table:searchColumn  value="${team.comingReservations}"  searchField="team" searchValue="${team.name}"  viewName="/reservations/filter/coming"/>
-                                            <table:searchColumn  value="${team.elapsedReservations}"  searchField="team" searchValue="${team.name}"  viewName="/reservations/filter/elapsed"/>
+                                            <table:searchColumn  value="${team.activeReservations}"  searchField="team" searchValue="${team.name}"  viewName="/reservations/filter/active" tooltipTitleCode="label_reservation_link"/>
+                                            <table:searchColumn  value="${team.comingReservations}"  searchField="team" searchValue="${team.name}"  viewName="/reservations/filter/coming" tooltipTitleCode="label_reservation_link"/>
+                                            <table:searchColumn  value="${team.elapsedReservations}"  searchField="team" searchValue="${team.name}"  viewName="/reservations/filter/elapsed" tooltipTitleCode="label_reservation_link"/>
                                     </c:when>
                                     <c:otherwise>
                                         <td class="center">-</td>

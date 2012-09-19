@@ -1,6 +1,6 @@
 <html xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
     xmlns:sec="http://www.springframework.org/security/tags" xmlns:jsp="http://java.sun.com/JSP/Page"
-    xmlns:c="http://java.sun.com/jsp/jstl/core">
+    xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:table="urn:jsptagdir:/WEB-INF/tags/table" >
 
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
@@ -32,42 +32,23 @@
                     <tbody>
                         <tr>
                             <td>Allocated physical ports</td>
-                            <td><a href="${ppsUrl}" rel="tooltip" title="Allocated physical ports"
-                                data-type="info"> <c:out
-                                        value="${stats.physicalPortsAmount}" />
-                            </a></td>
+                            <table:searchColumn value="${stats.physicalPortsAmount}" viewName="${ppsUrl}" tooltipTitleCode="label_physicalport_link"/>
                         </tr>
                         <tr>
                             <td>Reservations past ${defaultDuration}</td>
-                            <td>
-                                <a href="${elapsedReservationsUrl}" rel="tooltip" title="Elapsed Reservations" data-type="info">
-                                    <c:out value="${stats.elapsedReservationsAmount}" />
-                                </a>
-                            </td>
+                            <table:searchColumn value="${stats.elapsedReservationsAmount}" viewName="${elapsedReservationsUrl}" tooltipTitleCode="label_reservation_link"/>
                         </tr>
                         <tr>
                             <td>Active reservations</td>
-                            <td>
-                                <a href="${activeReservationsUrl}" rel="tooltip" title="Active Reservations" data-type="info">
-                                    <c:out value="${stats.activeReservationsAmount}" />
-                                </a>
-                            </td>
+                             <table:searchColumn value="${stats.activeReservationsAmount}" viewName="${activeReservationsUrl}" tooltipTitleCode="label_reservation_link"/>
                         </tr>
                         <tr>
                             <td>Reservations in ${defaultDuration}</td>
-                            <td>
-                                <a href="${comingReservationsUrl}" rel="tooltip" title="Coming Reservations" data-type="info">
-                                    <c:out value="${stats.comingReservationsAmount}" />
-                                </a>
-                            </td>
+                             <table:searchColumn value="${stats.comingReservationsAmount}" viewName="${comingReservationsUrl}" tooltipTitleCode="label_reservation_link"/>
                         </tr>
                         <tr>
                             <td>Unaligned physical ports</td>
-                            <td>
-                                <a href="${unalignedPhysicalPortsUrl}" rel="tooltip" title="Physical ports that are no longer available in the NMS" data-type="info">
-                                    <c:out value="${stats.unalignedPhysicalPortsAmount}" />
-                                </a>
-                            </td>
+                            <table:searchColumn value="${stats.unalignedPhysicalPortsAmount}" viewName="${unalignedPhysicalPortsUrl}" tooltipTitleCode="label_physicalport_link"/>
                         </tr>
                     </tbody>
                 </table>

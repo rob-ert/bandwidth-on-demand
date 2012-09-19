@@ -32,7 +32,7 @@
                         </table:rowDetailsColumn>
                         <table:column item="${item}" property="name" />
                         <table:column item="${item}" property="description" />
-                        <table:searchColumn value="${item.allPortCount}" searchField="team" searchValue="${item.name}" viewName="/noc/virtualports"/>
+                        <table:searchColumn value="${item.allPortCount}" searchField="team" searchValue="${item.name}" viewName="/noc/virtualports" tooltipTitleCode="label_virtualport_link"/>
                     </tr>
                 </c:forEach>
             </tbody>

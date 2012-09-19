@@ -34,7 +34,7 @@
                         <table:column item="${item}" property="name" />
                         <table:column item="${item}" property="description" />
                         <table:column item="${item}" property="allPortCount" styleClass="center"/>
-                        <table:searchColumn value="${item.managerPortCount}" searchField="team" searchValue="${item.name}" viewName="/manager/virtualports"/>
+                        <table:searchColumn value="${item.managerPortCount}" searchField="team" searchValue="${item.name}" viewName="/manager/virtualports" tooltipTitleCode="label_virtualport_link"/>
                     </tr>
                 </c:forEach>
             </tbody>

@@ -8,7 +8,7 @@
     <jsp:directive.attribute name="searchValue" type="java.lang.String" required="false" rtexprvalue="true" description="Value to search for"/>
     <jsp:directive.attribute name="styleClass" type="java.lang.String" required="false" rtexprvalue="true" description="Style class the td"/>
 
-     <jsp:directive.attribute name="tooltipTitle" type="java.lang.String" required="false" rtexprvalue="true" description="Title for the tooltip"/>
+     <jsp:directive.attribute name="tooltipTitleCode" type="java.lang.String" required="false" rtexprvalue="true" description="Message code of the title for the tooltip"/>
     <jsp:directive.attribute name="tooltipDataType" type="java.lang.String" required="false" rtexprvalue="true" description="Data type for tooltip, defaults to info"/>
 
     <c:set var="search_url" value="${viewName}" />
@@ -35,7 +35,8 @@
 
                <!-- To tooltip or not to tooltip, that is the question -->
               <c:choose>
-                <c:when test="${not empty tooltipTitle}"> 
+                <c:when test="${not empty tooltipTitleCode}">
+                   <spring:message code="${tooltipTitleCode}" var="tooltipTitle"/> 
                   <a href="${search_url}" rel="tooltip" title="${tooltipTitle}" data-type="${tooltipDataType}"><c:out value="${value}"/></a>
                 </c:when>
                 <c:otherwise>
