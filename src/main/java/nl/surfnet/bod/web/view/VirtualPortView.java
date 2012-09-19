@@ -12,6 +12,7 @@ public class VirtualPortView {
   private final String virtualResourceGroup;
   private final String physicalResourceGroup;
   private final String physicalPort;
+  private final String nmsPortId;
   private final String userLabel;
   private final Optional<Long> reservationCounter;
   private final String nsiStpId;
@@ -29,6 +30,7 @@ public class VirtualPortView {
     virtualResourceGroup = port.getVirtualResourceGroup().getName();
     physicalResourceGroup = port.getPhysicalResourceGroup().getName();
     physicalPort = port.getPhysicalPort().getManagerLabel();
+    nmsPortId = port.getPhysicalPort().getNmsPortId();
     this.reservationCounter = reservationCounter;
     this.nsiStpId = port.getNsiStpId();
   }
@@ -57,6 +59,10 @@ public class VirtualPortView {
     return physicalPort;
   }
 
+  public String getNmsPortId() {
+    return nmsPortId;
+  }
+
   public Long getId() {
     return id;
   }
@@ -76,26 +82,61 @@ public class VirtualPortView {
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    builder.append("VirtualPortView [id=");
-    builder.append(id);
-    builder.append(", managerLabel=");
-    builder.append(managerLabel);
-    builder.append(", maxBandwidth=");
-    builder.append(maxBandwidth);
-    builder.append(", vlanId=");
-    builder.append(vlanId);
-    builder.append(", virtualResourceGroup=");
-    builder.append(virtualResourceGroup);
-    builder.append(", physicalResourceGroup=");
-    builder.append(physicalResourceGroup);
-    builder.append(", physicalPort=");
-    builder.append(physicalPort);
-    builder.append(", userLabel=");
-    builder.append(userLabel);
-    builder.append(", reservationCounter=");
-    builder.append(reservationCounter.orNull());
-    builder.append(", nsiStpId=");
-    builder.append(nsiStpId);
+    builder.append("VirtualPortView [");
+    if (id != null) {
+      builder.append("id=");
+      builder.append(id);
+      builder.append(", ");
+    }
+    if (managerLabel != null) {
+      builder.append("managerLabel=");
+      builder.append(managerLabel);
+      builder.append(", ");
+    }
+    if (maxBandwidth != null) {
+      builder.append("maxBandwidth=");
+      builder.append(maxBandwidth);
+      builder.append(", ");
+    }
+    if (vlanId != null) {
+      builder.append("vlanId=");
+      builder.append(vlanId);
+      builder.append(", ");
+    }
+    if (virtualResourceGroup != null) {
+      builder.append("virtualResourceGroup=");
+      builder.append(virtualResourceGroup);
+      builder.append(", ");
+    }
+    if (physicalResourceGroup != null) {
+      builder.append("physicalResourceGroup=");
+      builder.append(physicalResourceGroup);
+      builder.append(", ");
+    }
+    if (physicalPort != null) {
+      builder.append("physicalPort=");
+      builder.append(physicalPort);
+      builder.append(", ");
+    }
+    if (nmsPortId != null) {
+      builder.append("nmsPortId=");
+      builder.append(nmsPortId);
+      builder.append(", ");
+    }
+    if (userLabel != null) {
+      builder.append("userLabel=");
+      builder.append(userLabel);
+      builder.append(", ");
+    }
+    if (reservationCounter != null) {
+      builder.append("reservationCounter=");
+      builder.append(reservationCounter.orNull());
+      builder.append(", ");
+    }
+    if (nsiStpId != null) {
+      builder.append("nsiStpId=");
+      builder.append(nsiStpId);
+    }
     builder.append("]");
     return builder.toString();
   }
@@ -107,6 +148,7 @@ public class VirtualPortView {
     result = prime * result + ((id == null) ? 0 : id.hashCode());
     result = prime * result + ((managerLabel == null) ? 0 : managerLabel.hashCode());
     result = prime * result + ((maxBandwidth == null) ? 0 : maxBandwidth.hashCode());
+    result = prime * result + ((nmsPortId == null) ? 0 : nmsPortId.hashCode());
     result = prime * result + ((nsiStpId == null) ? 0 : nsiStpId.hashCode());
     result = prime * result + ((physicalPort == null) ? 0 : physicalPort.hashCode());
     result = prime * result + ((physicalResourceGroup == null) ? 0 : physicalResourceGroup.hashCode());
@@ -143,6 +185,12 @@ public class VirtualPortView {
         return false;
     }
     else if (!maxBandwidth.equals(other.maxBandwidth))
+      return false;
+    if (nmsPortId == null) {
+      if (other.nmsPortId != null)
+        return false;
+    }
+    else if (!nmsPortId.equals(other.nmsPortId))
       return false;
     if (nsiStpId == null) {
       if (other.nsiStpId != null)

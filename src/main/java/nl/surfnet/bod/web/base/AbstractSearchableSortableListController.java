@@ -41,7 +41,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
 import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
@@ -139,7 +138,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
   protected String mapLabelToTechnicalName(String search) {
     search = WebUtils.replaceSearchWith(search, "team:", "virtualResourceGroup.name:");
     search = WebUtils.replaceSearchWith(search, "institute:", "physicalResourceGroup.institute.name:");
-    search = WebUtils.replaceSearchWith(search, "physicalPort:", "physicalPort.id:");
+    search = WebUtils.replaceSearchWith(search, "physicalPort:", "physicalPort.nmsPortId:");
     return search;
   }
 
