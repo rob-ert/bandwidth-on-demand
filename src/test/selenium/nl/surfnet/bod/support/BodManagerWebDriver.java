@@ -285,4 +285,23 @@ public class BodManagerWebDriver {
 
     page.verifyPhysicalPortHasDisabledUnallocateIcon(nmsPortId, nocLabel, toolTipText);
   }
+
+  public void verifyTeamToVirtualPortsLink(String teamName) {
+    ListVirtualResourceGroupPage vrgListPage = ListVirtualResourceGroupPage.get(driver, URL_UNDER_TEST);
+
+    int numberOfItems = vrgListPage.getNumberFromRowWithLinkAndClick(teamName, "manager/virtualports", "Show");
+
+    ListVirtualPortPage vpListPage = ListVirtualPortPage.get(driver);
+    vpListPage.verifyAmountOfRowsWithLabel(numberOfItems, teamName);
+  }
+
+  public void verifyPhysicalPortToVirtualPortsLink(String physicalPortBodAdminLabel, String virtualPortBodAdminLabel) {
+    ListPhysicalPortsPage ppListPage = ListPhysicalPortsPage.get(driver, URL_UNDER_TEST);
+
+    int numberOfItems = ppListPage.getNumberFromRowWithLinkAndClick(physicalPortBodAdminLabel, "manager/virtualports",
+        "Show");
+    ListVirtualPortPage vpListPage = ListVirtualPortPage.get(driver);
+    vpListPage.verifyAmountOfRowsWithLabel(numberOfItems, virtualPortBodAdminLabel);
+  }
+
 }

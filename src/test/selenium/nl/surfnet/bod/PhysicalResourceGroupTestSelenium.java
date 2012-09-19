@@ -21,9 +21,9 @@
  */
 package nl.surfnet.bod;
 
-import org.junit.Test;
-
 import nl.surfnet.bod.support.TestExternalSupport;
+
+import org.junit.Test;
 
 public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
 
@@ -50,6 +50,17 @@ public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
     getWebDriver().verifyLastEmailRecipient(finalEmail);
 
     getNocDriver().deletePhysicalResourceGroup(institute);
+  }
+
+  @Test
+  public void verifyNocLinkFromInstituteToPhysicalPorts() {
+    final String instituteName = "2COLLEGE";
+    getNocDriver().createNewPhysicalResourceGroup(instituteName, ICT_MANAGERS_GROUP, "test@example.com");
+
+    getNocDriver().addPhysicalPortToInstitute(instituteName, "NOC 1 label", "Mock_Poort 1de verdieping toren1a");
+    getNocDriver().addPhysicalPortToInstitute(instituteName, "NOC 2 label", "Mock_Poort 2de verdieping toren1b");
+
+    getNocDriver().verifyPhysicalResourceGroupToPhysicalPortsLink(instituteName);
   }
 
 }

@@ -26,7 +26,7 @@
                     <thead>
                         <tr>
                             <th>Item</th>
-                            <th>Total Amount for BoD</th>
+                            <th style="center">Total Amount for BoD</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -70,7 +70,7 @@
                     <thead>
                     <tr>
                       <th>Item</th>
-                      <th>Amount for <spring:eval expression="selectedRole.instituteName.get()" /></th>
+                      <th style="center">Amount for <spring:eval expression="selectedRole.instituteName.get()" /></th>
                     </tr>
                     </thead>
                     <tbody>

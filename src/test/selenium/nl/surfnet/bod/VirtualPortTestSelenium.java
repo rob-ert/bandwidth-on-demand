@@ -21,10 +21,10 @@
  */
 package nl.surfnet.bod;
 
+import nl.surfnet.bod.support.TestExternalSupport;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import nl.surfnet.bod.support.TestExternalSupport;
 
 public class VirtualPortTestSelenium extends TestExternalSupport {
 
@@ -73,4 +73,15 @@ public class VirtualPortTestSelenium extends TestExternalSupport {
 
     getUserDriver().verifyNotMemberOf("selenium-users");
   }
+
+  @Test
+  public void verifyNocLinkFromTeamToVirtualPorts() {
+    getNocDriver().verifyTeamToVirtualPortsLink("selenium-users");
+  }
+
+  @Test
+  public void verifyManagerLinkFromTeamToVirtualPorts() {
+    getManagerDriver().verifyTeamToVirtualPortsLink("selenium-users");
+  }
+
 }

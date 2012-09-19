@@ -29,6 +29,7 @@ import nl.surfnet.bod.pages.noc.ListLogEventsPage;
 import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.noc.ListReservationPage;
 import nl.surfnet.bod.pages.noc.ListUnallocatedPortsPage;
+import nl.surfnet.bod.pages.noc.ListVirtualPortPage;
 import nl.surfnet.bod.pages.noc.ListVirtualResourceGroupPage;
 import nl.surfnet.bod.pages.noc.MovePhysicalPortPage;
 import nl.surfnet.bod.pages.noc.MovePhysicalPortResultPage;
@@ -278,5 +279,23 @@ public class BodNocWebDriver {
     assertThat(page.getNumberOfRows(), is(expectedAmount));
 
     page.verifyRowsWithLabelExists(portLabels);
+  }
+
+  public void verifyPhysicalResourceGroupToPhysicalPortsLink(String groupName) {
+    ListPhysicalResourceGroupPage prgListPage = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
+
+    int numberOfItems = prgListPage.getNumberFromRowWithLinkAndClick(groupName, "noc/physicalports", "Show");
+
+    ListAllocatedPortsPage appListPage = ListAllocatedPortsPage.get(driver);
+    appListPage.verifyAmountOfRowsWithLabel(numberOfItems, groupName);
+  }
+
+  public void verifyTeamToVirtualPortsLink(String teamName) {
+    ListVirtualResourceGroupPage vrgListPage = ListVirtualResourceGroupPage.get(driver, URL_UNDER_TEST);
+
+    int numberOfItems = vrgListPage.getNumberFromRowWithLinkAndClick(teamName, "noc/virtualports", "Show");
+
+    ListVirtualPortPage vpListPage = ListVirtualPortPage.get(driver);
+    vpListPage.verifyAmountOfRowsWithLabel(numberOfItems, teamName);
   }
 }

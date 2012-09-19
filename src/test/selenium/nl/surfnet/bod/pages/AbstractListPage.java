@@ -196,4 +196,28 @@ public class AbstractListPage extends AbstractPage {
     verifyRowsWithLabelExists(labels);
   }
 
+  public void verifyAmountOfRowsWithLabel(int expectedAmount, String... labels) {
+    int matchedRows = 0;
+
+    for (final WebElement row : getRows()) {
+      if (containsAll(row, labels)) {
+        matchedRows++;
+      }
+    }
+
+    assertThat(matchedRows, is(expectedAmount));
+  }
+
+  public int getNumberFromRowWithLinkAndClick(String rowLabel, String linkPart, String tooltipTitle) {
+    WebElement rowWithLink = findRow(rowLabel);
+
+    WebElement link = rowWithLink.findElement(By.xpath(String.format(
+        ".//a[contains(@href, '%s') and contains(@data-original-title, '%s')]", linkPart, tooltipTitle)));
+
+    int number = Integer.parseInt(link.getText());
+
+    link.click();
+
+    return number;
+  }
 }
