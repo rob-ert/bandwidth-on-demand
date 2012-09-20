@@ -23,6 +23,8 @@ package nl.surfnet.bod.pages;
 
 import java.util.List;
 
+import nl.surfnet.bod.support.Probes;
+
 import org.joda.time.LocalDateTime;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -36,8 +38,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
-import nl.surfnet.bod.support.Probes;
-
 public class AbstractPage {
 
   private final RemoteWebDriver driver;
@@ -49,6 +49,9 @@ public class AbstractPage {
 
   @FindBy(css = ".user-box .dropdown-toggle")
   private WebElement userBox;
+
+  @FindBy(css = ".navbar")
+  private WebElement navBar;
 
   public AbstractPage(RemoteWebDriver driver) {
     this.driver = driver;
@@ -87,7 +90,7 @@ public class AbstractPage {
 
   /**
    * Gets a time stamp from the specific row starting with the given year
-   *
+   * 
    * @param year
    *          Timestamp should start with this year
    * @param row
@@ -108,6 +111,14 @@ public class AbstractPage {
 
   protected RemoteWebDriver getDriver() {
     return driver;
+  }
+
+  protected WebElement getMenuBar() {
+    return navBar;
+  }
+
+  protected int getCountMenuItems() {
+    return navBar.findElements(By.xpath(".//a")).size();
   }
 
   private boolean containsAll(String input, String[] needles) {

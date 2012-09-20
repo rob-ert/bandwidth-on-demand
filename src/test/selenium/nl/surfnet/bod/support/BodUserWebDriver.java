@@ -281,4 +281,14 @@ public class BodUserWebDriver {
     ListVirtualPortPage vpPage = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
     assertThat(numberOfItems, is(vpPage.getNumberOfRows()));
   }
+
+  public void verifyMenu() {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+    dashboardPage.verifyNumberOfMenuItems();
+    dashboardPage.verifyMenuOverview();
+    dashboardPage.verifyMenuReservations();
+    dashboardPage.verifyMenuVirtualPorts();
+    dashboardPage.verifyMenuLogEvents();
+
+  }
 }

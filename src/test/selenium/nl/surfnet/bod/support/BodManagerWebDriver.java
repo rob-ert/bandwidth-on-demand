@@ -347,4 +347,15 @@ public class BodManagerWebDriver {
 
   }
 
+  public void verifyMenu() {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+    dashboardPage.verifyNumberOfMenuItems();
+    dashboardPage.verifyMenuOverview();
+    dashboardPage.verifyMenuReservations();
+    dashboardPage.verifyMenuTeams();
+    dashboardPage.verifyMenuVirtualPorts();
+    dashboardPage.verifyMenuPhysicalPorts();
+    dashboardPage.verifyMenuLogEvents();
+  }
+
 }
