@@ -31,7 +31,6 @@ import nl.surfnet.bod.pages.user.NewReservationPage;
 import nl.surfnet.bod.pages.user.RequestNewVirtualPortRequestPage;
 import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectInstitutePage;
 import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectTeamPage;
-import nl.surfnet.bod.pages.user.UserOverviewPage;
 
 import org.hamcrest.Matchers;
 import org.joda.time.LocalDate;
@@ -60,7 +59,7 @@ public class BodUserWebDriver {
   }
 
   public void requestVirtualPort(String team) {
-    UserOverviewPage page = UserOverviewPage.get(driver, URL_UNDER_TEST);
+    DashboardPage page = DashboardPage.get(driver, URL_UNDER_TEST);
 
     page.selectInstitute(team);
   }
@@ -192,7 +191,7 @@ public class BodUserWebDriver {
   }
 
   private void switchTo(String... role) {
-    UserOverviewPage page = UserOverviewPage.get(driver, URL_UNDER_TEST);
+    DashboardPage page = DashboardPage.get(driver, URL_UNDER_TEST);
 
     page.clickSwitchRole(role);
   }
@@ -221,13 +220,13 @@ public class BodUserWebDriver {
   }
 
   public void verifyNotMemberOf(String teamName) {
-    UserOverviewPage page = UserOverviewPage.get(driver, URL_UNDER_TEST);
+    DashboardPage page = DashboardPage.get(driver, URL_UNDER_TEST);
 
     assertThat(page.getTeams(), not(hasItem(teamName)));
   }
 
   public void verifyMemberOf(String teamName) {
-    UserOverviewPage page = UserOverviewPage.get(driver, URL_UNDER_TEST);
+    DashboardPage page = DashboardPage.get(driver, URL_UNDER_TEST);
 
     assertThat(page.getTeams(), hasItem(teamName));
   }
@@ -244,34 +243,42 @@ public class BodUserWebDriver {
     page.verifyRowsWithLabelExists(reservationLabels);
   }
 
-  public void verifyDashboardToComingReservationsLink(String string) {
+  public void verifyDashboardToComingReservationsLink(String team) {
     DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
 
-    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick("selenium-users",
-        "reservations/filter/coming/search?search=team:%22selenium-users%22", "Show");
+    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(team,
+        String.format("reservations/filter/coming/search?search=team:%%22%s%%22", team), "Show");
 
     ListReservationPage reservationPage = ListReservationPage.get(driver, URL_UNDER_TEST);
+    reservationPage.filterReservations(ReservationFilterViewFactory.COMING);
+
     assertThat(numberOfItems, is(reservationPage.getNumberOfRows()));
   }
 
-  public void verifyDashboardToElapsedReservationsLink(String string) {
+  public void verifyDashboardToElapsedReservationsLink(String team) {
     DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
 
-    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick("selenium-users",
-        "reservations/filter/elapsed/search?search=team:%22selenium-users%22", "Show");
+    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(team,
+        String.format("reservations/filter/elapsed/search?search=team:%%22%s%%22", team), "Show");
 
     ListReservationPage reservationPage = ListReservationPage.get(driver, URL_UNDER_TEST);
+    reservationPage.filterReservations(ReservationFilterViewFactory.ELAPSED);
     assertThat(numberOfItems, is(reservationPage.getNumberOfRows()));
 
   }
 
-  public void verifyDashboardToActiveReservationsLink(String string) {
-    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
-    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick("selenium-users",
-        "reservations/filter/active/search?search=team:%22selenium-users%22", "Show");
-
-    ListReservationPage reservationPage = ListReservationPage.get(driver, URL_UNDER_TEST);
-    assertThat(numberOfItems, is(reservationPage.getNumberOfRows()));
+  /**
+   * Not possible to setup active reservation without timing issues
+   */
+  public void verifyDashboardToActiveReservationsLink(String team) {
   }
 
+  public void verifyDashboardToVirtualPortsLink(String team) {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+
+    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(team,
+        String.format("virtualports/search?search=team:%%22%s%%22", team), "Show");
+    ListVirtualPortPage vpPage = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
+    assertThat(numberOfItems, is(vpPage.getNumberOfRows()));
+  }
 }

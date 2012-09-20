@@ -22,6 +22,7 @@
 package nl.surfnet.bod.support;
 
 import nl.surfnet.bod.pages.noc.AddPhysicalPortPage;
+import nl.surfnet.bod.pages.noc.DashboardPage;
 import nl.surfnet.bod.pages.noc.EditPhysicalPortPage;
 import nl.surfnet.bod.pages.noc.EditPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.noc.ListAllocatedPortsPage;
@@ -34,9 +35,9 @@ import nl.surfnet.bod.pages.noc.ListVirtualResourceGroupPage;
 import nl.surfnet.bod.pages.noc.MovePhysicalPortPage;
 import nl.surfnet.bod.pages.noc.MovePhysicalPortResultPage;
 import nl.surfnet.bod.pages.noc.NewPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.noc.NocOverviewPage;
 import nl.surfnet.bod.web.InstituteController;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -138,7 +139,7 @@ public class BodNocWebDriver {
   }
 
   private void switchTo(String role) {
-    NocOverviewPage page = NocOverviewPage.get(driver, URL_UNDER_TEST);
+    DashboardPage page = DashboardPage.get(driver, URL_UNDER_TEST);
 
     page.clickSwitchRole(role);
   }
@@ -154,7 +155,7 @@ public class BodNocWebDriver {
   }
 
   public void verifyStatistics() {
-    NocOverviewPage page = NocOverviewPage.get(driver, URL_UNDER_TEST);
+    DashboardPage page = DashboardPage.get(driver, URL_UNDER_TEST);
 
     page.findRow("Allocated physical ports", "2");
     page.findRow("Reservations past", "0");
@@ -297,5 +298,47 @@ public class BodNocWebDriver {
 
     ListVirtualPortPage vpListPage = ListVirtualPortPage.get(driver);
     vpListPage.verifyAmountOfRowsWithLabel(numberOfItems, teamName);
+  }
+
+  public void verifyDashboardToAllocatedPhysicalPortsLink() {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+
+    int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("Allocated", "noc/physicalports", "Show");
+
+    ListAllocatedPortsPage listAllocatedPortsPage = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+    listAllocatedPortsPage.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
+  }
+
+  public void verifyDashboardToElapsedReservationsLink() {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+
+    int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("past", "noc/reservations/filter/elapsed",
+        "Show");
+
+    ListReservationPage reservationsPage = ListReservationPage.get(driver, URL_UNDER_TEST);
+    reservationsPage.filterReservations(ReservationFilterViewFactory.ELAPSED);
+    reservationsPage.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
+  }
+
+  /**
+   * Not possible to create active reservations without timing issues
+   */
+  public void verifyDashboardToActiveReservationsLink() {
+  }
+
+  public void verifyDashboardToComingReservationsLink() {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+
+    int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("in", "noc/reservations/filter/coming", "Show");
+    ListReservationPage reservationsPage = ListReservationPage.get(driver, URL_UNDER_TEST);
+    reservationsPage.filterReservations(ReservationFilterViewFactory.COMING);
+    reservationsPage.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
+  }
+
+  /**
+   * Not possible to create unaligned port, depends on NMS
+   */
+  public void verifyDashboardToUnalignedPhysicalPortsLink() {
+
   }
 }

@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.support;
 
+import nl.surfnet.bod.pages.manager.DashboardPage;
 import nl.surfnet.bod.pages.manager.EditPhysicalPortPage;
 import nl.surfnet.bod.pages.manager.EditPhysicalResourceGroupPage;
 import nl.surfnet.bod.pages.manager.EditVirtualPortPage;
@@ -29,11 +30,10 @@ import nl.surfnet.bod.pages.manager.ListPhysicalPortsPage;
 import nl.surfnet.bod.pages.manager.ListReservationPage;
 import nl.surfnet.bod.pages.manager.ListVirtualPortPage;
 import nl.surfnet.bod.pages.manager.ListVirtualResourceGroupPage;
-import nl.surfnet.bod.pages.manager.ManagerOverviewPage;
 import nl.surfnet.bod.pages.manager.NewVirtualPortPage;
 import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.noc.NocOverviewPage;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -177,7 +177,7 @@ public class BodManagerWebDriver {
   }
 
   public void verifyStatistics() {
-    ManagerOverviewPage page = ManagerOverviewPage.get(driver, URL_UNDER_TEST);
+    DashboardPage page = DashboardPage.get(driver, URL_UNDER_TEST);
 
     page.findRow("Physical ports", "2");
     page.findRow("Virtual ports", "2");
@@ -253,7 +253,7 @@ public class BodManagerWebDriver {
   }
 
   private void switchTo(String... role) {
-    NocOverviewPage page = NocOverviewPage.get(driver, URL_UNDER_TEST);
+    nl.surfnet.bod.pages.noc.DashboardPage page = nl.surfnet.bod.pages.noc.DashboardPage.get(driver, URL_UNDER_TEST);
 
     page.clickSwitchRole(role);
   }
@@ -302,6 +302,49 @@ public class BodManagerWebDriver {
         "Show");
     ListVirtualPortPage vpListPage = ListVirtualPortPage.get(driver);
     vpListPage.verifyAmountOfRowsWithLabel(numberOfItems, virtualPortBodAdminLabel);
+  }
+
+  public void verifyDashboardToPhysicalPortsLink() {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+
+    int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("Physical", "manager/physicalports", "Show");
+
+    ListPhysicalPortsPage listPhysicalPorts = ListPhysicalPortsPage.get(driver, URL_UNDER_TEST);
+    listPhysicalPorts.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
+  }
+
+  public void verifyDashboardToElapsedReservationsLink() {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+
+    int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("past", "manager/reservations/filter/elapsed",
+        "Show");
+
+    ListReservationPage reservationsPage = ListReservationPage.get(driver, URL_UNDER_TEST);
+    reservationsPage.filterReservations(ReservationFilterViewFactory.ELAPSED);
+    reservationsPage.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
+  }
+
+  /**
+   * Not possible to create active reservations without timing issues
+   */
+  public void verifyDashboardToActiveReservationsLink() {
+  }
+
+  public void verifyDashboardToComingReservationsLink() {
+    DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
+
+    int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("in", "manager/reservations/filter/coming",
+        "Show");
+    ListReservationPage reservationsPage = ListReservationPage.get(driver, URL_UNDER_TEST);
+    reservationsPage.filterReservations(ReservationFilterViewFactory.COMING);
+    reservationsPage.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
+  }
+
+  /**
+   * Not possible to create unaligned port, depends on NMS
+   */
+  public void verifyDashboardToUnalignedPhysicalPortsLink() {
+
   }
 
 }
