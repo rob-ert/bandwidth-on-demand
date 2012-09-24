@@ -59,7 +59,7 @@ public class ActivationEmailLink<T> implements Loggable {
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
   private DateTime emailSentDateTime;
 
-  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentlDateTime")
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
   private DateTime activationDateTime;
 
   @NotNull
