@@ -24,11 +24,14 @@ package nl.surfnet.bod.web.base;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.joda.time.ReadableInstant;
+import org.joda.time.ReadablePartial;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.format.datetime.joda.DateTimeParser;
 import org.springframework.format.datetime.joda.JodaTimeFormatterRegistrar;
+import org.springframework.format.datetime.joda.ReadableInstantPrinter;
 import org.springframework.format.datetime.joda.ReadablePartialPrinter;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -60,7 +63,12 @@ public class JodaTimeFormattingPatternConfigurer extends JodaTimeFormatterRegist
   }
 
   private void register(FormatterRegistry registry, Class<?> clazz, DateTimeFormatter formatter) {
-    registry.addFormatterForFieldType(clazz, new ReadablePartialPrinter(formatter), new DateTimeParser(formatter));
+    if (ReadablePartial.class.isAssignableFrom(clazz)) {
+      registry.addFormatterForFieldType(clazz, new ReadablePartialPrinter(formatter), new DateTimeParser(formatter));
+    }
+    else if (ReadableInstant.class.isAssignableFrom(clazz)) {
+      registry.addFormatterForFieldType(clazz, new ReadableInstantPrinter(formatter), new DateTimeParser(formatter));
+    }
   }
 
   private DateTimeFormatter getJodaDateFormatter() {

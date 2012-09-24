@@ -25,7 +25,6 @@ import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.DateTime;
 
 public class ReservationView {
@@ -37,9 +36,7 @@ public class ReservationView {
   private final PortView destinationPort;
   private final String failedReason;
   private final String cancelReason;
-  @JsonSerialize(using = JsonDateTimeSerializer.class)
   private final DateTime startDateTime;
-  @JsonSerialize(using = JsonDateTimeSerializer.class)
   private final DateTime endDateTime;
   private final Integer bandwidth;
   private final String userCreated;
