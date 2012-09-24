@@ -9,32 +9,28 @@ import org.snmp4j.TransportMapping;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.TransportIpAddress;
-import org.snmp4j.smi.UdpAddress;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SnmpAgent {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  public static final String DEFAULT_COMMUNITY = "public";
+  @Value("${snmp.community}")
+  private String community;
 
-  public static final String DEFAULT_OID = ".1.3.6.1.2.1.1.8";
+  @Value("${snmp.oid}")
+  private String oid;
 
-  public static final String DEFAULT_IP_ADDRESS = "127.0.0.1";
+  @Value("${snmp.host}")
+  private String host;
 
-  public static final int DEFAULT_PORT = 1620;
+  @Value("${snmp.port}")
+  private String port;
 
-  private final TransportIpAddress transportIpAddress;
-
-  public SnmpAgent() {
-    transportIpAddress = new UdpAddress(DEFAULT_IP_ADDRESS + "/" + DEFAULT_PORT);
-  }
-
-  public SnmpAgent(final TransportIpAddress transportIpAddress) {
-    this.transportIpAddress = transportIpAddress;
-  }
-
-  public void sendTrap(final PDU pdu) {
+  public void sendTrap(final PDU pdu, final TransportIpAddress transportIpAddress) {
     try {
       // Create Transport Mapping
       final TransportMapping transportMapping = new DefaultUdpTransportMapping();
@@ -42,7 +38,7 @@ public class SnmpAgent {
 
       // Create Target
       final CommunityTarget communityTarget = new CommunityTarget();
-      communityTarget.setCommunity(new OctetString(DEFAULT_COMMUNITY));
+      communityTarget.setCommunity(new OctetString(community));
       communityTarget.setVersion(SnmpConstants.version2c);
 
       communityTarget.setAddress(transportIpAddress);
@@ -51,12 +47,28 @@ public class SnmpAgent {
 
       // Send the PDU
       Snmp snmp = new Snmp(transportMapping);
-      log.info("Sending V2 Trap: {} to DEFAULT_COMMUNITY: {}", pdu, communityTarget);
+      log.info("Sending V2 Trap: {} to community: {}", pdu, communityTarget);
       snmp.send(pdu, communityTarget);
       snmp.close();
     }
     catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  protected final String getCommunity() {
+    return community;
+  }
+
+  protected final String getOid() {
+    return oid;
+  }
+
+  protected final String getHost() {
+    return host;
+  }
+
+  protected final String getPort() {
+    return port;
   }
 }
