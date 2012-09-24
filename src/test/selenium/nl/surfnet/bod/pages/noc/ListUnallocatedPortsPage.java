@@ -52,5 +52,8 @@ public class ListUnallocatedPortsPage extends AbstractPhysicalPortListPage {
     return EditPhysicalPortPage.get(getDriver());
   }
 
-  
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
+  }
+
 }

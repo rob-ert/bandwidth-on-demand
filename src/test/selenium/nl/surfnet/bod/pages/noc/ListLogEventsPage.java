@@ -44,4 +44,8 @@ public class ListLogEventsPage extends AbstractLogEventListPage {
     driver.get(urlUnderTest + PAGE);
     return get(driver);
   }
+
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
+  }
 }

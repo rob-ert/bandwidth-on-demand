@@ -45,4 +45,7 @@ public class ListLogEventsPage extends AbstractLogEventListPage {
     return page;
   }
 
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
+  }
 }

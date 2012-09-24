@@ -21,10 +21,10 @@
  */
 package nl.surfnet.bod.pages.user;
 
+import nl.surfnet.bod.pages.AbstractPage;
+
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
-
-import nl.surfnet.bod.pages.AbstractPage;
 
 public final class RequestNewVirtualPortSelectInstitutePage extends AbstractPage {
 
@@ -45,4 +45,5 @@ public final class RequestNewVirtualPortSelectInstitutePage extends AbstractPage
     return RequestNewVirtualPortRequestPage.get(getDriver());
   }
 
+  
 }

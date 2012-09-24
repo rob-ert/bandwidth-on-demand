@@ -21,12 +21,12 @@
  */
 package nl.surfnet.bod.pages.user;
 
+import nl.surfnet.bod.pages.AbstractListPage;
+
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-
-import nl.surfnet.bod.pages.AbstractListPage;
 
 public class ListVirtualPortPage extends AbstractListPage {
 
@@ -34,7 +34,7 @@ public class ListVirtualPortPage extends AbstractListPage {
 
   @FindBy(id = "reqVpId")
   private WebElement requestVirtualPortLink;
-  
+
   public ListVirtualPortPage(RemoteWebDriver driver) {
     super(driver);
   }
@@ -60,5 +60,9 @@ public class ListVirtualPortPage extends AbstractListPage {
     requestVirtualPortLink.click();
 
     return RequestNewVirtualPortSelectTeamPage.get(getDriver());
+  }
+
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
   }
 }

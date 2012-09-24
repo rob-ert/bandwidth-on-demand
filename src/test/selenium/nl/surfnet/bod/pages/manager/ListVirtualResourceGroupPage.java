@@ -21,15 +21,15 @@
  */
 package nl.surfnet.bod.pages.manager;
 
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.PageFactory;
-
 import nl.surfnet.bod.pages.AbstractListPage;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.PageFactory;
+
 public class ListVirtualResourceGroupPage extends AbstractListPage {
 
-  private static final String PAGE =  "/manager/"  + VirtualResourceGroupController.PAGE_URL;
+  private static final String PAGE = "/manager/" + VirtualResourceGroupController.PAGE_URL;
 
   public ListVirtualResourceGroupPage(RemoteWebDriver driver) {
     super(driver);
@@ -47,4 +47,7 @@ public class ListVirtualResourceGroupPage extends AbstractListPage {
     return page;
   }
 
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
+  }
 }

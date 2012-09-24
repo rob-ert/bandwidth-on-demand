@@ -21,14 +21,14 @@
  */
 package nl.surfnet.bod.pages.manager;
 
+import nl.surfnet.bod.pages.AbstractListPage;
+
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
-import nl.surfnet.bod.pages.AbstractListPage;
-
 public class ListVirtualPortPage extends AbstractListPage {
 
-  private static final String PAGE =  "/manager/virtualports";
+  private static final String PAGE = "/manager/virtualports";
 
   public ListVirtualPortPage(RemoteWebDriver driver) {
     super(driver);
@@ -49,6 +49,10 @@ public class ListVirtualPortPage extends AbstractListPage {
   public EditVirtualPortPage edit(String orignalName) {
     editRow(orignalName);
     return EditVirtualPortPage.get(getDriver());
+  }
+
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
   }
 
 }

@@ -21,11 +21,11 @@
  */
 package nl.surfnet.bod.pages.manager;
 
+import nl.surfnet.bod.pages.AbstractPhysicalPortListPage;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
-
-import nl.surfnet.bod.pages.AbstractPhysicalPortListPage;
 
 public class ListPhysicalPortsPage extends AbstractPhysicalPortListPage {
 
@@ -57,4 +57,7 @@ public class ListPhysicalPortsPage extends AbstractPhysicalPortListPage {
     findRow(nmsPortId).findElement(By.cssSelector("a img[alt~=Create]")).click();
   }
 
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
+  }
 }

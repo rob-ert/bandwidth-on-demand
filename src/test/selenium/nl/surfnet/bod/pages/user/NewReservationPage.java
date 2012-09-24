@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.pages.user;
 
+import nl.surfnet.bod.pages.AbstractFormPage;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
@@ -34,8 +36,6 @@ import org.openqa.selenium.support.PageFactory;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ObjectArrays;
-
-import nl.surfnet.bod.pages.AbstractFormPage;
 
 public class NewReservationPage extends AbstractFormPage {
 
@@ -107,17 +107,21 @@ public class NewReservationPage extends AbstractFormPage {
 
     input.click();
 
-    input.sendKeys(ObjectArrays.concat(Keys.END, FluentIterable.from(Iterables.cycle(Keys.BACK_SPACE)).limit(15).toArray(Keys.class)));
+    input.sendKeys(ObjectArrays.concat(Keys.END, FluentIterable.from(Iterables.cycle(Keys.BACK_SPACE)).limit(15)
+        .toArray(Keys.class)));
 
-    System.out.println(String.format("Text before send keys 1 of %s: %s", input.getAttribute("name"), input.getAttribute("value")));
+    System.out.println(String.format("Text before send keys 1 of %s: %s", input.getAttribute("name"),
+        input.getAttribute("value")));
 
     input.clear();
 
-    System.out.println(String.format("Text before send keys  2 of %s: %s", input.getAttribute("name"), input.getAttribute("value")));
+    System.out.println(String.format("Text before send keys  2 of %s: %s", input.getAttribute("name"),
+        input.getAttribute("value")));
 
     input.sendKeys(Keys.chord(Keys.CONTROL, "a"), dateString);
 
-    System.out.println(String.format("Text after send keys of %s: %s", input.getAttribute("name"), input.getAttribute("value")));
+    System.out.println(String.format("Text after send keys of %s: %s", input.getAttribute("name"),
+        input.getAttribute("value")));
   }
 
   public void sendEndTime(LocalTime endTime) {
@@ -149,6 +153,10 @@ public class NewReservationPage extends AbstractFormPage {
 
   public void clickForever() {
     foreverCheckbox.click();
+  }
+
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
   }
 
 }

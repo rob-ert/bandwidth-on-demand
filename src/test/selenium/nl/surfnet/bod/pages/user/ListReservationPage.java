@@ -68,4 +68,7 @@ public class ListReservationPage extends AbstractReservationListPage {
     getProbes().assertTextPresent(reservation, status.name());
   }
 
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
+  }
 }

@@ -9,7 +9,6 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 public class DashboardPage extends AbstractListPage {
@@ -43,37 +42,38 @@ public class DashboardPage extends AbstractListPage {
     assertThat(getCountMenuItems(), is(6));
   }
 
-  
   public void verifyMenuReservations() {
     navBar.findElement(By.xpath(".//a[contains(text(), 'Reservations')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("reservations"));
+    ListReservationPage.get(getDriver()).verifyIsCurrentPage();
   }
 
   public void verifyMenuTeams() {
     navBar.findElement(By.xpath(".//a[contains(text(), 'Teams')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("teams"));
-
+    ListVirtualResourceGroupPage.get(getDriver()).verifyIsCurrentPage();
   }
 
   public void verifyMenuVirtualPorts() {
     navBar.findElement(By.xpath(".//a[contains(text(), 'Virtual')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("virtualports"));
+    ListVirtualPortPage.get(getDriver()).verifyIsCurrentPage();
   }
 
   public void verifyMenuPhysicalPorts() {
     navBar.findElement(By.xpath(".//a[contains(text(), 'Physical')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("physicalports"));
-
+    ListPhysicalPortsPage.get(getDriver()).verifyIsCurrentPage();
   }
 
   public void verifyMenuLogEvents() {
     navBar.findElement(By.xpath(".//a[contains(text(), 'Log')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("logevents"));
+    ListLogEventsPage.get(getDriver()).verifyIsCurrentPage();
   }
-  
+
   public void verifyMenuOverview() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Overview')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("/manager"));
+    verifyIsCurrentPage();
+  }
+
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
   }
 
 }

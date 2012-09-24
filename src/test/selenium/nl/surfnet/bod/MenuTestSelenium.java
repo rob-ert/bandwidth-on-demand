@@ -9,7 +9,7 @@ public class MenuTestSelenium extends TestExternalSupport {
 
   @Before
   public void onSetup() {
-    //Just what this test needs... :-)
+    // Just what this test needs... :-)
     new ReservationTestSelenium().setup();
   }
 

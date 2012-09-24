@@ -7,7 +7,6 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 public class DashboardPage extends AbstractListPage {
@@ -40,40 +39,41 @@ public class DashboardPage extends AbstractListPage {
 
   public void verifyMenuReservations() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Reservations')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("reservations"));
+    ListReservationPage.get(getDriver()).verifyIsCurrentPage();
   }
 
   public void verifyMenuTeams() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Teams')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("teams"));
+    ListVirtualResourceGroupPage.get(getDriver()).verifyIsCurrentPage();
   }
 
   public void verifyMenuInstitutes() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Institutes')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("institutes"));
-
+    ListPhysicalResourceGroupPage.get(getDriver()).verifyIsCurrentPage();
   }
 
   public void verifyMenuVirtualPorts() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Virtual')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("virtualports"));
-
+    ListVirtualPortPage.get(getDriver()).verifyIsCurrentPage();
   }
 
   public void verifyMenuPhysicalPorts() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Physical')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("physicalports"));
-
+    ListAllocatedPortsPage.get(getDriver()).verifyIsCurrentPage();
   }
 
   public void verifyMenuLogEvents() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Log')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("logevents"));
+    ListLogEventsPage.get(getDriver()).verifyIsCurrentPage();
   }
 
   public void verifyMenuOverview() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Overview')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("/noc"));
+    verifyIsCurrentPage();
+  }
+
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
   }
 
 }

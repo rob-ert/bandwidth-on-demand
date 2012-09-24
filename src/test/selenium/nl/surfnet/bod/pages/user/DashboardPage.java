@@ -16,7 +16,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 public class DashboardPage extends AbstractListPage {
@@ -70,25 +69,26 @@ public class DashboardPage extends AbstractListPage {
 
   public void verifyMenuReservations() {
     navBar.findElement(By.xpath(".//a[contains(text(), 'Reservations')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("reservations"));
-
+    ListReservationPage.get(getDriver()).verifyIsCurrentPage();
   }
 
   public void verifyMenuVirtualPorts() {
     navBar.findElement(By.xpath(".//a[contains(text(), 'Virtual')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("virtualport"));
-
+    ListVirtualPortPage.get(getDriver()).verifyIsCurrentPage();
   }
 
   public void verifyMenuLogEvents() {
     navBar.findElement(By.xpath(".//a[contains(text(), 'Log')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("logevents"));
+    ListLogEventsPage.get(getDriver()).verifyIsCurrentPage();
 
   }
-  
+
   public void verifyMenuOverview() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Overview')]")).click();
-    assertThat(getDriver().getCurrentUrl(), containsString("bod/"));
+    verifyIsCurrentPage();
   }
 
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
+  }
 }

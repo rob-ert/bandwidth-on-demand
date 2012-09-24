@@ -21,10 +21,10 @@
  */
 package nl.surfnet.bod.pages.noc;
 
+import nl.surfnet.bod.pages.AbstractPhysicalPortListPage;
+
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
-
-import nl.surfnet.bod.pages.AbstractPhysicalPortListPage;
 
 public class ListAllocatedPortsPage extends AbstractPhysicalPortListPage {
 
@@ -62,4 +62,7 @@ public class ListAllocatedPortsPage extends AbstractPhysicalPortListPage {
     return MovePhysicalPortPage.get(getDriver());
   }
 
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
+  }
 }

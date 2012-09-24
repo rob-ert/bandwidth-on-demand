@@ -38,6 +38,9 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+
 public class AbstractPage {
 
   private final RemoteWebDriver driver;
@@ -119,6 +122,10 @@ public class AbstractPage {
 
   protected int getCountMenuItems() {
     return navBar.findElements(By.xpath(".//a")).size();
+  }
+
+  protected void verifyIsCurrentPage(String page) {
+    assertThat(getDriver().getCurrentUrl(), containsString(page));
   }
 
   private boolean containsAll(String input, String[] needles) {

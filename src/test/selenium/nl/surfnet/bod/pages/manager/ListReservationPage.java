@@ -21,10 +21,10 @@
  */
 package nl.surfnet.bod.pages.manager;
 
+import nl.surfnet.bod.pages.AbstractReservationListPage;
+
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
-
-import nl.surfnet.bod.pages.AbstractReservationListPage;
 
 public class ListReservationPage extends AbstractReservationListPage {
   private static final String PAGE = "/manager/reservations";
@@ -43,6 +43,10 @@ public class ListReservationPage extends AbstractReservationListPage {
   public static ListReservationPage get(RemoteWebDriver driver, String urlUnderTest) {
     driver.get(urlUnderTest + PAGE);
     return get(driver);
+  }
+
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
   }
 
 }

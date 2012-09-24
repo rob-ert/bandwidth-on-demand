@@ -28,7 +28,7 @@ import org.openqa.selenium.support.PageFactory;
 
 public class ListVirtualPortPage extends AbstractListPage {
 
-  private static final String PAGE =  "/noc/virtualports";
+  private static final String PAGE = "/noc/virtualports";
 
   public ListVirtualPortPage(RemoteWebDriver driver) {
     super(driver);
@@ -46,6 +46,8 @@ public class ListVirtualPortPage extends AbstractListPage {
     return get(driver);
   }
 
-  
+  public void verifyIsCurrentPage() {
+    super.verifyIsCurrentPage(PAGE);
+  }
 
 }
