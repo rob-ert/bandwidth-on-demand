@@ -288,6 +288,7 @@ public class BodNocWebDriver {
     int numberOfItems = prgListPage.getNumberFromRowWithLinkAndClick(groupName, "noc/physicalports", "Show");
 
     ListAllocatedPortsPage appListPage = ListAllocatedPortsPage.get(driver);
+    appListPage.verifyIsCurrentPage();
     appListPage.verifyAmountOfRowsWithLabel(numberOfItems, groupName);
   }
 
@@ -297,6 +298,7 @@ public class BodNocWebDriver {
     int numberOfItems = vrgListPage.getNumberFromRowWithLinkAndClick(teamName, "noc/virtualports", "Show");
 
     ListVirtualPortPage vpListPage = ListVirtualPortPage.get(driver);
+    vpListPage.verifyIsCurrentPage();
     vpListPage.verifyAmountOfRowsWithLabel(numberOfItems, teamName);
   }
 
@@ -306,6 +308,7 @@ public class BodNocWebDriver {
     int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("Allocated", "noc/physicalports", "Show");
 
     ListAllocatedPortsPage listAllocatedPortsPage = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
+    listAllocatedPortsPage.verifyIsCurrentPage();
     listAllocatedPortsPage.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
   }
 
@@ -316,6 +319,7 @@ public class BodNocWebDriver {
         "Show");
 
     ListReservationPage reservationsPage = ListReservationPage.get(driver, URL_UNDER_TEST);
+    reservationsPage.verifyIsCurrentPage();
     reservationsPage.filterReservations(ReservationFilterViewFactory.ELAPSED);
     reservationsPage.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
   }
@@ -331,6 +335,7 @@ public class BodNocWebDriver {
 
     int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("in", "noc/reservations/filter/coming", "Show");
     ListReservationPage reservationsPage = ListReservationPage.get(driver, URL_UNDER_TEST);
+    reservationsPage.verifyIsCurrentPage();
     reservationsPage.filterReservations(ReservationFilterViewFactory.COMING);
     reservationsPage.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
   }

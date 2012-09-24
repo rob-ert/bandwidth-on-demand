@@ -292,6 +292,7 @@ public class BodManagerWebDriver {
     int numberOfItems = vrgListPage.getNumberFromRowWithLinkAndClick(teamName, "manager/virtualports", "Show");
 
     ListVirtualPortPage vpListPage = ListVirtualPortPage.get(driver);
+    vpListPage.verifyIsCurrentPage();
     vpListPage.verifyAmountOfRowsWithLabel(numberOfItems, teamName);
   }
 
@@ -301,6 +302,7 @@ public class BodManagerWebDriver {
     int numberOfItems = ppListPage.getNumberFromRowWithLinkAndClick(physicalPortBodAdminLabel, "manager/virtualports",
         "Show");
     ListVirtualPortPage vpListPage = ListVirtualPortPage.get(driver);
+    vpListPage.verifyIsCurrentPage();
     vpListPage.verifyAmountOfRowsWithLabel(numberOfItems, virtualPortBodAdminLabel);
   }
 
@@ -310,6 +312,7 @@ public class BodManagerWebDriver {
     int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("Physical", "manager/physicalports", "Show");
 
     ListPhysicalPortsPage listPhysicalPorts = ListPhysicalPortsPage.get(driver, URL_UNDER_TEST);
+    listPhysicalPorts.verifyIsCurrentPage();
     listPhysicalPorts.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
   }
 
@@ -320,6 +323,7 @@ public class BodManagerWebDriver {
         "Show");
 
     ListReservationPage reservationsPage = ListReservationPage.get(driver, URL_UNDER_TEST);
+    reservationsPage.verifyIsCurrentPage();
     reservationsPage.filterReservations(ReservationFilterViewFactory.ELAPSED);
     reservationsPage.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
   }
@@ -336,6 +340,7 @@ public class BodManagerWebDriver {
     int expectedAmount = dashboardPage.getNumberFromRowWithLinkAndClick("in", "manager/reservations/filter/coming",
         "Show");
     ListReservationPage reservationsPage = ListReservationPage.get(driver, URL_UNDER_TEST);
+    reservationsPage.verifyIsCurrentPage();
     reservationsPage.filterReservations(ReservationFilterViewFactory.COMING);
     reservationsPage.verifyAmountOfRowsWithLabel(expectedAmount, ArrayUtils.EMPTY_STRING_ARRAY);
   }

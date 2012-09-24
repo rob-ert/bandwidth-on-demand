@@ -251,7 +251,7 @@ public class BodUserWebDriver {
 
     ListReservationPage reservationPage = ListReservationPage.get(driver, URL_UNDER_TEST);
     reservationPage.filterReservations(ReservationFilterViewFactory.COMING);
-
+    reservationPage.verifyIsCurrentPage();
     assertThat(numberOfItems, is(reservationPage.getNumberOfRows()));
   }
 
@@ -263,6 +263,7 @@ public class BodUserWebDriver {
 
     ListReservationPage reservationPage = ListReservationPage.get(driver, URL_UNDER_TEST);
     reservationPage.filterReservations(ReservationFilterViewFactory.ELAPSED);
+    reservationPage.verifyIsCurrentPage();
     assertThat(numberOfItems, is(reservationPage.getNumberOfRows()));
 
   }
@@ -279,6 +280,7 @@ public class BodUserWebDriver {
     int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(team,
         String.format("virtualports/search?search=team:%%22%s%%22", team), "Show");
     ListVirtualPortPage vpPage = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
+    vpPage.verifyIsCurrentPage();
     assertThat(numberOfItems, is(vpPage.getNumberOfRows()));
   }
 
