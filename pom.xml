@@ -542,7 +542,8 @@
         <dependency>
             <groupId>org.snmp4j</groupId>
             <artifactId>snmp4j</artifactId>
-            <version>1.11.3</version>
+            <!-- <version>1.11.3</version> -->
+            <version>1.10.1</version>
         </dependency>
 
         <dependency>
