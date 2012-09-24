@@ -18,7 +18,6 @@ import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.IpAddress;
 import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
-import org.snmp4j.smi.UdpAddress;
 import org.snmp4j.smi.VariableBinding;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -30,7 +29,8 @@ public class SnmpAgentTest {
   @Resource
   private SnmpAgent snmpAgent;
 
-  private final SnmpOfflineManager snmpOfflineManager = new SnmpOfflineManager();
+  @Resource
+  private SnmpOfflineManager snmpOfflineManager;
 
   private final PDU pdu = new PDU();
 
@@ -44,7 +44,9 @@ public class SnmpAgentTest {
 
   @Before
   public void setUp() throws Exception {
+    
     snmpOfflineManager.startup();
+
     // need to specify the system up time
     pdu.add(new VariableBinding(SnmpConstants.sysUpTime, new OctetString(new Date().toString())));
     pdu.add(new VariableBinding(SnmpConstants.snmpTrapOID, new OID(snmpAgent.getOid())));
@@ -60,7 +62,7 @@ public class SnmpAgentTest {
 
   @Test
   public void should_send_and_receive_pdu() {
-    snmpAgent.sendTrap(pdu, new UdpAddress(snmpAgent.getHost() + snmpAgent.getPort()));
+    snmpAgent.sendTrap(pdu);
     final PDU lastTrap = snmpOfflineManager.getOrWaitForLastTrap(10);
     assertThat(lastTrap.getType(), is(PDU.TRAP));
     final String lastVariableBindingsAsString = lastTrap.getVariableBindings().toString();
