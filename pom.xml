@@ -539,6 +539,12 @@
             <version>3.0.0.CR1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.snmp4j</groupId>
+            <artifactId>snmp4j</artifactId>
+            <version>1.11.3</version>
+        </dependency>
+
     </dependencies>
     <build>
         <resources>
@@ -977,6 +983,11 @@
             <id>JBoss Repo</id>
             <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
             <name>JBoss Repo</name>
+        </repository>
+        <repository>
+            <id>JBoss Thirdparty Uploads</id>
+            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-uploads</url>
+            <name>JBoss Thirdparty Uploads</name>
         </repository>
         <repository>
             <id>surfnet-third-party</id>
