@@ -545,6 +545,12 @@
             <version>1.11.3</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.snmp4j</groupId>
+            <artifactId>snmp4j-agent</artifactId>
+            <version>1.3.1</version>
+        </dependency>
+
     </dependencies>
     <build>
         <resources>
@@ -998,6 +1004,11 @@
             <id>surfnet-releases</id>
             <name>surfnet-releases</name>
             <url>http://atlas.dlp.surfnet.nl/nexus/content/repositories/releases</url>
+        </repository>
+        <repository>
+            <id>oss.sonatype.org central-sync</id>
+            <name>oss.sonatype.org central-sync</name>
+            <url>https://oss.sonatype.org/content/repositories/central-sync</url>
         </repository>
     </repositories>
     <pluginRepositories>
