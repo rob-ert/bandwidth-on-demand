@@ -1,7 +1,5 @@
 package nl.surfnet.bod.snmp;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snmp4j.CommunityTarget;
@@ -10,7 +8,6 @@ import org.snmp4j.Snmp;
 import org.snmp4j.TransportMapping;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.OctetString;
-import org.snmp4j.smi.TransportIpAddress;
 import org.snmp4j.smi.UdpAddress;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,13 +30,6 @@ public class SnmpAgent {
   @Value("${snmp.port}")
   private String port;
 
-  private TransportIpAddress transportIpAddress;
-
-  @PostConstruct
-  private void init() {
-    transportIpAddress = new UdpAddress(getHost() + getPort());
-  }
-
   public void sendTrap(final PDU pdu) {
     try {
       // Create Transport Mapping
@@ -51,7 +41,7 @@ public class SnmpAgent {
       communityTarget.setCommunity(new OctetString(community));
       communityTarget.setVersion(SnmpConstants.version2c);
 
-      communityTarget.setAddress(transportIpAddress);
+      communityTarget.setAddress(new UdpAddress(getHost() + getPort()));
       communityTarget.setRetries(2);
       communityTarget.setTimeout(5000);
 

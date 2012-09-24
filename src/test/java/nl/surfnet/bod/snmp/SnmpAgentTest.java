@@ -44,7 +44,7 @@ public class SnmpAgentTest {
 
   @Before
   public void setUp() throws Exception {
-    
+
     snmpOfflineManager.startup();
 
     // need to specify the system up time

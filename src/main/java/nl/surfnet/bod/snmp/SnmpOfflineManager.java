@@ -18,7 +18,6 @@ import org.snmp4j.Snmp;
 import org.snmp4j.mp.MPv2c;
 import org.snmp4j.security.SecurityProtocols;
 import org.snmp4j.smi.OctetString;
-import org.snmp4j.smi.TransportIpAddress;
 import org.snmp4j.smi.UdpAddress;
 import org.snmp4j.transport.AbstractTransportMapping;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
@@ -32,13 +31,11 @@ public class SnmpOfflineManager implements CommandResponder, Runnable {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private final LinkedBlockingDeque<PDU> lastRequests = new LinkedBlockingDeque<>();
+  private final LinkedBlockingDeque<PDU> receivedTraps = new LinkedBlockingDeque<>();
 
   private AbstractTransportMapping abstractTransportMapping = null;
 
   private final Thread commandResponder = new Thread(this);
-
-  private TransportIpAddress transportIpAddress;
 
   @Value("${snmp.community}")
   private String community;
@@ -53,14 +50,8 @@ public class SnmpOfflineManager implements CommandResponder, Runnable {
   private String port;
 
   @PostConstruct
-  private void init() {
-    transportIpAddress = new UdpAddress(host + port);
-    try {
-      abstractTransportMapping = new DefaultUdpTransportMapping((UdpAddress) transportIpAddress);
-    }
-    catch (IOException e) {
-      log.error("Error: ", e);
-    }
+  private void init() throws IOException {
+    abstractTransportMapping = new DefaultUdpTransportMapping(new UdpAddress(host + port));
   }
 
   @Override
@@ -117,8 +108,8 @@ public class SnmpOfflineManager implements CommandResponder, Runnable {
   public void processPdu(final CommandResponderEvent commandResponderEvent) {
     log.info("Received CommandResponderEvent: " + commandResponderEvent);
     final PDU pdu = commandResponderEvent.getPDU();
-    lastRequests.add(pdu);
     if (pdu != null) {
+      receivedTraps.add(pdu);
       log.info("Trap Type = " + pdu.getType());
       log.info("Variable Bindings = " + pdu.getVariableBindings());
     }
@@ -126,7 +117,7 @@ public class SnmpOfflineManager implements CommandResponder, Runnable {
 
   public final PDU getOrWaitForLastTrap(final long seconds) {
     try {
-      return lastRequests.pollLast(seconds, TimeUnit.SECONDS);
+      return receivedTraps.pollLast(seconds, TimeUnit.SECONDS);
     }
     catch (InterruptedException e) {
       log.error("Error: ", e);
