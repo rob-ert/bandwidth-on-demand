@@ -26,7 +26,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 
 public class ReservationView {
   private final Long id;
@@ -37,15 +37,15 @@ public class ReservationView {
   private final PortView destinationPort;
   private final String failedReason;
   private final String cancelReason;
-  @JsonSerialize(using = JsonLocalDateTimeSerializer.class)
-  private final LocalDateTime startDateTime;
-  @JsonSerialize(using = JsonLocalDateTimeSerializer.class)
-  private final LocalDateTime endDateTime;
+  @JsonSerialize(using = JsonDateTimeSerializer.class)
+  private final DateTime startDateTime;
+  @JsonSerialize(using = JsonDateTimeSerializer.class)
+  private final DateTime endDateTime;
   private final Integer bandwidth;
   private final String userCreated;
   private final String reservationId;
   private final String connectionId;
-  private final LocalDateTime creationDateTime;
+  private final DateTime creationDateTime;
   private final ElementActionView deleteActionView;
   private final ProtectionType protectionType;
 
@@ -89,11 +89,11 @@ public class ReservationView {
     return failedReason;
   }
 
-  public LocalDateTime getStartDateTime() {
+  public DateTime getStartDateTime() {
     return startDateTime;
   }
 
-  public LocalDateTime getEndDateTime() {
+  public DateTime getEndDateTime() {
     return endDateTime;
   }
 
@@ -113,7 +113,7 @@ public class ReservationView {
     return reservationId;
   }
 
-  public LocalDateTime getCreationDateTime() {
+  public DateTime getCreationDateTime() {
     return creationDateTime;
   }
 

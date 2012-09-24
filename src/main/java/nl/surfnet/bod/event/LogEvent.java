@@ -41,7 +41,7 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -60,11 +60,11 @@ public class LogEvent {
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
-  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
   @Field(index = Index.YES, store = Store.YES)
   @Analyzer(definition = "customanalyzer")
   @FieldBridge(impl = TimeStampBridge.class)
-  private final LocalDateTime created;
+  private final DateTime created;
 
   @Field(index = Index.YES, store = Store.YES)
   @Analyzer(definition = "customanalyzer")
@@ -120,7 +120,7 @@ public class LogEvent {
     this.eventType = type;
     this.details = details;
 
-    this.created = LocalDateTime.now();
+    this.created = DateTime.now();
 
     if (domainObject == null) {
       this.description = null;
@@ -137,7 +137,7 @@ public class LogEvent {
     return domainObject.toString();
   }
 
-  public LocalDateTime getCreated() {
+  public DateTime getCreated() {
     return created;
   }
 

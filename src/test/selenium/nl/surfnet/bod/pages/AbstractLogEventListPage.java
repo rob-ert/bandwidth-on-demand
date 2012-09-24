@@ -1,5 +1,6 @@
 package nl.surfnet.bod.pages;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -17,7 +18,7 @@ public abstract class AbstractLogEventListPage extends AbstractListPage {
     return getRows().size();
   }
 
-  public void logEventShouldBe(LocalDateTime created, String... fields) {
+  public void logEventShouldBe(DateTime created, String... fields) {
 
     WebElement row = findRow(fields);
 

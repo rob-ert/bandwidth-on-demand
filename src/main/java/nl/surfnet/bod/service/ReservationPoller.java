@@ -28,7 +28,11 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
-import org.joda.time.LocalDateTime;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,10 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Uninterruptibles;
-
-import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
 
 /**
  * This class is responsible for monitoring changes of a
@@ -76,7 +76,7 @@ public class ReservationPoller {
    */
   @Scheduled(cron = "0 * * * * *")
   public void pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged() {
-    LocalDateTime dateTime = LocalDateTime.now().withSecondOfMinute(0).withMillisOfSecond(0);
+    DateTime dateTime = DateTime.now().withSecondOfMinute(0).withMillisOfSecond(0);
     Collection<Reservation> reservations = reservationService.findReservationsToPoll(dateTime);
 
     logger.info("Found {} reservations that are running or could start running", reservations.size());

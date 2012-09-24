@@ -21,6 +21,38 @@
  */
 package nl.surfnet.bod.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Loggable;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.event.LogEventType;
+import nl.surfnet.bod.repo.LogEventRepo;
+import nl.surfnet.bod.support.InstituteFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.web.security.RichUserDetails;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeUtils;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.springframework.data.domain.Sort;
+
+import com.google.common.collect.Lists;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -31,30 +63,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.event.LogEventType;
-import nl.surfnet.bod.repo.LogEventRepo;
-import nl.surfnet.bod.support.*;
-import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.web.security.RichUserDetails;
-
-import org.joda.time.DateTimeUtils;
-import org.joda.time.LocalDateTime;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
-import org.springframework.data.domain.Sort;
-
-import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LogEventServiceTest {
@@ -80,13 +88,13 @@ public class LogEventServiceTest {
   @InjectMocks
   private LogEventService subject;
 
-  private RichUserDetails user = new RichUserDetailsFactory().addUserGroup(GROUP_ID).create();
-  private VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
+  private final RichUserDetails user = new RichUserDetailsFactory().addUserGroup(GROUP_ID).create();
+  private final VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
 
   @Test
   public void shouldCreateLogEvent() {
     try {
-      LocalDateTime now = LocalDateTime.now();
+      DateTime now = DateTime.now();
       DateTimeUtils.setCurrentMillisFixed(now.toDate().getTime());
 
       LogEvent logEvent = subject.createLogEvent(user, LogEventType.CREATE, vrg, LOG_DETAILS);

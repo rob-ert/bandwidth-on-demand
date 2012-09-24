@@ -21,18 +21,18 @@
  */
 package nl.surfnet.bod.web.view;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-
 import java.io.IOException;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.joda.time.LocalDateTime;
-import org.junit.Test;
 
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.security.Security;
+
+import org.codehaus.jackson.map.ObjectMapper;
+import org.joda.time.DateTime;
+import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 
 public class ReservationViewJsonRenderTest {
 
@@ -41,7 +41,7 @@ public class ReservationViewJsonRenderTest {
   @Test
   public void jodaTimesShouldBePrettyPrinted() throws IOException {
     Security.setUserDetails(new RichUserDetailsFactory().create());
-    LocalDateTime startDateTime = new LocalDateTime(2009, 3, 23, 12, 0);
+    DateTime startDateTime = new DateTime(2009, 3, 23, 12, 0);
 
     ElementActionView actionView = new ElementActionView(false);
 

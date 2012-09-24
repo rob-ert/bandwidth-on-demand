@@ -23,10 +23,15 @@ package nl.surfnet.bod.support;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ProtectionType;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.web.user.ReservationController;
 
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 import org.joda.time.ReadablePeriod;
 
 public class ReservationFactory {
@@ -39,14 +44,14 @@ public class ReservationFactory {
   private ReservationStatus status = ReservationStatus.SCHEDULED;
   private VirtualPort sourcePort;
   private VirtualPort destinationPort;
-  private LocalDateTime startDateTime = LocalDateTime.now().withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0);
-  private LocalDateTime endDateTime = startDateTime.plusDays(1).plus(ReservationController.DEFAULT_RESERVATON_DURATION);
+  private DateTime startDateTime = DateTime.now().withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0);
+  private DateTime endDateTime = startDateTime.plusDays(1).plus(ReservationController.DEFAULT_RESERVATON_DURATION);
   private String userCreated = "urn:truusvisscher";
   private Integer bandwidth = 10000;
   private String reservationId = "9" + String.valueOf(id);
   private String failedReason;
   private String cancelReason;
-  private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
+  private final VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
   private Connection connection;
   private ProtectionType protectionType = ProtectionType.PROTECTED;
 
@@ -127,12 +132,12 @@ public class ReservationFactory {
     return this;
   }
 
-  public ReservationFactory setEndDateTime(LocalDateTime endDateTime) {
+  public ReservationFactory setEndDateTime(DateTime endDateTime) {
     this.endDateTime = endDateTime;
     return this;
   }
 
-  public ReservationFactory setStartDateTime(LocalDateTime startDateTime) {
+  public ReservationFactory setStartDateTime(DateTime startDateTime) {
     this.startDateTime = startDateTime;
     return this;
   }
@@ -157,7 +162,7 @@ public class ReservationFactory {
     return this;
   }
 
-  public ReservationFactory setStartAndDuration(LocalDateTime start, ReadablePeriod period) {
+  public ReservationFactory setStartAndDuration(DateTime start, ReadablePeriod period) {
     setStartDateTime(start);
 
     setEndDateTime(start.plus(period));

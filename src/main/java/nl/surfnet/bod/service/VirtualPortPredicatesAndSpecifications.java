@@ -28,11 +28,19 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalPort_;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualPortRequestLink_;
+import nl.surfnet.bod.domain.VirtualPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.joda.time.DateMidnight;
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 import org.springframework.data.jpa.domain.Specification;
 
 public final class VirtualPortPredicatesAndSpecifications {
@@ -68,7 +76,7 @@ public final class VirtualPortPredicatesAndSpecifications {
   static Specification<VirtualPort> byPhysicalPortSpec(final PhysicalPort physicalPort) {
     return new Specification<VirtualPort>() {
 
-      private Long physicalPortId = physicalPort.getId();
+      private final Long physicalPortId = physicalPort.getId();
 
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
@@ -83,7 +91,7 @@ public final class VirtualPortPredicatesAndSpecifications {
 
       @Override
       public Predicate toPredicate(Root<VirtualPortRequestLink> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        LocalDateTime start = new LocalDateTime(DateMidnight.now().plusDays(1).toDate().getTime());
+        DateTime start = new DateTime(DateMidnight.now().plusDays(1).toDate().getTime());
 
         return cb
             .and(

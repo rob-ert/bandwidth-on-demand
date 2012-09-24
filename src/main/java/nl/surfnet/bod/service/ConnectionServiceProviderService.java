@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.*;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -31,7 +29,17 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.xml.ws.Holder;
 
-import org.joda.time.LocalDateTime;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
+import nl.surfnet.bod.repo.ConnectionRepo;
+import nl.surfnet.bod.web.security.RichUserDetails;
+
+import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.DetailedPathType;
@@ -55,15 +63,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
-import nl.surfnet.bod.repo.ConnectionRepo;
-import nl.surfnet.bod.web.security.RichUserDetails;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
 
 @Service
 public class ConnectionServiceProviderService {
@@ -87,18 +87,18 @@ public class ConnectionServiceProviderService {
     final VirtualPort sourcePort = virtualPortService.findByNsiStpId(connection.getSourceStpId());
     final VirtualPort destinationPort = virtualPortService.findByNsiStpId(connection.getDestinationStpId());
 
-    Function<Date, LocalDateTime> dateToLocalDateTime = new Function<Date, LocalDateTime>() {
+    Function<Date, DateTime> dateToDateTime = new Function<Date, DateTime>() {
       @Override
-      public LocalDateTime apply(Date input) {
-        return new LocalDateTime(input);
+      public DateTime apply(Date input) {
+        return new DateTime(input);
       }
     };
 
     Reservation reservation = new Reservation();
     reservation.setConnection(connection);
     reservation.setName(connection.getDescription());
-    reservation.setStartDateTime(connection.getStartTime().transform(dateToLocalDateTime).orNull());
-    reservation.setEndDateTime(connection.getEndTime().transform(dateToLocalDateTime).orNull());
+    reservation.setStartDateTime(connection.getStartTime().transform(dateToDateTime).orNull());
+    reservation.setEndDateTime(connection.getEndTime().transform(dateToDateTime).orNull());
     reservation.setSourcePort(sourcePort);
     reservation.setDestinationPort(destinationPort);
     reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
@@ -106,7 +106,7 @@ public class ConnectionServiceProviderService {
     reservation.setUserCreated(connection.getRequesterNsa());
     
     
-    final LocalDateTime now = new LocalDateTime();
+    final DateTime now = new DateTime();
     if (reservation.getStartDateTime() != null && reservation.getStartDateTime().isBefore(now)) {
       log.info("Reservation startdate is in past: {} setting it to now {}", reservation.getStartDateTime(), now);
       reservation.setStartDateTime(now);

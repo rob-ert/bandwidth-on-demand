@@ -3,7 +3,7 @@ package nl.surfnet.bod.util;
 import java.sql.Timestamp;
 
 import org.hibernate.search.bridge.StringBridge;
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 
 /**
  * Handles parsing of timestamps to a String so it can be searched. Needed since
@@ -19,9 +19,13 @@ public class TimeStampBridge implements StringBridge {
     if (object == null) {
       // null
     }
-    else if (LocalDateTime.class.isAssignableFrom(object.getClass())) {
-      LocalDateTime localDateTime = (LocalDateTime) object;
-      result = localDateTime.toString();
+    else if (DateTime.class.isAssignableFrom(object.getClass())) {
+      DateTime dateTime = (DateTime) object;
+
+      // Remove timezone offset
+      String dtString = dateTime.toString();
+      int timeZoneCharPos = dtString.indexOf( "+");
+      result = dtString.substring(0,  timeZoneCharPos);
     }
     else if (Timestamp.class.isAssignableFrom(object.getClass())) {
       Timestamp timestamp = (Timestamp) object;

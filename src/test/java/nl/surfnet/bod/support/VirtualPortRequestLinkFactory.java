@@ -21,21 +21,21 @@
  */
 package nl.surfnet.bod.support;
 
-import org.joda.time.LocalDateTime;
-
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 
+import org.joda.time.DateTime;
+
 public class VirtualPortRequestLinkFactory {
 
   private VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().create();
   private PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
-  private LocalDateTime requestDateTime = LocalDateTime.now();
-  private String requestorUrn = "urn:truusvisscher";
-  private String requestorName = "Truus Visscher";
-  private String requestorEmail = "truus@visscher.nl";
+  private final DateTime requestDateTime = DateTime.now();
+  private final String requestorUrn = "urn:truusvisscher";
+  private final String requestorName = "Truus Visscher";
+  private final String requestorEmail = "truus@visscher.nl";
   private String uuid;
   private String message = "I would like to have a new virtual port to do my work.";
   private Integer minBandwidth = 1000;

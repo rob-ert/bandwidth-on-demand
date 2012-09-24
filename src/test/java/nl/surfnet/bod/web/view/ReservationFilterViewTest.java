@@ -21,15 +21,15 @@
  */
 package nl.surfnet.bod.web.view;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.joda.time.Months;
 import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class ReservationFilterViewTest {
 
@@ -47,7 +47,7 @@ public class ReservationFilterViewTest {
 
   @Test
   public void testCommingPeriod() {
-    LocalDateTime now = LocalDateTime.now();
+    DateTime now = DateTime.now();
 
     try {
       DateTimeUtils.setCurrentMillisFixed(now.toDateTime().getMillis());
@@ -63,7 +63,7 @@ public class ReservationFilterViewTest {
 
   @Test
   public void testElapsedPeriod() {
-    LocalDateTime now = LocalDateTime.now();
+    DateTime now = DateTime.now();
 
     try {
       DateTimeUtils.setCurrentMillisFixed(now.toDateTime().getMillis());

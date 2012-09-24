@@ -36,7 +36,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 
 @Entity
 public class VirtualPortRequestLink implements Loggable {
@@ -65,8 +65,8 @@ public class VirtualPortRequestLink implements Loggable {
   private String requestorUrn;
 
   @NotNull
-  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
-  private LocalDateTime requestDateTime;
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+  private DateTime requestDateTime;
 
   @NotNull
   @ManyToOne
@@ -125,11 +125,11 @@ public class VirtualPortRequestLink implements Loggable {
     this.physicalResourceGroup = physicalResourceGroup;
   }
 
-  public LocalDateTime getRequestDateTime() {
+  public DateTime getRequestDateTime() {
     return requestDateTime;
   }
 
-  public void setRequestDateTime(LocalDateTime requestDateTime) {
+  public void setRequestDateTime(DateTime requestDateTime) {
     this.requestDateTime = requestDateTime;
   }
 

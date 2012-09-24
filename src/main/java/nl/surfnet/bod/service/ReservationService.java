@@ -21,9 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.*;
-import static nl.surfnet.bod.domain.ReservationStatus.*;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,28 +35,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-
-import org.joda.time.LocalDateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.domain.Specifications;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.NsiRequestDetails;
@@ -83,6 +58,35 @@ import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
+
+import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.domain.Specifications;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
+import static nl.surfnet.bod.domain.ReservationStatus.PREPARING;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 
 @Service
 @Transactional
@@ -270,7 +274,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
    */
-  public Collection<Reservation> findReservationsToPoll(LocalDateTime dateTime) {
+  public Collection<Reservation> findReservationsToPoll(DateTime dateTime) {
     Set<Reservation> reservations = Sets.newHashSet();
     reservations.addAll(reservationRepo.findAll(specReservationsThatCouldStart(dateTime)));
     reservations.addAll(findReservationWithStatus(RUNNING, PREPARING));
@@ -280,7 +284,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   private void fillStartTimeIfEmpty(Reservation reservation) {
     if (reservation.getStartDateTime() == null) {
-      reservation.setStartDateTime(LocalDateTime.now().plusMinutes(1));
+      reservation.setStartDateTime(DateTime.now().plusMinutes(1));
     }
   }
 
@@ -360,7 +364,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     };
   }
 
-  private Specification<Reservation> specReservationsThatCouldStart(final LocalDateTime startDateTime) {
+  private Specification<Reservation> specReservationsThatCouldStart(final DateTime startDateTime) {
     return new Specification<Reservation>() {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,

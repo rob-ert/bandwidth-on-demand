@@ -21,25 +21,18 @@
  */
 package nl.surfnet.bod.service;
 
-import static junit.framework.Assert.assertFalse;
-import static nl.surfnet.bod.matchers.DateMatchers.isAfterNow;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationArchive;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -51,7 +44,7 @@ import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationView;
 
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,10 +60,24 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
+import static junit.framework.Assert.assertFalse;
+
+import static nl.surfnet.bod.matchers.DateMatchers.isAfterNow;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationServiceTest {
 
-  private ReservationService reservationService = new ReservationService();
+  private final ReservationService reservationService = new ReservationService();
 
   @InjectMocks
   private ReservationService subject;
@@ -315,8 +322,8 @@ public class ReservationServiceTest {
 
   @Test
   public void startAndEndShouldBeInWholeMinutes() {
-    LocalDateTime startDateTime = LocalDateTime.now().withSecondOfMinute(1);
-    LocalDateTime endDateTime = LocalDateTime.now().withSecondOfMinute(1);
+    DateTime startDateTime = DateTime.now().withSecondOfMinute(1);
+    DateTime endDateTime = DateTime.now().withSecondOfMinute(1);
 
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
         .create();

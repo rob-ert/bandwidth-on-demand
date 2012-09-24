@@ -21,11 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.concurrent.Future;
 
 import javax.persistence.EntityManager;
@@ -40,7 +35,7 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +47,11 @@ import org.springframework.scheduling.annotation.AsyncResult;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NocServiceTest {
@@ -71,7 +71,7 @@ public class NocServiceTest {
   @Mock
   private EntityManager entityManagerMock;
 
-  private RichUserDetails user = new RichUserDetailsFactory().addNocRole().create();
+  private final RichUserDetails user = new RichUserDetailsFactory().addNocRole().create();
 
   @Before
   public void setNocUser() {
@@ -80,8 +80,8 @@ public class NocServiceTest {
 
   @Test
   public void moveShouldRescheduleReservations() {
-    LocalDateTime start = LocalDateTime.now().plusDays(2);
-    LocalDateTime end = LocalDateTime.now().plusDays(5);
+    DateTime start = DateTime.now().plusDays(2);
+    DateTime end = DateTime.now().plusDays(5);
 
     PhysicalPort oldPort = new PhysicalPortFactory().create();
     PhysicalPort newPort = new PhysicalPortFactory().create();

@@ -24,8 +24,8 @@ package nl.surfnet.bod.event;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.support.VirtualPortFactory;
 
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
-import org.joda.time.LocalDateTime;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -39,7 +39,7 @@ public class LogEventTest {
   @Test
   public void shouldCreateLogEvent() {
     try {
-      LocalDateTime now = LocalDateTime.now();
+      DateTime now = DateTime.now();
       DateTimeUtils.setCurrentMillisFixed(now.toDate().getTime());
 
       VirtualPort virtualPort = new VirtualPortFactory().create();

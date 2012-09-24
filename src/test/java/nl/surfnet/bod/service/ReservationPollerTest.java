@@ -21,21 +21,13 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.concurrent.TimeUnit;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.support.ReservationFactory;
 
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,6 +37,14 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.Lists;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationPollerTest {
@@ -67,7 +67,7 @@ public class ReservationPollerTest {
   public void pollerShouldRaiseOneChangingReservation() throws InterruptedException {
     Reservation reservation = new ReservationFactory().setId(1L).setStatus(ReservationStatus.REQUESTED).create();
 
-    when(reservationServiceMock.findReservationsToPoll(any(LocalDateTime.class))).thenReturn(
+    when(reservationServiceMock.findReservationsToPoll(any(DateTime.class))).thenReturn(
         Lists.newArrayList(reservation));
     when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.SCHEDULED);
     when(reservationServiceMock.find(1L)).thenReturn(reservation);
@@ -91,7 +91,7 @@ public class ReservationPollerTest {
     Reservation reservation = new ReservationFactory().setId(1L).setStatus(ReservationStatus.SCHEDULED).create();
     int maxTries = 3;
 
-    when(reservationServiceMock.findReservationsToPoll(any(LocalDateTime.class))).thenReturn(
+    when(reservationServiceMock.findReservationsToPoll(any(DateTime.class))).thenReturn(
         Lists.newArrayList(reservation));
     when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.SCHEDULED);
     when(reservationServiceMock.find(1L)).thenReturn(reservation);
@@ -107,7 +107,7 @@ public class ReservationPollerTest {
 
   @Test
   public void findReservationShouldBeForWholeMinutes() throws InterruptedException {
-    ArgumentCaptor<LocalDateTime> argument = ArgumentCaptor.forClass(LocalDateTime.class);
+    ArgumentCaptor<DateTime> argument = ArgumentCaptor.forClass(DateTime.class);
 
     subject.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
 

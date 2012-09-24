@@ -30,7 +30,7 @@ import javax.persistence.Id;
 import javax.persistence.Version;
 
 import org.hibernate.annotations.Type;
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 
 @Entity
 public class ReservationArchive implements Loggable {
@@ -51,14 +51,14 @@ public class ReservationArchive implements Loggable {
   @Enumerated(EnumType.STRING)
   private ReservationStatus status = ReservationStatus.REQUESTED;
 
-  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
-  private final LocalDateTime startDateTime;
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+  private final DateTime startDateTime;
 
-  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
-  private final LocalDateTime endDateTime;
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+  private final DateTime endDateTime;
 
-  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
-  private final LocalDateTime creationDateTime;
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+  private final DateTime creationDateTime;
 
   private final String userCreated;
   private final Integer bandwidth;
@@ -180,15 +180,15 @@ public class ReservationArchive implements Loggable {
     return failedReason;
   }
 
-  public final LocalDateTime getStartDateTime() {
+  public final DateTime getStartDateTime() {
     return startDateTime;
   }
 
-  public final LocalDateTime getEndDateTime() {
+  public final DateTime getEndDateTime() {
     return endDateTime;
   }
 
-  public final LocalDateTime getCreationDateTime() {
+  public final DateTime getCreationDateTime() {
     return creationDateTime;
   }
 

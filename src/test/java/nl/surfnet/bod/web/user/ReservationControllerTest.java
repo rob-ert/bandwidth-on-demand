@@ -43,8 +43,8 @@ import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
+import org.joda.time.DateTime;
 import org.joda.time.DurationFieldType;
-import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 import org.junit.Before;
 import org.junit.Test;
@@ -161,7 +161,7 @@ public class ReservationControllerTest {
 
   @Test
   public void listShouldSetListOnModel() {
-    Reservation reservation = new ReservationFactory().setStartDateTime(LocalDateTime.now().plusDays(1)).create();
+    Reservation reservation = new ReservationFactory().setStartDateTime(DateTime.now().plusDays(1)).create();
 
     when(
         reservationServiceMock.findEntriesForUserUsingFilter(any(RichUserDetails.class),

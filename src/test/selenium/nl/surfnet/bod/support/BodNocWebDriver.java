@@ -38,8 +38,8 @@ import nl.surfnet.bod.pages.noc.NewPhysicalResourceGroupPage;
 import nl.surfnet.bod.web.InstituteController;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -248,7 +248,7 @@ public class BodNocWebDriver {
   public void verifyLogEventExistis(String... fields) {
     ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
 
-    page.logEventShouldBe(LocalDateTime.now(), fields);
+    page.logEventShouldBe(DateTime.now(), fields);
   }
 
   public void refreshInstitutes() {

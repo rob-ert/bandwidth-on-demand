@@ -21,10 +21,8 @@
  */
 package nl.surfnet.bod.web.base;
 
-import static com.google.common.base.Strings.*;
-
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -32,6 +30,8 @@ import org.springframework.format.FormatterRegistry;
 import org.springframework.format.datetime.joda.DateTimeParser;
 import org.springframework.format.datetime.joda.JodaTimeFormatterRegistrar;
 import org.springframework.format.datetime.joda.ReadablePartialPrinter;
+
+import static com.google.common.base.Strings.nullToEmpty;
 
 public class JodaTimeFormattingPatternConfigurer extends JodaTimeFormatterRegistrar {
 
@@ -55,7 +55,7 @@ public class JodaTimeFormattingPatternConfigurer extends JodaTimeFormatterRegist
 
     DateTimeFormatter jodaDateTimeFormatter = getJodaDateTimeFormatter();
     if (jodaDateTimeFormatter != null) {
-      register(registry, LocalDateTime.class, jodaDateTimeFormatter);
+      register(registry, DateTime.class, jodaDateTimeFormatter);
     }
   }
 

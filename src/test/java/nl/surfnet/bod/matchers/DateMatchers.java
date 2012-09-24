@@ -23,20 +23,23 @@ package nl.surfnet.bod.matchers;
 
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
-import org.joda.time.LocalDateTime;
+import org.joda.time.DateTime;
 
 public class DateMatchers {
 
-  public static org.hamcrest.Matcher<LocalDateTime> isAfterNow() {
-    return new TypeSafeMatcher<LocalDateTime>() {
+  private DateMatchers() {
+  };
+
+  public static org.hamcrest.Matcher<DateTime> isAfterNow() {
+    return new TypeSafeMatcher<DateTime>() {
       @Override
       public void describeTo(Description description) {
-        description.appendText("should be after").appendValue(LocalDateTime.now());
+        description.appendText("should be after").appendValue(DateTime.now());
       }
 
       @Override
-      protected boolean matchesSafely(LocalDateTime other) {
-        return other.isAfter(LocalDateTime.now());
+      protected boolean matchesSafely(DateTime other) {
+        return other.isAfter(DateTime.now());
       }
     };
   }

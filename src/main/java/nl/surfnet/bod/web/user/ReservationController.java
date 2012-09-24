@@ -21,10 +21,6 @@
  */
 package nl.surfnet.bod.web.user;
 
-import static nl.surfnet.bod.util.Orderings.vpUserLabelOrdering;
-import static nl.surfnet.bod.util.Orderings.vrgNameOrdering;
-import static nl.surfnet.bod.web.WebUtils.*;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -44,8 +40,8 @@ import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
+import org.joda.time.DateTime;
 import org.joda.time.Hours;
-import org.joda.time.LocalDateTime;
 import org.joda.time.ReadablePeriod;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
@@ -60,6 +56,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
+
+import static nl.surfnet.bod.util.Orderings.vpUserLabelOrdering;
+import static nl.surfnet.bod.util.Orderings.vrgNameOrdering;
+import static nl.surfnet.bod.web.WebUtils.CREATE;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.LIST;
 
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller(value = "userReservationController")
@@ -77,7 +81,7 @@ public class ReservationController extends AbstractFilteredReservationController
   @Resource
   private MessageSource messageSource;
 
-  private ReservationValidator reservationValidator = new ReservationValidator();
+  private final ReservationValidator reservationValidator = new ReservationValidator();
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid Reservation reservation, BindingResult bindingResult, Model model,
@@ -181,12 +185,12 @@ public class ReservationController extends AbstractFilteredReservationController
   }
 
   private Reservation createDefaultReservation(VirtualResourceGroup vrg) {
-    LocalDateTime inFifteenMinutes = LocalDateTime.now().plusMinutes(15);
+    DateTime inFifteenMinutes = DateTime.now().plusMinutes(15);
 
     Reservation reservation = new Reservation();
     reservation.setStartDateTime(inFifteenMinutes);
 
-    LocalDateTime reservationEnd = reservation.getStartDateTime().plus(DEFAULT_RESERVATON_DURATION);
+    DateTime reservationEnd = reservation.getStartDateTime().plus(DEFAULT_RESERVATON_DURATION);
     reservation.setEndDateTime(reservationEnd);
 
     VirtualPort sourcePort = Iterables.get(vrg.getVirtualPorts(), 0, null);

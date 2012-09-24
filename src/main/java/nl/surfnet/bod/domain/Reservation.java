@@ -44,8 +44,8 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
 /**
@@ -95,17 +95,17 @@ public class Reservation implements Loggable {
   @IndexedEmbedded
   private VirtualPort destinationPort;
 
-  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
   @Field(index = Index.YES, store = Store.YES)
   @Analyzer(definition = "customanalyzer")
   @FieldBridge(impl = TimeStampBridge.class)
-  private LocalDateTime startDateTime;
+  private DateTime startDateTime;
 
-  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
   @Field(index = Index.YES, store = Store.YES)
   @Analyzer(definition = "customanalyzer")
   @FieldBridge(impl = TimeStampBridge.class)
-  private LocalDateTime endDateTime;
+  private DateTime endDateTime;
 
   @Field(index = Index.YES, store = Store.YES)
   @Analyzer(definition = "customanalyzer")
@@ -125,8 +125,8 @@ public class Reservation implements Loggable {
 
   @NotNull
   @Column(nullable = false)
-  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
-  private final LocalDateTime creationDateTime;
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+  private final DateTime creationDateTime;
 
   @OneToOne(mappedBy = "reservation")
   @IndexedEmbedded
@@ -138,7 +138,7 @@ public class Reservation implements Loggable {
   private ProtectionType protectionType = ProtectionType.PROTECTED;
 
   public Reservation() {
-    creationDateTime = LocalDateTime.now();
+    creationDateTime = DateTime.now();
   }
 
   public Long getId() {
@@ -242,7 +242,7 @@ public class Reservation implements Loggable {
     }
 
     if (startDateTime == null) {
-      startDateTime = new LocalDateTime(startTime);
+      startDateTime = new DateTime(startTime);
     }
     else {
       startDateTime = startDateTime.withTime(startTime.getHourOfDay(), startTime.getMinuteOfHour(),
@@ -279,7 +279,7 @@ public class Reservation implements Loggable {
     }
 
     if (startDateTime == null) {
-      startDateTime = new LocalDateTime(startDate.toDate());
+      startDateTime = new DateTime(startDate.toDate());
     }
     else {
       startDateTime = startDateTime
@@ -307,7 +307,7 @@ public class Reservation implements Loggable {
     }
 
     if (endDateTime == null) {
-      this.endDateTime = new LocalDateTime(endDate.toDate());
+      this.endDateTime = new DateTime(endDate.toDate());
     }
     else {
       endDateTime = endDateTime.withDate(endDate.getYear(), endDate.getMonthOfYear(), endDate.getDayOfMonth());
@@ -335,7 +335,7 @@ public class Reservation implements Loggable {
     }
 
     if (endDateTime == null) {
-      this.endDateTime = new LocalDateTime(endTime);
+      this.endDateTime = new DateTime(endTime);
     }
     else {
       endDateTime = endDateTime.withTime(endTime.getHourOfDay(), endTime.getMinuteOfHour(),
@@ -343,19 +343,19 @@ public class Reservation implements Loggable {
     }
   }
 
-  public LocalDateTime getEndDateTime() {
+  public DateTime getEndDateTime() {
     return endDateTime;
   }
 
-  public void setEndDateTime(LocalDateTime endDateTime) {
+  public void setEndDateTime(DateTime endDateTime) {
     this.endDateTime = endDateTime;
   }
 
-  public LocalDateTime getStartDateTime() {
+  public DateTime getStartDateTime() {
     return startDateTime;
   }
 
-  public void setStartDateTime(LocalDateTime startDateTime) {
+  public void setStartDateTime(DateTime startDateTime) {
     this.startDateTime = startDateTime;
   }
 
@@ -375,7 +375,7 @@ public class Reservation implements Loggable {
     this.reservationId = reservationId;
   }
 
-  public LocalDateTime getCreationDateTime() {
+  public DateTime getCreationDateTime() {
     return creationDateTime;
   }
 

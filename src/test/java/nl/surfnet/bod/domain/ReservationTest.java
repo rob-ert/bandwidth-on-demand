@@ -21,15 +21,18 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
-import org.joda.time.LocalDateTime;
-import org.junit.Test;
-
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+
+import org.joda.time.DateTime;
+import org.junit.Test;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class ReservationTest {
 
@@ -46,7 +49,7 @@ public class ReservationTest {
   public void shouldSetStartDateTimeTimeFirst() {
     Reservation reservation = new ReservationFactory().create();
 
-    LocalDateTime now = LocalDateTime.now();
+    DateTime now = DateTime.now();
 
     reservation.setStartTime(now.toLocalTime());
     reservation.setStartDate(now.toLocalDate());
@@ -58,7 +61,7 @@ public class ReservationTest {
   public void shouldSetStartDateTimeDateFirst() {
     Reservation reservation = new ReservationFactory().create();
 
-    LocalDateTime now = LocalDateTime.now();
+    DateTime now = DateTime.now();
 
     reservation.setStartDate(now.toLocalDate());
     reservation.setStartTime(now.toLocalTime());
@@ -70,7 +73,7 @@ public class ReservationTest {
   public void shouldSetEndDateTimeTimeFirst() {
     Reservation reservation = new ReservationFactory().create();
 
-    LocalDateTime now = LocalDateTime.now();
+    DateTime now = DateTime.now();
 
     reservation.setEndTime(now.toLocalTime());
     reservation.setEndDate(now.toLocalDate());
@@ -82,7 +85,7 @@ public class ReservationTest {
   public void shouldSetEndDateTimeDateFirst() {
     Reservation reservation = new ReservationFactory().create();
 
-    LocalDateTime now = LocalDateTime.now();
+    DateTime now = DateTime.now();
 
     reservation.setEndDate(now.toLocalDate());
     reservation.setEndTime(now.toLocalTime());

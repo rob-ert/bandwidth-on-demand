@@ -21,21 +21,24 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
 import junit.framework.Assert;
+import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 
 import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
-import org.joda.time.LocalDateTime;
 import org.junit.AfterClass;
 import org.junit.Test;
 
-import nl.surfnet.bod.support.ActivationEmailLinkFactory;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 public class ActivationEmailLinkTest {
 
-  private ActivationEmailLink<PhysicalResourceGroup> linkOne = new ActivationEmailLinkFactory<PhysicalResourceGroup>()
+  private final ActivationEmailLink<PhysicalResourceGroup> linkOne = new ActivationEmailLinkFactory<PhysicalResourceGroup>()
       .create();
 
   /**
@@ -123,7 +126,7 @@ public class ActivationEmailLinkTest {
   @Test
   public void shouldExpire() {
     ActivationEmailLink<PhysicalResourceGroup> link = new ActivationEmailLinkFactory<PhysicalResourceGroup>().create();
-    link.setEmailSentDateTime(LocalDateTime.now().minusDays(ActivationEmailLink.VALID_PERIOD_DAYS + 1));
+    link.setEmailSentDateTime(DateTime.now().minusDays(ActivationEmailLink.VALID_PERIOD_DAYS + 1));
 
     assertThat(link.isValid(), is(false));
   }
@@ -131,7 +134,7 @@ public class ActivationEmailLinkTest {
   @Test
   public void shouldStillBeValid() {
     ActivationEmailLink<PhysicalResourceGroup> link = new ActivationEmailLinkFactory<PhysicalResourceGroup>().create();
-    link.setEmailSentDateTime(LocalDateTime.now());
+    link.setEmailSentDateTime(DateTime.now());
 
     assertThat(link.isValid(), is(true));
   }

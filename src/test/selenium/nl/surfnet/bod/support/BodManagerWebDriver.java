@@ -34,8 +34,8 @@ import nl.surfnet.bod.pages.manager.NewVirtualPortPage;
 import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -189,13 +189,13 @@ public class BodManagerWebDriver {
   public void verifyLogEventExists(String... fields) {
     ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
 
-    page.logEventShouldBe(LocalDateTime.now(), fields);
+    page.logEventShouldBe(DateTime.now(), fields);
   }
 
   public void verifyLogEventDoesNotExist(String... fields) {
     ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
     try {
-      page.logEventShouldBe(LocalDateTime.now(), fields);
+      page.logEventShouldBe(DateTime.now(), fields);
       fail(String.format("LogEvent related to [%s] exists, but should not be visable", (Object[]) fields));
     }
     catch (NoSuchElementException e) {

@@ -23,12 +23,20 @@ package nl.surfnet.bod.domain;
 
 import java.util.UUID;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Transient;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
+import org.joda.time.DateTime;
 import org.joda.time.Days;
-import org.joda.time.LocalDateTime;
 
 import com.google.common.base.Preconditions;
 
@@ -48,11 +56,11 @@ public class ActivationEmailLink<T> implements Loggable {
   @Column(nullable = false)
   private String uuid;
 
-  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
-  private LocalDateTime emailSentDateTime;
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
+  private DateTime emailSentDateTime;
 
-  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
-  private LocalDateTime activationDateTime;
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentlDateTime")
+  private DateTime activationDateTime;
 
   @NotNull
   @Enumerated(EnumType.STRING)
@@ -109,15 +117,15 @@ public class ActivationEmailLink<T> implements Loggable {
     return uuid;
   }
 
-  public LocalDateTime getEmailSentDateTime() {
+  public DateTime getEmailSentDateTime() {
     return emailSentDateTime;
   }
 
-  void setEmailSentDateTime(LocalDateTime emailSentDateTime) {
+  void setEmailSentDateTime(DateTime emailSentDateTime) {
     this.emailSentDateTime = emailSentDateTime;
   }
 
-  public LocalDateTime getActivationDateTime() {
+  public DateTime getActivationDateTime() {
     return activationDateTime;
   }
 
@@ -134,7 +142,7 @@ public class ActivationEmailLink<T> implements Loggable {
   }
 
   public void activate() {
-    this.activationDateTime = LocalDateTime.now();
+    this.activationDateTime = DateTime.now();
   }
 
   public boolean isActivated() {
@@ -142,7 +150,7 @@ public class ActivationEmailLink<T> implements Loggable {
   }
 
   public void emailWasSent() {
-    this.emailSentDateTime = LocalDateTime.now();
+    this.emailSentDateTime = DateTime.now();
   }
 
   public boolean isEmailSent() {
@@ -157,7 +165,7 @@ public class ActivationEmailLink<T> implements Loggable {
     this.sourceObject = sourceObject;
   }
 
-  public LocalDateTime getExpirationDateTime() {
+  public DateTime getExpirationDateTime() {
     return emailSentDateTime != null ? emailSentDateTime.plusDays(VALID_PERIOD_DAYS) : null;
   }
 
@@ -182,7 +190,7 @@ public class ActivationEmailLink<T> implements Loggable {
     Days daysBetween = null;
 
     if (isEmailSent()) {
-      daysBetween = Days.daysBetween(emailSentDateTime, LocalDateTime.now());
+      daysBetween = Days.daysBetween(emailSentDateTime, DateTime.now());
     }
 
     return !isActivated() && daysBetween != null && daysBetween.getDays() <= VALID_PERIOD_DAYS;

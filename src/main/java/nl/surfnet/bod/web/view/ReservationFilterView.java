@@ -21,35 +21,35 @@
  */
 package nl.surfnet.bod.web.view;
 
+import nl.surfnet.bod.domain.ReservationStatus;
+
 import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.ReadablePeriod;
 
 import com.google.common.base.Objects;
 
-import nl.surfnet.bod.domain.ReservationStatus;
-
 /**
  * View object which holds filter related data regarding Reservations.
- *
+ * 
  */
 public class ReservationFilterView {
 
   private final String id;
   private final String label;
-  private LocalDateTime start;
-  private LocalDateTime end;
+  private DateTime start;
+  private DateTime end;
   private boolean filterOnReservationEndOnly;
   private ReservationStatus status;
-  private boolean filterOnStatusOnly;
+  private final boolean filterOnStatusOnly;
 
   /**
    * Constructs a filter for the given year. Filtering will take place both on
    * the start and end of Reservation
-   *
+   * 
    * @param year
    *          Year
    */
@@ -58,10 +58,10 @@ public class ReservationFilterView {
     label = id;
 
     start = new DateMidnight().withYear(year).withMonthOfYear(DateTimeConstants.JANUARY).withDayOfMonth(01)
-        .toDateTime().toLocalDateTime();
+        .toDateTime().toDateTime();
 
     end = new DateMidnight().withYear(year).withMonthOfYear(DateTimeConstants.DECEMBER).withDayOfMonth(31).toDateTime()
-        .toLocalDateTime();
+        .toDateTime();
 
     filterOnReservationEndOnly = false;
     filterOnStatusOnly = false;
@@ -70,7 +70,7 @@ public class ReservationFilterView {
   /**
    * Constructs a filter for a given Period. Filtering will take place on the
    * end of Reservation only;
-   *
+   * 
    * @param id
    *          Id
    * @param label
@@ -86,11 +86,11 @@ public class ReservationFilterView {
     this.label = label;
 
     if (endInPast) {
-      this.end = LocalDateTime.now();
+      this.end = DateTime.now();
       this.start = end.minus(period);
     }
     else {
-      this.start = LocalDateTime.now();
+      this.start = DateTime.now();
       this.end = start.plus(period);
     }
 
@@ -99,10 +99,10 @@ public class ReservationFilterView {
   }
 
   /**
-   * Constructs a filter based on the specified {@link LocalDateTime}. The start
-   * of the filter will be start of the minute (e.g. seconds an millis to zero).
+   * Constructs a filter based on the specified {@link DateTime}. The start of
+   * the filter will be start of the minute (e.g. seconds an millis to zero).
    * The end of the filter wll be the next whole minute.
-   *
+   * 
    * @param id
    *          Id
    * @param label
@@ -148,11 +148,11 @@ public class ReservationFilterView {
     }
   }
 
-  public LocalDateTime getStart() {
+  public DateTime getStart() {
     return start;
   }
 
-  public LocalDateTime getEnd() {
+  public DateTime getEnd() {
     return end;
   }
 
