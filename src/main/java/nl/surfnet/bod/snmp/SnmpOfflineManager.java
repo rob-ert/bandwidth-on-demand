@@ -31,7 +31,7 @@ public class SnmpOfflineManager implements CommandResponder, Runnable {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private final LinkedBlockingDeque<PDU> receivedTraps = new LinkedBlockingDeque<>();
+  private final LinkedBlockingDeque<PDU> receivedPdus = new LinkedBlockingDeque<>();
 
   private AbstractTransportMapping abstractTransportMapping = null;
 
@@ -82,7 +82,7 @@ public class SnmpOfflineManager implements CommandResponder, Runnable {
 
   public void startup() {
     commandResponder.start();
-    while (!isListening()) {
+    while (!isRunning()) {
       try {
         Thread.sleep(250L);
       }
@@ -109,7 +109,7 @@ public class SnmpOfflineManager implements CommandResponder, Runnable {
     log.info("Received CommandResponderEvent: " + commandResponderEvent);
     final PDU pdu = commandResponderEvent.getPDU();
     if (pdu != null) {
-      receivedTraps.add(pdu);
+      receivedPdus.add(pdu);
       log.info("Trap Type = " + pdu.getType());
       log.info("Variable Bindings = " + pdu.getVariableBindings());
     }
@@ -117,7 +117,7 @@ public class SnmpOfflineManager implements CommandResponder, Runnable {
 
   public final PDU getOrWaitForLastTrap(final long seconds) {
     try {
-      return receivedTraps.pollLast(seconds, TimeUnit.SECONDS);
+      return receivedPdus.pollLast(seconds, TimeUnit.SECONDS);
     }
     catch (InterruptedException e) {
       log.error("Error: ", e);
@@ -125,7 +125,7 @@ public class SnmpOfflineManager implements CommandResponder, Runnable {
     }
   }
 
-  public final boolean isListening() {
+  public final boolean isRunning() {
     return abstractTransportMapping != null && abstractTransportMapping.isListening();
   }
 
