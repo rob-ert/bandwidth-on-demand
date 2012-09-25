@@ -31,7 +31,9 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.support.PhysicalPortFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.web.security.Security;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -81,6 +83,10 @@ public class PhysicalPortServiceImplTest {
 
   @Before
   public void setUp() {
+    
+    Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:my-group").addUserGroup("urn:test:group")
+        .create());
+    
     ArrayList<PhysicalPort> physicalPorts = Lists.newArrayList(new PhysicalPortFactory().setNmsPortId("1").create(),
         new PhysicalPortFactory().setNmsPortId("2").create(), new PhysicalPortFactory().setNmsPortId("3").create());
 
