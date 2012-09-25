@@ -22,6 +22,7 @@
 package nl.surfnet.bod.pages;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import nl.surfnet.bod.support.Probes;
 
@@ -37,6 +38,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Uninterruptibles;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -124,8 +126,26 @@ public class AbstractPage {
     return navBar.findElements(By.xpath(".//a")).size();
   }
 
-  protected void verifyIsCurrentPage(String page) {
-    assertThat(getDriver().getCurrentUrl(), containsString(page));
+  /**
+   * Verifies that the current page url contains the given page. Tries a number
+   * of times, to give the page the time to load.
+   * 
+   * @param pageUrlPart
+   */
+  protected void verifyIsCurrentPage(String pageUrlPart) {
+    int attempt = 0;
+
+    do {
+      attempt++;
+
+      Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
+      if (attempt > 10) {
+        break;
+      }
+    }
+    while (getDriver().getCurrentUrl().contains(pageUrlPart));
+
+    assertThat(getDriver().getCurrentUrl(), containsString(pageUrlPart));
   }
 
   private boolean containsAll(String input, String[] needles) {
