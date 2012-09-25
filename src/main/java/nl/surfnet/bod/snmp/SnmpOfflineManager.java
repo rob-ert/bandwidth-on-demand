@@ -34,7 +34,7 @@ public class SnmpOfflineManager implements CommandResponder {
 
   private final LinkedBlockingDeque<PDU> receivedPdus = new LinkedBlockingDeque<>();
 
-  private AbstractTransportMapping abstractTransportMapping = null;
+  private static AbstractTransportMapping abstractTransportMapping = null;
 
   @Value("${snmp.community}")
   private String community;
@@ -57,6 +57,11 @@ public class SnmpOfflineManager implements CommandResponder {
         final MessageDispatcher messageDispatcher = new MultiThreadedMessageDispatcher(ThreadPool.create(
             "DispatcherPool", 10), new MessageDispatcherImpl());
 
+        if (abstractTransportMapping != null && abstractTransportMapping.isListening()) {
+          log.info("Restarting listener");
+          abstractTransportMapping.close();
+        }
+
         abstractTransportMapping = new DefaultUdpTransportMapping(new UdpAddress(host + port));
         messageDispatcher.addMessageProcessingModel(new MPv2c());
         SecurityProtocols.getInstance().addDefaultProtocols();
@@ -66,6 +71,7 @@ public class SnmpOfflineManager implements CommandResponder {
         snmp.addCommandResponder(this);
 
         log.info("Starting listener on: " + abstractTransportMapping.getListenAddress());
+
         abstractTransportMapping.listen();
       }
       catch (IOException e) {
