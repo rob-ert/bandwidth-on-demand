@@ -23,11 +23,16 @@ public class SnmpAgent {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
+  public static final String SEVERITY_MAJOR = "Major";
+
   @Value("${snmp.community}")
   private String community;
 
-  @Value("${snmp.oid}")
-  private String oid;
+  @Value("${snmp.oid.nms.port.disappeared}")
+  private String oidNmsPortDisappeared;
+
+  @Value("${snmp.oid.idd.institute.disappeared}")
+  private String oidIddInstituteDisappeared;
 
   @Value("${snmp.host}")
   private String host;
@@ -66,6 +71,15 @@ public class SnmpAgent {
     pdu.add(new VariableBinding(new OID(oid), new OctetString(severity)));
     pdu.setType(pduType);
     return pdu;
+  }
+
+  public final String getOidNmsPortDisappeared(final String nmsPortId) {
+    return oidNmsPortDisappeared + "-" + nmsPortId;
+  }
+
+  public final String getOidIddInstituteDisappeared(final String institute) {
+    // TODO: Fix the OID for the missing institute
+    return oidIddInstituteDisappeared + "-" + institute;
   }
 
 }
