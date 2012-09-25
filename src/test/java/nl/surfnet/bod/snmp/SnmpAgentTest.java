@@ -48,7 +48,7 @@ public class SnmpAgentTest {
     snmpAgent.sendPdu(snmpAgent.getPdu(properties.getProperty("snmp.oid.nms.port.disappeared"),
         SnmpAgent.SEVERITY_MAJOR, pduType));
 
-    final PDU lastPdu = snmpOfflineManager.getOrWaitForLastPdu(10);
+    final PDU lastPdu = snmpOfflineManager.getOrWaitForLastPdu(5);
     final String lastVariableBindingsAsString = lastPdu.getVariableBindings().toString();
 
     assertThat(lastPdu.getType(), is(pduType));
