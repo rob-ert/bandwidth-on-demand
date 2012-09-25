@@ -98,7 +98,7 @@ public class SnmpOfflineManager implements CommandResponder {
     }
   }
 
-  public final PDU getOrWaitForLastTrap(final long seconds) {
+  public final PDU getOrWaitForLastPdu(final long seconds) {
     try {
       return receivedPdus.pollLast(seconds, TimeUnit.SECONDS);
     }
