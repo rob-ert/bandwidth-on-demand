@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<html xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+    xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
+    xmlns:table="urn:jsptagdir:/WEB-INF/tags/table"
+    xmlns:jsp="http://java.sun.com/JSP/Page">
+
+<jsp:directive.page contentType="text/html;charset=UTF-8" />
+<jsp:output omit-xml-declaration="yes" />
+
+    <div class="row">
+        <div class="span8">
+            <section>
+                <h2>Your Access Token</h2>
+                <div class="content">
+                    <c:choose>
+                        <c:when test="${empty accessToken}" >
+                            <h3>You do not have an Access Token</h3>
+                            <p>Request a token by pressing the button and giving your consent.</p>
+                            <spring:url value="/oauth2/token" var="createUrl" />
+                            <a href="${createUrl}" class="btn btn-primary">Request an Access Token</a>
+                        </c:when>
+                        <c:otherwise>
+                            <h3>Your OAuth2 Access Token for NSI requests</h3>
+                            <input type="text" style="font-size:25px;height:30px;width:500px" value="${accessToken.token}" class="input-copy"/>
+                            <spring:url var="revokeUrl" value="/oauth2/token/delete">
+                                <spring:param name="_method" value="DELETE" />
+                                <spring:param name="tokenId" value="${accessToken.id}" />
+                            </spring:url><br/>
+                            <a href="${revokeUrl}" data-form="true" class="btn btn-primary" style="margin-bottom: 20px;"><i class="icon-remove"><!--  --></i> Revoke Access Token</a>
+                            <h3>Using your Access Token</h3>
+                            <p>
+                                With every NSI request you should sent your access token in the header of the http request.
+                                Like:
+<pre>
+POST /nsi/reserve HTTP/1.1
+HOST: bod.surfnet.nl
+Authorization: bearer <b>[your access token]</b>
+Content-Type: application/soap+xml; charset=utf-8
+
+<c:out value="&lt;?xml version=" />"1.0" <c:out value="?&gt;"/>
+
+<c:out value="&lt;soap:Envelope" />
+    .....
+</pre>
+                            </p>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </section>
+        </div>
+        <div class="span4">
+            <section>
+                <h2>NSI Access Token</h2>
+                <div class="content">
+                    <h3>Access Token</h3>
+                    <p>
+                        If you would like to sent a NSI request to our NSI provider, you need an access token.
+                        This access token needs to be sent with every NSI request so the BoD application can determine your identity.
+                    </p>
+                    <h3>User Consent</h3>
+                    <p>
+                        When you are generating an new Access Token you are asked to give consent. This way we are able to authorize you when a request comes in.
+                    </p>
+                    <h3>Revoke</h3>
+                    <p>
+                        The access token you generate is valid for ever. So if you ever want the token to stop working you can revoke it.
+                        Be carefull with your token en don't give it to someone else.
+                    </p>
+                </div>
+            </section>
+        </div>
+    </div>
+</html>

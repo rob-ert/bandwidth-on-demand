@@ -26,6 +26,10 @@
       <put-attribute name="body" value="/WEB-INF/views/common/logevents/list.jspx" />
       <put-attribute name="active_menu" value="logevent" cascade="true" />
     </definition>
+    <definition extends="default" name="oauthResult">
+      <put-attribute name="body" value="/WEB-INF/views/oauthResult.jspx" />
+      <put-attribute name="active_menu" value="nsi" cascade="true" />
+    </definition>
 
     <definition extends="error" name="dataAccessFailure">
         <put-attribute name="body" value="/WEB-INF/views/dataAccessFailure.jspx" />

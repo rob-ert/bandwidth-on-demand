@@ -5,6 +5,7 @@
             <item id="i_res_list" url="/reservations" messageCode="menu_reservation_label" menu="reservation" />
             <item id="i_vp_list" url="/virtualports" messageCode="menu_virtualport_label" menu="virtualport" />
             <item id="i_le_list" url="/logevents" messageCode="menu_logevent_label" menu="logevent" />
+            <item id="i_nsi_list" url="/oauth2/tokens" messageCode="menu_nsi_label" menu="nsi" />
         </sec:authorize>
     </menu>
 </sec:authorize>

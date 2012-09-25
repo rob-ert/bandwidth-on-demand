@@ -21,6 +21,7 @@ app.form = function(){
         initBandwidthSelector();
         initStartNow();
         initProtectionType();
+        initInputCopy();
     };
 
     var initPlugins = function() {
@@ -29,6 +30,13 @@ app.form = function(){
         initDatepickers();
         initAutoSuggest();
 
+    };
+
+    var initInputCopy = function() {
+       $('input.input-copy').on('click', function(event) {
+           event.target.focus();
+           event.target.select();
+       });
     };
 
     var initFormLinks = function() {

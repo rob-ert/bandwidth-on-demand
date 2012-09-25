@@ -24,6 +24,8 @@ package nl.surfnet.bod.web.security;
 import java.util.Collection;
 import java.util.Collections;
 
+import nl.surfnet.bod.domain.*;
+
 import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -35,13 +37,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
 
 public final class Security {
 
@@ -91,6 +86,10 @@ public final class Security {
         return group.getId().equals(groupId);
       }
     }, null);
+  }
+
+  public static String getNameId() {
+    return getUserDetails().getNameId();
   }
 
   public static void switchToUser() {

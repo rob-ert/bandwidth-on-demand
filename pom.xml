@@ -28,6 +28,12 @@
             <groupId>nl.surfnet.bod</groupId>
             <artifactId>bod-opendrac</artifactId>
             <version>0.1.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>nl.surfnet.bod</groupId>
@@ -240,6 +246,16 @@
             <artifactId>jsp-api</artifactId>
             <version>2.1</version>
             <scope>provided</scope>
+        </dependency>
+        <!--<dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.6</version>
+        </dependency>-->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tiles</groupId>

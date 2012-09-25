@@ -29,10 +29,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.repo.BodAccountRepo;
 import nl.surfnet.bod.service.GroupService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
@@ -66,6 +64,9 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
   @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
 
+  @Resource
+  private BodAccountRepo bodAccountRepo;
+
   @Override
   @Transactional
   public RichUserDetails loadUserDetails(Authentication token) {
@@ -75,6 +76,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
     logger.debug("Found groups: '{}' for name-id: '{}'", groups, principal.getNameId());
 
     updateVirtualResourceGroups(groups);
+    createAccountIfNotExists(principal.getNameId());
 
     Collection<BodRole> roles = determineRoles(groups);
 
@@ -82,6 +84,15 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
         principal.getEmail(), groups, roles);
 
     return userDetails;
+  }
+
+  private void createAccountIfNotExists(String nameId) {
+    BodAccount account = bodAccountRepo.findByNameId(nameId);
+    if (account == null) {
+      account = new BodAccount();
+      account.setNameId(nameId);
+      bodAccountRepo.save(account);
+    }
   }
 
   /**

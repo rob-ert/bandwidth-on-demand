@@ -30,7 +30,7 @@
         <servlet-name>jaxws-servlet</servlet-name>
         <url-pattern>/nsi/*</url-pattern>
     </servlet-mapping>
-    
+
     <servlet-mapping>
         <servlet-name>jaxws-servlet</servlet-name>
         <url-pattern>/mtosi/*</url-pattern>
