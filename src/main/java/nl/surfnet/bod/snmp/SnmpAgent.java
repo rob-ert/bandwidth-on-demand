@@ -74,12 +74,12 @@ public class SnmpAgent {
   }
 
   public final String getOidNmsPortDisappeared(final String nmsPortId) {
-    return oidNmsPortDisappeared + "-" + nmsPortId;
+    return oidNmsPortDisappeared + "." + nmsPortId;
   }
 
   public final String getOidIddInstituteDisappeared(final String institute) {
     // TODO: Fix the OID for the missing institute
-    return oidIddInstituteDisappeared + "-" + institute;
+    return oidIddInstituteDisappeared + "." + institute;
   }
 
 }
