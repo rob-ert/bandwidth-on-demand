@@ -22,10 +22,11 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.snmp4j.util.MultiThreadedMessageDispatcher;
 import org.snmp4j.util.ThreadPool;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SnmpOfflineManager implements CommandResponder, Runnable {
+public class SnmpOfflineManager implements CommandResponder {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -33,7 +34,10 @@ public class SnmpOfflineManager implements CommandResponder, Runnable {
 
   private AbstractTransportMapping abstractTransportMapping = null;
 
-  private final Thread commandResponder = new Thread(this);
+  private final CommunityTarget communityTarget = new CommunityTarget();
+
+  private final MessageDispatcher messageDispatcher = new MultiThreadedMessageDispatcher(ThreadPool.create(
+      "DispatcherPool", 10), new MessageDispatcherImpl());
 
   @Value("${snmp.community}")
   private String community;
@@ -47,20 +51,16 @@ public class SnmpOfflineManager implements CommandResponder, Runnable {
   @Value("${snmp.port}")
   private String port;
 
-  @Override
-  public void run() {
+  @Async
+  public void startup() {
 
     try {
       abstractTransportMapping = new DefaultUdpTransportMapping(new UdpAddress(host + port));
-
-      final MessageDispatcher messageDispatcher = new MultiThreadedMessageDispatcher(ThreadPool.create(
-          "DispatcherPool", 10), new MessageDispatcherImpl());
 
       messageDispatcher.addMessageProcessingModel(new MPv2c());
 
       SecurityProtocols.getInstance().addDefaultProtocols();
 
-      final CommunityTarget communityTarget = new CommunityTarget();
       communityTarget.setCommunity(new OctetString(community));
 
       final Snmp snmp = new Snmp(messageDispatcher, abstractTransportMapping);
@@ -73,18 +73,6 @@ public class SnmpOfflineManager implements CommandResponder, Runnable {
       log.error("Error: ", e);
     }
 
-  }
-
-  public void startup() {
-    commandResponder.start();
-    while (!isRunning()) {
-      try {
-        Thread.sleep(250L);
-      }
-      catch (InterruptedException e) {
-        log.error("Error: ", e);
-      }
-    }
   }
 
   public void shutdown() {
