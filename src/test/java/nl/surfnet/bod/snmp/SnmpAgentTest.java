@@ -9,11 +9,13 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.snmp4j.PDU;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.util.ReflectionTestUtils;
 
+@Ignore
 public class SnmpAgentTest {
 
   private final Properties properties = new Properties();
