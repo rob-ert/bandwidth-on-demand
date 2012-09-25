@@ -1,5 +1,7 @@
 package nl.surfnet.bod.snmp;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snmp4j.CommunityTarget;
@@ -7,8 +9,11 @@ import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
 import org.snmp4j.TransportMapping;
 import org.snmp4j.mp.SnmpConstants;
+import org.snmp4j.smi.IpAddress;
+import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.UdpAddress;
+import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -32,43 +37,35 @@ public class SnmpAgent {
 
   public void sendPdu(final PDU pdu) {
     try {
-      // Create Transport Mapping
       final TransportMapping transportMapping = new DefaultUdpTransportMapping();
       transportMapping.listen();
 
-      // Create Target
       final CommunityTarget communityTarget = new CommunityTarget();
       communityTarget.setCommunity(new OctetString(community));
       communityTarget.setVersion(SnmpConstants.version2c);
 
-      communityTarget.setAddress(new UdpAddress(getHost() + getPort()));
+      communityTarget.setAddress(new UdpAddress(host + port));
       communityTarget.setRetries(2);
       communityTarget.setTimeout(5000);
 
-      // Send the PDU
       final Snmp snmp = new Snmp(transportMapping);
       log.info("Sending v2 trap: {} to community: {}", pdu, communityTarget);
       snmp.send(pdu, communityTarget);
       snmp.close();
     }
     catch (Exception e) {
-      e.printStackTrace();
+      log.error("Error: ", e);
     }
   }
 
-  protected final String getCommunity() {
-    return community;
+  public PDU getPdu(final String oid, final String severity, final int pduType) {
+    final PDU pdu = new PDU();
+    pdu.add(new VariableBinding(SnmpConstants.sysUpTime, new OctetString(new Date().toString())));
+    pdu.add(new VariableBinding(SnmpConstants.snmpTrapOID, new OID(oid)));
+    pdu.add(new VariableBinding(SnmpConstants.snmpTrapAddress, new IpAddress(host)));
+    pdu.add(new VariableBinding(new OID(oid), new OctetString(severity)));
+    pdu.setType(pduType);
+    return pdu;
   }
 
-  protected final String getOid() {
-    return oid;
-  }
-
-  protected final String getHost() {
-    return host;
-  }
-
-  protected final String getPort() {
-    return port;
-  }
 }
