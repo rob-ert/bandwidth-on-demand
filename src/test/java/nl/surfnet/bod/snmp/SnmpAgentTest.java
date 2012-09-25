@@ -4,33 +4,27 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.util.Date;
-
-import javax.annotation.Resource;
+import java.util.Properties;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.snmp4j.PDU;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.IpAddress;
 import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.util.ReflectionTestUtils;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "/spring/appCtx-snmp-test.xml" })
 public class SnmpAgentTest {
 
-  @Resource
-  private SnmpAgent snmpAgent;
+  private final SnmpAgent snmpAgent = new SnmpAgent();
 
-  @Resource
-  private SnmpOfflineManager snmpOfflineManager;
+  private final SnmpOfflineManager snmpOfflineManager = new SnmpOfflineManager();
 
   private final PDU pdu = new PDU();
 
@@ -44,6 +38,18 @@ public class SnmpAgentTest {
 
   @Before
   public void setUp() throws Exception {
+
+    final Properties properties = new Properties();
+    properties.load(new ClassPathResource("bod.properties").getInputStream());
+
+    final Object instances[] = { snmpAgent, snmpOfflineManager };
+
+    for (final Object o : instances) {
+      ReflectionTestUtils.setField(o, "community", properties.getProperty("snmp.community"));
+      ReflectionTestUtils.setField(o, "oid", properties.getProperty("snmp.oid"));
+      ReflectionTestUtils.setField(o, "host", properties.getProperty("snmp.host"));
+      ReflectionTestUtils.setField(o, "port", properties.getProperty("snmp.port"));
+    }
 
     snmpOfflineManager.startup();
 
@@ -62,7 +68,7 @@ public class SnmpAgentTest {
 
   @Test
   public void should_send_and_receive_pdu() {
-    snmpAgent.sendTrap(pdu);
+    snmpAgent.sendPdu(pdu);
     final PDU lastTrap = snmpOfflineManager.getOrWaitForLastTrap(10);
     assertThat(lastTrap.getType(), is(PDU.TRAP));
     final String lastVariableBindingsAsString = lastTrap.getVariableBindings().toString();
