@@ -42,9 +42,6 @@ public class SnmpOfflineManager implements CommandResponder {
   @Value("${snmp.community}")
   private String community;
 
-  @Value("${snmp.oid}")
-  private String oid;
-
   @Value("${snmp.host}")
   private String host;
 
