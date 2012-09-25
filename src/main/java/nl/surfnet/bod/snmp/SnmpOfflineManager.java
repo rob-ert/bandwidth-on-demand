@@ -34,7 +34,7 @@ public class SnmpOfflineManager implements CommandResponder {
 
   private final LinkedBlockingDeque<PDU> receivedPdus = new LinkedBlockingDeque<>();
 
-  private static AbstractTransportMapping abstractTransportMapping = null;
+  private AbstractTransportMapping abstractTransportMapping = null;
 
   @Value("${snmp.community}")
   private String community;
