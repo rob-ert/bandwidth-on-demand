@@ -43,6 +43,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.mtosi.MtosiInventoryRetrievalLiveClient;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.snmp.SnmpAgent;
 import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -50,6 +51,7 @@ import nl.surfnet.bod.web.view.PhysicalPortView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snmp4j.PDU;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -93,6 +95,9 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   @Resource
   private VirtualPortService virtualPortService;
+  
+  @Resource
+  private SnmpAgent snmpAgent;
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -310,6 +315,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     for (String portId : unalignedPortIds) {
       disappearedPort = bodPorts.get(portId);
       disappearedPort.setAlignedWithNMS(false);
+      snmpAgent.sendPdu(snmpAgent.getPdu(snmpAgent.getOidNmsPortDisappeared(disappearedPort.getNmsPortId()), SnmpAgent.SEVERITY_MAJOR, PDU.TRAP));
       logger.debug("Port unaligned in the NMS: {}", disappearedPort);
       disappearedPorts.add(disappearedPort);
     }

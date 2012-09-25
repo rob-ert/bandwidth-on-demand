@@ -30,6 +30,7 @@ import java.util.Set;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.snmp.SnmpAgent;
 import nl.surfnet.bod.support.PhysicalPortFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.util.Environment;
@@ -78,6 +79,9 @@ public class PhysicalPortServiceImplTest {
 
   @Mock
   private LogEventService logEventService;
+  
+  @Mock
+  private SnmpAgent snmpAgent;
 
   private Map<String, PhysicalPort> physicalPortMap = Maps.newHashMap();
 
