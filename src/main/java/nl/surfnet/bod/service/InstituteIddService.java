@@ -28,6 +28,7 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snmp4j.PDU;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +38,7 @@ import com.google.common.collect.Lists;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.repo.InstituteRepo;
+import nl.surfnet.bod.snmp.SnmpAgent;
 import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.security.Security;
 
@@ -56,6 +58,9 @@ public class InstituteIddService implements InstituteService {
 
   @Resource
   private LogEventService logEventService;
+  
+  @Resource
+  private SnmpAgent snmpAgent;
 
   @Override
   public Institute find(Long id) {
@@ -97,6 +102,7 @@ public class InstituteIddService implements InstituteService {
     // Mark all not aligned
     for (Institute institute : allInstitutes) {
       institute.setAlignedWithIDD(false);
+      snmpAgent.sendPdu(snmpAgent.getPdu(snmpAgent.getOidIddInstituteDisappeared(institute.getName()), SnmpAgent.SEVERITY_MAJOR, PDU.TRAP));
     }
   }
 
