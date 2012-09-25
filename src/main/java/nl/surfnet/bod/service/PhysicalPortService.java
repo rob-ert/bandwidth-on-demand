@@ -315,7 +315,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     for (String portId : unalignedPortIds) {
       disappearedPort = bodPorts.get(portId);
       disappearedPort.setAlignedWithNMS(false);
-      snmpAgent.sendPdu(snmpAgent.getPdu(snmpAgent.getOidNmsPortDisappeared(disappearedPort.getNmsPortId()), SnmpAgent.SEVERITY_MAJOR, PDU.TRAP));
+      snmpAgent.sendPdu(snmpAgent.getPdu(snmpAgent.getOidNmsPortDisappeared(disappearedPort.getId().toString()), SnmpAgent.SEVERITY_MAJOR, PDU.TRAP));
       logger.debug("Port unaligned in the NMS: {}", disappearedPort);
       disappearedPorts.add(disappearedPort);
     }

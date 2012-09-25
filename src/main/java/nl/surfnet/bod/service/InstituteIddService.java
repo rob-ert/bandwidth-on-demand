@@ -102,7 +102,7 @@ public class InstituteIddService implements InstituteService {
     // Mark all not aligned
     for (Institute institute : allInstitutes) {
       institute.setAlignedWithIDD(false);
-      snmpAgent.sendPdu(snmpAgent.getPdu(snmpAgent.getOidIddInstituteDisappeared(institute.getName()), SnmpAgent.SEVERITY_MAJOR, PDU.TRAP));
+      snmpAgent.sendPdu(snmpAgent.getPdu(snmpAgent.getOidIddInstituteDisappeared(institute.getId().toString()), SnmpAgent.SEVERITY_MAJOR, PDU.TRAP));
     }
   }
 
