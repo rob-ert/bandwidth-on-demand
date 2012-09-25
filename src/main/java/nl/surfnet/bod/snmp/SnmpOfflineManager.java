@@ -5,6 +5,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +93,7 @@ public class SnmpOfflineManager implements CommandResponder, Runnable {
     }
   }
 
+  @PreDestroy
   public void shutdown() {
     if (abstractTransportMapping != null && abstractTransportMapping.isListening()) {
       try {
