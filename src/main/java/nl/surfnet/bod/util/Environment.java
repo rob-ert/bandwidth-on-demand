@@ -21,11 +21,14 @@
  */
 package nl.surfnet.bod.util;
 
+import org.joda.time.DateTimeZone;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Environment {
+
+  public static final DateTimeZone DEFAULT_TIME_ZONE = DateTimeZone.getDefault();;
 
   @Value("${shibboleth.imitate}")
   private boolean imitateShibboleth;
@@ -142,5 +145,9 @@ public class Environment {
 
   public String getNocGroup() {
     return nocGroup;
+  }
+
+  public String getDefaultTimeZoneId() {
+    return DEFAULT_TIME_ZONE.getID();
   }
 }

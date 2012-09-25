@@ -33,7 +33,7 @@
         <spring:url value="${path}" var="form_url" />
 
         <section>
-            <h1><spring:message code="entity_update" arguments="${label}" /></h1>
+            <h1><spring:message code="entity_update" arguments="${label}" /><util:timeZone/></h1>
             <div class="content">
                 <form:form action="${form_url}" method="PUT" modelAttribute="${modelAttribute}" enctype="${enctype}" cssClass="form form-horizontal">
 
