@@ -45,6 +45,8 @@ import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Period;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -173,6 +175,20 @@ public class ReservationServiceTest {
     assertThat(reservation.getStartDateTime(), isAfterNow());
   }
 
+  @Test
+  public void reserveWithDifferentTimeZoneShouldBeConverted() {
+    DateTime startWithDefaultTimeZone = new DateTime().plusDays(1).withSecondOfMinute(0).withMillis(0);
+    DateTime startWithUTCTimeZone = new DateTime(startWithDefaultTimeZone, DateTimeZone.forID("UTC"));
+    final Reservation reservation = new ReservationFactory().setStartDateTime(startWithUTCTimeZone).create();
+
+    int diffInHoursBetweenDefaultAndUTC = new Period(startWithDefaultTimeZone, startWithUTCTimeZone).getHours();
+
+    when(reservationRepoMock.saveAndFlush(reservation)).thenReturn(reservation);
+    subject.create(reservation);
+
+    assertThat(reservation.getStartDateTime(), is(startWithDefaultTimeZone.plusHours(diffInHoursBetweenDefaultAndUTC)));
+  }
+
   @Test(expected = IllegalStateException.class)
   public void updatingDifferentVirtualResrouceGroupsShouldGiveAnIllegalStateException() {
     VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().create();
@@ -288,8 +304,9 @@ public class ReservationServiceTest {
 
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
 
-    when(reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher",
-        Optional.<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(3L));
+    when(
+        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher",
+            Optional.<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(3L));
 
     Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 

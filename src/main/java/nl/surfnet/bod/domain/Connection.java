@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.domain;
 
-import java.util.Date;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -34,14 +32,17 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Version;
 
+import nl.surfnet.bod.util.TimeStampBridge;
+
+import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyzer;
-import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
-import org.hibernate.search.annotations.Resolution;
 import org.hibernate.search.annotations.Store;
+import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
@@ -96,15 +97,17 @@ public class Connection implements Loggable {
   @Analyzer(definition = "customanalyzer")
   private ConnectionStateType currentState = ConnectionStateType.INITIAL;
 
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
   @Field(index = Index.YES, store = Store.YES)
   @Analyzer(definition = "customanalyzer")
-  @DateBridge(resolution = Resolution.MINUTE)
-  private Date startTime;
+  @FieldBridge(impl = TimeStampBridge.class)
+  private DateTime startTime;
 
+  @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
   @Field(index = Index.YES, store = Store.YES)
   @Analyzer(definition = "customanalyzer")
-  @DateBridge(resolution = Resolution.MINUTE)
-  private Date endTime;
+  @FieldBridge(impl = TimeStampBridge.class)
+  private DateTime endTime;
 
   @Column(nullable = false)
   @Field(index = Index.YES, store = Store.YES)
@@ -214,19 +217,19 @@ public class Connection implements Loggable {
     this.reservation = reservation;
   }
 
-  public Optional<Date> getStartTime() {
+  public Optional<DateTime> getStartTime() {
     return Optional.fromNullable(startTime);
   }
 
-  public void setStartTime(Optional<Date> startTime) {
+  public void setStartTime(Optional<DateTime> startTime) {
     this.startTime = startTime.orNull();
   }
 
-  public Optional<Date> getEndTime() {
+  public Optional<DateTime> getEndTime() {
     return Optional.fromNullable(endTime);
   }
 
-  public void setEndTime(Optional<Date> endTime) {
+  public void setEndTime(Optional<DateTime> endTime) {
     this.endTime = endTime.orNull();
   }
 

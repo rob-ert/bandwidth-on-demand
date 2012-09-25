@@ -21,9 +21,6 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_GLOBAL_RESERVATION_ID;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
@@ -38,6 +35,7 @@ import javax.xml.ws.BindingProvider;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 
+import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
@@ -49,6 +47,10 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_GLOBAL_RESERVATION_ID;
+
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
 
 public final class ConnectionServiceProviderFunctions {
 
@@ -112,10 +114,10 @@ public final class ConnectionServiceProviderFunctions {
         connection.setConnectionId(reservation.getConnectionId());
         connection.setDescription(reservation.getDescription());
 
-        Optional<Date> startTime = getDateFrom(reservation.getServiceParameters().getSchedule().getStartTime());
+        Optional<DateTime> startTime = getDateFrom(reservation.getServiceParameters().getSchedule().getStartTime());
         connection.setStartTime(startTime);
 
-        Optional<Date> endTime = calculateEndTime(
+        Optional<DateTime> endTime = calculateEndTime(
             reservation.getServiceParameters().getSchedule().getEndTime(),
             reservation.getServiceParameters().getSchedule().getDuration(),
             startTime);
@@ -142,23 +144,23 @@ public final class ConnectionServiceProviderFunctions {
         return connection;
       }
 
-      private Optional<Date> getDateFrom(XMLGregorianCalendar calendar) {
+      private Optional<DateTime> getDateFrom(XMLGregorianCalendar calendar) {
         if (calendar == null) {
           return Optional.absent();
         }
 
-        return Optional.of(calendar.toGregorianCalendar().getTime());
+        return Optional.of(new DateTime(calendar.toGregorianCalendar().getTime()));
       }
 
-      private Optional<Date> calculateEndTime(XMLGregorianCalendar endTimeCalendar, Duration duration, Optional<Date> startTime) {
+      private Optional<DateTime> calculateEndTime(XMLGregorianCalendar endTimeCalendar, Duration duration, Optional<DateTime> startTime) {
         if (endTimeCalendar != null) {
           return getDateFrom(endTimeCalendar);
         }
 
         if (duration != null && startTime.isPresent()) {
-          Date endTime = new Date(startTime.get().getTime());
+          Date endTime = new Date(startTime.get().getMillis());
           duration.addTo(endTime);
-          return Optional.of(endTime);
+          return Optional.of(new DateTime(endTime));
         }
 
         return Optional.absent();

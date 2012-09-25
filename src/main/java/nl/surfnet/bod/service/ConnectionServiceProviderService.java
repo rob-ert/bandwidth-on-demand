@@ -97,8 +97,8 @@ public class ConnectionServiceProviderService {
     Reservation reservation = new Reservation();
     reservation.setConnection(connection);
     reservation.setName(connection.getDescription());
-    reservation.setStartDateTime(connection.getStartTime().transform(dateToDateTime).orNull());
-    reservation.setEndDateTime(connection.getEndTime().transform(dateToDateTime).orNull());
+    reservation.setStartDateTime(connection.getStartTime().orNull());
+    reservation.setEndDateTime(connection.getEndTime().orNull());
     reservation.setSourcePort(sourcePort);
     reservation.setDestinationPort(destinationPort);
     reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
@@ -110,7 +110,7 @@ public class ConnectionServiceProviderService {
     if (reservation.getStartDateTime() != null && reservation.getStartDateTime().isBefore(now)) {
       log.info("Reservation startdate is in past: {} setting it to now {}", reservation.getStartDateTime(), now);
       reservation.setStartDateTime(now);
-      connection.setStartTime(Optional.of(now.toDate()));
+      connection.setStartTime(Optional.of(now));
     }
     
     reservation.setConnection(connection);
