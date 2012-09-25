@@ -32,6 +32,8 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.orm.jpa.JpaSystemException;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +47,7 @@ import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml", "/spring/appCtx-nbi-client.xml",
     "/spring/appCtx-idd-client.xml" })
 @Transactional
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class VirtualResourceGroupRepoTest {
 
   @Resource
