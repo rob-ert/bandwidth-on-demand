@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snmp4j.CommandResponder;
@@ -50,29 +47,26 @@ public class SnmpOfflineManager implements CommandResponder, Runnable {
   @Value("${snmp.port}")
   private String port;
 
-  @PostConstruct
-  private void init() throws IOException {
-    abstractTransportMapping = new DefaultUdpTransportMapping(new UdpAddress(host + port));
-  }
-
   @Override
   public void run() {
 
-    final MessageDispatcher messageDispatcher = new MultiThreadedMessageDispatcher(ThreadPool.create("DispatcherPool",
-        10), new MessageDispatcherImpl());
-
-    messageDispatcher.addMessageProcessingModel(new MPv2c());
-
-    SecurityProtocols.getInstance().addDefaultProtocols();
-
-    final CommunityTarget communityTarget = new CommunityTarget();
-    communityTarget.setCommunity(new OctetString(community));
-
-    final Snmp snmp = new Snmp(messageDispatcher, abstractTransportMapping);
-    snmp.addCommandResponder(this);
-
-    log.info("Starting listener on: " + abstractTransportMapping.getListenAddress());
     try {
+      abstractTransportMapping = new DefaultUdpTransportMapping(new UdpAddress(host + port));
+
+      final MessageDispatcher messageDispatcher = new MultiThreadedMessageDispatcher(ThreadPool.create(
+          "DispatcherPool", 10), new MessageDispatcherImpl());
+
+      messageDispatcher.addMessageProcessingModel(new MPv2c());
+
+      SecurityProtocols.getInstance().addDefaultProtocols();
+
+      final CommunityTarget communityTarget = new CommunityTarget();
+      communityTarget.setCommunity(new OctetString(community));
+
+      final Snmp snmp = new Snmp(messageDispatcher, abstractTransportMapping);
+      snmp.addCommandResponder(this);
+
+      log.info("Starting listener on: " + abstractTransportMapping.getListenAddress());
       abstractTransportMapping.listen();
     }
     catch (IOException e) {
@@ -93,7 +87,6 @@ public class SnmpOfflineManager implements CommandResponder, Runnable {
     }
   }
 
-  @PreDestroy
   public void shutdown() {
     if (abstractTransportMapping != null && abstractTransportMapping.isListening()) {
       try {
