@@ -30,7 +30,7 @@ public class SnmpAgent {
   @Value("${snmp.port}")
   private String port;
 
-  public void sendTrap(final PDU pdu) {
+  public void sendPdu(final PDU pdu) {
     try {
       // Create Transport Mapping
       final TransportMapping transportMapping = new DefaultUdpTransportMapping();
@@ -46,8 +46,8 @@ public class SnmpAgent {
       communityTarget.setTimeout(5000);
 
       // Send the PDU
-      Snmp snmp = new Snmp(transportMapping);
-      log.info("Sending V2 Trap: {} to community: {}", pdu, communityTarget);
+      final Snmp snmp = new Snmp(transportMapping);
+      log.info("Sending v2 trap: {} to community: {}", pdu, communityTarget);
       snmp.send(pdu, communityTarget);
       snmp.close();
     }
