@@ -54,19 +54,18 @@ public class SnmpOfflineManager implements CommandResponder {
       log.info("USING OFFLINE SNMP MANAGER!");
       try {
         final CommunityTarget communityTarget = new CommunityTarget();
+        communityTarget.setCommunity(new OctetString(community));
+
         final MessageDispatcher messageDispatcher = new MultiThreadedMessageDispatcher(ThreadPool.create(
             "DispatcherPool", 10), new MessageDispatcherImpl());
 
-        abstractTransportMapping = new DefaultUdpTransportMapping(new UdpAddress(host + port));
         messageDispatcher.addMessageProcessingModel(new MPv2c());
         SecurityProtocols.getInstance().addDefaultProtocols();
-        communityTarget.setCommunity(new OctetString(community));
 
+        abstractTransportMapping = new DefaultUdpTransportMapping(new UdpAddress(host + port));
         final Snmp snmp = new Snmp(messageDispatcher, abstractTransportMapping);
         snmp.addCommandResponder(this);
-
         log.info("Starting listener on: " + abstractTransportMapping.getListenAddress());
-
         abstractTransportMapping.listen();
       }
       catch (IOException e) {
