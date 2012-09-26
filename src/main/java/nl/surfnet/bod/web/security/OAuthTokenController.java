@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.domain.BodAccount;
 import nl.surfnet.bod.repo.BodAccountRepo;
+import nl.surfnet.bod.util.Environment;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
@@ -44,23 +45,18 @@ import com.google.common.collect.Lists;
 @RequestMapping("/oauth2")
 public class OAuthTokenController {
 
+  private static final String CLIENT_REDIRECT = "/redirect";
+  private static final String ADMIN_REDIRECT = "/authredirect";
+
   private final Logger logger = LoggerFactory.getLogger(OAuthTokenController.class);
 
   @Resource
   private BodAccountRepo bodAccountRepo;
 
+  @Resource
+  private Environment env;
+
   private final HttpClient httpClient = new DefaultHttpClient();
-
-  private final String authServerClientId = "bod-authorization-server-client";
-  private final String authServerClientSecret = "BodSecret10";
-  private final String authServerRedirectUrl = "http://localhost:8082/bod/oauth2/authredirect";
-
-  private final String clientId = "osilient";
-  private final String secret = "ce6bca65-717e-4c8f-a974-1088b278e08d";
-  private final String redirectUrl = "http://localhost:8082/bod/oauth2/redirect";
-
-  private final String resourceSecret = "87f8bc46-9f58-4a2e-b439-8d6d99bd3ab3";
-  private final String resourceKey = "86e05d28-ea62-4b82-8090-250198facca3";
 
   @RequestMapping("/tokens")
   public String index(Model model) throws ClientProtocolException, IOException, URISyntaxException {
@@ -94,14 +90,14 @@ public class OAuthTokenController {
   }
 
   private String retreiveAnAuthorizationServerAccessToken() throws URISyntaxException {
-    URI uri = new URIBuilder().setScheme("http").setHost("localhost").setPort(8080).setPath("/oauth2/authorize")
+    URI uri = new URIBuilder("http://localhost:8080/oauth2/authorize")
       .setParameter("response_type", "code")
-      .setParameter("client_id", authServerClientId)
-      .setParameter("redirect_uri", authServerRedirectUrl)
+      .setParameter("client_id", env.getAdminClientId())
+      .setParameter("redirect_uri", adminRedirectUri())
       .setParameter("scope", "read,write")
       .build();
 
-    return "redirect:".concat(uri.toString());
+    return "redirect:".concat(uri.toASCIIString());
   }
 
   @Transactional
@@ -137,31 +133,31 @@ public class OAuthTokenController {
 
     URI uri = new URIBuilder("http://localhost:8080/oauth2/authorize")
       .addParameter("response_type", "code")
-      .addParameter("client_id", clientId)
-      .addParameter("redirect_uri", redirectUrl)
+      .addParameter("client_id", env.getClientClientId())
+      .addParameter("redirect_uri", redirectUri())
       .addParameter("scope", "reserve,provision,query,release").build();
 
     return "redirect:".concat(uri.toASCIIString());
   }
 
-  @RequestMapping("/authredirect")
+  @RequestMapping(ADMIN_REDIRECT)
   public String authRedirect(HttpServletRequest request, Model model) throws ClientProtocolException, IOException {
     String code = request.getParameter("code");
 
-    AccessTokenResponse tokenResponse = getAccessToken(authServerClientId, authServerClientSecret, code, authServerRedirectUrl).get();
+    AccessTokenResponse tokenResponse = getAccessToken(env.getAdminClientId(), env.getAdminSecret(), code, adminRedirectUri()).get();
 
-    BodAccount account = bodAccountRepo.findByNameId(Security.getUserDetails().getNameId());
+    BodAccount account = bodAccountRepo.findByNameId(Security.getNameId());
     account.setAuthorizationServerAccessToken(tokenResponse.getAccessToken());
     bodAccountRepo.save(account);
 
     return "redirect:/oauth2/tokens";
   }
 
-  @RequestMapping("/redirect")
+  @RequestMapping(CLIENT_REDIRECT)
   public String redirect(HttpServletRequest request, Model model) {
     String code = request.getParameter("code");
 
-    AccessTokenResponse accessToken = getAccessToken(clientId, secret, code, redirectUrl).get();
+    AccessTokenResponse accessToken = getAccessToken(env.getClientClientId(), env.getClientSecret(), code, redirectUri()).get();
 
     BodAccount account = bodAccountRepo.findByNameId(Security.getNameId());
     account.setAccessToken(accessToken.getAccessToken());
@@ -196,5 +192,12 @@ public class OAuthTokenController {
     return new String(Base64.encodeBase64(key.concat(":").concat(secret).getBytes()));
   }
 
+  private String adminRedirectUri() {
+   return env.getExternalBodUrl().concat("/oauth2" + ADMIN_REDIRECT);
+  }
+
+  private String redirectUri() {
+   return env.getExternalBodUrl().concat("/oauth2" + CLIENT_REDIRECT);
+  }
 
 }

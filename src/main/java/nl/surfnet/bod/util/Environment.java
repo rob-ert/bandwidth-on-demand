@@ -67,6 +67,24 @@ public class Environment {
   @Value("${os.group.noc}")
   private String nocGroup;
 
+  @Value("${oauth.admin.clientId}")
+  private String adminClientId;
+
+  @Value("${oauth.admin.secret}")
+  private String adminSecret;
+
+  @Value("${oauth.client.clientId}")
+  private String clientClientId;
+
+  @Value("${oauth.client.secret}")
+  private String clientSecret;
+
+  @Value("${oauth.resource.key}")
+  private String resourceKey;
+
+  @Value("${oauth.resource.secret}")
+  private String resourceSecret;
+
   public Environment() {
   }
 
@@ -147,5 +165,29 @@ public class Environment {
 
   public String getDefaultTimeZoneId() {
     return DateTimeZone.getDefault().getID();
+  }
+
+  public String getAdminClientId() {
+    return adminClientId;
+  }
+
+  public String getAdminSecret() {
+    return adminSecret;
+  }
+
+  public String getClientClientId() {
+    return clientClientId;
+  }
+
+  public String getClientSecret() {
+    return clientSecret;
+  }
+
+  public String getResourceKey() {
+    return resourceKey;
+  }
+
+  public String getResourceSecret() {
+    return resourceSecret;
   }
 }
