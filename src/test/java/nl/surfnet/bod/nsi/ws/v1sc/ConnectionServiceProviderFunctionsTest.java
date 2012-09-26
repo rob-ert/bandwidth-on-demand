@@ -21,12 +21,10 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.support.ReserveRequestTypeFactory;
@@ -35,16 +33,18 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 public class ConnectionServiceProviderFunctionsTest {
 
   @Test
   public void reserveToConnectionWithoutStartTime() throws DatatypeConfigurationException {
     ReserveRequestType reserveRequest = new ReserveRequestTypeFactory()
-      .setScheduleStartTime(null)
-      .setScheduleEndTime(
-          DatatypeFactory.newInstance().newXMLGregorianCalendar(2012, 5, 18, 14, 0, 0, 0, DatatypeConstants.FIELD_UNDEFINED))
-      .setDuration(null)
-      .setConnectionId("connectionId1").create();
+        .setScheduleStartTime(null)
+        .setScheduleEndTime(
+            DatatypeFactory.newInstance().newXMLGregorianCalendar(2012, 5, 18, 14, 0, 0, 0,
+                DatatypeConstants.FIELD_UNDEFINED)).setDuration(null).setConnectionId("connectionId1").create();
 
     Connection connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequest);
 
@@ -52,26 +52,66 @@ public class ConnectionServiceProviderFunctionsTest {
     assertThat(connection.getStartTime().isPresent(), is(false));
 
     DateTime endTime = new DateTime(connection.getEndTime().get());
-    assertThat(endTime, is(new DateTime(2012, 5, 18, 14, 0)));
+    assertThat(endTime.getMillis(), is(new DateTime(2012, 5, 18, 14, 0).getMillis()));
   }
 
   @Test
   public void reserveToConnectionWithADuration() throws DatatypeConfigurationException {
     ReserveRequestType reserveRequest = new ReserveRequestTypeFactory()
-      .setScheduleStartTime(
-          DatatypeFactory.newInstance().newXMLGregorianCalendar(2012, 5, 18, 14, 0, 0, 0, DatatypeConstants.FIELD_UNDEFINED))
-      .setScheduleEndTime(null)
-      .setDuration(DatatypeFactory.newInstance().newDuration(true, 0, 0, 2, 5, 10, 0))
-      .setConnectionId("connectionId1").create();
+        .setScheduleStartTime(
+            DatatypeFactory.newInstance().newXMLGregorianCalendar(2012, 5, 18, 14, 0, 0, 0,
+                DatatypeConstants.FIELD_UNDEFINED)).setScheduleEndTime(null)
+        .setDuration(DatatypeFactory.newInstance().newDuration(true, 0, 0, 2, 5, 10, 0))
+        .setConnectionId("connectionId1").create();
 
     Connection connection = ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequest);
 
     assertThat(connection.getConnectionId(), is("connectionId1"));
     DateTime startTime = new DateTime(connection.getStartTime().get());
-    assertThat(startTime, is(new DateTime(2012, 5, 18, 14, 0)));
+    assertThat(startTime.getMillis(), is(new DateTime(2012, 5, 18, 14, 0).getMillis()));
 
     DateTime endTime = new DateTime(connection.getEndTime().get());
-    assertThat(endTime, is(new DateTime(2012, 5, 20, 19, 10)));
+    assertThat(endTime.getMillis(), is(new DateTime(2012, 5, 20, 19, 10).getMillis()));
   }
 
+  @Test
+  public void shouldPreserveTimeZoneWithPositieveOffset() throws DatatypeConfigurationException {
+    int offSetInHours = 2;
+    String xmlDate = String.format("2012-09-26T11:05:10%0+3d:00", offSetInHours);
+    XMLGregorianCalendar calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlDate);
+
+    DateTime timeStamp = ConnectionServiceProviderFunctions.getDateFrom(calendar).get();
+    assertThat(timeStamp.getZone().getOffset(timeStamp.getMillis()), is(offSetInHours * 60 * 60 * 1000));
+  }
+
+  @Test
+  public void shouldPreserveTimeZoneWithNegativeOffset() throws DatatypeConfigurationException {
+    int offSetInHours = -4;
+
+    String xmlDate = String.format("2012-09-26T11:05:10%0+3d:00", offSetInHours);
+    XMLGregorianCalendar calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlDate);
+
+    DateTime timeStamp = ConnectionServiceProviderFunctions.getDateFrom(calendar).get();
+    assertThat(timeStamp.getZone().getOffset(timeStamp.getMillis()), is(offSetInHours * 60 * 60 * 1000));
+  }
+
+  @Test
+  public void shouldPreserveTimeZoneZeroOffset() throws DatatypeConfigurationException {
+    int offSetInHours = 0;
+
+    String xmlDate = String.format("2012-09-26T11:05:10%0+3d:00", offSetInHours);
+    XMLGregorianCalendar calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlDate);
+
+    DateTime timeStamp = ConnectionServiceProviderFunctions.getDateFrom(calendar).get();
+    assertThat(timeStamp.getZone().getOffset(timeStamp.getMillis()), is(offSetInHours * 60 * 60 * 1000));
+  }
+
+  @Test
+  public void shouldPreserveTimeZoneUTC() throws DatatypeConfigurationException {
+    String xmlDate = "2012-09-26T11:05:10Z";
+    XMLGregorianCalendar calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlDate);
+
+    DateTime timeStamp = ConnectionServiceProviderFunctions.getDateFrom(calendar).get();
+    assertThat(timeStamp.getZone().getOffset(timeStamp.getMillis()), is(0));
+  }
 }
