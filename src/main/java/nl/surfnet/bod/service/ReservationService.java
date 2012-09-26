@@ -175,8 +175,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   private void convertTimeStampsToDefaultTimeZone(Reservation reservation) {
     reservation.setStartDateTime(reservation.getStartDateTime().withZone(Environment.DEFAULT_TIME_ZONE));
-    reservation.setEndDateTime(reservation.getEndDateTime().withZone(Environment.DEFAULT_TIME_ZONE));
-    
+
+    if (reservation.getEndDateTime() != null) {
+      reservation.setEndDateTime(reservation.getEndDateTime().withZone(Environment.DEFAULT_TIME_ZONE));
+    }
   }
 
   public long countActiveReservationsForGroup(VirtualResourceGroup group) {
