@@ -1,8 +1,8 @@
 package nl.surfnet.bod.web.security;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -13,6 +13,7 @@ import nl.surfnet.bod.repo.BodAccountRepo;
 import nl.surfnet.bod.util.Environment;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -23,8 +24,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
@@ -36,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -63,17 +68,10 @@ public class OAuthTokenController {
     final BodAccount account = bodAccountRepo.findByNameId(Security.getNameId());
 
     if (!account.getAuthorizationServerAccessToken().isPresent()) {
-      return retreiveAnAuthorizationServerAccessToken();
+      return retreiveAuthorizationServerAccessToken();
     }
 
-    HttpGet httpGet = new HttpGet("http://localhost:8080/admin/accessToken/");
-    httpGet.addHeader("Authorization", "bearer ".concat(account.getAuthorizationServerAccessToken().get()));
-
-    HttpResponse tokensResponse = httpClient.execute(httpGet);
-    String json = EntityUtils.toString(tokensResponse.getEntity());
-
-    List<AccessToken> tokens = new ObjectMapper().readValue(json, new TypeReference<List<AccessToken>>() { });
-
+    List<AccessToken> tokens = getAllTokensForUser(account);
     AccessToken accessToken = Iterables.find(tokens, new Predicate<AccessToken>() {
       @Override
       public boolean apply(AccessToken token) {
@@ -89,15 +87,23 @@ public class OAuthTokenController {
     return "oauthResult";
   }
 
-  private String retreiveAnAuthorizationServerAccessToken() throws URISyntaxException {
-    URI uri = new URIBuilder("http://localhost:8080/oauth2/authorize")
-      .setParameter("response_type", "code")
-      .setParameter("client_id", env.getAdminClientId())
-      .setParameter("redirect_uri", adminRedirectUri())
-      .setParameter("scope", "read,write")
-      .build();
+  private String retreiveAuthorizationServerAccessToken() throws URISyntaxException {
+    String uri = buildAuthorizeUri(
+        env.getAdminClientId(),
+        adminRedirectUri(),
+        Lists.newArrayList("read", "write"));
 
-    return "redirect:".concat(uri.toASCIIString());
+    return "redirect:".concat(uri);
+  }
+
+  private List<AccessToken> getAllTokensForUser(BodAccount account) throws JsonParseException, JsonMappingException, IOException {
+    HttpGet httpGet = new HttpGet(env.getOauthServerUrl().concat("/admin/accessToken/"));
+    httpGet.addHeader(getOauthAuthorizationHeader(account.getAuthorizationServerAccessToken().get()));
+
+    HttpResponse tokensResponse = httpClient.execute(httpGet);
+    String json = EntityUtils.toString(tokensResponse.getEntity());
+
+    return new ObjectMapper().readValue(json, new TypeReference<List<AccessToken>>() { });
   }
 
   @Transactional
@@ -105,8 +111,8 @@ public class OAuthTokenController {
   public String deleteAccessToken(@RequestParam String tokenId) throws ClientProtocolException, IOException {
     BodAccount account = bodAccountRepo.findByNameId(Security.getNameId());
 
-    HttpDelete delete = new HttpDelete("http://localhost:8080/admin/accessToken/".concat(tokenId));
-    delete.addHeader("Authorization", "bearer ".concat(account.getAuthorizationServerAccessToken().get()));
+    HttpDelete delete = new HttpDelete(env.getOauthServerUrl().concat("/admin/accessToken/").concat(tokenId));
+    delete.addHeader(getOauthAuthorizationHeader(account.getAuthorizationServerAccessToken().get()));
 
     HttpResponse response = httpClient.execute(delete);
     int statusCode = response.getStatusLine().getStatusCode();
@@ -131,20 +137,29 @@ public class OAuthTokenController {
       return "oauthResult";
     }
 
-    URI uri = new URIBuilder("http://localhost:8080/oauth2/authorize")
-      .addParameter("response_type", "code")
-      .addParameter("client_id", env.getClientClientId())
-      .addParameter("redirect_uri", redirectUri())
-      .addParameter("scope", "reserve,provision,query,release").build();
+    String uri = buildAuthorizeUri(
+        env.getClientClientId(),
+        redirectUri(),
+        Lists.newArrayList("reserve", "provision", "query", "release"));
 
-    return "redirect:".concat(uri.toASCIIString());
+    return "redirect:".concat(uri);
+  }
+
+  private String buildAuthorizeUri(String clientId, String redirectUri, Collection<String> scopes) throws URISyntaxException {
+    return new URIBuilder(env.getOauthServerUrl().concat("/oauth2/authorize"))
+      .addParameter("response_type", "code")
+      .addParameter("client_id", clientId)
+      .addParameter("redirect_uri", redirectUri)
+      .addParameter("scope", Joiner.on(',').join(scopes)).build().toASCIIString();
   }
 
   @RequestMapping(ADMIN_REDIRECT)
   public String authRedirect(HttpServletRequest request, Model model) throws ClientProtocolException, IOException {
-    String code = request.getParameter("code");
-
-    AccessTokenResponse tokenResponse = getAccessToken(env.getAdminClientId(), env.getAdminSecret(), code, adminRedirectUri()).get();
+    AccessTokenResponse tokenResponse = getAccessToken(
+        env.getAdminClientId(),
+        env.getAdminSecret(),
+        request.getParameter("code"),
+        adminRedirectUri()).get();
 
     BodAccount account = bodAccountRepo.findByNameId(Security.getNameId());
     account.setAuthorizationServerAccessToken(tokenResponse.getAccessToken());
@@ -155,9 +170,11 @@ public class OAuthTokenController {
 
   @RequestMapping(CLIENT_REDIRECT)
   public String redirect(HttpServletRequest request, Model model) {
-    String code = request.getParameter("code");
-
-    AccessTokenResponse accessToken = getAccessToken(env.getClientClientId(), env.getClientSecret(), code, redirectUri()).get();
+    AccessTokenResponse accessToken = getAccessToken(
+        env.getClientClientId(),
+        env.getClientSecret(),
+        request.getParameter("code"),
+        redirectUri()).get();
 
     BodAccount account = bodAccountRepo.findByNameId(Security.getNameId());
     account.setAccessToken(accessToken.getAccessToken());
@@ -174,8 +191,8 @@ public class OAuthTokenController {
         new BasicNameValuePair("redirect_uri", redirectUri));
       UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formparams, "UTF-8");
 
-      HttpPost post = new HttpPost("http://localhost:8080/oauth2/token");
-      post.addHeader("Authorization", "Basic " + base64EncodedAuthorizationString(clientId, secret));
+      HttpPost post = new HttpPost(env.getOauthServerUrl().concat("/oauth2/token"));
+      post.addHeader(getBasicAuthorizationHeader(clientId, secret));
       post.setEntity(entity);
 
       HttpResponse response = httpClient.execute(post);
@@ -188,16 +205,24 @@ public class OAuthTokenController {
     }
   }
 
-  private String base64EncodedAuthorizationString(String key, String secret) {
-    return new String(Base64.encodeBase64(key.concat(":").concat(secret).getBytes()));
-  }
-
   private String adminRedirectUri() {
    return env.getExternalBodUrl().concat("/oauth2" + ADMIN_REDIRECT);
   }
 
   private String redirectUri() {
    return env.getExternalBodUrl().concat("/oauth2" + CLIENT_REDIRECT);
+  }
+
+  private Header getBasicAuthorizationHeader(String user, String password) {
+    return new BasicHeader("Authorization", "Basic ".concat(base64Encoded(user.concat(":").concat(password))));
+  }
+
+  private String base64Encoded(String input) {
+    return new String(Base64.encodeBase64(input.getBytes()));
+  }
+
+  private Header getOauthAuthorizationHeader(String accessToken) {
+    return new BasicHeader("Authorization", "bearer ".concat(accessToken));
   }
 
 }

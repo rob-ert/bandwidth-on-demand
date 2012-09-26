@@ -67,6 +67,9 @@ public class Environment {
   @Value("${os.group.noc}")
   private String nocGroup;
 
+  @Value("${oauth.server.url}")
+  private String oauthServerUrl;
+
   @Value("${oauth.admin.clientId}")
   private String adminClientId;
 
@@ -189,5 +192,9 @@ public class Environment {
 
   public String getResourceSecret() {
     return resourceSecret;
+  }
+
+  public String getOauthServerUrl() {
+    return oauthServerUrl;
   }
 }
