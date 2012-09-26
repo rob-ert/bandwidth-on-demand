@@ -41,7 +41,6 @@ import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.idd.generated.Klanten;
 import nl.surfnet.bod.repo.InstituteRepo;
-import nl.surfnet.bod.snmp.SnmpAgent;
 import nl.surfnet.bod.support.InstituteFactory;
 import nl.surfnet.bod.support.KlantenFactory;
 

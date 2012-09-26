@@ -24,7 +24,7 @@ public class TimeStampBridge implements StringBridge {
 
       // Remove timezone offset
       String dtString = dateTime.toString();
-      int timeZoneCharPos = dtString.indexOf( "+");
+      int timeZoneCharPos = dtString.indexOf("+");
       result = dtString.substring(0,  timeZoneCharPos);
     }
     else if (Timestamp.class.isAssignableFrom(object.getClass())) {

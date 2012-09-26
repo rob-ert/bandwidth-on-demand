@@ -149,6 +149,6 @@ public class ReservationToNbi {
 
   
   public String logStateChange(final String reservationName, final ReservationStatus newStatus, final ReservationStatus oldStatus) {
-    return reservationName+": changed state from [" + oldStatus + "] to [" + newStatus + "]";
+    return reservationName + ": changed state from [" + oldStatus + "] to [" + newStatus + "]";
   }
 }
