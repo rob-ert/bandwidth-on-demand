@@ -16,11 +16,11 @@ import org.snmp4j.MessageDispatcher;
 import org.snmp4j.MessageDispatcherImpl;
 import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
+import org.snmp4j.TransportMapping;
 import org.snmp4j.mp.MPv2c;
 import org.snmp4j.security.SecurityProtocols;
 import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.UdpAddress;
-import org.snmp4j.transport.AbstractTransportMapping;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.snmp4j.util.MultiThreadedMessageDispatcher;
 import org.snmp4j.util.ThreadPool;
@@ -34,7 +34,7 @@ public class SnmpOfflineManager implements CommandResponder {
 
   private final LinkedBlockingDeque<PDU> receivedPdus = new LinkedBlockingDeque<>();
 
-  private AbstractTransportMapping abstractTransportMapping = null;
+  private TransportMapping<UdpAddress> transportMapping = null;
 
   @Value("${snmp.community}")
   private String community;
@@ -52,9 +52,9 @@ public class SnmpOfflineManager implements CommandResponder {
   public void startup() {
     if (isDevelopment) {
       log.info("USING OFFLINE SNMP MANAGER!");
-      
+
       registerShutdownHook();
-      
+
       try {
         final CommunityTarget communityTarget = new CommunityTarget();
         communityTarget.setCommunity(new OctetString(community));
@@ -62,14 +62,14 @@ public class SnmpOfflineManager implements CommandResponder {
         final MessageDispatcher messageDispatcher = new MultiThreadedMessageDispatcher(ThreadPool.create(
             "DispatcherPool", 10), new MessageDispatcherImpl());
         messageDispatcher.addMessageProcessingModel(new MPv2c());
-        
+
         SecurityProtocols.getInstance().addDefaultProtocols();
 
-        abstractTransportMapping = new DefaultUdpTransportMapping(new UdpAddress(host + port));
-        final Snmp snmp = new Snmp(messageDispatcher, abstractTransportMapping);
+        transportMapping = new DefaultUdpTransportMapping(new UdpAddress(host + port));
+        final Snmp snmp = new Snmp(messageDispatcher, transportMapping);
         snmp.addCommandResponder(this);
-        log.info("Starting listener on: " + abstractTransportMapping.getListenAddress());
-        abstractTransportMapping.listen();
+        log.info("Starting listener on: " + transportMapping.getListenAddress());
+        transportMapping.listen();
       }
       catch (IOException e) {
         log.error("Error: ", e);
@@ -83,10 +83,10 @@ public class SnmpOfflineManager implements CommandResponder {
 
   @PreDestroy
   public void shutdown() {
-    if (abstractTransportMapping != null && abstractTransportMapping.isListening()) {
+    if (transportMapping != null && transportMapping.isListening()) {
       try {
-        log.info("Closing listener on: " + abstractTransportMapping.getListenAddress());
-        abstractTransportMapping.close();
+        log.info("Closing listener on: " + transportMapping.getListenAddress());
+        transportMapping.close();
       }
       catch (IOException e) {
         log.error("Error: ", e);
@@ -105,6 +105,10 @@ public class SnmpOfflineManager implements CommandResponder {
     }
   }
 
+  public final String getOrWaitForLastPduAsString(final long seconds) {
+    return getOrWaitForLastPdu(seconds).toString();
+  }
+
   public final PDU getOrWaitForLastPdu(final long seconds) {
     if (isDevelopment) {
       try {
@@ -121,7 +125,7 @@ public class SnmpOfflineManager implements CommandResponder {
   }
 
   public final boolean isRunning() {
-    return abstractTransportMapping != null && abstractTransportMapping.isListening();
+    return transportMapping != null && transportMapping.isListening();
   }
 
   private void registerShutdownHook() {
