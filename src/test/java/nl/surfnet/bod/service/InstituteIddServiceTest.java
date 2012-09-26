@@ -61,7 +61,7 @@ public class InstituteIddServiceTest {
   private LogEventService logEventService;
   
   @Mock
-  private SnmpAgent snmpAgent;
+  private SnmpAgentService snmpAgentService;
 
   @Test
   public void whenAllInstituesEqualDontUpdate() {

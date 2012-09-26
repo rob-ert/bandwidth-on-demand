@@ -81,7 +81,7 @@ public class PhysicalPortServiceImplTest {
   private LogEventService logEventService;
   
   @Mock
-  private SnmpAgent snmpAgent;
+  private SnmpAgentService snmpAgentService;
 
   private Map<String, PhysicalPort> physicalPortMap = Maps.newHashMap();
 
