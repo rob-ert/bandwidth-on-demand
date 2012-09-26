@@ -61,8 +61,8 @@ public class SnmpOfflineManager implements CommandResponder {
 
         final MessageDispatcher messageDispatcher = new MultiThreadedMessageDispatcher(ThreadPool.create(
             "DispatcherPool", 10), new MessageDispatcherImpl());
-
         messageDispatcher.addMessageProcessingModel(new MPv2c());
+        
         SecurityProtocols.getInstance().addDefaultProtocols();
 
         abstractTransportMapping = new DefaultUdpTransportMapping(new UdpAddress(host + port));

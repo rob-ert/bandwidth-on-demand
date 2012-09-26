@@ -40,6 +40,12 @@ public class SnmpAgent {
   @Value("${snmp.port}")
   private String port;
 
+  @Value("${snmp.retries}")
+  private int retries;
+
+  @Value("${snmp.timeout.millis}")
+  private long timeoutInMillis;
+
   public void sendPdu(final PDU pdu) {
     try {
       final TransportMapping transportMapping = new DefaultUdpTransportMapping();
@@ -50,8 +56,8 @@ public class SnmpAgent {
       communityTarget.setVersion(SnmpConstants.version2c);
 
       communityTarget.setAddress(new UdpAddress(host + port));
-      communityTarget.setRetries(2);
-      communityTarget.setTimeout(5000);
+      communityTarget.setRetries(retries);
+      communityTarget.setTimeout(timeoutInMillis);
 
       final Snmp snmp = new Snmp(transportMapping);
       log.info("Sending v2 trap: {} to community: {}", pdu, communityTarget);
@@ -77,9 +83,8 @@ public class SnmpAgent {
     return oidNmsPortDisappeared + "." + nmsPortId;
   }
 
-  public final String getOidIddInstituteDisappeared(final String institute) {
-    // TODO: Fix the OID for the missing institute
-    return oidIddInstituteDisappeared + "." + institute;
+  public final String getOidIddInstituteDisappeared(final String instituteId) {
+    return oidIddInstituteDisappeared + "." + instituteId;
   }
 
 }
