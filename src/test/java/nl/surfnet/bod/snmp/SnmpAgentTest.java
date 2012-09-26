@@ -17,7 +17,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 public class SnmpAgentTest {
 
   private final Properties properties = new Properties();
-
   private final SnmpAgent snmpAgent = new SnmpAgent();
   private final SnmpOfflineManager snmpOfflineManager = new SnmpOfflineManager();
 
@@ -43,16 +42,13 @@ public class SnmpAgentTest {
 
   @Test
   public void should_send_and_receive_port_disappeared() {
-    final int pduType = PDU.TRAP;
 
-    snmpAgent.sendPdu(snmpAgent.getPdu(properties.getProperty("snmp.oid.nms.port.disappeared"),
-        SnmpAgent.SEVERITY_MAJOR, pduType));
+    snmpAgent.sendPdu(snmpAgent.getPdu(properties.getProperty("snmp.oid.nms.port.disappeared")));
 
     final PDU lastPdu = snmpOfflineManager.getOrWaitForLastPdu(5);
     final String lastVariableBindingsAsString = lastPdu.getVariableBindings().toString();
 
-    assertThat(lastPdu.getType(), is(pduType));
-    assertThat(lastVariableBindingsAsString, containsString(SnmpAgent.SEVERITY_MAJOR));
+    assertThat(lastPdu.getType(), is(PDU.TRAP));
     assertThat(lastVariableBindingsAsString, containsString(properties.getProperty("snmp.oid.nms.port.disappeared")
         .replaceFirst(".", "")));
   }
@@ -62,7 +58,6 @@ public class SnmpAgentTest {
     for (final Object o : instances) {
       ReflectionTestUtils.setField(o, "community", properties.getProperty("snmp.community"));
       ReflectionTestUtils.setField(o, "host", properties.getProperty("snmp.host"));
-      ReflectionTestUtils.setField(o, "port", properties.getProperty("snmp.port"));
     }
   }
 

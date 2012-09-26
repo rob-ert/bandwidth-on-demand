@@ -42,9 +42,6 @@ public class SnmpOfflineManager implements CommandResponder {
   @Value("${snmp.host}")
   private String host;
 
-  @Value("${snmp.port}")
-  private String port;
-
   @Value("${snmp.development}")
   private boolean isDevelopment = true;
 
@@ -54,18 +51,17 @@ public class SnmpOfflineManager implements CommandResponder {
       log.info("USING OFFLINE SNMP MANAGER!");
 
       registerShutdownHook();
+      SecurityProtocols.getInstance().addDefaultProtocols();
+
+      final CommunityTarget communityTarget = new CommunityTarget();
+      communityTarget.setCommunity(new OctetString(community));
+
+      final MessageDispatcher messageDispatcher = new MultiThreadedMessageDispatcher(ThreadPool.create(
+          "DispatcherPool", 10), new MessageDispatcherImpl());
+      messageDispatcher.addMessageProcessingModel(new MPv2c());
 
       try {
-        final CommunityTarget communityTarget = new CommunityTarget();
-        communityTarget.setCommunity(new OctetString(community));
-
-        final MessageDispatcher messageDispatcher = new MultiThreadedMessageDispatcher(ThreadPool.create(
-            "DispatcherPool", 10), new MessageDispatcherImpl());
-        messageDispatcher.addMessageProcessingModel(new MPv2c());
-
-        SecurityProtocols.getInstance().addDefaultProtocols();
-
-        transportMapping = new DefaultUdpTransportMapping(new UdpAddress(host + port));
+        transportMapping = new DefaultUdpTransportMapping(new UdpAddress(host));
         final Snmp snmp = new Snmp(messageDispatcher, transportMapping);
         snmp.addCommandResponder(this);
         log.info("Starting listener on: " + transportMapping.getListenAddress());
@@ -116,12 +112,9 @@ public class SnmpOfflineManager implements CommandResponder {
       }
       catch (InterruptedException e) {
         log.error("Error: ", e);
-        throw new RuntimeException(e);
       }
     }
-    else {
-      return null;
-    }
+    return null;
   }
 
   public final boolean isRunning() {

@@ -2,7 +2,6 @@ package nl.surfnet.bod.service;
 
 import javax.annotation.Resource;
 
-import org.snmp4j.PDU;
 import org.springframework.stereotype.Service;
 
 import nl.surfnet.bod.snmp.SnmpAgent;
@@ -14,15 +13,11 @@ public class SnmpAgentService {
   private SnmpAgent snmpAgent;
 
   public void sendMissingPortEvent(final String snmpPortId) {
-    final PDU pdu = snmpAgent
-        .getPdu(snmpAgent.getOidNmsPortDisappeared(snmpPortId), SnmpAgent.SEVERITY_MAJOR, PDU.TRAP);
-    snmpAgent.sendPdu(pdu);
+    snmpAgent.sendPdu(snmpAgent.getPdu(snmpAgent.getOidNmsPortDisappeared(snmpPortId)));
   }
 
   public void sendMissingInstituteEvent(final String snmpInstituteId) {
-    final PDU pdu = snmpAgent.getPdu(snmpAgent.getOidIddInstituteDisappeared(snmpInstituteId),
-        SnmpAgent.SEVERITY_MAJOR, PDU.TRAP);
-    snmpAgent.sendPdu(pdu);
+    snmpAgent.sendPdu(snmpAgent.getPdu(snmpAgent.getOidIddInstituteDisappeared(snmpInstituteId)));
   }
 
 }
