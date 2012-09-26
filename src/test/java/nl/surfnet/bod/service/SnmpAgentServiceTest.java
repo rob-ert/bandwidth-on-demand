@@ -23,7 +23,7 @@ public class SnmpAgentServiceTest {
 
   private final SnmpAgentService snmpAgentService = new SnmpAgentService();
   private final SnmpAgent snmpAgent = new SnmpAgent();
-  
+
   private final SnmpOfflineManager snmpOfflineManager = new SnmpOfflineManager();
 
   @BeforeClass
@@ -38,14 +38,7 @@ public class SnmpAgentServiceTest {
   public void setUp() throws Exception {
     properties.load(new ClassPathResource("bod.properties").getInputStream());
     prepareTestInstances();
-    ReflectionTestUtils.setField(snmpAgent, "oidNmsPortDisappeared",
-        properties.getProperty("snmp.oid.nms.port.disappeared"));
-    ReflectionTestUtils.setField(snmpAgent, "oidIddInstituteDisappeared",
-        properties.getProperty("snmp.oid.idd.institute.disappeared"));
-    ReflectionTestUtils.setField(snmpAgentService, "snmpAgent", snmpAgent);
-    
     snmpOfflineManager.startup();
-
   }
 
   @After
@@ -68,9 +61,17 @@ public class SnmpAgentServiceTest {
     final String lastVariableBindingsAsString = snmpOfflineManager.getOrWaitForLastPdu(5).toString();
     assertThat(lastVariableBindingsAsString, containsString(instituteSnmpId));
   }
-  
+
   private void prepareTestInstances() {
+
+    ReflectionTestUtils.setField(snmpAgent, "oidNmsPortDisappeared",
+        properties.getProperty("snmp.oid.nms.port.disappeared"));
+    ReflectionTestUtils.setField(snmpAgent, "oidIddInstituteDisappeared",
+        properties.getProperty("snmp.oid.idd.institute.disappeared"));
+    ReflectionTestUtils.setField(snmpAgentService, "snmpAgent", snmpAgent);
+
     final Object instances[] = { snmpAgent, snmpOfflineManager };
+
     for (final Object o : instances) {
       ReflectionTestUtils.setField(o, "community", properties.getProperty("snmp.community"));
       ReflectionTestUtils.setField(o, "host", properties.getProperty("snmp.host"));

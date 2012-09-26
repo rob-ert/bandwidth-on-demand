@@ -13,14 +13,14 @@ public class SnmpAgentService {
   @Resource
   private SnmpAgent snmpAgent;
 
-  public void sendMissingPortEvent(final String portSnmpId) {
+  public void sendMissingPortEvent(final String snmpPortId) {
     final PDU pdu = snmpAgent
-        .getPdu(snmpAgent.getOidNmsPortDisappeared(portSnmpId), SnmpAgent.SEVERITY_MAJOR, PDU.TRAP);
+        .getPdu(snmpAgent.getOidNmsPortDisappeared(snmpPortId), SnmpAgent.SEVERITY_MAJOR, PDU.TRAP);
     snmpAgent.sendPdu(pdu);
   }
 
-  public void sendMissingInstituteEvent(final String instituteSnmpId) {
-    final PDU pdu = snmpAgent.getPdu(snmpAgent.getOidIddInstituteDisappeared(instituteSnmpId),
+  public void sendMissingInstituteEvent(final String snmpInstituteId) {
+    final PDU pdu = snmpAgent.getPdu(snmpAgent.getOidIddInstituteDisappeared(snmpInstituteId),
         SnmpAgent.SEVERITY_MAJOR, PDU.TRAP);
     snmpAgent.sendPdu(pdu);
   }
