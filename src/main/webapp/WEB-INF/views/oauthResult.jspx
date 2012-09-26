@@ -21,7 +21,7 @@
                         </c:when>
                         <c:otherwise>
                             <h3>Your OAuth2 Access Token for NSI requests</h3>
-                            <input type="text" style="font-size:25px;height:30px;width:500px" value="${accessToken.token}" class="input-copy"/>
+                            <input type="text" value="${accessToken.token}" class="input-copy"/>
                             <spring:url var="revokeUrl" value="/oauth2/token/delete">
                                 <spring:param name="_method" value="DELETE" />
                                 <spring:param name="tokenId" value="${accessToken.id}" />
@@ -30,7 +30,8 @@
                             <h3>Using your Access Token</h3>
                             <p>
                                 With every NSI request you should sent your access token in the header of the http request.
-                                Like:
+                                The following HTTP request shows how.
+                            </p>
 <pre>
 POST /nsi/reserve HTTP/1.1
 HOST: bod.surfnet.nl
@@ -42,7 +43,6 @@ Content-Type: application/soap+xml; charset=utf-8
 <c:out value="&lt;soap:Envelope" />
     .....
 </pre>
-                            </p>
                         </c:otherwise>
                     </c:choose>
                 </div>
@@ -55,7 +55,7 @@ Content-Type: application/soap+xml; charset=utf-8
                     <h3>Access Token</h3>
                     <p>
                         If you would like to sent a NSI request to our NSI provider, you need an access token.
-                        This access token needs to be sent with every NSI request so the BoD application can determine your identity.
+                        This access token needs to be sent with every NSI request so that the BoD application can determine your identity.
                     </p>
                     <h3>User Consent</h3>
                     <p>
@@ -63,8 +63,8 @@ Content-Type: application/soap+xml; charset=utf-8
                     </p>
                     <h3>Revoke</h3>
                     <p>
-                        The access token you generate is valid for ever. So if you ever want the token to stop working you can revoke it.
-                        Be carefull with your token en don't give it to someone else.
+                        The access token you generate is valid forever. So if you ever want the token to stop working you can revoke it.
+                        Be careful with your token en don't give it to someone else.
                     </p>
                 </div>
             </section>

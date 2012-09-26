@@ -106,3 +106,8 @@ select.input-xlarge {
 .form-search select {
     margin-right: 5px;
 }
+.input-copy {
+    font-size: 20px;
+    height: 25px;
+    width: 400px;
+}
