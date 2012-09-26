@@ -52,6 +52,9 @@ public class SnmpOfflineManager implements CommandResponder {
   public void startup() {
     if (isDevelopment) {
       log.info("USING OFFLINE SNMP MANAGER!");
+      
+      registerShutdownHook();
+      
       try {
         final CommunityTarget communityTarget = new CommunityTarget();
         communityTarget.setCommunity(new OctetString(community));
@@ -119,6 +122,14 @@ public class SnmpOfflineManager implements CommandResponder {
 
   public final boolean isRunning() {
     return abstractTransportMapping != null && abstractTransportMapping.isListening();
+  }
+
+  private void registerShutdownHook() {
+    Runtime.getRuntime().addShutdownHook(new Thread() {
+      public void run() {
+        shutdown();
+      }
+    });
   }
 
 }
