@@ -48,7 +48,7 @@ public class SnmpAgent {
 
   public void sendPdu(final PDU pdu) {
     try {
-      final TransportMapping transportMapping = new DefaultUdpTransportMapping();
+      final TransportMapping<UdpAddress> transportMapping = new DefaultUdpTransportMapping();
       transportMapping.listen();
 
       final CommunityTarget communityTarget = new CommunityTarget();
