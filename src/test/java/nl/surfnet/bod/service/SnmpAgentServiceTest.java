@@ -10,7 +10,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.snmp4j.PDU;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -47,19 +46,21 @@ public class SnmpAgentServiceTest {
   }
 
   @Test
-  public void testSendMissingPortEvent() {
+  public void should_send_missing_port_event() {
     final String portSnmpId = "1.2.3.4.5";
     snmpAgentService.sendMissingPortEvent(portSnmpId);
-    final String lastVariableBindingsAsString = snmpOfflineManager.getOrWaitForLastPdu(5).toString();
-    assertThat(lastVariableBindingsAsString, containsString(portSnmpId));
+    final String lastVariableBindingsAsString = snmpOfflineManager.getOrWaitForLastPduAsString(5);
+    assertThat(lastVariableBindingsAsString, containsString(snmpAgent.getOidNmsPortDisappeared(portSnmpId)
+        .replaceFirst(".", "")));
   }
 
   @Test
-  public void testSendMissingInstituteEvent() {
+  public void should_send_missing_institute_event() {
     final String instituteSnmpId = "6.7.8.9.10";
     snmpAgentService.sendMissingInstituteEvent(instituteSnmpId);
-    final String lastVariableBindingsAsString = snmpOfflineManager.getOrWaitForLastPdu(5).toString();
-    assertThat(lastVariableBindingsAsString, containsString(instituteSnmpId));
+    final String lastVariableBindingsAsString = snmpOfflineManager.getOrWaitForLastPduAsString(5);
+    assertThat(lastVariableBindingsAsString, containsString(snmpAgent.getOidIddInstituteDisappeared(instituteSnmpId)
+        .replaceFirst(".", "")));
   }
 
   private void prepareTestInstances() {
