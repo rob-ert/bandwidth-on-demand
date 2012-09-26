@@ -34,7 +34,7 @@
 <pre>
 POST /nsi/reserve HTTP/1.1
 HOST: bod.surfnet.nl
-Authorization: bearer <b>[your access token]</b>
+Authorization: bearer <b><c:out value="${accessToken.token}" /></b>
 Content-Type: application/soap+xml; charset=utf-8
 
 <c:out value="&lt;?xml version=" />"1.0" <c:out value="?&gt;"/>
