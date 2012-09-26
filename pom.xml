@@ -543,7 +543,7 @@
             <groupId>org.snmp4j</groupId>
             <artifactId>snmp4j</artifactId>
             <!-- <version>1.11.3</version> -->
-            <version>1.10.1</version>
+            <version>2.1.0</version>
         </dependency>
 
         <dependency>
@@ -1010,6 +1010,11 @@
             <id>oss.sonatype.org central-sync</id>
             <name>oss.sonatype.org central-sync</name>
             <url>https://oss.sonatype.org/content/repositories/central-sync</url>
+        </repository>
+         <repository>
+            <id>server.oosnmp.net release</id>
+            <name>server.oosnmp.net release</name>
+            <url>https://server.oosnmp.net/dist/release</url>
         </repository>
     </repositories>
     <pluginRepositories>
