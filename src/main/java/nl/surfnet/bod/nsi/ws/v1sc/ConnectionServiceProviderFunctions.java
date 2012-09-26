@@ -57,7 +57,8 @@ import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType
 
 public final class ConnectionServiceProviderFunctions {
 
-  public static final Function<NsiRequestDetails, ConnectionRequesterPort> NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT = new Function<NsiRequestDetails, ConnectionRequesterPort>() {
+  public static final Function<NsiRequestDetails, ConnectionRequesterPort> NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT = //
+  new Function<NsiRequestDetails, ConnectionRequesterPort>() {
     @Override
     public ConnectionRequesterPort apply(final NsiRequestDetails requestDetails) {
       URL url;
@@ -77,7 +78,8 @@ public final class ConnectionServiceProviderFunctions {
     }
   };
 
-  public static final Function<Connection, GenericFailedType> CONNECTION_TO_GENERIC_FAILED = new Function<Connection, GenericFailedType>() {
+  public static final Function<Connection, GenericFailedType> CONNECTION_TO_GENERIC_FAILED = //
+  new Function<Connection, GenericFailedType>() {
     @Override
     public GenericFailedType apply(final Connection connection) {
       final GenericFailedType generic = new GenericFailedType();
@@ -90,7 +92,8 @@ public final class ConnectionServiceProviderFunctions {
     }
   };
 
-  public static final Function<Connection, GenericConfirmedType> CONNECTION_TO_GENERIC_CONFIRMED = new Function<Connection, GenericConfirmedType>() {
+  public static final Function<Connection, GenericConfirmedType> CONNECTION_TO_GENERIC_CONFIRMED = //
+  new Function<Connection, GenericConfirmedType>() {
     @Override
     public GenericConfirmedType apply(final Connection connection) {
       final GenericConfirmedType generic = new GenericConfirmedType();
@@ -102,19 +105,8 @@ public final class ConnectionServiceProviderFunctions {
     }
   };
 
-  @VisibleForTesting
-  static final Optional<DateTime> getDateFrom(XMLGregorianCalendar calendar) {
-    if (calendar == null) {
-      return Optional.absent();
-    }
-
-    GregorianCalendar gregorianCalendar = calendar.toGregorianCalendar();
-    int timeZoneOffset = gregorianCalendar.getTimeZone().getOffset(gregorianCalendar.getTimeInMillis());
-    // Create Timestamp while preserving the timezone, NO conversion
-    return Optional.of(new DateTime(gregorianCalendar.getTime(), DateTimeZone.forOffsetMillis(timeZoneOffset)));
-  }
-
-  public static final Function<ReserveRequestType, Connection> RESERVE_REQUEST_TO_CONNECTION = new Function<ReserveRequestType, Connection>() {
+  public static final Function<ReserveRequestType, Connection> RESERVE_REQUEST_TO_CONNECTION = //
+  new Function<ReserveRequestType, Connection>() {
     @Override
     public Connection apply(final ReserveRequestType reserveRequestType) {
 
@@ -153,14 +145,6 @@ public final class ConnectionServiceProviderFunctions {
       return connection;
     }
 
-    private Optional<DateTime> getDateFrom(XMLGregorianCalendar calendar) {
-      if (calendar == null) {
-        return Optional.absent();
-      }
-
-      return Optional.of(new DateTime(calendar.toGregorianCalendar().getTime()));
-    }
-
     private Optional<DateTime> calculateEndTime(XMLGregorianCalendar endTimeCalendar, Duration duration,
         Optional<DateTime> startTime) {
       if (endTimeCalendar != null) {
@@ -183,6 +167,18 @@ public final class ConnectionServiceProviderFunctions {
   };
 
   private ConnectionServiceProviderFunctions() {
+  }
+
+  @VisibleForTesting
+  static Optional<DateTime> getDateFrom(XMLGregorianCalendar calendar) {
+    if (calendar == null) {
+      return Optional.absent();
+    }
+
+    GregorianCalendar gregorianCalendar = calendar.toGregorianCalendar();
+    int timeZoneOffset = gregorianCalendar.getTimeZone().getOffset(gregorianCalendar.getTimeInMillis());
+    // Create Timestamp while preserving the timezone, NO conversion
+    return Optional.of(new DateTime(gregorianCalendar.getTime(), DateTimeZone.forOffsetMillis(timeZoneOffset)));
   }
 
 }

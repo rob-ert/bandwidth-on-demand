@@ -53,7 +53,6 @@ import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ElementActionView;
@@ -160,7 +159,6 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
     fillStartTimeIfEmpty(reservation);
     stripSecondsAndMillis(reservation);
-    convertTimeStampsToDefaultTimeZone(reservation);
 
     logEventService.logCreateEvent(Security.getUserDetails(), reservation, "Created reservation with name: "
         + reservation.getName());
@@ -170,14 +168,6 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     reservation = reservationRepo.saveAndFlush(reservation);
 
     return reservationToNbi.asyncReserve(reservation.getId(), autoProvision, nsiRequestDetails);
-  }
-
-  private void convertTimeStampsToDefaultTimeZone(Reservation reservation) {
-    reservation.setStartDateTime(reservation.getStartDateTime().withZone(Environment.DEFAULT_TIME_ZONE));
-
-    if (reservation.getEndDateTime() != null) {
-      reservation.setEndDateTime(reservation.getEndDateTime().withZone(Environment.DEFAULT_TIME_ZONE));
-    }
   }
 
   public long countActiveReservationsForGroup(VirtualResourceGroup group) {

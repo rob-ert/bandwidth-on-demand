@@ -29,8 +29,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.Institute;
@@ -59,12 +57,9 @@ import nl.surfnet.bod.support.ReserveRequestTypeFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
-import nl.surfnet.bod.util.Environment;
 
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -248,35 +243,6 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     assertThat(connection.getCurrentState(), is(ConnectionStateType.TERMINATED));
   }
 
-  @Test
-  public void shouldReserveFromUTCTimeZone() throws Exception {
-    DateTime startUTC = new DateTime(DateTimeZone.UTC).plusHours(1);
-    DateTime startDefaultZone = new DateTime(startUTC).withZone(Environment.DEFAULT_TIME_ZONE);
-
-    ReserveRequestType reservationRequest = createReserveRequest(startUTC, startUTC.plusHours(1));
-    final String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
-    final String reserveCorrelationId = reservationRequest.getCorrelationId();
-
-    final DummyReservationListener listener = new DummyReservationListener();
-    reservationEventPublisher.addListener(listener);
-
-    GenericAcknowledgmentType reserveAcknowledgment = nsiProvider.reserve(reservationRequest);
-
-    assertThat(reserveAcknowledgment.getCorrelationId(), is(reserveCorrelationId));
-
-    final Connection connection = connectionRepo.findByConnectionId(connectionId);
-    assertThat(connection.getConnectionId(), is(connectionId));
-
-    listener.waitForEventWithNewStatus(ReservationStatus.RESERVED);
-
-    Reservation reservation = reservationService.find(connection.getReservation().getId());
-    entityManager.refresh(reservation);
-    entityManager.refresh(connection);
-
-    //Reservations are round the a whole minute
-    assertThat(reservation.getStartDateTime(), is(startDefaultZone.withSecondOfMinute(0).withMillisOfSecond(0)));
-  }
-
   private class DummyReservationListener implements ReservationListener {
     private Optional<ReservationStatusChangeEvent> event = Optional.absent();
 
@@ -352,35 +318,10 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     source.setStpId(URN_STP + ":" + destinationVirtualPort.getId());
     path.setSourceSTP(source);
 
-    ReserveRequestType reservationRequest = new ReserveRequestTypeFactory().setProviderNsa(URN_PROVIDER_NSA)
-        .setPath(path).create();
+    ReserveRequestType reservationRequest = new ReserveRequestTypeFactory().setProviderNsa(URN_PROVIDER_NSA).setPath(
+        path).create();
 
     return reservationRequest;
-  }
-
-  private ReserveRequestType createReserveRequest(DateTime startDateTime, DateTime endDateTime)
-      throws DatatypeConfigurationException {
-    ReserveRequestType reserveRequest = createReserveRequest();
-
-    XMLGregorianCalendar start = toXMLGregorianCalander(startDateTime);
-    XMLGregorianCalendar end = toXMLGregorianCalander(endDateTime);
-
-    reserveRequest.getReserve().getReservation().getServiceParameters().getSchedule().setStartTime(start);
-    reserveRequest.getReserve().getReservation().getServiceParameters().getSchedule().setEndTime(end);
-
-    return reserveRequest;
-  }
-
-  private XMLGregorianCalendar toXMLGregorianCalander(DateTime timestamp) throws DatatypeConfigurationException {
-    int utcOffset = 0;
-
-    assertThat("Only UTC timestamps are supported", timestamp.getZone().getID(), is("UTC"));
-
-    XMLGregorianCalendar calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(timestamp.getYear(),
-        timestamp.getMonthOfYear(), timestamp.getDayOfMonth(), timestamp.getHourOfDay(), timestamp.getMinuteOfHour(),
-        timestamp.getSecondOfMinute(), timestamp.getMillisOfSecond(), utcOffset);
-
-    return calendar;
   }
 
   private QueryRequestType createQueryRequest() {

@@ -28,8 +28,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class Environment {
 
-  public static final DateTimeZone DEFAULT_TIME_ZONE = DateTimeZone.getDefault();;
-
   @Value("${shibboleth.imitate}")
   private boolean imitateShibboleth;
 
@@ -148,6 +146,6 @@ public class Environment {
   }
 
   public String getDefaultTimeZoneId() {
-    return DEFAULT_TIME_ZONE.getID();
+    return DateTimeZone.getDefault().getID();
   }
 }

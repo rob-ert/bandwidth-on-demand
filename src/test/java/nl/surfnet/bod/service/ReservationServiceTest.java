@@ -45,8 +45,6 @@ import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Period;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -173,20 +171,6 @@ public class ReservationServiceTest {
 
     assertThat(reservation.getStartDateTime(), notNullValue());
     assertThat(reservation.getStartDateTime(), isAfterNow());
-  }
-
-  @Test
-  public void reserveWithDifferentTimeZoneShouldBeConverted() {
-    DateTime startWithDefaultTimeZone = new DateTime().plusDays(1).withSecondOfMinute(0).withMillis(0);
-    DateTime startWithUTCTimeZone = new DateTime(startWithDefaultTimeZone, DateTimeZone.forID("UTC"));
-    final Reservation reservation = new ReservationFactory().setStartDateTime(startWithUTCTimeZone).create();
-
-    int diffInHoursBetweenDefaultAndUTC = new Period(startWithDefaultTimeZone, startWithUTCTimeZone).getHours();
-
-    when(reservationRepoMock.saveAndFlush(reservation)).thenReturn(reservation);
-    subject.create(reservation);
-
-    assertThat(reservation.getStartDateTime(), is(startWithDefaultTimeZone.plusHours(diffInHoursBetweenDefaultAndUTC)));
   }
 
   @Test(expected = IllegalStateException.class)
