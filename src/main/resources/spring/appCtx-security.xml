@@ -29,7 +29,6 @@
 
 
     <http security="none" pattern="/resources/**" />
-    <http security="none" pattern="/nsi/**" />
     <http security="none" pattern="/healthcheck" />
     
     <http auto-config="true" use-expressions="true" entry-point-ref="preAuthEntryPoint">

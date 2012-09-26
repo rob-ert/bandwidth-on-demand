@@ -21,20 +21,29 @@
  */
 package nl.surfnet.bod.web.security;
 
-import static com.google.common.base.Strings.*;
+import static com.google.common.base.Strings.nullToEmpty;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.util.ShibbolethConstants;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
-
-import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.util.ShibbolethConstants;
 
 public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
 
@@ -69,6 +78,18 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
 
   @Override
   protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
+    if (isNsiRequest(request)) {
+      return getPrincipalFromOauth2Header(request);
+    }
+
+    return getPrincipalFromHeaders(request);
+  }
+
+  private boolean isNsiRequest(HttpServletRequest request) {
+    return request.getServletPath().equals("/nsi");
+  }
+
+  private Object getPrincipalFromHeaders(HttpServletRequest request) {
     String nameId = getRequestHeaderOrImitate(request, ShibbolethConstants.NAME_ID, immitateNameId);
     String displayName = getRequestHeaderOrImitate(request, ShibbolethConstants.DISPLAY_NAME, immitateDisplayName);
     String email = getRequestHeaderOrImitate(request, ShibbolethConstants.EMAIL, immitateEmail);
@@ -80,6 +101,38 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
     }
 
     return new RichPrincipal(nameId, displayName, email);
+  }
+
+  private RichPrincipal getPrincipalFromOauth2Header(HttpServletRequest request) {
+    String authorizationHeader = request.getHeader("Authorization");
+
+    if (authorizationHeader == null || !authorizationHeader.startsWith("bearer ")) {
+      logger.warn("Could not find a OAuth2 authorization header");
+      return null;
+    }
+
+    try {
+      String accessToken = authorizationHeader.split(" ")[1];
+      String uri = new URIBuilder(env.getOauthServerUrl().concat("/v1/tokeninfo"))
+        .addParameter("access_token", accessToken).build().toASCIIString();
+
+      DefaultHttpClient client = new DefaultHttpClient();
+      HttpGet httpGet = new HttpGet(uri);
+      httpGet.addHeader(OAuth2Helper.getBasicAuthorizationHeader(env.getResourceKey(), env.getResourceSecret()));
+
+      HttpResponse response = client.execute(httpGet);
+
+      String jsonResponse = EntityUtils.toString(response.getEntity(), Charsets.UTF_8);
+      VerifyTokenResponse token = new ObjectMapper().readValue(jsonResponse, VerifyTokenResponse.class);
+
+      logger.debug("Found principal with name-id {}", token.getPrincipal().getName());
+
+      return new RichPrincipal(token.getPrincipal().getName(), "dummy", "dummy@dummy.nl");
+    }
+    catch (URISyntaxException | IOException e) {
+      logger.error("Could not verify the accessToken for nsi request", e);
+      return null;
+    }
   }
 
   private String getRequestHeaderOrImitate(

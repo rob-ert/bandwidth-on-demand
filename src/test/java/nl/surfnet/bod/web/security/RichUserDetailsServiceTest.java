@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collection;
 
 import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.repo.BodAccountRepo;
 import nl.surfnet.bod.service.GroupService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
@@ -60,6 +61,8 @@ public class RichUserDetailsServiceTest {
 
   @InjectMocks
   private RichUserDetailsService subject;
+  @Mock
+  private BodAccountRepo bodAccountRepoMock;
   @Mock
   private GroupService groupServiceMock;
   @Mock

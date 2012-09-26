@@ -12,8 +12,6 @@ import nl.surfnet.bod.domain.BodAccount;
 import nl.surfnet.bod.repo.BodAccountRepo;
 import nl.surfnet.bod.util.Environment;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -24,7 +22,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.JsonParseException;
@@ -98,7 +95,7 @@ public class OAuthTokenController {
 
   private List<AccessToken> getAllTokensForUser(BodAccount account) throws JsonParseException, JsonMappingException, IOException {
     HttpGet httpGet = new HttpGet(env.getOauthServerUrl().concat("/admin/accessToken/"));
-    httpGet.addHeader(getOauthAuthorizationHeader(account.getAuthorizationServerAccessToken().get()));
+    httpGet.addHeader(OAuth2Helper.getOauthAuthorizationHeader(account.getAuthorizationServerAccessToken().get()));
 
     HttpResponse tokensResponse = httpClient.execute(httpGet);
     String json = EntityUtils.toString(tokensResponse.getEntity());
@@ -112,7 +109,7 @@ public class OAuthTokenController {
     BodAccount account = bodAccountRepo.findByNameId(Security.getNameId());
 
     HttpDelete delete = new HttpDelete(env.getOauthServerUrl().concat("/admin/accessToken/").concat(tokenId));
-    delete.addHeader(getOauthAuthorizationHeader(account.getAuthorizationServerAccessToken().get()));
+    delete.addHeader(OAuth2Helper.getOauthAuthorizationHeader(account.getAuthorizationServerAccessToken().get()));
 
     HttpResponse response = httpClient.execute(delete);
     int statusCode = response.getStatusLine().getStatusCode();
@@ -192,7 +189,7 @@ public class OAuthTokenController {
       UrlEncodedFormEntity entity = new UrlEncodedFormEntity(formparams, "UTF-8");
 
       HttpPost post = new HttpPost(env.getOauthServerUrl().concat("/oauth2/token"));
-      post.addHeader(getBasicAuthorizationHeader(clientId, secret));
+      post.addHeader(OAuth2Helper.getBasicAuthorizationHeader(clientId, secret));
       post.setEntity(entity);
 
       HttpResponse response = httpClient.execute(post);
@@ -213,16 +210,5 @@ public class OAuthTokenController {
    return env.getExternalBodUrl().concat("/oauth2" + CLIENT_REDIRECT);
   }
 
-  private Header getBasicAuthorizationHeader(String user, String password) {
-    return new BasicHeader("Authorization", "Basic ".concat(base64Encoded(user.concat(":").concat(password))));
-  }
-
-  private String base64Encoded(String input) {
-    return new String(Base64.encodeBase64(input.getBytes()));
-  }
-
-  private Header getOauthAuthorizationHeader(String accessToken) {
-    return new BasicHeader("Authorization", "bearer ".concat(accessToken));
-  }
 
 }

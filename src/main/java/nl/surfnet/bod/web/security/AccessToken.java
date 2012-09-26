@@ -1,11 +1,13 @@
 package nl.surfnet.bod.web.security;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-@JsonIgnoreProperties(value = {"principal", "encodedPrincipal"})
+@JsonIgnoreProperties(value = {"encodedPrincipal"})
 public class AccessToken {
 
   private Long id;
@@ -17,6 +19,7 @@ public class AccessToken {
   private List<String> scopes;
   private String resourceOwnerId;
   private Client client;
+  private Principal principal;
 
   public Long getId() {
     return id;
@@ -80,6 +83,23 @@ public class AccessToken {
 
   public void setExpires(long expires) {
     this.expires = expires;
+  }
+
+  public Client getClient() {
+    return client;
+  }
+
+  public void setClient(Client client) {
+    this.client = client;
+  }
+
+
+  public Principal getPrincipal() {
+    return principal;
+  }
+
+  public void setPrincipal(Principal principal) {
+    this.principal = principal;
   }
 
   @JsonIgnoreProperties({"thumbNailUrl", "attributes", "contactName", "contactEmail"})
@@ -178,11 +198,28 @@ public class AccessToken {
     }
   }
 
-  public Client getClient() {
-    return client;
-  }
+  public static class Principal {
+    private String name;
+    private Collection<String> roles;
+    private Map<String, Object> attributes;
 
-  public void setClient(Client client) {
-    this.client = client;
+    public String getName() {
+      return name;
+    }
+    public void setName(String name) {
+      this.name = name;
+    }
+    public Collection<String> getRoles() {
+      return roles;
+    }
+    public void setRoles(Collection<String> roles) {
+      this.roles = roles;
+    }
+    public Map<String, Object> getAttributes() {
+      return attributes;
+    }
+    public void setAttributes(Map<String, Object> attributes) {
+      this.attributes = attributes;
+    }
   }
 }

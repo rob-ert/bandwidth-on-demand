@@ -197,4 +197,16 @@ public class Environment {
   public String getOauthServerUrl() {
     return oauthServerUrl;
   }
+
+  public void setOauthServerUrl(String oauthServerUrl) {
+    this.oauthServerUrl = oauthServerUrl;
+  }
+
+  public void setResourceKey(String resourceKey) {
+    this.resourceKey = resourceKey;
+  }
+
+  public void setResourceSecret(String resourceSecret) {
+    this.resourceSecret = resourceSecret;
+  }
 }

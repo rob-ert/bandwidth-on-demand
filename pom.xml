@@ -615,7 +615,6 @@
                             <maxIdleTime>60000</maxIdleTime>
                         </connector>
                     </connectors>
-                    <webAppXml>src/test/resources/jetty-test.xml</webAppXml>
                 </configuration>
             </plugin>
             <plugin>
@@ -775,7 +774,6 @@
                                     <maxIdleTime>60000</maxIdleTime>
                                 </connector>
                             </connectors>
-                            <webAppXml>src/test/resources/jetty-test.xml</webAppXml>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -886,7 +884,6 @@
                             <scanIntervalSeconds>0</scanIntervalSeconds>
                             <stopKey>foo</stopKey>
                             <stopPort>9966</stopPort>
-                            <webAppXml>src/test/resources/jetty-test.xml</webAppXml>
                         </configuration>
                         <executions>
                             <execution>
