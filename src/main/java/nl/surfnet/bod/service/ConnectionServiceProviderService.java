@@ -23,7 +23,6 @@ package nl.surfnet.bod.service;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -40,6 +39,7 @@ import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.DetailedPathType;
@@ -58,7 +58,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -87,13 +86,6 @@ public class ConnectionServiceProviderService {
     final VirtualPort sourcePort = virtualPortService.findByNsiStpId(connection.getSourceStpId());
     final VirtualPort destinationPort = virtualPortService.findByNsiStpId(connection.getDestinationStpId());
 
-    Function<Date, DateTime> dateToDateTime = new Function<Date, DateTime>() {
-      @Override
-      public DateTime apply(Date input) {
-        return new DateTime(input);
-      }
-    };
-
     Reservation reservation = new Reservation();
     reservation.setConnection(connection);
     reservation.setName(connection.getDescription());
@@ -104,15 +96,18 @@ public class ConnectionServiceProviderService {
     reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
     reservation.setBandwidth(connection.getDesiredBandwidth());
     reservation.setUserCreated(connection.getRequesterNsa());
-    
-    
+
+    DateTimeZone timeZone = connection.getStartTime().isPresent() ? connection.getStartTime().get().getZone() : null;
+    if (timeZone == null) {
+      timeZone = connection.getEndTime().isPresent() ? connection.getEndTime().get().getZone() : null;
+    }
     final DateTime now = new DateTime();
     if (reservation.getStartDateTime() != null && reservation.getStartDateTime().isBefore(now)) {
       log.info("Reservation startdate is in past: {} setting it to now {}", reservation.getStartDateTime(), now);
       reservation.setStartDateTime(now);
       connection.setStartTime(Optional.of(now));
     }
-    
+
     reservation.setConnection(connection);
     connection.setReservation(reservation);
     reservationService.create(reservation, autoProvision, Optional.of(requestDetails));

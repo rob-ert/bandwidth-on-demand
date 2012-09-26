@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,12 +18,12 @@ public class TimeStampBridgeTest {
 
   private Timestamp sqlTimeStamp;
 
-  private DateTime DateTime;
+  private DateTime dateTime;
 
   @Before
   public void onSetup() {
-    DateTime = new DateTime().withDate(2012, 9, 17).withTime(16, 40, 0, 0);
-    sqlTimeStamp = new Timestamp(DateTime.toDate().getTime());
+    dateTime = new DateTime(DateTimeZone.UTC).withDate(2012, 9, 17).withTime(16, 40, 0, 0);
+    sqlTimeStamp = new Timestamp(dateTime.toDate().getTime());
     timeStampBridge = new TimeStampBridge();
   }
 
@@ -33,14 +34,14 @@ public class TimeStampBridgeTest {
 
   @Test
   public void shouldHandleSqlDateTime() {
-    assertThat(timeStampBridge.objectToString(DateTime), is("2012-09-17T16:40:00.000"));
+    assertThat(timeStampBridge.objectToString(dateTime), is("2012-09-17T16:40:00.000"));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void shouldThrowWhenOtherClass() {
     timeStampBridge.objectToString(new Date());
   }
-  
+
   @Test
   public void shouldReturnStringWhenArgumentIsNull() {
     assertThat(timeStampBridge.objectToString(null), nullValue());

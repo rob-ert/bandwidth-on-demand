@@ -22,6 +22,7 @@
 package nl.surfnet.bod.nsi.ws.v1sc;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URL;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -50,6 +51,7 @@ import org.springframework.util.StringUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 
 import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_GLOBAL_RESERVATION_ID;
 
@@ -154,7 +156,8 @@ public final class ConnectionServiceProviderFunctions {
       if (duration != null && startTime.isPresent()) {
         Date endTime = new Date(startTime.get().getMillis());
         duration.addTo(endTime);
-        return Optional.of(new DateTime(endTime));
+        //Use timezone of start
+        return Optional.of(new DateTime(endTime,startTime.get().getZone()));
       }
 
       return Optional.absent();
@@ -179,6 +182,21 @@ public final class ConnectionServiceProviderFunctions {
     int timeZoneOffset = gregorianCalendar.getTimeZone().getOffset(gregorianCalendar.getTimeInMillis());
     // Create Timestamp while preserving the timezone, NO conversion
     return Optional.of(new DateTime(gregorianCalendar.getTime(), DateTimeZone.forOffsetMillis(timeZoneOffset)));
+  }
+
+  @VisibleForTesting
+  public static Optional<XMLGregorianCalendar> getXmlTimeStampFromDateTime(DateTime timeStamp) {
+
+    if (timeStamp == null) {
+      return Optional.absent();
+    }
+
+    XMLGregorianCalendar calendar = XMLGregorianCalendarImpl.createDateTime(BigInteger.valueOf(timeStamp.getYear()),
+        timeStamp.getMonthOfYear(), timeStamp.getDayOfMonth(), timeStamp.getHourOfDay(), timeStamp.getMinuteOfHour(),
+        timeStamp.getSecondOfMinute(), null, (timeStamp.getZone().getOffset(
+            timeStamp.getMillis())/(60*1000)));
+
+    return Optional.of(calendar);
   }
 
 }

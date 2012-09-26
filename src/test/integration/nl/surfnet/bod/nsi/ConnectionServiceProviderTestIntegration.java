@@ -38,6 +38,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions;
 import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderWs;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.repo.InstituteRepo;
@@ -60,6 +61,8 @@ import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -72,6 +75,7 @@ import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.annotation.DirtiesContext;
@@ -98,7 +102,7 @@ import static org.hamcrest.Matchers.is;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
     "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
-@TransactionConfiguration(defaultRollback = false, transactionManager = "transactionManager")
+@TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class ConnectionServiceProviderTestIntegration extends AbstractTransactionalJUnit4SpringContextTests {
@@ -243,6 +247,56 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     assertThat(connection.getCurrentState(), is(ConnectionStateType.TERMINATED));
   }
 
+  @Test
+  public void shouldReserveAndPreserveTimeZone() throws Exception {
+    int offsetInHours = -4;
+    DateTime start = new DateTime().plusHours(1).withMillisOfSecond(0).withZoneRetainFields(DateTimeZone.forOffsetHours(offsetInHours));
+    System.err.println("Start: "+start);
+    System.err.println("Start in UTC: " +start.withZone(DateTimeZone.UTC));
+
+    ReserveRequestType reservationRequest = createReserveRequest(Optional.of(start), Optional.<DateTime> absent());
+    final String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
+    final String reserveCorrelationId = reservationRequest.getCorrelationId();
+
+    final DummyReservationListener listener = new DummyReservationListener();
+    reservationEventPublisher.addListener(listener);
+
+    GenericAcknowledgmentType reserveAcknowledgment = nsiProvider.reserve(reservationRequest);
+
+    assertThat(reserveAcknowledgment.getCorrelationId(), is(reserveCorrelationId));
+
+    final Connection connection = connectionRepo.findByConnectionId(connectionId);
+    assertThat(connection.getConnectionId(), is(connectionId));
+
+    listener.waitForEventWithNewStatus(ReservationStatus.RESERVED);
+
+    Reservation reservation = reservationService.find(connection.getReservation().getId());
+    entityManager.refresh(reservation);
+    entityManager.refresh(connection);
+
+    System.err.println("Reservation start: " + reservation.getStartDateTime());
+    System.err.println("Reservation start in UTC: " +reservation.getStartDateTime().withZone(DateTimeZone.UTC));
+
+    assertThat(reservation.getStatus(), is(ReservationStatus.RESERVED));
+    assertThat(connection.getCurrentState(), is(ConnectionStateType.RESERVED));
+
+    ProvisionRequestType provisionRequest = createProvisionRequest(connectionId);
+
+    GenericAcknowledgmentType provisionAck = nsiProvider.provision(provisionRequest);
+    final String provisionCorrelationId = provisionAck.getCorrelationId();
+
+    assertThat(provisionAck.getCorrelationId(), is(provisionCorrelationId));
+
+    listener.waitForEventWithNewStatus(ReservationStatus.SCHEDULED);
+
+    entityManager.refresh(reservation);
+    entityManager.refresh(connection);
+
+    assertThat(reservation.getStartDateTime().getZone().getOffset(reservation.getStartDateTime().getMillis()),
+        is(offsetInHours * 60 * 60 * 1000));
+    assertThat(reservation.getStartDateTime().getMillis(), is(start.getMillis()));
+  }
+
   private class DummyReservationListener implements ReservationListener {
     private Optional<ReservationStatusChangeEvent> event = Optional.absent();
 
@@ -308,6 +362,11 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   }
 
   private ReserveRequestType createReserveRequest() throws DatatypeConfigurationException {
+
+    return createReserveRequest(Optional.<DateTime> absent(), Optional.<DateTime> absent());
+  }
+
+  private ReserveRequestType createReserveRequest(Optional<DateTime> start, Optional<DateTime> end) {
     PathType path = new PathType();
 
     ServiceTerminationPointType dest = new ServiceTerminationPointType();
@@ -320,6 +379,16 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     ReserveRequestType reservationRequest = new ReserveRequestTypeFactory().setProviderNsa(URN_PROVIDER_NSA).setPath(
         path).create();
+
+    ScheduleType scheduleType = reservationRequest.getReserve().getReservation().getServiceParameters().getSchedule();
+
+    if (start.isPresent()) {
+      scheduleType.setStartTime(ConnectionServiceProviderFunctions.getXmlTimeStampFromDateTime(start.get()).get());
+    }
+
+    if (end.isPresent()) {
+      scheduleType.setEndTime(ConnectionServiceProviderFunctions.getXmlTimeStampFromDateTime(end.get()).get());
+    }
 
     return reservationRequest;
   }
