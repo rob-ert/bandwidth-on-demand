@@ -29,6 +29,8 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -51,7 +53,6 @@ import org.springframework.util.StringUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 
 import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_GLOBAL_RESERVATION_ID;
 
@@ -156,8 +157,8 @@ public final class ConnectionServiceProviderFunctions {
       if (duration != null && startTime.isPresent()) {
         Date endTime = new Date(startTime.get().getMillis());
         duration.addTo(endTime);
-        //Use timezone of start
-        return Optional.of(new DateTime(endTime,startTime.get().getZone()));
+        // Use timezone of start
+        return Optional.of(new DateTime(endTime, startTime.get().getZone()));
       }
 
       return Optional.absent();
@@ -191,10 +192,15 @@ public final class ConnectionServiceProviderFunctions {
       return Optional.absent();
     }
 
-    XMLGregorianCalendar calendar = XMLGregorianCalendarImpl.createDateTime(BigInteger.valueOf(timeStamp.getYear()),
-        timeStamp.getMonthOfYear(), timeStamp.getDayOfMonth(), timeStamp.getHourOfDay(), timeStamp.getMinuteOfHour(),
-        timeStamp.getSecondOfMinute(), null, (timeStamp.getZone().getOffset(
-            timeStamp.getMillis())/(60*1000)));
+    XMLGregorianCalendar calendar = null;
+    try {
+      calendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(BigInteger.valueOf(timeStamp.getYear()),
+          timeStamp.getMonthOfYear(), timeStamp.getDayOfMonth(), timeStamp.getHourOfDay(), timeStamp.getMinuteOfHour(),
+          timeStamp.getSecondOfMinute(), null, (timeStamp.getZone().getOffset(timeStamp.getMillis()) / (60 * 1000)));
+    }
+    catch (DatatypeConfigurationException e) {
+      throw new RuntimeException(e);
+    }
 
     return Optional.of(calendar);
   }
