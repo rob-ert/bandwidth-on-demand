@@ -36,10 +36,10 @@ import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.repo.ConnectionRepo;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.DetailedPathType;
@@ -97,15 +97,19 @@ public class ConnectionServiceProviderService {
     reservation.setBandwidth(connection.getDesiredBandwidth());
     reservation.setUserCreated(connection.getRequesterNsa());
 
-    DateTimeZone timeZone = connection.getStartTime().isPresent() ? connection.getStartTime().get().getZone() : null;
-    if (timeZone == null) {
-      timeZone = connection.getEndTime().isPresent() ? connection.getEndTime().get().getZone() : null;
-    }
     final DateTime now = new DateTime();
     if (reservation.getStartDateTime() != null && reservation.getStartDateTime().isBefore(now)) {
       log.info("Reservation startdate is in past: {} setting it to now {}", reservation.getStartDateTime(), now);
       reservation.setStartDateTime(now);
       connection.setStartTime(Optional.of(now));
+    }
+
+    if (reservation.getEndDateTime() != null && reservation.getEndDateTime().isBefore(reservation.getStartDateTime())) {
+      DateTime newEndDate = reservation.getStartDateTime().plus(WebUtils.DEFAULT_RESERVATON_DURATION);
+      log.info("Reservation enddate {} is null or before startdate setting it to {}", reservation.getEndDateTime(),
+          newEndDate);
+      reservation.setEndDateTime(newEndDate);
+      connection.setEndTime(Optional.of(newEndDate));
     }
 
     reservation.setConnection(connection);

@@ -29,7 +29,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.web.user.ReservationController;
+import nl.surfnet.bod.web.WebUtils;
 
 import org.joda.time.DateTime;
 import org.joda.time.ReadablePeriod;
@@ -45,7 +45,7 @@ public class ReservationFactory {
   private VirtualPort sourcePort;
   private VirtualPort destinationPort;
   private DateTime startDateTime = DateTime.now().withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0);
-  private DateTime endDateTime = startDateTime.plusDays(1).plus(ReservationController.DEFAULT_RESERVATON_DURATION);
+  private DateTime endDateTime = startDateTime.plusDays(1).plus(WebUtils.DEFAULT_RESERVATON_DURATION);
   private String userCreated = "urn:truusvisscher";
   private Integer bandwidth = 10000;
   private String reservationId = "9" + String.valueOf(id);

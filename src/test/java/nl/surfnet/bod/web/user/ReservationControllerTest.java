@@ -36,6 +36,7 @@ import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.MessageView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -156,7 +157,7 @@ public class ReservationControllerTest {
         .getTime());
 
     assertThat(period.get(DurationFieldType.minutes()),
-        is(ReservationController.DEFAULT_RESERVATON_DURATION.get(DurationFieldType.minutes())));
+        is(WebUtils.DEFAULT_RESERVATON_DURATION.get(DurationFieldType.minutes())));
   }
 
   @Test

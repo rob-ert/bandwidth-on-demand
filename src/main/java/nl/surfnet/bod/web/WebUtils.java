@@ -26,6 +26,8 @@ import java.util.List;
 
 import nl.surfnet.bod.web.security.Security;
 
+import org.joda.time.Hours;
+import org.joda.time.ReadablePeriod;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.context.MessageSource;
@@ -71,6 +73,8 @@ public final class WebUtils {
   public static final String DEFAULT_DATE_TIME_PATTERN = "yyyy-MM-dd H:mm:ss";
   public static final DateTimeFormatter DEFAULT_DATE_TIME_FORMATTER = DateTimeFormat
       .forPattern(DEFAULT_DATE_TIME_PATTERN);
+
+  public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
 
   private WebUtils() {
   }

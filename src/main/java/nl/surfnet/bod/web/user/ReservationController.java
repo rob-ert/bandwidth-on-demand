@@ -41,8 +41,6 @@ import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.DateTime;
-import org.joda.time.Hours;
-import org.joda.time.ReadablePeriod;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
@@ -69,8 +67,6 @@ import static nl.surfnet.bod.web.WebUtils.LIST;
 @Controller(value = "userReservationController")
 public class ReservationController extends AbstractFilteredReservationController {
 
-  public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
-
   static final String PAGE_URL = "reservations";
 
   static final String MODEL_KEY = "reservation";
@@ -94,8 +90,8 @@ public class ReservationController extends AbstractFilteredReservationController
     if (bindingResult.hasErrors()) {
       model.addAttribute(MODEL_KEY, reservation);
       model.addAttribute("virtualResourceGroups", findVirtualResourceGroups());
-      model.addAttribute("virtualPorts",
-          vpUserLabelOrdering().sortedCopy(reservation.getVirtualResourceGroup().getVirtualPorts()));
+      model.addAttribute("virtualPorts", vpUserLabelOrdering().sortedCopy(
+          reservation.getVirtualResourceGroup().getVirtualPorts()));
 
       return PAGE_URL + CREATE;
     }
@@ -138,8 +134,8 @@ public class ReservationController extends AbstractFilteredReservationController
 
     model.addAttribute(MODEL_KEY, defaultReservation);
     model.addAttribute("virtualResourceGroups", vrgs);
-    model.addAttribute("virtualPorts",
-        vpUserLabelOrdering().sortedCopy(defaultReservation.getVirtualResourceGroup().getVirtualPorts()));
+    model.addAttribute("virtualPorts", vpUserLabelOrdering().sortedCopy(
+        defaultReservation.getVirtualResourceGroup().getVirtualPorts()));
 
     return PAGE_URL + CREATE;
   }
@@ -164,8 +160,8 @@ public class ReservationController extends AbstractFilteredReservationController
   protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
-    model.addAttribute(WebUtils.MAX_PAGES_KEY,
-        WebUtils.calculateMaxPages(getReservationService().countForFilterAndUser(Security.getUserDetails(), filter)));
+    model.addAttribute(WebUtils.MAX_PAGES_KEY, WebUtils.calculateMaxPages(getReservationService()
+        .countForFilterAndUser(Security.getUserDetails(), filter)));
 
     return getFullTextSearchableService().transformToView(
         getReservationService().findEntriesForUserUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems,
@@ -190,7 +186,7 @@ public class ReservationController extends AbstractFilteredReservationController
     Reservation reservation = new Reservation();
     reservation.setStartDateTime(inFifteenMinutes);
 
-    DateTime reservationEnd = reservation.getStartDateTime().plus(DEFAULT_RESERVATON_DURATION);
+    DateTime reservationEnd = reservation.getStartDateTime().plus(WebUtils.DEFAULT_RESERVATON_DURATION);
     reservation.setEndDateTime(reservationEnd);
 
     VirtualPort sourcePort = Iterables.get(vrg.getVirtualPorts(), 0, null);
