@@ -97,15 +97,19 @@ public class ConnectionServiceProviderService {
     reservation.setBandwidth(connection.getDesiredBandwidth());
     reservation.setUserCreated(connection.getRequesterNsa());
 
-    final DateTime now = new DateTime();
+    final DateTime now = new DateTime().withSecondOfMinute(0).withMillisOfSecond(0);
     if (reservation.getStartDateTime() != null && reservation.getStartDateTime().isBefore(now)) {
       log.info("Reservation startdate is in past: {} setting it to now {}", reservation.getStartDateTime(), now);
       reservation.setStartDateTime(now);
       connection.setStartTime(Optional.of(now));
     }
 
-    if (reservation.getEndDateTime() != null && reservation.getEndDateTime().isBefore(reservation.getStartDateTime())) {
-      DateTime newEndDate = reservation.getStartDateTime().plus(WebUtils.DEFAULT_RESERVATON_DURATION);
+    if ((reservation.getEndDateTime() == null)
+        || (reservation.getEndDateTime() != null && reservation.getEndDateTime().isBefore(
+            reservation.getStartDateTime()))) {
+      DateTime newEndDate = reservation.getStartDateTime().plus(WebUtils.DEFAULT_RESERVATON_DURATION)
+          .withSecondOfMinute(0).withMillisOfSecond(0);
+
       log.info("Reservation enddate {} is null or before startdate setting it to {}", reservation.getEndDateTime(),
           newEndDate);
       reservation.setEndDateTime(newEndDate);

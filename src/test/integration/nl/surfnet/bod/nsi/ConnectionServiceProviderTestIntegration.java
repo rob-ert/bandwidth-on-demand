@@ -58,6 +58,7 @@ import nl.surfnet.bod.support.ReserveRequestTypeFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.web.WebUtils;
 
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -282,11 +283,57 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     entityManager.refresh(reservation);
     entityManager.refresh(connection);
 
-    assertThat("Has default JVM timezone?", reservation.getStartDateTime().getZone().getOffset(
+    assertThat("Has reservation default JVM timezone?", reservation.getStartDateTime().getZone().getOffset(
         reservation.getStartDateTime().getMillis()), is(jvmOffesetInMillis));
 
-    assertThat("Is timestamp converted, compare both in UTC", reservation.getStartDateTime().withZone(DateTimeZone.UTC)
-        .getMillis(), is(start.withZone(DateTimeZone.UTC).getMillis()));
+    assertThat("Has connection default JVM timezone?", connection.getStartTime().get().getZone().getOffset(
+        connection.getStartTime().get().getMillis()), is(jvmOffesetInMillis));
+
+    assertThat("Is reservation timestamp converted, compare both in UTC", reservation.getStartDateTime().withZone(
+        DateTimeZone.UTC).getMillis(), is(start.withZone(DateTimeZone.UTC).getMillis()));
+
+    assertThat("Is connection timestamp converted, compare both in UTC", connection.getStartTime().get().withZone(
+        DateTimeZone.UTC).getMillis(), is(start.withZone(DateTimeZone.UTC).getMillis()));
+  }
+
+  /**
+   * After reading from the database the timestamps are converted to the default
+   * jvm timezone by the @See {@link PersistentDateTime} annotation on the
+   * timestamp fields
+   * 
+   * @throws Exception
+   */
+  @Test
+  public void shouldSetEndDateWhenNoneIsPresentOrBeforeStart() throws Exception {
+    DateTime start = DateTime.now().plusHours(1).withSecondOfMinute(0).withMillisOfSecond(0);
+    ReserveRequestType reservationRequest = createReserveRequest(Optional.of(start), Optional.<DateTime> absent());
+    final String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
+    final String reserveCorrelationId = reservationRequest.getCorrelationId();
+
+    final DummyReservationListener listener = new DummyReservationListener();
+    reservationEventPublisher.addListener(listener);
+
+    GenericAcknowledgmentType reserveAcknowledgment = nsiProvider.reserve(reservationRequest);
+
+    assertThat(reserveAcknowledgment.getCorrelationId(), is(reserveCorrelationId));
+
+    final Connection connection = connectionRepo.findByConnectionId(connectionId);
+    assertThat(connection.getConnectionId(), is(connectionId));
+
+    listener.waitForEventWithNewStatus(ReservationStatus.RESERVED);
+
+    Reservation reservation = reservationService.find(connection.getReservation().getId());
+    entityManager.refresh(reservation);
+    entityManager.refresh(connection);
+
+    assertThat("StartDate is unchanged on reservation", reservation.getStartDateTime(), is(start));
+    assertThat("StartDate is unchanged on connection", connection.getStartTime().get(), is(start));
+
+    assertThat("EndDate is set now with default Duration on reservation", reservation.getEndDateTime(), is(start
+        .plus(WebUtils.DEFAULT_RESERVATON_DURATION)));
+
+    assertThat("EndDate is set now with default Duration on connection", connection.getEndTime().get(), is(reservation
+        .getEndDateTime()));
   }
 
   private class DummyReservationListener implements ReservationListener {
