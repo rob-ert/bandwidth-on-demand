@@ -103,7 +103,7 @@ import static org.hamcrest.Matchers.is;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
     "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
-@TransactionConfiguration(defaultRollback = false, transactionManager = "transactionManager")
+@TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class ConnectionServiceProviderTestIntegration extends AbstractTransactionalJUnit4SpringContextTests {
