@@ -61,6 +61,7 @@ import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.jadira.usertype.dateandtime.joda.PersistentDateTime;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
@@ -102,7 +103,7 @@ import static org.hamcrest.Matchers.is;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
     "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
-@TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
+@TransactionConfiguration(defaultRollback = false, transactionManager = "transactionManager")
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class ConnectionServiceProviderTestIntegration extends AbstractTransactionalJUnit4SpringContextTests {
@@ -247,12 +248,19 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     assertThat(connection.getCurrentState(), is(ConnectionStateType.TERMINATED));
   }
 
+  /**
+   * After reading from the database the timestamps are converted to the default
+   * jvm timezone by the @See {@link PersistentDateTime} annotation on the
+   * timestamp fields
+   * 
+   * @throws Exception
+   */
   @Test
-  public void shouldReserveAndPreserveTimeZone() throws Exception {
+  public void shouldReserveAndConvertTimeZoneToJVMDefault() throws Exception {
+    int jvmOffesetInMillis = DateTimeZone.getDefault().getOffset(new DateTime().getMillis());
     int offsetInHours = -4;
-    DateTime start = new DateTime().plusHours(1).withMillisOfSecond(0).withZoneRetainFields(DateTimeZone.forOffsetHours(offsetInHours));
-    System.err.println("Start: "+start);
-    System.err.println("Start in UTC: " +start.withZone(DateTimeZone.UTC));
+    DateTime start = new DateTime().plusHours(1).withSecondOfMinute(0).withMillisOfSecond(0).withZoneRetainFields(
+        DateTimeZone.forOffsetHours(offsetInHours));
 
     ReserveRequestType reservationRequest = createReserveRequest(Optional.of(start), Optional.<DateTime> absent());
     final String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
@@ -274,27 +282,11 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     entityManager.refresh(reservation);
     entityManager.refresh(connection);
 
-    System.err.println("Reservation start: " + reservation.getStartDateTime());
-    System.err.println("Reservation start in UTC: " +reservation.getStartDateTime().withZone(DateTimeZone.UTC));
+    assertThat("Has default JVM timezone?", reservation.getStartDateTime().getZone().getOffset(
+        reservation.getStartDateTime().getMillis()), is(jvmOffesetInMillis));
 
-    assertThat(reservation.getStatus(), is(ReservationStatus.RESERVED));
-    assertThat(connection.getCurrentState(), is(ConnectionStateType.RESERVED));
-
-    ProvisionRequestType provisionRequest = createProvisionRequest(connectionId);
-
-    GenericAcknowledgmentType provisionAck = nsiProvider.provision(provisionRequest);
-    final String provisionCorrelationId = provisionAck.getCorrelationId();
-
-    assertThat(provisionAck.getCorrelationId(), is(provisionCorrelationId));
-
-    listener.waitForEventWithNewStatus(ReservationStatus.SCHEDULED);
-
-    entityManager.refresh(reservation);
-    entityManager.refresh(connection);
-
-    assertThat(reservation.getStartDateTime().getZone().getOffset(reservation.getStartDateTime().getMillis()),
-        is(offsetInHours * 60 * 60 * 1000));
-    assertThat(reservation.getStartDateTime().getMillis(), is(start.getMillis()));
+    assertThat("Is timestamp converted, compare both in UTC", reservation.getStartDateTime().withZone(DateTimeZone.UTC)
+        .getMillis(), is(start.withZone(DateTimeZone.UTC).getMillis()));
   }
 
   private class DummyReservationListener implements ReservationListener {
