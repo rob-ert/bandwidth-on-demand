@@ -8,9 +8,9 @@
     <name>bod</name>
     <properties>
         <spring.version>3.1.2.RELEASE</spring.version>
-        <slf4j.version>1.6.6</slf4j.version>
+        <slf4j.version>1.7.1</slf4j.version>
         <jetty.version>8.0.4.v20111024</jetty.version>
-        <spring-security.version>3.0.7.RELEASE</spring-security.version>
+        <spring-security.version>3.1.2.RELEASE</spring-security.version>
         <selenium.version>2.25.0</selenium.version>
         <flyway.version>1.7</flyway.version>
         <jetty.port>8888</jetty.port>
@@ -56,7 +56,7 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
+            <version>1.2.17</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -115,7 +115,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>4.1.4.Final</version>
+            <version>4.1.7.Final</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -145,7 +145,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
-            <version>4.1.4.Final</version>
+            <version>4.1.7.Final</version>
             <exclusions>
                 <exclusion>
                     <groupId>cglib</groupId>
@@ -264,7 +264,7 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.6</version>
+            <version>1.7</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tiles</groupId>
@@ -290,12 +290,12 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>13.0</version>
+            <version>13.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.7</version>
+            <version>1.9.10</version>
         </dependency>
         <dependency>
             <groupId>org.jasypt</groupId>
@@ -328,13 +328,13 @@
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
-            <version>1.2.1</version>
+            <version>1.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.9</version>
+            <version>4.10</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -404,12 +404,12 @@
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.1-901-1.jdbc4</version>
+            <version>9.1-902.jdbc4</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.3.167</version>
+            <version>1.3.168</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -456,7 +456,7 @@
         <dependency>
             <groupId>org.jvnet.staxex</groupId>
             <artifactId>stax-ex</artifactId>
-            <version>1.6</version>
+            <version>1.7.1</version>
             <exclusions>
               <exclusion>
                     <groupId>stax</groupId>
@@ -501,26 +501,25 @@
         <dependency>
             <groupId>org.springframework.ws</groupId>
             <artifactId>spring-ws-core</artifactId>
-            <version>2.0.5.RELEASE</version>
+            <version>2.1.1.RELEASE</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.ws</groupId>
             <artifactId>spring-ws-test</artifactId>
-            <version>2.0.5.RELEASE</version>
+            <version>2.1.1.RELEASE</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jadira.usertype</groupId>
             <artifactId>usertype.core</artifactId>
-            <version>3.0.0.CR1</version>
+            <version>3.0.0.CR4</version>
         </dependency>
 
         <dependency>
             <groupId>org.snmp4j</groupId>
             <artifactId>snmp4j</artifactId>
-            <!-- <version>1.11.3</version> -->
             <version>2.1.0</version>
         </dependency>
 
@@ -530,6 +529,7 @@
             <version>2.0.6</version>
         </dependency>
         
+        <!-- Added to exclude stax-api 1.0.1, we already use stax-api 1.0.2 -->
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
@@ -541,7 +541,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjtools</artifactId>
+            <version>1.7.0</version>
+        </dependency>
 
     </dependencies>
     <build>
