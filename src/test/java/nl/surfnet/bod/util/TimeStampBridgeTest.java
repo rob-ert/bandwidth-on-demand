@@ -22,19 +22,37 @@ public class TimeStampBridgeTest {
 
   @Before
   public void onSetup() {
-    dateTime = new DateTime(DateTimeZone.UTC).withDate(2012, 9, 17).withTime(16, 40, 0, 0);
+    dateTime = new DateTime().withDate(2012, 9, 17).withTime(16, 40, 0, 0);
     sqlTimeStamp = new Timestamp(dateTime.toDate().getTime());
     timeStampBridge = new TimeStampBridge();
   }
 
   @Test
+  public void shouldHandleJodaDateTimeWithNegativeTimeZoneOffset() {
+    dateTime = new DateTime(DateTimeZone.forOffsetHours(-4)).withDate(2012, 9, 17).withTime(16, 40, 0, 0);
+    assertThat(timeStampBridge.objectToString(sqlTimeStamp), is("2012-09-17 16:40:00"));
+  }
+
+  @Test
+  public void shouldHandleJodaDateTimeWithPositiveTimeZoneOffset() {
+    dateTime = new DateTime(DateTimeZone.forOffsetHours(+4)).withDate(2012, 9, 17).withTime(16, 40, 0, 0);
+    assertThat(timeStampBridge.objectToString(sqlTimeStamp), is("2012-09-17 16:40:00"));
+  }
+
+  @Test
+  public void shouldHandleJodaDateTimeWithUTCZone() {
+    dateTime = new DateTime(DateTimeZone.UTC).withDate(2012, 9, 17).withTime(16, 40, 0, 0);
+    assertThat(timeStampBridge.objectToString(sqlTimeStamp), is("2012-09-17 16:40:00"));
+  }
+
+  @Test
   public void shouldHandleJodaDateTime() {
-    assertThat(timeStampBridge.objectToString(sqlTimeStamp), is("2012-09-17 16:40:00.0"));
+    assertThat(timeStampBridge.objectToString(sqlTimeStamp), is("2012-09-17 16:40:00"));
   }
 
   @Test
   public void shouldHandleSqlDateTime() {
-    assertThat(timeStampBridge.objectToString(dateTime), is("2012-09-17T16:40:00.000"));
+    assertThat(timeStampBridge.objectToString(dateTime), is("2012-09-17 16:40:00"));
   }
 
   @Test(expected = IllegalArgumentException.class)

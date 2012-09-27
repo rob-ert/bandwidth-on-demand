@@ -2,6 +2,8 @@ package nl.surfnet.bod.util;
 
 import java.sql.Timestamp;
 
+import nl.surfnet.bod.web.WebUtils;
+
 import org.hibernate.search.bridge.StringBridge;
 import org.joda.time.DateTime;
 
@@ -21,15 +23,11 @@ public class TimeStampBridge implements StringBridge {
     }
     else if (DateTime.class.isAssignableFrom(object.getClass())) {
       DateTime dateTime = (DateTime) object;
-
-      // Remove timezone offset
-      String dtString = dateTime.toString();
-      int timeZoneCharPos = dtString.indexOf("+");
-      result = dtString.substring(0,  timeZoneCharPos);
+      result = dateTime.toString(WebUtils.DEFAULT_DATE_TIME_FORMATTER);
     }
     else if (Timestamp.class.isAssignableFrom(object.getClass())) {
       Timestamp timestamp = (Timestamp) object;
-      result = timestamp.toString();
+      result = WebUtils.DEFAULT_DATE_TIME_FORMATTER.print(timestamp.getTime());
     }
     else {
       throw new IllegalArgumentException("Bridge is not suitable for handling objects of type: " + object);
