@@ -137,7 +137,7 @@ public class OAuthTokenController {
     String uri = buildAuthorizeUri(
         env.getClientClientId(),
         redirectUri(),
-        Lists.newArrayList("reserve", "provision", "query", "release"));
+        Lists.newArrayList("reserve", "provision", "query", "release", "terminate"));
 
     return "redirect:".concat(uri);
   }
