@@ -64,7 +64,7 @@ public class DashboardPage extends AbstractListPage {
    * but add new test cases for the new menu
    */
   public void verifyNumberOfMenuItems() {
-    assertThat(getCountMenuItems(), is(4));
+    assertThat(getCountMenuItems(), is(5));
   }
 
   public void verifyMenuReservations() {
@@ -81,6 +81,11 @@ public class DashboardPage extends AbstractListPage {
     navBar.findElement(By.xpath(".//a[contains(text(), 'Log')]")).click();
     ListLogEventsPage.get(getDriver()).verifyIsCurrentPage();
 
+  /**
+   * TODO page not finished yet, so nothing to assert
+   */
+  public void verifyMenuNSI() {
+    navBar.findElement(By.xpath(".//a[contains(text(), 'NSI')]"));
   }
 
   public void verifyMenuOverview() {
