@@ -22,6 +22,7 @@
 package nl.surfnet.bod.pages;
 
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import nl.surfnet.bod.support.Probes;
@@ -44,6 +45,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
 public class AbstractPage {
+
+  private static final String CSS_SELECTOR_TIMEZONE = "span.timezone";
 
   private final RemoteWebDriver driver;
 
@@ -144,6 +147,22 @@ public class AbstractPage {
     }
 
     assertThat(getDriver().getCurrentUrl(), containsString(pageUrlPart));
+  }
+
+  public void verifyHasDefaultTimeZone() {
+    String timeZoneText = getDriver().findElement(By.cssSelector(CSS_SELECTOR_TIMEZONE)).getText();
+    assertThat(timeZoneText, containsString(TimeZone.getDefault().getID()));
+  }
+
+  public void verifyHasNoTimeZone() {
+    try {
+      getDriver().findElement(By.cssSelector(CSS_SELECTOR_TIMEZONE));
+      assertThat("Should not contain timezone", false);
+    }
+    catch (NoSuchElementException exc) {
+      // expected, should not be present
+      assertThat("No timezone present", true);
+    }
   }
 
   private boolean containsAll(String input, String[] needles) {

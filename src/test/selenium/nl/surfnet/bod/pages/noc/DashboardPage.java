@@ -39,37 +39,50 @@ public class DashboardPage extends AbstractListPage {
 
   public void verifyMenuReservations() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Reservations')]")).click();
-    ListReservationPage.get(getDriver()).verifyIsCurrentPage();
+    ListReservationPage page = ListReservationPage.get(getDriver());
+    page.verifyIsCurrentPage();
+    page.verifyHasDefaultTimeZone();
   }
 
   public void verifyMenuTeams() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Teams')]")).click();
-    ListVirtualResourceGroupPage.get(getDriver()).verifyIsCurrentPage();
+    ListVirtualResourceGroupPage page = ListVirtualResourceGroupPage.get(getDriver());
+    page.verifyIsCurrentPage();
+    page.verifyHasDefaultTimeZone();
   }
 
   public void verifyMenuInstitutes() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Institutes')]")).click();
-    ListPhysicalResourceGroupPage.get(getDriver()).verifyIsCurrentPage();
+    ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(getDriver());
+    page.verifyIsCurrentPage();
+    page.verifyHasDefaultTimeZone();
   }
 
   public void verifyMenuVirtualPorts() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Virtual')]")).click();
-    ListVirtualPortPage.get(getDriver()).verifyIsCurrentPage();
+    ListVirtualPortPage page = ListVirtualPortPage.get(getDriver());
+    page.verifyIsCurrentPage();
+    page.verifyHasDefaultTimeZone();
   }
 
   public void verifyMenuPhysicalPorts() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Physical')]")).click();
-    ListAllocatedPortsPage.get(getDriver()).verifyIsCurrentPage();
+    ListAllocatedPortsPage page = ListAllocatedPortsPage.get(getDriver());
+    page.verifyIsCurrentPage();
+    page.verifyHasDefaultTimeZone();
   }
 
   public void verifyMenuLogEvents() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Log')]")).click();
-    ListLogEventsPage.get(getDriver()).verifyIsCurrentPage();
+    ListLogEventsPage page = ListLogEventsPage.get(getDriver());
+    page.verifyIsCurrentPage();
+    page.verifyHasDefaultTimeZone();
   }
 
   public void verifyMenuOverview() {
     getMenuBar().findElement(By.xpath(".//a[contains(text(), 'Overview')]")).click();
     verifyIsCurrentPage();
+    verifyHasNoTimeZone();
   }
 
   public void verifyIsCurrentPage() {
