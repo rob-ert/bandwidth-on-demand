@@ -138,7 +138,7 @@ public class AbstractPage {
     do {
       attempt++;
 
-      Uninterruptibles.sleepUninterruptibly(200, TimeUnit.MILLISECONDS);
+      Uninterruptibles.sleepUninterruptibly(250, TimeUnit.MILLISECONDS);
       if (attempt > 10) {
         break;
       }
