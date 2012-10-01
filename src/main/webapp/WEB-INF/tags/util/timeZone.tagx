@@ -3,5 +3,6 @@
     <jsp:output omit-xml-declaration="yes" />
 
     <bod:env property="defaultTimeZoneId" var="timeZone"/>
-    <span class="timezone">Time zone: ${timeZone}</span>
+    <bod:env property="defaultTimeZoneOffset" var="timeZoneOffset"/>
+    <span class="timezone">Time zone: ${timeZone} ${timeZoneOffset}</span>
 </jsp:root>

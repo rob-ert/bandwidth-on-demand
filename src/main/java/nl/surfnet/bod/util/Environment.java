@@ -170,6 +170,15 @@ public class Environment {
     return DateTimeZone.getDefault().getID();
   }
 
+  public String getDefaultTimeZoneOffset() {
+    final int offsetInMillis = DateTimeZone.getDefault().getOffset(null);
+
+    final int offsetHours = offsetInMillis / (60 * 60 * 1000);
+    final int offsetMinutes = offsetInMillis % offsetHours;
+
+    return String.format("UTC %0+3d:%02d", offsetHours, offsetMinutes);
+  }
+
   public String getAdminClientId() {
     return adminClientId;
   }
