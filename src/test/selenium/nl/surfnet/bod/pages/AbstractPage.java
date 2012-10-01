@@ -136,16 +136,14 @@ public class AbstractPage {
    * @param pageUrlPart
    */
   protected void verifyIsCurrentPage(String pageUrlPart) {
-    int attempt = 0;
-    
-    while (!getDriver().getCurrentUrl().contains(pageUrlPart)){
-      attempt++;
-      Uninterruptibles.sleepUninterruptibly(150, TimeUnit.MILLISECONDS);
-      if (attempt > 100) {
+    for (int i = 0; i < 75; i++) {
+      if (getDriver().getCurrentUrl().contains(pageUrlPart)) {
         break;
       }
+      else {
+        Uninterruptibles.sleepUninterruptibly(150, TimeUnit.MILLISECONDS);
+      }
     }
-
     assertThat(getDriver().getCurrentUrl(), containsString(pageUrlPart));
   }
 
