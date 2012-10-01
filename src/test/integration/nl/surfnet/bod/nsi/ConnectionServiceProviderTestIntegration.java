@@ -59,6 +59,7 @@ import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.Security;
 
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -198,6 +199,8 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   @Test
   public void shouldReserveProvisionTerminate() throws Exception {
+    Security.setUserDetails(new RichUserDetailsFactory().addNocRole().create());
+
     ReserveRequestType reservationRequest = createReserveRequest();
     final String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
     final String reserveCorrelationId = reservationRequest.getCorrelationId();
