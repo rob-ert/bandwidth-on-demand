@@ -96,13 +96,12 @@ public class ConnectionServiceProviderService {
       connection.setStartTime(Optional.of(now));
     }
 
-    if ((reservation.getEndDateTime() == null)
-        || (reservation.getEndDateTime() != null && reservation.getEndDateTime().isBefore(
-            reservation.getStartDateTime()))) {
-      DateTime newEndDate = reservation.getStartDateTime().plus(WebUtils.DEFAULT_RESERVATON_DURATION)
-          .withSecondOfMinute(0).withMillisOfSecond(0);
-
-      log.info("Reservation enddate {} is null or before startdate setting it to {}", reservation.getEndDateTime(),
+    // Enddate may be null, this means a infinite reservation duration. An empty
+    // date in the xml will result in the date 1970-01-01 which will also lay
+    // before the start date
+    if (reservation.getEndDateTime() != null && reservation.getEndDateTime().isBefore(reservation.getStartDateTime())) {
+      DateTime newEndDate = reservation.getStartDateTime().plus(WebUtils.DEFAULT_RESERVATON_DURATION);
+      log.info("Reservation enddate {} is before startdate, setting it to {}", reservation.getEndDateTime(),
           newEndDate);
       reservation.setEndDateTime(newEndDate);
       connection.setEndTime(Optional.of(newEndDate));

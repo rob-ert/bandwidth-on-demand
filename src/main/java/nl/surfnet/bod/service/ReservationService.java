@@ -37,6 +37,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalPort_;
@@ -60,6 +61,7 @@ import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -293,6 +295,17 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     }
     if (reservation.getEndDateTime() != null) {
       reservation.setEndDateTime(reservation.getEndDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
+    }
+
+    if (reservation.isNSICreated()) {
+      Connection connection = reservation.getConnection();
+      if (connection.getStartTime().isPresent()) {
+        connection.setStartTime(Optional
+            .of(connection.getStartTime().get().withSecondOfMinute(0).withMillisOfSecond(0)));
+      }
+      if (connection.getEndTime().isPresent()) {
+        connection.setEndTime(Optional.of(connection.getEndTime().get().withSecondOfMinute(0).withMillisOfSecond(0)));
+      }
     }
   }
 
