@@ -5,10 +5,12 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Sets;
 
@@ -24,6 +26,9 @@ public class ManagerService {
   @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
 
+  @Resource
+  private PhysicalPortService physicalPortService;
+
   /**
    * 
    * @param bodRole
@@ -38,9 +43,14 @@ public class ManagerService {
 
     for (VirtualResourceGroup vrg : virtualResourceGroupService.findEntriesForManager(bodRole)) {
       adminGroups.add(vrg.getAdminGroup());
+
+      for (VirtualPort vp : vrg.getVirtualPorts()) {
+        adminGroups.add(vp.getPhysicalPort().getPhysicalResourceGroup().getAdminGroup());
+      }
     }
 
+    System.err.println(String.format("Manager [%s] has groups [%s]", bodRole.getInstituteName(), StringUtils
+        .collectionToCommaDelimitedString(adminGroups)));
     return adminGroups;
   }
-
 }

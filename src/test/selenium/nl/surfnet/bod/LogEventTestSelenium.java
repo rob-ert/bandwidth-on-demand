@@ -21,34 +21,41 @@
  */
 package nl.surfnet.bod;
 
+import nl.surfnet.bod.support.TestExternalSupport;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import nl.surfnet.bod.support.TestExternalSupport;
-
 public class LogEventTestSelenium extends TestExternalSupport {
+
+  protected static final String ICT_USER_GROUP_2 = //
+  "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:selenium-users2";
 
   private static final String GROUP_NAME_ONE = "2COLLEGE";
   private static final String GROUP_NAME_TWO = "SURFnet bv";
+  private static final String GROUP_NAME_FOUR = "ROC Rijn Ijssel";
   private static final String PORT_LABEL_1 = "NOC Port 1";
   private static final String PORT_LABEL_2 = "NOC Port 2";
+  private static final String PORT_LABEL_4 = "NOC Port 4";
   private static final String VP_LABEL_1 = "VP Port 1";
+  private static final String VP_LABEL_2 = "VP Port 2";
+  private static final String VP_LABEL_4 = "VP Port 4";
 
   @Before
   public void prepareUser() {
     getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME_ONE, ICT_MANAGERS_GROUP, "test@test.nl");
     getWebDriver().clickLinkInLastEmail();
+
     getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME_TWO, ICT_MANAGERS_GROUP_2, "test2@test.nl");
+    getWebDriver().clickLinkInLastEmail();
+
+    getNocDriver().createNewPhysicalResourceGroup(GROUP_NAME_FOUR, ICT_USER_GROUP_2, "test4@test.nl");
     getWebDriver().clickLinkInLastEmail();
 
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, PORT_LABEL_1, GROUP_NAME_ONE);
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, PORT_LABEL_2, GROUP_NAME_TWO);
-
-    getUserDriver().requestVirtualPort("selenium-users");
-    getUserDriver().selectInstituteAndRequest(GROUP_NAME_ONE, 1200, "port 1");
-    getWebDriver().clickLinkInLastEmail();
-    getManagerDriver().createVirtualPort(VP_LABEL_1);
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_4, PORT_LABEL_4, GROUP_NAME_FOUR);
   }
 
   @After
@@ -56,9 +63,13 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getUserDriver().switchToManager(GROUP_NAME_ONE);
     getManagerDriver().deleteVirtualPort(VP_LABEL_1);
 
+    getUserDriver().switchToManager(GROUP_NAME_TWO);
+    getManagerDriver().deleteVirtualPort(VP_LABEL_2);
+
     getManagerDriver().switchToNoc();
     getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_1);
     getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_2);
+    getNocDriver().unlinkPhysicalPort(BOD_PORT_ID_4);
   }
 
   @Test
@@ -66,21 +77,57 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getManagerDriver().switchToNoc();
     // Allocation of port should visible in log for noc...
     getNocDriver().verifyLogEventExistis(PORT_LABEL_1);
+    getNocDriver().verifyLogEventExistis(PORT_LABEL_2);
+    getNocDriver().verifyLogEventExistis(PORT_LABEL_4);
+
+    // Physical ports are not mapped to Virtual ports, so only own ports should
+    // be visible
+    getManagerDriver().switchToManager(GROUP_NAME_ONE);
+    getManagerDriver().verifyLogEventExists(PORT_LABEL_1);
+    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
+    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
+
+    getManagerDriver().switchToManager(GROUP_NAME_TWO);
+    getManagerDriver().verifyLogEventExists(PORT_LABEL_2);
+    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
+    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
+
+    // Now create Virtual Ports, and thereby group PhysicalPorts in same group
+    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().selectInstituteAndRequest(GROUP_NAME_ONE, 1200, "port 1");
+    getWebDriver().clickLinkInLastEmail();
+    getManagerDriver().createVirtualPort(VP_LABEL_1);
+
+    getUserDriver().requestVirtualPort("selenium-users");
+    getUserDriver().selectInstituteAndRequest(GROUP_NAME_TWO, 1200, "port 2");
+    getWebDriver().clickLinkInLastEmail();
+    getManagerDriver().createVirtualPort(VP_LABEL_2);
 
     // ... and for manager One ...
     getManagerDriver().switchToManager(GROUP_NAME_ONE);
     getManagerDriver().verifyLogEventExists(PORT_LABEL_1);
-    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
+    getManagerDriver().verifyLogEventExists(PORT_LABEL_2);
+    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
 
     // ... and for manager One ...
     getManagerDriver().switchToManager(GROUP_NAME_TWO);
+    getManagerDriver().verifyLogEventExists(PORT_LABEL_1);
     getManagerDriver().verifyLogEventExists(PORT_LABEL_2);
+    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
+
+    // ... and for user manager 2 ...
+    getManagerDriver().switchToManager(GROUP_NAME_FOUR);
+    getManagerDriver().verifyLogEventExists(PORT_LABEL_4);
     getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
+    getManagerDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
 
     // ... and does exist for user
     getManagerDriver().switchToUser();
     getUserDriver().verifyLogEventExists(VP_LABEL_1);
+    getUserDriver().verifyLogEventExists(VP_LABEL_2);
+    getUserDriver().verifyLogEventDoesNotExist(VP_LABEL_4);
     getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_1);
     getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_2);
+    getUserDriver().verifyLogEventDoesNotExist(PORT_LABEL_4);
   }
 }

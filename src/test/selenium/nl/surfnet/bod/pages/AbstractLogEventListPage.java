@@ -25,7 +25,7 @@ public abstract class AbstractLogEventListPage extends AbstractListPage {
     LocalDateTime logEventCreated = getLocalDateTimeFromRow(row);
 
     long duration = created.getMillisOfDay() - logEventCreated.getMillisOfDay();
-    // Allow a 15 second margin
-    assertThat(duration, lessThan(15000L));
+    // Allow an x second margin
+    assertThat(duration, lessThan(20000L));
   }
 }

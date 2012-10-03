@@ -30,7 +30,7 @@ public abstract class TestExternalSupport {
   "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:selenium-ict-managers";
   protected static final String ICT_MANAGERS_GROUP_2 = //
   "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:selenium-ict-managers2";
-
+  
   protected static final String BOD_PORT_ID_1 = "Mock_ETH10G-1-13-1";
   protected static final String BOD_PORT_ID_2 = "Mock_ETH10G-1-13-2";
   protected static final String BOD_PORT_ID_4 = "Mock_ETH-1-13-4";
