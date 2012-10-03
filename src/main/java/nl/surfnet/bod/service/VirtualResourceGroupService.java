@@ -21,10 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.*;
-import static com.google.common.collect.Collections2.*;
-import static com.google.common.collect.Lists.*;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -36,18 +32,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
-
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalPort_;
@@ -62,6 +46,22 @@ import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
 
 @Service
 @Transactional
@@ -129,10 +129,16 @@ public class VirtualResourceGroupService extends
     return virtualResourceGroupRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
+  public List<VirtualResourceGroup> findEntriesForManager(BodRole managerRole) {
+    checkArgument(managerRole.isManagerRole(), "Given role is not a manager: %s", managerRole);
+
+    return virtualResourceGroupRepo.findAll(specificationForManager(managerRole));
+  }
+
   public List<VirtualResourceGroup> findEntriesForManager(BodRole managerRole, int firstResult, int maxResults,
       Sort sort) {
     checkArgument(maxResults > 0);
-    checkArgument(managerRole.isManagerRole());
+    checkArgument(managerRole.isManagerRole(), "Given role is not a manager: %s", managerRole);
 
     return virtualResourceGroupRepo.findAll(specificationForManager(managerRole),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
@@ -147,9 +153,8 @@ public class VirtualResourceGroupService extends
         Subquery<Long> subquery = query.subquery(Long.class);
         Root<VirtualPort> subRoot = subquery.from(VirtualPort.class);
         subquery.select(subRoot.get(VirtualPort_.virtualResourceGroup).get(VirtualResourceGroup_.id));
-        subquery.where(cb.equal(
-            subRoot.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
-                .get(PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId().get()));
+        subquery.where(cb.equal(subRoot.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(
+            PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId().get()));
 
         return cb.in(root.get(VirtualResourceGroup_.id)).value(subquery);
       }

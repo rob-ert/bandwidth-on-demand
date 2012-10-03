@@ -21,7 +21,12 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -30,17 +35,22 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.Loggable;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.event.LogEvent_;
 import nl.surfnet.bod.repo.LogEventRepo;
 import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -56,18 +66,18 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Resource
-  private PhysicalResourceGroupService physicalResourceGroupService;
-
-  @Resource
   private LogEventRepo logEventRepo;
 
   @Resource
   private Environment environment;
 
+  @Resource
+  private ManagerService managerService;
+
   @PersistenceContext
   private EntityManager entityManager;
 
-  private static Specification<LogEvent> specLogEentsByAdminGroups(final Collection<String> adminGroups) {
+  private static Specification<LogEvent> specLogEventsByAdminGroups(final Collection<String> adminGroups) {
     return new Specification<LogEvent>() {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query,
@@ -128,7 +138,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
   }
 
   public List<LogEvent> findAll(int firstResult, int maxResults, Sort sort) {
-    return logEventRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+    return logEventRepo.findAll(WebUtils.createPageRequest(firstResult, maxResults, sort)).getContent();
   }
 
   public long count() {
@@ -140,8 +150,14 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
       return Collections.emptyList();
     }
 
-    return logEventRepo.findAll(specLogEentsByAdminGroups(adminGroups),
-        new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+    return logEventRepo.findAll(specLogEventsByAdminGroups(adminGroups),
+        WebUtils.createPageRequest(firstResult, maxResults, sort)).getContent();
+  }
+
+  public List<LogEvent> findByManagerRole(BodRole managerRole, int firstResult, int maxResults, Sort sort) {
+    final Set<String> groupsForManager = managerService.findAllAdminGroupsForManager(managerRole);
+
+    return findByAdminGroups(groupsForManager, firstResult, maxResults, sort);
   }
 
   @Override
@@ -175,10 +191,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
    * domainObject with one a specific type, as determined by
    * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
    * {@link LogEventRepo}
-   *
+   * 
    * @param logger
    *          Logger to write to
-   *
+   * 
    * @param logEvent
    *          LogEvent to handle
    */
@@ -223,7 +239,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
    * <li>VirtualPort</li>
    * <li>Institute</li>
    * </ul>
-   *
+   * 
    * @param logEvent
    * @return true when the {@link LogEvent#getDescription()} matches one of the
    *         listed above, false otherwise.
@@ -251,7 +267,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
 
   /**
    * Delegates to {@link #handleEvent(Logger, LogEvent)}
-   *
+   * 
    * @param logEvent
    */
   private void handleEvent(LogEvent logEvent) {
@@ -263,7 +279,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
       return 0;
     }
 
-    return logEventRepo.count(specLogEentsByAdminGroups(adminGroups));
+    return logEventRepo.count(specLogEventsByAdminGroups(adminGroups));
   }
 
 }

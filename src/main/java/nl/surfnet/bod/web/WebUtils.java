@@ -32,6 +32,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -260,5 +262,9 @@ public final class WebUtils {
       }
     }
     return searchString;
+  }
+
+  public static PageRequest createPageRequest(int firstResult, int maxResults, Sort sort) {
+    return new PageRequest(firstResult / maxResults, maxResults, sort);
   }
 }

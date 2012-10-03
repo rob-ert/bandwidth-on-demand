@@ -21,14 +21,25 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import nl.surfnet.bod.web.base.AbstractLogEventController;
+import java.util.List;
 
+import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.web.base.AbstractLogEventController;
+import nl.surfnet.bod.web.security.Security;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller("managerEventController")
 @RequestMapping(value = "/manager/" + LogEventController.PAGE_URL)
 public class LogEventController extends AbstractLogEventController {
+
+  @Override
+  protected List<LogEvent> list(int firstPage, int maxItems, Sort sort, Model model) {
+    return logEventService.findByManagerRole(Security.getSelectedRole(), firstPage, maxItems, sort);
+  }
 
   @Override
   protected String listUrl() {
