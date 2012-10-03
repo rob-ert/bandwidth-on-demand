@@ -21,13 +21,13 @@
  */
 package nl.surfnet.bod.domain.validator;
 
-import org.springframework.stereotype.Component;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
-
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.web.security.Security;
+
+import org.springframework.stereotype.Component;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 
 /**
  * Validator for the {@link VirtualPort}. Validates that the
@@ -68,7 +68,7 @@ public class VirtualPortValidator implements Validator {
 
   private void validateVlanRequired(VirtualPort virtualPort, Errors errors) {
     if ((virtualPort.getPhysicalPort() == null || virtualPort.getPhysicalPort().isVlanRequired())
-        && ((virtualPort.getVlanId() == null) || new Integer(0).equals(virtualPort.getVlanId()))) {
+        && ((virtualPort.getVlanId() == null) || Integer.valueOf(0).equals(virtualPort.getVlanId()))) {
       errors.rejectValue("vlanId", "validation.virtualport.vlanid.required.because.physicalport.requires.it");
     }
 
