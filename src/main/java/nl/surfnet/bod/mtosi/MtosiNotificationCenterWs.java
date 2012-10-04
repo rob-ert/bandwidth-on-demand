@@ -43,7 +43,7 @@ import nl.surfnet.bod.domain.MtosiNotificationHolder;
 public class MtosiNotificationCenterWs implements NotificationConsumer {
 
   @VisibleForTesting
-  public static final String DEFAULT_ADDRESS = "http://localhost:8082/bod/mtosi/fmw/notificationconsumer";
+  public static final String DEFAULT_ADDRESS = "http://localhost:8089/bod/mtosi/fmw/notificationconsumer";
   
   private final Logger log = LoggerFactory.getLogger(MtosiNotificationCenterWs.class);
   private final LinkedBlockingDeque<MtosiNotificationHolder> queue = new LinkedBlockingDeque<>();
