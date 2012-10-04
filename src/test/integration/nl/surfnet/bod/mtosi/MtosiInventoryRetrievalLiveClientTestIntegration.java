@@ -47,7 +47,7 @@ public class MtosiInventoryRetrievalLiveClientTestIntegration {
         "mtosi.inventory.retrieval.endpoint").toString(), properties.get("mtosi.inventory.sender.uri").toString());
   }
 
-  @Ignore("Currently returns 0 NE's")
+//  @Ignore("Currently returns 0 NE's")
   @Test
   public void getUnallocatedPorts() {
     final List<PhysicalPort> unallocatedPorts = mtosiInventoryRetrievalLiveClient.getUnallocatedPorts();
@@ -64,7 +64,7 @@ public class MtosiInventoryRetrievalLiveClientTestIntegration {
 
   }
 
-  @Ignore("Currently returns 0 NE's")
+//  @Ignore("Currently returns 0 NE's")
   @Test
   public void getUnallocatedPortsCount() {
     assertThat(mtosiInventoryRetrievalLiveClient.getUnallocatedMtosiPortCount(), greaterThan(0));
