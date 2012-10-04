@@ -609,6 +609,7 @@
                     <webAppConfig>
                         <contextPath>/${project.name}</contextPath>
                     </webAppConfig>
+                    <contextXml>${basedir}/src/test/resources/jetty-context.xml</contextXml>
                     <connectors>
                         <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                             <port>8082</port>
@@ -752,6 +753,7 @@
                             <webAppConfig>
                                 <contextPath>/${project.name}</contextPath>
                             </webAppConfig>
+                             <contextXml>${basedir}/src/test/resources/jetty-context.xml</contextXml>
                             <systemProperties>
                                 <systemProperty>
                                     <name>external.bod.url</name>
@@ -861,6 +863,7 @@
                             <webAppConfig>
                                 <contextPath>/${project.name}</contextPath>
                             </webAppConfig>
+                            <contextXml>${basedir}/src/test/resources/jetty-context.xml</contextXml>
                             <systemProperties>
                                 <systemProperty>
                                     <name>external.bod.url</name>
