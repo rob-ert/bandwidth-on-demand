@@ -11,9 +11,13 @@ public class BodAccount {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
+  
+  @Column(unique = true, nullable = false)
   private String nameId;
+  
   private String authorizationServerAccessToken;
   private String accessToken;
+  
   @Version
   private long version;
 
