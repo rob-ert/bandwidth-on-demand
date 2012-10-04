@@ -50,8 +50,13 @@
             <artifactId>bod-mtosi</artifactId>
             <version>0.3.0</version>
         </dependency>
+        <dependency>
+            <groupId>nl.surfnet.apis</groupId>
+            <artifactId>apis-authorization-server</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+
         <!-- Begin logging -->
-        
         <!-- Added commons-logging as provided dependency to exclude it from the runtime path -->
         <dependency>
             <groupId>commons-logging</groupId>
