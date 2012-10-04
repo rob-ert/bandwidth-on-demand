@@ -10,7 +10,6 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Sets;
 
@@ -48,9 +47,6 @@ public class ManagerService {
         adminGroups.add(vp.getPhysicalPort().getPhysicalResourceGroup().getAdminGroup());
       }
     }
-
-    System.err.println(String.format("Manager [%s] has groups [%s]", bodRole.getInstituteName(), StringUtils
-        .collectionToCommaDelimitedString(adminGroups)));
     return adminGroups;
   }
 }
