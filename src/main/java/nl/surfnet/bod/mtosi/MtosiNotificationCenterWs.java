@@ -34,12 +34,17 @@ import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import nl.surfnet.bod.domain.MtosiNotificationHolder;
 
 @Service("mtosiNotificationCenterWs")
 @WebService(endpointInterface = "org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer")
 public class MtosiNotificationCenterWs implements NotificationConsumer {
 
+  @VisibleForTesting
+  public static final String DEFAULT_ADDRESS = "http://localhost:8082/bod/mtosi/fmw/notificationconsumer";
+  
   private final Logger log = LoggerFactory.getLogger(MtosiNotificationCenterWs.class);
   private final LinkedBlockingDeque<MtosiNotificationHolder> queue = new LinkedBlockingDeque<>();
 
@@ -95,7 +100,7 @@ public class MtosiNotificationCenterWs implements NotificationConsumer {
   }
 
   public static void main(String[] args) {
-    Endpoint.publish("http://localhost:8082/bod/mtosi/fmw/notificationconsumer", new MtosiNotificationCenterWs());
+    Endpoint.publish(DEFAULT_ADDRESS, new MtosiNotificationCenterWs());
   }
 
 }

@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.mtosi;
 
+import static nl.surfnet.bod.mtosi.MtosiNotificationCenterWs.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
@@ -52,8 +53,6 @@ public class MtosiNotificationLiveClientTestIntegration {
 
   private MtosiNotificationLiveClient mtosiNotificationLiveClient;
 
-  private static final String notificationCenterUrl = "http://localhost:8082/bod/mtosi/fmw/notificationconsumer";
-
   @Before
   public void setup() throws IOException {
     properties.load(ClassLoader.class.getResourceAsStream("/bod-default.properties"));
@@ -66,7 +65,7 @@ public class MtosiNotificationLiveClientTestIntegration {
   @Test
   public void subscribeAndUnsubscribe() throws Exception {
     final String topic = "fault";
-    final String subscriberId = mtosiNotificationLiveClient.subscribe(topic, notificationCenterUrl);
+    final String subscriberId = mtosiNotificationLiveClient.subscribe(topic, DEFAULT_ADDRESS);
     assertThat(subscriberId, notNullValue());
     final UnsubscribeResponse unsubscribeResponse = mtosiNotificationLiveClient.unsubscribe(subscriberId, topic);
     assertThat(unsubscribeResponse, notNullValue());
@@ -74,33 +73,33 @@ public class MtosiNotificationLiveClientTestIntegration {
 
   @Test
   public void sendNotification() throws Exception {
-    
+
     // Our notification consumer
     final MtosiNotificationCenterWs mtosiNotificationCenterWs = new MtosiNotificationCenterWs();
-    
+
     // start it
-    Endpoint.publish(notificationCenterUrl, mtosiNotificationCenterWs);
-    
+    Endpoint.publish(DEFAULT_ADDRESS, mtosiNotificationCenterWs);
+
     final URL url = new ClassPathResource(
         "/mtosi/2.1/DDPs/Framework/IIS/wsdl/NotificationConsumer/NotificationConsumerHttp.wsdl").getURL();
     final NotificationConsumer port = new NotificationConsumerHttp(url, new QName(
         "http://www.tmforum.org/mtop/fmw/wsdl/notc/v1-0", "NotificationConsumerHttp"))
         .getNotificationConsumerSoapHttp();
     final Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
-    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, notificationCenterUrl);
+    requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, DEFAULT_ADDRESS);
     final Header header = new Header();
     final String activity = "notify";
-    
+
     header.setActivityName(activity);
     final Notify body = new Notify();
     body.setTopic("fault");
-    
+
     // make sure that there are no old messages
     assertThat(mtosiNotificationCenterWs.getLastMessage(), nullValue());
-    
+
     // send notification
     port.notify(header, body);
-    
+
     final MtosiNotificationHolder notification = mtosiNotificationCenterWs.getLastMessage(2, TimeUnit.SECONDS);
     assertThat(notification, notNullValue());
     assertThat(notification.getHeader().getActivityName(), containsString(activity));
