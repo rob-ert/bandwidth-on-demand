@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.xml.namespace.QName;
@@ -43,7 +44,10 @@ import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
 import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumerHttp;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
+import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify.Message;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeResponse;
+import org.tmforum.mtop.nra.xsd.alm.v1.AlarmType;
+import org.tmforum.mtop.sb.xsd.soc.v1.ServiceObjectCreationType;
 
 import nl.surfnet.bod.domain.MtosiNotificationHolder;
 
@@ -58,7 +62,6 @@ public class MtosiNotificationLiveClientTestIntegration {
     properties.load(ClassLoader.class.getResourceAsStream("/bod-default.properties"));
     mtosiNotificationLiveClient = new MtosiNotificationLiveClient(properties.get(
         "mtosi.notification.retrieval.endpoint").toString(), properties.get("mtosi.notification.sender.uri").toString());
-
   }
 
   @Ignore
@@ -80,6 +83,7 @@ public class MtosiNotificationLiveClientTestIntegration {
     // start it
     Endpoint.publish(DEFAULT_ADDRESS, mtosiNotificationCenterWs);
 
+    // Create and configure notification client
     final URL url = new ClassPathResource(
         "/mtosi/2.1/DDPs/Framework/IIS/wsdl/NotificationConsumer/NotificationConsumerHttp.wsdl").getURL();
     final NotificationConsumer port = new NotificationConsumerHttp(url, new QName(
@@ -87,12 +91,30 @@ public class MtosiNotificationLiveClientTestIntegration {
         .getNotificationConsumerSoapHttp();
     final Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
     requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, DEFAULT_ADDRESS);
+    
+    
+    // Create notification header
     final Header header = new Header();
     final String activity = "notify";
-
     header.setActivityName(activity);
+
+    // Create notification body
     final Notify body = new Notify();
     body.setTopic("fault");
+
+    // Create an alarm notification message which is part of the body
+    final AlarmType alarm = new org.tmforum.mtop.nra.xsd.alm.v1.ObjectFactory().createAlarmType();
+    alarm.setNotificationId(UUID.randomUUID().toString());
+    
+    final ServiceObjectCreationType serviceObjectCreation = new org.tmforum.mtop.sb.xsd.soc.v1.ObjectFactory().createServiceObjectCreationType();
+    serviceObjectCreation.setNotificationId(UUID.randomUUID().toString());
+    
+    final Message message = new org.tmforum.mtop.fmw.xsd.notmsg.v1.ObjectFactory().createNotifyMessage();
+    
+    message.getCommonEventInformation().add(serviceObjectCreation);
+//    message.getCommonEventInformation().add(alarm);
+    body.setMessage(message);
+    
 
     // make sure that there are no old messages
     assertThat(mtosiNotificationCenterWs.getLastMessage(), nullValue());
@@ -103,6 +125,7 @@ public class MtosiNotificationLiveClientTestIntegration {
     final MtosiNotificationHolder notification = mtosiNotificationCenterWs.getLastMessage(2, TimeUnit.SECONDS);
     assertThat(notification, notNullValue());
     assertThat(notification.getHeader().getActivityName(), containsString(activity));
+//    final CommonEventInformationType commonEventInformationType = notification.getBody().getMessage().getCommonEventInformation().get(0);
     assertThat(mtosiNotificationCenterWs.getLastMessage(), nullValue());
   }
 }
