@@ -43,7 +43,7 @@ public class ReservationFilterView {
   private DateTime start;
   private DateTime end;
   private boolean filterOnReservationEndOnly;
-  private ReservationStatus status;
+  private final ReservationStatus[] states;
   private final boolean filterOnStatusOnly;
 
   /**
@@ -65,6 +65,7 @@ public class ReservationFilterView {
 
     filterOnReservationEndOnly = false;
     filterOnStatusOnly = false;
+    states = ReservationStatus.values();
   }
 
   /**
@@ -96,27 +97,25 @@ public class ReservationFilterView {
 
     filterOnReservationEndOnly = true;
     filterOnStatusOnly = false;
+    states = ReservationStatus.TRANSITION_STATES_AS_ARRAY;
   }
 
   /**
-   * Constructs a filter based on the specified {@link DateTime}. The start of
-   * the filter will be start of the minute (e.g. seconds an millis to zero).
-   * The end of the filter wll be the next whole minute.
+   * Constructs a filter based on the specified {@link ReservationStatus}.
    * 
    * @param id
    *          Id
    * @param label
    *          Label
-   * @param filterDateTime
-   *          timestamp to use
+   * @param ReservationStatus
+   *          status to filter on
    */
   public ReservationFilterView(String id, String label, ReservationStatus status) {
     this.id = id;
     this.label = label;
 
-    this.status = status;
-
     filterOnStatusOnly = true;
+    this.states = new ReservationStatus[] { status };
   }
 
   public String getId() {
@@ -156,8 +155,8 @@ public class ReservationFilterView {
     return end;
   }
 
-  public ReservationStatus getStatus() {
-    return status;
+  public ReservationStatus[] getStates() {
+    return states;
   }
 
   public boolean isFilterOnReservationEndOnly() {

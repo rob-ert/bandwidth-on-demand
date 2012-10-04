@@ -314,9 +314,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       return new ElementActionView(true, "label_cancel");
     }
     else if (role.isManagerRole()
-        && (reservation.getSourcePort().getPhysicalResourceGroup().getId()
-            .equals(role.getPhysicalResourceGroupId().get()) || reservation.getDestinationPort()
-            .getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId().get()))) {
+        && (reservation.getSourcePort().getPhysicalResourceGroup().getId().equals(
+            role.getPhysicalResourceGroupId().get()) || reservation.getDestinationPort().getPhysicalResourceGroup()
+            .getId().equals(role.getPhysicalResourceGroupId().get()))) {
       return new ElementActionView(true, "label_cancel");
     }
     else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
@@ -346,13 +346,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
         Long prgId = manager.getSelectedRole().getPhysicalResourceGroupId().get();
-        return cb.and(cb.or(
-            cb.equal(
-                root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort)
-                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId),
-            cb.equal(
-                root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort)
-                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId)));
+        return cb.and(cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort).get(
+            PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId), cb.equal(root.get(
+            Reservation_.destinationPort).get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(
+            PhysicalResourceGroup_.id), prgId)));
       }
     };
   }
@@ -361,17 +358,17 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(root.get(Reservation_.virtualResourceGroup).get(VirtualResourceGroup_.surfconextGroupId)
-            .in(user.getUserGroupIds()));
+        return cb.and(root.get(Reservation_.virtualResourceGroup).get(VirtualResourceGroup_.surfconextGroupId).in(
+            user.getUserGroupIds()));
       }
     };
   }
 
-  private Specification<Reservation> forStatus(final ReservationStatus status) {
+  private Specification<Reservation> forStatus(final ReservationStatus... states) {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.equal(root.get(Reservation_.status), status);
+        return cb.and(root.get(Reservation_.status).in((Object[])states));
       }
     };
   }
@@ -392,8 +389,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort), port),
-            cb.equal(root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort), port));
+        return cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort), port), cb.equal(root
+            .get(Reservation_.destinationPort).get(VirtualPort_.physicalPort), port));
       }
     };
   }
@@ -436,20 +433,21 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     Specification<Reservation> filterSpecOnEnd = new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(cb.isNull(root.get(Reservation_.endDateTime)),
-            cb.between(root.get(Reservation_.endDateTime), filter.getStart(), filter.getEnd()));
+        return cb.or(cb.isNull(root.get(Reservation_.endDateTime)), cb.between(root.get(Reservation_.endDateTime),
+            filter.getStart(), filter.getEnd()));
       }
     };
 
-    Specification<Reservation> specficiation = null;
+    //Filter on states in filter
+    Specification<Reservation> specficiation = forStatus(filter.getStates());
     if (filter.isFilterOnStatusOnly()) {
-      specficiation = forStatus(filter.getStatus());
+      //Do nothing, specification is already set with states from filter
     }
     else if (filter.isFilterOnReservationEndOnly()) {
-      specficiation = filterSpecOnEnd;
+      specficiation = Specifications.where(specficiation).and(filterSpecOnEnd);
     }
     else {
-      specficiation = Specifications.where(filterSpecOnEnd).or(filterSpecOnStart);
+      specficiation = Specifications.where(specficiation).and(Specifications.where(filterSpecOnStart).or(filterSpecOnEnd));
     }
 
     return specficiation;
@@ -463,8 +461,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
             + "from reservation UNION select distinct extract(year from end_date_time) from reservation")
         .getResultList();
 
-    ImmutableList<Integer> years = FluentIterable.from(dbYears).filter(Predicates.notNull())
-        .transform(new Function<Double, Integer>() {
+    ImmutableList<Integer> years = FluentIterable.from(dbYears).filter(Predicates.notNull()).transform(
+        new Function<Double, Integer>() {
           @Override
           public Integer apply(Double d) {
             return d.intValue();
