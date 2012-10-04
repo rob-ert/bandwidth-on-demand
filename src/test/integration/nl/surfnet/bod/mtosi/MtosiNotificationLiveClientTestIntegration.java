@@ -35,6 +35,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.tmforum.mtop.fmw.wsdl.notc.v1_0.NotificationConsumer;
@@ -43,13 +44,15 @@ import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.Notify;
 import org.tmforum.mtop.fmw.xsd.notmsg.v1.UnsubscribeResponse;
 
+import nl.surfnet.bod.domain.MtosiNotificationHolder;
+
 public class MtosiNotificationLiveClientTestIntegration {
 
   private final Properties properties = new Properties();
 
   private MtosiNotificationLiveClient mtosiNotificationLiveClient;
 
-  private static final String notificationCenterUrl = "http://localhost:8099/bod/mtosi/fmw/notificationconsumer";
+  private static final String notificationCenterUrl = "http://localhost:8082/bod/mtosi/fmw/notificationconsumer";
 
   @Before
   public void setup() throws IOException {
@@ -59,6 +62,7 @@ public class MtosiNotificationLiveClientTestIntegration {
 
   }
 
+  @Ignore
   @Test
   public void subscribeAndUnsubscribe() throws Exception {
     final String topic = "fault";
@@ -70,8 +74,13 @@ public class MtosiNotificationLiveClientTestIntegration {
 
   @Test
   public void sendNotification() throws Exception {
+    
+    // Our notification consumer
     final MtosiNotificationCenterWs mtosiNotificationCenterWs = new MtosiNotificationCenterWs();
+    
+    // start it
     Endpoint.publish(notificationCenterUrl, mtosiNotificationCenterWs);
+    
     final URL url = new ClassPathResource(
         "/mtosi/2.1/DDPs/Framework/IIS/wsdl/NotificationConsumer/NotificationConsumerHttp.wsdl").getURL();
     final NotificationConsumer port = new NotificationConsumerHttp(url, new QName(
@@ -80,14 +89,21 @@ public class MtosiNotificationLiveClientTestIntegration {
     final Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
     requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, notificationCenterUrl);
     final Header header = new Header();
-    header.setActivityName("notify");
+    final String activity = "notify";
+    
+    header.setActivityName(activity);
     final Notify body = new Notify();
     body.setTopic("fault");
     
+    // make sure that there are no old messages
     assertThat(mtosiNotificationCenterWs.getLastMessage(), nullValue());
     
+    // send notification
     port.notify(header, body);
-    assertThat(mtosiNotificationCenterWs.getLastMessage(2, TimeUnit.SECONDS), notNullValue());
+    
+    final MtosiNotificationHolder notification = mtosiNotificationCenterWs.getLastMessage(2, TimeUnit.SECONDS);
+    assertThat(notification, notNullValue());
+    assertThat(notification.getHeader().getActivityName(), containsString(activity));
     assertThat(mtosiNotificationCenterWs.getLastMessage(), nullValue());
   }
 }
