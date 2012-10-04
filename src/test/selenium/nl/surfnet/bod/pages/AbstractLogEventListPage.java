@@ -26,6 +26,6 @@ public abstract class AbstractLogEventListPage extends AbstractListPage {
 
     long duration = created.getMillisOfDay() - logEventCreated.getMillisOfDay();
     // Allow an x second margin
-    assertThat(duration, lessThan(20000L));
+    assertThat(duration, lessThan(30000L));
   }
 }
