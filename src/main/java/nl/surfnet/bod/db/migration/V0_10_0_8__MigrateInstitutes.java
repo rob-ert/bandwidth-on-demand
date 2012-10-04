@@ -22,6 +22,7 @@
 package nl.surfnet.bod.db.migration;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Collection;
 import java.util.Properties;
@@ -71,23 +72,31 @@ public class V0_10_0_8__MigrateInstitutes implements SpringJdbcMigration {
 
   @Override
   public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
-    logger.info("Migrating institutes using IDD @: {} with user {} and password {}",
-        new Object[] { iddUrl, iddUser, iddPassword });
+    logger.info("Migrating institutes using IDD @: {} with user {} and password {}", new Object[] { iddUrl, iddUser,
+        iddPassword });
 
     Collection<Klanten> klanten = iddClient.getKlanten();
 
     Collection<Institute> institutes = Functions.transformKlanten(klanten, true);
 
-    PreparedStatement insertInstitute = jdbcTemplate.getDataSource().getConnection()
+    final Connection connection = jdbcTemplate.getDataSource().getConnection();
+    final PreparedStatement insertInstitute = connection
         .prepareStatement("INSERT INTO INSTITUTE  (id, name, short_name) VALUES (?,?,?)");
-
-    for (Institute institute : institutes) {
-      insertInstitute.setLong(1, institute.getId());
-      insertInstitute.setString(2, institute.getName());
-      insertInstitute.setString(3, institute.getShortName());
-
-      insertInstitute.execute();
+    try {
+      for (Institute institute : institutes) {
+        insertInstitute.setLong(1, institute.getId());
+        insertInstitute.setString(2, institute.getName());
+        insertInstitute.setString(3, institute.getShortName());
+        insertInstitute.execute();
+      }
     }
-
+    finally {
+      if (insertInstitute != null) {
+        insertInstitute.close();
+      }
+      if (connection != null) {
+        connection.close();
+      }
+    }
   }
 }
