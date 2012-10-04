@@ -50,7 +50,6 @@ public class MtosiNotificationCenterWs implements NotificationConsumer {
 
   @Override
   public void notify(final Header header, final Notify body) {
-    log.info("Received: {}, {}", header, body);
     log.info("Activity name: {}", header.getActivityName());
     log.info("Topic: {}", body.getTopic());
     queue.add(new MtosiNotificationHolder(header, body));
