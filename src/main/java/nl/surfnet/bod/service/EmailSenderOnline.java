@@ -97,11 +97,17 @@ public class EmailSenderOnline implements EmailSender {
   @Override
   public void sendVirtualPortRequestMail(RichUserDetails from, VirtualPortRequestLink requestLink) {
     String link = String.format(externalBodUrl + VirtualPortController.PAGE_URL + "/create/%s", requestLink.getUuid());
-
     SimpleMailMessage mail = new MailMessageBuilder().withTo(requestLink.getPhysicalResourceGroup().getManagerEmail())
-        .withReplyTo(from.getEmail()).withSubject(VirtualPortRequestMail.subject(from))
+        .withSubject(VirtualPortRequestMail.subject(from))
         .withBodyText(VirtualPortRequestMail.body(from, requestLink, link)).create();
 
+    if (StringUtils.hasLength(from.getEmail())) {
+      mail.setReplyTo(from.getEmail());
+    }
+    else {
+      log.warn("User {} has no email address that can be used as the reply-to!", from);
+    }
+    
     send(mail);
   }
 
@@ -179,11 +185,6 @@ public class EmailSenderOnline implements EmailSender {
       mailMessage.setSubject(subject);
       mailMessage.setText(text);
       return mailMessage;
-    }
-
-    public MailMessageBuilder withReplyTo(String rt) {
-      this.replyTo = rt;
-      return this;
     }
 
     public MailMessageBuilder withSubject(String sub) {

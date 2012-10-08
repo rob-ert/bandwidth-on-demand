@@ -116,6 +116,27 @@ public class EmailSenderOnlineTest {
     assertThat(message.getText(), containsString("Reason: " + requestMessage));
     assertThat(message.getText(), containsString("Bandwidth: " + bandwidth));
   }
+  
+
+  @Test
+  public void virtualPortRequestNullFromAddress() {
+    RichUserDetails user = new RichUserDetailsFactory().setEmail(null).create();
+    PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().create();
+    VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().create();
+    Integer bandwidth = 1000;
+    String requestMessage = "I would like to have a port.";
+
+    VirtualPortRequestLink link = new VirtualPortRequestLinkFactory().setPhysicalResourceGroup(pGroup)
+        .setVirtualResourceGroup(vGroup).setMessage(requestMessage).setMinBandwidth(bandwidth).create();
+
+    subject.sendVirtualPortRequestMail(user, link);
+
+    verify(mailSenderMock).send(messageCaptor.capture());
+
+    SimpleMailMessage message = messageCaptor.getValue();
+
+    assertThat(message.getReplyTo(), isEmptyOrNullString());
+  }
 
   @Test
   public void errorMailMessage() {
