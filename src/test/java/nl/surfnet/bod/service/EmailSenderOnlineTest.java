@@ -119,7 +119,7 @@ public class EmailSenderOnlineTest {
   
 
   @Test
-  public void virtualPortRequestNullFromAddress() {
+  public void virtualPortRequestNullReplyToAddress() {
     RichUserDetails user = new RichUserDetailsFactory().setEmail(null).create();
     PhysicalResourceGroup pGroup = new PhysicalResourceGroupFactory().create();
     VirtualResourceGroup vGroup = new VirtualResourceGroupFactory().create();
