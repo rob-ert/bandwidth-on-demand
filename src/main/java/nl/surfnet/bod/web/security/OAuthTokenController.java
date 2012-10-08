@@ -36,6 +36,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.surfnet.oaaas.model.AccessToken;
+import org.surfnet.oaaas.model.AccessTokenResponse;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
