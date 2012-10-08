@@ -159,8 +159,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
 
-    fillStartTimeIfEmpty(reservation);
+    correctStart(reservation);
     stripSecondsAndMillis(reservation);
+    alignConnectionWithReservation(reservation);
 
     logEventService.logCreateEvent(Security.getUserDetails(), reservation, "Created reservation with name: "
         + reservation.getName());
@@ -283,8 +284,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservations;
   }
 
-  private void fillStartTimeIfEmpty(Reservation reservation) {
-    if (reservation.getStartDateTime() == null) {
+  private void correctStart(Reservation reservation) {
+    if ((reservation.getStartDateTime() == null) || (reservation.getStartDateTime().isBeforeNow())) {
       reservation.setStartDateTime(DateTime.now().plusMinutes(1));
     }
   }
@@ -296,16 +297,14 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     if (reservation.getEndDateTime() != null) {
       reservation.setEndDateTime(reservation.getEndDateTime().withSecondOfMinute(0).withMillisOfSecond(0));
     }
+  }
 
+  void alignConnectionWithReservation(Reservation reservation) {
     if (reservation.isNSICreated()) {
       Connection connection = reservation.getConnection();
-      if (connection.getStartTime().isPresent()) {
-        connection.setStartTime(Optional
-            .of(connection.getStartTime().get().withSecondOfMinute(0).withMillisOfSecond(0)));
-      }
-      if (connection.getEndTime().isPresent()) {
-        connection.setEndTime(Optional.of(connection.getEndTime().get().withSecondOfMinute(0).withMillisOfSecond(0)));
-      }
+
+      connection.setStartTime(Optional.fromNullable(reservation.getStartDateTime()));
+      connection.setEndTime(Optional.fromNullable(reservation.getEndDateTime()));
     }
   }
 
@@ -368,7 +367,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(root.get(Reservation_.status).in((Object[])states));
+        return cb.and(root.get(Reservation_.status).in((Object[]) states));
       }
     };
   }
@@ -438,16 +437,17 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       }
     };
 
-    //Filter on states in filter
+    // Filter on states in filter
     Specification<Reservation> specficiation = forStatus(filter.getStates());
     if (filter.isFilterOnStatusOnly()) {
-      //Do nothing, specification is already set with states from filter
+      // Do nothing, specification is already set with states from filter
     }
     else if (filter.isFilterOnReservationEndOnly()) {
       specficiation = Specifications.where(specficiation).and(filterSpecOnEnd);
     }
     else {
-      specficiation = Specifications.where(specficiation).and(Specifications.where(filterSpecOnStart).or(filterSpecOnEnd));
+      specficiation = Specifications.where(specficiation).and(
+          Specifications.where(filterSpecOnStart).or(filterSpecOnEnd));
     }
 
     return specficiation;

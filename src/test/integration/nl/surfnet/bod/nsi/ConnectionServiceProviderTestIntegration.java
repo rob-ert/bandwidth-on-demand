@@ -58,7 +58,6 @@ import nl.surfnet.bod.support.ReserveRequestTypeFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
-import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.Security;
 
 import org.hibernate.SQLQuery;
@@ -101,6 +100,8 @@ import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertFalse;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
@@ -310,6 +311,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   public void shouldSetEndDateWhenNoneIsPresentOrBeforeStart() throws Exception {
     DateTime start = DateTime.now().plusHours(1).withSecondOfMinute(0).withMillisOfSecond(0);
     ReserveRequestType reservationRequest = createReserveRequest(Optional.of(start), Optional.<DateTime> absent());
+
     final String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
     final String reserveCorrelationId = reservationRequest.getCorrelationId();
 
@@ -332,11 +334,8 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     assertThat("StartDate is unchanged on reservation", reservation.getStartDateTime(), is(start));
     assertThat("StartDate is unchanged on connection", connection.getStartTime().get(), is(start));
 
-    assertThat("EndDate is set now with default Duration on reservation", reservation.getEndDateTime(), is(start
-        .plus(WebUtils.DEFAULT_RESERVATON_DURATION)));
-
-    assertThat("EndDate is set now with default Duration on connection", connection.getEndTime().get(), is(reservation
-        .getEndDateTime()));
+    assertThat("EndDate is still null, infinite on reservation", reservation.getEndDateTime(), nullValue());
+    assertFalse("EndDate is still null, infinite on connection", connection.getEndTime().isPresent());
   }
 
   private class DummyReservationListener implements ReservationListener {
@@ -423,14 +422,9 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
         path).create();
 
     ScheduleType scheduleType = reservationRequest.getReserve().getReservation().getServiceParameters().getSchedule();
-
-    if (start.isPresent()) {
-      scheduleType.setStartTime(ConnectionServiceProviderFunctions.getXmlTimeStampFromDateTime(start.get()).get());
-    }
-
-    if (end.isPresent()) {
-      scheduleType.setEndTime(ConnectionServiceProviderFunctions.getXmlTimeStampFromDateTime(end.get()).get());
-    }
+    scheduleType.setDuration(null);
+    scheduleType.setStartTime(ConnectionServiceProviderFunctions.getXmlTimeStampFromDateTime(start.orNull()).orNull());
+    scheduleType.setEndTime(ConnectionServiceProviderFunctions.getXmlTimeStampFromDateTime(end.orNull()).orNull());
 
     return reservationRequest;
   }

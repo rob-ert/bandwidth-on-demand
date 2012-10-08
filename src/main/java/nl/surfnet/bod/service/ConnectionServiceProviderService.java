@@ -21,11 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
-
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -37,13 +33,17 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.repo.ConnectionRepo;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
-import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
+import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
+import org.ogf.schemas.nsi._2011._10.connection.types.DetailedPathType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryDetailsResultType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QuerySummaryResultType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -55,6 +55,8 @@ import org.springframework.util.StringUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
 
 @Service
 public class ConnectionServiceProviderService {
@@ -88,25 +90,6 @@ public class ConnectionServiceProviderService {
     reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
     reservation.setBandwidth(connection.getDesiredBandwidth());
     reservation.setUserCreated(connection.getRequesterNsa());
-
-    final DateTime now = new DateTime().withSecondOfMinute(0).withMillisOfSecond(0);
-    if (reservation.getStartDateTime() != null && reservation.getStartDateTime().isBefore(now)) {
-      log.info("Reservation startdate is in past: {} setting it to now {}", reservation.getStartDateTime(), now);
-      reservation.setStartDateTime(now);
-      connection.setStartTime(Optional.of(now));
-    }
-
-    // Enddate may be null, this means a infinite reservation duration. An empty
-    // date in the xml will result in the date 1970-01-01 which will also lay
-    // before the start date
-    if (reservation.getEndDateTime() != null && reservation.getEndDateTime().isBefore(reservation.getStartDateTime())) {
-      DateTime newEndDate = reservation.getStartDateTime().plus(WebUtils.DEFAULT_RESERVATON_DURATION);
-      log.info("Reservation enddate {} is before startdate, setting it to {}", reservation.getEndDateTime(),
-          newEndDate);
-      reservation.setEndDateTime(newEndDate);
-      connection.setEndTime(Optional.of(newEndDate));
-    }
-
     reservation.setConnection(connection);
     connection.setReservation(reservation);
     reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
