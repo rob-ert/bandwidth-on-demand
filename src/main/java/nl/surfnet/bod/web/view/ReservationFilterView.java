@@ -42,7 +42,7 @@ public class ReservationFilterView {
   private final String label;
   private DateTime start;
   private DateTime end;
-  private boolean filterOnReservationEndOnly;
+  private final boolean filterOnReservationEndOnly;
   private final ReservationStatus[] states;
   private final boolean filterOnStatusOnly;
 
@@ -89,15 +89,18 @@ public class ReservationFilterView {
     if (endInPast) {
       this.end = DateTime.now();
       this.start = end.minus(period);
+      //In the past, all status must be shown, since they cannot be change anymore.
+      states = ReservationStatus.values();
     }
     else {
       this.start = DateTime.now();
       this.end = start.plus(period);
+      //For the coming period, only show states which can change in the future.
+      states = ReservationStatus.TRANSITION_STATES_AS_ARRAY;
     }
 
     filterOnReservationEndOnly = true;
     filterOnStatusOnly = false;
-    states = ReservationStatus.TRANSITION_STATES_AS_ARRAY;
   }
 
   /**
@@ -115,6 +118,7 @@ public class ReservationFilterView {
     this.label = label;
 
     filterOnStatusOnly = true;
+    filterOnReservationEndOnly = false;
     this.states = new ReservationStatus[] { status };
   }
 
