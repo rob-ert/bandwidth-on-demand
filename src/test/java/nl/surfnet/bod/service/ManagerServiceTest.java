@@ -21,7 +21,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.google.common.collect.Lists;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 
@@ -41,7 +42,7 @@ public class ManagerServiceTest {
   private ManagerService subject;
 
   @Test
-  public void testFindAllAdminGroupsForManager() {
+  public void shouldNotFindDuplicateAdminGroupForManager() {
     String adminGroupOne = "adminGroupOne";
     String adminGroupThree = "adminGroupThree";
 
@@ -58,12 +59,39 @@ public class ManagerServiceTest {
     Collection<VirtualPort> vrgOneVirtualPorts = Lists.newArrayList(vpOneVrgOne, vpTwoVrgOne);
     vrgOne.setVirtualPorts(vrgOneVirtualPorts);
 
-    when(physicalResourceGroupService.find(1L)).thenReturn(prgOne);
     when(virtualResourceGroupService.findEntriesForManager(manager.getSelectedRole())).thenReturn(
         Lists.newArrayList(vrgOne));
 
     Set<String> groupsForManager = subject.findAllAdminGroupsForManager(manager.getSelectedRole());
-    assertThat(groupsForManager, hasSize(2));
-    assertThat(groupsForManager, containsInAnyOrder(adminGroupOne, adminGroupThree));
+    assertThat(groupsForManager, hasSize(1));
+    assertThat(groupsForManager, hasItem(adminGroupOne));
   }
+  
+
+  @Test
+  public void shouldFindAdminGroupsForManager() {
+    String adminGroupOne = "adminGroupOne";
+    String adminGroupThree = "adminGroupThree";
+
+    PhysicalResourceGroup prgOne = new PhysicalResourceGroupFactory().setId(1L).setAdminGroup(adminGroupOne).create();
+    RichUserDetails manager = new RichUserDetailsFactory().addManagerRole(prgOne).create();
+
+    VirtualResourceGroup vrgThree = new VirtualResourceGroupFactory().setSurfconextGroupId(adminGroupThree).create();
+
+    // Link to physicalports with groups one and three
+    VirtualPort vpOneVrgOne = new VirtualPortFactory().setVirtualResourceGroup(vrgThree).setPhysicalPortAdminGroup(
+        adminGroupOne).create();
+    VirtualPort vpTwoVrgOne = new VirtualPortFactory().setVirtualResourceGroup(vrgThree).setPhysicalPortAdminGroup(
+        adminGroupThree).create();
+    Collection<VirtualPort> vrgOneVirtualPorts = Lists.newArrayList(vpOneVrgOne, vpTwoVrgOne);
+    vrgThree.setVirtualPorts(vrgOneVirtualPorts);
+
+    when(virtualResourceGroupService.findEntriesForManager(manager.getSelectedRole())).thenReturn(
+        Lists.newArrayList(vrgThree));
+
+    Set<String> groupsForManager = subject.findAllAdminGroupsForManager(manager.getSelectedRole());
+    assertThat(groupsForManager, hasSize(2));
+    assertThat(groupsForManager, hasItems(adminGroupOne, adminGroupThree));
+  }
+
 }
