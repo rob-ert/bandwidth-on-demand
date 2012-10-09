@@ -9,7 +9,7 @@
     <properties>
         <spring.version>3.1.2.RELEASE</spring.version>
         <slf4j.version>1.7.1</slf4j.version>
-        <jetty.version>8.1.5.v20120716</jetty.version>
+        <jetty.version>8.0.4.v20111024</jetty.version>
         <spring-security.version>3.1.2.RELEASE</spring-security.version>
         <selenium.version>2.25.0</selenium.version>
         <flyway.version>1.7</flyway.version>
