@@ -31,6 +31,7 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.FindBy;
+import org.springframework.util.StringUtils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -123,14 +124,13 @@ public class AbstractListPage extends AbstractPage {
         return row;
       }
     }
-    throw new NoSuchElementException(String.format("row with fields '%s' not found in rows: '%s'",
-        Joiner.on(',').join(fields),
-        Joiner.on(" | ").join(Iterables.transform(rows, new Function<WebElement, String>() {
-          @Override
-          public String apply(WebElement row) {
-            return row.getText();
-          }
-        }))));
+    throw new NoSuchElementException(String.format("row with fields '%s' not found in rows: '%s'", Joiner.on(',').join(
+        fields), Joiner.on(" | ").join(Iterables.transform(rows, new Function<WebElement, String>() {
+      @Override
+      public String apply(WebElement row) {
+        return row.getText();
+      }
+    }))));
   }
 
   private boolean containsAll(final WebElement row, String... fields) {
@@ -183,8 +183,10 @@ public class AbstractListPage extends AbstractPage {
   }
 
   public void search(String searchString) {
-    searchInputField.sendKeys(searchString);
-    searchButton.click();
+    if (StringUtils.hasText(searchString)) {
+      searchInputField.sendKeys(searchString);
+      searchButton.click();
+    }
   }
 
   public void verifyRowsBySearch(String searchString, String... labels) {

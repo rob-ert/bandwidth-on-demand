@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod;
 
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.support.TestExternalSupport;
 
 import org.joda.time.LocalDateTime;
@@ -58,10 +59,10 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
     getManagerDriver().createVirtualPort("Second port");
 
     getManagerDriver().switchToUser();
-    getUserDriver().createNewReservation(
-        "First reservation", LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(1).plusHours(2));
-    getUserDriver().createNewReservation(
-        "Second reservation", LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(2).plusHours(5));
+    getUserDriver().createNewReservation("First reservation", LocalDateTime.now().plusDays(1),
+        LocalDateTime.now().plusDays(1).plusHours(2));
+    getUserDriver().createNewReservation("Second reservation", LocalDateTime.now().plusDays(2),
+        LocalDateTime.now().plusDays(2).plusHours(5));
   }
 
   @Test
@@ -76,7 +77,15 @@ public class MovePhysicalPortTestSelenium extends TestExternalSupport {
 
     getNocDriver().verifyMoveResultPage(2);
 
-    getNocDriver().verifyHasReservations(4);
+    // Two reservations should appear in Active filter, since they have a
+    // transient state
+    getNocDriver().verifyReservationByFilterAndSearch(ReservationFilterViewFactory.COMING, null,
+        "First reservation", "Second reservation");
+
+    // Four reservations should appear in 2012 filter, the two new above and the
+    // two cancelled old ones.
+    getNocDriver().verifyReservationByFilterAndSearch("2012", null,
+        "First reservation", "First reservation", "Second reservation", "Second reservation");
   }
 
 }

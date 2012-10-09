@@ -180,6 +180,18 @@ public class BodNocWebDriver {
         "no right to cancel");
   }
 
+  public void verifyReservationByFilterAndSearch(String filterValue, String searchString, String... reservationLabels) {
+    ListReservationPage page = ListReservationPage.get(driver, URL_UNDER_TEST);
+
+    page.filterReservations(filterValue);
+    page.search(searchString);
+
+    int expectedAmount = reservationLabels == null ? 0 : reservationLabels.length;
+    assertThat(page.getNumberOfRows(), is(expectedAmount));
+
+    page.verifyRowsWithLabelExists(reservationLabels);
+  }
+
   public void verifyPhysicalPortHasEnabledUnallocateIcon(String nmsPortId, String label) {
     ListAllocatedPortsPage page = ListAllocatedPortsPage.get(driver, URL_UNDER_TEST);
 
