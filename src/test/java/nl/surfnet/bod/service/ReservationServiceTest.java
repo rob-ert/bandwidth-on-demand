@@ -21,18 +21,26 @@
  */
 package nl.surfnet.bod.service;
 
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+import static nl.surfnet.bod.matchers.DateMatchers.isAfterNow;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationArchive;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -59,20 +67,6 @@ import org.springframework.scheduling.annotation.AsyncResult;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-
-import static junit.framework.Assert.assertFalse;
-
-import static nl.surfnet.bod.matchers.DateMatchers.isAfterNow;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationServiceTest {
@@ -322,9 +316,21 @@ public class ReservationServiceTest {
   }
 
   @Test
+  public void startTimeInThePastShouldBeCorrected() {
+    DateTime startDateTime = DateTime.now().minusHours(2);
+    Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).create();
+
+    when(reservationRepoMock.saveAndFlush(reservation)).thenReturn(reservation);
+
+    subject.create(reservation);
+
+    assertTrue(reservation.getStartDateTime().isAfter(DateTime.now().minusSeconds(1)));
+  }
+
+  @Test
   public void startAndEndShouldBeInWholeMinutes() {
-    DateTime startDateTime = DateTime.now().withSecondOfMinute(1);
-    DateTime endDateTime = DateTime.now().withSecondOfMinute(1);
+    DateTime startDateTime = DateTime.now().plusHours(2).withSecondOfMinute(1);
+    DateTime endDateTime = DateTime.now().plusHours(2).withSecondOfMinute(1);
 
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
         .create();
