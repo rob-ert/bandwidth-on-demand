@@ -1,14 +1,13 @@
 package nl.surfnet.bod.snmp;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 import java.util.Properties;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.snmp4j.PDU;
 import org.springframework.core.io.ClassPathResource;
@@ -19,14 +18,6 @@ public class SnmpAgentTest {
   private final Properties properties = new Properties();
   private final SnmpAgent snmpAgent = new SnmpAgent();
   private final SnmpOfflineManager snmpOfflineManager = new SnmpOfflineManager();
-
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
-  }
-
-  @AfterClass
-  public static void tearDownAfterClass() throws Exception {
-  }
 
   @Before
   public void setUp() throws Exception {
@@ -57,7 +48,7 @@ public class SnmpAgentTest {
     final Object instances[] = { snmpAgent, snmpOfflineManager };
     for (final Object o : instances) {
       ReflectionTestUtils.setField(o, "community", properties.getProperty("snmp.community"));
-      ReflectionTestUtils.setField(o, "host", properties.getProperty("snmp.host"));
+      ReflectionTestUtils.setField(o, "host", "localhost/1622");
     }
   }
 

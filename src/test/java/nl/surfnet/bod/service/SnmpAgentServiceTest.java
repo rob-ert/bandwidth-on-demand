@@ -1,20 +1,18 @@
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertThat;
 
 import java.util.Properties;
 
+import nl.surfnet.bod.snmp.SnmpAgent;
+import nl.surfnet.bod.snmp.SnmpOfflineManager;
+
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import nl.surfnet.bod.snmp.SnmpAgent;
-import nl.surfnet.bod.snmp.SnmpOfflineManager;
 
 public class SnmpAgentServiceTest {
 
@@ -22,14 +20,6 @@ public class SnmpAgentServiceTest {
   private final SnmpAgentService snmpAgentService = new SnmpAgentService();
   private final SnmpAgent snmpAgent = new SnmpAgent();
   private final SnmpOfflineManager snmpOfflineManager = new SnmpOfflineManager();
-
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
-  }
-
-  @AfterClass
-  public static void tearDownAfterClass() throws Exception {
-  }
 
   @Before
   public void setUp() throws Exception {
@@ -69,7 +59,7 @@ public class SnmpAgentServiceTest {
     final Object instances[] = { snmpAgent, snmpOfflineManager };
     for (final Object o : instances) {
       ReflectionTestUtils.setField(o, "community", properties.getProperty("snmp.community"));
-      ReflectionTestUtils.setField(o, "host", properties.getProperty("snmp.host"));
+      ReflectionTestUtils.setField(o, "host", "localhost/1622");
     }
   }
 
