@@ -31,7 +31,7 @@
         </c:otherwise>
     </c:choose>
 
-    <spring:url var="url_plugin_socket" value="/resources/js/jquery/jquery-socket-1.0a.js"/>
+    <spring:url var="url_plugin_socket" value="/resources/js/jquery/jquery-socket-1.0b2.js"/>
     <spring:url var="url_plugin_autoSuggest" value="/resources/js/jquery/jquery-autoSuggest.js"/>
     <spring:url var="url_plugin_datepicker" value="/resources/js/datepicker/bootstrap-datepicker.js"/>
     <spring:url var="url_plugin_dropdownReload" value="/resources/js/jquery/dropdown-reload.js"/>
