@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.ShibbolethConstants;
 
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -122,6 +123,12 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
       httpGet.addHeader(OAuth2Helper.getBasicAuthorizationHeader(env.getResourceKey(), env.getResourceSecret()));
 
       HttpResponse response = client.execute(httpGet);
+
+      if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+        logger.warn("Could not verify access_token for NSI request");
+        httpGet.releaseConnection();
+        return null;
+      }
 
       String jsonResponse = EntityUtils.toString(response.getEntity(), Charsets.UTF_8);
       VerifyTokenResponse token = new ObjectMapper().readValue(jsonResponse, VerifyTokenResponse.class);
