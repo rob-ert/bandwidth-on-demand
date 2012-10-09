@@ -25,11 +25,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.AsyncContext;
-import javax.servlet.AsyncEvent;
-import javax.servlet.AsyncListener;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -67,14 +63,12 @@ public class LongPollServlet extends HttpServlet {
 
   private void doLongPollConnect(HttpServletRequest request, HttpServletResponse response, String transport) {
     response.setCharacterEncoding("utf-8");
-    // required by longpollxdr
-    // (http://msdn.microsoft.com/en-us/library/cc288060%28v=VS.85%29.aspx)
     response.setHeader("Access-Control-Allow-Origin", "*");
-    // longpolljsonp requires the content type to be 'text/javascript'
     response.setContentType("text/" + (transport.equals("longpolljsonp") ? "javascript" : "plain"));
 
     final String id = request.getParameter("id");
     final String count = request.getParameter("count");
+    final boolean first = "1".equals(request.getParameter("count"));
 
     AsyncContext aCtx = request.startAsync(request, response);
     aCtx.addListener(new AsyncListener() {
@@ -98,13 +92,17 @@ public class LongPollServlet extends HttpServlet {
       }
 
       private void cleanup(AsyncEvent event) {
-        if (!event.getAsyncContext().getResponse().isCommitted()) {
+        if (!first && !event.getAsyncContext().getResponse().isCommitted()) {
           connections.removeClient(id);
         }
       }
     });
 
     connections.clientRequest(id, Integer.valueOf(count), aCtx, Security.getUserDetails());
+
+    if (first) {
+      aCtx.complete();
+    }
   }
 
   @Override

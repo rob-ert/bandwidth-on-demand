@@ -27,10 +27,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.AsyncContext;
 
+import nl.surfnet.bod.web.security.RichUserDetails;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import nl.surfnet.bod.web.security.RichUserDetails;
 
 public interface EndPoint {
   void sendMessage(String message);

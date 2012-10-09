@@ -26,15 +26,15 @@ import java.util.Map;
 
 import javax.servlet.AsyncContext;
 
+import nl.surfnet.bod.web.push.EndPoint.LongPollEndPoint;
+import nl.surfnet.bod.web.security.RichUserDetails;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
-
-import nl.surfnet.bod.web.push.EndPoint.LongPollEndPoint;
-import nl.surfnet.bod.web.security.RichUserDetails;
 
 @Component
 public class EndPoints {
@@ -63,18 +63,12 @@ public class EndPoints {
 
   public void clientRequest(String id, Integer count, AsyncContext asyncContext, RichUserDetails user) {
     logger.debug("New request for client {} with count {}", id, count);
-    EndPoint connection = endPoints.containsKey(id) ? endPoints.get(id) : new LongPollEndPoint(id, user);
-    connection.setAsyncContext(asyncContext);
 
     if (count == 1) {
-      addClient(id, connection);
-      connection.sendMessage(" ");
+      addClient(id, new LongPollEndPoint(id, user));
     }
-  }
 
-  protected void addClient(String id, EndPoint connection) {
-    endPoints.put(id, connection);
-    logger.debug("Added a new client {}, total {}", id, endPoints.size());
+    endPoints.get(id).setAsyncContext(asyncContext);
   }
 
   public void removeClient(String id) {
@@ -85,5 +79,9 @@ public class EndPoints {
   public void sendHeartbeat(String id) {
     EndPoint connection = endPoints.get(id);
     connection.send("heartbeat", null);
+  }
+
+  protected void addClient(String id, EndPoint endPoint) {
+    endPoints.put(id, endPoint);
   }
 }

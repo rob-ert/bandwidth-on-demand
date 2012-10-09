@@ -21,19 +21,19 @@
  */
 package nl.surfnet.bod.web.push;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 
 import java.util.List;
 
 import javax.servlet.AsyncContext;
 
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.web.security.RichUserDetails;
+
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
-
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.web.security.RichUserDetails;
 
 public class EndPointsTest {
 
@@ -98,8 +98,5 @@ public class EndPointsTest {
     public void setAsyncContext(AsyncContext asyncContext) {
       throw new UnsupportedOperationException();
     }
-
   }
-
-
 }

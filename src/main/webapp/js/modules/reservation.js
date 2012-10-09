@@ -10,40 +10,26 @@ app.reservation = function() {
         url = table.attr('data-url');
 
         if(table.length && url) {
-
             app.loadPlugin(!$.socket, app.plugins.jquery.socket, startPushConnection);
-
         }
 
     };
 
     var startPushConnection = function() {
+        $.socket.defaults.transports = ["longpoll"];
 
-        /* dev/stub code */
-        if(url.indexOf('stub') !== -1) {
-            setTimeout(function() {
-                $.getJSON(url, processEvent);
-            }, 1000)
-            return;
-        }
-        /* dev/stub code */
-
-        $.socket(url, {
-            transports: "longpoll"
-        })
-        .open(function(){})
+        $.socket(url)
         .message(function(data) {
             processEvent(data);
-        })
-        .close(function(){});
-
+        });
+        //.connecting(function() {})
+        //.open(function() {})
+        //.close(function(reason){});
     };
 
     var processEvent = function(event) {
-
         app.message.showInfo(event.message);
         updateReservationRow(event.id, event.status);
-
     };
 
     var updateReservationRow = function(id, newStatus) {
