@@ -21,13 +21,21 @@
  */
 package nl.surfnet.bod.domain;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.validation.ConstraintViolationException;
+
+import nl.surfnet.bod.repo.InstituteRepo;
+import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,17 +46,17 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import nl.surfnet.bod.repo.InstituteRepo;
-import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml", "/spring/appCtx-nbi-client.xml",
     "/spring/appCtx-idd-client.xml" })
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class PhysicalResourceGroupDbTest {
+
+  // override bod.properties to run test and bod server at the same time
+  static {
+    System.setProperty("snmp.host", "localhost/1622");
+  }
 
   @Resource
   private PhysicalResourceGroupService physicalResourceGroupService;

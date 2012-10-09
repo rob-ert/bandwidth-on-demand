@@ -21,12 +21,18 @@
  */
 package nl.surfnet.bod.repo;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.util.Collection;
 
 import javax.annotation.Resource;
+
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Test;
@@ -40,15 +46,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml", "/spring/appCtx-nbi-client.xml",
     "/spring/appCtx-idd-client.xml" })
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class VirtualResourceGroupRepoTest {
+
+  // override bod.properties to run test and bod server at the same time
+  static {
+    System.setProperty("snmp.host", "localhost/1622");
+  }
 
   @Resource
   private VirtualResourceGroupRepo subject;
