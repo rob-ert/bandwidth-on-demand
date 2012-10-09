@@ -7,7 +7,14 @@
     <bod:env property="development" var="dev" />
     <bod:env property="googleAnalyticsCode" var="analyticsCode" />
 
-    <bod:script value="/resources/js/jquery/jquery-1.7.2.min.js" />
+    <c:choose>
+      <c:when test="${dev}">
+        <bod:script value="/resources/js/jquery/jquery-1.8.2.js" />
+      </c:when>
+      <c:otherwise>
+        <bod:script value="/resources/js/jquery/jquery-1.8.2.min.js" />
+      </c:otherwise>
+    </c:choose>
     <bod:script value="/resources/js/bootstrap/bootstrap-2.0.3.min.js" />
 
     <c:choose>
