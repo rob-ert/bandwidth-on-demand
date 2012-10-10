@@ -21,12 +21,6 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.mockito.Mockito.when;
-
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -50,10 +44,23 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
+import org.ogf.schemas.nsi._2011._10.connection.types.BandwidthType;
+import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReserveType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
+
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderTest {
@@ -73,7 +80,7 @@ public class ConnectionServiceProviderTest {
   @Mock
   private ConnectionServiceProviderService connectionServiceProviderComponent;
 
-  private String nsaProvider = "nsa:surfnet.nl";
+  private final String nsaProvider = "nsa:surfnet.nl";
 
   @Before
   public void setup() {
@@ -146,7 +153,7 @@ public class ConnectionServiceProviderTest {
     assertThat(connection.getGlobalReservationId(), is("urn:surfnet.nl:12345"));
   }
 
-  private ReserveRequestType createReservationRequestType(int desiredBandwidth, Optional<String> globalReservationId) {
+  public static ReserveRequestType createReservationRequestType(int desiredBandwidth, Optional<String> globalReservationId) {
     ServiceTerminationPointType dest = new ServiceTerminationPointType();
     dest.setStpId("urn:stp:1");
 

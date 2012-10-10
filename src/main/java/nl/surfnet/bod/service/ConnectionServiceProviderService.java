@@ -90,6 +90,7 @@ public class ConnectionServiceProviderService {
     reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
     reservation.setBandwidth(connection.getDesiredBandwidth());
     reservation.setUserCreated(connection.getRequesterNsa());
+    reservation.setUserCreated(Security.getUserDetails().getNameId());
     reservation.setConnection(connection);
     connection.setReservation(reservation);
     reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
