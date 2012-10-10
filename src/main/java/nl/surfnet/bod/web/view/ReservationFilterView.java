@@ -99,7 +99,7 @@ public class ReservationFilterView {
       states = ReservationStatus.TRANSITION_STATES_AS_ARRAY;
     }
 
-    filterOnReservationEndOnly = true;
+    filterOnReservationEndOnly = false;
     filterOnStatusOnly = false;
   }
 
