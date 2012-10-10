@@ -1,0 +1,1 @@
+ALTER TABLE bod_account DROP COLUMN access_token;

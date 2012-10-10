@@ -76,10 +76,7 @@ public class OAuthTokenController {
     AccessToken accessToken = Iterables.find(tokens, new Predicate<AccessToken>() {
       @Override
       public boolean apply(AccessToken token) {
-        if (!account.getAccessToken().isPresent()) {
-          return false;
-        }
-        return token.getToken().equals(account.getAccessToken().get());
+        return token.getClient().getClientId().equals(env.getClientClientId());
       }
     }, null);
 
@@ -128,23 +125,14 @@ public class OAuthTokenController {
     delete.releaseConnection();
 
     if (statusCode != HttpStatus.SC_NO_CONTENT) {
-      throw new RuntimeException("Expected 204 but was " + statusCode);
+      throw new RuntimeException(String.format("Expected %s but was %s", HttpStatus.SC_NO_CONTENT, statusCode));
     }
-
-    account.removeAccessToken();
-    bodAccountRepo.save(account);
 
     return "oauthResult";
   }
 
   @RequestMapping("/token")
   public String retreiveToken(Model model) throws URISyntaxException {
-    BodAccount account = bodAccountRepo.findByNameId(Security.getNameId());
-
-    if (account.getAccessToken().isPresent()) {
-      return "oauthResult";
-    }
-
     String uri = buildAuthorizeUri(
         env.getClientClientId(),
         redirectUri(),
@@ -178,15 +166,11 @@ public class OAuthTokenController {
 
   @RequestMapping(CLIENT_REDIRECT)
   public String redirect(HttpServletRequest request, Model model) {
-    AccessTokenResponse accessToken = getAccessToken(
+    getAccessToken(
         env.getClientClientId(),
         env.getClientSecret(),
         request.getParameter("code"),
         redirectUri()).get();
-
-    BodAccount account = bodAccountRepo.findByNameId(Security.getNameId());
-    account.setAccessToken(accessToken.getAccessToken());
-    bodAccountRepo.save(account);
 
     return "redirect:/oauth2/tokens";
   }
