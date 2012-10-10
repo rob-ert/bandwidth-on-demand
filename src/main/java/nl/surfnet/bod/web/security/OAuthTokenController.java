@@ -194,6 +194,8 @@ public class OAuthTokenController {
       post.addHeader(OAuth2Helper.getBasicAuthorizationHeader(clientId, secret));
       post.setEntity(entity);
 
+      logger.info("requesting access token to " + post.getURI());
+
       HttpResponse response = httpClient.execute(post);
       String responseJson = EntityUtils.toString(response.getEntity());
 
