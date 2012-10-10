@@ -84,6 +84,11 @@ public class LogEvent {
   @Field(index = Index.YES, store = Store.YES)
   @Analyzer(definition = "customanalyzer")
   @Column(nullable = true)
+  private final String domainObjectClass;
+
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
+  @Column(nullable = true)
   private final String description;
 
   @Field(index = Index.YES, store = Store.YES)
@@ -124,11 +129,12 @@ public class LogEvent {
 
     if (domainObject == null) {
       this.description = null;
+      this.domainObjectClass = null;
       this.serializedObject = null;
     }
     else {
-      this.description = new StringBuffer(domainObject.getClass().getSimpleName()).append(": ")
-          .append(domainObject.getLabel()).toString();
+      this.domainObjectClass = domainObject.getClass().getSimpleName();
+      this.description = new StringBuffer(domainObjectClass).append(": ").append(domainObject.getLabel()).toString();
       this.serializedObject = serializeObject(domainObject);
     }
   }
@@ -165,6 +171,10 @@ public class LogEvent {
 
   public String getDescription() {
     return description;
+  }
+
+  public String getDomainObjectClass() {
+    return domainObjectClass;
   }
 
   public String getSerializedObject() {
@@ -229,6 +239,11 @@ public class LogEvent {
     if (eventType != null) {
       builder.append("eventType=");
       builder.append(eventType);
+      builder.append(", ");
+    }
+    if (domainObjectClass != null) {
+      builder.append("domainObjectClass=");
+      builder.append(domainObjectClass);
       builder.append(", ");
     }
     if (description != null) {
