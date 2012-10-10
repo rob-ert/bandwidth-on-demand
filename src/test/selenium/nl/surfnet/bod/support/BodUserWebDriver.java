@@ -38,10 +38,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.junit.Assert;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
-import static junit.framework.Assert.fail;
 
 import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
 
@@ -174,13 +171,7 @@ public class BodUserWebDriver {
 
   public void verifyLogEventDoesNotExist(String... fields) {
     ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
-    try {
-      page.logEventShouldBe(DateTime.now(), fields);
-      fail(String.format("LogEvent related to [%s] exists, but should not be visable", (Object[]) fields));
-    }
-    catch (NoSuchElementException e) {
-      // as expected
-    }
+    page.verifyRowsWithLabelDoesNotExist(fields);
   }
 
   public void switchToNoc() {
@@ -247,8 +238,8 @@ public class BodUserWebDriver {
   public void verifyDashboardToComingReservationsLink(String team) {
     DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
 
-    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(team,
-        String.format("reservations/filter/coming/search?search=team:%%22%s%%22", team), "Show");
+    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(team, String.format(
+        "reservations/filter/coming/search?search=team:%%22%s%%22", team), "Show");
 
     ListReservationPage reservationPage = ListReservationPage.get(driver, URL_UNDER_TEST);
     reservationPage.filterReservations(ReservationFilterViewFactory.COMING);
@@ -259,8 +250,8 @@ public class BodUserWebDriver {
   public void verifyDashboardToElapsedReservationsLink(String team) {
     DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
 
-    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(team,
-        String.format("reservations/filter/elapsed/search?search=team:%%22%s%%22", team), "Show");
+    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(team, String.format(
+        "reservations/filter/elapsed/search?search=team:%%22%s%%22", team), "Show");
 
     ListReservationPage reservationPage = ListReservationPage.get(driver, URL_UNDER_TEST);
     reservationPage.filterReservations(ReservationFilterViewFactory.ELAPSED);
@@ -278,8 +269,8 @@ public class BodUserWebDriver {
   public void verifyDashboardToVirtualPortsLink(String team) {
     DashboardPage dashboardPage = DashboardPage.get(driver, URL_UNDER_TEST);
 
-    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(team,
-        String.format("virtualports/search?search=team:%%22%s%%22", team), "Show");
+    int numberOfItems = dashboardPage.getNumberFromRowWithLinkAndClick(team, String.format(
+        "virtualports/search?search=team:%%22%s%%22", team), "Show");
     ListVirtualPortPage vpPage = ListVirtualPortPage.get(driver, URL_UNDER_TEST);
     vpPage.verifyIsCurrentPage();
     assertThat(numberOfItems, is(vpPage.getNumberOfRows()));

@@ -194,13 +194,7 @@ public class BodManagerWebDriver {
 
   public void verifyLogEventDoesNotExist(String... fields) {
     ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
-    try {
-      page.logEventShouldBe(DateTime.now(), fields);
-      fail(String.format("LogEvent related to [%s] exists, but should not be visable", (Object[]) fields));
-    }
-    catch (NoSuchElementException e) {
-      // as expected
-    }
+    page.verifyRowsWithLabelDoesNotExist(fields);
   }
 
   public void createVirtualPort(String name) {

@@ -39,6 +39,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.Uninterruptibles;
 
+import static junit.framework.Assert.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -179,6 +180,18 @@ public class AbstractListPage extends AbstractPage {
   public void verifyRowsWithLabelExists(String... labels) {
     for (String label : labels) {
       findRow(label);
+    }
+  }
+
+  public void verifyRowsWithLabelDoesNotExist(String... labels) {
+    for (String label : labels) {
+      try {
+        findRow(label);
+        fail(String.format("Row related to [%s] exists, but should not be visible", label));
+      }
+      catch (NoSuchElementException e) {
+        // as expected
+      }
     }
   }
 

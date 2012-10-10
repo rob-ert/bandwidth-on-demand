@@ -257,10 +257,15 @@ public class BodNocWebDriver {
     assertThat(page.getNumberOfLogEvents(), is(i));
   }
 
-  public void verifyLogEventExistis(String... fields) {
+  public void verifyLogEventExists(String... fields) {
     ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
 
     page.logEventShouldBe(DateTime.now(), fields);
+  }
+
+  public void verifyLogEventDoesNotExist(String... fields) {
+    ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
+    page.verifyRowsWithLabelDoesNotExist(fields);
   }
 
   public void refreshInstitutes() {
