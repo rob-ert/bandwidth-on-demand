@@ -56,10 +56,6 @@
             <version>0.1-BODRELEASE</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.openjpa</groupId>
-                    <artifactId>openjpa</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>org.hsqldb</groupId>
                     <artifactId>hsqldb</artifactId>
                 </exclusion>
