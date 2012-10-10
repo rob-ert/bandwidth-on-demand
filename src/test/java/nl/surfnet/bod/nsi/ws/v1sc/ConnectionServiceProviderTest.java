@@ -25,15 +25,20 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import junit.framework.Assert;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.service.ConnectionServiceProviderService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.ConnectionFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.hamcrest.text.IsEmptyString;
 import org.junit.Before;
@@ -60,6 +65,7 @@ import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESE
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -82,61 +88,101 @@ public class ConnectionServiceProviderTest {
 
   private final String nsaProvider = "nsa:surfnet.nl";
 
+  private final RichUserDetails userDetails = new RichUserDetailsFactory().addUserGroup("test").create();
+
+  private final VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfconextGroupId("test").create();
+
+  private final VirtualPort sourcePort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
+
+  private final VirtualPort destinationPort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
+
+  private final Connection connection = new ConnectionFactory().setSourceStpId("Source Port").setDestinationStpId(
+      "Destination Port").setProviderNSA(nsaProvider).create();
+
+  private final NsiRequestDetails request = new NsiRequestDetails("http://localhost", "123456");
+
   @Before
   public void setup() {
     subject.addNsaProvider(nsaProvider);
-  }
-
-  @Test(expected = ServiceException.class)
-  public void shouldComplainAboutTheProviderNsa() throws ServiceException {
-    NsiRequestDetails request = new NsiRequestDetails("http://localhost", "123456");
-    Connection connection = new ConnectionFactory()
-      .setSourceStpId("Source Port").setDestinationStpId("Destination Port")
-      .setProviderNSA("non:existingh").create();
-
-    VirtualPort sourcePort = new VirtualPortFactory().create();
-    VirtualPort destinationPort = new VirtualPortFactory().setVirtualResourceGroup(sourcePort.getVirtualResourceGroup()).create();
 
     when(virtualPortServiceMock.findByNsiStpId("Source Port")).thenReturn(sourcePort);
     when(virtualPortServiceMock.findByNsiStpId("Destination Port")).thenReturn(destinationPort);
-
-    subject.reserve(connection, request);
-  }
-
-  @Test(expected = ServiceException.class)
-  public void shouldComplainAboutNonExistingPort() throws ServiceException {
-    NsiRequestDetails request = new NsiRequestDetails("http://localhost", "123456");
-    Connection connection = new ConnectionFactory()
-      .setSourceStpId("Source Port").setDestinationStpId("Destination Port")
-      .setProviderNSA(nsaProvider).create();
-
-    VirtualPort sourcePort = new VirtualPortFactory().create();
-
-    when(virtualPortServiceMock.findByNsiStpId("Source Port")).thenReturn(sourcePort);
-    when(virtualPortServiceMock.findByNsiStpId("Destination Port")).thenReturn(null);
-
-    subject.reserve(connection, request);
   }
 
   @Test
-  public void shouldMakeAReservation() throws ServiceException {
-    NsiRequestDetails request = new NsiRequestDetails("http://localhost", "123456");
-    Connection connection = new ConnectionFactory()
-      .setSourceStpId("Source Port").setDestinationStpId("Destination Port")
-      .setProviderNSA(nsaProvider).create();
+  public void shouldComplainAboutTheProviderNsa() {
+    Connection connection = new ConnectionFactory().setSourceStpId("Source Port").setDestinationStpId(
+        "Destination Port").setProviderNSA("non:existingh").create();
 
-    VirtualPort sourcePort = new VirtualPortFactory().create();
-    VirtualPort destinationPort = new VirtualPortFactory().setVirtualResourceGroup(sourcePort.getVirtualResourceGroup()).create();
+    try {
+      subject.reserve(connection, request, userDetails);
+      Assert.fail("Exception expected");
+    }
+    catch (ServiceException e) {
+      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderWs.SVC0001_INVALID_PARAM));
+    }
+  }
 
-    when(virtualPortServiceMock.findByNsiStpId("Source Port")).thenReturn(sourcePort);
-    when(virtualPortServiceMock.findByNsiStpId("Destination Port")).thenReturn(destinationPort);
+  @Test
+  public void shouldComplainAboutNonExistingPort() {
+    when(virtualPortServiceMock.findByNsiStpId("Destination Port")).thenReturn(null);
 
-    subject.reserve(connection, request);
+    try {
+      subject.reserve(connection, request, userDetails);
+      Assert.fail("Exception expected");
+    }
+    catch (ServiceException e) {
+      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderWs.SVC0001_INVALID_PARAM));
+    }
+  }
+
+  @Test
+  public void shouldCreateReservation() throws ServiceException {
+    subject.reserve(connection, request, userDetails);
+  }
+
+  @Test
+  public void shouldThrowInvalidCredentialsWhileBakingAReservationPieForSourcePort() {
+    sourcePort.getVirtualResourceGroup().setSurfconextGroupId("other");
+
+    try {
+      subject.reserve(connection, request, userDetails);
+      Assert.fail("Exception expected");
+    }
+    catch (ServiceException e) {
+      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderWs.SVC0005_INVALID_CREDENTIALS));
+    }
+  }
+
+  @Test
+  public void shouldThrowInvalidCredentialsWhileBakingAReservationPieForDestinationPort() {
+    destinationPort.getVirtualResourceGroup().setSurfconextGroupId("other");
+
+    try {
+      subject.reserve(connection, request, userDetails);
+      Assert.fail("Exception expected");
+    }
+    catch (ServiceException e) {
+      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderWs.SVC0005_INVALID_CREDENTIALS));
+    }
+  }
+
+  @Test
+  public void shouldThrowAlreadyExistsWhenNonUniqueConnectionIdIsUsed() {
+    when(connectionRepoMock.findByConnectionId(anyString())).thenReturn(new Connection());
+
+    try {
+      subject.reserve(connection, request, userDetails);
+      Assert.fail("Exception expected");
+    }
+    catch (ServiceException e) {
+      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderWs.SVC0003_ALREADY_EXISTS));
+    }
   }
 
   @Test
   public void reserveTypeWithoutGlobalReservationIdShouldGetOne() {
-    ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.<String>absent());
+    ReserveRequestType reserveRequestType = createReservationRequestType(1000, Optional.<String> absent());
 
     Connection connection = RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequestType);
 
@@ -153,7 +199,8 @@ public class ConnectionServiceProviderTest {
     assertThat(connection.getGlobalReservationId(), is("urn:surfnet.nl:12345"));
   }
 
-  public static ReserveRequestType createReservationRequestType(int desiredBandwidth, Optional<String> globalReservationId) {
+  public static ReserveRequestType createReservationRequestType(int desiredBandwidth,
+      Optional<String> globalReservationId) {
     ServiceTerminationPointType dest = new ServiceTerminationPointType();
     dest.setStpId("urn:stp:1");
 

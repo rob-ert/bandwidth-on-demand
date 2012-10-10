@@ -21,14 +21,6 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD.NOT_IMPLEMENTED;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_CONFIRMED;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_FAILED;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,14 +37,29 @@ import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.service.ConnectionServiceProviderService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
-import org.ogf.schemas.nsi._2011._10.connection._interface.*;
+import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReleaseRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
+import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ObjectFactory;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -62,13 +69,26 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.sun.xml.ws.developer.SchemaValidation;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD.NOT_IMPLEMENTED;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_CONFIRMED;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_FAILED;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
+
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
+
 @Service("connectionServiceProviderWs_v1sc")
-@WebService(serviceName = "ConnectionServiceProvider",
-    portName = "ConnectionServiceProviderPort",
-    endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort",
-    targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider")
+@WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider")
 @SchemaValidation
 public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
+
+  static final String SVC0003_ALREADY_EXISTS = "SVC0003";
+
+  static final String SVC0005_INVALID_CREDENTIALS = "SVC0005";
+
+  static final String SVC0001_INVALID_PARAM = "SVC0001";
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderWs.class);
 
@@ -88,31 +108,14 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   private ConnectionServiceProviderService connectionServiceProviderService;
 
   @Resource(name = "nsaProviderUrns")
-  private List<String> nsaProviderUrns = new ArrayList<>();
-
-  private ServiceException getInvalidParameterServiceException(final String attributeName) {
-    final ServiceExceptionType serviceExceptionType = new ServiceExceptionType();
-    serviceExceptionType.setErrorId("SVC0001");
-    serviceExceptionType.setText("Invalid or missing parameter");
-
-    final AttributeType attribute = new AttributeType();
-    attribute.setName(attributeName);
-    attribute.setNameFormat("urn:oasis:names:tc:SAML:2.0:attrname-format:basic");
-
-    final AttributeStatementType attributeStatement = new AttributeStatementType();
-    attributeStatement.getAttributeOrEncryptedAttribute().add(attribute);
-
-    serviceExceptionType.setVariables(attributeStatement);
-
-    return new ServiceException("SVC0001", serviceExceptionType);
-  }
+  private final List<String> nsaProviderUrns = new ArrayList<>();
 
   /**
    * The reservation method processes an NSI reservation request for
    * inter-domain bandwidth. Those parameters required for the request to
    * proceed to a processing actor will be validated, however, all other
    * parameters will be validated in the processing actor.
-   *
+   * 
    * @param parameters
    *          The un-marshaled JAXB object holding the NSI reservation request.
    * @return The GenericAcknowledgmentType object returning the correlationId
@@ -128,29 +131,28 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
     Connection connection = RESERVE_REQUEST_TO_CONNECTION.apply(reservationRequest);
 
-    final NsiRequestDetails requestDetails = new NsiRequestDetails(reservationRequest.getReplyTo(),
-        reservationRequest.getCorrelationId());
+    final NsiRequestDetails requestDetails = new NsiRequestDetails(reservationRequest.getReplyTo(), reservationRequest
+        .getCorrelationId());
 
-    reserve(connection, requestDetails);
+    reserve(connection, requestDetails, Security.getUserDetails());
 
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
   }
 
-  protected void reserve(Connection connection, NsiRequestDetails request) throws ServiceException {
+  protected void reserve(Connection connection, NsiRequestDetails request, RichUserDetails richUserDetails)
+      throws ServiceException {
     log.debug("Received reservation request connectionId: {}", connection.getConnectionId());
 
-    validateConnection(connection);
-    connectionServiceProviderService.reserve(connection, request, false);
+    validateConnection(connection, richUserDetails);
+    connectionServiceProviderService.reserve(connection, request, false, richUserDetails);
   }
 
-  private void validateConnection(Connection connection) throws ServiceException {
-    // TODO Validate if connection id is unique (gives db constraint exception now)
-
+  private void validateConnection(Connection connection, RichUserDetails richUserDetails) throws ServiceException {
     try {
       validateProviderNsa(connection.getProviderNsa());
       validateConnectionId(connection.getConnectionId());
-      validatePortExists(connection.getSourceStpId(), "sourceSTP");
-      validatePortExists(connection.getDestinationStpId(), "destSTP");
+      validatePort(connection.getSourceStpId(), "sourceSTP", richUserDetails);
+      validatePort(connection.getDestinationStpId(), "destSTP", richUserDetails);
     }
     catch (ServiceException e) {
       connection.setCurrentState(CLEANING);
@@ -163,27 +165,36 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     if (nsaProviderUrns.contains(providerNsa)) {
       return;
     }
-    throw getInvalidParameterServiceException("providerNSA");
+    throw createInvalidParameterServiceException("providerNSA");
   }
 
   private void validateConnectionId(String connectionId) throws ServiceException {
     if (StringUtils.hasText(connectionId)) {
-      return;
+      if (connectionRepo.findByConnectionId(connectionId) != null) {
+        throw createAlreadyExistsServiceException("connectionId");
+      }
     }
-    throw getInvalidParameterServiceException("connectionId");
+    else {
+      throw createInvalidParameterServiceException("connectionId");
+    }
   }
 
-  private void validatePortExists(String stpId, String attribute) throws ServiceException {
+  private void validatePort(String stpId, String attribute, RichUserDetails user) throws ServiceException {
     final VirtualPort port = virtualPortService.findByNsiStpId(stpId);
+
     if (port == null) {
-      throw getInvalidParameterServiceException(attribute);
+      throw createInvalidParameterServiceException(attribute);
+    }
+
+    if (!user.getUserGroupIds().contains(port.getVirtualResourceGroup().getSurfconextGroupId())) {
+      throw createInvalidOrMissingUserCredentialsException(attribute);
     }
   }
 
   @Override
   public void reserveConfirmed(Connection connection, NsiRequestDetails requestDetails) {
-    log.debug("Sending a reserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(),
-      connection.getGlobalReservationId());
+    log.debug("Sending a reserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
+        .getGlobalReservationId());
 
     connection.setCurrentState(ConnectionStateType.RESERVED);
     connectionRepo.save(connection);
@@ -211,9 +222,10 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   }
 
   @Override
-  public void reserveFailed(final Connection connection, final NsiRequestDetails requestDetails, Optional<String> failedReason) {
-    log.debug("Sending a reserveFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(),
-        connection.getGlobalReservationId());
+  public void reserveFailed(final Connection connection, final NsiRequestDetails requestDetails,
+      Optional<String> failedReason) {
+    log.debug("Sending a reserveFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
+        .getGlobalReservationId());
 
     // skipping the states cleaning and terminating...
     // TODO [AvD] Or do we need to send a Terminate Confirmed?
@@ -247,7 +259,8 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     final Connection connection = getConnectionOrFail(connectionId);
     validateProviderNsa(parameters.getProvision().getProviderNSA());
 
-    final NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
+    final NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters
+        .getCorrelationId());
     connectionServiceProviderService.provision(connection.getId(), requestDetails);
 
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
@@ -258,8 +271,8 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     connection.setCurrentState(ConnectionStateType.SCHEDULED);
     connectionRepo.save(connection);
 
-    log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(),
-        connection.getGlobalReservationId());
+    log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
+        .getGlobalReservationId());
 
     final GenericFailedType generic = new GenericFailedType();
     generic.setProviderNSA(connection.getProviderNsa());
@@ -282,8 +295,8 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     connection.setCurrentState(ConnectionStateType.PROVISIONED);
     connectionRepo.save(connection);
 
-    log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(),
-        connection.getGlobalReservationId());
+    log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
+        .getGlobalReservationId());
 
     final GenericConfirmedType genericConfirm = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
 
@@ -311,7 +324,8 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     validateProviderNsa(parameters.getTerminate().getProviderNSA());
 
     NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
-    connectionServiceProviderService.terminate(connection.getId(), parameters.getTerminate().getRequesterNSA(), requestDetails);
+    connectionServiceProviderService.terminate(connection.getId(), parameters.getTerminate().getRequesterNSA(),
+        requestDetails);
 
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
   }
@@ -365,11 +379,12 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     QueryOperationType operation = parameters.getQuery().getOperation();
 
     if (connectionIds.isEmpty() && globalReservationIds.isEmpty()) {
-      connectionServiceProviderService.asyncQueryAllForRequesterNsa(
-          requestDetails, parameters.getQuery().getRequesterNSA(), operation);
+      connectionServiceProviderService.asyncQueryAllForRequesterNsa(requestDetails, parameters.getQuery()
+          .getRequesterNSA(), operation);
     }
     else {
-      connectionServiceProviderService.asyncQueryConnections(requestDetails, connectionIds, globalReservationIds, operation);
+      connectionServiceProviderService.asyncQueryConnections(requestDetails, connectionIds, globalReservationIds,
+          operation);
     }
 
     return createGenericAcknowledgment(parameters.getCorrelationId());
@@ -392,10 +407,40 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     this.nsaProviderUrns.add(provider);
   }
 
+  private ServiceException createInvalidParameterServiceException(final String attributeName) {
+    return createServiceException(attributeName, SVC0001_INVALID_PARAM, "Invalid or missing parameter");
+  }
+
+  private ServiceException createInvalidOrMissingUserCredentialsException(final String attributeName) {
+    return createServiceException(attributeName, SVC0005_INVALID_CREDENTIALS, "Invalid or missing user credentials");
+  }
+
+  private ServiceException createAlreadyExistsServiceException(String attributeName) {
+    return createServiceException(attributeName, SVC0003_ALREADY_EXISTS, "Schedule already exists for connectionId");
+  }
+
+  private ServiceException createServiceException(final String attributeName, final String errorCode,
+      final String errorMessage) {
+    final ServiceExceptionType serviceExceptionType = new ServiceExceptionType();
+    serviceExceptionType.setErrorId(errorCode);
+    serviceExceptionType.setText(errorMessage);
+
+    final AttributeType attribute = new AttributeType();
+    attribute.setName(attributeName);
+    attribute.setNameFormat("urn:oasis:names:tc:SAML:2.0:attrname-format:basic");
+
+    final AttributeStatementType attributeStatement = new AttributeStatementType();
+    attributeStatement.getAttributeOrEncryptedAttribute().add(attribute);
+
+    serviceExceptionType.setVariables(attributeStatement);
+
+    return new ServiceException(errorCode, serviceExceptionType);
+  }
+
   private Connection getConnectionOrFail(String connectionId) throws ServiceException {
     final Connection connection = connectionRepo.findByConnectionId(connectionId);
     if (connection == null) {
-      throw getInvalidParameterServiceException("connectionId");
+      throw createInvalidParameterServiceException("connectionId");
     }
     return connection;
   }
@@ -409,8 +454,11 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   static {
     // Don't show full stack trace in soap result if an exception occurs
     System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
-//    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
-//    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
-//    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
+    // System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump",
+    // "true");
+    // System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump",
+    // "true");
+    // System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump",
+    // "true");
   }
 }

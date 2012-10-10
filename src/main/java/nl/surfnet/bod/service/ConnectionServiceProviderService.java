@@ -33,6 +33,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.repo.ConnectionRepo;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
@@ -73,7 +74,8 @@ public class ConnectionServiceProviderService {
   private VirtualPortService virtualPortService;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void reserve(Connection connection, NsiRequestDetails requestDetails, boolean autoProvision) {
+  public void reserve(Connection connection, NsiRequestDetails requestDetails, boolean autoProvision,
+      RichUserDetails userDetails) {
     connection.setCurrentState(ConnectionStateType.RESERVING);
     connection = connectionRepo.saveAndFlush(connection);
 
@@ -90,7 +92,7 @@ public class ConnectionServiceProviderService {
     reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
     reservation.setBandwidth(connection.getDesiredBandwidth());
     reservation.setUserCreated(connection.getRequesterNsa());
-    reservation.setUserCreated(Security.getUserDetails().getNameId());
+    reservation.setUserCreated(userDetails.getNameId());
     reservation.setConnection(connection);
     connection.setReservation(reservation);
     reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
@@ -121,11 +123,8 @@ public class ConnectionServiceProviderService {
     Connection connection = connectionRepo.findOne(connectionId);
     connection.setCurrentState(ConnectionStateType.TERMINATING);
 
-    reservationService.cancelWithReason(
-        connection.getReservation(),
-        "Terminate request by NSI",
-        Security.getUserDetails(),
-        Optional.of(requestDetails));
+    reservationService.cancelWithReason(connection.getReservation(), "Terminate request by NSI", Security
+        .getUserDetails(), Optional.of(requestDetails));
   }
 
   @Async

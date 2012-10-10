@@ -57,7 +57,7 @@ public class ConnectionServiceProviderServiceTest {
     when(virtualPortServiceMock.findByNsiStpId(anyString())).thenReturn(new VirtualPortFactory().create());
     when(connectionRepoMock.saveAndFlush(any(Connection.class))).thenReturn(connection);
 
-    subject.reserve(connection, nsiRequestDetails, true);
+    subject.reserve(connection, nsiRequestDetails, true, userDetails);
 
     assertThat(connection.getReservation().getUserCreated(), is("me"));
   }
