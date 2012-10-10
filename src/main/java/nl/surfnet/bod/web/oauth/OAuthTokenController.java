@@ -1,8 +1,9 @@
-package nl.surfnet.bod.web.security;
+package nl.surfnet.bod.web.oauth;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -11,9 +12,12 @@ import javax.servlet.http.HttpServletRequest;
 import nl.surfnet.bod.domain.BodAccount;
 import nl.surfnet.bod.repo.BodAccountRepo;
 import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.web.security.Security;
 
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -36,8 +40,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.surfnet.oaaas.model.AccessToken;
-import org.surfnet.oaaas.model.AccessTokenResponse;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -100,6 +102,14 @@ public class OAuthTokenController {
     httpGet.addHeader(OAuth2Helper.getOauthAuthorizationHeader(account.getAuthorizationServerAccessToken().get()));
 
     HttpResponse tokensResponse = httpClient.execute(httpGet);
+    StatusLine statusLine = tokensResponse.getStatusLine();
+
+    if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+      logger.warn(String.format("Could not retreive access tokens from the auth server: %s - %s", statusLine.getStatusCode(), statusLine.getReasonPhrase()));
+      httpGet.releaseConnection();
+      return Collections.emptyList();
+    }
+
     String json = EntityUtils.toString(tokensResponse.getEntity());
 
     return new ObjectMapper().readValue(json, new TypeReference<List<AccessToken>>() { });
@@ -117,7 +127,7 @@ public class OAuthTokenController {
     int statusCode = response.getStatusLine().getStatusCode();
     delete.releaseConnection();
 
-    if (statusCode != 204) {
+    if (statusCode != HttpStatus.SC_NO_CONTENT) {
       throw new RuntimeException("Expected 204 but was " + statusCode);
     }
 
@@ -126,7 +136,6 @@ public class OAuthTokenController {
 
     return "oauthResult";
   }
-
 
   @RequestMapping("/token")
   public String retreiveToken(Model model) throws URISyntaxException {

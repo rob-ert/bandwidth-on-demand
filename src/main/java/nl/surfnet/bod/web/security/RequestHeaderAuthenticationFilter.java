@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.ShibbolethConstants;
+import nl.surfnet.bod.web.oauth.OAuth2Helper;
+import nl.surfnet.bod.web.oauth.VerifyTokenResponse;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.HttpResponse;
@@ -42,7 +44,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
-import org.surfnet.oaaas.model.VerifyTokenResponse;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
