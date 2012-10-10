@@ -103,7 +103,9 @@ public class LogEventServiceTest {
       assertThat(logEvent.getAdminGroup(), is(vrg.getAdminGroup()));
       assertThat(logEvent.getEventTypeWithCorrelationId(), is("Create"));
 
-      assertThat(logEvent.getDescription(), is(vrg.getClass().getSimpleName().concat(": ").concat(vrg.getLabel())));
+      String className = vrg.getClass().getSimpleName();
+      assertThat(logEvent.getDomainObjectClass(), is(className));
+      assertThat(logEvent.getDescription(), is(className.concat(": ").concat(vrg.getLabel())));
       assertThat(logEvent.getDetails(), is(LOG_DETAILS));
 
       assertThat(logEvent.getSerializedObject(), is(vrg.toString()));
@@ -126,8 +128,8 @@ public class LogEventServiceTest {
 
   @Test
   public void shouldPersistEventForReservation() {
-    LogEvent logEvent = new LogEvent(user.getUsername(), GROUP_ID, LogEventType.UPDATE,
-        new ReservationFactory().create());
+    LogEvent logEvent = new LogEvent(user.getUsername(), GROUP_ID, LogEventType.UPDATE, new ReservationFactory()
+        .create());
 
     subject.handleEvent(logMock, logEvent);
 
@@ -137,8 +139,8 @@ public class LogEventServiceTest {
 
   @Test
   public void shouldPersistEventForListOfReservation() {
-    List<Reservation> reservations = Lists.newArrayList(new ReservationFactory().create(),
-        new ReservationFactory().create());
+    List<Reservation> reservations = Lists.newArrayList(new ReservationFactory().create(), new ReservationFactory()
+        .create());
 
     subject.logUpdateEvent(userMock, reservations, "details");
 
@@ -240,7 +242,7 @@ public class LogEventServiceTest {
 
   @Test
   public void findByAdminGroupWithNoGroupsShoulBeEmpty() {
-    List<LogEvent> groups = subject.findByAdminGroups(Collections.<String>emptyList(), 1, 100, new Sort("userId"));
+    List<LogEvent> groups = subject.findByAdminGroups(Collections.<String> emptyList(), 1, 100, new Sort("userId"));
 
     assertThat(groups.isEmpty(), is(true));
     verifyZeroInteractions(logEventRepoMock);
@@ -248,7 +250,7 @@ public class LogEventServiceTest {
 
   @Test
   public void countByAdminGroupsWithNoGroupsShouldBeZero() {
-    long groupCount = subject.countByAdminGroups(Collections.<String>emptyList());
+    long groupCount = subject.countByAdminGroups(Collections.<String> emptyList());
 
     assertThat(groupCount, is(0L));
     verifyZeroInteractions(logEventRepoMock);
