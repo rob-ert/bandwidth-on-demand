@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.ShibbolethConstants;
+import nl.surfnet.bod.web.oauth.AuthenticatedPrincipal;
 import nl.surfnet.bod.web.oauth.OAuth2Helper;
 import nl.surfnet.bod.web.oauth.VerifyTokenResponse;
 
@@ -133,10 +134,11 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
 
       String jsonResponse = EntityUtils.toString(response.getEntity(), Charsets.UTF_8);
       VerifyTokenResponse token = new ObjectMapper().readValue(jsonResponse, VerifyTokenResponse.class);
+      AuthenticatedPrincipal principal = token.getPrincipal();
 
-      logger.debug("Found principal with name-id {}", token.getPrincipal().getName());
+      logger.debug("Found principal {}", principal);
 
-      return new RichPrincipal(token.getPrincipal().getName(), "dummy", "dummy@dummy.nl");
+      return new RichPrincipal(principal.getName(), principal.getAttributes().get("displayName"), principal.getAttributes().get("email"));
     }
     catch (URISyntaxException | IOException e) {
       logger.error("Could not verify the accessToken for nsi request", e);

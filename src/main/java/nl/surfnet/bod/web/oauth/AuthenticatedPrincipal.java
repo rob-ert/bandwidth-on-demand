@@ -4,17 +4,19 @@ import java.security.Principal;
 import java.util.Collection;
 import java.util.Map;
 
+import com.google.common.base.Objects;
+
 public class AuthenticatedPrincipal implements Principal {
 
   private String name;
   private Collection<String> roles;
-  private Map<String, Object> attributes;
+  private Map<String, String> attributes;
 
   public Collection<String> getRoles() {
     return roles;
   }
 
-  public Map<String, Object> getAttributes() {
+  public Map<String, String> getAttributes() {
     return attributes;
   }
 
@@ -31,13 +33,13 @@ public class AuthenticatedPrincipal implements Principal {
     this.roles = roles;
   }
 
-  public void setAttributes(Map<String, Object> attributes) {
+  public void setAttributes(Map<String, String> attributes) {
     this.attributes = attributes;
   }
 
   @Override
   public String toString() {
-    return "AuthenticatedPrincipalImpl [name=" + name + ", roles=" + roles + ", attributes=" + attributes + "]";
+    return Objects.toStringHelper(this).add("name", name).add("roles", roles).add("attributes", attributes).toString();
   }
 
 }
