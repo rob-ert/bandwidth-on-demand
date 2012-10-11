@@ -28,37 +28,31 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+
 import javax.servlet.http.HttpServletRequest;
 
-import nl.surfnet.bod.support.MockHttpServer;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.ShibbolethConstants;
+import nl.surfnet.bod.web.oauth.AuthenticatedPrincipal;
+import nl.surfnet.bod.web.oauth.OAuthServerService;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.core.io.ByteArrayResource;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+import com.google.common.base.Optional;
+
+@RunWith(MockitoJUnitRunner.class)
 public class RequestHeaderAuthenticationFilterTest {
 
-  private RequestHeaderAuthenticationFilter subject = new RequestHeaderAuthenticationFilter();
-  private static MockHttpServer mockOAuthServer;
-  private static int port = 8088;
+  @InjectMocks
+  private RequestHeaderAuthenticationFilter subject;
 
-  private static String oAuthKey = "bod-client";
-  private static String oAuthSecret = "secret";
-
-  @BeforeClass
-  public static void initAndStartServer() throws Exception {
-    mockOAuthServer = new MockHttpServer(port);
-    mockOAuthServer.withBasicAuthentication(oAuthKey, oAuthSecret);
-    mockOAuthServer.startServer();
-  }
-
-  @AfterClass
-  public static void stopServer() throws Exception {
-    mockOAuthServer.stopServer();
-  }
+  @Mock
+  private OAuthServerService oAuthServerServiceMock;
 
   @Test
   public void noShibbolethHeadersSetAndNotImitatingShouldGiveNull() {
@@ -152,11 +146,14 @@ public class RequestHeaderAuthenticationFilterTest {
   public void shouldFindPrincipalFromOAuthHeader() {
     String nameId = "urn:nl:surfguest:henk";
     String token = "1234-1234-abc";
+
     HttpServletRequest requestMock = getOAuth2RequestMock();
     when(requestMock.getHeader("Authorization")).thenReturn("bearer ".concat(token));
 
-    subject.setEnvironment(getOAuthEnvironment(oAuthKey, oAuthSecret));
-    mockAccessTokenResponse(token, nameId);
+    AuthenticatedPrincipal oAuthPrincipal = new AuthenticatedPrincipal();
+    oAuthPrincipal.setName(nameId);
+    oAuthPrincipal.setAttributes(Collections.<String, String>emptyMap());
+    when(oAuthServerServiceMock.getAuthenticatedPrincipal(token)).thenReturn(Optional.of(oAuthPrincipal));
 
     Object principal = subject.getPreAuthenticatedPrincipal(requestMock);
 
@@ -169,30 +166,11 @@ public class RequestHeaderAuthenticationFilterTest {
     HttpServletRequest requestMock = getOAuth2RequestMock();
     when(requestMock.getHeader("Authorization")).thenReturn("bearer ".concat(token));
 
-    subject.setEnvironment(getOAuthEnvironment(oAuthKey, "WrongSecret"));
-    mockAccessTokenResponse(token, "urn:truus");
+    when(oAuthServerServiceMock.getAuthenticatedPrincipal(token)).thenReturn(Optional.<AuthenticatedPrincipal>absent());
 
     Object principal = subject.getPreAuthenticatedPrincipal(requestMock);
 
     assertThat(principal, nullValue());
-  }
-
-  private void mockAccessTokenResponse(String token, String nameId) {
-    String jsonResponse = getAccessTokenJson(nameId);
-    mockOAuthServer.addResponse("/v1/tokeninfo", new ByteArrayResource(jsonResponse.getBytes()));
-  }
-
-  private String getAccessTokenJson(String nameId) {
-    return "{\"audience\":\"\",\"scopes\":[],\"principal\":{\"name\":\""+nameId+"\",\"roles\":[],\"attributes\":{}},\"expires_in\":0}";
-  }
-
-  private Environment getOAuthEnvironment(String key, String secret) {
-    Environment environment = new Environment();
-    environment.setOauthServerUrl("http://localhost:" + port);
-    environment.setResourceKey(oAuthKey);
-    environment.setResourceSecret(secret);
-
-    return environment;
   }
 
   private HttpServletRequest getNonOAuth2RequestMock() {

@@ -23,31 +23,21 @@ package nl.surfnet.bod.web.security;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.ShibbolethConstants;
 import nl.surfnet.bod.web.oauth.AuthenticatedPrincipal;
-import nl.surfnet.bod.web.oauth.OAuth2Helper;
-import nl.surfnet.bod.web.oauth.VerifyTokenResponse;
+import nl.surfnet.bod.web.oauth.OAuthServerService;
 
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 
 public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
 
@@ -79,6 +69,9 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
 
   @Resource
   private Environment env;
+
+  @Resource
+  private OAuthServerService oAuthServerService;
 
   @Override
   protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
@@ -115,35 +108,17 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
       return null;
     }
 
-    try {
-      String accessToken = authorizationHeader.split(" ")[1];
-      String uri = new URIBuilder(env.getOauthServerUrl().concat("/v1/tokeninfo"))
-        .addParameter("access_token", accessToken).build().toASCIIString();
+    String accessToken = authorizationHeader.split(" ")[1];
 
-      DefaultHttpClient client = new DefaultHttpClient();
-      HttpGet httpGet = new HttpGet(uri);
-      httpGet.addHeader(OAuth2Helper.getBasicAuthorizationHeader(env.getResourceKey(), env.getResourceSecret()));
+    Optional<AuthenticatedPrincipal> principal = oAuthServerService.getAuthenticatedPrincipal(accessToken);
+    logger.debug("Found principal {}", principal);
 
-      HttpResponse response = client.execute(httpGet);
-
-      if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-        logger.warn("Could not verify access_token for NSI request");
-        httpGet.releaseConnection();
-        return null;
-      }
-
-      String jsonResponse = EntityUtils.toString(response.getEntity(), Charsets.UTF_8);
-      VerifyTokenResponse token = new ObjectMapper().readValue(jsonResponse, VerifyTokenResponse.class);
-      AuthenticatedPrincipal principal = token.getPrincipal();
-
-      logger.debug("Found principal {}", principal);
-
-      return new RichPrincipal(principal.getName(), principal.getAttributes().get("displayName"), principal.getAttributes().get("email"));
-    }
-    catch (URISyntaxException | IOException e) {
-      logger.error("Could not verify the accessToken for nsi request", e);
-      return null;
-    }
+    return principal.transform(new Function<AuthenticatedPrincipal, RichPrincipal>() {
+        @Override
+        public RichPrincipal apply(AuthenticatedPrincipal ap) {
+          return new RichPrincipal(ap.getName(), ap.getAttributes().get("displayName"), ap.getAttributes().get("email"));
+        }
+    }).orNull();
   }
 
   private String getRequestHeaderOrImitate(
