@@ -21,14 +21,22 @@
  */
 package nl.surfnet.bod.web;
 
-import javax.annotation.Resource;
+import java.io.IOException;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
+import javax.annotation.Resource;
 
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.util.Environment;
+
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class HealthCheckController {
@@ -38,6 +46,9 @@ public class HealthCheckController {
 
   @Resource
   private NbiClient nbiClient;
+
+  @Resource
+  private Environment env;
 
   @RequestMapping(value = "/healthcheck")
   public String index(Model model) {
@@ -56,8 +67,20 @@ public class HealthCheckController {
       }
     });
 
+    boolean oAuthHealth = isServiceHealty(new ServiceCheck() {
+      @Override
+      public boolean healty() throws ClientProtocolException, IOException {
+        DefaultHttpClient client = new DefaultHttpClient();
+        HttpGet httpGet = new HttpGet(env.getOauthServerUrl() + "/admin");
+        HttpResponse response = client.execute(httpGet);
+        httpGet.releaseConnection();
+        return response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN;
+      }
+    });
+
     model.addAttribute("iddHealth", iddHealth);
     model.addAttribute("nbiHealth", nbiHealth);
+    model.addAttribute("oAuthServer", oAuthHealth);
 
     return "healthcheck";
   }
@@ -72,6 +95,6 @@ public class HealthCheckController {
   }
 
   interface ServiceCheck {
-    boolean healty();
+    boolean healty() throws Exception;
   }
 }

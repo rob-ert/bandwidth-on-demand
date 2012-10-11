@@ -23,17 +23,24 @@
         <dl class="dl-horizontal">
             <dt>Version</dt>
             <dd>${version}</dd>
-            <dt>IDD status</dt>
+            <dt>IDD</dt>
             <dd>
                 <c:choose>
                     <c:when test="${iddHealth}"><i class="icon-ok-sign"><!--  --></i></c:when>
                     <c:otherwise><i class="icon-remove-sign"><!--  --></i></c:otherwise>
                 </c:choose>
             </dd>
-            <dt>NBI status</dt>
+            <dt>NBI / OpenDRAC</dt>
             <dd>
                 <c:choose>
                     <c:when test="${nbiHealth}"><i class="icon-ok-sign"><!--  --></i></c:when>
+                    <c:otherwise><i class="icon-remove-sign"><!--  --></i></c:otherwise>
+                </c:choose>
+            </dd>
+            <dt>OAuth Server</dt>
+            <dd>
+                <c:choose>
+                    <c:when test="${oAuthServer}"><i class="icon-ok-sign"><!--  --></i></c:when>
                     <c:otherwise><i class="icon-remove-sign"><!--  --></i></c:otherwise>
                 </c:choose>
             </dd>
