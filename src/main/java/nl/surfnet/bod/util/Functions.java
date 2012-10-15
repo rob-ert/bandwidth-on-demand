@@ -62,26 +62,29 @@ public final class Functions {
     }
   };
 
-  public static final Function<UserGroup, UserGroupView> FROM_USER_GROUP_TO_USER_GROUP_VIEW = new Function<UserGroup, UserGroupView>() {
-    @Override
-    public UserGroupView apply(UserGroup group) {
-      return new UserGroupView(group);
-    }
-  };
+  public static final Function<UserGroup, UserGroupView> FROM_USER_GROUP_TO_USER_GROUP_VIEW =
+      new Function<UserGroup, UserGroupView>() {
+        @Override
+        public UserGroupView apply(UserGroup group) {
+          return new UserGroupView(group);
+        }
+      };
 
-  public static final Function<VirtualResourceGroup, UserGroupView> FROM_VRG_TO_USER_GROUP_VIEW = new Function<VirtualResourceGroup, UserGroupView>() {
-    @Override
-    public UserGroupView apply(VirtualResourceGroup group) {
-      return new UserGroupView(group);
-    }
-  };
+  public static final Function<VirtualResourceGroup, UserGroupView> FROM_VRG_TO_USER_GROUP_VIEW =
+      new Function<VirtualResourceGroup, UserGroupView>() {
+        @Override
+        public UserGroupView apply(VirtualResourceGroup group) {
+          return new UserGroupView(group);
+        }
+      };
 
-  public static final Function<VirtualPort, VirtualPortView> FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW = new Function<VirtualPort, VirtualPortView>() {
-    @Override
-    public VirtualPortView apply(VirtualPort port) {
-      return new VirtualPortView(port);
-    }
-  };
+  public static final Function<VirtualPort, VirtualPortView> FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW =
+      new Function<VirtualPort, VirtualPortView>() {
+        @Override
+        public VirtualPortView apply(VirtualPort port) {
+          return new VirtualPortView(port);
+        }
+      };
 
   private Functions() {
   }

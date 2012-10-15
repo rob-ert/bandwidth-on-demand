@@ -21,6 +21,10 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -33,14 +37,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalPort_;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPort_;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
@@ -59,23 +56,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
-
 @Service
 @Transactional
 public class VirtualResourceGroupService extends
     AbstractFullTextSearchService<VirtualResourceGroupView, VirtualResourceGroup> {
-
-  @Resource
-  private VirtualResourceGroupRepo virtualResourceGroupRepo;
-
-  @Resource
-  private LogEventService logEventService;
-
-  @PersistenceContext
-  private EntityManager entityManager;
 
   private static final Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView> TO_MANAGER_VIEW = new Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView>() {
     @Override
@@ -99,6 +83,16 @@ public class VirtualResourceGroupService extends
       return new VirtualResourceGroupView(input, input.getVirtualPortCount());
     }
   };
+
+  @Resource
+  private VirtualResourceGroupRepo virtualResourceGroupRepo;
+
+  @Resource
+  private LogEventService logEventService;
+
+  @PersistenceContext
+  private EntityManager entityManager;
+
 
   public long count() {
     return virtualResourceGroupRepo.count();

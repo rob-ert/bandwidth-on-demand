@@ -44,7 +44,8 @@ public enum ReservationStatus {
    */
   public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, RESERVED, SCHEDULED, RUNNING, PREPARING);
 
-  public static final ReservationStatus[] TRANSITION_STATES_AS_ARRAY = TRANSITION_STATES.toArray(new ReservationStatus[TRANSITION_STATES.size()]);
+  public static final ReservationStatus[] TRANSITION_STATES_AS_ARRAY =
+      TRANSITION_STATES.toArray(new ReservationStatus[TRANSITION_STATES.size()]);
 
   /**
    * @return true if the reservationStatus is an endState, meaning no further

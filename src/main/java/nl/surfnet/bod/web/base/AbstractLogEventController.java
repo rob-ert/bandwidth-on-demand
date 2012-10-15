@@ -45,14 +45,16 @@ import com.google.common.collect.Lists;
 
 public abstract class AbstractLogEventController extends AbstractSearchableSortableListController<LogEvent, LogEvent> {
   public static final String PAGE_URL = "logevents";
+
   static final String MODEL_KEY = "list";
+
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Resource
-  private VirtualResourceGroupService virtualResourceGroupService;
+  protected LogEventService logEventService;
 
   @Resource
-  protected LogEventService logEventService;
+  private VirtualResourceGroupService virtualResourceGroupService;
 
   @Override
   protected String getDefaultSortProperty() {

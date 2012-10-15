@@ -21,7 +21,6 @@
  */
 package nl.surfnet.bod.web;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collection;
 
@@ -36,7 +35,6 @@ import nl.surfnet.bod.service.OAuthServerService;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.Security;
 
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.utils.URIBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -65,7 +63,7 @@ public class OAuthTokenController {
   private OAuthServerService oAuthServerService;
 
   @RequestMapping("/tokens")
-  public String index(Model model) throws ClientProtocolException, IOException, URISyntaxException {
+  public String index(Model model) throws URISyntaxException {
     final BodAccount account = bodAccountRepo.findByNameId(Security.getNameId());
 
     if (!account.getAuthorizationServerAccessToken().isPresent()) {
@@ -116,7 +114,7 @@ public class OAuthTokenController {
   }
 
   @RequestMapping(ADMIN_REDIRECT)
-  public String authRedirect(HttpServletRequest request, Model model) throws ClientProtocolException, IOException {
+  public String authRedirect(HttpServletRequest request, Model model) {
     AccessTokenResponse tokenResponse = oAuthServerService.getAdminAccessToken(
         request.getParameter("code"),
         adminRedirectUri()).get();

@@ -66,9 +66,9 @@ import com.google.common.collect.Lists;
 @Service
 public class OAuthServerService {
 
-  private final Logger logger = LoggerFactory.getLogger(OAuthServerService.class);
+  private static final String URL_ADMIN_ACCESS_TOKEN = "/admin/accessToken/";
 
-  private final static String URL_ADMIN_ACCESS_TOKEN = "/admin/accessToken/";
+  private final Logger logger = LoggerFactory.getLogger(OAuthServerService.class);
 
   @Resource
   private Environment env;
@@ -93,7 +93,8 @@ public class OAuthServerService {
     catch (IOException e) {
       logger.error("Could not verify access token", e);
       return Optional.absent();
-    } finally {
+    }
+    finally {
       httpGet.releaseConnection();
     }
   }
@@ -119,11 +120,15 @@ public class OAuthServerService {
       StatusLine statusLine = tokensResponse.getStatusLine();
 
       if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-        logger.warn(String.format("Could not retreive access tokens from the auth server: %s - %s", statusLine.getStatusCode(), statusLine.getReasonPhrase()));
+        logger.warn(String.format(
+            "Could not retreive access tokens from the auth server: %s - %s",
+            statusLine.getStatusCode(), statusLine.getReasonPhrase()));
         return Collections.emptyList();
       }
 
-      List<AccessToken> tokens = new ObjectMapper().readValue(EntityUtils.toString(tokensResponse.getEntity()), new TypeReference<List<AccessToken>>() { });
+      List<AccessToken> tokens = new ObjectMapper().readValue(
+          EntityUtils.toString(tokensResponse.getEntity()),
+          new TypeReference<List<AccessToken>>() { });
 
       return Collections2.filter(tokens, new Predicate<AccessToken>() {
         @Override
@@ -131,10 +136,12 @@ public class OAuthServerService {
           return token.getClient().getClientId().equals(env.getClientClientId());
         }
       });
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       logger.error("Could not get access tokens for " + account.getNameId(), e);
       return Collections.emptyList();
-    } finally {
+    }
+    finally {
       httpGet.releaseConnection();
     }
   }
@@ -157,9 +164,11 @@ public class OAuthServerService {
       return true;
     }
     catch (IOException e) {
-      delete.releaseConnection();
       logger.error("Could not delete access token", e);
       return false;
+    }
+    finally {
+      delete.releaseConnection();
     }
   }
 
@@ -189,15 +198,16 @@ public class OAuthServerService {
       String responseJson = EntityUtils.toString(response.getEntity());
 
       return Optional.of(new ObjectMapper().readValue(responseJson, AccessTokenResponse.class));
-    } catch(Exception e) {
+    }
+    catch (Exception e) {
       post.releaseConnection();
       logger.error("Could not retreive access token", e);
       return Optional.absent();
     }
   }
 
-  protected void setEnvironment(Environment env) {
-    this.env = env;
+  protected void setEnvironment(Environment environment) {
+    this.env = environment;
   }
 
   private Header getBasicAuthorizationHeader(String user, String password) {
