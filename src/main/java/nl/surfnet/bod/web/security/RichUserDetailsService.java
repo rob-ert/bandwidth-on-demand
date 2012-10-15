@@ -48,7 +48,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
-public class RichUserDetailsService implements AuthenticationUserDetailsService {
+public class RichUserDetailsService implements AuthenticationUserDetailsService<Authentication> {
 
   private final Logger logger = LoggerFactory.getLogger(RichUserDetailsService.class);
 
@@ -156,7 +156,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService 
           || !nullToEmpty(vrg.getDescription()).equals(nullToEmpty(userGroup.getDescription()))) {
         logger.info(
             "Updating virtualResourceGroup ({} -> {}) ({} -> {})",
-            new String[] {vrg.getName(), userGroup.getName(), vrg.getDescription(), userGroup.getDescription()});
+            new Object[] {vrg.getName(), userGroup.getName(), vrg.getDescription(), userGroup.getDescription()});
         vrg.setDescription(userGroup.getDescription());
         vrg.setName(userGroup.getName());
 
