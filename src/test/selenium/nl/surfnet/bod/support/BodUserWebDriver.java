@@ -21,16 +21,14 @@
  */
 package nl.surfnet.bod.support;
 
+import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.pages.user.DashboardPage;
-import nl.surfnet.bod.pages.user.EditVirtualPortPage;
-import nl.surfnet.bod.pages.user.ListLogEventsPage;
-import nl.surfnet.bod.pages.user.ListReservationPage;
-import nl.surfnet.bod.pages.user.ListVirtualPortPage;
-import nl.surfnet.bod.pages.user.NewReservationPage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortRequestPage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectInstitutePage;
-import nl.surfnet.bod.pages.user.RequestNewVirtualPortSelectTeamPage;
+import nl.surfnet.bod.pages.user.*;
 
 import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
@@ -39,14 +37,6 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.junit.Assert;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
-import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 
 public class BodUserWebDriver {
 
@@ -164,9 +154,13 @@ public class BodUserWebDriver {
   }
 
   public void verifyLogEventExists(String... fields) {
+    verifyLogEventExistsCreatedWithin(-1, fields);
+  }
+
+  public void verifyLogEventExistsCreatedWithin(int seconds, String... fields) {
     ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
 
-    page.logEventShouldBe(DateTime.now(), fields);
+    page.logEventShouldBe(DateTime.now(), seconds, fields);
   }
 
   public void verifyLogEventDoesNotExist(String... fields) {

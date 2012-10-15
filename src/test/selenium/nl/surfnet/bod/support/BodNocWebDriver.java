@@ -21,20 +21,10 @@
  */
 package nl.surfnet.bod.support;
 
-import nl.surfnet.bod.pages.noc.AddPhysicalPortPage;
-import nl.surfnet.bod.pages.noc.DashboardPage;
-import nl.surfnet.bod.pages.noc.EditPhysicalPortPage;
-import nl.surfnet.bod.pages.noc.EditPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.noc.ListAllocatedPortsPage;
-import nl.surfnet.bod.pages.noc.ListLogEventsPage;
-import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.noc.ListReservationPage;
-import nl.surfnet.bod.pages.noc.ListUnallocatedPortsPage;
-import nl.surfnet.bod.pages.noc.ListVirtualPortPage;
-import nl.surfnet.bod.pages.noc.ListVirtualResourceGroupPage;
-import nl.surfnet.bod.pages.noc.MovePhysicalPortPage;
-import nl.surfnet.bod.pages.noc.MovePhysicalPortResultPage;
-import nl.surfnet.bod.pages.noc.NewPhysicalResourceGroupPage;
+import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import nl.surfnet.bod.pages.noc.*;
 import nl.surfnet.bod.web.InstituteController;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -42,11 +32,6 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
-import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class BodNocWebDriver {
 
@@ -258,9 +243,13 @@ public class BodNocWebDriver {
   }
 
   public void verifyLogEventExists(String... fields) {
+    verifyLogEventExistsCreatedWithin(-1, fields);
+  }
+
+  public void verifyLogEventExistsCreatedWithin(int seconds, String... fields) {
     ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
 
-    page.logEventShouldBe(DateTime.now(), fields);
+    page.logEventShouldBe(DateTime.now(), seconds, fields);
   }
 
   public void verifyLogEventDoesNotExist(String... fields) {

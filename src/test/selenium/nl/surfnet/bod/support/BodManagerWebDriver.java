@@ -21,16 +21,13 @@
  */
 package nl.surfnet.bod.support;
 
-import nl.surfnet.bod.pages.manager.DashboardPage;
-import nl.surfnet.bod.pages.manager.EditPhysicalPortPage;
-import nl.surfnet.bod.pages.manager.EditPhysicalResourceGroupPage;
-import nl.surfnet.bod.pages.manager.EditVirtualPortPage;
-import nl.surfnet.bod.pages.manager.ListLogEventsPage;
-import nl.surfnet.bod.pages.manager.ListPhysicalPortsPage;
-import nl.surfnet.bod.pages.manager.ListReservationPage;
-import nl.surfnet.bod.pages.manager.ListVirtualPortPage;
-import nl.surfnet.bod.pages.manager.ListVirtualResourceGroupPage;
-import nl.surfnet.bod.pages.manager.NewVirtualPortPage;
+import static junit.framework.Assert.fail;
+import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import nl.surfnet.bod.pages.manager.*;
 import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -39,15 +36,6 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
-import static junit.framework.Assert.fail;
-
-import static nl.surfnet.bod.support.BodWebDriver.URL_UNDER_TEST;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 
 public class BodManagerWebDriver {
 
@@ -186,10 +174,14 @@ public class BodManagerWebDriver {
     page.findRow("Reservations in", "1");
   }
 
-  public void verifyLogEventExists(String... fields) {
+  public void verifyLogEventExistsCreatedWithin(int seconds, String... fields) {
     ListLogEventsPage page = ListLogEventsPage.get(driver, URL_UNDER_TEST);
 
-    page.logEventShouldBe(DateTime.now(), fields);
+    page.logEventShouldBe(DateTime.now(), seconds, fields);
+  }
+
+  public void verifyLogEventExists(String... fields) {
+    verifyLogEventExistsCreatedWithin(-1, fields);
   }
 
   public void verifyLogEventDoesNotExist(String... fields) {
