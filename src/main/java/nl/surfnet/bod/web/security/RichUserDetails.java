@@ -34,7 +34,7 @@ import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.web.security.Security.RoleEnum;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.google.common.base.Function;
@@ -155,9 +155,9 @@ public class RichUserDetails implements UserDetails {
       @Override
       public GrantedAuthority apply(BodRole role) {
         if (role.getRole() == RoleEnum.NEW_USER) {
-          return new GrantedAuthorityImpl(RoleEnum.USER.name());
+          return new SimpleGrantedAuthority(RoleEnum.USER.name());
         }
-        return new GrantedAuthorityImpl(role.getRoleName());
+        return new SimpleGrantedAuthority(role.getRoleName());
       }
     }));
   }
