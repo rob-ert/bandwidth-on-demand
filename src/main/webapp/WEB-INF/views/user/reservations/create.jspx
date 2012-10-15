@@ -128,12 +128,11 @@
                             <c:out value=" " />
                             <sform:input id="_endTime_id" path="endTime" cssClass="input-time-with-date" />
                             <span class="add-on"><spring:message code="help_generic_timeformat" /></span>
-
                             <span class="help-inline">
-                                <label class="checkbox inline">
-                                    <input id="forever_chk" name="forever" type="checkbox" />
-                                    <spring:message code="label_reservation_forever"  />
-                                </label>
+                                <label class="checkbox inline"> 
+                                <input id="forever_chk" name="forever" type="checkbox" />
+                                <spring:message code="label_reservation_forever"  /> 
+                              </label>
                             </span>
                         </div>
                         <sform:errors cssClass="help-block" id="_end_error_id" path="endDate" delimiter=", " />

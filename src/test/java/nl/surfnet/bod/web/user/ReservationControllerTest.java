@@ -181,7 +181,8 @@ public class ReservationControllerTest {
     Reservation reservation = new ReservationFactory().create();
     List<Reservation> reservations = Lists.newArrayList(reservation);
     List<ReservationView> reservationViews = Lists.newArrayList(new ReservationView(reservation, new ElementActionView(
-        true)));
+        true), new ElementActionView(
+            true)));
 
     when(
         reservationServiceMock.findEntriesForUserUsingFilter(any(RichUserDetails.class),

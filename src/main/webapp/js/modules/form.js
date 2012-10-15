@@ -224,7 +224,13 @@ app.form = function(){
                     timeInput.val('').prop('disabled', true);
                 }
             });
+            
+            if (date.length == 0 && time.length == 0) {
+              component.find(':checkbox').click();
+            }
+            
         });
+        
     };
 
     var initAutoSuggest = function() {

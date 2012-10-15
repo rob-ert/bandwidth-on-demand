@@ -62,6 +62,7 @@ import static nl.surfnet.bod.web.WebUtils.DELETE;
 import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 import static nl.surfnet.bod.web.WebUtils.LIST;
+import static nl.surfnet.bod.web.WebUtils.EDIT;
 
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller(value = "userReservationController")
@@ -154,6 +155,35 @@ public class ReservationController extends AbstractFilteredReservationController
 
     // Response is ignored, in js related to link
     return "index";
+  }
+  
+  
+  @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
+  public String copyReservation(@RequestParam(ID_KEY) Long id, Model model) {
+    
+    final Reservation originalReservation = getReservationService().find(id);
+    
+    final Reservation reservation = new Reservation();
+    reservation.setBandwidth(originalReservation.getBandwidth());
+    reservation.setDestinationPort(originalReservation.getDestinationPort());
+    reservation.setEndDate(originalReservation.getEndDate());
+    reservation.setEndDateTime(originalReservation.getEndDateTime());
+    reservation.setName(originalReservation.getName());
+    reservation.setProtectionType(originalReservation.getProtectionType());
+    reservation.setSourcePort(originalReservation.getSourcePort());
+    reservation.setStartDate(originalReservation.getStartDate());
+    reservation.setStartDateTime(originalReservation.getStartDateTime());
+    reservation.setDestinationPort(originalReservation.getDestinationPort());
+    reservation.setVirtualResourceGroup(originalReservation.getVirtualResourceGroup());
+    
+    model.addAttribute(MODEL_KEY, reservation);
+    model.addAttribute("virtualPorts", vpUserLabelOrdering().sortedCopy(
+        reservation.getVirtualResourceGroup().getVirtualPorts()));
+    model.addAttribute("virtualResourceGroups", findVirtualResourceGroups());
+    model.addAttribute("destinationPort", originalReservation.getDestinationPort());
+    model.addAttribute("sourcePort", originalReservation.getSourcePort());
+
+    return PAGE_URL + CREATE;
   }
 
   @Override

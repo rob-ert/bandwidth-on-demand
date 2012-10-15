@@ -244,6 +244,20 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
     return isDeleteAllowedForUserOnly(reservation, role);
   }
+  
+  public ElementActionView isEditAllowed(Reservation reservation, BodRole role) {
+    if (role.isNocRole()) {
+      return new ElementActionView(false, "reservation_edit_user_has_no_rights");
+    }
+    else if (role.isManagerRole()){
+      return new ElementActionView(false, "reservation_copy_user_has_no_rights");
+    }
+    else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
+      return new ElementActionView(true, "label_copy");
+    }
+
+    return new ElementActionView(false, "reservation_edit_user_has_no_rights");
+  }
 
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
@@ -580,7 +594,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return Lists.transform(reservationsToTransform, new Function<Reservation, ReservationView>() {
       @Override
       public ReservationView apply(Reservation reservation) {
-        return new ReservationView(reservation, isDeleteAllowed(reservation, user.getSelectedRole()));
+        return new ReservationView(reservation, isDeleteAllowed(reservation, user.getSelectedRole()), isEditAllowed(reservation, user.getSelectedRole()));
       }
     });
   }

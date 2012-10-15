@@ -46,10 +46,10 @@ public class ReservationView {
   private final String reservationId;
   private final String connectionId;
   private final DateTime creationDateTime;
-  private final ElementActionView deleteActionView;
+  private final ElementActionView deleteActionView, editActionView;
   private final ProtectionType protectionType;
 
-  public ReservationView(final Reservation reservation, final ElementActionView deleteActionView) {
+  public ReservationView(final Reservation reservation, final ElementActionView deleteActionView, final ElementActionView editActionView) {
     this.id = reservation.getId();
     this.virtualResourceGroup = reservation.getVirtualResourceGroup().getName();
     this.sourcePort = new PortView(reservation.getSourcePort());
@@ -66,6 +66,7 @@ public class ReservationView {
     this.protectionType = reservation.getProtectionType();
     this.name = reservation.getName();
     this.deleteActionView = deleteActionView;
+    this.editActionView = editActionView;
     this.connectionId = reservation.getConnection() == null ? null : reservation.getConnection().getConnectionId();
   }
 
@@ -124,10 +125,19 @@ public class ReservationView {
   public boolean isDeleteAllowedForSelectedRole() {
     return deleteActionView.isAllowed();
   }
+  
+  public boolean isUpdateAllowedForSelectedRole() {
+    return editActionView.isAllowed();
+  }
 
   public String getDeleteReasonKey() {
     return deleteActionView.getReasonKey();
   }
+  
+  public String getUpdateReasonKey() {
+    return editActionView.getReasonKey();
+  }
+ 
 
   public String getConnectionId() {
     return connectionId;

@@ -47,7 +47,7 @@ public class ReservationViewTest {
         .setUserLabel("My dest label").create();
     Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort).create();
 
-    ReservationView view = new ReservationView(reservation, new ElementActionView(false));
+    ReservationView view = new ReservationView(reservation, new ElementActionView(false), new ElementActionView(false));
 
     assertThat(view.getSourcePort().getUserLabel(), is("My source label"));
     assertThat(view.getSourcePort().getManagerLabel(), is("Label of boss"));
@@ -61,7 +61,7 @@ public class ReservationViewTest {
     Reservation reservation = new ReservationFactory().create();
     ElementActionView disallowedAction = new ElementActionView(false, "too_hot_outside");
 
-    ReservationView reservationView = new ReservationView(reservation, disallowedAction);
+    ReservationView reservationView = new ReservationView(reservation, disallowedAction, disallowedAction);
 
     assertThat(reservationView.isDeleteAllowedForSelectedRole(), is(false));
     assertThat(reservationView.getDeleteReasonKey(), is("too_hot_outside"));
@@ -72,7 +72,7 @@ public class ReservationViewTest {
     Reservation reservation = new ReservationFactory().create();
     ElementActionView disallowedAction = new ElementActionView(true);
 
-    ReservationView reservationView = new ReservationView(reservation, disallowedAction);
+    ReservationView reservationView = new ReservationView(reservation, disallowedAction, disallowedAction);
 
     assertThat(reservationView.isDeleteAllowedForSelectedRole(), is(true));
     assertThat(reservationView.getDeleteReasonKey(), nullValue());

@@ -144,13 +144,27 @@
                         <table:column item="${item}" property="startDateTime" />
                         <table:column item="${item}" property="endDateTime" />
                         <table:column item="${item}" property="status" styleClass="status" />
-                        <table:actionsColumn item="${item}" update="false" delete="true"
-                            deleteEnabled="${item.deleteAllowedForSelectedRole}" deleteLabelCode="${item.deleteReasonKey}"
-                            path="/reservations" labelCode="label_reservation" successMessageCode="Termination request has been sent">
-                        </table:actionsColumn>
+
+                        <c:choose>
+                          <c:when test="${item.updateAllowedForSelectedRole}">
+                            <table:actionsColumn item="${item}" update="true" delete="true"
+                              updateEnabled="true" updateLabelCode="${item.updateReasonKey}"
+                              deleteEnabled="${item.deleteAllowedForSelectedRole}" deleteLabelCode="${item.deleteReasonKey}"
+                              path="/reservations" labelCode="label_reservation" successMessageCode="Termination request has been sent">
+                          </table:actionsColumn>
+                          </c:when>
+                          <c:otherwise>
+                            <table:actionsColumn item="${item}" update="false" delete="true"
+                              deleteEnabled="${item.deleteAllowedForSelectedRole}" deleteLabelCode="${item.deleteReasonKey}"
+                              path="/reservations" labelCode="label_reservation" successMessageCode="Termination request has been sent">
+                          </table:actionsColumn>
+                          </c:otherwise>
+                        </c:choose>
+                        
                     </tr>
                 </c:forEach>
             </tbody>
         </table:table-reservation>
     </page:list>
 </html>
+

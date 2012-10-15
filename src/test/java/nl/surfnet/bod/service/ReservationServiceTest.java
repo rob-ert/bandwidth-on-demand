@@ -359,7 +359,8 @@ public class ReservationServiceTest {
   public void intersectTwoEqualSizedLists() {
     List<ReservationView> filterResult = Lists.newArrayList();
     for (int i = 0; i < 3; i++) {
-      filterResult.add(new ReservationView(new ReservationFactory().create(), new ElementActionView(true)));
+      filterResult.add(new ReservationView(new ReservationFactory().create(), new ElementActionView(true), new ElementActionView(
+          true)));
     }
 
     List<ReservationView> searchResult = new ArrayList<>(filterResult);
@@ -392,9 +393,11 @@ public class ReservationServiceTest {
   @Test
   public void intersectLessFilterResultsAndSearchResults() {
     ReservationView reservationView = new ReservationView(new ReservationFactory().create(),
-        new ElementActionView(true));
+        new ElementActionView(true),new ElementActionView(
+            true));
     ReservationView searchResultView = (new ReservationView(new ReservationFactory().create(), new ElementActionView(
-        true)));
+        true),new ElementActionView(
+            true)));
 
     List<ReservationView> filterResult = Lists.newArrayList(reservationView);
     List<ReservationView> searchResult = Lists.newArrayList(reservationView, searchResultView);
@@ -409,7 +412,8 @@ public class ReservationServiceTest {
   @Test
   public void intersectEmptyFilterResultsAndSearchResults() {
     ReservationView searchResultView = (new ReservationView(new ReservationFactory().create(), new ElementActionView(
-        true)));
+        true),new ElementActionView(
+            true)));
 
     List<ReservationView> filterResult = Lists.newArrayList();
     List<ReservationView> searchResult = Lists.newArrayList(searchResultView, searchResultView);
@@ -423,7 +427,8 @@ public class ReservationServiceTest {
   @Test
   public void intersectFilterResultsAndEmptySearchResults() {
     ReservationView reservationView = new ReservationView(new ReservationFactory().create(),
-        new ElementActionView(true));
+        new ElementActionView(true),new ElementActionView(
+            true));
 
     List<ReservationView> filterResult = Lists.newArrayList(reservationView);
     List<ReservationView> searchResult = Lists.newArrayList();
