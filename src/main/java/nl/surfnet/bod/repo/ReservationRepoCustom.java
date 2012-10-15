@@ -35,7 +35,7 @@ public class ReservationRepoCustom {
 
   private static final Function<Tuple, Long> FROM_TUPLE_TO_LONG = new Function<Tuple, Long>() {
     @Override
-    public Long apply(Tuple reservation) {
+    public Long apply(final Tuple reservation) {
       return (Long) reservation.get(0);
     }
   };
