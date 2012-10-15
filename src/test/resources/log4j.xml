@@ -48,15 +48,12 @@
   </logger>
 
   <logger name="nl.surfnet.bod.mtosi">
-    <level value="INFO" />
-  </logger>
-  
-  <logger name="nl.surfnet.bod.snmp">
-    <level value="DEBUG" />
+    <level value="WARN" />
   </logger>
 
   <root>
     <level value="WARN" />
     <appender-ref ref="CONSOLE" />
+    <!--<appender-ref ref="FILE"/> -->
   </root>
 </log4j:configuration>

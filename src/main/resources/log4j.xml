@@ -61,10 +61,6 @@
    <logger name="org.hibernate.SQL">
     <level value="DEBUG" />
    </logger>-->
-   
-   <logger name="nl.surfnet.bod.snmp">
-    <level value="DEBUG" />
-  </logger>
 
   <root>
     <level value="WARN" />
