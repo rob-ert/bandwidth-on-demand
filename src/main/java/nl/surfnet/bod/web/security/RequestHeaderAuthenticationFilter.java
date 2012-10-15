@@ -26,7 +26,7 @@ import static com.google.common.base.Strings.nullToEmpty;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import nl.surfnet.bod.domain.oauth.AuthenticatedPrincipal;
+import nl.surfnet.bod.domain.oauth.VerifiedToken;
 import nl.surfnet.bod.service.OAuthServerService;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.ShibbolethConstants;
@@ -110,13 +110,17 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
 
     String accessToken = authorizationHeader.split(" ")[1];
 
-    Optional<AuthenticatedPrincipal> principal = oAuthServerService.getAuthenticatedPrincipal(accessToken);
+    Optional<VerifiedToken> principal = oAuthServerService.getVerifiedToken(accessToken);
     logger.debug("Found principal {}", principal);
 
-    return principal.transform(new Function<AuthenticatedPrincipal, RichPrincipal>() {
+    return principal.transform(new Function<VerifiedToken, RichPrincipal>() {
         @Override
-        public RichPrincipal apply(AuthenticatedPrincipal ap) {
-          return new RichPrincipal(ap.getName(), ap.getAttributes().get("displayName"), ap.getAttributes().get("email"));
+        public RichPrincipal apply(VerifiedToken token) {
+          return new RichPrincipal(
+              token.getPrincipal().getName(),
+              token.getPrincipal().getAttributes().get("displayName"),
+              token.getPrincipal().getAttributes().get("email"),
+              token.getScopes());
         }
     }).orNull();
   }

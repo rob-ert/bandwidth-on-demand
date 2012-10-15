@@ -29,10 +29,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.EnumSet;
 
 import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.domain.oauth.AuthenticatedPrincipal;
+import nl.surfnet.bod.domain.oauth.NsiScope;
+import nl.surfnet.bod.domain.oauth.VerifiedToken;
 import nl.surfnet.bod.service.OAuthServerService;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.ShibbolethConstants;
@@ -153,7 +156,9 @@ public class RequestHeaderAuthenticationFilterTest {
     AuthenticatedPrincipal oAuthPrincipal = new AuthenticatedPrincipal();
     oAuthPrincipal.setName(nameId);
     oAuthPrincipal.setAttributes(Collections.<String, String>emptyMap());
-    when(oAuthServerServiceMock.getAuthenticatedPrincipal(token)).thenReturn(Optional.of(oAuthPrincipal));
+    VerifiedToken verifiedToken = new VerifiedToken(oAuthPrincipal, EnumSet.of(NsiScope.RELEASE));
+
+    when(oAuthServerServiceMock.getVerifiedToken(token)).thenReturn(Optional.of(verifiedToken));
 
     Object principal = subject.getPreAuthenticatedPrincipal(requestMock);
 
@@ -166,7 +171,7 @@ public class RequestHeaderAuthenticationFilterTest {
     HttpServletRequest requestMock = getOAuth2RequestMock();
     when(requestMock.getHeader("Authorization")).thenReturn("bearer ".concat(token));
 
-    when(oAuthServerServiceMock.getAuthenticatedPrincipal(token)).thenReturn(Optional.<AuthenticatedPrincipal>absent());
+    when(oAuthServerServiceMock.getVerifiedToken(token)).thenReturn(Optional.<VerifiedToken>absent());
 
     Object principal = subject.getPreAuthenticatedPrincipal(requestMock);
 

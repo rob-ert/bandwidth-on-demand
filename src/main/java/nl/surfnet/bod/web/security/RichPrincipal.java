@@ -21,16 +21,27 @@
  */
 package nl.surfnet.bod.web.security;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import nl.surfnet.bod.domain.oauth.NsiScope;
+
 public class RichPrincipal {
 
   private final String nameId;
   private final String displayName;
   private final String email;
+  private final Collection<NsiScope> nsiScopes;
 
   public RichPrincipal(String nameId, String displayName, String email) {
+    this(nameId, displayName, email, Collections.<NsiScope>emptyList());
+  }
+
+  public RichPrincipal(String nameId, String displayName, String email, Collection<NsiScope> nsiScopes) {
     this.nameId = nameId;
     this.displayName = displayName;
     this.email = email;
+    this.nsiScopes = nsiScopes;
   }
 
   public String getNameId() {
@@ -43,6 +54,10 @@ public class RichPrincipal {
 
   public String getEmail() {
     return email;
+  }
+
+  public Collection<NsiScope> getNsiScopes() {
+    return nsiScopes;
   }
 
 }

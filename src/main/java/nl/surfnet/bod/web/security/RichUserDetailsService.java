@@ -81,7 +81,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService<
     Collection<BodRole> roles = determineRoles(groups);
 
     RichUserDetails userDetails = new RichUserDetails(principal.getNameId(), principal.getDisplayName(),
-        principal.getEmail(), groups, roles);
+        principal.getEmail(), groups, roles, principal.getNsiScopes());
 
     return userDetails;
   }

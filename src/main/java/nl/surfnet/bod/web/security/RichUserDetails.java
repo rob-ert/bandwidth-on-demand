@@ -30,6 +30,7 @@ import java.util.List;
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.web.security.Security.RoleEnum;
 
@@ -51,15 +52,17 @@ public class RichUserDetails implements UserDetails {
   private final String email;
   private final Collection<UserGroup> userGroups;
   private final List<BodRole> bodRoles;
+  private final List<NsiScope> nsiScopes;
 
   private BodRole selectedRole;
 
   public RichUserDetails(String username, String displayName, String email, Collection<UserGroup> userGroups,
-      Collection<BodRole> roles) {
+      Collection<BodRole> roles, Collection<NsiScope> nsiScopes) {
     this.username = username;
     this.displayName = displayName;
     this.userGroups = userGroups;
     this.email = email;
+    this.nsiScopes = Lists.newArrayList(nsiScopes);
 
     bodRoles = Orderings.bodRoleOrdering().sortedCopy(roles);
 
@@ -237,6 +240,10 @@ public class RichUserDetails implements UserDetails {
 
   public boolean hasUserRole() {
     return findFirstBodRoleByRole(RoleEnum.USER) != null;
+  }
+
+  public List<NsiScope> getNsiScopes() {
+    return nsiScopes;
   }
 
   @Override

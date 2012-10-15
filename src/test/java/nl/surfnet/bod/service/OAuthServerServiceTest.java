@@ -24,8 +24,7 @@ package nl.surfnet.bod.service;
 import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
 import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.MatcherAssert.assertThat;
-import nl.surfnet.bod.domain.oauth.AuthenticatedPrincipal;
-import nl.surfnet.bod.service.OAuthServerService;
+import nl.surfnet.bod.domain.oauth.VerifiedToken;
 import nl.surfnet.bod.support.MockHttpServer;
 import nl.surfnet.bod.util.Environment;
 
@@ -72,7 +71,7 @@ public class OAuthServerServiceTest {
 
   @Test
   public void shouldBeAbsentForAEmptyAccessToken() {
-    Optional<AuthenticatedPrincipal> principal = subject.getAuthenticatedPrincipal("");
+    Optional<VerifiedToken> principal = subject.getVerifiedToken("");
 
     assertThat(principal, isAbsent());
   }
@@ -84,7 +83,7 @@ public class OAuthServerServiceTest {
 
     mockAccessTokenResponse(token, nameId);
 
-    Optional<AuthenticatedPrincipal> principal = subject.getAuthenticatedPrincipal(token);
+    Optional<VerifiedToken> principal = subject.getVerifiedToken(token);
 
     assertThat(principal, isPresent());
   }
@@ -92,7 +91,7 @@ public class OAuthServerServiceTest {
   @Test
   public void shouldBeAbsentForInvalidAccessToken() {
     mockAccessTokenResponse(new ByteArrayResource("".getBytes()));
-    Optional<AuthenticatedPrincipal> principal = subject.getAuthenticatedPrincipal("1234-1234-abc");
+    Optional<VerifiedToken> principal = subject.getVerifiedToken("1234-1234-abc");
 
     assertThat(principal, isAbsent());
   }
@@ -104,7 +103,7 @@ public class OAuthServerServiceTest {
     subject.setEnvironment(getOAuthEnvironment(oAuthKey, "WrongSecret"));
     mockAccessTokenResponse(token, "urn:truus");
 
-    Optional<AuthenticatedPrincipal> principal = subject.getAuthenticatedPrincipal(token);
+    Optional<VerifiedToken> principal = subject.getVerifiedToken(token);
 
     assertThat(principal, isAbsent());
   }
@@ -116,7 +115,7 @@ public class OAuthServerServiceTest {
     subject.setEnvironment(getOauthEnvironmentWrongServerUrl());
     mockAccessTokenResponse(token, "urn:truus");
 
-    Optional<AuthenticatedPrincipal> principal = subject.getAuthenticatedPrincipal(token);
+    Optional<VerifiedToken> principal = subject.getVerifiedToken(token);
 
     assertThat(principal, isAbsent());
   }

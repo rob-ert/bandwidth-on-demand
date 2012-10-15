@@ -21,6 +21,14 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD.NOT_IMPLEMENTED;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_CONFIRMED;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_FAILED;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +40,9 @@ import javax.xml.ws.WebServiceContext;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProvider;
+import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.service.ConnectionServiceProviderService;
@@ -42,24 +52,11 @@ import nl.surfnet.bod.web.security.Security;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
-import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ReleaseRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.*;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
-import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.*;
 import org.ogf.schemas.nsi._2011._10.connection.types.ObjectFactory;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -68,16 +65,6 @@ import org.springframework.util.StringUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.sun.xml.ws.developer.SchemaValidation;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD.NOT_IMPLEMENTED;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_CONFIRMED;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_FAILED;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
-
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
 
 @Service("connectionServiceProviderWs_v1sc")
 @WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider")
@@ -115,7 +102,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
    * inter-domain bandwidth. Those parameters required for the request to
    * proceed to a processing actor will be validated, however, all other
    * parameters will be validated in the processing actor.
-   * 
+   *
    * @param parameters
    *          The un-marshaled JAXB object holding the NSI reservation request.
    * @return The GenericAcknowledgmentType object returning the correlationId
@@ -128,6 +115,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   @Override
   public GenericAcknowledgmentType reserve(final ReserveRequestType reservationRequest) throws ServiceException {
     checkNotNull(reservationRequest);
+    validateScope(NsiScope.RESERVE);
 
     Connection connection = RESERVE_REQUEST_TO_CONNECTION.apply(reservationRequest);
 
@@ -252,6 +240,8 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public GenericAcknowledgmentType provision(ProvisionRequestType parameters) throws ServiceException {
+    validateScope(NsiScope.PROVISION);
+
     final String connectionId = parameters.getProvision().getConnectionId();
 
     log.debug("Received provision request with id: {}", connectionId);
@@ -311,7 +301,9 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public GenericAcknowledgmentType release(ReleaseRequestType parameters) throws ServiceException {
-    final ServiceExceptionType exceptionType = new ServiceExceptionType();
+    validateScope(NsiScope.RELEASE);
+
+    ServiceExceptionType exceptionType = new ServiceExceptionType();
     exceptionType.setErrorId(NOT_IMPLEMENTED.getId());
     exceptionType.setText(NOT_IMPLEMENTED.getText());
 
@@ -320,6 +312,8 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public GenericAcknowledgmentType terminate(TerminateRequestType parameters) throws ServiceException {
+    validateScope(NsiScope.TERMINATE);
+
     final Connection connection = getConnectionOrFail(parameters.getTerminate().getConnectionId());
     validateProviderNsa(parameters.getTerminate().getProviderNSA());
 
@@ -371,6 +365,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public GenericAcknowledgmentType query(QueryRequestType parameters) throws ServiceException {
+    validateScope(NsiScope.QUERY);
     validateProviderNsa(parameters.getQuery().getProviderNSA());
 
     NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
@@ -449,6 +444,20 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     final GenericAcknowledgmentType genericAcknowledgmentType = new GenericAcknowledgmentType();
     genericAcknowledgmentType.setCorrelationId(correlationId);
     return genericAcknowledgmentType;
+  }
+
+  private void validateScope(NsiScope scope) throws ServiceException {
+    if (!Security.getUserDetails().getNsiScopes().contains(scope)) {
+      throw createServiceException(ConnectionServiceProviderErrorCodes.SECURITY.MISSING_GRANTED_SCOPE);
+    }
+  }
+
+  private ServiceException createServiceException(ConnectionServiceProviderErrorCodes.SECURITY error) {
+    final ServiceExceptionType serviceExceptionType = new ServiceExceptionType();
+    serviceExceptionType.setErrorId(error.getId());
+    serviceExceptionType.setText(error.getText());
+
+    return new ServiceException("403", serviceExceptionType);
   }
 
   static {

@@ -248,7 +248,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
     return isDeleteAllowedForUserOnly(reservation, role);
   }
-  
+
   public ElementActionView isEditAllowed(Reservation reservation, BodRole role) {
     if (role.isNocRole()) {
       return new ElementActionView(false, "reservation_edit_user_has_no_rights");

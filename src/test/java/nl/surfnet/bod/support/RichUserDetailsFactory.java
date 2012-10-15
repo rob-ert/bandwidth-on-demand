@@ -25,12 +25,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.web.security.RichUserDetails;
+
+import com.google.common.collect.Lists;
 
 public class RichUserDetailsFactory {
 
@@ -41,6 +42,7 @@ public class RichUserDetailsFactory {
   private String email = "truus@example.com";
   private Collection<UserGroup> userGroups = Lists.newArrayList();
   private List<BodRole> bodRoles = Lists.newArrayList();
+  private Collection<NsiScope> scopes = Lists.newArrayList();
 
   public RichUserDetails create() {
     if (bodRoles.isEmpty()) {
@@ -48,7 +50,7 @@ public class RichUserDetailsFactory {
       bodRoles.add(BodRole.createNewUser());
     }
 
-    RichUserDetails userDetails = new RichUserDetails(username, displayName, email, userGroups, bodRoles);
+    RichUserDetails userDetails = new RichUserDetails(username, displayName, email, userGroups, bodRoles, scopes);
 
     return userDetails;
   }
@@ -62,6 +64,11 @@ public class RichUserDetailsFactory {
   public RichUserDetailsFactory addNocRole() {
     BodRole nocRole = BodRole.createNocEngineer();
     bodRoles.add(nocRole);
+    return this;
+  }
+
+  public RichUserDetailsFactory setScopes(Collection<NsiScope> scopes) {
+    this.scopes = scopes;
     return this;
   }
 

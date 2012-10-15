@@ -32,10 +32,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.BodAccount;
-import nl.surfnet.bod.domain.oauth.AccessToken;
-import nl.surfnet.bod.domain.oauth.AccessTokenResponse;
-import nl.surfnet.bod.domain.oauth.AuthenticatedPrincipal;
-import nl.surfnet.bod.domain.oauth.VerifyTokenResponse;
+import nl.surfnet.bod.domain.oauth.*;
 import nl.surfnet.bod.util.Environment;
 
 import org.apache.commons.codec.binary.Base64;
@@ -56,11 +53,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
+import com.google.common.base.*;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 
 @Service
@@ -75,7 +70,7 @@ public class OAuthServerService {
 
   private DefaultHttpClient httpClient = new DefaultHttpClient(new PoolingClientConnectionManager());
 
-  public Optional<AuthenticatedPrincipal> getAuthenticatedPrincipal(String accessToken) {
+  public Optional<VerifiedToken> getVerifiedToken(String accessToken) {
     if (Strings.isNullOrEmpty(accessToken)) {
       return Optional.absent();
     }
@@ -88,7 +83,19 @@ public class OAuthServerService {
       String jsonResponse = EntityUtils.toString(response.getEntity(), Charsets.UTF_8);
       VerifyTokenResponse token = new ObjectMapper().readValue(jsonResponse, VerifyTokenResponse.class);
 
-      return Optional.fromNullable(token.getPrincipal());
+      if (token.getPrincipal() != null) {
+        Collection<NsiScope> scopes = FluentIterable.from(token.getScopes()).transform(new Function<String, NsiScope>() {
+          @Override
+          public NsiScope apply(String scope) {
+            return NsiScope.valueOf(scope.toUpperCase());
+          }
+        }).toImmutableList();
+        return Optional.of(new VerifiedToken(token.getPrincipal(), scopes));
+      }
+      else {
+        logger.warn("Got a verify token response with an error {}", token.getError());
+        return Optional.absent();
+      }
     }
     catch (IOException e) {
       logger.error("Could not verify access token", e);

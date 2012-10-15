@@ -23,6 +23,7 @@ package nl.surfnet.bod.web;
 
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import nl.surfnet.bod.domain.BodAccount;
 import nl.surfnet.bod.domain.oauth.AccessToken;
 import nl.surfnet.bod.domain.oauth.AccessTokenResponse;
+import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.repo.BodAccountRepo;
 import nl.surfnet.bod.service.OAuthServerService;
 import nl.surfnet.bod.util.Environment;
@@ -42,7 +44,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
@@ -97,10 +101,17 @@ public class OAuthTokenController {
 
   @RequestMapping("/token")
   public String retreiveToken(Model model) throws URISyntaxException {
+    Collection<String> scopes = Collections2.transform(EnumSet.allOf(NsiScope.class), new Function<NsiScope, String>() {
+      @Override
+      public String apply(NsiScope scope) {
+        return scope.name().toLowerCase();
+      }
+    });
+
     String uri = buildAuthorizeUri(
         env.getClientClientId(),
         redirectUri(),
-        Lists.newArrayList("reserve", "provision", "query", "release", "terminate"));
+        scopes);
 
     return "redirect:".concat(uri);
   }

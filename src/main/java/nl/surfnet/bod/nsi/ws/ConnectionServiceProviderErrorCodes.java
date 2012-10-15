@@ -63,7 +63,7 @@ public class ConnectionServiceProviderErrorCodes {
   }
 
   public enum SECURITY {
-    SECURITY_ERROR("00300", ""), UNAUTHORIZED("00301", "");
+    SECURITY_ERROR("00300", ""), UNAUTHORIZED("00301", ""), MISSING_GRANTED_SCOPE("00302", "Access token is not valid for current scope");
 
     private final String id, text;
 
