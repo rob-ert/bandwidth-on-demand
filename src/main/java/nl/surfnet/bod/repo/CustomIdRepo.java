@@ -17,15 +17,8 @@ import org.springframework.stereotype.Repository;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 
-import nl.surfnet.bod.domain.Reservation;
-
-/**
- * This class contains all reservation related database operations that can not
- * be done using the standard ReservationRepo.
- * 
- */
 @Repository
-public class ReservationRepoCustom {
+public class CustomIdRepo {
 
   @SuppressWarnings("unused")
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -40,10 +33,10 @@ public class ReservationRepoCustom {
     }
   };
 
-  public List<Long> findAllReservationIds() {
+  public List<Long> findAllIds(final Class<?> entity) {
     final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     final CriteriaQuery<Tuple> criteriaQuery = criteriaBuilder.createTupleQuery();
-    final Root<Reservation> root = criteriaQuery.from(Reservation.class);
+    final Root<?> root = criteriaQuery.from(entity);
     criteriaQuery.select(criteriaBuilder.tuple(root.get("id")));
     final List<Tuple> results = entityManager.createQuery(criteriaQuery).getResultList();
     return new ArrayList<Long>(Collections2.transform(results, FROM_TUPLE_TO_LONG));
