@@ -61,28 +61,30 @@ import com.google.common.collect.Lists;
 public class VirtualResourceGroupService extends
     AbstractFullTextSearchService<VirtualResourceGroupView, VirtualResourceGroup> {
 
-  private static final Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView> TO_MANAGER_VIEW = new Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView>() {
-    @Override
-    public VirtualResourceGroupController.VirtualResourceGroupView apply(VirtualResourceGroup group) {
-      final Optional<Long> managersPrgId = Security.getSelectedRole().getPhysicalResourceGroupId();
-
-      Integer count = FluentIterable.from(group.getVirtualPorts()).filter(new Predicate<VirtualPort>() {
+  private static final Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView> TO_MANAGER_VIEW =
+      new Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView>() {
         @Override
-        public boolean apply(VirtualPort port) {
-          return port.getPhysicalResourceGroup().getId().equals(managersPrgId.get());
+        public VirtualResourceGroupController.VirtualResourceGroupView apply(VirtualResourceGroup group) {
+          final Optional<Long> managersPrgId = Security.getSelectedRole().getPhysicalResourceGroupId();
+
+          Integer count = FluentIterable.from(group.getVirtualPorts()).filter(new Predicate<VirtualPort>() {
+            @Override
+            public boolean apply(VirtualPort port) {
+              return port.getPhysicalResourceGroup().getId().equals(managersPrgId.get());
+            }
+          }).size();
+
+          return new VirtualResourceGroupController.VirtualResourceGroupView(group, count);
         }
-      }).size();
+      };
 
-      return new VirtualResourceGroupController.VirtualResourceGroupView(group, count);
-    }
-  };
-
-  private static final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW = new Function<VirtualResourceGroup, VirtualResourceGroupView>() {
-    @Override
-    public VirtualResourceGroupView apply(VirtualResourceGroup input) {
-      return new VirtualResourceGroupView(input, input.getVirtualPortCount());
-    }
-  };
+  private static final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW =
+      new Function<VirtualResourceGroup, VirtualResourceGroupView>() {
+        @Override
+        public VirtualResourceGroupView apply(VirtualResourceGroup input) {
+          return new VirtualResourceGroupView(input, input.getVirtualPortCount());
+        }
+      };
 
   @Resource
   private VirtualResourceGroupRepo virtualResourceGroupRepo;

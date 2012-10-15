@@ -47,7 +47,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller("managerVirtualResourceGroupController")
 @RequestMapping("/manager/" + VirtualResourceGroupController.PAGE_URL)
-public class VirtualResourceGroupController extends AbstractSearchableSortableListController<VirtualResourceGroupView, VirtualResourceGroup>  {
+public class VirtualResourceGroupController extends
+    AbstractSearchableSortableListController<VirtualResourceGroupView, VirtualResourceGroup>  {
   public static final String PAGE_URL = "teams";
   public static final String MODEL_KEY = "virtualResourceGroup";
 
