@@ -41,6 +41,7 @@ import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.repo.ReservationRepoCustom;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -82,6 +83,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   @Resource
   private ReservationRepo reservationRepo;
+  
+  @Resource
+  private ReservationRepoCustom reservationRepoCustom;
 
   @Resource
   private ReservationArchiveRepo reservationArchiveRepo;
@@ -470,6 +474,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       return Collections.emptyList();
     }
 
+    // TODO: Use the returned ids
+    final List<Long> ids = reservationRepoCustom.findAllReservationIds();
+    log.info("Id's: {}", ids);
+    
     return reservationRepo.findAll(specFilteredReservationsForUser(filter, user),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
