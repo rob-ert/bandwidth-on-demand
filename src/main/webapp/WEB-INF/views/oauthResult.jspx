@@ -28,13 +28,12 @@
                             </spring:url><br/>
                             <a href="${revokeUrl}" data-form="true" class="btn btn-primary" style="margin-bottom: 20px;"><i class="icon-remove"><!--  --></i> Revoke Access Token</a>
                             <h3>Scopes</h3>
-                            <p> The token is valid for the scopes/NSI operations:
-                                <ul>
-                                    <c:forEach var="scope" items="${accessToken.scopes}">
-                                        <li><c:out value="${scope}" /></li>
-                                    </c:forEach>
-                                </ul>
-                            </p>
+                            <p>The token is valid for the scopes/NSI operations:</p>
+                            <ul>
+                                <c:forEach var="scope" items="${accessToken.scopes}">
+                                    <li><c:out value="${scope}" /></li>
+                                </c:forEach>
+                            </ul>
                             <h3>Using your Access Token</h3>
                             <p>
                                 With every NSI request you should sent your access token in the header of the http request.

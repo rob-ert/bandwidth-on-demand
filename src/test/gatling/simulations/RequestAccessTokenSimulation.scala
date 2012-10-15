@@ -24,6 +24,7 @@ class RequestAccessTokenSimulation extends Simulation {
         Map("nameId" -> "urn:clazina", "displayName" -> "Clazina"),
         Map("nameId" -> "urn:frits", "displayName" -> "Frits"))
 
+    // this scenario requires that the bod-authorization server runs with a form login
     val scn = scenario("Request and revoke an OAuht2 Access Token for NSI")
       .feed(loginFeeder)
       .exec(
