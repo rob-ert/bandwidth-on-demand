@@ -69,7 +69,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConnectionServiceProviderTest {
+public class ConnectionServiceProviderWsTest {
 
   @InjectMocks
   private ConnectionServiceProviderWs subject;

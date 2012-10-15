@@ -23,7 +23,7 @@ package nl.surfnet.bod.service;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderTest;
+import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderWsTest;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
@@ -68,7 +68,7 @@ public class ConnectionServiceProviderServiceTest {
     RichUserDetails userDetails = new RichUserDetailsFactory().setUsername("me").create();
     Security.setUserDetails(userDetails);
 
-    ReserveRequestType reserveRequest = ConnectionServiceProviderTest.createReservationRequestType(512, Optional
+    ReserveRequestType reserveRequest = ConnectionServiceProviderWsTest.createReservationRequestType(512, Optional
         .<String> absent());
     reserveRequest.getReserve().setProviderNSA("nsa:surfnet.nl");
     reserveRequest.getReserve().getReservation().setConnectionId("123");
