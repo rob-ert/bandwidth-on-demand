@@ -18,7 +18,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 
 @Repository
-public class CustomIdRepo {
+public class GenericIdRepo {
 
   @SuppressWarnings("unused")
   private final Logger log = LoggerFactory.getLogger(getClass());

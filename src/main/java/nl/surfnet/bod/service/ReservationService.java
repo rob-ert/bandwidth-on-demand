@@ -41,7 +41,7 @@ import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
-import nl.surfnet.bod.repo.CustomIdRepo;
+import nl.surfnet.bod.repo.GenericIdRepo;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -85,7 +85,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   private ReservationRepo reservationRepo;
   
   @Resource
-  private CustomIdRepo customIdRepo;
+  private GenericIdRepo genericIdRepo;
 
   @Resource
   private ReservationArchiveRepo reservationArchiveRepo;
@@ -475,7 +475,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     }
 
     // TODO: Use the returned ids
-    final List<Long> ids = customIdRepo.findAllIds(Reservation.class);
+    final List<Long> ids = genericIdRepo.findAllIds(Reservation.class);
     log.info("Id's: {}", ids);
     
     return reservationRepo.findAll(specFilteredReservationsForUser(filter, user),
