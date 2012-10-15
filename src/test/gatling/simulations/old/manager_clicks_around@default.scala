@@ -19,12 +19,13 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
+package old
 
 import com.excilys.ebi.gatling.core.Predef._
-import com.excilys.ebi.gatling.http.Predef._
-import com.excilys.ebi.gatling.script.GatlingSimulation
 
-class Simulation extends GatlingSimulation {
+import com.excilys.ebi.gatling.http.Predef._
+
+class ManagerSimulation extends Simulation {
 	val urlBase = "http://localhost:8082"
 
 	val httpConf = httpConfig.baseURL(urlBase).proxy("localhost", 8082)
@@ -150,7 +151,8 @@ class Simulation extends GatlingSimulation {
 	)
 
 
-	val scn = scenario("Manager clicking around")
+	def apply = {
+  	val scn = scenario("Manager clicking around")
 			.exec(
 			http("Get virutal resource groups")
 			.get("/bod/manager/virtualresourcegroups")
@@ -251,8 +253,8 @@ class Simulation extends GatlingSimulation {
 			.headers(headers_16)
 		)
 
-
-	runSimulation(
-		scn.configure users 1000 ramp 10 protocolConfig httpConf
-	)
+  	List(
+  		scn.configure.users(1000).ramp(10)protocolConfig(httpConf)
+  	)
+	}
 }

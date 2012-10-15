@@ -22,9 +22,9 @@
 
 import com.excilys.ebi.gatling.core.Predef._
 import com.excilys.ebi.gatling.http.Predef._
-import com.excilys.ebi.gatling.script.GatlingSimulation
+import akka.util.duration._
 
-class Simulation extends GatlingSimulation {
+class CreateReservationSimulation extends Simulation {
 	val urlBase = "http://localhost:8082"
 
 	val httpConf = httpConfig.baseURL(urlBase)
@@ -99,7 +99,8 @@ class Simulation extends GatlingSimulation {
 	)
 
 
-	val scn = scenario("List virtual ports and create a reservation")
+	def apply = {
+	  val scn = scenario("List virtual ports and create a reservation")
 			.exec(
 				http("dashboard")
 				.get("/bod/")
@@ -164,7 +165,7 @@ class Simulation extends GatlingSimulation {
 				.param("endTime", "16:00")
 				.param("bandwidth", "162")
 				.headers(headers_12)
-				.check(status.eq(302))
+				.check(status.is(302))
 			)
 			.pause(0, 100, MILLISECONDS)
 			.exec(
@@ -173,7 +174,8 @@ class Simulation extends GatlingSimulation {
 				.headers(headers_13)
 			)
 
-	runSimulation(
-		scn.configure users 50 ramp 5 protocolConfig httpConf
-	)
+  	List(
+  		scn.configure.users(50).ramp(5 seconds).protocolConfig(httpConf)
+  	)
+	}
 }

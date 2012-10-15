@@ -74,6 +74,13 @@ If you want to run the selenium tests from your IDE (like Eclipse), you could st
 
     mvn jetty:run -Pselenium-server
 
+## Running the Gatling tests
+
+Load testing is done with [Gatling][gatling]. The simulations are located in `src/test/gatling/simulations`.
+To run them type:
+
+    mvn gatling:execute
+
 ## Network Managment System (NMS)
 
 At the moment [openDRAC][opendrac] is used as our NMS. The webservice needs a username and password. The password is in the bod-default.properties file and is encrypted with [Jasypt][jasypt]. The webservice uses a different password as the [web application][opendrac-app]. But should be able to login to verify ports or reservations.  
@@ -97,3 +104,4 @@ How to setup Shibboleth can be found on the [SURFconext wiki](https://wiki.surfn
 [nexus]: https://atlas.dlp.surfnet.nl/nexus/
 [jenkins]: https://atlas.dlp.surfnet.nl/jenkins/
 [sos-git-repo]: gitolite@atlas.dlp.surfnet.nl:sos-server
+[gatling]: http://gatling-tool.org
