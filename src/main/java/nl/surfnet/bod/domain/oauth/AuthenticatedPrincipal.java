@@ -1,4 +1,4 @@
-package nl.surfnet.bod.web.oauth;
+package nl.surfnet.bod.domain.oauth;
 
 import java.security.Principal;
 import java.util.Collection;

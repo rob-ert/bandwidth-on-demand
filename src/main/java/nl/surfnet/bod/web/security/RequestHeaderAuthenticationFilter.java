@@ -26,10 +26,10 @@ import static com.google.common.base.Strings.nullToEmpty;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import nl.surfnet.bod.domain.oauth.AuthenticatedPrincipal;
+import nl.surfnet.bod.service.OAuthServerService;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.ShibbolethConstants;
-import nl.surfnet.bod.web.oauth.AuthenticatedPrincipal;
-import nl.surfnet.bod.web.oauth.OAuthServerService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

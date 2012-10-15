@@ -32,10 +32,10 @@ import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 
+import nl.surfnet.bod.domain.oauth.AuthenticatedPrincipal;
+import nl.surfnet.bod.service.OAuthServerService;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.util.ShibbolethConstants;
-import nl.surfnet.bod.web.oauth.AuthenticatedPrincipal;
-import nl.surfnet.bod.web.oauth.OAuthServerService;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

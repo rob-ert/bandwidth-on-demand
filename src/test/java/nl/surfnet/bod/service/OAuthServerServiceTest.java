@@ -1,8 +1,10 @@
-package nl.surfnet.bod.web.oauth;
+package nl.surfnet.bod.service;
 
 import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
 import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.MatcherAssert.assertThat;
+import nl.surfnet.bod.domain.oauth.AuthenticatedPrincipal;
+import nl.surfnet.bod.service.OAuthServerService;
 import nl.surfnet.bod.support.MockHttpServer;
 import nl.surfnet.bod.util.Environment;
 
