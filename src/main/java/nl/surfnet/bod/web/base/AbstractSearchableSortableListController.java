@@ -21,6 +21,15 @@
  */
 package nl.surfnet.bod.web.base;
 
+import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
+import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
+
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -35,32 +44,43 @@ import nl.surfnet.bod.web.security.Security;
 
 import org.apache.lucene.queryParser.ParseException;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
-import static nl.surfnet.bod.web.WebUtils.MAX_ITEMS_PER_PAGE;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-import static nl.surfnet.bod.web.WebUtils.calculateFirstPage;
-import static nl.surfnet.bod.web.WebUtils.calculateMaxPages;
 
 /**
  * Base controller which adds full text search functionality to the
  * {@link AbstractSortableListController}
- * 
+ *
  * @param <T>
  *          DomainObject
  * @param <K>
  */
-public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> extends
-    AbstractSortableListController<VIEW> {
+public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> {
 
   @Resource
   private ReservationFilterViewFactory reservationFilterViewFactory;
+
+  @RequestMapping(method = RequestMethod.GET)
+  public String list(@RequestParam(value = PAGE_KEY, required = false) Integer page,
+      @RequestParam(value = "sort", required = false) String sort,
+      @RequestParam(value = "order", required = false) String order,
+      Model model) {
+
+    Sort sortOptions = prepareSortOptions(sort, order, model);
+
+    model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count()));
+    model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
+
+    return listUrl();
+  }
 
   @RequestMapping(value = "search", method = RequestMethod.GET)
   public String search(@RequestParam(value = PAGE_KEY, required = false) Integer page,
@@ -97,11 +117,93 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
     return listUrl();
   }
 
+  protected Sort prepareSortOptions(String sort, String order, Model model) {
+    String sortProperty = sortProperty(sort);
+    Direction sortDirection = sortDirection(order);
+
+    model.addAttribute("sortProperty", sortProperty);
+    model.addAttribute("sortDirection", sortDirection);
+
+    return sortOrder(translateSortProperty(sortProperty), sortDirection);
+  }
+
+  protected abstract String listUrl();
+
+  protected abstract List<VIEW> list(int firstPage, int maxItems, Sort sort, Model model);
+
+  protected abstract long count();
+
+  protected String getDefaultSortProperty() {
+    return "id";
+  }
+
+  protected Direction getDefaultSortOrder() {
+    return Direction.ASC;
+  }
+
+  protected List<String> translateSortProperty(String sortProperty) {
+    return ImmutableList.of(sortProperty);
+  }
+
+  protected Sort sortOrder(List<String> sortProperties, Direction direction) {
+    return sort(direction, sortProperties);
+  }
+
+  private String sortProperty(String order) {
+    if (Strings.emptyToNull(order) == null || !doesPropertyExist(order)) {
+      return getDefaultSortProperty();
+    }
+
+    return order;
+  }
+
+  private boolean doesPropertyExist(String order) {
+    try {
+      ParameterizedType type;
+      if (getClass().getGenericSuperclass() instanceof ParameterizedType) {
+        type = (ParameterizedType) getClass().getGenericSuperclass();
+      }
+      else {
+        type = (ParameterizedType) getClass().getSuperclass().getGenericSuperclass();
+      }
+
+      BeanInfo beanInfo = Introspector.getBeanInfo(((Class<?>) type.getActualTypeArguments()[0]));
+
+      for (PropertyDescriptor property : beanInfo.getPropertyDescriptors()) {
+        if (property.getName().equals(order)) {
+          return true;
+        }
+      }
+    }
+    catch (IntrospectionException e) {
+      return false;
+    }
+
+    return false;
+  }
+
+  private Direction sortDirection(String order) {
+    if (Strings.isNullOrEmpty(order)) {
+      return getDefaultSortOrder();
+    }
+
+    try {
+      return Direction.fromString(order);
+    }
+    catch (IllegalArgumentException e) {
+      return getDefaultSortOrder();
+    }
+  }
+
+  private Sort sort(final Direction direction, List<String> properties) {
+    return new Sort(direction, properties);
+  }
+
   /**
    * Handles the list from a specific controller and places the results an the
    * model. When a search must be performed, these result will be overridden by
    * the search results.
-   * 
+   *
    * @param firstResult
    *          Integer page number
    * @param model
@@ -129,7 +231,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> ext
    * Maps a search string with a label from a column to a search with a field in
    * the domain model. Can be overridden for a specific implementation, this
    * default implementation maps to the most common used fields.
-   * 
+   *
    * @param search
    *          The string to search for, may contain lucene specific syntax e.g.
    *          'name:test'
