@@ -76,17 +76,18 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> {
 
     Sort sortOptions = prepareSortOptions(sort, order, model);
 
-    model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count()));
+    model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(count(model)));
     model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
 
     return listUrl();
   }
 
   @RequestMapping(value = "search", method = RequestMethod.GET)
-  public String search(@RequestParam(value = PAGE_KEY, required = false) Integer page,
+  public String search(
+      @RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order, //
-      @RequestParam(value = "search") String search, //
+      @RequestParam(value = "order", required = false) String order,
+      @RequestParam(value = "search") String search,
       Model model) {
 
     Sort sortOptions = prepareSortOptions(sort, order, model);
@@ -131,7 +132,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> {
 
   protected abstract List<VIEW> list(int firstPage, int maxItems, Sort sort, Model model);
 
-  protected abstract long count();
+  protected abstract long count(Model model);
 
   protected String getDefaultSortProperty() {
     return "id";
@@ -224,6 +225,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> {
     List<VIEW> pagedList = getFullTextSearchableService().pageList(firstResult, MAX_ITEMS_PER_PAGE, listFromController);
 
     model.addAttribute(WebUtils.DATA_LIST, pagedList);
+
     return listFromController;
   }
 

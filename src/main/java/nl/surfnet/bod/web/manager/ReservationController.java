@@ -50,17 +50,15 @@ public class ReservationController extends AbstractFilteredReservationController
   protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
-    model
-        .addAttribute(
-            WebUtils.MAX_PAGES_KEY,
-            WebUtils.calculateMaxPages(getReservationService().countForFilterAndManager(Security.getUserDetails(),
-                filter)));
+   return getFullTextSearchableService().transformToView(
+        getReservationService().findEntriesForManagerUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems, sort),
+        Security.getUserDetails());
+  }
 
-    List<ReservationView> reservationViews = getFullTextSearchableService().transformToView(
-        getReservationService().findEntriesForManagerUsingFilter(Security.getUserDetails(), filter, firstPage,
-            maxItems, sort), Security.getUserDetails());
-
-    return reservationViews;
+  @Override
+  protected long count(Model model) {
+    ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
+    return getReservationService().countForFilterAndManager(Security.getUserDetails(), filter);
   }
 
   @Override

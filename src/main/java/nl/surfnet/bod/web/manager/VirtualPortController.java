@@ -236,7 +236,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   }
 
   @Override
-  protected long count() {
+  protected long count(Model model) {
     return virtualPortService.countForManager(Security.getSelectedRole());
   }
 

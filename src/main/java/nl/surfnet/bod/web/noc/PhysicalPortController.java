@@ -433,7 +433,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @Override
-  protected long count() {
+  protected long count(Model model) {
     return physicalPortService.countAllocated();
   }
 

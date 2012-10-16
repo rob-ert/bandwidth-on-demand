@@ -54,7 +54,7 @@ public class VirtualResourceGroupController extends AbstractSearchableSortableLi
   }
 
   @Override
-  protected long count() {
+  protected long count(Model model) {
     return virtualResourceGroupService.count();
   }
 

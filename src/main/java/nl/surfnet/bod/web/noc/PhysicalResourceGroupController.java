@@ -192,7 +192,7 @@ public class PhysicalResourceGroupController extends AbstractSearchableSortableL
   }
 
   @Override
-  protected long count() {
+  protected long count(Model model) {
     return physicalResourceGroupService.count();
   }
 

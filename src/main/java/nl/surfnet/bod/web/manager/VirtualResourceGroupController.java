@@ -85,7 +85,7 @@ public class VirtualResourceGroupController extends
   }
 
   @Override
-  protected long count() {
+  protected long count(Model model) {
     return virtualResourceGroupService.countForManager(Security.getSelectedRole());
   }
 

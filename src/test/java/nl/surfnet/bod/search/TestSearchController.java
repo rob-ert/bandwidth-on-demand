@@ -48,7 +48,7 @@ public class TestSearchController extends AbstractSearchableSortableListControll
   }
 
   @Override
-  public long count() {
+  public long count(Model model) {
     return testEntities.size();
   }
 

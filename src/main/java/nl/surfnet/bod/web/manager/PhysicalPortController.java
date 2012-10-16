@@ -97,7 +97,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @Override
-  protected long count() {
+  protected long count(Model model) {
     Optional<Long> groupId = WebUtils.getSelectedPhysicalResourceGroupId();
 
     if (!groupId.isPresent()) {

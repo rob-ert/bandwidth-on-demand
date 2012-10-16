@@ -35,12 +35,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(value = "/noc/" + LogEventController.PAGE_URL)
 public class LogEventController extends AbstractLogEventController {
 
+  @Override
   protected List<LogEvent> list(int firstPage, int maxItems, Sort sort, Model model) {
     return logEventService.findAll(firstPage, maxItems, sort);
   }
 
   @Override
-  protected long count() {
+  protected long count(Model model) {
     return logEventService.count();
   }
 

@@ -21,6 +21,17 @@
  */
 package nl.surfnet.bod.web.base;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -45,17 +56,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 
 import com.google.common.collect.Lists;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractSearchableSortableListControllerTest {
@@ -97,7 +97,7 @@ public class AbstractSearchableSortableListControllerTest {
   @SuppressWarnings("unchecked")
   @Test
   public void testSearch() throws ParseException {
-    FullTextSearchResult<TestView> searchResult = new FullTextSearchResult<>(subject.count(), testViews);
+    FullTextSearchResult<TestView> searchResult = new FullTextSearchResult<>(subject.count(null), testViews);
 
     when(
         service.searchForInFilteredList(any(Class.class), anyString(), anyInt(), anyInt(), any(Sort.class),
@@ -114,7 +114,7 @@ public class AbstractSearchableSortableListControllerTest {
   @SuppressWarnings("unchecked")
   @Test
   public void testSearchWithQuotes() throws ParseException {
-    FullTextSearchResult<TestView> searchResult = new FullTextSearchResult<>(subject.count(), testViews);
+    FullTextSearchResult<TestView> searchResult = new FullTextSearchResult<>(subject.count(null), testViews);
 
     when(
         service.searchForInFilteredList(any(Class.class), anyString(), anyInt(), anyInt(), any(Sort.class),

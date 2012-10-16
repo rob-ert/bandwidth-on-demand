@@ -21,6 +21,10 @@
  */
 package nl.surfnet.bod.web.base;
 
+import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
+import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
+
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -33,27 +37,17 @@ import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import com.google.common.collect.Lists;
 
-import static nl.surfnet.bod.web.WebUtils.*;
-import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
-import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
-import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
-
 /**
  * Base controller for filtering and sorting {@link Reservation}s.
- * 
+ *
  * @see AbstractSortableListController
- * 
+ *
  */
 public abstract class AbstractFilteredReservationController extends
     AbstractSearchableSortableListController<ReservationView, Reservation> {
@@ -70,50 +64,42 @@ public abstract class AbstractFilteredReservationController extends
     return "startDateTime";
   }
 
-  /**
-   * Make sure we always filter never show all reservations at once, delegate to
-   * {@link #filter(Integer, String, String, String, String, Model)}
-   */
   @Override
   public String list(Integer page, String sort, String order, Model model) {
     return filter(page, sort, order, ReservationFilterViewFactory.COMING, model);
   }
 
-  /**
-   * Make sure we always filter in combination with searching, delegate to
-   * {@link #filter(Integer, String, String, String, String, Model)}
-   */
   @Override
   public String search(Integer page, String sort, String order, String search, Model model) {
     return filterAndSearch(page, sort, order, search, ReservationFilterViewFactory.COMING, model);
   }
 
   @RequestMapping(value = FILTER_URL + "{filterId}/search", method = RequestMethod.GET)
-  public String filterAndSearch(@RequestParam(value = PAGE_KEY, required = false) Integer page,
+  public String filterAndSearch(
+      @RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order, //
-      @RequestParam(value = "search", required = false) String search, //
-      @PathVariable(value = "filterId") String filterId, //
+      @RequestParam(value = "order", required = false) String order,
+      @RequestParam(value = "search", required = false) String search,
+      @PathVariable(value = "filterId") String filterId,
       Model model) {
-   
-    ReservationFilterView reservationFilter;
+
     try {
-      reservationFilter = reservationFilterViewFactory.create(filterId);
+      ReservationFilterView reservationFilter = reservationFilterViewFactory.create(filterId);
       model.addAttribute(FILTER_SELECT, reservationFilter);
+
+      return super.search(page, sort, order, search, model);
     }
     catch (IllegalArgumentException e) {
       model.asMap().clear();
       return "redirect:../";
     }
-    
-    return super.search(page, sort, order, search, model);
   }
 
   /**
    * Retrieves a list and filters by applying the filter specified by the
    * filterId. After the user selects a filter a new Http get with the selected
    * filterId can be performed.
-   * 
+   *
    * @param page
    *          StartPage
    * @param sort
@@ -131,37 +117,27 @@ public abstract class AbstractFilteredReservationController extends
    * @return
    */
   @RequestMapping(value = FILTER_URL + "{filterId}", method = RequestMethod.GET)
-  public String filter(@RequestParam(value = PAGE_KEY, required = false) Integer page,
+  public String filter(
+      @RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
-      @RequestParam(value = "order", required = false) String order, //
-      @PathVariable(value = "filterId") String filterId, //
+      @RequestParam(value = "order", required = false) String order,
+      @PathVariable(value = "filterId") String filterId,
       Model model) {
 
-    ReservationFilterView reservationFilter;
     try {
-      reservationFilter = reservationFilterViewFactory.create(filterId);
+      ReservationFilterView reservationFilter = reservationFilterViewFactory.create(filterId);
       model.addAttribute(FILTER_SELECT, reservationFilter);
+
+      return super.list(page, sort, order, model);
     }
     catch (IllegalArgumentException e) {
       model.asMap().clear();
       return "redirect:../";
     }
-
-    Sort sortOptions = prepareSortOptions(sort, order, model);
-    
-    model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
-    
-    return listUrl();
-  }
-
-  @Override
-  protected long count() {
-    throw new UnsupportedOperationException("Only filtered lists are supported");
   }
 
   @ModelAttribute
   protected void populateFilter(Model model) {
-
     model.addAttribute(FILTER_LIST, determineFilters());
 
     // Remove the [list] part of the url
@@ -182,18 +158,12 @@ public abstract class AbstractFilteredReservationController extends
   }
 
   private List<ReservationFilterView> determineFilters() {
-    List<ReservationFilterView> filterViews = Lists.newArrayList();
-
-    // Coming period
-    filterViews.add(reservationFilterViewFactory.create(nl.surfnet.bod.support.ReservationFilterViewFactory.COMING));
-
-    // Elapsed period
-    filterViews.add(reservationFilterViewFactory.create(nl.surfnet.bod.support.ReservationFilterViewFactory.ELAPSED));
-
-    filterViews.add(reservationFilterViewFactory.create(ReservationFilterViewFactory.ACTIVE));
+    List<ReservationFilterView> filterViews = Lists.newArrayList(
+      reservationFilterViewFactory.create(nl.surfnet.bod.support.ReservationFilterViewFactory.COMING),
+      reservationFilterViewFactory.create(nl.surfnet.bod.support.ReservationFilterViewFactory.ELAPSED),
+      reservationFilterViewFactory.create(ReservationFilterViewFactory.ACTIVE));
 
     List<Integer> uniqueReservationYears = reservationService.findUniqueYearsFromReservations();
-
     filterViews.addAll(reservationFilterViewFactory.create(uniqueReservationYears));
 
     return filterViews;

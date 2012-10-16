@@ -21,6 +21,10 @@
  */
 package nl.surfnet.bod.web.user;
 
+import static nl.surfnet.bod.util.Orderings.vpUserLabelOrdering;
+import static nl.surfnet.bod.util.Orderings.vrgNameOrdering;
+import static nl.surfnet.bod.web.WebUtils.*;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -54,15 +58,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
-
-import static nl.surfnet.bod.util.Orderings.vpUserLabelOrdering;
-import static nl.surfnet.bod.util.Orderings.vrgNameOrdering;
-import static nl.surfnet.bod.web.WebUtils.CREATE;
-import static nl.surfnet.bod.web.WebUtils.DELETE;
-import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
-import static nl.surfnet.bod.web.WebUtils.LIST;
-import static nl.surfnet.bod.web.WebUtils.EDIT;
 
 @RequestMapping(ReservationController.PAGE_URL)
 @Controller(value = "userReservationController")
@@ -156,13 +151,13 @@ public class ReservationController extends AbstractFilteredReservationController
     // Response is ignored, in js related to link
     return "index";
   }
-  
-  
+
+
   @RequestMapping(value = EDIT, params = ID_KEY, method = RequestMethod.GET)
   public String copyReservation(@RequestParam(ID_KEY) Long id, Model model) {
-    
+
     final Reservation originalReservation = getReservationService().find(id);
-    
+
     final Reservation reservation = new Reservation();
     reservation.setBandwidth(originalReservation.getBandwidth());
     reservation.setDestinationPort(originalReservation.getDestinationPort());
@@ -175,7 +170,7 @@ public class ReservationController extends AbstractFilteredReservationController
     reservation.setStartDateTime(originalReservation.getStartDateTime());
     reservation.setDestinationPort(originalReservation.getDestinationPort());
     reservation.setVirtualResourceGroup(originalReservation.getVirtualResourceGroup());
-    
+
     model.addAttribute(MODEL_KEY, reservation);
     model.addAttribute("virtualPorts", vpUserLabelOrdering().sortedCopy(
         reservation.getVirtualResourceGroup().getVirtualPorts()));
@@ -190,12 +185,15 @@ public class ReservationController extends AbstractFilteredReservationController
   protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
-    model.addAttribute(WebUtils.MAX_PAGES_KEY, WebUtils.calculateMaxPages(getReservationService()
-        .countForFilterAndUser(Security.getUserDetails(), filter)));
-
     return getFullTextSearchableService().transformToView(
         getReservationService().findEntriesForUserUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems,
             sort), Security.getUserDetails());
+  }
+
+  @Override
+  protected long count(Model model) {
+    ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
+    return getReservationService().countForFilterAndUser(Security.getUserDetails(), filter);
   }
 
   private List<VirtualResourceGroup> findVirtualResourceGroups() {
