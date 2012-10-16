@@ -192,7 +192,7 @@ public class ReservationControllerTest {
     when(reservationServiceMock.transformToView(reservations, user)).thenReturn(reservationViews);
     when(reservationServiceMock.pageList(anyInt(), anyInt(), eq(reservationViews))).thenCallRealMethod();
 
-    subject.filter(1, "nonExistingProperty", "nonExistingDirection", "", "2012", model);
+    subject.filter(1, "nonExistingProperty", "nonExistingDirection", "2012", model);
 
     assertThat(model.asMap(), hasKey("list"));
     assertThat(model.asMap(), hasKey("sortProperty"));
@@ -207,7 +207,7 @@ public class ReservationControllerTest {
   public void listWithNonExistingFilter() {
     when(reservationFilterViewFactoryMock.create(anyString())).thenCallRealMethod();
 
-    String page = subject.filter(1, "name", "asc", "", "nonExistingFilter", model);
+    String page = subject.filter(1, "name", "asc", "nonExistingFilter", model);
 
     assertThat(page, is("redirect:../"));
   }

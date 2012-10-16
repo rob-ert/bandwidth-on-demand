@@ -33,6 +33,7 @@ import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -43,6 +44,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.Lists;
 
+import static nl.surfnet.bod.web.WebUtils.*;
 import static nl.surfnet.bod.web.WebUtils.FILTER_LIST;
 import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
@@ -74,7 +76,7 @@ public abstract class AbstractFilteredReservationController extends
    */
   @Override
   public String list(Integer page, String sort, String order, Model model) {
-    return filter(page, sort, order, "", null, model);
+    return filter(page, sort, order, ReservationFilterViewFactory.COMING, model);
   }
 
   /**
@@ -83,7 +85,7 @@ public abstract class AbstractFilteredReservationController extends
    */
   @Override
   public String search(Integer page, String sort, String order, String search, Model model) {
-    return filter(page, sort, order, search, null, model);
+    return filterAndSearch(page, sort, order, search, ReservationFilterViewFactory.COMING, model);
   }
 
   @RequestMapping(value = FILTER_URL + "{filterId}/search", method = RequestMethod.GET)
@@ -93,7 +95,18 @@ public abstract class AbstractFilteredReservationController extends
       @RequestParam(value = "search", required = false) String search, //
       @PathVariable(value = "filterId") String filterId, //
       Model model) {
-    return filter(page, sort, order, search, filterId, model);
+   
+    ReservationFilterView reservationFilter;
+    try {
+      reservationFilter = reservationFilterViewFactory.create(filterId);
+      model.addAttribute(FILTER_SELECT, reservationFilter);
+    }
+    catch (IllegalArgumentException e) {
+      model.asMap().clear();
+      return "redirect:../";
+    }
+    
+    return super.search(page, sort, order, search, model);
   }
 
   /**
@@ -121,7 +134,6 @@ public abstract class AbstractFilteredReservationController extends
   public String filter(@RequestParam(value = PAGE_KEY, required = false) Integer page,
       @RequestParam(value = "sort", required = false) String sort,
       @RequestParam(value = "order", required = false) String order, //
-      @RequestParam(value = "search", required = false) String search, //
       @PathVariable(value = "filterId") String filterId, //
       Model model) {
 
@@ -135,7 +147,11 @@ public abstract class AbstractFilteredReservationController extends
       return "redirect:../";
     }
 
-    return super.search(page, sort, order, search, model);
+    Sort sortOptions = prepareSortOptions(sort, order, model);
+    
+    model.addAttribute(WebUtils.DATA_LIST, list(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions, model));
+    
+    return listUrl();
   }
 
   @Override

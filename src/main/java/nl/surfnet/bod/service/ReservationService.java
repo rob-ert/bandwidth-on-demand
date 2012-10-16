@@ -41,7 +41,7 @@ import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
-import nl.surfnet.bod.repo.GenericIdRepo;
+import nl.surfnet.bod.repo.CustomReservationRepo;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -85,7 +85,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   private ReservationRepo reservationRepo;
   
   @Resource
-  private GenericIdRepo genericIdRepo;
+  private CustomReservationRepo customReservationRepo;
 
   @Resource
   private ReservationArchiveRepo reservationArchiveRepo;
@@ -470,16 +470,21 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public List<Reservation> findEntriesForUserUsingFilter(final RichUserDetails user,
       final ReservationFilterView filter, int firstResult, int maxResults, Sort sort) {
 
+    System.out.println(firstResult + " " + maxResults);
     if (user.getUserGroupIds().isEmpty()) {
       return Collections.emptyList();
     }
 
     // TODO: Use the returned ids
-    final List<Long> ids = genericIdRepo.findAllIds(Reservation.class);
+    final List<Long> ids = customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user));
     log.info("Id's: {}", ids);
     
-    return reservationRepo.findAll(specFilteredReservationsForUser(filter, user),
+    final List<Reservation> content = reservationRepo.findAll(specFilteredReservationsForUser(filter, user),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+    
+    System.out.println(content.size());
+    
+    return content;
   }
 
   public List<Reservation> findEntriesForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter,

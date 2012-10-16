@@ -103,7 +103,7 @@ public class ReservationControllerTest {
 
   @Test
   public void shouldHaveMaxPageOnModel() {
-    subject.filter(page, "id", "asc", "", filter2012.getId(), model);
+    subject.filter(page, "id", "asc",  filter2012.getId(), model);
 
     assertThat((Integer) model.asMap().get(WebUtils.MAX_PAGES_KEY),
         is(Integer.valueOf(WebUtils.calculateMaxPages(size.longValue()))));
@@ -118,7 +118,7 @@ public class ReservationControllerTest {
 
   @Test
   public void filteredViewShouldRedirectToListView() {
-    String viewName = subject.filter(page, "id", "asc", null, filter2012.getId(), model);
+    String viewName = subject.filter(page, "id", "asc", filter2012.getId(), model);
 
     assertThat(viewName, is(subject.listUrl()));
   }

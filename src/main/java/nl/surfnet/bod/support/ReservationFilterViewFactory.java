@@ -45,15 +45,8 @@ public class ReservationFilterViewFactory {
   public static final String COMING = "coming";
   public static final String ELAPSED = "elapsed";
   public static final String ACTIVE = "active";
-  public static final ReservationFilterView DEFAULT_FILTER = new ReservationFilterView(COMING, String.format(
-      "In %d months", DEFAULT_FILTER_INTERVAL.get(DurationFieldType.months())), DEFAULT_FILTER_INTERVAL, false);
-
+  
   public ReservationFilterView create(String id) {
-    // No filter, use default
-    if (!StringUtils.hasText(id)) {
-      return DEFAULT_FILTER;
-    }
-
     try {
       // If it is a number we assume it is a year
       Integer year = NumberUtils.parseNumber(id, Integer.class);
