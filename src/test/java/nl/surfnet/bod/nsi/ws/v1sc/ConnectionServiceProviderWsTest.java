@@ -21,6 +21,16 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
+import static junit.framework.Assert.fail;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+
+import java.util.EnumSet;
+
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -30,6 +40,8 @@ import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.oauth.NsiScope;
+import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.service.ConnectionServiceProviderService;
 import nl.surfnet.bod.service.ReservationService;
@@ -39,6 +51,7 @@ import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
 import org.hamcrest.text.IsEmptyString;
 import org.junit.Before;
@@ -47,26 +60,13 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2011._10.connection.types.BandwidthType;
-import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReserveType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
+import org.ogf.schemas.nsi._2011._10.connection.types.*;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
-
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderWsTest {
@@ -173,7 +173,7 @@ public class ConnectionServiceProviderWsTest {
 
     try {
       subject.reserve(connection, request, userDetails);
-      Assert.fail("Exception expected");
+      fail("Exception expected");
     }
     catch (ServiceException e) {
       assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderWs.SVC0003_ALREADY_EXISTS));
@@ -197,6 +197,30 @@ public class ConnectionServiceProviderWsTest {
     Connection connection = RESERVE_REQUEST_TO_CONNECTION.apply(reserveRequestType);
 
     assertThat(connection.getGlobalReservationId(), is("urn:surfnet.nl:12345"));
+  }
+
+  @Test
+  public void reserveWithoutReserveScopeShouldFail() throws ServiceException {
+    Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.of(NsiScope.QUERY)).create());
+
+    try {
+      subject.reserve(createReservationRequestType(100, Optional.of("1234")));
+      fail("Exception expected");
+    } catch (ServiceException e) {
+      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderErrorCodes.SECURITY.MISSING_GRANTED_SCOPE.getId()));
+    }
+  }
+
+  @Test
+  public void queryWithoutReserveScopeShouldFail() throws ServiceException {
+    Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.of(NsiScope.RESERVE)).create());
+
+    try {
+      subject.query(new QueryRequestType());
+      fail("Exception expected");
+    } catch (ServiceException e) {
+      assertThat(e.getFaultInfo().getErrorId(), is(ConnectionServiceProviderErrorCodes.SECURITY.MISSING_GRANTED_SCOPE.getId()));
+    }
   }
 
   public static ReserveRequestType createReservationRequestType(int desiredBandwidth,
