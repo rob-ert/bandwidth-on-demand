@@ -60,11 +60,6 @@ public abstract class AbstractFilteredReservationController extends
   private ReservationFilterViewFactory reservationFilterViewFactory;
 
   @Override
-  public String getDefaultSortProperty() {
-    return "startDateTime";
-  }
-
-  @Override
   public String list(Integer page, String sort, String order, Model model) {
     return filter(page, sort, order, ReservationFilterViewFactory.COMING, model);
   }
@@ -104,8 +99,6 @@ public abstract class AbstractFilteredReservationController extends
    *          StartPage
    * @param sort
    *          Property names to sort on
-   * @param order
-   *          Order for the sort
    * @param filterId
    *          Id of the filter to apply. Nullable, will default to
    *          {@link ReservationFilterViewFactory#DEFAULT_FILTER} when empty or
@@ -113,8 +106,6 @@ public abstract class AbstractFilteredReservationController extends
    * @param model
    *          Model to place the state on {@link WebUtils#FILTER_SELECT} and
    *          {@link WebUtils#DATA_LIST}
-   * @param request
-   * @return
    */
   @RequestMapping(value = FILTER_URL + "{filterId}", method = RequestMethod.GET)
   public String filter(
@@ -142,6 +133,11 @@ public abstract class AbstractFilteredReservationController extends
 
     // Remove the [list] part of the url
     model.addAttribute("baseFilterUrl", StringUtils.delete(listUrl(), WebUtils.LIST) + "/" + FILTER_URL);
+  }
+
+  @Override
+  public String getDefaultSortProperty() {
+    return "startDateTime";
   }
 
   protected ReservationService getReservationService() {
