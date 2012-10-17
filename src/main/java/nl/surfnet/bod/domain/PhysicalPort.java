@@ -34,7 +34,7 @@ import com.google.common.base.Strings;
 @Indexed
 @AnalyzerDef(name = "customanalyzer", tokenizer = @TokenizerDef(factory = WhitespaceTokenizerFactory.class), filters = { @TokenFilterDef(factory = LowerCaseFilterFactory.class) })
 @Entity
-public class PhysicalPort implements Loggable {
+public class PhysicalPort implements Loggable, PersistableDomain {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -109,6 +109,7 @@ public class PhysicalPort implements Loggable {
     this.alignedWithNMS = true;
   }
 
+  @Override
   public Long getId() {
     return this.id;
   }

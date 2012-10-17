@@ -25,6 +25,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static nl.surfnet.bod.matchers.DateMatchers.isAfterNow;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -34,7 +35,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -49,11 +49,8 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.ElementActionView;
-import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.DateTime;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -66,6 +63,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.AsyncResult;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -356,85 +354,71 @@ public class ReservationServiceTest {
   }
 
   @Test
-  public void intersectTwoEqualSizedLists() {
-    List<ReservationView> filterResult = Lists.newArrayList();
+  public void intersectWithOneFilterResult() {
+    List<Reservation> searchResult = Lists.newArrayList();
     for (int i = 0; i < 3; i++) {
-      filterResult.add(new ReservationView(new ReservationFactory().create(), new ElementActionView(true), new ElementActionView(
-          true)));
+      searchResult.add(new ReservationFactory().setId((long) i).create());
     }
 
-    List<ReservationView> searchResult = new ArrayList<>(filterResult);
-    List<ReservationView> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(filterResult,
-        searchResult);
+    List<Long> filterResult = Lists.newArrayList(2L);
+    List<Reservation> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(searchResult, filterResult);
 
-    assertThat(intersectedResult, hasSize(filterResult.size()));
-    Assert.assertTrue(intersectedResult.containsAll(filterResult));
+    assertThat(intersectedResult, hasSize(1));
+    assertThat(Iterables.getOnlyElement(intersectedResult).getId(), is(2L));
   }
 
   @Test
   public void intersectMoreFilterResultsAndSearchResults() {
-    List<Reservation> filterResult = Lists.newArrayList();
+    List<Reservation> searchResult = Lists.newArrayList();
     for (int i = 0; i < 4; i++) {
-      filterResult.add(new ReservationFactory().create());
+      searchResult.add(new ReservationFactory().setId((long) i).create());
     }
 
-    List<Reservation> searchResult = Lists.newArrayList(filterResult.subList(0, 2));
+    List<Long> filterResult = Lists.newArrayList(2L, 3L);
 
-    List<ReservationView> searchViews = reservationService.transformToView(searchResult, Security.getUserDetails());
-    List<ReservationView> filterViews = reservationService.transformToView(filterResult, Security.getUserDetails());
-
-    List<ReservationView> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(filterViews,
-        searchViews);
+    List<Reservation> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(searchResult,
+        filterResult);
 
     assertThat(intersectedResult, hasSize(2));
-    Assert.assertTrue(intersectedResult.containsAll(searchViews));
   }
 
   @Test
   public void intersectLessFilterResultsAndSearchResults() {
-    ReservationView reservationView = new ReservationView(new ReservationFactory().create(),
-        new ElementActionView(true),new ElementActionView(
-            true));
-    ReservationView searchResultView = (new ReservationView(new ReservationFactory().create(), new ElementActionView(
-        true),new ElementActionView(
-            true)));
+    Reservation reservation1 = new ReservationFactory().create();
+    Reservation reservation2 = new ReservationFactory().create();
 
-    List<ReservationView> filterResult = Lists.newArrayList(reservationView);
-    List<ReservationView> searchResult = Lists.newArrayList(reservationView, searchResultView);
+    List<Reservation> searchResult = Lists.newArrayList(reservation1);
+    List<Long> filterResult = Lists.newArrayList(reservation1.getId(), reservation2.getId());
 
-    List<ReservationView> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(filterResult,
-        searchResult);
+    List<Reservation> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(searchResult,
+        filterResult);
 
     assertThat(intersectedResult, hasSize(1));
-    Assert.assertTrue(intersectedResult.contains(reservationView));
+    assertThat(intersectedResult, contains(reservation1));
   }
 
   @Test
   public void intersectEmptyFilterResultsAndSearchResults() {
-    ReservationView searchResultView = (new ReservationView(new ReservationFactory().create(), new ElementActionView(
-        true),new ElementActionView(
-            true)));
+    Reservation reservation = new ReservationFactory().create();
 
-    List<ReservationView> filterResult = Lists.newArrayList();
-    List<ReservationView> searchResult = Lists.newArrayList(searchResultView, searchResultView);
+    List<Reservation> searchResult = Lists.newArrayList(reservation);
+    List<Long> filterResult = Lists.newArrayList();
 
-    List<ReservationView> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(filterResult,
-        searchResult);
+    List<Reservation> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(searchResult,
+        filterResult);
 
     assertThat(intersectedResult, hasSize(0));
   }
 
   @Test
   public void intersectFilterResultsAndEmptySearchResults() {
-    ReservationView reservationView = new ReservationView(new ReservationFactory().create(),
-        new ElementActionView(true),new ElementActionView(
-            true));
+    Reservation reservation = new ReservationFactory().create();
 
-    List<ReservationView> filterResult = Lists.newArrayList(reservationView);
-    List<ReservationView> searchResult = Lists.newArrayList();
+    List<Reservation> searchResult = Lists.newArrayList();
+    List<Long> filterResult = Lists.newArrayList(reservation.getId());
 
-    List<ReservationView> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(filterResult,
-        searchResult);
+    List<Reservation> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(searchResult,
+        filterResult);
 
     assertThat(intersectedResult, hasSize(0));
   }

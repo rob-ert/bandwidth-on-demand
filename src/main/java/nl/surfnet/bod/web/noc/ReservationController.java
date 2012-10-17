@@ -24,6 +24,7 @@ package nl.surfnet.bod.web.noc;
 import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 import static nl.surfnet.bod.web.WebUtils.LIST;
 
+import java.util.Collections;
 import java.util.List;
 
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
@@ -55,8 +56,7 @@ public class ReservationController extends AbstractFilteredReservationController
   protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
-    return getFullTextSearchableService()
-        .transformToView(getReservationService().findAllEntriesUsingFilter(filter, firstPage, maxItems, sort),
+    return transformToView(getReservationService().findAllEntriesUsingFilter(filter, firstPage, maxItems, sort),
             Security.getUserDetails());
   }
 
@@ -65,6 +65,12 @@ public class ReservationController extends AbstractFilteredReservationController
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
     return getReservationService().countAllEntriesUsingFilter((filter));
+  }
+
+  @Override
+  public List<Long> handleListFromController(Model model) {
+    // TODO Auto-generated method stub
+    return Collections.emptyList();
   }
 
 }

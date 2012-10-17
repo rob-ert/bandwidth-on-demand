@@ -24,7 +24,6 @@ package nl.surfnet.bod.web.manager;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -109,8 +108,6 @@ public class VirtualPortControllerTest {
             eq(0),
             eq(WebUtils.MAX_ITEMS_PER_PAGE),
             any(Sort.class))).thenReturn(Lists.newArrayList(new VirtualPortFactory().create()));
-
-    when(virtualPortServiceMock.transformToView(anyList(), eq(user))).thenCallRealMethod();
 
     subject.list(1, null, null, model);
 

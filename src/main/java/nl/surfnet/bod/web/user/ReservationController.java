@@ -184,7 +184,7 @@ public class ReservationController extends AbstractFilteredReservationController
   protected List<ReservationView> list(int firstPage, int maxItems, Sort sort, Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
 
-    return getFullTextSearchableService().transformToView(
+    return transformToView(
         getReservationService().findEntriesForUserUsingFilter(Security.getUserDetails(), filter, firstPage, maxItems,
             sort), Security.getUserDetails());
   }
@@ -193,6 +193,12 @@ public class ReservationController extends AbstractFilteredReservationController
   protected long count(Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
     return getReservationService().countForFilterAndUser(Security.getUserDetails(), filter);
+  }
+
+  @Override
+  public List<Long> handleListFromController(Model model) {
+    ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
+    return getReservationService().findIdsForUserUsingFilter(Security.getUserDetails(), filter);
   }
 
   private List<VirtualResourceGroup> findVirtualResourceGroups() {

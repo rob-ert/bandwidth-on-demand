@@ -25,21 +25,17 @@ import java.util.Collection;
 
 import javax.persistence.*;
 
-import org.hibernate.search.annotations.Analyzer;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Index;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.Store;
+import org.hibernate.search.annotations.*;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Entity which represents a List of {@link VirtualPort}s which belong together
  * and to the {@link Reservation}s which are related to this group.
- * 
+ *
  */
 @Entity
 @Indexed
-public class VirtualResourceGroup implements Loggable {
+public class VirtualResourceGroup implements Loggable, PersistableDomain {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -74,6 +70,7 @@ public class VirtualResourceGroup implements Loggable {
   @OneToMany(mappedBy = "virtualResourceGroup", cascade = CascadeType.REMOVE)
   private Collection<VirtualPortRequestLink> virtualPortRequestLinks;
 
+  @Override
   public Long getId() {
     return id;
   }

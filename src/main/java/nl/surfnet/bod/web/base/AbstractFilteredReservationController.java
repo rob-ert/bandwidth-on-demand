@@ -34,6 +34,7 @@ import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 import nl.surfnet.bod.web.view.ReservationView;
 
@@ -41,6 +42,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 /**
@@ -149,7 +151,7 @@ public abstract class AbstractFilteredReservationController extends
   }
 
   @Override
-  protected AbstractFullTextSearchService<ReservationView, Reservation> getFullTextSearchableService() {
+  protected AbstractFullTextSearchService<Reservation> getFullTextSearchableService() {
     return getReservationService();
   }
 
@@ -164,4 +166,16 @@ public abstract class AbstractFilteredReservationController extends
 
     return filterViews;
   }
+
+  @Override
+  public List<ReservationView> transformToView(List<Reservation> reservationsToTransform, final RichUserDetails user) {
+
+    return Lists.transform(reservationsToTransform, new Function<Reservation, ReservationView>() {
+      @Override
+      public ReservationView apply(Reservation reservation) {
+        return new ReservationView(reservation, reservationService.isDeleteAllowed(reservation, user.getSelectedRole()), reservationService.isEditAllowed(reservation, user.getSelectedRole()));
+      }
+    });
+  }
+
 }

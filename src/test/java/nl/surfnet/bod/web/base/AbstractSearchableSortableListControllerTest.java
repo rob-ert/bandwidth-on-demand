@@ -23,7 +23,6 @@ package nl.surfnet.bod.web.base;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
@@ -76,18 +75,15 @@ public class AbstractSearchableSortableListControllerTest {
 
   private List<TestEntity> testEntities;
 
-  private List<TestView> testViews;
-
   @Before
   public void onSetUp() {
     subject = new TestSearchController();
 
-    testEntity = new TestEntity(1);
+    testEntity = new TestEntity(1L);
     testView = new TestView(testEntity);
 
     model = new ModelStub();
     testEntities = Lists.newArrayList(testEntity);
-    testViews = Lists.newArrayList(testView);
 
     subject.setTestEntities(testEntities);
 
@@ -97,16 +93,15 @@ public class AbstractSearchableSortableListControllerTest {
   @SuppressWarnings("unchecked")
   @Test
   public void testSearch() throws ParseException {
-    FullTextSearchResult<TestView> searchResult = new FullTextSearchResult<>(subject.count(null), testViews);
+    FullTextSearchResult<TestEntity> searchResult = new FullTextSearchResult<>(10, testEntities);
 
     when(
         service.searchForInFilteredList(any(Class.class), anyString(), anyInt(), anyInt(), any(Sort.class),
-            any(RichUserDetails.class), anyListOf(TestView.class))).thenReturn(searchResult);
+            any(RichUserDetails.class), anyListOf(Long.class))).thenReturn(searchResult);
 
     subject.search(0, "id", "ASC", "test", model);
 
     assertThat((String) WebUtils.getAttributeFromModel(WebUtils.PARAM_SEARCH, model), is("test"));
-    assertThat((List<TestEntity>) WebUtils.getAttributeFromModel(WebUtils.DATA_LIST, model), hasSize(1));
     assertThat((List<TestView>) WebUtils.getAttributeFromModel(WebUtils.DATA_LIST, model), contains(testView));
     assertThat((Integer) WebUtils.getAttributeFromModel(WebUtils.MAX_PAGES_KEY, model), is(1));
   }
@@ -114,16 +109,15 @@ public class AbstractSearchableSortableListControllerTest {
   @SuppressWarnings("unchecked")
   @Test
   public void testSearchWithQuotes() throws ParseException {
-    FullTextSearchResult<TestView> searchResult = new FullTextSearchResult<>(subject.count(null), testViews);
+    FullTextSearchResult<TestEntity> searchResult = new FullTextSearchResult<>(10, testEntities);
 
     when(
         service.searchForInFilteredList(any(Class.class), anyString(), anyInt(), anyInt(), any(Sort.class),
-            any(RichUserDetails.class), anyListOf(TestView.class))).thenReturn(searchResult);
+            any(RichUserDetails.class), anyListOf(Long.class))).thenReturn(searchResult);
 
     subject.search(0, "id", "ASC", "\"test\"", model);
 
     assertThat((String) WebUtils.getAttributeFromModel(WebUtils.PARAM_SEARCH, model), is("\"test\""));
-    assertThat((List<TestEntity>) WebUtils.getAttributeFromModel(WebUtils.DATA_LIST, model), hasSize(1));
     assertThat((List<TestView>) WebUtils.getAttributeFromModel(WebUtils.DATA_LIST, model), contains(testView));
     assertThat((Integer) WebUtils.getAttributeFromModel(WebUtils.MAX_PAGES_KEY, model), is(1));
   }

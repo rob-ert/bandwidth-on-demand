@@ -21,6 +21,15 @@
  */
 package nl.surfnet.bod.web.user;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -30,19 +39,12 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.support.ModelStub;
-import nl.surfnet.bod.support.ReservationFactory;
-import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualPortFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
+import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.MessageView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
-import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.DateTime;
 import org.joda.time.DurationFieldType;
@@ -59,20 +61,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.ui.Model;
 
 import com.google.common.collect.Lists;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationControllerTest {
@@ -180,17 +168,13 @@ public class ReservationControllerTest {
   public void listWithNonExistingSortProperty() {
     Reservation reservation = new ReservationFactory().create();
     List<Reservation> reservations = Lists.newArrayList(reservation);
-    List<ReservationView> reservationViews = Lists.newArrayList(new ReservationView(reservation, new ElementActionView(
-        true), new ElementActionView(
-            true)));
 
     when(
         reservationServiceMock.findEntriesForUserUsingFilter(any(RichUserDetails.class),
             any(ReservationFilterView.class), anyInt(), anyInt(), any(Sort.class))).thenReturn(
         reservations);
 
-    when(reservationServiceMock.transformToView(reservations, user)).thenReturn(reservationViews);
-    when(reservationServiceMock.pageList(anyInt(), anyInt(), eq(reservationViews))).thenCallRealMethod();
+    when(reservationServiceMock.pageList(anyInt(), anyInt(), eq(reservations))).thenCallRealMethod();
 
     subject.filter(1, "nonExistingProperty", "nonExistingDirection", "2012", model);
 

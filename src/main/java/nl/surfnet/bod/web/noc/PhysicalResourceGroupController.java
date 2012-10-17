@@ -23,6 +23,7 @@ package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -36,6 +37,7 @@ import nl.surfnet.bod.service.InstituteService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -309,7 +311,18 @@ public class PhysicalResourceGroupController extends AbstractSearchableSortableL
   }
 
   @Override
-  protected AbstractFullTextSearchService<PhysicalResourceGroup, PhysicalResourceGroup> getFullTextSearchableService() {
+  protected AbstractFullTextSearchService<PhysicalResourceGroup> getFullTextSearchableService() {
     return physicalResourceGroupService;
+  }
+
+  @Override
+  public List<Long> handleListFromController(Model model) {
+    // TODO Auto-generated method stub
+    return Collections.emptyList();
+  }
+
+  @Override
+  public List<PhysicalResourceGroup> transformToView(List<PhysicalResourceGroup> entities, RichUserDetails user) {
+    return entities;
   }
 }

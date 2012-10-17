@@ -21,33 +21,34 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import nl.surfnet.bod.domain.PersistableDomain;
 import nl.surfnet.bod.util.FullTextSearchContext;
 import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.apache.lucene.queryParser.ParseException;
 import org.springframework.data.domain.Sort;
-import org.springframework.util.CollectionUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 
 /**
  * Service interface to abstract full text search functionality
- * 
+ *
  * @param <ENTITY>
  *          DomainObject
  */
-public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
+public abstract class AbstractFullTextSearchService<ENTITY extends PersistableDomain> {
 
   /**
    * Performs a full text search on the given searchText.
-   * 
+   *
    * @param searchText
    *          String text to search for
    * @param firstResult
@@ -56,7 +57,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    *          int max amount of items
    * @param sort
    *          {@link Sort} sorting options
-   * 
+   *
    * @return List<ENTITY> result list
    * @throws ParseException
    */
@@ -72,7 +73,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    * Performs a full text search on the given searchText and combines it with
    * the specified filteredItems. The intersection of both lists will be
    * returned.
-   * 
+   *
    * @param searchText
    *          String text to search for
    * @param firstResult
@@ -83,25 +84,25 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    *          {@link Sort} sorting options
    * @param filteredItems
    *          list of already found items
-   * 
+   *
    * @return List<ENTITY> result list
    * @throws ParseException
    */
-  public FullTextSearchResult<VIEW> searchForInFilteredList(Class<ENTITY> entityClass, String searchText,
-      int firstResult, int maxResults, Sort sort, RichUserDetails userDetails, List<VIEW> filterResult)
+  public FullTextSearchResult<ENTITY> searchForInFilteredList(Class<ENTITY> entityClass, String searchText,
+      int firstResult, int maxResults, Sort sort, RichUserDetails userDetails, List<Long> filterResult)
       throws ParseException {
 
     Preconditions.checkArgument(firstResult >= 0);
 
-    List<VIEW> searchResult = transformToView(searchFor(entityClass, searchText, sort), userDetails);
+    List<ENTITY> searchResult = searchFor(entityClass, searchText, sort);
 
-    List<VIEW> intersectedList = intersectFullTextResultAndFilterResult(searchResult, filterResult);
+    List<ENTITY> intersectedList = intersectFullTextResultAndFilterResult(searchResult, filterResult);
 
-    return new FullTextSearchResult<VIEW>(intersectedList.size(), pageList(firstResult, maxResults, intersectedList));
+    return new FullTextSearchResult<>(intersectedList.size(), pageList(firstResult, maxResults, intersectedList));
   }
 
   /**
-   * 
+   *
    * @param firstResult
    *          firstResult in page
    * @param maxResults
@@ -110,7 +111,7 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
    *          List to page
    * @return {@link FullTextSearchResult} containing one page of data
    */
-  public List<VIEW> pageList(int firstResult, int maxResults, List<VIEW> listToPage) {
+  public List<ENTITY> pageList(int firstResult, int maxResults, List<ENTITY> listToPage) {
     // Determine count and chop list in to page
     int intersectedSize = listToPage.size();
     int lastResult = Math.min(firstResult + maxResults, intersectedSize);
@@ -121,39 +122,20 @@ public abstract class AbstractFullTextSearchService<VIEW, ENTITY> {
     return listToPage.subList(firstResult, lastResult);
   }
 
-  /**
-   * Transforms the given list to the corresponding view and applies some user
-   * specific restrictions if appropriate.
-   * 
-   * @param List
-   *          <ENTITY> listToTransform list to be transformed
-   * @param user
-   *          {@link RichUserDetails} to check user specific restrictions
-   * 
-   * @return {@link List<VIEW>} transformed reservations
-   */
-  public abstract List<VIEW> transformToView(List<ENTITY> listToTransform, final RichUserDetails user);
-
   protected abstract EntityManager getEntityManager();
 
   /**
    * FInds objects that both list have in common. When one or both lists are
    * empty, no elements are found
-   * 
-   * @param searchResults
-   *          List<ENTITY> List with result of filter
-   * @param filterResults
-   *          List<ENTITY> List with result of search
-   * @return List<ENTITY> List with common objects
    */
   @VisibleForTesting
-  List<VIEW> intersectFullTextResultAndFilterResult(List<VIEW> searchResults, List<VIEW> filterResults) {
-    List<VIEW> intersectedList = new ArrayList<>(filterResults);
-    if (!CollectionUtils.isEmpty(intersectedList)) {
-      intersectedList.retainAll(searchResults);
-    }
-
-    return intersectedList;
+  List<ENTITY> intersectFullTextResultAndFilterResult(List<ENTITY> searchResults, final List<Long> filterResults) {
+    return FluentIterable.from(searchResults).filter(new Predicate<PersistableDomain>() {
+      @Override
+      public boolean apply(PersistableDomain domain) {
+        return filterResults.contains(domain.getId());
+      }
+    }).toImmutableList();
   }
 
 }

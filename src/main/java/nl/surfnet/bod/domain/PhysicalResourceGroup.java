@@ -24,31 +24,16 @@ package nl.surfnet.bod.domain;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Version;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.search.annotations.Analyzer;
-import org.hibernate.search.annotations.ContainedIn;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Index;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.IndexedEmbedded;
-import org.hibernate.search.annotations.Store;
+import org.hibernate.search.annotations.*;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
 @Indexed
 @Entity
-public class PhysicalResourceGroup implements Loggable {
+public class PhysicalResourceGroup implements Loggable, PersistableDomain {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -84,6 +69,7 @@ public class PhysicalResourceGroup implements Loggable {
   @OneToMany(mappedBy = "physicalResourceGroup", cascade = CascadeType.REMOVE)
   private Collection<VirtualPortRequestLink> virtualPortRequestLinks;
 
+  @Override
   public Long getId() {
     return this.id;
   }
@@ -103,7 +89,7 @@ public class PhysicalResourceGroup implements Loggable {
   /**
    * This class will not have a name, instead it has a one-one relation to an
    * {@link Institute} and we will use the name of an Institute instead.
-   * 
+   *
    * @return Name of the related institute
    */
   public String getName() {

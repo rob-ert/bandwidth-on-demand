@@ -21,26 +21,15 @@
  */
 package nl.surfnet.bod.event;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import nl.surfnet.bod.domain.Loggable;
+import nl.surfnet.bod.domain.PersistableDomain;
 import nl.surfnet.bod.util.TimeStampBridge;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.search.annotations.Analyzer;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
-import org.hibernate.search.annotations.Index;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.Store;
+import org.hibernate.search.annotations.*;
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 
@@ -48,7 +37,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 @Entity
 @Indexed
-public class LogEvent {
+public class LogEvent implements PersistableDomain {
 
   @VisibleForTesting
   static final String LIST_STRING = "List of %d %s(s)";
@@ -149,7 +138,7 @@ public class LogEvent {
 
   /**
    * Includes seconds in the string since the default conversion does not.
-   * 
+   *
    * @return Time stamp formatted like
    *         {@link WebUtils#DEFAULT_DATE_TIME_FORMATTER}
    */
@@ -191,16 +180,21 @@ public class LogEvent {
 
   /**
    * Used to relate logEvents which originates out of a List
-   * 
+   *
    * @return String CorreleationId
    */
   public String getCorrelationId() {
     return correlationId;
   }
 
+  @Override
+  public Long getId() {
+    return id;
+  }
+
   /**
    * Used to relate logEvents which originates out of a List
-   * 
+   *
    * @param correlationId
    */
   public void setCorrelationId(String correlationId) {

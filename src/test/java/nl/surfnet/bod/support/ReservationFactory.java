@@ -23,12 +23,7 @@ package nl.surfnet.bod.support;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.ProtectionType;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.joda.time.DateTime;
@@ -38,7 +33,7 @@ public class ReservationFactory {
 
   private static final AtomicLong COUNTER = new AtomicLong();
 
-  private static Long id = COUNTER.incrementAndGet();
+  private Long id = COUNTER.incrementAndGet();
   private Integer version;
   private String name = "Default name";
   private ReservationStatus status = ReservationStatus.SCHEDULED;
@@ -98,7 +93,7 @@ public class ReservationFactory {
   }
 
   public ReservationFactory setId(Long id) {
-    ReservationFactory.id = id;
+    this.id = id;
     return this;
   }
 

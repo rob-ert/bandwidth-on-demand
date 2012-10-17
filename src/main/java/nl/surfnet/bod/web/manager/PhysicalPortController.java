@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.web.manager;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -34,6 +35,7 @@ import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.PhysicalPortView;
 
@@ -168,7 +170,18 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @Override
-  protected AbstractFullTextSearchService<PhysicalPortView, PhysicalPort> getFullTextSearchableService() {
+  public List<Long> handleListFromController(Model model) {
+    // TODO Auto-generated method stub
+    return Collections.emptyList();
+  }
+
+  @Override
+  protected AbstractFullTextSearchService<PhysicalPort> getFullTextSearchableService() {
     return physicalPortService;
+  }
+
+  @Override
+  public List<PhysicalPortView> transformToView(List<PhysicalPort> entities, RichUserDetails user) {
+    return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService);
   }
 }

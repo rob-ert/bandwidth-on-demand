@@ -26,6 +26,7 @@ import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 import static nl.surfnet.bod.web.WebUtils.LIST;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -35,6 +36,7 @@ import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.data.domain.Sort;
@@ -44,6 +46,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.google.common.collect.Lists;
 
 @Controller("managerVirtualResourceGroupController")
 @RequestMapping("/manager/" + VirtualResourceGroupController.PAGE_URL)
@@ -81,7 +85,7 @@ public class VirtualResourceGroupController extends
     List<VirtualResourceGroup> entriesForManager =
         virtualResourceGroupService.findEntriesForManager(Security.getSelectedRole(), firstPage, maxItems, sort);
 
-    return virtualResourceGroupService.transformToView(entriesForManager, Security.getUserDetails());
+    return transformToView(entriesForManager, Security.getUserDetails());
   }
 
   @Override
@@ -92,6 +96,22 @@ public class VirtualResourceGroupController extends
   @Override
   protected String getDefaultSortProperty() {
     return "name";
+  }
+
+  @Override
+  protected AbstractFullTextSearchService<VirtualResourceGroup> getFullTextSearchableService() {
+    return virtualResourceGroupService;
+  }
+
+  @Override
+  public List<Long> handleListFromController(Model model) {
+    // TODO Auto-generated method stub
+    return Collections.emptyList();
+  }
+
+  @Override
+  public List<VirtualResourceGroupView> transformToView(List<VirtualResourceGroup> entities, RichUserDetails user) {
+      return Lists.transform(entities, VirtualResourceGroupService.TO_MANAGER_VIEW);
   }
 
   public static class VirtualResourceGroupView {
@@ -158,12 +178,5 @@ public class VirtualResourceGroupController extends
     }
 
   }
-
-  @Override
-  protected AbstractFullTextSearchService<VirtualResourceGroupView, VirtualResourceGroup> getFullTextSearchableService() {
-    return virtualResourceGroupService;
-  }
-
-
 
 }

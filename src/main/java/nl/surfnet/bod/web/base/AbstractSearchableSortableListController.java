@@ -36,10 +36,12 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.domain.PersistableDomain;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.apache.lucene.queryParser.ParseException;
@@ -59,7 +61,7 @@ import com.google.common.collect.Lists;
  * Base controller which adds full text search functionality to the
  * {@link AbstractSortableListController}
  */
-public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> {
+public abstract class AbstractSearchableSortableListController<VIEW, ENTITY extends PersistableDomain> {
 
   @Resource
   private ReservationFilterViewFactory reservationFilterViewFactory;
@@ -92,18 +94,18 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> {
 
     Sort sortOptions = prepareSortOptions(sort, order, model);
     Integer firstItem = calculateFirstPage(page);
-    List<VIEW> listFromController = handleListFromController(model, sortOptions);
+    List<Long> listFromController = handleListFromController(model);
 
     String translatedSearchString = mapLabelToTechnicalName(search);
 
     try {
-      FullTextSearchResult<VIEW> searchResult = getFullTextSearchableService().searchForInFilteredList(
+      FullTextSearchResult<ENTITY> searchResult = getFullTextSearchableService().searchForInFilteredList(
           getEntityClass(), translatedSearchString, firstItem, MAX_ITEMS_PER_PAGE, sortOptions,
           Security.getUserDetails(), listFromController);
 
       model.addAttribute(WebUtils.PARAM_SEARCH, search);
-      model.addAttribute(WebUtils.DATA_LIST, searchResult.getResultList());
-      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(searchResult.getCount()));
+      model.addAttribute(WebUtils.DATA_LIST, transformToView(searchResult.getResultList(), Security.getUserDetails()));
+      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(searchResult.getTotalCount()));
 
     }
     catch (ParseException e) {
@@ -114,6 +116,8 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> {
 
     return listUrl();
   }
+
+  public abstract List<VIEW> transformToView(List<ENTITY> entities, RichUserDetails user);
 
   protected Sort prepareSortOptions(String sort, String order, Model model) {
     String sortProperty = sortProperty(sort);
@@ -197,24 +201,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> {
     return new Sort(direction, properties);
   }
 
-  /**
-   * Handles the list from a specific controller and places the results an the
-   * model. When a search must be performed, these result will be overridden by
-   * the search results.
-   *
-   * @param firstResult
-   *          Integer page number
-   * @param model
-   *          UI Model
-   * @param sortOptions
-   *          Sort options
-   * @return List of VIEW
-   */
-  private List<VIEW> handleListFromController(Model model, Sort sortOptions) {
-    List<VIEW> listFromController = list(0, Integer.MAX_VALUE, sortOptions, model);
-
-    return listFromController;
-  }
+  public abstract List<Long> handleListFromController(Model model);
 
   /**
    * Maps a search string with a label from a column to a search with a field in
@@ -252,5 +239,5 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> {
     throw new IllegalStateException();
   }
 
-  protected abstract AbstractFullTextSearchService<VIEW, ENTITY> getFullTextSearchableService();
+  protected abstract AbstractFullTextSearchService<ENTITY> getFullTextSearchableService();
 }

@@ -21,16 +21,19 @@
  */
 package nl.surfnet.bod.util;
 
+import nl.surfnet.bod.domain.PersistableDomain;
 
-public class TestEntity {
 
-  private final long id;
+public class TestEntity implements PersistableDomain {
 
-  public TestEntity(long id) {
+  private final Long id;
+
+  public TestEntity(Long id) {
     this.id = id;
   }
 
-  public long getId() {
+  @Override
+  public Long getId() {
     return id;
   }
 

@@ -54,14 +54,13 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Lists;
 
 @Service
 @Transactional
-public class VirtualResourceGroupService extends
-    AbstractFullTextSearchService<VirtualResourceGroupView, VirtualResourceGroup> {
+public class VirtualResourceGroupService extends AbstractFullTextSearchService<VirtualResourceGroup> {
 
-  private static final Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView> TO_MANAGER_VIEW =
+  // TODO to controller??
+  public static final Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView> TO_MANAGER_VIEW =
       new Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView>() {
         @Override
         public VirtualResourceGroupController.VirtualResourceGroupView apply(VirtualResourceGroup group) {
@@ -78,7 +77,7 @@ public class VirtualResourceGroupService extends
         }
       };
 
-  private static final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW =
+  public static final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW =
       new Function<VirtualResourceGroup, VirtualResourceGroupView>() {
         @Override
         public VirtualResourceGroupView apply(VirtualResourceGroup input) {
@@ -205,17 +204,6 @@ public class VirtualResourceGroupService extends
   @Override
   protected EntityManager getEntityManager() {
     return entityManager;
-  }
-
-  @Override
-  public List<VirtualResourceGroupView> transformToView(List<VirtualResourceGroup> listToTransform, RichUserDetails user) {
-    if (user == null) {
-      return Lists.transform(listToTransform, VirtualResourceGroupService.TO_VIEW);
-    }
-    else if (user.getSelectedRole().isManagerRole()) {
-      return Lists.transform(listToTransform, VirtualResourceGroupService.TO_MANAGER_VIEW);
-    }
-    return Lists.transform(listToTransform, VirtualResourceGroupService.TO_VIEW);
   }
 
 }

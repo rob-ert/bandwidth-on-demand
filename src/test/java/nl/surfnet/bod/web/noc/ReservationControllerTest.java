@@ -21,6 +21,12 @@
  */
 package nl.surfnet.bod.web.noc;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 
 import nl.surfnet.bod.domain.Reservation;
@@ -32,7 +38,6 @@ import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ReservationFilterView;
-import nl.surfnet.bod.web.view.ReservationView;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,12 +49,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 
 import com.google.common.collect.Lists;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationControllerTest {
@@ -68,7 +67,6 @@ public class ReservationControllerTest {
   private final ReservationFilterView filter2012 = new ReservationFilterViewFactory().create("2012");
 
   private final List<Reservation> reservationsFor2012 = Lists.newArrayList();
-  private final List<ReservationView> reservationViewsFor2012 = Lists.newArrayList();
 
   private final Integer page = 0;
   private final Model model = new ModelStub();
@@ -87,12 +85,7 @@ public class ReservationControllerTest {
     reservationsFor2012.addAll(reservations);
     size = new Integer(reservationsFor2012.size());
 
-    reservationViewsFor2012.addAll(reservationService.transformToView(reservationsFor2012, Security.getUserDetails()));
-
     when(reservationFilterViewFactoryMock.create(filter2012.getId())).thenReturn(filter2012);
-
-    when(reservationServiceMock.transformToView(reservations, Security.getUserDetails())).thenReturn(
-        reservationViewsFor2012);
 
     when(reservationServiceMock.countAllEntriesUsingFilter(filter2012)).thenReturn((long) reservationsFor2012.size());
 

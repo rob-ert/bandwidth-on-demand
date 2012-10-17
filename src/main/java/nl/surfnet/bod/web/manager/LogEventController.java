@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.web.manager;
 
+import java.util.Collections;
 import java.util.List;
 
 import nl.surfnet.bod.event.LogEvent;
@@ -44,6 +45,12 @@ public class LogEventController extends AbstractLogEventController {
   @Override
   protected String listUrl() {
     return "manager/logevents";
+  }
+
+  @Override
+  public List<Long> handleListFromController(Model model) {
+    // TODO Auto-generated method stub
+    return Collections.emptyList();
   }
 
 }

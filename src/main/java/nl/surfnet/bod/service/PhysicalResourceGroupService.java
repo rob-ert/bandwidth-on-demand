@@ -42,7 +42,6 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
 import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
-import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.slf4j.Logger;
@@ -57,8 +56,7 @@ import com.google.common.base.Function;
 
 @Service
 @Transactional
-public class PhysicalResourceGroupService extends
-    AbstractFullTextSearchService<PhysicalResourceGroup, PhysicalResourceGroup> {
+public class PhysicalResourceGroupService extends AbstractFullTextSearchService<PhysicalResourceGroup> {
 
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -180,11 +178,6 @@ public class PhysicalResourceGroupService extends
   private void deActivatePhysicalResourceGroup(PhysicalResourceGroup physicalResourceGroup) {
     physicalResourceGroup.setActive(false);
     physicalResourceGroupRepo.save(physicalResourceGroup);
-  }
-
-  @Override
-  public List<PhysicalResourceGroup> transformToView(List<PhysicalResourceGroup> listToTransform, RichUserDetails user) {
-    return listToTransform;
   }
 
   @Override

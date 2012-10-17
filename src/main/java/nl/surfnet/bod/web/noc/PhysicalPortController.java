@@ -40,6 +40,7 @@ import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.util.ReflectiveFieldComparator;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.PhysicalPortView;
 
@@ -259,21 +260,21 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @RequestMapping(value = "/unaligned/search", method = RequestMethod.GET)
-  public String searchUnaligned(@RequestParam(value = PAGE_KEY, required = false) final Integer page, //
-      @RequestParam final String search, //
+  public String searchUnaligned(
+      @RequestParam(value = PAGE_KEY, required = false) final Integer page,
+      @RequestParam final String search,
       final Model model) {
 
-    List<PhysicalPortView> unalignedPorts = getFullTextSearchableService().transformToView(
-        physicalPortService.findUnalignedPhysicalPorts(), Security.getUserDetails());
+    List<Long> unalignedPorts = handleListFromController(model);
 
     try {
-      FullTextSearchResult<PhysicalPortView> searchResult = getFullTextSearchableService().searchForInFilteredList(
+      FullTextSearchResult<PhysicalPort> searchResult = getFullTextSearchableService().searchForInFilteredList(
           PhysicalPort.class, search, calculateFirstPage(page), MAX_ITEMS_PER_PAGE, null, Security.getUserDetails(),
           unalignedPorts);
 
       model.addAttribute(PARAM_SEARCH, StringEscapeUtils.escapeHtml(search));
-      model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(searchResult.getCount()));
-      model.addAttribute(DATA_LIST, searchResult.getResultList());
+      model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(searchResult.getTotalCount()));
+      model.addAttribute(DATA_LIST, transformToView(searchResult.getResultList(), Security.getUserDetails()));
       model.addAttribute(FILTER_SELECT, PhysicalPortFilter.UN_ALIGNED);
       model.addAttribute(FILTER_LIST, getAvailableFilters());
     }
@@ -563,7 +564,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @Override
-  protected AbstractFullTextSearchService<PhysicalPortView, PhysicalPort> getFullTextSearchableService() {
+  protected AbstractFullTextSearchService<PhysicalPort> getFullTextSearchableService() {
     return physicalPortService;
   }
 
@@ -574,6 +575,12 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
         PhysicalPortFilter.UN_ALIGNED,
         PhysicalPortFilter.MTOSI
     );
+  }
+
+  @Override
+  public List<Long> handleListFromController(Model model) {
+    // TODO Auto-generated method stub
+    return Collections.emptyList();
   }
 
   public static final class PhysicalPortFilter {
@@ -600,5 +607,9 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   }
 
+  @Override
+  public List<PhysicalPortView> transformToView(List<PhysicalPort> entities, RichUserDetails user) {
+    return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService);
+  }
 
 }

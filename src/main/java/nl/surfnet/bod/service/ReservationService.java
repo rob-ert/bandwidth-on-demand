@@ -47,7 +47,6 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
-import nl.surfnet.bod.web.view.ReservationView;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
@@ -69,7 +68,7 @@ import com.google.common.collect.*;
 
 @Service
 @Transactional
-public class ReservationService extends AbstractFullTextSearchService<ReservationView, Reservation> {
+public class ReservationService extends AbstractFullTextSearchService<Reservation> {
 
   private static final Function<Reservation, ReservationArchive> TO_RESERVATION_ARCHIVE =
     new Function<Reservation, ReservationArchive>() {
@@ -585,28 +584,6 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   @Override
   protected EntityManager getEntityManager() {
     return entityManager;
-  }
-
-  /**
-   * Transforms the given reservations to {@link ReservationView}s and
-   * determines if the reservation is allowed to be delete by the given user.
-   *
-   * @param reservationsToTransform
-   *          {@link Reservation}s to be transformed
-   * @param user
-   *          {@link RichUserDetails} to check if this user is allowed to delete
-   *          the reservation
-   * @return {@link List<ReservationView>} transformed reservations
-   */
-  @Override
-  public List<ReservationView> transformToView(List<Reservation> reservationsToTransform, final RichUserDetails user) {
-
-    return Lists.transform(reservationsToTransform, new Function<Reservation, ReservationView>() {
-      @Override
-      public ReservationView apply(Reservation reservation) {
-        return new ReservationView(reservation, isDeleteAllowed(reservation, user.getSelectedRole()), isEditAllowed(reservation, user.getSelectedRole()));
-      }
-    });
   }
 
   public String getStateChangeLogStatement(final String reservationName, ReservationStatus currentStatus,

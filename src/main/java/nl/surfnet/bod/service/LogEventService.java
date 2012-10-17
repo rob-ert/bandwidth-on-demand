@@ -21,12 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -35,12 +30,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.Loggable;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.event.LogEvent_;
@@ -59,7 +49,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterators;
 
 @Service
-public class LogEventService extends AbstractFullTextSearchService<LogEvent, LogEvent> {
+public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   private static final String SYSTEM_USER = "system";
 
@@ -131,12 +121,6 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
     handleEvent(createLogEvent(user, LogEventType.DELETE, domainObject, details));
   }
 
-  @Override
-  public List<LogEvent> transformToView(List<LogEvent> listToTransform, RichUserDetails user) {
-    // No transformation needed
-    return listToTransform;
-  }
-
   public List<LogEvent> findAll(int firstResult, int maxResults, Sort sort) {
     return logEventRepo.findAll(WebUtils.createPageRequest(firstResult, maxResults, sort)).getContent();
   }
@@ -191,10 +175,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
    * domainObject with one a specific type, as determined by
    * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
    * {@link LogEventRepo}
-   * 
+   *
    * @param logger
    *          Logger to write to
-   * 
+   *
    * @param logEvent
    *          LogEvent to handle
    */
@@ -239,7 +223,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
    * <li>VirtualPort</li>
    * <li>Institute</li>
    * </ul>
-   * 
+   *
    * @param logEvent
    * @return true when the {@link LogEvent#getDescription()} matches one of the
    *         listed above, false otherwise.
@@ -267,7 +251,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent, Log
 
   /**
    * Delegates to {@link #handleEvent(Logger, LogEvent)}
-   * 
+   *
    * @param logEvent
    */
   private void handleEvent(LogEvent logEvent) {

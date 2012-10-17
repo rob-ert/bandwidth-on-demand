@@ -24,6 +24,7 @@ package nl.surfnet.bod.web;
 import static nl.surfnet.bod.web.WebUtils.EDIT;
 import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -32,6 +33,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.VirtualPortView;
 
@@ -46,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 @Controller
 @RequestMapping("/virtualports")
@@ -111,7 +114,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
   @Override
   protected List<VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    final List<VirtualPortView> transformToView = virtualPortService.transformToView(
+    final List<VirtualPortView> transformToView = transformToView(
         virtualPortService.findEntriesForUser(Security.getUserDetails(), firstPage, maxItems, sort),
         Security.getUserDetails());
 
@@ -183,8 +186,19 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   }
 
   @Override
-  protected AbstractFullTextSearchService<VirtualPortView, VirtualPort> getFullTextSearchableService() {
+  protected AbstractFullTextSearchService<VirtualPort> getFullTextSearchableService() {
     return virtualPortService;
+  }
+
+  @Override
+  public List<Long> handleListFromController(Model model) {
+    // TODO Auto-generated method stub
+    return Collections.emptyList();
+  }
+
+  @Override
+  public List<VirtualPortView> transformToView(List<VirtualPort> entities, RichUserDetails user) {
+    return Lists.transform(entities, nl.surfnet.bod.util.Functions.FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW);
   }
 
 }

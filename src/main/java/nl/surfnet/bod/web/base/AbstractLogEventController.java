@@ -86,7 +86,7 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
   }
 
   @Override
-  protected AbstractFullTextSearchService<LogEvent, LogEvent> getFullTextSearchableService() {
+  protected AbstractFullTextSearchService<LogEvent> getFullTextSearchableService() {
     return logEventService;
   }
 
@@ -112,5 +112,11 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
 
     return groups;
   }
+
+  @Override
+  public List<LogEvent> transformToView(List<LogEvent> entities, RichUserDetails user) {
+    return entities;
+  }
+
 
 }

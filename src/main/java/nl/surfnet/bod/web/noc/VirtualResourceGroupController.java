@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.web.noc;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -30,11 +31,14 @@ import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.google.common.collect.Lists;
 
 @Controller("nocVirtualResourceGroupController")
 @RequestMapping("/noc/teams")
@@ -50,7 +54,7 @@ public class VirtualResourceGroupController extends AbstractSearchableSortableLi
 
   @Override
   protected List<VirtualResourceGroupView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return virtualResourceGroupService.transformToView(virtualResourceGroupService.findEntries(firstPage, maxItems, sort), null);
+    return transformToView(virtualResourceGroupService.findEntries(firstPage, maxItems, sort), null);
   }
 
   @Override
@@ -59,8 +63,19 @@ public class VirtualResourceGroupController extends AbstractSearchableSortableLi
   }
 
   @Override
-  protected AbstractFullTextSearchService<VirtualResourceGroupView, VirtualResourceGroup> getFullTextSearchableService() {
+  protected AbstractFullTextSearchService<VirtualResourceGroup> getFullTextSearchableService() {
     return virtualResourceGroupService;
+  }
+
+  @Override
+  public List<Long> handleListFromController(Model model) {
+    // TODO Auto-generated method stub
+    return Collections.emptyList();
+  }
+
+  @Override
+  public List<VirtualResourceGroupView> transformToView(List<VirtualResourceGroup> entities, RichUserDetails user) {
+    return Lists.transform(entities, VirtualResourceGroupService.TO_VIEW);
   }
 
 }
