@@ -64,7 +64,6 @@ import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.CustomPhysicalPortRepo;
 import nl.surfnet.bod.repo.PhysicalPortRepo;
 import nl.surfnet.bod.util.Functions;
-import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 /**
