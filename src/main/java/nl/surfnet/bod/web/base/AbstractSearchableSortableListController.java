@@ -32,6 +32,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -53,6 +54,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -241,4 +243,12 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
   }
 
   protected abstract AbstractFullTextSearchService<ENTITY> getFullTextSearchableService();
+  
+  protected List<Long> getOptionalsOrEmptyList(final Optional<List<Long>> ids) {
+    if(ids.isPresent()){
+      return ids.get();
+    }
+    // TODO: Change to optional?
+    return new ArrayList<>();
+  }
 }

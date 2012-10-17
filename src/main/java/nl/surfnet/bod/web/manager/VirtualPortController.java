@@ -443,11 +443,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   public List<Long> handleListFromController(Model model) {
     final VirtualPortView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
     final Optional<List<Long>> ids = virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter);
-    if(ids.isPresent()){
-      return ids.get();
-    }
-    // TODO: Change to optional
-    return new ArrayList<>();
+    return getOptionalsOrEmptyList(ids);
   }
 
   @Override

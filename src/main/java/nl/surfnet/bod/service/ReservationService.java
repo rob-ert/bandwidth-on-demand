@@ -480,7 +480,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public List<Long> findIdsForUserUsingFilter(RichUserDetails user, ReservationFilterView filter) {
-    return customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user));
+    final Optional<List<Long>> ids = customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user));
+    return getOptionalsOrEmptyList(ids);
   }
 
   public List<Reservation> findEntriesForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter,
@@ -491,7 +492,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public List<Long> findIdsForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter) {
-    return customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForManager(filter, manager));
+    final Optional<List<Long>> ids = customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForManager(filter, manager));
+    return getOptionalsOrEmptyList(ids);
   }
 
   public List<Reservation> findAllEntriesUsingFilter(final ReservationFilterView filter, int firstResult,
@@ -502,7 +504,16 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public List<Long> findAllIds(ReservationFilterView filter) {
-    return customReservationRepo.findIdsWithWhereClause(specFilteredReservations(filter));
+    final Optional<List<Long>> ids = customReservationRepo.findIdsWithWhereClause(specFilteredReservations(filter));
+    return getOptionalsOrEmptyList(ids);
+  }
+
+  private List<Long> getOptionalsOrEmptyList(final Optional<List<Long>> ids) {
+    if(ids.isPresent()){
+      return ids.get();
+    }
+    // TODO: Change to optional?
+    return new ArrayList<>();
   }
 
   public long countForFilterAndUser(RichUserDetails user, ReservationFilterView filter) {

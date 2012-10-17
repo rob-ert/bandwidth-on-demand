@@ -23,20 +23,9 @@ package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
-
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.VirtualPortView;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
@@ -46,6 +35,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.VirtualPortView;
 
 @Controller("nocVirtualPortController")
 @RequestMapping("/noc/virtualports")
@@ -94,11 +92,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   public List<Long> handleListFromController(Model model) {
     final VirtualPortView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
     final Optional<List<Long>> ids = virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter);
-    if(ids.isPresent()){
-      return ids.get();
-    }
-    // TODO: Change to optional
-    return new ArrayList<>();
+    return getOptionalsOrEmptyList(ids);
   }
 
   @Override
