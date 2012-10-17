@@ -71,11 +71,13 @@ app.global = function() {
             search(event);
         });
 
-        searchInput.keydown(function(event){
+        searchInput.on('keydown', function(event) {
             if (event.which === 13) {
                search(event);
             }
         });
+
+        searchInput.focus();
     };
 
 
