@@ -286,13 +286,12 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   }
 
   public Optional<List<Long>> findIdsForUserUsingFilter(RichUserDetails userDetails, VirtualPortView filter) {
-    
     final BodRole selectedRole = userDetails.getSelectedRole();
     if (selectedRole.isManagerRole()) {
       return Optional.of(customVirtualPortRepo.findIdsWithWhereClause(Optional.of(forManagerSpec(selectedRole))));
     }
     else if (selectedRole.isNocRole()) {
-      return Optional.of(customVirtualPortRepo.findIdsWithWhereClause(Optional.<Specification<VirtualPort>>absent()));
+      return Optional.of(customVirtualPortRepo.findIdsWithWhereClause(Optional.<Specification<VirtualPort>> absent()));
     }
     else if (selectedRole.isUserRole()) {
       return Optional.of(customVirtualPortRepo.findIdsWithWhereClause(Optional.of(forUserSpec(userDetails))));
