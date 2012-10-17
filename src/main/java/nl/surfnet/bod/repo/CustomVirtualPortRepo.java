@@ -36,7 +36,6 @@ public class CustomVirtualPortRepo {
     }
 
     final List<Long> resultList = entityManager.createQuery(criteriaQuery).getResultList();
-    System.out.println(resultList);
     return resultList;
   }
 }
