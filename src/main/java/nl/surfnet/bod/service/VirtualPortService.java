@@ -21,13 +21,9 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byGroupIdInLastMonthSpec;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byPhysicalPortSpec;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forManagerSpec;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forUserSpec;
+import static com.google.common.base.Preconditions.*;
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.*;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -39,14 +35,6 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
-import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
-
 import org.joda.time.DateTime;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -55,7 +43,25 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
+
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.repo.CustomVirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.VirtualPortView;
 
 @Service
 @Transactional
@@ -63,6 +69,10 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
 
   @Resource
   private VirtualPortRepo virtualPortRepo;
+
+  @Resource
+  private CustomVirtualPortRepo customVirtualPortRepo;
+
   @Resource
   private VirtualResourceGroupRepo virtualResourceGroupReppo;
 
@@ -272,5 +282,21 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   @Override
   protected EntityManager getEntityManager() {
     return entityManager;
+  }
+
+  public List<Long> findIdsForUserUsingFilter(RichUserDetails userDetails, VirtualPortView filter) {
+    
+    final BodRole selectedRole = userDetails.getSelectedRole();
+    if (selectedRole.isManagerRole()) {
+      return customVirtualPortRepo.findIdsWithWhereClause(Optional.of(forManagerSpec(selectedRole)));
+    }
+    else if (selectedRole.isNocRole()) {
+      return customVirtualPortRepo.findIdsWithWhereClause(null);
+    }
+    else if (selectedRole.isUserRole()) {
+      return customVirtualPortRepo.findIdsWithWhereClause(Optional.of(forUserSpec(userDetails)));
+    }
+    return null;
+
   }
 }

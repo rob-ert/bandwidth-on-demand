@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.web.noc;
 
+import static nl.surfnet.bod.web.WebUtils.*;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -29,6 +31,7 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -87,8 +90,8 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    // TODO Auto-generated method stub
-    return Collections.emptyList();
+    final VirtualPortView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
+    return virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter);
   }
 
   @Override

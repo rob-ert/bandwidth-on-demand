@@ -21,21 +21,11 @@
  */
 package nl.surfnet.bod.web;
 
-import static nl.surfnet.bod.web.WebUtils.EDIT;
-import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.*;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
-
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.VirtualPortView;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
@@ -49,6 +39,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.VirtualPortView;
 
 @Controller
 @RequestMapping("/virtualports")
@@ -192,8 +190,8 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    // TODO Auto-generated method stub
-    return Collections.emptyList();
+    final VirtualPortView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
+    return virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter);
   }
 
   @Override
