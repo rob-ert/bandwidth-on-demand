@@ -33,7 +33,6 @@ import org.ogf.schemas.nsi._2011._10.connection.types.*;
 
 public class ReserveRequestTypeFactory {
 
-  private static final String URN_UUID = "urn:uuid:";
   private static final int PORT = 9082;
   private static final String NSI_REQUESTER_ENDPOINT = "http://localhost:" + PORT + "/bod/nsi/requester";
 
@@ -120,10 +119,6 @@ public class ReserveRequestTypeFactory {
     reservationInfoType.setPath(path);
 
     return reservationRequestType;
-  }
-
-  private static String generateId() {
-    return URN_UUID + UUID.randomUUID().toString();
   }
 
   public final ReserveRequestTypeFactory setDesiredBandwidth(int desiredBandwidth) {

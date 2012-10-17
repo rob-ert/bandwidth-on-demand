@@ -226,6 +226,7 @@ public class RichUserDetailsServiceTest {
     assertThat(managerRole.getPhysicalResourceGroupId().get(), is(prg.getId()));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void shouldBeNocRole() {
     UserGroup userGroup = new UserGroupFactory().setId(subject.getNocEngineerGroupId()).setName("new name").create();
@@ -237,6 +238,7 @@ public class RichUserDetailsServiceTest {
     assertThat(roles, Matchers.<BodRole> hasItems(hasProperty("role", is(RoleEnum.NEW_USER))));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void shouldBeManagerRole() {
     UserGroup userGroup = new UserGroupFactory().create();
@@ -266,6 +268,7 @@ public class RichUserDetailsServiceTest {
     assertThat(Security.RoleEnum.USER, is(Iterables.getOnlyElement(roles).getRole()));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void shouldAddUserRoleOnlyOnce() {
     UserGroup userGroup1 = new UserGroupFactory().setName("new name one").create();

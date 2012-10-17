@@ -39,6 +39,7 @@ public class ReflectiveFieldComparator implements Comparator<Object> {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public int compare(Object one, Object two) {
     try {
       if (one != null && two != null) {

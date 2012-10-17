@@ -42,13 +42,6 @@ import static org.mockito.Mockito.when;
 
 public class WebUtilsTest {
 
-  private final String messageBase = "Test message ";
-  private final String message = messageBase + "{}";
-  private final String messageArg = "unittest";
-  private final String messageArgWithMarkup = WebUtils.PARAM_MARKUP_START + messageArg + WebUtils.PARAM_MARKUP_END;
-  private final String[] messageArgs = { messageArg };
-  private final String[] emptyArgs = new String[0];
-
   private final MessageSource messageSourceMock = mock(MessageSource.class);
 
   @Test
@@ -79,6 +72,7 @@ public class WebUtilsTest {
 
     WebUtils.addInfoFlashMessage(redirectModel, messageSourceMock, "info_message", "een", "twee");
 
+    @SuppressWarnings("unchecked")
     List<String> infoMessages = (List<String>) redirectModel.getFlashAttributes().get(WebUtils.INFO_MESSAGES_KEY);
 
     assertThat(infoMessages, hasSize(1));
@@ -95,6 +89,7 @@ public class WebUtilsTest {
 
     WebUtils.addInfoMessage(model, messageSourceMock, "info_message", "een", "twee");
 
+    @SuppressWarnings("unchecked")
     List<String> infoMessages = (List<String>) model.asMap().get(WebUtils.INFO_MESSAGES_KEY);
 
     assertThat(infoMessages, hasSize(1));

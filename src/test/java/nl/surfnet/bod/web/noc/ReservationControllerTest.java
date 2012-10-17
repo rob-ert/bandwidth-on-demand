@@ -53,8 +53,6 @@ import com.google.common.collect.Lists;
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationControllerTest {
 
-  private final ReservationService reservationService = new ReservationService();
-
   @Mock
   private ReservationService reservationServiceMock;
 

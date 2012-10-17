@@ -72,6 +72,7 @@ public class DashboardControllerTest {
   @Mock
   private ReservationService reservationServiceMock;
 
+  @SuppressWarnings("unchecked")
   @Test
   public void shouldAddPrgAndRequestLinkToModel() {
     PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();

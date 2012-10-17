@@ -120,10 +120,6 @@ public class ConnectionServiceProviderFactory {
     public void setConnectionId(String connectionId) {
       super.connectionId = Lists.newArrayList(connectionId);
     }
-
-    public void setGlobalReservationId(String globalReservationId) {
-      super.globalReservationId = Lists.newArrayList(globalReservationId);
-    }
   }
 
 }
