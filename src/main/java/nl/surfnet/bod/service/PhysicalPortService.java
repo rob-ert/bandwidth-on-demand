@@ -374,25 +374,20 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     return physicalPort.getNocLabel();
   }
 
-  public Optional<List<Long>> findIdsForUserUsingFilter(final RichUserDetails userDetails) {
-    
-    // TODO: Add where clause for NOC and or manager?
-    
-    // final BodRole selectedRole = userDetails.getSelectedRole();
-    return Optional.of(customPhysicalPortRepo.findIdsWithWhereClause(Optional.<Specification<PhysicalPort>> absent()));
+  public Optional<List<Long>> findIdsByRoleAndPhysicalResourceGroup(final BodRole bodRole,
+      final Optional<PhysicalResourceGroup> physicalResourceGroup) {
+    if (bodRole.isManagerRole() && physicalResourceGroup.isPresent()) {
+      return Optional.of(customPhysicalPortRepo.findIdsWithWhereClause(Optional
+          .of(PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec(physicalResourceGroup.get()))));
+    }
+    else if (bodRole.isNocRole()) {
+      return Optional
+          .of(customPhysicalPortRepo.findIdsWithWhereClause(Optional.<Specification<PhysicalPort>> absent()));
+    }
+    return Optional.<List<Long>> absent();
+  }
 
-    // PhysicalPortPredicatesAndSpecifications
-    // .byPhysicalResourceGroupSpec(physicalResourceGroup)
-    //
-    // if (selectedRole.isManagerRole()) {
-    // return
-    // Optional.of(customPhysicalPortRepo.findIdsWithWhereClause(Optional.of(forManagerSpec(selectedRole))));
-    // }
-    // else if (selectedRole.isNocRole()) {
-    // return
-    // Optional.of(customPhysicalPortRepo.findIdsWithWhereClause(Optional.<Specification<VirtualPort>>
-    // absent()));
-    // }
-    // return Optional.<List<Long>> absent();
+  public Optional<List<Long>> findIds() {
+    return findIdsByRoleAndPhysicalResourceGroup(BodRole.createNocEngineer(), Optional.<PhysicalResourceGroup> absent());
   }
 }

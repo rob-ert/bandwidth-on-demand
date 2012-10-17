@@ -580,7 +580,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    return physicalPortService.findIdsForUserUsingFilter(Security.getUserDetails()).or(new ArrayList<Long>());
+    return physicalPortService.findIds().or(new ArrayList<Long>());
   }
 
   public static final class PhysicalPortFilter {

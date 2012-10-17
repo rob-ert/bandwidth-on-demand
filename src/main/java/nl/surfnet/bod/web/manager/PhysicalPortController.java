@@ -157,21 +157,35 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @Override
   protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
-
-    Optional<Long> groupId = WebUtils.getSelectedPhysicalResourceGroupId();
-    if (!groupId.isPresent()) {
-      return Lists.newArrayList();
+    final Optional<PhysicalResourceGroup> physicalResourceGroup = getCurrentPhysicalResourceGroup();
+    if (physicalResourceGroup.isPresent()) {
+      return Functions.transformAllocatedPhysicalPorts(physicalPortService
+          .findAllocatedEntriesForPhysicalResourceGroup(physicalResourceGroup.get(), firstPage, maxItems, sort),
+          virtualPortService);
     }
-
-    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(groupId.get());
-
-    return Functions.transformAllocatedPhysicalPorts(physicalPortService.findAllocatedEntriesForPhysicalResourceGroup(
-        physicalResourceGroup, firstPage, maxItems, sort), virtualPortService);
+    else {
+      return new ArrayList<>();
+    }
   }
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    return physicalPortService.findIdsForUserUsingFilter(Security.getUserDetails()).or(new ArrayList<Long>());
+    final Optional<PhysicalResourceGroup> physicalResourceGroup = getCurrentPhysicalResourceGroup();
+    if (physicalResourceGroup.isPresent()) {
+      return physicalPortService.findIdsByRoleAndPhysicalResourceGroup(Security.getSelectedRole(), Optional.of(physicalResourceGroup.get())).or(new ArrayList<Long>());
+    }
+    else {
+      return new ArrayList<>();
+    }
+  }
+
+  private Optional<PhysicalResourceGroup> getCurrentPhysicalResourceGroup() {
+    Optional<Long> groupId = WebUtils.getSelectedPhysicalResourceGroupId();
+    if (!groupId.isPresent()) {
+      return Optional.<PhysicalResourceGroup> absent();
+    }
+    PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(groupId.get());
+    return Optional.of(physicalResourceGroup);
   }
 
   @Override
