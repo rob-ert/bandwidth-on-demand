@@ -24,7 +24,10 @@ package nl.surfnet.bod.web.manager;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.service.LogEventService;
 import nl.surfnet.bod.web.base.AbstractLogEventController;
 import nl.surfnet.bod.web.security.Security;
 
@@ -36,6 +39,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller("managerEventController")
 @RequestMapping(value = "/manager/" + LogEventController.PAGE_URL)
 public class LogEventController extends AbstractLogEventController {
+  
+  @Resource
+  private LogEventService logEventService;
 
   @Override
   protected List<LogEvent> list(int firstPage, int maxItems, Sort sort, Model model) {
