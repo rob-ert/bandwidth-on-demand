@@ -21,10 +21,21 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
@@ -38,17 +49,6 @@ import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.PhysicalPortView;
-
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 
 @Controller("managerPhysicalPortController")
 @RequestMapping(PhysicalPortController.PAGE_URL)
@@ -171,8 +171,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    // TODO Auto-generated method stub
-    return Collections.emptyList();
+    return physicalPortService.findIdsForUserUsingFilter(Security.getUserDetails()).or(new ArrayList<Long>());
   }
 
   @Override
