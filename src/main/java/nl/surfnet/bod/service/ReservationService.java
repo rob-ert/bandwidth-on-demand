@@ -71,13 +71,13 @@ import com.google.common.collect.*;
 @Transactional
 public class ReservationService extends AbstractFullTextSearchService<ReservationView, Reservation> {
 
-  private static final Function<Reservation, ReservationArchive> TO_RESERVATION_ARCHIVE = //
-  new Function<Reservation, ReservationArchive>() {
-    @Override
-    public ReservationArchive apply(Reservation reservation) {
-      return new ReservationArchive(reservation);
-    }
-  };
+  private static final Function<Reservation, ReservationArchive> TO_RESERVATION_ARCHIVE =
+    new Function<Reservation, ReservationArchive>() {
+      @Override
+      public ReservationArchive apply(Reservation reservation) {
+        return new ReservationArchive(reservation);
+      }
+    };
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -474,14 +474,14 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       return Collections.emptyList();
     }
 
-    // TODO: Use the returned ids
-    final List<Long> ids = customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user));
-    log.info("Id's: {}", ids);
-
     final List<Reservation> content = reservationRepo.findAll(specFilteredReservationsForUser(filter, user),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
 
     return content;
+  }
+
+  public List<Long> findIdsForUserUsingFilter(RichUserDetails user, ReservationFilterView filter) {
+    return customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user));
   }
 
   public List<Reservation> findEntriesForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter,

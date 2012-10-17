@@ -64,7 +64,6 @@ import com.google.common.collect.Iterables;
 public class ReservationController extends AbstractFilteredReservationController {
 
   static final String PAGE_URL = "reservations";
-
   static final String MODEL_KEY = "reservation";
 
   @Resource

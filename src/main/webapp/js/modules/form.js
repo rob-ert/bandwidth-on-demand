@@ -29,7 +29,6 @@ app.form = function(){
         initDropDownReload();
         initDatepickers();
         initAutoSuggest();
-
     };
 
     var initInputCopy = function() {

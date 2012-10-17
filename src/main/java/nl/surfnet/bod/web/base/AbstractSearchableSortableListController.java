@@ -58,10 +58,6 @@ import com.google.common.collect.Lists;
 /**
  * Base controller which adds full text search functionality to the
  * {@link AbstractSortableListController}
- *
- * @param <T>
- *          DomainObject
- * @param <K>
  */
 public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> {
 
@@ -90,29 +86,30 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> {
       @RequestParam(value = "search") String search,
       Model model) {
 
+    if (!StringUtils.hasText(search)) {
+      return list(page, sort, order, model);
+    }
+
     Sort sortOptions = prepareSortOptions(sort, order, model);
     Integer firstItem = calculateFirstPage(page);
-    List<VIEW> listFromController = handleListFromController(firstItem, model, sortOptions);
+    List<VIEW> listFromController = handleListFromController(model, sortOptions);
 
-    // Do we need to search?
-    if (StringUtils.hasText(search)) {
-      String translatedSearchString = mapLabelToTechnicalName(search);
+    String translatedSearchString = mapLabelToTechnicalName(search);
 
-      try {
-        FullTextSearchResult<VIEW> searchResult = getFullTextSearchableService().searchForInFilteredList(
-            getEntityClass(), translatedSearchString, firstItem, MAX_ITEMS_PER_PAGE, sortOptions,
-            Security.getUserDetails(), listFromController);
+    try {
+      FullTextSearchResult<VIEW> searchResult = getFullTextSearchableService().searchForInFilteredList(
+          getEntityClass(), translatedSearchString, firstItem, MAX_ITEMS_PER_PAGE, sortOptions,
+          Security.getUserDetails(), listFromController);
 
-        model.addAttribute(WebUtils.PARAM_SEARCH, search);
-        model.addAttribute(WebUtils.DATA_LIST, searchResult.getResultList());
-        model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(searchResult.getCount()));
+      model.addAttribute(WebUtils.PARAM_SEARCH, search);
+      model.addAttribute(WebUtils.DATA_LIST, searchResult.getResultList());
+      model.addAttribute(WebUtils.MAX_PAGES_KEY, calculateMaxPages(searchResult.getCount()));
 
-      }
-      catch (ParseException e) {
-        // Do not search, but show default list
-        model.addAttribute(WebUtils.WARN_MESSAGES_KEY,
-            Lists.newArrayList("Sorry, we could not process your search query."));
-      }
+    }
+    catch (ParseException e) {
+      // Do not search, but show default list
+      model.addAttribute(WebUtils.WARN_MESSAGES_KEY,
+          Lists.newArrayList("Sorry, we could not process your search query."));
     }
 
     return listUrl();
@@ -213,18 +210,8 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY> {
    *          Sort options
    * @return List of VIEW
    */
-  private List<VIEW> handleListFromController(Integer firstResult, Model model, Sort sortOptions) {
-    // Get full list from specific list from controller, can filter 'normal' or
-    // filtered
+  private List<VIEW> handleListFromController(Model model, Sort sortOptions) {
     List<VIEW> listFromController = list(0, Integer.MAX_VALUE, sortOptions, model);
-
-    // Place nr of pages based on size on model
-    model.addAttribute(WebUtils.MAX_PAGES_KEY,
-        calculateMaxPages(listFromController == null ? 0 : listFromController.size()));
-
-    List<VIEW> pagedList = getFullTextSearchableService().pageList(firstResult, MAX_ITEMS_PER_PAGE, listFromController);
-
-    model.addAttribute(WebUtils.DATA_LIST, pagedList);
 
     return listFromController;
   }
