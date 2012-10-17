@@ -90,7 +90,7 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
     return logEventService;
   }
 
-  private List<String> determinGroupsToSearchFor(RichUserDetails user) {
+  protected List<String> determinGroupsToSearchFor(RichUserDetails user) {
     List<String> groups = Lists.newArrayList();
 
     if (user.isSelectedUserRole()) {

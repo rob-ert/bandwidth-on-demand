@@ -21,14 +21,14 @@
  */
 package nl.surfnet.bod.web.user;
 
-import java.util.Collections;
 import java.util.List;
-
-import nl.surfnet.bod.web.base.AbstractLogEventController;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import nl.surfnet.bod.web.base.AbstractLogEventController;
+import nl.surfnet.bod.web.security.Security;
 
 @Controller("userEventController")
 @RequestMapping(value = "/" + AbstractLogEventController.PAGE_URL)
@@ -41,8 +41,7 @@ public class LogEventController extends AbstractLogEventController {
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    // TODO Auto-generated method stub
-    return Collections.emptyList();
+    return logEventService.findIdsForUser(determinGroupsToSearchFor(Security.getUserDetails()));
   }
 
 }
