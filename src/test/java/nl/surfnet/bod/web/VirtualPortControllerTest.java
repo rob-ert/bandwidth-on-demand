@@ -32,7 +32,6 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -142,6 +141,7 @@ public class VirtualPortControllerTest {
     assertThat(page, is("redirect:/virtualports"));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void shouldTranslateSearch() throws ParseException {
     ModelStub model = new ModelStub();
