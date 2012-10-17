@@ -201,6 +201,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
     return new Sort(direction, properties);
   }
 
+  // TODO: Change to optional?
   public abstract List<Long> handleListFromController(Model model);
 
   /**

@@ -23,6 +23,7 @@ package nl.surfnet.bod.web.manager;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -441,7 +442,12 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   @Override
   public List<Long> handleListFromController(Model model) {
     final VirtualPortView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-    return virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter);
+    final Optional<List<Long>> ids = virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter);
+    if(ids.isPresent()){
+      return ids.get();
+    }
+    // TODO: Change to optional
+    return new ArrayList<>();
   }
 
   @Override

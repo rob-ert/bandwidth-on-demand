@@ -23,6 +23,7 @@ package nl.surfnet.bod.web;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -191,7 +193,12 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   @Override
   public List<Long> handleListFromController(Model model) {
     final VirtualPortView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-    return virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter);
+    final Optional<List<Long>> ids = virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter);
+    if(ids.isPresent()){
+      return ids.get();
+    }
+    // TODO: Change to optional?
+    return new ArrayList<>();
   }
 
   @Override

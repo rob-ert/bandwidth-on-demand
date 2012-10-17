@@ -38,6 +38,7 @@ import javax.persistence.PersistenceContext;
 import org.joda.time.DateTime;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -284,19 +285,18 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     return entityManager;
   }
 
-  public List<Long> findIdsForUserUsingFilter(RichUserDetails userDetails, VirtualPortView filter) {
+  public Optional<List<Long>> findIdsForUserUsingFilter(RichUserDetails userDetails, VirtualPortView filter) {
     
     final BodRole selectedRole = userDetails.getSelectedRole();
     if (selectedRole.isManagerRole()) {
-      return customVirtualPortRepo.findIdsWithWhereClause(Optional.of(forManagerSpec(selectedRole)));
+      return Optional.of(customVirtualPortRepo.findIdsWithWhereClause(Optional.of(forManagerSpec(selectedRole))));
     }
     else if (selectedRole.isNocRole()) {
-      return customVirtualPortRepo.findIdsWithWhereClause(null);
+      return Optional.of(customVirtualPortRepo.findIdsWithWhereClause(Optional.<Specification<VirtualPort>>absent()));
     }
     else if (selectedRole.isUserRole()) {
-      return customVirtualPortRepo.findIdsWithWhereClause(Optional.of(forUserSpec(userDetails)));
+      return Optional.of(customVirtualPortRepo.findIdsWithWhereClause(Optional.of(forUserSpec(userDetails))));
     }
-    return null;
-
+    return Optional.<List<Long>> absent();
   }
 }

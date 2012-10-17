@@ -32,6 +32,7 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -46,6 +47,7 @@ import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.VirtualPortController.UpdateUserLabelCommand;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.VirtualPortView;
 
 import org.apache.lucene.queryParser.ParseException;
 import org.junit.Before;
@@ -57,6 +59,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.Sort;
 import org.springframework.validation.BeanPropertyBindingResult;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -148,6 +151,9 @@ public class VirtualPortControllerTest {
 
     when(virtualPortServiceMock.findEntriesForUser(eq(user), eq(0), eq(Integer.MAX_VALUE), any(Sort.class)))
         .thenReturn(result);
+
+    when(virtualPortServiceMock.findIdsForUserUsingFilter(eq(user), any(VirtualPortView.class))).thenReturn(
+        Optional.<List<Long>> absent());
 
     when(
         virtualPortServiceMock.searchForInFilteredList(eq(VirtualPort.class),
