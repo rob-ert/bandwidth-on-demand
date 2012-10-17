@@ -31,8 +31,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.google.common.base.Optional;
-
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.service.LogEventService;
 import nl.surfnet.bod.service.ManagerService;
@@ -61,12 +59,7 @@ public class LogEventController extends AbstractLogEventController {
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    final Optional<List<Long>> ids = logEventService.findIdsForManagerOrNoc(Security.getUserDetails());
-    if(ids.isPresent()){
-      return ids.get();
-    }
-    // TODO: Change to optional
-    return new ArrayList<>();
+    return logEventService.findIdsForManagerOrNoc(Security.getUserDetails()).or(new ArrayList<Long>());
   }
 
 }
