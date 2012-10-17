@@ -21,16 +21,17 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-
-import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.web.base.AbstractLogEventController;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.web.base.AbstractLogEventController;
+import nl.surfnet.bod.web.security.Security;
 
 @Controller("nocEventController")
 @RequestMapping(value = "/noc/" + LogEventController.PAGE_URL)
@@ -53,8 +54,7 @@ public class LogEventController extends AbstractLogEventController {
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    // TODO Auto-generated method stub
-    return Collections.emptyList();
+    return logEventService.findIdsForManagerOrNoc(Security.getUserDetails()).or(new ArrayList<Long>());
   }
 
 }

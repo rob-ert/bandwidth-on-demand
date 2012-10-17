@@ -193,8 +193,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   @Override
   public List<Long> handleListFromController(Model model) {
     final VirtualPortView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-    final Optional<List<Long>> ids = virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter);
-    return getOptionalsOrEmptyList(ids);
+    return virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter).or(new ArrayList<Long>());
   }
 
   @Override
