@@ -82,7 +82,6 @@ public class TestSearchController extends AbstractSearchableSortableListControll
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    // TODO Auto-generated method stub
     return Collections.emptyList();
   }
 
