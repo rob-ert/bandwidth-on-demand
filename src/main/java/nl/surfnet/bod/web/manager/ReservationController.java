@@ -23,6 +23,7 @@ package nl.surfnet.bod.web.manager;
 
 import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
@@ -36,6 +37,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import scala.Array;
 
 @Controller("managerReservationController")
 @RequestMapping(ReservationController.PAGE_URL)
@@ -69,7 +72,7 @@ public class ReservationController extends AbstractFilteredReservationController
   @Override
   public List<Long> handleListFromController(Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-    return getReservationService().findIdsForManagerUsingFilter(Security.getUserDetails(), filter);
+    return getReservationService().findIdsForManagerUsingFilter(Security.getUserDetails(), filter).or(new ArrayList<Long>());
   }
 
 }

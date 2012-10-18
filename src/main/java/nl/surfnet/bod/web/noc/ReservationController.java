@@ -24,6 +24,7 @@ package nl.surfnet.bod.web.noc;
 import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
 import static nl.surfnet.bod.web.WebUtils.LIST;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
@@ -69,7 +70,7 @@ public class ReservationController extends AbstractFilteredReservationController
   @Override
   public List<Long> handleListFromController(Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-    return getReservationService().findAllIds(filter);
+    return getReservationService().findAllIds(filter).or(new ArrayList<Long>());
   }
 
 }

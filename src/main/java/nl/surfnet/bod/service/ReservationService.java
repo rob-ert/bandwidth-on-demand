@@ -479,8 +479,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return content;
   }
 
-  public List<Long> findIdsForUserUsingFilter(RichUserDetails user, ReservationFilterView filter) {
-    return customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user)).or(new ArrayList<Long>());
+  public Optional<List<Long>> findIdsForUserUsingFilter(RichUserDetails user, ReservationFilterView filter) {
+    return Optional.of(customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user)));
   }
 
   public List<Reservation> findEntriesForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter,
@@ -490,8 +490,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
-  public List<Long> findIdsForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter) {
-    return customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForManager(filter, manager)).or(new ArrayList<Long>());
+  public Optional<List<Long>> findIdsForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter) {
+    return Optional.of(customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForManager(filter, manager)));
   }
 
   public List<Reservation> findAllEntriesUsingFilter(final ReservationFilterView filter, int firstResult,
@@ -501,8 +501,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
   }
 
-  public List<Long> findAllIds(ReservationFilterView filter) {
-    return customReservationRepo.findIdsWithWhereClause(specFilteredReservations(filter)).or(new ArrayList<Long>());
+  public Optional<List<Long>> findAllIds(ReservationFilterView filter) {
+    return Optional.of(customReservationRepo.findIdsWithWhereClause(specFilteredReservations(filter)));
   }
 
   public long countForFilterAndUser(RichUserDetails user, ReservationFilterView filter) {

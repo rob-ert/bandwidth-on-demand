@@ -21,8 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Collections2.*;
+import static com.google.common.collect.Lists.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -36,14 +36,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.ActivationEmailLink;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
-import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
-import nl.surfnet.bod.web.security.Security;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -53,6 +45,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
+
+import nl.surfnet.bod.domain.ActivationEmailLink;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.repo.ActivationEmailLinkRepo;
+import nl.surfnet.bod.repo.CustomPhysicalResourceGroupRepo;
+import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import nl.surfnet.bod.web.security.Security;
 
 @Service
 @Transactional
@@ -62,6 +64,9 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
 
   @Resource
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
+
+  @Resource
+  private CustomPhysicalResourceGroupRepo customPhysicalResourceGroupRepo;
 
   @Resource
   private ActivationEmailLinkRepo activationEmailLinkRepo;
@@ -130,8 +135,8 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
 
   @SuppressWarnings("unchecked")
   public ActivationEmailLink<PhysicalResourceGroup> findActivationLink(String uuid) {
-    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink =
-        (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo.findByUuid(uuid);
+    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo
+        .findByUuid(uuid);
 
     if (activationEmailLink != null) {
       activationEmailLink.setSourceObject(find(activationEmailLink.getSourceId()));
@@ -183,6 +188,11 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
   @Override
   protected EntityManager getEntityManager() {
     return entityManager;
+  }
+
+  public Optional<List<Long>> findAllTeamIds() {
+    return Optional.of(customPhysicalResourceGroupRepo.findIdsWithWhereClause(Optional
+        .<Specification<PhysicalResourceGroup>> absent()));
   }
 
 }

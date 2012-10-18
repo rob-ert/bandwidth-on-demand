@@ -23,21 +23,12 @@ package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
-import nl.surfnet.bod.service.InstituteService;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
-import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -53,6 +44,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.ImmutableList;
+
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.InstituteService;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
@@ -317,8 +317,7 @@ public class PhysicalResourceGroupController extends AbstractSearchableSortableL
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    // TODO Auto-generated method stub
-    return Collections.emptyList();
+    return physicalResourceGroupService.findAllTeamIds().or(new ArrayList<Long>());
   }
 
   @Override
