@@ -4,5 +4,5 @@
 
     <bod:env property="defaultTimeZoneId" var="timeZone"/>
     <bod:env property="defaultTimeZoneOffset" var="timeZoneOffset"/>
-    <span class="timezone">Time zone: ${timeZone} ${timeZoneOffset}</span>
+    <span class="header-right">Time zone: ${timeZone} ${timeZoneOffset}</span>
 </jsp:root>

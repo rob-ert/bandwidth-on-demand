@@ -22,11 +22,14 @@
 package nl.surfnet.bod.web;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.domain.UserGroup;
 import nl.surfnet.bod.idd.IddClient;
 import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.service.GroupService;
 import nl.surfnet.bod.util.Environment;
 
 import org.apache.commons.httpclient.HttpStatus;
@@ -45,6 +48,9 @@ public class HealthCheckController {
 
   @Resource
   private NbiClient nbiClient;
+
+  @Resource
+  private GroupService groupService;
 
   @Resource
   private Environment env;
@@ -77,9 +83,18 @@ public class HealthCheckController {
       }
     });
 
+    boolean openConextApiHealth = isServiceHealty(new ServiceCheck() {
+      @Override
+      public boolean healty() throws IOException {
+        Collection<UserGroup> groups = groupService.getGroups("urn:collab:person:surfguest.nl:alanvdam");
+        return groups.size() > 0;
+      }
+    });
+
     model.addAttribute("iddHealth", iddHealth);
     model.addAttribute("nbiHealth", nbiHealth);
     model.addAttribute("oAuthServer", oAuthHealth);
+    model.addAttribute("openConextApi", openConextApiHealth);
 
     return "healthcheck";
   }
