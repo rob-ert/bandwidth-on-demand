@@ -25,6 +25,7 @@ import static com.google.common.base.Preconditions.*;
 import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.*;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -285,17 +286,17 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     return entityManager;
   }
 
-  public Optional<List<Long>> findIdsForUserUsingFilter(RichUserDetails userDetails, VirtualPortView filter) {
+  public List<Long> findIdsForUserUsingFilter(RichUserDetails userDetails, VirtualPortView filter) {
     final BodRole selectedRole = userDetails.getSelectedRole();
     if (selectedRole.isManagerRole()) {
-      return Optional.of(customVirtualPortRepo.findIdsWithWhereClause(Optional.of(forManagerSpec(selectedRole))));
+      return customVirtualPortRepo.findIdsWithWhereClause(Optional.of(forManagerSpec(selectedRole)));
     }
     else if (selectedRole.isNocRole()) {
-      return Optional.of(customVirtualPortRepo.findIdsWithWhereClause(Optional.<Specification<VirtualPort>> absent()));
+      return customVirtualPortRepo.findIdsWithWhereClause(Optional.<Specification<VirtualPort>> absent());
     }
     else if (selectedRole.isUserRole()) {
-      return Optional.of(customVirtualPortRepo.findIdsWithWhereClause(Optional.of(forUserSpec(userDetails))));
+      return customVirtualPortRepo.findIdsWithWhereClause(Optional.of(forUserSpec(userDetails)));
     }
-    return Optional.<List<Long>> absent();
+    return new ArrayList<>();
   }
 }

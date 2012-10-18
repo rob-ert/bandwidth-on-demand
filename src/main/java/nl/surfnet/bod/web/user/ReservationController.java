@@ -25,7 +25,6 @@ import static nl.surfnet.bod.util.Orderings.vpUserLabelOrdering;
 import static nl.surfnet.bod.util.Orderings.vrgNameOrdering;
 import static nl.surfnet.bod.web.WebUtils.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -199,7 +198,7 @@ public class ReservationController extends AbstractFilteredReservationController
   @Override
   public List<Long> handleListFromController(Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-    return getReservationService().findIdsForUserUsingFilter(Security.getUserDetails(), filter).or(new ArrayList<Long>());
+    return getReservationService().findIdsForUserUsingFilter(Security.getUserDetails(), filter);
   }
 
   private List<VirtualResourceGroup> findVirtualResourceGroups() {

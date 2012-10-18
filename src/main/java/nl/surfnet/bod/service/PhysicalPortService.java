@@ -25,6 +25,7 @@ import static com.google.common.collect.Iterables.*;
 import static com.google.common.collect.Lists.*;
 import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -373,20 +374,19 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
     return physicalPort.getNocLabel();
   }
 
-  public Optional<List<Long>> findIdsByRoleAndPhysicalResourceGroup(final BodRole bodRole,
+  public List<Long> findIdsByRoleAndPhysicalResourceGroup(final BodRole bodRole,
       final Optional<PhysicalResourceGroup> physicalResourceGroup) {
     if (bodRole.isManagerRole() && physicalResourceGroup.isPresent()) {
-      return Optional.of(customPhysicalPortRepo.findIdsWithWhereClause(Optional
-          .of(PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec(physicalResourceGroup.get()))));
+      return customPhysicalPortRepo.findIdsWithWhereClause(Optional
+          .of(PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec(physicalResourceGroup.get())));
     }
     else if (bodRole.isNocRole()) {
-      return Optional
-          .of(customPhysicalPortRepo.findIdsWithWhereClause(Optional.<Specification<PhysicalPort>> absent()));
+      return customPhysicalPortRepo.findIdsWithWhereClause(Optional.<Specification<PhysicalPort>> absent());
     }
-    return Optional.<List<Long>> absent();
+    return new ArrayList<>();
   }
 
-  public Optional<List<Long>> findIds() {
+  public List<Long> findIds() {
     return findIdsByRoleAndPhysicalResourceGroup(BodRole.createNocEngineer(), Optional.<PhysicalResourceGroup> absent());
   }
 }

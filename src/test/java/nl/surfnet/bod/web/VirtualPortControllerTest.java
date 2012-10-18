@@ -32,6 +32,7 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -58,7 +59,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.Sort;
 import org.springframework.validation.BeanPropertyBindingResult;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -152,8 +152,7 @@ public class VirtualPortControllerTest {
     when(virtualPortServiceMock.findEntriesForUser(eq(user), eq(0), eq(Integer.MAX_VALUE), any(Sort.class)))
         .thenReturn(result);
 
-    when(virtualPortServiceMock.findIdsForUserUsingFilter(eq(user), any(VirtualPortView.class))).thenReturn(
-        Optional.<List<Long>> absent());
+    when(virtualPortServiceMock.findIdsForUserUsingFilter(eq(user), any(VirtualPortView.class))).thenReturn(new ArrayList<Long>());
 
     when(
         virtualPortServiceMock.searchForInFilteredList(eq(VirtualPort.class),

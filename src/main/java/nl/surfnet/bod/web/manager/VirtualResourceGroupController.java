@@ -26,7 +26,6 @@ import static nl.surfnet.bod.web.WebUtils.ID_KEY;
 import static nl.surfnet.bod.web.WebUtils.LIST;
 import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -105,8 +104,7 @@ public class VirtualResourceGroupController extends
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    // TODO Auto-generated method stub
-    return Collections.emptyList();
+    return virtualResourceGroupService.findTeamIdsForRole(Security.getSelectedRole());
   }
 
   @Override

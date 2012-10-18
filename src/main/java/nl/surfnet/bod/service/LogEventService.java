@@ -282,19 +282,19 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logEventRepo.count(specLogEventsByAdminGroups(adminGroups));
   }
 
-  public Optional<List<Long>> findIdsForManagerOrNoc(RichUserDetails userDetails) {
+  public List<Long> findIdsForManagerOrNoc(RichUserDetails userDetails) {
 
     final BodRole selectedRole = userDetails.getSelectedRole();
     final Set<String> adminGroups = managerService.findAllAdminGroupsForManager(Security.getSelectedRole());
 
     if (selectedRole.isManagerRole()) {
-      return Optional.of(customLogEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(adminGroups))));
+      return customLogEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(adminGroups)));
     }
     else if (selectedRole.isNocRole()) {
-      return Optional.of(customLogEventRepo.findIdsWithWhereClause(Optional.<Specification<LogEvent>> absent()));
+      return customLogEventRepo.findIdsWithWhereClause(Optional.<Specification<LogEvent>> absent());
     }
     
-    return Optional.<List<Long>> absent();
+    return new ArrayList<>();
 
   }
 

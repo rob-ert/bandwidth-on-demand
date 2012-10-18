@@ -23,7 +23,6 @@ package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -317,7 +316,7 @@ public class PhysicalResourceGroupController extends AbstractSearchableSortableL
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    return physicalResourceGroupService.findAllTeamIds().or(new ArrayList<Long>());
+    return physicalResourceGroupService.findAllTeamIds();
   }
 
   @Override

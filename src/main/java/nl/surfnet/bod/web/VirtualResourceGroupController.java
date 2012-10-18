@@ -42,6 +42,8 @@ import nl.surfnet.bod.util.Orderings;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.VirtualPortJsonView;
 
+
+// TODO: Rename
 @Controller
 @RequestMapping("/virtualresourcegroups")
 public class VirtualResourceGroupController {

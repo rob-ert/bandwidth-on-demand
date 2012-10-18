@@ -21,17 +21,9 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
-
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
-import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
-import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
@@ -40,9 +32,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.google.common.collect.Lists;
 
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
+import nl.surfnet.bod.web.security.RichUserDetails;
+
 @Controller("nocVirtualResourceGroupController")
 @RequestMapping("/noc/teams")
-public class VirtualResourceGroupController extends AbstractSearchableSortableListController<VirtualResourceGroupView, VirtualResourceGroup> {
+public class VirtualResourceGroupController extends
+    AbstractSearchableSortableListController<VirtualResourceGroupView, VirtualResourceGroup> {
 
   @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
@@ -69,8 +69,7 @@ public class VirtualResourceGroupController extends AbstractSearchableSortableLi
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    // TODO Auto-generated method stub
-    return Collections.emptyList();
+    return virtualResourceGroupService.findAllTeamIds();
   }
 
   @Override

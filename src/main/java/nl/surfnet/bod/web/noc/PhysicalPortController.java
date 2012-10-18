@@ -23,7 +23,6 @@ package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -585,7 +584,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    return physicalPortService.findIds().or(new ArrayList<Long>());
+    return physicalPortService.findIds();
   }
 
   public static final class PhysicalPortFilter {

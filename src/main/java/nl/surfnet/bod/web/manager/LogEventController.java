@@ -21,7 +21,6 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -59,7 +58,7 @@ public class LogEventController extends AbstractLogEventController {
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    return logEventService.findIdsForManagerOrNoc(Security.getUserDetails()).or(new ArrayList<Long>());
+    return logEventService.findIdsForManagerOrNoc(Security.getUserDetails());
   }
 
 }

@@ -38,6 +38,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.repo.CustomVirtualResourceGroupRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
@@ -60,40 +61,40 @@ import com.google.common.collect.FluentIterable;
 public class VirtualResourceGroupService extends AbstractFullTextSearchService<VirtualResourceGroup> {
 
   // TODO to controller??
-  public static final Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView> TO_MANAGER_VIEW =
-      new Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView>() {
+  public static final Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView> TO_MANAGER_VIEW = new Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView>() {
+    @Override
+    public VirtualResourceGroupController.VirtualResourceGroupView apply(VirtualResourceGroup group) {
+      final Optional<Long> managersPrgId = Security.getSelectedRole().getPhysicalResourceGroupId();
+
+      Integer count = FluentIterable.from(group.getVirtualPorts()).filter(new Predicate<VirtualPort>() {
         @Override
-        public VirtualResourceGroupController.VirtualResourceGroupView apply(VirtualResourceGroup group) {
-          final Optional<Long> managersPrgId = Security.getSelectedRole().getPhysicalResourceGroupId();
-
-          Integer count = FluentIterable.from(group.getVirtualPorts()).filter(new Predicate<VirtualPort>() {
-            @Override
-            public boolean apply(VirtualPort port) {
-              return port.getPhysicalResourceGroup().getId().equals(managersPrgId.get());
-            }
-          }).size();
-
-          return new VirtualResourceGroupController.VirtualResourceGroupView(group, count);
+        public boolean apply(VirtualPort port) {
+          return port.getPhysicalResourceGroup().getId().equals(managersPrgId.get());
         }
-      };
+      }).size();
 
-  public static final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW =
-      new Function<VirtualResourceGroup, VirtualResourceGroupView>() {
-        @Override
-        public VirtualResourceGroupView apply(VirtualResourceGroup input) {
-          return new VirtualResourceGroupView(input, input.getVirtualPortCount());
-        }
-      };
+      return new VirtualResourceGroupController.VirtualResourceGroupView(group, count);
+    }
+  };
+
+  public static final Function<VirtualResourceGroup, VirtualResourceGroupView> TO_VIEW = new Function<VirtualResourceGroup, VirtualResourceGroupView>() {
+    @Override
+    public VirtualResourceGroupView apply(VirtualResourceGroup input) {
+      return new VirtualResourceGroupView(input, input.getVirtualPortCount());
+    }
+  };
 
   @Resource
   private VirtualResourceGroupRepo virtualResourceGroupRepo;
+
+  @Resource
+  private CustomVirtualResourceGroupRepo customVirtualResourceGroupRepo;
 
   @Resource
   private LogEventService logEventService;
 
   @PersistenceContext
   private EntityManager entityManager;
-
 
   public long count() {
     return virtualResourceGroupRepo.count();
@@ -148,8 +149,9 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
         Subquery<Long> subquery = query.subquery(Long.class);
         Root<VirtualPort> subRoot = subquery.from(VirtualPort.class);
         subquery.select(subRoot.get(VirtualPort_.virtualResourceGroup).get(VirtualResourceGroup_.id));
-        subquery.where(cb.equal(subRoot.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(
-            PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId().get()));
+        subquery.where(cb.equal(
+            subRoot.get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup)
+                .get(PhysicalResourceGroup_.id), managerRole.getPhysicalResourceGroupId().get()));
 
         return cb.in(root.get(VirtualResourceGroup_.id)).value(subquery);
       }
@@ -206,4 +208,14 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
     return entityManager;
   }
 
+  public List<Long> findAllTeamIds() {
+    return customVirtualResourceGroupRepo.findIdsWithWhereClause(Optional
+        .<Specification<VirtualResourceGroup>> absent());
+  }
+
+  public List<Long> findTeamIdsForRole(final BodRole bodRole) {
+    return customVirtualResourceGroupRepo.findIdsWithWhereClause(Optional
+        .of(specificationForManager(bodRole)));
+
+  }
 }

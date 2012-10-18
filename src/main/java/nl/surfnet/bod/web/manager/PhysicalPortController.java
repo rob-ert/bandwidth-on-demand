@@ -171,7 +171,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   public List<Long> handleListFromController(Model model) {
     final Optional<PhysicalResourceGroup> physicalResourceGroup = getCurrentPhysicalResourceGroup();
     if (physicalResourceGroup.isPresent()) {
-      return physicalPortService.findIdsByRoleAndPhysicalResourceGroup(Security.getSelectedRole(), Optional.of(physicalResourceGroup.get())).or(new ArrayList<Long>());
+      return physicalPortService.findIdsByRoleAndPhysicalResourceGroup(Security.getSelectedRole(), Optional.of(physicalResourceGroup.get()));
     }
     else {
       return new ArrayList<>();

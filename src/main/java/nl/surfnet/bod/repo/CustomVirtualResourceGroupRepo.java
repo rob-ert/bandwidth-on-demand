@@ -13,30 +13,29 @@ import org.springframework.stereotype.Repository;
 
 import com.google.common.base.Optional;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
 
 @Repository
-public class CustomPhysicalPortRepo {
+public class CustomVirtualResourceGroupRepo {
 
   @PersistenceContext
   private EntityManager entityManager;
 
-  public List<Long> findIdsWithWhereClause(final Optional<Specification<PhysicalPort>> whereClause) {
+  public List<Long> findIdsWithWhereClause(final Optional<Specification<VirtualResourceGroup>> whereClause) {
     final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-    final Root<PhysicalPort> root = criteriaQuery.from(PhysicalPort.class);
+    final Root<VirtualResourceGroup> root = criteriaQuery.from(VirtualResourceGroup.class);
 
     if (whereClause.isPresent()) {
-      criteriaQuery.select(root.get(PhysicalPort_.id)).where(
+      criteriaQuery.select(root.get(VirtualResourceGroup_.id)).where(
           whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
     }
     else {
-      criteriaQuery.select(root.get(PhysicalPort_.id));
+      criteriaQuery.select(root.get(VirtualResourceGroup_.id));
     }
 
     final List<Long> resultList = entityManager.createQuery(criteriaQuery).getResultList();
-    System.out.println(resultList);
     return resultList;
   }
 }

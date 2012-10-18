@@ -23,7 +23,6 @@ package nl.surfnet.bod.web.manager;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Sort;
@@ -70,7 +69,7 @@ public class ReservationController extends AbstractFilteredReservationController
   @Override
   public List<Long> handleListFromController(Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
-    return getReservationService().findIdsForManagerUsingFilter(Security.getUserDetails(), filter).or(new ArrayList<Long>());
+    return getReservationService().findIdsForManagerUsingFilter(Security.getUserDetails(), filter);
   }
 
 }

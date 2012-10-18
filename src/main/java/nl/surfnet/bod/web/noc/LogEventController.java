@@ -21,7 +21,6 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Sort;
@@ -54,7 +53,7 @@ public class LogEventController extends AbstractLogEventController {
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    return logEventService.findIdsForManagerOrNoc(Security.getUserDetails()).or(new ArrayList<Long>());
+    return logEventService.findIdsForManagerOrNoc(Security.getUserDetails());
   }
 
 }
