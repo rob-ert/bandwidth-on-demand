@@ -492,16 +492,16 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public List<Long> findIdsForUserUsingFilter(RichUserDetails user, ReservationFilterView filter) {
     return customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user));
   }
+  
+  public List<Long> findIdsForNocUsingFilter(ReservationFilterView filter) {
+    return customReservationRepo.findIdsWithWhereClause(specFilteredReservations(filter));
+  }
 
   public List<Reservation> findAllEntriesUsingFilter(final ReservationFilterView filter, int firstResult,
       int maxResults, Sort sort) {
 
     return reservationRepo.findAll(specFilteredReservations(filter),
         new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
-  }
-
-  public List<Long> findAllIds(ReservationFilterView filter) {
-    return customReservationRepo.findIdsWithWhereClause(specFilteredReservations(filter));
   }
 
   public long countForFilterAndUser(RichUserDetails user, ReservationFilterView filter) {
