@@ -15,13 +15,11 @@
         </h3>
     </div>
     <div class="modal-body">
-        <i class="icon-info-sign">
-            <!--  -->
-        </i>
+        <i class="icon-info-sign"> <!--  --> </i>
         <p>
             <spring:message code="success_healthcheck_message" htmlEscape="false" />
         </p>
-        <dl class="dl-horizontal">
+        <dl class="dl-horizontal" style="clear: left;">
             <dt>IDD</dt>
             <dd>
                 <c:choose>
