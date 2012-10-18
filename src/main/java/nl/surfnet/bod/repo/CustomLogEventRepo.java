@@ -35,7 +35,6 @@ public class CustomLogEventRepo {
       criteriaQuery.select(root.get(LogEvent_.id));
     }
 
-    final List<Long> resultList = entityManager.createQuery(criteriaQuery).getResultList();
-    return resultList;
+    return entityManager.createQuery(criteriaQuery).getResultList();
   }
 }

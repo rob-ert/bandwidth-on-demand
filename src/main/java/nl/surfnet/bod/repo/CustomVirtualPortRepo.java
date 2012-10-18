@@ -35,7 +35,6 @@ public class CustomVirtualPortRepo {
       criteriaQuery.select(root.get(VirtualPort_.id));
     }
 
-    final List<Long> resultList = entityManager.createQuery(criteriaQuery).getResultList();
-    return resultList;
+    return entityManager.createQuery(criteriaQuery).getResultList();
   }
 }

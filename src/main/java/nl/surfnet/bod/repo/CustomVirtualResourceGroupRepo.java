@@ -34,8 +34,6 @@ public class CustomVirtualResourceGroupRepo {
     else {
       criteriaQuery.select(root.get(VirtualResourceGroup_.id));
     }
-
-    final List<Long> resultList = entityManager.createQuery(criteriaQuery).getResultList();
-    return resultList;
+    return entityManager.createQuery(criteriaQuery).getResultList();
   }
 }

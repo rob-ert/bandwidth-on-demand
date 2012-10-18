@@ -35,7 +35,6 @@ public class CustomPhysicalResourceGroupRepo {
       criteriaQuery.select(root.get(PhysicalResourceGroup_.id));
     }
 
-    final List<Long> resultList = entityManager.createQuery(criteriaQuery).getResultList();
-    return resultList;
+    return entityManager.createQuery(criteriaQuery).getResultList();
   }
 }
