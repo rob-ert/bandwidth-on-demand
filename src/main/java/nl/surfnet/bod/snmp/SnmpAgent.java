@@ -75,8 +75,7 @@ public class SnmpAgent {
       communityTarget.setTimeout(timeoutInMillis);
 
       final Snmp snmp = new Snmp(transportMapping);
-      log.warn(host);
-      log.warn("Sending pdu: {} to community: {}", pdu, communityTarget);
+      log.info("Sending pdu: {} to community: {}", pdu, communityTarget);
       snmp.send(pdu, communityTarget);
       snmp.close();
     }

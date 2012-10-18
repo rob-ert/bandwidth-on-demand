@@ -70,7 +70,6 @@ public class SnmpOfflineManager implements CommandResponder {
   public void startup() {
     if (isDevelopment) {
       log.info("USING OFFLINE SNMP MANAGER!");
-      log.warn(host);
 
       registerShutdownHook();
       SecurityProtocols.getInstance().addDefaultProtocols();
