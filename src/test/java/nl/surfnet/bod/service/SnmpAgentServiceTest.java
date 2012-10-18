@@ -33,10 +33,12 @@ import nl.surfnet.bod.snmp.SnmpOfflineManager;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.util.ReflectionTestUtils;
 
+@Ignore("Will enable when we really do SNMP")
 public class SnmpAgentServiceTest {
 
   private final Properties properties = new Properties();
