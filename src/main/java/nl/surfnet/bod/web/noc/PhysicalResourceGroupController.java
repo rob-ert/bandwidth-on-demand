@@ -316,7 +316,7 @@ public class PhysicalResourceGroupController extends AbstractSearchableSortableL
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    return physicalResourceGroupService.findAllTeamIds();
+    return physicalResourceGroupService.findAllIds();
   }
 
   @Override

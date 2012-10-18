@@ -479,10 +479,6 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return content;
   }
 
-  public List<Long> findIdsForUserUsingFilter(RichUserDetails user, ReservationFilterView filter) {
-    return customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user));
-  }
-
   public List<Reservation> findEntriesForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter,
       int firstResult, int maxResults, Sort sort) {
 
@@ -492,6 +488,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   public List<Long> findIdsForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter) {
     return customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForManager(filter, manager));
+  }
+  
+  public List<Long> findIdsForUserUsingFilter(RichUserDetails user, ReservationFilterView filter) {
+    return customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user));
   }
 
   public List<Reservation> findAllEntriesUsingFilter(final ReservationFilterView filter, int firstResult,

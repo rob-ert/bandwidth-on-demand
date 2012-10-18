@@ -190,7 +190,7 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
     return entityManager;
   }
 
-  public List<Long> findAllTeamIds() {
+  public List<Long> findAllIds() {
     return customPhysicalResourceGroupRepo.findIdsWithWhereClause(Optional
         .<Specification<PhysicalResourceGroup>> absent());
   }
