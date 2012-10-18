@@ -30,10 +30,10 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
 
   @Before
   public void setup() {
-    getNocDriver().createNewPhysicalResourceGroup("NFRA Astron", ICT_MANAGERS_GROUP, "test@test.nl");
+    getNocDriver().createNewPhysicalResourceGroup("SIDN", ICT_MANAGERS_GROUP, "test@test.nl");
     getNocDriver().createNewPhysicalResourceGroup("SURFnet bv", ICT_MANAGERS_GROUP, "test@test.nl");
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, "Request a virtual port", "SURFnet bv");
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Request a virtual port", "NFRA Astron");
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Request a virtual port", "SIDN");
 
     getWebDriver().clickLinkInLastEmail();
   }
@@ -63,7 +63,7 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
 
     getUserDriver().requestVirtualPort("selenium-users");
 
-    getUserDriver().verifyRequestVirtualPortInstituteInactive("NFRA Astron");
+    getUserDriver().verifyRequestVirtualPortInstituteInactive("SIDN");
 
     getUserDriver().selectInstituteAndRequest("SURFnet bv", "Mijn nieuwe poort", 1200,
         "I would like to have a new port");
@@ -80,7 +80,7 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
 
     getManagerDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
 
-    getManagerDriver().switchToManager("NFRA Astron");
+    getManagerDriver().switchToManager("SIDN");
 
     getManagerDriver().verifyVirtualResourceGroupsEmpty();
 
