@@ -41,7 +41,7 @@ public class LogEventController extends AbstractLogEventController {
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    return logEventService.findIdsForUser(determinGroupsToSearchFor(Security.getUserDetails()));
+    return getLogEventService().findIdsForUser(determinGroupsToSearchFor(Security.getUserDetails()));
   }
 
 }

@@ -49,7 +49,7 @@ public class V0_10_0_8__MigrateInstitutes implements SpringJdbcMigration {
   private final String iddUser;
   private final String iddPassword;
   private IddClient iddClient;
-
+  
   public V0_10_0_8__MigrateInstitutes() throws IOException {
     final Properties properties = new Properties();
     properties.load(new ClassPathResource("bod-default.properties").getInputStream());

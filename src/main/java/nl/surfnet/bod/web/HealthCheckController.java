@@ -31,7 +31,6 @@ import nl.surfnet.bod.util.Environment;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.springframework.stereotype.Controller;
@@ -69,7 +68,7 @@ public class HealthCheckController {
 
     boolean oAuthHealth = isServiceHealty(new ServiceCheck() {
       @Override
-      public boolean healty() throws ClientProtocolException, IOException {
+      public boolean healty() throws IOException {
         DefaultHttpClient client = new DefaultHttpClient();
         HttpGet httpGet = new HttpGet(env.getOauthServerUrl() + "/admin");
         HttpResponse response = client.execute(httpGet);

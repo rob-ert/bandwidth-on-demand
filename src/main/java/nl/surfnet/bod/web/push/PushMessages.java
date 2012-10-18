@@ -63,14 +63,17 @@ public final class PushMessages {
       this.status = status;
     }
 
+    @SuppressWarnings("unused")
     public String getMessage() {
       return message;
     }
 
+    @SuppressWarnings("unused")
     public Long getId() {
       return id;
     }
 
+    @SuppressWarnings("unused")
     public String getStatus() {
       return status;
     }

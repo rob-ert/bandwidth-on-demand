@@ -38,12 +38,12 @@ public class LogEventController extends AbstractLogEventController {
 
   @Override
   protected List<LogEvent> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return logEventService.findAll(firstPage, maxItems, sort);
+    return getLogEventService().findAll(firstPage, maxItems, sort);
   }
 
   @Override
   protected long count(Model model) {
-    return logEventService.count();
+    return getLogEventService().count();
   }
 
   @Override
@@ -53,7 +53,7 @@ public class LogEventController extends AbstractLogEventController {
 
   @Override
   public List<Long> handleListFromController(Model model) {
-    return logEventService.findIdsForManagerOrNoc(Security.getUserDetails());
+    return getLogEventService().findIdsForManagerOrNoc(Security.getUserDetails());
   }
 
 }

@@ -49,7 +49,6 @@ import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 
 import org.joda.time.DateTime;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -252,7 +251,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     if (role.isNocRole()) {
       return new ElementActionView(false, "reservation_edit_user_has_no_rights");
     }
-    else if (role.isManagerRole()){
+    else if (role.isManagerRole()) {
       return new ElementActionView(false, "reservation_copy_user_has_no_rights");
     }
     else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {

@@ -51,7 +51,7 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Resource
-  protected LogEventService logEventService;
+  private LogEventService logEventService;
 
   @Resource
   private VirtualResourceGroupService virtualResourceGroupService;
@@ -116,6 +116,10 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
   @Override
   public List<LogEvent> transformToView(List<LogEvent> entities, RichUserDetails user) {
     return entities;
+  }
+
+  protected final LogEventService getLogEventService() {
+    return logEventService;
   }
 
 
