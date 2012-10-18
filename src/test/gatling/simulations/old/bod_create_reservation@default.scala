@@ -96,7 +96,7 @@ class CreateReservationSimulation extends Simulation {
       .pause(0, 100, MILLISECONDS)
       .exec(
         http("get ports in json")
-        .get("/bod/virtualresourcegroups/17/ports")
+        .get("/bod/teams/17/ports")
         .headers(headers_4)
       )
       .pause(1, 2)

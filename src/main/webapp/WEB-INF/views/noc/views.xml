@@ -8,7 +8,7 @@
     </definition>
 
     <definition extends="noc" name="noc/teams/list">
-        <put-attribute name="body" value="/WEB-INF/views/noc/virtualresourcegroups/list.jspx" />
+        <put-attribute name="body" value="/WEB-INF/views/noc/teams/list.jspx" />
         <put-attribute name="active_menu" value="teams" cascade="true" />
     </definition>
 

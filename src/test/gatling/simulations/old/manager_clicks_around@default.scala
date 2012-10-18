@@ -49,7 +49,7 @@ class ManagerSimulation extends Simulation {
 		"Connection" -> """keep-alive""",
 		"Host" -> """localhost:8082""",
 		"Proxy-Connection" -> """keep-alive""",
-		"Referer" -> """http://localhost:8082/bod/manager/virtualresourcegroups""",
+		"Referer" -> """http://localhost:8082/bod/manager/teams""",
 		"User-Agent" -> """Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/534.53.11 (KHTML, like Gecko) Version/5.1.3 Safari/534.53.10"""
 	)
 
@@ -110,7 +110,7 @@ class ManagerSimulation extends Simulation {
 		"Connection" -> """keep-alive""",
 		"Host" -> """localhost:8082""",
 		"Proxy-Connection" -> """keep-alive""",
-		"Referer" -> """http://localhost:8082/bod/manager/virtualresourcegroups?id=12""",
+		"Referer" -> """http://localhost:8082/bod/manager/teams?id=12""",
 		"User-Agent" -> """Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/534.53.11 (KHTML, like Gecko) Version/5.1.3 Safari/534.53.10"""
 	)
 
@@ -122,7 +122,7 @@ class ManagerSimulation extends Simulation {
 		"Connection" -> """keep-alive""",
 		"Host" -> """localhost:8082""",
 		"Proxy-Connection" -> """keep-alive""",
-		"Referer" -> """http://localhost:8082/bod/manager/virtualresourcegroups?id=12""",
+		"Referer" -> """http://localhost:8082/bod/manager/teams?id=12""",
 		"User-Agent" -> """Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/534.53.11 (KHTML, like Gecko) Version/5.1.3 Safari/534.53.10"""
 	)
 
@@ -155,7 +155,7 @@ class ManagerSimulation extends Simulation {
   	val scn = scenario("Manager clicking around")
 			.exec(
 			http("Get virutal resource groups")
-			.get("/bod/manager/virtualresourcegroups")
+			.get("/bod/manager/teams")
 			.headers(headers_1)
 		)
 			.pause(2, 3)
@@ -197,13 +197,13 @@ class ManagerSimulation extends Simulation {
 			.pause(2, 3)
 			.exec(
 			http("List virtual resource groups")
-			.get("/bod/manager/virtualresourcegroups")
+			.get("/bod/manager/teams")
 			.headers(headers_8)
 		)
 			.pause(1, 2)
 			.exec(
 			http("Show virtual resource groups")
-			.get("/bod/manager/virtualresourcegroups")
+			.get("/bod/manager/teams")
 			.queryParam("id", "12")
 			.headers(headers_2)
 		)

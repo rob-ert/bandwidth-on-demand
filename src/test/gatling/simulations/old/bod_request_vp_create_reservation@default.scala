@@ -149,7 +149,7 @@ class CreateReservationSimulation extends Simulation {
 			.pause(0, 100, MILLISECONDS)
 			.exec(
 				http("get port in javascript")
-				.get("/bod/virtualresourcegroups/17/ports")
+				.get("/bod/teams/17/ports")
 				.headers(headers_11)
 			)
 			.pause(1, 2)

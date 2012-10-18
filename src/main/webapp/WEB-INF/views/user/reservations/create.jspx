@@ -12,7 +12,6 @@
             <form:create id="fc_reservation" modelAttribute="reservation" path="/reservations">
 
                 <field:input field="name" id="name" labelCode="reservation_name" cssClass="input-xlarge" />
-
                 <div class="control-group">
                     <label class="control-label"><spring:message code="label_virtualresourcegroup" /></label>
                     <div class="controls">
@@ -23,7 +22,7 @@
                                 <input type="hidden" value="${group.id}" name="virtualResourceGroup"  />
                             </c:when>
                             <c:otherwise>
-                                <spring:url value="/virtualresourcegroups/{}/ports" var="data_url" />
+                                <spring:url value="/teams/{}/ports" var="data_url" />
                                 <select data-component="team-selector" data-url="${data_url}" class="input-xlarge" name="virtualResourceGroup">
                                     <c:forEach items="${virtualResourceGroups}" var="group">
                                         <c:choose>
