@@ -24,6 +24,8 @@ package nl.surfnet.bod.service;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.Properties;
 
 import nl.surfnet.bod.snmp.SnmpAgent;
@@ -41,10 +43,12 @@ public class SnmpAgentServiceTest {
   private final SnmpAgentService snmpAgentService = new SnmpAgentService();
   private final SnmpAgent snmpAgent = new SnmpAgent();
   private final SnmpOfflineManager snmpOfflineManager = new SnmpOfflineManager();
+  private ServerSocket serverSocket;
 
   @Before
   public void setUp() throws Exception {
     properties.load(new ClassPathResource("bod.properties").getInputStream());
+    serverSocket = new ServerSocket(0);
     prepareTestInstances();
     snmpOfflineManager.startup();
   }
@@ -52,6 +56,7 @@ public class SnmpAgentServiceTest {
   @After
   public void tearDown() throws Exception {
     snmpOfflineManager.shutdown();
+    serverSocket.close();
   }
 
   @Test
@@ -71,17 +76,17 @@ public class SnmpAgentServiceTest {
         containsString(snmpAgent.getOidIddInstituteDisappeared(instituteSnmpId).replaceFirst(".", "")));
   }
 
-  private void prepareTestInstances() {
+  private void prepareTestInstances() throws IOException {
     ReflectionTestUtils.setField(snmpAgent, "oidNmsPortDisappeared",
         properties.getProperty("snmp.oid.nms.port.disappeared"));
     ReflectionTestUtils.setField(snmpAgent, "oidIddInstituteDisappeared",
         properties.getProperty("snmp.oid.idd.institute.disappeared"));
-    ReflectionTestUtils.setField(snmpAgentService, "snmpAgent", snmpAgent);
     final Object instances[] = { snmpAgent, snmpOfflineManager };
     for (final Object o : instances) {
       ReflectionTestUtils.setField(o, "community", properties.getProperty("snmp.community"));
-      ReflectionTestUtils.setField(o, "host", "localhost/1622");
+      ReflectionTestUtils.setField(o, "host", "localhost/" + serverSocket.getLocalPort());
     }
+    ReflectionTestUtils.setField(snmpAgentService, "snmpAgent", snmpAgent);
   }
 
 }
