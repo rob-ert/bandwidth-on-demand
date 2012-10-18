@@ -50,6 +50,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
+/**
+ * More information about the OpenConext-api {@linkplain https://wiki.surfnetlabs.nl/display/conextdocumentation/REST+interface}
+ */
 @Service
 public class GroupOpenSocialService implements GroupService {
 
