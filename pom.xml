@@ -60,6 +60,12 @@
             <version>1.0.3</version>
             <scope>provided</scope>
         </dependency>
+        <!-- <dependency>
+            <groupId>ch.qos.logbac</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.7</version>
+            <scope>provided</scope>
+        </dependency> -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -321,7 +327,7 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
             <version>1.3</version>
-            <scope>test</scope>
+            <!--scope>test</scope-->
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -543,6 +549,22 @@
         <dependency>
             <groupId>com.excilys.ebi.gatling.highcharts</groupId>
             <artifactId>gatling-charts-highcharts</artifactId>
+            <version>${gatling.version}</version>
+            <scope>test</scope>
+            <exclusions>
+              <exclusion>
+                <groupId>com.excilys.ebi.gatling</groupId>
+                <artifactId>gatling-recorder</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>com.excilys.ebi.gatling</groupId>
+                <artifactId>gatling-core</artifactId>
+              </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.excilys.ebi.gatling</groupId>
+            <artifactId>gatling-recorder</artifactId>
             <version>${gatling.version}</version>
             <scope>test</scope>
         </dependency>
