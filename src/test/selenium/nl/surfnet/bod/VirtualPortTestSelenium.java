@@ -32,18 +32,18 @@ public class VirtualPortTestSelenium extends TestExternalSupport {
 
   @Before
   public void setup() {
-    getNocDriver().createNewPhysicalResourceGroup("ASTRON", ICT_MANAGERS_GROUP, "test@test.nl");
-    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Request a virtual port", "ASTRON");
+    getNocDriver().createNewPhysicalResourceGroup("NFRA Astron", ICT_MANAGERS_GROUP, "test@test.nl");
+    getNocDriver().linkPhysicalPort(NMS_PORT_ID_2, "Request a virtual port", "NFRA Astron");
 
     getWebDriver().clickLinkInLastEmail();
 
     getUserDriver().requestVirtualPort("selenium-users");
-    getUserDriver().selectInstituteAndRequest("ASTRON", 1000, "port 1");
+    getUserDriver().selectInstituteAndRequest("NFRA Astron", 1000, "port 1");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("First port");
 
     getUserDriver().requestVirtualPort("selenium-users");
-    getUserDriver().selectInstituteAndRequest("ASTRON", 1000, "port 2");
+    getUserDriver().selectInstituteAndRequest("NFRA Astron", 1000, "port 2");
     getWebDriver().clickLinkInLastEmail();
     getManagerDriver().createVirtualPort("Second port");
   }
@@ -58,13 +58,13 @@ public class VirtualPortTestSelenium extends TestExternalSupport {
 
     getUserDriver().verifyMemberOf("selenium-users");
 
-    getUserDriver().switchToManager("ASTRON");
+    getUserDriver().switchToManager("NFRA Astron");
     getManagerDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
 
     getManagerDriver().switchToNoc();
     getNocDriver().verifyVirtualResourceGroupExists("selenium-users", "1");
 
-    getUserDriver().switchToManager("ASTRON");
+    getUserDriver().switchToManager("NFRA Astron");
     getManagerDriver().deleteVirtualPortAndVerifyAlertText("Second port", VP_DELETE_ALERT_TEXT);
 
     getManagerDriver().verifyVirtualResourceGroupsEmpty();

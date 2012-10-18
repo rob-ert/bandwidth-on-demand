@@ -54,7 +54,7 @@ public class PhysicalResourceGroupTestSelenium extends TestExternalSupport {
 
   @Test
   public void verifyNocLinkFromInstituteToPhysicalPorts() {
-    final String instituteName = "ASTRON";
+    final String instituteName = "NFRA Astron";
     getNocDriver().createNewPhysicalResourceGroup(instituteName, ICT_MANAGERS_GROUP, "test@example.com");
 
     getNocDriver().addPhysicalPortToInstitute(instituteName, "NOC 1 label", "Mock_Poort 1de verdieping toren1a");

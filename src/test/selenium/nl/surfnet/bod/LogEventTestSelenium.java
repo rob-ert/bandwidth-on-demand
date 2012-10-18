@@ -32,7 +32,7 @@ public class LogEventTestSelenium extends TestExternalSupport {
   protected static final String ICT_USER_GROUP_2 = //
   "urn:collab:group:test.surfteams.nl:nl:surfnet:diensten:selenium-users2";
 
-  private static final String GROUP_NAME_ONE = "ASTRON";
+  private static final String GROUP_NAME_ONE = "NFRA Astron";
   private static final String GROUP_NAME_TWO = "SURFnet bv";
   private static final String GROUP_NAME_FOUR = "ROC Rijn Ijssel";
   private static final String PORT_LABEL_1 = "NOC Port 1";

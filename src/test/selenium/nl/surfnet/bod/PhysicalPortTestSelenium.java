@@ -28,7 +28,7 @@ import org.junit.Test;
 
 public class PhysicalPortTestSelenium extends TestExternalSupport {
 
-  private static final String GROUP_NAME = "ASTRON";
+  private static final String GROUP_NAME = "NFRA Astron";
 
   @Before
   public void setup() {
