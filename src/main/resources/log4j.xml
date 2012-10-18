@@ -39,11 +39,11 @@
   </logger>
 
   <logger name="nl.surfnet.bod.service">
-    <level value="DEBUG" />
+    <level value="INFO" />
   </logger>
 
   <logger name="nl.surfnet.bod.nsi">
-    <level value="DEBUG" />
+    <level value="INFO" />
   </logger>
 
   <logger name="nl.surfnet.bod.mtosi">
@@ -54,13 +54,13 @@
     <level value="INFO" />
    </logger>
 
-   <!--<logger name="org.hibernate.type">
+   <!-- <logger name="org.hibernate.type">
     <level value="TRACE" />
    </logger>
 
    <logger name="org.hibernate.SQL">
     <level value="DEBUG" />
-   </logger>-->
+   </logger> -->
 
   <root>
     <level value="WARN" />

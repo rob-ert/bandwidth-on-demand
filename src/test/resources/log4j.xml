@@ -36,7 +36,7 @@
   </logger>
 
   <logger name="nl.surfnet.bod.nsi">
-    <level value="DEBUG" />
+    <level value="INFO" />
   </logger>
 
   <logger name="com.googlecode.ehcache" additivity="false">
@@ -50,6 +50,14 @@
   <logger name="nl.surfnet.bod.mtosi">
     <level value="WARN" />
   </logger>
+  
+  <!-- <logger name="org.hibernate.type">
+    <level value="TRACE" />
+   </logger>
+
+   <logger name="org.hibernate.SQL">
+    <level value="DEBUG" />
+   </logger> -->
 
   <root>
     <level value="WARN" />
