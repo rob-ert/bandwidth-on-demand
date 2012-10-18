@@ -21,11 +21,17 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.repo.LogEventRepo;
+import nl.surfnet.bod.support.MockHttpServer;
+import nl.surfnet.bod.util.Environment;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -35,11 +41,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.io.ByteArrayResource;
-
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.repo.LogEventRepo;
-import nl.surfnet.bod.support.MockHttpServer;
-import nl.surfnet.bod.util.Environment;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GroupOpenSocialServiceTest {
@@ -65,7 +66,7 @@ public class GroupOpenSocialServiceTest {
 
     when(environment.getOpenSocialOAuthKey()).thenReturn("key");
     when(environment.getOpenSocialOAuthSecret()).thenReturn("secret");
-    when(environment.getOpenSocialUrl()).thenReturn("http://localhost:8088");
+    when(environment.getOpenSocialUrl()).thenReturn("http://localhost:8088/social/rest");
   }
 
   @AfterClass
@@ -75,16 +76,18 @@ public class GroupOpenSocialServiceTest {
 
   @Test
   public void getGroupsShouldReturnOneGroup() {
+    final String nameId = "urn:collab:person:surfguest.nl:alanvdam";
+
     mockServer
         .addResponse(
-            "/rest/groups/@me",
+            "/social/rest/groups/".concat(nameId),
             new ByteArrayResource(
                 ("{\"startIndex\":0,\"totalResults\":1,\"entry\":["
-                    + "{\"id\":{\"groupId\":\"urn:collab:group:surfteams.nl:nl:surfnet:diensten:bandwidth-on-demand\",\"type\":\"groupId\"},"
+                    + "{\"id\":\"urn:collab:group:surfteams.nl:nl:surfnet:diensten:bandwidth-on-demand\","
                     + "\"title\":\"bandwidth-on-demand\",\"description\":\"The BoD development team\"}]"
                     + ",\"itemsPerPage\":1}").getBytes()));
 
-    Collection<UserGroup> groups = subject.getGroups("urn:collab:person:surfguest.nl:alanvdam");
+    Collection<UserGroup> groups = subject.getGroups(nameId);
 
     assertThat(groups, hasSize(1));
 

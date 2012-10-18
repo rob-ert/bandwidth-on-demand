@@ -91,12 +91,6 @@ public class Environment {
   public Environment() {
   }
 
-  public Environment(String openSocialUrl, String openSocialOAuthKey, String openSocialOAuthSecret) {
-    this.openSocialUrl = openSocialUrl;
-    this.openSocialOAuthKey = openSocialOAuthKey;
-    this.openSocialOAuthSecret = openSocialOAuthSecret;
-  }
-
   public Environment(boolean imitateShibboleth, String imitateShibbolethUserId, String imitateShibbolethDisplayName,
       String imitateShibbolethEmail, String shibbolethLogoutUrl) {
     this.imitateShibboleth = imitateShibboleth;
@@ -217,5 +211,17 @@ public class Environment {
 
   public void setResourceSecret(String resourceSecret) {
     this.resourceSecret = resourceSecret;
+  }
+
+  public void setOpenSocialUrl(String openSocialUrl) {
+    this.openSocialUrl = openSocialUrl;
+  }
+
+  public void setOpenSocialOAuthKey(String openSocialOAuthKey) {
+    this.openSocialOAuthKey = openSocialOAuthKey;
+  }
+
+  public void setOpenSocialOAuthSecret(String openSocialOAuthSecret) {
+    this.openSocialOAuthSecret = openSocialOAuthSecret;
   }
 }

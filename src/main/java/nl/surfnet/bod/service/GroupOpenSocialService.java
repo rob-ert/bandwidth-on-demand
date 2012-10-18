@@ -21,6 +21,9 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Strings.emptyToNull;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,9 +50,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Strings.emptyToNull;
-
 @Service
 public class GroupOpenSocialService implements GroupService {
 
@@ -64,7 +64,7 @@ public class GroupOpenSocialService implements GroupService {
   @Override
   public Collection<UserGroup> getGroups(String nameId) {
     try {
-      List<Group> osGroups = getClient(nameId).send(GroupsService.getGroups()).getEntries();
+      List<Group> osGroups = getClient(nameId).send(GroupsService.getGroups(nameId)).getEntries();
 
       return Lists.newArrayList(Lists.transform(osGroups, new Function<Group, UserGroup>() {
         @Override
@@ -89,13 +89,18 @@ public class GroupOpenSocialService implements GroupService {
     checkNotNull(emptyToNull(env.getOpenSocialUrl()));
 
     Provider provider = new ShindigProvider(true);
-    provider.setRestEndpoint(env.getOpenSocialUrl() + "/rest/");
+    provider.setRestEndpoint(getEndPointUrl());
     provider.setVersion("0.9");
 
     AuthScheme scheme = new OAuth2LeggedScheme(env.getOpenSocialOAuthKey(), env.getOpenSocialOAuthSecret(),
         loggedInUser);
 
     return new Client(provider, scheme);
+  }
+
+  private String getEndPointUrl() {
+    String url = env.getOpenSocialUrl();
+    return url.endsWith("/") ? url : url.concat("/");
   }
 
   protected void setEnvironment(Environment environment) {
