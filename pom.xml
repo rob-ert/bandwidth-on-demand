@@ -60,12 +60,6 @@
             <version>1.0.3</version>
             <scope>provided</scope>
         </dependency>
-        <!-- <dependency>
-            <groupId>ch.qos.logbac</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.0.7</version>
-            <scope>provided</scope>
-        </dependency> -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -567,6 +561,12 @@
             <artifactId>gatling-recorder</artifactId>
             <version>${gatling.version}</version>
             <scope>test</scope>
+            <exclusions>
+              <exclusion>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     <build>
