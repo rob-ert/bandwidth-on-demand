@@ -21,7 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.*;
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
@@ -174,7 +174,7 @@ public class VirtualPortServiceTest {
   }
 
   @Test
-  public void rqeuestNewVirtualPort() {
+  public void requestNewVirtualPort() {
     RichUserDetails user = new RichUserDetailsFactory().create();
     VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
@@ -190,7 +190,7 @@ public class VirtualPortServiceTest {
 
     assertThat(link.getMessage(), is("I would like to have this port, now"));
     assertThat(link.getMinBandwidth(), is(1000));
-    assertThat(link.getRequestorEmail(), is(user.getEmail()));
+    assertThat(link.getRequestorEmail(), is(user.getEmail().get()));
     assertThat(link.getRequestorName(), is(user.getDisplayName()));
     assertThat(link.getPhysicalResourceGroup(), is(prg));
     assertThat(link.getVirtualResourceGroup(), is(vrg));

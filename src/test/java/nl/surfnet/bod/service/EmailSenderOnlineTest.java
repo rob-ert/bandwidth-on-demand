@@ -21,11 +21,23 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import javax.servlet.http.HttpServletRequest;
+
+import nl.surfnet.bod.domain.ActivationEmailLink;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,17 +49,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-
-import nl.surfnet.bod.domain.ActivationEmailLink;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.support.ActivationEmailLinkFactory;
-import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
-import nl.surfnet.bod.support.RichUserDetailsFactory;
-import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
-import nl.surfnet.bod.support.VirtualResourceGroupFactory;
-import nl.surfnet.bod.web.security.RichUserDetails;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EmailSenderOnlineTest {
@@ -109,14 +110,14 @@ public class EmailSenderOnlineTest {
 
     SimpleMailMessage message = messageCaptor.getValue();
 
-    assertThat(message.getReplyTo(), is(user.getEmail()));
+    assertThat(message.getReplyTo(), is(user.getEmail().get()));
     assertThat(message.getTo()[0], is(pGroup.getManagerEmail()));
     assertThat(message.getSubject(), containsString(user.getDisplayName()));
     assertThat(message.getText(), containsString("Institute: " + pGroup.getInstitute().getName()));
     assertThat(message.getText(), containsString("Reason: " + requestMessage));
     assertThat(message.getText(), containsString("Bandwidth: " + bandwidth));
   }
-  
+
 
   @Test
   public void virtualPortRequestNullReplyToAddress() {

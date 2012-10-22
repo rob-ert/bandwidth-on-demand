@@ -42,6 +42,7 @@ import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.web.base.MessageView;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.user.VirtualPortRequestController.RequestCommand;
@@ -304,6 +305,19 @@ public class VirtualPortRequestControllerTest {
     verify(virtualResourceGroupServiceMock).save(any(VirtualResourceGroup.class));
     verify(virtualPortServiceMock).requestNewVirtualPort(eq(user), any(VirtualResourceGroup.class), eq(pGroup),
         eq("port"), eq(1111), eq("I want!"));
+  }
+
+  @Test
+  public void requestVirtualPortWithoutEmailShouldGiveErrorMessage() {
+    RichUserDetails user = new RichUserDetailsFactory().setEmail("").create();
+    Security.setUserDetails(user);
+
+    ModelStub model = new ModelStub();
+
+    String resultPage = subject.selectTeam(model);
+
+    assertThat(resultPage, is(MessageView.PAGE_URL));
+    assertThat(model.asMap().get(MessageView.MODEL_KEY), notNullValue());
   }
 
   private void verifyNeverRequestNewVirtualPort() {

@@ -21,7 +21,7 @@
  */
 package nl.surfnet.bod.web.user;
 
-import static nl.surfnet.bod.util.Orderings.*;
+import static nl.surfnet.bod.util.Orderings.prgNameOrdering;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -29,6 +29,19 @@ import java.util.Collections;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.UserGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.base.MessageView;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.UserGroupView;
 
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -47,23 +60,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
-
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.util.Functions;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.UserGroupView;
+import com.google.common.collect.*;
 
 @Controller
 @RequestMapping("/request")
@@ -80,14 +77,27 @@ public class VirtualPortRequestController {
 
   /**
    * In case no team is selected yet, present the team selection.
-   * 
+   *
    * @param model
    * @return SelectTeam view
    */
   @RequestMapping(method = RequestMethod.GET)
   public String selectTeam(Model model) {
+    RichUserDetails user = Security.getUserDetails();
+
+    if (!user.getEmail().isPresent()) {
+      MessageView message = MessageView.createErrorMessage(
+          messageSource,
+          "error_label_no_email",
+          "error_content_no_email");
+
+      model.addAttribute(MessageView.MODEL_KEY, message);
+
+      return MessageView.PAGE_URL;
+    }
+
     // Find related virtual resource groups
-    Collection<VirtualResourceGroup> vrgs = virtualResourceGroupService.findAllForUser(Security.getUserDetails());
+    Collection<VirtualResourceGroup> vrgs = virtualResourceGroupService.findAllForUser(user);
     final Collection<String> existingIds = Lists.newArrayList(Collections2.transform(vrgs,
         new Function<VirtualResourceGroup, String>() {
           @Override
@@ -101,7 +111,7 @@ public class VirtualPortRequestController {
         Functions.FROM_VRG_TO_USER_GROUP_VIEW));
 
     // Filter new teams
-    ImmutableList<UserGroupView> newTeams = FluentIterable.from(Security.getUserDetails().getUserGroups())
+    ImmutableList<UserGroupView> newTeams = FluentIterable.from(user.getUserGroups())
         .filter(new Predicate<UserGroup>() {
           @Override
           public boolean apply(UserGroup group) {

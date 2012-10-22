@@ -38,10 +38,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
+import com.google.common.base.*;
 import com.google.common.collect.*;
 
 @SuppressWarnings("serial")
@@ -49,7 +46,7 @@ public class RichUserDetails implements UserDetails {
 
   private final String username;
   private final String displayName;
-  private final String email;
+  private final Optional<String> email;
   private final Collection<UserGroup> userGroups;
   private final List<BodRole> bodRoles;
   private final List<NsiScope> nsiScopes;
@@ -61,7 +58,7 @@ public class RichUserDetails implements UserDetails {
     this.username = username;
     this.displayName = displayName;
     this.userGroups = userGroups;
-    this.email = email;
+    this.email = Optional.fromNullable(Strings.emptyToNull(email));
     this.nsiScopes = Lists.newArrayList(nsiScopes);
 
     bodRoles = Orderings.bodRoleOrdering().sortedCopy(roles);
@@ -91,7 +88,7 @@ public class RichUserDetails implements UserDetails {
     return userGroups;
   }
 
-  public String getEmail() {
+  public Optional<String> getEmail() {
     return email;
   }
 

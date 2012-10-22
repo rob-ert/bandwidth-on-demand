@@ -21,9 +21,13 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.*;
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.*;
-import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byGroupIdInLastMonthSpec;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byPhysicalPortSpec;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forManagerSpec;
+import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forUserSpec;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,6 +40,16 @@ import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
+import nl.surfnet.bod.repo.CustomVirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.VirtualPortView;
+
 import org.joda.time.DateTime;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -47,23 +61,6 @@ import org.springframework.util.StringUtils;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
-
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.repo.CustomVirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.VirtualPortView;
 
 @Service
 @Transactional
@@ -216,7 +213,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     link.setUserLabel(userLabel);
     link.setMinBandwidth(minBandwidth);
     link.setMessage(message);
-    link.setRequestorEmail(user.getEmail());
+    link.setRequestorEmail(user.getEmail().get());
     link.setRequestorName(user.getDisplayName());
     link.setRequestorUrn(user.getUsername());
     link.setRequestDateTime(DateTime.now());

@@ -101,13 +101,13 @@ public class EmailSenderOnline implements EmailSender {
         .withSubject(VirtualPortRequestMail.subject(from))
         .withBodyText(VirtualPortRequestMail.body(from, requestLink, link)).create();
 
-    if (StringUtils.hasLength(from.getEmail())) {
-      mail.setReplyTo(from.getEmail());
+    if (from.getEmail().isPresent()) {
+      mail.setReplyTo(from.getEmail().get());
     }
     else {
       log.warn("User {} has no email address that can be used as the reply-to!", from);
     }
-    
+
     send(mail);
   }
 
