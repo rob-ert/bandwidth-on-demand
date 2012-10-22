@@ -46,7 +46,7 @@ import static org.hamcrest.Matchers.containsString;
 
 public class AbstractPage {
 
-  private static final String CSS_SELECTOR_TIMEZONE = "span.timezone";
+  private static final String CSS_SELECTOR_TIMEZONE = "header-right";
 
   private final RemoteWebDriver driver;
 
@@ -148,7 +148,7 @@ public class AbstractPage {
   }
 
   public void verifyHasDefaultTimeZone() {
-    String timeZoneText = getDriver().findElement(By.cssSelector(CSS_SELECTOR_TIMEZONE)).getText();
+    String timeZoneText = getDriver().findElement(By.className(CSS_SELECTOR_TIMEZONE)).getText();
     assertThat(timeZoneText, containsString(TimeZone.getDefault().getID()));
   }
 
