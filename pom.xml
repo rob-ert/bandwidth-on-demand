@@ -812,7 +812,7 @@
                                 </systemProperty>
                                 <systemProperty>
                                     <name>os.url</name>
-                                    <value>http://localhost:8081</value>
+                                    <value>http://localhost:8081/social/rest</value>
                                 </systemProperty>
                                 <systemProperty>
                                     <name>bod.development</name>
