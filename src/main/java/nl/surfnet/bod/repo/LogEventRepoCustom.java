@@ -10,5 +10,5 @@ import com.google.common.base.Optional;
 
 public interface LogEventRepoCustom {
 
-  List<Long> findIdsWithWhereClause(final Optional<Specification<LogEvent>> whereClause);
+  List<Long> findIdsWithWhereClause(Optional<Specification<LogEvent>> whereClause);
 }

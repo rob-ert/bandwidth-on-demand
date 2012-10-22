@@ -24,21 +24,22 @@ package nl.surfnet.bod.repo;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.stereotype.Repository;
-
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+
 @Repository
-public interface ReservationRepo extends JpaSpecificationExecutor<Reservation>, JpaRepository<Reservation, Long> {
+public interface ReservationRepo extends JpaSpecificationExecutor<Reservation>, JpaRepository<Reservation, Long>,
+    ReservationRepoCustom {
 
   List<Reservation> findByStatusIn(Collection<ReservationStatus> reservationStates);
 
   List<Reservation> findBySourcePortOrDestinationPort(VirtualPort sourcePort, VirtualPort destinationPort);
-  
+
   Reservation findByReservationId(final String reservationId);
 
 }

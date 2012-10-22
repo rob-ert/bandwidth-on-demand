@@ -42,7 +42,6 @@ import javax.persistence.PersistenceContext;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.VirtualPortRequestLink.RequestStatus;
-import nl.surfnet.bod.repo.CustomVirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualPortRequestLinkRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
@@ -68,9 +67,6 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
 
   @Resource
   private VirtualPortRepo virtualPortRepo;
-
-  @Resource
-  private CustomVirtualPortRepo customVirtualPortRepo;
 
   @Resource
   private VirtualResourceGroupRepo virtualResourceGroupReppo;
@@ -286,13 +282,13 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   public List<Long> findIdsForUserUsingFilter(RichUserDetails userDetails, VirtualPortView filter) {
     final BodRole selectedRole = userDetails.getSelectedRole();
     if (selectedRole.isManagerRole()) {
-      return customVirtualPortRepo.findIdsWithWhereClause(Optional.of(forManagerSpec(selectedRole)));
+      return virtualPortRepo.findIdsWithWhereClause(Optional.of(forManagerSpec(selectedRole)));
     }
     else if (selectedRole.isNocRole()) {
-      return customVirtualPortRepo.findIdsWithWhereClause(Optional.<Specification<VirtualPort>> absent());
+      return virtualPortRepo.findIdsWithWhereClause(Optional.<Specification<VirtualPort>> absent());
     }
     else if (selectedRole.isUserRole()) {
-      return customVirtualPortRepo.findIdsWithWhereClause(Optional.of(forUserSpec(userDetails)));
+      return virtualPortRepo.findIdsWithWhereClause(Optional.of(forUserSpec(userDetails)));
     }
     return new ArrayList<>();
   }

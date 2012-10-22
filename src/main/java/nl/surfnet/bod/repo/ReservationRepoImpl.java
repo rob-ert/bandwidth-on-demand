@@ -8,14 +8,12 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Repository;
-
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.Reservation_;
 
-@Repository
-public class CustomReservationRepo {
+import org.springframework.data.jpa.domain.Specification;
+
+public class ReservationRepoImpl implements ReservationRepoCustom {
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -27,7 +25,7 @@ public class CustomReservationRepo {
 
     criteriaQuery.select(root.get(Reservation_.id))
       .where(whereClause.toPredicate(root, criteriaQuery, criteriaBuilder));
-    
+
     return entityManager.createQuery(criteriaQuery).getResultList();
 
   }

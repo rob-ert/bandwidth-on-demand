@@ -8,31 +8,29 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPort_;
+
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Repository;
 
 import com.google.common.base.Optional;
 
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-
-@Repository
-public class CustomPhysicalResourceGroupRepo {
+public class VirtualPortRepoImpl implements VirtualPortRepoCustom {
 
   @PersistenceContext
   private EntityManager entityManager;
 
-  public List<Long> findIdsWithWhereClause(final Optional<Specification<PhysicalResourceGroup>> whereClause) {
+  public List<Long> findIdsWithWhereClause(final Optional<Specification<VirtualPort>> whereClause) {
     final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
-    final Root<PhysicalResourceGroup> root = criteriaQuery.from(PhysicalResourceGroup.class);
+    final Root<VirtualPort> root = criteriaQuery.from(VirtualPort.class);
 
     if (whereClause.isPresent()) {
-      criteriaQuery.select(root.get(PhysicalResourceGroup_.id)).where(
+      criteriaQuery.select(root.get(VirtualPort_.id)).where(
           whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
     }
     else {
-      criteriaQuery.select(root.get(PhysicalResourceGroup_.id));
+      criteriaQuery.select(root.get(VirtualPort_.id));
     }
 
     return entityManager.createQuery(criteriaQuery).getResultList();

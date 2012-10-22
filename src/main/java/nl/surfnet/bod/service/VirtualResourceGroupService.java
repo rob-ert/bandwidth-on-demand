@@ -38,7 +38,6 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.repo.CustomVirtualResourceGroupRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
@@ -86,9 +85,6 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
 
   @Resource
   private VirtualResourceGroupRepo virtualResourceGroupRepo;
-
-  @Resource
-  private CustomVirtualResourceGroupRepo customVirtualResourceGroupRepo;
 
   @Resource
   private LogEventService logEventService;
@@ -203,19 +199,18 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
     return virtualResourceGroupRepo.findBySurfconextGroupIdIn(groupIds);
   }
 
+  public List<Long> findAllTeamIds() {
+    return virtualResourceGroupRepo.findIdsWithWhereClause(Optional.<Specification<VirtualResourceGroup>> absent());
+  }
+
+  public List<Long> findTeamIdsForRole(final BodRole bodRole) {
+    return virtualResourceGroupRepo.findIdsWithWhereClause(Optional.of(specificationForManager(bodRole)));
+
+  }
+
   @Override
   protected EntityManager getEntityManager() {
     return entityManager;
   }
 
-  public List<Long> findAllTeamIds() {
-    return customVirtualResourceGroupRepo.findIdsWithWhereClause(Optional
-        .<Specification<VirtualResourceGroup>> absent());
-  }
-
-  public List<Long> findTeamIdsForRole(final BodRole bodRole) {
-    return customVirtualResourceGroupRepo.findIdsWithWhereClause(Optional
-        .of(specificationForManager(bodRole)));
-
-  }
 }

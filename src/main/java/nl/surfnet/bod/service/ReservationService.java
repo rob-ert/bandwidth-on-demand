@@ -39,7 +39,6 @@ import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.repo.CustomReservationRepo;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
@@ -49,6 +48,7 @@ import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -81,9 +81,6 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   @Resource
   private ReservationRepo reservationRepo;
-
-  @Resource
-  private CustomReservationRepo customReservationRepo;
 
   @Resource
   private ReservationArchiveRepo reservationArchiveRepo;
@@ -486,15 +483,15 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public List<Long> findIdsForManagerUsingFilter(RichUserDetails manager, ReservationFilterView filter) {
-    return customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForManager(filter, manager));
+    return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForManager(filter, manager));
   }
-  
+
   public List<Long> findIdsForUserUsingFilter(RichUserDetails user, ReservationFilterView filter) {
-    return customReservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user));
+    return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user));
   }
-  
+
   public List<Long> findIdsForNocUsingFilter(ReservationFilterView filter) {
-    return customReservationRepo.findIdsWithWhereClause(specFilteredReservations(filter));
+    return reservationRepo.findIdsWithWhereClause(specFilteredReservations(filter));
   }
 
   public List<Reservation> findAllEntriesUsingFilter(final ReservationFilterView filter, int firstResult,

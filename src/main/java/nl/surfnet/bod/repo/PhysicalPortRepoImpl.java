@@ -8,20 +8,19 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Repository;
-
-import com.google.common.base.Optional;
-
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalPort_;
 
-@Repository
-public class CustomPhysicalPortRepo {
+import org.springframework.data.jpa.domain.Specification;
+
+import com.google.common.base.Optional;
+
+public class PhysicalPortRepoImpl implements PhysicalPortRepoCustom {
 
   @PersistenceContext
   private EntityManager entityManager;
 
+  @Override
   public List<Long> findIdsWithWhereClause(final Optional<Specification<PhysicalPort>> whereClause) {
     final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);

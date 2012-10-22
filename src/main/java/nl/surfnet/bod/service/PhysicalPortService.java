@@ -21,19 +21,27 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.collect.Iterables.*;
-import static com.google.common.collect.Lists.*;
-import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.*;
+import static com.google.common.collect.Iterables.limit;
+import static com.google.common.collect.Iterables.skip;
+import static com.google.common.collect.Lists.newArrayList;
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC;
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALLOCATED_PORTS_PRED;
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.mtosi.MtosiInventoryRetrievalLiveClient;
+import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.web.security.Security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,36 +55,19 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.google.common.collect.Sets.SetView;
-
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.mtosi.MtosiInventoryRetrievalLiveClient;
-import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.repo.CustomPhysicalPortRepo;
-import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.util.Functions;
-import nl.surfnet.bod.web.security.Security;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
- * 
+ *
  * The {@link PhysicalPort}s found in the {@link NbiPortService} are leading and
  * when more data is available in our repository they will be enriched.
- * 
+ *
  * Since {@link PhysicalPort}s from the {@link NbiPortService} are considered
  * read only, the methods that change data are performed using the
  * {@link PhysicalPortRepo}.
- * 
+ *
  */
 @Service
 public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalPort> {
@@ -87,9 +78,6 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   @Resource
   private PhysicalPortRepo physicalPortRepo;
-
-  @Resource
-  private CustomPhysicalPortRepo customPhysicalPortRepo;
 
   @Resource
   private NbiClient nbiClient;
@@ -212,7 +200,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   /**
    * Adds data found in given ports to the specified ports, enriches them.
-   * 
+   *
    * @param nbiPorts
    *          {@link PhysicalPort}s to add the data to
    * @param repoPorts
@@ -302,7 +290,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
    * <strong>not</strong> indicated as missing have disappeared from the NMS by
    * finding the differences between the ports in the given list and the ports
    * returned by the NMS based on the {@link PhysicalPort#getNmsPortId()} .
-   * 
+   *
    * @param bodPorts
    *          List with ports from BoD
    * @param nbiPortIds
@@ -332,10 +320,10 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   /**
    * Enriches the port with additional data.
-   * 
+   *
    * Clones JPA attributes (id and version), so a find will return these
    * preventing a additional save instead of an update.
-   * 
+   *
    * @param portToEnrich
    *          The port to enrich
    * @param dataPort
@@ -360,7 +348,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   /**
    * Determines the label to log for the given Role
-   * 
+   *
    * @param bodRole
    *          Role
    * @param physicalPort
@@ -377,11 +365,11 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   public List<Long> findIdsByRoleAndPhysicalResourceGroup(final BodRole bodRole,
       final Optional<PhysicalResourceGroup> physicalResourceGroup) {
     if (bodRole.isManagerRole() && physicalResourceGroup.isPresent()) {
-      return customPhysicalPortRepo.findIdsWithWhereClause(Optional
+      return physicalPortRepo.findIdsWithWhereClause(Optional
           .of(PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec(physicalResourceGroup.get())));
     }
     else if (bodRole.isNocRole()) {
-      return customPhysicalPortRepo.findIdsWithWhereClause(Optional.<Specification<PhysicalPort>> absent());
+      return physicalPortRepo.findIdsWithWhereClause(Optional.<Specification<PhysicalPort>> absent());
     }
     return new ArrayList<>();
   }

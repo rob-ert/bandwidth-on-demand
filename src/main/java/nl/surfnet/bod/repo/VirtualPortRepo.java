@@ -21,18 +21,19 @@
  */
 package nl.surfnet.bod.repo;
 
+import nl.surfnet.bod.domain.VirtualPort;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-import nl.surfnet.bod.domain.VirtualPort;
-
 @Repository
-public interface VirtualPortRepo extends JpaSpecificationExecutor<VirtualPort>, JpaRepository<VirtualPort, Long> {
+public interface VirtualPortRepo extends JpaSpecificationExecutor<VirtualPort>, JpaRepository<VirtualPort, Long>,
+    VirtualPortRepoCustom {
 
   /**
    * Finds a {@link VirtualPort} by its ict manager label.
-   * 
+   *
    * @param label
    *          The label to search for
    * @return {@link VirtualPort} or null when no match was found.
@@ -41,7 +42,7 @@ public interface VirtualPortRepo extends JpaSpecificationExecutor<VirtualPort>, 
 
   /**
    * Finds a {@link VirtualPort} by it user label
-   * 
+   *
    * @param label
    *          Label to search for
    * @return {@link VirtualPort} of null when no match was found

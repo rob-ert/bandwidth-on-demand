@@ -8,16 +8,14 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Repository;
-
-import com.google.common.base.Optional;
-
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup_;
 
-@Repository
-public class CustomVirtualResourceGroupRepo {
+import org.springframework.data.jpa.domain.Specification;
+
+import com.google.common.base.Optional;
+
+public class VirtualResourceGroupRepoImpl implements VirtualResourceGroupRepoCustom {
 
   @PersistenceContext
   private EntityManager entityManager;
