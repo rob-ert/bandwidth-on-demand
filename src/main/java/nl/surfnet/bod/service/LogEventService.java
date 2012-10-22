@@ -21,12 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -34,6 +29,16 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+
+import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.event.LogEventType;
+import nl.surfnet.bod.event.LogEvent_;
+import nl.surfnet.bod.repo.LogEventRepo;
+import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,22 +50,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterators;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.Loggable;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.event.LogEventType;
-import nl.surfnet.bod.event.LogEvent_;
-import nl.surfnet.bod.repo.CustomLogEventRepo;
-import nl.surfnet.bod.repo.LogEventRepo;
-import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
-
 @Service
 public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
@@ -70,9 +59,6 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   @Resource
   private LogEventRepo logEventRepo;
-
-  @Resource
-  private CustomLogEventRepo customLogEventRepo;
 
   @Resource
   private Environment environment;
@@ -191,10 +177,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    * domainObject with one a specific type, as determined by
    * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
    * {@link LogEventRepo}
-   * 
+   *
    * @param logger
    *          Logger to write to
-   * 
+   *
    * @param logEvent
    *          LogEvent to handle
    */
@@ -239,7 +225,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    * <li>VirtualPort</li>
    * <li>Institute</li>
    * </ul>
-   * 
+   *
    * @param logEvent
    * @return true when the {@link LogEvent#getDescription()} matches one of the
    *         listed above, false otherwise.
@@ -267,7 +253,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   /**
    * Delegates to {@link #handleEvent(Logger, LogEvent)}
-   * 
+   *
    * @param logEvent
    */
   private void handleEvent(LogEvent logEvent) {
@@ -283,24 +269,21 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   }
 
   public List<Long> findIdsForManagerOrNoc(RichUserDetails userDetails) {
-
     final BodRole selectedRole = userDetails.getSelectedRole();
-    final Set<String> adminGroups = managerService.findAllAdminGroupsForManager(Security.getSelectedRole());
 
     if (selectedRole.isManagerRole()) {
-      return customLogEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(adminGroups)));
+      Set<String> adminGroups = managerService.findAllAdminGroupsForManager(Security.getSelectedRole());
+      return logEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(adminGroups)));
     }
     else if (selectedRole.isNocRole()) {
-      return customLogEventRepo.findIdsWithWhereClause(Optional.<Specification<LogEvent>> absent());
+      return logEventRepo.findIdsWithWhereClause(Optional.<Specification<LogEvent>> absent());
     }
-    
-    return new ArrayList<>();
 
+    return Collections.emptyList();
   }
 
   public List<Long> findIdsForUser(List<String> determinGroupsToSearchFor) {
-    return customLogEventRepo
-        .findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(determinGroupsToSearchFor)));
+    return logEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(determinGroupsToSearchFor)));
   }
 
 }

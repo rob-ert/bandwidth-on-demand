@@ -23,14 +23,14 @@ package nl.surfnet.bod.web.noc;
 
 import java.util.List;
 
+import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.web.base.AbstractLogEventController;
+import nl.surfnet.bod.web.security.Security;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.web.base.AbstractLogEventController;
-import nl.surfnet.bod.web.security.Security;
 
 @Controller("nocEventController")
 @RequestMapping(value = "/noc/" + LogEventController.PAGE_URL)
