@@ -79,7 +79,7 @@ If you want to run the selenium tests from your IDE (like Eclipse), you could st
 Load testing is done with [Gatling][gatling]. The simulations are located in `src/test/gatling/simulations`.
 To run them type:
 
-    mvn gatling:execute
+    mvn gatling:execute -Dgatling.simulation=XXSimulation
 
 ## Network Managment System (NMS)
 

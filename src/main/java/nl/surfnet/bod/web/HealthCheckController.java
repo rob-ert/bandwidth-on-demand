@@ -23,6 +23,8 @@ package nl.surfnet.bod.web;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.*;
 
 import javax.annotation.Resource;
 
@@ -39,6 +41,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.google.common.collect.Lists;
 
 @Controller
 public class HealthCheckController {
@@ -58,21 +62,21 @@ public class HealthCheckController {
   @RequestMapping(value = "/healthcheck")
   public String index(Model model) {
 
-    boolean iddHealth = isServiceHealty(new ServiceCheck() {
+    final ServiceCheck iddServiceCheck = new ServiceCheck() {
       @Override
       public boolean healty() {
         return iddClient.getKlanten().size() > 0;
       }
-    });
+    };
 
-    boolean nbiHealth = isServiceHealty(new ServiceCheck() {
+    final ServiceCheck nbiServiceCheck = new ServiceCheck() {
       @Override
       public boolean healty() {
         return nbiClient.getPhysicalPortsCount() > 0;
       }
-    });
+    };
 
-    boolean oAuthHealth = isServiceHealty(new ServiceCheck() {
+    final ServiceCheck oAuthServerServiceCheck = new ServiceCheck() {
       @Override
       public boolean healty() throws IOException {
         DefaultHttpClient client = new DefaultHttpClient();
@@ -81,25 +85,63 @@ public class HealthCheckController {
         httpGet.releaseConnection();
         return response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN;
       }
-    });
+    };
 
-    boolean openConextApiHealth = isServiceHealty(new ServiceCheck() {
+    final ServiceCheck apiServiceCheck = new ServiceCheck() {
       @Override
       public boolean healty() throws IOException {
         Collection<UserGroup> groups = groupService.getGroups("urn:collab:person:surfguest.nl:alanvdam");
         return groups.size() > 0;
       }
-    });
+    };
 
-    model.addAttribute("iddHealth", iddHealth);
-    model.addAttribute("nbiHealth", nbiHealth);
-    model.addAttribute("oAuthServer", oAuthHealth);
-    model.addAttribute("openConextApi", openConextApiHealth);
+    @SuppressWarnings("unchecked")
+    List<Callable<Boolean>> tasks = Lists.newArrayList(
+        callable(iddServiceCheck),
+        callable(nbiServiceCheck),
+        callable(oAuthServerServiceCheck),
+        callable(apiServiceCheck)
+    );
+
+    try {
+      List<Future<Boolean>> futures = Executors.newFixedThreadPool(4).invokeAll(tasks, 15, TimeUnit.SECONDS);
+
+      model.addAttribute("iddHealth", toBooleanValue(futures.get(0)));
+      model.addAttribute("nbiHealth", toBooleanValue(futures.get(1)));
+      model.addAttribute("oAuthServer", toBooleanValue(futures.get(2)));
+      model.addAttribute("openConextApi", toBooleanValue(futures.get(3)));
+    }
+    catch (InterruptedException e) {
+      e.printStackTrace();
+    }
 
     return "healthcheck";
   }
 
-  public boolean isServiceHealty(ServiceCheck check) {
+  private boolean toBooleanValue(Future<Boolean> healthFuture) {
+    if (healthFuture.isCancelled()) {
+      return false;
+    }
+
+    try {
+      return healthFuture.isDone() && healthFuture.get();
+    }
+    catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  private Callable<Boolean> callable(final ServiceCheck serviceCheck) {
+    return new Callable<Boolean>() {
+      @Override
+      public Boolean call() throws Exception {
+        return isServiceHealthy(serviceCheck);
+      }
+    };
+  }
+
+  public boolean isServiceHealthy(ServiceCheck check) {
     try {
       return check.healty();
     }
