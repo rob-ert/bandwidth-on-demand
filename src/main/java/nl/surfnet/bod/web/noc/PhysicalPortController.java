@@ -270,7 +270,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
       @RequestParam final String search,
       final Model model) {
 
-    List<Long> unalignedPorts = handleListFromController(model);
+    List<Long> unalignedPorts = getIdsOfAllAllowedEntries(model);
 
     try {
       FullTextSearchResult<PhysicalPort> searchResult = getFullTextSearchableService().searchForInFilteredList(
@@ -583,7 +583,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @Override
-  public List<Long> handleListFromController(Model model) {
+  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
     return physicalPortService.findIds();
   }
 
@@ -612,7 +612,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   }
 
   @Override
-  public List<PhysicalPortView> transformToView(List<PhysicalPort> entities, RichUserDetails user) {
+  protected List<PhysicalPortView> transformToView(List<PhysicalPort> entities, RichUserDetails user) {
     return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService);
   }
 

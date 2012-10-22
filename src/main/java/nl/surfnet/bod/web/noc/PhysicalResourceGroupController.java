@@ -315,12 +315,12 @@ public class PhysicalResourceGroupController extends AbstractSearchableSortableL
   }
 
   @Override
-  public List<Long> handleListFromController(Model model) {
+  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
     return physicalResourceGroupService.findAllIds();
   }
 
   @Override
-  public List<PhysicalResourceGroup> transformToView(List<PhysicalResourceGroup> entities, RichUserDetails user) {
+  protected List<PhysicalResourceGroup> transformToView(List<PhysicalResourceGroup> entities, RichUserDetails user) {
     return entities;
   }
 }

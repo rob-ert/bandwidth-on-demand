@@ -68,12 +68,12 @@ public class VirtualResourceGroupController extends
   }
 
   @Override
-  public List<Long> handleListFromController(Model model) {
+  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
     return virtualResourceGroupService.findAllTeamIds();
   }
 
   @Override
-  public List<VirtualResourceGroupView> transformToView(List<VirtualResourceGroup> entities, RichUserDetails user) {
+  protected List<VirtualResourceGroupView> transformToView(List<VirtualResourceGroup> entities, RichUserDetails user) {
     return Lists.transform(entities, VirtualResourceGroupService.TO_VIEW);
   }
 

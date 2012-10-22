@@ -114,7 +114,7 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
   }
 
   @Override
-  public List<LogEvent> transformToView(List<LogEvent> entities, RichUserDetails user) {
+  protected List<LogEvent> transformToView(List<LogEvent> entities, RichUserDetails user) {
     return entities;
   }
 

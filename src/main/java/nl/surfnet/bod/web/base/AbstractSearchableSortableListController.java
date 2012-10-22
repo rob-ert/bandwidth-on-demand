@@ -94,7 +94,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
 
     Sort sortOptions = prepareSortOptions(sort, order, model);
     Integer firstItem = calculateFirstPage(page);
-    List<Long> listFromController = handleListFromController(model);
+    List<Long> listFromController = getIdsOfAllAllowedEntries(model);
 
     String translatedSearchString = mapLabelToTechnicalName(search);
 
@@ -117,7 +117,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
     return listUrl();
   }
 
-  public abstract List<VIEW> transformToView(List<ENTITY> entities, RichUserDetails user);
+  protected abstract List<VIEW> transformToView(List<ENTITY> entities, RichUserDetails user);
 
   protected Sort prepareSortOptions(String sort, String order, Model model) {
     String sortProperty = sortProperty(sort);
@@ -201,8 +201,7 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
     return new Sort(direction, properties);
   }
 
-  // TODO: Change to optional?
-  public abstract List<Long> handleListFromController(Model model);
+  protected abstract List<Long> getIdsOfAllAllowedEntries(Model model);
 
   /**
    * Maps a search string with a label from a column to a search with a field in
@@ -241,5 +240,5 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
   }
 
   protected abstract AbstractFullTextSearchService<ENTITY> getFullTextSearchableService();
-  
+
 }

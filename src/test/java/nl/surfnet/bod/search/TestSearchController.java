@@ -71,7 +71,7 @@ public class TestSearchController extends AbstractSearchableSortableListControll
   }
 
   @Override
-  public List<TestView> transformToView(List<TestEntity> entities, RichUserDetails user) {
+  protected List<TestView> transformToView(List<TestEntity> entities, RichUserDetails user) {
     return FluentIterable.from(entities).transform(new Function<TestEntity, TestView>() {
       @Override
       public TestView apply(TestEntity input) {
@@ -81,7 +81,7 @@ public class TestSearchController extends AbstractSearchableSortableListControll
   }
 
   @Override
-  public List<Long> handleListFromController(Model model) {
+  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
     return Collections.emptyList();
   }
 

@@ -439,13 +439,13 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   }
 
   @Override
-  public List<Long> handleListFromController(Model model) {
+  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
     final VirtualPortView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
     return virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter);
   }
 
   @Override
-  public List<VirtualPortView> transformToView(List<VirtualPort> entities, RichUserDetails user) {
+  protected List<VirtualPortView> transformToView(List<VirtualPort> entities, RichUserDetails user) {
     return Lists.transform(entities, new Function<VirtualPort, VirtualPortView>() {
       @Override
       public VirtualPortView apply(VirtualPort port) {

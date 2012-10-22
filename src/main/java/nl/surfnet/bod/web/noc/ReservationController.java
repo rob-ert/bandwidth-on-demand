@@ -66,7 +66,7 @@ public class ReservationController extends AbstractFilteredReservationController
   }
 
   @Override
-  public List<Long> handleListFromController(Model model) {
+  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
     ReservationFilterView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
     return getReservationService().findIdsForNocUsingFilter(filter);
   }

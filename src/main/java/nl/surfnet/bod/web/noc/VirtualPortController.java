@@ -88,13 +88,13 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   }
 
   @Override
-  public List<Long> handleListFromController(Model model) {
+  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
     final VirtualPortView filter = WebUtils.getAttributeFromModel(FILTER_SELECT, model);
     return virtualPortService.findIdsForUserUsingFilter(Security.getUserDetails(), filter);
   }
 
   @Override
-  public List<VirtualPortView> transformToView(List<VirtualPort> entities, RichUserDetails user) {
+  protected List<VirtualPortView> transformToView(List<VirtualPort> entities, RichUserDetails user) {
     return Lists.transform(entities, nl.surfnet.bod.util.Functions.FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW);
   }
 }

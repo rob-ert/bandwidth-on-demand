@@ -57,7 +57,7 @@ public class LogEventController extends AbstractLogEventController {
   }
 
   @Override
-  public List<Long> handleListFromController(Model model) {
+  protected List<Long> getIdsOfAllAllowedEntries(Model model) {
     return logEventService.findIdsForManagerOrNoc(Security.getUserDetails());
   }
 
