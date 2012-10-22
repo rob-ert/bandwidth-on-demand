@@ -37,10 +37,10 @@ public class TimeStampBridge implements StringBridge {
 
   @Override
   public String objectToString(Object object) {
-    String result = null;
+    String result;
 
     if (object == null) {
-      // null
+      result = null;
     }
     else if (DateTime.class.isAssignableFrom(object.getClass())) {
       DateTime dateTime = (DateTime) object;
