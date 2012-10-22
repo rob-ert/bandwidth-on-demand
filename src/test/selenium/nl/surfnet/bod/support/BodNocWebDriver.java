@@ -115,6 +115,10 @@ public class BodNocWebDriver {
     assertThat(editPage.getManagerLabel(), is(managerLabel));
   }
 
+  public void switchToManager(final String name) {
+    switchTo("BoD Administrator", name);
+  }
+  
   public void switchToManager() {
     switchTo("BoD Administrator");
   }
@@ -123,9 +127,8 @@ public class BodNocWebDriver {
     switchTo("User");
   }
 
-  private void switchTo(String role) {
-    DashboardPage page = DashboardPage.get(driver, URL_UNDER_TEST);
-
+  private void switchTo(String... role) {
+    nl.surfnet.bod.pages.noc.DashboardPage page = nl.surfnet.bod.pages.noc.DashboardPage.get(driver, URL_UNDER_TEST);
     page.clickSwitchRole(role);
   }
 
