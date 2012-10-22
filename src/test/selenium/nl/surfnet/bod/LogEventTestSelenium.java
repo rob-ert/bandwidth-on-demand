@@ -132,7 +132,7 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getNocDriver().verifyLogEventExists(PORT_LABEL_4);
 
     // Not visible for managers
-    getNocDriver().switchToManager();    
+    getNocDriver().switchToManager(GROUP_NAME_ONE);    
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
     getManagerDriver().verifyLogEventExists(PORT_LABEL_1);
