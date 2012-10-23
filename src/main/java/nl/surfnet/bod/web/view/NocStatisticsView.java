@@ -21,25 +21,37 @@
  */
 package nl.surfnet.bod.web.view;
 
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.event.EntityStatistics;
+import nl.surfnet.bod.web.noc.LogEventController;
 import nl.surfnet.bod.web.noc.PhysicalPortController;
 import nl.surfnet.bod.web.noc.ReservationController;
 
 public class NocStatisticsView {
 
-  private long elapsedReservationsAmount;
-  private long activeReservationsAmount;
-  private long comingReservationsAmount;
-  private long physicalPortsAmount;
-  private long unalignedPhysicalPortsAmount;
+  private final long elapsedReservationsAmount;
+  private final long activeReservationsAmount;
+  private final long comingReservationsAmount;
+  private final long physicalPortsAmount;
+  private final long unalignedPhysicalPortsAmount;
+  private final EntityStatistics<PhysicalPort> physicalPortStats;
+  private final EntityStatistics<VirtualPort> virtualPortStats;
+  private final EntityStatistics<Reservation> reservationStats;
 
   public NocStatisticsView(long countPhysicalPorts, long countElapsedReservations, long countActiveReservations,
-      long countComingReservations, long countUnalignedPhyscalPorts) {
+      long countComingReservations, long countUnalignedPhyscalPorts, EntityStatistics<PhysicalPort> physicalPortStats,
+      EntityStatistics<VirtualPort> virtualPortStats, EntityStatistics<Reservation> reservationStats) {
 
     this.physicalPortsAmount = countPhysicalPorts;
     this.elapsedReservationsAmount = countElapsedReservations;
     this.activeReservationsAmount = countActiveReservations;
     this.comingReservationsAmount = countComingReservations;
     this.unalignedPhysicalPortsAmount = countUnalignedPhyscalPorts;
+    this.physicalPortStats = physicalPortStats;
+    this.virtualPortStats = virtualPortStats;
+    this.reservationStats = reservationStats;
   }
 
   public long getElapsedReservationsAmount() {
@@ -56,6 +68,18 @@ public class NocStatisticsView {
 
   public long getPhysicalPortsAmount() {
     return physicalPortsAmount;
+  }
+
+  public EntityStatistics<PhysicalPort> getPhysicalPortStatistics() {
+    return physicalPortStats;
+  }
+
+  public EntityStatistics<VirtualPort> getVirtualPortStatistics() {
+    return virtualPortStats;
+  }
+
+  public EntityStatistics<Reservation> getReservationStatistics() {
+    return reservationStats;
   }
 
   public String getElapsedReservationsUrl() {
@@ -80,5 +104,9 @@ public class NocStatisticsView {
 
   public String getPpsUrl() {
     return "noc/" + PhysicalPortController.PAGE_URL;
+  }
+
+  public String getLogEventsUrl() {
+    return "noc/" + LogEventController.PAGE_URL;
   }
 }

@@ -21,17 +21,11 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.event.EntityStatistics;
+import nl.surfnet.bod.service.LogEventService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ModelStub;
@@ -43,6 +37,19 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.NocStatisticsView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
+
+import org.joda.time.DateTime;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DashboardControllerTest {
@@ -58,6 +65,9 @@ public class DashboardControllerTest {
 
   @Mock
   private Environment environment;
+
+  @Mock
+  private LogEventService logEventServiceMock;
 
   @Test
   public void shouldAddNullPrgToModel() {
@@ -90,11 +100,49 @@ public class DashboardControllerTest {
     when(reservationServiceMock.countAllEntriesUsingFilter(comingFilter)).thenReturn(5L);
     when(physicalPortServiceMock.countUnalignedPhysicalPorts()).thenReturn(6L);
 
-    NocStatisticsView statistics = subject.determineStatistics();
+    DateTime end = DateTime.now();
+    DateTime start = end.minus(WebUtils.DEFAULT_REPORTING_PERIOD);
+    // Entity statistics
+    EntityStatistics<PhysicalPort> physicalPortStats = new EntityStatistics<PhysicalPort>(PhysicalPort.class, start, 1,
+        2, 3, end);
+    EntityStatistics<VirtualPort> virtualPortStats = new EntityStatistics<VirtualPort>(VirtualPort.class, start, 4, 5,
+        6, end);
+    EntityStatistics<Reservation> reservationStats = new EntityStatistics<Reservation>(Reservation.class, start, 7, 8,
+        9, end);
+
+    when(
+        logEventServiceMock.determineStatisticsForNocByEventTypeAndDomainObjectClassBetween(noc, PhysicalPort.class,
+            start, end)).thenReturn(physicalPortStats);
+
+    when(
+        logEventServiceMock.determineStatisticsForNocByEventTypeAndDomainObjectClassBetween(noc, VirtualPort.class,
+            start, end)).thenReturn(virtualPortStats);
+
+    when(
+        logEventServiceMock.determineStatisticsForNocByEventTypeAndDomainObjectClassBetween(noc, Reservation.class,
+            start, end)).thenReturn(reservationStats);
+
+    NocStatisticsView statistics = subject.determineStatistics(noc, start, end);
+
     assertThat(statistics.getPhysicalPortsAmount(), is(2L));
     assertThat(statistics.getElapsedReservationsAmount(), is(3L));
     assertThat(statistics.getActiveReservationsAmount(), is(4L));
     assertThat(statistics.getComingReservationsAmount(), is(5L));
     assertThat(statistics.getUnalignedPhysicalPortsAmount(), is(6L));
+
+    // PhysicalPort stats
+    assertThat(statistics.getPhysicalPortStatistics().getAmountCreated(), is(1L));
+    assertThat(statistics.getPhysicalPortStatistics().getAmountUpdated(), is(2L));
+    assertThat(statistics.getPhysicalPortStatistics().getAmountDeleted(), is(3L));
+
+    // VirtualPort stats
+    assertThat(statistics.getVirtualPortStatistics().getAmountCreated(), is(4L));
+    assertThat(statistics.getVirtualPortStatistics().getAmountUpdated(), is(5L));
+    assertThat(statistics.getVirtualPortStatistics().getAmountDeleted(), is(6L));
+
+    // Reservation stats
+    assertThat(statistics.getReservationStatistics().getAmountCreated(), is(7L));
+    assertThat(statistics.getReservationStatistics().getAmountUpdated(), is(8L));
+    assertThat(statistics.getReservationStatistics().getAmountDeleted(), is(9L));
   }
 }

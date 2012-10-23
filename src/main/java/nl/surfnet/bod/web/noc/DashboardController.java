@@ -25,6 +25,21 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.event.EntityStatistics;
+import nl.surfnet.bod.service.LogEventService;
+import nl.surfnet.bod.service.PhysicalPortService;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
+import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.NocStatisticsView;
+
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -34,14 +49,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.common.annotations.VisibleForTesting;
-
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.service.PhysicalPortService;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.view.NocStatisticsView;
 
 @Controller("nocDashboardController")
 @RequestMapping(DashboardController.PAGE_URL)
@@ -65,10 +72,15 @@ public class DashboardController {
   @Resource
   private Environment environment;
 
+  @Resource
+  private LogEventService logEventService;
+
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
 
-    model.addAttribute("stats", determineStatistics());
+    DateTime end = DateTime.now();
+    DateTime start = end.minus(WebUtils.DEFAULT_REPORTING_PERIOD);
+    model.addAttribute("stats", determineStatistics(Security.getUserDetails(), start, end));
     model.addAttribute("defaultDuration", ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL_STRING);
 
     generateErrorMessagesForUnalignedPorts(model, physicalPortService.findUnalignedPhysicalPorts());
@@ -84,7 +96,7 @@ public class DashboardController {
   }
 
   @VisibleForTesting
-  NocStatisticsView determineStatistics() {
+  NocStatisticsView determineStatistics(RichUserDetails user, DateTime start, DateTime end) {
     ReservationFilterViewFactory reservationFilterViewFactory = new ReservationFilterViewFactory();
 
     long countPhysicalPorts = physicalPortService.countAllocated();
@@ -100,8 +112,17 @@ public class DashboardController {
 
     long countMissingPhysicalPorts = physicalPortService.countUnalignedPhysicalPorts();
 
+    EntityStatistics<PhysicalPort> physicalPortStats = logEventService
+        .determineStatisticsForNocByEventTypeAndDomainObjectClassBetween(user, PhysicalPort.class, start, end);
+
+    EntityStatistics<VirtualPort> virtualPortStats = logEventService
+        .determineStatisticsForNocByEventTypeAndDomainObjectClassBetween(user, VirtualPort.class, start, end);
+
+    EntityStatistics<Reservation> reservationStats = logEventService
+        .determineStatisticsForNocByEventTypeAndDomainObjectClassBetween(user, Reservation.class, start, end);
+
     return new NocStatisticsView(countPhysicalPorts, countElapsedReservations, countActiveReservations,
-        countComingReservations, countMissingPhysicalPorts);
+        countComingReservations, countMissingPhysicalPorts, physicalPortStats, virtualPortStats, reservationStats);
   }
 
   private void generateErrorMessagesForUnalignedPorts(Model model, List<PhysicalPort> unaliagnedPhysicalPorts) {
@@ -109,8 +130,8 @@ public class DashboardController {
     final String forcePortCheckButton = createForcePortCheckButton(environment.getExternalBodUrl() + CHECK_PORTS_URL);
 
     for (PhysicalPort port : unaliagnedPhysicalPorts) {
-      WebUtils.addErrorMessage(forcePortCheckButton, model, messageSource, "info_physicalport_unaligned_with_nms",
-          port.getNmsPortId(), port.getNocLabel());
+      WebUtils.addErrorMessage(forcePortCheckButton, model, messageSource, "info_physicalport_unaligned_with_nms", port
+          .getNmsPortId(), port.getNocLabel());
     }
   }
 

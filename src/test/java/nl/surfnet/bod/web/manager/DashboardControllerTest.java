@@ -154,15 +154,15 @@ public class DashboardControllerTest {
         9, end);
 
     when(
-        logEventServiceMock.countForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
+        logEventServiceMock.determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
             PhysicalPort.class, start, end)).thenReturn(physicalPortStats);
 
     when(
-        logEventServiceMock.countForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
+        logEventServiceMock.determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
             VirtualPort.class, start, end)).thenReturn(virtualPortStats);
 
     when(
-        logEventServiceMock.countForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
+        logEventServiceMock.determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
             Reservation.class, start, end)).thenReturn(reservationStats);
 
     ManagerStatisticsView statistics = subject.determineStatistics(manager, start, end);
