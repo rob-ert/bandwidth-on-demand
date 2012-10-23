@@ -110,6 +110,6 @@ public class ManagerStatisticsView {
   }
 
   public String getLogEventsUrl() {
-    return "manager" + LogEventController.PAGE_URL;
+    return "manager/" + LogEventController.PAGE_URL;
   }
 }
