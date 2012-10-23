@@ -38,6 +38,14 @@
     border-bottom: none;
 }
 
+.user-box .dropdown li:first-child:hover {
+    border-radius: 5px 5px 0 0;
+}
+
+.user-box .dropdown li:last-child:hover {
+    border-radius: 0 0 5px 5px;
+}
+
 .user-box .dropdown li:hover {
     background-color: #EBEBEB;
 }
