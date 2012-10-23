@@ -21,16 +21,28 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.Loggable;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.event.EntityStatistics;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.event.LogEvent_;
@@ -40,14 +52,18 @@ import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 
 @Service
@@ -77,6 +93,27 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
         return cb.and(root.get(LogEvent_.adminGroup).in(adminGroups));
       }
     };
+  }
+
+  private static Specification<LogEvent> specStatistics(Collection<String> adminGroups, final LogEventType eventType,
+      final String domainObjectClass, final DateTime start, final DateTime end) {
+
+    final Specification<LogEvent> specStatistics = new Specification<LogEvent>() {
+
+      @Override
+      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.and(cb.equal(root.get(LogEvent_.eventType), eventType), (cb.equal(root
+            .get(LogEvent_.domainObjectClass), domainObjectClass)), (cb
+            .between(root.get(LogEvent_.created), start, end)));
+      }
+    };
+
+    if (CollectionUtils.isEmpty(adminGroups)) {
+      return specStatistics;
+    }
+    else {
+      return Specifications.where(specLogEventsByAdminGroups(adminGroups)).and(specStatistics);
+    }
   }
 
   public void logCreateEvent(RichUserDetails user, Loggable domainObject) {
@@ -146,6 +183,64 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return findByAdminGroups(groupsForManager, firstResult, maxResults, sort);
   }
 
+  public <T extends Loggable> EntityStatistics<T> countForManagerByEventTypeAndDomainObjectClassBetween(
+      BodRole managerRole, Class<T> entity, DateTime start, DateTime end) {
+
+    // Includes check for manager
+    final Set<String> groupsForManager = managerService.findAllAdminGroupsForManager(managerRole);
+
+    final String domainObjectName = LogEvent.getDomainObjectName(entity);
+
+    final long amountCreated = logEventRepo.count(specStatistics(groupsForManager, LogEventType.CREATE,
+        domainObjectName, start, end));
+
+    final long amountUpdated = logEventRepo.count(specStatistics(groupsForManager, LogEventType.UPDATE,
+        domainObjectName, start, end));
+
+    final long amountDeleted = logEventRepo.count(specStatistics(groupsForManager, LogEventType.DELETE,
+        domainObjectName, start, end));
+
+    return new EntityStatistics<T>(entity, start, amountCreated, amountUpdated, amountDeleted, end);
+  }
+
+  public <T extends Loggable> EntityStatistics<T> determineStatisticsForUserByEventTypeAndDomainObjectClassBetween(
+      RichUserDetails user, Class<T> entity, DateTime start, DateTime end) {
+
+    Preconditions.checkArgument(user.isSelectedUserRole(), "Current role is not user, but: %s", user.getSelectedRole());
+
+    final String domainObjectName = LogEvent.getDomainObjectName(entity);
+
+    final long amountCreated = logEventRepo.count(specStatistics(user.getUserGroupIds(), LogEventType.CREATE,
+        domainObjectName, start, end));
+
+    final long amountUpdated = logEventRepo.count(specStatistics(user.getUserGroupIds(), LogEventType.UPDATE,
+        domainObjectName, start, end));
+
+    final long amountDeleted = logEventRepo.count(specStatistics(user.getUserGroupIds(), LogEventType.DELETE,
+        domainObjectName, start, end));
+
+    return new EntityStatistics<T>(entity, start, amountCreated, amountUpdated, amountDeleted, end);
+  }
+
+  public <T extends Loggable> EntityStatistics<T> determineStatisticsForNocByEventTypeAndDomainObjectClassBetween(
+      RichUserDetails user, Class<T> entity, DateTime start, DateTime end) {
+
+    Preconditions.checkArgument(user.isSelectedNocRole(), "Current role is not Noc, but: %s", user.getSelectedRole());
+
+    final String domainObjectName = LogEvent.getDomainObjectName(entity);
+
+    final long amountCreated = logEventRepo.count(specStatistics(null, LogEventType.CREATE, domainObjectName, start,
+        end));
+
+    final long amountUpdated = logEventRepo.count(specStatistics(null, LogEventType.UPDATE, domainObjectName, start,
+        end));
+
+    final long amountDeleted = logEventRepo.count(specStatistics(null, LogEventType.DELETE, domainObjectName, start,
+        end));
+
+    return new EntityStatistics<T>(entity, start, amountCreated, amountUpdated, amountDeleted, end);
+  }
+
   @Override
   protected EntityManager getEntityManager() {
     return entityManager;
@@ -177,10 +272,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    * domainObject with one a specific type, as determined by
    * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
    * {@link LogEventRepo}
-   *
+   * 
    * @param logger
    *          Logger to write to
-   *
+   * 
    * @param logEvent
    *          LogEvent to handle
    */
@@ -225,7 +320,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    * <li>VirtualPort</li>
    * <li>Institute</li>
    * </ul>
-   *
+   * 
    * @param logEvent
    * @return true when the {@link LogEvent#getDescription()} matches one of the
    *         listed above, false otherwise.
@@ -253,7 +348,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   /**
    * Delegates to {@link #handleEvent(Logger, LogEvent)}
-   *
+   * 
    * @param logEvent
    */
   private void handleEvent(LogEvent logEvent) {

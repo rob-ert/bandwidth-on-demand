@@ -21,34 +21,59 @@
  */
 package nl.surfnet.bod.web.view;
 
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.event.EntityStatistics;
 import nl.surfnet.bod.web.manager.PhysicalPortController;
 import nl.surfnet.bod.web.manager.ReservationController;
 import nl.surfnet.bod.web.manager.VirtualPortController;
 
 public class ManagerStatisticsView {
 
-  private long virtualPortsAmount;
-  private long elapsedReservationsAmount;
-  private long activeReservationsAmount;
-  private long comingReservationsAmount;
-  private long physicalPortsAmount;
+  private final long countPhysicalPorts;
+  private final long countVirtualPorts;
+  private final long elapsedReservationsAmount;
+  private final long activeReservationsAmount;
+  private final long comingReservationsAmount;
+  private final EntityStatistics<PhysicalPort> physicalPortStatistics;
+  private final EntityStatistics<VirtualPort> virtualPortStatistics;
+  private final EntityStatistics<Reservation> reservationStatistics;
 
   public ManagerStatisticsView(long countPhysicalPorts, long countVirtualPorts, long countElapsedReservations,
-      long countActiveReservations, long countComingReservations) {
+      long countActiveReservations, long countComingReservations, EntityStatistics<PhysicalPort> physicalPortStats,
+      EntityStatistics<VirtualPort> virtualPortStats, EntityStatistics<Reservation> reservationStats) {
 
-    this.physicalPortsAmount = countPhysicalPorts;
-    this.virtualPortsAmount = countVirtualPorts;
+    this.countPhysicalPorts = countPhysicalPorts;
+    this.countVirtualPorts = countVirtualPorts;
+
+    this.physicalPortStatistics = physicalPortStats;
+    this.virtualPortStatistics = virtualPortStats;
+    this.reservationStatistics = reservationStats;
+
     this.elapsedReservationsAmount = countElapsedReservations;
     this.activeReservationsAmount = countActiveReservations;
     this.comingReservationsAmount = countComingReservations;
   }
 
   public long getVirtualPortsAmount() {
-    return virtualPortsAmount;
+    return countVirtualPorts;
   }
 
   public long getElapsedReservationsAmount() {
     return elapsedReservationsAmount;
+  }
+
+  public EntityStatistics<PhysicalPort> getPhysicalPortStatistics() {
+    return physicalPortStatistics;
+  }
+
+  public EntityStatistics<VirtualPort> getVirtualPortStatistics() {
+    return virtualPortStatistics;
+  }
+
+  public EntityStatistics<Reservation> getReservationStatistics() {
+    return reservationStatistics;
   }
 
   public long getActiveReservationsAmount() {
@@ -60,7 +85,7 @@ public class ManagerStatisticsView {
   }
 
   public long getPhysicalPortsAmount() {
-    return physicalPortsAmount;
+    return countPhysicalPorts;
   }
 
   public String getVpsUrl() {

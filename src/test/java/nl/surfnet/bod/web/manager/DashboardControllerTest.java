@@ -21,24 +21,15 @@
  */
 package nl.surfnet.bod.web.manager;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
-
 import java.util.Collection;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
+import nl.surfnet.bod.event.EntityStatistics;
+import nl.surfnet.bod.service.LogEventService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
 import nl.surfnet.bod.service.ReservationService;
@@ -53,6 +44,24 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ManagerStatisticsView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
+
+import org.joda.time.DateTime;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DashboardControllerTest {
@@ -71,6 +80,9 @@ public class DashboardControllerTest {
 
   @Mock
   private ReservationService reservationServiceMock;
+
+  @Mock
+  private LogEventService logEventServiceMock;
 
   @SuppressWarnings("unchecked")
   @Test
@@ -112,7 +124,7 @@ public class DashboardControllerTest {
   }
 
   @Test
-  public void shouldAddStatisticsToModel() {
+  public void shouldDetermineStatistics() {
     ReservationFilterView elapsedFilter = new ReservationFilterViewFactory()
         .create(ReservationFilterViewFactory.ELAPSED);
     ReservationFilterView activeFilter = new ReservationFilterViewFactory().create(ReservationFilterViewFactory.ACTIVE);
@@ -131,11 +143,48 @@ public class DashboardControllerTest {
     when(reservationServiceMock.countForFilterAndManager(manager, activeFilter)).thenReturn(4L);
     when(reservationServiceMock.countForFilterAndManager(manager, comingFilter)).thenReturn(5L);
 
-    ManagerStatisticsView statistics = subject.determineStatistics(manager);
+    DateTime end = DateTime.now();
+    DateTime start = end.minus(WebUtils.DEFAULT_REPORTING_PERIOD);
+    // Entity statistics
+    EntityStatistics<PhysicalPort> physicalPortStats = new EntityStatistics<PhysicalPort>(PhysicalPort.class, start, 1,
+        2, 3, end);
+    EntityStatistics<VirtualPort> virtualPortStats = new EntityStatistics<VirtualPort>(VirtualPort.class, start, 4, 5,
+        6, end);
+    EntityStatistics<Reservation> reservationStats = new EntityStatistics<Reservation>(Reservation.class, start, 7, 8,
+        9, end);
+
+    when(
+        logEventServiceMock.countForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
+            PhysicalPort.class, start, end)).thenReturn(physicalPortStats);
+
+    when(
+        logEventServiceMock.countForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
+            VirtualPort.class, start, end)).thenReturn(virtualPortStats);
+
+    when(
+        logEventServiceMock.countForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
+            Reservation.class, start, end)).thenReturn(reservationStats);
+
+    ManagerStatisticsView statistics = subject.determineStatistics(manager, start, end);
     assertThat(statistics.getPhysicalPortsAmount(), is(1L));
     assertThat(statistics.getVirtualPortsAmount(), is(2L));
     assertThat(statistics.getElapsedReservationsAmount(), is(3L));
     assertThat(statistics.getActiveReservationsAmount(), is(4L));
     assertThat(statistics.getComingReservationsAmount(), is(5L));
+
+    // PhysicalPort stats
+    assertThat(statistics.getPhysicalPortStatistics().getAmountCreated(), is(1L));
+    assertThat(statistics.getPhysicalPortStatistics().getAmountUpdated(), is(2L));
+    assertThat(statistics.getPhysicalPortStatistics().getAmountDeleted(), is(3L));
+
+    // VirtualPort stats
+    assertThat(statistics.getVirtualPortStatistics().getAmountCreated(), is(4L));
+    assertThat(statistics.getVirtualPortStatistics().getAmountUpdated(), is(5L));
+    assertThat(statistics.getVirtualPortStatistics().getAmountDeleted(), is(6L));
+
+    // Reservation stats
+    assertThat(statistics.getReservationStatistics().getAmountCreated(), is(7L));
+    assertThat(statistics.getReservationStatistics().getAmountUpdated(), is(8L));
+    assertThat(statistics.getReservationStatistics().getAmountDeleted(), is(9L));
   }
 }

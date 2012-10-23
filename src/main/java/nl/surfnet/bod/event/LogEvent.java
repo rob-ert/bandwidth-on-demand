@@ -122,14 +122,14 @@ public class LogEvent implements PersistableDomain {
       this.serializedObject = null;
     }
     else {
-      this.domainObjectClass = domainObject.getClass().getSimpleName();
+      this.domainObjectClass = getDomainObjectName(domainObject.getClass());
       this.description = new StringBuffer(domainObjectClass).append(": ").append(domainObject.getLabel()).toString();
       this.serializedObject = serializeObject(domainObject);
     }
   }
 
-  private String serializeObject(Object domainObject) {
-    return domainObject.toString();
+  public static String getDomainObjectName(Class<? extends Loggable> domainClass) {
+    return domainClass.getSimpleName();
   }
 
   public DateTime getCreated() {
@@ -261,6 +261,10 @@ public class LogEvent implements PersistableDomain {
     }
     builder.append("]");
     return builder.toString();
+  }
+
+  private String serializeObject(Object domainObject) {
+    return domainObject.toString();
   }
 
 }

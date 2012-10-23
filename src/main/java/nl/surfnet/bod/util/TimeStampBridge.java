@@ -37,6 +37,10 @@ public class TimeStampBridge implements StringBridge {
 
   @Override
   public String objectToString(Object object) {
+    return convert(object);
+  }
+
+  public static String convert(Object object) {
     String result;
 
     if (object == null) {
@@ -55,6 +59,7 @@ public class TimeStampBridge implements StringBridge {
     }
 
     return result;
+
   }
 
 }

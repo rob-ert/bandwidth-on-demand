@@ -53,7 +53,7 @@
                             </c:forEach>
                         </tbody>
                     </table>
-                </div>
+                    </div>
             </section>
         </c:if>
         <section>
@@ -97,7 +97,53 @@
                     </tbody>
                 </table>
             </div>
-        </section>
+          </section>
+          <section>
+          
+          
+            <h2>Report from <spring:eval expression="stats.physicalPortStatistics.periodStart" htmlEscape="true" /> until <spring:eval expression="stats.physicalPortStatistics.periodEnd" htmlEscape="true" /></h2>
+            <div class="content">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th rowspan="2">Item</th>
+                        <th class="center cw65" colspan="3">Amount of items</th>
+                     </tr>
+                    <tr>
+                        <th class="center cw65 small subheader">Created</th>
+                        <th class="center cw65 small subheader">Updated</th>
+                        <th class="center cw65 small subheader">Deleted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                      <tr>
+                        <td>
+                            <spring:message code="${stats.physicalPortStatistics.domainObjectKey}" />
+                        </td>
+                        <table:searchColumn  value="${stats.physicalPortStatistics.amountCreated}"  searchField="team" searchValue="${team.name}"  viewName="manager/logevents" tooltipTitleCode="label_virtualport_link" />
+                        <table:searchColumn  value="${stats.physicalPortStatistics.amountUpdated}"  searchField="team" searchValue="${team.name}"  viewName="manager/logevents" tooltipTitleCode="label_virtualport_link" />
+                        <table:searchColumn  value="${stats.physicalPortStatistics.amountDeleted}"  searchField="team" searchValue="${team.name}"  viewName="manager/logevents" tooltipTitleCode="label_virtualport_link" />
+                       </tr>
+                       <tr>
+                        <td>
+                            <spring:message code="${stats.virtualPortStatistics.domainObjectKey}" />
+                        </td>
+                        <table:searchColumn  value="${stats.virtualPortStatistics.amountCreated}"  searchCriteria="${stats.virtualPortStatistics.searchCriteriaForCreate}"  viewName="manager/logevents" tooltipTitleCode="label_logevent_link" />
+                        <table:searchColumn  value="${stats.virtualPortStatistics.amountUpdated}"  searchCriteria="${stats.virtualPortStatistics.searchCriteriaForUpdate}"  viewName="manager/logevents" tooltipTitleCode="label_logevent_link" />
+                        <table:searchColumn  value="${stats.virtualPortStatistics.amountDeleted}"  searchCriteria="${stats.virtualPortStatistics.searchCriteriaForDelete}"  viewName="manager/logevents" tooltipTitleCode="label_logevent_link" />
+                       </tr>
+                       <tr>
+                        <td>
+                            <spring:message code="${stats.reservationStatistics.domainObjectKey}" />
+                        </td>
+                        <table:searchColumn  value="${stats.reservationStatistics.amountCreated}"  searchField="team" searchValue="${team.name}"  viewName="manager/logevents" tooltipTitleCode="label_virtualport_link" />
+                        <table:searchColumn  value="${stats.reservationStatistics.amountUpdated}"  searchField="team" searchValue="${team.name}"  viewName="manager/logevents" tooltipTitleCode="label_virtualport_link" />
+                        <table:searchColumn  value="${stats.reservationStatistics.amountDeleted}"  searchField="team" searchValue="${team.name}"  viewName="manager/logevents" tooltipTitleCode="label_virtualport_link" />
+                       </tr>
+                </tbody>
+            </table>
+          </div>
+       </section>
     </div>
     <div class="span4">
         <section>

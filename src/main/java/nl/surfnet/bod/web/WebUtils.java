@@ -27,6 +27,7 @@ import java.util.List;
 import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.Hours;
+import org.joda.time.Months;
 import org.joda.time.ReadablePeriod;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -77,6 +78,7 @@ public final class WebUtils {
       .forPattern(DEFAULT_DATE_TIME_PATTERN);
 
   public static final ReadablePeriod DEFAULT_RESERVATON_DURATION = Hours.FOUR;
+  public static final ReadablePeriod DEFAULT_REPORTING_PERIOD = Months.ONE;
 
   private WebUtils() {
   }

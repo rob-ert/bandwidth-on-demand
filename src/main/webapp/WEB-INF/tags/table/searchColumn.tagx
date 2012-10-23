@@ -4,6 +4,7 @@
 
     <jsp:directive.attribute name="value" type="java.lang.Object" required="true" rtexprvalue="true" description="Value to display in the link"/>
     <jsp:directive.attribute name="viewName" type="java.lang.String" required="true" rtexprvalue="true" description="View in which the search must be performed" />
+    <jsp:directive.attribute name="searchCriteria" type="java.lang.String" required="false" rtexprvalue="true"  description="Complete search string containing multiple search fields. Make sure each field is mapped in the controller to a technicalName"/>
     <jsp:directive.attribute name="searchField" type="java.lang.String" required="false" rtexprvalue="true"  description="Name of the field to search for. Make sure this field is mapped in the controller to a technicalName"/>
     <jsp:directive.attribute name="searchValue" type="java.lang.String" required="false" rtexprvalue="true" description="Value to search for"/>
     <jsp:directive.attribute name="styleClass" type="java.lang.String" required="false" rtexprvalue="true" description="Style class the td"/>
@@ -26,13 +27,22 @@
            <c:out value="${value}"/>
         </c:when>
         <c:otherwise>
-               <!-- Do we need to search or just link? -->
-              <c:if test="${not empty searchValue}"> 
-                <spring:url value="${viewName}/search" var="search_url">
-                    <spring:param name="search" value="${searchField}:&quot;${searchValue}&quot;"/>
-                </spring:url>
-              </c:if>
-
+            <c:choose>
+                <!-- Do we have a map containing search values? -->
+                <c:when test="${not empty searchCriteria}">
+                    <spring:url value="${viewName}/search" var="search_url">
+                        <spring:param name="search" value="${searchCriteria}"/>
+                    </spring:url>
+                </c:when>
+                <c:otherwise>
+                <!-- Do we need to search or just link? -->
+                  <c:if test="${not empty searchValue}"> 
+                    <spring:url value="${viewName}/search" var="search_url">
+                        <spring:param name="search" value="${searchField}:&quot;${searchValue}&quot;"/>
+                    </spring:url>
+                  </c:if>
+                </c:otherwise>
+                </c:choose>
                <!-- To tooltip or not to tooltip, that is the question -->
               <c:choose>
                 <c:when test="${not empty tooltipTitleCode}">
