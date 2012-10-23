@@ -29,14 +29,25 @@ app.reservation = function() {
 
     var processEvent = function(event) {
         app.message.showInfo(event.message);
-        updateReservationRow(event.id, event.status);
+        updateReservationRow(event.id, event.status, event.deletable, event.deleteTooltip);
     };
 
-    var updateReservationRow = function(id, newStatus) {
-
+    var updateReservationRow = function(id, newStatus, deletable, deleteTooltip) {
         var row = $('tr[data-reservationId="'+id+'"]'),
             cell = row.find('td.status').wrapInner('<span></span>'),
-            span = cell.find('span');
+            span = cell.find('span'),
+            actionCell = row.find('.actions-column');
+
+        if (!deletable) {
+            actionCell.find('.icon-remove').parent().remove();
+            var disabledDelete = $('<span class="disabled-icon" data-type="info" rel="tooltip" title="'+deleteTooltip+'"><i class="icon-remove" /></span>');
+
+            actionCell.append(disabledDelete);
+            disabledDelete.tooltip({ placement: function(popup, element) {
+                popup.setAttribute('data-type', element.getAttribute('data-type'));
+                return 'top';
+            } });
+        }
 
         cell.css({
             overflow: 'hidden'

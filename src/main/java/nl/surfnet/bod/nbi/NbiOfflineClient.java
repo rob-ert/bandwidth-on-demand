@@ -22,6 +22,7 @@
 package nl.surfnet.bod.nbi;
 
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
@@ -133,7 +134,11 @@ class NbiOfflineClient implements NbiClient {
     }
 
     if (autoProvision) {
-      reservation.setStatus(SCHEDULED);
+      if (reservation.getBandwidth() == 666) {
+        reservation.setStatus(FAILED);
+      } else {
+        reservation.setStatus(SCHEDULED);
+      }
     }
     else {
       reservation.setStatus(RESERVED);
@@ -145,7 +150,7 @@ class NbiOfflineClient implements NbiClient {
 
     log.warn("Created reservation using MOCK with id: {}", reservation.getReservationId());
 
-    // Imitate the offline client..
+    // Imitate the online client..
     Uninterruptibles.sleepUninterruptibly(3, TimeUnit.SECONDS);
 
     return reservation;

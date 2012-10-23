@@ -23,13 +23,14 @@ package nl.surfnet.bod.web.push;
 
 import java.io.IOException;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.springframework.context.MessageSource;
-
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.web.WebUtils;
+
+import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 public final class PushMessages {
 
@@ -48,19 +49,39 @@ public final class PushMessages {
       message += String.format(" Failed because '%s'.", reservation.getFailedReason());
     }
 
+    final boolean deleteAllowed = reservation.getStatus().isDeleteAllowed();
+    String deleteTooltip = null;
+    if (!deleteAllowed) {
+      deleteTooltip = messageSource.getMessage("reservation_state_transition_not_allowed", new Object[] {}, LocaleContextHolder.getLocale());
+    }
+
     return new JsonMessageEvent(reservation.getVirtualResourceGroup().getSurfconextGroupId(), new JsonEvent(message,
-        reservation.getId(), reservation.getStatus().name()));
+        reservation.getId(), reservation.getStatus().name(), deleteAllowed, deleteTooltip));
   }
 
   private static class JsonEvent {
     private final String message;
     private final Long id;
     private final String status;
+    private final Boolean deletable;
+    private final String deleteTooltip;
 
-    public JsonEvent(String message, Long id, String status) {
+    public JsonEvent(String message, Long id, String status, boolean deletable, String deleteTooltip) {
       this.message = message;
       this.id = id;
       this.status = status;
+      this.deletable = deletable;
+      this.deleteTooltip = deleteTooltip;
+    }
+
+    @SuppressWarnings("unused")
+    public String getDeleteTooltip() {
+      return deleteTooltip;
+    }
+
+    @SuppressWarnings("unused")
+    public Boolean getDeletable() {
+      return deletable;
     }
 
     @SuppressWarnings("unused")

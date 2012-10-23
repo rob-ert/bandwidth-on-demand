@@ -50,7 +50,7 @@
     </c:if>
     <spring:message code="${labelCode}" var="label" />
 
-    <td class="center">
+    <td class="center actions-column">
         <c:if test="${empty update or update}">
             <spring:message code="${updateLabelCode}" arguments="${label}" var="edit_title" />
             <spring:url var="editUrl" value="${path}/edit">
@@ -59,7 +59,8 @@
             <a href="${editUrl}" rel="tooltip" data-type="info" title="${edit_title}">
                 <i class="${updateIcon}"><!--  --></i>
             </a>
-        </c:if> <c:if test="${delete}">
+        </c:if>
+        <c:if test="${delete}">
             <spring:message code="${deleteLabelCode}" arguments="${label}" var="delete_title" />
             <spring:message code="${deleteConfirmLabelCode}" arguments="${deleteConfirmLabelArgument}"
                 var="delete_confirm_title" />
@@ -89,8 +90,6 @@
                     </span>
                 </c:when>
             </c:choose>
-            
-            
         </c:if>
         <jsp:doBody />
     </td>
