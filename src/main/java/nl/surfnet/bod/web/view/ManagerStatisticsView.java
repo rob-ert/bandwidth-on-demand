@@ -25,6 +25,7 @@ import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.event.EntityStatistics;
+import nl.surfnet.bod.web.manager.LogEventController;
 import nl.surfnet.bod.web.manager.PhysicalPortController;
 import nl.surfnet.bod.web.manager.ReservationController;
 import nl.surfnet.bod.web.manager.VirtualPortController;
@@ -106,5 +107,9 @@ public class ManagerStatisticsView {
 
   public String getPpsUrl() {
     return PhysicalPortController.PAGE_URL;
+  }
+
+  public String getLogEventsUrl() {
+    return "manager" + LogEventController.PAGE_URL;
   }
 }

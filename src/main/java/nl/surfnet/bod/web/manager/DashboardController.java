@@ -112,14 +112,14 @@ public class DashboardController {
         .create(ReservationFilterViewFactory.COMING));
 
     EntityStatistics<PhysicalPort> physicalPortStats = logEventService
-        .countForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(), PhysicalPort.class, start,
+        .determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(), PhysicalPort.class, start,
             end);
 
     EntityStatistics<VirtualPort> virtualPortStats = logEventService
-        .countForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(), VirtualPort.class, start, end);
+        .determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(), VirtualPort.class, start, end);
 
     EntityStatistics<Reservation> reservationStats = logEventService
-        .countForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(), Reservation.class, start, end);
+        .determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(), Reservation.class, start, end);
 
     return new ManagerStatisticsView(countPhysicalPorts, countVirtualPorts, countElapsedReservations,
         countActiveReservations, countComingReservations, physicalPortStats, virtualPortStats, reservationStats);

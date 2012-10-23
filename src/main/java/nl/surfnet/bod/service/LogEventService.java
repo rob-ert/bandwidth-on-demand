@@ -183,7 +183,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return findByAdminGroups(groupsForManager, firstResult, maxResults, sort);
   }
 
-  public <T extends Loggable> EntityStatistics<T> countForManagerByEventTypeAndDomainObjectClassBetween(
+  public <T extends Loggable> EntityStatistics<T> determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(
       BodRole managerRole, Class<T> entity, DateTime start, DateTime end) {
 
     // Includes check for manager
