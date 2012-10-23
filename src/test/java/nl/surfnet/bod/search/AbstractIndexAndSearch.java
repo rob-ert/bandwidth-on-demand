@@ -27,13 +27,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import nl.surfnet.bod.util.BoDInitializer;
-import nl.surfnet.bod.util.FullTextSearchContext;
-
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.apache.lucene.queryParser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
+
+import nl.surfnet.bod.util.BoDInitializer;
+import nl.surfnet.bod.util.FullTextSearchContext;
 
 public class AbstractIndexAndSearch<T> {
 
@@ -52,8 +54,17 @@ public class AbstractIndexAndSearch<T> {
   }
 
   protected void initEntityManager() {
-    entityManagerFactory = Persistence.createEntityManagerFactory("search-pu");
-    entityManager = entityManagerFactory.createEntityManager();
+    try {
+      // Suppressing the error messages during (test) creation of foreign keys.
+      LogManager.getLogger(Class.forName("org.hibernate.tool.hbm2ddl.SchemaExport")).setLevel(Level.FATAL);
+      entityManagerFactory = Persistence.createEntityManagerFactory("search-pu");
+      entityManager = entityManagerFactory.createEntityManager();
+      LogManager.getLogger(Class.forName("org.hibernate.tool.hbm2ddl.SchemaExport")).setLevel(Level.INFO);
+    }
+    catch (Exception e) {
+      log.error("Error: ", e);
+    }
+
   }
 
   protected void index() {
