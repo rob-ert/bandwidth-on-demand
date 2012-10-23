@@ -54,12 +54,15 @@ public class AbstractIndexAndSearch<T> {
   }
 
   protected void initEntityManager() {
+
     try {
       // Suppressing the error messages during (test) creation of foreign keys.
+      final Level originalLevel = LogManager.getLogger(Class.forName("org.hibernate.tool.hbm2ddl.SchemaExport"))
+          .getLevel();
       LogManager.getLogger(Class.forName("org.hibernate.tool.hbm2ddl.SchemaExport")).setLevel(Level.FATAL);
       entityManagerFactory = Persistence.createEntityManagerFactory("search-pu");
       entityManager = entityManagerFactory.createEntityManager();
-      LogManager.getLogger(Class.forName("org.hibernate.tool.hbm2ddl.SchemaExport")).setLevel(Level.INFO);
+      LogManager.getLogger(Class.forName("org.hibernate.tool.hbm2ddl.SchemaExport")).setLevel(originalLevel);
     }
     catch (Exception e) {
       log.error("Error: ", e);
