@@ -36,8 +36,14 @@ public class MenuTestSelenium extends TestExternalSupport {
 
   @Test
   public void shouldNavigateMenus() {
+
+    getManagerDriver().switchToNoc();
     getNocDriver().verifyMenu();
+
+    getNocDriver().switchToManager();
     getManagerDriver().verifyMenu();
+
+    getManagerDriver().switchToUser();
     getUserDriver().verifyMenu();
   }
 
