@@ -105,7 +105,7 @@ public class LogEventServiceTest {
 
       String className = vrg.getClass().getSimpleName();
       assertThat(logEvent.getDomainObjectClass(), is(className));
-      assertThat(logEvent.getDescription(), is(className.concat(": ").concat(vrg.getLabel())));
+      assertThat(logEvent.getDescription(), is(vrg.getLabel()));
       assertThat(logEvent.getDetails(), is(LOG_DETAILS));
 
       assertThat(logEvent.getSerializedObject(), is(vrg.toString()));

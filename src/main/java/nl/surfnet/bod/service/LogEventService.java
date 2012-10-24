@@ -333,7 +333,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
         Institute.class.getSimpleName() };
 
     for (String clazz : supportedClasses) {
-      if ((logEvent.getDescription() != null) && (logEvent.getDescription().contains(clazz))) {
+      if (clazz.equals(logEvent.getDomainObjectClass())) {
         return true;
       }
     }
