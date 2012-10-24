@@ -26,6 +26,7 @@ import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_PROVIDER_NSA;
 import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 
@@ -219,6 +220,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     entityManager.refresh(connection);
     assertThat(reservation.getStatus(), is(ReservationStatus.SCHEDULED));
     assertThat(connection.getCurrentState(), is(ConnectionStateType.AUTO_PROVISION));
+    assertThat(connection.getProvisionRequestDetails(), notNullValue());
 
     TerminateRequestType terminateRequest = createTerminateRequest(connectionId);
     GenericAcknowledgmentType terminateAck = nsiProvider.terminate(terminateRequest);
