@@ -1,15 +1,10 @@
 package nl.surfnet.bod.event;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 import nl.surfnet.bod.domain.Loggable;
-import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.event.LogEventType;
 
 import org.joda.time.DateTime;
-
-import com.google.common.base.Charsets;
 
 public class EntityStatistics<T extends Loggable> {
 
@@ -74,8 +69,8 @@ public class EntityStatistics<T extends Loggable> {
   }
 
   public String getSearchCriteriaForCreate() throws UnsupportedEncodingException {
-    return URLEncoder.encode(getBasicSearchCriteria().append("eventType:").append("\"").append(
-        LogEventType.CREATE.name().toLowerCase()).append("\"").toString(), Charsets.UTF_8.name());
+    return getBasicSearchCriteria().append("eventType:").append("\"").append(LogEventType.CREATE.name().toLowerCase())
+        .append("\"").toString();
   }
 
   public String getSearchCriteriaForUpdate() {
@@ -84,7 +79,7 @@ public class EntityStatistics<T extends Loggable> {
   }
 
   public String getSearchCriteriaForDelete() throws UnsupportedEncodingException {
-    return URLEncoder.encode(getBasicSearchCriteria().append("eventType:").append("\"").append(
-        LogEventType.DELETE.name().toLowerCase()).append("\"").toString(), Charsets.UTF_8.name());
+    return getBasicSearchCriteria().append("eventType:").append("\"").append(LogEventType.DELETE.name().toLowerCase())
+        .append("\"").toString();
   }
 }

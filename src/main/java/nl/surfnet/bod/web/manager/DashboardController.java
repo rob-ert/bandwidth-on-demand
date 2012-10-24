@@ -85,9 +85,7 @@ public class DashboardController {
     model.addAttribute("requests", Orderings.vpRequestLinkOrdering().sortedCopy(requests));
 
     DateTime end = DateTime.now();
-    DateTime start = end.minus(WebUtils.DEFAULT_REPORTING_PERIOD);
-
-    model.addAttribute("stats", determineStatistics(Security.getUserDetails(), start, end));
+    model.addAttribute("stats", determineStatistics(Security.getUserDetails(), end.minus(WebUtils.DEFAULT_REPORTING_PERIOD), end));
     model.addAttribute("defaultDuration", ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL_STRING);
 
     return "manager/index";
@@ -112,14 +110,16 @@ public class DashboardController {
         .create(ReservationFilterViewFactory.COMING));
 
     EntityStatistics<PhysicalPort> physicalPortStats = logEventService
-        .determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(), PhysicalPort.class, start,
-            end);
+        .determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
+            PhysicalPort.class, start, end);
 
     EntityStatistics<VirtualPort> virtualPortStats = logEventService
-        .determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(), VirtualPort.class, start, end);
+        .determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
+            VirtualPort.class, start, end);
 
     EntityStatistics<Reservation> reservationStats = logEventService
-        .determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(), Reservation.class, start, end);
+        .determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
+            Reservation.class, start, end);
 
     return new ManagerStatisticsView(countPhysicalPorts, countVirtualPorts, countElapsedReservations,
         countActiveReservations, countComingReservations, physicalPortStats, virtualPortStats, reservationStats);
