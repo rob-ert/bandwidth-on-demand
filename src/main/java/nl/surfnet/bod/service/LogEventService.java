@@ -327,10 +327,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    */
   private boolean shouldLogEventBePersisted(LogEvent logEvent) {
     String[] supportedClasses = { //
-    Reservation.class.getSimpleName(), //
-        VirtualPort.class.getSimpleName(), //
-        PhysicalPort.class.getSimpleName(), //
-        Institute.class.getSimpleName() };
+    LogEvent.getDomainObjectName(Reservation.class), //
+        LogEvent.getDomainObjectName(VirtualPort.class), //
+        LogEvent.getDomainObjectName(PhysicalPort.class), //
+        LogEvent.getDomainObjectName(Institute.class) };
 
     for (String clazz : supportedClasses) {
       if (clazz.equals(logEvent.getDomainObjectClass())) {
