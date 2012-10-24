@@ -239,7 +239,7 @@ public class BodManagerWebDriver {
   }
 
   private void switchTo(String... role) {
-    nl.surfnet.bod.pages.noc.DashboardPage page = nl.surfnet.bod.pages.noc.DashboardPage.get(driver, URL_UNDER_TEST);
+    DashboardPage page = DashboardPage.get(driver, URL_UNDER_TEST);
 
     page.clickSwitchRole(role);
   }
