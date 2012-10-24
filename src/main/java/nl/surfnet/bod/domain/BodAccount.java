@@ -57,6 +57,10 @@ public class BodAccount {
     this.authorizationServerAccessToken = authorizationServerAccessToken;
   }
 
+  public void removeAuthorizationServerAccessToken() {
+    this.authorizationServerAccessToken = null;
+  }
+
   public Long getId() {
     return id;
   }

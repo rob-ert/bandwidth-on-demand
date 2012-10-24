@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
@@ -33,6 +34,7 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.BodAccount;
 import nl.surfnet.bod.domain.oauth.*;
+import nl.surfnet.bod.repo.BodAccountRepo;
 import nl.surfnet.bod.util.Environment;
 
 import org.apache.commons.codec.binary.Base64;
@@ -67,6 +69,9 @@ public class OAuthServerService {
 
   @Resource
   private Environment env;
+
+  @Resource
+  private BodAccountRepo bodAccountRepo;
 
   private DefaultHttpClient httpClient = new DefaultHttpClient(new PoolingClientConnectionManager());
 
@@ -118,6 +123,7 @@ public class OAuthServerService {
 
   public Collection<AccessToken> getAllAccessTokensForUser(BodAccount account) {
     checkNotNull(account);
+    checkArgument(account.getAuthorizationServerAccessToken().isPresent());
 
     HttpGet httpGet = new HttpGet(env.getOauthServerUrl().concat(URL_ADMIN_ACCESS_TOKEN));
     try {
@@ -126,6 +132,12 @@ public class OAuthServerService {
       HttpResponse tokensResponse = httpClient.execute(httpGet);
       StatusLine statusLine = tokensResponse.getStatusLine();
 
+      if (statusLine.getStatusCode() == HttpStatus.SC_FORBIDDEN) {
+        logger.warn("The access token for the admin interface is not valid");
+        account.removeAuthorizationServerAccessToken();
+        bodAccountRepo.save(account);
+        return Collections.emptyList();
+      }
       if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
         logger.warn(String.format(
             "Could not retreive access tokens from the auth server: %s - %s",

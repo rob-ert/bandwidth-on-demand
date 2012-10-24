@@ -24,6 +24,7 @@ package nl.surfnet.bod.service;
 import static nl.surfnet.bod.matchers.OptionalMatchers.isAbsent;
 import static nl.surfnet.bod.matchers.OptionalMatchers.isPresent;
 import static org.hamcrest.MatcherAssert.assertThat;
+import nl.surfnet.bod.domain.BodAccount;
 import nl.surfnet.bod.domain.oauth.VerifiedToken;
 import nl.surfnet.bod.support.MockHttpServer;
 import nl.surfnet.bod.util.Environment;
@@ -118,6 +119,15 @@ public class OAuthServerServiceTest {
     Optional<VerifiedToken> principal = subject.getVerifiedToken(token);
 
     assertThat(principal, isAbsent());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void retreiveAllAccessTokensShouldHaveAnAdminAccessToken() {
+    BodAccount account = new BodAccount();
+    account.setNameId("urn:truus");
+    account.setAuthorizationServerAccessToken("");
+
+    subject.getAllAccessTokensForUser(account);
   }
 
   private Environment getOauthEnvironmentWrongServerUrl() {
