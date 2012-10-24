@@ -21,7 +21,14 @@
  */
 package nl.surfnet.bod.event;
 
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.PersistableDomain;
@@ -29,7 +36,12 @@ import nl.surfnet.bod.util.TimeStampBridge;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 
@@ -123,7 +135,7 @@ public class LogEvent implements PersistableDomain {
     }
     else {
       this.domainObjectClass = getDomainObjectName(domainObject.getClass());
-      this.description = new StringBuffer(domainObjectClass).append(": ").append(domainObject.getLabel()).toString();
+      this.description = domainObject.getLabel();
       this.serializedObject = serializeObject(domainObject);
     }
   }

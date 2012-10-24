@@ -47,7 +47,12 @@
           <table:column item="${item}" property="createdAsText" styleClass="cw80" />
           <table:column item="${item}" property="shortAdminGroup" styleClass="cw80" />
           <table:column item="${item}" property="eventTypeWithCorrelationId" styleClass="cw80"/>
-          <table:column item="${item}" property="description"/>
+          <td>
+            <c:if test="${not empty item.domainObjectClass}">
+                <c:out value="${item.domainObjectClass}:"/>
+            </c:if>
+            <c:out value="${item.description}"/>
+          </td>
           <table:column item="${item}" property="details"/>
         </tr>
       </c:forEach>

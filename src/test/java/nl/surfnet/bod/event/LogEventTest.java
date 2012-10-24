@@ -51,7 +51,7 @@ public class LogEventTest {
       assertThat(logEvent.getCreated(), is(now));
       assertThat(logEvent.getDomainObjectClass(), is(virtualPort.getClass().getSimpleName()));
       assertThat(logEvent.getDescription(),
-          is(logEvent.getDomainObjectClass().concat(": ").concat(virtualPort.getLabel())));
+          is(virtualPort.getLabel()));
       assertThat(logEvent.getSerializedObject().toString(), is(virtualPort.toString()));
     }
     finally {
