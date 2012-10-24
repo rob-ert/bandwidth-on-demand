@@ -140,7 +140,7 @@ public class OAuthServerService {
       return Collections2.filter(tokens, new Predicate<AccessToken>() {
         @Override
         public boolean apply(AccessToken token) {
-          return token.getClient().getClientId().equals(env.getClientClientId());
+          return token.getClientId().equals(env.getClientClientId());
         }
       });
     }

@@ -33,7 +33,7 @@ public class AccessToken {
   private long expires;
   private List<String> scopes;
   private String resourceOwnerId;
-  private Client client;
+  private String clientId;
 
   public String getToken() {
     return token;
@@ -55,17 +55,8 @@ public class AccessToken {
     return id;
   }
 
-  public Client getClient() {
-    return client;
-  }
-
-  @JsonIgnoreProperties(ignoreUnknown = true)
-  public class Client {
-    private String clientId;
-
-    public String getClientId() {
-      return clientId;
-    }
+  public String getClientId() {
+    return clientId;
   }
 
 }
