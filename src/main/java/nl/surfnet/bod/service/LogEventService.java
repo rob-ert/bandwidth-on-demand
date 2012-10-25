@@ -60,6 +60,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
@@ -69,7 +70,7 @@ import com.google.common.collect.Iterators;
 @Service
 public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
-  private static final String SYSTEM_USER = "system";
+  private static final String SYSTEM_USER = "System";
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -248,15 +249,22 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   @VisibleForTesting
   String determineAdminGroup(RichUserDetails user, Loggable domainObject) {
-    if (domainObject != null) {
+    if ((domainObject != null) && (StringUtils.hasText(domainObject.getAdminGroup()))) {
       return domainObject.getAdminGroup();
     }
-    else if (user.isSelectedManagerRole()) {
-      return user.getSelectedRole().getAdminGroup().get();
-    }
-    else if (user.isSelectedNocRole()) {
+
+    if (user == null) {
       return environment.getNocGroup();
     }
+
+    if (user.isSelectedManagerRole()) {
+      return user.getSelectedRole().getAdminGroup().get();
+    }
+
+    if (user.isSelectedNocRole()) {
+      return environment.getNocGroup();
+    }
+
     throw new IllegalStateException("Could not determine adminGroup for user: " + user);
   }
 

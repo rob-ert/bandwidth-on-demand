@@ -226,6 +226,16 @@ public class LogEventServiceTest {
   }
 
   @Test
+  public void shouldReturnNocGroupForNullUserAndNullAdminGroupFromDomainObject() {
+    String nocGroup = "NOCje";
+    when(environmentMock.getNocGroup()).thenReturn(nocGroup);
+
+    String adminGroup = subject.determineAdminGroup(null, new InstituteFactory().create());
+
+    assertThat(adminGroup, is(nocGroup));
+  }
+
+  @Test
   public void shouldRelatedItemsInList() {
     List<Loggable> institutes = new ArrayList<>();
     institutes.add(new InstituteFactory().create());

@@ -26,8 +26,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import nl.surfnet.bod.web.security.Security.RoleEnum;
-
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
@@ -99,12 +97,13 @@ public class Institute implements Loggable {
 
   @Override
   public String getAdminGroup() {
-    return RoleEnum.NOC_ENGINEER.name();
+    //Noc group should be read from environment, LogeventService will take care of this
+    return null;
   }
-  
+
   @Override
   public String getLabel() {
-   return getShortName();
+    return getShortName();
   }
 
   @Override
