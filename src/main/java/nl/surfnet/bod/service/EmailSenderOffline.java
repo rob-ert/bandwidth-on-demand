@@ -63,6 +63,11 @@ public class EmailSenderOffline extends EmailSenderOnline {
     }
 
     @Override
+    public Long getId() {
+      return null;
+    }
+
+    @Override
     public String getAdminGroup() {
       return environment.getNocGroup();
     }

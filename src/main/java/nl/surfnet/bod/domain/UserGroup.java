@@ -21,11 +21,9 @@
  */
 package nl.surfnet.bod.domain;
 
-import nl.surfnet.bod.web.security.Security.RoleEnum;
-
 import com.google.common.base.Objects;
 
-public class UserGroup implements Loggable {
+public class UserGroup {
 
   private final String id;
   private final String name;
@@ -48,17 +46,7 @@ public class UserGroup implements Loggable {
   public String getDescription() {
     return description;
   }
-  
-  @Override
-  public String getAdminGroup() {
-   return RoleEnum.NOC_ENGINEER.name();
-  }
 
-  @Override
-  public String getLabel() {
-   return getName();
-  }
-  
   @Override
   public String toString() {
     return Objects.toStringHelper(this).add("id", id).add("name", name).add("description", description).toString();

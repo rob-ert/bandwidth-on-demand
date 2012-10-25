@@ -50,9 +50,9 @@ public class LogEventTest {
       assertThat(logEvent.getShortAdminGroup(), is("group"));
       assertThat(logEvent.getCreated(), is(now));
       assertThat(logEvent.getDomainObjectClass(), is(virtualPort.getClass().getSimpleName()));
-      assertThat(logEvent.getDescription(),
-          is(virtualPort.getLabel()));
+      assertThat(logEvent.getDescription(), is(virtualPort.getLabel()));
       assertThat(logEvent.getSerializedObject().toString(), is(virtualPort.toString()));
+      assertThat(logEvent.getDomainObjectId(), is(virtualPort.getId()));
     }
     finally {
       DateTimeUtils.setCurrentMillisSystem();
@@ -64,5 +64,7 @@ public class LogEventTest {
     LogEvent logEvent = new LogEvent(USER_ID, GROUP_ID, LogEventType.CREATE, null);
 
     assertThat(logEvent.getDescription(), nullValue());
+    assertThat(logEvent.getDomainObjectClass(), nullValue());
+    assertThat(logEvent.getDomainObjectId(), nullValue());
   }
 }

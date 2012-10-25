@@ -21,12 +21,11 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static nl.surfnet.bod.domain.ReservationStatus.PREPARING;
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
@@ -37,7 +36,20 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalPort_;
+import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationArchive;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.Reservation_;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualPort_;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -63,19 +75,28 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
-import com.google.common.collect.*;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
+import static nl.surfnet.bod.domain.ReservationStatus.PREPARING;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 
 @Service
 @Transactional
 public class ReservationService extends AbstractFullTextSearchService<Reservation> {
 
-  private static final Function<Reservation, ReservationArchive> TO_RESERVATION_ARCHIVE =
-    new Function<Reservation, ReservationArchive>() {
-      @Override
-      public ReservationArchive apply(Reservation reservation) {
-        return new ReservationArchive(reservation);
-      }
-    };
+  private static final Function<Reservation, ReservationArchive> TO_RESERVATION_ARCHIVE = new Function<Reservation, ReservationArchive>() {
+    @Override
+    public ReservationArchive apply(Reservation reservation) {
+      return new ReservationArchive(reservation);
+    }
+  };
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -99,7 +120,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Activates an existing reservation;
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to activate
    * @return true if the reservation was successfully activated, false otherwise
@@ -112,7 +133,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Creates a {@link Reservation} which is auto provisioned
-   *
+   * 
    * @param reservation
    * @See {@link #create(Reservation)}
    */
@@ -122,13 +143,13 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   *
+   * 
    * @param reservation
    * @param autoProvision
    *          , indicates if the reservations should be automatically
    *          provisioned
    * @return ReservationId, scheduleId from NMS
-   *
+   * 
    */
   public Future<Long> create(Reservation reservation, boolean autoProvision,
       Optional<NsiRequestDetails> nsiRequestDetails) {
@@ -139,12 +160,13 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     stripSecondsAndMillis(reservation);
     alignConnectionWithReservation(reservation);
 
-    logEventService.logCreateEvent(Security.getUserDetails(), reservation, "Created reservation with name: "
-        + reservation.getName());
-
     // make sure the reservation is written to the database before we call the
     // async reserve
     reservation = reservationRepo.saveAndFlush(reservation);
+
+    //Log event after creation, so the ID is set by hibernate
+    logEventService.logCreateEvent(Security.getUserDetails(), reservation, "Created reservation with name: "
+        + reservation.getName());
 
     return reservationToNbi.asyncReserve(reservation.getId(), autoProvision, nsiRequestDetails);
   }
@@ -209,7 +231,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * Cancels a reservation if the current user has the correct role and the
    * reservation is allowed to be deleted depending on its state. Updates the
    * state of the reservation.
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to delete
    * @return the future with the resulting reservation, or null if delete is not
@@ -229,7 +251,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * <li>and</li>
    * <li>the current status of the reservation must allow it</li>
    * </ul>
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to check
    * @param role
@@ -261,7 +283,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   *
+   * 
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -553,11 +575,12 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     }
 
     Collection<ReservationArchive> reservationArchives = transformToReservationArchives(reservations);
-    logEventService.logCreateEvent(Security.getUserDetails(), reservationArchives, "Archived due to cancel");
     reservationArchiveRepo.save(reservationArchives);
+    //Log event after creation, so the ID is set by hibernate
+    logEventService.logCreateEvent(Security.getUserDetails(), reservationArchives, "Archived due to cancel");
 
-    logEventService.logDeleteEvent(Security.getUserDetails(), reservations, "Canceled and archived");
     reservationRepo.delete(reservations);
+    logEventService.logDeleteEvent(Security.getUserDetails(), reservations, "Canceled and archived");
   }
 
   public List<Reservation> findBySourcePortOrDestinationPort(VirtualPort virtualPortA, VirtualPort virtualPortB) {

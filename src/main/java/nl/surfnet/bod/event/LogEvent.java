@@ -107,6 +107,12 @@ public class LogEvent implements PersistableDomain {
   @Basic
   private String correlationId;
 
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
+  @Basic
+  @Column(nullable = true)
+  private final Long domainObjectId;
+
   /**
    * Default constructor for Hibernate
    */
@@ -129,11 +135,13 @@ public class LogEvent implements PersistableDomain {
     this.created = DateTime.now();
 
     if (domainObject == null) {
+      this.domainObjectId = null;
       this.description = null;
       this.domainObjectClass = null;
       this.serializedObject = null;
     }
     else {
+      this.domainObjectId = domainObject.getId();
       this.domainObjectClass = getDomainObjectName(domainObject.getClass());
       this.description = domainObject.getLabel();
       this.serializedObject = serializeObject(domainObject);
@@ -150,7 +158,7 @@ public class LogEvent implements PersistableDomain {
 
   /**
    * Includes seconds in the string since the default conversion does not.
-   *
+   * 
    * @return Time stamp formatted like
    *         {@link WebUtils#DEFAULT_DATE_TIME_FORMATTER}
    */
@@ -178,6 +186,10 @@ public class LogEvent implements PersistableDomain {
     return domainObjectClass;
   }
 
+  public Long getDomainObjectId() {
+    return domainObjectId;
+  }
+
   public String getSerializedObject() {
     return serializedObject;
   }
@@ -192,7 +204,7 @@ public class LogEvent implements PersistableDomain {
 
   /**
    * Used to relate logEvents which originates out of a List
-   *
+   * 
    * @return String CorreleationId
    */
   public String getCorrelationId() {
@@ -206,7 +218,7 @@ public class LogEvent implements PersistableDomain {
 
   /**
    * Used to relate logEvents which originates out of a List
-   *
+   * 
    * @param correlationId
    */
   public void setCorrelationId(String correlationId) {
@@ -270,6 +282,11 @@ public class LogEvent implements PersistableDomain {
     if (correlationId != null) {
       builder.append("correlationId=");
       builder.append(correlationId);
+      builder.append(", ");
+    }
+    if (domainObjectId != null) {
+      builder.append("domainObjectId=");
+      builder.append(domainObjectId);
     }
     builder.append("]");
     return builder.toString();

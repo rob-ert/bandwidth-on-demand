@@ -1,0 +1,1 @@
+ALTER TABLE log_event ADD COLUMN domain_object_id bigint;

@@ -21,9 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -55,11 +52,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
+
 @Service
 @Transactional
 public class PhysicalResourceGroupService extends AbstractFullTextSearchService<PhysicalResourceGroup> {
 
-  private Logger log = LoggerFactory.getLogger(this.getClass());
+  private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Resource
   private PhysicalResourceGroupRepo physicalResourceGroupRepo;
@@ -97,8 +97,10 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
   }
 
   public void save(final PhysicalResourceGroup physicalResourceGroup) {
-    logEventService.logCreateEvent(Security.getUserDetails(), physicalResourceGroup);
     physicalResourceGroupRepo.save(physicalResourceGroup);
+
+    //Log event after creation, so the ID is set by hibernate
+    logEventService.logCreateEvent(Security.getUserDetails(), physicalResourceGroup);
   }
 
   public PhysicalResourceGroup update(final PhysicalResourceGroup physicalResourceGroup) {
@@ -158,9 +160,11 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
     activationEmailLink.activate();
     activationEmailLink.getSourceObject().setActive(true);
 
-    logEventService.logCreateEvent(Security.getUserDetails(), activationEmailLink, "Activating link");
     activationEmailLinkRepo.save(activationEmailLink);
     update(activationEmailLink.getSourceObject());
+
+    //Log event after creation, so the ID is set by hibernate
+    logEventService.logCreateEvent(Security.getUserDetails(), activationEmailLink, "Activating link");
   }
 
   @Transactional

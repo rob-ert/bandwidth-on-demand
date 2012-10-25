@@ -103,8 +103,8 @@ public class LogEventServiceTest {
       assertThat(logEvent.getAdminGroup(), is(vrg.getAdminGroup()));
       assertThat(logEvent.getEventTypeWithCorrelationId(), is("Create"));
 
-      String className = vrg.getClass().getSimpleName();
-      assertThat(logEvent.getDomainObjectClass(), is(className));
+      assertThat(logEvent.getDomainObjectId(), is(vrg.getId()));
+      assertThat(logEvent.getDomainObjectClass(), is(vrg.getClass().getSimpleName()));
       assertThat(logEvent.getDescription(), is(vrg.getLabel()));
       assertThat(logEvent.getDetails(), is(LOG_DETAILS));
 

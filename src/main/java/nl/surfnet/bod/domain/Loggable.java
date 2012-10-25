@@ -26,7 +26,12 @@ package nl.surfnet.bod.domain;
  * 
  */
 public interface Loggable {
-
+/**
+ * 
+ * @return Long Id of the domain object
+ */
+  Long getId();
+  
   /**
    * 
    * @return String the group which has the right to view the domain object.

@@ -21,6 +21,7 @@
         <table:sortableHeader labelCode="label_logevent_created" property="created" />
         <table:sortableHeader labelCode="label_logevent_groupid" property="adminGroup"  />
         <table:sortableHeader labelCode="label_logevent_eventtype" property="eventType"  />
+        <table:sortableHeader labelCode="label_logevent_object" property="domainObjectClass"/>
         <table:sortableHeader labelCode="label_logevent_description" property="description" />
         <table:sortableHeader labelCode="label_logevent_details" property="details" />
       </tr>
@@ -30,6 +31,12 @@
         <tr class="rowdetails">
           <table:rowDetailsColumn>
             <dl class="dl-horizontal">
+               <c:if test="${not empty item.domainObjectId}">
+                <dt>Objectid</dt>
+                <dd>
+                  <c:out value="${item.domainObjectId}" />
+                </dd>
+              </c:if>
               <dt>Object</dt>
               <dd>
                 <c:out value="${item.serializedObject}" />
@@ -47,12 +54,8 @@
           <table:column item="${item}" property="createdAsText" styleClass="cw80" />
           <table:column item="${item}" property="shortAdminGroup" styleClass="cw80" />
           <table:column item="${item}" property="eventTypeWithCorrelationId" styleClass="cw80"/>
-          <td>
-            <c:if test="${not empty item.domainObjectClass}">
-                <c:out value="${item.domainObjectClass}:"/>
-            </c:if>
-            <c:out value="${item.description}"/>
-          </td>
+          <table:column item="${item}" property="domainObjectClass" />
+          <table:column item="${item}" property="description"/>
           <table:column item="${item}" property="details"/>
         </tr>
       </c:forEach>
