@@ -57,14 +57,20 @@
                         <spring:message code="label_bandwidth_unit" var="mbit_label" />
                         <table:column item="${item}" property="maxBandwidth" append="${mbit_label}" />
                         <table:column item="${item}" property="virtualResourceGroup" />
+                        
+                        <c:set var="vpDeleteText" value="vp_delete_confirm_counter" />
                         <c:choose>
                           <c:when test="${item.reservationCounter eq 0}">
-                            <table:actionsColumn item="${item}" path="/manager/virtualports" labelCode="label_virtualport" delete="true" deleteConfirmLabelCode="vp_delete_confirm" deleteConfirmLabelArgument="${item.reservationCounter}"/>
+                            <c:set var="vpDeleteText" value="vp_delete_confirm" />
+                          </c:when>
+                          <c:when test="${item.reservationCounter eq 1}">
+                            <c:set var="vpDeleteText" value="vp_delete_confirm_counter_single" />
                           </c:when>
                           <c:otherwise>
-                            <table:actionsColumn item="${item}" path="/manager/virtualports" labelCode="label_virtualport" delete="true" deleteConfirmLabelCode="vp_delete_confirm_counter" deleteConfirmLabelArgument="${item.reservationCounter}"/>
+                            <c:set var="vpDeleteText" value="vp_delete_confirm_counter" />
                           </c:otherwise>
                         </c:choose>
+                        <table:actionsColumn item="${item}" path="/manager/virtualports" labelCode="label_virtualport" delete="true" deleteConfirmLabelCode="${vpDeleteText}" deleteConfirmLabelArgument="${item.reservationCounter}"/>
                     </tr>
                 </c:forEach>
             </tbody>
