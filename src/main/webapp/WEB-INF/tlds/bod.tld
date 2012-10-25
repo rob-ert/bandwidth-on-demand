@@ -11,6 +11,16 @@
         <function-class>nl.surfnet.bod.web.tag.Functions</function-class>
         <function-signature>java.lang.String translateNewLineBr(java.lang.String)</function-signature>
     </function>
+    <function>
+        <name>get</name>
+        <function-class>nl.surfnet.bod.web.tag.Functions</function-class>
+        <function-signature>java.lang.String get(com.google.common.base.Optional)</function-signature>
+    </function>
+    <function>
+        <name>getOr</name>
+        <function-class>nl.surfnet.bod.web.tag.Functions</function-class>
+        <function-signature>java.lang.String getOr(com.google.common.base.Optional, java.lang.Object)</function-signature>
+    </function>
 
     <tag>
         <name>script</name>

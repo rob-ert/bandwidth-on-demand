@@ -23,6 +23,8 @@ package nl.surfnet.bod.web.tag;
 
 import org.springframework.util.StringUtils;
 
+import com.google.common.base.Optional;
+
 public final class Functions {
 
   private Functions() {
@@ -30,5 +32,13 @@ public final class Functions {
 
   public static String translateNewLineBr(String input) {
     return StringUtils.replace(input, "\n", "<br/>");
+  }
+
+  public static <T> String getOr(Optional<T> optional, T otherwise) {
+    return optional.or(otherwise).toString();
+  }
+
+  public static String get(Optional<?> optional) {
+    return optional.get().toString();
   }
 }
