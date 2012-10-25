@@ -45,7 +45,6 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -135,12 +134,9 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
   public final Function<VirtualPort, VirtualPortView> FROM_NOC_VIRTUALPORT_TO_VIRTUALPORT_VIEW = //
   new Function<VirtualPort, VirtualPortView>() {
-    final ReservationFilterViewFactory reservationFilterViewFactory = new ReservationFilterViewFactory();
-
     @Override
     public VirtualPortView apply(VirtualPort port) {
-      final long counter = reservationService.countAllEntriesUsingFilter(reservationFilterViewFactory
-          .create(ReservationFilterViewFactory.ACTIVE));
+      final long counter = reservationService.findAllActiveByVirtualPort(port).size();
       final VirtualPortView virtualPortView = new VirtualPortView(port, Optional.of(counter));
       return virtualPortView;
     }
