@@ -66,8 +66,16 @@ public class SnmpOfflineManager implements CommandResponder {
   @Value("${snmp.development}")
   private boolean isDevelopment = true;
 
+  @Value("${snmp.disabled}")
+  private boolean isDisabled = true;
+
   @PostConstruct
   public void startup() {
+
+    if (disabledMessage()) {
+      return;
+    }
+
     if (isDevelopment) {
       log.info("USING OFFLINE SNMP MANAGER!");
 
@@ -98,8 +106,19 @@ public class SnmpOfflineManager implements CommandResponder {
     }
   }
 
+  private boolean disabledMessage() {
+    if (isDisabled) {
+      log.warn("All SNMP activities are disabled. Set snmp.disabled = false to re-enable it.");
+      return true;
+    }
+    return false;
+  }
+
   @PreDestroy
   public void shutdown() {
+    if (disabledMessage()) {
+      return;
+    }
     if (transportMapping != null && transportMapping.isListening()) {
       try {
         log.info("Closing listener on: " + transportMapping.getListenAddress());
@@ -113,6 +132,9 @@ public class SnmpOfflineManager implements CommandResponder {
 
   @Override
   public void processPdu(final CommandResponderEvent commandResponderEvent) {
+    if (disabledMessage()) {
+      return;
+    }
     log.info("Received CommandResponderEvent: " + commandResponderEvent);
     final PDU pdu = commandResponderEvent.getPDU();
     if (pdu != null) {
@@ -123,10 +145,16 @@ public class SnmpOfflineManager implements CommandResponder {
   }
 
   public final String getOrWaitForLastPduAsString(final long seconds) {
+    if (disabledMessage()) {
+      return null;
+    }
     return getOrWaitForLastPdu(seconds).toString();
   }
 
   public final PDU getOrWaitForLastPdu(final long seconds) {
+    if (disabledMessage()) {
+      return null;
+    }
     if (isDevelopment) {
       try {
         return receivedPdus.pollLast(seconds, TimeUnit.SECONDS);
