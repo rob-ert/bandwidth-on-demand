@@ -64,6 +64,9 @@ public class Environment {
   @Value("${google.analytics.code}")
   private String googleAnalyticsCode;
 
+  @Value("${feedbacktool.enabled}")
+  private boolean feedbackToolEnabled;
+
   @Value("${os.group.noc}")
   private String nocGroup;
 
@@ -223,5 +226,9 @@ public class Environment {
 
   public void setOpenSocialOAuthSecret(String openSocialOAuthSecret) {
     this.openSocialOAuthSecret = openSocialOAuthSecret;
+  }
+
+  public boolean isFeedbackToolEnabled() {
+    return feedbackToolEnabled;
   }
 }

@@ -6,6 +6,7 @@
 
     <bod:env property="development" var="dev" />
     <bod:env property="googleAnalyticsCode" var="analyticsCode" />
+    <bod:env property="feedbackToolEnabled" var="feedbackTool" />
 
     <c:choose>
       <c:when test="${dev}">
@@ -63,7 +64,7 @@
         </script>
     </c:if>
 
-    <c:if test="${not dev}">
+    <c:if test="${feedbacktool}">
         <script type="text/javascript">
           var uvOptions = {};
           (function() {
