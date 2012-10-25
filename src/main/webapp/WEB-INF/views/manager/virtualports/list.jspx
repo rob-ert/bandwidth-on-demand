@@ -57,7 +57,6 @@
                         <spring:message code="label_bandwidth_unit" var="mbit_label" />
                         <table:column item="${item}" property="maxBandwidth" append="${mbit_label}" />
                         <table:column item="${item}" property="virtualResourceGroup" />
-                        counter: ${item.reservationCounter}
                         <c:choose>
                           <c:when test="${item.reservationCounter eq 0}">
                             <table:actionsColumn item="${item}" path="/manager/virtualports" labelCode="label_virtualport" delete="true" deleteConfirmLabelCode="vp_delete_confirm" deleteConfirmLabelArgument="${item.reservationCounter}"/>
