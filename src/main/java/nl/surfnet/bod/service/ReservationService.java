@@ -406,6 +406,21 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     };
   }
   
+  private Specification<Reservation> specByVirtualPortAndManager(final VirtualPort port, final RichUserDetails user) {
+    return new Specification<Reservation>() {
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        final Long prgId = user.getSelectedRole().getPhysicalResourceGroupId().get();
+        return cb.and(cb.or(
+            cb.equal(
+                root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort)
+                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId),
+            cb.equal(
+                root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort)
+                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId)));
+      }
+    };
+  }
   
   private Specification<Reservation> specByVirtualPort(final VirtualPort port) {
     return new Specification<Reservation>() {
@@ -596,21 +611,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
   
   public Collection<Reservation> findAllActiveByVirtualPortForManager(final VirtualPort port, final RichUserDetails user) {
-    final Specification<Reservation> spec = new Specification<Reservation>() {
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        final Long prgId = user.getSelectedRole().getPhysicalResourceGroupId().get();
-        return cb.and(cb.or(
-            cb.equal(
-                root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort)
-                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId),
-            cb.equal(
-                root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort)
-                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId)));
-      }
-    };
     return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations())
-        .and(spec));
+        .and(specByVirtualPortAndManager(port, user)));
   }
 
   public long countActiveReservationsForPhysicalPort(final PhysicalPort port) {
