@@ -27,17 +27,25 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -48,8 +56,16 @@ import nl.surfnet.bod.web.view.VirtualPortView;
 @RequestMapping("/noc/virtualports")
 public class VirtualPortController extends AbstractSearchableSortableListController<VirtualPortView, VirtualPort> {
 
+  public static final String PAGE_URL = "/noc/virtualports";
+
   @Resource
   private VirtualPortService virtualPortService;
+
+  @Resource
+  private ReservationService reservationService;
+
+  @Resource
+  private MessageSource messageSource;
 
   @Override
   protected AbstractFullTextSearchService<VirtualPort> getFullTextSearchableService() {
@@ -65,6 +81,7 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   protected List<VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
     List<VirtualPort> entriesForManager = virtualPortService.findEntries(firstPage, maxItems);
 
+    System.out.println(entriesForManager);
     return transformToView(entriesForManager, Security.getUserDetails());
   }
 
@@ -95,6 +112,38 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
   @Override
   protected List<VirtualPortView> transformToView(List<VirtualPort> entities, RichUserDetails user) {
-    return Lists.transform(entities, nl.surfnet.bod.util.Functions.FROM_VIRTUALPORT_TO_VIRTUALPORT_VIEW);
+    return Lists.transform(entities, FROM_NOC_VIRTUALPORT_TO_VIRTUALPORT_VIEW);
   }
+
+  @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
+  public String delete(@RequestParam(ID_KEY) Long id, @RequestParam(value = PAGE_KEY, required = false) Integer page,
+      RedirectAttributes redirectAttributes) {
+
+    VirtualPort virtualPort = virtualPortService.find(id);
+
+    if (virtualPort == null || !Security.getSelectedRole().isNocRole()) {
+      return "redirect:" + PAGE_URL;
+    }
+
+    virtualPortService.delete(virtualPort, Security.getUserDetails());
+
+    WebUtils.addInfoFlashMessage(redirectAttributes, messageSource, "info_virtualport_deleted",
+        virtualPort.getManagerLabel());
+
+    return "redirect:" + PAGE_URL;
+  }
+
+  public final Function<VirtualPort, VirtualPortView> FROM_NOC_VIRTUALPORT_TO_VIRTUALPORT_VIEW = //
+  new Function<VirtualPort, VirtualPortView>() {
+    final ReservationFilterViewFactory reservationFilterViewFactory = new ReservationFilterViewFactory();
+
+    @Override
+    public VirtualPortView apply(VirtualPort port) {
+      final long counter = reservationService.countAllEntriesUsingFilter(reservationFilterViewFactory
+          .create(ReservationFilterViewFactory.ACTIVE));
+      final VirtualPortView virtualPortView = new VirtualPortView(port, Optional.of(counter));
+      return virtualPortView;
+    }
+  };
+
 }
