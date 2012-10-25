@@ -79,8 +79,6 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
   @Override
   protected List<VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
     List<VirtualPort> entriesForManager = virtualPortService.findEntries(firstPage, maxItems);
-
-    System.out.println(entriesForManager);
     return transformToView(entriesForManager, Security.getUserDetails());
   }
 
