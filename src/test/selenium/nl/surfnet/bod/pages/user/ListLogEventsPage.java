@@ -27,7 +27,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.PageFactory;
 
 public class ListLogEventsPage extends AbstractLogEventListPage {
-  private static final String PAGE = "logevents";
+  private static final String PAGE = "/logevents";
 
   public ListLogEventsPage(RemoteWebDriver driver) {
     super(driver);

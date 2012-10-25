@@ -74,7 +74,6 @@ public class LogEventTestSelenium extends TestExternalSupport {
 
   @Test
   public void shouldShowLogEventForOwnPhysicalPortAlignment() {
-    getManagerDriver().switchToNoc();
     // Allocation of port should visible in log for noc...
     getNocDriver().verifyLogEventExists(PORT_LABEL_1);
     getNocDriver().verifyLogEventExists(PORT_LABEL_2);
@@ -123,8 +122,6 @@ public class LogEventTestSelenium extends TestExternalSupport {
 
   @Test
   public void shouldShowVirtualPortAndReservationLogEvents() {
-    // Noc
-    getUserDriver().switchToNoc();
     getNocDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
     getNocDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
     getNocDriver().verifyLogEventExists(PORT_LABEL_1);
@@ -132,7 +129,7 @@ public class LogEventTestSelenium extends TestExternalSupport {
     getNocDriver().verifyLogEventExists(PORT_LABEL_4);
 
     // Not visible for managers
-    getNocDriver().switchToManager(GROUP_NAME_ONE);    
+    getNocDriver().switchToManager(GROUP_NAME_ONE);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_1);
     getManagerDriver().verifyLogEventDoesNotExist(VP_LABEL_2);
     getManagerDriver().verifyLogEventExists(PORT_LABEL_1);

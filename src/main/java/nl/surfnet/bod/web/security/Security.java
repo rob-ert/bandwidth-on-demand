@@ -96,6 +96,9 @@ public final class Security {
     getUserDetails().switchToUser();
   }
 
+  public static void switchToManager() {
+    getUserDetails().trySwitchToManager();
+  }
   public static void switchToManager(PhysicalResourceGroup prg) {
     getUserDetails().switchToManager(prg);
   }

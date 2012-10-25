@@ -72,10 +72,15 @@ public class BodNocWebDriver {
     verifyGroupExists(institute, email, false);
   }
 
+  public void verifyPhysicalResourceGroupExists(String... fields) {
+    ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
+
+    page.findRow(fields);
+  }
+
   public void verifyGroupExists(String institute, String email, boolean active) {
     ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, BodWebDriver.URL_UNDER_TEST);
 
-    // TODO check for icon icon-ban-circle
     page.findRow(institute, email);
   }
 
@@ -118,7 +123,7 @@ public class BodNocWebDriver {
   public void switchToManager(final String name) {
     switchTo("BoD Administrator", name);
   }
-  
+
   public void switchToManager() {
     switchTo("BoD Administrator");
   }

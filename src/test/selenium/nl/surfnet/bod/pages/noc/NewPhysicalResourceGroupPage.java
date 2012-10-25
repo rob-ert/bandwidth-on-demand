@@ -37,7 +37,7 @@ import org.openqa.selenium.support.PageFactory;
 
 public class NewPhysicalResourceGroupPage extends AbstractFormPage {
 
-  private static final String PAGE = "noc/" + PhysicalResourceGroupController.PAGE_URL + WebUtils.CREATE;
+  private static final String PAGE = "/noc/" + PhysicalResourceGroupController.PAGE_URL + WebUtils.CREATE;
 
   private final Probes probes;
 

@@ -28,7 +28,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import nl.surfnet.bod.pages.manager.*;
-import nl.surfnet.bod.pages.noc.ListPhysicalResourceGroupPage;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.joda.time.DateTime;
@@ -218,12 +217,6 @@ public class BodManagerWebDriver {
     page.sendDeclineMessage(message);
 
     page.save();
-  }
-
-  public void verifyPhysicalResourceGroupExists(String... fields) {
-    ListPhysicalResourceGroupPage page = ListPhysicalResourceGroupPage.get(driver, URL_UNDER_TEST);
-
-    page.findRow(fields);
   }
 
   public void switchToNoc() {

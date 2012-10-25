@@ -29,7 +29,7 @@ import org.openqa.selenium.support.PageFactory;
 
 public class ListPhysicalResourceGroupPage extends AbstractListPage {
 
-  private static final String PAGE = "noc/" + PhysicalResourceGroupController.PAGE_URL;
+  private static final String PAGE = "/noc/" + PhysicalResourceGroupController.PAGE_URL;
 
   public ListPhysicalResourceGroupPage(RemoteWebDriver driver) {
     super(driver);

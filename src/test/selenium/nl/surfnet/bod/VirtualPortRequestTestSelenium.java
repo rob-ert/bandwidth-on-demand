@@ -21,10 +21,10 @@
  */
 package nl.surfnet.bod;
 
+import nl.surfnet.bod.support.TestExternalSupport;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import nl.surfnet.bod.support.TestExternalSupport;
 
 public class VirtualPortRequestTestSelenium extends TestExternalSupport {
 
@@ -95,14 +95,15 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
     getWebDriver().verifyPageHasMessage("already processed");
 
     // physical resource group should have one physical port
-    getManagerDriver().verifyPhysicalResourceGroupExists("SURFnet bv", "test@test.nl", "1");
+    getManagerDriver().switchToNoc();
+    getNocDriver().verifyPhysicalResourceGroupExists("SURFnet bv", "test@test.nl", "1");
 
+    getNocDriver().switchToManager("SURFnet");
     getManagerDriver().editVirtualPort("Your vport", "Edited vport", 1000, "20");
 
     getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "selenium-users");
 
     getManagerDriver().switchToUser();
-
     getUserDriver().verifyVirtualPortExists("Edited vport", "1000", "selenium-users");
 
     getUserDriver().editVirtualPort("Edited vport", "User label");
@@ -110,7 +111,6 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
     getUserDriver().verifyVirtualPortExists("User label", "1000", "selenium-users");
 
     getUserDriver().switchToManager("SURFnet");
-
     getManagerDriver().verifyVirtualPortExists("Edited vport", "1000", "selenium-users");
   }
 
@@ -130,8 +130,8 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
     getManagerDriver().switchToUser();
 
     getUserDriver().verifyVirtualPortExists("myVP", "1000", "selenium-users", "SURFnet bv");
-    
-    
+
+
   }
 
 }

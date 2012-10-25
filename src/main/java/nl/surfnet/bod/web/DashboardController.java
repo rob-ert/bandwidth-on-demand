@@ -43,11 +43,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
+import com.google.common.collect.*;
 
 @RequestMapping("/user")
 @Controller
@@ -70,10 +66,6 @@ public class DashboardController {
       model.addAttribute("userGroups", userGroups);
 
       return "noUserRole";
-    }
-
-    if (!Security.isSelectedUserRole()) {
-      Security.switchToUser();
     }
 
     List<TeamView> views = getTeamViews(userGroups);

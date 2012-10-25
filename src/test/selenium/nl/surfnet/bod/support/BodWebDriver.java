@@ -21,18 +21,14 @@
  */
 package nl.surfnet.bod.support;
 
-import static junit.framework.Assert.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static junit.framework.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -63,7 +59,7 @@ import com.icegreen.greenmail.util.ServerSetup;
 
 public class BodWebDriver {
 
-  public static final String URL_UNDER_TEST = withEndingSlash(System.getProperty("selenium.test.url",
+  public static final String URL_UNDER_TEST = withoutEndingSlash(System.getProperty("selenium.test.url",
       "http://localhost:8083/bod"));
 
   public static final String DB_URL = "jdbc.jdbcUrl";
@@ -88,8 +84,8 @@ public class BodWebDriver {
 
   private Properties props;
 
-  private static String withEndingSlash(String path) {
-    return path.endsWith("/") ? path : path + "/";
+  private static String withoutEndingSlash(String path) {
+    return path.endsWith("/") ? StringUtils.chop(path) : path;
   }
 
   public synchronized void initializeOnce() {

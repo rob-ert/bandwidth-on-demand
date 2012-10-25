@@ -207,6 +207,13 @@ public class RichUserDetails implements UserDetails {
     switchToRole(managerRole);
   }
 
+  public void trySwitchToManager() {
+    BodRole managerRole = findFirstBodRoleByRole(RoleEnum.ICT_MANAGER);
+    if (managerRole != null) {
+      switchToRole(managerRole);
+    }
+  }
+
   public void switchToRoleById(Long bodRoleId) {
     BodRole bodRole = findBodRoleById(bodRoleId);
     switchToRole(bodRole);

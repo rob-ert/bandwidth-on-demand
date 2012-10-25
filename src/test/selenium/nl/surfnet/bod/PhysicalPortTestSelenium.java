@@ -125,11 +125,12 @@ public class PhysicalPortTestSelenium extends TestExternalSupport {
   }
 
   private void setupVirtualPort(String vpOne, String nocLabel, String managerLabel1) {
-
     getNocDriver().linkPhysicalPort(NMS_PORT_ID_1, nocLabel, managerLabel1, GROUP_NAME);
     getWebDriver().clickLinkInLastEmail();
+
     getNocDriver().verifyPhysicalPortHasEnabledUnallocateIcon(BOD_PORT_ID_1, nocLabel);
 
+    getNocDriver().switchToManager(GROUP_NAME);
     getManagerDriver().verifyPhysicalPortHasEnabledUnallocateIcon(BOD_PORT_ID_1, managerLabel1);
 
     // Link a VirtualPort to the PhysicalPort, PhysicalPort cannot be
