@@ -26,20 +26,14 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.event.EntityStatistics;
 import nl.surfnet.bod.service.LogEventService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.NocStatisticsView;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -78,9 +72,7 @@ public class DashboardController {
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
 
-    DateTime end = DateTime.now();
-    DateTime start = end.minus(WebUtils.DEFAULT_REPORTING_PERIOD);
-    model.addAttribute("stats", determineStatistics(Security.getUserDetails(), start, end));
+    model.addAttribute("stats", determineStatistics());
     model.addAttribute("defaultDuration", ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL_STRING);
 
     generateErrorMessagesForUnalignedPorts(model, physicalPortService.findUnalignedPhysicalPorts());
@@ -96,7 +88,7 @@ public class DashboardController {
   }
 
   @VisibleForTesting
-  NocStatisticsView determineStatistics(RichUserDetails user, DateTime start, DateTime end) {
+  NocStatisticsView determineStatistics() {
     ReservationFilterViewFactory reservationFilterViewFactory = new ReservationFilterViewFactory();
 
     long countPhysicalPorts = physicalPortService.countAllocated();
@@ -112,17 +104,8 @@ public class DashboardController {
 
     long countMissingPhysicalPorts = physicalPortService.countUnalignedPhysicalPorts();
 
-    EntityStatistics<PhysicalPort> physicalPortStats = logEventService
-        .determineStatisticsForNocByEventTypeAndDomainObjectClassBetween(user, PhysicalPort.class, start, end);
-
-    EntityStatistics<VirtualPort> virtualPortStats = logEventService
-        .determineStatisticsForNocByEventTypeAndDomainObjectClassBetween(user, VirtualPort.class, start, end);
-
-    EntityStatistics<Reservation> reservationStats = logEventService
-        .determineStatisticsForNocByEventTypeAndDomainObjectClassBetween(user, Reservation.class, start, end);
-
     return new NocStatisticsView(countPhysicalPorts, countElapsedReservations, countActiveReservations,
-        countComingReservations, countMissingPhysicalPorts, physicalPortStats, virtualPortStats, reservationStats);
+        countComingReservations, countMissingPhysicalPorts);
   }
 
   private void generateErrorMessagesForUnalignedPorts(Model model, List<PhysicalPort> unaliagnedPhysicalPorts) {

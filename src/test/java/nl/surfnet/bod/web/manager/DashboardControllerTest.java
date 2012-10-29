@@ -154,37 +154,22 @@ public class DashboardControllerTest {
         9, end);
 
     when(
-        logEventServiceMock.determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
-            PhysicalPort.class, start, end)).thenReturn(physicalPortStats);
+        logEventServiceMock.determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager
+            .getSelectedRole(), PhysicalPort.class, start, end)).thenReturn(physicalPortStats);
 
     when(
-        logEventServiceMock.determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
-            VirtualPort.class, start, end)).thenReturn(virtualPortStats);
+        logEventServiceMock.determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager
+            .getSelectedRole(), VirtualPort.class, start, end)).thenReturn(virtualPortStats);
 
     when(
-        logEventServiceMock.determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
-            Reservation.class, start, end)).thenReturn(reservationStats);
+        logEventServiceMock.determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager
+            .getSelectedRole(), Reservation.class, start, end)).thenReturn(reservationStats);
 
-    ManagerStatisticsView statistics = subject.determineStatistics(manager, start, end);
+    ManagerStatisticsView statistics = subject.determineStatistics(manager);
     assertThat(statistics.getPhysicalPortsAmount(), is(1L));
     assertThat(statistics.getVirtualPortsAmount(), is(2L));
     assertThat(statistics.getElapsedReservationsAmount(), is(3L));
     assertThat(statistics.getActiveReservationsAmount(), is(4L));
     assertThat(statistics.getComingReservationsAmount(), is(5L));
-
-    // PhysicalPort stats
-    assertThat(statistics.getPhysicalPortStatistics().getAmountCreated(), is(1L));
-    assertThat(statistics.getPhysicalPortStatistics().getAmountUpdated(), is(2L));
-    assertThat(statistics.getPhysicalPortStatistics().getAmountDeleted(), is(3L));
-
-    // VirtualPort stats
-    assertThat(statistics.getVirtualPortStatistics().getAmountCreated(), is(4L));
-    assertThat(statistics.getVirtualPortStatistics().getAmountUpdated(), is(5L));
-    assertThat(statistics.getVirtualPortStatistics().getAmountDeleted(), is(6L));
-
-    // Reservation stats
-    assertThat(statistics.getReservationStatistics().getAmountCreated(), is(7L));
-    assertThat(statistics.getReservationStatistics().getAmountUpdated(), is(8L));
-    assertThat(statistics.getReservationStatistics().getAmountDeleted(), is(9L));
   }
 }

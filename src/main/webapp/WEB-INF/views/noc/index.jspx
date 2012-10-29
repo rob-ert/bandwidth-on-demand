@@ -55,51 +55,6 @@
                 </table>
             </div>
         </section>
-        <section>
-            <h2>Report from <spring:eval expression="stats.physicalPortStatistics.periodStart" htmlEscape="true" /> until <spring:eval expression="stats.physicalPortStatistics.periodEnd" htmlEscape="true" /></h2>
-            <div class="content">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th rowspan="2">Item</th>
-                        <th class="center cw65" colspan="3">Amount of items</th>
-                     </tr>
-                    <tr>
-                        <th class="center cw65 small subheader">Created</th>
-                        <th class="center cw65 small subheader">Updated</th>
-                        <th class="center cw65 small subheader">Deleted</th>
-                    </tr>
-                </thead>
-                <tbody>
-                      <tr>
-                        <td>
-                            <spring:message code="${stats.physicalPortStatistics.domainObjectKey}" />
-                        </td>
-                        <table:searchColumn  value="${stats.physicalPortStatistics.amountCreated}"  searchCriteria="${stats.physicalPortStatistics.searchCriteriaForCreate}"  viewName="${logEventsUrl}" tooltipTitleCode="label_logevent_link" />
-                        <table:searchColumn  value="${stats.physicalPortStatistics.amountUpdated}"  searchCriteria="${stats.physicalPortStatistics.searchCriteriaForUpdate}"  viewName="${logEventsUrl}" tooltipTitleCode="label_logevent_link" />
-                        <table:searchColumn  value="${stats.physicalPortStatistics.amountDeleted}"  searchCriteria="${stats.physicalPortStatistics.searchCriteriaForDelete}"  viewName="${logEventsUrl}" tooltipTitleCode="label_logevent_link" />
-                       </tr>
-                       <tr>
-                        <td>
-                            <spring:message code="${stats.virtualPortStatistics.domainObjectKey}" />
-                        </td>
-                        <table:searchColumn  value="${stats.virtualPortStatistics.amountCreated}"  searchCriteria="${stats.virtualPortStatistics.searchCriteriaForCreate}"  viewName="${logEventsUrl}" tooltipTitleCode="label_logevent_link" />
-                        <table:searchColumn  value="${stats.virtualPortStatistics.amountUpdated}"  searchCriteria="${stats.virtualPortStatistics.searchCriteriaForUpdate}"  viewName="${logEventsUrl}" tooltipTitleCode="label_logevent_link" />
-                        <table:searchColumn  value="${stats.virtualPortStatistics.amountDeleted}"  searchCriteria="${stats.virtualPortStatistics.searchCriteriaForDelete}"  viewName="${logEventsUrl}" tooltipTitleCode="label_logevent_link" />
-                       </tr>
-                       <tr>
-                        <td>
-                            <spring:message code="${stats.reservationStatistics.domainObjectKey}" />
-                        </td>
-                        <table:searchColumn  value="${stats.reservationStatistics.amountCreated}"  searchCriteria="${stats.reservationStatistics.searchCriteriaForCreate}"   viewName="${logEventsUrl}" tooltipTitleCode="label_logevent_link" />
-                        <table:searchColumn  value="${stats.reservationStatistics.amountUpdated}"  searchCriteria="${stats.reservationStatistics.searchCriteriaForUpdate}"  viewName="${logEventsUrl}" tooltipTitleCode="label_logevent_link" />
-                        <table:searchColumn  value="${stats.reservationStatistics.amountDeleted}"  searchCriteria="${stats.reservationStatistics.searchCriteriaForDelete}" viewName="${logEventsUrl}" tooltipTitleCode="label_logevent_link" />
-                       </tr>
-                </tbody>
-            </table>
-          </div>
-       </section>
-        
         </div>
         <div class="span4">
             <section>

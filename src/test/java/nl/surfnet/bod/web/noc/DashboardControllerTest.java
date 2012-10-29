@@ -122,27 +122,12 @@ public class DashboardControllerTest {
         logEventServiceMock.determineStatisticsForNocByEventTypeAndDomainObjectClassBetween(noc, Reservation.class,
             start, end)).thenReturn(reservationStats);
 
-    NocStatisticsView statistics = subject.determineStatistics(noc, start, end);
+    NocStatisticsView statistics = subject.determineStatistics();
 
     assertThat(statistics.getPhysicalPortsAmount(), is(2L));
     assertThat(statistics.getElapsedReservationsAmount(), is(3L));
     assertThat(statistics.getActiveReservationsAmount(), is(4L));
     assertThat(statistics.getComingReservationsAmount(), is(5L));
     assertThat(statistics.getUnalignedPhysicalPortsAmount(), is(6L));
-
-    // PhysicalPort stats
-    assertThat(statistics.getPhysicalPortStatistics().getAmountCreated(), is(1L));
-    assertThat(statistics.getPhysicalPortStatistics().getAmountUpdated(), is(2L));
-    assertThat(statistics.getPhysicalPortStatistics().getAmountDeleted(), is(3L));
-
-    // VirtualPort stats
-    assertThat(statistics.getVirtualPortStatistics().getAmountCreated(), is(4L));
-    assertThat(statistics.getVirtualPortStatistics().getAmountUpdated(), is(5L));
-    assertThat(statistics.getVirtualPortStatistics().getAmountDeleted(), is(6L));
-
-    // Reservation stats
-    assertThat(statistics.getReservationStatistics().getAmountCreated(), is(7L));
-    assertThat(statistics.getReservationStatistics().getAmountUpdated(), is(8L));
-    assertThat(statistics.getReservationStatistics().getAmountDeleted(), is(9L));
   }
 }

@@ -25,12 +25,8 @@ import java.util.Collection;
 
 import javax.annotation.Resource;
 
-import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.event.EntityStatistics;
 import nl.surfnet.bod.service.LogEventService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
@@ -43,7 +39,6 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.ManagerStatisticsView;
 
-import org.joda.time.DateTime;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -84,14 +79,13 @@ public class DashboardController {
     model.addAttribute("prg", group);
     model.addAttribute("requests", Orderings.vpRequestLinkOrdering().sortedCopy(requests));
 
-    DateTime end = DateTime.now();
-    model.addAttribute("stats", determineStatistics(Security.getUserDetails(), end.minus(WebUtils.DEFAULT_REPORTING_PERIOD), end));
+    model.addAttribute("stats", determineStatistics(Security.getUserDetails()));
     model.addAttribute("defaultDuration", ReservationFilterViewFactory.DEFAULT_FILTER_INTERVAL_STRING);
 
     return "manager/index";
   }
 
-  ManagerStatisticsView determineStatistics(RichUserDetails manager, DateTime start, DateTime end) {
+  ManagerStatisticsView determineStatistics(RichUserDetails manager) {
     ReservationFilterViewFactory reservationFilterViewFactory = new ReservationFilterViewFactory();
     PhysicalResourceGroup managerPrg = physicalResourceGroupService.find(manager.getSelectedRole()
         .getPhysicalResourceGroupId().get());
@@ -109,19 +103,7 @@ public class DashboardController {
     long countComingReservations = reservationService.countForFilterAndManager(manager, reservationFilterViewFactory
         .create(ReservationFilterViewFactory.COMING));
 
-    EntityStatistics<PhysicalPort> physicalPortStats = logEventService
-        .determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
-            PhysicalPort.class, start, end);
-
-    EntityStatistics<VirtualPort> virtualPortStats = logEventService
-        .determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
-            VirtualPort.class, start, end);
-
-    EntityStatistics<Reservation> reservationStats = logEventService
-        .determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(manager.getSelectedRole(),
-            Reservation.class, start, end);
-
     return new ManagerStatisticsView(countPhysicalPorts, countVirtualPorts, countElapsedReservations,
-        countActiveReservations, countComingReservations, physicalPortStats, virtualPortStats, reservationStats);
+        countActiveReservations, countComingReservations);
   }
 }
