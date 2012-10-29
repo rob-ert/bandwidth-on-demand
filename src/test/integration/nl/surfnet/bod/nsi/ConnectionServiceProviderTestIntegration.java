@@ -143,6 +143,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
     requesterEndpoint.stopServer();
+    Security.setUserDetails(null);
   }
 
   @BeforeTransaction
