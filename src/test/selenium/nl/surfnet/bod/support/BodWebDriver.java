@@ -21,14 +21,14 @@
  */
 package nl.surfnet.bod.support;
 
-import static junit.framework.Assert.fail;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -56,6 +56,10 @@ import com.google.common.io.Files;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
+
+import static junit.framework.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 
 public class BodWebDriver {
 
@@ -253,7 +257,7 @@ public class BodWebDriver {
 
   private List<MimeMessage> getMailsSortedByDate() {
     Ordering<MimeMessage> mailMessageOrdering = new Ordering<MimeMessage>() {
-      private DateTimeFormatter dateParser = DateTimeFormat.forPattern("EEE, d MMM yyyy HH:mm:ss Z '(CEST)'")
+      private final DateTimeFormatter dateParser = DateTimeFormat.forPattern("EEE, d MMM yyyy HH:mm:ss Z")
           .withLocale(Locale.ENGLISH);
 
       @Override
@@ -263,7 +267,11 @@ public class BodWebDriver {
 
       private DateTime getDateTime(MimeMessage message) {
         try {
-          return dateParser.parseDateTime(message.getHeader("Date")[0]);
+          String timeStamp = message.getHeader("Date")[0];
+          // TODO Fix parsing
+          timeStamp = StringUtils.remove(timeStamp, " (CET)");
+          // System.err.println(timeStamp);
+          return dateParser.parseDateTime(timeStamp);
         }
         catch (MessagingException e) {
           throw new RuntimeException(e);
