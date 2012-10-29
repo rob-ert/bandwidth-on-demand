@@ -14,7 +14,6 @@
     <jsp:directive.attribute name="deleteLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="successMessageCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteEnabled" type="java.lang.Boolean" required="false" rtexprvalue="true" />
-    <jsp:directive.attribute name="updateEnabled" type="java.lang.Boolean" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteConfirmLabelCode" type="java.lang.String" required="false" rtexprvalue="true" />
     <jsp:directive.attribute name="deleteConfirmLabelArgument" type="java.lang.String" required="false" rtexprvalue="true" />
 
@@ -29,9 +28,6 @@
     </c:if>
     <c:if test="${empty deleteEnabled}">
         <c:set var="deleteEnabled" value="true" />
-    </c:if>
-    <c:if test="${empty updateEnabled}">
-        <c:set var="updateEnabled" value="true" />
     </c:if>
     <c:if test="${empty updateIcon}">
         <c:set var="updateIcon" value="icon-pencil" />

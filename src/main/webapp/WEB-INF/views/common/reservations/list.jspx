@@ -148,7 +148,7 @@
                         <c:choose>
                           <c:when test="${item.updateAllowedForSelectedRole}">
                             <table:actionsColumn item="${item}" update="true" delete="true"
-                              updateEnabled="true" updateLabelCode="${item.updateReasonKey}"
+                              updateLabelCode="${item.updateReasonKey}"
                               deleteEnabled="${item.deleteAllowedForSelectedRole}" deleteLabelCode="${item.deleteReasonKey}"
                               path="/reservations" labelCode="label_reservation" successMessageCode="Termination request has been sent">
                           </table:actionsColumn>

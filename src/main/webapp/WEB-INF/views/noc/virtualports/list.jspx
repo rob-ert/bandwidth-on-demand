@@ -69,7 +69,9 @@
                             <c:set var="vpDeleteText" value="vp_delete_confirm_counter" />
                           </c:otherwise>
                         </c:choose>
-                        <table:actionsColumn item="${item}" path="/noc/virtualports" labelCode="label_virtualport" delete="true" deleteConfirmLabelCode="${vpDeleteText}" deleteConfirmLabelArgument="${item.reservationCounter}"/>
+                        <table:actionsColumn item="${item}" path="/noc/virtualports" labelCode="label_virtualport"
+                          delete="true" deleteConfirmLabelCode="${vpDeleteText}" deleteConfirmLabelArgument="${item.reservationCounter}"
+                          update="false" />
                     </tr>
                 </c:forEach>
             </tbody>
