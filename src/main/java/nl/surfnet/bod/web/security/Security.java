@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.web.security;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Collection;
 import java.util.Collections;
 
@@ -181,10 +183,16 @@ public final class Security {
    *          the user details
    */
   public static void setUserDetails(RichUserDetails richUserDetails) {
+    checkNotNull(richUserDetails);
+
     RunAsUserToken authentication = new RunAsUserToken("A Run As User", richUserDetails, "N/A",
         Collections.<GrantedAuthority> emptyList(), PreAuthenticatedAuthenticationToken.class);
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
+  }
+
+  public static void clearUserDetails() {
+    SecurityContextHolder.getContext().setAuthentication(null);
   }
 
 }
