@@ -64,7 +64,7 @@
         </script>
     </c:if>
 
-    <c:if test="${feedbacktool}">
+    <c:if test="${feedbackTool}">
         <script type="text/javascript">
           var uvOptions = {};
           (function() {
