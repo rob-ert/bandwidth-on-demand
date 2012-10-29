@@ -66,7 +66,6 @@ import static com.google.common.collect.Lists.newArrayList;
 @Transactional
 public class VirtualResourceGroupService extends AbstractFullTextSearchService<VirtualResourceGroup> {
 
-  // TODO to controller??
   public static final Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView> TO_MANAGER_VIEW = new Function<VirtualResourceGroup, VirtualResourceGroupController.VirtualResourceGroupView>() {
     @Override
     public VirtualResourceGroupController.VirtualResourceGroupView apply(VirtualResourceGroup group) {
