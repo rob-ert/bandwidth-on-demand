@@ -69,9 +69,11 @@ public final class Emails {
         + FOOTER;
 
     public static String body(RichUserDetails from, VirtualPortRequestLink requestLink, String link) {
-      return String.format(VIRTUAL_PORT_REQUEST_BODY, from.getDisplayName(), from.getEmail(), requestLink
-          .getVirtualResourceGroup().getName(), requestLink.getUserLabel(), requestLink.getMinBandwidth(),
-          requestLink.getMessage(), requestLink.getPhysicalResourceGroup().getInstitute().getName(), link);
+      return String.format(VIRTUAL_PORT_REQUEST_BODY,
+          from.getDisplayName(), from.getEmail().or("Unknown Email"),
+          requestLink.getVirtualResourceGroup().getName(), requestLink.getUserLabel(),
+          requestLink.getMinBandwidth(), requestLink.getMessage(),
+          requestLink.getPhysicalResourceGroup().getInstitute().getName(), link);
     }
 
     public static String subject(RichUserDetails user) {
