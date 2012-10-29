@@ -30,14 +30,7 @@ import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snmp4j.CommandResponder;
-import org.snmp4j.CommandResponderEvent;
-import org.snmp4j.CommunityTarget;
-import org.snmp4j.MessageDispatcher;
-import org.snmp4j.MessageDispatcherImpl;
-import org.snmp4j.PDU;
-import org.snmp4j.Snmp;
-import org.snmp4j.TransportMapping;
+import org.snmp4j.*;
 import org.snmp4j.mp.MPv2c;
 import org.snmp4j.security.SecurityProtocols;
 import org.snmp4j.smi.OctetString;
@@ -66,13 +59,13 @@ public class SnmpOfflineManager implements CommandResponder {
   @Value("${snmp.development}")
   private boolean isDevelopment = true;
 
-  @Value("${snmp.disabled}")
-  private boolean isDisabled = true;
+  @Value("${snmp.enabled}")
+  private boolean isEnabled = false;
 
   @PostConstruct
   public void startup() {
 
-    if (isDisabled()) {
+    if (!isEnabled()) {
       return;
     }
 
@@ -106,18 +99,19 @@ public class SnmpOfflineManager implements CommandResponder {
     }
   }
 
-  private boolean isDisabled() {
-    if (isDisabled) {
-      log.warn("All SNMP activities are disabled. Set snmp.disabled = false to re-enable it.");
+  private boolean isEnabled() {
+    if (!isEnabled) {
+      log.warn("All SNMP activities are disabled. Set snmp.enabled = true to re-enable it.");
     }
-    return isDisabled;
+    return isEnabled;
   }
 
   @PreDestroy
   public void shutdown() {
-    if (isDisabled()) {
+    if (!isEnabled()) {
       return;
     }
+
     if (transportMapping != null && transportMapping.isListening()) {
       try {
         log.info("Closing listener on: " + transportMapping.getListenAddress());
@@ -131,9 +125,10 @@ public class SnmpOfflineManager implements CommandResponder {
 
   @Override
   public void processPdu(final CommandResponderEvent commandResponderEvent) {
-    if (isDisabled()) {
+    if (!isEnabled()) {
       return;
     }
+
     log.info("Received CommandResponderEvent: " + commandResponderEvent);
     final PDU pdu = commandResponderEvent.getPDU();
     if (pdu != null) {
@@ -144,16 +139,10 @@ public class SnmpOfflineManager implements CommandResponder {
   }
 
   public final String getOrWaitForLastPduAsString(final long seconds) {
-    if (isDisabled()) {
-      return null;
-    }
     return getOrWaitForLastPdu(seconds).toString();
   }
 
   public final PDU getOrWaitForLastPdu(final long seconds) {
-    if (isDisabled()) {
-      return null;
-    }
     if (isDevelopment) {
       try {
         return receivedPdus.pollLast(seconds, TimeUnit.SECONDS);
@@ -171,6 +160,7 @@ public class SnmpOfflineManager implements CommandResponder {
 
   private void registerShutdownHook() {
     Runtime.getRuntime().addShutdownHook(new Thread() {
+      @Override
       public void run() {
         shutdown();
       }
