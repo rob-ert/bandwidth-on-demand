@@ -86,14 +86,7 @@ public class VirtualPortRequestController {
     RichUserDetails user = Security.getUserDetails();
 
     if (!user.getEmail().isPresent()) {
-      MessageView message = MessageView.createErrorMessage(
-          messageSource,
-          "error_label_no_email",
-          "error_content_no_email");
-
-      model.addAttribute(MessageView.MODEL_KEY, message);
-
-      return MessageView.PAGE_URL;
+      return missingEmailAddress(model);
     }
 
     // Find related virtual resource groups
@@ -125,8 +118,25 @@ public class VirtualPortRequestController {
     return "virtualports/selectTeam";
   }
 
+  private String missingEmailAddress(Model model) {
+      MessageView message = MessageView.createErrorMessage(
+          messageSource,
+          "error_label_no_email",
+          "error_content_no_email");
+
+      model.addAttribute(MessageView.MODEL_KEY, message);
+
+      return MessageView.PAGE_URL;
+  }
+
   @RequestMapping(method = RequestMethod.GET, params = { "teamLabel", "teamUrn" })
   public String selectInstitute(@RequestParam String teamLabel, @RequestParam String teamUrn, Model model) {
+    RichUserDetails user = Security.getUserDetails();
+
+    if (!user.getEmail().isPresent()) {
+      return missingEmailAddress(model);
+    }
+
     Collection<PhysicalResourceGroup> groups = physicalResourceGroupService.findAllWithPorts();
 
     model.addAttribute("physicalResourceGroups", prgNameOrdering().sortedCopy(groups));
