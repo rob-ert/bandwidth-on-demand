@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN" "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
+<tiles-definitions>
+
+    <definition extends="default" name="index">
+        <put-attribute name="body" value="/WEB-INF/views/user/index.jspx" />
+        <put-attribute name="active_menu" value="overview" cascade="true" />
+    </definition>
+
+    <definition extends="default" name="reservations/list">
+        <put-attribute name="body" value="/WEB-INF/views/common/reservations/list.jspx" />
+        <put-attribute name="active_menu" value="reservation" cascade="true" />
+        <put-attribute name="renderActions" value="true" cascade="true" />
+    </definition>
+
+    <definition extends="default" name="reservations/create">
+        <put-attribute name="body" value="/WEB-INF/views/user/reservations/create.jspx" />
+        <put-attribute name="active_menu" value="reservation" cascade="true" />
+    </definition>
+
+    <definition extends="default" name="logevents">
+      <put-attribute name="body" value="/WEB-INF/views/common/logevents/list.jspx" />
+      <put-attribute name="active_menu" value="logevent" cascade="true" />
+    </definition>
+
+    <definition extends="default" name="oauthResult">
+      <put-attribute name="body" value="/WEB-INF/views/user/oauthResult.jspx" />
+      <put-attribute name="active_menu" value="advanced" cascade="true" />
+    </definition>
+
+    <definition extends="default" name="advanced">
+      <put-attribute name="body" value="/WEB-INF/views/user/advanced.jspx" />
+      <put-attribute name="active_menu" value="advanced" cascade="true" />
+    </definition>
+
+</tiles-definitions>

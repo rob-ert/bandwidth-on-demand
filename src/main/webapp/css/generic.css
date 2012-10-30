@@ -76,6 +76,10 @@ section h2 {
     margin-left: 3em;
 }
 
+.dl {
+  margin-right: 1em;
+}
+
 .ul li {
     font-weight: bold;
     margin-bottom: 1em;

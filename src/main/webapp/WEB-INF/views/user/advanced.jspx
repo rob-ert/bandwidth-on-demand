@@ -1,0 +1,36 @@
+<html xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
+    xmlns:table="urn:jsptagdir:/WEB-INF/tags/table" xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions" xmlns:sec="http://www.springframework.org/security/tags"
+    xmlns:jsp="http://java.sun.com/JSP/Page">
+
+<jsp:directive.page contentType="text/html;charset=UTF-8" />
+<jsp:output omit-xml-declaration="yes" />
+
+<section>
+  <h2>Advanced</h2>
+  <div class="content">
+    <p>Some pages with some advanced functionallity.<!--  --></p>
+      <div class="form">
+        <div class="message">
+          <h3>Advanced Pages</h3>
+        </div>
+        <dl class="dl">
+          <dt>
+            <spring:url var="oauth_url" value="/oauth2/tokens" />
+            <a href="${oauth_url}"><spring:message code="menu_nsi_label"/></a></dt>
+          <dd>
+            If you make use of NSI to create reservations through Bandwidth on Demand you need an OAuth2 Access Token.
+            When your client is not capable of doing OAuth2 (eg. it is a command line client) BoD can provide you with such an access token.<br/>
+            If you click on this link you may be redirected to SURFConext so an access token on behalf of you can be created.
+          </dd>
+          <dt>
+            <spring:url var="teams_url" value="/teams" />
+            <a href="${teams_url}">All your SURFConext teams</a>
+          </dt>
+          <dd>Dispalys all your SURFConext teams.</dd>
+        </dl>
+      </div>
+  </div>
+</section>
+
+</html>

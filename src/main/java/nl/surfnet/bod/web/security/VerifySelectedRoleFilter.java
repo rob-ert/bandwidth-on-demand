@@ -26,6 +26,7 @@ public class VerifySelectedRoleFilter extends OncePerRequestFilter implements Fi
       "/virtualports",
       "/oauth2",
       "/request",
+      "/advanced",
       "/logevents");
 
   @Override
