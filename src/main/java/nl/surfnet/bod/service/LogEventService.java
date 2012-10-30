@@ -117,6 +117,21 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     }
   }
 
+  private static Specification<LogEvent> specLogEventsByDomainClassAndDescriptionPart(
+      final Class<? extends Loggable> domainClass, final String textPart) {
+
+    final Specification<LogEvent> spec = new Specification<LogEvent>() {
+
+      @Override
+      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.and(cb.equal(root.get(LogEvent_.domainObjectClass), LogEvent.getDomainObjectName(domainClass)), cb
+            .like(root.get(LogEvent_.description), textPart));
+      }
+    };
+    return spec;
+
+  }
+
   public void logCreateEvent(RichUserDetails user, Loggable domainObject) {
     logCreateEvent(user, domainObject, null);
   }
@@ -389,4 +404,9 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(determinGroupsToSearchFor)));
   }
 
+  public List<LogEvent> findByDomainClassAndDescriptionPartForNoc(final Class<? extends Loggable> domainClass,
+      final String textPart) {
+
+    return logEventRepo.findAll(specLogEventsByDomainClassAndDescriptionPart(domainClass, textPart));
+  }
 }
