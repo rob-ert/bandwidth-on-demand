@@ -35,6 +35,7 @@ import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.repo.ReservationRepo;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,7 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.NOT_EXCEPTED;
 import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
@@ -137,13 +139,14 @@ class NbiOfflineClient implements NbiClient {
       log.info("No startTime specified, using now: {}", reservation.getStartDateTime());
     }
 
-    if (autoProvision) {
-      if (reservation.getBandwidth() == 666) {
-        reservation.setStatus(NOT_EXCEPTED);
-      }
-      else {
-        reservation.setStatus(SCHEDULED);
-      }
+    if (StringUtils.containsIgnoreCase(reservation.getLabel(), NOT_EXCEPTED.name())) {
+      reservation.setStatus(NOT_EXCEPTED);
+    }
+    else if (StringUtils.containsIgnoreCase(reservation.getLabel(), FAILED.name())) {
+      reservation.setStatus(FAILED);
+    }
+    else if (autoProvision) {
+      reservation.setStatus(SCHEDULED);
     }
     else {
       reservation.setStatus(RESERVED);
@@ -175,23 +178,21 @@ class NbiOfflineClient implements NbiClient {
   }
 
   private ReservationStatus getNextStatus(ReservationStatus status) {
-    switch (status) {
-    case REQUESTED:
-      return ReservationStatus.SCHEDULED;
-    case SCHEDULED:
-      return ReservationStatus.RUNNING;
-    case RUNNING:
-      return ReservationStatus.SUCCEEDED;
-    case SUCCEEDED:
-      return ReservationStatus.SUCCEEDED;
-    case FAILED:
-      return ReservationStatus.FAILED;
-    case NOT_EXCEPTED:
-      return ReservationStatus.NOT_EXCEPTED;
-    case CANCELLED:
-      return ReservationStatus.CANCELLED;
-    default:
+
+    if (status.isEndState()) {
       return status;
+    }
+    else {
+      switch (status) {
+      case REQUESTED:
+        return ReservationStatus.SCHEDULED;
+      case SCHEDULED:
+        return ReservationStatus.RUNNING;
+      case RUNNING:
+        return ReservationStatus.SUCCEEDED;
+      default:
+        return status;
+      }
     }
   }
 
