@@ -19,7 +19,7 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.web;
+package nl.surfnet.bod.web.user;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
@@ -44,9 +44,11 @@ import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.util.FullTextSearchResult;
-import nl.surfnet.bod.web.VirtualPortController.UpdateUserLabelCommand;
+import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.user.VirtualPortController;
+import nl.surfnet.bod.web.user.VirtualPortController.UpdateUserLabelCommand;
 import nl.surfnet.bod.web.view.VirtualPortView;
 
 import org.apache.lucene.queryParser.ParseException;

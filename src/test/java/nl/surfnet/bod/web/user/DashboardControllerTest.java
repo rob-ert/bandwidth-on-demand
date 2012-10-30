@@ -19,7 +19,7 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.web;
+package nl.surfnet.bod.web.user;
 
 import java.util.List;
 
@@ -39,6 +39,7 @@ import nl.surfnet.bod.support.VirtualPortRequestLinkFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.user.DashboardController;
 import nl.surfnet.bod.web.view.TeamView;
 
 import org.junit.Test;
