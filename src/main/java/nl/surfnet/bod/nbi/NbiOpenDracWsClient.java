@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.nbi;
 
-import static nl.surfnet.bod.domain.ReservationStatus.*;
-
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Calendar;
@@ -44,14 +42,33 @@ import org.joda.time.Minutes;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.Security;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.SecurityDocument;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.UsernameToken;
-import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.*;
+import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.EndpointT;
+import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointRequestDocument;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointRequestDocument.QueryEndpointRequest;
+import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointResponseDocument;
+import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsRequestDocument;
 import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsRequestDocument.QueryEndpointsRequest;
-import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.*;
+import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.QueryEndpointsResponseDocument;
+import org.opendrac.www.ws.networkmonitoringservicetypes_v3_0.ValidEndpointsQueryTypeT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ActivateReservationOccurrenceRequestDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ActivateReservationOccurrenceRequestDocument.ActivateReservationOccurrenceRequest;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CancelReservationScheduleRequestDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CancelReservationScheduleRequestDocument.CancelReservationScheduleRequest;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleRequestDocument.CreateReservationScheduleRequest;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleResponseDocument;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.PathRequestT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.QueryReservationScheduleRequestDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.QueryReservationScheduleRequestDocument.QueryReservationScheduleRequest;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.QueryReservationScheduleResponseDocument;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ReservationOccurrenceInfoT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ReservationScheduleRequestT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ReservationScheduleT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.UserInfoT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidProtectionTypeT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleCreationResultT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleStatusT;
+import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleTypeT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,10 +82,19 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.CompletionRespons
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidCompletionTypeT.Enum;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
+import static nl.surfnet.bod.domain.ReservationStatus.NOT_EXCEPTED;
+import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
+import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
+
 /**
  * A bridge to OpenDRAC's web services. Everything is contained in this one
  * class so that only this class is linked to OpenDRAC related classes.
- *
+ * 
  */
 class NbiOpenDracWsClient implements NbiClient {
 
@@ -121,8 +147,8 @@ class NbiOpenDracWsClient implements NbiClient {
   public boolean activateReservation(final String reservationId) {
     String serviceId = findServiceId(reservationId);
 
-    ActivateReservationOccurrenceRequestDocument activateReservationOccurrenceRequestDocument =
-        ActivateReservationOccurrenceRequestDocument.Factory.newInstance();
+    ActivateReservationOccurrenceRequestDocument activateReservationOccurrenceRequestDocument = ActivateReservationOccurrenceRequestDocument.Factory
+        .newInstance();
 
     ActivateReservationOccurrenceRequest activateReservationOccurrenceRequest = activateReservationOccurrenceRequestDocument
         .addNewActivateReservationOccurrenceRequest();
@@ -144,11 +170,13 @@ class NbiOpenDracWsClient implements NbiClient {
 
   @Override
   public void cancelReservation(final String reservationId) {
-    CancelReservationScheduleRequestDocument requestDocument = CancelReservationScheduleRequestDocument.Factory.newInstance();
+    CancelReservationScheduleRequestDocument requestDocument = CancelReservationScheduleRequestDocument.Factory
+        .newInstance();
     CancelReservationScheduleRequest request = requestDocument.addNewCancelReservationScheduleRequest();
     request.setReservationScheduleId(reservationId);
     try {
-      CompletionResponseDocument response = schedulingService.cancelReservationSchedule(requestDocument, getSecurityDocument());
+      CompletionResponseDocument response = schedulingService.cancelReservationSchedule(requestDocument,
+          getSecurityDocument());
       logger.info("Status: {}", response.getCompletionResponse().getResult());
     }
     catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
@@ -169,7 +197,7 @@ class NbiOpenDracWsClient implements NbiClient {
       ReservationStatus status = OpenDracStatusTranslator.translate(responseDocument
           .getCreateReservationScheduleResponse().getResult(), autoProvision);
 
-      if (status == FAILED) {
+      if (ReservationStatus.ERROR_STATES.contains(status)) {
         List<String> reasons = Lists.newArrayList();
         for (final ReservationOccurrenceInfoT occurenceInfo : responseDocument.getCreateReservationScheduleResponse()
             .getOccurrenceInfoArray()) {
@@ -187,7 +215,7 @@ class NbiOpenDracWsClient implements NbiClient {
     }
     catch (ResourceAllocationAndSchedulingServiceFault e) {
       logger.warn("Creating a reservation failed", e);
-      reservation.setStatus(FAILED);
+      reservation.setStatus(NOT_EXCEPTED);
     }
     catch (Exception e) {
       logger.error("Unexpected Exception while request reservation to OpenDRAC", e);
@@ -295,34 +323,32 @@ class NbiOpenDracWsClient implements NbiClient {
   }
 
   protected static final class OpenDracStatusTranslator {
-    private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationAutoProvionResultTranslations =
-      new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleCreationResultT.FAILED, FAILED)
-        .put(ValidReservationScheduleCreationResultT.SUCCEEDED, SCHEDULED)
-        .put(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, SCHEDULED)
-        .put(ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
+    private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationAutoProvionResultTranslations = new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
+        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_EXCEPTED).put(
+            ValidReservationScheduleCreationResultT.SUCCEEDED, SCHEDULED).put(
+            ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, SCHEDULED).put(
+            ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
 
-    private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationResultTranslations =
-      new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleCreationResultT.FAILED, FAILED)
-        .put(ValidReservationScheduleCreationResultT.SUCCEEDED, RESERVED)
-        .put(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, RESERVED)
-        .put(ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
+    private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationResultTranslations = new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
+        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_EXCEPTED).put(
+            ValidReservationScheduleCreationResultT.SUCCEEDED, RESERVED).put(
+            ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, RESERVED).put(
+            ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
 
-    private static ImmutableMap<ValidReservationScheduleStatusT.Enum, ReservationStatus> scheduleStatusTranslations =
-      new ImmutableMap.Builder<ValidReservationScheduleStatusT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleStatusT.CONFIRMATION_PENDING, REQUESTED)
-        .put(ValidReservationScheduleStatusT.CONFIRMATION_TIMED_OUT, FAILED)
-        .put(ValidReservationScheduleStatusT.CONFIRMATION_CANCELLED, CANCELLED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_PENDING, SCHEDULED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_IN_PROGRESS, RUNNING)
-        .put(ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED, SUCCEEDED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED, FAILED)
-         // means that the start time has passed and the reservation did not get an activate will activation was manual
-        .put(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, FAILED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_FAILED, FAILED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED, CANCELLED)
-        .put(ValidReservationScheduleStatusT.EXECUTION_CANCELLED, CANCELLED).build();
+    private static ImmutableMap<ValidReservationScheduleStatusT.Enum, ReservationStatus> scheduleStatusTranslations = new ImmutableMap.Builder<ValidReservationScheduleStatusT.Enum, ReservationStatus>()
+        .put(ValidReservationScheduleStatusT.CONFIRMATION_PENDING, REQUESTED).put(
+            ValidReservationScheduleStatusT.CONFIRMATION_TIMED_OUT, FAILED).put(
+            ValidReservationScheduleStatusT.CONFIRMATION_CANCELLED, CANCELLED).put(
+            ValidReservationScheduleStatusT.EXECUTION_PENDING, SCHEDULED).put(
+            ValidReservationScheduleStatusT.EXECUTION_IN_PROGRESS, RUNNING).put(
+            ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED, SUCCEEDED).put(
+            ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED, FAILED)
+        // means that the start time has passed and the reservation did not get
+        // an activate will activation was manual
+        .put(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, FAILED).put(
+            ValidReservationScheduleStatusT.EXECUTION_FAILED, FAILED).put(
+            ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED, CANCELLED).put(
+            ValidReservationScheduleStatusT.EXECUTION_CANCELLED, CANCELLED).build();
 
     private OpenDracStatusTranslator() {
     }
@@ -362,8 +388,8 @@ class NbiOpenDracWsClient implements NbiClient {
     calendar.setTime(reservation.getStartDateTime().toDate());
     schedule.setStartTime(calendar);
 
-    Minutes duration = reservation.getEndDateTime() == null ? MAX_DURATION : Minutes.minutesBetween(
-        reservation.getStartDateTime(), reservation.getEndDateTime());
+    Minutes duration = reservation.getEndDateTime() == null ? MAX_DURATION : Minutes.minutesBetween(reservation
+        .getStartDateTime(), reservation.getEndDateTime());
     schedule.setReservationOccurrenceDuration(duration.getMinutes());
     schedule.setIsRecurring(false);
     schedule.setPath(createPath(reservation));
@@ -429,8 +455,8 @@ class NbiOpenDracWsClient implements NbiClient {
     case UNPROTECTED:
       pathRequest.setProtectionType(ValidProtectionTypeT.UNPROTECTED);
       break;
-      default:
-        throw new IllegalStateException("Unknown protection type: " + reservation.getProtectionType());
+    default:
+      throw new IllegalStateException("Unknown protection type: " + reservation.getProtectionType());
     }
 
     return pathRequest;

@@ -21,15 +21,15 @@
  */
 package nl.surfnet.bod.nbi;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.nbi.NbiOpenDracWsClient.OpenDracStatusTranslator;
 
 import org.junit.Test;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleCreationResultT;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidReservationScheduleStatusT;
 
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.nbi.NbiOpenDracWsClient.OpenDracStatusTranslator;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class OpenDracStatusTranslatorTest {
 
@@ -37,7 +37,7 @@ public class OpenDracStatusTranslatorTest {
   public void failedShouldTranslateToFailed() {
     ReservationStatus status = OpenDracStatusTranslator.translate(ValidReservationScheduleCreationResultT.FAILED, true);
 
-    assertThat(status, is(ReservationStatus.FAILED));
+    assertThat(status, is(ReservationStatus.NOT_EXCEPTED));
   }
 
   @Test

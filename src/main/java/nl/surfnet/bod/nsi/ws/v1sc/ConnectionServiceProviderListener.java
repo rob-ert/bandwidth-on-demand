@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static nl.surfnet.bod.web.WebUtils.not;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
@@ -41,6 +39,8 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+
+import static nl.surfnet.bod.web.WebUtils.not;
 
 @Component
 public class ConnectionServiceProviderListener implements ReservationListener {
@@ -84,6 +84,9 @@ public class ConnectionServiceProviderListener implements ReservationListener {
       // the status would be RUNNING
       break;
     case FAILED:
+      handleReservationFailed(connection, event);
+      break;
+    case NOT_EXCEPTED:
       handleReservationFailed(connection, event);
       break;
     case RUNNING:

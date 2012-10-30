@@ -26,26 +26,31 @@ import java.util.Set;
 
 /**
  * Enum representing the status of a {@link Reservation}.
- *
- * /-----------\    /----------\    /-----------\    /-----------\    /---------\    /-----------\
- * | Requested | -> | Reserved | -> | Scheduled | -> | Preparing | -> | Running | -> | Succeeded |
- * |           |    |          |    |           |    | not used  |    |         |    |           |
- * \-----------/    \----------/    \-----------/    \-----------/    \---------/    \-----------/
- *      |                                ^
- *       \------(auto provision)--------/
+ * 
+ * /-----------\ /----------\ /-----------\ /-----------\ /---------\
+ * /-----------\ | Requested | -> | Reserved | -> | Scheduled | -> | Preparing |
+ * -> | Running | -> | Succeeded | | | | | | | | not used | | | | |
+ * \-----------/ \----------/ \-----------/ \-----------/ \---------/
+ * \-----------/ | ^ \------(auto provision)--------/
  */
 public enum ReservationStatus {
 
-  REQUESTED, RESERVED, SCHEDULED, PREPARING, RUNNING, SUCCEEDED, CANCELLED, FAILED;
+  REQUESTED, RESERVED, SCHEDULED, PREPARING, RUNNING, SUCCEEDED, CANCELLED, FAILED, NOT_EXCEPTED;
 
   /**
-   * All states which are allowed to transition to an other state. All other
+   * All states which are allowed to transition to an other state. All otherf
    * states will automatically be regarded as endStates.
    */
-  public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, RESERVED, SCHEDULED, RUNNING, PREPARING);
+  public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, RESERVED, SCHEDULED, RUNNING,
+      PREPARING);
 
-  public static final ReservationStatus[] TRANSITION_STATES_AS_ARRAY =
-      TRANSITION_STATES.toArray(new ReservationStatus[TRANSITION_STATES.size()]);
+  /**
+   * All states which are considered as error states.
+   */
+  public static final Set<ReservationStatus> ERROR_STATES = EnumSet.of(FAILED, NOT_EXCEPTED);
+
+  public static final ReservationStatus[] TRANSITION_STATES_AS_ARRAY = TRANSITION_STATES
+      .toArray(new ReservationStatus[TRANSITION_STATES.size()]);
 
   /**
    * @return true if the reservationStatus is an endState, meaning no further
@@ -66,7 +71,7 @@ public enum ReservationStatus {
   /**
    * @return true if a Reservation is allowed to be delete, only based on its
    *         state.
-   *
+   * 
    */
   public boolean isDeleteAllowed() {
     return isTransitionState();

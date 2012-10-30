@@ -21,26 +21,17 @@
  */
 package nl.surfnet.bod.service;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static nl.surfnet.bod.matchers.DateMatchers.isAfterNow;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationArchive;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -65,6 +56,22 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+
+import static nl.surfnet.bod.matchers.DateMatchers.isAfterNow;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationServiceTest {
@@ -189,12 +196,12 @@ public class ReservationServiceTest {
   @Test
   public void cancelAReservationAsAUserInGroupShouldChangeItsStatus() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
-    RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole()
-        .addUserGroup(reservation.getVirtualResourceGroup().getSurfconextGroupId()).setDisplayname("Piet Puk").create();
+    RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole().addUserGroup(
+        reservation.getVirtualResourceGroup().getSurfconextGroupId()).setDisplayname("Piet Puk").create();
 
     when(
-        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Piet Puk",
-            Optional.<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(2L));
+        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Piet Puk", Optional
+            .<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(2L));
 
     Security.setUserDetails(richUserDetails);
 
@@ -243,8 +250,8 @@ public class ReservationServiceTest {
     Security.setUserDetails(richUserDetails);
 
     when(
-        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher",
-            Optional.<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(2L));
+        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher", Optional
+            .<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(2L));
 
     Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
@@ -264,8 +271,8 @@ public class ReservationServiceTest {
     Security.setUserDetails(richUserDetails);
 
     when(
-        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher",
-            Optional.<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(5L));
+        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher", Optional
+            .<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(5L));
 
     Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
@@ -281,8 +288,8 @@ public class ReservationServiceTest {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
 
     when(
-        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher",
-            Optional.<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(3L));
+        reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher", Optional
+            .<NsiRequestDetails> absent())).thenReturn(new AsyncResult<Long>(3L));
 
     Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
@@ -306,10 +313,32 @@ public class ReservationServiceTest {
   }
 
   @Test
+  public void cancelAReservationWithStatusNOT_EXCEPTEDShouldNotChangeItsStatus() {
+    RichUserDetails richUserDetails = new RichUserDetailsFactory().create();
+
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.NOT_EXCEPTED).create();
+
+    Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
+
+    assertFalse(cancelFuture.isPresent());
+    assertThat(reservation.getStatus(), is(ReservationStatus.NOT_EXCEPTED));
+
+    verify(reservationRepoMock, never()).save(reservation);
+  }
+
+  @Test
   public void cancelAFailedReservationShouldNotChangeItsStatus() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.FAILED).create();
     subject.cancel(reservation, Security.getUserDetails());
     assertThat(reservation.getStatus(), is(ReservationStatus.FAILED));
+    verifyZeroInteractions(reservationRepoMock);
+  }
+
+  @Test
+  public void cancelANotExceptedReservationShouldNotChangeItsStatus() {
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.NOT_EXCEPTED).create();
+    subject.cancel(reservation, Security.getUserDetails());
+    assertThat(reservation.getStatus(), is(ReservationStatus.NOT_EXCEPTED));
     verifyZeroInteractions(reservationRepoMock);
   }
 
@@ -361,7 +390,8 @@ public class ReservationServiceTest {
     }
 
     List<Long> filterResult = Lists.newArrayList(2L);
-    List<Reservation> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(searchResult, filterResult);
+    List<Reservation> intersectedResult = reservationService.intersectFullTextResultAndFilterResult(searchResult,
+        filterResult);
 
     assertThat(intersectedResult, hasSize(1));
     assertThat(Iterables.getOnlyElement(intersectedResult).getId(), is(2L));

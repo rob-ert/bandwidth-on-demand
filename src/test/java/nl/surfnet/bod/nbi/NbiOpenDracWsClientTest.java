@@ -21,17 +21,15 @@
  */
 package nl.surfnet.bod.nbi;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringServiceFault;
 import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
 import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingService_v30Stub;
@@ -56,6 +54,12 @@ import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.Crea
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.CreateReservationScheduleResponseDocument;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.PathRequestT;
 import org.opendrac.www.ws.resourceallocationandschedulingservicetypes_v3_0.ValidProtectionTypeT;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NbiOpenDracWsClientTest {
@@ -131,7 +135,7 @@ public class NbiOpenDracWsClientTest {
 
     Reservation scheduledReservation = subject.createReservation(reservation, true);
 
-    assertThat(scheduledReservation.getStatus(), is(ReservationStatus.FAILED));
+    assertThat(scheduledReservation.getStatus(), is(ReservationStatus.NOT_EXCEPTED));
     assertThat(scheduledReservation.getFailedReason(), is("No available bandwidth on source port"));
   }
 

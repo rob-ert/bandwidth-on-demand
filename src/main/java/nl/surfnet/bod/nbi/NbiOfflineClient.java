@@ -21,11 +21,6 @@
  */
 package nl.surfnet.bod.nbi;
 
-import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
-import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,12 +39,21 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.*;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
 
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.NOT_EXCEPTED;
+import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
 class NbiOfflineClient implements NbiClient {
 
@@ -135,8 +139,9 @@ class NbiOfflineClient implements NbiClient {
 
     if (autoProvision) {
       if (reservation.getBandwidth() == 666) {
-        reservation.setStatus(FAILED);
-      } else {
+        reservation.setStatus(NOT_EXCEPTED);
+      }
+      else {
         reservation.setStatus(SCHEDULED);
       }
     }
@@ -181,6 +186,8 @@ class NbiOfflineClient implements NbiClient {
       return ReservationStatus.SUCCEEDED;
     case FAILED:
       return ReservationStatus.FAILED;
+    case NOT_EXCEPTED:
+      return ReservationStatus.NOT_EXCEPTED;
     case CANCELLED:
       return ReservationStatus.CANCELLED;
     default:

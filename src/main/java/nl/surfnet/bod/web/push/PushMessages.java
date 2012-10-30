@@ -45,7 +45,7 @@ public final class PushMessages {
     String message = WebUtils.getMessageWithBoldArguments(messageSource, "info_reservation_statuschanged",
         reservation.getName(), reservationStatusChangeEvent.getOldStatus().name(), reservation.getStatus().name());
 
-    if (reservation.getStatus().equals(ReservationStatus.FAILED) && reservation.getFailedReason() != null) {
+    if (ReservationStatus.ERROR_STATES.contains(reservation.getStatus()) && reservation.getFailedReason() != null) {
       message += String.format(" Failed because '%s'.", reservation.getFailedReason());
     }
 
