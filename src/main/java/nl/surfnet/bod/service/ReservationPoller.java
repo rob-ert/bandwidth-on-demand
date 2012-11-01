@@ -31,6 +31,7 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.event.LogEvent;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ import com.google.common.util.concurrent.Uninterruptibles;
  * {@link #monitorStatus(Reservation)}, whenever a state change is detected the
  * new state will be updated in the specific {@link Reservation} object and will
  * be persisted. The scheduler will be cancelled afterwards.
- *
+ * 
  */
 @Component
 @Transactional
@@ -130,16 +131,16 @@ public class ReservationPoller {
               currentStatus, reservationFresh.getReservationId() });
 
           reservationFresh.setStatus(currentStatus);
-          reservationService.updateWithReason(reservationFresh,
-              reservationService.getStateChangeLogStatement(reservationFresh.getName(), currentStatus, startStatus));
+          reservationService.updateWithReason(reservationFresh, LogEvent.getStateChangeMessage(reservationFresh,
+              startStatus));
 
           if (reservationFresh.getConnection() == null) {
             reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservationFresh));
           }
           else {
             NsiRequestDetails requestDetails = reservationFresh.getConnection().getProvisionRequestDetails();
-            reservationEventPublisher.notifyListeners(
-                new ReservationStatusChangeEvent(startStatus, reservationFresh, Optional.of(requestDetails)));
+            reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservationFresh,
+                Optional.of(requestDetails)));
           }
 
           return;

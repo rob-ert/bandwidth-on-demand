@@ -32,6 +32,8 @@ import javax.persistence.Id;
 
 import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.PersistableDomain;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.util.TimeStampBridge;
 import nl.surfnet.bod.web.WebUtils;
 
@@ -150,6 +152,15 @@ public class LogEvent implements PersistableDomain {
 
   public static String getDomainObjectName(Class<? extends Loggable> domainClass) {
     return domainClass.getSimpleName();
+  }
+
+  public static String getStateChangeMessage(final Reservation reservation, final ReservationStatus oldStatus) {
+    return reservation.getLabel() + ": changed state from [" + oldStatus
+        + getStateChangeMessageNewStatusPart(reservation.getStatus());
+  }
+
+  public static String getStateChangeMessageNewStatusPart(final ReservationStatus status) {
+    return "] to [" + status + "]";
   }
 
   public DateTime getCreated() {

@@ -21,7 +21,12 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -31,7 +36,13 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.Loggable;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.event.EntityStatistics;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
@@ -107,15 +118,58 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     }
   }
 
+  private Specification<LogEvent> specLogEventsByDomainClassAndCreatedBetween(
+      final Class<? extends Loggable> domainClass, final DateTime start, final DateTime end) {
+
+    final Specification<LogEvent> spec = new Specification<LogEvent>() {
+      @Override
+      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.and(cb.equal(root.get(LogEvent_.domainObjectClass), LogEvent.getDomainObjectName(domainClass)), cb
+            .between(root.get(LogEvent_.created), start, end));
+      }
+    };
+
+    return spec;
+  }
+
+  private static Specification<LogEvent> specLogEventsByIdAndDomainClassAndDescriptionPart(final Loggable domainObject,
+      final String textPart) {
+
+    final Specification<LogEvent> specId = new Specification<LogEvent>() {
+
+      @Override
+      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.equal(root.get(LogEvent_.id), domainObject.getId());
+      }
+    };
+
+    return Specifications.where(specId).and(
+        specLogEventsByDomainClassAndDescriptionPart(domainObject.getClass(), Optional.of(textPart)));
+  }
+
   private static Specification<LogEvent> specLogEventsByDomainClassAndDescriptionPart(
-      final Class<? extends Loggable> domainClass, final String textPart) {
+      final Class<? extends Loggable> domainClass, final Optional<String> textPart) {
 
     final Specification<LogEvent> spec = new Specification<LogEvent>() {
 
       @Override
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(cb.equal(root.get(LogEvent_.domainObjectClass), LogEvent.getDomainObjectName(domainClass)), cb
-            .like(root.get(LogEvent_.description), textPart));
+        final Predicate predicate;
+
+        Predicate domainClassPredicate = cb.equal(root.get(LogEvent_.domainObjectClass), LogEvent
+            .getDomainObjectName(domainClass));
+
+        if (textPart.isPresent()) {
+          Predicate textPartPredicate = cb.or(cb.like(root.get(LogEvent_.description), textPart.get()), cb.like(root
+              .get(LogEvent_.details), textPart.get()));
+
+          predicate = cb.and(domainClassPredicate, textPartPredicate);
+        }
+        else {
+          predicate = domainClassPredicate;
+        }
+
+        return predicate;
       }
     };
     return spec;
@@ -394,9 +448,17 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(determinGroupsToSearchFor)));
   }
 
-  public List<LogEvent> findByDomainClassAndDescriptionPartForNoc(final Class<? extends Loggable> domainClass,
-      final String textPart) {
+  public List<LogEvent> findByDomainClassCreatedBetweenForNoc(final Class<? extends Loggable> domainClass,
+      DateTime start, DateTime end) {
 
-    return logEventRepo.findAll(specLogEventsByDomainClassAndDescriptionPart(domainClass, textPart));
+    return logEventRepo.findAll(specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end));
   }
+
+  public boolean didReservationEverTransitionToStatus(Reservation reservation, ReservationStatus status) {
+    long count = logEventRepo.count(specLogEventsByIdAndDomainClassAndDescriptionPart(reservation, LogEvent
+        .getStateChangeMessageNewStatusPart(status)));
+
+    return count > 0;
+  }
+
 }

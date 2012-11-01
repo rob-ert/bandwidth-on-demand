@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +29,7 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.Security;
@@ -44,10 +43,12 @@ import org.springframework.stereotype.Service;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Uninterruptibles;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @Service
 public class ReservationToNbi {
 
-  private Logger logger = LoggerFactory.getLogger(ReservationToNbi.class);
+  private final Logger logger = LoggerFactory.getLogger(ReservationToNbi.class);
 
   @Resource
   private NbiClient nbiClient;
@@ -138,16 +139,10 @@ public class ReservationToNbi {
     ReservationStatusChangeEvent createEvent = new ReservationStatusChangeEvent(originalStatus, reservation,
         nsiRequestDetails);
 
-    logEventService.logUpdateEvent(
-        Security.getUserDetails(),
-        reservation,
-        logStateChange(createEvent.getReservation().getName(), createEvent.getReservation().getStatus(),
-            createEvent.getOldStatus()));
+    logEventService.logUpdateEvent(Security.getUserDetails(), reservation, LogEvent.getStateChangeMessage(createEvent
+        .getReservation(), createEvent.getOldStatus()));
 
     reservationEventPublisher.notifyListeners(createEvent);
   }
 
-  public String logStateChange(final String reservationName, final ReservationStatus newStatus, final ReservationStatus oldStatus) {
-    return reservationName + ": changed state from [" + oldStatus + "] to [" + newStatus + "]";
-  }
 }

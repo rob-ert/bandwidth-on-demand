@@ -164,7 +164,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     // async reserve
     reservation = reservationRepo.saveAndFlush(reservation);
 
-    //Log event after creation, so the ID is set by hibernate
+    // Log event after creation, so the ID is set by hibernate
     logEventService.logCreateEvent(Security.getUserDetails(), reservation, "Created reservation with name: "
         + reservation.getName());
 
@@ -405,29 +405,26 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       }
     };
   }
-  
+
   private Specification<Reservation> specByVirtualPortAndManager(final VirtualPort port, final RichUserDetails user) {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         final Long prgId = user.getSelectedRole().getPhysicalResourceGroupId().get();
-        return cb.and(cb.or(
-            cb.equal(
-                root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort)
-                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId),
-            cb.equal(
-                root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort)
-                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId)));
+        return cb.and(cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort).get(
+            PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId), cb.equal(root.get(
+            Reservation_.destinationPort).get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(
+            PhysicalResourceGroup_.id), prgId)));
       }
     };
   }
-  
+
   private Specification<Reservation> specByVirtualPort(final VirtualPort port) {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(cb.equal(root.get(Reservation_.sourcePort), port),
-            cb.equal(root.get(Reservation_.destinationPort), port));
+        return cb.or(cb.equal(root.get(Reservation_.sourcePort), port), cb.equal(
+            root.get(Reservation_.destinationPort), port));
       }
     };
   }
@@ -591,7 +588,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
     Collection<ReservationArchive> reservationArchives = transformToReservationArchives(reservations);
     reservationArchiveRepo.save(reservationArchives);
-    //Log event after creation, so the ID is set by hibernate
+    // Log event after creation, so the ID is set by hibernate
     logEventService.logCreateEvent(Security.getUserDetails(), reservationArchives, "Archived due to cancel");
 
     reservationRepo.delete(reservations);
@@ -605,14 +602,14 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public Collection<Reservation> findActiveByPhysicalPort(final PhysicalPort port) {
     return reservationRepo.findAll(Specifications.where(specByPhysicalPort(port)).and(specActiveReservations()));
   }
-  
+
   public Collection<Reservation> findAllActiveByVirtualPort(final VirtualPort port) {
     return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations()));
   }
-  
+
   public Collection<Reservation> findAllActiveByVirtualPortForManager(final VirtualPort port, final RichUserDetails user) {
-    return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations())
-        .and(specByVirtualPortAndManager(port, user)));
+    return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations()).and(
+        specByVirtualPortAndManager(port, user)));
   }
 
   public long countActiveReservationsForPhysicalPort(final PhysicalPort port) {
@@ -646,11 +643,6 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   @Override
   protected EntityManager getEntityManager() {
     return entityManager;
-  }
-
-  public String getStateChangeLogStatement(final String reservationName, ReservationStatus currentStatus,
-      ReservationStatus startStatus) {
-    return reservationToNbi.logStateChange(reservationName, currentStatus, startStatus);
   }
 
   @VisibleForTesting
