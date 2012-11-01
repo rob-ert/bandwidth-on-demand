@@ -23,6 +23,7 @@ public class VerifySelectedRoleFilter extends OncePerRequestFilter implements Fi
   private static final Collection<String> USER_PATHS = Lists.newArrayList(
       "/reservations",
       "/user",
+      "/teams",
       "/virtualports",
       "/oauth2",
       "/request",
