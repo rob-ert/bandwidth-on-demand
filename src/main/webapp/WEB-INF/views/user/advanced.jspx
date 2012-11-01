@@ -9,7 +9,6 @@
 <section>
   <h2>Advanced</h2>
   <div class="content">
-    <p>Some pages with some advanced functionallity.<!--  --></p>
       <div class="form">
         <div class="message">
           <h3>Advanced Pages</h3>
@@ -19,9 +18,10 @@
             <spring:url var="oauth_url" value="/oauth2/tokens" />
             <a href="${oauth_url}"><spring:message code="menu_nsi_label"/></a></dt>
           <dd>
-            If you make use of NSI to create reservations through Bandwidth on Demand you need an OAuth2 Access Token.
+            When you make use of NSI to create reservations through Bandwidth on Demand you need an OAuth2 Access Token. The Access Token is used
+            to authenticate and authorize your NSI request.
             When your client is not capable of doing OAuth2 (eg. it is a command line client) BoD can provide you with such an access token.<br/>
-            If you click on this link you may be redirected to SURFConext so an access token on behalf of you can be created.
+            <strong>If you click on this link you may be redirected to SURFconext so an access token on behalf of you can be created.</strong>
           </dd>
           <dt>
             <spring:url var="teams_url" value="/teams" />
