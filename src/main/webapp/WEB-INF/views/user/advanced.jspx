@@ -20,14 +20,14 @@
           <dd>
             When you make use of NSI to create reservations through Bandwidth on Demand you need an OAuth2 Access Token. The Access Token is used
             to authenticate and authorize your NSI request.
-            When your client is not capable of doing OAuth2 (eg. it is a command line client) BoD can provide you with such an access token.<br/>
+            When your client is not capable of doing OAuth2 (e.g. it is a command line client) BoD can provide you with such an access token.<br/>
             <strong>If you click on this link you may be redirected to SURFconext so an access token on behalf of you can be created.</strong>
           </dd>
           <dt>
             <spring:url var="teams_url" value="/teams" />
-            <a href="${teams_url}">All your SURFConext teams</a>
+            <a href="${teams_url}">All your SURFconext teams</a>
           </dt>
-          <dd>Dispalys all your SURFConext teams.</dd>
+          <dd>Displays all your SURFconext teams.</dd>
         </dl>
       </div>
   </div>
