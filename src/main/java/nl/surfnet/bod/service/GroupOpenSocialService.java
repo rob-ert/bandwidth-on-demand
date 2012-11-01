@@ -58,7 +58,7 @@ public class GroupOpenSocialService implements GroupService {
 
   private Logger logger = LoggerFactory.getLogger(GroupOpenSocialService.class);
 
-  @Resource
+  @Resource(name = "bodEnvironment")
   private Environment env;
 
   @Resource

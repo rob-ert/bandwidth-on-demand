@@ -21,12 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -36,12 +31,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.Loggable;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.event.EntityStatistics;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
@@ -77,7 +67,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   @Resource
   private LogEventRepo logEventRepo;
 
-  @Resource
+  @Resource(name = "bodEnvironment")
   private Environment environment;
 
   @Resource
@@ -295,10 +285,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    * domainObject with one a specific type, as determined by
    * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
    * {@link LogEventRepo}
-   * 
+   *
    * @param logger
    *          Logger to write to
-   * 
+   *
    * @param logEvent
    *          LogEvent to handle
    */
@@ -343,7 +333,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    * <li>VirtualPort</li>
    * <li>Institute</li>
    * </ul>
-   * 
+   *
    * @param logEvent
    * @return true when the {@link LogEvent#getDescription()} matches one of the
    *         listed above, false otherwise.
@@ -371,7 +361,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   /**
    * Delegates to {@link #handleEvent(Logger, LogEvent)}
-   * 
+   *
    * @param logEvent
    */
   private void handleEvent(LogEvent logEvent) {

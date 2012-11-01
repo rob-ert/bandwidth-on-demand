@@ -67,7 +67,7 @@ public class OAuthServerService {
 
   private final Logger logger = LoggerFactory.getLogger(OAuthServerService.class);
 
-  @Resource
+  @Resource(name = "bodEnvironment")
   private Environment env;
 
   @Resource

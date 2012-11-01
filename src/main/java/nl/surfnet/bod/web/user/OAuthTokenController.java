@@ -60,7 +60,7 @@ public class OAuthTokenController {
   @Resource
   private BodAccountRepo bodAccountRepo;
 
-  @Resource
+  @Resource(name = "bodEnvironment")
   private Environment env;
 
   @Resource

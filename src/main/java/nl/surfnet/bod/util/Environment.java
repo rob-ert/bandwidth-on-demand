@@ -25,7 +25,7 @@ import org.joda.time.DateTimeZone;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("bodEnvironment")
 public class Environment {
 
   @Value("${shibboleth.imitate}")

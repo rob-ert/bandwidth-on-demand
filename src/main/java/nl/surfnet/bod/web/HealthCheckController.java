@@ -56,8 +56,8 @@ public class HealthCheckController {
   @Resource
   private GroupService groupService;
 
-  @Resource
-  private Environment env;
+  @Resource(name = "bodEnvironment")
+  private Environment environment;
 
   @RequestMapping(value = "/healthcheck")
   public String index(Model model) {
@@ -80,7 +80,7 @@ public class HealthCheckController {
       @Override
       public boolean healty() throws IOException {
         DefaultHttpClient client = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet(env.getOauthServerUrl() + "/admin");
+        HttpGet httpGet = new HttpGet(environment.getOauthServerUrl() + "/admin");
         HttpResponse response = client.execute(httpGet);
         httpGet.releaseConnection();
         return response.getStatusLine().getStatusCode() == HttpStatus.SC_FORBIDDEN;

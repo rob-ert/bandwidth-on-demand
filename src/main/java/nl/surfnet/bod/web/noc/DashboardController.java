@@ -63,7 +63,7 @@ public class DashboardController {
   @Resource
   private MessageSource messageSource;
 
-  @Resource
+  @Resource(name = "bodEnvironment")
   private Environment environment;
 
   @Resource

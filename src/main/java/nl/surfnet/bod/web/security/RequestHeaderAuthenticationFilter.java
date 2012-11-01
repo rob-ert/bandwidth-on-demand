@@ -67,7 +67,7 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
       }
     };
 
-  @Resource
+  @Resource(name = "bodEnvironment")
   private Environment env;
 
   @Resource

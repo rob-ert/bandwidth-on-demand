@@ -39,7 +39,7 @@ public class EmailSenderOffline extends EmailSenderOnline {
   @Resource
   private LogEventService logEventService;
 
-  @Resource
+  @Resource(name = "bodEnvironment")
   private Environment environment;
 
   @Override

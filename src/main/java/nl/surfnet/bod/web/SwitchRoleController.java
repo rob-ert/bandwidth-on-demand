@@ -52,7 +52,7 @@ public class SwitchRoleController {
   @Resource
   private PhysicalResourceGroupService physicalResourceGroupService;
 
-  @Resource
+  @Resource(name = "bodEnvironment")
   private Environment environment;
 
   @Resource

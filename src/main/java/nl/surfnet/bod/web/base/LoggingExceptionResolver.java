@@ -25,14 +25,14 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import nl.surfnet.bod.service.EmailSender;
+import nl.surfnet.bod.util.Environment;
+import nl.surfnet.bod.web.security.Security;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
-
-import nl.surfnet.bod.service.EmailSender;
-import nl.surfnet.bod.util.Environment;
-import nl.surfnet.bod.web.security.Security;
 
 public class LoggingExceptionResolver extends SimpleMappingExceptionResolver {
 
@@ -41,7 +41,7 @@ public class LoggingExceptionResolver extends SimpleMappingExceptionResolver {
   @Resource
   private EmailSender emailSender;
 
-  @Resource
+  @Resource(name = "bodEnvironment")
   private Environment environment;
 
   @Override
