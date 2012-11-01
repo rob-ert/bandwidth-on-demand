@@ -7,6 +7,11 @@
         <put-attribute name="active_menu" value="overview" cascade="true" />
     </definition>
 
+    <definition extends="noc" name="noc/report">
+        <put-attribute name="body" value="/WEB-INF/views/noc/report.jspx" />
+        <!-- No menu item yet -->
+    </definition>
+
     <definition extends="noc" name="noc/teams/list">
         <put-attribute name="body" value="/WEB-INF/views/noc/teams/list.jspx" />
         <put-attribute name="active_menu" value="teams" cascade="true" />

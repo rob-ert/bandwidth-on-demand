@@ -1,0 +1,87 @@
+<html xmlns:spring="http://www.springframework.org/tags" xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
+    xmlns:sec="http://www.springframework.org/security/tags" xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:table="urn:jsptagdir:/WEB-INF/tags/table" >
+
+    <jsp:directive.page contentType="text/html;charset=UTF-8" />
+    <jsp:output omit-xml-declaration="yes" />
+
+    <div class="row">
+        <div class="span12">
+            <section>
+                <h1>Welcome NOC Engineer<util:timeZone/></h1>
+                <div class="content">
+                    <h3>Report from 01 Oct 2012 - 31 Oct 2012</h3>
+                 </div>
+            </section>
+        </div>
+        <div>
+        <section>
+            <div class="content">
+                   <table id="idReport" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th  rowspan="2">Reservations</th>
+                            <th  rowspan="2">Total</th>
+                            <th class="center cw65" colspan="2">Channel</th>
+                        </tr>
+                        <tr>
+                            <th class="center cw65 small subheader">NSI</th>
+                            <th class="center cw65 small subheader">GUI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>All</td>
+                            <td>999</td>
+                            <td>888</td>
+                            <td>777</td>
+                        </tr>
+                        <tr>
+                            <td>Protected</td>
+                            <td>999</td>
+                            <td>888</td>
+                            <td>777</td>
+                        </tr>
+                        <tr>
+                            <td>Unprotected</td>
+                            <td>999</td>
+                            <td>888</td>
+                            <td>777</td>
+                        </tr>
+                        <tr>
+                            <td>Redundant</td>
+                            <td>999</td>
+                            <td>888</td>
+                            <td>777</td>
+                        </tr>
+                        <tr>
+                            <td>Failed</td>
+                            <td>999</td>
+                            <td>888</td>
+                            <td>777</td>
+                        </tr>
+                        <tr>
+                            <td>Direct failed</td>
+                            <td>999</td>
+                            <td>888</td>
+                            <td>777</td>
+                        </tr>
+                        <tr>
+                            <td>Succeeded</td>
+                            <td>999</td>
+                            <td>888</td>
+                            <td>777</td>
+                        </tr>
+                        <tr>
+                            <td>Cancelled</td>
+                            <td>999</td>
+                            <td>888</td>
+                            <td>777</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+      </div>
+    </div>
+</html>
