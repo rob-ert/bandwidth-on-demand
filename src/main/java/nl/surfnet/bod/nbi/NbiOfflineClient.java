@@ -53,7 +53,7 @@ import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.NOT_EXCEPTED;
+import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
 import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
 
@@ -139,8 +139,8 @@ class NbiOfflineClient implements NbiClient {
       log.info("No startTime specified, using now: {}", reservation.getStartDateTime());
     }
 
-    if (StringUtils.containsIgnoreCase(reservation.getLabel(), NOT_EXCEPTED.name())) {
-      reservation.setStatus(NOT_EXCEPTED);
+    if (StringUtils.containsIgnoreCase(reservation.getLabel(), NOT_ACCEPTED.name())) {
+      reservation.setStatus(NOT_ACCEPTED);
     }
     else if (StringUtils.containsIgnoreCase(reservation.getLabel(), FAILED.name())) {
       reservation.setStatus(FAILED);

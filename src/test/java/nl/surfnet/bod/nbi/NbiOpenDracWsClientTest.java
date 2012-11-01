@@ -135,7 +135,7 @@ public class NbiOpenDracWsClientTest {
 
     Reservation scheduledReservation = subject.createReservation(reservation, true);
 
-    assertThat(scheduledReservation.getStatus(), is(ReservationStatus.NOT_EXCEPTED));
+    assertThat(scheduledReservation.getStatus(), is(ReservationStatus.NOT_ACCEPTED));
     assertThat(scheduledReservation.getFailedReason(), is("No available bandwidth on source port"));
   }
 

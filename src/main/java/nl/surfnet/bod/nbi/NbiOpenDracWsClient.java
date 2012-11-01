@@ -84,7 +84,7 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.NOT_EXCEPTED;
+import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
 import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
 import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
@@ -215,7 +215,7 @@ class NbiOpenDracWsClient implements NbiClient {
     }
     catch (ResourceAllocationAndSchedulingServiceFault e) {
       logger.warn("Creating a reservation failed", e);
-      reservation.setStatus(NOT_EXCEPTED);
+      reservation.setStatus(NOT_ACCEPTED);
     }
     catch (Exception e) {
       logger.error("Unexpected Exception while request reservation to OpenDRAC", e);
@@ -324,13 +324,13 @@ class NbiOpenDracWsClient implements NbiClient {
 
   protected static final class OpenDracStatusTranslator {
     private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationAutoProvionResultTranslations = new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_EXCEPTED).put(
+        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_ACCEPTED).put(
             ValidReservationScheduleCreationResultT.SUCCEEDED, SCHEDULED).put(
             ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, SCHEDULED).put(
             ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
 
     private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationResultTranslations = new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_EXCEPTED).put(
+        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_ACCEPTED).put(
             ValidReservationScheduleCreationResultT.SUCCEEDED, RESERVED).put(
             ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, RESERVED).put(
             ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();

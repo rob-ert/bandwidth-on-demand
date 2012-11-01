@@ -41,7 +41,7 @@ import com.google.common.base.Optional;
 
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.NOT_EXCEPTED;
+import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
 import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
@@ -87,7 +87,7 @@ public class ConnectionServiceProviderListenerTest {
 
     Connection connection = new ConnectionFactory().setCurrentState(ConnectionStateType.RESERVING).create();
     Reservation reservation = new ReservationFactory()
-      .setStatus(NOT_EXCEPTED)
+      .setStatus(NOT_ACCEPTED)
       .setConnection(connection)
       .setFailedReason(failedReason).create();
     ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(REQUESTED, reservation, requestDetails);

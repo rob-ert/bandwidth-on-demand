@@ -313,15 +313,15 @@ public class ReservationServiceTest {
   }
 
   @Test
-  public void cancelAReservationWithStatusNOT_EXCEPTEDShouldNotChangeItsStatus() {
+  public void cancelAReservationWithStatusNOT_ACCEPTEDShouldNotChangeItsStatus() {
     RichUserDetails richUserDetails = new RichUserDetailsFactory().create();
 
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.NOT_EXCEPTED).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.NOT_ACCEPTED).create();
 
     Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
     assertFalse(cancelFuture.isPresent());
-    assertThat(reservation.getStatus(), is(ReservationStatus.NOT_EXCEPTED));
+    assertThat(reservation.getStatus(), is(ReservationStatus.NOT_ACCEPTED));
 
     verify(reservationRepoMock, never()).save(reservation);
   }
@@ -336,9 +336,9 @@ public class ReservationServiceTest {
 
   @Test
   public void cancelANotExceptedReservationShouldNotChangeItsStatus() {
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.NOT_EXCEPTED).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.NOT_ACCEPTED).create();
     subject.cancel(reservation, Security.getUserDetails());
-    assertThat(reservation.getStatus(), is(ReservationStatus.NOT_EXCEPTED));
+    assertThat(reservation.getStatus(), is(ReservationStatus.NOT_ACCEPTED));
     verifyZeroInteractions(reservationRepoMock);
   }
 

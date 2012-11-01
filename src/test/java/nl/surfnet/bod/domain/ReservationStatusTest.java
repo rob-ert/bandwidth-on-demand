@@ -41,7 +41,7 @@ public class ReservationStatusTest {
   @Test
   public void someStatesShouldBeEndStates() {
     assertThat(ReservationStatus.FAILED.isEndState(), is(true));
-    assertThat(ReservationStatus.NOT_EXCEPTED.isEndState(), is(true));
+    assertThat(ReservationStatus.NOT_ACCEPTED.isEndState(), is(true));
     assertThat(ReservationStatus.CANCELLED.isEndState(), is(true));
 
     assertThat(ReservationStatus.PREPARING.isEndState(), is(false));
@@ -60,7 +60,7 @@ public class ReservationStatusTest {
   public void forTheseStateShouldDeletionNotBeAllowed() {
     assertThat(ReservationStatus.CANCELLED.isDeleteAllowed(), is(false));
     assertThat(ReservationStatus.FAILED.isDeleteAllowed(), is(false));
-    assertThat(ReservationStatus.NOT_EXCEPTED.isDeleteAllowed(), is(false));
+    assertThat(ReservationStatus.NOT_ACCEPTED.isDeleteAllowed(), is(false));
     assertThat(ReservationStatus.SUCCEEDED.isDeleteAllowed(), is(false));
   }
 

@@ -86,7 +86,7 @@ public class ConnectionServiceProviderListener implements ReservationListener {
     case FAILED:
       handleReservationFailed(connection, event);
       break;
-    case NOT_EXCEPTED:
+    case NOT_ACCEPTED:
       handleReservationFailed(connection, event);
       break;
     case RUNNING:

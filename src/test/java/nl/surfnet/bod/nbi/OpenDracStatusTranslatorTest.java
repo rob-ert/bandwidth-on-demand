@@ -37,7 +37,7 @@ public class OpenDracStatusTranslatorTest {
   public void failedShouldTranslateToFailed() {
     ReservationStatus status = OpenDracStatusTranslator.translate(ValidReservationScheduleCreationResultT.FAILED, true);
 
-    assertThat(status, is(ReservationStatus.NOT_EXCEPTED));
+    assertThat(status, is(ReservationStatus.NOT_ACCEPTED));
   }
 
   @Test
