@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -28,8 +30,6 @@ import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
 
 @Component
 public class ReservationEventPublisher {
@@ -39,23 +39,26 @@ public class ReservationEventPublisher {
   @Resource
   private LogEventService logEventService;
 
-  private final List<ReservationListener> listeners = Lists.newArrayList();
+  private final List<ReservationListener> listeners = Collections.synchronizedList(new ArrayList<ReservationListener>());
 
   public void addListener(ReservationListener reservationListener) {
-    this.listeners.add(reservationListener);
+    listeners.add(reservationListener);
   }
 
   public void notifyListeners(ReservationStatusChangeEvent changeEvent) {
     logger.debug("Notifying {} listeners of event", listeners.size());
 
-    try {
+    synchronized (listeners) {
       for (ReservationListener listener : listeners) {
         logger.debug("Listern {}", listener.getClass());
-        listener.onStatusChange(changeEvent);
+        try {
+          listener.onStatusChange(changeEvent);
+        }
+        catch (Throwable e) {
+          logger.error("Failed to notify a listener " + listener, e);
+          throw e;
+        }
       }
-    }
-    catch (Throwable e) {
-      e.printStackTrace();
     }
   }
 
