@@ -56,6 +56,7 @@ import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
 import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import static nl.surfnet.bod.domain.ReservationStatus.TIMED_OUT;;
 
 class NbiOfflineClient implements NbiClient {
 
@@ -144,6 +145,9 @@ class NbiOfflineClient implements NbiClient {
     }
     else if (StringUtils.containsIgnoreCase(reservation.getLabel(), FAILED.name())) {
       reservation.setStatus(FAILED);
+    }
+    else if (StringUtils.containsIgnoreCase(reservation.getLabel(), TIMED_OUT.name())) {
+      reservation.setStatus(TIMED_OUT);
     }
     else if (autoProvision) {
       reservation.setStatus(SCHEDULED);
