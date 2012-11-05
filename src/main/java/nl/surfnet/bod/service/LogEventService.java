@@ -31,22 +31,16 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.event.EntityStatistics;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
-import nl.surfnet.bod.event.LogEvent_;
 import nl.surfnet.bod.repo.LogEventRepo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.WebUtils;
@@ -58,15 +52,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
+
+import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
+import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByDomainClassAndCreatedBetween;
+import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specStatistics;
 
 @Service
 public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
@@ -86,95 +82,6 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   @PersistenceContext
   private EntityManager entityManager;
-
-  private static Specification<LogEvent> specLogEventsByAdminGroups(final Collection<String> adminGroups) {
-    return new Specification<LogEvent>() {
-      @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
-        return cb.and(root.get(LogEvent_.adminGroup).in(adminGroups));
-      }
-    };
-  }
-
-  private static Specification<LogEvent> specStatistics(Collection<String> adminGroups, final LogEventType eventType,
-      final String domainObjectClass, final DateTime start, final DateTime end) {
-
-    final Specification<LogEvent> specStatistics = new Specification<LogEvent>() {
-
-      @Override
-      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(cb.equal(root.get(LogEvent_.eventType), eventType), (cb.equal(root
-            .get(LogEvent_.domainObjectClass), domainObjectClass)), (cb
-            .between(root.get(LogEvent_.created), start, end)));
-      }
-    };
-
-    if (CollectionUtils.isEmpty(adminGroups)) {
-      return specStatistics;
-    }
-    else {
-      return Specifications.where(specLogEventsByAdminGroups(adminGroups)).and(specStatistics);
-    }
-  }
-
-  private Specification<LogEvent> specLogEventsByDomainClassAndCreatedBetween(
-      final Class<? extends Loggable> domainClass, final DateTime start, final DateTime end) {
-
-    final Specification<LogEvent> spec = new Specification<LogEvent>() {
-      @Override
-      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(cb.equal(root.get(LogEvent_.domainObjectClass), LogEvent.getDomainObjectName(domainClass)), cb
-            .between(root.get(LogEvent_.created), start, end));
-      }
-    };
-
-    return spec;
-  }
-
-  private static Specification<LogEvent> specLogEventsByIdAndDomainClassAndDescriptionPart(final Loggable domainObject,
-      final String textPart) {
-
-    final Specification<LogEvent> specId = new Specification<LogEvent>() {
-
-      @Override
-      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.equal(root.get(LogEvent_.id), domainObject.getId());
-      }
-    };
-
-    return Specifications.where(specId).and(
-        specLogEventsByDomainClassAndDescriptionPart(domainObject.getClass(), Optional.of(textPart)));
-  }
-
-  private static Specification<LogEvent> specLogEventsByDomainClassAndDescriptionPart(
-      final Class<? extends Loggable> domainClass, final Optional<String> textPart) {
-
-    final Specification<LogEvent> spec = new Specification<LogEvent>() {
-
-      @Override
-      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        final Predicate predicate;
-
-        Predicate domainClassPredicate = cb.equal(root.get(LogEvent_.domainObjectClass), LogEvent
-            .getDomainObjectName(domainClass));
-
-        if (textPart.isPresent()) {
-          Predicate textPartPredicate = cb.or(cb.like(root.get(LogEvent_.description), textPart.get()), cb.like(root
-              .get(LogEvent_.details), textPart.get()));
-
-          predicate = cb.and(domainClassPredicate, textPartPredicate);
-        }
-        else {
-          predicate = domainClassPredicate;
-        }
-
-        return predicate;
-      }
-    };
-    return spec;
-
-  }
 
   public void logCreateEvent(RichUserDetails user, Loggable domainObject) {
     logCreateEvent(user, domainObject, null);
@@ -339,10 +246,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    * domainObject with one a specific type, as determined by
    * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
    * {@link LogEventRepo}
-   *
+   * 
    * @param logger
    *          Logger to write to
-   *
+   * 
    * @param logEvent
    *          LogEvent to handle
    */
@@ -387,7 +294,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    * <li>VirtualPort</li>
    * <li>Institute</li>
    * </ul>
-   *
+   * 
    * @param logEvent
    * @return true when the {@link LogEvent#getDescription()} matches one of the
    *         listed above, false otherwise.
@@ -415,7 +322,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   /**
    * Delegates to {@link #handleEvent(Logger, LogEvent)}
-   *
+   * 
    * @param logEvent
    */
   private void handleEvent(LogEvent logEvent) {
@@ -454,11 +361,8 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logEventRepo.findAll(specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end));
   }
 
-  public boolean didReservationEverTransitionToStatus(Reservation reservation, ReservationStatus status) {
-    long count = logEventRepo.count(specLogEventsByIdAndDomainClassAndDescriptionPart(reservation, LogEvent
-        .getStateChangeMessageNewStatusPart(status)));
-
-    return count > 0;
+  public long count(Specification<LogEvent> spec) {
+    return logEventRepo.count(spec);
   }
 
 }

@@ -58,6 +58,11 @@ public enum ReservationStatus {
 
   public static final ReservationStatus[] TRANSITION_STATES_AS_ARRAY = TRANSITION_STATES
       .toArray(new ReservationStatus[TRANSITION_STATES.size()]);
+  
+  /**
+   * States for reservations requests which made it to an actual reservation
+   */
+  public static final ReservationStatus[] REQUEST_SUCCEEDED = new ReservationStatus[] { SCHEDULED, RESERVED };
 
   /**
    * @return true if the reservationStatus is an endState, meaning no further

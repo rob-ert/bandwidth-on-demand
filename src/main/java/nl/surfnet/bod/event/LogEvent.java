@@ -21,6 +21,9 @@
  */
 package nl.surfnet.bod.event;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -161,6 +164,15 @@ public class LogEvent implements PersistableDomain {
 
   public static String getStateChangeMessageNewStatusPart(final ReservationStatus status) {
     return "] to [" + status + "]";
+  }
+
+  public static String[] getStateChangeMessageNewStatusPart(final ReservationStatus... states) {
+    List<String> statusMessages = new ArrayList<>();
+    for (ReservationStatus status : states) {
+      statusMessages.add(getStateChangeMessageNewStatusPart(status));
+    }
+
+    return statusMessages.toArray(new String[statusMessages.size()]);
   }
 
   public DateTime getCreated() {

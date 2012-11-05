@@ -16,7 +16,7 @@
         <util:timeZone />
       </h1>
       <div class="content">
-        <h3>Report from 01 Oct 2012 - 31 Oct 2012</h3>
+        <h3>Report from <spring:eval expression="report.periodStart"/> - <spring:eval expression="report.periodEnd"/></h3>
       </div>
     </section>
   </div>
@@ -32,61 +32,61 @@
           <tbody>
             <tr>
               <td>Reservation Requests</td>
-              <td>2000</td>
+              <td>${report.totalReservationRequests}</td>
               <td>
                 <table class="table  table-striped table-bordered">
                   <tr>
                     <td class="cw85">Failed</td>
-                    <td class="right">500</td>
+                    <td class="right">${report.amountFailedReservationRequests}</td>
                   </tr>
                   <tr>
                     <td>Succeeded</td>
-                    <td class="right">1500</td>
+                    <td class="right">${report.amountSucceededReservationRequests}</td>
                   </tr>
                 </table>
               </td>
             </tr>
             <tr>
               <td>Reservations</td>
-              <td>1500</td>
+              <td>${report.totalReservations}</td>
               <td>
                 <table class="table  table-striped table-bordered">
                   <tr>
                     <td class="cw85">Protected</td>
-                     <td class="right">888</td>
+                     <td class="right">${report.amountProtectedReservations}</td>
                   </tr>
                   <br />
                   <tr>
                     <td>Unprotected</td>
-                    <td class="right">122</td>
+                    <td class="right">${report.amountUnprotectedReservations}</td>
                   </tr>
                   <tr>
                     <td>Redundant</td>
-                    <td class="right">500</td>
+                    <td class="right">${report.amountRedundantReservations}</td>
                   </tr>
                 </table> <br />
                 <table class="table  table-striped table-bordered">
                   <tr>
                     <td class="cw85">NSI</td>
-                    <td class="right">900</td>
+                    <td class="right">${report.amountNSIReservations}</td>
                   </tr>
                   <tr>
                     <td>GUI</td>
-                    <td class="right">600</td>
+                    <td class="right">${report.amountGUIReservations}</td>
                   </tr>
                 </table> <br />
                 <table class="table  table-striped table-bordered">
                 <tr>
                     <td class="cw85">Execution succeeded</td>
-                    <td class="right">1200</td>
+                    <td class="right">${report.amountSucceededReservations}</td>
                   </tr>
                   <tr>
                     <td>Execution cancelled</td>
-                    <td class="right">200</td>
+                    <td class="right">${report.amountCancelledReservations}</td>
                   </tr>
                   <tr>
                     <td>Execution failed</td>
-                    <td class="right">100</td>
+                    <td class="right">${report.amountFailedReservations}</td>
                   </tr>
                 </table>
               </td>

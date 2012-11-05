@@ -42,6 +42,7 @@ import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalPort_;
 import nl.surfnet.bod.domain.PhysicalResourceGroup_;
+import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationArchive;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -50,6 +51,7 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPort_;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
@@ -74,6 +76,7 @@ import org.springframework.util.StringUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
@@ -86,6 +89,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import static nl.surfnet.bod.domain.ReservationStatus.PREPARING;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByDomainClassAndDescriptionPartBetween;
 
 @Service
 @Transactional
@@ -294,6 +298,33 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     reservations.addAll(findReservationWithStatus(RUNNING, PREPARING));
 
     return reservations;
+  }
+
+  public long countReservationsWithEndStateBetween(ReservationStatus status, DateTime start, DateTime end) {
+    Preconditions.checkArgument(status.isEndState());
+
+    return logEventService.count(specLogEventsByDomainClassAndDescriptionPartBetween(Reservation.class, start, end,
+        LogEvent.getStateChangeMessageNewStatusPart(status)));
+  }
+
+  public long countReservationsWhichOnceHadStateBetween(DateTime start, DateTime end, ReservationStatus... states) {
+
+    return logEventService.count(specLogEventsByDomainClassAndDescriptionPartBetween(Reservation.class, start, end,
+        LogEvent.getStateChangeMessageNewStatusPart(states)));
+  }
+
+  public long countReservationsWithProtectionTypeBetween(ProtectionType protectionType, DateTime start, DateTime end) {
+
+    Preconditions.checkNotNull(protectionType);
+
+    return 999;
+    // return
+    // logEventService.count(LogEventPredicatesAndSpecifications.specReservationByProtectionTypeBetween(
+    // getEntityManager(), Reservation.class, start, end, protectionType));
+  }
+
+  public long countReservationsCreatedThroughChannelGUI(DateTime start, DateTime end) {
+    return countReservationsWhichOnceHadStateBetween(start, end, ReservationStatus.SCHEDULED);
   }
 
   private void correctStart(Reservation reservation) {
