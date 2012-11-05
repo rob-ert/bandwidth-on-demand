@@ -21,13 +21,10 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD.NOT_IMPLEMENTED;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_CONFIRMED;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_FAILED;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
+import static com.google.common.base.Preconditions.*;
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD.*;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.*;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +33,38 @@ import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceContext;
+
+import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
+import oasis.names.tc.saml._2_0.assertion.AttributeType;
+
+import org.ogf.schemas.nsi._2011._10.connection._interface.ForcedEndRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReleaseRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
+import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
+import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericRequestType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ObjectFactory;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
+import com.sun.xml.ws.developer.SchemaValidation;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
@@ -49,22 +78,6 @@ import nl.surfnet.bod.service.ConnectionServiceProviderService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
-import oasis.names.tc.saml._2_0.assertion.AttributeType;
-
-import org.ogf.schemas.nsi._2011._10.connection._interface.*;
-import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
-import org.ogf.schemas.nsi._2011._10.connection.types.ObjectFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
-import com.sun.xml.ws.developer.SchemaValidation;
 
 @Service("connectionServiceProviderWs_v1sc")
 @WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider")
@@ -396,6 +409,37 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     // This is an incoming response. But for now we don't do any queries.
     throw new UnsupportedOperationException("Not implemented yet.");
   }
+  
+  @Override
+  public void forceEnd(Connection connection, Optional<NsiRequestDetails> nsiRequestDetails) {
+    if (nsiRequestDetails.isPresent()) {
+      try {
+
+        // final TerminateRequestType terminateRequest = new
+        // TerminateRequestType();
+        // terminateRequest.setCorrelationId(nsiRequestDetails.get().getCorrelationId());
+        // terminateRequest.setReplyTo(nsiRequestDetails.get().getReplyTo());
+
+        final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(nsiRequestDetails.get());
+        final GenericRequestType genericRequest = CONNECTION_TO_GENERIC_RQUEST.apply(connection);
+
+        // terminateRequest.setTerminate(genericRequest);
+        // terminate(terminateRequest);
+
+        connectionServiceProviderService.terminate(connection.getId(), connection.getRequesterNsa(),
+            nsiRequestDetails.get());
+
+        final ForcedEndRequestType forcedEndRequestType = new ForcedEndRequestType();
+        forcedEndRequestType.setCorrelationId(nsiRequestDetails.get().getCorrelationId());
+        forcedEndRequestType.setForcedEnd(genericRequest);
+        port.forcedEnd(forcedEndRequestType);
+      }
+      catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException
+      /* | org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException */e) {
+        log.error("Error: ", e);
+      }
+    }
+  }
 
   @VisibleForTesting
   protected void addNsaProvider(String provider) {
@@ -470,4 +514,5 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     // System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump",
     // "true");
   }
+  
 }

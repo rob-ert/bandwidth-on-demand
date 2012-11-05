@@ -87,6 +87,9 @@ public class ConnectionServiceProviderListener implements ReservationListener {
     case NOT_ACCEPTED:
       handleReservationFailed(connection, event);
       break;
+    case TIMED_OUT:
+      connectionServiceProvider.forceEnd(connection, event.getNsiRequestDetails());
+      break;
     case RUNNING:
       connectionServiceProvider.provisionConfirmed(connection, event.getNsiRequestDetails().get());
       break;
@@ -101,7 +104,7 @@ public class ConnectionServiceProviderListener implements ReservationListener {
   private void handleReservationFailed(Connection connection, ReservationStatusChangeEvent event) {
     try {
       logger.debug("Connection state {}, new reservation state {}", connection.getCurrentState(), event.getNewStatus());
-
+      
       if (connection.getCurrentState() == ConnectionStateType.AUTO_PROVISION
           || connection.getCurrentState() == ConnectionStateType.SCHEDULED) {
         connectionServiceProvider.provisionFailed(connection, event.getNsiRequestDetails().get());

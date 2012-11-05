@@ -32,20 +32,20 @@ import java.util.Set;
  *  \---------/      \--------/      \---------/      \---------/      \-------/      \---------/
  *      |    |                         ^    |                |            |
  *      |     \----(auto provision)---/     |                |            |
- *      |                                   v                 \           v
- *      |                             /---------\              \        /------\
- *      | (request failed)           | Cancelled |              \----->| Failed |
- *      v                             \---------/                       \------/
- *    /------------\
- *   | Not Accepted |
- *    \------------/
+ *      |                                   v               / \           v
+ *      |                             /---------\          /   \        /------\
+ *      | (request failed)           | Cancelled |        /     \----->| Failed |
+ *      v                             \---------/        v              \------/
+ *    /------------\                                  /--------\
+ *   | Not Accepted |                                | Timedout |
+ *    \------------/                                 \----------/
  */
 public enum ReservationStatus {
 
-  REQUESTED, RESERVED, SCHEDULED, PREPARING, RUNNING, SUCCEEDED, CANCELLED, FAILED, NOT_ACCEPTED, TIMEDOUT;
+  REQUESTED, RESERVED, SCHEDULED, PREPARING, RUNNING, SUCCEEDED, CANCELLED, FAILED, NOT_ACCEPTED, TIMED_OUT;
 
   /**
-   * All states which are allowed to transition to an other state. All otherf
+   * All states which are allowed to transition to an other state. All other
    * states will automatically be regarded as endStates.
    */
   public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, RESERVED, SCHEDULED, RUNNING,
@@ -54,7 +54,7 @@ public enum ReservationStatus {
   /**
    * All states which are considered as error states.
    */
-  public static final Set<ReservationStatus> ERROR_STATES = EnumSet.of(FAILED, NOT_ACCEPTED, TIMEDOUT);
+  public static final Set<ReservationStatus> ERROR_STATES = EnumSet.of(FAILED, NOT_ACCEPTED, TIMED_OUT);
 
   public static final ReservationStatus[] TRANSITION_STATES_AS_ARRAY = TRANSITION_STATES
       .toArray(new ReservationStatus[TRANSITION_STATES.size()]);

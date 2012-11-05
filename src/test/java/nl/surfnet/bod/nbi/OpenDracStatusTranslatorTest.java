@@ -59,7 +59,7 @@ public class OpenDracStatusTranslatorTest {
   public void executionTimedOutShouldTranslateToFailed() {
     ReservationStatus status = OpenDracStatusTranslator.translate(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT);
 
-    assertThat(status, is(ReservationStatus.FAILED));
+    assertThat(status, is(ReservationStatus.TIMED_OUT));
   }
 
   @Test
