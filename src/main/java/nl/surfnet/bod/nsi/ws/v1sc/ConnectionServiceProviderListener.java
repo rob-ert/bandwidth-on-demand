@@ -88,7 +88,7 @@ public class ConnectionServiceProviderListener implements ReservationListener {
       handleReservationFailed(connection, event);
       break;
     case TIMED_OUT:
-      connectionServiceProvider.forceEnd(connection, event.getNsiRequestDetails());
+      connectionServiceProvider.terminateTimedOutReservation(connection, event.getNsiRequestDetails());
       break;
     case RUNNING:
       connectionServiceProvider.provisionConfirmed(connection, event.getNsiRequestDetails().get());

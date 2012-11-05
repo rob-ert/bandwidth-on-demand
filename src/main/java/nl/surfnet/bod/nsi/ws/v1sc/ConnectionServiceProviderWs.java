@@ -37,7 +37,6 @@ import javax.xml.ws.WebServiceContext;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
-import org.ogf.schemas.nsi._2011._10.connection._interface.ForcedEndRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
@@ -49,7 +48,6 @@ import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPor
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.GenericRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ObjectFactory;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
@@ -411,33 +409,9 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   }
   
   @Override
-  public void forceEnd(Connection connection, Optional<NsiRequestDetails> nsiRequestDetails) {
+  public void terminateTimedOutReservation(Connection connection, Optional<NsiRequestDetails> nsiRequestDetails) {
     if (nsiRequestDetails.isPresent()) {
-      try {
-
-        // final TerminateRequestType terminateRequest = new
-        // TerminateRequestType();
-        // terminateRequest.setCorrelationId(nsiRequestDetails.get().getCorrelationId());
-        // terminateRequest.setReplyTo(nsiRequestDetails.get().getReplyTo());
-
-        final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(nsiRequestDetails.get());
-        final GenericRequestType genericRequest = CONNECTION_TO_GENERIC_RQUEST.apply(connection);
-
-        // terminateRequest.setTerminate(genericRequest);
-        // terminate(terminateRequest);
-
-        connectionServiceProviderService.terminate(connection.getId(), connection.getRequesterNsa(),
-            nsiRequestDetails.get());
-
-        final ForcedEndRequestType forcedEndRequestType = new ForcedEndRequestType();
-        forcedEndRequestType.setCorrelationId(nsiRequestDetails.get().getCorrelationId());
-        forcedEndRequestType.setForcedEnd(genericRequest);
-        port.forcedEnd(forcedEndRequestType);
-      }
-      catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException
-      /* | org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException */e) {
-        log.error("Error: ", e);
-      }
+      connectionServiceProviderService.updateConnectionState(connection.getId(), ConnectionStateType.TERMINATED);
     }
   }
 
