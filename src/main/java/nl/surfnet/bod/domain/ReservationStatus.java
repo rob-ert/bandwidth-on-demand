@@ -36,9 +36,9 @@ import java.util.Set;
  *      |                             /---------\          /   \        /------\
  *      | (request failed)           | Cancelled |        /     \----->| Failed |
  *      v                             \---------/        v              \------/
- *    /------------\                                  /--------\
- *   | Not Accepted |                                | Timedout |
- *    \------------/                                 \----------/
+ *    /------------\                                  /---------\
+ *   | Not Accepted |                                | Timed out |
+ *    \------------/                                 \-----------/
  */
 public enum ReservationStatus {
 
