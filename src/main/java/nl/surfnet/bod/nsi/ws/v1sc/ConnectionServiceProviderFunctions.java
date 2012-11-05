@@ -46,7 +46,6 @@ import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPor
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.GenericRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StringUtils;
@@ -95,19 +94,6 @@ public final class ConnectionServiceProviderFunctions {
     }
   };
   
-  
-  public static final Function<Connection, GenericRequestType> CONNECTION_TO_GENERIC_RQUEST = //
-      new Function<Connection, GenericRequestType>() {
-        @Override
-        public GenericRequestType apply(final Connection connection) {
-          final GenericRequestType generic = new GenericRequestType();
-          generic.setProviderNSA(connection.getProviderNsa());
-          generic.setRequesterNSA(connection.getRequesterNsa());
-          generic.setConnectionId(connection.getConnectionId());
-          return generic;
-        }
-      };
-     
 
   public static final Function<Connection, GenericConfirmedType> CONNECTION_TO_GENERIC_CONFIRMED = //
   new Function<Connection, GenericConfirmedType>() {
