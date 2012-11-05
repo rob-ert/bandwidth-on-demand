@@ -110,8 +110,7 @@ public class ConnectionServiceProviderService {
     // If we are already in the provisioned state send back a confirm and we are
     // done..
     // Any other state we have to send back a provision failed...
-    Connection connection = connectionRepo.findOne(connectionId);
-    connection.setCurrentState(ConnectionStateType.AUTO_PROVISION);
+    Connection connection = updateConnectionState(connectionId, ConnectionStateType.AUTO_PROVISION);
     connection.setProvisionRequestDetails(requestDetails);
     connection = connectionRepo.saveAndFlush(connection);
 
@@ -120,11 +119,16 @@ public class ConnectionServiceProviderService {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void terminate(final Long connectionId, final String requesterNsa, final NsiRequestDetails requestDetails) {
-    Connection connection = connectionRepo.findOne(connectionId);
-    connection.setCurrentState(ConnectionStateType.TERMINATING);
+    Connection connection = updateConnectionState(connectionId, ConnectionStateType.TERMINATING);
 
     reservationService.cancelWithReason(connection.getReservation(), "Terminate request by NSI", Security
         .getUserDetails(), Optional.of(requestDetails));
+  }
+
+  public Connection updateConnectionState(final Long connectionId, final ConnectionStateType state) {
+    Connection connection = connectionRepo.findOne(connectionId);
+    connection.setCurrentState(state);
+    return connection;
   }
 
   @Async
