@@ -21,6 +21,9 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.*;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
@@ -36,9 +39,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.NsiRequestDetails;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
@@ -46,6 +46,7 @@ import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPor
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionServiceRequester;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StringUtils;
@@ -54,9 +55,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_GLOBAL_RESERVATION_ID;
-
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.NsiRequestDetails;
 
 public final class ConnectionServiceProviderFunctions {
 
@@ -94,6 +94,20 @@ public final class ConnectionServiceProviderFunctions {
       return generic;
     }
   };
+  
+  
+  public static final Function<Connection, GenericRequestType> CONNECTION_TO_GENERIC_RQUEST = //
+      new Function<Connection, GenericRequestType>() {
+        @Override
+        public GenericRequestType apply(final Connection connection) {
+          final GenericRequestType generic = new GenericRequestType();
+          generic.setProviderNSA(connection.getProviderNsa());
+          generic.setRequesterNSA(connection.getRequesterNsa());
+          generic.setConnectionId(connection.getConnectionId());
+          return generic;
+        }
+      };
+     
 
   public static final Function<Connection, GenericConfirmedType> CONNECTION_TO_GENERIC_CONFIRMED = //
   new Function<Connection, GenericConfirmedType>() {
