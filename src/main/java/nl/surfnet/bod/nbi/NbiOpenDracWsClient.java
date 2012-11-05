@@ -82,6 +82,7 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.CompletionRespons
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidCompletionTypeT.Enum;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 
+import static nl.surfnet.bod.domain.ReservationStatus.TIMED_OUT;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
@@ -344,8 +345,8 @@ class NbiOpenDracWsClient implements NbiClient {
             ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED, SUCCEEDED).put(
             ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED, FAILED)
         // means that the start time has passed and the reservation did not get
-        // an activate will activation was manual
-        .put(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, FAILED).put(
+        // an activate while activation was manual
+        .put(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, TIMED_OUT).put(
             ValidReservationScheduleStatusT.EXECUTION_FAILED, FAILED).put(
             ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED, CANCELLED).put(
             ValidReservationScheduleStatusT.EXECUTION_CANCELLED, CANCELLED).build();
