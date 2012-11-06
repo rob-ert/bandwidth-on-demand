@@ -71,7 +71,7 @@ public class ReportController {
     nocReservationReport.setAmountFailedReservationRequests(reservationService.countReservationsWithEndStateBetween(
         ReservationStatus.NOT_ACCEPTED, periodStart, periodEnd));
     nocReservationReport.setAmountSucceededReservationRequests(reservationService
-        .countReservationsWhichOnceHadStateBetween(periodStart, periodEnd, ReservationStatus.REQUEST_SUCCEEDED));
+        .countReservationsWhichHadStateBetween(ReservationStatus.SCHEDULED, periodStart, periodEnd));
 
     // Actual Reservations by protection type
     nocReservationReport.setAmountProtectedReservations(reservationService.countReservationsWithProtectionTypeBetween(
@@ -82,9 +82,11 @@ public class ReportController {
         ProtectionType.REDUNDANT, periodStart, periodEnd));
 
     // Actual Reservations by channel
-   //Only GUI reservation Requests get this state
-   nocReservationReport.setAmountGUIReservations(reservationService.countReservationsCreatedThroughChannelGUI(periodStart, periodEnd));
-   nocReservationReport.setAmountNSIReservations(nocReservationReport.getTotalReservations()-nocReservationReport.getAmountGUIReservations());
+    // Only GUI reservation Requests get this state
+    nocReservationReport.setAmountGUIReservations(reservationService.countReservationsCreatedThroughChannelGUI(
+        periodStart, periodEnd));
+    nocReservationReport.setAmountNSIReservations(nocReservationReport.getTotalReservations()
+        - nocReservationReport.getAmountGUIReservations());
 
     // Actual Reservations by status
     nocReservationReport.setAmountSucceededReservations(reservationService.countReservationsWithEndStateBetween(

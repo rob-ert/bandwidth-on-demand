@@ -26,7 +26,7 @@ import java.util.Set;
 
 /**
  * Enum representing the status of a {@link Reservation}.
- *
+ * 
  *  /---------\      /--------\      /---------\      /---------\      /-------\      /---------\
  * | Requested | -> | Reserved | -> | Scheduled | -> | Preparing | -> | Running | -> | Succeeded |
  *  \---------/      \--------/      \---------/      \---------/      \-------/      \---------/
@@ -58,11 +58,6 @@ public enum ReservationStatus {
 
   public static final ReservationStatus[] TRANSITION_STATES_AS_ARRAY = TRANSITION_STATES
       .toArray(new ReservationStatus[TRANSITION_STATES.size()]);
-  
-  /**
-   * States for reservations requests which made it to an actual reservation
-   */
-  public static final ReservationStatus[] REQUEST_SUCCEEDED = new ReservationStatus[] { SCHEDULED, RESERVED };
 
   /**
    * @return true if the reservationStatus is an endState, meaning no further
@@ -83,7 +78,7 @@ public enum ReservationStatus {
   /**
    * @return true if a Reservation is allowed to be delete, only based on its
    *         state.
-   *
+   * 
    */
   public boolean isDeleteAllowed() {
     return isTransitionState();

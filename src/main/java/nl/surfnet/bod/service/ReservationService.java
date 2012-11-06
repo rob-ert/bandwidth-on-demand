@@ -308,10 +308,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
         LogEvent.getStateChangeMessageNewStatusPart(status)));
   }
 
-  public long countReservationsWhichOnceHadStateBetween(DateTime start, DateTime end, ReservationStatus... states) {
+  public long countReservationsWhichHadStateBetween(ReservationStatus status, DateTime start, DateTime end) {
 
     return logEventService.count(specLogEventsByDomainClassAndDescriptionPartBetween(Reservation.class, start, end,
-        LogEvent.getStateChangeMessageNewStatusPart(states)));
+        LogEvent.getStateChangeMessageNewStatusPart(status)));
   }
 
   public long countReservationsWithProtectionTypeBetween(ProtectionType protectionType, DateTime start, DateTime end) {
@@ -325,7 +325,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public long countReservationsCreatedThroughChannelGUI(DateTime start, DateTime end) {
-    return countReservationsWhichOnceHadStateBetween(start, end, ReservationStatus.SCHEDULED);
+    return countReservationsWhichHadStateBetween(ReservationStatus.RESERVED, start, end);
   }
 
   private void correctStart(Reservation reservation) {

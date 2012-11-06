@@ -59,18 +59,13 @@ public class LogEventRepoImpl implements LogEventRepoCustom {
   }
 
   @Override
-  public List<Long> findDistinctDomainObjectIdsWithWhereClause(final Optional<Specification<LogEvent>> whereClause) {
+  public List<Long> findDistinctDomainObjectIdsWithWhereClause(final Specification<LogEvent> whereClause) {
     final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
     final Root<LogEvent> root = criteriaQuery.from(LogEvent.class);
 
-    if (whereClause.isPresent()) {
-      criteriaQuery.distinct(true).select(root.get(LogEvent_.domainObjectId)).where(
-          whereClause.get().toPredicate(root, criteriaQuery, criteriaBuilder));
-    }
-    else {
-      criteriaQuery.distinct(true).select(root.get(LogEvent_.domainObjectId));
-    }
+    criteriaQuery.distinct(true).select(root.get(LogEvent_.domainObjectId)).where(
+        whereClause.toPredicate(root, criteriaQuery, criteriaBuilder));
 
     return entityManager.createQuery(criteriaQuery).getResultList();
   }

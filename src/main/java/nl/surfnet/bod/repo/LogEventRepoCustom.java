@@ -33,5 +33,6 @@ public interface LogEventRepoCustom {
 
   List<Long> findIdsWithWhereClause(Optional<Specification<LogEvent>> whereClause);
 
-  List<Long> findDistinctDomainObjectIdsWithWhereClause(Optional<Specification<LogEvent>> whereClause);
+  List<Long> findDistinctDomainObjectIdsWithWhereClause(Specification<LogEvent> whereClause);
+
 }
