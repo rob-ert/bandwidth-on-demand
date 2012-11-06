@@ -38,7 +38,6 @@ import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.event.EntityStatistics;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
@@ -57,12 +56,10 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 
 import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
 import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByDomainClassAndCreatedBetween;
-import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specStatistics;
 
 @Service
 public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
@@ -150,63 +147,6 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return findByAdminGroups(groupsForManager, firstResult, maxResults, sort);
   }
 
-  public <T extends Loggable> EntityStatistics<T> determineStatisticsForManagerByEventTypeAndDomainObjectClassBetween(
-      BodRole managerRole, Class<T> entity, DateTime start, DateTime end) {
-
-    // Includes check for manager
-    final Set<String> groupsForManager = managerService.findAllAdminGroupsForManager(managerRole);
-
-    final String domainObjectName = LogEvent.getDomainObjectName(entity);
-
-    final long amountCreated = logEventRepo.count(specStatistics(groupsForManager, LogEventType.CREATE,
-        domainObjectName, start, end));
-
-    final long amountUpdated = logEventRepo.count(specStatistics(groupsForManager, LogEventType.UPDATE,
-        domainObjectName, start, end));
-
-    final long amountDeleted = logEventRepo.count(specStatistics(groupsForManager, LogEventType.DELETE,
-        domainObjectName, start, end));
-
-    return new EntityStatistics<T>(entity, start, amountCreated, amountUpdated, amountDeleted, end);
-  }
-
-  public <T extends Loggable> EntityStatistics<T> determineStatisticsForUserByEventTypeAndDomainObjectClassBetween(
-      RichUserDetails user, Class<T> entity, DateTime start, DateTime end) {
-
-    Preconditions.checkArgument(user.isSelectedUserRole(), "Current role is not user, but: %s", user.getSelectedRole());
-
-    final String domainObjectName = LogEvent.getDomainObjectName(entity);
-
-    final long amountCreated = logEventRepo.count(specStatistics(user.getUserGroupIds(), LogEventType.CREATE,
-        domainObjectName, start, end));
-
-    final long amountUpdated = logEventRepo.count(specStatistics(user.getUserGroupIds(), LogEventType.UPDATE,
-        domainObjectName, start, end));
-
-    final long amountDeleted = logEventRepo.count(specStatistics(user.getUserGroupIds(), LogEventType.DELETE,
-        domainObjectName, start, end));
-
-    return new EntityStatistics<T>(entity, start, amountCreated, amountUpdated, amountDeleted, end);
-  }
-
-  public <T extends Loggable> EntityStatistics<T> determineStatisticsForNocByEventTypeAndDomainObjectClassBetween(
-      RichUserDetails user, Class<T> entity, DateTime start, DateTime end) {
-
-    Preconditions.checkArgument(user.isSelectedNocRole(), "Current role is not Noc, but: %s", user.getSelectedRole());
-
-    final String domainObjectName = LogEvent.getDomainObjectName(entity);
-
-    final long amountCreated = logEventRepo.count(specStatistics(null, LogEventType.CREATE, domainObjectName, start,
-        end));
-
-    final long amountUpdated = logEventRepo.count(specStatistics(null, LogEventType.UPDATE, domainObjectName, start,
-        end));
-
-    final long amountDeleted = logEventRepo.count(specStatistics(null, LogEventType.DELETE, domainObjectName, start,
-        end));
-
-    return new EntityStatistics<T>(entity, start, amountCreated, amountUpdated, amountDeleted, end);
-  }
 
   @Override
   protected EntityManager getEntityManager() {

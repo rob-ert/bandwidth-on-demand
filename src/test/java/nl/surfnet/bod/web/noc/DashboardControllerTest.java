@@ -21,10 +21,6 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.event.EntityStatistics;
 import nl.surfnet.bod.service.LogEventService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.ReservationService;
@@ -38,7 +34,6 @@ import nl.surfnet.bod.web.security.Security;
 import nl.surfnet.bod.web.view.NocStatisticsView;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 
-import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -100,30 +95,7 @@ public class DashboardControllerTest {
     when(reservationServiceMock.countAllEntriesUsingFilter(comingFilter)).thenReturn(5L);
     when(physicalPortServiceMock.countUnalignedPhysicalPorts()).thenReturn(6L);
 
-    DateTime end = DateTime.now();
-    DateTime start = end.minus(WebUtils.DEFAULT_REPORTING_PERIOD);
-    // Entity statistics
-    EntityStatistics<PhysicalPort> physicalPortStats = new EntityStatistics<PhysicalPort>(PhysicalPort.class, start, 1,
-        2, 3, end);
-    EntityStatistics<VirtualPort> virtualPortStats = new EntityStatistics<VirtualPort>(VirtualPort.class, start, 4, 5,
-        6, end);
-    EntityStatistics<Reservation> reservationStats = new EntityStatistics<Reservation>(Reservation.class, start, 7, 8,
-        9, end);
-
-    when(
-        logEventServiceMock.determineStatisticsForNocByEventTypeAndDomainObjectClassBetween(noc, PhysicalPort.class,
-            start, end)).thenReturn(physicalPortStats);
-
-    when(
-        logEventServiceMock.determineStatisticsForNocByEventTypeAndDomainObjectClassBetween(noc, VirtualPort.class,
-            start, end)).thenReturn(virtualPortStats);
-
-    when(
-        logEventServiceMock.determineStatisticsForNocByEventTypeAndDomainObjectClassBetween(noc, Reservation.class,
-            start, end)).thenReturn(reservationStats);
-
     NocStatisticsView statistics = subject.determineStatistics();
-
     assertThat(statistics.getPhysicalPortsAmount(), is(2L));
     assertThat(statistics.getElapsedReservationsAmount(), is(3L));
     assertThat(statistics.getActiveReservationsAmount(), is(4L));
