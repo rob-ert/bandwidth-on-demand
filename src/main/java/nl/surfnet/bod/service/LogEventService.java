@@ -361,6 +361,13 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logEventRepo.findAll(specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end));
   }
 
+  public List<Long> findDomainObjectIdsByDomainClassCreatedBetweenForNoc(final Class<? extends Loggable> domainClass,
+      DateTime start, DateTime end) {
+
+    return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(Optional.of(LogEventPredicatesAndSpecifications
+        .specDomainObjectIsFromLogEventsByDomainClassAndCreatedBetween(Reservation.class, start, end)));
+  }
+
   public long count(Specification<LogEvent> spec) {
     return logEventRepo.count(spec);
   }

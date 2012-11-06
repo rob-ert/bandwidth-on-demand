@@ -31,26 +31,17 @@ import java.util.concurrent.Future;
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalPort_;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationArchive;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.Reservation_;
 import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPort_;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
@@ -67,7 +58,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,6 +80,17 @@ import static com.google.common.base.Preconditions.checkState;
 import static nl.surfnet.bod.domain.ReservationStatus.PREPARING;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByDomainClassAndDescriptionPartBetween;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.forCurrentUser;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.forVirtualResourceGroup;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specActiveReservations;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specByPhysicalPort;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specByVirtualPort;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specByVirtualPortAndManager;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservations;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservationsForManager;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservationsForUser;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservationsForVirtualResourceGroup;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specReservationsThatCouldStart;
 
 @Service
 @Transactional
@@ -314,13 +315,13 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public long countReservationsWithProtectionTypeBetween(ProtectionType protectionType, DateTime start, DateTime end) {
-
     Preconditions.checkNotNull(protectionType);
 
-    return 999;
-    // return
-    // logEventService.count(LogEventPredicatesAndSpecifications.specReservationByProtectionTypeBetween(
-    // getEntityManager(), Reservation.class, start, end, protectionType));
+    List<Long> reservationIds = logEventService.findDomainObjectIdsByDomainClassCreatedBetweenForNoc(Reservation.class,
+        start, end);
+
+    return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationByProtectionTypeInIds(
+        Reservation.class, protectionType, reservationIds));
   }
 
   public long countReservationsCreatedThroughChannelGUI(DateTime start, DateTime end) {
@@ -370,153 +371,6 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   public ReservationStatus getStatus(Reservation reservation) {
     return nbiClient.getReservationStatus(reservation.getReservationId());
-  }
-
-  private Specification<Reservation> forVirtualResourceGroup(final VirtualResourceGroup vrg) {
-    return new Specification<Reservation>() {
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.equal(root.get(Reservation_.virtualResourceGroup), vrg);
-      }
-
-    };
-  }
-
-  private Specification<Reservation> forManager(final RichUserDetails manager) {
-    return new Specification<Reservation>() {
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-
-        Long prgId = manager.getSelectedRole().getPhysicalResourceGroupId().get();
-        return cb.and(cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort).get(
-            PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId), cb.equal(root.get(
-            Reservation_.destinationPort).get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(
-            PhysicalResourceGroup_.id), prgId)));
-      }
-    };
-  }
-
-  private Specification<Reservation> forCurrentUser(final RichUserDetails user) {
-    return new Specification<Reservation>() {
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(root.get(Reservation_.virtualResourceGroup).get(VirtualResourceGroup_.surfconextGroupId).in(
-            user.getUserGroupIds()));
-      }
-    };
-  }
-
-  private Specification<Reservation> forStatus(final ReservationStatus... states) {
-    return new Specification<Reservation>() {
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(root.get(Reservation_.status).in((Object[]) states));
-      }
-    };
-  }
-
-  private Specification<Reservation> specReservationsThatCouldStart(final DateTime startDateTime) {
-    return new Specification<Reservation>() {
-      @Override
-      public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
-          CriteriaBuilder cb) {
-
-        return cb.and(cb.lessThanOrEqualTo(reservation.get(Reservation_.startDateTime), startDateTime), reservation
-            .get(Reservation_.status).in(ImmutableList.of(ReservationStatus.REQUESTED, ReservationStatus.SCHEDULED)));
-      }
-    };
-  }
-
-  private Specification<Reservation> specByPhysicalPort(final PhysicalPort port) {
-    return new Specification<Reservation>() {
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort), port), cb.equal(root
-            .get(Reservation_.destinationPort).get(VirtualPort_.physicalPort), port));
-      }
-    };
-  }
-
-  private Specification<Reservation> specByVirtualPortAndManager(final VirtualPort port, final RichUserDetails user) {
-    return new Specification<Reservation>() {
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        final Long prgId = user.getSelectedRole().getPhysicalResourceGroupId().get();
-        return cb.and(cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort).get(
-            PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId), cb.equal(root.get(
-            Reservation_.destinationPort).get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(
-            PhysicalResourceGroup_.id), prgId)));
-      }
-    };
-  }
-
-  private Specification<Reservation> specByVirtualPort(final VirtualPort port) {
-    return new Specification<Reservation>() {
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(cb.equal(root.get(Reservation_.sourcePort), port), cb.equal(
-            root.get(Reservation_.destinationPort), port));
-      }
-    };
-  }
-
-  private Specification<Reservation> specActiveReservations() {
-    return new Specification<Reservation>() {
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return root.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES);
-      }
-    };
-  }
-
-  private Specification<Reservation> specFilteredReservationsForUser(final ReservationFilterView filter,
-      final RichUserDetails user) {
-
-    return Specifications.where(specFilteredReservations(filter)).and(forCurrentUser(user));
-  }
-
-  private Specification<Reservation> specFilteredReservationsForVirtualResourceGroup(
-      final ReservationFilterView filter, final VirtualResourceGroup vrg) {
-
-    return Specifications.where(specFilteredReservations(filter)).and(forVirtualResourceGroup(vrg));
-  }
-
-  private Specification<Reservation> specFilteredReservationsForManager(final ReservationFilterView filter,
-      final RichUserDetails manager) {
-
-    return Specifications.where(specFilteredReservations(filter)).and(forManager(manager));
-  }
-
-  private Specification<Reservation> specFilteredReservations(final ReservationFilterView filter) {
-    Specification<Reservation> filterSpecOnStart = new Specification<Reservation>() {
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.between(root.get(Reservation_.startDateTime), filter.getStart(), filter.getEnd());
-      }
-    };
-
-    Specification<Reservation> filterSpecOnEnd = new Specification<Reservation>() {
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(cb.isNull(root.get(Reservation_.endDateTime)), cb.between(root.get(Reservation_.endDateTime),
-            filter.getStart(), filter.getEnd()));
-      }
-    };
-
-    // Filter on states in filter
-    Specification<Reservation> specficiation = forStatus(filter.getStates());
-    if (filter.isFilterOnStatusOnly()) {
-      // Do nothing, specification is already set with states from filter
-    }
-    else if (filter.isFilterOnReservationEndOnly()) {
-      specficiation = Specifications.where(specficiation).and(filterSpecOnEnd);
-    }
-    else {
-      specficiation = Specifications.where(specficiation).and(
-          Specifications.where(filterSpecOnStart).or(filterSpecOnEnd));
-    }
-
-    return specficiation;
   }
 
   public List<Integer> findUniqueYearsFromReservations() {

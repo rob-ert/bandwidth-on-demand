@@ -23,16 +23,12 @@ package nl.surfnet.bod.service;
 
 import java.util.Collection;
 
-import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.Loggable;
-import nl.surfnet.bod.domain.ProtectionType;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.Reservation_;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.event.LogEvent_;
@@ -92,6 +88,22 @@ public final class LogEventPredicatesAndSpecifications {
     return spec;
   }
 
+  static Specification<LogEvent> specDomainObjectIsFromLogEventsByDomainClassAndCreatedBetween(
+      final Class<? extends Loggable> domainClass, final DateTime start, final DateTime end) {
+
+    final Specification<LogEvent> spec = new Specification<LogEvent>() {
+      @Override
+      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+
+        return (cb.createQuery().distinct(true).select(root.get(LogEvent_.domainObjectId))
+            .where(specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end).toPredicate(root, query, cb)))
+            .getRestriction();
+      }
+    };
+
+    return spec;
+  }
+
   static Specification<LogEvent> specLogEventsByDomainClassAndDescriptionPartBetween(
       final Class<? extends Loggable> domainClass, final DateTime start, final DateTime end, final String... textPart) {
 
@@ -127,27 +139,4 @@ public final class LogEventPredicatesAndSpecifications {
     return spec;
   }
 
-  static Specification<LogEvent> specReservationByProtectionTypeBetween(final EntityManager entityManager,
-      final Class<? extends Loggable> domainClass, final DateTime start, final DateTime end,
-      final ProtectionType protectionType) {
-
-    final CriteriaBuilder reservationCb = entityManager.getCriteriaBuilder();
-    final CriteriaQuery<Long> reservationQuery = reservationCb.createQuery(Long.class);
-    final Root<Reservation> reservationRoot = reservationQuery.from(Reservation.class);
-
-    final Specification<LogEvent> spec = new Specification<LogEvent>() {
-
-      @Override
-      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        CriteriaQuery<Long> protectionTypeQuery = reservationQuery.select(reservationRoot.get(Reservation_.id)).where(
-            reservationCb.equal(reservationRoot.get(Reservation_.protectionType), protectionType));
-
-        return cb.and(cb.equal(root.get(LogEvent_.domainObjectClass), LogEvent.getDomainObjectName(domainClass)), cb
-            .between(root.get(LogEvent_.created), start, end), (root.get(LogEvent_.domainObjectId)
-            .in(protectionTypeQuery)));
-      }
-
-    };
-    return spec;
-  }
 }
