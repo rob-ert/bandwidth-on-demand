@@ -410,9 +410,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   
   @Override
   public void terminateTimedOutReservation(Connection connection, Optional<NsiRequestDetails> nsiRequestDetails) {
-    if (nsiRequestDetails.isPresent()) {
-      connectionServiceProviderService.updateConnectionState(connection.getId(), ConnectionStateType.TERMINATED);
-    }
+    connectionServiceProviderService.updateConnectionState(connection.getId(), ConnectionStateType.TERMINATED);
   }
 
   @VisibleForTesting
