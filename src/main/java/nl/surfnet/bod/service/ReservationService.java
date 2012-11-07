@@ -267,6 +267,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public Collection<Reservation> findReservationsToPoll(DateTime dateTime) {
     Set<Reservation> reservations = Sets.newHashSet();
     reservations.addAll(reservationRepo.findAll(specReservationsThatCouldStart(dateTime)));
+    reservations.addAll(reservationRepo.findAll(specReservationsThatAreTimedOutAndTransitionally(dateTime)));
     reservations.addAll(findReservationWithStatus(RUNNING));
 
     return reservations;

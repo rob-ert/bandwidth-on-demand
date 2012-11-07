@@ -101,6 +101,24 @@ public class ReservationPredicatesAndSpecifications {
       }
     };
   }
+  
+  
+  // TODO: Verify
+  static Specification<Reservation> specReservationsThatAreTimedOutAndTransitionally(final DateTime startDateTime) {
+    return new Specification<Reservation>() {
+      @Override
+      public javax.persistence.criteria.Predicate toPredicate(Root<Reservation> reservation, CriteriaQuery<?> query,
+          CriteriaBuilder cb) {
+        // the start time has past
+        return cb.and(cb.lessThan(reservation.get(Reservation_.startDateTime), startDateTime),
+        // end time has past
+            cb.lessThan(reservation.get(Reservation_.endDateTime), DateTime.now()),
+            // but reservation is still transitional
+            reservation.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES));
+      }
+    };
+  }
+  
 
   static Specification<Reservation> specByPhysicalPort(final PhysicalPort port) {
     return new Specification<Reservation>() {
