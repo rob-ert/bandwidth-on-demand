@@ -121,8 +121,7 @@ public class ReservationPredicatesAndSpecifications {
       }
     };
   }
-  
-  
+
   // TODO: Verify
   static Specification<Reservation> specReservationsThatAreTimedOutAndTransitionally(final DateTime startDateTime) {
     return new Specification<Reservation>() {
@@ -138,7 +137,6 @@ public class ReservationPredicatesAndSpecifications {
       }
     };
   }
-  
 
   static Specification<Reservation> specByPhysicalPort(final PhysicalPort port) {
     return new Specification<Reservation>() {
@@ -230,6 +228,25 @@ public class ReservationPredicatesAndSpecifications {
     }
 
     return specficiation;
+  }
+
+  public static Specification<Reservation> specReservationStartBeforeEndInOrAfterWithState(
+      final ReservationStatus state, final DateTime start, final DateTime end) {
+
+    Specification<Reservation> spec = new Specification<Reservation>() {
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+
+        final Predicate startInOrBeforePeriod = cb.lessThanOrEqualTo(root.get(Reservation_.startDateTime), end);
+        final Predicate endInOrAfterPeriod = cb.greaterThanOrEqualTo(root.get(Reservation_.endDateTime), start);
+        final Predicate status = cb.equal(root.get(Reservation_.status), state);
+
+        return cb.and(startInOrBeforePeriod, endInOrAfterPeriod, status);
+      }
+    };
+
+    return spec;
+
   }
 
 }

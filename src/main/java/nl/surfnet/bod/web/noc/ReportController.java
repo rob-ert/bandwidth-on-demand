@@ -62,52 +62,16 @@ public class ReportController {
   private NocReservationReport determineReport(RichUserDetails userDetails) {
     Preconditions.checkArgument(userDetails.isSelectedNocRole());
 
-    final DateTime periodStart = DateMidnight.now().minusMonths(1).withDayOfMonth(1).toDateTime();
-    final DateTime periodEnd = periodStart.dayOfMonth().withMaximumValue().toDateTime();
+    final DateTime firstDayOfPreviousMonth = DateMidnight.now().minusMonths(1).withDayOfMonth(1).toDateTime();
+    final DateTime lastDayOfPreviousMonth = firstDayOfPreviousMonth.dayOfMonth().withMaximumValue().toDateTime();
 
-    NocReservationReport nocReservationReport = new NocReservationReport(periodStart, periodEnd);
-
+    NocReservationReport nocReservationReport = new NocReservationReport(firstDayOfPreviousMonth,
+        lastDayOfPreviousMonth);
     determineReservationRequests(nocReservationReport);
-
     determineReservationsForProtectionType(nocReservationReport);
-
-    // Actual Reservations by protection type
-    // nocReservationReport.setAmountProtectedReservations(reservationService.countReservationsWithProtectionTypeBetween(
-    // ProtectionType.PROTECTED, periodStart, periodEnd));
-    // nocReservationReport.setAmountUnprotectedReservations(reservationService
-    // .countReservationsWithProtectionTypeBetween(ProtectionType.UNPROTECTED,
-    // periodStart, periodEnd));
-    // nocReservationReport.setAmountRedundantReservations(reservationService.countReservationsWithProtectionTypeBetween(
-    // ProtectionType.REDUNDANT, periodStart, periodEnd));
-    //
-    //
-    //
-    // // Actual Reservations by status
-    // nocReservationReport.setAmountSucceededReservations(reservationService.countReservationsWithEndStateBetween(
-    // ReservationStatus.SUCCEEDED, periodStart, periodEnd));
-    //
-    // nocReservationReport.setAmountCancelledReservations(reservationService.countReservationsWithEndStateBetween(
-    // ReservationStatus.CANCELLED, periodStart, periodEnd));
-    //
-    // nocReservationReport.setAmountFailedReservations(reservationService.countReservationsWithEndStateBetween(
-    // ReservationStatus.FAILED, periodStart, periodEnd));
+    determineActiveRunningReservations(nocReservationReport);
 
     return nocReservationReport;
-  }
-
-  private void determineReservationsForProtectionType(NocReservationReport nocReservationReport) {
-    final DateTime start = nocReservationReport.getPeriodStart();
-    final DateTime end = nocReservationReport.getPeriodEnd();
-
-    nocReservationReport.setAmountReservationsProtected(reservationService
-        .countReservationsWithProtectionTypeWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
-            ProtectionType.PROTECTED, start, end));
-    nocReservationReport.setAmountReservationsUnprotected(reservationService
-        .countReservationsWithProtectionTypeWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
-            ProtectionType.UNPROTECTED, start, end));
-    nocReservationReport.setAmountReservationsRedundant(reservationService
-        .countReservationsWithProtectionTypeWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
-            ProtectionType.REDUNDANT, start, end));
   }
 
   private void determineReservationRequests(NocReservationReport nocReservationReport) {
@@ -115,23 +79,56 @@ public class ReportController {
     final DateTime end = nocReservationReport.getPeriodEnd();
 
     // ReservationRequests
-    nocReservationReport.setAmountRequestsCreatedSucceeded(reservationService.countReservationsWhichHadStateBetween(
-        ReservationStatus.SCHEDULED, start, end));
-    nocReservationReport.setAmountRequestsCreatedFailed(reservationService.countReservationsWithEndStateBetween(
+    nocReservationReport.setAmountRequestsCreatedSucceeded(reservationService
+        .countReservationsForNocWhichHadStateBetween(ReservationStatus.SCHEDULED, start, end));
+    nocReservationReport.setAmountRequestsCreatedFailed(reservationService.countReservationsForNocWithEndStateBetween(
         ReservationStatus.NOT_ACCEPTED, start, end));
 
     // No modify requests yet, init on zero
 
     // Cancel requests will never fail (init on zero), only succeed
-    nocReservationReport.setAmountRequestsCancelSucceeded(reservationService.countReservationsWithEndStateBetween(
-        ReservationStatus.CANCELLED, start, end));
+    nocReservationReport.setAmountRequestsCancelSucceeded(reservationService
+        .countReservationsForNocWithEndStateBetween(ReservationStatus.CANCELLED, start, end));
 
     // Actual Reservations by channel
-    nocReservationReport.setAmountRequestsThroughGUI(reservationService.countReservationsCreatedThroughChannelGUI(
-        start, end));
+    nocReservationReport.setAmountRequestsThroughGUI(reservationService
+        .countReservationsForNocCreatedThroughChannelGUI(start, end));
 
-    nocReservationReport.setAmountRequestsThroughNSI(reservationService.countReservationsCreatedThroughChannelNSI(
-        start, end));
+    nocReservationReport.setAmountRequestsThroughNSI(reservationService
+        .countReservationsForNocCreatedThroughChannelNSI(start, end));
 
   }
+
+  private void determineReservationsForProtectionType(NocReservationReport nocReservationReport) {
+    final DateTime start = nocReservationReport.getPeriodStart();
+    final DateTime end = nocReservationReport.getPeriodEnd();
+
+    nocReservationReport.setAmountReservationsProtected(reservationService
+        .countReservationsForNocWithProtectionTypeWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
+            ProtectionType.PROTECTED, start, end));
+    nocReservationReport.setAmountReservationsUnprotected(reservationService
+        .countReservationsForNocWithProtectionTypeWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
+            ProtectionType.UNPROTECTED, start, end));
+    nocReservationReport.setAmountReservationsRedundant(reservationService
+        .countReservationsForNocWithProtectionTypeWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
+            ProtectionType.REDUNDANT, start, end));
+  }
+
+  private void determineActiveRunningReservations(NocReservationReport nocReservationReport) {
+    final DateTime start = nocReservationReport.getPeriodStart();
+    final DateTime end = nocReservationReport.getPeriodEnd();
+
+    nocReservationReport.setAmountRunningReservationsSucceeded(reservationService
+        .countRunningActiveRunningReservationForNocWithStateBetween(ReservationStatus.SUCCEEDED, start, end));
+
+    nocReservationReport.setAmountRunningReservationsFailed(reservationService
+        .countRunningActiveRunningReservationForNocWithStateBetween(ReservationStatus.FAILED, start, end));
+
+    nocReservationReport.setAmountRunningReservationsNeverProvisioned(reservationService
+        .countRunningActiveRunningReservationForNocWithStateBetween(ReservationStatus.RUNNING, start, end));
+
+    nocReservationReport.setAmountRunningReservationsFailed(reservationService
+        .countRunningActiveRunningReservationForNocWithStateBetween(ReservationStatus.TIMED_OUT, start, end));
+  }
+
 }

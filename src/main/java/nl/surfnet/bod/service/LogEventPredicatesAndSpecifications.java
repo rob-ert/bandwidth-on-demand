@@ -113,12 +113,7 @@ public final class LogEventPredicatesAndSpecifications {
     };
 
     return Specifications.where(specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end)).and(
-        specReservationWithNonFinalStateOnDay);
-
-    // return
-    // Specifications.where(specLogEventsByDomainClassAndCreatedBetween(domainClass,
-    // start, end)).and(
-    // specReservationWithNonFinalStateOnDay).and(specReservationCreatedSuccesfullyBetween);
+        specReservationWithNonFinalStateOnDay).and(specReservationCreatedSuccesfullyBetween);
   }
 
   static Specification<LogEvent> specLogEventsByDomainClassAndDescriptionPartBetween(
