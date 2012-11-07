@@ -16,7 +16,12 @@
         <util:timeZone />
       </h1>
       <div class="content">
-        <h3>Report from <spring:eval expression="report.periodStart"/> - <spring:eval expression="report.periodEnd"/></h3>
+        <h3>
+          Report from
+          <spring:eval expression="report.periodStart" />
+          -
+          <spring:eval expression="report.periodEnd" />
+        </h3>
       </div>
     </section>
   </div>
@@ -27,33 +32,88 @@
           <thead>
             <td>Item</td>
             <td>Total</td>
+            <td>Category</td>
             <td>Amount</td>
           </thead>
           <tbody>
             <tr>
               <td>Reservation Requests</td>
               <td>${report.totalReservationRequests}</td>
+              <td>Created</td>
+              <td>
+              <table class="table  table-striped table-bordered">
+                <tr>
+                  <td class="cw85">Succeeded</td>
+                  <td class="right">${report.amountSucceededReservationRequests}</td>
+                </tr>
+                <tr>
+                  <td>Failed</td>
+                  <td class="right">${report.amountFailedReservationRequests}</td>
+                </tr>
+              </table>
+              </td>
+            </tr>
+            <tr>
+              <td />
+              <td/>
+              <td>Modified</td>
               <td>
                 <table class="table  table-striped table-bordered">
                   <tr>
-                    <td class="cw85">Failed</td>
-                    <td class="right">${report.amountFailedReservationRequests}</td>
+                    <td class="cw85">Succeeded</td>
+                    <td class="right">${report.amountSucceededReservationRequests}</td>
                   </tr>
                   <tr>
-                    <td>Succeeded</td>
-                    <td class="right">${report.amountSucceededReservationRequests}</td>
+                    <td>Failed</td>
+                    <td class="right">${report.amountFailedReservationRequests}</td>
                   </tr>
                 </table>
               </td>
             </tr>
             <tr>
+              <td />
+              <td />
+              <td>Cancelled</td>
+              <td>
+                <table class="table  table-striped table-bordered">
+                  <tr>
+                    <td class="cw85">Succeeded</td>
+                    <td class="right">${report.amountSucceededReservationRequests}</td>
+                  </tr>
+                  <tr>
+                    <td>Failed</td>
+                    <td class="right">${report.amountFailedReservationRequests}</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td />
+              <td />
+              <td>Channel</td>
+              <td>
+                <table class="table  table-striped table-bordered">
+                  <tr>
+                    <td class="cw85">NSI</td>
+                    <td class="right">${report.amountNSIReservations}</td>
+                  </tr>
+                  <tr>
+                    <td>GUI</td>
+                    <td class="right">${report.amountGUIReservations}</td>
+                  </tr>
+                </table>
+
+              </td>
+            </tr>
+            <tr>
               <td>Reservations</td>
               <td>${report.totalReservations}</td>
+              <td>ProtectionType</td>
               <td>
                 <table class="table  table-striped table-bordered">
                   <tr>
                     <td class="cw85">Protected</td>
-                     <td class="right">${report.amountProtectedReservations}</td>
+                    <td class="right">${report.amountProtectedReservations}</td>
                   </tr>
                   <br />
                   <tr>
@@ -65,28 +125,38 @@
                     <td class="right">${report.amountRedundantReservations}</td>
                   </tr>
                 </table> <br />
+              </td>
+            </tr>
+            <tr>
+              <td>Active Reservations</td>
+              <td>${report.totalReservations}</td>
+              <td>Running</td>
+              <td>
                 <table class="table  table-striped table-bordered">
                   <tr>
-                    <td class="cw85">NSI</td>
-                    <td class="right">${report.amountNSIReservations}</td>
-                  </tr>
-                  <tr>
-                    <td>GUI</td>
-                    <td class="right">${report.amountGUIReservations}</td>
-                  </tr>
-                </table> <br />
-                <table class="table  table-striped table-bordered">
-                <tr>
                     <td class="cw85">Execution succeeded</td>
                     <td class="right">${report.amountSucceededReservations}</td>
                   </tr>
                   <tr>
-                    <td>Execution cancelled</td>
+                    <td>Execution failed</td>
                     <td class="right">${report.amountCancelledReservations}</td>
                   </tr>
                   <tr>
-                    <td>Execution failed</td>
+                    <td>Currently running</td>
                     <td class="right">${report.amountFailedReservations}</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td />
+              <td />
+              <td>Never provisioned</td>
+              <td>
+                <table class="table  table-striped table-bordered">
+                  <tr>
+                    <td class="cw85">Time-out</td>
+                    <td class="right">${report.amountSucceededReservations}</td>
                   </tr>
                 </table>
               </td>
