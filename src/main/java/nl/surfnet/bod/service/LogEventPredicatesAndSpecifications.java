@@ -29,6 +29,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.Loggable;
+import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.event.LogEvent_;
@@ -88,20 +89,36 @@ public final class LogEventPredicatesAndSpecifications {
     return spec;
   }
 
-  static Specification<LogEvent> specDomainObjectIsFromLogEventsByDomainClassAndCreatedBetween(
+  public static Specification<LogEvent> specReservationIdsFromLogEventsCreatedBetweenWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
       final Class<? extends Loggable> domainClass, final DateTime start, final DateTime end) {
 
-    final Specification<LogEvent> spec = new Specification<LogEvent>() {
+    final Specification<LogEvent> specReservationWithNonFinalStateOnDay = new Specification<LogEvent>() {
+      final DateTime endOfStartDay = start.withTime(0, 0, 0, 0);
+
       @Override
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
-        return (cb.createQuery().distinct(true).select(root.get(LogEvent_.domainObjectId))
-            .where(specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end).toPredicate(root, query, cb)))
-            .getRestriction();
+        return cb.and(cb.between(root.get(LogEvent_.created), start, endOfStartDay), determineDetailPredicate(root, cb,
+            LogEvent.getStateChangeMessageNewStatusPart(ReservationStatus.TRANSITION_STATES_AS_ARRAY)));
       }
     };
 
-    return spec;
+    final Specification<LogEvent> specReservationCreatedSuccesfullyBetween = new Specification<LogEvent>() {
+      @Override
+      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.and(determineDetailPredicate(root, cb, LogEvent
+            .getStateChangeMessageNewStatusPart(ReservationStatus.SUCCESSFULLY_CREATED)), //
+            cb.between(root.get(LogEvent_.created), start, end));
+      }
+    };
+
+    return Specifications.where(specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end)).and(
+        specReservationWithNonFinalStateOnDay);
+
+    // return
+    // Specifications.where(specLogEventsByDomainClassAndCreatedBetween(domainClass,
+    // start, end)).and(
+    // specReservationWithNonFinalStateOnDay).and(specReservationCreatedSuccesfullyBetween);
   }
 
   static Specification<LogEvent> specLogEventsByDomainClassAndDescriptionPartBetween(
@@ -111,32 +128,32 @@ public final class LogEventPredicatesAndSpecifications {
 
       @Override
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        final Predicate predicate;
 
         Predicate domainClassPredicate = cb.and(cb.equal(root.get(LogEvent_.domainObjectClass), LogEvent
             .getDomainObjectName(domainClass)), cb.between(root.get(LogEvent_.created), start, end));
 
-        if (textPart != null) {
-          Predicate textPartPredicate = null;
-          Predicate partPredicate = null;
-          for (String part : textPart) {
-            part = "%".concat(part).concat("%");
-
-            partPredicate = cb.or(cb.like(root.get(LogEvent_.description), part), cb.like(root.get(LogEvent_.details),
-                part));
-
-            textPartPredicate = (textPartPredicate == null ? partPredicate : cb.or(textPartPredicate, partPredicate));
-          }
-          predicate = cb.and(domainClassPredicate, textPartPredicate);
-        }
-        else {
-          predicate = domainClassPredicate;
-        }
-
-        return predicate;
+        Predicate detailPredicate = determineDetailPredicate(root, cb, textPart);
+        return detailPredicate == null ? domainClassPredicate : cb.and(domainClassPredicate, detailPredicate);
       }
+
     };
     return spec;
   }
 
+  private static Predicate determineDetailPredicate(final Root<LogEvent> root, final CriteriaBuilder cb,
+      final String... textPart) {
+
+    Predicate partPredicate = null;
+    if (textPart != null) {
+      Predicate textPartPredicate = null;
+      for (String part : textPart) {
+        part = "%".concat(part).concat("%");
+
+        partPredicate = cb.like(root.get(LogEvent_.details), part);
+
+        partPredicate = (textPartPredicate == null ? partPredicate : cb.or(textPartPredicate, partPredicate));
+      }
+    }
+    return partPredicate;
+  }
 }

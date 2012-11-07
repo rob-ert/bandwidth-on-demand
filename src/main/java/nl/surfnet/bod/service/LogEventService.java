@@ -147,7 +147,6 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return findByAdminGroups(groupsForManager, firstResult, maxResults, sort);
   }
 
-
   @Override
   protected EntityManager getEntityManager() {
     return entityManager;
@@ -305,11 +304,15 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
       DateTime start, DateTime end) {
 
     return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(LogEventPredicatesAndSpecifications
-        .specDomainObjectIsFromLogEventsByDomainClassAndCreatedBetween(Reservation.class, start, end));
+        .specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end));
   }
 
-  public long count(Specification<LogEvent> spec) {
-    return logEventRepo.count(spec);
+  public long count(Specification<LogEvent> whereClause) {
+    return logEventRepo.count(whereClause);
+  }
+
+  public List<Long> findDistinctDomainObjectIdsWithWhereClause(Specification<LogEvent> whereClause) {
+    return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(whereClause);
   }
 
 }

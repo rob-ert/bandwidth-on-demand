@@ -57,6 +57,12 @@ public enum ReservationStatus {
    */
   public static final Set<ReservationStatus> ERROR_STATES = EnumSet.of(FAILED, NOT_ACCEPTED, TIMED_OUT);
 
+  /**
+   * All states which indicate a succesfull creation of reservation
+   * 
+   */
+  public static final ReservationStatus[] SUCCESSFULLY_CREATED = { RESERVED, REQUESTED };
+
   public static final ReservationStatus[] TRANSITION_STATES_AS_ARRAY = TRANSITION_STATES
       .toArray(new ReservationStatus[TRANSITION_STATES.size()]);
 

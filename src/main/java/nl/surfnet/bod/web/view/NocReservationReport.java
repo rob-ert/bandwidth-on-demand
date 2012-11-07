@@ -7,23 +7,166 @@ public class NocReservationReport {
   private final DateTime periodStart;
   private final DateTime periodEnd;
 
-  private long amountFailedReservationRequests;
-  private long amountSucceededReservationRequests;
+  // Reservation requests
+  private long amountRequestsCreatedSucceeded;
+  private long amountRequestsCreatedFailed;
+  private long amountRequestsModifiedSucceeded;
+  private long amountRequestsModifiedFailed;
+  private long amountRequestsCancelSucceeded;
+  private long amountRequestsCancelFailed;
 
-  private long amountProtectedReservations;
-  private long amountUnprotectedReservations;
-  private long amountRedundantReservations;
+  // By channel
+  private long amountRequestsThroughGUI;
+  private long amountRequestsThroughNSI;
 
-  private long amountNSIReservations;
-  private long amountGUIReservations;
+  // Reservations per protectionType
+  private long amountReservationsProtected = 9;
+  private long amountReservationsUnprotected = 10;
+  private long amountReservationsRedundant = 11;
 
-  private long amountSucceededReservations;
-  private long amountCancelledReservations;
-  private long amountFailedReservations;
+  // Running reservations
+  private long amountRunningReservationsSucceeded = 12;
+  private long amountRunningReservationsFailed = 13;
+  private long amounRunningReservationsStillRunning = 14;
+  private long amountRunningReservationsNeverProvisioned = 15;
 
   public NocReservationReport(DateTime start, DateTime end) {
     this.periodStart = start;
     this.periodEnd = end;
+  }
+
+  public long getTotalRequests() {
+    return amountRequestsCreatedSucceeded + amountRequestsCreatedFailed + amountRequestsModifiedSucceeded
+        + amountRequestsModifiedFailed + amountRequestsCancelSucceeded + amountRequestsCancelFailed;
+  }
+
+  public long getTotalReservations() {
+    return amountReservationsProtected + amountReservationsUnprotected + amountReservationsRedundant;
+  }
+
+  public long getTotalActiveReservations() {
+    return amountRunningReservationsSucceeded + amountRunningReservationsFailed + amounRunningReservationsStillRunning
+        + amountRunningReservationsNeverProvisioned;
+  }
+
+  public long getAmountRequestsCreatedSucceeded() {
+    return amountRequestsCreatedSucceeded;
+  }
+
+  public void setAmountRequestsCreatedSucceeded(long amountRequestsCreatedSucceeded) {
+    this.amountRequestsCreatedSucceeded = amountRequestsCreatedSucceeded;
+  }
+
+  public long getAmountRequestsCreatedFailed() {
+    return amountRequestsCreatedFailed;
+  }
+
+  public void setAmountRequestsCreatedFailed(long amountRequestsCreatedFailed) {
+    this.amountRequestsCreatedFailed = amountRequestsCreatedFailed;
+  }
+
+  public long getAmountRequestsModifiedSucceeded() {
+    return amountRequestsModifiedSucceeded;
+  }
+
+  public void setAmountRequestsModifiedSucceeded(long amountRequestsModifiedSucceeded) {
+    this.amountRequestsModifiedSucceeded = amountRequestsModifiedSucceeded;
+  }
+
+  public long getAmountRequestsModifiedFailed() {
+    return amountRequestsModifiedFailed;
+  }
+
+  public void setAmountRequestsModifiedFailed(long amountRequestsModifiedFailed) {
+    this.amountRequestsModifiedFailed = amountRequestsModifiedFailed;
+  }
+
+  public long getAmountRequestsCancelSucceeded() {
+    return amountRequestsCancelSucceeded;
+  }
+
+  public void setAmountRequestsCancelSucceeded(long amountRequestsCancelSucceeded) {
+    this.amountRequestsCancelSucceeded = amountRequestsCancelSucceeded;
+  }
+
+  public long getAmountRequestsCancelFailed() {
+    return amountRequestsCancelFailed;
+  }
+
+  public void setAmountRequestsCancelFailed(long amountRequestsCancelFailed) {
+    this.amountRequestsCancelFailed = amountRequestsCancelFailed;
+  }
+
+  public long getAmountRequestsThroughGUI() {
+    return amountRequestsThroughGUI;
+  }
+
+  public void setAmountRequestsThroughGUI(long amountRequestsThroughGUI) {
+    this.amountRequestsThroughGUI = amountRequestsThroughGUI;
+  }
+
+  public long getAmountRequestsThroughNSI() {
+    return amountRequestsThroughNSI;
+  }
+
+  public void setAmountRequestsThroughNSI(long amountRequestsThroughNSI) {
+    this.amountRequestsThroughNSI = amountRequestsThroughNSI;
+  }
+
+  public long getAmountReservationsProtected() {
+    return amountReservationsProtected;
+  }
+
+  public void setAmountReservationsProtected(long amountReservationsProtected) {
+    this.amountReservationsProtected = amountReservationsProtected;
+  }
+
+  public long getAmountReservationsUnprotected() {
+    return amountReservationsUnprotected;
+  }
+
+  public void setAmountReservationsUnprotected(long amountReservationsUnprotected) {
+    this.amountReservationsUnprotected = amountReservationsUnprotected;
+  }
+
+  public long getAmountReservationsRedundant() {
+    return amountReservationsRedundant;
+  }
+
+  public void setAmountReservationsRedundant(long amountReservationsRedundant) {
+    this.amountReservationsRedundant = amountReservationsRedundant;
+  }
+
+  public long getAmountRunningReservationsSucceeded() {
+    return amountRunningReservationsSucceeded;
+  }
+
+  public void setAmountRunningReservationsSucceeded(long amountRunningReservationsSucceeded) {
+    this.amountRunningReservationsSucceeded = amountRunningReservationsSucceeded;
+  }
+
+  public long getAmountRunningReservationsFailed() {
+    return amountRunningReservationsFailed;
+  }
+
+  public void setAmountRunningReservationsFailed(long amountRunningReservationsFailed) {
+    this.amountRunningReservationsFailed = amountRunningReservationsFailed;
+  }
+
+  public long getAmounRunningReservationsStillRunning() {
+    return amounRunningReservationsStillRunning;
+  }
+
+  public void setAmounRunningReservationsStillRunning(long amounRunningReservationsStillRunning) {
+    this.amounRunningReservationsStillRunning = amounRunningReservationsStillRunning;
+  }
+
+  public long getAmountRunningReservationsNeverProvisioned() {
+    return amountRunningReservationsNeverProvisioned;
+  }
+
+  public void setAmountRunningReservationsNeverProvisioned(long amountRunningReservationsNeverProvisioned) {
+    this.amountRunningReservationsNeverProvisioned = amountRunningReservationsNeverProvisioned;
   }
 
   public DateTime getPeriodStart() {
@@ -33,94 +176,4 @@ public class NocReservationReport {
   public DateTime getPeriodEnd() {
     return periodEnd;
   }
-
-  // Calculated amounts
-  public long getTotalReservationRequests() {
-    return amountFailedReservationRequests + amountSucceededReservationRequests;
-  }
-
-  public long getTotalReservations() {
-    return amountSucceededReservationRequests;
-  }
-
-  public long getAmountFailedReservationRequests() {
-    return amountFailedReservationRequests;
-  }
-
-  public void setAmountFailedReservationRequests(long amountFailedReservationRequests) {
-    this.amountFailedReservationRequests = amountFailedReservationRequests;
-  }
-
-  public long getAmountSucceededReservationRequests() {
-    return amountSucceededReservationRequests;
-  }
-
-  public void setAmountSucceededReservationRequests(long amountSucceededReservationRequests) {
-    this.amountSucceededReservationRequests = amountSucceededReservationRequests;
-  }
-
-  public long getAmountProtectedReservations() {
-    return amountProtectedReservations;
-  }
-
-  public void setAmountProtectedReservations(long amountProtectedReservations) {
-    this.amountProtectedReservations = amountProtectedReservations;
-  }
-
-  public long getAmountUnprotectedReservations() {
-    return amountUnprotectedReservations;
-  }
-
-  public void setAmountUnprotectedReservations(long amountUnprotectedReservations) {
-    this.amountUnprotectedReservations = amountUnprotectedReservations;
-  }
-
-  public long getAmountRedundantReservations() {
-    return amountRedundantReservations;
-  }
-
-  public void setAmountRedundantReservations(long amountRedundantReservations) {
-    this.amountRedundantReservations = amountRedundantReservations;
-  }
-
-  public long getAmountNSIReservations() {
-    return amountNSIReservations;
-  }
-
-  public void setAmountNSIReservations(long amountNSIReservations) {
-    this.amountNSIReservations = amountNSIReservations;
-  }
-
-  public long getAmountGUIReservations() {
-    return amountGUIReservations;
-  }
-
-  public void setAmountGUIReservations(long amountGUIReservations) {
-    this.amountGUIReservations = amountGUIReservations;
-  }
-
-  public long getAmountSucceededReservations() {
-    return amountSucceededReservations;
-  }
-
-  public void setAmountSucceededReservations(long amountSucceededReservations) {
-    this.amountSucceededReservations = amountSucceededReservations;
-  }
-
-  public long getAmountCancelledReservations() {
-    return amountCancelledReservations;
-  }
-
-  public void setAmountCancelledReservations(long amountCancelledReservations) {
-    this.amountCancelledReservations = amountCancelledReservations;
-  }
-
-  public long getAmountFailedReservations() {
-    return amountFailedReservations;
-  }
-
-  public void setAmountFailedReservations(long amountFailedReservations) {
-    this.amountFailedReservations = amountFailedReservations;
-  }
-
 }
