@@ -29,44 +29,6 @@ import com.google.common.collect.ImmutableList;
 
 public class ReservationPredicatesAndSpecifications {
 
-  static Specification<Reservation> specReservationByProtectionTypeInIds(final Class<Reservation> reservationClass,
-      final ProtectionType protectionType, final List<Long> reservationIds) {
-
-    final Specification<Reservation> spec = new Specification<Reservation>() {
-
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        CriteriaQuery<Reservation> criteriaQuery = cb.createQuery(reservationClass).where(
-            cb.and(cb.equal(root.get(Reservation_.protectionType), protectionType), root.get(Reservation_.id).in(
-                reservationIds)));
-
-        return criteriaQuery.getRestriction();
-      }
-
-    };
-    return spec;
-  }
-
-  static Specification<Reservation> specReservationByConnection(final Class<Reservation> reservationClass,
-      final boolean shouldHaveConnection, final List<Long> reservationIds) {
-
-    final Specification<Reservation> spec = new Specification<Reservation>() {
-
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        final Predicate connectionPredicate = shouldHaveConnection ? cb.isNotNull(root.get(Reservation_.connection)) : //
-            cb.isNull(root.get(Reservation_.connection));
-
-        CriteriaQuery<Reservation> criteriaQuery = cb.createQuery(reservationClass).where(
-            cb.and(connectionPredicate, root.get(Reservation_.id).in(reservationIds)));
-
-        return criteriaQuery.getRestriction();
-      }
-
-    };
-    return spec;
-  }
-
   static Specification<Reservation> forVirtualResourceGroup(final VirtualResourceGroup vrg) {
     return new Specification<Reservation>() {
       @Override
@@ -228,6 +190,41 @@ public class ReservationPredicatesAndSpecifications {
     }
 
     return specficiation;
+  }
+
+  static Specification<Reservation> specReservationByProtectionTypeInIds(final Class<Reservation> reservationClass,
+      final ProtectionType protectionType, final List<Long> reservationIds) {
+
+    final Specification<Reservation> spec = new Specification<Reservation>() {
+
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        Predicate protectionTypeIs = cb.equal(root.get(Reservation_.protectionType), protectionType);
+        final Predicate reservationIdIn = root.get(Reservation_.id).in(reservationIds);
+        return cb.and(protectionTypeIs, reservationIdIn);
+      }
+
+    };
+    return spec;
+  }
+
+  static Specification<Reservation> specReservationByConnection(final Class<Reservation> reservationClass,
+      final boolean shouldHaveConnection, final List<Long> reservationIds) {
+
+    final Specification<Reservation> spec = new Specification<Reservation>() {
+
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        final Predicate connectionPredicate = shouldHaveConnection ? cb.isNotNull(root.get(Reservation_.connection)) : //
+            cb.isNull(root.get(Reservation_.connection));
+
+        final Predicate reservationIdIn = root.get(Reservation_.id).in(reservationIds);
+
+        return cb.and(connectionPredicate, reservationIdIn);
+      }
+
+    };
+    return spec;
   }
 
   public static Specification<Reservation> specReservationStartBeforeEndInOrAfterWithState(

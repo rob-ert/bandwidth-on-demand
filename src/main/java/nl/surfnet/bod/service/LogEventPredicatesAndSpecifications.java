@@ -55,15 +55,17 @@ public final class LogEventPredicatesAndSpecifications {
   }
 
   static Specification<LogEvent> specStatistics(Collection<String> adminGroups, final LogEventType eventType,
-      final String domainObjectClass, final DateTime start, final DateTime end) {
+      final Class<? extends Loggable> domainClass, final DateTime start, final DateTime end) {
 
     final Specification<LogEvent> specStatistics = new Specification<LogEvent>() {
 
       @Override
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(cb.equal(root.get(LogEvent_.eventType), eventType), (cb.equal(root
-            .get(LogEvent_.domainObjectClass), domainObjectClass)), (cb
-            .between(root.get(LogEvent_.created), start, end)));
+
+        Predicate eventTypeIs = cb.equal(root.get(LogEvent_.eventType), eventType);
+
+        return cb.and(eventTypeIs, specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end).toPredicate(
+            root, query, cb));
       }
     };
 
@@ -81,8 +83,13 @@ public final class LogEventPredicatesAndSpecifications {
     final Specification<LogEvent> spec = new Specification<LogEvent>() {
       @Override
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(cb.equal(root.get(LogEvent_.domainObjectClass), LogEvent.getDomainObjectName(domainClass)), cb
-            .between(root.get(LogEvent_.created), start, end));
+
+        Predicate domainClassIs = cb.equal(root.get(LogEvent_.domainObjectClass), LogEvent
+            .getDomainObjectName(domainClass));
+
+        Predicate createdBetween = cb.between(root.get(LogEvent_.created), start, end);
+
+        return cb.and(domainClassIs, createdBetween);
       }
     };
 
@@ -92,28 +99,26 @@ public final class LogEventPredicatesAndSpecifications {
   public static Specification<LogEvent> specReservationIdsFromLogEventsCreatedBetweenWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
       final Class<? extends Loggable> domainClass, final DateTime start, final DateTime end) {
 
-    final Specification<LogEvent> specReservationWithNonFinalStateOnDay = new Specification<LogEvent>() {
+    final Specification<LogEvent> spec = new Specification<LogEvent>() {
       final DateTime endOfStartDay = start.withTime(0, 0, 0, 0);
 
       @Override
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
-        return cb.and(cb.between(root.get(LogEvent_.created), start, endOfStartDay), determineDetailPredicate(root, cb,
-            LogEvent.getStateChangeMessageNewStatusPart(ReservationStatus.TRANSITION_STATES_AS_ARRAY)));
+        Predicate createdOn = cb.between(root.get(LogEvent_.created), start, endOfStartDay);
+        Predicate nonFinalState = determineDetailLikePredicate(root, cb, LogEvent
+            .getStateChangeMessageNewStatusPart(ReservationStatus.TRANSITION_STATES_AS_ARRAY));
+        Predicate successFullyCreated = determineDetailLikePredicate(root, cb, LogEvent
+            .getStateChangeMessageNewStatusPart(ReservationStatus.SUCCESSFULLY_CREATED));
+
+        return cb.and(createdOn, nonFinalState, successFullyCreated);
       }
     };
 
-    final Specification<LogEvent> specReservationCreatedSuccesfullyBetween = new Specification<LogEvent>() {
-      @Override
-      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(determineDetailPredicate(root, cb, LogEvent
-            .getStateChangeMessageNewStatusPart(ReservationStatus.SUCCESSFULLY_CREATED)), //
-            cb.between(root.get(LogEvent_.created), start, end));
-      }
-    };
+    // TODO specLogEventsByDomainClassAndCreatedBetween duplicate with
+    // createdOn?
+    return Specifications.where(specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end)).and(spec);
 
-    return Specifications.where(specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end)).and(
-        specReservationWithNonFinalStateOnDay).and(specReservationCreatedSuccesfullyBetween);
   }
 
   static Specification<LogEvent> specLogEventsByDomainClassAndDescriptionPartBetween(
@@ -127,7 +132,7 @@ public final class LogEventPredicatesAndSpecifications {
         Predicate domainClassPredicate = cb.and(cb.equal(root.get(LogEvent_.domainObjectClass), LogEvent
             .getDomainObjectName(domainClass)), cb.between(root.get(LogEvent_.created), start, end));
 
-        Predicate detailPredicate = determineDetailPredicate(root, cb, textPart);
+        Predicate detailPredicate = determineDetailLikePredicate(root, cb, textPart);
         return detailPredicate == null ? domainClassPredicate : cb.and(domainClassPredicate, detailPredicate);
       }
 
@@ -135,7 +140,7 @@ public final class LogEventPredicatesAndSpecifications {
     return spec;
   }
 
-  private static Predicate determineDetailPredicate(final Root<LogEvent> root, final CriteriaBuilder cb,
+  private static Predicate determineDetailLikePredicate(final Root<LogEvent> root, final CriteriaBuilder cb,
       final String... textPart) {
 
     Predicate partPredicate = null;
