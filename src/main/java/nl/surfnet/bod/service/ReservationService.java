@@ -21,27 +21,20 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByDomainClassAndDescriptionPartBetween;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.*;
+
+import java.util.*;
 import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.ProtectionType;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationArchive;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
@@ -68,29 +61,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
-import static nl.surfnet.bod.domain.ReservationStatus.PREPARING;
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByDomainClassAndDescriptionPartBetween;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.forCurrentUser;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.forVirtualResourceGroup;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specActiveReservations;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specByPhysicalPort;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specByVirtualPort;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specByVirtualPortAndManager;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservations;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservationsForManager;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservationsForUser;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservationsForVirtualResourceGroup;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specReservationsThatCouldStart;
+import com.google.common.collect.*;
 
 @Service
 @Transactional
@@ -125,7 +96,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Activates an existing reservation;
-   * 
+   *
    * @param reservation
    *          {@link Reservation} to activate
    * @return true if the reservation was successfully activated, false otherwise
@@ -138,7 +109,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Creates a {@link Reservation} which is auto provisioned
-   * 
+   *
    * @param reservation
    * @See {@link #create(Reservation)}
    */
@@ -148,13 +119,13 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   * 
+   *
    * @param reservation
    * @param autoProvision
    *          , indicates if the reservations should be automatically
    *          provisioned
    * @return ReservationId, scheduleId from NMS
-   * 
+   *
    */
   public Future<Long> create(Reservation reservation, boolean autoProvision,
       Optional<NsiRequestDetails> nsiRequestDetails) {
@@ -236,7 +207,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * Cancels a reservation if the current user has the correct role and the
    * reservation is allowed to be deleted depending on its state. Updates the
    * state of the reservation.
-   * 
+   *
    * @param reservation
    *          {@link Reservation} to delete
    * @return the future with the resulting reservation, or null if delete is not
@@ -256,7 +227,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * <li>and</li>
    * <li>the current status of the reservation must allow it</li>
    * </ul>
-   * 
+   *
    * @param reservation
    *          {@link Reservation} to check
    * @param role
@@ -288,7 +259,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   * 
+   *
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -296,7 +267,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public Collection<Reservation> findReservationsToPoll(DateTime dateTime) {
     Set<Reservation> reservations = Sets.newHashSet();
     reservations.addAll(reservationRepo.findAll(specReservationsThatCouldStart(dateTime)));
-    reservations.addAll(findReservationWithStatus(RUNNING, PREPARING));
+    reservations.addAll(findReservationWithStatus(RUNNING));
 
     return reservations;
   }

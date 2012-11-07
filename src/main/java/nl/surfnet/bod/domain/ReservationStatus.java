@@ -29,29 +29,28 @@ import java.util.Set;
  *
  *           /----------(auto provision)-----------\
  *          |                                       v
- *  /---------\      /--------\                  /---------\      /---------\      /-------\      /---------\
- * | Requested | -> | Reserved | -(provision)-> | Scheduled | -> | Preparing | -> | Running | -> | Succeeded |
- *  \---------/      \--------/                  \---------/      \---------/      \-------/      \---------/
- *    |                    |                         |                |              |
- *    |              (end time passed)               |                |              |
- *    |                    v                         v                 \             v
- *    |                 /---------\              /---------\            \          /------\
- * (request failed)    | Timed out |            | Cancelled |            \------->| Failed |
- *    v                 \---------/              \---------/                       \------/
+ *  /---------\      /--------\                  /---------\                   /-------\                 /---------\
+ * | Requested | -> | Reserved | -(provision)-> | Scheduled | -(start time)-> | Running | -(end time)-> | Succeeded |
+ *  \---------/      \--------/\                 \---------/                  /\-------/                 \---------/
+ *      |                  |    \                    |                       /     |
+ *      |             (end time) \--------\          |              --------/      |
+ *      |                  v               \         v             /               v
+ *      |               /---------\         \    /---------\      /             /------\
+ * (request failed)    | Timed out |         \->| Cancelled |<---/             | Failed |
+ *      v               \---------/              \---------/                    \------/
  *   /------------\
  *  | Not Accepted |
  *   \------------/
  */
 public enum ReservationStatus {
 
-  REQUESTED, RESERVED, SCHEDULED, PREPARING, RUNNING, SUCCEEDED, CANCELLED, FAILED, NOT_ACCEPTED, TIMED_OUT;
+  REQUESTED, RESERVED, SCHEDULED, RUNNING, SUCCEEDED, CANCELLED, FAILED, NOT_ACCEPTED, TIMED_OUT;
 
   /**
    * All states which are allowed to transition to an other state. All other
    * states will automatically be regarded as endStates.
    */
-  public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, RESERVED, SCHEDULED, RUNNING,
-      PREPARING);
+  public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, RESERVED, SCHEDULED, RUNNING);
 
   /**
    * All states which are considered as error states.
@@ -80,7 +79,7 @@ public enum ReservationStatus {
   /**
    * @return true if a Reservation is allowed to be delete, only based on its
    *         state.
-   * 
+   *
    */
   public boolean isDeleteAllowed() {
     return isTransitionState();

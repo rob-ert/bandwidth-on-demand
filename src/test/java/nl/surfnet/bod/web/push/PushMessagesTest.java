@@ -48,7 +48,7 @@ public class PushMessagesTest {
     Reservation reservation = new ReservationFactory().setId(54L).setStatus(ReservationStatus.SCHEDULED).create();
 
     ReservationStatusChangeEvent reservationStatusChangeEvent = new ReservationStatusChangeEvent(
-        ReservationStatus.PREPARING, reservation);
+        ReservationStatus.RUNNING, reservation);
 
     when(messageSourceMock.getMessage(eq("info_reservation_statuschanged"), any(Object[].class), any(Locale.class)))
         .thenReturn("Yes");

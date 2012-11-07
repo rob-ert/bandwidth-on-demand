@@ -21,22 +21,21 @@
  */
 package nl.surfnet.bod.domain;
 
-import org.junit.Test;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+
+import org.junit.Test;
 
 public class ReservationStatusTest {
 
   @Test
   public void someStatesShouldBeTransitionStates() {
-    assertThat(ReservationStatus.PREPARING.isTransitionState(), is(true));
     assertThat(ReservationStatus.RUNNING.isTransitionState(), is(true));
 
     assertThat(ReservationStatus.FAILED.isTransitionState(), is(false));
     assertThat(ReservationStatus.FAILED.isTransitionState(), is(false));
     assertThat(ReservationStatus.CANCELLED.isTransitionState(), is(false));
-    
+
     assertThat(ReservationStatus.NOT_ACCEPTED.isTransitionState(), is(false));
     assertThat(ReservationStatus.TIMED_OUT.isTransitionState(), is(false));
   }
@@ -48,13 +47,11 @@ public class ReservationStatusTest {
     assertThat(ReservationStatus.TIMED_OUT.isEndState(), is(true));
     assertThat(ReservationStatus.CANCELLED.isEndState(), is(true));
 
-    assertThat(ReservationStatus.PREPARING.isEndState(), is(false));
     assertThat(ReservationStatus.RUNNING.isEndState(), is(false));
   }
 
   @Test
   public void forTheseStatesShouldDeletionBeAllowed() {
-    assertThat(ReservationStatus.PREPARING.isDeleteAllowed(), is(true));
     assertThat(ReservationStatus.REQUESTED.isDeleteAllowed(), is(true));
     assertThat(ReservationStatus.RUNNING.isDeleteAllowed(), is(true));
     assertThat(ReservationStatus.SCHEDULED.isDeleteAllowed(), is(true));
