@@ -26,19 +26,21 @@ import java.util.Set;
 
 /**
  * Enum representing the status of a {@link Reservation}.
- * 
- *  /---------\      /--------\      /---------\      /---------\      /-------\      /---------\
- * | Requested | -> | Reserved | -> | Scheduled | -> | Preparing | -> | Running | -> | Succeeded |
- *  \---------/      \--------/      \---------/      \---------/      \-------/      \---------/
- *      |    |                         ^    |                |            |
- *      |     \----(auto provision)---/     |                |            |
- *      |                                   v               / \           v
- *      |                             /---------\          /   \        /------\
- *      | (request failed)           | Cancelled |        /     \----->| Failed |
- *      v                             \---------/        v              \------/
- *    /------------\                                  /---------\
- *   | Not Accepted |                                | Timed out |
- *    \------------/                                 \-----------/
+ *
+ *           /----------(auto provision)-----------\
+ *          |                                       v
+ *  /---------\      /--------\                  /---------\      /---------\      /-------\      /---------\
+ * | Requested | -> | Reserved | -(provision)-> | Scheduled | -> | Preparing | -> | Running | -> | Succeeded |
+ *  \---------/      \--------/                  \---------/      \---------/      \-------/      \---------/
+ *    |                    |                         |                |              |
+ *    |              (end time passed)               |                |              |
+ *    |                    v                         v                 \             v
+ *    |                 /---------\              /---------\            \          /------\
+ * (request failed)    | Timed out |            | Cancelled |            \------->| Failed |
+ *    v                 \---------/              \---------/                       \------/
+ *   /------------\
+ *  | Not Accepted |
+ *   \------------/
  */
 public enum ReservationStatus {
 
