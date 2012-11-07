@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -37,14 +39,7 @@ import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
-import org.ogf.schemas.nsi._2011._10.connection.types.DetailedPathType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryDetailsResultType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
-import org.ogf.schemas.nsi._2011._10.connection.types.QuerySummaryResultType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
+import org.ogf.schemas.nsi._2011._10.connection.types.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -56,8 +51,6 @@ import org.springframework.util.StringUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
 
 @Service
 public class ConnectionServiceProviderService {
@@ -120,6 +113,7 @@ public class ConnectionServiceProviderService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void terminate(final Long connectionId, final String requesterNsa, final NsiRequestDetails requestDetails) {
     Connection connection = updateConnectionState(connectionId, ConnectionStateType.TERMINATING);
+    connectionRepo.saveAndFlush(connection);
 
     reservationService.cancelWithReason(connection.getReservation(), "Terminate request by NSI", Security
         .getUserDetails(), Optional.of(requestDetails));
