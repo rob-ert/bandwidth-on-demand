@@ -40,10 +40,10 @@ import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
  * {@link LogEvent#getDomainObjectClass()} is added in migration V1_6_0_0 to
  * enable searching on it. Before this migration the domainObjectClass was
  * stored in the {@link LogEvent#getDescription()} column appended with a label.
- * 
+ *
  * This migration will split the domainObjectClass and the description and write
  * them to the corresponding columns.
- * 
+ *
  * e.g [description] "VirtualPort: Port One" will be migrated to
  * [domainObjectClass] "VirtualPort", [description] "Port One"
  */
@@ -56,12 +56,13 @@ public class V1_6_0_2__MigrateLogEvents implements SpringJdbcMigration {
 
     final Connection connection = jdbcTemplate.getDataSource().getConnection();
 
-    try (final PreparedStatement queryLogEvent = connection
-        .prepareStatement("select * from log_event where domain_object_class is null OR domain_object_class = ''");
-        final PreparedStatement updateLogEvent = connection
-            .prepareStatement("update log_event set description = ?, domain_object_class = ? where id = ?")) {
-
+    try (
+      PreparedStatement queryLogEvent = connection
+          .prepareStatement("select * from log_event where domain_object_class is null OR domain_object_class = ''");
+      PreparedStatement updateLogEvent = connection
+            .prepareStatement("update log_event set description = ?, domain_object_class = ? where id = ?");
       ResultSet resultSet = queryLogEvent.executeQuery();
+    ) {
       while (resultSet.next()) {
         String description = resultSet.getString("description");
         String[] parts = splitAtColon(description);
@@ -86,10 +87,6 @@ public class V1_6_0_2__MigrateLogEvents implements SpringJdbcMigration {
           logger.warn("Unexpected content of description: " + description);
         }
       }
-    }
-    catch (Exception exc) {
-      logger.error("Error during logEvent migration", exc);
-      throw exc;
     }
   }
 
