@@ -298,19 +298,20 @@ class NbiOpenDracWsClient implements NbiClient {
     try {
       responseDocument = schedulingService.queryReservationSchedule(requestDocument, getSecurityDocument());
     }
-    catch (Exception e) {
-      log.error("Error: ", e);
-      log.info("Type: "+e.getClass().getName());
+    catch (Exception exception) {
+      log.error("Error: ", exception);
       
-      // no connection to nms
-      if (e instanceof org.apache.axis2.AxisFault) {
-        final String message = e.getMessage().toLowerCase();
-        log.info("Message: {}", message);
+      if (exception instanceof org.apache.axis2.AxisFault) {
+        final String message = exception.getMessage().toLowerCase();
         final String messagePrefix = " returning absent reservation state.";
+        
+        // TODO: get messages somehow else
+        // no connection to nms
         if (message.contains("connection refused".toLowerCase())) {
           log.warn("Connection refused {}", messagePrefix);
           return Optional.absent();
         }
+        // wrong credentials
         else if (message.contains("Authentication check failed".toLowerCase())) {
           log.warn("Authentication check failed {}", messagePrefix);
           return Optional.absent();
