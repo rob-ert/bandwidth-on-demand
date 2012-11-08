@@ -27,6 +27,12 @@ import java.sql.PreparedStatement;
 import java.util.Collection;
 import java.util.Properties;
 
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.idd.IddClient;
+import nl.surfnet.bod.idd.IddLiveClient;
+import nl.surfnet.bod.idd.generated.Klanten;
+import nl.surfnet.bod.util.Functions;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
@@ -34,12 +40,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.google.common.base.Strings;
 import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
-
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.idd.IddClient;
-import nl.surfnet.bod.idd.IddLiveClient;
-import nl.surfnet.bod.idd.generated.Klanten;
-import nl.surfnet.bod.util.Functions;
 
 public class V0_10_0_8__MigrateInstitutes implements SpringJdbcMigration {
 
@@ -49,7 +49,7 @@ public class V0_10_0_8__MigrateInstitutes implements SpringJdbcMigration {
   private final String iddUser;
   private final String iddPassword;
   private IddClient iddClient;
-  
+
   public V0_10_0_8__MigrateInstitutes() throws IOException {
     final Properties properties = new Properties();
     properties.load(new ClassPathResource("bod-default.properties").getInputStream());
@@ -79,23 +79,16 @@ public class V0_10_0_8__MigrateInstitutes implements SpringJdbcMigration {
 
     Collection<Institute> institutes = Functions.transformKlanten(klanten, true);
 
-    final Connection connection = jdbcTemplate.getDataSource().getConnection();
-    final PreparedStatement insertInstitute = connection
+    try (
+      Connection connection = jdbcTemplate.getDataSource().getConnection();
+      PreparedStatement insertInstitute = connection
         .prepareStatement("INSERT INTO INSTITUTE  (id, name, short_name) VALUES (?,?,?)");
-    try {
+    ) {
       for (Institute institute : institutes) {
         insertInstitute.setLong(1, institute.getId());
         insertInstitute.setString(2, institute.getName());
         insertInstitute.setString(3, institute.getShortName());
         insertInstitute.execute();
-      }
-    }
-    finally {
-      if (insertInstitute != null) {
-        insertInstitute.close();
-      }
-      if (connection != null) {
-        connection.close();
       }
     }
   }
