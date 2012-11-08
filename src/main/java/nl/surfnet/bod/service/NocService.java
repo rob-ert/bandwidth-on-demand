@@ -58,9 +58,6 @@ public class NocService {
   @Resource
   private PhysicalPortService physicalPortService;
 
-  @Resource
-  private LogEventService logEventService;
-
   @PersistenceContext
   private EntityManager entityManager;
 

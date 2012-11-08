@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -35,9 +33,6 @@ import org.springframework.stereotype.Component;
 public class ReservationEventPublisher {
 
   private Logger logger = LoggerFactory.getLogger(ReservationEventPublisher.class);
-
-  @Resource
-  private LogEventService logEventService;
 
   private final List<ReservationListener> listeners = Collections.synchronizedList(new ArrayList<ReservationListener>());
 

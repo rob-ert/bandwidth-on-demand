@@ -21,11 +21,14 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import static com.google.common.collect.Iterables.limit;
+import static com.google.common.collect.Iterables.skip;
+import static com.google.common.collect.Lists.newArrayList;
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC;
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALLOCATED_PORTS_PRED;
+import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec;
+
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -52,23 +55,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.google.common.collect.Sets.SetView;
-
-import static com.google.common.collect.Iterables.limit;
-import static com.google.common.collect.Iterables.skip;
-import static com.google.common.collect.Lists.newArrayList;
-
-import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALIGNED_PORT_SPEC;
-import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.UNALLOCATED_PORTS_PRED;
-import static nl.surfnet.bod.service.PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec;
 
 /**
  * Service implementation which combines {@link PhysicalPort}s.
@@ -99,9 +87,6 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
 
   @Resource
   private LogEventService logEventService;
-
-  @Resource
-  private VirtualPortService virtualPortService;
 
   @Resource
   private SnmpAgentService snmpAgentService;
@@ -200,7 +185,7 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   public void save(final PhysicalPort physicalPort) {
     physicalPortRepo.save(physicalPort);
 
-   //Log event after creation, so the ID is set by hibernate 
+   //Log event after creation, so the ID is set by hibernate
     logEventService.logCreateEvent(Security.getUserDetails(), physicalPort,
         "Allocated port " + getLogLabel(Security.getSelectedRole(), physicalPort));
 

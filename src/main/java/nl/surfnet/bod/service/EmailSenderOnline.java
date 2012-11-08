@@ -67,9 +67,6 @@ public class EmailSenderOnline implements EmailSender {
   @Resource
   private MailSender mailSender;
 
-  @Resource
-  private LogEventService logEventService;
-
   /**
    * Removes a trailing slash at the end the {@link #externalBodUrl} which is
    * configurable

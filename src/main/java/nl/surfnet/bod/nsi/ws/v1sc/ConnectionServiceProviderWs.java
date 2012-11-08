@@ -97,12 +97,6 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   private VirtualPortService virtualPortService;
 
   @Resource
-  private VirtualResourceGroupRepo virtualResourceGroupRepo;
-
-  @Resource
-  private WebServiceContext webServiceContext;
-
-  @Resource
   private ConnectionServiceProviderService connectionServiceProviderService;
 
   @Resource(name = "nsaProviderUrns")
@@ -407,7 +401,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     // This is an incoming response. But for now we don't do any queries.
     throw new UnsupportedOperationException("Not implemented yet.");
   }
-  
+
   @Override
   public void terminateTimedOutReservation(Connection connection, Optional<NsiRequestDetails> nsiRequestDetails) {
     // Talked to HansT and this is really the only step we have to take from an NSI perspective.
@@ -487,5 +481,5 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     // System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump",
     // "true");
   }
-  
+
 }
