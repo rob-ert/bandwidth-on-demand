@@ -39,6 +39,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.util.CollectionUtils;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public final class LogEventPredicatesAndSpecifications {
 
   private LogEventPredicatesAndSpecifications() {
@@ -133,6 +135,7 @@ public final class LogEventPredicatesAndSpecifications {
             .getDomainObjectName(domainClass)), cb.between(root.get(LogEvent_.created), start, end));
 
         Predicate detailPredicate = determineDetailLikePredicate(root, cb, textPart);
+
         return detailPredicate == null ? domainClassPredicate : cb.and(domainClassPredicate, detailPredicate);
       }
 
@@ -140,7 +143,8 @@ public final class LogEventPredicatesAndSpecifications {
     return spec;
   }
 
-  private static Predicate determineDetailLikePredicate(final Root<LogEvent> root, final CriteriaBuilder cb,
+  @VisibleForTesting
+  static Predicate determineDetailLikePredicate(final Root<LogEvent> root, final CriteriaBuilder cb,
       final String... textPart) {
 
     Predicate partPredicate = null;
@@ -149,9 +153,9 @@ public final class LogEventPredicatesAndSpecifications {
       for (String part : textPart) {
         part = "%".concat(part).concat("%");
 
-        partPredicate = cb.like(root.get(LogEvent_.details), part);
+        textPartPredicate = cb.like(root.get(LogEvent_.details), part);
 
-        partPredicate = (textPartPredicate == null ? partPredicate : cb.or(textPartPredicate, partPredicate));
+        partPredicate = (partPredicate == null ? textPartPredicate : cb.or(textPartPredicate, partPredicate));
       }
     }
     return partPredicate;

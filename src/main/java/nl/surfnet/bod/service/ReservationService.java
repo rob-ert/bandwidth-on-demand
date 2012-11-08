@@ -305,17 +305,21 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservations;
   }
 
-  public long countReservationsForNocWithEndStateBetween(ReservationStatus status, DateTime start, DateTime end) {
-    Preconditions.checkArgument(status.isEndState());
+  public long countReservationsForNocWithEndStateBetween(DateTime start, DateTime end, ReservationStatus... states) {
+
+    if (states != null) {
+      for (ReservationStatus status : states)
+        Preconditions.checkArgument(status.isEndState());
+    }
 
     return logEventService.count(specLogEventsByDomainClassAndDescriptionPartBetween(Reservation.class, start, end,
-        LogEvent.getStateChangeMessageNewStatusPart(status)));
+        LogEvent.getStateChangeMessageNewStatusPart(states)));
   }
 
-  public long countReservationsForNocWhichHadStateBetween(ReservationStatus status, DateTime start, DateTime end) {
+  public long countReservationsForNocWhichHadStateBetween(DateTime start, DateTime end, ReservationStatus... states) {
 
-    return logEventService.count(specLogEventsByDomainClassAndDescriptionPartBetween(Reservation.class, start, end,
-        LogEvent.getStateChangeMessageNewStatusPart(status)));
+    return logEventService.countDistinctDomainObjectId(specLogEventsByDomainClassAndDescriptionPartBetween(
+        Reservation.class, start, end, LogEvent.getStateChangeMessageNewStatusPart(states)));
   }
 
   public long countReservationsForNocWithProtectionTypeWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
@@ -334,27 +338,15 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public long countReservationsForNocCreatedThroughChannelGUI(DateTime start, DateTime end) {
-    List<Long> reservationIds = logEventService.findDomainObjectIdsByDomainClassCreatedBetweenForNoc(Reservation.class,
-        start, end);
+    List<Long> reservationIds = logEventService.findDomainObjectIdsByDomainClassCreatedBetweenForNocWithState(
+        Reservation.class, start, end, ReservationStatus.REQUESTED);
 
     if (CollectionUtils.isEmpty(reservationIds)) {
       return 0;
     }
 
-    return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationByConnection(Reservation.class,
-        false, reservationIds));
-  }
-
-  public long countReservationsForNocCreatedThroughChannelNSI(DateTime start, DateTime end) {
-    List<Long> reservationIds = logEventService.findDomainObjectIdsByDomainClassCreatedBetweenForNoc(Reservation.class,
-        start, end);
-
-    if (CollectionUtils.isEmpty(reservationIds)) {
-      return 0;
-    }
-
-    return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationByConnection(Reservation.class,
-        true, reservationIds));
+    return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationWithConnection(
+        Reservation.class, reservationIds));
   }
 
   private void correctStart(Reservation reservation) {

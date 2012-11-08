@@ -35,4 +35,6 @@ public interface LogEventRepoCustom {
 
   List<Long> findDistinctDomainObjectIdsWithWhereClause(Specification<LogEvent> whereClause);
 
+  long countDistinctDomainObjectIdsWithWhereClause(Specification<LogEvent> whereClause);
+
 }

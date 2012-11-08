@@ -60,7 +60,7 @@ public enum ReservationStatus {
   /**
    * All states which indicate a successful creation of reservation
    */
-  public static final ReservationStatus[] SUCCESSFULLY_CREATED = { RESERVED, REQUESTED };
+  public static final ReservationStatus[] SUCCESSFULLY_CREATED = { RESERVED, SCHEDULED };
 
   public static final ReservationStatus[] TRANSITION_STATES_AS_ARRAY = TRANSITION_STATES
       .toArray(new ReservationStatus[TRANSITION_STATES.size()]);

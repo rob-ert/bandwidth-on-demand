@@ -20,15 +20,15 @@ public class NocReservationReport {
   private long amountRequestsThroughNSI;
 
   // Reservations per protectionType
-  private long amountReservationsProtected = 9;
-  private long amountReservationsUnprotected = 10;
-  private long amountReservationsRedundant = 11;
+  private long amountReservationsProtected;
+  private long amountReservationsUnprotected;
+  private long amountReservationsRedundant;
 
   // Running reservations
-  private long amountRunningReservationsSucceeded = 12;
-  private long amountRunningReservationsFailed = 13;
-  private long amounRunningReservationsStillRunning = 14;
-  private long amountRunningReservationsNeverProvisioned = 15;
+  private long amountRunningReservationsSucceeded;
+  private long amountRunningReservationsFailed;
+  private long amounRunningReservationsStillRunning;
+  private long amountRunningReservationsNeverProvisioned;
 
   public NocReservationReport(DateTime start, DateTime end) {
     this.periodStart = start;

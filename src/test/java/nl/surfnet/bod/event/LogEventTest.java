@@ -21,6 +21,7 @@
  */
 package nl.surfnet.bod.event;
 
+import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.support.VirtualPortFactory;
 
@@ -66,5 +67,21 @@ public class LogEventTest {
     assertThat(logEvent.getDescription(), nullValue());
     assertThat(logEvent.getDomainObjectClass(), nullValue());
     assertThat(logEvent.getDomainObjectId(), nullValue());
+  }
+
+  @Test
+  public void shouldCreateMessageForOneStatus() {
+    String message = LogEvent.getStateChangeMessageNewStatusPart(ReservationStatus.CANCELLED);
+
+    assertThat(message, is("] to [CANCELLED]"));
+  }
+
+  @Test
+  public void shouldCreateMessageForTwoStates() {
+    String[] messages = LogEvent.getStateChangeMessageNewStatusPart(ReservationStatus.CANCELLED,
+        ReservationStatus.REQUESTED);
+
+    assertThat(messages[0], is("] to [CANCELLED]"));
+    assertThat(messages[1], is("] to [REQUESTED]"));
   }
 }

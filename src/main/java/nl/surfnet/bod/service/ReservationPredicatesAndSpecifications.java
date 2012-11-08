@@ -208,15 +208,14 @@ public class ReservationPredicatesAndSpecifications {
     return spec;
   }
 
-  static Specification<Reservation> specReservationByConnection(final Class<Reservation> reservationClass,
-      final boolean shouldHaveConnection, final List<Long> reservationIds) {
+  static Specification<Reservation> specReservationWithConnection(final Class<Reservation> reservationClass,
+      final List<Long> reservationIds) {
 
     final Specification<Reservation> spec = new Specification<Reservation>() {
 
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        final Predicate connectionPredicate = shouldHaveConnection ? cb.isNotNull(root.get(Reservation_.connection)) : //
-            cb.isNull(root.get(Reservation_.connection));
+        final Predicate connectionPredicate = cb.isNotNull(root.get(Reservation_.connection));
 
         final Predicate reservationIdIn = root.get(Reservation_.id).in(reservationIds);
 

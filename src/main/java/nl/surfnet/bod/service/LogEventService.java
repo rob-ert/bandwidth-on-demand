@@ -37,6 +37,7 @@ import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
@@ -307,8 +308,22 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
         .specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end));
   }
 
+  public List<Long> findDomainObjectIdsByDomainClassCreatedBetweenForNocWithState(
+      final Class<? extends Loggable> domainClass, DateTime start, DateTime end, ReservationStatus state) {
+
+    Specification<LogEvent> spec = LogEventPredicatesAndSpecifications
+        .specLogEventsByDomainClassAndDescriptionPartBetween(domainClass, start, end, LogEvent
+            .getStateChangeMessageNewStatusPart(state));
+
+    return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(spec);
+  }
+
   public long count(Specification<LogEvent> whereClause) {
     return logEventRepo.count(whereClause);
+  }
+
+  public long countDistinctDomainObjectId(Specification<LogEvent> whereClause) {
+    return logEventRepo.countDistinctDomainObjectIdsWithWhereClause(whereClause);
   }
 
   public List<Long> findDistinctDomainObjectIdsWithWhereClause(Specification<LogEvent> whereClause) {

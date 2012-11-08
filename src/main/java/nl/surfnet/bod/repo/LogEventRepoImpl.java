@@ -70,4 +70,17 @@ public class LogEventRepoImpl implements LogEventRepoCustom {
     return entityManager.createQuery(criteriaQuery).getResultList();
   }
 
+  @Override
+  public long countDistinctDomainObjectIdsWithWhereClause(final Specification<LogEvent> whereClause) {
+    final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+    final Root<LogEvent> root = criteriaQuery.from(LogEvent.class);
+
+    criteriaQuery.distinct(true).select(root.get(LogEvent_.domainObjectId)).where(
+        whereClause.toPredicate(root, criteriaQuery, criteriaBuilder));
+
+    // TODO Do not get result, just the count
+    return entityManager.createQuery(criteriaQuery).getResultList().size();
+  }
+
 }

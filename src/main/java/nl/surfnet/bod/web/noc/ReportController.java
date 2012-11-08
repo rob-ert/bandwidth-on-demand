@@ -38,8 +38,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.google.common.base.Preconditions;
-
 @Controller("nocReportController")
 @RequestMapping(ReportController.PAGE_URL)
 public class ReportController {
@@ -60,9 +58,8 @@ public class ReportController {
   }
 
   private NocReservationReport determineReport(RichUserDetails userDetails) {
-    Preconditions.checkArgument(userDetails.isSelectedNocRole());
-
-    final DateTime firstDayOfPreviousMonth = DateMidnight.now().minusMonths(1).withDayOfMonth(1).toDateTime();
+    // TODO previous month
+    final DateTime firstDayOfPreviousMonth = DateMidnight.now().withDayOfMonth(1).toDateTime();
     final DateTime lastDayOfPreviousMonth = firstDayOfPreviousMonth.dayOfMonth().withMaximumValue().toDateTime();
 
     NocReservationReport nocReservationReport = new NocReservationReport(firstDayOfPreviousMonth,
@@ -80,23 +77,24 @@ public class ReportController {
 
     // ReservationRequests
     nocReservationReport.setAmountRequestsCreatedSucceeded(reservationService
-        .countReservationsForNocWhichHadStateBetween(ReservationStatus.SCHEDULED, start, end));
+        .countReservationsForNocWhichHadStateBetween(start, end, ReservationStatus.SUCCESSFULLY_CREATED));
+
     nocReservationReport.setAmountRequestsCreatedFailed(reservationService.countReservationsForNocWithEndStateBetween(
-        ReservationStatus.NOT_ACCEPTED, start, end));
+        start, end, ReservationStatus.NOT_ACCEPTED));
+    // TODO should also check FAILED
 
     // No modify requests yet, init on zero
 
     // Cancel requests will never fail (init on zero), only succeed
     nocReservationReport.setAmountRequestsCancelSucceeded(reservationService
-        .countReservationsForNocWithEndStateBetween(ReservationStatus.CANCELLED, start, end));
+        .countReservationsForNocWithEndStateBetween(start, end, ReservationStatus.CANCELLED));
 
     // Actual Reservations by channel
     nocReservationReport.setAmountRequestsThroughGUI(reservationService
         .countReservationsForNocCreatedThroughChannelGUI(start, end));
 
-    nocReservationReport.setAmountRequestsThroughNSI(reservationService
-        .countReservationsForNocCreatedThroughChannelNSI(start, end));
-
+    nocReservationReport.setAmountRequestsThroughNSI(nocReservationReport.getTotalRequests()
+        - nocReservationReport.getAmountRequestsThroughGUI());
   }
 
   private void determineReservationsForProtectionType(NocReservationReport nocReservationReport) {
