@@ -169,7 +169,7 @@ class NbiOfflineClient implements NbiClient {
   }
 
   @Override
-  public ReservationStatus getReservationStatus(String scheduleId) {
+  public Optional<ReservationStatus> getReservationStatus(String scheduleId) {
     ReservationStatus currentStatus = scheduleIds.get(scheduleId);
 
     if (currentStatus.isTransitionState() && random.nextInt(20) < 2) {
@@ -178,7 +178,7 @@ class NbiOfflineClient implements NbiClient {
       currentStatus = nextStatus;
     }
 
-    return currentStatus;
+    return Optional.of(currentStatus);
   }
 
   private ReservationStatus getNextStatus(ReservationStatus status) {

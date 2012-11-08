@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.nbi;
 
+import static nl.surfnet.bod.domain.ReservationStatus.*;
+
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Calendar;
@@ -28,15 +30,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PostConstruct;
-
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.nbi.generated.NetworkMonitoringServiceFault;
-import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
-import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingServiceFault;
-import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingService_v30Stub;
 
 import org.joda.time.Minutes;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.Security;
@@ -75,6 +68,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -82,15 +76,14 @@ import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.CompletionRespons
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidCompletionTypeT.Enum;
 import com.nortel.www.drac._2007._07._03.ws.ct.draccommontypes.ValidLayerT;
 
-import static nl.surfnet.bod.domain.ReservationStatus.TIMED_OUT;
-import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
-import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
-import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
-import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
-import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.nbi.generated.NetworkMonitoringServiceFault;
+import nl.surfnet.bod.nbi.generated.NetworkMonitoringService_v30Stub;
+import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingServiceFault;
+import nl.surfnet.bod.nbi.generated.ResourceAllocationAndSchedulingService_v30Stub;
 
 /**
  * A bridge to OpenDRAC's web services. Everything is contained in this one
@@ -103,7 +96,7 @@ class NbiOpenDracWsClient implements NbiClient {
   private static final String DEFAULT_VID = "Untagged";
   private static final Minutes MAX_DURATION = Minutes.MAX_VALUE;
 
-  private final Logger logger = LoggerFactory.getLogger(getClass());
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private NetworkMonitoringService_v30Stub networkingService;
   private ResourceAllocationAndSchedulingService_v30Stub schedulingService;
@@ -140,7 +133,7 @@ class NbiOpenDracWsClient implements NbiClient {
       getSecurityDocument();
     }
     catch (IOException e) {
-      logger.error("Error: ", e);
+      log.error("Error: ", e);
     }
   }
 
@@ -163,7 +156,7 @@ class NbiOpenDracWsClient implements NbiClient {
 
     }
     catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
-      logger.error("Error: ", e);
+      log.error("Error: ", e);
     }
 
     return false;
@@ -178,10 +171,10 @@ class NbiOpenDracWsClient implements NbiClient {
     try {
       CompletionResponseDocument response = schedulingService.cancelReservationSchedule(requestDocument,
           getSecurityDocument());
-      logger.info("Status: {}", response.getCompletionResponse().getResult());
+      log.info("Status: {}", response.getCompletionResponse().getResult());
     }
     catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
-      logger.error("Error: ", e);
+      log.error("Error: ", e);
     }
 
   }
@@ -192,7 +185,7 @@ class NbiOpenDracWsClient implements NbiClient {
       CreateReservationScheduleResponseDocument responseDocument = schedulingService.createReservationSchedule(
           createSchedule(reservation, autoProvision), getSecurityDocument());
 
-      logger.debug("Create reservation response: {}", responseDocument.getCreateReservationScheduleResponse());
+      log.debug("Create reservation response: {}", responseDocument.getCreateReservationScheduleResponse());
 
       String reservationId = responseDocument.getCreateReservationScheduleResponse().getReservationScheduleId();
       ReservationStatus status = OpenDracStatusTranslator.translate(responseDocument
@@ -208,18 +201,18 @@ class NbiOpenDracWsClient implements NbiClient {
         String failedReason = Joiner.on(", ").join(reasons);
         reservation.setFailedReason(failedReason);
 
-        logger.info("Create reservation ({}) failed with '{}'", reservationId, failedReason);
+        log.info("Create reservation ({}) failed with '{}'", reservationId, failedReason);
       }
 
       reservation.setReservationId(reservationId);
       reservation.setStatus(status);
     }
     catch (ResourceAllocationAndSchedulingServiceFault e) {
-      logger.warn("Creating a reservation failed", e);
+      log.warn("Creating a reservation failed", e);
       reservation.setStatus(NOT_ACCEPTED);
     }
     catch (Exception e) {
-      logger.error("Unexpected Exception while request reservation to OpenDRAC", e);
+      log.error("Unexpected Exception while request reservation to OpenDRAC", e);
       reservation.setStatus(FAILED);
     }
 
@@ -238,7 +231,7 @@ class NbiOpenDracWsClient implements NbiClient {
       return ports;
     }
     catch (NetworkMonitoringServiceFault e) {
-      logger.warn("Could not query OpenDrac for all endpoints", e);
+      log.warn("Could not query OpenDrac for all endpoints", e);
       throw new RuntimeException(e);
     }
   }
@@ -250,7 +243,7 @@ class NbiOpenDracWsClient implements NbiClient {
       return getPhysicalPort(endpoint);
     }
     catch (NetworkMonitoringServiceFault e) {
-      logger.warn("Could not query OpenDrac for end point by id '{}'", nmsPortId);
+      log.warn("Could not query OpenDrac for end point by id '{}'", nmsPortId);
       throw new RuntimeException(e);
     }
   }
@@ -295,7 +288,7 @@ class NbiOpenDracWsClient implements NbiClient {
   }
 
   @Override
-  public ReservationStatus getReservationStatus(final String reservationId) {
+  public Optional<ReservationStatus> getReservationStatus(final String reservationId) {
     final QueryReservationScheduleRequestDocument requestDocument = QueryReservationScheduleRequestDocument.Factory
         .newInstance();
     requestDocument.addNewQueryReservationScheduleRequest();
@@ -306,7 +299,23 @@ class NbiOpenDracWsClient implements NbiClient {
       responseDocument = schedulingService.queryReservationSchedule(requestDocument, getSecurityDocument());
     }
     catch (Exception e) {
-      logger.error("Error: ", e);
+      log.error("Error: ", e);
+      log.info("Type: "+e.getClass().getName());
+      
+      // no connection to nms
+      if (e instanceof org.apache.axis2.AxisFault) {
+        final String message = e.getMessage().toLowerCase();
+        log.info("Message: {}", message);
+        final String messagePrefix = " returning absent reservation state.";
+        if (message.contains("connection refused".toLowerCase())) {
+          log.warn("Connection refused {}", messagePrefix);
+          return Optional.absent();
+        }
+        else if (message.contains("Authentication check failed".toLowerCase())) {
+          log.warn("Authentication check failed {}", messagePrefix);
+          return Optional.absent();
+        }
+      }
     }
 
     if (responseDocument != null && responseDocument.getQueryReservationScheduleResponse().getIsFound()) {
@@ -314,11 +323,11 @@ class NbiOpenDracWsClient implements NbiClient {
           .getReservationSchedule();
       final ValidReservationScheduleStatusT.Enum status = schedule.getStatus();
 
-      return OpenDracStatusTranslator.translate(status);
+      return Optional.of(OpenDracStatusTranslator.translate(status));
     }
     else {
-      logger.info("No reservation found for reservationId: {}, returning FAILED", reservationId);
-      return FAILED;
+      log.info("No reservation found for reservationId: {}, returning FAILED", reservationId);
+      return Optional.of(FAILED);
     }
 
   }
@@ -379,11 +388,11 @@ class NbiOpenDracWsClient implements NbiClient {
     schedule.setName(reservation.getUserCreated() + "-" + System.currentTimeMillis());
     if (autoProvision) {
       schedule.setType(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_AUTOMATIC);
-      logger.info("Created autoprovisioned reservation: {}", schedule.getName());
+      log.info("Created autoprovisioned reservation: {}", schedule.getName());
     }
     else {
       schedule.setType(ValidReservationScheduleTypeT.RESERVATION_SCHEDULE_MANUAL);
-      logger.info("Created manual provisioned reservation: {}", schedule.getName());
+      log.info("Created manual provisioned reservation: {}", schedule.getName());
     }
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(reservation.getStartDateTime().toDate());
@@ -415,7 +424,7 @@ class NbiOpenDracWsClient implements NbiClient {
       return responseDocument.getQueryReservationScheduleResponse().getReservationSchedule().getOccurrenceIdArray()[0];
     }
     catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
-      logger.error("Error: ", e);
+      log.error("Error: ", e);
     }
     return null;
   }
@@ -478,7 +487,7 @@ class NbiOpenDracWsClient implements NbiClient {
       final QueryEndpointsResponseDocument response = networkingService.queryEndpoints(requestDocument,
           getSecurityDocument());
 
-      logger.debug("Find all endpoints response: {}", response);
+      log.debug("Find all endpoints response: {}", response);
 
       final List<EndpointT> endPoints = Lists.newArrayList();
       for (final String tna : response.getQueryEndpointsResponse().getTnaArray()) {
@@ -488,7 +497,7 @@ class NbiOpenDracWsClient implements NbiClient {
       return endPoints;
     }
     catch (RemoteException e) {
-      logger.warn("Could not query openDRAC for end points", e);
+      log.warn("Could not query openDRAC for end points", e);
       throw new RuntimeException(e);
     }
   }
@@ -507,7 +516,7 @@ class NbiOpenDracWsClient implements NbiClient {
       return endpointFound;
     }
     catch (RemoteException e) {
-      logger.warn("Can query openDrac for end point by tna", e);
+      log.warn("Can query openDrac for end point by tna", e);
       throw new RuntimeException(e);
     }
   }

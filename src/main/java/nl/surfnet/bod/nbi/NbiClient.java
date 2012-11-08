@@ -23,6 +23,8 @@ package nl.surfnet.bod.nbi;
 
 import java.util.List;
 
+import com.google.common.base.Optional;
+
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -62,7 +64,7 @@ public interface NbiClient {
    *          the id of the schedule of interest
    * @return status of the reservation
    */
-  ReservationStatus getReservationStatus(String scheduleId);
+  Optional<ReservationStatus> getReservationStatus(String scheduleId);
 
   /**
    *

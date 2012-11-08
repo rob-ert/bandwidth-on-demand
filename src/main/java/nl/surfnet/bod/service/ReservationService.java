@@ -399,7 +399,12 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public ReservationStatus getStatus(Reservation reservation) {
-    return nbiClient.getReservationStatus(reservation.getReservationId());
+    final Optional<ReservationStatus> optionalReservationStatus = nbiClient.getReservationStatus(reservation
+        .getReservationId());
+    if (optionalReservationStatus.isPresent()) {
+      return optionalReservationStatus.get();
+    }
+    return reservation.getStatus();
   }
 
   public List<Integer> findUniqueYearsFromReservations() {
