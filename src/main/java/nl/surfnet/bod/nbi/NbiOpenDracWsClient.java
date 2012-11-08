@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.axis2.AxisFault;
 import org.joda.time.Minutes;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.Security;
 import org.oasis_open.docs.wss._2004._01.oasis_200401_wss_wssecurity_secext_1_0_xsd.SecurityDocument;
@@ -298,25 +299,27 @@ class NbiOpenDracWsClient implements NbiClient {
     try {
       responseDocument = schedulingService.queryReservationSchedule(requestDocument, getSecurityDocument());
     }
-    catch (Exception exception) {
+    catch (AxisFault exception) {
       log.error("Error: ", exception);
-      
-      if (exception instanceof org.apache.axis2.AxisFault) {
-        final String message = exception.getMessage().toLowerCase();
-        final String messagePrefix = " returning absent reservation state.";
-        
-        // TODO: get messages somehow else
-        // no connection to nms
-        if (message.contains("connection refused".toLowerCase())) {
-          log.warn("Connection refused {}", messagePrefix);
-          return Optional.absent();
-        }
-        // wrong credentials
-        else if (message.contains("Authentication check failed".toLowerCase())) {
-          log.warn("Authentication check failed {}", messagePrefix);
-          return Optional.absent();
-        }
+
+      final String message = exception.getMessage().toLowerCase();
+      final String messagePrefix = " returning absent reservation state.";
+
+      // TODO: get messages somehow else
+      // no connection to nms
+      if (message.contains("connection refused".toLowerCase())) {
+        log.warn("Connection refused to {}, {}", schedulingServiceUrl, messagePrefix);
+        return Optional.absent();
       }
+      // wrong credentials
+      else if (message.contains("Authentication check failed".toLowerCase())) {
+        log.warn("Authentication check failed for user {} and resource group {}, {}", new Object[] { username,
+            resourceGroupName, messagePrefix });
+        return Optional.absent();
+      }
+    }
+    catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
+      log.error("Error: ", e);
     }
 
     if (responseDocument != null && responseDocument.getQueryReservationScheduleResponse().getIsFound()) {
