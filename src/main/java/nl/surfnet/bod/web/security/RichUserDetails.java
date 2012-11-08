@@ -193,18 +193,14 @@ public class RichUserDetails implements UserDetails {
   }
 
   public void switchToManager(PhysicalResourceGroup physicalResourceGroup) {
-    BodRole managerRole = null;
-
     for (BodRole bodRole : bodRoles) {
       if ((bodRole.getRole() == RoleEnum.ICT_MANAGER)
           && (physicalResourceGroup.getId().equals(bodRole.getPhysicalResourceGroupId().get()))) {
 
-        managerRole = bodRole;
-        break;
+        switchToRole(bodRole);
+        return;
       }
     }
-
-    switchToRole(managerRole);
   }
 
   public void trySwitchToManager() {
