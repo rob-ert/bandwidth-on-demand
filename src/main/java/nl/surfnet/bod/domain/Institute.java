@@ -26,21 +26,17 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import org.hibernate.search.annotations.Analyzer;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Index;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.Store;
+import org.hibernate.search.annotations.*;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Represents a customer of SURFnet, a local copy of IDD data, which is regarded
  * by the rest of the team as a good idea...
- * 
+ *
  * Note that this class has <strong>no version</strong> field, since this causes
  * duplicate key exceptions because hibernate tries to insert them instead of
  * updating the existing content of the database.
- * 
+ *
  */
 @Indexed
 @Entity
@@ -75,6 +71,7 @@ public class Institute implements Loggable {
     this.alignedWithIDD = alignedWithIDD;
   }
 
+  @Override
   public Long getId() {
     return id;
   }
@@ -143,31 +140,40 @@ public class Institute implements Loggable {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     Institute other = (Institute) obj;
     if (id == null) {
-      if (other.id != null)
+      if (other.id != null) {
         return false;
+      }
     }
-    else if (!id.equals(other.id))
+    else if (!id.equals(other.id)) {
       return false;
+    }
     if (name == null) {
-      if (other.name != null)
+      if (other.name != null) {
         return false;
+      }
     }
-    else if (!name.equals(other.name))
+    else if (!name.equals(other.name)) {
       return false;
+    }
     if (shortName == null) {
-      if (other.shortName != null)
+      if (other.shortName != null) {
         return false;
+      }
     }
-    else if (!shortName.equals(other.shortName))
+    else if (!shortName.equals(other.shortName)) {
       return false;
+    }
     return true;
   }
 

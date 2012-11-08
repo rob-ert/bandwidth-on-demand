@@ -233,8 +233,9 @@ public abstract class AbstractSearchableSortableListController<VIEW, ENTITY exte
 
     Class<?> rawType = (Class<?>) initialType;
     Type superType = rawType.getGenericSuperclass();
-    if (superType != null && !superType.equals(Object.class))
+    if (superType != null && !superType.equals(Object.class)) {
       return resolveParameterizedType(superType, targetType);
+    }
 
     throw new IllegalStateException();
   }

@@ -29,7 +29,7 @@ import org.apache.lucene.search.SortField;
 
 /**
  * Maps java types to LuceneTypes as defined in {@link SortField}
- * 
+ *
  */
 public enum LuceneSortFieldType {
 
@@ -44,8 +44,9 @@ public enum LuceneSortFieldType {
   private static final Map<Class<?>, Integer> LOOKUP = new HashMap<>();
 
   static {
-    for (LuceneSortFieldType luceneType : EnumSet.allOf(LuceneSortFieldType.class))
+    for (LuceneSortFieldType luceneType : EnumSet.allOf(LuceneSortFieldType.class)) {
       LOOKUP.put(luceneType.getJavaType(), luceneType.getLuceneType());
+    }
   }
 
   private Integer luceneType;

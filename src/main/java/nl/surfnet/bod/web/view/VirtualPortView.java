@@ -182,79 +182,104 @@ public class VirtualPortView {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     VirtualPortView other = (VirtualPortView) obj;
     if (id == null) {
-      if (other.id != null)
+      if (other.id != null) {
         return false;
+      }
     }
-    else if (!id.equals(other.id))
+    else if (!id.equals(other.id)) {
       return false;
+    }
     if (managerLabel == null) {
-      if (other.managerLabel != null)
+      if (other.managerLabel != null) {
         return false;
+      }
     }
-    else if (!managerLabel.equals(other.managerLabel))
+    else if (!managerLabel.equals(other.managerLabel)) {
       return false;
+    }
     if (maxBandwidth == null) {
-      if (other.maxBandwidth != null)
+      if (other.maxBandwidth != null) {
         return false;
+      }
     }
-    else if (!maxBandwidth.equals(other.maxBandwidth))
+    else if (!maxBandwidth.equals(other.maxBandwidth)) {
       return false;
+    }
     if (nmsPortId == null) {
-      if (other.nmsPortId != null)
+      if (other.nmsPortId != null) {
         return false;
+      }
     }
-    else if (!nmsPortId.equals(other.nmsPortId))
+    else if (!nmsPortId.equals(other.nmsPortId)) {
       return false;
+    }
     if (nsiStpId == null) {
-      if (other.nsiStpId != null)
+      if (other.nsiStpId != null) {
         return false;
+      }
     }
-    else if (!nsiStpId.equals(other.nsiStpId))
+    else if (!nsiStpId.equals(other.nsiStpId)) {
       return false;
+    }
     if (physicalPort == null) {
-      if (other.physicalPort != null)
+      if (other.physicalPort != null) {
         return false;
+      }
     }
-    else if (!physicalPort.equals(other.physicalPort))
+    else if (!physicalPort.equals(other.physicalPort)) {
       return false;
+    }
     if (physicalResourceGroup == null) {
-      if (other.physicalResourceGroup != null)
+      if (other.physicalResourceGroup != null) {
         return false;
+      }
     }
-    else if (!physicalResourceGroup.equals(other.physicalResourceGroup))
+    else if (!physicalResourceGroup.equals(other.physicalResourceGroup)) {
       return false;
+    }
     if (reservationCounter == null) {
-      if (other.reservationCounter != null)
+      if (other.reservationCounter != null) {
         return false;
+      }
     }
-    else if (!reservationCounter.equals(other.reservationCounter))
+    else if (!reservationCounter.equals(other.reservationCounter)) {
       return false;
+    }
     if (userLabel == null) {
-      if (other.userLabel != null)
+      if (other.userLabel != null) {
         return false;
+      }
     }
-    else if (!userLabel.equals(other.userLabel))
+    else if (!userLabel.equals(other.userLabel)) {
       return false;
+    }
     if (virtualResourceGroup == null) {
-      if (other.virtualResourceGroup != null)
+      if (other.virtualResourceGroup != null) {
         return false;
+      }
     }
-    else if (!virtualResourceGroup.equals(other.virtualResourceGroup))
+    else if (!virtualResourceGroup.equals(other.virtualResourceGroup)) {
       return false;
+    }
     if (vlanId == null) {
-      if (other.vlanId != null)
+      if (other.vlanId != null) {
         return false;
+      }
     }
-    else if (!vlanId.equals(other.vlanId))
+    else if (!vlanId.equals(other.vlanId)) {
       return false;
+    }
     return true;
   }
 
