@@ -96,6 +96,9 @@ class NbiOpenDracWsClient implements NbiClient {
   private static final String ROUTING_ALGORITHM = "VCAT";
   private static final String DEFAULT_VID = "Untagged";
   private static final Minutes MAX_DURATION = Minutes.MAX_VALUE;
+  
+  private static final String CONNECTION_REFUSED_LOWER_CASE_MESSAGE = "connection refused";
+  private static final String AUTHENTICATION_FAILED_LOWER_CASE_MESSAGE = "authentication check failed";
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -299,24 +302,26 @@ class NbiOpenDracWsClient implements NbiClient {
     try {
       responseDocument = schedulingService.queryReservationSchedule(requestDocument, getSecurityDocument());
     }
-    catch (AxisFault exception) {
-      log.error("Error: ", exception);
+    catch (AxisFault e) {
+      log.error("Error: ", e);
 
-      final String message = exception.getMessage().toLowerCase();
+      final String errorMessageToLowerCase = e.getMessage().toLowerCase();
       final String messagePrefix = " returning absent reservation state.";
 
-      // TODO: get messages somehow else
       // no connection to nms
-      if (message.contains("connection refused".toLowerCase())) {
+      if (errorMessageToLowerCase.contains(CONNECTION_REFUSED_LOWER_CASE_MESSAGE)) {
         log.warn("Connection refused to {}, {}", schedulingServiceUrl, messagePrefix);
         return Optional.absent();
       }
-      // wrong credentials
-      else if (message.contains("Authentication check failed".toLowerCase())) {
-        log.warn("Authentication check failed for user {} and resource group {}, {}", new Object[] { username,
-            resourceGroupName, messagePrefix });
-        return Optional.absent();
+      else {
+        // invalid credentials
+        if (errorMessageToLowerCase.contains(AUTHENTICATION_FAILED_LOWER_CASE_MESSAGE)) {
+          log.warn("Authentication check failed for user {} and resource group {}, {}", new Object[] { username,
+              resourceGroupName, messagePrefix });
+          return Optional.absent();
+        }
       }
+      
     }
     catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
       log.error("Error: ", e);
