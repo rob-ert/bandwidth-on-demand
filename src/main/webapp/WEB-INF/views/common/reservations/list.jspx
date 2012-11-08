@@ -81,7 +81,7 @@
                                             <spring:message code="label_reservation_${type}" />
                                         </dd>
 
-                                        <c:if test="${item.status eq 'FAILED'}">
+                                        <c:if test="${item.status eq 'FAILED' or item.status eq 'NOT_ACCEPTED'}">
                                             <dt><spring:message code="label_reservation_failedreason" /></dt>
                                             <dd>
                                                 <c:choose>
