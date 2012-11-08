@@ -62,7 +62,7 @@ public interface NbiClient {
    *
    * @param scheduleId
    *          the id of the schedule of interest
-   * @return status of the reservation
+   * @return status of the reservation if available otherwise absent
    */
   Optional<ReservationStatus> getReservationStatus(String scheduleId);
 
