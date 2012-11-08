@@ -21,24 +21,16 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
+import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByDomainClassAndCreatedBetween;
+
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.Loggable;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
@@ -58,9 +50,6 @@ import org.springframework.util.StringUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterators;
-
-import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
-import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByDomainClassAndCreatedBetween;
 
 @Service
 public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
@@ -186,10 +175,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    * domainObject with one a specific type, as determined by
    * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
    * {@link LogEventRepo}
-   * 
+   *
    * @param logger
    *          Logger to write to
-   * 
+   *
    * @param logEvent
    *          LogEvent to handle
    */
@@ -217,7 +206,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
       LogEvent logEvent = createLogEvent(user, logEventType, object, details);
 
       // Relate list items
-      logEvent.setCorrelationId(String.valueOf(index) + "-" + String.valueOf(size));
+      logEvent.setCorrelationId(String.valueOf(index) + "/" + String.valueOf(size));
 
       logEvents.add(logEvent);
     }
@@ -234,7 +223,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    * <li>VirtualPort</li>
    * <li>Institute</li>
    * </ul>
-   * 
+   *
    * @param logEvent
    * @return true when the {@link LogEvent#getDescription()} matches one of the
    *         listed above, false otherwise.
@@ -262,7 +251,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   /**
    * Delegates to {@link #handleEvent(Logger, LogEvent)}
-   * 
+   *
    * @param logEvent
    */
   private void handleEvent(LogEvent logEvent) {
