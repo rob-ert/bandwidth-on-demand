@@ -21,17 +21,18 @@
  */
 package nl.surfnet.bod.mtosi;
 
-import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import nl.surfnet.bod.domain.PhysicalPort;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 public class MtosiInventoryRetrievalLiveClientTestIntegration {
 
@@ -46,7 +47,7 @@ public class MtosiInventoryRetrievalLiveClientTestIntegration {
         "mtosi.inventory.retrieval.endpoint").toString(), properties.get("mtosi.inventory.sender.uri").toString());
   }
 
-//  @Ignore("Currently returns 0 NE's")
+  @Ignore("Currently returns 0 NE's")
   @Test
   public void getUnallocatedPorts() {
     final List<PhysicalPort> unallocatedPorts = mtosiInventoryRetrievalLiveClient.getUnallocatedPorts();
@@ -63,7 +64,7 @@ public class MtosiInventoryRetrievalLiveClientTestIntegration {
 
   }
 
-//  @Ignore("Currently returns 0 NE's")
+  @Ignore("Currently returns 0 NE's")
   @Test
   public void getUnallocatedPortsCount() {
     assertThat(mtosiInventoryRetrievalLiveClient.getUnallocatedMtosiPortCount(), greaterThan(0));
