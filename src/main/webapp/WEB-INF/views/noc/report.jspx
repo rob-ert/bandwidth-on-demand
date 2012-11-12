@@ -37,13 +37,19 @@
           </thead>
           <tbody>
             <tr>
-              <td>Reservation Requests</td>
-              <td>${report.totalRequests}</td>
-              <td>Created</td>
+              <td colspan="3">Reservation Requests</td>
+              <td class="right">${report.totalRequests}</td>
+            </tr>
+            <tr>
+              <td colspan="3" class="right">Created</td>
+              <td class="right">${report.totalAmountRequestsCreated}</td>
+            </tr>
+            <tr>
+              <td colspan="3" />
               <td>
                 <table class="table  table-striped table-bordered">
                   <tr>
-                    <td class="cw85">Succeeded</td>
+                    <td>Succeeded</td>
                     <td class="right">${report.amountRequestsCreatedSucceeded}</td>
                   </tr>
                   <tr>
@@ -54,13 +60,15 @@
               </td>
             </tr>
             <tr>
-              <td />
-              <td />
-              <td>Modified</td>
+              <td colspan="3" class="right">Modified</td>
+              <td class="right">${report.totalAmountRequestsModified}</td>
+            </tr>
+            <tr>
+              <td colspan="3" />
               <td>
                 <table class="table  table-striped table-bordered">
                   <tr>
-                    <td class="cw85">Succeeded</td>
+                    <td>Succeeded</td>
                     <td class="right">${report.amountRequestsModifiedSucceeded}</td>
                   </tr>
                   <tr>
@@ -71,13 +79,15 @@
               </td>
             </tr>
             <tr>
-              <td />
-              <td />
-              <td>Cancelled</td>
+              <td colspan="3" class="right">Cancelled</td>
+              <td class="right">${report.totalAmountRequestsCancelled}</td>
+            </tr>
+            <tr>
+              <td colspan="3" />
               <td>
                 <table class="table  table-striped table-bordered">
                   <tr>
-                    <td class="cw85">Succeeded</td>
+                    <td>Succeeded</td>
                     <td class="right">${report.amountRequestsCancelSucceeded}</td>
                   </tr>
                   <tr>
@@ -88,30 +98,27 @@
               </td>
             </tr>
             <tr>
-              <td />
-              <td />
-              <td>Channel</td>
-              <td>
-                <table class="table  table-striped table-bordered">
-                  <tr>
-                    <td class="cw85">NSI</td>
-                    <td class="right">${report.amountRequestsThroughNSI}</td>
-                  </tr>
-                  <tr>
-                    <td>GUI</td>
-                    <td class="right">${report.amountRequestsThroughGUI}</td>
-                  </tr>
-                </table>
-              </td>
+              <td colspan="3" class="right">NSI</td>
+              <td class="right">${report.amountRequestsThroughNSI}</td>
             </tr>
             <tr>
-              <td>Reservations</td>
-              <td>${report.totalReservations}</td>
-              <td>ProtectionType</td>
+              <td colspan="3" class="right">GUI</td>
+              <td class="right">${report.amountRequestsThroughGUI}</td>
+            </tr>
+            <tr>
+              <td colspan="3">Reservations</td>
+              <td class="right">${report.totalReservations}</td>
+            </tr>
+            <tr>
+              <td colspan="3" class="right">ProtectionType</td>
+              <td class="right">${report.totalReservations}</td>
+            </tr>
+            <tr>
+              <td colspan="3" />
               <td>
                 <table class="table  table-striped table-bordered">
                   <tr>
-                    <td class="cw85">Protected</td>
+                    <td>Protected</td>
                     <td class="right">${report.amountReservationsProtected}</td>
                   </tr>
                   <br />
@@ -127,13 +134,19 @@
               </td>
             </tr>
             <tr>
-              <td>Active Reservations</td>
-              <td>${report.totalActiveReservations}</td>
-              <td>Running</td>
+              <td colspan="3">Active Reservations</td>
+              <td class="right">${report.totalActiveReservations}</td>
+            </tr>
+            <tr>
+              <td colspan="3" class="right">Running</td>
+              <td />
+            </tr>
+            <tr>
+              <td colspan="3" />
               <td>
                 <table class="table  table-striped table-bordered">
                   <tr>
-                    <td class="cw85">Execution succeeded</td>
+                    <td>Execution succeeded</td>
                     <td class="right">${report.amountRunningReservationsSucceeded}</td>
                   </tr>
                   <tr>
@@ -141,20 +154,22 @@
                     <td class="right">${report.amountRunningReservationsFailed}</td>
                   </tr>
                   <tr>
-                    <td>Currently running</td>
+                    <td>Running</td>
                     <td class="right">${report.amounRunningReservationsStillRunning}</td>
                   </tr>
                 </table>
               </td>
             </tr>
             <tr>
+              <td colspan="3" class="right">Never provisioned</td>
               <td />
-              <td />
-              <td>Never provisioned</td>
+            </tr>
+            <tr>
+              <td colspan="3" />
               <td>
                 <table class="table  table-striped table-bordered">
                   <tr>
-                    <td class="cw85">Time-out</td>
+                    <td>Time-out</td>
                     <td class="right">${report.amountRunningReservationsNeverProvisioned}</td>
                   </tr>
                 </table>

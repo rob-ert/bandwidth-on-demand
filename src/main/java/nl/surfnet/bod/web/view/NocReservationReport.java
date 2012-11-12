@@ -70,6 +70,18 @@ public class NocReservationReport {
         + amountRunningReservationsNeverProvisioned;
   }
 
+  public long getTotalAmountRequestsCreated() {
+    return amountRequestsCreatedSucceeded + amountRequestsCreatedFailed;
+  }
+
+  public long getTotalAmountRequestsModified() {
+    return amountRequestsModifiedSucceeded + amountRequestsModifiedFailed;
+  }
+
+  public long getTotalAmountRequestsCancelled() {
+    return amountRequestsCancelSucceeded + amountRequestsCancelFailed;
+  }
+  
   public long getAmountRequestsCreatedSucceeded() {
     return amountRequestsCreatedSucceeded;
   }
