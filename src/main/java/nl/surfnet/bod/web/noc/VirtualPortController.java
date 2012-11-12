@@ -21,11 +21,24 @@
  */
 package nl.surfnet.bod.web.noc;
 
-import static nl.surfnet.bod.web.WebUtils.*;
+import static nl.surfnet.bod.web.WebUtils.DELETE;
+import static nl.surfnet.bod.web.WebUtils.FILTER_SELECT;
+import static nl.surfnet.bod.web.WebUtils.ID_KEY;
+import static nl.surfnet.bod.web.WebUtils.PAGE_KEY;
 
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.VirtualPortView;
 
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Sort;
@@ -40,16 +53,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.service.AbstractFullTextSearchService;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.VirtualPortService;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.VirtualPortView;
 
 @Controller("nocVirtualPortController")
 @RequestMapping("/noc/virtualports")
@@ -78,8 +81,8 @@ public class VirtualPortController extends AbstractSearchableSortableListControl
 
   @Override
   protected List<VirtualPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
-    List<VirtualPort> entriesForManager = virtualPortService.findEntries(firstPage, maxItems);
-    return transformToView(entriesForManager, Security.getUserDetails());
+    List<VirtualPort> entries = virtualPortService.findEntries(firstPage, maxItems, sort);
+    return transformToView(entries, Security.getUserDetails());
   }
 
   @Override

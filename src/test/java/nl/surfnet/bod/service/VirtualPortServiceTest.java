@@ -131,7 +131,7 @@ public class VirtualPortServiceTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void findEntriesWithMaxResultZeroShouldGiveAnException() {
-    subject.findEntries(1, 0);
+    subject.findEntries(1, 0, new Sort("id"));
   }
 
   @Test
@@ -141,7 +141,7 @@ public class VirtualPortServiceTest {
     when(virtualPortRepoMock.findAll(any(PageRequest.class))).thenReturn(
         new PageImpl<VirtualPort>(Lists.newArrayList(port)));
 
-    List<VirtualPort> ports = subject.findEntries(5, 10);
+    List<VirtualPort> ports = subject.findEntries(5, 10, new Sort("id"));
 
     assertThat(ports, contains(port));
   }
