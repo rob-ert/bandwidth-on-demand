@@ -1,0 +1,5 @@
+//
+// Create diagram using http://yuml.me/diagram/scruffy/class/draw
+//
+(start)->(Requested)->|a|[Req. Success]->(Reserved)[Provision]->(Scheduled)[Start time]->(Running)[End time]-->(Succeeded)->(end)
+|a|[Req. Failed]->(Not Accepted)
