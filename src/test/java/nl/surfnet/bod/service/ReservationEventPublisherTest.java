@@ -21,24 +21,27 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.junit.Test;
 
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Uninterruptibles;
+
+import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class ReservationEventPublisherTest {
 
-  private ReservationEventPublisher subject = new ReservationEventPublisher();
+  private final ReservationEventPublisher subject = new ReservationEventPublisher();
 
   @Test
   public void shouldNotGiveAConccurrenModifidationException() throws InterruptedException {
@@ -66,7 +69,8 @@ public class ReservationEventPublisherTest {
       @Override
       public void run() {
         for (int i = 0; i < numberOfEvents; i++) {
-          subject.notifyListeners(new ReservationStatusChangeEvent(REQUESTED, new ReservationFactory().setStatus(SCHEDULED).create()));
+          subject.notifyListeners(new ReservationStatusChangeEvent(REQUESTED, new ReservationFactory().setStatus(
+              SCHEDULED).create(), Optional.<NsiRequestDetails> absent()));
         }
       }
     };

@@ -21,16 +21,9 @@
  */
 package nl.surfnet.bod.web.push;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.util.Locale;
 
+import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
@@ -39,16 +32,26 @@ import nl.surfnet.bod.support.ReservationFactory;
 import org.junit.Test;
 import org.springframework.context.MessageSource;
 
+import com.google.common.base.Optional;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class PushMessagesTest {
 
-  private MessageSource messageSourceMock = mock(MessageSource.class);
+  private final MessageSource messageSourceMock = mock(MessageSource.class);
 
   @Test
   public void aReservationStatusChangedEventShouldHaveAJsonMessage() {
     Reservation reservation = new ReservationFactory().setId(54L).setStatus(ReservationStatus.SCHEDULED).create();
 
     ReservationStatusChangeEvent reservationStatusChangeEvent = new ReservationStatusChangeEvent(
-        ReservationStatus.RUNNING, reservation);
+        ReservationStatus.RUNNING, reservation, Optional.<NsiRequestDetails>absent());
 
     when(messageSourceMock.getMessage(eq("info_reservation_statuschanged"), any(Object[].class), any(Locale.class)))
         .thenReturn("Yes");

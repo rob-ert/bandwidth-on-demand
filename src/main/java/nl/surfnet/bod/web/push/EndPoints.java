@@ -43,7 +43,7 @@ public class EndPoints {
   private final Map<String, EndPoint> endPoints = Maps.newConcurrentMap();
 
   public void broadcast(final PushMessage event) {
-    logger.debug("Got a event for groupId {}", event.getGroupId());
+    logger.debug("Got a event with message [{}] for groupId: {}", event.getMessage(), event.getGroupId());
     Map<String, EndPoint> clients = Maps.filterValues(endPoints, new Predicate<EndPoint>() {
       @Override
       public boolean apply(EndPoint connection) {
@@ -55,9 +55,9 @@ public class EndPoints {
   }
 
   private void broadcast(Collection<EndPoint> clients, String message) {
-    logger.debug("Got a broadcast message for {} clients", clients.size());
+    logger.debug("Got a broadcast message [{}] for {} clients", message, clients.size());
     for (EndPoint connection : clients) {
-        connection.sendMessage(message);
+      connection.sendMessage(message);
     }
   }
 

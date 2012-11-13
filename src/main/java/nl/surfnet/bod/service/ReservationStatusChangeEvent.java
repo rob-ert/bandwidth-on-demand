@@ -34,11 +34,6 @@ public class ReservationStatusChangeEvent {
   private final Reservation reservation;
   private final Optional<NsiRequestDetails> nsiRequestDetails;
 
-
-  public ReservationStatusChangeEvent(ReservationStatus oldStatus, Reservation reservation) {
-    this(oldStatus, reservation, Optional.<NsiRequestDetails>absent());
-  }
-
   public ReservationStatusChangeEvent(ReservationStatus oldStatus, Reservation reservation,
       Optional<NsiRequestDetails> nsiRequestDetails) {
     this.oldStatus = oldStatus;
@@ -64,11 +59,8 @@ public class ReservationStatusChangeEvent {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
-        .add("reservationId", reservation.getId())
-        .add("oldStatus", oldStatus)
-        .add("newStatus", getNewStatus())
-        .add("nsiRequest", nsiRequestDetails).toString();
+    return Objects.toStringHelper(this).add("reservationId", reservation.getId()).add("oldStatus", oldStatus).add(
+        "newStatus", getNewStatus()).add("nsiRequest", nsiRequestDetails).toString();
   }
 
 }

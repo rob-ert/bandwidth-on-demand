@@ -24,15 +24,19 @@ package nl.surfnet.bod.web.push;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Component;
-
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
+
 @Component
 public class ReservationStatusChangeListener implements ReservationListener {
+
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Resource
   private ReservationEventPublisher reservationEventPublisher;
@@ -51,7 +55,7 @@ public class ReservationStatusChangeListener implements ReservationListener {
   @Override
   public void onStatusChange(ReservationStatusChangeEvent reservationStatusChangeEvent) {
     PushMessage event = PushMessages.createMessage(reservationStatusChangeEvent, messageSource);
+    logger.debug("Broadcasting event: {}", event);
     connections.broadcast(event);
   }
-
 }

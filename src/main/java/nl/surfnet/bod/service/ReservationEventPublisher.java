@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ReservationEventPublisher {
 
-  private Logger logger = LoggerFactory.getLogger(ReservationEventPublisher.class);
+  private final Logger logger = LoggerFactory.getLogger(ReservationEventPublisher.class);
 
   private final List<ReservationListener> listeners = Collections.synchronizedList(new ArrayList<ReservationListener>());
 
@@ -45,7 +45,7 @@ public class ReservationEventPublisher {
 
     synchronized (listeners) {
       for (ReservationListener listener : listeners) {
-        logger.debug("Listern {}", listener.getClass());
+        logger.debug("Listener {}", listener.getClass());
         try {
           listener.onStatusChange(changeEvent);
         }
