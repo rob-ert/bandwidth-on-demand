@@ -118,7 +118,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   @Override
   public GenericAcknowledgmentType reserve(final ReserveRequestType reservationRequest) throws ServiceException {
     checkNotNull(reservationRequest);
-    validateScope(NsiScope.RESERVE);
+    validateOAuthScope(NsiScope.RESERVE);
 
     Connection connection = RESERVE_REQUEST_TO_CONNECTION.apply(reservationRequest);
 
@@ -243,7 +243,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public GenericAcknowledgmentType provision(ProvisionRequestType parameters) throws ServiceException {
-    validateScope(NsiScope.PROVISION);
+    validateOAuthScope(NsiScope.PROVISION);
 
     final String connectionId = parameters.getProvision().getConnectionId();
 
@@ -304,7 +304,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public GenericAcknowledgmentType release(ReleaseRequestType parameters) throws ServiceException {
-    validateScope(NsiScope.RELEASE);
+    validateOAuthScope(NsiScope.RELEASE);
 
     ServiceExceptionType exceptionType = new ServiceExceptionType();
     exceptionType.setErrorId(NOT_IMPLEMENTED.getId());
@@ -315,7 +315,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public GenericAcknowledgmentType terminate(TerminateRequestType parameters) throws ServiceException {
-    validateScope(NsiScope.TERMINATE);
+    validateOAuthScope(NsiScope.TERMINATE);
 
     final Connection connection = getConnectionOrFail(parameters.getTerminate().getConnectionId());
     validateProviderNsa(parameters.getTerminate().getProviderNSA());
@@ -368,7 +368,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public GenericAcknowledgmentType query(QueryRequestType parameters) throws ServiceException {
-    validateScope(NsiScope.QUERY);
+    validateOAuthScope(NsiScope.QUERY);
     validateProviderNsa(parameters.getQuery().getProviderNSA());
 
     NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
@@ -455,7 +455,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     return genericAcknowledgmentType;
   }
 
-  private void validateScope(NsiScope scope) throws ServiceException {
+  private void validateOAuthScope(NsiScope scope) throws ServiceException {
     if (!Security.getUserDetails().getNsiScopes().contains(scope)) {
       throw createServiceException(ConnectionServiceProviderErrorCodes.SECURITY.MISSING_GRANTED_SCOPE);
     }
