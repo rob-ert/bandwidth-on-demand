@@ -181,14 +181,14 @@ public class ReservationServiceTest {
 
     Reservation reservation = new ReservationFactory().setSourcePort(source).setDestinationPort(destination).create();
 
-    subject.update(reservation);
+    subject.update(reservation, ReservationStatus.AUTO_START);
   }
 
   @Test
   public void udpateShouldSave() {
     Reservation reservation = new ReservationFactory().create();
 
-    subject.update(reservation);
+    subject.update(reservation, ReservationStatus.AUTO_START);
 
     verify(reservationRepoMock).save(reservation);
   }

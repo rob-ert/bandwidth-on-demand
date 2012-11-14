@@ -138,7 +138,7 @@ public class ReservationToNbi {
         nsiRequestDetails);
 
     logEventService.logUpdateEvent(Security.getUserDetails(), reservation, LogEvent.getStateChangeMessage(createEvent
-        .getReservation(), createEvent.getOldStatus()));
+        .getReservation(), createEvent.getOldStatus()), Optional.of(createEvent.getOldStatus()));
 
     reservationEventPublisher.notifyListeners(createEvent);
   }

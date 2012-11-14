@@ -51,6 +51,7 @@ import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 
 @Entity
 @Indexed
@@ -122,13 +123,13 @@ public class LogEvent implements PersistableDomain {
   @Analyzer(definition = "customanalyzer")
   @Enumerated(EnumType.STRING)
   @Column(nullable = true)
-  private ReservationStatus oldReservationStatus;
+  private final ReservationStatus oldReservationStatus;
 
   @Field(index = Index.YES, store = Store.YES)
   @Analyzer(definition = "customanalyzer")
   @Enumerated(EnumType.STRING)
   @Column(nullable = true)
-  private ReservationStatus newReservationStatus;
+  private final ReservationStatus newReservationStatus;
 
   /**
    * Default constructor for Hibernate
@@ -139,10 +140,12 @@ public class LogEvent implements PersistableDomain {
   }
 
   public LogEvent(String userId, String adminGroup, LogEventType type, Loggable domainObject) {
-    this(userId, adminGroup, type, domainObject, null);
+    this(userId, adminGroup, type, Optional.fromNullable(domainObject), null, Optional.<ReservationStatus> absent(),
+        Optional.<ReservationStatus> absent());
   }
 
-  public LogEvent(String userId, String adminGroup, LogEventType type, Loggable domainObject, String details) {
+  public LogEvent(String userId, String adminGroup, LogEventType type, Optional<Loggable> domainObject, String details,
+      Optional<ReservationStatus> oldStatus, Optional<ReservationStatus> newStatus) {
     super();
     this.userId = userId;
     this.adminGroup = adminGroup;
@@ -151,18 +154,21 @@ public class LogEvent implements PersistableDomain {
 
     this.created = DateTime.now();
 
-    if (domainObject == null) {
+    if (domainObject.isPresent()) {
+      this.domainObjectId = domainObject.get().getId();
+      this.domainObjectClass = getDomainObjectName(domainObject.get().getClass());
+      this.description = domainObject.get().getLabel();
+      this.serializedObject = serializeObject(domainObject.get());
+    }
+    else {
       this.domainObjectId = null;
       this.description = null;
       this.domainObjectClass = null;
       this.serializedObject = null;
     }
-    else {
-      this.domainObjectId = domainObject.getId();
-      this.domainObjectClass = getDomainObjectName(domainObject.getClass());
-      this.description = domainObject.getLabel();
-      this.serializedObject = serializeObject(domainObject);
-    }
+
+    oldReservationStatus = oldStatus.orNull();
+    newReservationStatus = newStatus.orNull();
   }
 
   public static String getDomainObjectName(Class<? extends Loggable> domainClass) {
@@ -264,17 +270,8 @@ public class LogEvent implements PersistableDomain {
     return oldReservationStatus;
   }
 
-  public void setOldReservationStatus(ReservationStatus oldStatus) {
-    this.oldReservationStatus = oldStatus;
-  }
-
   public ReservationStatus getNewReservationStatus() {
     return newReservationStatus;
-  }
-  
-  
-  public void setNewReservationStatus(ReservationStatus newStatus) {
-    this.newReservationStatus = newStatus;
   }
 
   public String getEventTypeWithCorrelationId() {

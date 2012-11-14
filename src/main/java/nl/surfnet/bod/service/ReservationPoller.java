@@ -31,7 +31,6 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.event.LogEvent;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -131,8 +130,7 @@ public class ReservationPoller {
               currentStatus, reservationFresh.getReservationId() });
 
           reservationFresh.setStatus(currentStatus);
-          reservationService.updateWithReason(reservationFresh, LogEvent.getStateChangeMessage(reservationFresh,
-              startStatus));
+          reservationService.update(reservationFresh, startStatus);
 
           Optional<NsiRequestDetails> requestDetails;
           if (reservationFresh.getConnection() == null) {

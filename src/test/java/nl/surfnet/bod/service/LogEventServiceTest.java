@@ -21,26 +21,24 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Loggable;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
-import nl.surfnet.bod.support.*;
+import nl.surfnet.bod.support.InstituteFactory;
+import nl.surfnet.bod.support.PhysicalResourceGroupFactory;
+import nl.surfnet.bod.support.ReservationFactory;
+import nl.surfnet.bod.support.RichUserDetailsFactory;
+import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
@@ -54,7 +52,20 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.springframework.data.domain.Sort;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LogEventServiceTest {
@@ -84,12 +95,13 @@ public class LogEventServiceTest {
   private final VirtualResourceGroup vrg = new VirtualResourceGroupFactory().create();
 
   @Test
-  public void shouldCreateLogEvent() {
+  public void shouldCreateLogEventForVirtualResourceGroup() {
     try {
       DateTime now = DateTime.now();
       DateTimeUtils.setCurrentMillisFixed(now.toDate().getTime());
 
-      LogEvent logEvent = subject.createLogEvent(user, LogEventType.CREATE, vrg, LOG_DETAILS);
+      LogEvent logEvent = subject.createLogEvent(user, LogEventType.CREATE, vrg, LOG_DETAILS, Optional
+          .<ReservationStatus> absent());
 
       assertThat(logEvent.getUserId(), is(user.getUsername()));
       assertThat(logEvent.getAdminGroup(), is(vrg.getAdminGroup()));
@@ -102,6 +114,40 @@ public class LogEventServiceTest {
 
       assertThat(logEvent.getSerializedObject(), is(vrg.toString()));
       assertThat(logEvent.getCreated(), is(now));
+
+      assertThat(logEvent.getOldReservationStatus(), nullValue());
+      assertThat(logEvent.getNewReservationStatus(), nullValue());
+    }
+    finally {
+      DateTimeUtils.setCurrentMillisSystem();
+    }
+  }
+
+  @Test
+  public void shouldCreateUpdateLogEventWithStatesForReservation() {
+    try {
+      DateTime now = DateTime.now();
+      DateTimeUtils.setCurrentMillisFixed(now.toDate().getTime());
+
+      Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).create();
+
+      LogEvent logEvent = subject.createLogEvent(user, LogEventType.UPDATE, reservation, LOG_DETAILS, Optional
+          .of(ReservationStatus.REQUESTED));
+
+      assertThat(logEvent.getUserId(), is(user.getUsername()));
+      assertThat(logEvent.getAdminGroup(), is(reservation.getAdminGroup()));
+      assertThat(logEvent.getEventTypeWithCorrelationId(), is("Update"));
+
+      assertThat(logEvent.getDomainObjectId(), is(reservation.getId()));
+      assertThat(logEvent.getDomainObjectClass(), is(reservation.getClass().getSimpleName()));
+      assertThat(logEvent.getDescription(), is(reservation.getLabel()));
+      assertThat(logEvent.getDetails(), is(LOG_DETAILS));
+
+      assertThat(logEvent.getSerializedObject(), is(reservation.toString()));
+      assertThat(logEvent.getCreated(), is(now));
+
+      assertThat(logEvent.getOldReservationStatus(), is(ReservationStatus.REQUESTED));
+      assertThat(logEvent.getNewReservationStatus(), is(reservation.getStatus()));
     }
     finally {
       DateTimeUtils.setCurrentMillisSystem();
@@ -256,5 +302,20 @@ public class LogEventServiceTest {
 
     assertThat(groupCount, is(0L));
     verifyZeroInteractions(logEventRepoMock);
+  }
+
+  @Test
+  public void shouldGetStatusFromReservation() {
+    Reservation reservation = new ReservationFactory().create();
+    Optional<ReservationStatus> status = subject.getStatusWhenReservationObject(reservation);
+
+    assertThat(status.get(), is(reservation.getStatus()));
+  }
+
+  @Test
+  public void shouldNotGetStatusFromOtherDomainObject() {
+    Optional<ReservationStatus> status = subject.getStatusWhenReservationObject(vrg);
+
+    assertThat(status, is(Optional.<ReservationStatus> absent()));
   }
 }

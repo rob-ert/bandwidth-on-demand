@@ -64,7 +64,6 @@ import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -218,20 +217,16 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.count(forCurrentUser(user));
   }
 
-  public Reservation update(Reservation reservation) {
-    return updateWithReason(reservation, null);
-  }
-
-  public Reservation updateWithReason(Reservation reservation, final String reason) {
+  public Reservation update(Reservation reservation, ReservationStatus oldStatus) {
     checkState(reservation.getSourcePort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
     checkState(reservation.getDestinationPort().getVirtualResourceGroup().equals(reservation.getVirtualResourceGroup()));
-    log.debug("Updating reservation: {}", reservation.getReservationId());
-    if (StringUtils.hasLength(reason)) {
-      logEventService.logUpdateEvent(Security.getUserDetails(), reservation, reason);
-    }
-    else {
-      logEventService.logUpdateEvent(Security.getUserDetails(), reservation);
-    }
+
+    final String reason = LogEvent.getStateChangeMessage(reservation, oldStatus);
+
+    log.debug("Updating reservation [{}], because: {}", reservation.getReservationId(), reason);
+
+    logEventService.logUpdateEvent(Security.getUserDetails(), reservation, reason, Optional.of(oldStatus));
+
     return reservationRepo.save(reservation);
   }
 
