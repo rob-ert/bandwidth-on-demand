@@ -206,8 +206,9 @@ class NbiOfflineClient implements NbiClient {
   }
 
   @Override
-  public void cancelReservation(String scheduleId) {
+  public ReservationStatus cancelReservation(String scheduleId) {
     scheduleIds.put(scheduleId, CANCELLED);
+    return CANCELLED;
   }
 
   @Override

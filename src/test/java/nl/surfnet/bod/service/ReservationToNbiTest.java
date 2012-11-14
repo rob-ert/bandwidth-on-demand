@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.domain.ReservationStatus.*;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
@@ -30,7 +32,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.support.ReservationFactory;
@@ -63,14 +64,15 @@ public class ReservationToNbiTest {
 
   @Test
   public void terminateAReservation() {
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.RESERVED).setCancelReason(null).create();
+    Reservation reservation = new ReservationFactory().setStatus(RESERVED).setCancelReason(null).create();
 
     when(reservationRepoMock.findOne(reservation.getId())).thenReturn(reservation);
     when(reservationRepoMock.save(reservation)).thenReturn(reservation);
+    when(nbiClientMock.cancelReservation(reservation.getReservationId())).thenReturn(CANCELLED);
 
     subject.asyncTerminate(reservation.getId(), "Cancelled by Truus", Optional.<NsiRequestDetails>absent());
 
-    assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
+    assertThat(reservation.getStatus(), is(CANCELLED));
     assertThat(reservation.getCancelReason(), is("Cancelled by Truus"));
 
     verify(nbiClientMock).cancelReservation(reservation.getReservationId());
@@ -80,7 +82,7 @@ public class ReservationToNbiTest {
 
   @Test
   public void provisionSuccessShouldPublishChangeEvent() {
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.RESERVED).create();
+    Reservation reservation = new ReservationFactory().setStatus(RESERVED).create();
 
     when(reservationRepoMock.findOne(reservation.getId())).thenReturn(reservation);
     when(nbiClientMock.activateReservation(reservation.getReservationId())).thenReturn(true);
@@ -93,7 +95,7 @@ public class ReservationToNbiTest {
 
   @Test
   public void provisionFailShouldNotPublishChangeEvent() {
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.RESERVED).create();
+    Reservation reservation = new ReservationFactory().setStatus(RESERVED).create();
 
     when(reservationRepoMock.findOne(reservation.getId())).thenReturn(reservation);
     when(nbiClientMock.activateReservation(reservation.getReservationId())).thenReturn(false);

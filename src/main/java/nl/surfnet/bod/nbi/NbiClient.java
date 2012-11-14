@@ -35,7 +35,7 @@ public interface NbiClient {
 
   boolean activateReservation(final String reservationId);
 
-  void cancelReservation(String scheduleId);
+  ReservationStatus cancelReservation(String scheduleId);
 
   /**
    *

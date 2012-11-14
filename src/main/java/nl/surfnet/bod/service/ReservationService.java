@@ -493,7 +493,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public void cancelAndArchiveReservations(final List<Reservation> reservations, RichUserDetails user) {
     for (final Reservation reservation : reservations) {
       if (isDeleteAllowedForUserOnly(reservation, user.getSelectedRole()).isAllowed()) {
-        nbiClient.cancelReservation(reservation.getReservationId());
+        final ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
+        reservation.setStatus(reservationState);
       }
     }
 

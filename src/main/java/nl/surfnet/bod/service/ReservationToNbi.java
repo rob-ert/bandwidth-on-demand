@@ -95,10 +95,8 @@ public class ReservationToNbi {
     checkNotNull(reservation);
 
     ReservationStatus orgStatus = reservation.getStatus();
-
-    nbiClient.cancelReservation(reservation.getReservationId());
-
-    reservation.setStatus(ReservationStatus.CANCELLED);
+    final ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
+    reservation.setStatus(reservationState);
     reservation.setCancelReason(cancelReason);
     reservation = reservationRepo.save(reservation);
 

@@ -167,18 +167,21 @@ class NbiOpenDracWsClient implements NbiClient {
   }
 
   @Override
-  public void cancelReservation(final String reservationId) {
-    CancelReservationScheduleRequestDocument requestDocument = CancelReservationScheduleRequestDocument.Factory
+  public ReservationStatus cancelReservation(final String reservationId) {
+    final CancelReservationScheduleRequestDocument requestDocument = CancelReservationScheduleRequestDocument.Factory
         .newInstance();
-    CancelReservationScheduleRequest request = requestDocument.addNewCancelReservationScheduleRequest();
+    final CancelReservationScheduleRequest request = requestDocument.addNewCancelReservationScheduleRequest();
     request.setReservationScheduleId(reservationId);
     try {
-      CompletionResponseDocument response = schedulingService.cancelReservationSchedule(requestDocument,
+      final CompletionResponseDocument response = schedulingService.cancelReservationSchedule(requestDocument,
           getSecurityDocument());
       log.info("Status: {}", response.getCompletionResponse().getResult());
+      // CompletionResponseDocument always signals that the operation executed successfully.
+      return CANCELLED;
     }
     catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
       log.error("Error: ", e);
+      return FAILED;
     }
 
   }
