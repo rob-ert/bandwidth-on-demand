@@ -21,10 +21,12 @@
  */
 package nl.surfnet.bod.nbi;
 
+import static nl.surfnet.bod.domain.ReservationStatus.*;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -40,23 +42,12 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
+import com.google.common.base.*;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
 
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
-
-import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
-import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
-import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
-import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
-import static nl.surfnet.bod.domain.ReservationStatus.TIMED_OUT;;
 
 class NbiOfflineClient implements NbiClient {
 
@@ -82,13 +73,12 @@ class NbiOfflineClient implements NbiClient {
   };
 
   private final Logger log = LoggerFactory.getLogger(getClass());
-  private final Random random = new Random();
 
   @Resource
   private ReservationRepo reservationRepo;
 
-  private final List<NbiPort> ports = Lists.newArrayList();
-  private final Map<String, ReservationStatus> scheduleIds = new HashMap<String, ReservationStatus>();
+  private final List<NbiPort> ports = new ArrayList<>();
+  private final Map<String, OfflineReservation> scheduleIds = new HashMap<>();
 
   public NbiOfflineClient() {
     ports.add(new NbiPort("Ut002A_OME01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-1-1-4"));
@@ -117,7 +107,7 @@ class NbiOfflineClient implements NbiClient {
     log.info("USING OFFLINE NBI CLIENT!");
     List<Reservation> reservations = reservationRepo.findAll();
     for (Reservation reservation : reservations) {
-      this.scheduleIds.put(reservation.getReservationId(), reservation.getStatus());
+      this.scheduleIds.put(reservation.getReservationId(), new OfflineReservation(reservation));
     }
   }
 
@@ -158,7 +148,7 @@ class NbiOfflineClient implements NbiClient {
 
     reservation.setReservationId(scheduleId);
 
-    scheduleIds.put(scheduleId, reservation.getStatus());
+    scheduleIds.put(scheduleId, new OfflineReservation(reservation));
 
     log.warn("Created reservation using MOCK with id: {}", reservation.getReservationId());
 
@@ -170,44 +160,48 @@ class NbiOfflineClient implements NbiClient {
 
   @Override
   public Optional<ReservationStatus> getReservationStatus(String scheduleId) {
-    ReservationStatus currentStatus = scheduleIds.get(scheduleId);
+    OfflineReservation reservation = scheduleIds.get(scheduleId);
+    ReservationStatus status = reservation.getStatus();
 
-    if (currentStatus.isTransitionState() && random.nextInt(20) < 2) {
-      ReservationStatus nextStatus = getNextStatus(currentStatus);
-      scheduleIds.put(scheduleId, nextStatus);
-      currentStatus = nextStatus;
-    }
-
-    return Optional.of(currentStatus);
-  }
-
-  private ReservationStatus getNextStatus(ReservationStatus status) {
-
-    if (status.isEndState()) {
-      return status;
-    }
-    else {
-      switch (status) {
-      case REQUESTED:
-        return ReservationStatus.AUTO_START;
-      case AUTO_START:
-        return ReservationStatus.RUNNING;
-      case RUNNING:
-        return ReservationStatus.SUCCEEDED;
-      default:
-        return status;
+    if (status.isTransitionState()) {
+      if (status == RESERVED && reservation.getStartDateTime().isBefore(DateTime.now())) {
+        status = ReservationStatus.SCHEDULED;
+      } else if (status == AUTO_START && reservation.getStartDateTime().isBefore(DateTime.now())) {
+        status = RUNNING;
+      } else if (status == REQUESTED) {
+        status = AUTO_START; // could be NOT_ACCEPTED as well..
+      } else if (status == RUNNING && reservation.getEndDateTime().isBefore(DateTime.now())) {
+        status = SUCCEEDED;
+      } if (reservation.getEndDateTime().isBefore(DateTime.now())) {
+        status = TIMED_OUT;
       }
+
+      scheduleIds.put(scheduleId, reservation.withStatus(status));
     }
+
+    return Optional.of(status);
   }
 
   @Override
-  public boolean activateReservation(String reservationId) {
-    return true;
+  public boolean activateReservation(String scheduleId) {
+    OfflineReservation reservation = scheduleIds.get(scheduleId);
+
+    if (reservation != null) {
+      if (reservation.getStatus() == RESERVED) {
+        scheduleIds.put(scheduleId, reservation.withStatus(SCHEDULED));
+        return true;
+      } else if (reservation.getStatus() == SCHEDULED) {
+        scheduleIds.put(scheduleId, reservation.withStatus(RUNNING));
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @Override
   public ReservationStatus cancelReservation(String scheduleId) {
-    scheduleIds.put(scheduleId, CANCELLED);
+    scheduleIds.put(scheduleId, scheduleIds.get(scheduleId).withStatus(CANCELLED));
     return CANCELLED;
   }
 
@@ -249,6 +243,37 @@ class NbiOfflineClient implements NbiClient {
     public Optional<String> getUserLabel() {
       return userLabel;
     }
+  }
+
+  private static class OfflineReservation {
+    private final ReservationStatus status;
+    private final DateTime startDateTime;
+    private final DateTime endDateTime;
+
+    public OfflineReservation(Reservation reservation) {
+      this(reservation.getStatus(), reservation.getStartDateTime(), reservation.getEndDateTime());
+    }
+
+    private OfflineReservation(ReservationStatus status, DateTime startDateTime, DateTime endDateTime) {
+      this.status = status;
+      this.startDateTime = startDateTime;
+      this.endDateTime = endDateTime;
+    }
+
+    public ReservationStatus getStatus() {
+      return status;
+    }
+    public DateTime getStartDateTime() {
+      return startDateTime;
+    }
+    public DateTime getEndDateTime() {
+      return endDateTime;
+    }
+
+    public OfflineReservation withStatus(ReservationStatus newStatus) {
+      return new OfflineReservation(newStatus, startDateTime, endDateTime);
+    }
+
   }
 
 }
