@@ -18,12 +18,18 @@
     <thead>
       <tr>
         <table:rowDetailsHeader />
-        <table:sortableHeader labelCode="label_logevent_created" property="created" />
-        <table:sortableHeader labelCode="label_logevent_groupid" property="adminGroup"  />
-        <table:sortableHeader labelCode="label_logevent_eventtype" property="eventType"  />
-        <table:sortableHeader labelCode="label_logevent_object" property="domainObjectClass"/>
-        <table:sortableHeader labelCode="label_logevent_description" property="description" />
-        <table:sortableHeader labelCode="label_logevent_details" property="details" />
+        <table:sortableHeader labelCode="label_logevent_created"
+          property="created" />
+        <table:sortableHeader labelCode="label_logevent_groupid"
+          property="adminGroup" />
+        <table:sortableHeader labelCode="label_logevent_eventtype"
+          property="eventType" />
+        <table:sortableHeader labelCode="label_logevent_object"
+          property="domainObjectClass" />
+        <table:sortableHeader labelCode="label_logevent_description"
+          property="description" />
+        <table:sortableHeader labelCode="label_logevent_details"
+          property="details" />
       </tr>
     </thead>
     <tbody>
@@ -31,10 +37,22 @@
         <tr class="rowdetails">
           <table:rowDetailsColumn>
             <dl class="dl-horizontal">
-               <c:if test="${not empty item.domainObjectId}">
+              <c:if test="${not empty item.domainObjectId}">
                 <dt>Objectid</dt>
                 <dd>
                   <c:out value="${item.domainObjectId}" />
+                </dd>
+              </c:if>
+              <c:if test="${not empty item.oldReservationStatus}">
+                <dt>Old status</dt>
+                <dd>
+                  <c:out value="${item.oldReservationStatus}" />
+                </dd>
+              </c:if>
+              <c:if test="${not empty item.newReservationStatus}">
+                <dt>New status</dt>
+                <dd>
+                  <c:out value="${item.newReservationStatus}" />
                 </dd>
               </c:if>
               <dt>Object</dt>
@@ -51,12 +69,15 @@
               </dd>
             </dl>
           </table:rowDetailsColumn>
-          <table:column item="${item}" property="createdAsText" styleClass="cw80" />
-          <table:column item="${item}" property="shortAdminGroup" styleClass="cw80" />
-          <table:column item="${item}" property="eventTypeWithCorrelationId" styleClass="cw80"/>
+          <table:column item="${item}" property="createdAsText"
+            styleClass="cw80" />
+          <table:column item="${item}" property="shortAdminGroup"
+            styleClass="cw80" />
+          <table:column item="${item}" property="eventTypeWithCorrelationId"
+            styleClass="cw80" />
           <table:column item="${item}" property="domainObjectClass" />
-          <table:column item="${item}" property="description"/>
-          <table:column item="${item}" property="details"/>
+          <table:column item="${item}" property="description" />
+          <table:column item="${item}" property="details" />
         </tr>
       </c:forEach>
     </tbody>

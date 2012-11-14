@@ -88,12 +88,12 @@ public class ReservationServiceDbTest {
 
   @Before
   public void setUp() {
-    rightReservationOnStartTime = createAndPersist(rightDateTime, beforeDateTime, ReservationStatus.SCHEDULED);
-    rightReservationOnEndTime = createAndPersist(beforeDateTime, rightDateTime, ReservationStatus.SCHEDULED);
-    createAndPersist(beforeDateTime.minusMinutes(10), rightDateTime.plusHours(1), ReservationStatus.SCHEDULED);
+    rightReservationOnStartTime = createAndPersist(rightDateTime, beforeDateTime, ReservationStatus.AUTO_START);
+    rightReservationOnEndTime = createAndPersist(beforeDateTime, rightDateTime, ReservationStatus.AUTO_START);
+    createAndPersist(beforeDateTime.minusMinutes(10), rightDateTime.plusHours(1), ReservationStatus.AUTO_START);
     createAndPersist(rightDateTime, beforeDateTime, ReservationStatus.CANCELLED);
     createAndPersist(rightDateTime, rightDateTime, ReservationStatus.CANCELLED);
-    createAndPersist(beforeDateTime, beforeDateTime, ReservationStatus.SCHEDULED);
+    createAndPersist(beforeDateTime, beforeDateTime, ReservationStatus.AUTO_START);
   }
 
   @Test

@@ -78,7 +78,7 @@ public class ConnectionServiceProviderListener implements ReservationListener {
     case RESERVED:
       connectionServiceProvider.reserveConfirmed(connection, event.getNsiRequestDetails().get());
       break;
-    case SCHEDULED:
+    case AUTO_START:
       // no need to send back any confirms, a provision confirm is only sent
       // when start time has passed in which case
       // the status would be RUNNING

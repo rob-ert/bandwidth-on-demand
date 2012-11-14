@@ -120,7 +120,7 @@ public class ReservationToNbi {
     if (activateReservation) {
       ReservationStatus orgStatus = reservation.getStatus();
 
-      reservation.setStatus(ReservationStatus.SCHEDULED);
+      reservation.setStatus(ReservationStatus.AUTO_START);
       reservationRepo.save(reservation);
 
       publishStatusChanged(reservation, orgStatus, requestDetails);

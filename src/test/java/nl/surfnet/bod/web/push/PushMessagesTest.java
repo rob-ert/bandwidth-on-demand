@@ -48,7 +48,7 @@ public class PushMessagesTest {
 
   @Test
   public void aReservationStatusChangedEventShouldHaveAJsonMessage() {
-    Reservation reservation = new ReservationFactory().setId(54L).setStatus(ReservationStatus.SCHEDULED).create();
+    Reservation reservation = new ReservationFactory().setId(54L).setStatus(ReservationStatus.AUTO_START).create();
 
     ReservationStatusChangeEvent reservationStatusChangeEvent = new ReservationStatusChangeEvent(
         ReservationStatus.RUNNING, reservation, Optional.<NsiRequestDetails>absent());

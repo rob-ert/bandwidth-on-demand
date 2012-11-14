@@ -211,7 +211,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     ProvisionRequestType provisionRequest = createProvisionRequest(connectionId);
 
     GenericAcknowledgmentType provisionAck = nsiProvider.provision(provisionRequest);
-    listener.waitForEventWithNewStatus(ReservationStatus.SCHEDULED);
+    listener.waitForEventWithNewStatus(ReservationStatus.AUTO_START);
 
     final String provisionCorrelationId = provisionAck.getCorrelationId();
 
@@ -219,7 +219,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     entityManager.refresh(reservation);
     entityManager.refresh(connection);
-    assertThat(reservation.getStatus(), is(ReservationStatus.SCHEDULED));
+    assertThat(reservation.getStatus(), is(ReservationStatus.AUTO_START));
     assertThat(connection.getCurrentState(), is(ConnectionStateType.AUTO_PROVISION));
     assertThat(connection.getProvisionRequestDetails(), notNullValue());
 

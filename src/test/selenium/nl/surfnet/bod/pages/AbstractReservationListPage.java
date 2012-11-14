@@ -92,7 +92,7 @@ public abstract class AbstractReservationListPage extends AbstractListPage {
     assertThat(
         row.getText(),
         CombinableMatcher.<String> either(containsString(ReservationStatus.REQUESTED.name())).or(
-            containsString(ReservationStatus.SCHEDULED.name())));
+            containsString(ReservationStatus.AUTO_START.name())));
 
     return row;
   }

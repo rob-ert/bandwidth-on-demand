@@ -195,7 +195,7 @@ public class ReservationServiceTest {
 
   @Test
   public void cancelAReservationAsAUserInGroupShouldChangeItsStatus() {
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).create();
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole().addUserGroup(
         reservation.getVirtualResourceGroup().getSurfconextGroupId()).setDisplayname("Piet Puk").create();
 
@@ -213,7 +213,7 @@ public class ReservationServiceTest {
 
   @Test
   public void cancelAReservationAsAUserNotInGroupShouldNotChangeItsStatus() {
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).create();
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole().create();
     Security.setUserDetails(richUserDetails);
 
@@ -221,7 +221,7 @@ public class ReservationServiceTest {
 
     assertFalse(cancelFuture.isPresent());
 
-    assertThat(reservation.getStatus(), is(ReservationStatus.SCHEDULED));
+    assertThat(reservation.getStatus(), is(ReservationStatus.AUTO_START));
     verifyZeroInteractions(reservationRepoMock);
   }
 
@@ -229,12 +229,12 @@ public class ReservationServiceTest {
   public void cancelAReservationAsAManagerShouldNotInPrgShouldNotChangeItsStatus() {
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addManagerRole().create();
 
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).create();
 
     Optional<Future<Long>> cancelFuture = subject.cancel(reservation, richUserDetails);
 
     assertFalse(cancelFuture.isPresent());
-    assertThat(reservation.getStatus(), is(ReservationStatus.SCHEDULED));
+    assertThat(reservation.getStatus(), is(ReservationStatus.AUTO_START));
 
     verify(reservationRepoMock, never()).save(reservation);
     verify(nbiClientMock, never()).cancelReservation(any(String.class));
@@ -243,7 +243,7 @@ public class ReservationServiceTest {
   @Test
   public void cancelAReservationAsAManagerInSourcePortPrgShouldCallTerminate() throws InterruptedException,
       ExecutionException {
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).create();
 
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addManagerRole(
         reservation.getSourcePort().getPhysicalPort().getPhysicalResourceGroup()).create();
@@ -263,7 +263,7 @@ public class ReservationServiceTest {
   @Test
   public void cancelAReservationAsAManagerInDestinationPortPrgShouldCallTerminate() throws InterruptedException,
       ExecutionException {
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).create();
     reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup().setAdminGroup("urn:different");
 
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addManagerRole(
@@ -285,7 +285,7 @@ public class ReservationServiceTest {
   public void cancelAReservationAsANocShouldCallTerminate() throws InterruptedException, ExecutionException {
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addNocRole().create();
 
-    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.SCHEDULED).create();
+    Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).create();
 
     when(
         reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Truus Visscher", Optional

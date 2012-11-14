@@ -100,7 +100,7 @@ public class ReservationPredicatesAndSpecifications {
           CriteriaBuilder cb) {
 
         return cb.and(cb.lessThanOrEqualTo(reservation.get(Reservation_.startDateTime), startDateTime), reservation
-            .get(Reservation_.status).in(ImmutableList.of(ReservationStatus.REQUESTED, ReservationStatus.SCHEDULED)));
+            .get(Reservation_.status).in(ImmutableList.of(ReservationStatus.REQUESTED, ReservationStatus.AUTO_START)));
       }
     };
   }

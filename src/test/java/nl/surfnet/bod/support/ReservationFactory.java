@@ -36,7 +36,7 @@ public class ReservationFactory {
   private Long id = COUNTER.incrementAndGet();
   private Integer version;
   private String name = "Default name";
-  private ReservationStatus status = ReservationStatus.SCHEDULED;
+  private ReservationStatus status = ReservationStatus.AUTO_START;
   private VirtualPort sourcePort;
   private VirtualPort destinationPort;
   private DateTime startDateTime = DateTime.now().withHourOfDay(12).withMinuteOfHour(0).withSecondOfMinute(0);

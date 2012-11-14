@@ -41,11 +41,11 @@ public class OpenDracStatusTranslatorTest {
   }
 
   @Test
-  public void succeededPartiallyShouldTranslateToScheduled() {
+  public void succeededPartiallyShouldTranslateTo() {
     ReservationStatus status =
         OpenDracStatusTranslator.translate(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, true);
 
-    assertThat(status, is(ReservationStatus.SCHEDULED));
+    assertThat(status, is(ReservationStatus.AUTO_START));
   }
 
   @Test

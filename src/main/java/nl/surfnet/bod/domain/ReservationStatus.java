@@ -44,13 +44,13 @@ import java.util.Set;
  */
 public enum ReservationStatus {
 
-  REQUESTED, RESERVED, SCHEDULED, RUNNING, SUCCEEDED, CANCELLED, FAILED, NOT_ACCEPTED, TIMED_OUT;
+  REQUESTED, RESERVED, AUTO_START, RUNNING, SUCCEEDED, CANCELLED, FAILED, NOT_ACCEPTED, TIMED_OUT;
 
   /**
    * All states which are allowed to transition to an other state. All other
    * states will automatically be regarded as endStates.
    */
-  public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, RESERVED, SCHEDULED, RUNNING);
+  public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, RESERVED, AUTO_START, RUNNING);
 
   /**
    * All states which are considered as error states.
@@ -60,7 +60,7 @@ public enum ReservationStatus {
   /**
    * All states which indicate a successful creation of reservation
    */
-  public static final ReservationStatus[] SUCCESSFULLY_CREATED = { RESERVED, SCHEDULED };
+  public static final ReservationStatus[] SUCCESSFULLY_CREATED = { RESERVED, AUTO_START };
 
   public static final ReservationStatus[] TRANSITION_STATES_AS_ARRAY = TRANSITION_STATES
       .toArray(new ReservationStatus[TRANSITION_STATES.size()]);

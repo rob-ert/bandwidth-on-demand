@@ -44,7 +44,7 @@ import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
 import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.verify;
@@ -105,7 +105,7 @@ public class ConnectionServiceProviderListenerTest {
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetails("http://localhost/reply", "123456789"));
     Connection connection = new ConnectionFactory().setCurrentState(TERMINATING).create();
     Reservation reservation = new ReservationFactory().setStatus(FAILED).setConnection(connection).create();
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(SCHEDULED, reservation, requestDetails);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(AUTO_START, reservation, requestDetails);
 
     when(reservationServiceMock.find(reservation.getId())).thenReturn(reservation);
 
@@ -119,7 +119,7 @@ public class ConnectionServiceProviderListenerTest {
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetails("http://localhost/reply", "123456789"));
     Connection connection = new ConnectionFactory().setCurrentState(TERMINATING).create();
     Reservation reservation = new ReservationFactory().setStatus(CANCELLED).setConnection(connection).create();
-    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(SCHEDULED, reservation, requestDetails);
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(AUTO_START, reservation, requestDetails);
 
     when(reservationServiceMock.find(reservation.getId())).thenReturn(reservation);
 
@@ -132,7 +132,7 @@ public class ConnectionServiceProviderListenerTest {
   public void provisionSucceed() {
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetails("http://localhost/reply", "123456789"));
     Connection connection = new ConnectionFactory().setCurrentState(RESERVED).create();
-    Reservation reservation = new ReservationFactory().setStatus(SCHEDULED).setConnection(connection).create();
+    Reservation reservation = new ReservationFactory().setStatus(AUTO_START).setConnection(connection).create();
     ReservationStatusChangeEvent event =
         new ReservationStatusChangeEvent(ReservationStatus.RESERVED, reservation, requestDetails);
 
@@ -149,7 +149,7 @@ public class ConnectionServiceProviderListenerTest {
     Connection connection = new ConnectionFactory().setCurrentState(AUTO_PROVISION).create();
     Reservation reservation = new ReservationFactory().setStatus(RUNNING).setConnection(connection).create();
     ReservationStatusChangeEvent event =
-        new ReservationStatusChangeEvent(SCHEDULED, reservation, requestDetails);
+        new ReservationStatusChangeEvent(AUTO_START, reservation, requestDetails);
 
     when(reservationServiceMock.find(reservation.getId())).thenReturn(reservation);
 

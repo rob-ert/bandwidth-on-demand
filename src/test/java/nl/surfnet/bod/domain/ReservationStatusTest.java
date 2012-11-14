@@ -54,7 +54,7 @@ public class ReservationStatusTest {
   public void forTheseStatesShouldDeletionBeAllowed() {
     assertThat(ReservationStatus.REQUESTED.isDeleteAllowed(), is(true));
     assertThat(ReservationStatus.RUNNING.isDeleteAllowed(), is(true));
-    assertThat(ReservationStatus.SCHEDULED.isDeleteAllowed(), is(true));
+    assertThat(ReservationStatus.AUTO_START.isDeleteAllowed(), is(true));
   }
 
   @Test

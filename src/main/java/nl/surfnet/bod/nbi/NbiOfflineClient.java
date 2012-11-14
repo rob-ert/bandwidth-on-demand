@@ -55,7 +55,7 @@ import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
 import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
 import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.TIMED_OUT;;
 
 class NbiOfflineClient implements NbiClient {
@@ -150,7 +150,7 @@ class NbiOfflineClient implements NbiClient {
       reservation.setStatus(TIMED_OUT);
     }
     else if (autoProvision) {
-      reservation.setStatus(SCHEDULED);
+      reservation.setStatus(AUTO_START);
     }
     else {
       reservation.setStatus(RESERVED);
@@ -189,8 +189,8 @@ class NbiOfflineClient implements NbiClient {
     else {
       switch (status) {
       case REQUESTED:
-        return ReservationStatus.SCHEDULED;
-      case SCHEDULED:
+        return ReservationStatus.AUTO_START;
+      case AUTO_START:
         return ReservationStatus.RUNNING;
       case RUNNING:
         return ReservationStatus.SUCCEEDED;

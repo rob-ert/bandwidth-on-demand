@@ -34,7 +34,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Uninterruptibles;
 
 import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
-import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -70,7 +70,7 @@ public class ReservationEventPublisherTest {
       public void run() {
         for (int i = 0; i < numberOfEvents; i++) {
           subject.notifyListeners(new ReservationStatusChangeEvent(REQUESTED, new ReservationFactory().setStatus(
-              SCHEDULED).create(), Optional.<NsiRequestDetails> absent()));
+              AUTO_START).create(), Optional.<NsiRequestDetails> absent()));
         }
       }
     };

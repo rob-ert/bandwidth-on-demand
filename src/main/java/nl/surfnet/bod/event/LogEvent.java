@@ -24,7 +24,14 @@ package nl.surfnet.bod.event;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.PersistableDomain;
@@ -34,7 +41,12 @@ import nl.surfnet.bod.util.TimeStampBridge;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 
@@ -106,6 +118,18 @@ public class LogEvent implements PersistableDomain {
   @Column(nullable = true)
   private final Long domainObjectId;
 
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = true)
+  private ReservationStatus oldReservationStatus;
+
+  @Field(index = Index.YES, store = Store.YES)
+  @Analyzer(definition = "customanalyzer")
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = true)
+  private ReservationStatus newReservationStatus;
+
   /**
    * Default constructor for Hibernate
    */
@@ -169,7 +193,7 @@ public class LogEvent implements PersistableDomain {
 
   /**
    * Includes seconds in the string since the default conversion does not.
-   *
+   * 
    * @return Time stamp formatted like
    *         {@link WebUtils#DEFAULT_DATE_TIME_FORMATTER}
    */
@@ -215,7 +239,7 @@ public class LogEvent implements PersistableDomain {
 
   /**
    * Used to relate logEvents which originates out of a List
-   *
+   * 
    * @return String CorreleationId
    */
   public String getCorrelationId() {
@@ -229,11 +253,28 @@ public class LogEvent implements PersistableDomain {
 
   /**
    * Used to relate logEvents which originates out of a List
-   *
+   * 
    * @param correlationId
    */
   public void setCorrelationId(String correlationId) {
     this.correlationId = correlationId;
+  }
+
+  public ReservationStatus getOldReservationStatus() {
+    return oldReservationStatus;
+  }
+
+  public void setOldReservationStatus(ReservationStatus oldStatus) {
+    this.oldReservationStatus = oldStatus;
+  }
+
+  public ReservationStatus getNewReservationStatus() {
+    return newReservationStatus;
+  }
+  
+  
+  public void setNewReservationStatus(ReservationStatus newStatus) {
+    this.newReservationStatus = newStatus;
   }
 
   public String getEventTypeWithCorrelationId() {
@@ -298,6 +339,16 @@ public class LogEvent implements PersistableDomain {
     if (domainObjectId != null) {
       builder.append("domainObjectId=");
       builder.append(domainObjectId);
+      builder.append(", ");
+    }
+    if (oldReservationStatus != null) {
+      builder.append("oldReservationStatus=");
+      builder.append(oldReservationStatus);
+      builder.append(", ");
+    }
+    if (newReservationStatus != null) {
+      builder.append("newReservationStatus=");
+      builder.append(newReservationStatus);
     }
     builder.append("]");
     return builder.toString();

@@ -69,7 +69,7 @@ public class ReservationPollerTest {
 
     when(reservationServiceMock.findReservationsToPoll(any(DateTime.class))).thenReturn(
         Lists.newArrayList(reservation));
-    when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.SCHEDULED);
+    when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.AUTO_START);
     when(reservationServiceMock.find(1L)).thenReturn(reservation);
 
     subject.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
@@ -83,17 +83,17 @@ public class ReservationPollerTest {
 
     assertThat(eventCaptor.getAllValues(), hasSize(1));
     assertThat(eventCaptor.getValue().getOldStatus(), is(ReservationStatus.REQUESTED));
-    assertThat(eventCaptor.getValue().getReservation().getStatus(), is(ReservationStatus.SCHEDULED));
+    assertThat(eventCaptor.getValue().getReservation().getStatus(), is(ReservationStatus.AUTO_START));
   }
 
   @Test
   public void pollerShouldPollMaxTimes() throws InterruptedException {
-    Reservation reservation = new ReservationFactory().setId(1L).setStatus(ReservationStatus.SCHEDULED).create();
+    Reservation reservation = new ReservationFactory().setId(1L).setStatus(ReservationStatus.AUTO_START).create();
     int maxTries = 3;
 
     when(reservationServiceMock.findReservationsToPoll(any(DateTime.class))).thenReturn(
         Lists.newArrayList(reservation));
-    when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.SCHEDULED);
+    when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.AUTO_START);
     when(reservationServiceMock.find(1L)).thenReturn(reservation);
 
     subject.setMaxPollingTries(3);
