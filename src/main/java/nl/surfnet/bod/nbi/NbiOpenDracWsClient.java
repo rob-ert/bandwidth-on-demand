@@ -181,7 +181,7 @@ class NbiOpenDracWsClient implements NbiClient {
     }
     catch (ResourceAllocationAndSchedulingServiceFault | RemoteException e) {
       log.error("Error: ", e);
-      return FAILED;
+      return CANCEL_FAILED;
     }
 
   }
