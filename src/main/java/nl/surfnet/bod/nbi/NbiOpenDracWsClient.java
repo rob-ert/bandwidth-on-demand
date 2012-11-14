@@ -343,31 +343,30 @@ class NbiOpenDracWsClient implements NbiClient {
 
   protected static final class OpenDracStatusTranslator {
     private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationAutoProvionResultTranslations = new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_ACCEPTED).put(
-            ValidReservationScheduleCreationResultT.SUCCEEDED, SCHEDULED).put(
-            ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, SCHEDULED).put(
-            ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
+        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_ACCEPTED)
+        .put(ValidReservationScheduleCreationResultT.SUCCEEDED, SCHEDULED)
+        .put(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, SCHEDULED)
+        .put(ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
 
     private static ImmutableMap<ValidReservationScheduleCreationResultT.Enum, ReservationStatus> creationResultTranslations = new ImmutableMap.Builder<ValidReservationScheduleCreationResultT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_ACCEPTED).put(
-            ValidReservationScheduleCreationResultT.SUCCEEDED, RESERVED).put(
-            ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, RESERVED).put(
-            ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
+        .put(ValidReservationScheduleCreationResultT.FAILED, NOT_ACCEPTED)
+        .put(ValidReservationScheduleCreationResultT.SUCCEEDED, RESERVED)
+        .put(ValidReservationScheduleCreationResultT.SUCCEEDED_PARTIALLY, RESERVED)
+        .put(ValidReservationScheduleCreationResultT.UNKNOWN, FAILED).build();
 
     private static ImmutableMap<ValidReservationScheduleStatusT.Enum, ReservationStatus> scheduleStatusTranslations = new ImmutableMap.Builder<ValidReservationScheduleStatusT.Enum, ReservationStatus>()
-        .put(ValidReservationScheduleStatusT.CONFIRMATION_PENDING, REQUESTED).put(
-            ValidReservationScheduleStatusT.CONFIRMATION_TIMED_OUT, FAILED).put(
-            ValidReservationScheduleStatusT.CONFIRMATION_CANCELLED, CANCELLED).put(
-            ValidReservationScheduleStatusT.EXECUTION_PENDING, SCHEDULED).put(
-            ValidReservationScheduleStatusT.EXECUTION_IN_PROGRESS, RUNNING).put(
-            ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED, SUCCEEDED).put(
-            ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED, FAILED)
-        // means that the start time has passed and the reservation did not get
-        // an activate while activation was manual
-        .put(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, TIMED_OUT).put(
-            ValidReservationScheduleStatusT.EXECUTION_FAILED, FAILED).put(
-            ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED, CANCELLED).put(
-            ValidReservationScheduleStatusT.EXECUTION_CANCELLED, CANCELLED).build();
+        .put(ValidReservationScheduleStatusT.CONFIRMATION_PENDING, REQUESTED)
+        .put(ValidReservationScheduleStatusT.CONFIRMATION_TIMED_OUT, FAILED)
+        .put(ValidReservationScheduleStatusT.CONFIRMATION_CANCELLED, CANCELLED)
+        .put(ValidReservationScheduleStatusT.EXECUTION_PENDING, SCHEDULED)
+        .put(ValidReservationScheduleStatusT.EXECUTION_IN_PROGRESS, RUNNING)
+        .put(ValidReservationScheduleStatusT.EXECUTION_SUCCEEDED, SUCCEEDED)
+        .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_SUCCEEDED, FAILED)
+        // means that the start time has passed and the reservation did not get an activate while activation was manual
+        .put(ValidReservationScheduleStatusT.EXECUTION_TIMED_OUT, TIMED_OUT)
+        .put(ValidReservationScheduleStatusT.EXECUTION_FAILED, FAILED)
+        .put(ValidReservationScheduleStatusT.EXECUTION_PARTIALLY_CANCELLED, CANCELLED)
+        .put(ValidReservationScheduleStatusT.EXECUTION_CANCELLED, CANCELLED).build();
 
     private OpenDracStatusTranslator() {
     }
