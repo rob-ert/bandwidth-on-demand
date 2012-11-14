@@ -96,6 +96,8 @@ public class ConnectionServiceProviderListener implements ReservationListener {
     case CANCELLED:
       connectionServiceProvider.terminateConfirmed(connection, event.getNsiRequestDetails());
       break;
+    case CANCEL_FAILED:
+      handleReservationFailed(connection, event);
     default:
       logger.error("Unhandled status {} of reservation {}", event.getNewStatus(), event.getReservation());
     }

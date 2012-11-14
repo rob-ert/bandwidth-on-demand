@@ -26,25 +26,19 @@ import java.util.Set;
 
 /**
  * Enum representing the status of a {@link Reservation}.
- *
- *           /----------(auto provision)-----------\
- *          |                                       v
- *  /---------\      /--------\                  /---------\                   /-------\                 /---------\
- * | Requested | -> | Reserved | -(provision)-> | Scheduled | -(start time)-> | Running | -(end time)-> | Succeeded |
- *  \---------/      \--------/\                 \---------/                  /\-------/                 \---------/
- *      |                  |    \                    |                       /     |
- *      |             (end time) \--------\          |              --------/      |
- *      |                  v               \         v             /               v
- *      |               /---------\         \    /---------\      /             /------\
- * (request failed)    | Timed out |         \->| Cancelled |<---/             | Failed |
- *      v               \---------/              \---------/                    \------/
- *   /------------\
- *  | Not Accepted |
- *   \------------/
+ * 
+ * /----------(auto provision)-----------\ | v /---------\ /--------\
+ * /---------\ /-------\ /---------\ | Requested | -> | Reserved |
+ * -(provision)-> | Scheduled | -(start time)-> | Running | -(end time)-> |
+ * Succeeded | \---------/ \--------/\ \---------/ /\-------/ \---------/ | | \
+ * | / | | (end time) \--------\ | --------/ | | v \ v / v | /---------\ \
+ * /---------\ / /------\ (request failed) | Timed out | \->| Cancelled |<---/ |
+ * Failed | v \---------/ \---------/ \------/ /------------\ | Not Accepted |
+ * \------------/
  */
 public enum ReservationStatus {
 
-  REQUESTED, RESERVED, AUTO_START, RUNNING, SUCCEEDED, CANCELLED, FAILED, NOT_ACCEPTED, TIMED_OUT;
+  REQUESTED, RESERVED, AUTO_START, RUNNING, SUCCEEDED, CANCELLED, FAILED, NOT_ACCEPTED, TIMED_OUT, CANCEL_FAILED;
 
   /**
    * All states which are allowed to transition to an other state. All other
@@ -55,7 +49,7 @@ public enum ReservationStatus {
   /**
    * All states which are considered as error states.
    */
-  public static final Set<ReservationStatus> ERROR_STATES = EnumSet.of(FAILED, NOT_ACCEPTED, TIMED_OUT);
+  public static final Set<ReservationStatus> ERROR_STATES = EnumSet.of(FAILED, NOT_ACCEPTED, TIMED_OUT, CANCEL_FAILED);
 
   /**
    * All states which indicate a successful creation of reservation
@@ -84,7 +78,7 @@ public enum ReservationStatus {
   /**
    * @return true if a Reservation is allowed to be delete, only based on its
    *         state.
-   *
+   * 
    */
   public boolean isDeleteAllowed() {
     return isTransitionState();
