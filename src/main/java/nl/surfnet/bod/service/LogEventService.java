@@ -214,39 +214,46 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   public long countDistinctDomainObjectId(Specification<LogEvent> whereClause) {
     return logEventRepo.countDistinctDomainObjectIdsWithWhereClause(whereClause);
   }
-  
+
   public List<Long> findDistinctDomainObjectIdsWithWhereClause(Specification<LogEvent> whereClause) {
     return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(whereClause);
   }
 
+  public ReservationStatus findLatestStateChangeForReservationIdBefore(Long reservationId, DateTime before) {
+
+    LogEvent event = logEventRepo.findOne(LogEventPredicatesAndSpecifications.findLatestStateForReservationBefore(
+        entityManager, reservationId, before));
+
+    return event.getNewReservationStatus();
+  }
 
   @VisibleForTesting
   String determineAdminGroup(RichUserDetails user, Loggable domainObject) {
     if ((domainObject != null) && (StringUtils.hasText(domainObject.getAdminGroup()))) {
       return domainObject.getAdminGroup();
     }
-  
+
     if (user == null) {
       return environment.getNocGroup();
     }
-  
+
     if (user.isSelectedManagerRole()) {
       return user.getSelectedRole().getAdminGroup().get();
     }
-  
+
     if (user.isSelectedNocRole()) {
       return environment.getNocGroup();
     }
-  
+
     throw new IllegalStateException("Could not determine adminGroup for user: " + user);
   }
 
   @VisibleForTesting
   LogEvent createLogEvent(RichUserDetails user, LogEventType eventType, Loggable domainObject, String details,
       Optional<ReservationStatus> oldStatus) {
-  
+
     Optional<ReservationStatus> newStatus = getStatusWhenReservationObject(domainObject);
-  
+
     return new LogEvent(user == null ? SYSTEM_USER : user.getUsername(), determineAdminGroup(user, domainObject),
         eventType, Optional.fromNullable(domainObject), details, oldStatus, newStatus);
   }
@@ -266,7 +273,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   @VisibleForTesting
   void handleEvent(Logger log, LogEvent logEvent) {
     log.info("Handling event: {}", logEvent);
-  
+
     if (shouldLogEventBePersisted(logEvent)) {
       logEventRepo.save(logEvent);
     }
@@ -277,26 +284,26 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
       LogEventType logEventType, String details) {
     List<LogEvent> logEvents = new ArrayList<>();
     int size = Iterators.size((domainObjects).iterator());
-  
+
     Iterator<? extends Loggable> it = (domainObjects).iterator();
     int index = 0;
     while (it.hasNext()) {
       index++;
       Loggable object = it.next();
-  
+
       LogEvent logEvent = createLogEvent(user, logEventType, object, details, Optional.<ReservationStatus> absent());
-  
+
       // Relate list items
       logEvent.setCorrelationId(String.valueOf(index) + "/" + String.valueOf(size));
-  
+
       logEvents.add(logEvent);
     }
-  
+
     return logEvents;
   }
 
   @VisibleForTesting
-   Optional<ReservationStatus> getStatusWhenReservationObject(Loggable domainObject) {
+  Optional<ReservationStatus> getStatusWhenReservationObject(Loggable domainObject) {
     Optional<ReservationStatus> newStatus;
     if (Reservation.class.equals(domainObject.getClass())) {
       newStatus = Optional.fromNullable(((Reservation) domainObject).getStatus());
@@ -327,7 +334,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
         LogEvent.getDomainObjectName(VirtualPort.class), //
         LogEvent.getDomainObjectName(PhysicalPort.class), //
         LogEvent.getDomainObjectName(Institute.class) };
-  
+
     for (String clazz : supportedClasses) {
       if (clazz.equals(logEvent.getDomainObjectClass())) {
         return true;
@@ -351,5 +358,4 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     handleEvent(logger, logEvent);
   }
 
-  
 }

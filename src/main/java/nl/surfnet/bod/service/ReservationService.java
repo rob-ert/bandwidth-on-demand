@@ -526,7 +526,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
     return logEventService.findDistinctDomainObjectIdsWithWhereClause(whereClause);
   }
-
+  
   @Override
   protected EntityManager getEntityManager() {
     return entityManager;

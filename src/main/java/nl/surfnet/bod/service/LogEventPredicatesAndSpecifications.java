@@ -23,12 +23,14 @@ package nl.surfnet.bod.service;
 
 import java.util.Collection;
 
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import nl.surfnet.bod.domain.Loggable;
+import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
@@ -159,5 +161,26 @@ public final class LogEventPredicatesAndSpecifications {
       }
     }
     return partPredicate;
+  }
+
+  static Specification<LogEvent> findLatestStateForReservationBefore(final EntityManager entityManager,
+      final Long reservationId, final DateTime before) {
+    final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
+
+    return new Specification<LogEvent>() {
+
+      @Override
+      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+
+        Predicate predicate = cb.and(cb.equal(root.get(LogEvent_.domainObjectClass), domainObjectName), cb.lessThan(
+            root.get(LogEvent_.created), before), cb.equal(root.get(LogEvent_.domainObjectId), reservationId));
+
+        CriteriaQuery<DateTime> subQuery = cb.createQuery(DateTime.class).select(
+            cb.greatest(root.get(LogEvent_.created))).where(predicate);
+
+        return cb.and(predicate, cb.equal(root.get(LogEvent_.created), entityManager.createQuery(subQuery)
+            .getResultList()));
+      }
+    };
   }
 }
