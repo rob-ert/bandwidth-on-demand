@@ -103,7 +103,7 @@ public class ConnectionServiceProviderService {
     // If we are already in the provisioned state send back a confirm and we are
     // done..
     // Any other state we have to send back a provision failed...
-    Connection connection = updateConnectionState(connectionId, ConnectionStateType.AUTO_PROVISION);
+    Connection connection = connectionRepo.findOne(connectionId);
     connection.setProvisionRequestDetails(requestDetails);
     connection = connectionRepo.saveAndFlush(connection);
 

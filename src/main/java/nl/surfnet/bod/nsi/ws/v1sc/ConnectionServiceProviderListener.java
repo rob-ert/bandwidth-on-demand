@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
+import static nl.surfnet.bod.web.WebUtils.not;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
@@ -39,8 +41,6 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-
-import static nl.surfnet.bod.web.WebUtils.not;
 
 @Component
 public class ConnectionServiceProviderListener implements ReservationListener {
@@ -79,9 +79,7 @@ public class ConnectionServiceProviderListener implements ReservationListener {
       connectionServiceProvider.reserveConfirmed(connection, event.getNsiRequestDetails().get());
       break;
     case AUTO_START:
-      // no need to send back any confirms, a provision confirm is only sent
-      // when start time has passed in which case
-      // the status would be RUNNING
+      connectionServiceProvider.provisionSucceeded(connection);
       break;
     case FAILED:
     case NOT_ACCEPTED:
@@ -106,7 +104,7 @@ public class ConnectionServiceProviderListener implements ReservationListener {
   private void handleReservationFailed(Connection connection, ReservationStatusChangeEvent event) {
     try {
       logger.debug("Connection state {}, new reservation state {}", connection.getCurrentState(), event.getNewStatus());
-      
+
       if (connection.getCurrentState() == ConnectionStateType.AUTO_PROVISION
           || connection.getCurrentState() == ConnectionStateType.SCHEDULED) {
         connectionServiceProvider.provisionFailed(connection, event.getNsiRequestDetails().get());

@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -42,8 +44,6 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Uninterruptibles;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 @Service
 public class ReservationToNbi {
@@ -115,11 +115,10 @@ public class ReservationToNbi {
 
     boolean activateReservation = nbiClient.activateReservation(reservation.getReservationId());
 
-    // TODO [AvD] What should happen when the reservation did not activate???
-    // Should we send an NSI activation failed (publish a change event??)
     if (activateReservation) {
       ReservationStatus orgStatus = reservation.getStatus();
 
+      // FIXME this could also be running in case the start time already passed..
       reservation.setStatus(ReservationStatus.AUTO_START);
       reservationRepo.save(reservation);
 

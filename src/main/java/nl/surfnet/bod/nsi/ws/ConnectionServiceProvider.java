@@ -40,7 +40,15 @@ public interface ConnectionServiceProvider extends ConnectionProviderPort {
 
   void reserveFailed(Connection connection, NsiRequestDetails requestDetails, Optional<String> failedReason);
 
+  /**
+   * The reservation is provisioned and is running
+   */
   void provisionConfirmed(Connection connection, NsiRequestDetails requestDetails);
+
+  /**
+   * The provision was successful
+   */
+  void provisionSucceeded(Connection connection);
 
   void provisionFailed(Connection connection, NsiRequestDetails requestDetails);
 
@@ -49,4 +57,5 @@ public interface ConnectionServiceProvider extends ConnectionProviderPort {
   void terminateFailed(Connection connection, Optional<NsiRequestDetails> requestDetails);
 
   void terminateTimedOutReservation(Connection connection, Optional<NsiRequestDetails> nsiRequestDetails);
+
 }
