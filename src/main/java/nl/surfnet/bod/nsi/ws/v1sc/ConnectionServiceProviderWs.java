@@ -21,14 +21,6 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD.NOT_IMPLEMENTED;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_CONFIRMED;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_FAILED;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,11 +42,24 @@ import nl.surfnet.bod.web.security.Security;
 import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
-import org.ogf.schemas.nsi._2011._10.connection._interface.*;
+import org.ogf.schemas.nsi._2011._10.connection._interface.GenericAcknowledgmentType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ProvisionRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReleaseRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.TerminateRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
 import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
+import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.GenericFailedType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ObjectFactory;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ReserveConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -63,6 +68,16 @@ import org.springframework.util.StringUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.sun.xml.ws.developer.SchemaValidation;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD.NOT_IMPLEMENTED;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_CONFIRMED;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_FAILED;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
+
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
 
 @Service("connectionServiceProviderWs_v1sc")
 @WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider")
@@ -94,7 +109,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
    * inter-domain bandwidth. Those parameters required for the request to
    * proceed to a processing actor will be validated, however, all other
    * parameters will be validated in the processing actor.
-   *
+   * 
    * @param parameters
    *          The un-marshaled JAXB object holding the NSI reservation request.
    * @return The GenericAcknowledgmentType object returning the correlationId
@@ -247,7 +262,12 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public void provisionFailed(Connection connection, NsiRequestDetails requestDetails) {
-    connection.setCurrentState(ConnectionStateType.SCHEDULED);
+    if (connection.getStartTime().isPresent() && (connection.getStartTime().get().isAfterNow())) {
+      connection.setCurrentState(ConnectionStateType.SCHEDULED);
+    }
+    else {
+      connection.setCurrentState(ConnectionStateType.RESERVED);
+    }
     connectionRepo.save(connection);
 
     log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
@@ -291,7 +311,8 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   @Override
   public void provisionSucceeded(Connection connection) {
     // no need to inform the client,
-    // a provision confirmed is only send when the reservation is running (connection is provisioned)
+    // a provision confirmed is only send when the reservation is running
+    // (connection is provisioned)
     connection.setCurrentState(ConnectionStateType.AUTO_PROVISION);
     connectionRepo.save(connection);
   }
@@ -396,7 +417,8 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public void terminateTimedOutReservation(Connection connection, Optional<NsiRequestDetails> nsiRequestDetails) {
-    // Talked to HansT and this is really the only step we have to take from an NSI perspective.
+    // Talked to HansT and this is really the only step we have to take from an
+    // NSI perspective.
     connectionServiceProviderService.updateConnectionState(connection.getId(), ConnectionStateType.TERMINATED);
   }
 

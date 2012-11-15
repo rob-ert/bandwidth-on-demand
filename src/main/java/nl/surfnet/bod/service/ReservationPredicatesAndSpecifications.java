@@ -46,8 +46,6 @@ import org.joda.time.DateTime;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
 
-import com.google.common.collect.ImmutableList;
-
 public class ReservationPredicatesAndSpecifications {
 
   static Specification<Reservation> forVirtualResourceGroup(final VirtualResourceGroup vrg) {
@@ -100,7 +98,7 @@ public class ReservationPredicatesAndSpecifications {
           CriteriaBuilder cb) {
 
         return cb.and(cb.lessThanOrEqualTo(reservation.get(Reservation_.startDateTime), startDateTime), reservation
-            .get(Reservation_.status).in(ImmutableList.of(ReservationStatus.REQUESTED, ReservationStatus.AUTO_START)));
+            .get(Reservation_.status).in(ReservationStatus.COULD_START_STATES));
       }
     };
   }

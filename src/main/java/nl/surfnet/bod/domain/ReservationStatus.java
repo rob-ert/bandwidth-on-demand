@@ -26,7 +26,7 @@ import java.util.Set;
 
 /**
  * Enum representing the status of a {@link Reservation}.
- *
+ * 
  * /----------(auto provision)-----------\ | v /---------\ /--------\
  * /---------\ /-------\ /---------\ | Requested | -> | Reserved |
  * -(provision)-> | Scheduled | -(start time)-> | Running | -(end time)-> |
@@ -41,15 +41,22 @@ public enum ReservationStatus {
   REQUESTED, RESERVED, AUTO_START, SCHEDULED, RUNNING, SUCCEEDED, CANCELLED, FAILED, NOT_ACCEPTED, TIMED_OUT, CANCEL_FAILED;
 
   /**
-   * All states which are allowed to transition to an other state. All other
-   * states will automatically be regarded as endStates.
-   */
-  public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, RESERVED, AUTO_START, SCHEDULED, RUNNING);
-
-  /**
    * All states which are considered as error states.
    */
   public static final Set<ReservationStatus> ERROR_STATES = EnumSet.of(FAILED, NOT_ACCEPTED, TIMED_OUT, CANCEL_FAILED);
+
+  /**
+   * All states that could transfer to a RUNNING state
+   */
+  public static final Set<ReservationStatus> COULD_START_STATES = EnumSet
+      .of(REQUESTED, RESERVED, AUTO_START, SCHEDULED);
+
+  /**
+   * All states which are allowed to transition to an other state. All other
+   * states will automatically be regarded as endStates.
+   */
+  public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, RESERVED, AUTO_START, SCHEDULED,
+      RUNNING);
 
   /**
    * All states which indicate a successful creation of reservation
@@ -78,7 +85,7 @@ public enum ReservationStatus {
   /**
    * @return true if a Reservation is allowed to be delete, only based on its
    *         state.
-   *
+   * 
    */
   public boolean isDeleteAllowed() {
     return isTransitionState();
