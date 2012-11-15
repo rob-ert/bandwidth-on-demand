@@ -21,6 +21,14 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
+import static nl.surfnet.bod.domain.ReservationStatus.*;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.AUTO_PROVISION;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.RESERVED;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.TERMINATING;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
@@ -38,21 +46,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 
 import com.google.common.base.Optional;
-
-import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
-import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
-import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
-
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.AUTO_PROVISION;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.RESERVED;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.TERMINATING;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderListenerTest {
@@ -129,7 +122,7 @@ public class ConnectionServiceProviderListenerTest {
   }
 
   @Test
-  public void provisionSucceed() {
+  public void provisionSucceeded() {
     Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetails("http://localhost/reply", "123456789"));
     Connection connection = new ConnectionFactory().setCurrentState(RESERVED).create();
     Reservation reservation = new ReservationFactory().setStatus(AUTO_START).setConnection(connection).create();
@@ -140,7 +133,7 @@ public class ConnectionServiceProviderListenerTest {
 
     subject.onStatusChange(event);
 
-    verifyZeroInteractions(connectionServiceProviderMock);
+    verify(connectionServiceProviderMock).provisionSucceeded(connection);
   }
 
   @Test
