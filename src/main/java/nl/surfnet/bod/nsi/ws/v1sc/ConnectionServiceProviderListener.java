@@ -63,63 +63,67 @@ public class ConnectionServiceProviderListener implements ReservationListener {
 
   @Override
   public void onStatusChange(ReservationStatusChangeEvent event) {
-    logger.debug("Got a reservation status change event {}", event);
+    try {
+      logger.debug("Got a reservation status change event {}", event);
 
-    Reservation reservation = reservationService.find(event.getReservation().getId());
+      Reservation reservation = reservationService.find(event.getReservation().getId());
 
-    if (not(reservation.isNSICreated())) {
-      logger.debug("Reservation {} was not created using NSI, no work to perform", reservation.getLabel());
-      return;
+      if (not(reservation.isNSICreated())) {
+        logger.debug("Reservation {} was not created using NSI, no work to perform", reservation.getLabel());
+        return;
+      }
+
+      Connection connection = reservation.getConnection();
+
+      switch (event.getNewStatus()) {
+      case RESERVED:
+        connectionServiceProvider.reserveConfirmed(connection, event.getNsiRequestDetails().get());
+        break;
+      case AUTO_START:
+        connectionServiceProvider.provisionSucceeded(connection);
+        break;
+      case FAILED:
+      case NOT_ACCEPTED:
+      case CANCEL_FAILED:
+        handleReservationFailed(connection, event);
+        break;
+      case TIMED_OUT:
+        connectionServiceProvider.terminateTimedOutReservation(connection, event.getNsiRequestDetails());
+        break;
+      case RUNNING:
+        connectionServiceProvider.provisionConfirmed(connection, event.getNsiRequestDetails().get());
+        break;
+      case CANCELLED:
+        connectionServiceProvider.terminateConfirmed(connection, event.getNsiRequestDetails());
+        break;
+      default:
+        logger.error("Unhandled status {} of reservation {}", event.getNewStatus(), event.getReservation());
+      }
     }
-
-    Connection connection = reservation.getConnection();
-
-    switch (event.getNewStatus()) {
-    case RESERVED:
-      connectionServiceProvider.reserveConfirmed(connection, event.getNsiRequestDetails().get());
-      break;
-    case AUTO_START:
-      connectionServiceProvider.provisionSucceeded(connection);
-      break;
-    case FAILED:
-    case NOT_ACCEPTED:
-      handleReservationFailed(connection, event);
-      break;
-    case TIMED_OUT:
-      connectionServiceProvider.terminateTimedOutReservation(connection, event.getNsiRequestDetails());
-      break;
-    case RUNNING:
-      connectionServiceProvider.provisionConfirmed(connection, event.getNsiRequestDetails().get());
-      break;
-    case CANCELLED:
-      connectionServiceProvider.terminateConfirmed(connection, event.getNsiRequestDetails());
-      break;
-    case CANCEL_FAILED:
-      handleReservationFailed(connection, event);
-    default:
-      logger.error("Unhandled status {} of reservation {}", event.getNewStatus(), event.getReservation());
+    catch (Exception e) {
+      logger.error("Handeling failed, failed", e);
     }
   }
 
   private void handleReservationFailed(Connection connection, ReservationStatusChangeEvent event) {
-    try {
-      logger.debug("Connection state {}, new reservation state {}", connection.getCurrentState(), event.getNewStatus());
+    logger.debug("Connection state {}, new reservation state {}", connection.getCurrentState(), event.getNewStatus());
 
-      if (connection.getCurrentState() == ConnectionStateType.AUTO_PROVISION
-          || connection.getCurrentState() == ConnectionStateType.SCHEDULED) {
-        connectionServiceProvider.provisionFailed(connection, event.getNsiRequestDetails().get());
-      }
-      else if (connection.getCurrentState() == ConnectionStateType.TERMINATING) {
-        connectionServiceProvider.terminateFailed(connection, event.getNsiRequestDetails());
-      }
-      else if (connection.getCurrentState() == ConnectionStateType.RESERVING) {
-        Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation()
-            .getFailedReason()));
-        connectionServiceProvider.reserveFailed(connection, event.getNsiRequestDetails().get(), failedReason);
-      }
+    if (connection.getCurrentState() == ConnectionStateType.AUTO_PROVISION
+        || connection.getCurrentState() == ConnectionStateType.SCHEDULED) {
+      // the connection is was ready to get started but the step to running/provisioned failed
+      // so send a provisionFailed
+      connectionServiceProvider.provisionFailed(connection, event.getNsiRequestDetails().get());
     }
-    catch (Exception e) {
-      logger.warn("Handeling failed, failed", e);
+    else if (connection.getCurrentState() == ConnectionStateType.TERMINATING) {
+      connectionServiceProvider.terminateFailed(connection, event.getNsiRequestDetails());
+    }
+    else if (connection.getCurrentState() == ConnectionStateType.RESERVING) {
+      Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation()
+          .getFailedReason()));
+      connectionServiceProvider.reserveFailed(connection, event.getNsiRequestDetails().get(), failedReason);
+    }
+    else {
+      logger.error("Listener got a failed '{}' but did not know what to do with the connection {}", event.getNewStatus(), connection);
     }
   }
 
