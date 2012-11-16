@@ -1,0 +1,1 @@
+ALTER TABLE connection ADD FOREIGN KEY (reservation) REFERENCES reservation(id);
