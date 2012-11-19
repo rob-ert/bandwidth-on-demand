@@ -47,7 +47,7 @@ import com.googlecode.flyway.core.api.migration.spring.SpringJdbcMigration;
  * {@link ReservationStatus#AUTO_START}, even in the details text.
  * 
  */
-public class V1_7_0_1__MigrateLogEventStateChanges implements SpringJdbcMigration {
+public class V1_8_0_3__MigrateLogEventStateChanges implements SpringJdbcMigration {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

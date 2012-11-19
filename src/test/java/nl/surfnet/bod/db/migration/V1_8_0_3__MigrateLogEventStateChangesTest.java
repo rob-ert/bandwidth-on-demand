@@ -13,9 +13,9 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class V1_7_0_1__MigrateLogEventStateChangesTest {
+public class V1_8_0_3__MigrateLogEventStateChangesTest {
 
-  private final V1_7_0_1__MigrateLogEventStateChanges subject = new V1_7_0_1__MigrateLogEventStateChanges();
+  private final V1_8_0_3__MigrateLogEventStateChanges subject = new V1_8_0_3__MigrateLogEventStateChanges();
 
   @Test
   public void shouldTranslateState() {
