@@ -117,16 +117,15 @@ public class ReportController {
     final DateTime end = nocReservationReport.getPeriodEnd();
 
     nocReservationReport.setAmountRunningReservationsSucceeded(reservationService
-        .countRunningActiveRunningReservationForNocWithStateBetween(ReservationStatus.SUCCEEDED, start, end));
+        .countActiveReservationsBetweenWithStatusIn(start, end, ReservationStatus.TECHNICALLY_SUCCESFULL));
 
     nocReservationReport.setAmountRunningReservationsFailed(reservationService
-        .countRunningActiveRunningReservationForNocWithStateBetween(ReservationStatus.FAILED, start, end));
+        .countActiveReservationsBetweenWithStatusIn(start, end, ReservationStatus.FAILED));
 
     nocReservationReport.setAmountRunningReservationsNeverProvisioned(reservationService
-        .countRunningActiveRunningReservationForNocWithStateBetween(ReservationStatus.RUNNING, start, end));
+        .countActiveReservationsBetweenWithStatusIn(start, end, ReservationStatus.RUNNING));
 
     nocReservationReport.setAmountRunningReservationsFailed(reservationService
-        .countRunningActiveRunningReservationForNocWithStateBetween(ReservationStatus.TIMED_OUT, start, end));
+        .countActiveReservationsBetweenWithStatusIn(start, end, ReservationStatus.TIMED_OUT));
   }
-
 }

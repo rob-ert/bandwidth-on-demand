@@ -245,8 +245,18 @@ public class ReservationPredicatesAndSpecifications {
     return spec;
   }
 
-  public static Specification<Reservation> specReservationStartBeforeEndInOrAfterWithState(
-      final ReservationStatus state, final DateTime start, final DateTime end) {
+  /**
+   * Specification to find {@link Reservation}s which have started in or before
+   * the given period and which end in or after the given period.
+   * 
+   * @param start
+   *          {@link DateTime} start of the period
+   * @param end
+   *          {@link DateTime} end of the period
+   * @return Specification<Reservation>
+   */
+  public static Specification<Reservation> specReservationStartBeforeAndEndInOrAfter(final DateTime start,
+      final DateTime end) {
 
     Specification<Reservation> spec = new Specification<Reservation>() {
       @Override
@@ -254,14 +264,38 @@ public class ReservationPredicatesAndSpecifications {
 
         final Predicate startInOrBeforePeriod = cb.lessThanOrEqualTo(root.get(Reservation_.startDateTime), end);
         final Predicate endInOrAfterPeriod = cb.greaterThanOrEqualTo(root.get(Reservation_.endDateTime), start);
-        final Predicate status = cb.equal(root.get(Reservation_.status), state);
 
-        return cb.and(startInOrBeforePeriod, endInOrAfterPeriod, status);
+        return cb.and(startInOrBeforePeriod, endInOrAfterPeriod);
       }
     };
 
     return spec;
-
   }
 
+  /**
+   * Specification which AND's the given state with the
+   * {@link #specReservationStartBeforeAndEndInOrAfter(DateTime, DateTime)}
+   * Specification
+   * 
+   * @see #specReservationStartBeforeAndEndInOrAfter(DateTime, DateTime)
+   * @param state
+   *          {@link ReservationStatus} State to search for
+   * @param start
+   *          {@link DateTime} start of period
+   * @param end
+   *          {@link DateTime} end of period
+   * @return
+   */
+  public static Specification<Reservation> specReservationStartBeforeEndInOrAfterWithState(
+      final ReservationStatus state, final DateTime start, final DateTime end) {
+
+    Specification<Reservation> spec = new Specification<Reservation>() {
+
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.equal(root.get(Reservation_.status), state);
+      }
+    };
+    return Specifications.where(spec).and(specReservationStartBeforeAndEndInOrAfter(start, end));
+  }
 }

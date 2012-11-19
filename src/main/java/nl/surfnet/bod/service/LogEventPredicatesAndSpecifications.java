@@ -173,9 +173,7 @@ public final class LogEventPredicatesAndSpecifications {
       @Override
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
-        Predicate predicate = cb.and(cb.equal(root.get(LogEvent_.domainObjectClass), domainObjectName), cb
-            .lessThanOrEqualTo(root.get(LogEvent_.created), before), cb.equal(root.get(LogEvent_.domainObjectId),
-            reservationId));
+        Predicate predicate = getPredicateForDomainObjectBefore(reservationId, before, domainObjectName, root, cb);
 
         if (not(ArrayUtils.isEmpty(states))) {
           predicate = cb.and(predicate, cb.isNotNull(root.get(LogEvent_.newReservationStatus)), (root
@@ -185,5 +183,32 @@ public final class LogEventPredicatesAndSpecifications {
         return predicate;
       }
     };
+  }
+
+  static Specification<LogEvent> specStateChangeFromOldToNewForReservationIdBefore(final ReservationStatus oldStatus,
+      final ReservationStatus newStatus, final Long reservationId, final DateTime before) {
+    final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
+
+    return new Specification<LogEvent>() {
+      @Override
+      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+
+        Predicate predicate = getPredicateForDomainObjectBefore(reservationId, before, domainObjectName, root, cb);
+
+        predicate = cb.and(predicate, cb.equal(root.get(LogEvent_.oldReservationStatus), oldStatus), cb.equal(root
+            .get(LogEvent_.newReservationStatus), newStatus));
+
+        return predicate;
+      }
+
+    };
+  }
+
+  private static Predicate getPredicateForDomainObjectBefore(final Long reservationId, final DateTime before,
+      final String domainObjectName, Root<LogEvent> root, CriteriaBuilder cb) {
+    Predicate predicate = cb.and(cb.equal(root.get(LogEvent_.domainObjectClass), domainObjectName), cb
+        .lessThanOrEqualTo(root.get(LogEvent_.created), before), cb.equal(root.get(LogEvent_.domainObjectId),
+        reservationId));
+    return predicate;
   }
 }
