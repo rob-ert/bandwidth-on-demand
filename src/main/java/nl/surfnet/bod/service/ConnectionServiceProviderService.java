@@ -112,16 +112,15 @@ public class ConnectionServiceProviderService {
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void terminate(final Long connectionId, final String requesterNsa, final NsiRequestDetails requestDetails) {
     Connection connection = updateConnectionState(connectionId, ConnectionStateType.TERMINATING);
-    connectionRepo.saveAndFlush(connection);
 
     reservationService.cancelWithReason(connection.getReservation(), "Terminate request by NSI", Security
         .getUserDetails(), Optional.of(requestDetails));
   }
 
-  public Connection updateConnectionState(final Long connectionId, final ConnectionStateType state) {
+  private Connection updateConnectionState(final Long connectionId, final ConnectionStateType state) {
     Connection connection = connectionRepo.findOne(connectionId);
     connection.setCurrentState(state);
-    return connection;
+    return connectionRepo.saveAndFlush(connection);
   }
 
   @Async
