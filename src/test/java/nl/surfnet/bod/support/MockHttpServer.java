@@ -158,9 +158,9 @@ public class MockHttpServer extends AbstractHandler {
     return requests.size();
   }
 
-  public final String awaitRequest(final long seconds) {
+  public final String awaitRequest(long timeout, TimeUnit unit) {
     try {
-      String request = lastRequests.pollLast(seconds, TimeUnit.SECONDS);
+      String request = lastRequests.pollLast(timeout, unit);
       if (request == null) {
         throw new AssertionError("Failed to retrieve the request");
       }

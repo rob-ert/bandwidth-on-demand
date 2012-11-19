@@ -372,19 +372,24 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
       reset();
     }
-
   }
 
   @Test
-  public void queryShouldGiveAConfirm() throws ServiceException {
-    QueryRequestType queryRequest = createQueryRequest();
+  public void queryShouldGiveAConfirm() throws ServiceException, DatatypeConfigurationException {
+    ReserveRequestType reserveRequest = createReserveRequest();
+    final String connectionId = reserveRequest.getReserve().getReservation().getConnectionId();
 
+    nsiProvider.reserve(reserveRequest);
+    awaitReserveConfirmed();
+
+    QueryRequestType queryRequest = createQueryRequest(connectionId);
     GenericAcknowledgmentType genericAcknowledgment = nsiProvider.query(queryRequest);
     assertThat(genericAcknowledgment.getCorrelationId(), is(queryRequest.getCorrelationId()));
 
-    String response = requesterEndpoint.awaitRequest(2);
-    assertThat(response, containsString("queryConfirmed"));
+    String response = awaitQueryConfirmed();
     assertThat(response, containsString(queryRequest.getCorrelationId()));
+    assertThat(response, containsString("<connectionState>Reserved</connectionState"));
+    assertThat(response, containsString("<connectionId>"+connectionId+"</connectionId"));
     assertThat(response, containsString("<providerNSA>"+URN_PROVIDER_NSA+"</providerNSA>"));
     assertThat(response, containsString("<requesterNSA>"+URN_REQUESTER_NSA+"</requesterNSA>"));
   }
@@ -421,19 +426,16 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     nsiProvider.reserve(reservationRequest);
 
-    String reserveConfirmed = requesterEndpoint.awaitRequest(5);
-    assertThat(reserveConfirmed, containsString("reserveConfirmed"));
+    awaitReserveConfirmed();
 
     TerminateRequestType terminateRequest = createTerminateRequest(connectionId);
     nsiProvider.terminate(terminateRequest);
 
-    String terminateConfirmed = requesterEndpoint.awaitRequest(2);
-    assertThat(terminateConfirmed, containsString("terminateConfirmed"));
+    awaitTerminateConfirmed();
 
     nsiProvider.terminate(terminateRequest);
 
-    String terminateFailed = requesterEndpoint.awaitRequest(2);
-    assertThat(terminateFailed, containsString("terminateFailed"));
+    awaitTerminateFailed();
   }
 
   private ReserveRequestType createReserveRequest() throws DatatypeConfigurationException {
@@ -464,7 +466,11 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   private QueryRequestType createQueryRequest() {
     return new ConnectionServiceProviderFactory().setProviderNsa(URN_PROVIDER_NSA).setRequesterNsa(URN_REQUESTER_NSA).createQueryRequest();
+  }
 
+  private QueryRequestType createQueryRequest(String connectionId) {
+    return new ConnectionServiceProviderFactory().setConnectionId(connectionId).setProviderNsa(URN_PROVIDER_NSA)
+        .setRequesterNsa(URN_REQUESTER_NSA).createQueryRequest();
   }
 
   private TerminateRequestType createTerminateRequest(String connId) {
@@ -475,6 +481,30 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   private ProvisionRequestType createProvisionRequest(String connId) {
     return new ConnectionServiceProviderFactory().setConnectionId(connId).setProviderNsa(URN_PROVIDER_NSA)
         .createProvisionRequest();
+  }
+
+  private String awaitReserveConfirmed() {
+    String response = requesterEndpoint.awaitRequest(5, TimeUnit.SECONDS);
+    assertThat(response, containsString("reserveConfirmed"));
+    return response;
+  }
+
+  private String awaitTerminateConfirmed() {
+    String terminateConfirmed = requesterEndpoint.awaitRequest(2, TimeUnit.SECONDS);
+    assertThat(terminateConfirmed, containsString("terminateConfirmed"));
+    return terminateConfirmed;
+  }
+
+  private String awaitTerminateFailed() {
+    String terminateFailed = requesterEndpoint.awaitRequest(2, TimeUnit.SECONDS);
+    assertThat(terminateFailed, containsString("terminateFailed"));
+    return terminateFailed;
+  }
+
+  private String awaitQueryConfirmed() {
+    String response = requesterEndpoint.awaitRequest(2, TimeUnit.SECONDS);
+    assertThat(response, containsString("queryConfirmed"));
+    return response;
   }
 
 }
