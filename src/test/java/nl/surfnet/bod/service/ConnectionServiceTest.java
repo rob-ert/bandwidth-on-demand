@@ -49,7 +49,7 @@ import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
 import com.google.common.base.Optional;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConnectionServiceProviderServiceTest {
+public class ConnectionServiceTest {
 
   @Mock
   public ConnectionRepo connectionRepoMock;
@@ -61,7 +61,7 @@ public class ConnectionServiceProviderServiceTest {
   private VirtualPortService virtualPortServiceMock;
 
   @InjectMocks
-  private ConnectionServiceProviderService subject;
+  private ConnectionService subject;
 
   @Test
   public void shouldUseRichUserDetailsAsCreater() throws ServiceException {

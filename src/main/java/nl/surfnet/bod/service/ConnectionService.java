@@ -42,6 +42,8 @@ import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPor
 import org.ogf.schemas.nsi._2011._10.connection.types.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -52,9 +54,9 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 @Service
-public class ConnectionServiceProviderService {
+public class ConnectionService {
 
-  private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderService.class);
+  private final Logger log = LoggerFactory.getLogger(ConnectionService.class);
 
   @Resource
   private ConnectionRepo connectionRepo;
@@ -257,4 +259,15 @@ public class ConnectionServiceProviderService {
     }
   }
 
+  public Collection<Connection> findAll() {
+    return connectionRepo.findAll();
+  }
+
+  public List<Connection> findEntries(int firstResult, int maxResults, Sort sort) {
+    return connectionRepo.findAll(new PageRequest(firstResult / maxResults, maxResults, sort)).getContent();
+  }
+
+  public long count() {
+    return connectionRepo.count();
+  }
 }

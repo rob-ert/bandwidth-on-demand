@@ -22,5 +22,5 @@
             <spring:message code="entity_not_found" arguments="${entity}" />
         </c:otherwise>
     </c:choose>
-    
+
 </jsp:root>

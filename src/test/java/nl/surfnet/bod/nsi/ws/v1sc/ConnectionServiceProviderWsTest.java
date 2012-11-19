@@ -43,7 +43,7 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.repo.ConnectionRepo;
-import nl.surfnet.bod.service.ConnectionServiceProviderService;
+import nl.surfnet.bod.service.ConnectionService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.ConnectionFactory;
@@ -85,7 +85,7 @@ public class ConnectionServiceProviderWsTest {
   private ReservationService reservationServiceMock;
 
   @Mock
-  private ConnectionServiceProviderService connectionServiceProviderComponent;
+  private ConnectionService connectionServiceProviderComponent;
 
   private final String nsaProvider = "nsa:surfnet.nl";
 

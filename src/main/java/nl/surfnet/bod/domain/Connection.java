@@ -36,7 +36,7 @@ import com.google.common.base.Optional;
 
 @Entity
 @Indexed
-public class Connection implements Loggable {
+public class Connection implements Loggable, PersistableDomain {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)

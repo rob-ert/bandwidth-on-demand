@@ -28,4 +28,9 @@
       <put-attribute name="active_menu" value="logevent" cascade="true" />
     </definition>
 
+    <definition extends="default" name="noc/connections/list">
+        <put-attribute name="body" value="/WEB-INF/views/noc/connections/list.jspx" />
+        <put-attribute name="active_menu" value="reservation" cascade="true" />
+    </definition>
+
 </tiles-definitions>

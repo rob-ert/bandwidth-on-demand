@@ -43,7 +43,7 @@ import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProvider;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.repo.ConnectionRepo;
-import nl.surfnet.bod.service.ConnectionServiceProviderService;
+import nl.surfnet.bod.service.ConnectionService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -84,7 +84,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   private VirtualPortService virtualPortService;
 
   @Resource
-  private ConnectionServiceProviderService connectionServiceProviderService;
+  private ConnectionService connectionServiceProviderService;
 
   @Resource(name = "nsaProviderUrns")
   private final List<String> nsaProviderUrns = new ArrayList<>();
