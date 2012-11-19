@@ -108,67 +108,66 @@ public final class ConnectionServiceProviderFunctions {
     }
   };
 
-  public static final Function<ReserveRequestType, Connection> RESERVE_REQUEST_TO_CONNECTION = //
-  new Function<ReserveRequestType, Connection>() {
-    @Override
-    public Connection apply(final ReserveRequestType reserveRequestType) {
+  public static final Function<ReserveRequestType, Connection> RESERVE_REQUEST_TO_CONNECTION =
+    new Function<ReserveRequestType, Connection>() {
+      @Override
+      public Connection apply(final ReserveRequestType reserveRequestType) {
 
-      final ReservationInfoType reservation = reserveRequestType.getReserve().getReservation();
+        final ReservationInfoType reservation = reserveRequestType.getReserve().getReservation();
 
-      final Connection connection = new Connection();
-      connection.setCurrentState(INITIAL);
-      connection.setConnectionId(reservation.getConnectionId());
-      connection.setDescription(reservation.getDescription());
+        final Connection connection = new Connection();
+        connection.setCurrentState(INITIAL);
+        connection.setConnectionId(reservation.getConnectionId());
+        connection.setDescription(reservation.getDescription());
 
-      Optional<DateTime> startTime = getDateFrom(reservation.getServiceParameters().getSchedule().getStartTime());
-      connection.setStartTime(startTime.orNull());
+        Optional<DateTime> startTime = getDateFrom(reservation.getServiceParameters().getSchedule().getStartTime());
+        connection.setStartTime(startTime.orNull());
 
-      Optional<DateTime> endTime = calculateEndTime(reservation.getServiceParameters().getSchedule().getEndTime(),
-          reservation.getServiceParameters().getSchedule().getDuration(), startTime);
-      connection.setEndTime(endTime.orNull());
+        Optional<DateTime> endTime = calculateEndTime(reservation.getServiceParameters().getSchedule().getEndTime(),
+            reservation.getServiceParameters().getSchedule().getDuration(), startTime);
+        connection.setEndTime(endTime.orNull());
 
-      // Ignoring the max. and min. bandwidth attributes...
-      connection.setDesiredBandwidth(reservation.getServiceParameters().getBandwidth().getDesired());
-      connection.setSourceStpId(reservation.getPath().getSourceSTP().getStpId());
-      connection.setDestinationStpId(reservation.getPath().getDestSTP().getStpId());
-      connection.setProviderNsa(reserveRequestType.getReserve().getProviderNSA());
-      connection.setRequesterNsa(reserveRequestType.getReserve().getRequesterNSA());
+        // Ignoring the max. and min. bandwidth attributes...
+        connection.setDesiredBandwidth(reservation.getServiceParameters().getBandwidth().getDesired());
+        connection.setSourceStpId(reservation.getPath().getSourceSTP().getStpId());
+        connection.setDestinationStpId(reservation.getPath().getDestSTP().getStpId());
+        connection.setProviderNsa(reserveRequestType.getReserve().getProviderNSA());
+        connection.setRequesterNsa(reserveRequestType.getReserve().getRequesterNSA());
 
-      String globalReservationId = reservation.getGlobalReservationId();
-      if (!StringUtils.hasText(globalReservationId)) {
-        globalReservationId = generateGlobalId();
-      }
-      connection.setGlobalReservationId(globalReservationId);
+        String globalReservationId = reservation.getGlobalReservationId();
+        if (!StringUtils.hasText(globalReservationId)) {
+          globalReservationId = generateGlobalId();
+        }
+        connection.setGlobalReservationId(globalReservationId);
 
-      // store the path and service parameters, needed to send back the
-      // response...
-      connection.setPath(reservation.getPath());
-      connection.setServiceParameters(reservation.getServiceParameters());
+        // store the path and service parameters, needed to send back the
+        // response...
+        connection.setPath(reservation.getPath());
+        connection.setServiceParameters(reservation.getServiceParameters());
 
-      return connection;
-    }
-
-    private Optional<DateTime> calculateEndTime(XMLGregorianCalendar endTimeCalendar, Duration duration,
-        Optional<DateTime> startTime) {
-      if (endTimeCalendar != null) {
-        return getDateFrom(endTimeCalendar);
+        return connection;
       }
 
-      if (duration != null && startTime.isPresent()) {
-        Date endTime = new Date(startTime.get().getMillis());
-        duration.addTo(endTime);
-        // Use timezone of start
-        return Optional.of(new DateTime(endTime, startTime.get().getZone()));
+      private Optional<DateTime> calculateEndTime(XMLGregorianCalendar endTimeCalendar, Duration duration,
+          Optional<DateTime> startTime) {
+        if (endTimeCalendar != null) {
+          return getDateFrom(endTimeCalendar);
+        }
+
+        if (duration != null && startTime.isPresent()) {
+          Date endTime = new Date(startTime.get().getMillis());
+          duration.addTo(endTime);
+          // Use timezone of start
+          return Optional.of(new DateTime(endTime, startTime.get().getZone()));
+        }
+
+        return Optional.absent();
       }
 
-      return Optional.absent();
-    }
-
-    private String generateGlobalId() {
-      return URN_GLOBAL_RESERVATION_ID + ":" + UUID.randomUUID();
-    }
-
-  };
+      private String generateGlobalId() {
+        return URN_GLOBAL_RESERVATION_ID + ":" + UUID.randomUUID();
+      }
+    };
 
   private ConnectionServiceProviderFunctions() {
   }
