@@ -23,7 +23,6 @@ package nl.surfnet.bod.service;
 
 import java.util.Collection;
 
-import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -36,12 +35,15 @@ import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.event.LogEvent_;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.joda.time.DateTime;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.annotations.VisibleForTesting;
+
+import static nl.surfnet.bod.web.WebUtils.not;
 
 public final class LogEventPredicatesAndSpecifications {
 
@@ -163,23 +165,24 @@ public final class LogEventPredicatesAndSpecifications {
     return partPredicate;
   }
 
-  static Specification<LogEvent> findLatestStateForReservationBefore(final EntityManager entityManager,
-      final Long reservationId, final DateTime before) {
+  static Specification<LogEvent> specLatestStateForReservationBeforeWithStateIn(final Long reservationId,
+      final DateTime before, final ReservationStatus... states) {
     final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
 
     return new Specification<LogEvent>() {
-
       @Override
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
-        Predicate predicate = cb.and(cb.equal(root.get(LogEvent_.domainObjectClass), domainObjectName), cb.lessThan(
-            root.get(LogEvent_.created), before), cb.equal(root.get(LogEvent_.domainObjectId), reservationId));
+        Predicate predicate = cb.and(cb.equal(root.get(LogEvent_.domainObjectClass), domainObjectName), cb
+            .lessThanOrEqualTo(root.get(LogEvent_.created), before), cb.equal(root.get(LogEvent_.domainObjectId),
+            reservationId));
 
-        CriteriaQuery<DateTime> subQuery = cb.createQuery(DateTime.class).select(
-            cb.greatest(root.get(LogEvent_.created))).where(predicate);
+        if (not(ArrayUtils.isEmpty(states))) {
+          predicate = cb.and(predicate, cb.isNotNull(root.get(LogEvent_.newReservationStatus)), (root
+              .get(LogEvent_.newReservationStatus).in((Object[]) states)));
+        }
 
-        return cb.and(predicate, cb.equal(root.get(LogEvent_.created), entityManager.createQuery(subQuery)
-            .getResultList()));
+        return predicate;
       }
     };
   }

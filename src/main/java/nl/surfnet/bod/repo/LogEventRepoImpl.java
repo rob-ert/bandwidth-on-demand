@@ -83,4 +83,17 @@ public class LogEventRepoImpl implements LogEventRepoCustom {
     return entityManager.createQuery(criteriaQuery).getResultList().size();
   }
 
+  @Override
+  public Long findMaxIdWithWhereClause(final Specification<LogEvent> whereClause) {
+    final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+    final Root<LogEvent> root = criteriaQuery.from(LogEvent.class);
+
+    //TODO Franky, should be on created field
+    criteriaQuery.select(criteriaBuilder.greatest(root.get(LogEvent_.id))).where(
+        whereClause.toPredicate(root, criteriaQuery, criteriaBuilder));
+
+    return entityManager.createQuery(criteriaQuery).getSingleResult();
+  }
+
 }

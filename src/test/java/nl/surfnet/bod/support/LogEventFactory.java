@@ -1,11 +1,16 @@
 package nl.surfnet.bod.support;
 
+import java.lang.reflect.Field;
+
 import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 
 import org.joda.time.DateTime;
+import org.springframework.util.ReflectionUtils;
+
+import com.google.common.base.Optional;
 
 public class LogEventFactory {
 
@@ -14,16 +19,24 @@ public class LogEventFactory {
 
   private String userId = "test";
   private String adminGroup = "urn:admin";
+  private final String details = "details go here";
   private DateTime created = DateTime.now();
   private LogEventType eventType = LogEventType.UPDATE;
-  private Loggable domainObject = new ReservationFactory().create();
-  private Long domainObjectId = id;
+  private Loggable domainObject = null;
+  private Long domainObjectId = null;
   private ReservationStatus oldReservationStatus = ReservationStatus.REQUESTED;
   private ReservationStatus newReservationStatus = ReservationStatus.RESERVED;
 
   public LogEvent create() {
-    LogEvent logEvent = new LogEvent(userId, adminGroup, eventType, domainObject);
+    LogEvent logEvent = new LogEvent(userId, adminGroup, eventType, Optional.<Loggable> fromNullable(domainObject),
+        details, Optional.<ReservationStatus> fromNullable(oldReservationStatus), Optional
+            .<ReservationStatus> fromNullable(newReservationStatus));
 
+    // Set immutable createdField
+    Field createdField = ReflectionUtils.findField(LogEvent.class, "created");
+    createdField.setAccessible(true);
+    ReflectionUtils.setField(createdField, logEvent, created);
+    
     return logEvent;
   }
 

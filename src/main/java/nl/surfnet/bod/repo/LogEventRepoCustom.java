@@ -37,4 +37,6 @@ public interface LogEventRepoCustom {
 
   long countDistinctDomainObjectIdsWithWhereClause(Specification<LogEvent> whereClause);
 
+  Long findMaxIdWithWhereClause(Specification<LogEvent> whereClause);
+
 }

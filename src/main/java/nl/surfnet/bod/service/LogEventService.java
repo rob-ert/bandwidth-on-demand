@@ -219,12 +219,15 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(whereClause);
   }
 
-  public ReservationStatus findLatestStateChangeForReservationIdBefore(Long reservationId, DateTime before) {
+  public LogEvent findLatestStateChangeForReservationIdBeforeWithStateIn(Long reservationId, DateTime before,
+      ReservationStatus... states) {
 
-    LogEvent event = logEventRepo.findOne(LogEventPredicatesAndSpecifications.findLatestStateForReservationBefore(
-        entityManager, reservationId, before));
+    Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
+        .specLatestStateForReservationBeforeWithStateIn(reservationId, before, states);
 
-    return event.getNewReservationStatus();
+    Long logEventId = logEventRepo.findMaxIdWithWhereClause(whereClause);
+
+    return logEventId == null ? null : logEventRepo.findOne(logEventId);
   }
 
   @VisibleForTesting
