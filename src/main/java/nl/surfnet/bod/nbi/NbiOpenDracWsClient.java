@@ -513,7 +513,12 @@ class NbiOpenDracWsClient implements NbiClient {
 
       final List<EndpointT> endPoints = Lists.newArrayList();
       for (final String tna : response.getQueryEndpointsResponse().getTnaArray()) {
-        endPoints.add(findEndpointByTna(tna));
+        try {
+          endPoints.add(findEndpointByTna(tna));
+        }
+        catch (NetworkMonitoringServiceFault e) {
+          log.error("Unable to find endpoint for TNA {}", tna);
+        }
       }
 
       return endPoints;
