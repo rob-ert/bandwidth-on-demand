@@ -26,15 +26,6 @@ import java.util.Set;
 
 /**
  * Enum representing the status of a {@link Reservation}.
- * 
- * /----------(auto provision)-----------\ | v /---------\ /--------\
- * /---------\ /-------\ /---------\ | Requested | -> | Reserved |
- * -(provision)-> | Scheduled | -(start time)-> | Running | -(end time)-> |
- * Succeeded | \---------/ \--------/\ \---------/ /\-------/ \---------/ | | \
- * | / | | (end time) \--------\ | --------/ | | v \ v / v | /---------\ \
- * /---------\ / /------\ (request failed) | Timed out | \->| Cancelled |<---/ |
- * Failed | v \---------/ \---------/ \------/ /------------\ | Not Accepted |
- * \------------/
  */
 public enum ReservationStatus {
 
@@ -85,7 +76,7 @@ public enum ReservationStatus {
   /**
    * @return true if a Reservation is allowed to be delete, only based on its
    *         state.
-   * 
+   *
    */
   public boolean isDeleteAllowed() {
     return isTransitionState();

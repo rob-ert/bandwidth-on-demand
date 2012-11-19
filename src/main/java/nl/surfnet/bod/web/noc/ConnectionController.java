@@ -22,6 +22,11 @@ public class ConnectionController extends AbstractSearchableSortableListControll
   @Resource
   private ConnectionService connectionService;
 
+  @RequestMapping("/illegal")
+  public String listIllegal(Model model) {
+    model.addAttribute("list", connectionService.findWithIllegalState());
+    return listUrl();
+  }
 
   @Override
   protected List<Connection> transformToView(List<Connection> entities, RichUserDetails user) {

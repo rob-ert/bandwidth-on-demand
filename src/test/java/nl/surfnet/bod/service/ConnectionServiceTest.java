@@ -24,13 +24,21 @@ package nl.surfnet.bod.service;
 import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.PROVISIONED;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.TERMINATED;
+
+import java.util.EnumSet;
+
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderWsTest;
 import nl.surfnet.bod.repo.ConnectionRepo;
+import nl.surfnet.bod.support.ConnectionFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -89,6 +97,22 @@ public class ConnectionServiceTest {
 
     assertThat(queryConfirmedType.getRequesterNSA(), is("urn:requester-nsa"));
     assertThat(queryConfirmedType.getProviderNSA(), is("urn:provider-nsa"));
+  }
+
+  @Test
+  public void allStatesShouldBeMapped() {
+    for (ReservationStatus status : EnumSet.allOf(ReservationStatus.class)) {
+      assertThat(ConnectionService.STATE_MAPPING.get(status), notNullValue());
+    }
+  }
+
+  @Test
+  public void aConnectionWithoutAReservationShouldBeTerminated() {
+    Connection connectionValid = new ConnectionFactory().setReservation(null).setCurrentState(TERMINATED).create();
+    assertThat(subject.hasValidState(connectionValid), is(true));
+
+    Connection connectionInvalid = new ConnectionFactory().setReservation(null).setCurrentState(PROVISIONED).create();
+    assertThat(subject.hasValidState(connectionInvalid), is(false));
   }
 
 }

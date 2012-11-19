@@ -21,18 +21,17 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.domain.ReservationStatus.*;
 import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.xml.ws.Holder;
 
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.NsiRequestDetails;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -52,11 +51,28 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableMap;
 
 @Service
 public class ConnectionService {
 
   private final Logger log = LoggerFactory.getLogger(ConnectionService.class);
+
+  protected final static Map<ReservationStatus, ConnectionStateType> STATE_MAPPING = new ImmutableMap.Builder<ReservationStatus, ConnectionStateType>()
+        .put(AUTO_START, ConnectionStateType.AUTO_PROVISION)
+        .put(CANCEL_FAILED, ConnectionStateType.TERMINATED)
+        .put(CANCELLED, ConnectionStateType.TERMINATED)
+        .put(FAILED, ConnectionStateType.TERMINATED)
+        .put(REQUESTED, ConnectionStateType.INITIAL)
+        .put(NOT_ACCEPTED, ConnectionStateType.TERMINATED)
+        .put(RESERVED, ConnectionStateType.RESERVED)
+        .put(RUNNING, ConnectionStateType.PROVISIONED)
+        .put(SCHEDULED, ConnectionStateType.SCHEDULED)
+        .put(SUCCEEDED, ConnectionStateType.TERMINATED)
+        .put(TIMED_OUT, ConnectionStateType.TERMINATED).
+        build();
 
   @Resource
   private ConnectionRepo connectionRepo;
@@ -269,5 +285,24 @@ public class ConnectionService {
 
   public long count() {
     return connectionRepo.count();
+  }
+
+  protected boolean hasValidState(Connection connection) {
+    if (connection.getReservation() == null) {
+      return connection.getCurrentState() == ConnectionStateType.TERMINATED;
+    } else {
+        return STATE_MAPPING.get(connection.getReservation().getStatus()) == connection.getCurrentState();
+    }
+  }
+
+  public Collection<Connection> findWithIllegalState() {
+    List<Connection> connections = connectionRepo.findAll();
+
+    return FluentIterable.from(connections).filter(new Predicate<Connection>() {
+      @Override
+      public boolean apply(Connection connection) {
+        return !hasValidState(connection);
+      }
+    }).toImmutableList();
   }
 }

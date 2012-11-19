@@ -22,6 +22,7 @@
 package nl.surfnet.bod.support;
 
 import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.Reservation;
 
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
@@ -36,6 +37,7 @@ public class ConnectionFactory {
   private String sourceStpId = "source port";
   private String destinationStpId = "destination port";
   private ConnectionStateType currentState = ConnectionStateType.INITIAL;
+  private Reservation reservation = new ReservationFactory().create();
 
   public Connection create() {
     Connection connection = new Connection();
@@ -47,6 +49,7 @@ public class ConnectionFactory {
     connection.setSourceStpId(sourceStpId);
     connection.setDestinationStpId(destinationStpId);
     connection.setCurrentState(currentState);
+    connection.setReservation(reservation);
 
     ServiceTerminationPointType sourceStp = new ServiceTerminationPointType();
     sourceStp.setStpId(sourceStpId);
@@ -59,6 +62,11 @@ public class ConnectionFactory {
     connection.setPath(pathType);
 
     return connection;
+  }
+
+  public ConnectionFactory setReservation(Reservation reservation) {
+    this.reservation = reservation;
+    return this;
   }
 
   public ConnectionFactory setDestinationStpId(String destinationStpId) {
