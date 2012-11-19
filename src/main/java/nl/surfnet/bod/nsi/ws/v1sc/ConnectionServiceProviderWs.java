@@ -27,7 +27,7 @@ import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONN
 import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_FAILED;
 import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
 import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.TERMINATED;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,7 +135,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
       validatePort(connection.getDestinationStpId(), "destSTP", richUserDetails);
     }
     catch (ServiceException e) {
-      connection.setCurrentState(CLEANING);
+      connection.setCurrentState(TERMINATED);
       connectionRepo.save(connection);
       throw e;
     }
