@@ -73,13 +73,9 @@
                                         <c:if test="${not empty item.connectionId}">
                                             <dt><spring:message code="label_reservation_connectionid" /></dt>
                                             <dd><c:out value="${item.connectionId}" /></dd>
+                                            <dt>NSI State</dt>
+                                            <dd><c:out value="${item.connectionStatus}" /></dd>
                                         </c:if>
-
-                                        <dt><spring:message code="label_reservation_protectiontype"/></dt>
-                                        <dd>
-                                            <c:set value="${item.protectionType}" var="type"/>
-                                            <spring:message code="label_reservation_${type}" />
-                                        </dd>
 
                                         <c:if test="${item.status eq 'FAILED' or item.status eq 'NOT_ACCEPTED'}">
                                             <dt><spring:message code="label_reservation_failedreason" /></dt>
@@ -133,6 +129,13 @@
                                         <dd><spring:eval expression="item['creationDateTime']" htmlEscape="true" /></dd>
                                         <dt><spring:message code="label_reservation_usercreated" /></dt>
                                         <dd><spring:eval expression="item['userCreated']" htmlEscape="true" /></dd>
+
+                                        <dt><spring:message code="label_reservation_protectiontype"/></dt>
+                                        <dd>
+                                            <c:set value="${item.protectionType}" var="type"/>
+                                            <spring:message code="label_reservation_${type}" />
+                                        </dd>
+
                                     </dl>
                                 </div>
                             </div>

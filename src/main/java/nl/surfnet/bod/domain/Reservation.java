@@ -32,6 +32,8 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
+import com.google.common.base.Optional;
+
 /**
  * Entity which represents a Reservation for a specific connection between a
  * source and a destination point on a specific moment in time.
@@ -620,8 +622,8 @@ public class Reservation implements Loggable, PersistableDomain {
     this.cancelReason = cancelReason;
   }
 
-  public Connection getConnection() {
-    return connection;
+  public Optional<Connection> getConnection() {
+    return Optional.fromNullable(connection);
   }
 
   public void setConnection(Connection connection) {
@@ -629,7 +631,6 @@ public class Reservation implements Loggable, PersistableDomain {
   }
 
   /**
-   *
    * @return True if this reservation was made using NSI, false otherwise
    */
   public boolean isNSICreated() {

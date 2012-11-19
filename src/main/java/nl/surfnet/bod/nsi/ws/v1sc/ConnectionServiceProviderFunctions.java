@@ -21,8 +21,8 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.*;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.*;
+import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_GLOBAL_RESERVATION_ID;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -39,6 +39,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
@@ -53,9 +56,6 @@ import org.springframework.util.StringUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-
-import nl.surfnet.bod.domain.Connection;
-import nl.surfnet.bod.domain.NsiRequestDetails;
 
 public final class ConnectionServiceProviderFunctions {
 
@@ -93,7 +93,7 @@ public final class ConnectionServiceProviderFunctions {
       return generic;
     }
   };
-  
+
 
   public static final Function<Connection, GenericConfirmedType> CONNECTION_TO_GENERIC_CONFIRMED = //
   new Function<Connection, GenericConfirmedType>() {
@@ -121,11 +121,11 @@ public final class ConnectionServiceProviderFunctions {
       connection.setDescription(reservation.getDescription());
 
       Optional<DateTime> startTime = getDateFrom(reservation.getServiceParameters().getSchedule().getStartTime());
-      connection.setStartTime(startTime);
+      connection.setStartTime(startTime.orNull());
 
       Optional<DateTime> endTime = calculateEndTime(reservation.getServiceParameters().getSchedule().getEndTime(),
           reservation.getServiceParameters().getSchedule().getDuration(), startTime);
-      connection.setEndTime(endTime);
+      connection.setEndTime(endTime.orNull());
 
       // Ignoring the max. and min. bandwidth attributes...
       connection.setDesiredBandwidth(reservation.getServiceParameters().getBandwidth().getDesired());

@@ -23,16 +23,18 @@ package nl.surfnet.bod.repo;
 
 import java.util.List;
 
+import nl.surfnet.bod.domain.Connection;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
-
-import nl.surfnet.bod.domain.Connection;
 
 @Repository
 public interface ConnectionRepo extends JpaSpecificationExecutor<Connection>, JpaRepository<Connection, Long> {
 
   Connection findByConnectionId(final String connectionId);
+
   Connection findByGlobalReservationId(final String globalReservationId);
+
   List<Connection> findByRequesterNsa(final String requesterNsa);
 }

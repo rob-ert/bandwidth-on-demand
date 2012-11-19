@@ -73,7 +73,7 @@ public class ConnectionServiceProviderListener implements ReservationListener {
         return;
       }
 
-      Connection connection = reservation.getConnection();
+      Connection connection = reservation.getConnection().get();
 
       switch (event.getNewStatus()) {
       case RESERVED:

@@ -376,6 +376,8 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     List<String> globalReservationIds = parameters.getQuery().getQueryFilter().getGlobalReservationId();
     QueryOperationType operation = parameters.getQuery().getOperation();
 
+    log.info("Got NSI query request connectionIds: {}, globalReservationIds: {}", connectionIds, globalReservationIds);
+
     if (connectionIds.isEmpty() && globalReservationIds.isEmpty()) {
       connectionServiceProviderService.asyncQueryAllForRequesterNsa(requestDetails,
           operation, parameters.getQuery().getRequesterNSA(), parameters.getQuery().getProviderNSA());

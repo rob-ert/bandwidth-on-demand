@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -40,6 +41,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Uninterruptibles;
 
@@ -49,7 +51,7 @@ import com.google.common.util.concurrent.Uninterruptibles;
  * {@link #monitorStatus(Reservation)}, whenever a state change is detected the
  * new state will be updated in the specific {@link Reservation} object and will
  * be persisted. The scheduler will be cancelled afterwards.
- * 
+ *
  */
 @Component
 @Transactional
@@ -132,13 +134,13 @@ public class ReservationPoller {
           reservationFresh.setStatus(currentStatus);
           reservationService.update(reservationFresh, startStatus);
 
-          Optional<NsiRequestDetails> requestDetails;
-          if (reservationFresh.getConnection() == null) {
-            requestDetails = Optional.absent();
-          }
-          else {
-            requestDetails = Optional.fromNullable(reservationFresh.getConnection().getProvisionRequestDetails());
-          }
+          Optional<NsiRequestDetails> requestDetails = Optional.fromNullable(
+            reservationFresh.getConnection().transform(
+              new Function<Connection, NsiRequestDetails>() {
+                @Override
+                public NsiRequestDetails apply(Connection c) { return c.getProvisionRequestDetails(); }
+              }
+             ).orNull());
 
           reservationEventPublisher.notifyListeners(new ReservationStatusChangeEvent(startStatus, reservationFresh,
               requestDetails));

@@ -21,27 +21,12 @@
  */
 package nl.surfnet.bod.domain;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.Version;
+import javax.persistence.*;
 
 import nl.surfnet.bod.util.TimeStampBridge;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.search.annotations.Analyzer;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
-import org.hibernate.search.annotations.Index;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.IndexedEmbedded;
-import org.hibernate.search.annotations.Store;
+import org.hibernate.search.annotations.*;
 import org.joda.time.DateTime;
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
@@ -137,6 +122,7 @@ public class Connection implements Loggable {
   @IndexedEmbedded
   private NsiRequestDetails provisionRequestDetails;
 
+  @Override
   public Long getId() {
     return id;
   }
@@ -221,16 +207,16 @@ public class Connection implements Loggable {
     return Optional.fromNullable(startTime);
   }
 
-  public void setStartTime(Optional<DateTime> startTime) {
-    this.startTime = startTime.orNull();
+  public void setStartTime(DateTime startTime) {
+    this.startTime = startTime;
   }
 
   public Optional<DateTime> getEndTime() {
     return Optional.fromNullable(endTime);
   }
 
-  public void setEndTime(Optional<DateTime> endTime) {
-    this.endTime = endTime.orNull();
+  public void setEndTime(DateTime endTime) {
+    this.endTime = endTime;
   }
 
   public String getSourceStpId() {

@@ -21,12 +21,16 @@
  */
 package nl.surfnet.bod.web.view;
 
+import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.DateTime;
+import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
+
+import com.google.common.base.Function;
 
 public class ReservationView {
   private final Long id;
@@ -45,6 +49,7 @@ public class ReservationView {
   private final String userCreated;
   private final String reservationId;
   private final String connectionId;
+  private final ConnectionStateType connectionStatus;
   private final DateTime creationDateTime;
   private final ElementActionView deleteActionView, editActionView;
   private final ProtectionType protectionType;
@@ -67,7 +72,8 @@ public class ReservationView {
     this.name = reservation.getName();
     this.deleteActionView = deleteActionView;
     this.editActionView = editActionView;
-    this.connectionId = reservation.getConnection() == null ? null : reservation.getConnection().getConnectionId();
+    this.connectionId = reservation.getConnection().transform(getConnectionId).orNull();
+    this.connectionStatus = reservation.getConnection().transform(getConnectionState).orNull();
   }
 
   public String getVirtualResourceGroup() {
@@ -125,7 +131,7 @@ public class ReservationView {
   public boolean isDeleteAllowedForSelectedRole() {
     return deleteActionView.isAllowed();
   }
-  
+
   public boolean isUpdateAllowedForSelectedRole() {
     return editActionView.isAllowed();
   }
@@ -133,14 +139,18 @@ public class ReservationView {
   public String getDeleteReasonKey() {
     return deleteActionView.getReasonKey();
   }
-  
+
   public String getUpdateReasonKey() {
     return editActionView.getReasonKey();
   }
- 
+
 
   public String getConnectionId() {
     return connectionId;
+  }
+
+  public ConnectionStateType getConnectionStatus() {
+    return connectionStatus;
   }
 
   public String getCancelReason() {
@@ -277,5 +287,19 @@ public class ReservationView {
       return false;
     return true;
   }
+
+  private static final Function<Connection, String> getConnectionId = new Function<Connection, String>() {
+      @Override
+      public String apply(Connection c) {
+        return c.getConnectionId();
+      }
+    };
+
+  private static final Function<Connection, ConnectionStateType> getConnectionState = new Function<Connection, ConnectionStateType>() {
+      @Override
+      public ConnectionStateType apply(Connection c) {
+        return c.getCurrentState();
+      }
+    };
 
 }

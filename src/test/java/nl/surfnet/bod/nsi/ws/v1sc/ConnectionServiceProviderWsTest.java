@@ -21,6 +21,14 @@
  */
 package nl.surfnet.bod.nsi.ws.v1sc;
 
+import static junit.framework.Assert.fail;
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+
 import java.util.EnumSet;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -56,27 +64,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2011._10.connection.types.BandwidthType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
-import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReserveType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
+import org.ogf.schemas.nsi._2011._10.connection.types.*;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
-
-import static junit.framework.Assert.fail;
-
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderWsTest {
@@ -241,7 +232,7 @@ public class ConnectionServiceProviderWsTest {
   public void shouldTransferToScheduledWhenProvisionFailsAndStartTimeIsReached() {
     Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.of(NsiScope.PROVISION)).create());
 
-    connection.setStartTime(Optional.of(DateTime.now().plusMinutes((1))));
+    connection.setStartTime(DateTime.now().plusMinutes((1)));
     try {
       subject.provisionFailed(connection, request);
     }
@@ -255,7 +246,7 @@ public class ConnectionServiceProviderWsTest {
   public void shouldTransferToReservedWhenProvisionFailsAndStartTimeIsNotReached() {
     Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.of(NsiScope.PROVISION)).create());
 
-    connection.setStartTime(Optional.of(DateTime.now().minusMinutes(1)));
+    connection.setStartTime(DateTime.now().minusMinutes(1));
     try {
       subject.provisionFailed(connection, request);
     }
@@ -269,7 +260,7 @@ public class ConnectionServiceProviderWsTest {
   public void shouldTransferToReservedWhenProvisionFailsAndNoStartTimeIsPresent() {
     Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.of(NsiScope.PROVISION)).create());
 
-    connection.setStartTime(Optional.<DateTime> absent());
+    connection.setStartTime(null);
     try {
       subject.provisionFailed(connection, request);
     }
