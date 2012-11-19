@@ -48,7 +48,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
@@ -127,10 +126,17 @@ public class ConnectionServiceProviderService {
 
   @Async
   public void asyncQueryConnections(NsiRequestDetails requestDetails, Collection<String> connectionIds,
-      Collection<String> globalReservationIds, QueryOperationType operation) {
+      Collection<String> globalReservationIds, QueryOperationType operation, String requesterNsa, String providerNsa) {
     Preconditions.checkArgument(!connectionIds.isEmpty());
 
-    QueryConfirmedType confirmedType = new QueryConfirmedType();
+    QueryConfirmedType confirmedType = queryConnections(connectionIds, globalReservationIds, operation, requesterNsa, providerNsa);
+
+    sendQueryResult(requestDetails, confirmedType);
+  }
+
+  protected QueryConfirmedType queryConnections(Collection<String> connectionIds, Collection<String> globalReservationIds,
+      QueryOperationType operation, String requesterNsa, String providerNsa) {
+    QueryConfirmedType confirmedType = getConfirmedType(requesterNsa, providerNsa);
 
     for (String connectionId : connectionIds) {
       addQueryResult(confirmedType, findByConnectionId(connectionId), operation);
@@ -140,43 +146,55 @@ public class ConnectionServiceProviderService {
       addQueryResult(confirmedType, findByGlobalReservationId(globalReservationId), operation);
     }
 
-    sendQueryResult(requestDetails, confirmedType);
+    return confirmedType;
   }
 
   @Async
-  public void asyncQueryAllForRequesterNsa(NsiRequestDetails requestDetails, String requesterNsa,
-      QueryOperationType operation) {
-    QueryConfirmedType confirmedType = new QueryConfirmedType();
+  public void asyncQueryAllForRequesterNsa(NsiRequestDetails requestDetails,
+      QueryOperationType operation, String requesterNsa, String providerNsa) {
+
+    QueryConfirmedType confirmedType = queryAllForRequesterNsa(operation, requesterNsa, providerNsa);
+
+    sendQueryResult(requestDetails, confirmedType);
+  }
+
+  protected QueryConfirmedType queryAllForRequesterNsa(QueryOperationType operation, String requesterNsa, String providerNsa) {
+    QueryConfirmedType confirmedType = getConfirmedType(requesterNsa, providerNsa);
 
     for (Connection connection : findByRequesterNsa(requesterNsa)) {
       addQueryResult(confirmedType, connection, operation);
     }
 
-    sendQueryResult(requestDetails, confirmedType);
+    return confirmedType;
   }
 
-  @VisibleForTesting
-  Connection findByGlobalReservationId(String globalReservationId) {
+  private QueryConfirmedType getConfirmedType(String requesterNsa, String providerNsa) {
+    QueryConfirmedType confirmedType = new QueryConfirmedType();
+    confirmedType.setProviderNSA(providerNsa);
+    confirmedType.setRequesterNSA(requesterNsa);
+    return confirmedType;
+  }
+
+  private Connection findByGlobalReservationId(String globalReservationId) {
     return connectionRepo.findByGlobalReservationId(globalReservationId);
   }
 
-  @VisibleForTesting
-  Connection findByConnectionId(String connectionId) {
+  private Connection findByConnectionId(String connectionId) {
     return connectionRepo.findByConnectionId(connectionId);
   }
 
-  @VisibleForTesting
-  List<Connection> findByRequesterNsa(String requesterNsa) {
+  private List<Connection> findByRequesterNsa(String requesterNsa) {
     return connectionRepo.findByRequesterNsa(requesterNsa);
   }
 
   private void sendQueryResult(NsiRequestDetails requestDetails, QueryConfirmedType queryResult) {
     ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
     try {
+      log.info("query result {}", queryResult);
       port.queryConfirmed(new Holder<>(requestDetails.getCorrelationId()), queryResult);
     }
     catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
-      log.error("Error: ", e);
+      log.error("Error sending query result", e);
       QueryFailedType failedType = new QueryFailedType();
 
       final ServiceExceptionType error = new ServiceExceptionType();
@@ -192,20 +210,14 @@ public class ConnectionServiceProviderService {
     }
 
     if (operation.equals(QueryOperationType.DETAILS)) {
-      addQueryDetailsResult(confirmedType, connection);
+      confirmedType.getReservationDetails().add(getQueryDetailsResult(connection));
     }
     else {
-      addQuerySummaryResult(confirmedType, connection);
+      confirmedType.getReservationSummary().add(getQuerySummaryResult(connection));
     }
   }
 
-  private void addQueryDetailsResult(QueryConfirmedType query, Connection connection) {
-    for (QueryDetailsResultType result : query.getReservationDetails()) {
-      if (result.getGlobalReservationId().equals(connection.getGlobalReservationId())) {
-        return;
-      }
-    }
-
+  private QueryDetailsResultType getQueryDetailsResult(Connection connection) {
     QueryDetailsResultType result = new QueryDetailsResultType();
     result.setConnectionId(connection.getConnectionId());
     result.setDescription(connection.getDescription());
@@ -221,10 +233,10 @@ public class ConnectionServiceProviderService {
       result.setGlobalReservationId(connection.getGlobalReservationId());
     }
 
-    query.getReservationDetails().add(result);
+    return result;
   }
 
-  private void addQuerySummaryResult(QueryConfirmedType query, Connection connection) {
+  private QuerySummaryResultType getQuerySummaryResult(Connection connection) {
     QuerySummaryResultType result = new QuerySummaryResultType();
     result.setConnectionId(connection.getConnectionId());
     result.setConnectionState(connection.getCurrentState());
@@ -234,7 +246,7 @@ public class ConnectionServiceProviderService {
       result.setGlobalReservationId(connection.getGlobalReservationId());
     }
 
-    query.getReservationSummary().add(result);
+    return result;
   }
 
   private void sendQueryFailed(final String correlationId, QueryFailedType failedType, ConnectionRequesterPort port) {

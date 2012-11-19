@@ -21,6 +21,12 @@
  */
 package nl.surfnet.bod.service;
 
+import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderWsTest;
@@ -37,16 +43,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
 
 import com.google.common.base.Optional;
-
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderServiceTest {
@@ -81,6 +81,14 @@ public class ConnectionServiceProviderServiceTest {
     subject.reserve(connection, nsiRequestDetails, true, userDetails);
 
     assertThat(connection.getReservation().getUserCreated(), is("me"));
+  }
+
+  @Test
+  public void queryResponseShouldContainRequesterAndProviderNsa() {
+    QueryConfirmedType queryConfirmedType = subject.queryAllForRequesterNsa(QueryOperationType.SUMMARY, "urn:requester-nsa", "urn:provider-nsa");
+
+    assertThat(queryConfirmedType.getRequesterNSA(), is("urn:requester-nsa"));
+    assertThat(queryConfirmedType.getProviderNSA(), is("urn:provider-nsa"));
   }
 
 }
