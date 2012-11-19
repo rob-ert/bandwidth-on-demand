@@ -90,9 +90,9 @@ public class ReservationToNbi {
   @Async
   public Future<Long> asyncTerminate(Long reservationId, String cancelReason, Optional<NsiRequestDetails> requestDetails) {
     Reservation reservation = reservationRepo.findOne(reservationId);
-
-    logger.debug("Terminating reservation {}", reservation);
     checkNotNull(reservation);
+
+    logger.info("Terminating reservation {}", reservation);
 
     ReservationStatus orgStatus = reservation.getStatus();
     final ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());

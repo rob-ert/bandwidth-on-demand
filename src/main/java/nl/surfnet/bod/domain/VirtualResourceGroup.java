@@ -103,6 +103,10 @@ public class VirtualResourceGroup implements Loggable, PersistableDomain {
     this.virtualPorts = virtualPorts;
   }
 
+  public boolean addVirtualPort(VirtualPort port) {
+    return virtualPorts.add(port);
+  }
+
   public Collection<Reservation> getReservations() {
     return reservations;
   }

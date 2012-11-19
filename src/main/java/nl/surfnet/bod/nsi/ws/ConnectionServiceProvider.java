@@ -52,10 +52,16 @@ public interface ConnectionServiceProvider extends ConnectionProviderPort {
 
   void provisionFailed(Connection connection, NsiRequestDetails requestDetails);
 
+  /**
+   * When a terminate/cancel is send through the GUI the requestDetails are absent.
+   */
   void terminateConfirmed(Connection connection, Optional<NsiRequestDetails> requestDetails);
 
+  /**
+   * When a terminate/cancel is send through the GUI and it fails the requestDetails are absent.
+   */
   void terminateFailed(Connection connection, Optional<NsiRequestDetails> requestDetails);
 
-  void terminateTimedOutReservation(Connection connection, Optional<NsiRequestDetails> nsiRequestDetails);
+  void terminateTimedOutReservation(Connection connection);
 
 }

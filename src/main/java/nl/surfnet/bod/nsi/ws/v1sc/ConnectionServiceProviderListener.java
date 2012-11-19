@@ -83,18 +83,24 @@ public class ConnectionServiceProviderListener implements ReservationListener {
         connectionServiceProvider.provisionSucceeded(connection);
         break;
       case FAILED:
-      case NOT_ACCEPTED:
-      case CANCEL_FAILED:
         handleReservationFailed(connection, event);
         break;
+      case NOT_ACCEPTED:
+        Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation()
+          .getFailedReason()));
+        connectionServiceProvider.reserveFailed(connection, event.getNsiRequestDetails().get(), failedReason);
+        break;
       case TIMED_OUT:
-        connectionServiceProvider.terminateTimedOutReservation(connection, event.getNsiRequestDetails());
+        connectionServiceProvider.terminateTimedOutReservation(connection);
         break;
       case RUNNING:
         connectionServiceProvider.provisionConfirmed(connection, event.getNsiRequestDetails().get());
         break;
       case CANCELLED:
         connectionServiceProvider.terminateConfirmed(connection, event.getNsiRequestDetails());
+        break;
+      case CANCEL_FAILED:
+        connectionServiceProvider.terminateFailed(connection, event.getNsiRequestDetails());
         break;
       default:
         logger.error("Unhandled status {} of reservation {}", event.getNewStatus(), event.getReservation());
@@ -106,8 +112,7 @@ public class ConnectionServiceProviderListener implements ReservationListener {
   }
 
   private void handleReservationFailed(Connection connection, ReservationStatusChangeEvent event) {
-    logger.debug("Connection state {}, new reservation state {}", connection.getCurrentState(), event.getNewStatus());
-
+    // FIXME AvD add RUNNING
     if (connection.getCurrentState() == ConnectionStateType.AUTO_PROVISION
         || connection.getCurrentState() == ConnectionStateType.SCHEDULED) {
       // the connection is was ready to get started but the step to running/provisioned failed
@@ -116,11 +121,6 @@ public class ConnectionServiceProviderListener implements ReservationListener {
     }
     else if (connection.getCurrentState() == ConnectionStateType.TERMINATING) {
       connectionServiceProvider.terminateFailed(connection, event.getNsiRequestDetails());
-    }
-    else if (connection.getCurrentState() == ConnectionStateType.RESERVING) {
-      Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation()
-          .getFailedReason()));
-      connectionServiceProvider.reserveFailed(connection, event.getNsiRequestDetails().get(), failedReason);
     }
     else {
       logger.error("Listener got a failed '{}' but did not know what to do with the connection {}", event.getNewStatus(), connection);

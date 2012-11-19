@@ -158,10 +158,13 @@ public class MockHttpServer extends AbstractHandler {
     return requests.size();
   }
 
-
-  public final String getOrWaitForRequest(final long seconds) {
+  public final String awaitRequest(final long seconds) {
     try {
-      return lastRequests.pollLast(seconds, TimeUnit.SECONDS);
+      String request = lastRequests.pollLast(seconds, TimeUnit.SECONDS);
+      if (request == null) {
+        throw new AssertionError("Failed to retrieve the request");
+      }
+      return request;
     }
     catch (InterruptedException e) {
       log.error("Error: ", e);
@@ -171,6 +174,10 @@ public class MockHttpServer extends AbstractHandler {
 
   public final List<String> getRequests() {
     return requests;
+  }
+
+  public void clearRequests() {
+    lastRequests.clear();
   }
 
 }

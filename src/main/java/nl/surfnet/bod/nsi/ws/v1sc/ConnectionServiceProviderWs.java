@@ -84,7 +84,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   private VirtualPortService virtualPortService;
 
   @Resource
-  private ConnectionService connectionServiceProviderService;
+  private ConnectionService connectionService;
 
   @Resource(name = "nsaProviderUrns")
   private final List<String> nsaProviderUrns = new ArrayList<>();
@@ -124,7 +124,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     log.debug("Received reservation request connectionId: {}", connection.getConnectionId());
 
     validateConnection(connection, richUserDetails);
-    connectionServiceProviderService.reserve(connection, request, false, richUserDetails);
+    connectionService.reserve(connection, request, false, richUserDetails);
   }
 
   private void validateConnection(Connection connection, RichUserDetails richUserDetails) throws ServiceException {
@@ -145,6 +145,9 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     if (nsaProviderUrns.contains(providerNsa)) {
       return;
     }
+
+    log.warn("ProviderNsa '{}' is not accepted", providerNsa);
+
     throw createInvalidParameterServiceException("providerNSA");
   }
 
@@ -240,7 +243,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     log.debug("Received provision request for connection: {}", connection);
 
     NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
-    connectionServiceProviderService.provision(connection.getId(), requestDetails);
+    connectionService.provision(connection.getId(), requestDetails);
 
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
   }
@@ -315,13 +318,15 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public GenericAcknowledgmentType terminate(TerminateRequestType parameters) throws ServiceException {
+    log.info("Got a NSI terminate request for connectionId '{}'", parameters.getTerminate().getConnectionId());
+
     validateOAuthScope(NsiScope.TERMINATE);
     validateProviderNsa(parameters.getTerminate().getProviderNSA());
 
     final Connection connection = getConnectionOrFail(parameters.getTerminate().getConnectionId());
 
     NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
-    connectionServiceProviderService.terminate(connection.getId(), parameters.getTerminate().getRequesterNSA(),
+    connectionService.asyncTerminate(connection.getId(), parameters.getTerminate().getRequesterNSA(),
         requestDetails);
 
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
@@ -348,9 +353,6 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public void terminateFailed(Connection connection, Optional<NsiRequestDetails> requestDetails) {
-    connection.setCurrentState(ConnectionStateType.TERMINATED);
-    connectionRepo.save(connection);
-
     if (!requestDetails.isPresent()) {
       return;
     }
@@ -379,11 +381,11 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     log.info("Got NSI query request connectionIds: {}, globalReservationIds: {}", connectionIds, globalReservationIds);
 
     if (connectionIds.isEmpty() && globalReservationIds.isEmpty()) {
-      connectionServiceProviderService.asyncQueryAllForRequesterNsa(requestDetails,
+      connectionService.asyncQueryAllForRequesterNsa(requestDetails,
           operation, parameters.getQuery().getRequesterNSA(), parameters.getQuery().getProviderNSA());
     }
     else {
-      connectionServiceProviderService.asyncQueryConnections(requestDetails, connectionIds, globalReservationIds,
+      connectionService.asyncQueryConnections(requestDetails, connectionIds, globalReservationIds,
           operation, parameters.getQuery().getRequesterNSA(), parameters.getQuery().getProviderNSA());
     }
 
@@ -403,7 +405,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   }
 
   @Override
-  public void terminateTimedOutReservation(Connection connection, Optional<NsiRequestDetails> nsiRequestDetails) {
+  public void terminateTimedOutReservation(Connection connection) {
     // Talked to HansT and this is really the only step we have to take from a NSI perspective.
     connection.setCurrentState(ConnectionStateType.TERMINATED);
     connectionRepo.save(connection);
@@ -460,6 +462,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   private void validateOAuthScope(NsiScope scope) throws ServiceException {
     if (!Security.getUserDetails().getNsiScopes().contains(scope)) {
+      log.warn("OAuth access token not valid for {}", scope);
       throw createServiceException(ConnectionServiceProviderErrorCodes.SECURITY.MISSING_GRANTED_SCOPE);
     }
   }

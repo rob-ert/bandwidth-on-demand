@@ -25,6 +25,7 @@ import static com.jayway.awaitility.Awaitility.await;
 import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_PROVIDER_NSA;
 import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -69,6 +70,7 @@ import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
@@ -80,7 +82,6 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
@@ -125,6 +126,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   @Resource
   private EntityManagerFactory entityManagerFactory;
 
+  private static final String URN_REQUESTER_NSA = "urn:requester";
   private final String virtualResourceGroupName = "nsi:group";
   private VirtualPort sourceVirtualPort;
   private VirtualPort destinationVirtualPort;
@@ -148,31 +150,49 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   @BeforeTransaction
   public void setup() {
-    Security.setUserDetails(userDetails);
+    setLoggedInUser(userDetails);
 
-    VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().setName(virtualResourceGroupName)
-        .setSurfconextGroupId(userDetails.getUserGroupIds().iterator().next()).create();
-    virtualResourceGroup = virtualResourceGroupRepo.save(virtualResourceGroup);
+    PhysicalResourceGroup physicalResourceGroup = createPhysicalResourceGroup();
+    VirtualResourceGroup virtualResourceGroup = createVirtualResoruceGroup();
 
+    PhysicalPort sourcePp = createPhysicalPort(physicalResourceGroup);
+    PhysicalPort destinationPp = createPhysicalPort(physicalResourceGroup);
+
+    this.sourceVirtualPort = createVirtualPort(virtualResourceGroup, sourcePp);
+    this.destinationVirtualPort = createVirtualPort(virtualResourceGroup, destinationPp);
+  }
+
+  private VirtualPort createVirtualPort(VirtualResourceGroup virtualResourceGroup, PhysicalPort port) {
+    VirtualPort vPort = new VirtualPortFactory().setMaxBandwidth(100).setPhysicalPort(port)
+        .setVirtualResourceGroup(virtualResourceGroup).create();
+    vPort = virtualPortRepo.save(vPort);
+    virtualResourceGroup.addVirtualPort(vPort);
+    virtualResourceGroupRepo.save(virtualResourceGroup);
+    return vPort;
+  }
+
+  private PhysicalPort createPhysicalPort(PhysicalResourceGroup physicalResourceGroup) {
+    return physicalPortRepo.save(new PhysicalPortFactory().setPhysicalResourceGroup(
+        physicalResourceGroup).create());
+  }
+
+  private PhysicalResourceGroup createPhysicalResourceGroup() {
     Institute institute = instituteRepo.findAll().get(0);
     PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().setInstitute(institute).create();
     physicalResourceGroup = physicalResourceGroupRepo.save(physicalResourceGroup);
+    return physicalResourceGroup;
+  }
 
-    PhysicalPort savedSourcePp = physicalPortRepo.save(new PhysicalPortFactory().setPhysicalResourceGroup(
-        physicalResourceGroup).create());
-    PhysicalPort savedDestinationPp = physicalPortRepo.save(new PhysicalPortFactory().setPhysicalResourceGroup(
-        physicalResourceGroup).create());
-
-    VirtualPort sourcePort = new VirtualPortFactory().setMaxBandwidth(100).setPhysicalPort(savedSourcePp)
-        .setVirtualResourceGroup(virtualResourceGroup).create();
-    sourceVirtualPort = virtualPortRepo.save(sourcePort);
-
-    VirtualPort destinationPort = new VirtualPortFactory().setMaxBandwidth(100).setPhysicalPort(savedDestinationPp)
-        .setVirtualResourceGroup(virtualResourceGroup).create();
-    destinationVirtualPort = virtualPortRepo.save(destinationPort);
-
-    virtualResourceGroup.setVirtualPorts(Lists.newArrayList(sourceVirtualPort, destinationVirtualPort));
+  private VirtualResourceGroup createVirtualResoruceGroup() {
+    VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().setName(virtualResourceGroupName)
+        .setSurfconextGroupId(userDetails.getUserGroupIds().iterator().next()).create();
     virtualResourceGroup = virtualResourceGroupRepo.save(virtualResourceGroup);
+    return virtualResourceGroup;
+  }
+
+  private void setLoggedInUser(RichUserDetails userDetails) {
+    SecurityContextHolder.setStrategyName("MODE_GLOBAL");
+    Security.setUserDetails(userDetails);
   }
 
   @AfterTransaction
@@ -181,6 +201,8 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     SQLQuery query = ((Session) em.getDelegate())
         .createSQLQuery("truncate physical_resource_group, virtual_resource_group, connection cascade;");
     query.executeUpdate();
+
+    requesterEndpoint.clearRequests();
   }
 
   @Test
@@ -192,6 +214,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     final DummyReservationListener listener = new DummyReservationListener();
     reservationEventPublisher.addListener(listener);
 
+    // reserve
     GenericAcknowledgmentType reserveAcknowledgment = nsiProvider.reserve(reservationRequest);
 
     listener.waitForEventWithNewStatus(ReservationStatus.RESERVED);
@@ -210,6 +233,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     ProvisionRequestType provisionRequest = createProvisionRequest(connectionId);
 
+    // provision
     GenericAcknowledgmentType provisionAck = nsiProvider.provision(provisionRequest);
     listener.waitForEventWithNewStatus(ReservationStatus.AUTO_START);
 
@@ -223,6 +247,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     assertThat(connection.getCurrentState(), is(ConnectionStateType.AUTO_PROVISION));
     assertThat(connection.getProvisionRequestDetails(), notNullValue());
 
+    // terminate
     TerminateRequestType terminateRequest = createTerminateRequest(connectionId);
     GenericAcknowledgmentType terminateAck = nsiProvider.terminate(terminateRequest);
     listener.waitForEventWithNewStatus(ReservationStatus.CANCELLED);
@@ -351,13 +376,17 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   }
 
   @Test
-  public void shouldQuery() throws ServiceException {
+  public void queryShouldGiveAConfirm() throws ServiceException {
     QueryRequestType queryRequest = createQueryRequest();
 
     GenericAcknowledgmentType genericAcknowledgment = nsiProvider.query(queryRequest);
-
     assertThat(genericAcknowledgment.getCorrelationId(), is(queryRequest.getCorrelationId()));
 
+    String response = requesterEndpoint.awaitRequest(2);
+    assertThat(response, containsString("queryConfirmed"));
+    assertThat(response, containsString(queryRequest.getCorrelationId()));
+    assertThat(response, containsString("<providerNSA>"+URN_PROVIDER_NSA+"</providerNSA>"));
+    assertThat(response, containsString("<requesterNSA>"+URN_REQUESTER_NSA+"</requesterNSA>"));
   }
 
   @Test
@@ -378,11 +407,33 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     listener.waitForEventWithNewStatus(ReservationStatus.CANCELLED);
 
     Reservation reservation = connection.getReservation();
-    entityManager.refresh(connection);
     entityManager.refresh(reservation);
+    entityManager.refresh(connection);
 
-    assertThat(connection.getCurrentState(), is(ConnectionStateType.TERMINATED));
     assertThat(reservation.getStatus(), is(ReservationStatus.CANCELLED));
+    assertThat(connection.getCurrentState(), is(ConnectionStateType.TERMINATED));
+  }
+
+  @Test
+  public void terminateShouldFailWhenStateIsTerminated() throws Exception {
+    ReserveRequestType reservationRequest = createReserveRequest();
+    final String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
+
+    nsiProvider.reserve(reservationRequest);
+
+    String reserveConfirmed = requesterEndpoint.awaitRequest(5);
+    assertThat(reserveConfirmed, containsString("reserveConfirmed"));
+
+    TerminateRequestType terminateRequest = createTerminateRequest(connectionId);
+    nsiProvider.terminate(terminateRequest);
+
+    String terminateConfirmed = requesterEndpoint.awaitRequest(2);
+    assertThat(terminateConfirmed, containsString("terminateConfirmed"));
+
+    nsiProvider.terminate(terminateRequest);
+
+    String terminateFailed = requesterEndpoint.awaitRequest(2);
+    assertThat(terminateFailed, containsString("terminateFailed"));
   }
 
   private ReserveRequestType createReserveRequest() throws DatatypeConfigurationException {
@@ -412,7 +463,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   }
 
   private QueryRequestType createQueryRequest() {
-    return new ConnectionServiceProviderFactory().setProviderNsa(URN_PROVIDER_NSA).createQueryRequest();
+    return new ConnectionServiceProviderFactory().setProviderNsa(URN_PROVIDER_NSA).setRequesterNsa(URN_REQUESTER_NSA).createQueryRequest();
 
   }
 

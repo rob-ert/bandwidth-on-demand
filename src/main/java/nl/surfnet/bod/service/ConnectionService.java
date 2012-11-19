@@ -23,6 +23,9 @@ package nl.surfnet.bod.service;
 
 import static nl.surfnet.bod.domain.ReservationStatus.*;
 import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.TERMINATED;
+import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.TERMINATING;
 
 import java.util.Collection;
 import java.util.List;
@@ -33,6 +36,7 @@ import javax.xml.ws.Holder;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
+import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderWs;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -53,6 +57,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 @Service
@@ -82,6 +87,10 @@ public class ConnectionService {
 
   @Resource
   private VirtualPortService virtualPortService;
+
+  // FIXME introduces a dependency cycle....
+  @Resource
+  private ConnectionServiceProviderWs connectionServiceProviderWs;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void reserve(Connection connection, NsiRequestDetails requestDetails, boolean autoProvision,
@@ -128,17 +137,26 @@ public class ConnectionService {
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void terminate(final Long connectionId, final String requesterNsa, final NsiRequestDetails requestDetails) {
-    Connection connection = updateConnectionState(connectionId, ConnectionStateType.TERMINATING);
+  @Async
+  public void asyncTerminate(final Long connectionId, final String requesterNsa, final NsiRequestDetails requestDetails) {
+    Connection connection = connectionRepo.findOne(connectionId);
+    if (isTerminatePossible(connection)) {
+      connection.setCurrentState(TERMINATING);
+      connectionRepo.saveAndFlush(connection);
 
-    reservationService.cancelWithReason(connection.getReservation(), "Terminate request by NSI", Security
-        .getUserDetails(), Optional.of(requestDetails));
+      reservationService.cancelWithReason(
+          connection.getReservation(),
+          "Terminate request by NSI",
+          Security.getUserDetails(),
+          Optional.of(requestDetails));
+    } else {
+      log.info("Terminate is not possible for state '{}'", connection.getCurrentState());
+      connectionServiceProviderWs.terminateFailed(connection, Optional.of(requestDetails));
+    }
   }
 
-  private Connection updateConnectionState(final Long connectionId, final ConnectionStateType state) {
-    Connection connection = connectionRepo.findOne(connectionId);
-    connection.setCurrentState(state);
-    return connectionRepo.saveAndFlush(connection);
+  private boolean isTerminatePossible(Connection connection) {
+    return !ImmutableList.of(TERMINATING, TERMINATED, CLEANING).contains(connection.getCurrentState());
   }
 
   @Async

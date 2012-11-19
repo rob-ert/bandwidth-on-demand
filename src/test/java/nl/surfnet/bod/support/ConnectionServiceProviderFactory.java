@@ -36,11 +36,12 @@ import com.google.common.collect.Lists;
 public class ConnectionServiceProviderFactory {
 
   public static final int PORT = 9082;
-  public static final String NSI_REQUESTER_ENDPOINT = "http://localhost:" + PORT + "/bod/nsi/requester";
+  public String replyTo = "http://localhost:" + PORT + "/bod/nsi/requester";
 
   private String correlationId = UUID.randomUUID().toString();
   private String connectionId = null;
-  private String providerNsa = "urn:example:nsa:provider", requesterNsa = "urn:example:nsa:provider";
+  private String providerNsa = "urn:example:nsa:provider";
+  private String requesterNsa = "urn:example:nsa:requester";
 
   public QueryRequestType createQueryRequest() {
     final MutableQueryFilterType queryFilter = new MutableQueryFilterType();
@@ -49,21 +50,27 @@ public class ConnectionServiceProviderFactory {
     final QueryType query = new QueryType();
     query.setOperation(QueryOperationType.SUMMARY);
     query.setProviderNSA(providerNsa);
+    query.setRequesterNSA(requesterNsa);
     query.setQueryFilter(queryFilter);
     query.setSessionSecurityAttr(null);
 
     final QueryRequestType queryRequest = new QueryRequestType();
     queryRequest.setCorrelationId(correlationId);
     queryRequest.setQuery(query);
-    queryRequest.setReplyTo(NSI_REQUESTER_ENDPOINT);
+    queryRequest.setReplyTo(replyTo);
 
     return queryRequest;
+  }
+
+  public ConnectionServiceProviderFactory setReplyTo(String replyTo) {
+    this.replyTo = replyTo;
+    return this;
   }
 
   public TerminateRequestType createTerminateRequest() {
     final TerminateRequestType terminateRequest = new TerminateRequestType();
     terminateRequest.setCorrelationId(correlationId);
-    terminateRequest.setReplyTo(NSI_REQUESTER_ENDPOINT);
+    terminateRequest.setReplyTo(replyTo);
 
     terminateRequest.setTerminate(createGenericRequest());
     return terminateRequest;
@@ -72,7 +79,7 @@ public class ConnectionServiceProviderFactory {
   public ProvisionRequestType createProvisionRequest() {
     final ProvisionRequestType provisionRequest = new ProvisionRequestType();
     provisionRequest.setCorrelationId(correlationId);
-    provisionRequest.setReplyTo(NSI_REQUESTER_ENDPOINT);
+    provisionRequest.setReplyTo(replyTo);
 
     provisionRequest.setProvision(createGenericRequest());
     return provisionRequest;
