@@ -25,6 +25,7 @@ import java.util.Collection;
 
 import javax.persistence.*;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.search.annotations.*;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -62,12 +63,15 @@ public class VirtualResourceGroup implements Loggable, PersistableDomain {
   private String surfconextGroupId;
 
   @OneToMany(mappedBy = "virtualResourceGroup", cascade = CascadeType.REMOVE)
+  @JsonIgnore
   private Collection<VirtualPort> virtualPorts;
 
   @OneToMany(mappedBy = "virtualResourceGroup", cascade = CascadeType.REMOVE)
+  @JsonIgnore
   private Collection<Reservation> reservations;
 
   @OneToMany(mappedBy = "virtualResourceGroup", cascade = CascadeType.REMOVE)
+  @JsonIgnore
   private Collection<VirtualPortRequestLink> virtualPortRequestLinks;
 
   @Override

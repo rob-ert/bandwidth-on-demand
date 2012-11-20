@@ -27,6 +27,7 @@ import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.search.annotations.*;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -64,9 +65,11 @@ public class PhysicalResourceGroup implements Loggable, PersistableDomain {
 
   @ContainedIn
   @OneToMany(mappedBy = "physicalResourceGroup", cascade = CascadeType.REMOVE)
+  @JsonIgnore
   private Collection<PhysicalPort> physicalPorts;
 
   @OneToMany(mappedBy = "physicalResourceGroup", cascade = CascadeType.REMOVE)
+  @JsonIgnore
   private Collection<VirtualPortRequestLink> virtualPortRequestLinks;
 
   @Override
