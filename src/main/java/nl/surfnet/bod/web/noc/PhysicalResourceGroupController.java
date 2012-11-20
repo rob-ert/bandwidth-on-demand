@@ -23,6 +23,7 @@ package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -45,17 +46,24 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.collect.ImmutableList;
 
 import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.InstituteService;
+import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.ReservationService;
+import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
 
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
-public class PhysicalResourceGroupController extends AbstractSearchableSortableListController<PhysicalResourceGroup, PhysicalResourceGroup> {
+public class PhysicalResourceGroupController extends
+    AbstractSearchableSortableListController<PhysicalResourceGroup, PhysicalResourceGroup> {
 
   public static final String PAGE_URL = "institutes";
   static final String MODEL_KEY = "physicalResourceGroupCommand";
@@ -69,6 +77,15 @@ public class PhysicalResourceGroupController extends AbstractSearchableSortableL
 
   @Resource
   private MessageSource messageSource;
+
+  @Resource
+  private PhysicalPortService physicalPortService;
+
+  @Resource
+  private VirtualPortService virtualPortService;
+
+  @Resource
+  private ReservationService reservationService;
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid final PhysicalResourceGroupCommand command, final BindingResult bindingResult,
@@ -151,7 +168,13 @@ public class PhysicalResourceGroupController extends AbstractSearchableSortableL
       @RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
     PhysicalResourceGroup physicalResourceGroup = physicalResourceGroupService.find(id);
-    physicalResourceGroupService.delete(physicalResourceGroup);
+    for (PhysicalPort physicalPort : physicalResourceGroup.getPhysicalPorts()) {
+      final Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(physicalPort);
+      final RichUserDetails userDetails = Security.getUserDetails();
+      virtualPortService.deleteVirtualPorts(virtualPorts, userDetails);
+      physicalPortService.deleteByNmsPortId(physicalPort.getNmsPortId());
+    }
+    physicalResourceGroupService.delete(physicalResourceGroup.getId());
 
     uiModel.asMap().clear();
 
@@ -235,7 +258,7 @@ public class PhysicalResourceGroupController extends AbstractSearchableSortableL
      * Copies fields this command object to the given domainOjbect. Only the
      * fields that can be changed in the UI will be copied. Determines if the
      * {@link #managerEmail} has changed.
-     *
+     * 
      * @param physicalResourceGroup
      *          The {@link PhysicalResourceGroup} the copy the field to.
      */

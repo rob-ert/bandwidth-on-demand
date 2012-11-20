@@ -140,7 +140,7 @@ public class PhysicalResourceGroupDbTest {
     physicalResourceGroupService.save(group);
     physicalResourceGroupRepo.flush();
 
-    physicalResourceGroupService.delete(group);
+    physicalResourceGroupService.delete(group.getId());
     physicalResourceGroupRepo.flush();
 
     assertThat(physicalResourceGroupService.find(group.getId()), nullValue());

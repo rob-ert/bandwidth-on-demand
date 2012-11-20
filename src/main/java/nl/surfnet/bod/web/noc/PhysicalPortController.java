@@ -23,7 +23,6 @@ package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -342,16 +341,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     final PhysicalPort physicalPort = physicalPortService.findByNmsPortId(nmsPortId);
     final Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(physicalPort);
     final RichUserDetails userDetails = Security.getUserDetails();
-    for (final VirtualPort virtualPort : virtualPorts) {
-      // 1 Cancel reservations
-      final Collection<Reservation> reservations = reservationService.findByVirtualPort(virtualPort);
-      reservationService.cancelAndArchiveReservations(new ArrayList<>(reservations), userDetails);
-
-      // 3 delete virtual port
-      virtualPortService.delete(virtualPort, userDetails);
-    }
-
-    // 4 delete physical port
+    virtualPortService.deleteVirtualPorts(virtualPorts, userDetails);
     physicalPortService.deleteByNmsPortId(nmsPortId);
 
     uiModel.asMap().clear();

@@ -106,6 +106,15 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   public long countForPhysicalPort(PhysicalPort physicalPort) {
     return virtualPortRepo.count(byPhysicalPortSpec(physicalPort));
   }
+  
+  
+  public void deleteVirtualPorts(Collection<VirtualPort> virtualPorts, RichUserDetails userDetails){
+    for (final VirtualPort virtualPort : virtualPorts) {
+      final Collection<Reservation> reservations = reservationService.findByVirtualPort(virtualPort);
+      reservationService.cancelAndArchiveReservations(new ArrayList<>(reservations), userDetails);
+      delete(virtualPort, userDetails);
+    }
+  }
 
   public void delete(final VirtualPort virtualPort, RichUserDetails user) {
     final List<Reservation> reservations = reservationService.findBySourcePortOrDestinationPort(virtualPort,

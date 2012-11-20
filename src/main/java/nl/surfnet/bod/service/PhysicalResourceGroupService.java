@@ -80,8 +80,8 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
     return physicalResourceGroupRepo.count();
   }
 
-  public void delete(final PhysicalResourceGroup physicalResourceGroup) {
-    physicalResourceGroupRepo.delete(physicalResourceGroup);
+  public void delete(final long primaryKey) {
+    physicalResourceGroupRepo.delete(primaryKey);
   }
 
   public PhysicalResourceGroup find(final Long id) {
