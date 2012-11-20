@@ -38,7 +38,6 @@ import junit.framework.Assert;
 
 import org.hamcrest.text.IsEmptyString;
 import org.joda.time.DateTime;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,7 +58,6 @@ import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointTyp
 
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
-import com.sun.mail.iap.ConnectionException;
 import com.sun.xml.ws.client.ClientTransportException;
 
 import nl.surfnet.bod.domain.Connection;
@@ -73,7 +71,6 @@ import nl.surfnet.bod.service.ConnectionService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.support.ConnectionFactory;
-import nl.surfnet.bod.support.MockHttpServer;
 import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
