@@ -109,6 +109,8 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     checkNotNull(reservationRequest);
     validateOAuthScope(NsiScope.RESERVE);
 
+    log.info("Received a NSI reserve request connectionId {}", reservationRequest.getReserve().getReservation().getConnectionId());
+
     Connection connection = RESERVE_REQUEST_TO_CONNECTION.apply(reservationRequest);
 
     final NsiRequestDetails requestDetails = new NsiRequestDetails(reservationRequest.getReplyTo(), reservationRequest
@@ -121,8 +123,6 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   protected void reserve(Connection connection, NsiRequestDetails request, RichUserDetails richUserDetails)
       throws ServiceException {
-    log.debug("Received reservation request connectionId: {}", connection.getConnectionId());
-
     validateConnection(connection, richUserDetails);
     connectionService.reserve(connection, request, false, richUserDetails);
   }
@@ -154,10 +154,12 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   private void validateConnectionId(String connectionId) throws ServiceException {
     if (StringUtils.hasText(connectionId)) {
       if (connectionRepo.findByConnectionId(connectionId) != null) {
+        log.warn("ConnectionId {} was not unique", connectionId);
         throw createAlreadyExistsServiceException("connectionId");
       }
     }
     else {
+      log.warn("ConnectionId was empty", connectionId);
       throw createInvalidParameterServiceException("connectionId");
     }
   }
@@ -166,17 +168,19 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     final VirtualPort port = virtualPortService.findByNsiStpId(stpId);
 
     if (port == null) {
+      log.warn("Could not find a virtual port for stpId '{}'", stpId);
       throw createInvalidParameterServiceException(attribute);
     }
 
     if (!user.getUserGroupIds().contains(port.getVirtualResourceGroup().getSurfconextGroupId())) {
+      log.warn("User has no rights on virtual port with stpId '{}'", stpId);
       throw createInvalidOrMissingUserCredentialsException(attribute);
     }
   }
 
   @Override
   public void reserveConfirmed(Connection connection, NsiRequestDetails requestDetails) {
-    log.debug("Sending a reserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
+    log.info("Sending a reserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
         .getGlobalReservationId());
 
     connection.setCurrentState(ConnectionStateType.RESERVED);
@@ -207,7 +211,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   @Override
   public void reserveFailed(final Connection connection, final NsiRequestDetails requestDetails,
       Optional<String> failedReason) {
-    log.debug("Sending a reserveFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
+    log.info("Sending a reserveFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
         .getGlobalReservationId());
 
     // skipping the states cleaning and terminating...
@@ -240,7 +244,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
     final Connection connection = getConnectionOrFail(parameters.getProvision().getConnectionId());
 
-    log.debug("Received provision request for connection: {}", connection);
+    log.info("Received provision request for connection: {}", connection);
 
     NsiRequestDetails requestDetails = new NsiRequestDetails(parameters.getReplyTo(), parameters.getCorrelationId());
     connectionService.provision(connection.getId(), requestDetails);
@@ -258,8 +262,8 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     }
     connectionRepo.save(connection);
 
-    log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
-        .getGlobalReservationId());
+    log.info("Sending sendProvisionFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
+        .getConnectionId());
 
     final GenericFailedType generic = new GenericFailedType();
     generic.setProviderNSA(connection.getProviderNsa());
@@ -282,8 +286,8 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     connection.setCurrentState(ConnectionStateType.PROVISIONED);
     connectionRepo.save(connection);
 
-    log.debug("Calling sendReserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
-        .getGlobalReservationId());
+    log.info("Sending provisionConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
+        .getConnectionId());
 
     final GenericConfirmedType genericConfirm = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
 
@@ -318,7 +322,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
 
   @Override
   public GenericAcknowledgmentType terminate(TerminateRequestType parameters) throws ServiceException {
-    log.info("Got a NSI terminate request for connectionId '{}'", parameters.getTerminate().getConnectionId());
+    log.info("Received a NSI terminate request for connectionId '{}'", parameters.getTerminate().getConnectionId());
 
     validateOAuthScope(NsiScope.TERMINATE);
     validateProviderNsa(parameters.getTerminate().getProviderNSA());
@@ -378,7 +382,7 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     List<String> globalReservationIds = parameters.getQuery().getQueryFilter().getGlobalReservationId();
     QueryOperationType operation = parameters.getQuery().getOperation();
 
-    log.info("Got NSI query request connectionIds: {}, globalReservationIds: {}", connectionIds, globalReservationIds);
+    log.info("Received NSI query request connectionIds: {}, globalReservationIds: {}", connectionIds, globalReservationIds);
 
     if (connectionIds.isEmpty() && globalReservationIds.isEmpty()) {
       connectionService.asyncQueryAllForRequesterNsa(requestDetails,
