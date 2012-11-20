@@ -81,7 +81,7 @@ public class ReservationPoller {
     DateTime dateTime = DateTime.now().withSecondOfMinute(0).withMillisOfSecond(0);
     Collection<Reservation> reservations = reservationService.findReservationsToPoll(dateTime);
 
-    logger.info("Found {} reservations in transitional state.", reservations.size());
+    logger.info("Found {} reservations to poll", reservations.size());
     logger.debug("The reservations {}", reservations);
 
     for (Reservation reservation : reservations) {

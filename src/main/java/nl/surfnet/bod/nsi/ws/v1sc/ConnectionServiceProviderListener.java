@@ -107,7 +107,7 @@ public class ConnectionServiceProviderListener implements ReservationListener {
       }
     }
     catch (Exception e) {
-      logger.error("Handeling failed, failed", e);
+      logger.error("Handeling status change failed " + event, e);
     }
   }
 

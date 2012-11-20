@@ -45,7 +45,7 @@ public class ReservationEventPublisher {
 
     synchronized (listeners) {
       for (ReservationListener listener : listeners) {
-        logger.debug("Listener {}", listener.getClass());
+        logger.trace("Listener {}", listener.getClass());
         try {
           listener.onStatusChange(changeEvent);
         }

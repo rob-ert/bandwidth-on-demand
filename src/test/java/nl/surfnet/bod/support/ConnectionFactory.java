@@ -21,11 +21,14 @@
  */
 package nl.surfnet.bod.support;
 
+import java.util.UUID;
+
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.Reservation;
 
 import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
 import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
 
 public class ConnectionFactory {
@@ -33,11 +36,13 @@ public class ConnectionFactory {
   private int desiredBandwidth;
   private String requesterNSA = "nsa:requester:surfnet.nl";
   private String providerNSA = "nsa:surfnet.nl";
-  private String connectionId = "2345-567hj-678hj";
+  private String connectionId = UUID.randomUUID().toString();
   private String sourceStpId = "source port";
   private String destinationStpId = "destination port";
   private ConnectionStateType currentState = ConnectionStateType.INITIAL;
   private Reservation reservation = new ReservationFactory().create();
+  private String globalReservationId = UUID.randomUUID().toString();
+  private ServiceParametersType serviceParameters = new ServiceParametersType();
 
   public Connection create() {
     Connection connection = new Connection();
@@ -50,6 +55,8 @@ public class ConnectionFactory {
     connection.setDestinationStpId(destinationStpId);
     connection.setCurrentState(currentState);
     connection.setReservation(reservation);
+    connection.setGlobalReservationId(globalReservationId);
+    connection.setServiceParameters(serviceParameters);
 
     ServiceTerminationPointType sourceStp = new ServiceTerminationPointType();
     sourceStp.setStpId(sourceStpId);

@@ -46,10 +46,7 @@ import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions;
 import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderWs;
 import nl.surfnet.bod.repo.*;
-import nl.surfnet.bod.service.ReservationEventPublisher;
-import nl.surfnet.bod.service.ReservationListener;
-import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.service.ReservationStatusChangeEvent;
+import nl.surfnet.bod.service.*;
 import nl.surfnet.bod.support.*;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
@@ -58,6 +55,7 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.jadira.usertype.dateandtime.joda.PersistentDateTime;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeUtils;
 import org.joda.time.DateTimeZone;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -91,7 +89,7 @@ import com.google.common.base.Optional;
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class ConnectionServiceProviderTestIntegration extends AbstractTransactionalJUnit4SpringContextTests {
 
-  private static MockHttpServer requesterEndpoint = new MockHttpServer(ConnectionServiceProviderFactory.PORT);
+  private static MockHttpServer nsiRequester = new MockHttpServer(ConnectionServiceProviderFactory.PORT);
 
   @Resource
   private ConnectionServiceProviderWs nsiProvider;
@@ -126,6 +124,9 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   @Resource
   private EntityManagerFactory entityManagerFactory;
 
+  @Resource
+  private ReservationPoller reservationPoller;
+
   private static final String URN_REQUESTER_NSA = "urn:requester";
   private final String virtualResourceGroupName = "nsi:group";
   private VirtualPort sourceVirtualPort;
@@ -137,14 +138,14 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
-    requesterEndpoint.addResponse("/bod/nsi/requester", new ClassPathResource(
+    nsiRequester.addResponse("/bod/nsi/requester", new ClassPathResource(
         "web/services/nsi/mockNsiReservationFailedResponse.xml"));
-    requesterEndpoint.startServer();
+    nsiRequester.startServer();
   }
 
   @AfterClass
   public static void tearDownAfterClass() throws Exception {
-    requesterEndpoint.stopServer();
+    nsiRequester.stopServer();
     Security.clearUserDetails();
   }
 
@@ -202,7 +203,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
         .createSQLQuery("truncate physical_resource_group, virtual_resource_group, connection cascade;");
     query.executeUpdate();
 
-    requesterEndpoint.clearRequests();
+    nsiRequester.clearRequests();
   }
 
   @Test
@@ -438,6 +439,63 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     awaitTerminateFailed();
   }
 
+  @Test
+  public void provisionShouldFailWhenStateIsTerminated() throws Exception {
+    ReserveRequestType reservationRequest = createReserveRequest();
+    final String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
+
+    nsiProvider.reserve(reservationRequest);
+    awaitReserveConfirmed();
+
+    TerminateRequestType terminateRequest = createTerminateRequest(connectionId);
+    nsiProvider.terminate(terminateRequest);
+    awaitTerminateConfirmed();
+
+    ProvisionRequestType provisionRequest = createProvisionRequest(connectionId);
+    nsiProvider.provision(provisionRequest);
+
+    awaitProvisionFailed();
+  }
+
+  @Test
+  public void provisionShouldSucceedWhenStateIsProvisioned() throws Exception {
+    final ReserveRequestType reservationRequest = createReserveRequest();
+    final String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
+
+    runInThePast(4, TimeUnit.MINUTES, new TimeTraveller() {
+      @Override
+      public void apply() throws ServiceException {
+        nsiProvider.reserve(reservationRequest);
+        awaitReserveConfirmed();
+      }
+    });
+
+    ProvisionRequestType provisionRequest = createProvisionRequest(connectionId);
+    nsiProvider.provision(provisionRequest);
+
+    reservationPoller.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
+
+    awaitProvisionConfirmed();
+
+    nsiProvider.provision(provisionRequest);
+    awaitProvisionConfirmed();
+  }
+
+  private void runInThePast(long seconds, TimeUnit unit, TimeTraveller runnable) {
+    try {
+      DateTimeUtils.setCurrentMillisOffset(- unit.toMillis(seconds));
+      runnable.apply();
+    } catch (Exception e) {
+      throw new AssertionError(e);
+    } finally {
+      DateTimeUtils.setCurrentMillisSystem();
+    }
+  }
+
+  interface TimeTraveller {
+    public void apply() throws Exception;
+  }
+
   private ReserveRequestType createReserveRequest() throws DatatypeConfigurationException {
     return createReserveRequest(Optional.<DateTime> absent(), Optional.<DateTime> absent());
   }
@@ -464,10 +522,6 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     return reservationRequest;
   }
 
-  private QueryRequestType createQueryRequest() {
-    return new ConnectionServiceProviderFactory().setProviderNsa(URN_PROVIDER_NSA).setRequesterNsa(URN_REQUESTER_NSA).createQueryRequest();
-  }
-
   private QueryRequestType createQueryRequest(String connectionId) {
     return new ConnectionServiceProviderFactory().setConnectionId(connectionId).setProviderNsa(URN_PROVIDER_NSA)
         .setRequesterNsa(URN_REQUESTER_NSA).createQueryRequest();
@@ -484,27 +538,34 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   }
 
   private String awaitReserveConfirmed() {
-    String response = requesterEndpoint.awaitRequest(5, TimeUnit.SECONDS);
+    String response = nsiRequester.awaitRequest(5, TimeUnit.SECONDS);
     assertThat(response, containsString("reserveConfirmed"));
     return response;
   }
 
   private String awaitTerminateConfirmed() {
-    String terminateConfirmed = requesterEndpoint.awaitRequest(2, TimeUnit.SECONDS);
-    assertThat(terminateConfirmed, containsString("terminateConfirmed"));
-    return terminateConfirmed;
+    return awaitRequestFor("terminateConfirmed");
   }
 
   private String awaitTerminateFailed() {
-    String terminateFailed = requesterEndpoint.awaitRequest(2, TimeUnit.SECONDS);
-    assertThat(terminateFailed, containsString("terminateFailed"));
-    return terminateFailed;
+    return awaitRequestFor("terminateFailed");
   }
 
   private String awaitQueryConfirmed() {
-    String response = requesterEndpoint.awaitRequest(2, TimeUnit.SECONDS);
-    assertThat(response, containsString("queryConfirmed"));
-    return response;
+    return awaitRequestFor("queryConfirmed");
   }
 
+  private String awaitProvisionFailed() {
+    return awaitRequestFor("provisionFailed");
+  }
+
+  private String awaitProvisionConfirmed() {
+    return awaitRequestFor("provisionConfirmed");
+  }
+
+  private String awaitRequestFor(String responseTag) {
+    String response = nsiRequester.awaitRequest(60, TimeUnit.SECONDS);
+    assertThat(response, containsString(responseTag));
+    return response;
+  }
 }

@@ -21,11 +21,9 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static nl.surfnet.bod.domain.ReservationStatus.*;
 import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.CLEANING;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.TERMINATED;
-import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.TERMINATING;
 
 import java.util.Collection;
 import java.util.List;
@@ -119,21 +117,26 @@ public class ConnectionService {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void provision(Long connectionId, NsiRequestDetails requestDetails) {
-    // TODO [AvD] check if connection is in correct state to receive a provision
-    // request..
-    // for now we always go to auto provision but this is only correct if the
-    // state is reserved.
-    // in case it is scheduled we should start the reservation (go to
-    // provisioning) But this is not supported
-    // by OpenDRAC right now??
-    // If we are already in the provisioned state send back a confirm and we are
-    // done..
-    // Any other state we have to send back a provision failed...
     Connection connection = connectionRepo.findOne(connectionId);
-    connection.setProvisionRequestDetails(requestDetails);
-    connection = connectionRepo.saveAndFlush(connection);
+    checkNotNull(connection);
 
-    reservationService.provision(connection.getReservation(), Optional.of(requestDetails));
+    if (connection.getCurrentState() == ConnectionStateType.PROVISIONED) {
+      log.info("Connection is already provisioned", connection.getCurrentState());
+      connectionServiceProviderWs.provisionConfirmed(connection, requestDetails);
+    }
+    else if (isProvisionPossible(connection)) {
+      connection.setProvisionRequestDetails(requestDetails);
+      connection = connectionRepo.saveAndFlush(connection);
+      reservationService.provision(connection.getReservation(), Optional.of(requestDetails));
+    }
+    else {
+      log.info("Provision is not possible for state '{}'", connection.getCurrentState());
+      connectionServiceProviderWs.provisionFailed(connection, requestDetails);
+    }
+  }
+
+  private boolean isProvisionPossible(Connection connection) {
+    return ImmutableList.of(ConnectionStateType.RESERVED, ConnectionStateType.SCHEDULED).contains(connection.getCurrentState());
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -141,7 +144,7 @@ public class ConnectionService {
   public void asyncTerminate(final Long connectionId, final String requesterNsa, final NsiRequestDetails requestDetails) {
     Connection connection = connectionRepo.findOne(connectionId);
     if (isTerminatePossible(connection)) {
-      connection.setCurrentState(TERMINATING);
+      connection.setCurrentState(ConnectionStateType.TERMINATING);
       connectionRepo.saveAndFlush(connection);
 
       reservationService.cancelWithReason(
@@ -156,7 +159,7 @@ public class ConnectionService {
   }
 
   private boolean isTerminatePossible(Connection connection) {
-    return !ImmutableList.of(TERMINATING, TERMINATED, CLEANING).contains(connection.getCurrentState());
+    return !ImmutableList.of(ConnectionStateType.TERMINATING, ConnectionStateType.TERMINATED, ConnectionStateType.CLEANING).contains(connection.getCurrentState());
   }
 
   @Async
