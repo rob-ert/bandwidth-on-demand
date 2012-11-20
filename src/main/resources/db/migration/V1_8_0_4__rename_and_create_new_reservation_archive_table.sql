@@ -1,5 +1,3 @@
-ALTER TABLE reservation_archive DROP CONSTRAINT reservation_archive_pkey;
-ALTER TABLE reservation_archive DROP CONSTRAINT reservation_archive_reservation_id_key;
 ALTER TABLE reservation_archive RENAME TO reservation_archive_old;
 
 CREATE TABLE reservation_archive
