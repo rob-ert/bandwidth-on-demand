@@ -115,23 +115,14 @@ public class ConnectionServiceProviderWsTest {
   private final int port = 55446;
   private final NsiRequestDetails request = new NsiRequestDetails("http://localhost:"+port, "123456");
   
-  private MockHttpServer mockHttpServer = new MockHttpServer(port);
 
   @Before
   public void setup() throws Exception {
-    mockHttpServer.start();
     subject.addNsaProvider(nsaProvider);
-
     when(virtualPortServiceMock.findByNsiStpId("Source Port")).thenReturn(sourcePort);
     when(virtualPortServiceMock.findByNsiStpId("Destination Port")).thenReturn(destinationPort);
   }
   
-  @After
-  public void tearDown() throws Exception {
-    if(mockHttpServer.isRunning()){
-      mockHttpServer.stop();
-    }
-  }
 
   @Test
   public void shouldComplainAboutTheProviderNsa() {
