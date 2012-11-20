@@ -23,6 +23,7 @@ package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +55,9 @@ import com.google.common.collect.Lists;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
+import nl.surfnet.bod.service.ConnectionService;
 import nl.surfnet.bod.service.NocService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
@@ -94,6 +97,9 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @Resource
   private MessageSource messageSource;
+  
+  @Resource
+  private ConnectionService connectionService;
 
   @RequestMapping(value = "add", method = RequestMethod.GET)
   public String addPhysicalPortForm(@RequestParam(value = "prg") Long prgId, Model model,
@@ -333,6 +339,19 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   public String delete(@RequestParam(ID_KEY) final String nmsPortId,
       @RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
 
+    final PhysicalPort physicalPort = physicalPortService.findByNmsPortId(nmsPortId);
+    final Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(physicalPort);
+    final RichUserDetails userDetails = Security.getUserDetails();
+    for (final VirtualPort virtualPort : virtualPorts) {
+      // 1 Cancel reservations
+      final Collection<Reservation> reservations = reservationService.findByVirtualPort(virtualPort);
+      reservationService.cancelAndArchiveReservations(new ArrayList<>(reservations), userDetails);
+
+      // 3 delete virtual port
+      virtualPortService.delete(virtualPort, userDetails);
+    }
+
+    // 4 delete physical port
     physicalPortService.deleteByNmsPortId(nmsPortId);
 
     uiModel.asMap().clear();

@@ -90,8 +90,7 @@
           </c:if>
 
           <table:actionsColumn item="${item}" delete="${item.deleteRender}"
-            deleteEnabled="${item.deleteAllowed}"
-            deleteLabelCode="${item.deleteReasonKey}"
+            deleteEnabled="true"
             deleteIcon="icon-resize-full"
             update="${item.alignedWithNMS}"
             updateIcon="${show_unallocated ? 'icon-resize-small' : ''}"

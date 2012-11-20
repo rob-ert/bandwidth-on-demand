@@ -21,31 +21,26 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByDomainClassAndDescriptionPartBetween;
+import static com.google.common.base.Preconditions.*;
+import static nl.surfnet.bod.domain.ReservationStatus.*;
+import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.*;
 import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.*;
 
-import java.util.*;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.nbi.NbiClient;
-import nl.surfnet.bod.repo.ReservationArchiveRepo;
-import nl.surfnet.bod.repo.ReservationRepo;
-import nl.surfnet.bod.support.ReservationFilterViewFactory;
-import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.ElementActionView;
-import nl.surfnet.bod.web.view.ReservationFilterView;
-
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -63,16 +58,61 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
-import com.google.common.collect.*;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
+
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ReservationArchive;
+import nl.surfnet.bod.domain.Loggable;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.ProtectionType;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.nbi.NbiClient;
+import nl.surfnet.bod.repo.ReservationArchiveRepo;
+import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
+import nl.surfnet.bod.web.security.RichUserDetails;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.ElementActionView;
+import nl.surfnet.bod.web.view.ReservationFilterView;
 
 @Service
 @Transactional
 public class ReservationService extends AbstractFullTextSearchService<Reservation> {
 
-  private static final Function<Reservation, ReservationArchive> TO_RESERVATION_ARCHIVE = new Function<Reservation, ReservationArchive>() {
+  private final ObjectMapper mapper = new ObjectMapper();
+
+  public ReservationService() {
+    mapper.setVisibilityChecker(mapper.getSerializationConfig().getDefaultVisibilityChecker()
+        .withFieldVisibility(JsonAutoDetect.Visibility.ANY).withGetterVisibility(JsonAutoDetect.Visibility.NONE)
+        .withSetterVisibility(JsonAutoDetect.Visibility.NONE).withCreatorVisibility(JsonAutoDetect.Visibility.NONE)
+        .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE));
+  }
+
+  private final Function<Reservation, ReservationArchive> TO_RESERVATION_ARCHIVE = new Function<Reservation, ReservationArchive>() {
     @Override
     public ReservationArchive apply(Reservation reservation) {
-      return new ReservationArchive(reservation);
+      final ReservationArchive reservationArchive = new ReservationArchive();
+      reservationArchive.setReservationPrimaryKey(reservation.getId());
+      final StringWriter writer = new StringWriter();
+      try {
+        mapper.writeValue(writer, reservation);
+      }
+      catch (IOException e) {
+        // need to throw or we'll lose reservations
+        throw new RuntimeException(e);
+      }
+      reservationArchive.setReservationAsJson(writer.toString());
+      return reservationArchive;
     }
   };
 
@@ -96,11 +136,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   @Resource
   private LogEventService logEventService;
 
-  private List<Long> findIdsWithWhereClause;
 
   /**
    * Activates an existing reservation;
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to activate
    * @return true if the reservation was successfully activated, false otherwise
@@ -113,7 +152,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Creates a {@link Reservation} which is auto provisioned
-   *
+   * 
    * @param reservation
    * @See {@link #create(Reservation)}
    */
@@ -123,13 +162,13 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   *
+   * 
    * @param reservation
    * @param autoProvision
    *          , indicates if the reservations should be automatically
    *          provisioned
    * @return ReservationId, scheduleId from NMS
-   *
+   * 
    */
   public Future<Long> create(Reservation reservation, boolean autoProvision,
       Optional<NsiRequestDetails> nsiRequestDetails) {
@@ -207,7 +246,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * Cancels a reservation if the current user has the correct role and the
    * reservation is allowed to be deleted depending on its state. Updates the
    * state of the reservation.
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to delete
    * @return the future with the resulting reservation, or null if delete is not
@@ -227,7 +266,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * <li>and</li>
    * <li>the current status of the reservation must allow it</li>
    * </ul>
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to check
    * @param role
@@ -259,7 +298,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   *
+   * 
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -378,9 +417,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       return new ElementActionView(true, "label_cancel");
     }
     else if (role.isManagerRole()
-        && (reservation.getSourcePort().getPhysicalResourceGroup().getId().equals(
-            role.getPhysicalResourceGroupId().get()) || reservation.getDestinationPort().getPhysicalResourceGroup()
-            .getId().equals(role.getPhysicalResourceGroupId().get()))) {
+        && (reservation.getSourcePort().getPhysicalResourceGroup().getId()
+            .equals(role.getPhysicalResourceGroupId().get()) || reservation.getDestinationPort()
+            .getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId().get()))) {
       return new ElementActionView(true, "label_cancel");
     }
     else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
@@ -407,8 +446,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
             + "from reservation UNION select distinct extract(year from end_date_time) from reservation")
         .getResultList();
 
-    ImmutableList<Integer> years = FluentIterable.from(dbYears).filter(Predicates.notNull()).transform(
-        new Function<Double, Integer>() {
+    ImmutableList<Integer> years = FluentIterable.from(dbYears).filter(Predicates.notNull())
+        .transform(new Function<Double, Integer>() {
           @Override
           public Integer apply(Double d) {
             return d.intValue();
@@ -492,16 +531,19 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   public void cancelAndArchiveReservations(final List<Reservation> reservations, RichUserDetails user) {
     for (final Reservation reservation : reservations) {
-      if (isDeleteAllowedForUserOnly(reservation, user.getSelectedRole()).isAllowed()) {
+      if (isDeleteAllowedForUserOnly(reservation, user.getSelectedRole()).isAllowed()
+          && reservation.getStatus().isTransitionState()) {
         final ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
         reservation.setStatus(reservationState);
       }
     }
 
     Collection<ReservationArchive> reservationArchives = transformToReservationArchives(reservations);
+    
+    System.out.println("reservationArchives: "+reservationArchives);
+    
     reservationArchiveRepo.save(reservationArchives);
-    // Log event after creation, so the ID is set by hibernate
-    logEventService.logCreateEvent(Security.getUserDetails(), reservationArchives, "Archived due to cancel");
+    logEventService.logCreateEvent(Security.getUserDetails(), reservations, "Archived due to cancel");
 
     reservationRepo.delete(reservations);
     logEventService.logDeleteEvent(Security.getUserDetails(), reservations, "Canceled and archived");
@@ -520,8 +562,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public Collection<Reservation> findAllActiveByVirtualPortForManager(final VirtualPort port, final RichUserDetails user) {
-    return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations()).and(
-        specByVirtualPortAndManager(port, user)));
+    return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations())
+        .and(specByVirtualPortAndManager(port, user)));
   }
 
   public long countActiveReservationsForPhysicalPort(final PhysicalPort port) {
@@ -539,11 +581,11 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public Optional<Future<Long>> cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user,
       Optional<NsiRequestDetails> requestDetails) {
 
-    if (isDeleteAllowed(reservation, user.getSelectedRole()).isAllowed()) {
+    if (isDeleteAllowed(reservation, user.getSelectedRole()).isAllowed() && reservation.getStatus().isTransitionState()) {
       return Optional.of(reservationToNbi.asyncTerminate(reservation.getId(), cancelReason, requestDetails));
     }
 
-    log.info("Not allowed to cancel reservation {}", reservation.getName());
+    log.info("Not allowed to cancel reservation {} with state {}", reservation.getName(), reservation.getStatus());
 
     return Optional.absent();
   }
@@ -584,6 +626,11 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
         .specReservationStartBeforeEndInOrAfterWithState(state, start, end);
 
     return reservationRepo.count(spec);
+  }
+
+  @VisibleForTesting
+  public final ObjectMapper getObjectMapper() {
+    return mapper;
   }
 
 }
