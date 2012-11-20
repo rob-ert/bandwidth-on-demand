@@ -605,6 +605,7 @@
                     <excludes>
                         <exclude>**/*TestSelenium.java</exclude>
                         <exclude>**/*TestIntegration.java</exclude>
+                        <exclude>**/*DbTest.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -970,6 +971,7 @@
                         <configuration>
                             <includes>
                                 <include>**/*TestIntegration.java</include>
+                                <include>**/*DbTest.java</include>
                             </includes>
                         </configuration>
                         <executions>

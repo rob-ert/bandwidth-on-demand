@@ -51,7 +51,7 @@ import com.google.common.collect.Lists;
     "/spring/appCtx-idd-client.xml" })
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
-public class VirtualResourceGroupRepoTest {
+public class VirtualResourceGroupRepoDbTest {
 
   // override bod.properties to run test and bod server at the same time
   static {
