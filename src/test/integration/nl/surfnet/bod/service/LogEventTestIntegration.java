@@ -64,6 +64,7 @@ public class LogEventTestIntegration {
 
   private final static Long ONE = 1L;
   private final static Long TWO = 2L;
+  private static final Long THREE = 3L;
   private final static DateTime now = DateTime.now();
 
   @Resource
@@ -77,6 +78,8 @@ public class LogEventTestIntegration {
 
     Reservation reservationOne = new ReservationFactory().setId(ONE).create();
     Reservation reservationTwo = new ReservationFactory().setId(TWO).create();
+    Reservation reservationInfinite = new ReservationFactory().setId(THREE).setEndDateTime(null).setStatus(REQUESTED)
+        .create();
 
     LogEvent logEventCreateOne = new LogEventFactory().setEventType(LogEventType.CREATE)
         .setDomainObject(reservationOne).setCreated(now.minusHours(4)).create();
@@ -96,13 +99,20 @@ public class LogEventTestIntegration {
     LogEvent logEventTwoToAutoStart = new LogEventFactory().setOldReservationStatus(RESERVED).setNewReservationStatus(
         AUTO_START).setDomainObject(reservationTwo).setCreated(now.minusHours(3)).create();
 
+    LogEvent logEventInfiniteToReserved = new LogEventFactory().setEventType(LogEventType.CREATE).setDomainObject(
+        reservationInfinite).setCreated(now.minusHours(4)).create();
+
+    LogEvent logEventInfiniteToRunning = new LogEventFactory().setOldReservationStatus(AUTO_START)
+        .setNewReservationStatus(RUNNING).setDomainObject(reservationInfinite).setCreated(now.minusHours(3)).create();
+
     logEventRepo.save(Lists.newArrayList(logEventCreateOne, logEventOneToScheduled, logEventOneToRunning,
-        logEventToSucceeded, logEventTwoCreate, logEventTwoToAutoStart));
+        logEventToSucceeded, logEventTwoCreate, logEventTwoToAutoStart, logEventInfiniteToReserved,
+        logEventInfiniteToRunning));
   }
 
   @Test
   public void shouldFindLogEventsForSetUp() {
-    final int expectedAmount = 6;
+    final int expectedAmount = 8;
     assertThat(subject.count(), is(new Long(expectedAmount)));
 
     for (LogEvent logEvent : subject.findAll(0, expectedAmount, null)) {
@@ -237,6 +247,24 @@ public class LogEventTestIntegration {
 
     assertThat(logEvent.getDomainObjectId(), is(ONE));
     assertThat(logEvent.getOldReservationStatus(), is(SCHEDULED));
+    assertThat(logEvent.getNewReservationStatus(), is(RUNNING));
+  }
+
+  @Test
+  public void shouldFindLatestStateChangeForInfiniteReservationAt4HoursAgo() {
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeWithStateIn(THREE, now.minusHours(4));
+
+    assertThat(logEvent.getDomainObjectId(), is(THREE));
+    assertThat(logEvent.getOldReservationStatus(), is(REQUESTED));
+    assertThat(logEvent.getNewReservationStatus(), is(RESERVED));
+  }
+
+  @Test
+  public void shouldFindLatestStateChangeForInfiniteReservationAt3HoursAgo() {
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeWithStateIn(THREE, now.minusHours(3));
+
+    assertThat(logEvent.getDomainObjectId(), is(THREE));
+    assertThat(logEvent.getOldReservationStatus(), is(AUTO_START));
     assertThat(logEvent.getNewReservationStatus(), is(RUNNING));
   }
 
