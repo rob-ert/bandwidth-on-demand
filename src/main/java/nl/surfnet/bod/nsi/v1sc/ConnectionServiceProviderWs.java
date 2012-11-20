@@ -19,14 +19,11 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.nsi.ws.v1sc;
+package nl.surfnet.bod.nsi.v1sc;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes.PAYLOAD.NOT_IMPLEMENTED;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_CONFIRMED;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.CONNECTION_TO_GENERIC_FAILED;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
+import static nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes.PAYLOAD.NOT_IMPLEMENTED;
+import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.TERMINATED;
 
 import java.util.ArrayList;
@@ -40,8 +37,7 @@ import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.oauth.NsiScope;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceProvider;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
+import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.service.ConnectionService;
 import nl.surfnet.bod.service.VirtualPortService;
@@ -51,28 +47,27 @@ import oasis.names.tc.saml._2_0.assertion.AttributeStatementType;
 import oasis.names.tc.saml._2_0.assertion.AttributeType;
 
 import org.ogf.schemas.nsi._2011._10.connection._interface.*;
+import org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort;
 import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
-import org.ogf.schemas.nsi._2011._10.connection.types.*;
-import org.ogf.schemas.nsi._2011._10.connection.types.ObjectFactory;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryConfirmedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryFailedType;
+import org.ogf.schemas.nsi._2011._10.connection.types.QueryOperationType;
+import org.ogf.schemas.nsi._2011._10.connection.types.ServiceExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.sun.xml.ws.developer.SchemaValidation;
 
 @Service("connectionServiceProviderWs_v1sc")
 @WebService(serviceName = "ConnectionServiceProvider", portName = "ConnectionServiceProviderPort", endpointInterface = "org.ogf.schemas.nsi._2011._10.connection.provider.ConnectionProviderPort", targetNamespace = "http://schemas.ogf.org/nsi/2011/10/connection/provider")
 @SchemaValidation
-public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
+public class ConnectionServiceProviderWs implements ConnectionProviderPort {
 
   static final String SVC0003_ALREADY_EXISTS = "SVC0003";
-
   static final String SVC0005_INVALID_CREDENTIALS = "SVC0005";
-
   static final String SVC0001_INVALID_PARAM = "SVC0001";
 
   private final Logger log = LoggerFactory.getLogger(ConnectionServiceProviderWs.class);
@@ -179,65 +174,6 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   }
 
   @Override
-  public void reserveConfirmed(Connection connection, NsiRequestDetails requestDetails) {
-    log.info("Sending a reserveConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
-        .getGlobalReservationId());
-
-    connection.setCurrentState(ConnectionStateType.RESERVED);
-    connectionRepo.save(connection);
-
-    final ReservationInfoType reservationInfoType = new ObjectFactory().createReservationInfoType();
-    reservationInfoType.setConnectionId(connection.getConnectionId());
-    reservationInfoType.setDescription(connection.getDescription());
-    reservationInfoType.setGlobalReservationId(connection.getGlobalReservationId());
-
-    reservationInfoType.setPath(connection.getPath());
-    reservationInfoType.setServiceParameters(connection.getServiceParameters());
-
-    final ReserveConfirmedType reserveConfirmedType = new ObjectFactory().createReserveConfirmedType();
-    reserveConfirmedType.setRequesterNSA(connection.getRequesterNsa());
-    reserveConfirmedType.setProviderNSA(connection.getProviderNsa());
-    reserveConfirmedType.setReservation(reservationInfoType);
-
-    try {
-      ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
-      port.reserveConfirmed(new Holder<>(requestDetails.getCorrelationId()), reserveConfirmedType);
-    }
-    catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
-      log.error("Error: ", e);
-    }
-  }
-
-  @Override
-  public void reserveFailed(final Connection connection, final NsiRequestDetails requestDetails,
-      Optional<String> failedReason) {
-    log.info("Sending a reserveFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
-        .getGlobalReservationId());
-
-    // skipping the states cleaning and terminating...
-    // TODO [AvD] Or do we need to send a Terminate Confirmed?
-    connection.setCurrentState(ConnectionStateType.TERMINATED);
-    connectionRepo.save(connection);
-
-    final ServiceExceptionType serviceException = new ServiceExceptionType();
-    serviceException.setErrorId("00600");
-    serviceException.setText(failedReason.or("Unknown reason"));
-    AttributeStatementType values = new AttributeStatementType();
-    serviceException.setVariables(values);
-
-    GenericFailedType reservationFailed = CONNECTION_TO_GENERIC_FAILED.apply(connection);
-    reservationFailed.setServiceException(serviceException);
-
-    try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
-      port.reserveFailed(new Holder<>(requestDetails.getCorrelationId()), reservationFailed);
-    }
-    catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
-      log.error("Error: ", e);
-    }
-  }
-
-  @Override
   public GenericAcknowledgmentType provision(ProvisionRequestType parameters) throws ServiceException {
     validateOAuthScope(NsiScope.PROVISION);
     validateProviderNsa(parameters.getProvision().getProviderNSA());
@@ -252,62 +188,6 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
   }
 
-  @Override
-  public void provisionFailed(Connection connection, NsiRequestDetails requestDetails) {
-    if (connection.getStartTime().isPresent() && (connection.getStartTime().get().isAfterNow())) {
-      connection.setCurrentState(ConnectionStateType.SCHEDULED);
-    }
-    else {
-      connection.setCurrentState(ConnectionStateType.RESERVED);
-    }
-    connectionRepo.save(connection);
-
-    log.info("Sending sendProvisionFailed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
-        .getConnectionId());
-
-    final GenericFailedType generic = new GenericFailedType();
-    generic.setProviderNSA(connection.getProviderNsa());
-    generic.setRequesterNSA(connection.getRequesterNsa());
-    generic.setConnectionId(connection.getConnectionId());
-    generic.setGlobalReservationId(connection.getGlobalReservationId());
-
-    try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
-      port.provisionFailed(new Holder<>(requestDetails.getCorrelationId()), generic);
-    }
-    catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
-      log.error("Error: ", e);
-    }
-
-  }
-
-  @Override
-  public void provisionConfirmed(final Connection connection, NsiRequestDetails requestDetails) {
-    connection.setCurrentState(ConnectionStateType.PROVISIONED);
-    connectionRepo.save(connection);
-
-    log.info("Sending provisionConfirmed on endpoint: {} with id: {}", requestDetails.getReplyTo(), connection
-        .getConnectionId());
-
-    final GenericConfirmedType genericConfirm = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
-
-    try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
-      port.provisionConfirmed(new Holder<>(requestDetails.getCorrelationId()), genericConfirm);
-    }
-    catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
-      log.error("Error: ", e);
-    }
-  }
-
-  @Override
-  public void provisionSucceeded(Connection connection) {
-    // no need to inform the client,
-    // a provision confirmed is only send when the reservation is running
-    // (connection is provisioned)
-    connection.setCurrentState(ConnectionStateType.AUTO_PROVISION);
-    connectionRepo.save(connection);
-  }
 
   @Override
   public GenericAcknowledgmentType release(ReleaseRequestType parameters) throws ServiceException {
@@ -334,42 +214,6 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
         requestDetails);
 
     return createGenericAcknowledgment(requestDetails.getCorrelationId());
-  }
-
-  @Override
-  public void terminateConfirmed(Connection connection, Optional<NsiRequestDetails> requestDetails) {
-    connection.setCurrentState(ConnectionStateType.TERMINATED);
-    connectionRepo.save(connection);
-
-    if (!requestDetails.isPresent()) {
-      return;
-    }
-
-    final GenericConfirmedType genericConfirmed = CONNECTION_TO_GENERIC_CONFIRMED.apply(connection);
-    try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails.get());
-      port.terminateConfirmed(new Holder<>(requestDetails.get().getCorrelationId()), genericConfirmed);
-    }
-    catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
-      log.error("Error: ", e);
-    }
-  }
-
-  @Override
-  public void terminateFailed(Connection connection, Optional<NsiRequestDetails> requestDetails) {
-    if (!requestDetails.isPresent()) {
-      return;
-    }
-
-    final GenericFailedType genericFailed = CONNECTION_TO_GENERIC_FAILED.apply(connection);
-
-    try {
-      final ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails.get());
-      port.terminateFailed(new Holder<>(requestDetails.get().getCorrelationId()), genericFailed);
-    }
-    catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
-      log.error("Error: ", e);
-    }
   }
 
   @Override
@@ -406,13 +250,6 @@ public class ConnectionServiceProviderWs implements ConnectionServiceProvider {
   public void queryFailed(Holder<String> correlationId, QueryFailedType queryFailed) throws ServiceException {
     // This is an incoming response. But for now we don't do any queries.
     throw new UnsupportedOperationException("Not implemented yet.");
-  }
-
-  @Override
-  public void terminateTimedOutReservation(Connection connection) {
-    // Talked to HansT and this is really the only step we have to take from a NSI perspective.
-    connection.setCurrentState(ConnectionStateType.TERMINATED);
-    connectionRepo.save(connection);
   }
 
   @VisibleForTesting

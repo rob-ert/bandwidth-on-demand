@@ -23,7 +23,7 @@ package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
+import static nl.surfnet.bod.nsi.NsiConstants.URN_STP;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byGroupIdInLastMonthSpec;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.byPhysicalPortSpec;
 import static nl.surfnet.bod.service.VirtualPortPredicatesAndSpecifications.forManagerSpec;
@@ -106,8 +106,8 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   public long countForPhysicalPort(PhysicalPort physicalPort) {
     return virtualPortRepo.count(byPhysicalPortSpec(physicalPort));
   }
-  
-  
+
+
   public void deleteVirtualPorts(Collection<VirtualPort> virtualPorts, RichUserDetails userDetails){
     for (final VirtualPort virtualPort : virtualPorts) {
       final Collection<Reservation> reservations = reservationService.findByVirtualPort(virtualPort);

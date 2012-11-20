@@ -19,9 +19,9 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.nsi.ws.v1sc;
+package nl.surfnet.bod.nsi.v1sc;
 
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_GLOBAL_RESERVATION_ID;
+import static nl.surfnet.bod.nsi.NsiConstants.URN_GLOBAL_RESERVATION_ID;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.INITIAL;
 
 import java.io.IOException;

@@ -23,23 +23,19 @@ package nl.surfnet.bod.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static nl.surfnet.bod.domain.ReservationStatus.*;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
-import javax.xml.ws.Holder;
 
 import nl.surfnet.bod.domain.*;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
-import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderWs;
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceRequesterCallback;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
 
-import org.ogf.schemas.nsi._2011._10.connection.requester.ConnectionRequesterPort;
 import org.ogf.schemas.nsi._2011._10.connection.types.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,9 +82,8 @@ public class ConnectionService {
   @Resource
   private VirtualPortService virtualPortService;
 
-  // FIXME introduces a dependency cycle....
   @Resource
-  private ConnectionServiceProviderWs connectionServiceProviderWs;
+  private ConnectionServiceRequesterCallback connectionServiceRequester;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void reserve(Connection connection, NsiRequestDetails requestDetails, boolean autoProvision,
@@ -122,7 +117,7 @@ public class ConnectionService {
 
     if (connection.getCurrentState() == ConnectionStateType.PROVISIONED) {
       log.info("Connection is already provisioned", connection.getCurrentState());
-      connectionServiceProviderWs.provisionConfirmed(connection, requestDetails);
+      connectionServiceRequester.provisionConfirmed(connection, requestDetails);
     }
     else if (isProvisionPossible(connection)) {
       connection.setProvisionRequestDetails(requestDetails);
@@ -131,7 +126,7 @@ public class ConnectionService {
     }
     else {
       log.info("Provision is not possible for state '{}'", connection.getCurrentState());
-      connectionServiceProviderWs.provisionFailed(connection, requestDetails);
+      connectionServiceRequester.provisionFailed(connection, requestDetails);
     }
   }
 
@@ -154,7 +149,7 @@ public class ConnectionService {
           Optional.of(requestDetails));
     } else {
       log.info("Terminate is not possible for state '{}'", connection.getCurrentState());
-      connectionServiceProviderWs.terminateFailed(connection, Optional.of(requestDetails));
+      connectionServiceRequester.terminateFailed(connection, Optional.of(requestDetails));
     }
   }
 
@@ -169,7 +164,7 @@ public class ConnectionService {
 
     QueryConfirmedType confirmedType = queryConnections(connectionIds, globalReservationIds, operation, requesterNsa, providerNsa);
 
-    sendQueryResult(requestDetails, confirmedType);
+    connectionServiceRequester.queryConfirmed(confirmedType, requestDetails);
   }
 
   protected QueryConfirmedType queryConnections(Collection<String> connectionIds, Collection<String> globalReservationIds,
@@ -193,7 +188,7 @@ public class ConnectionService {
 
     QueryConfirmedType confirmedType = queryAllForRequesterNsa(operation, requesterNsa, providerNsa);
 
-    sendQueryResult(requestDetails, confirmedType);
+    connectionServiceRequester.queryConfirmed(confirmedType, requestDetails);
   }
 
   protected QueryConfirmedType queryAllForRequesterNsa(QueryOperationType operation, String requesterNsa, String providerNsa) {
@@ -223,23 +218,6 @@ public class ConnectionService {
 
   private List<Connection> findByRequesterNsa(String requesterNsa) {
     return connectionRepo.findByRequesterNsa(requesterNsa);
-  }
-
-  private void sendQueryResult(NsiRequestDetails requestDetails, QueryConfirmedType queryResult) {
-    ConnectionRequesterPort port = NSI_REQUEST_TO_CONNECTION_REQUESTER_PORT.apply(requestDetails);
-    try {
-      log.info("query result {}", queryResult);
-      port.queryConfirmed(new Holder<>(requestDetails.getCorrelationId()), queryResult);
-    }
-    catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
-      log.error("Error sending query result", e);
-      QueryFailedType failedType = new QueryFailedType();
-
-      final ServiceExceptionType error = new ServiceExceptionType();
-      error.setErrorId(ConnectionServiceProviderErrorCodes.CONNECTION.CONNECTION_ERROR.getId());
-      failedType.setServiceException(error);
-      sendQueryFailed(requestDetails.getCorrelationId(), failedType, port);
-    }
   }
 
   private void addQueryResult(QueryConfirmedType confirmedType, Connection connection, QueryOperationType operation) {
@@ -285,15 +263,6 @@ public class ConnectionService {
     }
 
     return result;
-  }
-
-  private void sendQueryFailed(final String correlationId, QueryFailedType failedType, ConnectionRequesterPort port) {
-    try {
-      port.queryFailed(new Holder<>(correlationId), failedType);
-    }
-    catch (org.ogf.schemas.nsi._2011._10.connection.requester.ServiceException e) {
-      log.error("Error: ", e);
-    }
   }
 
   public Collection<Connection> findAll() {

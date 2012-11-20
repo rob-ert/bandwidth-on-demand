@@ -19,7 +19,7 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.nsi.ws.v1sc;
+package nl.surfnet.bod.nsi.v1sc;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
@@ -27,6 +27,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions;
 import nl.surfnet.bod.support.ReserveRequestTypeFactory;
 
 import org.joda.time.DateTime;

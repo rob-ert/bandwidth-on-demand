@@ -19,14 +19,15 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.nsi.ws.v1sc;
+package nl.surfnet.bod.nsi.v1sc;
 
-import static junit.framework.Assert.*;
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static junit.framework.Assert.fail;
+import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
 
@@ -35,37 +36,13 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import junit.framework.Assert;
-
-import org.hamcrest.text.IsEmptyString;
-import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
-import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
-import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
-import org.ogf.schemas.nsi._2011._10.connection.types.BandwidthType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
-import org.ogf.schemas.nsi._2011._10.connection.types.PathType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReservationInfoType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ReserveType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ScheduleType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceParametersType;
-import org.ogf.schemas.nsi._2011._10.connection.types.ServiceTerminationPointType;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Throwables;
-import com.sun.xml.ws.client.ClientTransportException;
-
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.oauth.NsiScope;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceProviderErrorCodes;
+import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderWs;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.service.ConnectionService;
 import nl.surfnet.bod.service.ReservationService;
@@ -76,6 +53,21 @@ import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+
+import org.hamcrest.text.IsEmptyString;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.ogf.schemas.nsi._2011._10.connection._interface.QueryRequestType;
+import org.ogf.schemas.nsi._2011._10.connection._interface.ReserveRequestType;
+import org.ogf.schemas.nsi._2011._10.connection.provider.ServiceException;
+import org.ogf.schemas.nsi._2011._10.connection.types.*;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Throwables;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceProviderWsTest {
@@ -108,10 +100,8 @@ public class ConnectionServiceProviderWsTest {
   private final Connection connection = new ConnectionFactory().setSourceStpId("Source Port").setDestinationStpId(
       "Destination Port").setProviderNSA(nsaProvider).create();
 
-  
   private final int port = 55446;
   private final NsiRequestDetails request = new NsiRequestDetails("http://localhost:"+port, "123456");
-  
 
   @Before
   public void setup() throws Exception {
@@ -119,7 +109,6 @@ public class ConnectionServiceProviderWsTest {
     when(virtualPortServiceMock.findByNsiStpId("Source Port")).thenReturn(sourcePort);
     when(virtualPortServiceMock.findByNsiStpId("Destination Port")).thenReturn(destinationPort);
   }
-  
 
   @Test
   public void shouldComplainAboutTheProviderNsa() {
@@ -239,42 +228,6 @@ public class ConnectionServiceProviderWsTest {
     }
   }
 
-  @Test(expected = ClientTransportException.class)
-  public void shouldTransferToScheduledWhenProvisionFailsAndStartTimeIsReached() {
-    Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.of(NsiScope.PROVISION)).create());
-    connection.setStartTime(DateTime.now().plusMinutes((1)));
-    try {
-      subject.provisionFailed(connection, request);
-    }
-    finally {
-      assertThat(connection.getCurrentState(), is(ConnectionStateType.SCHEDULED));
-    }
-  }
-
-  @Test(expected = ClientTransportException.class)
-  public void shouldTransferToReservedWhenProvisionFailsAndStartTimeIsNotReached() {
-    Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.of(NsiScope.PROVISION)).create());
-    connection.setStartTime(DateTime.now().minusMinutes(1));
-    try {
-      subject.provisionFailed(connection, request);
-    }
-    finally {
-      assertThat(connection.getCurrentState(), is(ConnectionStateType.RESERVED));
-    }
-  }
-
-  @Test(expected = ClientTransportException.class)
-  public void shouldTransferToReservedWhenProvisionFailsAndNoStartTimeIsPresent() {
-    Security.setUserDetails(new RichUserDetailsFactory().setScopes(EnumSet.of(NsiScope.PROVISION)).create());
-
-    connection.setStartTime(null);
-    try {
-      subject.provisionFailed(connection, request);
-    }
-    finally {
-      assertThat(connection.getCurrentState(), is(ConnectionStateType.RESERVED));
-    }
-  }
 
   public static ReserveRequestType createReservationRequestType(int desiredBandwidth,
       Optional<String> globalReservationId) {

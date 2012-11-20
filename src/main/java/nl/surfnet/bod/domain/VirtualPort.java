@@ -21,7 +21,7 @@
  */
 package nl.surfnet.bod.domain;
 
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
+import static nl.surfnet.bod.nsi.NsiConstants.URN_STP;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

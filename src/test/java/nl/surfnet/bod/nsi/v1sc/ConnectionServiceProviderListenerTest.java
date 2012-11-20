@@ -19,12 +19,11 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.nsi.ws.v1sc;
+package nl.surfnet.bod.nsi.v1sc;
 
 import static nl.surfnet.bod.domain.ReservationStatus.*;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.AUTO_PROVISION;
 import static org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType.RESERVED;
@@ -33,6 +32,8 @@ import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderListener;
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceRequesterCallback;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.support.ConnectionFactory;
@@ -54,7 +55,7 @@ public class ConnectionServiceProviderListenerTest {
   private ConnectionServiceProviderListener subject;
 
   @Mock
-  private ConnectionServiceProviderWs connectionServiceProviderMock;
+  private ConnectionServiceRequesterCallback connectionServiceRequesterMock;
 
   @Mock
   private ReservationService reservationServiceMock;
@@ -69,8 +70,6 @@ public class ConnectionServiceProviderListenerTest {
         new ReservationStatusChangeEvent(REQUESTED, reservation, Optional.<NsiRequestDetails>absent());
 
     subject.onStatusChange(event);
-
-    verifyZeroInteractions(connectionServiceProviderMock);
   }
 
   @Test
@@ -89,7 +88,7 @@ public class ConnectionServiceProviderListenerTest {
 
     subject.onStatusChange(event);
 
-    verify(connectionServiceProviderMock).reserveFailed(
+    verify(connectionServiceRequesterMock).reserveFailed(
         connection, requestDetails.get(), Optional.of(failedReason));
   }
 
@@ -104,7 +103,7 @@ public class ConnectionServiceProviderListenerTest {
 
     subject.onStatusChange(event);
 
-    verify(connectionServiceProviderMock).terminateFailed(connection, requestDetails);
+    verify(connectionServiceRequesterMock).terminateFailed(connection, requestDetails);
   }
 
   @Test
@@ -118,7 +117,7 @@ public class ConnectionServiceProviderListenerTest {
 
     subject.onStatusChange(event);
 
-    verify(connectionServiceProviderMock).terminateConfirmed(connection, requestDetails);
+    verify(connectionServiceRequesterMock).terminateConfirmed(connection, requestDetails);
   }
 
   @Test
@@ -133,7 +132,7 @@ public class ConnectionServiceProviderListenerTest {
 
     subject.onStatusChange(event);
 
-    verify(connectionServiceProviderMock).provisionSucceeded(connection);
+    verify(connectionServiceRequesterMock).provisionSucceeded(connection);
   }
 
   @Test
@@ -148,6 +147,6 @@ public class ConnectionServiceProviderListenerTest {
 
     subject.onStatusChange(event);
 
-    verify(connectionServiceProviderMock).provisionConfirmed(connection, requestDetails.get());
+    verify(connectionServiceRequesterMock).provisionConfirmed(connection, requestDetails.get());
   }
 }

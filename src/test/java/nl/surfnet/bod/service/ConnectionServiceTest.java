@@ -21,7 +21,7 @@
  */
 package nl.surfnet.bod.service;
 
-import static nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
+import static nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions.RESERVE_REQUEST_TO_CONNECTION;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -36,7 +36,7 @@ import java.util.EnumSet;
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderWsTest;
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderWsTest;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.support.ConnectionFactory;
 import nl.surfnet.bod.support.RichUserDetailsFactory;

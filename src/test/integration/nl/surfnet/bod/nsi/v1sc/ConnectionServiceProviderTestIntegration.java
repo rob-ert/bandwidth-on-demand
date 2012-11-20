@@ -19,11 +19,11 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.nsi;
+package nl.surfnet.bod.nsi.v1sc;
 
 import static com.jayway.awaitility.Awaitility.await;
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_PROVIDER_NSA;
-import static nl.surfnet.bod.nsi.ws.ConnectionServiceProvider.URN_STP;
+import static nl.surfnet.bod.nsi.NsiConstants.URN_PROVIDER_NSA;
+import static nl.surfnet.bod.nsi.NsiConstants.URN_STP;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -43,8 +43,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.oauth.NsiScope;
-import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderFunctions;
-import nl.surfnet.bod.nsi.ws.v1sc.ConnectionServiceProviderWs;
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions;
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderWs;
 import nl.surfnet.bod.repo.*;
 import nl.surfnet.bod.service.*;
 import nl.surfnet.bod.support.*;

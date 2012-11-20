@@ -19,7 +19,7 @@
  * If the BSD license cannot be found with this distribution, it is available
  * at the following location <http://www.opensource.org/licenses/BSD-3-Clause>
  */
-package nl.surfnet.bod.nsi.ws.v1sc;
+package nl.surfnet.bod.nsi.v1sc;
 
 import static nl.surfnet.bod.web.WebUtils.not;
 
@@ -28,7 +28,6 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.nsi.ws.ConnectionServiceProvider;
 import nl.surfnet.bod.service.ReservationEventPublisher;
 import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationService;
@@ -51,7 +50,7 @@ public class ConnectionServiceProviderListener implements ReservationListener {
   private ReservationEventPublisher reservationEventPublisher;
 
   @Resource
-  private ConnectionServiceProvider connectionServiceProvider;
+  private ConnectionServiceRequesterCallback connectionServiceRequester;
 
   @Resource
   private ReservationService reservationService;
@@ -77,10 +76,10 @@ public class ConnectionServiceProviderListener implements ReservationListener {
 
       switch (event.getNewStatus()) {
       case RESERVED:
-        connectionServiceProvider.reserveConfirmed(connection, event.getNsiRequestDetails().get());
+        connectionServiceRequester.reserveConfirmed(connection, event.getNsiRequestDetails().get());
         break;
       case AUTO_START:
-        connectionServiceProvider.provisionSucceeded(connection);
+        connectionServiceRequester.provisionSucceeded(connection);
         break;
       case FAILED:
         handleReservationFailed(connection, event);
@@ -88,19 +87,19 @@ public class ConnectionServiceProviderListener implements ReservationListener {
       case NOT_ACCEPTED:
         Optional<String> failedReason = Optional.fromNullable(Strings.emptyToNull(event.getReservation()
           .getFailedReason()));
-        connectionServiceProvider.reserveFailed(connection, event.getNsiRequestDetails().get(), failedReason);
+        connectionServiceRequester.reserveFailed(connection, event.getNsiRequestDetails().get(), failedReason);
         break;
       case TIMED_OUT:
-        connectionServiceProvider.terminateTimedOutReservation(connection);
+        connectionServiceRequester.terminateTimedOutReservation(connection);
         break;
       case RUNNING:
-        connectionServiceProvider.provisionConfirmed(connection, event.getNsiRequestDetails().get());
+        connectionServiceRequester.provisionConfirmed(connection, event.getNsiRequestDetails().get());
         break;
       case CANCELLED:
-        connectionServiceProvider.terminateConfirmed(connection, event.getNsiRequestDetails());
+        connectionServiceRequester.terminateConfirmed(connection, event.getNsiRequestDetails());
         break;
       case CANCEL_FAILED:
-        connectionServiceProvider.terminateFailed(connection, event.getNsiRequestDetails());
+        connectionServiceRequester.terminateFailed(connection, event.getNsiRequestDetails());
         break;
       default:
         logger.error("Unhandled status {} of reservation {}", event.getNewStatus(), event.getReservation());
@@ -117,10 +116,10 @@ public class ConnectionServiceProviderListener implements ReservationListener {
         || connection.getCurrentState() == ConnectionStateType.SCHEDULED) {
       // the connection is was ready to get started but the step to running/provisioned failed
       // so send a provisionFailed
-      connectionServiceProvider.provisionFailed(connection, event.getNsiRequestDetails().get());
+      connectionServiceRequester.provisionFailed(connection, event.getNsiRequestDetails().get());
     }
     else if (connection.getCurrentState() == ConnectionStateType.TERMINATING) {
-      connectionServiceProvider.terminateFailed(connection, event.getNsiRequestDetails());
+      connectionServiceRequester.terminateFailed(connection, event.getNsiRequestDetails());
     }
     else {
       logger.error("Listener got a failed '{}' but did not know what to do with the connection {}", event.getNewStatus(), connection);
