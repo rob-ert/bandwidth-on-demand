@@ -64,10 +64,13 @@ public class ReservationPredicatesAndSpecifications {
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
         Long prgId = manager.getSelectedRole().getPhysicalResourceGroupId().get();
-        return cb.and(cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort).get(
-            PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId), cb.equal(root.get(
-            Reservation_.destinationPort).get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(
-            PhysicalResourceGroup_.id), prgId)));
+        return cb.and(cb.or(
+            cb.equal(
+                root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort)
+                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId),
+            cb.equal(
+                root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort)
+                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId)));
       }
     };
   }
@@ -76,8 +79,8 @@ public class ReservationPredicatesAndSpecifications {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(root.get(Reservation_.virtualResourceGroup).get(VirtualResourceGroup_.surfconextGroupId).in(
-            user.getUserGroupIds()));
+        return cb.and(root.get(Reservation_.virtualResourceGroup).get(VirtualResourceGroup_.surfconextGroupId)
+            .in(user.getUserGroupIds()));
       }
     };
   }
@@ -123,8 +126,8 @@ public class ReservationPredicatesAndSpecifications {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort), port), cb.equal(root
-            .get(Reservation_.destinationPort).get(VirtualPort_.physicalPort), port));
+        return cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort), port),
+            cb.equal(root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort), port));
       }
     };
   }
@@ -134,10 +137,13 @@ public class ReservationPredicatesAndSpecifications {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         final Long prgId = user.getSelectedRole().getPhysicalResourceGroupId().get();
-        return cb.and(cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort).get(
-            PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId), cb.equal(root.get(
-            Reservation_.destinationPort).get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(
-            PhysicalResourceGroup_.id), prgId)));
+        return cb.and(cb.or(
+            cb.equal(
+                root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort)
+                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId),
+            cb.equal(
+                root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort)
+                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId)));
       }
     };
   }
@@ -146,8 +152,20 @@ public class ReservationPredicatesAndSpecifications {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(cb.equal(root.get(Reservation_.sourcePort), port), cb.equal(
-            root.get(Reservation_.destinationPort), port));
+        return cb.or(cb.equal(root.get(Reservation_.sourcePort), port),
+            cb.equal(root.get(Reservation_.destinationPort), port));
+      }
+    };
+  }
+
+  public static Specification<Reservation> specActiveByVirtualPorts(final List<VirtualPort> virtualPorts) {
+    return new Specification<Reservation>() {
+
+      @Override
+      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+
+        return cb.and((cb.or(root.get(Reservation_.sourcePort).in(virtualPorts),
+            root.get(Reservation_.destinationPort).in(virtualPorts))), (root.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES)));
       }
     };
   }
@@ -190,8 +208,8 @@ public class ReservationPredicatesAndSpecifications {
     Specification<Reservation> filterSpecOnEnd = new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(cb.isNull(root.get(Reservation_.endDateTime)), cb.between(root.get(Reservation_.endDateTime),
-            filter.getStart(), filter.getEnd()));
+        return cb.or(cb.isNull(root.get(Reservation_.endDateTime)),
+            cb.between(root.get(Reservation_.endDateTime), filter.getStart(), filter.getEnd()));
       }
     };
 
@@ -298,4 +316,5 @@ public class ReservationPredicatesAndSpecifications {
     };
     return Specifications.where(spec).and(specReservationStartBeforeAndEndInOrAfter(start, end));
   }
+
 }
