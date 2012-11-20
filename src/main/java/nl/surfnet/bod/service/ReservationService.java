@@ -620,5 +620,11 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public Reservation findByConnectionId(String connectionId) {
     return reservationRepo.findByConnectionConnectionId(connectionId);
   }
+  
+  public long countActiveReservationsByVirtualPorts(List<VirtualPort> virtualPorts) {
+    final Specification<Reservation> whereClause = ReservationPredicatesAndSpecifications
+        .specActiveByVirtualPorts(virtualPorts);
+    return reservationRepo.count(whereClause);
+  }
 
 }
