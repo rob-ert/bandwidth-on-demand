@@ -23,6 +23,7 @@ package nl.surfnet.bod.web.noc;
 
 import static nl.surfnet.bod.web.WebUtils.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,11 +44,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+import nl.surfnet.bod.domain.BodRole;
 import nl.surfnet.bod.domain.Institute;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.InstituteService;
@@ -59,11 +63,12 @@ import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.base.AbstractSearchableSortableListController;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.PhysicalResourceGroupView;
 
 @Controller("nocPhysicalResourceGroupController")
 @RequestMapping("/noc/" + PhysicalResourceGroupController.PAGE_URL)
 public class PhysicalResourceGroupController extends
-    AbstractSearchableSortableListController<PhysicalResourceGroup, PhysicalResourceGroup> {
+    AbstractSearchableSortableListController<PhysicalResourceGroupView, PhysicalResourceGroup> {
 
   public static final String PAGE_URL = "institutes";
   static final String MODEL_KEY = "physicalResourceGroupCommand";
@@ -211,8 +216,28 @@ public class PhysicalResourceGroupController extends
   }
 
   @Override
-  protected List<PhysicalResourceGroup> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return physicalResourceGroupService.findEntries(firstPage, maxItems, sort);
+  protected List<PhysicalResourceGroupView> list(int firstPage, int maxItems, Sort sort, Model model) {
+    final List<PhysicalResourceGroup> physycalResourceGroups = physicalResourceGroupService.findEntries(firstPage,
+        maxItems, sort);
+
+    final List<VirtualPort> virtualPorts = new ArrayList<>();
+    final List<Reservation> reservations = new ArrayList<>();
+    List<PhysicalPort> physicalPorts = new ArrayList<>();
+
+    for (final PhysicalResourceGroup physycalResourceGroup : physycalResourceGroups) {
+      physicalPorts = physicalPortService.findAllocatedEntriesForPhysicalResourceGroup(physycalResourceGroup,
+          MAX_ITEMS_PER_PAGE, MAX_ITEMS_PER_PAGE, null);
+      for (final PhysicalPort physicalPort : physicalPorts) {
+        virtualPorts.addAll(virtualPortService.findAllForPhysicalPort(physicalPort));
+        reservations.addAll(reservationService.findActiveByPhysicalPort(physicalPort));
+      }
+    }
+
+    model.addAttribute("physicalPortsAmount", Integer.toString(physicalPorts.size()));
+    model.addAttribute("virtualPortsAmount", Integer.toString(virtualPorts.size()));
+    model.addAttribute("reservationsAmount", Integer.toString(reservations.size()));
+
+    return transformToView(physycalResourceGroups, Security.getUserDetails());
   }
 
   @Override
@@ -329,7 +354,6 @@ public class PhysicalResourceGroupController extends
     public String getName() {
       return institute != null ? institute.getName() : String.valueOf(instituteId);
     }
-
   }
 
   @Override
@@ -343,7 +367,29 @@ public class PhysicalResourceGroupController extends
   }
 
   @Override
-  protected List<PhysicalResourceGroup> transformToView(List<PhysicalResourceGroup> entities, RichUserDetails user) {
-    return entities;
+  protected List<PhysicalResourceGroupView> transformToView(List<PhysicalResourceGroup> entities, RichUserDetails user) {
+    final List<PhysicalResourceGroupView> physicalResourceGroupViews = new ArrayList<>();
+    for (final PhysicalResourceGroup physicalResourceGroup : entities) {
+      final PhysicalResourceGroupView view = new PhysicalResourceGroupView(physicalResourceGroup);
+      final List<VirtualPort> virtualPorts = new ArrayList<>();
+      final List<Long> reservations = new ArrayList<>();
+      final List<Long> physicalPortIds = physicalPortService.findIdsByRoleAndPhysicalResourceGroup(
+          BodRole.createNocEngineer(), Optional.of(physicalResourceGroup));
+      for (final long id : physicalPortIds) {
+        final PhysicalPort physicalPort = physicalPortService.find(id);
+        virtualPorts.addAll(virtualPortService.findAllForPhysicalPort(physicalPort));
+        final long countActiveReservationsByVirtualPorts = reservationService.countActiveReservationsByVirtualPorts(virtualPorts);
+        if(countActiveReservationsByVirtualPorts != 0L){
+          System.out.println(countActiveReservationsByVirtualPorts);
+          reservations.add(countActiveReservationsByVirtualPorts);
+        }
+      }
+      view.setPhysicalPortsAmount(physicalPortIds.size());
+      view.setReservationsAmount(reservations.size());
+      view.setVirtualPortsAmount(virtualPorts.size());
+      System.out.println(reservations);
+      physicalResourceGroupViews.add(view);
+    }
+    return physicalResourceGroupViews;
   }
 }
