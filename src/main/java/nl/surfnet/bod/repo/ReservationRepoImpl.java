@@ -45,9 +45,21 @@ public class ReservationRepoImpl implements ReservationRepoCustom {
     final Root<Reservation> root = criteriaQuery.from(Reservation.class);
 
     criteriaQuery.select(root.get(Reservation_.id))
-      .where(whereClause.toPredicate(root, criteriaQuery, criteriaBuilder));
+        .where(whereClause.toPredicate(root, criteriaQuery, criteriaBuilder));
 
     return entityManager.createQuery(criteriaQuery).getResultList();
 
+  }
+
+  public long countDistinctIdsWithWhereClause(final Specification<Reservation> whereClause) {
+
+    final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+    final Root<Reservation> root = criteriaQuery.from(Reservation.class);
+//TODO get count
+    criteriaQuery.distinct(true).select(root.get(Reservation_.id))
+        .where(whereClause.toPredicate(root, criteriaQuery, criteriaBuilder));
+
+    return entityManager.createQuery(criteriaQuery).getResultList().size();
   }
 }
