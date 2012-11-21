@@ -24,6 +24,7 @@ package nl.surfnet.bod.service;
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
@@ -75,7 +76,7 @@ public class LogEventTestIntegration {
 
   @BeforeTransaction
   public void setUp() {
-
+    // Cleanup left overs...
     logEventRepo.deleteAll();
 
     Reservation reservationOne = new ReservationFactory().setId(ONE).create();
@@ -83,29 +84,22 @@ public class LogEventTestIntegration {
     Reservation reservationInfinite = new ReservationFactory().setId(THREE).setEndDateTime(null).setStatus(REQUESTED)
         .create();
 
-    LogEvent logEventCreateOne = new LogEventFactory().setEventType(LogEventType.CREATE)
-        .setDomainObject(reservationOne).setCreated(now.minusHours(4)).create();
+    LogEvent logEventCreateOne = createCreateLogEvent(reservationOne, now.minusHours(4));
 
-    LogEvent logEventOneToScheduled = new LogEventFactory().setOldReservationStatus(RESERVED).setNewReservationStatus(
-        SCHEDULED).setDomainObject(reservationOne).setCreated(now.minusHours(3)).create();
+    LogEvent logEventOneToScheduled = createUpdateLogEvent(reservationOne, RESERVED, SCHEDULED, now.minusHours(3));
 
-    LogEvent logEventOneToRunning = new LogEventFactory().setOldReservationStatus(SCHEDULED).setNewReservationStatus(
-        RUNNING).setDomainObject(reservationOne).setCreated(now.minusHours(2)).create();
+    LogEvent logEventOneToRunning = createUpdateLogEvent(reservationOne, SCHEDULED, RUNNING, now.minusHours(2));
 
-    LogEvent logEventToSucceeded = new LogEventFactory().setOldReservationStatus(RUNNING).setNewReservationStatus(
-        SUCCEEDED).setDomainObject(reservationOne).setCreated(now.minusHours(1)).create();
+    LogEvent logEventToSucceeded = createUpdateLogEvent(reservationOne, RUNNING, SUCCEEDED, now.minusHours(1));
 
-    LogEvent logEventTwoCreate = new LogEventFactory().setEventType(LogEventType.CREATE)
-        .setDomainObject(reservationTwo).setCreated(now.minusHours(4)).create();
+    LogEvent logEventTwoCreate = createCreateLogEvent(reservationTwo, now.minusHours(4));
 
-    LogEvent logEventTwoToAutoStart = new LogEventFactory().setOldReservationStatus(RESERVED).setNewReservationStatus(
-        AUTO_START).setDomainObject(reservationTwo).setCreated(now.minusHours(3)).create();
+    LogEvent logEventTwoToAutoStart = createUpdateLogEvent(reservationTwo, RESERVED, AUTO_START, now.minusHours(3));
 
-    LogEvent logEventInfiniteToReserved = new LogEventFactory().setEventType(LogEventType.CREATE).setDomainObject(
-        reservationInfinite).setCreated(now.minusHours(4)).create();
+    LogEvent logEventInfiniteToReserved = createCreateLogEvent(reservationInfinite, now.minusHours(4));
 
-    LogEvent logEventInfiniteToRunning = new LogEventFactory().setOldReservationStatus(AUTO_START)
-        .setNewReservationStatus(RUNNING).setDomainObject(reservationInfinite).setCreated(now.minusHours(3)).create();
+    LogEvent logEventInfiniteToRunning = createUpdateLogEvent(reservationInfinite, AUTO_START, RUNNING, now
+        .minusHours(3));
 
     logEventRepo.save(Lists.newArrayList(logEventCreateOne, logEventOneToScheduled, logEventOneToRunning,
         logEventToSucceeded, logEventTwoCreate, logEventTwoToAutoStart, logEventInfiniteToReserved,
@@ -264,6 +258,18 @@ public class LogEventTestIntegration {
     assertThat(logEvent.getDomainObjectId(), is(THREE));
     assertThat(logEvent.getOldReservationStatus(), is(AUTO_START));
     assertThat(logEvent.getNewReservationStatus(), is(RUNNING));
+  }
+
+  private LogEvent createUpdateLogEvent(Reservation reservation, ReservationStatus oldStatus,
+      ReservationStatus newStatus, DateTime timeStamp) {
+    return new LogEventFactory().setEventType(LogEventType.UPDATE).setOldReservationStatus(oldStatus)
+        .setNewReservationStatus(newStatus).setDomainObject(reservation).setCreated(timeStamp).create();
+  }
+
+  private LogEvent createCreateLogEvent(Reservation reservation, DateTime timeStamp) {
+    LogEvent logEventCreateOne = new LogEventFactory().setEventType(LogEventType.CREATE).setDomainObject(reservation)
+        .setCreated(timeStamp).create();
+    return logEventCreateOne;
   }
 
 }
