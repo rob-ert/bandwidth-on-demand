@@ -166,15 +166,15 @@ class NbiOfflineClient implements NbiClient {
     log.info("Get new status for {} with current {}", scheduleId, status);
 
     if (status.isTransitionState()) {
-      if (status == RESERVED && reservation.getStartDateTime().isBefore(DateTime.now())) {
+      if (status == RESERVED && reservation.getStartDateTime().isBeforeNow()) {
         status = ReservationStatus.SCHEDULED;
-      } else if (status == AUTO_START && reservation.getStartDateTime().isBefore(DateTime.now())) {
+      } else if (status == AUTO_START && reservation.getStartDateTime().isBeforeNow()) {
         status = RUNNING;
       } else if (status == REQUESTED) {
         status = AUTO_START; // could be NOT_ACCEPTED as well..
-      } else if (status == RUNNING && reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().isBefore(DateTime.now())) {
+      } else if (status == RUNNING && reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().isBeforeNow()) {
         status = SUCCEEDED;
-      } else if (reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().isBefore(DateTime.now())) {
+      } else if (reservation.getEndDateTime().isPresent() && reservation.getEndDateTime().get().isBeforeNow()) {
         status = TIMED_OUT;
       }
 
