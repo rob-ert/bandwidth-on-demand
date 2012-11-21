@@ -21,6 +21,14 @@
  */
 package nl.surfnet.bod.service;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.concurrent.TimeUnit;
 
 import nl.surfnet.bod.domain.Reservation;
@@ -34,17 +42,11 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import com.google.common.collect.Lists;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationPollerTest {
@@ -65,12 +67,19 @@ public class ReservationPollerTest {
 
   @Test
   public void pollerShouldRaiseOneChangingReservation() throws InterruptedException {
-    Reservation reservation = new ReservationFactory().setId(1L).setStatus(ReservationStatus.REQUESTED).create();
+    final Reservation reservation = new ReservationFactory().setId(1L).setStatus(ReservationStatus.REQUESTED).create();
 
     when(reservationServiceMock.findReservationsToPoll(any(DateTime.class))).thenReturn(
         Lists.newArrayList(reservation));
     when(reservationServiceMock.getStatus(reservation)).thenReturn(ReservationStatus.AUTO_START);
     when(reservationServiceMock.find(1L)).thenReturn(reservation);
+    when(reservationServiceMock.updateStatus(reservation, ReservationStatus.AUTO_START)).thenAnswer(new Answer<Reservation>() {
+      @Override
+      public Reservation answer(InvocationOnMock invocation) {
+        reservation.setStatus(ReservationStatus.AUTO_START);
+        return reservation;
+      }
+    });
 
     subject.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
 

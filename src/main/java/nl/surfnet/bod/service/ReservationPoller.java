@@ -130,8 +130,7 @@ public class ReservationPoller {
             logger.info("Status change detected {} -> {} for reservation {}", new Object[] { startStatus,
                 currentStatus, reservationFresh.getReservationId() });
 
-            reservationFresh.setStatus(currentStatus);
-            reservationService.update(reservationFresh, startStatus);
+            reservationFresh = reservationService.updateStatus(reservationFresh, currentStatus);
 
             Optional<NsiRequestDetails> requestDetails;
             if (reservationFresh.getConnection().isPresent()) {
@@ -151,7 +150,7 @@ public class ReservationPoller {
           Uninterruptibles.sleepUninterruptibly(pollingIntervalInMillis, TimeUnit.MILLISECONDS);
         }
       } catch (Exception e) {
-        logger.error("The poller failed for reservation " + reservation.getId(), e);
+        logger.error("The poller failed for reservation " + reservation.getId() + "/" + reservation.getReservationId(), e);
       }
     }
   }

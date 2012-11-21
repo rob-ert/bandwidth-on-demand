@@ -206,7 +206,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   @Test
   public void shouldReserveProvisionTerminate() throws Exception {
-    ReserveRequestType reservationRequest = createReserveRequest();
+    ReserveRequestType reservationRequest = createReserveRequest(Optional.of(DateTime.now().plusDays(1)), Optional.<DateTime>absent());
     final String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
     final String reserveCorrelationId = reservationRequest.getCorrelationId();
 
@@ -460,6 +460,9 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     final ReserveRequestType reservationRequest = createReserveRequest();
     final String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
 
+    final DummyReservationListener listener = new DummyReservationListener();
+    reservationEventPublisher.addListener(listener);
+
     runInThePast(4, TimeUnit.MINUTES, new TimeTraveller() {
       @Override
       public void apply() throws ServiceException {
@@ -470,6 +473,9 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
     ProvisionRequestType provisionRequest = createProvisionRequest(connectionId);
     nsiProvider.provision(provisionRequest);
+
+    // or RUNNING when poller just ran...
+    listener.waitForEventWithNewStatus(ReservationStatus.AUTO_START);
 
     reservationPoller.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
 
