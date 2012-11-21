@@ -39,6 +39,7 @@ public class ReservationRepoImpl implements ReservationRepoCustom {
   @PersistenceContext
   private EntityManager entityManager;
 
+  @Override
   public List<Long> findIdsWithWhereClause(final Specification<Reservation> whereClause) {
     final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
@@ -48,7 +49,6 @@ public class ReservationRepoImpl implements ReservationRepoCustom {
         .where(whereClause.toPredicate(root, criteriaQuery, criteriaBuilder));
 
     return entityManager.createQuery(criteriaQuery).getResultList();
-
   }
 
   public long countDistinctIdsWithWhereClause(final Specification<Reservation> whereClause) {

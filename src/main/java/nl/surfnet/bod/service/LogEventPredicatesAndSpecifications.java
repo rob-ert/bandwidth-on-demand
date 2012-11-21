@@ -22,6 +22,7 @@
 package nl.surfnet.bod.service;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -42,6 +43,7 @@ import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 
 import static nl.surfnet.bod.web.WebUtils.not;
 
@@ -102,31 +104,6 @@ public final class LogEventPredicatesAndSpecifications {
     return spec;
   }
 
-  public static Specification<LogEvent> specReservationIdsFromLogEventsCreatedBetweenWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
-      final Class<? extends Loggable> domainClass, final DateTime start, final DateTime end) {
-
-    final Specification<LogEvent> spec = new Specification<LogEvent>() {
-      final DateTime endOfStartDay = start.withTime(0, 0, 0, 0);
-
-      @Override
-      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-
-        Predicate createdOn = cb.between(root.get(LogEvent_.created), start, endOfStartDay);
-        Predicate nonFinalState = determineDetailLikePredicate(root, cb, LogEvent
-            .getStateChangeMessageNewStatusPart(ReservationStatus.TRANSITION_STATES_AS_ARRAY));
-        Predicate successFullyCreated = determineDetailLikePredicate(root, cb, LogEvent
-            .getStateChangeMessageNewStatusPart(ReservationStatus.SUCCESSFULLY_CREATED));
-
-        return cb.and(createdOn, nonFinalState, successFullyCreated);
-      }
-    };
-
-    // TODO specLogEventsByDomainClassAndCreatedBetween duplicate with
-    // createdOn?
-    return Specifications.where(specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end)).and(spec);
-
-  }
-
   static Specification<LogEvent> specLogEventsByDomainClassAndDescriptionPartBetween(
       final Class<? extends Loggable> domainClass, final DateTime start, final DateTime end, final String... textPart) {
 
@@ -165,7 +142,7 @@ public final class LogEventPredicatesAndSpecifications {
     return partPredicate;
   }
 
-  static Specification<LogEvent> specLatestStateForReservationBeforeWithStateIn(final Long reservationId,
+  static Specification<LogEvent> specLatestStateForReservationBeforeWithStateIn(final Optional<List<Long>> reservationIds,
       final DateTime before, final ReservationStatus... states) {
     final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
 
@@ -173,7 +150,7 @@ public final class LogEventPredicatesAndSpecifications {
       @Override
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
-        Predicate predicate = getPredicateForDomainObjectBefore(reservationId, before, domainObjectName, root, cb);
+        Predicate predicate = getPredicateForDomainObjectBefore(reservationIds, before, domainObjectName, root, cb);
 
         if (not(ArrayUtils.isEmpty(states))) {
           predicate = cb.and(predicate, cb.isNotNull(root.get(LogEvent_.newReservationStatus)), (root
@@ -186,14 +163,15 @@ public final class LogEventPredicatesAndSpecifications {
   }
 
   static Specification<LogEvent> specStateChangeFromOldToNewForReservationIdBefore(final ReservationStatus oldStatus,
-      final ReservationStatus newStatus, final Long reservationId, final DateTime before) {
+      final ReservationStatus newStatus, final List<Long> reservationIds, final DateTime before) {
     final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
 
     return new Specification<LogEvent>() {
       @Override
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
-        Predicate predicate = getPredicateForDomainObjectBefore(reservationId, before, domainObjectName, root, cb);
+        Predicate predicate = getPredicateForDomainObjectBefore(Optional.of(reservationIds), before, domainObjectName,
+            root, cb);
 
         predicate = cb.and(predicate, cb.equal(root.get(LogEvent_.oldReservationStatus), oldStatus), cb.equal(root
             .get(LogEvent_.newReservationStatus), newStatus));
@@ -204,11 +182,16 @@ public final class LogEventPredicatesAndSpecifications {
     };
   }
 
-  private static Predicate getPredicateForDomainObjectBefore(final Long reservationId, final DateTime before,
-      final String domainObjectName, Root<LogEvent> root, CriteriaBuilder cb) {
+  private static Predicate getPredicateForDomainObjectBefore(final Optional<List<Long>> reservationIds,
+      final DateTime before, final String domainObjectName, Root<LogEvent> root, CriteriaBuilder cb) {
+
     Predicate predicate = cb.and(cb.equal(root.get(LogEvent_.domainObjectClass), domainObjectName), cb
-        .lessThanOrEqualTo(root.get(LogEvent_.created), before), cb.equal(root.get(LogEvent_.domainObjectId),
-        reservationId));
+        .lessThanOrEqualTo(root.get(LogEvent_.created), before));
+
+    if (reservationIds.isPresent() && (not(CollectionUtils.isEmpty(reservationIds.get())))) {
+      predicate = cb.and(predicate, root.get(LogEvent_.domainObjectId).in(reservationIds.get()));
+    }
+
     return predicate;
   }
 }

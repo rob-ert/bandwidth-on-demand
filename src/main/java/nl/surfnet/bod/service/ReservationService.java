@@ -21,23 +21,29 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
-import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
-import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByDomainClassAndDescriptionPartBetween;
-import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.*;
-
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.NsiRequestDetails;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.ProtectionType;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationArchive;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationArchiveRepo;
@@ -67,7 +73,32 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
-import com.google.common.collect.*;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
+import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
+import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByDomainClassAndDescriptionPartBetween;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.forCurrentUser;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.forVirtualResourceGroup;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specActiveReservations;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specByPhysicalPort;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specByVirtualPort;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specByVirtualPortAndManager;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservations;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservationsForManager;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservationsForUser;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specFilteredReservationsForVirtualResourceGroup;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specReservationsThatAreTimedOutAndTransitionally;
+import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specReservationsThatCouldStart;
 
 @Service
 @Transactional
@@ -76,10 +107,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   private final ObjectMapper mapper = new ObjectMapper();
 
   public ReservationService() {
-    mapper.setVisibilityChecker(mapper.getSerializationConfig().getDefaultVisibilityChecker()
-        .withFieldVisibility(JsonAutoDetect.Visibility.ANY).withGetterVisibility(JsonAutoDetect.Visibility.NONE)
-        .withSetterVisibility(JsonAutoDetect.Visibility.NONE).withCreatorVisibility(JsonAutoDetect.Visibility.NONE)
-        .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE));
+    mapper.setVisibilityChecker(mapper.getSerializationConfig().getDefaultVisibilityChecker().withFieldVisibility(
+        JsonAutoDetect.Visibility.ANY).withGetterVisibility(JsonAutoDetect.Visibility.NONE).withSetterVisibility(
+        JsonAutoDetect.Visibility.NONE).withCreatorVisibility(JsonAutoDetect.Visibility.NONE).withIsGetterVisibility(
+        JsonAutoDetect.Visibility.NONE));
   }
 
   private final Function<Reservation, ReservationArchive> TO_RESERVATION_ARCHIVE = new Function<Reservation, ReservationArchive>() {
@@ -120,10 +151,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   @Resource
   private LogEventService logEventService;
 
-
   /**
    * Activates an existing reservation;
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to activate
    * @return true if the reservation was successfully activated, false otherwise
@@ -136,7 +166,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Creates a {@link Reservation} which is auto provisioned
-   *
+   * 
    * @param reservation
    * @See {@link #create(Reservation)}
    */
@@ -146,13 +176,13 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   /**
    * Reserves a reservation using the {@link NbiClient} asynchronously.
-   *
+   * 
    * @param reservation
    * @param autoProvision
    *          , indicates if the reservations should be automatically
    *          provisioned
    * @return ReservationId, scheduleId from NMS
-   *
+   * 
    */
   public Future<Long> create(Reservation reservation, boolean autoProvision,
       Optional<NsiRequestDetails> nsiRequestDetails) {
@@ -230,7 +260,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * Cancels a reservation if the current user has the correct role and the
    * reservation is allowed to be deleted depending on its state. Updates the
    * state of the reservation.
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to delete
    * @return the future with the resulting reservation, or null if delete is not
@@ -250,7 +280,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * <li>and</li>
    * <li>the current status of the reservation must allow it</li>
    * </ul>
-   *
+   * 
    * @param reservation
    *          {@link Reservation} to check
    * @param role
@@ -282,7 +312,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   /**
    * Finds all reservations which start or ends on the given dateTime and have a
    * status which can still change its status.
-   *
+   * 
    * @param dateTime
    *          {@link LocalDateTime} to search for
    * @return list of found Reservations
@@ -313,19 +343,16 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
         Reservation.class, start, end, LogEvent.getStateChangeMessageNewStatusPart(states)));
   }
 
-  public long countReservationsForNocWithProtectionTypeWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
-      ProtectionType protectionType, DateTime start, DateTime end) {
+  public long countReservationsNocForIdsWithProtectionTypeAndCreatedBefore(List<Long> reservationIds,
+      ProtectionType protectionType) {
     Preconditions.checkNotNull(protectionType);
-
-    List<Long> reservationIds = findReservationIdsFromLogEventsCreatedBetweenWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
-        Reservation.class, start, end);
 
     if (CollectionUtils.isEmpty(reservationIds)) {
       return 0;
     }
 
     return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationByProtectionTypeInIds(
-        Reservation.class, protectionType, reservationIds));
+        reservationIds, protectionType));
   }
 
   public long countReservationsForNocCreatedThroughChannelGUI(DateTime start, DateTime end) {
@@ -342,29 +369,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
   public long countActiveReservationsBetweenWithStatusIn(DateTime start, DateTime end, ReservationStatus... states) {
     long count = 0;
-    final Specification<Reservation> whereClause = ReservationPredicatesAndSpecifications
-        .specReservationStartBeforeAndEndInOrAfter(start, end);
 
-    for (Long id : reservationRepo.findIdsWithWhereClause(whereClause)) {
+    for (Long id : findReservationIdsBetween(start, end)) {
       LogEvent logEvent = logEventService.findLatestStateChangeForReservationIdBeforeWithStateIn(id, end, states);
-      if (logEvent != null) {
-        count++;
-      }
-    }
-
-    return count;
-  }
-
-  public long countActiveReservationsBetweenWithTransitionFromOldToNew(DateTime start, DateTime end,
-      ReservationStatus oldState, ReservationStatus newState) {
-
-    long count = 0;
-    final Specification<Reservation> whereClause = ReservationPredicatesAndSpecifications
-        .specReservationStartBeforeAndEndInOrAfter(start, end);
-
-    for (Long id : reservationRepo.findIdsWithWhereClause(whereClause)) {
-      LogEvent logEvent = logEventService.findStateChangeFromOldToNewForReservationIdBefore(RUNNING, FAILED, id, end);
-
       if (logEvent != null) {
         count++;
       }
@@ -401,9 +408,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       return new ElementActionView(true, "label_cancel");
     }
     else if (role.isManagerRole()
-        && (reservation.getSourcePort().getPhysicalResourceGroup().getId()
-            .equals(role.getPhysicalResourceGroupId().get()) || reservation.getDestinationPort()
-            .getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId().get()))) {
+        && (reservation.getSourcePort().getPhysicalResourceGroup().getId().equals(
+            role.getPhysicalResourceGroupId().get()) || reservation.getDestinationPort().getPhysicalResourceGroup()
+            .getId().equals(role.getPhysicalResourceGroupId().get()))) {
       return new ElementActionView(true, "label_cancel");
     }
     else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
@@ -430,8 +437,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
             + "from reservation UNION select distinct extract(year from end_date_time) from reservation")
         .getResultList();
 
-    ImmutableList<Integer> years = FluentIterable.from(dbYears).filter(Predicates.notNull())
-        .transform(new Function<Double, Integer>() {
+    ImmutableList<Integer> years = FluentIterable.from(dbYears).filter(Predicates.notNull()).transform(
+        new Function<Double, Integer>() {
           @Override
           public Integer apply(Double d) {
             return d.intValue();
@@ -524,7 +531,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
     Collection<ReservationArchive> reservationArchives = transformToReservationArchives(reservations);
 
-    System.out.println("reservationArchives: "+reservationArchives);
+    System.out.println("reservationArchives: " + reservationArchives);
 
     reservationArchiveRepo.save(reservationArchives);
     logEventService.logCreateEvent(Security.getUserDetails(), reservations, "Archived due to cancel");
@@ -546,8 +553,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public Collection<Reservation> findAllActiveByVirtualPortForManager(final VirtualPort port, final RichUserDetails user) {
-    return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations())
-        .and(specByVirtualPortAndManager(port, user)));
+    return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations()).and(
+        specByVirtualPortAndManager(port, user)));
   }
 
   public long countActiveReservationsForPhysicalPort(final PhysicalPort port) {
@@ -578,13 +585,17 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.findByReservationId(reservationId);
   }
 
-  @VisibleForTesting
-  List<Long> findReservationIdsFromLogEventsCreatedBetweenWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
-      final Class<? extends Loggable> domainClass, final DateTime start, final DateTime end) {
+  public List<Long> findReservationIdsBetween(DateTime start, DateTime end) {
 
-    Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
-        .specReservationIdsFromLogEventsCreatedBetweenWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(domainClass,
-            start, end);
+    final Specification<Reservation> whereClause = ReservationPredicatesAndSpecifications
+        .specReservationStartBeforeAndEndInOrAfter(start, end);
+
+    return reservationRepo.findIdsWithWhereClause(whereClause);
+  }
+
+  public List<Long> findReservationIdsBeforeWithLatestState(DateTime before, ReservationStatus... states) {
+    final Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
+        .specLatestStateForReservationBeforeWithStateIn(Optional.<List<Long>> absent(), before, states);
 
     return logEventService.findDistinctDomainObjectIdsWithWhereClause(whereClause);
   }
@@ -603,13 +614,34 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.findByStatusIn(Arrays.asList(states));
   }
 
-  public long countRunningActiveRunningReservationForNocWithStateBetween(ReservationStatus state, DateTime start,
-      DateTime end) {
+  /**
+   * Counts the amount of reservations in the between the given Start
+   * and end that are SUCCEEDED or transferred from AUTO_START -> CANCEL
+   * or transferred from RUNNING ->CANCEL
+   * 
+   * @param start
+   *          {@link DateTime} start of period
+   * @param end
+   *          {@link DateTime} end of period
+   * @return long totalAmount
+   */
+  public long countRunningReservationsSucceeded(DateTime start, DateTime end) {
+    List<Long> reservationIdsInPeriod = findReservationIdsBetween(start, end);
 
-    Specification<Reservation> spec = ReservationPredicatesAndSpecifications
-        .specReservationStartBeforeEndInOrAfterWithState(state, start, end);
+    final Specification<LogEvent> specSucceeded = LogEventPredicatesAndSpecifications
+        .specLatestStateForReservationBeforeWithStateIn(Optional.<List<Long>> of(reservationIdsInPeriod), end,
+            SUCCEEDED);
 
-    return reservationRepo.count(spec);
+    final Specification<LogEvent> specAutoStartToCancelled = LogEventPredicatesAndSpecifications
+        .specStateChangeFromOldToNewForReservationIdBefore(AUTO_START, CANCELLED, reservationIdsInPeriod, end);
+
+    final Specification<LogEvent> specRunningToCancelled = LogEventPredicatesAndSpecifications
+        .specStateChangeFromOldToNewForReservationIdBefore(RUNNING, CANCELLED, reservationIdsInPeriod, end);
+
+    final Specifications<LogEvent> specRunningReservations = Specifications.where(specSucceeded).or(
+        specAutoStartToCancelled).or(specRunningToCancelled);
+
+    return logEventService.countDistinctDomainObjectId(specRunningReservations);
   }
 
   @VisibleForTesting
@@ -620,7 +652,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public Reservation findByConnectionId(String connectionId) {
     return reservationRepo.findByConnectionConnectionId(connectionId);
   }
-  
+
   public long countActiveReservationsByVirtualPorts(List<VirtualPort> virtualPorts) {
     final Specification<Reservation> whereClause = ReservationPredicatesAndSpecifications
         .specActiveByVirtualPorts(virtualPorts);

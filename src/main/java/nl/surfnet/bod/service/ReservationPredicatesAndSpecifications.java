@@ -229,14 +229,14 @@ public class ReservationPredicatesAndSpecifications {
     return specficiation;
   }
 
-  static Specification<Reservation> specReservationByProtectionTypeInIds(final Class<Reservation> reservationClass,
-      final ProtectionType protectionType, final List<Long> reservationIds) {
+  static Specification<Reservation> specReservationByProtectionTypeInIds(final List<Long> reservationIds,
+      final ProtectionType protectionType) {
 
     final Specification<Reservation> spec = new Specification<Reservation>() {
 
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        Predicate protectionTypeIs = cb.equal(root.get(Reservation_.protectionType), protectionType);
+        final Predicate protectionTypeIs = cb.equal(root.get(Reservation_.protectionType), protectionType);
         final Predicate reservationIdIn = root.get(Reservation_.id).in(reservationIds);
         return cb.and(protectionTypeIs, reservationIdIn);
       }
@@ -281,7 +281,10 @@ public class ReservationPredicatesAndSpecifications {
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
         final Predicate startInOrBeforePeriod = cb.lessThanOrEqualTo(root.get(Reservation_.startDateTime), end);
-        final Predicate endInOrAfterPeriod = cb.greaterThanOrEqualTo(root.get(Reservation_.endDateTime), start);
+
+        // Infinite reservations have no endDate
+        final Predicate endInOrAfterPeriod = cb.or(cb.isNull(root.get(Reservation_.endDateTime)), cb
+            .greaterThanOrEqualTo(root.get(Reservation_.endDateTime), start));
 
         return cb.and(startInOrBeforePeriod, endInOrAfterPeriod);
       }

@@ -21,10 +21,13 @@
  */
 package nl.surfnet.bod.web.noc;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.service.LogEventService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.security.RichUserDetails;
@@ -38,6 +41,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+
 @Controller("nocReportController")
 @RequestMapping(ReportController.PAGE_URL)
 public class ReportController {
@@ -48,6 +53,9 @@ public class ReportController {
 
   @Resource
   private ReservationService reservationService;
+
+  @Resource
+  private LogEventService logEventService;
 
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
@@ -99,33 +107,31 @@ public class ReportController {
 
   private void determineReservationsForProtectionType(NocReservationReport nocReservationReport) {
     final DateTime start = nocReservationReport.getPeriodStart();
-    final DateTime end = nocReservationReport.getPeriodEnd();
+
+    List<Long> reservationIds = reservationService.findReservationIdsBeforeWithLatestState(start,
+        ReservationStatus.TRANSITION_STATES_AS_ARRAY);
 
     nocReservationReport.setAmountReservationsProtected(reservationService
-        .countReservationsForNocWithProtectionTypeWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
-            ProtectionType.PROTECTED, start, end));
+        .countReservationsNocForIdsWithProtectionTypeAndCreatedBefore(reservationIds, ProtectionType.PROTECTED));
+
     nocReservationReport.setAmountReservationsUnprotected(reservationService
-        .countReservationsForNocWithProtectionTypeWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
-            ProtectionType.UNPROTECTED, start, end));
+        .countReservationsNocForIdsWithProtectionTypeAndCreatedBefore(reservationIds, ProtectionType.UNPROTECTED));
+
     nocReservationReport.setAmountReservationsRedundant(reservationService
-        .countReservationsForNocWithProtectionTypeWithNonFinalStateOnStartAndSuccesfullyCreatedBetween(
-            ProtectionType.REDUNDANT, start, end));
+        .countReservationsNocForIdsWithProtectionTypeAndCreatedBefore(reservationIds, ProtectionType.REDUNDANT));
   }
 
   private void determineActiveRunningReservations(NocReservationReport nocReservationReport) {
     final DateTime start = nocReservationReport.getPeriodStart();
     final DateTime end = nocReservationReport.getPeriodEnd();
 
-    nocReservationReport.setAmountRunningReservationsSucceeded(reservationService
-        .countActiveReservationsBetweenWithStatusIn(start, end, ReservationStatus.TECHNICALLY_SUCCESFULL));
-
-    nocReservationReport.setAmountRunningReservationsFailed(reservationService
-        .countActiveReservationsBetweenWithStatusIn(start, end, ReservationStatus.FAILED));
+    nocReservationReport.setAmountRunningReservationsSucceeded(reservationService.countRunningReservationsSucceeded(
+        start, end));
 
     nocReservationReport.setAmountRunningReservationsNeverProvisioned(reservationService
-        .countActiveReservationsBetweenWithStatusIn(start, end, ReservationStatus.RUNNING));
-
-    nocReservationReport.setAmountRunningReservationsFailed(reservationService
         .countActiveReservationsBetweenWithStatusIn(start, end, ReservationStatus.TIMED_OUT));
+
+    nocReservationReport.setAmounRunningReservationsStillRunning(reservationService
+        .countActiveReservationsBetweenWithStatusIn(start, end, RUNNING));
   }
 }

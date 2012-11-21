@@ -21,10 +21,6 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -32,7 +28,12 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.repo.*;
+import nl.surfnet.bod.repo.InstituteRepo;
+import nl.surfnet.bod.repo.PhysicalPortRepo;
+import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
+import nl.surfnet.bod.repo.ReservationRepo;
+import nl.surfnet.bod.repo.VirtualPortRepo;
+import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.DateMidnight;
@@ -46,6 +47,10 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml",

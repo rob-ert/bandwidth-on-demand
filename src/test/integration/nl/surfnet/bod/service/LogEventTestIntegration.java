@@ -56,7 +56,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml",
+@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
     "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
 @Transactional
@@ -75,6 +75,8 @@ public class LogEventTestIntegration {
 
   @BeforeTransaction
   public void setUp() {
+
+    logEventRepo.deleteAll();
 
     Reservation reservationOne = new ReservationFactory().setId(ONE).create();
     Reservation reservationTwo = new ReservationFactory().setId(TWO).create();
@@ -114,10 +116,6 @@ public class LogEventTestIntegration {
   public void shouldFindLogEventsForSetUp() {
     final int expectedAmount = 8;
     assertThat(subject.count(), is(new Long(expectedAmount)));
-
-    for (LogEvent logEvent : subject.findAll(0, expectedAmount, null)) {
-      System.err.println(logEvent);
-    }
   }
 
   @Test

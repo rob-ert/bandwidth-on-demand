@@ -62,7 +62,8 @@ public class NocReservationReport {
   }
 
   public long getTotalReservations() {
-    return amountReservationsProtected + amountReservationsUnprotected + amountReservationsRedundant;
+    return amountReservationsProtected + amountReservationsUnprotected + amountReservationsRedundant
+        + amountRequestsCreatedSucceeded;
   }
 
   public long getTotalActiveReservations() {
@@ -81,7 +82,7 @@ public class NocReservationReport {
   public long getTotalAmountRequestsCancelled() {
     return amountRequestsCancelSucceeded + amountRequestsCancelFailed;
   }
-  
+
   public long getAmountRequestsCreatedSucceeded() {
     return amountRequestsCreatedSucceeded;
   }

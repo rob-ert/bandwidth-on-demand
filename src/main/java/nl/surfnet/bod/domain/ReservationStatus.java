@@ -37,13 +37,6 @@ public enum ReservationStatus {
   public static final Set<ReservationStatus> ERROR_STATES = EnumSet.of(FAILED, NOT_ACCEPTED, TIMED_OUT, CANCEL_FAILED);
 
   /**
-   * All states that are or could have succeed, seen from the SURFnet viewpoint.
-   * If a user cancels his reservation, it is not a technical fault, but a
-   * functional user decision
-   */
-  public static final ReservationStatus[] TECHNICALLY_SUCCESFULL = { SUCCEEDED, CANCELLED };
-
-  /**
    * All states that could transfer to a RUNNING state
    */
   public static final Set<ReservationStatus> COULD_START_STATES = EnumSet
@@ -83,7 +76,7 @@ public enum ReservationStatus {
   /**
    * @return true if a Reservation is allowed to be delete, only based on its
    *         state.
-   *
+   * 
    */
   public boolean isDeleteAllowed() {
     return isTransitionState();
