@@ -61,7 +61,6 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 
 import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
-import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByDomainClassAndCreatedBetween;
 
 @Service
 public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
@@ -185,19 +184,6 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(determinGroupsToSearchFor)));
   }
 
-  public List<LogEvent> findByDomainClassCreatedBetweenForNoc(final Class<? extends Loggable> domainClass,
-      DateTime start, DateTime end) {
-
-    return logEventRepo.findAll(specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end));
-  }
-
-  public List<Long> findDomainObjectIdsByDomainClassCreatedBetweenForNoc(final Class<? extends Loggable> domainClass,
-      DateTime start, DateTime end) {
-
-    return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(LogEventPredicatesAndSpecifications
-        .specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end));
-  }
-
   public List<Long> findDomainObjectIdsByDomainClassCreatedBetweenForNocWithState(
       final Class<? extends Loggable> domainClass, DateTime start, DateTime end, ReservationStatus state) {
 
@@ -226,16 +212,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
         before, states);
   }
 
-  public long countLatestStateChangeForReservationIdBetweenWithStateIn(Long id, DateTime start, DateTime end,
-      ReservationStatus... states) {
-
-    Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
-        .specLatestStateForReservationBetweenWithStateIn(Optional.<List<Long>> of(Lists.newArrayList(id)), start, end,
-            states);
-
-    return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(whereClause).size();
-  }
-
+  
   public LogEvent findLatestStateChangeForReservationIdBeforeWithStateIn(Optional<List<Long>> reservationIds,
       DateTime before, ReservationStatus... states) {
 

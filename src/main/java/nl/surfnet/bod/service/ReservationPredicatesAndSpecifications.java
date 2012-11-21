@@ -64,13 +64,10 @@ public class ReservationPredicatesAndSpecifications {
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
         Long prgId = manager.getSelectedRole().getPhysicalResourceGroupId().get();
-        return cb.and(cb.or(
-            cb.equal(
-                root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort)
-                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId),
-            cb.equal(
-                root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort)
-                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId)));
+        return cb.and(cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort).get(
+            PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId), cb.equal(root.get(
+            Reservation_.destinationPort).get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(
+            PhysicalResourceGroup_.id), prgId)));
       }
     };
   }
@@ -79,8 +76,8 @@ public class ReservationPredicatesAndSpecifications {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(root.get(Reservation_.virtualResourceGroup).get(VirtualResourceGroup_.surfconextGroupId)
-            .in(user.getUserGroupIds()));
+        return cb.and(root.get(Reservation_.virtualResourceGroup).get(VirtualResourceGroup_.surfconextGroupId).in(
+            user.getUserGroupIds()));
       }
     };
   }
@@ -126,8 +123,8 @@ public class ReservationPredicatesAndSpecifications {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort), port),
-            cb.equal(root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort), port));
+        return cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort), port), cb.equal(root
+            .get(Reservation_.destinationPort).get(VirtualPort_.physicalPort), port));
       }
     };
   }
@@ -137,13 +134,10 @@ public class ReservationPredicatesAndSpecifications {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
         final Long prgId = user.getSelectedRole().getPhysicalResourceGroupId().get();
-        return cb.and(cb.or(
-            cb.equal(
-                root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort)
-                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId),
-            cb.equal(
-                root.get(Reservation_.destinationPort).get(VirtualPort_.physicalPort)
-                    .get(PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId)));
+        return cb.and(cb.or(cb.equal(root.get(Reservation_.sourcePort).get(VirtualPort_.physicalPort).get(
+            PhysicalPort_.physicalResourceGroup).get(PhysicalResourceGroup_.id), prgId), cb.equal(root.get(
+            Reservation_.destinationPort).get(VirtualPort_.physicalPort).get(PhysicalPort_.physicalResourceGroup).get(
+            PhysicalResourceGroup_.id), prgId)));
       }
     };
   }
@@ -152,8 +146,8 @@ public class ReservationPredicatesAndSpecifications {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(cb.equal(root.get(Reservation_.sourcePort), port),
-            cb.equal(root.get(Reservation_.destinationPort), port));
+        return cb.or(cb.equal(root.get(Reservation_.sourcePort), port), cb.equal(
+            root.get(Reservation_.destinationPort), port));
       }
     };
   }
@@ -164,8 +158,8 @@ public class ReservationPredicatesAndSpecifications {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
-        return cb.and((cb.or(root.get(Reservation_.sourcePort).in(virtualPorts),
-            root.get(Reservation_.destinationPort).in(virtualPorts))), (root.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES)));
+        return cb.and((cb.or(root.get(Reservation_.sourcePort).in(virtualPorts), root.get(Reservation_.destinationPort)
+            .in(virtualPorts))), (root.get(Reservation_.status).in(ReservationStatus.TRANSITION_STATES)));
       }
     };
   }
@@ -208,8 +202,8 @@ public class ReservationPredicatesAndSpecifications {
     Specification<Reservation> filterSpecOnEnd = new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.or(cb.isNull(root.get(Reservation_.endDateTime)),
-            cb.between(root.get(Reservation_.endDateTime), filter.getStart(), filter.getEnd()));
+        return cb.or(cb.isNull(root.get(Reservation_.endDateTime)), cb.between(root.get(Reservation_.endDateTime),
+            filter.getStart(), filter.getEnd()));
       }
     };
 
@@ -291,33 +285,6 @@ public class ReservationPredicatesAndSpecifications {
     };
 
     return spec;
-  }
-
-  /**
-   * Specification which AND's the given state with the
-   * {@link #specReservationStartBeforeAndEndInOrAfter(DateTime, DateTime)}
-   * Specification
-   * 
-   * @see #specReservationStartBeforeAndEndInOrAfter(DateTime, DateTime)
-   * @param state
-   *          {@link ReservationStatus} State to search for
-   * @param start
-   *          {@link DateTime} start of period
-   * @param end
-   *          {@link DateTime} end of period
-   * @return
-   */
-  public static Specification<Reservation> specReservationStartBeforeEndInOrAfterWithState(
-      final ReservationStatus state, final DateTime start, final DateTime end) {
-
-    Specification<Reservation> spec = new Specification<Reservation>() {
-
-      @Override
-      public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.equal(root.get(Reservation_.status), state);
-      }
-    };
-    return Specifications.where(spec).and(specReservationStartBeforeAndEndInOrAfter(start, end));
   }
 
 }

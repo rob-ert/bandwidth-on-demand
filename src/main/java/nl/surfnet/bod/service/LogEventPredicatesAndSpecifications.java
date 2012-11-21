@@ -33,7 +33,6 @@ import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.event.LogEvent_;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -61,29 +60,6 @@ public final class LogEventPredicatesAndSpecifications {
     };
   }
 
-  static Specification<LogEvent> specStatistics(Collection<String> adminGroups, final LogEventType eventType,
-      final Class<? extends Loggable> domainClass, final DateTime start, final DateTime end) {
-
-    final Specification<LogEvent> specStatistics = new Specification<LogEvent>() {
-
-      @Override
-      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-
-        Predicate eventTypeIs = cb.equal(root.get(LogEvent_.eventType), eventType);
-
-        return cb.and(eventTypeIs, specLogEventsByDomainClassAndCreatedBetween(domainClass, start, end).toPredicate(
-            root, query, cb));
-      }
-    };
-
-    if (CollectionUtils.isEmpty(adminGroups)) {
-      return specStatistics;
-    }
-    else {
-      return Specifications.where(specLogEventsByAdminGroups(adminGroups)).and(specStatistics);
-    }
-  }
-
   static Specification<LogEvent> specLogEventsByDomainClassAndCreatedBetween(
       final Class<? extends Loggable> domainClass, final DateTime start, final DateTime end) {
 
@@ -103,11 +79,6 @@ public final class LogEventPredicatesAndSpecifications {
     return spec;
   }
 
-  
-  
-  
-  
-  
   static Specification<LogEvent> specLatestStateForReservationBeforeWithStateIn(
       final Optional<List<Long>> reservationIds, final DateTime before, final ReservationStatus... states) {
     final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
