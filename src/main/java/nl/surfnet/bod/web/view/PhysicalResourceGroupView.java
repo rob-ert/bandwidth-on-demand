@@ -115,4 +115,67 @@ public class PhysicalResourceGroupView {
     return builder.toString();
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((active == null) ? 0 : active.hashCode());
+    result = prime * result + ((adminGroup == null) ? 0 : adminGroup.hashCode());
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((institute == null) ? 0 : institute.hashCode());
+    result = prime * result + ((managerEmail == null) ? 0 : managerEmail.hashCode());
+    result = prime * result + physicalPortsAmount;
+    result = prime * result + reservationsAmount;
+    result = prime * result + virtualPortsAmount;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    PhysicalResourceGroupView other = (PhysicalResourceGroupView) obj;
+    if (active == null) {
+      if (other.active != null)
+        return false;
+    }
+    else if (!active.equals(other.active))
+      return false;
+    if (adminGroup == null) {
+      if (other.adminGroup != null)
+        return false;
+    }
+    else if (!adminGroup.equals(other.adminGroup))
+      return false;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    }
+    else if (!id.equals(other.id))
+      return false;
+    if (institute == null) {
+      if (other.institute != null)
+        return false;
+    }
+    else if (!institute.equals(other.institute))
+      return false;
+    if (managerEmail == null) {
+      if (other.managerEmail != null)
+        return false;
+    }
+    else if (!managerEmail.equals(other.managerEmail))
+      return false;
+    if (physicalPortsAmount != other.physicalPortsAmount)
+      return false;
+    if (reservationsAmount != other.reservationsAmount)
+      return false;
+    if (virtualPortsAmount != other.virtualPortsAmount)
+      return false;
+    return true;
+  }
+
 }

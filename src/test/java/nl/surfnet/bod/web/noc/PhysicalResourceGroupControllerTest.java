@@ -113,13 +113,10 @@ public class PhysicalResourceGroupControllerTest {
 
     subject.list(1, null, null, model);
 
-    final Map<String, Object> asMap = model.asMap();
-    System.out.println(asMap.get("list"));
-    
-    // FIXME: Broken after my last change, but I still want to commit and push some changes.
-//    assertThat(asMap, hasEntry("list", Object.class.cast(groupViews)));
-
-    assertThat(asMap, hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
+    @SuppressWarnings("unchecked")
+    final List<PhysicalResourceGroupView> physicalResourceGroupViews = (List<PhysicalResourceGroupView>) model.asMap().get("list");
+    assertThat(groupViews.get(0), is(physicalResourceGroupViews.get(0)));
+    assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
   }
 
   @Test
