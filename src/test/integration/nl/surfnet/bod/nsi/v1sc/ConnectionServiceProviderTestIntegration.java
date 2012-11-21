@@ -43,8 +43,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.domain.oauth.NsiScope;
-import nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions;
-import nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderWs;
 import nl.surfnet.bod.repo.*;
 import nl.surfnet.bod.service.*;
 import nl.surfnet.bod.support.*;
@@ -481,6 +479,31 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
     awaitProvisionConfirmed();
   }
 
+  @Test
+  public void connectionWithNoProvisionShouldMoveToScheduledAfterStartTime() throws Exception {
+    final ReserveRequestType reservationRequest = createReserveRequest();
+    final String connectionId = reservationRequest.getReserve().getReservation().getConnectionId();
+
+    final DummyReservationListener listener = new DummyReservationListener();
+    reservationEventPublisher.addListener(listener);
+
+    runInThePast(4, TimeUnit.MINUTES, new TimeTraveller() {
+      @Override
+      public void apply() throws ServiceException {
+        nsiProvider.reserve(reservationRequest);
+        awaitReserveConfirmed();
+      }
+    });
+
+    reservationPoller.pollReservationsThatAreAboutToChangeStatusOrShouldHaveChanged();
+
+    listener.waitForEventWithNewStatus(ReservationStatus.SCHEDULED);
+
+    Connection connection = connectionRepo.findByConnectionId(connectionId);
+    entityManager.refresh(connection);
+    assertThat(connection.getCurrentState(), is(ConnectionStateType.SCHEDULED));
+  }
+
   private void runInThePast(long seconds, TimeUnit unit, TimeTraveller runnable) {
     try {
       DateTimeUtils.setCurrentMillisOffset(- unit.toMillis(seconds));
@@ -564,7 +587,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
   }
 
   private String awaitRequestFor(String responseTag) {
-    String response = nsiRequester.awaitRequest(60, TimeUnit.SECONDS);
+    String response = nsiRequester.awaitRequest(10, TimeUnit.SECONDS);
     assertThat(response, containsString(responseTag));
     return response;
   }

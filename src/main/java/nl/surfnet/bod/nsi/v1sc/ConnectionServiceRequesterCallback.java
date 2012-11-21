@@ -154,10 +154,21 @@ public class ConnectionServiceRequesterCallback {
   }
 
   public void provisionSucceeded(Connection connection) {
-    // no need to inform the client,
-    // a provision confirmed is only send when the reservation is running
-    // (connection is provisioned)
+    // no need to inform the requester
+    // a provision confirmed is only send when the reservation is running/provisioned
     connection.setCurrentState(ConnectionStateType.AUTO_PROVISION);
+    connectionRepo.save(connection);
+  }
+
+  public void executionSucceeded(Connection connection) {
+    // no need to inform the requester
+    connection.setCurrentState(ConnectionStateType.TERMINATED);
+    connectionRepo.save(connection);
+  }
+
+  public void scheduleSucceeded(Connection connection) {
+    // no need to inform the requester
+    connection.setCurrentState(ConnectionStateType.SCHEDULED);
     connectionRepo.save(connection);
   }
 

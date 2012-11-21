@@ -150,7 +150,7 @@ class NbiOfflineClient implements NbiClient {
 
     scheduleIds.put(scheduleId, new OfflineReservation(reservation));
 
-    log.warn("Created reservation using MOCK with id: {}", reservation.getReservationId());
+    log.warn("NBI MOCK created reservation with id: {}", reservation.getReservationId());
 
     // Imitate the online client..
     Uninterruptibles.sleepUninterruptibly(3, TimeUnit.SECONDS);

@@ -101,8 +101,15 @@ public class ConnectionServiceProviderListener implements ReservationListener {
       case CANCEL_FAILED:
         connectionServiceRequester.terminateFailed(connection, event.getNsiRequestDetails());
         break;
-      default:
-        logger.error("Unhandled status {} of reservation {}", event.getNewStatus(), event.getReservation());
+      case SUCCEEDED:
+        connectionServiceRequester.executionSucceeded(connection);
+        break;
+      case SCHEDULED:
+        connectionServiceRequester.scheduleSucceeded(connection);
+        break;
+      case REQUESTED:
+        logger.error("Can not handle REQUESTED state. Could not happen because it is the initial state");
+        break;
       }
     }
     catch (Exception e) {

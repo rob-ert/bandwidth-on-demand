@@ -32,8 +32,6 @@ import nl.surfnet.bod.domain.Connection;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderListener;
-import nl.surfnet.bod.nsi.v1sc.ConnectionServiceRequesterCallback;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 import nl.surfnet.bod.support.ConnectionFactory;
@@ -148,5 +146,19 @@ public class ConnectionServiceProviderListenerTest {
     subject.onStatusChange(event);
 
     verify(connectionServiceRequesterMock).provisionConfirmed(connection, requestDetails.get());
+  }
+
+  @Test
+  public void succeedShouldTerminate() {
+    Optional<NsiRequestDetails> requestDetails = Optional.of(new NsiRequestDetails("http://localhost/reply", "123456789"));
+    Connection connection = new ConnectionFactory().setCurrentState(ConnectionStateType.PROVISIONED).create();
+    Reservation reservation = new ReservationFactory().setStatus(SUCCEEDED).setConnection(connection).create();
+    ReservationStatusChangeEvent event = new ReservationStatusChangeEvent(RUNNING, reservation, requestDetails);
+
+    when(reservationServiceMock.find(reservation.getId())).thenReturn(reservation);
+
+    subject.onStatusChange(event);
+
+    verify(connectionServiceRequesterMock).executionSucceeded(connection);
   }
 }
