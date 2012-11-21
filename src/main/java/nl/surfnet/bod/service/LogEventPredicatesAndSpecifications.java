@@ -42,7 +42,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.util.CollectionUtils;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 
 import static nl.surfnet.bod.web.WebUtils.not;
@@ -104,46 +103,13 @@ public final class LogEventPredicatesAndSpecifications {
     return spec;
   }
 
-  static Specification<LogEvent> specLogEventsByDomainClassAndDescriptionPartBetween(
-      final Class<? extends Loggable> domainClass, final DateTime start, final DateTime end, final String... textPart) {
-
-    final Specification<LogEvent> spec = new Specification<LogEvent>() {
-
-      @Override
-      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-
-        Predicate domainClassPredicate = cb.and(cb.equal(root.get(LogEvent_.domainObjectClass), LogEvent
-            .getDomainObjectName(domainClass)), cb.between(root.get(LogEvent_.created), start, end));
-
-        Predicate detailPredicate = determineDetailLikePredicate(root, cb, textPart);
-
-        return detailPredicate == null ? domainClassPredicate : cb.and(domainClassPredicate, detailPredicate);
-      }
-
-    };
-    return spec;
-  }
-
-  @VisibleForTesting
-  static Predicate determineDetailLikePredicate(final Root<LogEvent> root, final CriteriaBuilder cb,
-      final String... textPart) {
-
-    Predicate partPredicate = null;
-    if (textPart != null) {
-      Predicate textPartPredicate = null;
-      for (String part : textPart) {
-        part = "%".concat(part).concat("%");
-
-        textPartPredicate = cb.like(root.get(LogEvent_.details), part);
-
-        partPredicate = (partPredicate == null ? textPartPredicate : cb.or(textPartPredicate, partPredicate));
-      }
-    }
-    return partPredicate;
-  }
-
-  static Specification<LogEvent> specLatestStateForReservationBeforeWithStateIn(final Optional<List<Long>> reservationIds,
-      final DateTime before, final ReservationStatus... states) {
+  
+  
+  
+  
+  
+  static Specification<LogEvent> specLatestStateForReservationBeforeWithStateIn(
+      final Optional<List<Long>> reservationIds, final DateTime before, final ReservationStatus... states) {
     final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
 
     return new Specification<LogEvent>() {
@@ -160,6 +126,23 @@ public final class LogEventPredicatesAndSpecifications {
         return predicate;
       }
     };
+  }
+
+  static Specification<LogEvent> specLatestStateForReservationBetweenWithStateIn(
+      final Optional<List<Long>> reservationIds, final DateTime start, final DateTime end,
+      final ReservationStatus... states) {
+
+    Specification<LogEvent> specBetween = new Specification<LogEvent>() {
+
+      @Override
+      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        return cb.greaterThanOrEqualTo(root.get(LogEvent_.created), start);
+      }
+    };
+
+    Specification<LogEvent> specBefore = specLatestStateForReservationBeforeWithStateIn(reservationIds, end, states);
+
+    return Specifications.where(specBefore).and(specBetween);
   }
 
   static Specification<LogEvent> specStateChangeFromOldToNewForReservationIdBefore(final ReservationStatus oldStatus,

@@ -41,6 +41,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 
 @Controller("nocReportController")
@@ -93,9 +95,11 @@ public class ReportController {
 
     // No modify requests yet, init on zero
 
-    // Cancel requests will never fail (init on zero), only succeed
     nocReservationReport.setAmountRequestsCancelSucceeded(reservationService
         .countReservationsForNocWithEndStateBetween(start, end, ReservationStatus.CANCELLED));
+
+    nocReservationReport.setAmountRequestsCancelFailed(reservationService.countReservationsForNocWithEndStateBetween(
+        start, end, ReservationStatus.CANCEL_FAILED));
 
     // Actual Reservations by channel
     nocReservationReport.setAmountRequestsThroughGUI(reservationService
@@ -105,7 +109,8 @@ public class ReportController {
         - nocReservationReport.getAmountRequestsThroughGUI());
   }
 
-  private void determineReservationsForProtectionType(NocReservationReport nocReservationReport) {
+  @VisibleForTesting
+  void determineReservationsForProtectionType(NocReservationReport nocReservationReport) {
     final DateTime start = nocReservationReport.getPeriodStart();
 
     List<Long> reservationIds = reservationService.findReservationIdsBeforeWithLatestState(start,
@@ -121,7 +126,8 @@ public class ReportController {
         .countReservationsNocForIdsWithProtectionTypeAndCreatedBefore(reservationIds, ProtectionType.REDUNDANT));
   }
 
-  private void determineActiveRunningReservations(NocReservationReport nocReservationReport) {
+  @VisibleForTesting
+  void determineActiveRunningReservations(NocReservationReport nocReservationReport) {
     final DateTime start = nocReservationReport.getPeriodStart();
     final DateTime end = nocReservationReport.getPeriodEnd();
 

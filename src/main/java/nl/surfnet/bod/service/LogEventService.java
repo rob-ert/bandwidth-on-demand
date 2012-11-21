@@ -201,9 +201,8 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   public List<Long> findDomainObjectIdsByDomainClassCreatedBetweenForNocWithState(
       final Class<? extends Loggable> domainClass, DateTime start, DateTime end, ReservationStatus state) {
 
-    Specification<LogEvent> spec = LogEventPredicatesAndSpecifications
-        .specLogEventsByDomainClassAndDescriptionPartBetween(domainClass, start, end, LogEvent
-            .getStateChangeMessageNewStatusPart(state));
+    Specification<LogEvent> spec = LogEventPredicatesAndSpecifications.specLatestStateForReservationBetweenWithStateIn(
+        Optional.<List<Long>> absent(), start, end, state);
 
     return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(spec);
   }
@@ -225,6 +224,16 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
     return findLatestStateChangeForReservationIdBeforeWithStateIn(Optional.<List<Long>> of(Lists.newArrayList(id)),
         before, states);
+  }
+
+  public long countLatestStateChangeForReservationIdBetweenWithStateIn(Long id, DateTime start, DateTime end,
+      ReservationStatus... states) {
+
+    Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
+        .specLatestStateForReservationBetweenWithStateIn(Optional.<List<Long>> of(Lists.newArrayList(id)), start, end,
+            states);
+
+    return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(whereClause).size();
   }
 
   public LogEvent findLatestStateChangeForReservationIdBeforeWithStateIn(Optional<List<Long>> reservationIds,

@@ -86,7 +86,6 @@ import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
 import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
-import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByDomainClassAndDescriptionPartBetween;
 import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.forCurrentUser;
 import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.forVirtualResourceGroup;
 import static nl.surfnet.bod.service.ReservationPredicatesAndSpecifications.specActiveReservations;
@@ -333,14 +332,13 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
         Preconditions.checkArgument(status.isEndState());
     }
 
-    return logEventService.count(specLogEventsByDomainClassAndDescriptionPartBetween(Reservation.class, start, end,
-        LogEvent.getStateChangeMessageNewStatusPart(states)));
+    return countReservationsForNocWhichHadStateBetween(start, end, states);
   }
 
   public long countReservationsForNocWhichHadStateBetween(DateTime start, DateTime end, ReservationStatus... states) {
 
-    return logEventService.countDistinctDomainObjectId(specLogEventsByDomainClassAndDescriptionPartBetween(
-        Reservation.class, start, end, LogEvent.getStateChangeMessageNewStatusPart(states)));
+    return logEventService.countDistinctDomainObjectId(LogEventPredicatesAndSpecifications
+        .specLatestStateForReservationBetweenWithStateIn(Optional.<List<Long>> absent(), start, end, states));
   }
 
   public long countReservationsNocForIdsWithProtectionTypeAndCreatedBefore(List<Long> reservationIds,
@@ -615,9 +613,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   /**
-   * Counts the amount of reservations in the between the given Start
-   * and end that are SUCCEEDED or transferred from AUTO_START -> CANCEL
-   * or transferred from RUNNING ->CANCEL
+   * Counts the amount of reservations in the between the given Start and end
+   * that are SUCCEEDED or transferred from AUTO_START -> CANCEL or transferred
+   * from RUNNING ->CANCEL
    * 
    * @param start
    *          {@link DateTime} start of period
