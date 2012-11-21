@@ -93,22 +93,6 @@ public final class LogEventPredicatesAndSpecifications {
     };
   }
 
-  static Specification<LogEvent> specStateChangeFromOldToNewForReservationIdBefore(final ReservationStatus oldStatus,
-      final ReservationStatus newStatus, final Optional<List<Long>> reservationIds, final DateTime before) {
-
-    return new Specification<LogEvent>() {
-      final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
-
-      @Override
-      public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-
-        Predicate predicate = getPredicateForDomainObjectBefore(root, cb, reservationIds, before, domainObjectName);
-
-        return cb.and(predicate, getPredicateForStateTransition(root, cb, oldStatus, newStatus));
-      }
-    };
-  }
-
   static Specification<LogEvent> specStateChangeFromOldToNewForReservationIdBetween(final ReservationStatus oldStatus,
       final ReservationStatus newStatus, final Optional<List<Long>> reservationIds, final DateTime start,
       final DateTime end) {

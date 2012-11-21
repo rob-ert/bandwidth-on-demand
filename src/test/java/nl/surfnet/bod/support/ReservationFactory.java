@@ -23,7 +23,12 @@ package nl.surfnet.bod.support;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.Connection;
+import nl.surfnet.bod.domain.ProtectionType;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.web.WebUtils;
 
 import org.joda.time.DateTime;

@@ -28,13 +28,7 @@ import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.repo.InstituteRepo;
-import nl.surfnet.bod.repo.PhysicalPortRepo;
-import nl.surfnet.bod.repo.PhysicalResourceGroupRepo;
 import nl.surfnet.bod.repo.ReservationRepo;
-import nl.surfnet.bod.repo.VirtualPortRepo;
-import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
-import nl.surfnet.bod.support.ReservationFactory;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -71,19 +65,7 @@ public class ReservationServiceDbTest {
   private ReservationRepo reservationRepo;
 
   @Resource
-  private VirtualResourceGroupRepo virtualResourceGroupRepo;
-
-  @Resource
-  private VirtualPortRepo virtualPortRepo;
-
-  @Resource
-  private PhysicalPortRepo physicalPortRepo;
-
-  @Resource
-  private InstituteRepo instituteRepo;
-
-  @Resource
-  private PhysicalResourceGroupRepo physicalResourceGroupRepo;
+  private ReportReservationServiceDbTestHelper helper;
 
   private final DateTime rightDateTime = DateTime.now().withTime(0, 0, 0, 0);
   private final DateTime beforeDateTime = rightDateTime.minusMinutes(1);
@@ -93,12 +75,12 @@ public class ReservationServiceDbTest {
 
   @Before
   public void setUp() {
-    rightReservationOnStartTime = createAndPersist(rightDateTime, beforeDateTime, ReservationStatus.AUTO_START);
-    rightReservationOnEndTime = createAndPersist(beforeDateTime, rightDateTime, ReservationStatus.AUTO_START);
-    createAndPersist(beforeDateTime.minusMinutes(10), rightDateTime.plusHours(1), ReservationStatus.AUTO_START);
-    createAndPersist(rightDateTime, beforeDateTime, ReservationStatus.CANCELLED);
-    createAndPersist(rightDateTime, rightDateTime, ReservationStatus.CANCELLED);
-    createAndPersist(beforeDateTime, beforeDateTime, ReservationStatus.AUTO_START);
+    rightReservationOnStartTime = helper.createAndPersist(rightDateTime, beforeDateTime, ReservationStatus.AUTO_START);
+    rightReservationOnEndTime = helper.createAndPersist(beforeDateTime, rightDateTime, ReservationStatus.AUTO_START);
+    helper.createAndPersist(beforeDateTime.minusMinutes(10), rightDateTime.plusHours(1), ReservationStatus.AUTO_START);
+    helper.createAndPersist(rightDateTime, beforeDateTime, ReservationStatus.CANCELLED);
+    helper.createAndPersist(rightDateTime, rightDateTime, ReservationStatus.CANCELLED);
+    helper.createAndPersist(beforeDateTime, beforeDateTime, ReservationStatus.AUTO_START);
   }
 
   @Test
@@ -124,48 +106,4 @@ public class ReservationServiceDbTest {
     assertThat(reservations, hasItems(rightReservationOnEndTime, rightReservationOnStartTime));
   }
 
-  private Reservation createAndPersist(DateTime startDateTime, DateTime endDateTime, ReservationStatus status) {
-    Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
-        .setStatus(status).create();
-
-    // Force save of vrg only once, since they all use the same reference
-    reservation.getVirtualResourceGroup().setId(null);
-
-    persistReservation(reservation);
-
-    return reservation;
-  }
-
-  private void persistReservation(Reservation reservation) {
-    // Source port stuff
-    reservation.getSourcePort().getPhysicalResourceGroup().setId(null);
-    instituteRepo.save(reservation.getSourcePort().getPhysicalResourceGroup().getInstitute());
-    physicalResourceGroupRepo.save(reservation.getSourcePort().getPhysicalPort().getPhysicalResourceGroup());
-
-    reservation.getSourcePort().getPhysicalPort().setId(null);
-    physicalPortRepo.save(reservation.getSourcePort().getPhysicalPort());
-
-    virtualResourceGroupRepo.save(reservation.getSourcePort().getVirtualResourceGroup());
-
-    reservation.getSourcePort().setId(null);
-    virtualPortRepo.save(reservation.getSourcePort());
-
-    // Destination port stuff
-    reservation.getDestinationPort().getPhysicalResourceGroup().setId(null);
-    instituteRepo.save(reservation.getDestinationPort().getPhysicalResourceGroup().getInstitute());
-    physicalResourceGroupRepo.save(reservation.getDestinationPort().getPhysicalPort().getPhysicalResourceGroup());
-
-    reservation.getDestinationPort().getPhysicalPort().setId(null);
-    physicalPortRepo.save(reservation.getDestinationPort().getPhysicalPort());
-
-    virtualResourceGroupRepo.save(reservation.getDestinationPort().getVirtualResourceGroup());
-
-    reservation.getDestinationPort().setId(null);
-    virtualPortRepo.save(reservation.getDestinationPort());
-
-    reservation.setId(null);
-    reservationRepo.save(reservation);
-
-    reservationRepo.flush();
-  }
 }

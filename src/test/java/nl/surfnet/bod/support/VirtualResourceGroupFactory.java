@@ -25,11 +25,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.google.common.collect.Lists;
-
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
+
+import com.google.common.collect.Lists;
 
 public class VirtualResourceGroupFactory {
 
@@ -43,8 +43,8 @@ public class VirtualResourceGroupFactory {
   private String name = "VRG " + id;
   private String description = "Some virtual resource group";
 
-  private Collection<VirtualPort> virtualPorts = Lists.newArrayList();
-  private Collection<Reservation> reservations = Lists.newArrayList();
+  private final Collection<VirtualPort> virtualPorts = Lists.newArrayList();
+  private final Collection<Reservation> reservations = Lists.newArrayList();
 
   public VirtualResourceGroup create() {
     VirtualResourceGroup vrg = new VirtualResourceGroup();
