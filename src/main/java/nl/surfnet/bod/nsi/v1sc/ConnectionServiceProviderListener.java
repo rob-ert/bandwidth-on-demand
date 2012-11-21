@@ -33,7 +33,6 @@ import nl.surfnet.bod.service.ReservationListener;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.ReservationStatusChangeEvent;
 
-import org.ogf.schemas.nsi._2011._10.connection.types.ConnectionStateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -118,18 +117,28 @@ public class ConnectionServiceProviderListener implements ReservationListener {
   }
 
   private void handleReservationFailed(Connection connection, ReservationStatusChangeEvent event) {
-    // FIXME AvD add RUNNING
-    if (connection.getCurrentState() == ConnectionStateType.AUTO_PROVISION
-        || connection.getCurrentState() == ConnectionStateType.SCHEDULED) {
+    switch (connection.getCurrentState()) {
+    case PROVISIONED:
+    case RESERVED:
+    case RESERVING:
+      connectionServiceRequester.executionFailed(connection);
+      break;
+    case TERMINATING:
+      connectionServiceRequester.terminateFailed(connection, event.getNsiRequestDetails());
+      break;
+    case PROVISIONING:
+    case AUTO_PROVISION:
+    case SCHEDULED:
       // the connection is was ready to get started but the step to running/provisioned failed
       // so send a provisionFailed
       connectionServiceRequester.provisionFailed(connection, event.getNsiRequestDetails().get());
-    }
-    else if (connection.getCurrentState() == ConnectionStateType.TERMINATING) {
-      connectionServiceRequester.terminateFailed(connection, event.getNsiRequestDetails());
-    }
-    else {
-      logger.error("Listener got a failed '{}' but did not know what to do with the connection {}", event.getNewStatus(), connection);
+    case UNKNOWN:
+    case TERMINATED:
+    case RELEASING:
+    case INITIAL:
+    case CLEANING:
+      logger.error("Got a fail for {} but don't know how to handle.", connection.getCurrentState());
+      break;
     }
   }
 

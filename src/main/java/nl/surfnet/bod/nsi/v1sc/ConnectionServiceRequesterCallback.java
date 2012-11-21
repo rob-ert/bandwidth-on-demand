@@ -166,6 +166,13 @@ public class ConnectionServiceRequesterCallback {
     connectionRepo.save(connection);
   }
 
+  public void executionFailed(Connection connection) {
+    // no need to inform the requester
+    connection.setCurrentState(ConnectionStateType.TERMINATED);
+    connectionRepo.save(connection);
+  }
+
+
   public void scheduleSucceeded(Connection connection) {
     // no need to inform the requester
     connection.setCurrentState(ConnectionStateType.SCHEDULED);
