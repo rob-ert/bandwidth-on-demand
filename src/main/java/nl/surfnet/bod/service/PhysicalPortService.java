@@ -364,11 +364,17 @@ public class PhysicalPortService extends AbstractFullTextSearchService<PhysicalP
   public List<Long> findIdsByRoleAndPhysicalResourceGroup(final BodRole bodRole,
       final Optional<PhysicalResourceGroup> physicalResourceGroup) {
     if (bodRole.isManagerRole() && physicalResourceGroup.isPresent()) {
-      return physicalPortRepo.findIdsWithWhereClause(Optional
-          .of(PhysicalPortPredicatesAndSpecifications.byPhysicalResourceGroupSpec(physicalResourceGroup.get())));
+      return physicalPortRepo.findIdsWithWhereClause(Optional.of(PhysicalPortPredicatesAndSpecifications
+          .byPhysicalResourceGroupSpec(physicalResourceGroup.get())));
     }
     else if (bodRole.isNocRole()) {
-      return physicalPortRepo.findIdsWithWhereClause(Optional.<Specification<PhysicalPort>> absent());
+      if (physicalResourceGroup.isPresent()) {
+        return physicalPortRepo.findIdsWithWhereClause(Optional.of(PhysicalPortPredicatesAndSpecifications
+            .byPhysicalResourceGroupSpec(physicalResourceGroup.get())));
+      }
+      else {
+        return physicalPortRepo.findIdsWithWhereClause(Optional.<Specification<PhysicalPort>> absent());
+      }
     }
     return new ArrayList<>();
   }
