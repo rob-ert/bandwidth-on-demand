@@ -205,6 +205,9 @@ class NbiOfflineClient implements NbiClient {
 
   @Override
   public ReservationStatus cancelReservation(String scheduleId) {
+    if (scheduleId == null) {
+      return CANCEL_FAILED;
+    }
     scheduleIds.put(scheduleId, scheduleIds.get(scheduleId).withStatus(CANCELLED));
     return CANCELLED;
   }
