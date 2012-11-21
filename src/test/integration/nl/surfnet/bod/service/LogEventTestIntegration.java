@@ -173,28 +173,24 @@ public class LogEventTestIntegration {
   }
 
   @Test
-  public void shouldFindTransitionFromTo() {
-    LogEvent logEvent = subject.findStateChangeFromOldToNewForReservationIdBefore(RUNNING, SUCCEEDED, ONE, now);
+  public void shouldCountTransitionFromTo() {
+    long count = subject.countStateChangeFromOldToNewForReservationIdBetween(now.minusDays(1), now, RUNNING, SUCCEEDED);
 
-    assertThat(logEvent.getDomainObjectId(), is(ONE));
-    assertTrue(logEvent.getCreated().isBefore(now));
-    assertThat(logEvent.getOldReservationStatus(), is(RUNNING));
-    assertThat(logEvent.getNewReservationStatus(), is(SUCCEEDED));
+    assertThat(count, is(1L));
   }
 
   @Test
-  public void shouldNotFindTransitionFromToBecauseOfDate() {
-    LogEvent logEvent = subject.findStateChangeFromOldToNewForReservationIdBefore(RUNNING, SUCCEEDED, ONE, now
-        .minusDays(1));
+  public void shouldNotCountNonExistingTransitionFromTo() {
+    long count = subject.countStateChangeFromOldToNewForReservationIdBetween(now.minusDays(1), now, RUNNING, FAILED);
 
-    assertThat(logEvent, nullValue());
+    assertThat(count, is(0L));
   }
 
   @Test
-  public void shouldNotFindTransitionFromTo() {
-    LogEvent logEvent = subject.findStateChangeFromOldToNewForReservationIdBefore(RUNNING, FAILED, ONE, now);
+  public void shouldNotCountTransitionFromToBecauseOfDate() {
+    long count = subject.countStateChangeFromOldToNewForReservationIdBetween(now, now, RUNNING, SUCCEEDED);
 
-    assertThat(logEvent, nullValue());
+    assertThat(count, is(0L));
   }
 
   @Test

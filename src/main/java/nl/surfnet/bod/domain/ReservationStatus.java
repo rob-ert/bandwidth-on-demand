@@ -49,11 +49,6 @@ public enum ReservationStatus {
   public static final Set<ReservationStatus> TRANSITION_STATES = EnumSet.of(REQUESTED, RESERVED, AUTO_START, SCHEDULED,
       RUNNING);
 
-  /**
-   * All states which indicate a successful creation of reservation
-   */
-  public static final ReservationStatus[] SUCCESSFULLY_CREATED = { RESERVED, AUTO_START };
-
   public static final ReservationStatus[] TRANSITION_STATES_AS_ARRAY = TRANSITION_STATES
       .toArray(new ReservationStatus[TRANSITION_STATES.size()]);
 

@@ -81,81 +81,12 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   @PersistenceContext
   private EntityManager entityManager;
 
-  public void logCreateEvent(RichUserDetails user, Loggable domainObject) {
-    logCreateEvent(user, domainObject, null);
-  }
-
-  public void logCreateEvent(RichUserDetails user, Collection<? extends Loggable> domainObjects, String details) {
-    handleEvents(createLogEvents(user, domainObjects, LogEventType.CREATE, details));
-  }
-
-  public void logCreateEvent(RichUserDetails user, Loggable domainObject, String details) {
-    handleEvent(createLogEvent(user, LogEventType.CREATE, domainObject, details, Optional.<ReservationStatus> absent()));
-  }
-
-  public void logReadEvent(RichUserDetails user, Collection<? extends Loggable> domainObjects, String details) {
-    handleEvents(createLogEvents(user, domainObjects, LogEventType.READ, details));
-  }
-
-  public void logReadEvent(RichUserDetails user, Loggable domainObject, String details) {
-    handleEvent(createLogEvent(user, LogEventType.READ, domainObject, details, Optional.<ReservationStatus> absent()));
-  }
-
-  public void logUpdateEvent(RichUserDetails user, Loggable domainObject) {
-    logUpdateEvent(user, domainObject, null, Optional.<ReservationStatus> absent());
-  }
-
-  public void logUpdateEvent(RichUserDetails user, Loggable domainObject, String details) {
-    logUpdateEvent(user, domainObject, details, Optional.<ReservationStatus> absent());
-  }
-
-  public void logUpdateEvent(RichUserDetails user, Collection<? extends Loggable> domainObjects, String details) {
-    handleEvents(createLogEvents(user, domainObjects, LogEventType.UPDATE, details));
-  }
-
-  public void logUpdateEvent(RichUserDetails user, Loggable domainObject, String details,
-      Optional<ReservationStatus> oldStatus) {
-    handleEvent(createLogEvent(user, LogEventType.UPDATE, domainObject, details, oldStatus));
-  }
-
-  public void logDeleteEvent(RichUserDetails user, Loggable domainObject) {
-    logDeleteEvent(user, domainObject, null);
-  }
-
-  public void logDeleteEvent(RichUserDetails user, Collection<? extends Loggable> domainObject, String details) {
-    handleEvents(createLogEvents(user, domainObject, LogEventType.DELETE, details));
-  }
-
-  public void logDeleteEvent(RichUserDetails user, Loggable domainObject, String details) {
-    handleEvent(createLogEvent(user, LogEventType.DELETE, domainObject, details, Optional.<ReservationStatus> absent()));
-  }
-
-  public List<LogEvent> findAll(int firstResult, int maxResults, Sort sort) {
-    return logEventRepo.findAll(WebUtils.createPageRequest(firstResult, maxResults, sort)).getContent();
-  }
-
   public long count() {
     return logEventRepo.count();
   }
 
-  public List<LogEvent> findByAdminGroups(Collection<String> adminGroups, int firstResult, int maxResults, Sort sort) {
-    if (adminGroups.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    return logEventRepo.findAll(specLogEventsByAdminGroups(adminGroups),
-        WebUtils.createPageRequest(firstResult, maxResults, sort)).getContent();
-  }
-
-  public List<LogEvent> findByManagerRole(BodRole managerRole, int firstResult, int maxResults, Sort sort) {
-    final Set<String> groupsForManager = managerService.findAllAdminGroupsForManager(managerRole);
-
-    return findByAdminGroups(groupsForManager, firstResult, maxResults, sort);
-  }
-
-  @Override
-  protected EntityManager getEntityManager() {
-    return entityManager;
+  public long count(Specification<LogEvent> whereClause) {
+    return logEventRepo.count(whereClause);
   }
 
   public long countByAdminGroups(Collection<String> adminGroups) {
@@ -166,95 +97,18 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logEventRepo.count(specLogEventsByAdminGroups(adminGroups));
   }
 
-  public List<Long> findIdsForManagerOrNoc(RichUserDetails userDetails) {
-    final BodRole selectedRole = userDetails.getSelectedRole();
-
-    if (selectedRole.isManagerRole()) {
-      Set<String> adminGroups = managerService.findAllAdminGroupsForManager(Security.getSelectedRole());
-      return logEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(adminGroups)));
-    }
-    else if (selectedRole.isNocRole()) {
-      return logEventRepo.findIdsWithWhereClause(Optional.<Specification<LogEvent>> absent());
-    }
-
-    return Collections.emptyList();
-  }
-
-  public List<Long> findIdsForUser(List<String> determinGroupsToSearchFor) {
-    return logEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(determinGroupsToSearchFor)));
-  }
-
-  public List<Long> findDomainObjectIdsByDomainClassCreatedBetweenForNocWithState(
-      final Class<? extends Loggable> domainClass, DateTime start, DateTime end, ReservationStatus state) {
-
-    Specification<LogEvent> spec = LogEventPredicatesAndSpecifications.specLatestStateForReservationBetweenWithStateIn(
-        Optional.<List<Long>> absent(), start, end, state);
-
-    return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(spec);
-  }
-
-  public long count(Specification<LogEvent> whereClause) {
-    return logEventRepo.count(whereClause);
-  }
-
   public long countDistinctDomainObjectId(Specification<LogEvent> whereClause) {
     return logEventRepo.countDistinctDomainObjectIdsWithWhereClause(whereClause);
   }
 
-  public List<Long> findDistinctDomainObjectIdsWithWhereClause(Specification<LogEvent> whereClause) {
-    return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(whereClause);
-  }
-
-  public LogEvent findLatestStateChangeForReservationIdBeforeWithStateIn(Long id, DateTime before,
-      ReservationStatus... states) {
-
-    return findLatestStateChangeForReservationIdBeforeWithStateIn(Optional.<List<Long>> of(Lists.newArrayList(id)),
-        before, states);
-  }
-
-  
-  public LogEvent findLatestStateChangeForReservationIdBeforeWithStateIn(Optional<List<Long>> reservationIds,
-      DateTime before, ReservationStatus... states) {
+  public long countStateChangeFromOldToNewForReservationIdBetween(DateTime start, DateTime end,
+      ReservationStatus oldStatus, ReservationStatus newStatus) {
 
     Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
-        .specLatestStateForReservationBeforeWithStateIn(reservationIds, before, states);
+        .specStateChangeFromOldToNewForReservationIdBetween(oldStatus, newStatus, Optional.<List<Long>> absent(),
+            start, end);
 
-    Long logEventId = logEventRepo.findMaxIdWithWhereClause(whereClause);
-
-    return logEventId == null ? null : logEventRepo.findOne(logEventId);
-  }
-
-  public LogEvent findStateChangeFromOldToNewForReservationIdBefore(ReservationStatus oldStatus,
-      ReservationStatus newStatus, Long reservationId, DateTime before) {
-
-    Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
-        .specStateChangeFromOldToNewForReservationIdBefore(oldStatus, newStatus, Lists.newArrayList(reservationId),
-            before);
-
-    Long logEventId = logEventRepo.findMaxIdWithWhereClause(whereClause);
-
-    return logEventId == null ? null : logEventRepo.findOne(logEventId);
-  }
-
-  @VisibleForTesting
-  String determineAdminGroup(RichUserDetails user, Loggable domainObject) {
-    if ((domainObject != null) && (StringUtils.hasText(domainObject.getAdminGroup()))) {
-      return domainObject.getAdminGroup();
-    }
-
-    if (user == null) {
-      return environment.getNocGroup();
-    }
-
-    if (user.isSelectedManagerRole()) {
-      return user.getSelectedRole().getAdminGroup().get();
-    }
-
-    if (user.isSelectedNocRole()) {
-      return environment.getNocGroup();
-    }
-
-    throw new IllegalStateException("Could not determine adminGroup for user: " + user);
+    return logEventRepo.countDistinctDomainObjectIdsWithWhereClause(whereClause);
   }
 
   @VisibleForTesting
@@ -265,27 +119,6 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
     return new LogEvent(user == null ? SYSTEM_USER : user.getUsername(), determineAdminGroup(user, domainObject),
         eventType, Optional.fromNullable(domainObject), details, oldStatus, newStatus);
-  }
-
-  /**
-   * Handles the event. Writes it to the given logger. Only events with a
-   * domainObject with one a specific type, as determined by
-   * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
-   * {@link LogEventRepo}
-   * 
-   * @param logger
-   *          Logger to write to
-   * 
-   * @param logEvent
-   *          LogEvent to handle
-   */
-  @VisibleForTesting
-  void handleEvent(Logger log, LogEvent logEvent) {
-    log.info("Event: {}", logEvent);
-
-    if (shouldLogEventBePersisted(logEvent)) {
-      logEventRepo.save(logEvent);
-    }
   }
 
   @VisibleForTesting
@@ -312,6 +145,100 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   }
 
   @VisibleForTesting
+  String determineAdminGroup(RichUserDetails user, Loggable domainObject) {
+    if ((domainObject != null) && (StringUtils.hasText(domainObject.getAdminGroup()))) {
+      return domainObject.getAdminGroup();
+    }
+
+    if (user == null) {
+      return environment.getNocGroup();
+    }
+
+    if (user.isSelectedManagerRole()) {
+      return user.getSelectedRole().getAdminGroup().get();
+    }
+
+    if (user.isSelectedNocRole()) {
+      return environment.getNocGroup();
+    }
+
+    throw new IllegalStateException("Could not determine adminGroup for user: " + user);
+  }
+
+  public List<LogEvent> findAll(int firstResult, int maxResults, Sort sort) {
+    return logEventRepo.findAll(WebUtils.createPageRequest(firstResult, maxResults, sort)).getContent();
+  }
+
+  public List<LogEvent> findByAdminGroups(Collection<String> adminGroups, int firstResult, int maxResults, Sort sort) {
+    if (adminGroups.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    return logEventRepo.findAll(specLogEventsByAdminGroups(adminGroups),
+        WebUtils.createPageRequest(firstResult, maxResults, sort)).getContent();
+  }
+
+  public List<LogEvent> findByManagerRole(BodRole managerRole, int firstResult, int maxResults, Sort sort) {
+    final Set<String> groupsForManager = managerService.findAllAdminGroupsForManager(managerRole);
+
+    return findByAdminGroups(groupsForManager, firstResult, maxResults, sort);
+  }
+
+  public List<Long> findDistinctDomainObjectIdsWithWhereClause(Specification<LogEvent> whereClause) {
+    return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(whereClause);
+  }
+
+  public List<Long> findReservationIdsCreatedBetweenForNocWithState(DateTime start, DateTime end,
+      ReservationStatus state) {
+
+    Specification<LogEvent> spec = LogEventPredicatesAndSpecifications.specLatestStateForReservationBetweenWithStateIn(
+        Optional.<List<Long>> absent(), start, end, state);
+
+    return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(spec);
+  }
+
+  public List<Long> findIdsForManagerOrNoc(RichUserDetails userDetails) {
+    final BodRole selectedRole = userDetails.getSelectedRole();
+
+    if (selectedRole.isManagerRole()) {
+      Set<String> adminGroups = managerService.findAllAdminGroupsForManager(Security.getSelectedRole());
+      return logEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(adminGroups)));
+    }
+    else if (selectedRole.isNocRole()) {
+      return logEventRepo.findIdsWithWhereClause(Optional.<Specification<LogEvent>> absent());
+    }
+
+    return Collections.emptyList();
+  }
+
+  public List<Long> findIdsForUser(List<String> determinGroupsToSearchFor) {
+    return logEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(determinGroupsToSearchFor)));
+  }
+
+  public LogEvent findLatestStateChangeForReservationIdBeforeWithStateIn(Long id, DateTime before,
+      ReservationStatus... states) {
+
+    return findLatestStateChangeForReservationIdBeforeWithStateIn(Optional.<List<Long>> of(Lists.newArrayList(id)),
+        before, states);
+  }
+
+  public LogEvent findLatestStateChangeForReservationIdBeforeWithStateIn(Optional<List<Long>> reservationIds,
+      DateTime before, ReservationStatus... states) {
+
+    Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
+        .specLatestStateForReservationBeforeWithStateIn(reservationIds, before, states);
+
+    Long logEventId = logEventRepo.findMaxIdWithWhereClause(whereClause);
+
+    return logEventId == null ? null : logEventRepo.findOne(logEventId);
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
+  }
+
+  @VisibleForTesting
   Optional<ReservationStatus> getStatusWhenReservationObject(Loggable domainObject) {
     Optional<ReservationStatus> newStatus;
     if (Reservation.class.equals(domainObject.getClass())) {
@@ -321,6 +248,91 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
       newStatus = Optional.<ReservationStatus> absent();
     }
     return newStatus;
+  }
+
+  /**
+   * Delegates to {@link #handleEvent(Logger, LogEvent)}
+   * 
+   * @param logEvent
+   */
+  private void handleEvent(LogEvent logEvent) {
+    handleEvent(logger, logEvent);
+  }
+
+  /**
+   * Handles the event. Writes it to the given logger. Only events with a
+   * domainObject with one a specific type, as determined by
+   * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
+   * {@link LogEventRepo}
+   * 
+   * @param logger
+   *          Logger to write to
+   * 
+   * @param logEvent
+   *          LogEvent to handle
+   */
+  @VisibleForTesting
+  void handleEvent(Logger log, LogEvent logEvent) {
+    log.info("Event: {}", logEvent);
+
+    if (shouldLogEventBePersisted(logEvent)) {
+      logEventRepo.save(logEvent);
+    }
+  }
+
+  private void handleEvents(List<LogEvent> logEvents) {
+    for (LogEvent logEvent : logEvents) {
+      handleEvent(logEvent);
+    }
+  }
+
+  public void logCreateEvent(RichUserDetails user, Collection<? extends Loggable> domainObjects, String details) {
+    handleEvents(createLogEvents(user, domainObjects, LogEventType.CREATE, details));
+  }
+
+  public void logCreateEvent(RichUserDetails user, Loggable domainObject) {
+    logCreateEvent(user, domainObject, null);
+  }
+
+  public void logCreateEvent(RichUserDetails user, Loggable domainObject, String details) {
+    handleEvent(createLogEvent(user, LogEventType.CREATE, domainObject, details, Optional.<ReservationStatus> absent()));
+  }
+
+  public void logDeleteEvent(RichUserDetails user, Collection<? extends Loggable> domainObject, String details) {
+    handleEvents(createLogEvents(user, domainObject, LogEventType.DELETE, details));
+  }
+
+  public void logDeleteEvent(RichUserDetails user, Loggable domainObject) {
+    logDeleteEvent(user, domainObject, null);
+  }
+
+  public void logDeleteEvent(RichUserDetails user, Loggable domainObject, String details) {
+    handleEvent(createLogEvent(user, LogEventType.DELETE, domainObject, details, Optional.<ReservationStatus> absent()));
+  }
+
+  public void logReadEvent(RichUserDetails user, Collection<? extends Loggable> domainObjects, String details) {
+    handleEvents(createLogEvents(user, domainObjects, LogEventType.READ, details));
+  }
+
+  public void logReadEvent(RichUserDetails user, Loggable domainObject, String details) {
+    handleEvent(createLogEvent(user, LogEventType.READ, domainObject, details, Optional.<ReservationStatus> absent()));
+  }
+
+  public void logUpdateEvent(RichUserDetails user, Collection<? extends Loggable> domainObjects, String details) {
+    handleEvents(createLogEvents(user, domainObjects, LogEventType.UPDATE, details));
+  }
+
+  public void logUpdateEvent(RichUserDetails user, Loggable domainObject) {
+    logUpdateEvent(user, domainObject, null, Optional.<ReservationStatus> absent());
+  }
+
+  public void logUpdateEvent(RichUserDetails user, Loggable domainObject, String details) {
+    logUpdateEvent(user, domainObject, details, Optional.<ReservationStatus> absent());
+  }
+
+  public void logUpdateEvent(RichUserDetails user, Loggable domainObject, String details,
+      Optional<ReservationStatus> oldStatus) {
+    handleEvent(createLogEvent(user, LogEventType.UPDATE, domainObject, details, oldStatus));
   }
 
   /**
@@ -350,21 +362,6 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
       }
     }
     return false;
-  }
-
-  private void handleEvents(List<LogEvent> logEvents) {
-    for (LogEvent logEvent : logEvents) {
-      handleEvent(logEvent);
-    }
-  }
-
-  /**
-   * Delegates to {@link #handleEvent(Logger, LogEvent)}
-   * 
-   * @param logEvent
-   */
-  private void handleEvent(LogEvent logEvent) {
-    handleEvent(logger, logEvent);
   }
 
 }

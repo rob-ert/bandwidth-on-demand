@@ -86,8 +86,11 @@ public class ReportController {
     final DateTime end = nocReservationReport.getPeriodEnd();
 
     // ReservationRequests
-    nocReservationReport.setAmountRequestsCreatedSucceeded(reservationService
-        .countReservationsForNocWhichHadStateBetween(start, end, ReservationStatus.SUCCESSFULLY_CREATED));
+    long successfullCreates = reservationService.countReservationsForNocWhichHadStateBetween(start, end,
+        ReservationStatus.RESERVED);
+    successfullCreates += logEventService.countStateChangeFromOldToNewForReservationIdBetween(start, end,
+        ReservationStatus.REQUESTED, ReservationStatus.AUTO_START);
+    nocReservationReport.setAmountRequestsCreatedSucceeded(successfullCreates);
 
     nocReservationReport.setAmountRequestsCreatedFailed(reservationService.countReservationsForNocWithEndStateBetween(
         start, end, ReservationStatus.NOT_ACCEPTED));
