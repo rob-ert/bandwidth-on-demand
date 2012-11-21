@@ -12,14 +12,7 @@
 
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
     <layout class="org.apache.log4j.PatternLayout">
-      <param name="ConversionPattern" value="%d %p [%c] [%M] [Thread:%t] - [%m]%n" />
-    </layout>
-  </appender>
-
-  <appender name="FILE" class="org.apache.log4j.FileAppender">
-    <param name="file" value="bod.log"/>
-    <layout class="org.apache.log4j.PatternLayout">
-      <param name="ConversionPattern" value="%d %p [%c] [%M] [Thread:%t] - [%m]%n" />
+      <param name="ConversionPattern" value="%d{HH:mm:ss,SSS} %p [%30.30C{2}:%-3L] [%-20.20t] - %m%n" />
     </layout>
   </appender>
 
@@ -50,7 +43,7 @@
   <logger name="nl.surfnet.bod.mtosi">
     <level value="WARN" />
   </logger>
-  
+
   <!-- <logger name="org.hibernate.type">
     <level value="TRACE" />
    </logger>
@@ -62,6 +55,5 @@
   <root>
     <level value="WARN" />
     <appender-ref ref="CONSOLE" />
-    <!--<appender-ref ref="FILE"/> -->
   </root>
 </log4j:configuration>
