@@ -96,7 +96,7 @@ public class VirtualPortRequestTestSelenium extends TestExternalSupport {
 
     // physical resource group should have one physical port
     getManagerDriver().switchToNoc();
-    getNocDriver().verifyPhysicalResourceGroupExists("SURFnet bv", "test@test.nl", "1");
+    getNocDriver().verifyPhysicalResourceGroupExists("SURFnet bv", "test@test.nl", "2");
 
     getNocDriver().switchToManager("SURFnet");
     getManagerDriver().editVirtualPort("Your vport", "Edited vport", 1000, "20");
