@@ -654,6 +654,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public long countActiveReservationsByVirtualPorts(List<VirtualPort> virtualPorts) {
+    if(CollectionUtils.isEmpty(virtualPorts)){
+      return 0;
+    }
     final Specification<Reservation> whereClause = ReservationPredicatesAndSpecifications
         .specActiveByVirtualPorts(virtualPorts);
     return reservationRepo.count(whereClause);
