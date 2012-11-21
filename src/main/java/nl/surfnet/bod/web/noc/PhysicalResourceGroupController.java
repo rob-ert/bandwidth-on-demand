@@ -232,11 +232,7 @@ public class PhysicalResourceGroupController extends
         reservations.addAll(reservationService.findActiveByPhysicalPort(physicalPort));
       }
     }
-
-    model.addAttribute("physicalPortsAmount", Integer.toString(physicalPorts.size()));
-    model.addAttribute("virtualPortsAmount", Integer.toString(virtualPorts.size()));
-    model.addAttribute("reservationsAmount", Integer.toString(reservations.size()));
-
+    
     return transformToView(physycalResourceGroups, Security.getUserDetails());
   }
 
