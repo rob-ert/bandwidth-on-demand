@@ -96,7 +96,9 @@
             updateIcon="${show_unallocated ? 'icon-resize-small' : ''}"
             updateLabelCode="${show_unallocated ? 'label_allocate' : ''}"
             path="/noc/physicalports" idFieldName="nmsPortId"
-            labelCode="label_physicalport">
+            labelCode="label_physicalport"
+            deleteConfirmLabelCode="physical_port_delete_confirm_counter" 
+            deleteConfirmLabelArgument="${item.numberOfVirtualPorts},${item.reservationsAmount}">
 
             <c:if test="${not show_unallocated}">
               <spring:url var="moveUrl" value="/noc/physicalports/move">

@@ -41,6 +41,7 @@ import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.PhysicalPortService;
 import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.util.Functions;
 import nl.surfnet.bod.web.WebUtils;
@@ -63,6 +64,9 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @Resource
   private PhysicalResourceGroupService physicalResourceGroupService;
+  
+  @Resource
+  private ReservationService reservationService;
 
   @RequestMapping(value = "/edit", params = "id", method = RequestMethod.GET)
   public String updateForm(@RequestParam("id") final Long id, final Model uiModel) {
@@ -160,7 +164,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     if (physicalResourceGroup.isPresent()) {
       return Functions.transformAllocatedPhysicalPorts(physicalPortService
           .findAllocatedEntriesForPhysicalResourceGroup(physicalResourceGroup.get(), firstPage, maxItems, sort),
-          virtualPortService);
+          virtualPortService, reservationService);
     }
     else {
       return new ArrayList<>();
@@ -194,6 +198,6 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @Override
   protected List<PhysicalPortView> transformToView(List<PhysicalPort> entities, RichUserDetails user) {
-    return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService);
+    return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService, reservationService);
   }
 }

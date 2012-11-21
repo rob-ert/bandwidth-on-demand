@@ -40,6 +40,8 @@ public class PhysicalPortView {
   private final String nmsNeId;
   private final String nmsPortSpeed;
   private final String nmsSapName;
+  
+  private int reservationsAmount;
 
 
   public PhysicalPortView(PhysicalPort physicalPort, ElementActionView deleteActionView, long virtualPortSize) {
@@ -225,6 +227,18 @@ public class PhysicalPortView {
 
   public final String getNmsSapName() {
     return nmsSapName;
+  }
+  
+  public final int getReservationsAmount() {
+    return reservationsAmount;
+  }
+
+  public final void setReservationsAmount(int reservationsAmount) {
+    this.reservationsAmount = reservationsAmount;
+  }
+
+  public final void setDeleteRender(boolean deleteRender) {
+    this.deleteRender = deleteRender;
   }
 
 }

@@ -35,6 +35,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -98,7 +99,7 @@ public class PhysicalResourceGroupControllerTest {
   public void listShouldSetGroupsAndMaxPages() {
     Model model = new ModelStub();
     final PhysicalResourceGroup physicalResourceGroup = new PhysicalResourceGroupFactory().create();
-    List<PhysicalResourceGroup> groups = Lists.newArrayList(physicalResourceGroup);
+    List<PhysicalResourceGroup> groups = Lists.newArrayList(physicalResourceGroup, new PhysicalResourceGroupFactory().create());
     List<PhysicalResourceGroupView> groupViews = Lists.newArrayList(new PhysicalResourceGroupView(physicalResourceGroup));
     List<PhysicalPort> physicalPorts = Lists.newArrayList(physicalResourceGroup.getPhysicalPorts());
     List<VirtualPort> virtualPorts = Lists.newArrayList(new VirtualPortFactory().create());
@@ -112,9 +113,13 @@ public class PhysicalResourceGroupControllerTest {
 
     subject.list(1, null, null, model);
 
-    // FIXME: Broken after my last change, but I still want to commit and push some changes. 
-//    assertThat(model.asMap(), hasEntry("list", Object.class.cast(groupViews)));
-    assertThat(model.asMap(), hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
+    final Map<String, Object> asMap = model.asMap();
+    System.out.println(asMap.get("list"));
+    
+    // FIXME: Broken after my last change, but I still want to commit and push some changes.
+    assertThat(asMap, hasEntry("list", Object.class.cast(groupViews)));
+
+    assertThat(asMap, hasEntry(MAX_PAGES_KEY, Object.class.cast(1)));
   }
 
   @Test

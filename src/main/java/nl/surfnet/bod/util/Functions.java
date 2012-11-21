@@ -26,6 +26,7 @@ import java.util.List;
 
 import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.idd.generated.Klanten;
+import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.service.VirtualPortService;
 import nl.surfnet.bod.web.view.ElementActionView;
 import nl.surfnet.bod.web.view.PhysicalPortView;
@@ -101,7 +102,7 @@ public final class Functions {
    * @return PhysicalPortView Transformed {@link PhysicalPort}
    */
   public static PhysicalPortView transformAllocatedPhysicalPort(PhysicalPort port,
-      final VirtualPortService virtualPortService) {
+      final VirtualPortService virtualPortService, final ReservationService reservationService) {
 
     long vpCount = virtualPortService.countForPhysicalPort(port);
     ElementActionView allocateActionView;
@@ -112,7 +113,9 @@ public final class Functions {
       allocateActionView = new ElementActionView(false, "label_virtual_ports_related");
     }
 
-    return new PhysicalPortView(port, allocateActionView, vpCount);
+    final PhysicalPortView physicalPortView = new PhysicalPortView(port, allocateActionView, vpCount);
+    physicalPortView.setReservationsAmount(reservationService.findActiveByPhysicalPort(port).size());
+    return physicalPortView;
   }
 
   /**
@@ -122,11 +125,11 @@ public final class Functions {
    *
    */
   public static List<PhysicalPortView> transformAllocatedPhysicalPorts(List<PhysicalPort> ports,
-      final VirtualPortService virtualPortService) {
+      final VirtualPortService virtualPortService, final ReservationService reservationService) {
 
     List<PhysicalPortView> transformers = Lists.newArrayList();
     for (PhysicalPort port : ports) {
-      transformers.add(transformAllocatedPhysicalPort(port, virtualPortService));
+      transformers.add(transformAllocatedPhysicalPort(port, virtualPortService, reservationService));
     }
 
     return transformers;

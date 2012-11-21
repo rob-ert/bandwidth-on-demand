@@ -380,14 +380,12 @@ public class PhysicalResourceGroupController extends
         virtualPorts.addAll(virtualPortService.findAllForPhysicalPort(physicalPort));
         final long countActiveReservationsByVirtualPorts = reservationService.countActiveReservationsByVirtualPorts(virtualPorts);
         if(countActiveReservationsByVirtualPorts != 0L){
-          System.out.println(countActiveReservationsByVirtualPorts);
           reservations.add(countActiveReservationsByVirtualPorts);
         }
       }
       view.setPhysicalPortsAmount(physicalPortIds.size());
       view.setReservationsAmount(reservations.size());
       view.setVirtualPortsAmount(virtualPorts.size());
-      System.out.println(reservations);
       physicalResourceGroupViews.add(view);
     }
     return physicalResourceGroupViews;

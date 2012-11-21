@@ -259,7 +259,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
     List<PhysicalPortView> allocatedPhysicalPorts = Functions.transformAllocatedPhysicalPorts(
         physicalPortService.findUnalignedPhysicalPorts(calculateFirstPage(page), MAX_ITEMS_PER_PAGE, sortOptions),
-        virtualPortService);
+        virtualPortService, reservationService);
 
     model.addAttribute(MAX_PAGES_KEY, calculateMaxPages(physicalPortService.countUnalignedPhysicalPorts()));
     model.addAttribute(WebUtils.DATA_LIST, allocatedPhysicalPorts);
@@ -444,7 +444,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
   protected List<PhysicalPortView> list(int firstPage, int maxItems, Sort sort, Model model) {
 
     return Functions.transformAllocatedPhysicalPorts(
-        physicalPortService.findAllocatedEntries(firstPage, maxItems, sort), virtualPortService);
+        physicalPortService.findAllocatedEntries(firstPage, maxItems, sort), virtualPortService, reservationService);
   }
 
   @Override
@@ -622,7 +622,7 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
 
   @Override
   protected List<PhysicalPortView> transformToView(List<PhysicalPort> entities, RichUserDetails user) {
-    return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService);
+    return Functions.transformAllocatedPhysicalPorts(entities, virtualPortService, reservationService);
   }
 
 }
