@@ -29,7 +29,11 @@
   </logger>
 
   <logger name="nl.surfnet.bod.nsi">
-    <level value="INFO" />
+    <level value="WARN" />
+  </logger>
+
+  <logger name="nl.surfnet.bod.service">
+    <level value="WARN" />
   </logger>
 
   <logger name="com.googlecode.ehcache" additivity="false">
