@@ -48,6 +48,7 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -60,7 +61,7 @@ public class MockHttpServer extends AbstractHandler {
   private final Server server;
   private final HandlerCollection mainHandlers;
 
-  private Map<String, Resource> responseResource = Maps.newHashMap();
+  private Map<String, MockResponse> responseResource = Maps.newHashMap();
   private final LinkedBlockingDeque<String> lastRequests = new LinkedBlockingDeque<>();
   private final List<String> requests = Lists.newArrayList();
 
@@ -122,8 +123,9 @@ public class MockHttpServer extends AbstractHandler {
 
     if (responseResource.containsKey(target)) {
       try (ServletOutputStream outputStream = response.getOutputStream()) {
-        response.setStatus(HttpServletResponse.SC_OK);
-        ByteStreams.copy(responseResource.get(target).getInputStream(), outputStream);
+        MockResponse mockResponse = responseResource.get(target);
+        response.setStatus(mockResponse.getStatus().value());
+        ByteStreams.copy(mockResponse.getBody().getInputStream(), outputStream);
       }
     }
     else {
@@ -141,8 +143,12 @@ public class MockHttpServer extends AbstractHandler {
     this.responseResource.remove(prependPathWithSlash(path));
   }
 
-  public void addResponse(String path, Resource resource) {
-    this.responseResource.put(prependPathWithSlash(path), resource);
+  public void addResponse(String path, HttpStatus status, Resource body) {
+    this.responseResource.put(prependPathWithSlash(path), new MockResponse(status, body));
+  }
+
+  public void addResponse(String path, Resource body) {
+    addResponse(path, HttpStatus.OK, body);
   }
 
   private String prependPathWithSlash(String path) {
@@ -180,4 +186,22 @@ public class MockHttpServer extends AbstractHandler {
     lastRequests.clear();
   }
 
+  private static class MockResponse {
+    private final HttpStatus status;
+    private final Resource body;
+
+    public MockResponse(HttpStatus status, Resource body) {
+      this.status = status;
+      this.body = body;
+    }
+
+    protected HttpStatus getStatus() {
+      return status;
+    }
+
+    protected Resource getBody() {
+      return body;
+    }
+
+  }
 }

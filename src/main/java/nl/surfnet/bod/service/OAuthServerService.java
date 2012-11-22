@@ -49,6 +49,8 @@ import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
@@ -81,24 +83,18 @@ public class OAuthServerService {
     }
 
     HttpGet httpGet = new HttpGet(getVerifyTokenUri(accessToken));
+    httpGet.addHeader(getBasicAuthorizationHeader(env.getResourceKey(), env.getResourceSecret()));
+
     try {
-      httpGet.addHeader(getBasicAuthorizationHeader(env.getResourceKey(), env.getResourceSecret()));
-
       HttpResponse response = httpClient.execute(httpGet);
-      String jsonResponse = EntityUtils.toString(response.getEntity(), Charsets.UTF_8);
-      VerifyTokenResponse token = new ObjectMapper().readValue(jsonResponse, VerifyTokenResponse.class);
+      final int statusCode = response.getStatusLine().getStatusCode();
+      final String responseEntity = EntityUtils.toString(response.getEntity(), Charsets.UTF_8);
 
-      if (token.getPrincipal() != null) {
-        Collection<NsiScope> scopes = FluentIterable.from(token.getScopes()).transform(new Function<String, NsiScope>() {
-          @Override
-          public NsiScope apply(String scope) {
-            return NsiScope.valueOf(scope.toUpperCase());
-          }
-        }).toImmutableList();
-        return Optional.of(new VerifiedToken(token.getPrincipal(), scopes));
+      if (statusCode == HttpStatus.SC_OK) {
+        return readJsonToken(responseEntity);
       }
       else {
-        logger.warn("Got a verify token response with an error {}", token.getError());
+        logger.warn("Verify token response was {}, {}", statusCode, responseEntity);
         return Optional.absent();
       }
     }
@@ -109,6 +105,23 @@ public class OAuthServerService {
     finally {
       httpGet.releaseConnection();
     }
+  }
+
+  private Optional<VerifiedToken> readJsonToken(String jsonResponse) throws JsonParseException, JsonMappingException, IOException {
+      VerifyTokenResponse token = new ObjectMapper().readValue(jsonResponse, VerifyTokenResponse.class);
+
+      if (token.getPrincipal() != null) {
+        Collection<NsiScope> scopes = FluentIterable.from(token.getScopes()).transform(new Function<String, NsiScope>() {
+          @Override
+          public NsiScope apply(String scope) {
+            return NsiScope.valueOf(scope.toUpperCase());
+          }
+        }).toImmutableList();
+        return Optional.of(new VerifiedToken(token.getPrincipal(), scopes));
+      } else {
+        logger.error("Verify token response gave an error '{}'", token.getError());
+        return Optional.absent();
+      }
   }
 
   private String getVerifyTokenUri(String accessToken) {

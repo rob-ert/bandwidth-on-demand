@@ -29,15 +29,13 @@ import nl.surfnet.bod.domain.oauth.VerifiedToken;
 import nl.surfnet.bod.support.MockHttpServer;
 import nl.surfnet.bod.util.Environment;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 
 import com.google.common.base.Optional;
 
@@ -91,7 +89,7 @@ public class OAuthServerServiceTest {
 
   @Test
   public void shouldBeAbsentForInvalidAccessToken() {
-    mockAccessTokenResponse(new ByteArrayResource("".getBytes()));
+    mockAccessTokenResponse(HttpStatus.NOT_FOUND, new ByteArrayResource("".getBytes()));
     Optional<VerifiedToken> principal = subject.getVerifiedToken("1234-1234-abc");
 
     assertThat(principal, isAbsent());
@@ -109,6 +107,7 @@ public class OAuthServerServiceTest {
     assertThat(principal, isAbsent());
   }
 
+  @Ignore("Prints exception so ignore")
   @Test
   public void shouldBeAbsentForInvalidOAuthServerUrl() {
     String token = "1234-1234-abc";
@@ -132,7 +131,7 @@ public class OAuthServerServiceTest {
 
   private Environment getOauthEnvironmentWrongServerUrl() {
     Environment environment = new Environment();
-    environment.setOauthServerUrl("asdfasdf://test");
+    environment.setOauthServerUrl("http://localhost:23434/wrong");
     environment.setResourceKey(oAuthKey);
     environment.setResourceSecret(oAuthSecret);
 
@@ -148,13 +147,13 @@ public class OAuthServerServiceTest {
     return environment;
   }
 
-  private void mockAccessTokenResponse(Resource resource) {
-    mockOAuthServer.addResponse("/v1/tokeninfo", resource);
+  private void mockAccessTokenResponse(HttpStatus status, Resource resource) {
+    mockOAuthServer.addResponse("/v1/tokeninfo", status, resource);
   }
 
   private void mockAccessTokenResponse(String token, String nameId) {
     String jsonResponse = getAccessTokenJson(nameId);
-    mockAccessTokenResponse(new ByteArrayResource(jsonResponse.getBytes()));
+    mockAccessTokenResponse(HttpStatus.OK, new ByteArrayResource(jsonResponse.getBytes()));
   }
 
   private String getAccessTokenJson(String nameId) {
