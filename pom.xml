@@ -51,6 +51,11 @@
             <artifactId>bod-mtosi</artifactId>
             <version>0.3.0</version>
         </dependency>
+        <dependency>
+          <groupId>nl.surfnet.bod</groupId>
+          <artifactId>bod-vers</artifactId>
+          <version>0.1.0</version>
+        </dependency>
 
         <!-- Begin logging -->
         <!-- Added commons-logging as provided dependency to exclude it from the runtime path -->
