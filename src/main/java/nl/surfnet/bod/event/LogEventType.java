@@ -24,10 +24,6 @@ package nl.surfnet.bod.event;
 
 public enum LogEventType {
 
-  CREATE, READ, UPDATE, DELETE;
-
-  public String getAction() {
-    return name();
-  }
+  CREATE, UPDATE, DELETE;
 
 }

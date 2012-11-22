@@ -31,7 +31,6 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.domain.NsiRequestDetails;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.nbi.NbiClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 import nl.surfnet.bod.web.security.Security;
@@ -100,8 +99,6 @@ public class ReservationToNbi {
     reservation.setCancelReason(cancelReason);
     reservation = reservationRepo.save(reservation);
 
-    logEventService.logUpdateEvent(Security.getUserDetails(), reservation, reservation.getName() + " " + cancelReason);
-
     publishStatusChanged(reservation, orgStatus, requestDetails);
 
     return new AsyncResult<Long>(reservation.getId());
@@ -128,16 +125,16 @@ public class ReservationToNbi {
 
   private void publishStatusChanged(Reservation reservation, ReservationStatus originalStatus,
       Optional<NsiRequestDetails> nsiRequestDetails) {
+
     if (originalStatus == reservation.getStatus()) {
       logger.debug("No status change detected from {} to {}", originalStatus, reservation.getStatus());
       return;
     }
 
+    logEventService.logReservationStatusChangeEvent(Security.getUserDetails(), reservation, originalStatus);
+
     ReservationStatusChangeEvent createEvent = new ReservationStatusChangeEvent(originalStatus, reservation,
         nsiRequestDetails);
-
-    logEventService.logUpdateEvent(Security.getUserDetails(), reservation, LogEvent.getStateChangeMessage(createEvent
-        .getReservation(), createEvent.getOldStatus()), Optional.of(createEvent.getOldStatus()));
 
     reservationEventPublisher.notifyListeners(createEvent);
   }

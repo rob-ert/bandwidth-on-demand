@@ -21,6 +21,10 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -33,14 +37,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalPort_;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.UserGroup;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPort_;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController;
 import nl.surfnet.bod.web.manager.VirtualResourceGroupController.VirtualResourceGroupView;
@@ -57,10 +54,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
 
 @Service
 @Transactional
@@ -109,7 +102,7 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
   }
 
   public void delete(final VirtualResourceGroup virtualResourceGroup) {
-    logEventService.logDeleteEvent(Security.getUserDetails(), virtualResourceGroup);
+    logEventService.logDeleteEvent(Security.getUserDetails(), "", virtualResourceGroup);
     virtualResourceGroupRepo.delete(virtualResourceGroup);
   }
 
@@ -168,7 +161,7 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
   }
 
   public VirtualResourceGroup update(final VirtualResourceGroup virtualResourceGroup) {
-    logEventService.logUpdateEvent(Security.getUserDetails(), virtualResourceGroup);
+    logEventService.logUpdateEvent(Security.getUserDetails(), "", virtualResourceGroup);
     return virtualResourceGroupRepo.save(virtualResourceGroup);
   }
 

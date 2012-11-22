@@ -26,6 +26,12 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.idd.IddClient;
+import nl.surfnet.bod.repo.InstituteRepo;
+import nl.surfnet.bod.util.Functions;
+import nl.surfnet.bod.web.security.Security;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -33,12 +39,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
-
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.idd.IddClient;
-import nl.surfnet.bod.repo.InstituteRepo;
-import nl.surfnet.bod.util.Functions;
-import nl.surfnet.bod.web.security.Security;
 
 @Service
 @Transactional
@@ -56,7 +56,7 @@ public class InstituteIddService implements InstituteService {
 
   @Resource
   private LogEventService logEventService;
-  
+
   @Resource
   private SnmpAgentService snmpAgentService;
 
@@ -78,26 +78,36 @@ public class InstituteIddService implements InstituteService {
     List<Institute> currentAlignedInstitutes = instituteRepo.findByAlignedWithIDD(true);
     Collection<Institute> iddInstitutes = Functions.transformKlanten(iddClient.getKlanten(), true);
 
-    List<Institute> unalignedInstitutes = Lists.newArrayList(currentAlignedInstitutes);
-    unalignedInstitutes.removeAll(iddInstitutes);
+    detectRemovedInstitutes(currentAlignedInstitutes, iddInstitutes);
 
-    logger.info(String.format("Found %d institutes that are not in IDD anymore, marking them not aligned",
-        unalignedInstitutes.size()));
-    markNotAligned(unalignedInstitutes);
-    instituteRepo.save(unalignedInstitutes);
+    detectAddedInstitutes(currentAlignedInstitutes, iddInstitutes);
+  }
 
-    logEventService.logUpdateEvent(Security.getUserDetails(), unalignedInstitutes, "Marked unaligned with IDD");
-
+  private void detectAddedInstitutes(List<Institute> currentAlignedInstitutes, Collection<Institute> iddInstitutes) {
     iddInstitutes.removeAll(currentAlignedInstitutes);
 
     logger.info(String.format("Found %d new or updated institutes from IDD", iddInstitutes.size()));
+
     instituteRepo.save(iddInstitutes);
 
-    logEventService.logUpdateEvent(Security.getUserDetails(), iddInstitutes, "Marked new or realigned with IDD");
+    logEventService.logUpdateEvent(Security.getUserDetails(), "Marked new or realigned with IDD", iddInstitutes);
+  }
+
+  private void detectRemovedInstitutes(List<Institute> currentAlignedInstitutes, Collection<Institute> iddInstitutes) {
+    List<Institute> unalignedInstitutes = Lists.newArrayList(currentAlignedInstitutes);
+    unalignedInstitutes.removeAll(iddInstitutes);
+
+    logger.info(String.format(
+        "Found %d institutes that are not in IDD anymore, marking them not aligned",
+        unalignedInstitutes.size()));
+
+    markNotAligned(unalignedInstitutes);
+    instituteRepo.save(unalignedInstitutes);
+
+    logEventService.logUpdateEvent(Security.getUserDetails(), "Marked unaligned with IDD", unalignedInstitutes);
   }
 
   private void markNotAligned(List<Institute> allInstitutes) {
-    // Mark all not aligned
     for (Institute institute : allInstitutes) {
       institute.setAlignedWithIDD(false);
       snmpAgentService.sendMissingInstituteEvent(institute.getId().toString());

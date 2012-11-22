@@ -121,8 +121,8 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
         virtualPort);
     reservationService.cancelAndArchiveReservations(reservations, user);
 
-    logEventService.logDeleteEvent(Security.getUserDetails(), virtualPort,
-        getLogLabel(Security.getSelectedRole(), virtualPort));
+    logEventService.logDeleteEvent(Security.getUserDetails(),
+        getLogLabel(Security.getSelectedRole(), virtualPort), virtualPort);
 
     virtualPort.getVirtualResourceGroup().removeVirtualPort(virtualPort);
     virtualPortRepo.delete(virtualPort);
@@ -195,14 +195,15 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   public void save(final VirtualPort virtualPort) {
     virtualPortRepo.save(virtualPort);
 
-   //Log event after creation, so the ID is set by hibernate
-   logEventService.logCreateEvent(Security.getUserDetails(), virtualPort,
-        getLogLabel(Security.getSelectedRole(), virtualPort));
+   // Log event after creation, so the ID is set by hibernate
+   logEventService.logCreateEvent(Security.getUserDetails(), virtualPort);
   }
 
   public VirtualPort update(final VirtualPort virtualPort) {
-    logEventService.logUpdateEvent(Security.getUserDetails(), virtualPort,
-        getLogLabel(Security.getSelectedRole(), virtualPort));
+    logEventService.logUpdateEvent(
+        Security.getUserDetails(),
+        getLogLabel(Security.getSelectedRole(), virtualPort),
+        virtualPort);
     return virtualPortRepo.save(virtualPort);
   }
 
@@ -229,7 +230,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
     emailSender.sendVirtualPortRequestMail(user, link);
 
     //Log event after creation, so the ID is set by hibernate
-    logEventService.logCreateEvent(Security.getUserDetails(), link, link.getUserLabel());
+    logEventService.logCreateEvent(Security.getUserDetails(), link);
   }
 
   public Collection<VirtualPortRequestLink> findPendingRequests(PhysicalResourceGroup prg) {
@@ -243,7 +244,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   public void requestLinkApproved(VirtualPortRequestLink link, VirtualPort port) {
     link.setStatus(RequestStatus.APPROVED);
 
-    logEventService.logUpdateEvent(Security.getUserDetails(), link, "Approved request link " + link.getUserLabel());
+    logEventService.logUpdateEvent(Security.getUserDetails(), "Approved request link " + link.getUserLabel(), link);
     virtualPortRequestLinkRepo.save(link);
 
     emailSender.sendVirtualPortRequestApproveMail(link, port);
@@ -268,7 +269,7 @@ public class VirtualPortService extends AbstractFullTextSearchService<VirtualPor
   public void requestLinkDeclined(VirtualPortRequestLink link, String declineMessage) {
     link.setStatus(RequestStatus.DECLINED);
 
-    logEventService.logUpdateEvent(Security.getUserDetails(), link, "Declined request link " + link.getUserLabel());
+    logEventService.logUpdateEvent(Security.getUserDetails(), "Declined request link " + link.getUserLabel(), link);
     virtualPortRequestLinkRepo.save(link);
 
     emailSender.sendVirtualPortRequestDeclineMail(link, declineMessage);

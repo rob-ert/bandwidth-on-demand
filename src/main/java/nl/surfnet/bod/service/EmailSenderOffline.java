@@ -51,8 +51,7 @@ public class EmailSenderOffline extends EmailSenderOnline {
 
   @Override
   public void send(SimpleMailMessage activationMessage) {
-    logEventService.logCreateEvent(Security.getUserDetails(), new LoggableSimpleMailMessage(activationMessage),
-        "Sending mail");
+    logEventService.logCreateEvent(Security.getUserDetails(), new LoggableSimpleMailMessage(activationMessage));
   }
 
   public class LoggableSimpleMailMessage extends SimpleMailMessage implements Loggable {

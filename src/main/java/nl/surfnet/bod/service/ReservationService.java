@@ -115,10 +115,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   private LogEventService logEventService;
 
   public ReservationService() {
-    mapper.setVisibilityChecker(mapper.getSerializationConfig().getDefaultVisibilityChecker().withFieldVisibility(
-        JsonAutoDetect.Visibility.ANY).withGetterVisibility(JsonAutoDetect.Visibility.NONE).withSetterVisibility(
-        JsonAutoDetect.Visibility.NONE).withCreatorVisibility(JsonAutoDetect.Visibility.NONE).withIsGetterVisibility(
-        JsonAutoDetect.Visibility.NONE));
+    mapper.setVisibilityChecker(mapper.getSerializationConfig().getDefaultVisibilityChecker()
+        .withFieldVisibility(JsonAutoDetect.Visibility.ANY).withGetterVisibility(JsonAutoDetect.Visibility.NONE)
+        .withSetterVisibility(JsonAutoDetect.Visibility.NONE).withCreatorVisibility(JsonAutoDetect.Visibility.NONE)
+        .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE));
   }
 
   void alignConnectionWithReservation(Reservation reservation) {
@@ -149,8 +149,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
           && reservation.getStatus().isTransitionState()) {
         final ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
         reservation.setStatus(reservationState);
-        if(reservationState == ReservationStatus.CANCEL_FAILED){
-          throw new RuntimeException("NMS Error during cancel of reservation: "+reservation.getReservationId());
+        if (reservationState == ReservationStatus.CANCEL_FAILED) {
+          throw new RuntimeException("NMS Error during cancel of reservation: " + reservation.getReservationId());
         }
       }
     }
@@ -158,10 +158,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     Collection<ReservationArchive> reservationArchives = transformToReservationArchives(reservations);
 
     reservationArchiveRepo.save(reservationArchives);
-    logEventService.logCreateEvent(Security.getUserDetails(), reservations, "Archived due to cancel");
+    logEventService.logCreateEvent(Security.getUserDetails(), reservations);
 
     reservationRepo.delete(reservations);
-    logEventService.logDeleteEvent(Security.getUserDetails(), reservations, "Canceled and archived");
+    logEventService.logDeleteEvent(Security.getUserDetails(), "Canceled and archived", reservations);
   }
 
   public Optional<Future<Long>> cancelWithReason(Reservation reservation, String cancelReason, RichUserDetails user) {
@@ -341,8 +341,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     final Specification<LogEvent> specRunningToCancelled = LogEventPredicatesAndSpecifications
         .specStateChangeFromOldToNewForReservationIdBetween(RUNNING, CANCELLED, reservationIdsInPeriod, start, end);
 
-    final Specifications<LogEvent> specRunningReservations = Specifications.where(specSucceeded).or(
-        specAutoStartToCancelled).or(specRunningToCancelled);
+    final Specifications<LogEvent> specRunningReservations = Specifications.where(specSucceeded)
+        .or(specAutoStartToCancelled).or(specRunningToCancelled);
 
     return logEventService.countDistinctDomainObjectId(specRunningReservations);
   }
@@ -381,8 +381,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     reservation = reservationRepo.saveAndFlush(reservation);
 
     // Log event after creation, so the ID is set by hibernate
-    logEventService.logCreateEvent(Security.getUserDetails(), reservation, "Created reservation with name: "
-        + reservation.getName());
+    logEventService.logCreateEvent(Security.getUserDetails(), reservation);
 
     return reservationToNbi.asyncReserve(reservation.getId(), autoProvision, nsiRequestDetails);
   }
@@ -400,8 +399,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   }
 
   public Collection<Reservation> findAllActiveByVirtualPortForManager(final VirtualPort port, final RichUserDetails user) {
-    return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations()).and(
-        specByVirtualPortAndManager(port, user)));
+    return reservationRepo.findAll(Specifications.where(specByVirtualPort(port)).and(specActiveReservations())
+        .and(specByVirtualPortAndManager(port, user)));
   }
 
   public List<Reservation> findAllEntriesUsingFilter(final ReservationFilterView filter, int firstResult,
@@ -514,8 +513,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
             + "from reservation UNION select distinct extract(year from end_date_time) from reservation")
         .getResultList();
 
-    ImmutableList<Integer> years = FluentIterable.from(dbYears).filter(Predicates.notNull()).transform(
-        new Function<Double, Integer>() {
+    ImmutableList<Integer> years = FluentIterable.from(dbYears).filter(Predicates.notNull())
+        .transform(new Function<Double, Integer>() {
           @Override
           public Integer apply(Double d) {
             return d.intValue();
@@ -574,9 +573,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
       return new ElementActionView(true, "label_cancel");
     }
     else if (role.isManagerRole()
-        && (reservation.getSourcePort().getPhysicalResourceGroup().getId().equals(
-            role.getPhysicalResourceGroupId().get()) || reservation.getDestinationPort().getPhysicalResourceGroup()
-            .getId().equals(role.getPhysicalResourceGroupId().get()))) {
+        && (reservation.getSourcePort().getPhysicalResourceGroup().getId()
+            .equals(role.getPhysicalResourceGroupId().get()) || reservation.getDestinationPort()
+            .getPhysicalResourceGroup().getId().equals(role.getPhysicalResourceGroupId().get()))) {
       return new ElementActionView(true, "label_cancel");
     }
     else if (role.isUserRole() && Security.isUserMemberOf(reservation.getVirtualResourceGroup())) {
@@ -635,10 +634,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
 
     log.info("Reservation ({}) status {} -> {}", reservation.getId(), reservation.getStatus(), newStatus);
 
-    logEventService.logUpdateEvent(Security.getUserDetails(), freshRes,
-        LogEvent.getStateChangeMessage(freshRes, oldStatus), Optional.of(oldStatus));
+    logEventService.logReservationStatusChangeEvent(Security.getUserDetails(), freshRes, oldStatus);
 
     return reservationRepo.saveAndFlush(freshRes);
   }
-
 }

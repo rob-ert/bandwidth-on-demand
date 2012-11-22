@@ -21,16 +21,16 @@
  */
 package nl.surfnet.bod.search;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 import java.util.List;
+
+import nl.surfnet.bod.event.LogEvent;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import nl.surfnet.bod.event.LogEvent;
 
 public class LogEventIndexAndSearchTest extends AbstractIndexAndSearch<LogEvent> {
 
@@ -50,7 +50,6 @@ public class LogEventIndexAndSearchTest extends AbstractIndexAndSearch<LogEvent>
 
   @Test
   public void testIndexAndSearch() throws Exception {
-
     List<LogEvent> logEvents = getSearchQuery("klimaat");
     // nothing indexed so nothing should be found
     assertThat(logEvents.size(), is(0));
@@ -64,11 +63,11 @@ public class LogEventIndexAndSearchTest extends AbstractIndexAndSearch<LogEvent>
     logEvents = getSearchQuery("NOC engineers");
     // (1st & 2nd event)
     assertThat(logEvents.size(), is(2));
-    
+
     logEvents = getSearchQuery("klimaat1");
     // (2nd event)
     assertThat(logEvents.size(), is(1));
-    
+
     logEvents = getSearchQuery("klimaat");
     // (1st & /2nd event)
     assertThat(logEvents.size(), is(2));

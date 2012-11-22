@@ -104,7 +104,8 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
   }
 
   public PhysicalResourceGroup update(final PhysicalResourceGroup physicalResourceGroup) {
-    logEventService.logUpdateEvent(Security.getUserDetails(), physicalResourceGroup);
+    logEventService.logUpdateEvent(Security.getUserDetails(), "", physicalResourceGroup);
+
     return physicalResourceGroupRepo.save(physicalResourceGroup);
   }
 
@@ -163,8 +164,8 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
     activationEmailLinkRepo.save(activationEmailLink);
     update(activationEmailLink.getSourceObject());
 
-    //Log event after creation, so the ID is set by hibernate
-    logEventService.logCreateEvent(Security.getUserDetails(), activationEmailLink, "Activating link");
+    // Log event after creation, so the ID is set by hibernate
+    logEventService.logCreateEvent(Security.getUserDetails(), activationEmailLink);
   }
 
   @Transactional

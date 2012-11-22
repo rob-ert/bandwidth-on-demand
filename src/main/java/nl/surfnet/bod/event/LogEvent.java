@@ -21,14 +21,10 @@
  */
 package nl.surfnet.bod.event;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.*;
 
 import nl.surfnet.bod.domain.Loggable;
 import nl.surfnet.bod.domain.PersistableDomain;
-import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.util.TimeStampBridge;
 import nl.surfnet.bod.web.WebUtils;
@@ -38,19 +34,12 @@ import org.hibernate.search.annotations.*;
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 
 @Entity
 @Indexed
 @Analyzer(definition = "customanalyzer")
 public class LogEvent implements PersistableDomain {
-
-  @VisibleForTesting
-  static final String LIST_STRING = "List of %d %s(s)";
-
-  @VisibleForTesting
-  static final String LIST_EMPTY = "Empty list";
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -145,24 +134,6 @@ public class LogEvent implements PersistableDomain {
 
   public static String getDomainObjectName(Class<? extends Loggable> domainClass) {
     return domainClass.getSimpleName();
-  }
-
-  public static String getStateChangeMessage(final Reservation reservation, final ReservationStatus oldStatus) {
-    return reservation.getLabel() + ": changed state from [" + oldStatus
-        + getStateChangeMessageNewStatusPart(reservation.getStatus());
-  }
-
-  public static String getStateChangeMessageNewStatusPart(final ReservationStatus status) {
-    return "] to [" + status + "]";
-  }
-
-  public static String[] getStateChangeMessageNewStatusPart(final ReservationStatus... states) {
-    List<String> statusMessages = new ArrayList<>();
-    for (ReservationStatus status : states) {
-      statusMessages.add(getStateChangeMessageNewStatusPart(status));
-    }
-
-    return statusMessages.toArray(new String[statusMessages.size()]);
   }
 
   public DateTime getCreated() {

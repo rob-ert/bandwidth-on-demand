@@ -21,17 +21,15 @@
  */
 package nl.surfnet.bod.event;
 
-import nl.surfnet.bod.domain.ReservationStatus;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.support.VirtualPortFactory;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
 public class LogEventTest {
   private static final String USER_ID = "user";
@@ -69,19 +67,4 @@ public class LogEventTest {
     assertThat(logEvent.getDomainObjectId(), nullValue());
   }
 
-  @Test
-  public void shouldCreateMessageForOneStatus() {
-    String message = LogEvent.getStateChangeMessageNewStatusPart(ReservationStatus.CANCELLED);
-
-    assertThat(message, is("] to [CANCELLED]"));
-  }
-
-  @Test
-  public void shouldCreateMessageForTwoStates() {
-    String[] messages = LogEvent.getStateChangeMessageNewStatusPart(ReservationStatus.CANCELLED,
-        ReservationStatus.REQUESTED);
-
-    assertThat(messages[0], is("] to [CANCELLED]"));
-    assertThat(messages[1], is("] to [REQUESTED]"));
-  }
 }

@@ -21,6 +21,8 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.util.List;
 import java.util.Set;
 
@@ -34,8 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Sets;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 @Service
 @Transactional(readOnly = true)
 public class ManagerService {
@@ -44,10 +44,10 @@ public class ManagerService {
   private VirtualResourceGroupService virtualResourceGroupService;
 
   /**
-   * 
+   *
    * @param bodRole
    *          Role to search the adminGroups for
-   * 
+   *
    * @return Set<String> set of all different admin groups from the role and the
    *         {@link VirtualResourceGroup}s which are related to the given role.
    */

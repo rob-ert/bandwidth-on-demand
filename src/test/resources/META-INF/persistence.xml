@@ -47,8 +47,7 @@
             <property name="hibernate.search.default.directory_provider" value="ram"/>
         </properties>
     </persistence-unit>
-    
-    
+
     <persistence-unit name="search-pu">
         <class>nl.surfnet.bod.domain.PhysicalResourceGroup</class>
         <class>nl.surfnet.bod.domain.PhysicalPort</class>
@@ -73,5 +72,5 @@
             <property name="hibernate.search.default.directory_provider" value="ram" />
         </properties>
     </persistence-unit>
-    
+
 </persistence>

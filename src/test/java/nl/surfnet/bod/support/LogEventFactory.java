@@ -57,7 +57,7 @@ public class LogEventFactory {
     Field createdField = ReflectionUtils.findField(LogEvent.class, "created");
     createdField.setAccessible(true);
     ReflectionUtils.setField(createdField, logEvent, created);
-    
+
     return logEvent;
   }
 
