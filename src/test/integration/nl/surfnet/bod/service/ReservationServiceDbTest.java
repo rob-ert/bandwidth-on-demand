@@ -75,12 +75,12 @@ public class ReservationServiceDbTest {
 
   @Before
   public void setUp() {
-    rightReservationOnStartTime = helper.createAndPersist(rightDateTime, beforeDateTime, ReservationStatus.AUTO_START);
-    rightReservationOnEndTime = helper.createAndPersist(beforeDateTime, rightDateTime, ReservationStatus.AUTO_START);
-    helper.createAndPersist(beforeDateTime.minusMinutes(10), rightDateTime.plusHours(1), ReservationStatus.AUTO_START);
-    helper.createAndPersist(rightDateTime, beforeDateTime, ReservationStatus.CANCELLED);
-    helper.createAndPersist(rightDateTime, rightDateTime, ReservationStatus.CANCELLED);
-    helper.createAndPersist(beforeDateTime, beforeDateTime, ReservationStatus.AUTO_START);
+    rightReservationOnStartTime = createAndSaveReservation(rightDateTime, beforeDateTime, ReservationStatus.AUTO_START);
+    rightReservationOnEndTime = createAndSaveReservation(beforeDateTime, rightDateTime, ReservationStatus.AUTO_START);
+    createAndSaveReservation(beforeDateTime.minusMinutes(10), rightDateTime.plusHours(1), ReservationStatus.AUTO_START);
+    createAndSaveReservation(rightDateTime, beforeDateTime, ReservationStatus.CANCELLED);
+    createAndSaveReservation(rightDateTime, rightDateTime, ReservationStatus.CANCELLED);
+    createAndSaveReservation(beforeDateTime, beforeDateTime, ReservationStatus.AUTO_START);
   }
 
   @AfterTransaction
@@ -110,6 +110,11 @@ public class ReservationServiceDbTest {
 
     assertThat(reservations, hasSize(4));
     assertThat(reservations, hasItems(rightReservationOnEndTime, rightReservationOnStartTime));
+  }
+
+  private Reservation createAndSaveReservation(DateTime start, DateTime end, ReservationStatus status) {
+    Reservation reservation = helper.createReservation(start, end, status);
+    return helper.saveReservation(reservation);
   }
 
 }

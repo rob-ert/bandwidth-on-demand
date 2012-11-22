@@ -1,6 +1,8 @@
 package nl.surfnet.bod.service;
 
 import java.util.Iterator;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -23,6 +25,8 @@ import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 
+import static org.junit.Assert.fail;
+
 @Service
 public class ReservationServiceDbTestHelper {
 
@@ -43,7 +47,7 @@ public class ReservationServiceDbTestHelper {
   @Resource
   private EntityManagerFactory entityManagerFactory;
 
-  Reservation createAndPersist(DateTime startDateTime, DateTime endDateTime, ReservationStatus status) {
+  Reservation createReservation(DateTime startDateTime, DateTime endDateTime, ReservationStatus status) {
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
         .setStatus(status).create();
 
@@ -59,28 +63,6 @@ public class ReservationServiceDbTestHelper {
     // Force save of vrg only once, since they all use the same reference
     reservation.getVirtualResourceGroup().setId(null);
 
-    return persistReservation(reservation);
-  }
-
-  private Institute findInstituteToPreventUniqueKeyViolationInPhysicalResourceGroup(Long... instituteIdsInUse) {
-    Iterator<Institute> instituteIterator = instituteRepo.findAll().iterator();
-
-    Institute institute = null;
-    do {
-      institute = instituteIterator.next();
-    }
-    while (physicalResourceGroupRepo.findByInstituteId(institute.getId()) != null);
-
-    System.err.println("Found institute: " + institute);
-    return institute;
-  }
-
-  private PhysicalResourceGroup persistPhysicalResourceGroup(PhysicalResourceGroup group) {
-    group.setId(null);
-    return physicalResourceGroupRepo.save(group);
-  }
-
-  private Reservation persistReservation(Reservation reservation) {
     // Source port stuff
     reservation.getSourcePort().getPhysicalPort().setId(null);
     physicalPortRepo.save(reservation.getSourcePort().getPhysicalPort());
@@ -100,13 +82,49 @@ public class ReservationServiceDbTestHelper {
     virtualPortRepo.save(reservation.getDestinationPort());
 
     reservation.setId(null);
-    return reservationRepo.saveAndFlush(reservation);
+    return reservation;
   }
+  
+  Reservation saveReservation(Reservation reservation) {
+
+    return reservationRepo.save(reservation);
+  }
+
+  Reservation createThroughService(Reservation reservation) {
+    Future<Long> future = reservationService.create(reservation);
+    Long reservationId = null;
+
+    try {
+      reservationId = future.get();
+    }
+    catch (InterruptedException | ExecutionException e) {
+      fail(e.getMessage());
+    }
+    return reservationService.find(reservationId);
+  }
+
+
+  private Institute findInstituteToPreventUniqueKeyViolationInPhysicalResourceGroup(Long... instituteIdsInUse) {
+    Iterator<Institute> instituteIterator = instituteRepo.findAll().iterator();
+
+    Institute institute = null;
+    do {
+      institute = instituteIterator.next();
+    }
+    while (physicalResourceGroupRepo.findByInstituteId(institute.getId()) != null);
+    return institute;
+  }
+
+  private PhysicalResourceGroup persistPhysicalResourceGroup(PhysicalResourceGroup group) {
+    group.setId(null);
+    return physicalResourceGroupRepo.save(group);
+  }
+
 
   public void cleanUp() {
     EntityManager em = entityManagerFactory.createEntityManager();
     SQLQuery query = ((Session) em.getDelegate())
-        .createSQLQuery("truncate physical_resource_group, virtual_resource_group, connection cascade;");
+        .createSQLQuery("truncate physical_resource_group, virtual_resource_group, connection, log_event cascade;");
     query.executeUpdate();
   }
 }
