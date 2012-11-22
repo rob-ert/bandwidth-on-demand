@@ -21,24 +21,15 @@
  */
 package nl.surfnet.bod.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
+
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.Institute;
-import nl.surfnet.bod.domain.Loggable;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
@@ -57,15 +48,21 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-
-import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
 
 @Service
 public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   private static final String SYSTEM_USER = "System";
+  private static final Collection<String> PERSISTABLE_LOG_EVENTS = ImmutableList.of(
+    LogEvent.getDomainObjectName(Reservation.class),
+    LogEvent.getDomainObjectName(VirtualPort.class),
+    LogEvent.getDomainObjectName(PhysicalPort.class),
+    LogEvent.getDomainObjectName(PhysicalResourceGroup.class),
+    LogEvent.getDomainObjectName(Institute.class));
+
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -124,19 +121,18 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   @VisibleForTesting
   List<LogEvent> createLogEvents(RichUserDetails user, Collection<? extends Loggable> domainObjects,
       LogEventType logEventType, String details) {
+
     List<LogEvent> logEvents = new ArrayList<>();
     int size = Iterators.size((domainObjects).iterator());
 
     Iterator<? extends Loggable> it = (domainObjects).iterator();
-    int index = 0;
-    while (it.hasNext()) {
-      index++;
+
+    for (int i = 1; it.hasNext(); i++) {
       Loggable object = it.next();
 
       LogEvent logEvent = createLogEvent(user, logEventType, object, details, Optional.<ReservationStatus> absent());
 
-      // Relate list items
-      logEvent.setCorrelationId(String.valueOf(index) + "/" + String.valueOf(size));
+      logEvent.setCorrelationId(String.valueOf(i) + "/" + String.valueOf(size));
 
       logEvents.add(logEvent);
     }
@@ -252,7 +248,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   /**
    * Delegates to {@link #handleEvent(Logger, LogEvent)}
-   * 
+   *
    * @param logEvent
    */
   private void handleEvent(LogEvent logEvent) {
@@ -264,10 +260,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    * domainObject with one a specific type, as determined by
    * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
    * {@link LogEventRepo}
-   * 
+   *
    * @param logger
    *          Logger to write to
-   * 
+   *
    * @param logEvent
    *          LogEvent to handle
    */
@@ -336,32 +332,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   }
 
   /**
-   * Determines if an Event should be persisted. Only the following types are
-   * supported:
-   * <ul>
-   * <li>Reservation</li>
-   * <li>PhysicalPort</li>
-   * <li>VirtualPort</li>
-   * <li>Institute</li>
-   * </ul>
-   * 
-   * @param logEvent
-   * @return true when the {@link LogEvent#getDescription()} matches one of the
-   *         listed above, false otherwise.
+   * Determines if an Event should be persisted.
    */
   private boolean shouldLogEventBePersisted(LogEvent logEvent) {
-    String[] supportedClasses = { //
-    LogEvent.getDomainObjectName(Reservation.class), //
-        LogEvent.getDomainObjectName(VirtualPort.class), //
-        LogEvent.getDomainObjectName(PhysicalPort.class), //
-        LogEvent.getDomainObjectName(Institute.class) };
-
-    for (String clazz : supportedClasses) {
-      if (clazz.equals(logEvent.getDomainObjectClass())) {
-        return true;
-      }
-    }
-    return false;
+    return PERSISTABLE_LOG_EVENTS.contains(logEvent.getDomainObjectClass());
   }
 
 }

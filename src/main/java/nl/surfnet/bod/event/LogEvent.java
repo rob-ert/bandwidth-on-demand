@@ -43,6 +43,7 @@ import com.google.common.base.Optional;
 
 @Entity
 @Indexed
+@Analyzer(definition = "customanalyzer")
 public class LogEvent implements PersistableDomain {
 
   @VisibleForTesting
@@ -56,67 +57,50 @@ public class LogEvent implements PersistableDomain {
   private Long id;
 
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field(store = Store.YES)
   @FieldBridge(impl = TimeStampBridge.class)
   private final DateTime created;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field(store = Store.YES)
   @Basic
   private final String userId;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field(store = Store.YES)
   @Basic
   private final String adminGroup;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field(store = Store.YES)
   @Enumerated(EnumType.STRING)
   private final LogEventType eventType;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
-  @Column(nullable = true)
+  @Field(store = Store.YES)
   private final String domainObjectClass;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
-  @Column(nullable = true)
+  @Field(store = Store.YES)
   private final String description;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field(store = Store.YES)
   @Type(type = "text")
   private final String serializedObject;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field(store = Store.YES)
   @Type(type = "text")
   private final String details;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field(store = Store.YES)
   @Basic
   private String correlationId;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field(store = Store.YES)
   @Basic
-  @Column(nullable = true)
   private final Long domainObjectId;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field(store = Store.YES)
   @Enumerated(EnumType.STRING)
-  @Column(nullable = true)
   private final ReservationStatus oldReservationStatus;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field(store = Store.YES)
   @Enumerated(EnumType.STRING)
-  @Column(nullable = true)
   private final ReservationStatus newReservationStatus;
 
   /**

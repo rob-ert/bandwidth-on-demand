@@ -21,6 +21,9 @@
  */
 package nl.surfnet.bod.service;
 
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.Lists.newArrayList;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -51,9 +54,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-
-import static com.google.common.collect.Collections2.transform;
-import static com.google.common.collect.Lists.newArrayList;
 
 @Service
 @Transactional
@@ -99,7 +99,7 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
   public void save(final PhysicalResourceGroup physicalResourceGroup) {
     physicalResourceGroupRepo.save(physicalResourceGroup);
 
-    //Log event after creation, so the ID is set by hibernate
+    // log event after creation, so the ID is set by hibernate
     logEventService.logCreateEvent(Security.getUserDetails(), physicalResourceGroup);
   }
 
