@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -91,6 +93,9 @@ public class PhysicalResourceGroupController extends
 
   @Resource
   private ReservationService reservationService;
+  
+  @PersistenceContext
+  private EntityManager entityManager;
 
   @RequestMapping(method = RequestMethod.POST)
   public String create(@Valid final PhysicalResourceGroupCommand command, final BindingResult bindingResult,
@@ -179,6 +184,7 @@ public class PhysicalResourceGroupController extends
       virtualPortService.deleteVirtualPorts(virtualPorts, userDetails);
       physicalPortService.deleteByNmsPortId(physicalPort.getNmsPortId());
     }
+    entityManager.refresh(physicalResourceGroup);
     physicalResourceGroupService.delete(physicalResourceGroup.getId());
 
     uiModel.asMap().clear();

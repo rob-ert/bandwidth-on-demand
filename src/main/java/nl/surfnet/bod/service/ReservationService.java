@@ -149,12 +149,13 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
           && reservation.getStatus().isTransitionState()) {
         final ReservationStatus reservationState = nbiClient.cancelReservation(reservation.getReservationId());
         reservation.setStatus(reservationState);
+        if(reservationState == ReservationStatus.CANCEL_FAILED){
+          throw new RuntimeException("NMS Error during cancel of reservation: "+reservation.getReservationId());
+        }
       }
     }
 
     Collection<ReservationArchive> reservationArchives = transformToReservationArchives(reservations);
-
-    System.out.println("reservationArchives: " + reservationArchives);
 
     reservationArchiveRepo.save(reservationArchives);
     logEventService.logCreateEvent(Security.getUserDetails(), reservations, "Archived due to cancel");

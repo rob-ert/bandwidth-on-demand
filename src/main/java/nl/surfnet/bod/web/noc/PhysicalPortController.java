@@ -334,16 +334,16 @@ public class PhysicalPortController extends AbstractSearchableSortableListContro
     return PAGE_URL + UPDATE;
   }
 
-  @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.DELETE)
+  @RequestMapping(value = DELETE, params = ID_KEY, method = RequestMethod.GET)
   public String delete(@RequestParam(ID_KEY) final String nmsPortId,
       @RequestParam(value = PAGE_KEY, required = false) final Integer page, final Model uiModel) {
-
+//    throw new RuntimeException("Test RuntimeException...");
     final PhysicalPort physicalPort = physicalPortService.findByNmsPortId(nmsPortId);
     final Collection<VirtualPort> virtualPorts = virtualPortService.findAllForPhysicalPort(physicalPort);
     final RichUserDetails userDetails = Security.getUserDetails();
     virtualPortService.deleteVirtualPorts(virtualPorts, userDetails);
     physicalPortService.deleteByNmsPortId(nmsPortId);
-
+//
     uiModel.asMap().clear();
     uiModel.addAttribute(PAGE_KEY, (page == null) ? "1" : page.toString());
 
