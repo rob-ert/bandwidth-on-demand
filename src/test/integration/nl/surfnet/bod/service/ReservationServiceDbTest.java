@@ -36,10 +36,10 @@ import org.joda.time.DateTimeUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.AfterTransaction;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -47,10 +47,10 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-test.xml",
+@TransactionConfiguration(defaultRollback = true)
+@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
     "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
 @Transactional
-@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class ReservationServiceDbTest {
 
   // override bod.properties to run test and bod server at the same time
@@ -65,7 +65,7 @@ public class ReservationServiceDbTest {
   private ReservationRepo reservationRepo;
 
   @Resource
-  private ReportReservationServiceDbTestHelper helper;
+  private ReservationServiceDbTestHelper helper;
 
   private final DateTime rightDateTime = DateTime.now().withTime(0, 0, 0, 0);
   private final DateTime beforeDateTime = rightDateTime.minusMinutes(1);
@@ -81,6 +81,12 @@ public class ReservationServiceDbTest {
     helper.createAndPersist(rightDateTime, beforeDateTime, ReservationStatus.CANCELLED);
     helper.createAndPersist(rightDateTime, rightDateTime, ReservationStatus.CANCELLED);
     helper.createAndPersist(beforeDateTime, beforeDateTime, ReservationStatus.AUTO_START);
+  }
+
+  @AfterTransaction
+  public void teardown() {
+    System.err.println("Tear down");
+    helper.cleanUp();
   }
 
   @Test

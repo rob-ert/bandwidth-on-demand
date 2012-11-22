@@ -22,6 +22,8 @@
 package nl.surfnet.bod.service;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
@@ -32,6 +34,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.AfterTransaction;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,8 +55,11 @@ public class ReportReservationServiceDbTest {
     System.setProperty("snmp.host", "localhost/1622");
   }
 
+  @PersistenceContext
+  private EntityManager entityManager;
+
   @Resource
-  private ReportReservationServiceDbTestHelper helper;
+  private ReservationServiceDbTestHelper helper;
 
   @Resource
   private ReservationService reservationService;
@@ -77,9 +83,8 @@ public class ReportReservationServiceDbTest {
 
   @BeforeTransaction
   public void setUp() {
-    reservationRepo.deleteAll();
-
     reservationOnStartPeriod = helper.createAndPersist(periodStart, periodEnd.plusDays(1), ReservationStatus.REQUESTED);
+
     reservationOnEndPeriod = helper.createAndPersist(periodStart, periodEnd.plusDays(1), ReservationStatus.REQUESTED);
     reservationBeforeStartAndAfterEndPeriod = helper.createAndPersist(periodStart, periodEnd.plusDays(1),
         ReservationStatus.REQUESTED);
@@ -93,6 +98,11 @@ public class ReportReservationServiceDbTest {
     reservationBeforePeriod = helper.createAndPersist(periodStart, periodEnd.plusDays(1), ReservationStatus.REQUESTED);
     reservationInPeriod = helper.createAndPersist(periodStart, periodEnd.plusDays(1), ReservationStatus.REQUESTED);
     reservationAfterPeriod = helper.createAndPersist(periodStart, periodEnd.plusDays(1), ReservationStatus.REQUESTED);
+  }
+
+  @AfterTransaction
+  public void teardown() {
+    helper.cleanUp();
   }
 
   @Test
