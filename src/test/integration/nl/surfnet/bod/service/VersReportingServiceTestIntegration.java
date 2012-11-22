@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class VersReportingServiceTestIntegration {
 
   @SuppressWarnings("unused")
@@ -34,6 +33,7 @@ public class VersReportingServiceTestIntegration {
 
   @Before
   public void setUp() throws Exception {
+    versReportingService.init();
   }
 
   @After
@@ -42,7 +42,8 @@ public class VersReportingServiceTestIntegration {
 
   @Test
   public void test() throws IOException {
-    assertThat(versReportingService.sendReport(), is("Authentication failed"));
+    // value was already inserted for that period previously
+    assertThat(versReportingService.sendReport(), is(-1));
   }
 
 }
