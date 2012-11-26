@@ -21,12 +21,14 @@
  */
 package nl.surfnet.bod.web.noc;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import nl.surfnet.bod.domain.ProtectionType;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.service.LogEventService;
 import nl.surfnet.bod.service.ReservationService;
 import nl.surfnet.bod.util.Environment;
@@ -44,6 +46,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.google.common.annotations.VisibleForTesting;
 
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES;
+import static nl.surfnet.bod.domain.ReservationStatus.TRANSITION_STATES_AS_ARRAY;
 
 @Controller("nocReportController")
 @RequestMapping(ReportController.PAGE_URL)
@@ -86,17 +91,13 @@ public class ReportController {
     final DateTime end = nocReservationReport.getPeriodEnd();
 
     // ReservationRequests
-    long successfullCreates = reservationService.countReservationsForNocWhichHadStateBetween(start, end,
-        ReservationStatus.RESERVED);
-    successfullCreates += logEventService.countStateChangeFromOldToNewForReservationIdBetween(start, end,
-        ReservationStatus.REQUESTED, ReservationStatus.AUTO_START);
-    nocReservationReport.setAmountRequestsCreatedSucceeded(successfullCreates);
-
-    nocReservationReport.setAmountRequestsCreatedFailed(reservationService.countReservationsForNocWithEndStateBetween(
-        start, end, ReservationStatus.NOT_ACCEPTED));
-    // TODO should also check FAILED
+    nocReservationReport.setAmountRequestsCreatedSucceeded(reservationService.countSuccesfullReservationRequests(start,
+        end));
+    nocReservationReport.setAmountRequestsCreatedFailed(reservationService.countFailedReservationRequests(start, end));
 
     // No modify requests yet, init on zero
+    nocReservationReport.setAmountRequestsModifiedSucceeded(0l);
+    nocReservationReport.setAmountRequestsModifiedFailed(0l);
 
     nocReservationReport.setAmountRequestsCancelSucceeded(reservationService
         .countReservationsForNocWithEndStateBetween(start, end, ReservationStatus.CANCELLED));
@@ -115,9 +116,18 @@ public class ReportController {
   @VisibleForTesting
   void determineReservationsForProtectionType(NocReservationReport nocReservationReport) {
     final DateTime start = nocReservationReport.getPeriodStart();
+    final DateTime end = nocReservationReport.getPeriodEnd();
 
-    List<Long> reservationIds = reservationService.findReservationIdsBeforeWithLatestState(start,
-        ReservationStatus.TRANSITION_STATES_AS_ARRAY);
+    List<Long> reservationIds = new ArrayList<>();
+
+    for (Long id : reservationService.findReservationIdsBeforeWithState(start, TRANSITION_STATES_AS_ARRAY)) {
+      LogEvent logEvent = logEventService.findLatestStateChangeForReservationIdBefore(id, start);
+      if (TRANSITION_STATES.contains(logEvent.getNewReservationStatus())) {
+        reservationIds.add(id);
+      }
+    }
+
+    reservationIds.addAll(reservationService.findSuccessfullReservationRequests(start, end));
 
     nocReservationReport.setAmountReservationsProtected(reservationService
         .countReservationsNocForIdsWithProtectionTypeAndCreatedBefore(reservationIds, ProtectionType.PROTECTED));
@@ -137,10 +147,16 @@ public class ReportController {
     nocReservationReport.setAmountRunningReservationsSucceeded(reservationService.countRunningReservationsSucceeded(
         start, end));
 
-    nocReservationReport.setAmountRunningReservationsNeverProvisioned(reservationService
-        .countActiveReservationsBetweenWithStatusIn(start, end, ReservationStatus.TIMED_OUT));
+    nocReservationReport.setAmountRunningReservationsFailed(reservationService.countRunningReservationsFailed(start,
+        end));
 
-    nocReservationReport.setAmounRunningReservationsStillRunning(reservationService
-        .countActiveReservationsBetweenWithStatusIn(start, end, RUNNING));
+    nocReservationReport.setAmountRunningReservationsStillRunning(reservationService
+        .countActiveReservationsBetweenWithState(start, end, RUNNING));
+
+    nocReservationReport.setAmounRunningReservationsStillScheduled(reservationService
+        .countActiveReservationsBetweenWithState(start, end, SCHEDULED));
+
+    nocReservationReport.setAmountRunningReservationsNeverProvisioned(reservationService
+        .countActiveReservationsBetweenWithState(start, end, ReservationStatus.TIMED_OUT));
   }
 }

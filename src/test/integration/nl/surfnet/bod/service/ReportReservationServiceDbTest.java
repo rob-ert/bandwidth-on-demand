@@ -95,7 +95,7 @@ public class ReportReservationServiceDbTest {
 
   @BeforeTransaction
   public void setUp() {
-    periodStart = DateTime.now().plusHours(1);
+    periodStart = DateTime.now().plusDays(2).plusHours(1);
     periodEnd = periodStart.plusDays(1);
 
     logger.warn("Start of period [{}], end [{}]", periodStart, periodEnd);
@@ -128,6 +128,7 @@ public class ReportReservationServiceDbTest {
 
   @AfterTransaction
   public void teardown() {
+    logger.warn("Teardown");
     helper.cleanUp();
   }
 
@@ -140,7 +141,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldCountExistingStateInPeriod() {
-    long count = subject.countReservationsForNocWhichHadStateBetween(periodStart, periodEnd,
+    long count = subject.countReservationsForNocBetweenWhichHadState(periodStart, periodEnd,
         ReservationStatus.AUTO_START);
 
     assertThat(count, is(5L));
@@ -148,7 +149,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldCountExistingStateBeforePeriodOnCorner() {
-    long count = subject.countReservationsForNocWhichHadStateBetween(periodStart.minusDays(2), periodStart
+    long count = subject.countReservationsForNocBetweenWhichHadState(periodStart.minusDays(2), periodStart
         .minusHours(1), ReservationStatus.AUTO_START);
 
     assertThat(count, is(3L));
@@ -156,7 +157,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldCountExistingStateBeforePeriod() {
-    long count = subject.countReservationsForNocWhichHadStateBetween(periodStart.minusDays(2), periodStart
+    long count = subject.countReservationsForNocBetweenWhichHadState(periodStart.minusDays(2), periodStart
         .minusHours(2), ReservationStatus.AUTO_START);
 
     assertThat(count, is(1L));
@@ -164,7 +165,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldCountExistingStateAfterPeriod() {
-    long count = subject.countReservationsForNocWhichHadStateBetween(periodEnd.plusDays(2), periodEnd.plusDays(3),
+    long count = subject.countReservationsForNocBetweenWhichHadState(periodEnd.plusDays(2), periodEnd.plusDays(3),
         ReservationStatus.REQUESTED);
 
     assertThat(count, is(0L));
@@ -173,7 +174,7 @@ public class ReportReservationServiceDbTest {
   @Test
   public void shouldCountNonExistingStateInPeriod() {
     long count = subject
-        .countReservationsForNocWhichHadStateBetween(periodStart, periodEnd, ReservationStatus.RESERVED);
+        .countReservationsForNocBetweenWhichHadState(periodStart, periodEnd, ReservationStatus.RESERVED);
 
     assertThat(count, is(0L));
   }
@@ -190,6 +191,37 @@ public class ReportReservationServiceDbTest {
   public void shouldCountNonExsitingTransitionInPeriod() {
     long count = subject.countReservationsForNocWhichHadStateTransitionBetween(periodStart, periodEnd, REQUESTED,
         ReservationStatus.NOT_ACCEPTED);
+
+    assertThat(count, is(0L));
+  }
+
+  @Test
+  public void shouldFindActiveReservationsWithState() {
+    long count = subject.countActiveReservationsBetweenWithState(periodStart, periodEnd, AUTO_START);
+
+    assertThat(count, is(7L));
+
+    subject.updateStatus(reservationInPeriod, ReservationStatus.SUCCEEDED);
+    count = subject.countActiveReservationsBetweenWithState(periodStart, periodEnd, AUTO_START);
+
+    assertThat("Should count one less because of state change", count, is(6L));
+
+    count = subject.countActiveReservationsBetweenWithState(periodStart, periodEnd, AUTO_START);
+
+    assertThat("Should be one more, because search for extra status", count, is(7L));
+  }
+
+  @Test
+  public void shouldNotFindActiveReservationsBecauseOfState() {
+    long count = subject.countActiveReservationsBetweenWithState(periodStart, periodEnd, REQUESTED);
+
+    assertThat(count, is(0L));
+  }
+
+  @Test
+  public void shouldNotFindActiveReservationsBecauseBeforePeriod() {
+    long count = subject.countActiveReservationsBetweenWithState(periodStart.minusDays(3), periodStart.minusDays(2),
+        AUTO_START);
 
     assertThat(count, is(0L));
   }

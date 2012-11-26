@@ -155,7 +155,11 @@
                   </tr>
                   <tr>
                     <td>Running</td>
-                    <td class="right">${report.amounRunningReservationsStillRunning}</td>
+                    <td class="right">${report.amountRunningReservationsStillRunning}</td>
+                  </tr>
+                  <tr>
+                    <td>Scheduled</td>
+                    <td class="right">${report.amountRunningReservationsStillScheduled}</td>
                   </tr>
                 </table>
               </td>

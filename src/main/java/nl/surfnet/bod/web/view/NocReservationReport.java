@@ -48,8 +48,9 @@ public class NocReservationReport {
   // Running reservations
   private long amountRunningReservationsSucceeded;
   private long amountRunningReservationsFailed;
-  private long amounRunningReservationsStillRunning;
+  private long amountRunningReservationsStillRunning;
   private long amountRunningReservationsNeverProvisioned;
+  private long amountRunningReservationsStillScheduled;
 
   public NocReservationReport(DateTime start, DateTime end) {
     this.periodStart = start;
@@ -67,8 +68,8 @@ public class NocReservationReport {
   }
 
   public long getTotalActiveReservations() {
-    return amountRunningReservationsSucceeded + amountRunningReservationsFailed + amounRunningReservationsStillRunning
-        + amountRunningReservationsNeverProvisioned;
+    return amountRunningReservationsSucceeded + amountRunningReservationsFailed + amountRunningReservationsStillRunning
+        + amountRunningReservationsStillScheduled + amountRunningReservationsNeverProvisioned;
   }
 
   public long getTotalAmountRequestsCreated() {
@@ -187,12 +188,20 @@ public class NocReservationReport {
     this.amountRunningReservationsFailed = amountRunningReservationsFailed;
   }
 
-  public long getAmounRunningReservationsStillRunning() {
-    return amounRunningReservationsStillRunning;
+  public long getAmountRunningReservationsStillRunning() {
+    return amountRunningReservationsStillRunning;
   }
 
-  public void setAmounRunningReservationsStillRunning(long amounRunningReservationsStillRunning) {
-    this.amounRunningReservationsStillRunning = amounRunningReservationsStillRunning;
+  public void setAmountRunningReservationsStillRunning(long amountRunningReservationsStillRunning) {
+    this.amountRunningReservationsStillRunning = amountRunningReservationsStillRunning;
+  }
+
+  public void setAmounRunningReservationsStillScheduled(long amountRunningReservationsStillScheduled) {
+    this.amountRunningReservationsStillScheduled = amountRunningReservationsStillScheduled;
+  }
+
+  public long getAmountRunningReservationsStillScheduled() {
+    return amountRunningReservationsStillScheduled;
   }
 
   public long getAmountRunningReservationsNeverProvisioned() {
@@ -210,4 +219,5 @@ public class NocReservationReport {
   public DateTime getPeriodEnd() {
     return periodEnd;
   }
+
 }

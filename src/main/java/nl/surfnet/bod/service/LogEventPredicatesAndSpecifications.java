@@ -39,7 +39,7 @@ import org.joda.time.DateTime;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.CollectionUtils;
 
-import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 
 import static nl.surfnet.bod.web.WebUtils.not;
 
@@ -59,16 +59,17 @@ public final class LogEventPredicatesAndSpecifications {
     };
   }
 
-  static Specification<LogEvent> specLatestStateForReservationBeforeWithStateIn(
-      final Optional<List<Long>> reservationIds, final DateTime before, final ReservationStatus... states) {
+  static Specification<LogEvent> specForReservationBeforeWithStateIn(final Long reservationId, final DateTime before,
+      final ReservationStatus... states) {
 
+    final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
     return new Specification<LogEvent>() {
-      final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
 
       @Override
       public Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
-        Predicate predicate = getPredicateForDomainObjectBefore(root, cb, reservationIds, before, domainObjectName);
+        Predicate predicate = getPredicateForDomainObjectBefore(root, cb, Lists.newArrayList(reservationId), before,
+            domainObjectName);
         Predicate predicateStateIn = getPredicateForStateIn(root, cb, states);
 
         return predicateStateIn == null ? predicate : cb.and(predicate, predicateStateIn);
@@ -76,9 +77,8 @@ public final class LogEventPredicatesAndSpecifications {
     };
   }
 
-  static Specification<LogEvent> specLatestStateForReservationBetweenWithStateIn(
-      final Optional<List<Long>> reservationIds, final DateTime start, final DateTime end,
-      final ReservationStatus... states) {
+  static Specification<LogEvent> specForReservationBetweenWithStateIn(final List<Long> reservationIds,
+      final DateTime start, final DateTime end, final ReservationStatus... states) {
 
     return new Specification<LogEvent>() {
       private final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
@@ -94,8 +94,7 @@ public final class LogEventPredicatesAndSpecifications {
   }
 
   static Specification<LogEvent> specStateChangeFromOldToNewForReservationIdBetween(final ReservationStatus oldStatus,
-      final ReservationStatus newStatus, final Optional<List<Long>> reservationIds, final DateTime start,
-      final DateTime end) {
+      final ReservationStatus newStatus, final List<Long> reservationIds, final DateTime start, final DateTime end) {
 
     return new Specification<LogEvent>() {
       private final String domainObjectName = LogEvent.getDomainObjectName(Reservation.class);
@@ -111,7 +110,7 @@ public final class LogEventPredicatesAndSpecifications {
   }
 
   private static Predicate getPredicateForDomainObjectBetween(final Root<LogEvent> root, final CriteriaBuilder cb,
-      final Optional<List<Long>> reservationIds, final DateTime start, final DateTime end, final String domainObjectName) {
+      final List<Long> reservationIds, final DateTime start, final DateTime end, final String domainObjectName) {
 
     Predicate predicate = getDomainObjectWithIds(root, cb, reservationIds, domainObjectName);
 
@@ -119,18 +118,18 @@ public final class LogEventPredicatesAndSpecifications {
   }
 
   private static Predicate getPredicateForDomainObjectBefore(Root<LogEvent> root, CriteriaBuilder cb,
-      final Optional<List<Long>> reservationIds, final DateTime before, final String domainObjectName) {
+      final List<Long> reservationIds, final DateTime before, final String domainObjectName) {
 
     Predicate predicate = getDomainObjectWithIds(root, cb, reservationIds, domainObjectName);
     return cb.and(predicate, cb.lessThanOrEqualTo(root.get(LogEvent_.created), before));
   }
 
   private static Predicate getDomainObjectWithIds(final Root<LogEvent> root, final CriteriaBuilder cb,
-      final Optional<List<Long>> reservationIds, final String domainObjectName) {
+      final List<Long> reservationIds, final String domainObjectName) {
     Predicate predicate = cb.equal(root.get(LogEvent_.domainObjectClass), domainObjectName);
 
-    if (reservationIds.isPresent() && (not(CollectionUtils.isEmpty(reservationIds.get())))) {
-      predicate = cb.and(predicate, root.get(LogEvent_.domainObjectId).in(reservationIds.get()));
+    if (not(CollectionUtils.isEmpty(reservationIds))) {
+      predicate = cb.and(predicate, root.get(LogEvent_.domainObjectId).in(reservationIds));
     }
     return predicate;
   }

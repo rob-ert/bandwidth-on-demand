@@ -270,7 +270,7 @@ public class ReservationPredicatesAndSpecifications {
   }
 
   static Specification<Reservation> specReservationWithConnection(final List<Long> reservationIds) {
-    final Specification<Reservation> spec = new Specification<Reservation>() {
+    final Specification<Reservation> spec = new Specification<Reservation>() { 
 
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {

@@ -21,16 +21,24 @@
  */
 package nl.surfnet.bod.service;
 
-import static com.google.common.collect.Iterables.toArray;
-import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import nl.surfnet.bod.domain.*;
+import nl.surfnet.bod.domain.BodRole;
+import nl.surfnet.bod.domain.Institute;
+import nl.surfnet.bod.domain.Loggable;
+import nl.surfnet.bod.domain.PhysicalPort;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.event.LogEventType;
 import nl.surfnet.bod.repo.LogEventRepo;
@@ -50,18 +58,19 @@ import org.springframework.util.StringUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+
+import static com.google.common.collect.Iterables.toArray;
+
+import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
 
 @Service
 public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
 
   private static final String SYSTEM_USER = "System";
-  private static final Collection<String> PERSISTABLE_LOG_EVENTS = ImmutableList.of(
-      LogEvent.getDomainObjectName(Reservation.class),
-      LogEvent.getDomainObjectName(VirtualPort.class),
-      LogEvent.getDomainObjectName(PhysicalPort.class),
-      LogEvent.getDomainObjectName(PhysicalResourceGroup.class),
-      LogEvent.getDomainObjectName(Institute.class));
+  private static final Collection<String> PERSISTABLE_LOG_EVENTS = ImmutableList.of(LogEvent
+      .getDomainObjectName(Reservation.class), LogEvent.getDomainObjectName(VirtualPort.class), LogEvent
+      .getDomainObjectName(PhysicalPort.class), LogEvent.getDomainObjectName(PhysicalResourceGroup.class), LogEvent
+      .getDomainObjectName(Institute.class));
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -101,17 +110,28 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
       ReservationStatus oldStatus, ReservationStatus newStatus) {
 
     Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
-        .specStateChangeFromOldToNewForReservationIdBetween(oldStatus, newStatus, Optional.<List<Long>> absent(),
+        .specStateChangeFromOldToNewForReservationIdBetween(oldStatus, newStatus, null,
             start, end);
 
     return logEventRepo.countDistinctDomainObjectIdsWithWhereClause(whereClause);
+  }
+
+  public List<Long> findStateChangeFromOldToNewForReservationIdBetween(DateTime start, DateTime end,
+      ReservationStatus oldStatus, ReservationStatus newStatus) {
+
+    Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
+        .specStateChangeFromOldToNewForReservationIdBetween(oldStatus, newStatus, null,
+            start, end);
+
+    return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(whereClause);
   }
 
   private LogEvent createReservationLogEvent(RichUserDetails user, LogEventType eventType, Reservation reservation,
       ReservationStatus oldStatus) {
 
     String details = getStateChangeMessage(reservation, oldStatus);
-    return createLogEvent(user, eventType, reservation, details, Optional.of(oldStatus), Optional.of(reservation.getStatus()));
+    return createLogEvent(user, eventType, reservation, details, Optional.of(oldStatus), Optional.of(reservation
+        .getStatus()));
   }
 
   private LogEvent createLogEvent(RichUserDetails user, LogEventType eventType, Loggable domainObject, String details,
@@ -122,8 +142,8 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   }
 
   private LogEvent createLogEvent(RichUserDetails user, LogEventType eventType, Loggable domainObject, String details) {
-    return createLogEvent(user, eventType, domainObject, details, Optional.<ReservationStatus> absent(),
-        Optional.<ReservationStatus> absent());
+    return createLogEvent(user, eventType, domainObject, details, Optional.<ReservationStatus> absent(), Optional
+        .<ReservationStatus> absent());
   }
 
   private List<LogEvent> createLogEvents(RichUserDetails user, LogEventType logEventType, String details,
@@ -192,8 +212,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   public List<Long> findReservationIdsCreatedBetweenForNocWithState(DateTime start, DateTime end,
       ReservationStatus state) {
 
-    Specification<LogEvent> spec = LogEventPredicatesAndSpecifications.specLatestStateForReservationBetweenWithStateIn(
-        Optional.<List<Long>> absent(), start, end, state);
+    Specification<LogEvent> spec = LogEventPredicatesAndSpecifications.specForReservationBetweenWithStateIn(null, start, end, state);
 
     return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(spec);
   }
@@ -216,18 +235,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(determinGroupsToSearchFor)));
   }
 
-  public LogEvent findLatestStateChangeForReservationIdBeforeWithStateIn(Long id, DateTime before,
-      ReservationStatus... states) {
+  public LogEvent findLatestStateChangeForReservationIdBefore(Long id, DateTime before) {
 
-    return findLatestStateChangeForReservationIdBeforeWithStateIn(Optional.<List<Long>> of(Lists.newArrayList(id)),
-        before, states);
-  }
-
-  public LogEvent findLatestStateChangeForReservationIdBeforeWithStateIn(Optional<List<Long>> reservationIds,
-      DateTime before, ReservationStatus... states) {
-
-    Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
-        .specLatestStateForReservationBeforeWithStateIn(reservationIds, before, states);
+    Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications.specForReservationBeforeWithStateIn(id,
+        before);
 
     Long logEventId = logEventRepo.findMaxIdWithWhereClause(whereClause);
 
@@ -244,10 +255,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    * domainObject with one a specific type, as determined by
    * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
    * {@link LogEventRepo}
-   *
+   * 
    * @param logger
    *          Logger to write to
-   *
+   * 
    * @param logEvent
    *          LogEvent to handle
    */
