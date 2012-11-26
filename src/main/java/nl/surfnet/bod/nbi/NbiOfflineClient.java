@@ -21,8 +21,6 @@
  */
 package nl.surfnet.bod.nbi;
 
-import static nl.surfnet.bod.domain.ReservationStatus.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,14 +40,30 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.*;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
 
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
-class NbiOfflineClient implements NbiClient {
+import static nl.surfnet.bod.domain.ReservationStatus.AUTO_START;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCELLED;
+import static nl.surfnet.bod.domain.ReservationStatus.CANCEL_FAILED;
+import static nl.surfnet.bod.domain.ReservationStatus.FAILED;
+import static nl.surfnet.bod.domain.ReservationStatus.NOT_ACCEPTED;
+import static nl.surfnet.bod.domain.ReservationStatus.REQUESTED;
+import static nl.surfnet.bod.domain.ReservationStatus.RESERVED;
+import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
+import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
+import static nl.surfnet.bod.domain.ReservationStatus.SUCCEEDED;
+import static nl.surfnet.bod.domain.ReservationStatus.TIMED_OUT;
+
+public class NbiOfflineClient implements NbiClient {
 
   private static final Function<NbiPort, PhysicalPort> TRANSFORM_FUNCTION = new Function<NbiPort, PhysicalPort>() {
     @Override
@@ -79,6 +93,8 @@ class NbiOfflineClient implements NbiClient {
 
   private final List<NbiPort> ports = new ArrayList<>();
   private final Map<String, OfflineReservation> scheduleIds = new HashMap<>();
+
+  private boolean shouldSleep = true;
 
   public NbiOfflineClient() {
     ports.add(new NbiPort("Ut002A_OME01_ETH-1-1-4", "00-1B-25-2D-DA-65_ETH-1-1-4"));
@@ -153,7 +169,9 @@ class NbiOfflineClient implements NbiClient {
     log.warn("NBI MOCK created reservation with id: {}", reservation.getReservationId());
 
     // Imitate the online client..
-    Uninterruptibles.sleepUninterruptibly(3, TimeUnit.SECONDS);
+    if (shouldSleep) {
+      Uninterruptibles.sleepUninterruptibly(3, TimeUnit.SECONDS);
+    }
 
     return reservation;
   }
@@ -222,6 +240,10 @@ class NbiOfflineClient implements NbiClient {
         return nbiPort.getId().equals(nmsPortId);
       }
     }), TRANSFORM_FUNCTION));
+  }
+
+  public void setShouldSleep(boolean sleep) {
+    this.shouldSleep = sleep;
   }
 
   private static final class NbiPort {

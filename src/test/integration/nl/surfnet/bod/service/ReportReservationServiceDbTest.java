@@ -27,6 +27,7 @@ import javax.persistence.PersistenceContext;
 
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.nbi.NbiOfflineClient;
 import nl.surfnet.bod.repo.ReservationRepo;
 
 import org.joda.time.DateTime;
@@ -73,10 +74,13 @@ public class ReportReservationServiceDbTest {
   private ReservationRepo reservationRepo;
 
   @Resource
+  private NbiOfflineClient nbiClient;
+
+  @Resource
   private ReservationService subject;
 
-  private final DateTime periodStart = DateTime.now().plusHours(1);
-  private final DateTime periodEnd = periodStart.plusDays(1);
+  private DateTime periodStart;
+  private DateTime periodEnd;
 
   private Reservation reservationOnStartPeriod;
   private Reservation reservationOnEndPeriod;
@@ -91,7 +95,12 @@ public class ReportReservationServiceDbTest {
 
   @BeforeTransaction
   public void setUp() {
+    periodStart = DateTime.now().plusHours(1);
+    periodEnd = periodStart.plusDays(1);
+
     logger.warn("Start of period [{}], end [{}]", periodStart, periodEnd);
+    // Speed up setup time
+    nbiClient.setShouldSleep(false);
     helper.cleanUp();
 
     // Five (5) reservations in reporting period
@@ -123,67 +132,62 @@ public class ReportReservationServiceDbTest {
   }
 
   @Test
-  public void verifyToSaveALotOfSetupTime() {
-    checkSetup();
-
-    shouldCountExistingStateInPeriod();
-    shouldCountExistingStateBeforePeriodOnCorner();
-    shouldCountExistingStateBeforePeriod();
-    shouldCountExistingStateAfterPeriod();
-    shouldCountNonExistingStateInPeriod();
-    shouldCountExsitingTransitionInPeriod();
-    shouldCountNonExsitingTransitionInPeriod();
-  }
-
-  private void checkSetup() {
+  public void checkSetup() {
     long amountOfReservations = subject.count();
 
     assertThat(amountOfReservations, is(AMOUNT_OF_RESERVATIONS));
   }
 
-  private void shouldCountExistingStateInPeriod() {
+  @Test
+  public void shouldCountExistingStateInPeriod() {
     long count = subject.countReservationsForNocWhichHadStateBetween(periodStart, periodEnd,
-        ReservationStatus.REQUESTED);
+        ReservationStatus.AUTO_START);
 
     assertThat(count, is(5L));
   }
 
-  private void shouldCountExistingStateBeforePeriodOnCorner() {
+  @Test
+  public void shouldCountExistingStateBeforePeriodOnCorner() {
     long count = subject.countReservationsForNocWhichHadStateBetween(periodStart.minusDays(2), periodStart
-        .minusHours(1), ReservationStatus.REQUESTED);
+        .minusHours(1), ReservationStatus.AUTO_START);
 
     assertThat(count, is(3L));
   }
 
-  private void shouldCountExistingStateBeforePeriod() {
+  @Test
+  public void shouldCountExistingStateBeforePeriod() {
     long count = subject.countReservationsForNocWhichHadStateBetween(periodStart.minusDays(2), periodStart
-        .minusHours(2), ReservationStatus.REQUESTED);
+        .minusHours(2), ReservationStatus.AUTO_START);
 
     assertThat(count, is(1L));
   }
 
-  private void shouldCountExistingStateAfterPeriod() {
+  @Test
+  public void shouldCountExistingStateAfterPeriod() {
     long count = subject.countReservationsForNocWhichHadStateBetween(periodEnd.plusDays(2), periodEnd.plusDays(3),
         ReservationStatus.REQUESTED);
 
     assertThat(count, is(0L));
   }
 
-  private void shouldCountNonExistingStateInPeriod() {
+  @Test
+  public void shouldCountNonExistingStateInPeriod() {
     long count = subject
         .countReservationsForNocWhichHadStateBetween(periodStart, periodEnd, ReservationStatus.RESERVED);
 
     assertThat(count, is(0L));
   }
 
-  private void shouldCountExsitingTransitionInPeriod() {
+  @Test
+  public void shouldCountExsitingTransitionInPeriod() {
     long count = subject.countReservationsForNocWhichHadStateTransitionBetween(periodStart, periodEnd, REQUESTED,
         AUTO_START);
 
     assertThat(count, is(5L));
   }
 
-  private void shouldCountNonExsitingTransitionInPeriod() {
+  @Test
+  public void shouldCountNonExsitingTransitionInPeriod() {
     long count = subject.countReservationsForNocWhichHadStateTransitionBetween(periodStart, periodEnd, REQUESTED,
         ReservationStatus.NOT_ACCEPTED);
 
