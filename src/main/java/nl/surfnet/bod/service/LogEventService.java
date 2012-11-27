@@ -107,21 +107,19 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   }
 
   public long countStateChangeFromOldToNewForReservationIdBetween(DateTime start, DateTime end,
-      ReservationStatus oldStatus, ReservationStatus newStatus) {
+      ReservationStatus oldStatus, ReservationStatus newStatus, final List<String> adminGroups) {
 
     Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
-        .specStateChangeFromOldToNewForReservationIdBetween(oldStatus, newStatus, null,
-            start, end);
+        .specStateChangeFromOldToNewForReservationIdBetween(oldStatus, newStatus, null, start, end, adminGroups);
 
     return logEventRepo.countDistinctDomainObjectIdsWithWhereClause(whereClause);
   }
 
   public List<Long> findStateChangeFromOldToNewForReservationIdBetween(DateTime start, DateTime end,
-      ReservationStatus oldStatus, ReservationStatus newStatus) {
+      ReservationStatus oldStatus, ReservationStatus newStatus, final List<String> adminGroups) {
 
     Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
-        .specStateChangeFromOldToNewForReservationIdBetween(oldStatus, newStatus, null,
-            start, end);
+        .specStateChangeFromOldToNewForReservationIdBetween(oldStatus, newStatus, null, start, end, adminGroups);
 
     return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(whereClause);
   }
@@ -210,9 +208,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   }
 
   public List<Long> findReservationIdsCreatedBetweenForNocWithState(DateTime start, DateTime end,
-      ReservationStatus state) {
+      ReservationStatus state, List<String> adminGroups) {
 
-    Specification<LogEvent> spec = LogEventPredicatesAndSpecifications.specForReservationBetweenWithStateIn(null, start, end, state);
+    Specification<LogEvent> spec = LogEventPredicatesAndSpecifications.specForReservationBetweenWithStateIn(null,
+        start, end, adminGroups, state);
 
     return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(spec);
   }
@@ -235,10 +234,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(determinGroupsToSearchFor)));
   }
 
-  public LogEvent findLatestStateChangeForReservationIdBefore(Long id, DateTime before) {
+  public LogEvent findLatestStateChangeForReservationIdBefore(Long id, DateTime before, final List<String> adminGroups) {
 
     Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications.specForReservationBeforeWithStateIn(id,
-        before);
+        before, adminGroups);
 
     Long logEventId = logEventRepo.findMaxIdWithWhereClause(whereClause);
 

@@ -3,10 +3,12 @@
   xmlns:sec="http://www.springframework.org/security/tags"
   xmlns:jsp="http://java.sun.com/JSP/Page"
   xmlns:c="http://java.sun.com/jsp/jstl/core"
-  xmlns:table="urn:jsptagdir:/WEB-INF/tags/table">
+  xmlns:table="urn:jsptagdir:/WEB-INF/tags/table"
+   xmlns:sform="http://www.springframework.org/tags/form">
 
 <jsp:directive.page contentType="text/html;charset=UTF-8" />
 <jsp:output omit-xml-declaration="yes" />
+<spring:url value="/${baseReportIntervalUrl}/" var="reportIntervalUrl" />
 
 <div class="row">
   <div class="span12">
@@ -18,9 +20,9 @@
       <div class="content">
         <h3>
           Report from
-          <spring:eval expression="report.periodStart" />
-          -
-          <spring:eval expression="report.periodEnd" />
+          <form class="form-inline form-search" action="${reportIntervalUrl}" data-component="dropdown-filter">
+            <sform:select id="f_id"  path="selectedInterval.id" items="${intervalList}" itemLabel="label" itemValue="id" cssClass="input-medium" />
+          </form>
         </h3>
       </div>
     </section>

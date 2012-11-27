@@ -40,10 +40,13 @@ import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 import static nl.surfnet.bod.domain.ReservationStatus.RUNNING;
 import static nl.surfnet.bod.domain.ReservationStatus.SCHEDULED;
@@ -62,9 +65,27 @@ public abstract class AbstractReportController {
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
 
-    model.addAttribute("intervals", determineReportIntervals());
-    model.addAttribute("report", determineReport(getAdminGroups()));
+    return index(null, model);
+  }
 
+  @RequestMapping(value = "/{selectedIntervalId}", method = RequestMethod.GET)
+  public String index(@PathVariable final Integer selectedIntervalId, Model model) {
+
+    List<ReportIntervalView> intervals = determineReportIntervals();
+    model.addAttribute("intervalList", intervals);
+    model.addAttribute("baseReportIntervalUrl", getPageUrl());
+
+    ReportIntervalView selectedInterval = intervals.get(0);
+    if (selectedIntervalId != null) {
+      selectedInterval = Iterables.find(intervals, new Predicate<ReportIntervalView>() {
+        @Override
+        public boolean apply(ReportIntervalView interval) {
+          return selectedIntervalId.equals(interval.getId());
+        }
+      });
+    }
+    model.addAttribute("selectedInterval", selectedInterval);
+    model.addAttribute("report", determineReport(selectedInterval, getAdminGroups()));
     return getPageUrl();
   }
 
@@ -100,13 +121,10 @@ public abstract class AbstractReportController {
     return reportIntervals;
   }
 
-  private NocReservationReport determineReport(List<String> adminGroups) {
-    // TODO previous month
-    final DateTime firstDayOfPreviousMonth = DateMidnight.now().withDayOfMonth(1).toDateTime();
-    final DateTime lastDayOfPreviousMonth = firstDayOfPreviousMonth.dayOfMonth().withMaximumValue().toDateTime();
+  private NocReservationReport determineReport(ReportIntervalView selectedInterval, List<String> adminGroups) {
+    NocReservationReport nocReservationReport = new NocReservationReport(selectedInterval.getInterval().getStart(),
+        selectedInterval.getInterval().getEnd());
 
-    NocReservationReport nocReservationReport = new NocReservationReport(firstDayOfPreviousMonth,
-        lastDayOfPreviousMonth);
     determineReservationRequestsForGroups(nocReservationReport, adminGroups);
     determineReservationsForProtectionType(nocReservationReport, adminGroups);
     determineActiveRunningReservations(nocReservationReport, adminGroups);
@@ -120,22 +138,23 @@ public abstract class AbstractReportController {
 
     // ReservationRequests
     nocReservationReport.setAmountRequestsCreatedSucceeded(reservationService.countSuccesfullReservationRequests(start,
-        end));
-    nocReservationReport.setAmountRequestsCreatedFailed(reservationService.countFailedReservationRequests(start, end));
+        end, adminGroups));
+    nocReservationReport.setAmountRequestsCreatedFailed(reservationService.countFailedReservationRequests(start, end,
+        adminGroups));
 
     // No modify requests yet, init on zero
     nocReservationReport.setAmountRequestsModifiedSucceeded(0l);
     nocReservationReport.setAmountRequestsModifiedFailed(0l);
 
     nocReservationReport.setAmountRequestsCancelSucceeded(reservationService
-        .countReservationsForNocWithEndStateBetween(start, end, ReservationStatus.CANCELLED));
+        .countReservationsForNocWithEndStateBetween(start, end, adminGroups, ReservationStatus.CANCELLED));
 
     nocReservationReport.setAmountRequestsCancelFailed(reservationService.countReservationsForNocWithEndStateBetween(
-        start, end, ReservationStatus.CANCEL_FAILED));
+        start, end, adminGroups, ReservationStatus.CANCEL_FAILED));
 
     // Actual Reservations by channel
     nocReservationReport.setAmountRequestsThroughGUI(reservationService
-        .countReservationsForNocCreatedThroughChannelGUI(start, end));
+        .countReservationsForNocCreatedThroughChannelGUI(start, end, adminGroups));
 
     nocReservationReport.setAmountRequestsThroughNSI(nocReservationReport.getTotalRequests()
         - nocReservationReport.getAmountRequestsThroughGUI());
@@ -148,14 +167,14 @@ public abstract class AbstractReportController {
 
     List<Long> reservationIds = new ArrayList<>();
 
-    for (Long id : reservationService.findReservationIdsBeforeWithState(start, TRANSITION_STATES_AS_ARRAY)) {
-      LogEvent logEvent = logEventService.findLatestStateChangeForReservationIdBefore(id, start);
+    for (Long id : reservationService.findReservationIdsBeforeWithState(start, adminGroups, TRANSITION_STATES_AS_ARRAY)) {
+      LogEvent logEvent = logEventService.findLatestStateChangeForReservationIdBefore(id, start, adminGroups);
       if (TRANSITION_STATES.contains(logEvent.getNewReservationStatus())) {
         reservationIds.add(id);
       }
     }
 
-    reservationIds.addAll(reservationService.findSuccessfullReservationRequests(start, end));
+    reservationIds.addAll(reservationService.findSuccessfullReservationRequests(start, end, adminGroups));
 
     nocReservationReport.setAmountReservationsProtected(reservationService
         .countReservationsNocForIdsWithProtectionTypeAndCreatedBefore(reservationIds, ProtectionType.PROTECTED));
@@ -173,18 +192,18 @@ public abstract class AbstractReportController {
     final DateTime end = nocReservationReport.getPeriodEnd();
 
     nocReservationReport.setAmountRunningReservationsSucceeded(reservationService.countRunningReservationsSucceeded(
-        start, end));
+        start, end, adminGroups));
 
     nocReservationReport.setAmountRunningReservationsFailed(reservationService.countRunningReservationsFailed(start,
-        end));
+        end, adminGroups));
 
     nocReservationReport.setAmountRunningReservationsStillRunning(reservationService
-        .countActiveReservationsBetweenWithState(start, end, RUNNING));
+        .countActiveReservationsBetweenWithState(start, end, RUNNING, adminGroups));
 
     nocReservationReport.setAmounRunningReservationsStillScheduled(reservationService
-        .countActiveReservationsBetweenWithState(start, end, SCHEDULED));
+        .countActiveReservationsBetweenWithState(start, end, SCHEDULED, adminGroups));
 
     nocReservationReport.setAmountRunningReservationsNeverProvisioned(reservationService
-        .countActiveReservationsBetweenWithState(start, end, ReservationStatus.TIMED_OUT));
+        .countActiveReservationsBetweenWithState(start, end, ReservationStatus.TIMED_OUT, adminGroups));
   }
 }
