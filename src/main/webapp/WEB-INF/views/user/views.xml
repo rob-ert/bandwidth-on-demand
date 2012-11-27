@@ -33,4 +33,9 @@
       <put-attribute name="active_menu" value="advanced" cascade="true" />
     </definition>
 
+    <definition extends="default" name="report">
+        <put-attribute name="body" value="/WEB-INF/views/common/report/list.jspx" />
+        <!-- No menu item yet -->
+    </definition>
+
 </tiles-definitions>

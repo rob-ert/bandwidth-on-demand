@@ -14,7 +14,7 @@ public class ReportIntervalView {
     this.label = label;
 
     // Id will be 201210 when start is oct 2012
-    this.id = interval.getStart().getMonthOfYear() + (interval.getStart().getMonthOfYear() * 100);
+    this.id = (interval.getStart().getYear() * 100) + interval.getStart().getMonthOfYear();
   }
 
   public int getId() {

@@ -2,35 +2,38 @@
 <!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN" "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
 <tiles-definitions>
 
-    <definition extends="noc" name="noc/index">
-        <put-attribute name="body" value="/WEB-INF/views/noc/index.jspx" />
-        <put-attribute name="active_menu" value="overview" cascade="true" />
-    </definition>
+  <definition extends="noc" name="noc/index">
+    <put-attribute name="body" value="/WEB-INF/views/noc/index.jspx" />
+    <put-attribute name="active_menu" value="overview" cascade="true" />
+  </definition>
 
-    <definition extends="noc" name="noc/report">
-        <put-attribute name="body" value="/WEB-INF/views/noc/report.jspx" />
-        <!-- No menu item yet -->
-    </definition>
+  <definition extends="noc" name="noc/teams/list">
+    <put-attribute name="body" value="/WEB-INF/views/noc/teams/list.jspx" />
+    <put-attribute name="active_menu" value="teams" cascade="true" />
+  </definition>
 
-    <definition extends="noc" name="noc/teams/list">
-        <put-attribute name="body" value="/WEB-INF/views/noc/teams/list.jspx" />
-        <put-attribute name="active_menu" value="teams" cascade="true" />
-    </definition>
+  <definition extends="noc" name="noc/reservations/list">
+    <put-attribute name="body"
+      value="/WEB-INF/views/common/reservations/list.jspx" />
+    <put-attribute name="active_menu" value="reservations"
+      cascade="true" />
+    <put-attribute name="renderActions" value="false" cascade="true" />
+  </definition>
 
-    <definition extends="noc" name="noc/reservations/list">
-        <put-attribute name="body" value="/WEB-INF/views/common/reservations/list.jspx" />
-        <put-attribute name="active_menu" value="reservations" cascade="true" />
-        <put-attribute name="renderActions" value="false" cascade="true" />
-    </definition>
+  <definition extends="noc" name="noc/logevents">
+    <put-attribute name="body"
+      value="/WEB-INF/views/common/logevents/list.jspx" />
+    <put-attribute name="active_menu" value="logevent" cascade="true" />
+  </definition>
 
-   <definition extends="noc" name="noc/logevents">
-      <put-attribute name="body" value="/WEB-INF/views/common/logevents/list.jspx" />
-      <put-attribute name="active_menu" value="logevent" cascade="true" />
-    </definition>
+  <definition extends="default" name="noc/connections/list">
+    <put-attribute name="body" value="/WEB-INF/views/noc/connections/list.jspx" />
+    <put-attribute name="active_menu" value="reservation" cascade="true" />
+  </definition>
 
-    <definition extends="default" name="noc/connections/list">
-        <put-attribute name="body" value="/WEB-INF/views/noc/connections/list.jspx" />
-        <put-attribute name="active_menu" value="reservation" cascade="true" />
-    </definition>
+  <definition extends="noc" name="noc/report">
+    <put-attribute name="body" value="/WEB-INF/views/common/report/list.jspx" />
+    <!-- No menu item yet -->
+  </definition>
 
 </tiles-definitions>

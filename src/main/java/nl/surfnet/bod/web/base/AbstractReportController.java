@@ -62,7 +62,8 @@ public abstract class AbstractReportController {
   @RequestMapping(method = RequestMethod.GET)
   public String index(Model model) {
 
-    model.addAttribute("report", determineReport());
+    model.addAttribute("intervals", determineReportIntervals());
+    model.addAttribute("report", determineReport(getAdminGroups()));
 
     return getPageUrl();
   }
@@ -85,15 +86,13 @@ public abstract class AbstractReportController {
       firstDayOfInterval = DateMidnight.now().withDayOfMonth(1).minusMonths(i).toDateTime();
       lastDayOfInterval = firstDayOfInterval.dayOfMonth().withMaximumValue().toDateTime();
 
+      label = labelFormatter.print(firstDayOfInterval);
+
       // Correct to today
       if (lastDayOfInterval.isAfterNow()) {
         lastDayOfInterval = firstDayOfInterval.withDayOfMonth(DateTime.now().getDayOfMonth());
-        label = "Current month until now";
+        label += " - now";
       }
-      else {
-        label = labelFormatter.print(firstDayOfInterval);
-      }
-
       reportInterval = new Interval(firstDayOfInterval, lastDayOfInterval);
       reportIntervals.add(new ReportIntervalView(reportInterval, label));
     }
@@ -101,12 +100,10 @@ public abstract class AbstractReportController {
     return reportIntervals;
   }
 
-  private NocReservationReport determineReport() {
+  private NocReservationReport determineReport(List<String> adminGroups) {
     // TODO previous month
     final DateTime firstDayOfPreviousMonth = DateMidnight.now().withDayOfMonth(1).toDateTime();
     final DateTime lastDayOfPreviousMonth = firstDayOfPreviousMonth.dayOfMonth().withMaximumValue().toDateTime();
-
-    List<String> adminGroups = getAdminGroups();
 
     NocReservationReport nocReservationReport = new NocReservationReport(firstDayOfPreviousMonth,
         lastDayOfPreviousMonth);
