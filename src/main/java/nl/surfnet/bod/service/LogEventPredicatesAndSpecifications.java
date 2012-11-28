@@ -54,7 +54,7 @@ public final class LogEventPredicatesAndSpecifications {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<LogEvent> root, CriteriaQuery<?> query,
           CriteriaBuilder cb) {
-        return cb.and(root.get(LogEvent_.adminGroup).in(adminGroups));
+        return getPredicateInAdminGroups(adminGroups, root, cb);
       }
     };
   }
@@ -146,7 +146,7 @@ public final class LogEventPredicatesAndSpecifications {
     return predicate;
   }
 
-  private static Predicate getPredicateInAdminGroups(List<String> adminGroups, Root<LogEvent> root, CriteriaBuilder cb) {
+  private static Predicate getPredicateInAdminGroups(Collection<String> adminGroups, Root<LogEvent> root, CriteriaBuilder cb) {
 
     Predicate predicate = null;
 
