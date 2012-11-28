@@ -150,7 +150,7 @@ public final class LogEventPredicatesAndSpecifications {
 
     Predicate predicate = null;
 
-    if (CollectionUtils.isEmpty(adminGroups)) {
+    if (not(CollectionUtils.isEmpty(adminGroups))) {
       predicate = root.get(LogEvent_.adminGroup).in(adminGroups);
     }
 
