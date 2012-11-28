@@ -228,7 +228,8 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     long count = 0;
 
     for (Long id : findReservationIdsStartBeforeAndEndInOrAfter(start, end)) {
-      LogEvent logEvent = logEventService.findLatestStateChangeForReservationIdBefore(id, end, adminGroups);
+      LogEvent logEvent = logEventService
+          .findLatestStateChangeForReservationIdBeforeInAdminGroups(id, end, adminGroups);
       if ((logEvent != null) && (state == logEvent.getNewReservationStatus())) {
         count++;
       }
@@ -304,9 +305,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.count(forVirtualResourceGroup(vrg));
   }
 
-  public long countReservationsForNocCreatedThroughChannelGUI(DateTime start, DateTime end, List<String> adminGroups) {
-    List<Long> reservationIds = logEventService.findReservationIdsCreatedBetweenForNocWithState(start, end,
-        ReservationStatus.REQUESTED, adminGroups);
+  public long countReservationsForNocCreatedThroughChannelGUIInAdminGroups(DateTime start, DateTime end,
+      List<String> adminGroups) {
+    List<Long> reservationIds = logEventService.findReservationIdsCreatedBetweenForNocWithStateInAdminGroups(start,
+        end, ReservationStatus.REQUESTED, adminGroups);
 
     if (CollectionUtils.isEmpty(reservationIds)) {
       return 0;
@@ -315,36 +317,37 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationWithConnection(reservationIds));
   }
 
-  public long countReservationsForNocBetweenWhichHadState(DateTime start, DateTime end, List<String> adminGroups,
-      ReservationStatus... states) {
+  public long countReservationsForNocBetweenWhichHadStateInAdminGroups(DateTime start, DateTime end,
+      List<String> adminGroups, ReservationStatus... states) {
 
     return logEventService.countDistinctDomainObjectId(LogEventPredicatesAndSpecifications
-        .specForReservationBetweenWithStateIn(null, start, end, adminGroups, states));
+        .specForReservationBetweenForAdminGroupsWithStateIn(null, start, end, adminGroups, states));
   }
 
-  public List<Long> findReservationIdsForNocWhichHadStateBetween(DateTime start, DateTime end,
+  public List<Long> findReservationIdsInAdminGroupsWhichHadStateBetween(DateTime start, DateTime end,
       List<String> adminGroups, ReservationStatus... states) {
 
     return logEventService.findDistinctDomainObjectIdsWithWhereClause(LogEventPredicatesAndSpecifications
-        .specForReservationBetweenWithStateIn(null, start, end, adminGroups, states));
+        .specForReservationBetweenForAdminGroupsWithStateIn(null, start, end, adminGroups, states));
   }
 
-  public long countReservationsForNocWhichHadStateTransitionBetween(final DateTime start, final DateTime end,
-      final ReservationStatus oldStatus, final ReservationStatus newStatus, List<String> adminGroups) {
+  public long countReservationsForNocWhichHadStateTransitionBetweenInAdminGroups(final DateTime start,
+      final DateTime end, final ReservationStatus oldStatus, final ReservationStatus newStatus, List<String> adminGroups) {
 
     return logEventService.countDistinctDomainObjectId(LogEventPredicatesAndSpecifications
-        .specStateChangeFromOldToNewForReservationIdBetween(oldStatus, newStatus, null, start, end, adminGroups));
+        .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(oldStatus, newStatus, null, start, end,
+            adminGroups));
   }
 
-  public long countReservationsForNocWithEndStateBetween(DateTime start, DateTime end, List<String> adminGroups,
-      ReservationStatus... states) {
+  public long countReservationsForNocWithEndStateBetweenInAdminGroups(DateTime start, DateTime end,
+      List<String> adminGroups, ReservationStatus... states) {
 
     if (states != null) {
       for (ReservationStatus status : states)
         Preconditions.checkArgument(status.isEndState());
     }
 
-    return countReservationsForNocBetweenWhichHadState(start, end, adminGroups, states);
+    return countReservationsForNocBetweenWhichHadStateInAdminGroups(start, end, adminGroups, states);
   }
 
   public long countReservationsNocForIdsWithProtectionTypeAndCreatedBefore(List<Long> reservationIds,
@@ -371,18 +374,20 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    *          Filter on these groups
    * @return long totalAmount
    */
-  public long countSuccesfullReservationRequests(final DateTime start, final DateTime end, List<String> adminGroups) {
-    return findSuccessfullReservationRequests(start, end, adminGroups).size();
+  public long countSuccesfullReservationRequestsInAdminGroups(final DateTime start, final DateTime end,
+      List<String> adminGroups) {
+    return findSuccessfullReservationRequestsInAdminGroups(start, end, adminGroups).size();
   }
 
-  public List<Long> findSuccessfullReservationRequests(DateTime start, DateTime end, List<String> adminGroups) {
+  public List<Long> findSuccessfullReservationRequestsInAdminGroups(DateTime start, DateTime end,
+      List<String> adminGroups) {
     Set<Long> reservationIds = new HashSet<>();
 
     // ReservationRequests
-    reservationIds.addAll(findReservationIdsForNocWhichHadStateBetween(start, end, adminGroups,
+    reservationIds.addAll(findReservationIdsInAdminGroupsWhichHadStateBetween(start, end, adminGroups,
         ReservationStatus.RESERVED));
 
-    reservationIds.addAll(logEventService.findStateChangeFromOldToNewForReservationIdBetween(start, end,
+    reservationIds.addAll(logEventService.findStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(start, end,
         ReservationStatus.REQUESTED, ReservationStatus.AUTO_START, adminGroups));
 
     return Lists.newArrayList(reservationIds);
@@ -397,13 +402,14 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    *          {@link DateTime} end of period
    * @return long totalAmount
    */
-  public long countFailedReservationRequests(final DateTime start, final DateTime end, List<String> adminGroups) {
+  public long countFailedReservationRequestsInAdminGroups(final DateTime start, final DateTime end,
+      List<String> adminGroups) {
 
-    long failedRequests = countReservationsForNocWithEndStateBetween(start, end, adminGroups,
+    long failedRequests = countReservationsForNocWithEndStateBetweenInAdminGroups(start, end, adminGroups,
         ReservationStatus.NOT_ACCEPTED);
 
-    return failedRequests += countReservationsForNocWhichHadStateTransitionBetween(start, end, REQUESTED, FAILED,
-        adminGroups);
+    return failedRequests += countReservationsForNocWhichHadStateTransitionBetweenInAdminGroups(start, end, REQUESTED,
+        FAILED, adminGroups);
   }
 
   /**
@@ -417,19 +423,20 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    *          {@link DateTime} end of period
    * @return long totalAmount
    */
-  public long countRunningReservationsSucceeded(final DateTime start, final DateTime end, List<String> adminGroups) {
+  public long countRunningReservationsInAdminGroupsSucceeded(final DateTime start, final DateTime end,
+      List<String> adminGroups) {
     List<Long> reservationIdsInPeriod = findReservationIdsStartBeforeAndEndInOrAfter(start, end);
 
     final Specification<LogEvent> specSucceeded = LogEventPredicatesAndSpecifications
-        .specForReservationBetweenWithStateIn(reservationIdsInPeriod, start, end, adminGroups, SUCCEEDED);
+        .specForReservationBetweenForAdminGroupsWithStateIn(reservationIdsInPeriod, start, end, adminGroups, SUCCEEDED);
 
     final Specification<LogEvent> specScheduledToCancelled = LogEventPredicatesAndSpecifications
-        .specStateChangeFromOldToNewForReservationIdBetween(ReservationStatus.SCHEDULED, CANCELLED,
+        .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(ReservationStatus.SCHEDULED, CANCELLED,
             reservationIdsInPeriod, start, end, adminGroups);
 
     final Specification<LogEvent> specRunningToCancelled = LogEventPredicatesAndSpecifications
-        .specStateChangeFromOldToNewForReservationIdBetween(RUNNING, CANCELLED, reservationIdsInPeriod, start, end,
-            adminGroups);
+        .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(RUNNING, CANCELLED, reservationIdsInPeriod,
+            start, end, adminGroups);
 
     final Specifications<LogEvent> specRunningReservations = Specifications.where(specSucceeded).or(
         specScheduledToCancelled).or(specRunningToCancelled);
@@ -449,16 +456,17 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
    * @param adminGroups
    * @return long totalAmount
    */
-  public long countRunningReservationsFailed(final DateTime start, final DateTime end, List<String> adminGroups) {
+  public long countRunningReservationsInAdminGroupsFailed(final DateTime start, final DateTime end,
+      List<String> adminGroups) {
     List<Long> reservationIdsInPeriod = findReservationIdsStartBeforeAndEndInOrAfter(start, end);
 
     final Specification<LogEvent> specRunningToFailed = LogEventPredicatesAndSpecifications
-        .specStateChangeFromOldToNewForReservationIdBetween(RUNNING, FAILED, reservationIdsInPeriod, start, end,
-            adminGroups);
+        .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(RUNNING, FAILED, reservationIdsInPeriod,
+            start, end, adminGroups);
 
     final Specification<LogEvent> specScheduledToFailed = LogEventPredicatesAndSpecifications
-        .specStateChangeFromOldToNewForReservationIdBetween(SCHEDULED, FAILED, reservationIdsInPeriod, start, end,
-            adminGroups);
+        .specStateChangeFromOldToNewForReservationIdInAdminGroupsBetween(SCHEDULED, FAILED, reservationIdsInPeriod,
+            start, end, adminGroups);
 
     final Specifications<LogEvent> specRunningReservations = Specifications.where(specRunningToFailed).or(
         specScheduledToFailed);
@@ -588,10 +596,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.findIdsWithWhereClause(specFilteredReservationsForUser(filter, user));
   }
 
-  public List<Long> findReservationIdsBeforeWithState(DateTime before, List<String> adminGroups,
+  public List<Long> findReservationIdsBeforeInAdminGroupsWithState(DateTime before, List<String> adminGroups,
       ReservationStatus... states) {
     final Specification<LogEvent> whereClause = LogEventPredicatesAndSpecifications
-        .specForReservationBeforeWithStateIn(null, before, adminGroups, states);
+        .specForReservationBeforeInAdminGroupsWithStateIn(null, before, adminGroups, states);
 
     return logEventService.findDistinctDomainObjectIdsWithWhereClause(whereClause);
   }

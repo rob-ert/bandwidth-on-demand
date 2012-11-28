@@ -126,7 +126,7 @@ public abstract class AbstractReportController {
         selectedInterval.getInterval().getEnd());
 
     determineReservationRequestsForGroups(nocReservationReport, adminGroups);
-    determineReservationsForProtectionType(nocReservationReport, adminGroups);
+    determineReservationsInAdminGroupsForProtectionType(nocReservationReport, adminGroups);
     determineActiveRunningReservations(nocReservationReport, adminGroups);
 
     return nocReservationReport;
@@ -137,9 +137,9 @@ public abstract class AbstractReportController {
     final DateTime end = nocReservationReport.getPeriodEnd();
 
     // ReservationRequests
-    nocReservationReport.setAmountRequestsCreatedSucceeded(reservationService.countSuccesfullReservationRequests(start,
+    nocReservationReport.setAmountRequestsCreatedSucceeded(reservationService.countSuccesfullReservationRequestsInAdminGroups(start,
         end, adminGroups));
-    nocReservationReport.setAmountRequestsCreatedFailed(reservationService.countFailedReservationRequests(start, end,
+    nocReservationReport.setAmountRequestsCreatedFailed(reservationService.countFailedReservationRequestsInAdminGroups(start, end,
         adminGroups));
 
     // No modify requests yet, init on zero
@@ -147,34 +147,34 @@ public abstract class AbstractReportController {
     nocReservationReport.setAmountRequestsModifiedFailed(0l);
 
     nocReservationReport.setAmountRequestsCancelSucceeded(reservationService
-        .countReservationsForNocWithEndStateBetween(start, end, adminGroups, ReservationStatus.CANCELLED));
+        .countReservationsForNocWithEndStateBetweenInAdminGroups(start, end, adminGroups, ReservationStatus.CANCELLED));
 
-    nocReservationReport.setAmountRequestsCancelFailed(reservationService.countReservationsForNocWithEndStateBetween(
+    nocReservationReport.setAmountRequestsCancelFailed(reservationService.countReservationsForNocWithEndStateBetweenInAdminGroups(
         start, end, adminGroups, ReservationStatus.CANCEL_FAILED));
 
     // Actual Reservations by channel
     nocReservationReport.setAmountRequestsThroughGUI(reservationService
-        .countReservationsForNocCreatedThroughChannelGUI(start, end, adminGroups));
+        .countReservationsForNocCreatedThroughChannelGUIInAdminGroups(start, end, adminGroups));
 
     nocReservationReport.setAmountRequestsThroughNSI(nocReservationReport.getTotalRequests()
         - nocReservationReport.getAmountRequestsThroughGUI());
   }
 
   @VisibleForTesting
-  void determineReservationsForProtectionType(NocReservationReport nocReservationReport, List<String> adminGroups) {
+  void determineReservationsInAdminGroupsForProtectionType(NocReservationReport nocReservationReport, List<String> adminGroups) {
     final DateTime start = nocReservationReport.getPeriodStart();
     final DateTime end = nocReservationReport.getPeriodEnd();
 
     List<Long> reservationIds = new ArrayList<>();
 
-    for (Long id : reservationService.findReservationIdsBeforeWithState(start, adminGroups, TRANSITION_STATES_AS_ARRAY)) {
-      LogEvent logEvent = logEventService.findLatestStateChangeForReservationIdBefore(id, start, adminGroups);
+    for (Long id : reservationService.findReservationIdsBeforeInAdminGroupsWithState(start, adminGroups, TRANSITION_STATES_AS_ARRAY)) {
+      LogEvent logEvent = logEventService.findLatestStateChangeForReservationIdBeforeInAdminGroups(id, start, adminGroups);
       if (TRANSITION_STATES.contains(logEvent.getNewReservationStatus())) {
         reservationIds.add(id);
       }
     }
 
-    reservationIds.addAll(reservationService.findSuccessfullReservationRequests(start, end, adminGroups));
+    reservationIds.addAll(reservationService.findSuccessfullReservationRequestsInAdminGroups(start, end, adminGroups));
 
     nocReservationReport.setAmountReservationsProtected(reservationService
         .countReservationsNocForIdsWithProtectionTypeAndCreatedBefore(reservationIds, ProtectionType.PROTECTED));
@@ -191,10 +191,10 @@ public abstract class AbstractReportController {
     final DateTime start = nocReservationReport.getPeriodStart();
     final DateTime end = nocReservationReport.getPeriodEnd();
 
-    nocReservationReport.setAmountRunningReservationsSucceeded(reservationService.countRunningReservationsSucceeded(
+    nocReservationReport.setAmountRunningReservationsSucceeded(reservationService.countRunningReservationsInAdminGroupsSucceeded(
         start, end, adminGroups));
 
-    nocReservationReport.setAmountRunningReservationsFailed(reservationService.countRunningReservationsFailed(start,
+    nocReservationReport.setAmountRunningReservationsFailed(reservationService.countRunningReservationsInAdminGroupsFailed(start,
         end, adminGroups));
 
     nocReservationReport.setAmountRunningReservationsStillRunning(reservationService

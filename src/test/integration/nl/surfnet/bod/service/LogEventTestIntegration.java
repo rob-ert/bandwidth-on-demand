@@ -117,7 +117,7 @@ public class LogEventTestIntegration {
 
   @Test
   public void shouldFindLatestStateChangeForReservationOne() {
-    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBefore(ONE, now, adminGroups);
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeInAdminGroups(ONE, now, adminGroups);
     assertThat(logEvent.getDomainObjectId(), is(ONE));
     assertTrue(logEvent.getCreated().isBefore(now));
     assertThat(logEvent.getNewReservationStatus(), is(SUCCEEDED));
@@ -125,14 +125,14 @@ public class LogEventTestIntegration {
 
   @Test
   public void shouldNotFindStateChangeBecauseOfDate() {
-    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBefore(ONE, now.minusHours(5), adminGroups);
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeInAdminGroups(ONE, now.minusHours(5), adminGroups);
 
     assertThat(logEvent, nullValue());
   }
 
   @Test
   public void shouldFindLatestStateChangeToForReservationOne() {
-    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBefore(ONE, now, adminGroups);
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeInAdminGroups(ONE, now, adminGroups);
 
     assertThat(logEvent.getDomainObjectId(), is(ONE));
     assertTrue(logEvent.getCreated().isBefore(now));
@@ -141,14 +141,14 @@ public class LogEventTestIntegration {
 
   @Test
   public void shouldNotFindLatestStateChangeToForReservationOne() {
-    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBefore(ONE, now, adminGroups);
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeInAdminGroups(ONE, now, adminGroups);
 
     assertThat(logEvent, nullValue());
   }
 
   @Test
   public void shouldFindLatestTransientStateOne() {
-    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBefore(ONE, now, adminGroups);
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeInAdminGroups(ONE, now, adminGroups);
     assertThat(logEvent.getDomainObjectId(), is(ONE));
     assertTrue(logEvent.getCreated().isBefore(now));
     assertThat(logEvent.getNewReservationStatus(), is(RUNNING));
@@ -156,7 +156,7 @@ public class LogEventTestIntegration {
 
   @Test
   public void shouldFindLatestTransientStateChangeForReservationTwo() {
-    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBefore(TWO, now, adminGroups);
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeInAdminGroups(TWO, now, adminGroups);
 
     assertThat(logEvent.getDomainObjectId(), is(TWO));
     assertTrue(logEvent.getCreated().isBefore(now));
@@ -165,7 +165,7 @@ public class LogEventTestIntegration {
 
   @Test
   public void shouldFindLatestTransientStateTwo() {
-    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBefore(TWO, now, adminGroups);
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeInAdminGroups(TWO, now, adminGroups);
 
     assertThat(logEvent.getDomainObjectId(), is(TWO));
     assertTrue(logEvent.getCreated().isBefore(now));
@@ -197,7 +197,7 @@ public class LogEventTestIntegration {
 
   @Test
   public void shouldFindLatestStateChangeForReservationOneAt4HoursAgo() {
-    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBefore(ONE, now.minusHours(4), adminGroups);
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeInAdminGroups(ONE, now.minusHours(4), adminGroups);
     assertThat(logEvent.getDomainObjectId(), is(ONE));
     assertThat(logEvent.getOldReservationStatus(), is(REQUESTED));
     assertThat(logEvent.getNewReservationStatus(), is(RESERVED));
@@ -205,7 +205,7 @@ public class LogEventTestIntegration {
 
   @Test
   public void shouldFindLatestStateChangeForReservationOneAt3HoursAgo() {
-    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBefore(ONE, now.minusHours(3), adminGroups);
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeInAdminGroups(ONE, now.minusHours(3), adminGroups);
 
     assertThat(logEvent.getDomainObjectId(), is(ONE));
     assertThat(logEvent.getOldReservationStatus(), is(RESERVED));
@@ -214,7 +214,7 @@ public class LogEventTestIntegration {
 
   @Test
   public void shouldFindLatestStateChangeForReservationOneAt2HoursAgo() {
-    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBefore(ONE, now.minusHours(2), adminGroups);
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeInAdminGroups(ONE, now.minusHours(2), adminGroups);
 
     assertThat(logEvent.getDomainObjectId(), is(ONE));
     assertThat(logEvent.getOldReservationStatus(), is(SCHEDULED));
@@ -223,7 +223,7 @@ public class LogEventTestIntegration {
 
   @Test
   public void shouldFindLatestStateChangeForReservationOneAt1HoursAgo() {
-    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBefore(ONE, now.minusHours(1), adminGroups);
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeInAdminGroups(ONE, now.minusHours(1), adminGroups);
 
     assertThat(logEvent.getDomainObjectId(), is(ONE));
     assertThat(logEvent.getOldReservationStatus(), is(RUNNING));
@@ -232,7 +232,7 @@ public class LogEventTestIntegration {
 
   @Test
   public void shouldFindLatestStateChangeForReservationOneAt1HoursAgoCornerCase() {
-    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBefore(ONE, now.minusHours(1).minusSeconds(1),
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeInAdminGroups(ONE, now.minusHours(1).minusSeconds(1),
         adminGroups);
 
     assertThat(logEvent.getDomainObjectId(), is(ONE));
@@ -242,7 +242,7 @@ public class LogEventTestIntegration {
 
   @Test
   public void shouldFindLatestStateChangeForInfiniteReservationAt4HoursAgo() {
-    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBefore(THREE, now.minusHours(4), adminGroups);
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeInAdminGroups(THREE, now.minusHours(4), adminGroups);
 
     assertThat(logEvent.getDomainObjectId(), is(THREE));
     assertThat(logEvent.getOldReservationStatus(), is(REQUESTED));
@@ -251,7 +251,7 @@ public class LogEventTestIntegration {
 
   @Test
   public void shouldFindLatestStateChangeForInfiniteReservationAt3HoursAgo() {
-    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBefore(THREE, now.minusHours(3), adminGroups);
+    LogEvent logEvent = subject.findLatestStateChangeForReservationIdBeforeInAdminGroups(THREE, now.minusHours(3), adminGroups);
 
     assertThat(logEvent.getDomainObjectId(), is(THREE));
     assertThat(logEvent.getOldReservationStatus(), is(AUTO_START));

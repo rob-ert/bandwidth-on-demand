@@ -18,12 +18,10 @@
         <util:timeZone />
       </h1>
       <div class="content">
-        <h3>
-          Report from
+          <h3 >Reporting period</h3>
           <form class="form-inline form-search" action="${reportIntervalUrl}" data-component="dropdown-filter">
             <sform:select id="f_id"  path="selectedInterval.id" items="${intervalList}" itemLabel="label" itemValue="id" cssClass="input-medium" />
           </form>
-        </h3>
       </div>
     </section>
   </div>
