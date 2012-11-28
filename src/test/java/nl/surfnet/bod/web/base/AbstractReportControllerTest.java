@@ -14,6 +14,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class AbstractReportControllerTest {
 
@@ -74,13 +75,13 @@ public class AbstractReportControllerTest {
       assertThat(firstReportView.getInterval().getStart(), is(january2012.withDayOfMonth(1)));
       assertThat(firstReportView.getInterval().getEnd(), is(january2012.dayOfMonth().withMaximumValue()));
       assertThat(firstReportView.getId(), is(201201));
-      assertThat(firstReportView.getLabel(), is("2012 jan"));
+      assertTrue(firstReportView.getLabel().equalsIgnoreCase("2012 jan"));
 
       ReportIntervalView lastReportView = reportIntervals.get(0);
       assertThat(lastReportView.getInterval().getStart(), is(august2012.withDayOfMonth(1)));
       assertThat(lastReportView.getInterval().getEnd(), is(august2012));
-      assertThat(lastReportView.getId(), is(201208));
-      assertThat(lastReportView.getLabel(), is("2012 aug - now"));
+      assertThat(lastReportView.getId(), is(201208));      
+      assertTrue(lastReportView.getLabel().equalsIgnoreCase("2012 aug - now"));
     }
     finally {
       DateTimeUtils.currentTimeMillis();
