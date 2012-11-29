@@ -10,7 +10,7 @@
 <jsp:output omit-xml-declaration="yes" />
 <spring:url value="/${baseReportIntervalUrl}/" var="reportIntervalUrl" />
 
-<div class="row">
+<div class="row report-list">
   <div class="span12">
     <section>
       <h1>
