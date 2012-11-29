@@ -172,6 +172,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     }
 
     if (user == null) {
+      //TODO dangerous?
       return environment.getNocGroup();
     }
 
@@ -209,7 +210,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(whereClause);
   }
 
-  public List<Long> findReservationIdsCreatedBetweenForNocWithStateInAdminGroups(DateTime start, DateTime end,
+  public List<Long> findReservationIdsCreatedBetweenWithStateInAdminGroups(DateTime start, DateTime end,
       ReservationStatus state, Collection<String> adminGroups) {
 
     Specification<LogEvent> spec = LogEventPredicatesAndSpecifications

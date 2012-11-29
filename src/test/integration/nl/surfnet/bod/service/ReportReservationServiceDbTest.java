@@ -145,7 +145,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldCountExistingStateInPeriod() {
-    long count = subject.countReservationsForNocBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups,
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups,
         ReservationStatus.AUTO_START);
 
     assertThat(count, is(5L));
@@ -153,7 +153,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldCountExistingStateBeforePeriodOnCorner() {
-    long count = subject.countReservationsForNocBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart
         .minusHours(1), adminGroups, ReservationStatus.AUTO_START);
 
     assertThat(count, is(3L));
@@ -161,7 +161,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldCountExistingStateBeforePeriod() {
-    long count = subject.countReservationsForNocBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart.minusDays(2), periodStart
         .minusHours(2), adminGroups, ReservationStatus.AUTO_START);
 
     assertThat(count, is(1L));
@@ -169,7 +169,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldCountExistingStateAfterPeriod() {
-    long count = subject.countReservationsForNocBetweenWhichHadStateInAdminGroups(periodEnd.plusDays(2), periodEnd.plusDays(3),
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodEnd.plusDays(2), periodEnd.plusDays(3),
         adminGroups, ReservationStatus.REQUESTED);
 
     assertThat(count, is(0L));
@@ -177,7 +177,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldCountNonExistingStateInPeriod() {
-    long count = subject.countReservationsForNocBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups,
+    long count = subject.countReservationsBetweenWhichHadStateInAdminGroups(periodStart, periodEnd, adminGroups,
         ReservationStatus.RESERVED);
 
     assertThat(count, is(0L));
@@ -185,7 +185,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldCountExsitingTransitionInPeriod() {
-    long count = subject.countReservationsForNocWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd, REQUESTED,
+    long count = subject.countReservationsWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd, REQUESTED,
         AUTO_START, adminGroups);
 
     assertThat(count, is(5L));
@@ -193,7 +193,7 @@ public class ReportReservationServiceDbTest {
 
   @Test
   public void shouldCountNonExsitingTransitionInPeriod() {
-    long count = subject.countReservationsForNocWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd, REQUESTED,
+    long count = subject.countReservationsWhichHadStateTransitionBetweenInAdminGroups(periodStart, periodEnd, REQUESTED,
         ReservationStatus.NOT_ACCEPTED, adminGroups);
 
     assertThat(count, is(0L));

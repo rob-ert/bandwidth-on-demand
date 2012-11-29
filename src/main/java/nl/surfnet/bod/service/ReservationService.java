@@ -305,9 +305,9 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.count(forVirtualResourceGroup(vrg));
   }
 
-  public long countReservationsForNocCreatedThroughChannelGUIInAdminGroups(DateTime start, DateTime end,
+  public long countReservationsCreatedThroughChannelGUIInAdminGroups(DateTime start, DateTime end,
      Collection<String> adminGroups) {
-    List<Long> reservationIds = logEventService.findReservationIdsCreatedBetweenForNocWithStateInAdminGroups(start,
+    List<Long> reservationIds = logEventService.findReservationIdsCreatedBetweenWithStateInAdminGroups(start,
         end, ReservationStatus.REQUESTED, adminGroups);
 
     if (CollectionUtils.isEmpty(reservationIds)) {
@@ -317,7 +317,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
     return reservationRepo.count(ReservationPredicatesAndSpecifications.specReservationWithConnection(reservationIds));
   }
 
-  public long countReservationsForNocBetweenWhichHadStateInAdminGroups(DateTime start, DateTime end,
+  public long countReservationsBetweenWhichHadStateInAdminGroups(DateTime start, DateTime end,
      Collection<String> adminGroups, ReservationStatus... states) {
 
     return logEventService.countDistinctDomainObjectId(LogEventPredicatesAndSpecifications
@@ -331,7 +331,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
         .specForReservationBetweenForAdminGroupsWithStateIn(null, start, end, adminGroups, states));
   }
 
-  public long countReservationsForNocWhichHadStateTransitionBetweenInAdminGroups(final DateTime start,
+  public long countReservationsWhichHadStateTransitionBetweenInAdminGroups(final DateTime start,
       final DateTime end, final ReservationStatus oldStatus, final ReservationStatus newStatus,Collection<String> adminGroups) {
 
     return logEventService.countDistinctDomainObjectId(LogEventPredicatesAndSpecifications
@@ -339,7 +339,7 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
             adminGroups));
   }
 
-  public long countReservationsForNocWithEndStateBetweenInAdminGroups(DateTime start, DateTime end,
+  public long countReservationsWithEndStateBetweenInAdminGroups(DateTime start, DateTime end,
      Collection<String> adminGroups, ReservationStatus... states) {
 
     if (states != null) {
@@ -347,10 +347,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
         Preconditions.checkArgument(status.isEndState());
     }
 
-    return countReservationsForNocBetweenWhichHadStateInAdminGroups(start, end, adminGroups, states);
+    return countReservationsBetweenWhichHadStateInAdminGroups(start, end, adminGroups, states);
   }
 
-  public long countReservationsNocForIdsWithProtectionTypeAndCreatedBefore(List<Long> reservationIds,
+  public long countReservationsForIdsWithProtectionTypeAndCreatedBefore(List<Long> reservationIds,
       ProtectionType protectionType) {
     Preconditions.checkNotNull(protectionType);
 
@@ -405,10 +405,10 @@ public class ReservationService extends AbstractFullTextSearchService<Reservatio
   public long countFailedReservationRequestsInAdminGroups(final DateTime start, final DateTime end,
      Collection<String> adminGroups) {
 
-    long failedRequests = countReservationsForNocWithEndStateBetweenInAdminGroups(start, end, adminGroups,
+    long failedRequests = countReservationsWithEndStateBetweenInAdminGroups(start, end, adminGroups,
         ReservationStatus.NOT_ACCEPTED);
 
-    return failedRequests += countReservationsForNocWhichHadStateTransitionBetweenInAdminGroups(start, end, REQUESTED,
+    return failedRequests += countReservationsWhichHadStateTransitionBetweenInAdminGroups(start, end, REQUESTED,
         FAILED, adminGroups);
   }
 
