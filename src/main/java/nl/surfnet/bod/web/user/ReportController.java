@@ -1,14 +1,12 @@
 package nl.surfnet.bod.web.user;
 
-import java.util.List;
+import java.util.Collection;
 
 import nl.surfnet.bod.web.base.AbstractReportController;
 import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.google.common.collect.Lists;
 
 @Controller("userReportController")
 @RequestMapping(ReportController.PAGE_URL)
@@ -21,9 +19,9 @@ public class ReportController extends AbstractReportController {
   }
 
   @Override
-  protected List<String> getAdminGroups() {
+  protected Collection<String> getAdminGroups() {
     if (Security.isSelectedUserRole()) {
-      return Lists.newArrayList("dummygroup");
+      return Security.getUserDetails().getUserGroupIds();
     }
 
     throw new IllegalStateException("User has no user role");
