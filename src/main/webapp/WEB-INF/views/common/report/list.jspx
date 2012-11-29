@@ -30,9 +30,7 @@
       <div class="content">
         <table id="idReport" class="table table-bordered">
           <thead>
-            <td>Item</td>
-            <td>Total</td>
-            <td>Category</td>
+            <td colspan="3">Item</td>
             <td>Amount</td>
           </thead>
           <tbody>
