@@ -31,7 +31,7 @@ import nl.surfnet.bod.domain.ReservationStatus;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.service.LogEventService;
 import nl.surfnet.bod.service.ReservationService;
-import nl.surfnet.bod.web.view.NocReservationReport;
+import nl.surfnet.bod.web.view.ReservationReportView;
 import nl.surfnet.bod.web.view.ReportIntervalView;
 
 import org.joda.time.DateMidnight;
@@ -121,8 +121,8 @@ public abstract class AbstractReportController {
     return reportIntervals;
   }
 
-  private NocReservationReport determineReport(ReportIntervalView selectedInterval, List<String> adminGroups) {
-    NocReservationReport nocReservationReport = new NocReservationReport(selectedInterval.getInterval().getStart(),
+  private ReservationReportView determineReport(ReportIntervalView selectedInterval, List<String> adminGroups) {
+    ReservationReportView nocReservationReport = new ReservationReportView(selectedInterval.getInterval().getStart(),
         selectedInterval.getInterval().getEnd());
 
     determineReservationRequestsForGroups(nocReservationReport, adminGroups);
@@ -132,7 +132,7 @@ public abstract class AbstractReportController {
     return nocReservationReport;
   }
 
-  private void determineReservationRequestsForGroups(NocReservationReport nocReservationReport, List<String> adminGroups) {
+  private void determineReservationRequestsForGroups(ReservationReportView nocReservationReport, List<String> adminGroups) {
     final DateTime start = nocReservationReport.getPeriodStart();
     final DateTime end = nocReservationReport.getPeriodEnd();
 
@@ -161,7 +161,7 @@ public abstract class AbstractReportController {
   }
 
   @VisibleForTesting
-  void determineReservationsInAdminGroupsForProtectionType(NocReservationReport nocReservationReport, List<String> adminGroups) {
+  void determineReservationsInAdminGroupsForProtectionType(ReservationReportView nocReservationReport, List<String> adminGroups) {
     final DateTime start = nocReservationReport.getPeriodStart();
     final DateTime end = nocReservationReport.getPeriodEnd();
 
@@ -187,7 +187,7 @@ public abstract class AbstractReportController {
   }
 
   @VisibleForTesting
-  void determineActiveRunningReservations(NocReservationReport nocReservationReport, List<String> adminGroups) {
+  void determineActiveRunningReservations(ReservationReportView nocReservationReport, List<String> adminGroups) {
     final DateTime start = nocReservationReport.getPeriodStart();
     final DateTime end = nocReservationReport.getPeriodEnd();
 

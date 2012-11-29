@@ -23,7 +23,7 @@ package nl.surfnet.bod.web.view;
 
 import org.joda.time.DateTime;
 
-public class NocReservationReport {
+public class ReservationReportView {
 
   private final DateTime periodStart;
   private final DateTime periodEnd;
@@ -52,7 +52,7 @@ public class NocReservationReport {
   private long amountRunningReservationsNeverProvisioned;
   private long amountRunningReservationsStillScheduled;
 
-  public NocReservationReport(DateTime start, DateTime end) {
+  public ReservationReportView(DateTime start, DateTime end) {
     this.periodStart = start;
     this.periodEnd = end;
   }
