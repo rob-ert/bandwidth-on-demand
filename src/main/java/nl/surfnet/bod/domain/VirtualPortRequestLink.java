@@ -61,11 +61,11 @@ public class VirtualPortRequestLink implements Loggable {
   private DateTime requestDateTime;
 
   @NotNull
-  @ManyToOne
+  @ManyToOne(optional = false)
   private VirtualResourceGroup virtualResourceGroup;
 
   @NotNull
-  @ManyToOne
+  @ManyToOne(optional = false)
   private PhysicalResourceGroup physicalResourceGroup;
 
   @Enumerated(EnumType.STRING)
