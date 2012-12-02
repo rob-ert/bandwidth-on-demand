@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import nl.surfnet.bod.domain.ActivationEmailLink;
 import nl.surfnet.bod.domain.PhysicalResourceGroup;
 
-public class ActivationEmailLinkFactory<T> {
+public class ActivationEmailLinkFactory {
 
   private static final AtomicLong COUNTER = new AtomicLong();
   private Long id = COUNTER.incrementAndGet();
@@ -35,8 +35,8 @@ public class ActivationEmailLinkFactory<T> {
   private boolean activate = false;
   private boolean emailSent = true;
 
-  public ActivationEmailLink<T> create() {
-    ActivationEmailLink<T> link = new ActivationEmailLink<T>(physicalResourceGroup);
+  public ActivationEmailLink create() {
+    ActivationEmailLink link = new ActivationEmailLink(physicalResourceGroup);
     link.setId(id);
 
     if (activate) {
@@ -50,17 +50,17 @@ public class ActivationEmailLinkFactory<T> {
     return link;
   }
 
-  public ActivationEmailLinkFactory<T> setActivate(boolean active) {
+  public ActivationEmailLinkFactory setActivate(boolean active) {
     this.activate = active;
     return this;
   }
 
-  public ActivationEmailLinkFactory<T> setEmailSent(boolean sent) {
+  public ActivationEmailLinkFactory setEmailSent(boolean sent) {
     this.emailSent = sent;
     return this;
   }
 
-  public ActivationEmailLinkFactory<T> setPhysicalResourceGroup(PhysicalResourceGroup prg) {
+  public ActivationEmailLinkFactory setPhysicalResourceGroup(PhysicalResourceGroup prg) {
     this.physicalResourceGroup = prg;
     return this;
   }

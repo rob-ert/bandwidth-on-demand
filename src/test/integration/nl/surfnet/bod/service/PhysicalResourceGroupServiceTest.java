@@ -138,15 +138,14 @@ public class PhysicalResourceGroupServiceTest {
     PhysicalResourceGroup prg = new PhysicalResourceGroupFactory().create();
 
     when(activationEmailLinkRepoMock.save(any(ActivationEmailLink.class))).thenAnswer(
-        new Answer<ActivationEmailLink<PhysicalResourceGroup>>() {
-          @SuppressWarnings("unchecked")
+        new Answer<ActivationEmailLink>() {
           @Override
-          public ActivationEmailLink<PhysicalResourceGroup> answer(InvocationOnMock invocation) throws Throwable {
-            return (ActivationEmailLink<PhysicalResourceGroup>) invocation.getArguments()[0];
+          public ActivationEmailLink answer(InvocationOnMock invocation) throws Throwable {
+            return (ActivationEmailLink) invocation.getArguments()[0];
           }
         });
 
-    ActivationEmailLink<PhysicalResourceGroup> link = subject.sendActivationRequest(prg);
+    ActivationEmailLink link = subject.sendActivationRequest(prg);
 
     verify(emailSender).sendActivationMail(link);
     verify(activationEmailLinkRepoMock, atLeastOnce()).save(link);

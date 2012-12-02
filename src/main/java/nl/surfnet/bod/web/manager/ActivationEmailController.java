@@ -23,6 +23,12 @@ package nl.surfnet.bod.web.manager;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.domain.ActivationEmailLink;
+import nl.surfnet.bod.domain.PhysicalResourceGroup;
+import nl.surfnet.bod.service.PhysicalResourceGroupService;
+import nl.surfnet.bod.web.WebUtils;
+import nl.surfnet.bod.web.security.Security;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -34,12 +40,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.ImmutableList;
-
-import nl.surfnet.bod.domain.ActivationEmailLink;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
-import nl.surfnet.bod.service.PhysicalResourceGroupService;
-import nl.surfnet.bod.web.WebUtils;
-import nl.surfnet.bod.web.security.Security;
 
 @RequestMapping(ActivationEmailController.ACTIVATION_MANAGER_PATH)
 @Controller
@@ -57,7 +57,7 @@ public class ActivationEmailController {
 
   @RequestMapping(value = "/{uuid}", method = RequestMethod.GET)
   public String activateEmail(@PathVariable String uuid, Model model, RedirectAttributes redirectAttrs) {
-    ActivationEmailLink<PhysicalResourceGroup> link = physicalResourceGroupService.findActivationLink(uuid);
+    ActivationEmailLink link = physicalResourceGroupService.findActivationLink(uuid);
 
     if (link == null || link.getSourceObject() == null) {
       redirectAttrs.addFlashAttribute(WebUtils.INFO_MESSAGES_KEY, ImmutableList.of("Activation link is not valid"));
@@ -96,7 +96,7 @@ public class ActivationEmailController {
     return "manager/linkNotValid";
   }
 
-  private boolean emailHasChanged(ActivationEmailLink<PhysicalResourceGroup> link) {
+  private boolean emailHasChanged(ActivationEmailLink link) {
     return !link.getSourceObject().getManagerEmail().equals(link.getToEmail());
   }
 

@@ -72,7 +72,7 @@ public class EmailSenderOnlineTest {
 
   @Test
   public void mailMessageShouldContainUrlWithNameAndUUID() {
-    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = new ActivationEmailLinkFactory<PhysicalResourceGroup>()
+    ActivationEmailLink activationEmailLink = new ActivationEmailLinkFactory()
         .create();
 
     subject.setFromAddress("test@example.com");

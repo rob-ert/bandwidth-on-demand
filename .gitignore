@@ -12,3 +12,4 @@ bod.log
 .DS_Store
 logfile
 .externalToolBuilders/
+.worksheet/

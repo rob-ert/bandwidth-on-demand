@@ -54,7 +54,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.MessageSource;
 
-@SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)
 public class ActivationEmailControllerTest {
 
@@ -64,19 +63,19 @@ public class ActivationEmailControllerTest {
   @Mock
   private PhysicalResourceGroupService physicalResourceGroupServiceMock;
   @Mock
-  private ActivationEmailLink<PhysicalResourceGroup> linkMock;
+  private ActivationEmailLink linkMock;
   @Mock
   private InstituteService instituteServiceMock;
   @Mock
   private MessageSource messageSourceMock;
 
-  private ActivationEmailLink<PhysicalResourceGroup> link;
+  private ActivationEmailLink link;
   private PhysicalResourceGroup physicalResourceGroup;
 
   @Before
   public void setUp() {
     physicalResourceGroup = new PhysicalResourceGroupFactory().create();
-    link = new ActivationEmailLinkFactory<PhysicalResourceGroup>().setPhysicalResourceGroup(physicalResourceGroup)
+    link = new ActivationEmailLinkFactory().setPhysicalResourceGroup(physicalResourceGroup)
         .create();
     BodRole managerRole = BodRole.createManager(link.getSourceObject());
 
@@ -145,7 +144,7 @@ public class ActivationEmailControllerTest {
 
   @Test
   public void sourceObjectHasBeenDeleted() {
-    ActivationEmailLink<PhysicalResourceGroup> link = new ActivationEmailLink<PhysicalResourceGroup>();
+    ActivationEmailLink link = new ActivationEmailLink();
 
     when(physicalResourceGroupServiceMock.findActivationLink("123")).thenReturn(link);
 

@@ -21,6 +21,11 @@
  */
 package nl.surfnet.bod.domain;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import junit.framework.Assert;
 import nl.surfnet.bod.support.ActivationEmailLinkFactory;
 
@@ -30,15 +35,9 @@ import org.joda.time.DateTimeUtils;
 import org.junit.AfterClass;
 import org.junit.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-
 public class ActivationEmailLinkTest {
 
-  private final ActivationEmailLink<PhysicalResourceGroup> linkOne = new ActivationEmailLinkFactory<PhysicalResourceGroup>()
+  private final ActivationEmailLink linkOne = new ActivationEmailLinkFactory()
       .create();
 
   /**
@@ -61,7 +60,7 @@ public class ActivationEmailLinkTest {
 
   @Test
   public void shouldNoEmailSent() {
-    ActivationEmailLink<PhysicalResourceGroup> link = new ActivationEmailLinkFactory<PhysicalResourceGroup>()
+    ActivationEmailLink link = new ActivationEmailLinkFactory()
         .setEmailSent(false).create();
 
     assertThat(link.isEmailSent(), is(false));
@@ -73,8 +72,7 @@ public class ActivationEmailLinkTest {
     Long millis = DateMidnight.now().getMillis();
     DateTimeUtils.setCurrentMillisFixed(millis);
 
-    ActivationEmailLink<PhysicalResourceGroup> link = new ActivationEmailLinkFactory<PhysicalResourceGroup>()
-        .setEmailSent(false).create();
+    ActivationEmailLink link = new ActivationEmailLinkFactory().setEmailSent(false).create();
 
     assertThat(link.isEmailSent(), is(false));
     assertThat(link.getEmailSentDateTime(), nullValue());
@@ -110,7 +108,7 @@ public class ActivationEmailLinkTest {
 
   @Test
   public void shouldNotBeValidWhenNoEmailWasSent() {
-    ActivationEmailLink<PhysicalResourceGroup> link = new ActivationEmailLinkFactory<PhysicalResourceGroup>()
+    ActivationEmailLink link = new ActivationEmailLinkFactory()
         .setEmailSent(false).create();
 
     assertThat(link.isValid(), is(false));
@@ -125,7 +123,7 @@ public class ActivationEmailLinkTest {
 
   @Test
   public void shouldExpire() {
-    ActivationEmailLink<PhysicalResourceGroup> link = new ActivationEmailLinkFactory<PhysicalResourceGroup>().create();
+    ActivationEmailLink link = new ActivationEmailLinkFactory().create();
     link.setEmailSentDateTime(DateTime.now().minusDays(ActivationEmailLink.VALID_PERIOD_DAYS + 1));
 
     assertThat(link.isValid(), is(false));
@@ -133,7 +131,7 @@ public class ActivationEmailLinkTest {
 
   @Test
   public void shouldStillBeValid() {
-    ActivationEmailLink<PhysicalResourceGroup> link = new ActivationEmailLinkFactory<PhysicalResourceGroup>().create();
+    ActivationEmailLink link = new ActivationEmailLinkFactory().create();
     link.setEmailSentDateTime(DateTime.now());
 
     assertThat(link.isValid(), is(true));

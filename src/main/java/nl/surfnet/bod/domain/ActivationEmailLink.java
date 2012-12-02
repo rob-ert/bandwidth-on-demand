@@ -41,7 +41,7 @@ import org.joda.time.Days;
 import com.google.common.base.Preconditions;
 
 @Entity
-public class ActivationEmailLink<T> implements Loggable {
+public class ActivationEmailLink implements Loggable {
 
   public static final int VALID_PERIOD_DAYS = 5;
 
@@ -76,19 +76,18 @@ public class ActivationEmailLink<T> implements Loggable {
   private String toEmail;
 
   @Transient
-  private T sourceObject;
+  private PhysicalResourceGroup sourceObject;
 
   public ActivationEmailLink() {
   }
 
-  @SuppressWarnings("unchecked")
   public ActivationEmailLink(PhysicalResourceGroup physicalResourceGroup) {
-    this((T) physicalResourceGroup, ActivationRequestSource.PHYSICAL_RESOURCE_GROUP, physicalResourceGroup.getId());
+    this(physicalResourceGroup, ActivationRequestSource.PHYSICAL_RESOURCE_GROUP, physicalResourceGroup.getId());
 
     this.toEmail = physicalResourceGroup.getManagerEmail();
   }
 
-  private ActivationEmailLink(T sourceObject, ActivationRequestSource activationRequestSource, Long sourceId) {
+  private ActivationEmailLink(PhysicalResourceGroup sourceObject, ActivationRequestSource activationRequestSource, Long sourceId) {
     Preconditions.checkArgument(sourceId != null);
 
     this.requestSource = activationRequestSource;
@@ -97,6 +96,7 @@ public class ActivationEmailLink<T> implements Loggable {
     this.uuid = UUID.randomUUID().toString();
   }
 
+  @Override
   public Long getId() {
     return id;
   }
@@ -157,11 +157,11 @@ public class ActivationEmailLink<T> implements Loggable {
     return emailSentDateTime != null;
   }
 
-  public T getSourceObject() {
+  public PhysicalResourceGroup getSourceObject() {
     return sourceObject;
   }
 
-  public void setSourceObject(T sourceObject) {
+  public void setSourceObject(PhysicalResourceGroup sourceObject) {
     this.sourceObject = sourceObject;
   }
 
@@ -183,7 +183,7 @@ public class ActivationEmailLink<T> implements Loggable {
    * This link is valid when the activationEmail was sent, this link is not
    * activated yet and the email was sent within the last
    * {@link #VALID_PERIOD_DAYS}
-   * 
+   *
    * @return true if valid, false otherwise
    */
   public boolean isValid() {

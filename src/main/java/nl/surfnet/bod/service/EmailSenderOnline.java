@@ -29,7 +29,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import nl.surfnet.bod.domain.ActivationEmailLink;
-import nl.surfnet.bod.domain.PhysicalResourceGroup;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualPortRequestLink;
 import nl.surfnet.bod.service.Emails.ActivationEmail;
@@ -81,7 +80,7 @@ public class EmailSenderOnline implements EmailSender {
   }
 
   @Override
-  public void sendActivationMail(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
+  public void sendActivationMail(ActivationEmailLink activationEmailLink) {
     String bodyText = ActivationEmail.body(generateActivationUrl(activationEmailLink).toExternalForm());
     String subject = ActivationEmail.subject(activationEmailLink.getSourceObject().getName());
 
@@ -135,7 +134,7 @@ public class EmailSenderOnline implements EmailSender {
     send(mail);
   }
 
-  private URL generateActivationUrl(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
+  private URL generateActivationUrl(ActivationEmailLink activationEmailLink) {
     try {
       return new URL(String.format(externalBodUrl + "%s/%s", ActivationEmailController.ACTIVATION_MANAGER_PATH,
           activationEmailLink.getUuid()));

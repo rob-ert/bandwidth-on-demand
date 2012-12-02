@@ -132,10 +132,8 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
     return physicalResourceGroupRepo.findByAdminGroup(groupId);
   }
 
-  @SuppressWarnings("unchecked")
-  public ActivationEmailLink<PhysicalResourceGroup> findActivationLink(String uuid) {
-    ActivationEmailLink<PhysicalResourceGroup> activationEmailLink = (ActivationEmailLink<PhysicalResourceGroup>) activationEmailLinkRepo
-        .findByUuid(uuid);
+  public ActivationEmailLink findActivationLink(String uuid) {
+    ActivationEmailLink activationEmailLink = activationEmailLinkRepo.findByUuid(uuid);
 
     if (activationEmailLink != null) {
       activationEmailLink.setSourceObject(find(activationEmailLink.getSourceId()));
@@ -155,7 +153,7 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
     return physicalResourceGroupRepo.findAll(withPhysicalPorts);
   }
 
-  public void activate(ActivationEmailLink<PhysicalResourceGroup> activationEmailLink) {
+  public void activate(ActivationEmailLink activationEmailLink) {
     log.info("Activating link [{}] for physical resource group: {}", activationEmailLink.getUuid(), activationEmailLink
         .getSourceObject().getName());
     activationEmailLink.activate();
@@ -169,11 +167,10 @@ public class PhysicalResourceGroupService extends AbstractFullTextSearchService<
   }
 
   @Transactional
-  public ActivationEmailLink<PhysicalResourceGroup> sendActivationRequest(PhysicalResourceGroup physicalResourceGroup) {
+  public ActivationEmailLink sendActivationRequest(PhysicalResourceGroup physicalResourceGroup) {
     deActivatePhysicalResourceGroup(physicalResourceGroup);
 
-    ActivationEmailLink<PhysicalResourceGroup> link = activationEmailLinkRepo
-        .save(new ActivationEmailLink<PhysicalResourceGroup>(physicalResourceGroup));
+    ActivationEmailLink link = activationEmailLinkRepo.save(new ActivationEmailLink(physicalResourceGroup));
 
     emailSender.sendActivationMail(link);
 
