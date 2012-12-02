@@ -220,7 +220,7 @@ public class VirtualPortRequestControllerTest {
     command.setBandwidth(1000);
     command.setMessage("message");
 
-    when(virtualResourceGroupServiceMock.findBySurfconextGroupId("urn:user-group")).thenReturn(vGroup);
+    when(virtualResourceGroupServiceMock.findByAdminGroup("urn:user-group")).thenReturn(vGroup);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
 
     String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
@@ -242,7 +242,7 @@ public class VirtualPortRequestControllerTest {
     command.setUserLabel("new port");
     command.setMessage("I want!");
 
-    when(virtualResourceGroupServiceMock.findBySurfconextGroupId("urn:user-group")).thenReturn(null);
+    when(virtualResourceGroupServiceMock.findByAdminGroup("urn:user-group")).thenReturn(null);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
 
     String page = subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
@@ -267,7 +267,7 @@ public class VirtualPortRequestControllerTest {
     command.setBandwidth(1111);
     command.setMessage("I want!");
 
-    when(virtualResourceGroupServiceMock.findBySurfconextGroupId("urn:user-group")).thenReturn(null);
+    when(virtualResourceGroupServiceMock.findByAdminGroup("urn:user-group")).thenReturn(null);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
 
     subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);
@@ -295,7 +295,7 @@ public class VirtualPortRequestControllerTest {
     command.setBandwidth(1111);
     command.setMessage("I want!");
 
-    when(virtualResourceGroupServiceMock.findBySurfconextGroupId("urn:user-group")).thenReturn(null);
+    when(virtualResourceGroupServiceMock.findByAdminGroup("urn:user-group")).thenReturn(null);
     when(physicalResourceGroupServiceMock.find(2L)).thenReturn(pGroup);
 
     subject.request(command, new BeanPropertyBindingResult(command, "command"), model, model);

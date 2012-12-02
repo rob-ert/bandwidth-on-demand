@@ -35,18 +35,16 @@ public interface VirtualResourceGroupRepo extends JpaSpecificationExecutor<Virtu
     JpaRepository<VirtualResourceGroup, Long>, VirtualResourceGroupRepoCustom {
 
   /**
-   * Finds a {@link VirtualResourceGroup} by
-   * {@link VirtualResourceGroup#getSurfconextGroupId()}
+   * Finds a {@link VirtualResourceGroup} by its adminGroup.
    *
-   * @param surfconextGroupId
+   * @param adminGroup
    *          The name to search for
    * @return {@link VirtualResourceGroup} or null when no match was found.
    */
-  VirtualResourceGroup findBySurfconextGroupId(String surfconextGroupId);
+  VirtualResourceGroup findByAdminGroup(String adminGroup);
 
   /**
-   * Finds a {@link VirtualResourceGroup} by
-   * {@link VirtualResourceGroup#getName()}
+   * Finds a {@link VirtualResourceGroup} by name
    *
    * @param Name
    *          The name to search for
@@ -62,5 +60,5 @@ public interface VirtualResourceGroupRepo extends JpaSpecificationExecutor<Virtu
    *
    * @return List<VirtualResourceGroup> or empty list when no match was found.
    */
-  List<VirtualResourceGroup> findBySurfconextGroupIdIn(Collection<String> adminGroups);
+  List<VirtualResourceGroup> findByAdminGroupIn(Collection<String> adminGroups);
 }

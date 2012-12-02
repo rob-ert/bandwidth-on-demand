@@ -152,8 +152,8 @@ public class RichUserDetailsServiceTest {
     VirtualResourceGroup vrgNewDesc = new VirtualResourceGroupFactory().setDescription("old desc").create();
 
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(userGroups);
-    when(vrgServiceMock.findBySurfconextGroupId("urn:nameGroup")).thenReturn(vrgNewName);
-    when(vrgServiceMock.findBySurfconextGroupId("urn:descGroup")).thenReturn(vrgNewDesc);
+    when(vrgServiceMock.findByAdminGroup("urn:nameGroup")).thenReturn(vrgNewName);
+    when(vrgServiceMock.findByAdminGroup("urn:descGroup")).thenReturn(vrgNewDesc);
 
     subject.loadUserDetails(createToken("urn:alanvdam"));
 
@@ -173,7 +173,7 @@ public class RichUserDetailsServiceTest {
     VirtualResourceGroup vrgNewName = new VirtualResourceGroupFactory().setName("name").setDescription(null).create();
 
     when(groupServiceMock.getGroups("urn:alanvdam")).thenReturn(userGroups);
-    when(vrgServiceMock.findBySurfconextGroupId("urn:nameGroup")).thenReturn(vrgNewName);
+    when(vrgServiceMock.findByAdminGroup("urn:nameGroup")).thenReturn(vrgNewName);
 
     subject.loadUserDetails(createToken("urn:alanvdam"));
 

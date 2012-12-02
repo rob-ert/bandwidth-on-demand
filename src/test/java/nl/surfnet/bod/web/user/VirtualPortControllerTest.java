@@ -47,7 +47,6 @@ import nl.surfnet.bod.util.FullTextSearchResult;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.user.VirtualPortController;
 import nl.surfnet.bod.web.user.VirtualPortController.UpdateUserLabelCommand;
 import nl.surfnet.bod.web.view.VirtualPortView;
 
@@ -106,7 +105,7 @@ public class VirtualPortControllerTest {
 
   @Test
   public void updateFormForIllegalPort() {
-    VirtualResourceGroup group = new VirtualResourceGroupFactory().setSurfconextGroupId("urn:wrong-group").create();
+    VirtualResourceGroup group = new VirtualResourceGroupFactory().setAdminGroup("urn:wrong-group").create();
     VirtualPort port = new VirtualPortFactory().setVirtualResourceGroup(group).create();
 
     when(virtualPortServiceMock.find(201L)).thenReturn(port);
@@ -119,7 +118,7 @@ public class VirtualPortControllerTest {
 
   @Test
   public void updateFormForPort() {
-    VirtualResourceGroup group = new VirtualResourceGroupFactory().setSurfconextGroupId("urn:correct-group").create();
+    VirtualResourceGroup group = new VirtualResourceGroupFactory().setAdminGroup("urn:correct-group").create();
     VirtualPort port = new VirtualPortFactory().setVirtualResourceGroup(group).create();
 
     when(virtualPortServiceMock.find(201L)).thenReturn(port);

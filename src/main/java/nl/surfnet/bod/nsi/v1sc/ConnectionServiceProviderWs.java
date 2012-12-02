@@ -167,7 +167,7 @@ public class ConnectionServiceProviderWs implements ConnectionProviderPort {
       throw createInvalidParameterServiceException(attribute);
     }
 
-    if (!user.getUserGroupIds().contains(port.getVirtualResourceGroup().getSurfconextGroupId())) {
+    if (!user.getUserGroupIds().contains(port.getVirtualResourceGroup().getAdminGroup())) {
       log.warn("User has no rights on virtual port with stpId '{}'", stpId);
       throw createInvalidOrMissingUserCredentialsException(attribute);
     }

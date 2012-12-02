@@ -21,6 +21,12 @@
  */
 package nl.surfnet.bod.domain.validator;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
@@ -37,13 +43,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class ReservationValidatorTest {
 
@@ -71,7 +70,7 @@ public class ReservationValidatorTest {
     DateTime now = DateTime.now();
     Reservation reservation = new ReservationFactory().setStartDateTime(now).setEndDateTime(now.minusDays(1)).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getSurfconextGroupId()).create());
+        reservation.getVirtualResourceGroup().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -86,7 +85,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(tomorrowNoon)
         .setEndDateTime(tomorrowNoon.plusMinutes(10)).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getSurfconextGroupId()).create());
+        reservation.getVirtualResourceGroup().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -100,7 +99,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(now).setEndDateTime(now.minusMinutes(1))
         .create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getSurfconextGroupId()).create());
+        reservation.getVirtualResourceGroup().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -114,7 +113,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(tomorrowNoon)
         .setEndDateTime(tomorrowNoon.plusHours(1)).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getSurfconextGroupId()).create());
+        reservation.getVirtualResourceGroup().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -127,7 +126,7 @@ public class ReservationValidatorTest {
     VirtualPort port = new VirtualPortFactory().create();
     Reservation reservation = new ReservationFactory().setSourcePort(port).setDestinationPort(port).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getSurfconextGroupId()).create());
+        reservation.getVirtualResourceGroup().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -143,7 +142,7 @@ public class ReservationValidatorTest {
 
     Reservation reservation = new ReservationFactory().setStartDateTime(yesterday).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getSurfconextGroupId()).create());
+        reservation.getVirtualResourceGroup().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -158,7 +157,7 @@ public class ReservationValidatorTest {
 
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateInThePast.toDateTime()).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getSurfconextGroupId()).create());
+        reservation.getVirtualResourceGroup().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     try {
@@ -177,7 +176,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(DateTime.now().plusYears(1).plusDays(1))
         .setEndDateTime(DateTime.now().plusYears(1).plusDays(10)).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getSurfconextGroupId()).create());
+        reservation.getVirtualResourceGroup().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -190,7 +189,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(tomorrowNoon)
         .setEndDateTime(tomorrowNoon.plusMinutes(3)).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getSurfconextGroupId()).create());
+        reservation.getVirtualResourceGroup().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -208,7 +207,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
         .create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getSurfconextGroupId()).create());
+        reservation.getVirtualResourceGroup().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -225,7 +224,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setStartDateTime(startDateTime).setEndDateTime(endDateTime)
         .create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getSurfconextGroupId()).create());
+        reservation.getVirtualResourceGroup().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -236,7 +235,7 @@ public class ReservationValidatorTest {
 
   @Test
   public void userIsNotAMemberOfTheSurfConextGroup() {
-    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfconextGroupId("urn:wronggroup").create();
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setAdminGroup("urn:wronggroup").create();
     VirtualPort sourcePort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
     VirtualPort destPort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
 
@@ -258,7 +257,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort)
         .setBandwidth(2500).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getSurfconextGroupId()).create());
+        reservation.getVirtualResourceGroup().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -275,7 +274,7 @@ public class ReservationValidatorTest {
     Reservation reservation = new ReservationFactory().setSourcePort(sourcePort).setDestinationPort(destPort)
         .setBandwidth(0).create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getSurfconextGroupId()).create());
+        reservation.getVirtualResourceGroup().getAdminGroup()).create());
     Errors errors = createErrorObject(reservation);
 
     subject.validate(reservation, errors);
@@ -287,7 +286,7 @@ public class ReservationValidatorTest {
   public void noStartDateAndNoEdnDateShouldBeAllowed() {
     Reservation reservation = new ReservationFactory().create();
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup(
-        reservation.getVirtualResourceGroup().getSurfconextGroupId()).create());
+        reservation.getVirtualResourceGroup().getAdminGroup()).create());
     reservation.setStartDateTime(null);
     reservation.setEndDateTime(null);
 

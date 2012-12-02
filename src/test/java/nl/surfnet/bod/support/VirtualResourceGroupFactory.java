@@ -34,12 +34,12 @@ import com.google.common.collect.Lists;
 public class VirtualResourceGroupFactory {
 
   public static final String SURFCONEXT_GROUP_ID = "urn:bandwidth-on-demand";
-  
+
   private static final AtomicLong COUNTER = new AtomicLong();
 
   private Long id = COUNTER.incrementAndGet();
   private Integer version;
-  private String surfconextGroupId = SURFCONEXT_GROUP_ID + id;
+  private String adminGroup = SURFCONEXT_GROUP_ID + id;
   private String name = "VRG " + id;
   private String description = "Some virtual resource group";
 
@@ -53,7 +53,7 @@ public class VirtualResourceGroupFactory {
     vrg.setVersion(version);
     vrg.setName(name);
     vrg.setDescription(description);
-    vrg.setSurfconextGroupId(surfconextGroupId);
+    vrg.setAdminGroup(adminGroup);
     vrg.setVirtualPorts(virtualPorts);
     vrg.setReservations(reservations);
 
@@ -80,8 +80,8 @@ public class VirtualResourceGroupFactory {
     return this;
   }
 
-  public VirtualResourceGroupFactory setSurfconextGroupId(String surfconextGroupId) {
-    this.surfconextGroupId = surfconextGroupId;
+  public VirtualResourceGroupFactory setAdminGroup(String adminGroup) {
+    this.adminGroup = adminGroup;
     return this;
   }
 

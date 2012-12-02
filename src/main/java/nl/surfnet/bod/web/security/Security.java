@@ -138,7 +138,7 @@ public final class Security {
   }
 
   public static boolean isUserMemberOf(VirtualResourceGroup group) {
-    return group == null ? false : isUserMemberOf(group.getSurfconextGroupId());
+    return group == null ? false : isUserMemberOf(group.getAdminGroup());
   }
 
   public static boolean isManagerMemberOf(PhysicalResourceGroup group) {

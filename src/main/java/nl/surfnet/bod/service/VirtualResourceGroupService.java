@@ -169,8 +169,8 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
     return virtualResourceGroupRepo.findByName(name);
   }
 
-  public VirtualResourceGroup findBySurfconextGroupId(String surfconextGroupId) {
-    return virtualResourceGroupRepo.findBySurfconextGroupId(surfconextGroupId);
+  public VirtualResourceGroup findByAdminGroup(String adminGroup) {
+    return virtualResourceGroupRepo.findByAdminGroup(adminGroup);
   }
 
   public Collection<VirtualResourceGroup> findAllForUser(RichUserDetails user) {
@@ -197,7 +197,7 @@ public class VirtualResourceGroupService extends AbstractFullTextSearchService<V
       return Collections.emptyList();
     }
 
-    return virtualResourceGroupRepo.findBySurfconextGroupIdIn(groupIds);
+    return virtualResourceGroupRepo.findByAdminGroupIn(groupIds);
   }
 
   public List<Long> findAllTeamIds() {

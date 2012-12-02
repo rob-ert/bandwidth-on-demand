@@ -146,7 +146,7 @@ public class RichUserDetailsService implements AuthenticationUserDetailsService<
 
   private void updateVirtualResourceGroups(Collection<UserGroup> userGroups) {
     for (UserGroup userGroup : userGroups) {
-      VirtualResourceGroup vrg = virtualResourceGroupService.findBySurfconextGroupId(userGroup.getId());
+      VirtualResourceGroup vrg = virtualResourceGroupService.findByAdminGroup(userGroup.getId());
 
       if (vrg == null) {
         continue;

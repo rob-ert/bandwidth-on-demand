@@ -91,7 +91,7 @@ public class DashboardController {
         new Function<VirtualResourceGroup, String>() {
           @Override
           public String apply(VirtualResourceGroup group) {
-            return group.getSurfconextGroupId();
+            return group.getAdminGroup();
           }
         }));
 

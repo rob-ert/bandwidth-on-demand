@@ -42,7 +42,6 @@ import nl.surfnet.bod.domain.VirtualPort;
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.domain.oauth.NsiScope;
 import nl.surfnet.bod.nsi.ConnectionServiceProviderErrorCodes;
-import nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderWs;
 import nl.surfnet.bod.repo.ConnectionRepo;
 import nl.surfnet.bod.service.ConnectionService;
 import nl.surfnet.bod.service.ReservationService;
@@ -91,7 +90,7 @@ public class ConnectionServiceProviderWsTest {
 
   private final RichUserDetails userDetails = new RichUserDetailsFactory().addUserGroup("test").create();
 
-  private final VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfconextGroupId("test").create();
+  private final VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setAdminGroup("test").create();
 
   private final VirtualPort sourcePort = new VirtualPortFactory().setVirtualResourceGroup(vrg).create();
 
@@ -144,7 +143,7 @@ public class ConnectionServiceProviderWsTest {
 
   @Test
   public void shouldThrowInvalidCredentialsWhileBakingAReservationPieForSourcePort() {
-    sourcePort.getVirtualResourceGroup().setSurfconextGroupId("other");
+    sourcePort.getVirtualResourceGroup().setAdminGroup("other");
 
     try {
       subject.reserve(connection, request, userDetails);
@@ -157,7 +156,7 @@ public class ConnectionServiceProviderWsTest {
 
   @Test
   public void shouldThrowInvalidCredentialsWhileBakingAReservationPieForDestinationPort() {
-    destinationPort.getVirtualResourceGroup().setSurfconextGroupId("other");
+    destinationPort.getVirtualResourceGroup().setAdminGroup("other");
 
     try {
       subject.reserve(connection, request, userDetails);

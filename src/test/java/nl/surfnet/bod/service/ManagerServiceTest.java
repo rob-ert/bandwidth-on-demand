@@ -21,6 +21,12 @@
  */
 package nl.surfnet.bod.service;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.when;
+
 import java.util.Collection;
 import java.util.Set;
 
@@ -40,12 +46,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.Lists;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ManagerServiceTest {
@@ -70,7 +70,7 @@ public class ManagerServiceTest {
     PhysicalResourceGroup prgOne = new PhysicalResourceGroupFactory().setId(1L).setAdminGroup(adminGroupOne).create();
     RichUserDetails manager = new RichUserDetailsFactory().addManagerRole(prgOne).create();
 
-    VirtualResourceGroup vrgOne = new VirtualResourceGroupFactory().setSurfconextGroupId(adminGroupOne).create();
+    VirtualResourceGroup vrgOne = new VirtualResourceGroupFactory().setAdminGroup(adminGroupOne).create();
 
     // Link to physicalports with groups one and three
     VirtualPort vpOneVrgOne = new VirtualPortFactory().setVirtualResourceGroup(vrgOne).setPhysicalPortAdminGroup(
@@ -87,7 +87,7 @@ public class ManagerServiceTest {
     assertThat(groupsForManager, hasSize(1));
     assertThat(groupsForManager, hasItem(adminGroupOne));
   }
-  
+
 
   @Test
   public void shouldFindAdminGroupsForManager() {
@@ -97,7 +97,7 @@ public class ManagerServiceTest {
     PhysicalResourceGroup prgOne = new PhysicalResourceGroupFactory().setId(1L).setAdminGroup(adminGroupOne).create();
     RichUserDetails manager = new RichUserDetailsFactory().addManagerRole(prgOne).create();
 
-    VirtualResourceGroup vrgThree = new VirtualResourceGroupFactory().setSurfconextGroupId(adminGroupThree).create();
+    VirtualResourceGroup vrgThree = new VirtualResourceGroupFactory().setAdminGroup(adminGroupThree).create();
 
     // Link to physicalports with groups one and three
     VirtualPort vpOneVrgOne = new VirtualPortFactory().setVirtualResourceGroup(vrgThree).setPhysicalPortAdminGroup(

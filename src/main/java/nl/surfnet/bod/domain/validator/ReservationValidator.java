@@ -21,19 +21,15 @@
  */
 package nl.surfnet.bod.domain.validator;
 
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
-import org.joda.time.Period;
+import nl.surfnet.bod.domain.Reservation;
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.web.security.Security;
+
+import org.joda.time.*;
 import org.joda.time.format.PeriodFormat;
 import org.joda.time.format.PeriodFormatter;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.web.security.Security;
 
 public class ReservationValidator implements Validator {
 
@@ -90,9 +86,9 @@ public class ReservationValidator implements Validator {
           "Source and Destination port should be different");
     }
 
-    String groupNameOfSource = sourcePort.getVirtualResourceGroup().getSurfconextGroupId();
-    String groupNameOfDestination = destinationPort.getVirtualResourceGroup().getSurfconextGroupId();
-    String groupName = reservation.getVirtualResourceGroup().getSurfconextGroupId();
+    String groupNameOfSource = sourcePort.getVirtualResourceGroup().getAdminGroup();
+    String groupNameOfDestination = destinationPort.getVirtualResourceGroup().getAdminGroup();
+    String groupName = reservation.getVirtualResourceGroup().getAdminGroup();
 
     if (!groupNameOfSource.equals(groupNameOfDestination) || !groupName.equals(groupNameOfSource)) {
       errors.rejectValue("sourcePort", "", "");

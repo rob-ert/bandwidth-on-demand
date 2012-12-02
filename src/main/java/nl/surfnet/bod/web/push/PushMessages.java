@@ -55,7 +55,7 @@ public final class PushMessages {
       deleteTooltip = messageSource.getMessage("reservation_state_transition_not_allowed", new Object[] {}, LocaleContextHolder.getLocale());
     }
 
-    return new JsonMessageEvent(reservation.getVirtualResourceGroup().getSurfconextGroupId(), new JsonEvent(message,
+    return new JsonMessageEvent(reservation.getVirtualResourceGroup().getAdminGroup(), new JsonEvent(message,
         reservation.getId(), reservation.getStatus().name(), deleteAllowed, deleteTooltip));
   }
 

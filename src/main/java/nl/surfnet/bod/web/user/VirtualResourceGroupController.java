@@ -26,6 +26,13 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.domain.VirtualPort;
+import nl.surfnet.bod.domain.VirtualResourceGroup;
+import nl.surfnet.bod.service.VirtualResourceGroupService;
+import nl.surfnet.bod.util.Orderings;
+import nl.surfnet.bod.web.security.Security;
+import nl.surfnet.bod.web.view.VirtualPortJsonView;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,13 +41,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
-import nl.surfnet.bod.util.Orderings;
-import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.view.VirtualPortJsonView;
 
 
 @Controller
@@ -55,7 +55,7 @@ public class VirtualResourceGroupController {
   public List<VirtualPortJsonView> listForVirtualResourceGroup(@PathVariable Long id) {
     VirtualResourceGroup group = virtualResourceGroupService.find(id);
 
-    if (group == null || Security.isUserNotMemberOf(group.getSurfconextGroupId())) {
+    if (group == null || Security.isUserNotMemberOf(group.getAdminGroup())) {
       return Collections.emptyList();
     }
 

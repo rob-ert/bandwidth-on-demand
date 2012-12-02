@@ -21,18 +21,17 @@
  */
 package nl.surfnet.bod.domain;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 import nl.surfnet.bod.support.ReservationFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
-
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 public class ReservationTest {
 
@@ -153,7 +152,7 @@ public class ReservationTest {
 
   @Test(expected = IllegalStateException.class)
   public void sourcePortVirtualResourceGroupDiffersFromDestinationPortVirtualResourceGroup() {
-    VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().setSurfconextGroupId("urn:different")
+    VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().setAdminGroup("urn:different")
         .create();
     VirtualPort port = new VirtualPortFactory().setVirtualResourceGroup(virtualResourceGroup).create();
 
@@ -162,7 +161,7 @@ public class ReservationTest {
 
   @Test(expected = IllegalStateException.class)
   public void destinationPortVirtualResourceGroupDiffersFromSourcePortVirtualResourceGroup() {
-    VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().setSurfconextGroupId("urn:different")
+    VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().setAdminGroup("urn:different")
         .create();
     VirtualPort port = new VirtualPortFactory().setVirtualResourceGroup(virtualResourceGroup).create();
 

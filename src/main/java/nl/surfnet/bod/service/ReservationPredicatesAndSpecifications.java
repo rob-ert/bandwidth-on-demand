@@ -28,17 +28,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalPort_;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.ProtectionType;
-import nl.surfnet.bod.domain.Reservation;
-import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.domain.Reservation_;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPort_;
-import nl.surfnet.bod.domain.VirtualResourceGroup;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.web.security.RichUserDetails;
 import nl.surfnet.bod.web.view.ReservationFilterView;
 
@@ -52,7 +42,7 @@ public class ReservationPredicatesAndSpecifications {
     return new Specification<Reservation>() {
       @Override
       public Predicate toPredicate(Root<Reservation> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        return cb.and(root.get(Reservation_.virtualResourceGroup).get(VirtualResourceGroup_.surfconextGroupId).in(
+        return cb.and(root.get(Reservation_.virtualResourceGroup).get(VirtualResourceGroup_.adminGroup).in(
             user.getUserGroupIds()));
       }
     };
@@ -214,7 +204,7 @@ public class ReservationPredicatesAndSpecifications {
   /**
    * Specification to find {@link Reservation}s which have started in or before
    * the given period and which end in or after the given period.
-   * 
+   *
    * @param start
    *          {@link DateTime} start of the period
    * @param end

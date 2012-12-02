@@ -21,17 +21,11 @@
  */
 package nl.surfnet.bod.web.user;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.when;
 
 import java.util.Collection;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import nl.surfnet.bod.domain.VirtualResourceGroup;
 import nl.surfnet.bod.service.VirtualResourceGroupService;
@@ -39,8 +33,13 @@ import nl.surfnet.bod.support.RichUserDetailsFactory;
 import nl.surfnet.bod.support.VirtualPortFactory;
 import nl.surfnet.bod.support.VirtualResourceGroupFactory;
 import nl.surfnet.bod.web.security.Security;
-import nl.surfnet.bod.web.user.VirtualResourceGroupController;
 import nl.surfnet.bod.web.view.VirtualPortJsonView;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VirtualResourceGroupControllerTest {
@@ -55,7 +54,7 @@ public class VirtualResourceGroupControllerTest {
   public void shouldFindPortsForVirtualResourceGroupId() {
     Security.setUserDetails(new RichUserDetailsFactory().addUserGroup("urn:group").create());
 
-    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfconextGroupId("urn:group")
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setAdminGroup("urn:group")
         .addVirtualPorts(new VirtualPortFactory().create()).create();
 
     when(vrgServiceMock.find(2L)).thenReturn(vrg);
@@ -77,7 +76,7 @@ public class VirtualResourceGroupControllerTest {
   @Test
   public void whenUserIsNotAMemberOfGroupPortShouldBeEmpty() {
     Security.setUserDetails(new RichUserDetailsFactory().create());
-    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setSurfconextGroupId("urn:group")
+    VirtualResourceGroup vrg = new VirtualResourceGroupFactory().setAdminGroup("urn:group")
         .addVirtualPorts(new VirtualPortFactory().create()).create();
 
     when(vrgServiceMock.find(2L)).thenReturn(vrg);

@@ -209,7 +209,7 @@ public class LogEventServiceTest {
     prg.getAdminGroup();
     String adminGroup = subject.determineAdminGroup(userMock, res);
 
-    assertThat(adminGroup, is(res.getVirtualResourceGroup().getSurfconextGroupId()));
+    assertThat(adminGroup, is(res.getVirtualResourceGroup().getAdminGroup()));
   }
 
   @Test
@@ -229,7 +229,7 @@ public class LogEventServiceTest {
 
     String adminGroup = subject.determineAdminGroup(userMock, res);
 
-    assertThat(adminGroup, is(res.getVirtualResourceGroup().getSurfconextGroupId()));
+    assertThat(adminGroup, is(res.getVirtualResourceGroup().getAdminGroup()));
   }
 
   @Test
@@ -239,7 +239,7 @@ public class LogEventServiceTest {
 
     String adminGroup = subject.determineAdminGroup(userMock, reservation);
 
-    assertThat(adminGroup, is(reservation.getVirtualResourceGroup().getSurfconextGroupId()));
+    assertThat(adminGroup, is(reservation.getVirtualResourceGroup().getAdminGroup()));
   }
 
   @Test(expected = IllegalStateException.class)

@@ -99,7 +99,7 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
           new Predicate<String>() {
             @Override
             public boolean apply(String groupId) {
-              return virtualResourceGroupService.findBySurfconextGroupId(groupId) != null;
+              return virtualResourceGroupService.findByAdminGroup(groupId) != null;
             }
           })
       );

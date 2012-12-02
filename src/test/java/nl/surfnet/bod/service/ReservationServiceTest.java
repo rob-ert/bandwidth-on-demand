@@ -193,7 +193,7 @@ public class ReservationServiceTest {
   public void cancelAReservationAsAUserInGroupShouldChangeItsStatus() {
     Reservation reservation = new ReservationFactory().setStatus(ReservationStatus.AUTO_START).create();
     RichUserDetails richUserDetails = new RichUserDetailsFactory().addUserRole().addUserGroup(
-        reservation.getVirtualResourceGroup().getSurfconextGroupId()).setDisplayname("Piet Puk").create();
+        reservation.getVirtualResourceGroup().getAdminGroup()).setDisplayname("Piet Puk").create();
 
     when(
         reservationToNbiMock.asyncTerminate(reservation.getId(), "Cancelled by Piet Puk", Optional

@@ -49,7 +49,7 @@ public class TeamView implements Comparable<TeamView> {
     this.id = group.getId();
     this.name = group.getName();
     this.numberOfPorts = group.getVirtualPortCount();
-    this.surfconextGroupId = group.getSurfconextGroupId();
+    this.surfconextGroupId = group.getAdminGroup();
     this.activeReservations = activeReservations;
     this.comingReservations = comingReservations;
     this.elapsedReservations = elapsedReservations;

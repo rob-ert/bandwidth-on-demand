@@ -126,7 +126,7 @@ public class VirtualResourceGroupController extends
       this.allPortCount = group.getVirtualPortCount();
       this.managerPortCount = managerPortCount;
       this.id = group.getId();
-      this.surfconextGroupId = group.getSurfconextGroupId();
+      this.surfconextGroupId = group.getAdminGroup();
     }
 
     public String getName() {

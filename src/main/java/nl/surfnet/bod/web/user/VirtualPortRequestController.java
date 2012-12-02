@@ -95,7 +95,7 @@ public class VirtualPortRequestController {
         new Function<VirtualResourceGroup, String>() {
           @Override
           public String apply(VirtualResourceGroup group) {
-            return group.getSurfconextGroupId();
+            return group.getAdminGroup();
           }
         }));
 
@@ -182,7 +182,7 @@ public class VirtualPortRequestController {
       }
 
       VirtualResourceGroup group = new VirtualResourceGroup();
-      group.setSurfconextGroupId(userGroup.getId());
+      group.setAdminGroup(userGroup.getId());
       group.setName(StringUtils.capitalize(userGroup.getName()));
 
       return ImmutableList.of(group);
@@ -208,12 +208,12 @@ public class VirtualPortRequestController {
       return "virtualports/requestform";
     }
 
-    VirtualResourceGroup vrg = virtualResourceGroupService.findBySurfconextGroupId(userGroup.getId());
+    VirtualResourceGroup vrg = virtualResourceGroupService.findByAdminGroup(userGroup.getId());
     boolean shouldClearSecurityContext = false;
     if (vrg == null) {
       vrg = new VirtualResourceGroup();
       vrg.setName(userGroup.getName());
-      vrg.setSurfconextGroupId(userGroup.getId());
+      vrg.setAdminGroup(userGroup.getId());
       vrg.setDescription(userGroup.getDescription());
       virtualResourceGroupService.save(vrg);
       shouldClearSecurityContext = true;

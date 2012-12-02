@@ -40,7 +40,7 @@ public class UserGroupView implements Comparable<UserGroupView> {
   public UserGroupView(VirtualResourceGroup vrg) {
     this.name = vrg.getName();
     this.description = vrg.getDescription();
-    this.surfconextGroupId = vrg.getSurfconextGroupId();
+    this.surfconextGroupId = vrg.getAdminGroup();
     this.existing = true;
   }
 

@@ -26,7 +26,10 @@ import java.util.Collection;
 import javax.persistence.*;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.hibernate.search.annotations.*;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 import org.hibernate.validator.constraints.NotEmpty;
 
 /**
@@ -36,6 +39,7 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 @Entity
 @Indexed
+@Analyzer(definition = "customanalyzer")
 public class VirtualResourceGroup implements Loggable, PersistableDomain {
 
   @Id
@@ -45,22 +49,19 @@ public class VirtualResourceGroup implements Loggable, PersistableDomain {
   @Version
   private Integer version;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field(store = Store.YES)
   @NotEmpty
   @Column(nullable = false)
   private String name;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field(store = Store.YES)
   @Basic
   private String description;
 
-  @Field(index = Index.YES, store = Store.YES)
-  @Analyzer(definition = "customanalyzer")
+  @Field(store = Store.YES)
   @NotEmpty
   @Column(unique = true, nullable = false)
-  private String surfconextGroupId;
+  private String adminGroup;
 
   @OneToMany(mappedBy = "virtualResourceGroup", cascade = CascadeType.REMOVE)
   @JsonIgnore
@@ -89,14 +90,6 @@ public class VirtualResourceGroup implements Loggable, PersistableDomain {
 
   public void setVersion(Integer version) {
     this.version = version;
-  }
-
-  public String getSurfconextGroupId() {
-    return surfconextGroupId;
-  }
-
-  public void setSurfconextGroupId(String surfconextGroupId) {
-    this.surfconextGroupId = surfconextGroupId;
   }
 
   public Collection<VirtualPort> getVirtualPorts() {
@@ -153,8 +146,17 @@ public class VirtualResourceGroup implements Loggable, PersistableDomain {
 
   @Override
   public String getAdminGroup() {
-    return surfconextGroupId;
+    return adminGroup;
   }
+
+  public void setAdminGroup(String adminGroup) {
+    this.adminGroup = adminGroup;
+  }
+
+//  @Override
+//  public Collection<String> getAdminGroups() {
+//    return ImmutableList.of(adminGroup);
+//  }
 
   @Override
   public String getLabel() {
@@ -216,9 +218,9 @@ public class VirtualResourceGroup implements Loggable, PersistableDomain {
       builder.append(description);
       builder.append(", ");
     }
-    if (surfconextGroupId != null) {
-      builder.append("surfconextGroupId=");
-      builder.append(surfconextGroupId);
+    if (adminGroup != null) {
+      builder.append("adminGroup=");
+      builder.append(adminGroup);
       builder.append(", ");
     }
     if (virtualPorts != null) {

@@ -21,6 +21,14 @@
  */
 package nl.surfnet.bod.web.push;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.Locale;
 
 import nl.surfnet.bod.domain.NsiRequestDetails;
@@ -33,14 +41,6 @@ import org.junit.Test;
 import org.springframework.context.MessageSource;
 
 import com.google.common.base.Optional;
-
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PushMessagesTest {
 
@@ -60,6 +60,6 @@ public class PushMessagesTest {
 
     assertThat(event.getMessage(), containsString("\"id\":54"));
     assertThat(event.getMessage(), containsString("Yes"));
-    assertThat(event.getGroupId(), is(reservation.getVirtualResourceGroup().getSurfconextGroupId()));
+    assertThat(event.getGroupId(), is(reservation.getVirtualResourceGroup().getAdminGroup()));
   }
 }

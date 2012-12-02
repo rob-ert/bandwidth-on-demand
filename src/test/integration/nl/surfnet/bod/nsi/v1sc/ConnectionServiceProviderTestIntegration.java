@@ -184,7 +184,7 @@ public class ConnectionServiceProviderTestIntegration extends AbstractTransactio
 
   private VirtualResourceGroup createVirtualResoruceGroup() {
     VirtualResourceGroup virtualResourceGroup = new VirtualResourceGroupFactory().setName(virtualResourceGroupName)
-        .setSurfconextGroupId(userDetails.getUserGroupIds().iterator().next()).create();
+        .setAdminGroup(userDetails.getUserGroupIds().iterator().next()).create();
     virtualResourceGroup = virtualResourceGroupRepo.save(virtualResourceGroup);
     return virtualResourceGroup;
   }

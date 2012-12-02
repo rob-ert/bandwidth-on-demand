@@ -28,15 +28,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import nl.surfnet.bod.domain.BodRole;
-import nl.surfnet.bod.domain.PhysicalPort;
-import nl.surfnet.bod.domain.PhysicalPort_;
-import nl.surfnet.bod.domain.PhysicalResourceGroup_;
-import nl.surfnet.bod.domain.VirtualPort;
-import nl.surfnet.bod.domain.VirtualPortRequestLink;
-import nl.surfnet.bod.domain.VirtualPortRequestLink_;
-import nl.surfnet.bod.domain.VirtualPort_;
-import nl.surfnet.bod.domain.VirtualResourceGroup_;
+import nl.surfnet.bod.domain.*;
 import nl.surfnet.bod.web.security.RichUserDetails;
 
 import org.joda.time.DateMidnight;
@@ -53,7 +45,7 @@ public final class VirtualPortPredicatesAndSpecifications {
       @Override
       public javax.persistence.criteria.Predicate toPredicate(Root<VirtualPort> root, CriteriaQuery<?> query,
           CriteriaBuilder cb) {
-        return cb.and(root.get(VirtualPort_.virtualResourceGroup).get(VirtualResourceGroup_.surfconextGroupId)
+        return cb.and(root.get(VirtualPort_.virtualResourceGroup).get(VirtualResourceGroup_.adminGroup)
             .in(user.getUserGroupIds()));
       }
     };
@@ -96,7 +88,7 @@ public final class VirtualPortPredicatesAndSpecifications {
         return cb
             .and(
                 cb.between(root.get(VirtualPortRequestLink_.requestDateTime), start.minusDays(31), start),
-                root.get(VirtualPortRequestLink_.virtualResourceGroup).get(VirtualResourceGroup_.surfconextGroupId)
+                root.get(VirtualPortRequestLink_.virtualResourceGroup).get(VirtualResourceGroup_.adminGroup)
                     .in(vrgUrns));
       }
     };
