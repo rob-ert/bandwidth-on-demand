@@ -118,7 +118,7 @@ public class VirtualResourceGroupController extends
     private final String description;
     private final Integer allPortCount;
     private final Integer managerPortCount;
-    private final String surfconextGroupId;
+    private final String adminGroup;
 
     public VirtualResourceGroupView(VirtualResourceGroup group, Integer managerPortCount) {
       this.name = group.getName();
@@ -126,7 +126,7 @@ public class VirtualResourceGroupController extends
       this.allPortCount = group.getVirtualPortCount();
       this.managerPortCount = managerPortCount;
       this.id = group.getId();
-      this.surfconextGroupId = group.getAdminGroup();
+      this.adminGroup = group.getAdminGroup();
     }
 
     public String getName() {
@@ -141,8 +141,8 @@ public class VirtualResourceGroupController extends
       return allPortCount;
     }
 
-    public String getSurfconextGroupId() {
-      return surfconextGroupId;
+    public String getAdminGroup() {
+      return adminGroup;
     }
 
     public Integer getManagerPortCount() {

@@ -91,7 +91,7 @@
                                     </c:choose>
                                     <spring:url value="/request" var="new_vp_url">
                                         <spring:param value="${team.name}" name="teamLabel"/> 
-                                        <spring:param value="${team.surfconextGroupId}" name="teamUrn" />
+                                        <spring:param value="${team.adminGroup}" name="teamUrn" />
                                     </spring:url>
                                     <a href="${new_vp_url}" rel="tooltip" title="Request a Virtual Port" data-type="info"><i class="icon-envelope"><!--  --></i></a>
                                 </td>

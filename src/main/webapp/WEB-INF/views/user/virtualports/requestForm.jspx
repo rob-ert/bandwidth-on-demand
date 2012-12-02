@@ -33,7 +33,7 @@
                         </c:when>
                         <c:otherwise>
                             <output><c:out value="${virtualResourceGroups[0].name}" /></output>
-                            <input type="hidden" name="userGroupId" value="${virtualResourceGroups[0].surfconextGroupId}" />
+                            <input type="hidden" name="userGroupId" value="${virtualResourceGroups[0].adminGroup}" />
                         </c:otherwise>
                     </c:choose>
                 </div>

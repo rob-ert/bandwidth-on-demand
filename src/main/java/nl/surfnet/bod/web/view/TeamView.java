@@ -31,13 +31,13 @@ public class TeamView implements Comparable<TeamView> {
   private final long activeReservations;
   private final long comingReservations;
   private final long elapsedReservations;
-  private final String surfconextGroupId;
+  private final String adminGroup;
   private final boolean existing;
 
   public TeamView(UserGroup group) {
     this.id = null;
     this.name = group.getName();
-    this.surfconextGroupId = group.getId();
+    this.adminGroup = group.getId();
     this.numberOfPorts = 0;
     this.activeReservations = 0;
     this.comingReservations = 0;
@@ -49,7 +49,7 @@ public class TeamView implements Comparable<TeamView> {
     this.id = group.getId();
     this.name = group.getName();
     this.numberOfPorts = group.getVirtualPortCount();
-    this.surfconextGroupId = group.getAdminGroup();
+    this.adminGroup = group.getAdminGroup();
     this.activeReservations = activeReservations;
     this.comingReservations = comingReservations;
     this.elapsedReservations = elapsedReservations;
@@ -64,8 +64,8 @@ public class TeamView implements Comparable<TeamView> {
     return numberOfPorts;
   }
 
-  public String getSurfconextGroupId() {
-    return surfconextGroupId;
+  public String getAdminGroup() {
+    return adminGroup;
   }
 
   public boolean isExisting() {

@@ -22,7 +22,7 @@
               <c:forEach var="group" items="${userGroupViews}">
                   <spring:url value="/request" var="url">
                       <spring:param value="${group.name}" name="teamLabel"/> 
-                      <spring:param value="${group.surfconextGroupId}" name="teamUrn" />
+                      <spring:param value="${group.adminGroup}" name="teamUrn" />
                   </spring:url>
                   <c:choose>
                     <c:when test="${group.existing}">

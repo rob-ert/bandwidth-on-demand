@@ -258,10 +258,10 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
    * domainObject with one a specific type, as determined by
    * {@link #shouldLogEventBePersisted(LogEvent)} are persisted to the
    * {@link LogEventRepo}
-   * 
+   *
    * @param logger
    *          Logger to write to
-   * 
+   *
    * @param logEvent
    *          LogEvent to handle
    */

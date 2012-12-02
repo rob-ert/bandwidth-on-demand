@@ -27,20 +27,20 @@ import nl.surfnet.bod.domain.VirtualResourceGroup;
 public class UserGroupView implements Comparable<UserGroupView> {
   private final String name;
   private final String description;
-  private final String surfconextGroupId;
+  private final String adminGroup;
   private final boolean existing;
 
   public UserGroupView(UserGroup userGroup) {
     this.name = userGroup.getName();
     this.description = userGroup.getDescription();
-    this.surfconextGroupId = userGroup.getId();
+    this.adminGroup = userGroup.getId();
     this.existing = false;
   }
 
   public UserGroupView(VirtualResourceGroup vrg) {
     this.name = vrg.getName();
     this.description = vrg.getDescription();
-    this.surfconextGroupId = vrg.getAdminGroup();
+    this.adminGroup = vrg.getAdminGroup();
     this.existing = true;
   }
 
@@ -62,8 +62,8 @@ public class UserGroupView implements Comparable<UserGroupView> {
     return description;
   }
 
-  public String getSurfconextGroupId() {
-    return surfconextGroupId;
+  public String getAdminGroup() {
+    return adminGroup;
   }
 
   public boolean isExisting() {
