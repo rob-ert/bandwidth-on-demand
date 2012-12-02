@@ -45,6 +45,16 @@ public class ReservationTest {
   }
 
   @Test
+  public void toStringShouldIndicateWhenPrimaryKeyIsNotSet() {
+    Reservation reservation = new ReservationFactory().setId(null).create();
+
+    String toString = reservation.toString();
+
+    assertThat(toString, containsString("id=null"));
+  }
+
+
+  @Test
   public void shouldSetStartDateTimeTimeFirst() {
     Reservation reservation = new ReservationFactory().create();
 

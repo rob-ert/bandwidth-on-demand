@@ -380,82 +380,81 @@ public class Reservation implements Loggable, PersistableDomain {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("Reservation [");
-    if (id != null) {
-      builder.append("id=");
-      builder.append(id);
-      builder.append(", ");
-    }
-    if (version != null) {
-      builder.append("version=");
-      builder.append(version);
-      builder.append(", ");
-    }
+    builder.append("id=");
+    builder.append(id);
+
+    builder.append(", ");
+    builder.append("version=");
+    builder.append(version);
+
     if (name != null) {
+      builder.append(", ");
       builder.append("name=");
       builder.append(name);
-      builder.append(", ");
     }
     if (virtualResourceGroup != null) {
+      builder.append(", ");
       builder.append("virtualResourceGroup=");
       builder.append(virtualResourceGroup.getName());
-      builder.append(", ");
     }
     if (status != null) {
+      builder.append(", ");
       builder.append("status=");
       builder.append(status);
-      builder.append(", ");
     }
     if (failedReason != null) {
+      builder.append(", ");
       builder.append("failedReason=");
       builder.append(failedReason);
-      builder.append(", ");
     }
     if (cancelReason != null) {
+      builder.append(", ");
       builder.append("cancelReason=");
       builder.append(cancelReason);
-      builder.append(", ");
     }
     if (sourcePort != null) {
+      builder.append(", ");
       builder.append("sourcePort=");
       builder.append(sourcePort);
-      builder.append(", ");
     }
     if (destinationPort != null) {
+      builder.append(", ");
       builder.append("destinationPort=");
       builder.append(destinationPort);
-      builder.append(", ");
     }
     if (startDateTime != null) {
+      builder.append(", ");
       builder.append("startDateTime=");
       builder.append(startDateTime);
-      builder.append(", ");
     }
     if (endDateTime != null) {
+      builder.append(", ");
       builder.append("endDateTime=");
       builder.append(endDateTime);
-      builder.append(", ");
     }
     if (userCreated != null) {
+      builder.append(", ");
       builder.append("userCreated=");
       builder.append(userCreated);
-      builder.append(", ");
     }
     if (bandwidth != null) {
+      builder.append(", ");
       builder.append("bandwidth=");
       builder.append(bandwidth);
-      builder.append(", ");
     }
     if (reservationId != null) {
+      builder.append(", ");
       builder.append("reservationId=");
       builder.append(reservationId);
-      builder.append(", ");
     }
     if (creationDateTime != null) {
+      builder.append(", ");
       builder.append("creationDateTime=");
       builder.append(creationDateTime);
     }
 
     if (connection != null) {
+      builder.append(", ");
       builder.append("connection=");
       builder.append(connection.getLabel());
     }
