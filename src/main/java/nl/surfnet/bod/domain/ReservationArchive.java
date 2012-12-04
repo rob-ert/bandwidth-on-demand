@@ -19,11 +19,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Version;
 
-/**
- * 
- * Base entity for archiving entities to JSON.
- * 
- */
+
 @Entity
 public class ReservationArchive {
 
