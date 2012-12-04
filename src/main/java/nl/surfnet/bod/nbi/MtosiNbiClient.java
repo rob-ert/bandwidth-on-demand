@@ -85,12 +85,24 @@ public class MtosiNbiClient implements NbiClient {
     ResourceFacingServiceType rfsCreateData = createRfsCreateData();
     createDescribedByList(rfsCreateData.getDescribedByList(), reservation.getStartDateTime());
     
+    
+    
 
     List<ServiceAccessPointType> sourceSapList = createSapList(rfsCreateData.getSapList(), reservation.getSourcePort()
         .getPhysicalPort());
+    
+    for (final ServiceAccessPointType serviceAccessPointType : sourceSapList) {
+      rfsCreateData.getSapList().add(serviceAccessPointType);
+    }
+    
 
     List<ServiceAccessPointType> destinationSapList = createSapList(rfsCreateData.getSapList(), reservation
         .getDestinationPort().getPhysicalPort());
+    
+    for (final ServiceAccessPointType serviceAccessPointType : destinationSapList) {
+      rfsCreateData.getSapList().add(serviceAccessPointType);
+    }
+    
 
     //TODO continue from here
 //    createVendorExtensions();
@@ -278,5 +290,12 @@ public class MtosiNbiClient implements NbiClient {
     header.setCommunicationPattern(CommunicationPatternType.SIMPLE_RESPONSE);
 
     return new Holder<Header>(header);
+  }
+  
+  static {
+    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
+    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
+    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
+    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
   }
 }
