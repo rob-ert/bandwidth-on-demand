@@ -94,8 +94,11 @@ public class ConnectionService {
     reservation.setDestinationPort(destinationPort);
     reservation.setVirtualResourceGroup(sourcePort.getVirtualResourceGroup());
     reservation.setBandwidth(connection.getDesiredBandwidth());
+    //
+    // FIXME: Which is the correct user created?
     reservation.setUserCreated(connection.getRequesterNsa());
     reservation.setUserCreated(userDetails.getNameId());
+    
     reservation.setConnection(connection);
     connection.setReservation(reservation);
     reservationService.create(reservation, autoProvision, Optional.of(requestDetails));
