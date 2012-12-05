@@ -31,14 +31,15 @@ import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
 import org.tmforum.mtop.sa.wsdl.sai.v1_0.ReserveException;
 import org.tmforum.mtop.sa.wsdl.sai.v1_0.ServiceActivationInterface;
 import org.tmforum.mtop.sa.wsdl.sai.v1_0.ServiceActivationInterfaceHttp;
-import org.tmforum.mtop.sa.xsd.sai.v1.ReserveRequest;
-import org.tmforum.mtop.sa.xsd.sai.v1.ReserveResponse;
+import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
+import org.tmforum.mtop.sa.xsd.scai.v1.ReserveResponse;
 import org.tmforum.mtop.sb.xsd.svc.v1.AdminStateType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceCharacteristicValueType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 
 public class MtosiNbiClient implements NbiClient {
@@ -54,6 +55,11 @@ public class MtosiNbiClient implements NbiClient {
 
   public MtosiNbiClient() {
     init();
+  }
+
+  @VisibleForTesting
+  MtosiNbiClient(boolean shouldInit) {
+    isInited = true;
   }
 
   @Override
@@ -76,57 +82,45 @@ public class MtosiNbiClient implements NbiClient {
 
   @Override
   public Reservation createReservation(Reservation reservation, boolean autoProvision) {
-
     Holder<Header> mtopHeader = getServiceActivationRequestHeaders();
-    ReserveRequest mtopBody = null;
-    ReserveResponse reserveResponse = null;
-
-    org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest reserveRequest = createReserveRequest();
-    ResourceFacingServiceType rfsCreateData = createRfsCreateData();
-    createDescribedByList(rfsCreateData.getDescribedByList(), reservation.getStartDateTime());
-    
-    
-    
-
-    List<ServiceAccessPointType> sourceSapList = createSapList(rfsCreateData.getSapList(), reservation.getSourcePort()
-        .getPhysicalPort());
-    
-    for (final ServiceAccessPointType serviceAccessPointType : sourceSapList) {
-      rfsCreateData.getSapList().add(serviceAccessPointType);
-    }
-    
-
-    List<ServiceAccessPointType> destinationSapList = createSapList(rfsCreateData.getSapList(), reservation
-        .getDestinationPort().getPhysicalPort());
-    
-    for (final ServiceAccessPointType serviceAccessPointType : destinationSapList) {
-      rfsCreateData.getSapList().add(serviceAccessPointType);
-    }
-    
-
-    //TODO continue from here
-//    createVendorExtensions();
-    
-    createReservation(reservation, autoProvision);
-
-    reserveRequest.setRfsCreateData(rfsCreateData);
+    ReserveRequest reserveRequest = createReservationRequest(reservation, autoProvision);
 
     try {
-      reserveResponse = serviceActivationInterfaceHttp.getServiceActivationInterfaceSoapHttp().reserve(mtopHeader,
-          mtopBody);
+      ReserveResponse reserveResponse = serviceActivationInterfaceHttp.getServiceActivationInterfaceSoapHttp().reserve(
+          mtopHeader, reserveRequest);
+
     }
     catch (ReserveException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
-    return null;
-
+    return reservation;
   }
 
-  private List<ServiceAccessPointType> createSapList(List<ServiceAccessPointType> sapList, PhysicalPort physicalPort) {
+  ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision) {
+    ReserveRequest reserveRequest = createReserveRequest();
+    ReserveResponse reserveResponse = null;
+
+    ResourceFacingServiceType rfsCreateData = createRfsCreateData();
+    createDescribedByList(rfsCreateData.getDescribedByList(), reservation.getStartDateTime());
+
+    createSapAndAddToList(rfsCreateData.getSapList(), reservation.getSourcePort().getPhysicalPort());
+
+    createSapAndAddToList(rfsCreateData.getSapList(), reservation.getDestinationPort().getPhysicalPort());
+
+    // TODO continue from here
+    // createVendorExtensions();
+
+    reserveRequest.setRfsCreateData(rfsCreateData);
+
+    return reserveRequest;
+  }
+
+  private void createSapAndAddToList(List<ServiceAccessPointType> sapList, PhysicalPort physicalPort) {
     ServiceAccessPointType serviceAccessPoint = createServiceAccessPoint(physicalPort);
     sapList.add(serviceAccessPoint);
+
     createServiceCharacsteristicsAndAddToList("UNI-N", createNamingAttrib("SSC", "InterfaceType"), serviceAccessPoint
         .getDescribedByList());
     createServiceCharacsteristicsAndAddToList("1", createNamingAttrib("SSC", "TrafficMappingTableCount"),
@@ -140,7 +134,6 @@ public class MtosiNbiClient implements NbiClient {
     createServiceCharacsteristicsAndAddToList("250", createNamingAttrib("SSC", "TrafficMappingTo_Table_IngressCIR"),
         serviceAccessPoint.getDescribedByList());
 
-    return null;
   }
 
   private org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest createReserveRequest() {
@@ -175,6 +168,10 @@ public class MtosiNbiClient implements NbiClient {
   private ServiceAccessPointType createServiceAccessPoint(PhysicalPort port) {
     ServiceAccessPointType serviceAccessPoint = new org.tmforum.mtop.sb.xsd.svc.v1.ObjectFactory()
         .createServiceAccessPointType();
+
+    NamingAttributeType resourceRef = createNamingAttrib(null, null);
+    serviceAccessPoint.setResourceRef(resourceRef);
+
     serviceAccessPoint.setName(createNamingAttributeType("SAP", port.getNmsSapName()));
 
     List<RelativeDistinguishNameType> resourceRefList = serviceAccessPoint.getResourceRef().getRdn();
@@ -291,11 +288,5 @@ public class MtosiNbiClient implements NbiClient {
 
     return new Holder<Header>(header);
   }
-  
-  static {
-    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
-    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
-    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
-    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
-  }
+
 }
