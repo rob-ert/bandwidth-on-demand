@@ -28,9 +28,9 @@ import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.MessageTypeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.NamingAttributeType;
 import org.tmforum.mtop.fmw.xsd.nam.v1.RelativeDistinguishNameType;
-import org.tmforum.mtop.sa.wsdl.sai.v1_0.ReserveException;
 import org.tmforum.mtop.sa.wsdl.sai.v1_0.ServiceActivationInterface;
-import org.tmforum.mtop.sa.wsdl.sai.v1_0.ServiceActivationInterfaceHttp;
+import org.tmforum.mtop.sa.wsdl.scai.v1_0.ReserveException;
+import org.tmforum.mtop.sa.wsdl.scai.v1_0.ServiceComponentActivationInterfaceHttp;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveResponse;
 import org.tmforum.mtop.sb.xsd.svc.v1.AdminStateType;
@@ -51,7 +51,7 @@ public class MtosiNbiClient implements NbiClient {
 
   private boolean isInited;
 
-  private ServiceActivationInterfaceHttp serviceActivationInterfaceHttp;
+  private ServiceComponentActivationInterfaceHttp serviceComponentActivationInterfaceHttp;
 
   public MtosiNbiClient() {
     init();
@@ -86,16 +86,15 @@ public class MtosiNbiClient implements NbiClient {
     ReserveRequest reserveRequest = createReservationRequest(reservation, autoProvision);
 
     try {
-      ReserveResponse reserveResponse = serviceActivationInterfaceHttp.getServiceActivationInterfaceSoapHttp().reserve(
-          mtopHeader, reserveRequest);
-
+      serviceComponentActivationInterfaceHttp.getServiceComponentActivationInterfaceSoapHttp().reserve(mtopHeader,
+          reserveRequest);
     }
     catch (ReserveException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-
     return reservation;
+
   }
 
   ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision) {
@@ -237,12 +236,11 @@ public class MtosiNbiClient implements NbiClient {
     }
     else {
       try {
-
-        serviceActivationInterfaceHttp = new ServiceActivationInterfaceHttp(new URL(environment
-            .getMtosiReserveEndPoint()), new QName("http://www.tmforum.org/mtop/sa/wsdl/sai/v1-0",
+        serviceComponentActivationInterfaceHttp = new ServiceComponentActivationInterfaceHttp(new URL(environment
+            .getMtosiReserveEndPoint()), new QName("http://www.tmforum.org/mtop/sa/wsdl/scai/v1-0",
             "ServiceActivationInterfaceHttp"));
 
-        final Map<String, Object> requestContext = ((BindingProvider) serviceActivationInterfaceHttp
+        final Map<String, Object> requestContext = ((BindingProvider) serviceComponentActivationInterfaceHttp
             .getPort(ServiceActivationInterface.class)).getRequestContext();
 
         requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, environment.getMtosiReserveEndPoint());

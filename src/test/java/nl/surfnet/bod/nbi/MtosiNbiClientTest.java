@@ -27,6 +27,11 @@ public class MtosiNbiClientTest {
   @Test
   public void shouldProduceString() throws JAXBException {
     Reservation reservation = new ReservationFactory().create();
+    reservation.getSourcePort().getPhysicalPort().setNmsSapName("sourceNmsSapName");
+    reservation.getDestinationPort().getPhysicalPort().setNmsSapName("destinationNmsSapName");    
+    reservation.getSourcePort().getPhysicalPort().setNmsNeId("sourceNmsNeId");
+    reservation.getDestinationPort().getPhysicalPort().setNmsNeId("sourceNmsNeId");
+
     ReserveRequest reserveRequest = mtosiNbiClient.createReservationRequest(reservation, false);
 
     final JAXBContext context = JAXBContext.newInstance(ReserveRequest.class);
