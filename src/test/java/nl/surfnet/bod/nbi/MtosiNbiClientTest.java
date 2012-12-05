@@ -14,7 +14,7 @@ import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
 
 public class MtosiNbiClientTest {
 
-  private final MtosiNbiClient mtosiNbiClient = new MtosiNbiClient(true);
+  private final MtosiNbiClient mtosiNbiClient = new MtosiNbiClient(false);
 
   static {
     System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");

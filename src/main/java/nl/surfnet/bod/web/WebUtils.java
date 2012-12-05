@@ -15,8 +15,10 @@ package nl.surfnet.bod.web;
 import java.util.Arrays;
 import java.util.List;
 
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions;
 import nl.surfnet.bod.web.security.Security;
 
+import org.joda.time.DateTime;
 import org.joda.time.Hours;
 import org.joda.time.ReadablePeriod;
 import org.joda.time.format.DateTimeFormat;
@@ -257,5 +259,9 @@ public final class WebUtils {
 
   public static PageRequest createPageRequest(int firstResult, int maxResults, Sort sort) {
     return new PageRequest(firstResult / maxResults, maxResults, sort);
+  }
+
+  public static String convertToXml(DateTime timeStamp) {
+    return ConnectionServiceProviderFunctions.getXmlTimeStampFromDateTime(timeStamp).get().toXMLFormat();
   }
 }

@@ -16,12 +16,12 @@ import javax.xml.ws.Holder;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
-import nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions;
 import nl.surfnet.bod.util.Environment;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tmforum.mtop.fmw.xsd.gen.v1.AnyListType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationPatternType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.CommunicationStyleType;
 import org.tmforum.mtop.fmw.xsd.hdr.v1.Header;
@@ -32,7 +32,6 @@ import org.tmforum.mtop.sa.wsdl.sai.v1_0.ServiceActivationInterface;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ReserveException;
 import org.tmforum.mtop.sa.wsdl.scai.v1_0.ServiceComponentActivationInterfaceHttp;
 import org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest;
-import org.tmforum.mtop.sa.xsd.scai.v1.ReserveResponse;
 import org.tmforum.mtop.sb.xsd.svc.v1.AdminStateType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ResourceFacingServiceType;
 import org.tmforum.mtop.sb.xsd.svc.v1.ServiceAccessPointType;
@@ -42,6 +41,8 @@ import org.tmforum.mtop.sb.xsd.svc.v1.ServiceStateType;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 
+import static nl.surfnet.bod.web.WebUtils.convertToXml;
+
 public class MtosiNbiClient implements NbiClient {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -49,17 +50,18 @@ public class MtosiNbiClient implements NbiClient {
   @Resource
   private Environment environment;
 
-  private boolean isInited;
+  private boolean shouldInit;
 
   private ServiceComponentActivationInterfaceHttp serviceComponentActivationInterfaceHttp;
 
   public MtosiNbiClient() {
-    init();
+    this(true);
   }
 
   @VisibleForTesting
   MtosiNbiClient(boolean shouldInit) {
-    isInited = true;
+    this.shouldInit = shouldInit;
+    init();
   }
 
   @Override
@@ -99,21 +101,31 @@ public class MtosiNbiClient implements NbiClient {
 
   ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision) {
     ReserveRequest reserveRequest = createReserveRequest();
-    ReserveResponse reserveResponse = null;
 
     ResourceFacingServiceType rfsCreateData = createRfsCreateData();
+
     createDescribedByList(rfsCreateData.getDescribedByList(), reservation.getStartDateTime());
 
     createSapAndAddToList(rfsCreateData.getSapList(), reservation.getSourcePort().getPhysicalPort());
 
     createSapAndAddToList(rfsCreateData.getSapList(), reservation.getDestinationPort().getPhysicalPort());
 
-    // TODO continue from here
-    // createVendorExtensions();
+//    createAndAddVendorExtensions(rfsCreateData, reservation.getStartDateTime());
 
     reserveRequest.setRfsCreateData(rfsCreateData);
 
     return reserveRequest;
+  }
+
+  private void createAndAddVendorExtensions(ResourceFacingServiceType rfsCreateData, DateTime startDateTime) {
+
+    AnyListType startTimeAnyType = new org.tmforum.mtop.fmw.xsd.gen.v1.ObjectFactory().createAnyListType();
+    startTimeAnyType.getAny().add(createNamingAttrib("startTime", convertToXml(startDateTime)));
+
+    JAXBElement<AnyListType> vendorExtensions = new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory()
+        .createCommonObjectInfoTypeVendorExtensions(startTimeAnyType);
+
+    rfsCreateData.setVendorExtensions(vendorExtensions);
   }
 
   private void createSapAndAddToList(List<ServiceAccessPointType> sapList, PhysicalPort physicalPort) {
@@ -155,8 +167,8 @@ public class MtosiNbiClient implements NbiClient {
   private void createDescribedByList(List<ServiceCharacteristicValueType> describedByList, DateTime timeStamp) {
     createServiceCharacsteristicsAndAddToList("EVPL", createNamingAttrib("SSC", "ServiceType"), describedByList);
 
-    createServiceCharacsteristicsAndAddToList(ConnectionServiceProviderFunctions.getXmlTimeStampFromDateTime(timeStamp)
-        .get().toXMLFormat(), createNamingAttrib("SSC", "startTime"), describedByList);
+    createServiceCharacsteristicsAndAddToList(convertToXml(timeStamp), createNamingAttrib("SSC", "startTime"),
+        describedByList);
 
     createServiceCharacsteristicsAndAddToList("Strict", createNamingAttrib("SSC", "AdmissionControl"), describedByList);
 
@@ -231,10 +243,7 @@ public class MtosiNbiClient implements NbiClient {
   }
 
   private void init() {
-    if (isInited) {
-      return;
-    }
-    else {
+    if (shouldInit) {
       try {
         serviceComponentActivationInterfaceHttp = new ServiceComponentActivationInterfaceHttp(new URL(environment
             .getMtosiReserveEndPoint()), new QName("http://www.tmforum.org/mtop/sa/wsdl/scai/v1-0",
@@ -245,7 +254,7 @@ public class MtosiNbiClient implements NbiClient {
 
         requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, environment.getMtosiReserveEndPoint());
 
-        isInited = true;
+        shouldInit = true;
       }
       catch (MalformedURLException e) {
         logger.error("Error: ", e);
