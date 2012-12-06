@@ -16,6 +16,7 @@ import javax.xml.ws.Holder;
 import nl.surfnet.bod.domain.PhysicalPort;
 import nl.surfnet.bod.domain.Reservation;
 import nl.surfnet.bod.domain.ReservationStatus;
+import nl.surfnet.bod.nsi.v1sc.ConnectionServiceProviderFunctions;
 import nl.surfnet.bod.util.Environment;
 
 import org.joda.time.DateTime;
@@ -43,7 +44,7 @@ import com.google.common.base.Optional;
 
 import static nl.surfnet.bod.web.WebUtils.convertToXml;
 
-public class MtosiNbiClient implements NbiClient {
+public class NbiMtosiClient implements NbiClient {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -54,12 +55,12 @@ public class MtosiNbiClient implements NbiClient {
 
   private ServiceComponentActivationInterfaceHttp serviceComponentActivationInterfaceHttp;
 
-  public MtosiNbiClient() {
+  public NbiMtosiClient() {
     this(true);
   }
 
   @VisibleForTesting
-  MtosiNbiClient(boolean shouldInit) {
+  NbiMtosiClient(boolean shouldInit) {
     this.shouldInit = shouldInit;
     init();
   }
@@ -100,7 +101,7 @@ public class MtosiNbiClient implements NbiClient {
   }
 
   ReserveRequest createReservationRequest(Reservation reservation, boolean autoProvision) {
-    ReserveRequest reserveRequest = createReserveRequest();
+    ReserveRequest reserveRequest = createReserveRequest(reservation.getEndDateTime());
 
     ResourceFacingServiceType rfsCreateData = createRfsCreateData();
 
@@ -110,20 +111,25 @@ public class MtosiNbiClient implements NbiClient {
 
     createSapAndAddToList(rfsCreateData.getSapList(), reservation.getDestinationPort().getPhysicalPort());
 
-//    createAndAddVendorExtensions(rfsCreateData, reservation.getStartDateTime());
+    createVendorExtensionsAndAdd(rfsCreateData, reservation.getStartDateTime());
 
     reserveRequest.setRfsCreateData(rfsCreateData);
 
     return reserveRequest;
   }
 
-  private void createAndAddVendorExtensions(ResourceFacingServiceType rfsCreateData, DateTime startDateTime) {
+  private void createVendorExtensionsAndAdd(ResourceFacingServiceType rfsCreateData, DateTime startDateTime) {
 
-    AnyListType startTimeAnyType = new org.tmforum.mtop.fmw.xsd.gen.v1.ObjectFactory().createAnyListType();
-    startTimeAnyType.getAny().add(createNamingAttrib("startTime", convertToXml(startDateTime)));
+    AnyListType anyListType = new org.tmforum.mtop.fmw.xsd.gen.v1.ObjectFactory().createAnyListType();
+
+    List<Object> anyList = anyListType.getAny();
+
+    JAXBElement<NamingAttributeType> start = new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory()
+        .createCommonObjectInfoTypeName(createNamingAttrib("startTime", convertToXml(startDateTime)));
+    anyList.add(start);
 
     JAXBElement<AnyListType> vendorExtensions = new org.tmforum.mtop.fmw.xsd.coi.v1.ObjectFactory()
-        .createCommonObjectInfoTypeVendorExtensions(startTimeAnyType);
+        .createCommonObjectInfoTypeVendorExtensions(anyListType);
 
     rfsCreateData.setVendorExtensions(vendorExtensions);
   }
@@ -147,8 +153,12 @@ public class MtosiNbiClient implements NbiClient {
 
   }
 
-  private org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest createReserveRequest() {
-    return new org.tmforum.mtop.sa.xsd.scai.v1.ObjectFactory().createReserveRequest();
+  private org.tmforum.mtop.sa.xsd.scai.v1.ReserveRequest createReserveRequest(DateTime endDateTime) {
+    ReserveRequest reserveRequest = new org.tmforum.mtop.sa.xsd.scai.v1.ObjectFactory().createReserveRequest();
+
+    reserveRequest.setExpiringTime(ConnectionServiceProviderFunctions.getXmlTimeStampFromDateTime(endDateTime).get());
+
+    return reserveRequest;
   }
 
   private ResourceFacingServiceType createRfsCreateData() {
