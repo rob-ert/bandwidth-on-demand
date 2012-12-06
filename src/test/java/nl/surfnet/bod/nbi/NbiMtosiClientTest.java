@@ -23,6 +23,7 @@ import static org.junit.Assert.fail;
 public class NbiMtosiClientTest {
 
   private final NbiMtosiClient mtosiNbiClient = new NbiMtosiClient(false);
+  private final boolean schemaValidation = false;
 
   static {
     System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
@@ -46,7 +47,10 @@ public class NbiMtosiClientTest {
 
     final Marshaller marshaller = context.createMarshaller();
     // Enable schema validation
-    // marshaller.setSchema(getMtosiSchema());
+
+    if (schemaValidation) {
+      marshaller.setSchema(getMtosiSchema());
+    }
 
     // Create a stringWriter to hold the XML
     final StringWriter stringWriter = new StringWriter();
