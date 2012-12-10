@@ -13,3 +13,4 @@ bod.log
 logfile
 .externalToolBuilders/
 .worksheet/
+.apt_generated/
