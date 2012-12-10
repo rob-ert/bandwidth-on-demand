@@ -26,11 +26,11 @@ public class NbiMtosiClientTest {
   private final boolean schemaValidation = false;
 
   static {
-    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
-    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
-    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
-    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
-    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
+//    System.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, "true");
+//    System.setProperty("com.sun.xml.ws.fault.SOAPFaultBuilder.disableCaptureStackTrace", "false");
+//    System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
+//    System.setProperty("com.sun.xml.ws.util.pipe.StandaloneTubeAssembler.dump", "true");
+//    System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");
   }
 
   @Test
@@ -56,7 +56,6 @@ public class NbiMtosiClientTest {
     final StringWriter stringWriter = new StringWriter();
     marshaller.marshal(reserveRequest, stringWriter);
 
-    System.out.println(stringWriter);
   }
 
   private javax.xml.validation.Schema getMtosiSchema() {
