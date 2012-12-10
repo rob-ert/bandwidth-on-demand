@@ -24,12 +24,12 @@ import nl.surfnet.bod.repo.ReservationRepo;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.AfterTransaction;
+import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +64,7 @@ public class ReservationServiceDbTest {
   private Reservation rightReservationOnStartTime;
   private Reservation rightReservationOnEndTime;
 
-  @Before
+  @BeforeTransaction
   public void setUp() {
     rightReservationOnStartTime = createAndSaveReservation(rightDateTime, beforeDateTime, ReservationStatus.AUTO_START);
     rightReservationOnEndTime = createAndSaveReservation(beforeDateTime, rightDateTime, ReservationStatus.AUTO_START);

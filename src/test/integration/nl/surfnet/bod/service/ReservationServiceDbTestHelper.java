@@ -13,11 +13,11 @@
 package nl.surfnet.bod.service;
 
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 import nl.surfnet.bod.domain.Institute;
@@ -32,15 +32,15 @@ import nl.surfnet.bod.repo.VirtualPortRepo;
 import nl.surfnet.bod.repo.VirtualResourceGroupRepo;
 import nl.surfnet.bod.support.ReservationFactory;
 
-import org.hibernate.SQLQuery;
-import org.hibernate.Session;
 import org.joda.time.DateTime;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import static org.junit.Assert.fail;
 
-@Service
+@Component
 public class ReservationServiceDbTestHelper {
+
+  private static Properties props;
 
   @Resource
   private ReservationService reservationService;
@@ -96,7 +96,7 @@ public class ReservationServiceDbTestHelper {
     reservation.setId(null);
     return reservation;
   }
-  
+
   Reservation saveReservation(Reservation reservation) {
 
     return reservationRepo.save(reservation);
@@ -115,7 +115,6 @@ public class ReservationServiceDbTestHelper {
     return reservationService.find(reservationId);
   }
 
-
   private Institute findInstituteToPreventUniqueKeyViolationInPhysicalResourceGroup(Long... instituteIdsInUse) {
     Iterator<Institute> instituteIterator = instituteRepo.findAll().iterator();
 
@@ -132,11 +131,8 @@ public class ReservationServiceDbTestHelper {
     return physicalResourceGroupRepo.save(group);
   }
 
-
   public void cleanUp() {
-    EntityManager em = entityManagerFactory.createEntityManager();
-    SQLQuery query = ((Session) em.getDelegate())
-        .createSQLQuery("truncate physical_resource_group, virtual_resource_group, connection, log_event cascade;");
-    query.executeUpdate();
+
+    DataBaseTestHelper.clearIntegrationDatabaseSkipBaseData();
   }
 }

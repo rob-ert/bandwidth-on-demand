@@ -13,22 +13,16 @@
 package nl.surfnet.bod.support;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+
+import nl.surfnet.bod.service.DataBaseTestHelper;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
@@ -38,8 +32,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
@@ -65,10 +57,6 @@ public class BodWebDriver {
   public static final DateTimeFormatter RESERVATION_DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyy-MM-dd H:mm");
 
   private static final int MAIL_SMTP_PORT = 4025;
-  private static final InputStream PROP_DEFAULT = BodWebDriver.class.getResourceAsStream("/bod-default.properties");
-  private static final InputStream PROP_SELENIUM = BodWebDriver.class.getResourceAsStream("/bod-selenium.properties");
-
-  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private FirefoxDriver driver;
   private GreenMail mailServer;
@@ -76,8 +64,6 @@ public class BodWebDriver {
   private BodUserWebDriver userDriver;
   private BodManagerWebDriver managerDriver;
   private BodNocWebDriver nocDriver;
-
-  private Properties props;
 
   private static String withoutEndingSlash(String path) {
     return path.endsWith("/") ? StringUtils.chop(path) : path;
@@ -125,73 +111,7 @@ public class BodWebDriver {
     }
 
     // Every test a clean database
-    clearDatabaseSkipBaseData();
-  }
-
-  private void clearDatabaseSkipBaseData() {
-    Connection connection = createDbConnection(getProperty(DB_URL), getProperty(DB_USER), getProperty(DB_PASS),
-        getProperty(DB_DRIVER_CLASS));
-
-    String truncateQuery;
-    Statement statement = null;
-    try {
-      truncateQuery = createDeleteQueriesWithoutBaseData(connection);
-      statement = connection.createStatement();
-      statement.executeUpdate(truncateQuery);
-    }
-    catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
-    finally {
-      try {
-        if (statement != null) {
-          statement.close();
-        }
-
-        if (connection != null) {
-          connection.close();
-        }
-      }
-      catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    log.warn("Cleared database, deleted tables: {}", truncateQuery);
-  }
-
-  private String createDeleteQueriesWithoutBaseData(Connection connection) throws SQLException {
-    StringBuilder truncateQuery = new StringBuilder("TRUNCATE ");
-
-    ResultSet tables = connection.getMetaData().getTables(null, null, "%", new String[] { "TABLE" });
-    String tableName = null;
-    while (tables.next()) {
-      tableName = tables.getString(3);
-      if ("schema_version".equals(tableName) || "institute".equals(tableName)) {
-        log.debug("Skipping truncate of table to preserve data: {}", tableName);
-      }
-      else {
-        truncateQuery.append(tableName).append(", ");
-      }
-    }
-    return StringUtils.removeEnd(truncateQuery.toString(), ", ").concat(" CASCADE");
-  }
-
-  private String getProperty(String key) {
-
-    if (props == null) {
-      props = new Properties();
-      try {
-        props.load(PROP_DEFAULT);
-        props.load(PROP_SELENIUM);
-
-        log.debug("Loaded props: " + props.toString());
-      }
-      catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    return props.getProperty(key);
+    DataBaseTestHelper.clearSeleniumDatabaseSkipBaseData();
   }
 
   public BodManagerWebDriver getManagerDriver() {
@@ -204,33 +124,6 @@ public class BodWebDriver {
 
   public BodUserWebDriver getUserDriver() {
     return userDriver;
-  }
-
-  private Connection createDbConnection(String dbUrl, String dbUser, String dbPass, String dbDriverClass) {
-
-    Connection dbConnection = null;
-
-    try {
-      Class.forName(dbDriverClass).newInstance();
-    }
-    catch (InstantiationException e) {
-      throw new RuntimeException(e);
-    }
-    catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-    catch (ClassNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-
-    try {
-      dbConnection = DriverManager.getConnection(dbUrl, dbUser, dbPass);
-    }
-    catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
-
-    return dbConnection;
   }
 
   public void takeScreenshot(File screenshot) throws Exception {
