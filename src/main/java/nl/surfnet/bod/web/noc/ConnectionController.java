@@ -62,14 +62,12 @@ public class ConnectionController extends AbstractSearchableSortableListControll
 
   @Override
   protected List<Long> getIdsOfAllAllowedEntries(Model model) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException("Search not implemented for connections");
   }
 
   @Override
   protected AbstractFullTextSearchService<Connection> getFullTextSearchableService() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException("Search not implemented for connections");
   }
 
   @Override
