@@ -19,33 +19,19 @@ import javax.annotation.Resource;
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.service.AbstractFullTextSearchService;
 import nl.surfnet.bod.service.LogEventService;
-import nl.surfnet.bod.service.VirtualResourceGroupService;
 import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.ui.Model;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 public abstract class AbstractLogEventController extends AbstractSearchableSortableListController<LogEvent, LogEvent> {
   public static final String PAGE_URL = "logevents";
 
   static final String MODEL_KEY = "list";
 
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
   @Resource
   private LogEventService logEventService;
-
-  @Resource
-  private VirtualResourceGroupService virtualResourceGroupService;
 
   @Override
   protected String getDefaultSortProperty() {
@@ -67,41 +53,8 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
   }
 
   @Override
-  protected List<LogEvent> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return logEventService.findByAdminGroups(determinGroupsToSearchFor(Security.getUserDetails()), firstPage, maxItems, sort);
-  }
-
-  @Override
-  protected long count(Model model) {
-    return logEventService.countByAdminGroups(determinGroupsToSearchFor(Security.getUserDetails()));
-  }
-
-  @Override
   protected AbstractFullTextSearchService<LogEvent> getFullTextSearchableService() {
     return logEventService;
-  }
-
-  protected List<String> determinGroupsToSearchFor(RichUserDetails user) {
-    List<String> groups = Lists.newArrayList();
-
-    if (user.isSelectedUserRole()) {
-      groups.addAll(
-          Collections2.filter(user.getUserGroupIds(),
-          new Predicate<String>() {
-            @Override
-            public boolean apply(String groupId) {
-              return virtualResourceGroupService.findByAdminGroup(groupId) != null;
-            }
-          })
-      );
-    }
-    else if (user.isSelectedManagerRole()) {
-      groups.add(user.getSelectedRole().getAdminGroup().get());
-    }
-
-    logger.debug("Groups to search for: {}", groups);
-
-    return groups;
   }
 
   @Override
@@ -112,6 +65,5 @@ public abstract class AbstractLogEventController extends AbstractSearchableSorta
   protected final LogEventService getLogEventService() {
     return logEventService;
   }
-
 
 }

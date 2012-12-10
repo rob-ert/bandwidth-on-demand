@@ -23,7 +23,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import nl.surfnet.bod.domain.Reservation;
@@ -43,9 +42,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LogEventServiceTest {
@@ -65,7 +69,7 @@ public class LogEventServiceTest {
   private Environment environmentMock;
 
   @Mock
-  private PhysicalResourceGroupService physicalResourceGroupService;
+  private VirtualResourceGroupService virtualResourceGroupServiceMock;
 
   @InjectMocks
   private LogEventService subject;
@@ -185,18 +189,29 @@ public class LogEventServiceTest {
   }
 
   @Test
-  public void findByAdminGroupWithNoGroupsShoulBeEmpty() {
-    List<LogEvent> groups = subject.findByAdminGroups(Collections.<String> emptyList(), 1, 100, new Sort("userId"));
+  public void shouldFindLogEventsForAUser() {
+    VirtualResourceGroup vrg1 = new VirtualResourceGroupFactory().create();
+    VirtualResourceGroup vrg2 = new VirtualResourceGroupFactory().create();
 
-    assertThat(groups.isEmpty(), is(true));
-    verifyZeroInteractions(logEventRepoMock);
+    when(userMock.getUserGroupIds()).thenReturn(ImmutableList.of("urn:first", "urn:second", "urn:third"));
+    when(virtualResourceGroupServiceMock.findByAdminGroup("urn:first")).thenReturn(vrg1);
+    when(virtualResourceGroupServiceMock.findByAdminGroup("urn:second")).thenReturn(vrg2);
+    when(virtualResourceGroupServiceMock.findByAdminGroup("urn:third")).thenReturn(null);
+    when(logEventRepoMock.findAll(any(Specification.class), any(Pageable.class))).thenReturn(new PageImpl(Lists.newArrayList(new LogEventFactory().create())));
+
+    List<LogEvent> logEvents = subject.findByUser(userMock, 1, 100, new Sort("userId"));
+
+    assertThat(logEvents, hasSize(1));
   }
 
   @Test
-  public void countByAdminGroupsWithNoGroupsShouldBeZero() {
-    long groupCount = subject.countByAdminGroups(Collections.<String> emptyList());
+  public void shouldFindLogEventsForAUserWithoutVrgs() {
+    when(userMock.getUserGroupIds()).thenReturn(ImmutableList.of("urn:first"));
+    when(virtualResourceGroupServiceMock.findByAdminGroup("urn:first")).thenReturn(null);
 
-    assertThat(groupCount, is(0L));
+    List<LogEvent> logEvents = subject.findByUser(userMock, 1, 100, new Sort("userId"));
+
+    assertThat(logEvents, hasSize(0));
     verifyZeroInteractions(logEventRepoMock);
   }
 

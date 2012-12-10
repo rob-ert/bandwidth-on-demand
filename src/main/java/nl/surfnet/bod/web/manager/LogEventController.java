@@ -16,26 +16,22 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.service.LogEventService;
+import nl.surfnet.bod.web.base.AbstractLogEventController;
+import nl.surfnet.bod.web.security.Security;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.service.LogEventService;
-import nl.surfnet.bod.service.ManagerService;
-import nl.surfnet.bod.web.base.AbstractLogEventController;
-import nl.surfnet.bod.web.security.Security;
-
 @Controller("managerEventController")
 @RequestMapping(value = "/manager/" + LogEventController.PAGE_URL)
 public class LogEventController extends AbstractLogEventController {
-  
+
   @Resource
   private LogEventService logEventService;
-  
-  @Resource
-  private ManagerService managerService;
 
   @Override
   protected List<LogEvent> list(int firstPage, int maxItems, Sort sort, Model model) {
@@ -51,5 +47,11 @@ public class LogEventController extends AbstractLogEventController {
   protected List<Long> getIdsOfAllAllowedEntries(Model model) {
     return logEventService.findIdsForManagerOrNoc(Security.getUserDetails());
   }
+
+  @Override
+  protected long count(Model model) {
+    return logEventService.countByManagerRole(Security.getSelectedRole());
+  }
+
 
 }

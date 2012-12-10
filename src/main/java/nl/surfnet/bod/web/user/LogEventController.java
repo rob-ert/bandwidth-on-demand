@@ -14,12 +14,16 @@ package nl.surfnet.bod.web.user;
 
 import java.util.List;
 
+import nl.surfnet.bod.event.LogEvent;
+import nl.surfnet.bod.web.base.AbstractLogEventController;
+import nl.surfnet.bod.web.security.Security;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import nl.surfnet.bod.web.base.AbstractLogEventController;
-import nl.surfnet.bod.web.security.Security;
+import com.google.common.collect.Lists;
 
 @Controller("userEventController")
 @RequestMapping(value = "/" + AbstractLogEventController.PAGE_URL)
@@ -32,7 +36,19 @@ public class LogEventController extends AbstractLogEventController {
 
   @Override
   protected List<Long> getIdsOfAllAllowedEntries(Model model) {
-    return getLogEventService().findIdsForUser(determinGroupsToSearchFor(Security.getUserDetails()));
+    // return
+    // getLogEventService().findIdsForUser(determinGroupsToSearchFor(Security.getUserDetails()));
+    return Lists.newArrayList();
+  }
+
+  @Override
+  protected List<LogEvent> list(int firstPage, int maxItems, Sort sort, Model model) {
+    return getLogEventService().findByUser(Security.getUserDetails(), firstPage, maxItems, sort);
+  }
+
+  @Override
+  protected long count(Model model) {
+    return getLogEventService().countByUser(Security.getUserDetails());
   }
 
 }

@@ -15,7 +15,10 @@ package nl.surfnet.bod.service;
 import static com.google.common.collect.Iterables.toArray;
 import static nl.surfnet.bod.service.LogEventPredicatesAndSpecifications.specLogEventsByAdminGroups;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
@@ -28,7 +31,6 @@ import nl.surfnet.bod.repo.LogEventRepo;
 import nl.surfnet.bod.util.Environment;
 import nl.surfnet.bod.web.WebUtils;
 import nl.surfnet.bod.web.security.RichUserDetails;
-import nl.surfnet.bod.web.security.Security;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -39,7 +41,10 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 @Service
 public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
@@ -62,7 +67,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   private Environment environment;
 
   @Resource
-  private ManagerService managerService;
+  private VirtualResourceGroupService virtualResourceGroupService;
 
   @PersistenceContext
   private EntityManager entityManager;
@@ -75,7 +80,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logEventRepo.count(whereClause);
   }
 
-  public long countByAdminGroups(Collection<String> adminGroups) {
+  private long countByAdminGroups(Collection<String> adminGroups) {
     if (adminGroups.isEmpty()) {
       return 0;
     }
@@ -111,26 +116,20 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
       ReservationStatus oldStatus) {
 
     String details = getStateChangeMessage(reservation, oldStatus);
-    return createLogEvent(user, eventType, reservation, details, Optional.of(oldStatus), Optional.of(reservation
-        .getStatus()));
+    return createLogEvent(user, eventType, reservation, details, Optional.of(oldStatus),
+        Optional.of(reservation.getStatus()));
   }
 
   private LogEvent createLogEvent(RichUserDetails user, LogEventType eventType, Loggable domainObject, String details,
       Optional<ReservationStatus> oldStatus, Optional<ReservationStatus> newStatus) {
 
-    return new LogEvent(
-        user == null ? SYSTEM_USER : user.getUsername(),
-        domainObject.getAdminGroups(),
-        eventType,
-        Optional.fromNullable(domainObject),
-        details,
-        oldStatus,
-        newStatus);
+    return new LogEvent(user == null ? SYSTEM_USER : user.getUsername(), domainObject.getAdminGroups(), eventType,
+        Optional.fromNullable(domainObject), details, oldStatus, newStatus);
   }
 
   private LogEvent createLogEvent(RichUserDetails user, LogEventType eventType, Loggable domainObject, String details) {
-    return createLogEvent(user, eventType, domainObject, details, Optional.<ReservationStatus> absent(), Optional
-        .<ReservationStatus> absent());
+    return createLogEvent(user, eventType, domainObject, details, Optional.<ReservationStatus> absent(),
+        Optional.<ReservationStatus> absent());
   }
 
   private List<LogEvent> createLogEvents(RichUserDetails user, LogEventType logEventType, String details,
@@ -156,7 +155,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logEventRepo.findAll(WebUtils.createPageRequest(firstResult, maxResults, sort)).getContent();
   }
 
-  public List<LogEvent> findByAdminGroups(Collection<String> adminGroups, int firstResult, int maxResults, Sort sort) {
+  private List<LogEvent> findByAdminGroups(Collection<String> adminGroups, int firstResult, int maxResults, Sort sort) {
     if (adminGroups.isEmpty()) {
       return Collections.emptyList();
     }
@@ -166,9 +165,7 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   }
 
   public List<LogEvent> findByManagerRole(BodRole managerRole, int firstResult, int maxResults, Sort sort) {
-    final Set<String> groupsForManager = managerService.findAllAdminGroupsForManager(managerRole);
-
-    return findByAdminGroups(groupsForManager, firstResult, maxResults, sort);
+    return findByAdminGroups(Lists.newArrayList(managerRole.getAdminGroup().get()), firstResult, maxResults, sort);
   }
 
   public List<Long> findDistinctDomainObjectIdsWithWhereClause(Specification<LogEvent> whereClause) {
@@ -185,16 +182,20 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   }
 
   public List<Long> findIdsForManagerOrNoc(RichUserDetails userDetails) {
-    final BodRole selectedRole = userDetails.getSelectedRole();
-
-    if (selectedRole.isManagerRole()) {
-      Set<String> adminGroups = managerService.findAllAdminGroupsForManager(Security.getSelectedRole());
-      return logEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(adminGroups)));
-    }
-    else if (selectedRole.isNocRole()) {
-      return logEventRepo.findIdsWithWhereClause(Optional.<Specification<LogEvent>> absent());
-    }
-
+    // final BodRole selectedRole = userDetails.getSelectedRole();
+    //
+    // if (selectedRole.isManagerRole()) {
+    // Set<String> adminGroups =
+    // managerService.findAllAdminGroupsForManager(Security.getSelectedRole());
+    // return
+    // logEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(adminGroups)));
+    // }
+    // else if (selectedRole.isNocRole()) {
+    // return
+    // logEventRepo.findIdsWithWhereClause(Optional.<Specification<LogEvent>>
+    // absent());
+    // }
+    // TODO fix manager/noc admingroup
     return Collections.emptyList();
   }
 
@@ -291,4 +292,24 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return PERSISTABLE_LOG_EVENTS.contains(logEvent.getDomainObjectClass());
   }
 
+  public long countByManagerRole(BodRole selectedRole) {
+    return countByAdminGroups(ImmutableList.of(selectedRole.getAdminGroup().get()));
+  }
+
+  public long countByUser(RichUserDetails user) {
+    return countByAdminGroups(determineAdminGroupsForUser(user));
+  }
+
+  private List<String> determineAdminGroupsForUser(RichUserDetails user) {
+    return ImmutableList.copyOf(Collections2.filter(user.getUserGroupIds(), new Predicate<String>() {
+      @Override
+      public boolean apply(String groupId) {
+        return virtualResourceGroupService.findByAdminGroup(groupId) != null;
+      }
+    }));
+  }
+
+  public List<LogEvent> findByUser(RichUserDetails userDetails, int firstResult, int maxResults, Sort sort) {
+    return findByAdminGroups(determineAdminGroupsForUser(userDetails), firstResult, maxResults, sort);
+  }
 }
