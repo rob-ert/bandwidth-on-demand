@@ -12,8 +12,8 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 
 import java.io.IOException;
 
@@ -24,16 +24,22 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "/spring/appCtx.xml", "/spring/appCtx-jpa-integration.xml",
+    "/spring/appCtx-nbi-client.xml", "/spring/appCtx-idd-client.xml" })
 public class VersReportingServiceTestIntegration {
 
   @SuppressWarnings("unused")
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   @Resource
-  private VersReportingService versReportingService = new VersReportingService();
+  private VersReportingService versReportingService;// = new VersReportingService();
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -54,8 +60,9 @@ public class VersReportingServiceTestIntegration {
 
   @Test
   public void test() throws IOException {
-    // value was already inserted for that period previously
-    assertThat(versReportingService.sendReport(), is(-1));
+    // authentication fails currently
+    assertThat(versReportingService.sendReport().getErrorCode(), is(-1));
+    assertThat(versReportingService.sendReport().getErrorMessage(), containsString("Authentication failed"));
   }
 
 }
