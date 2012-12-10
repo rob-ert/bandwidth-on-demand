@@ -35,10 +35,10 @@ public class VersReportingService {
   private String serviceURL = "https://rapportage-test.surfnet.nl:9011/interface.php";
 
   @Value("${vers.user}")
-  private String versUserName = "bod";
+  private String versUserName;
 
   @Value("${vers.password}")
-  private String versUserPassword = "";
+  private String versUserPassword;
 
   private SURFnetErStub surFnetErStub;
 
