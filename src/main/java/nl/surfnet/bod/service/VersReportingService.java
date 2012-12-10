@@ -15,9 +15,13 @@ package nl.surfnet.bod.service;
 import java.io.IOException;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
+import nl.surfnet.bod.support.ReservationFilterViewFactory;
 import nl.surfnet.bod.vers.SURFnetErStub;
+import nl.surfnet.bod.web.view.NocStatisticsView;
 
+import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,8 +44,15 @@ public class VersReportingService {
   @Value("${vers.password}")
   private String versUserPassword;
 
+  @Resource
+  private PhysicalPortService physicalPortService;
+
+  @Resource
+  private ReservationService reservationService;
+
   private SURFnetErStub surFnetErStub;
 
+  @SuppressWarnings("unused")
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   @PostConstruct
@@ -49,37 +60,76 @@ public class VersReportingService {
     surFnetErStub = new SURFnetErStub(serviceURL);
   }
 
-  public VersResponse sendReport() throws IOException {
-    final ErInsertReportDocument soapCallDocument = ErInsertReportDocument.Factory.newInstance();
-    soapCallDocument.setErInsertReport(getErInsertReport(getInsertReportInput()));
+  public VersResponse sendActiveReservationsReport() throws IOException {
+    return sendReport("Active reservations", "=", Long.toString(getNocStatistics().getActiveReservationsAmount()));
+  }
 
-    final ErInsertReportResponse versRepsonse = surFnetErStub.er_InsertReport(soapCallDocument)
-        .getErInsertReportResponse();
+  public VersResponse sendUnalignedPhyscalPortsReport() throws IOException {
+    return sendReport("Unaligned physical ports", "=",
+        Long.toString(getNocStatistics().getUnalignedPhysicalPortsAmount()));
+  }
 
-    log.warn(versRepsonse.getReturnText());
+  private VersResponse sendReport(final String type, final String delimiter, final String value) throws IOException {
+    final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
+    versRequest.setErInsertReport(getErInsertReport(getReservationReport(type, delimiter, value)));
+    final ErInsertReportResponse versRepsonse = surFnetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
     return new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText());
   }
 
   private ErInsertReport getErInsertReport(final InsertReportInput reportData) {
     final ErInsertReport messageBody = ErInsertReport.Factory.newInstance();
-
     messageBody.setUsername(versUserName);
     messageBody.setPassword(versUserPassword);
     messageBody.setParameters(reportData);
     return messageBody;
   }
 
-  private InsertReportInput getInsertReportInput() {
+  private InsertReportInput getReservationReport(final String type, final String delimiter, final String value) {
     final InsertReportInput insertReportInput = InsertReportInput.Factory.newInstance();
-    insertReportInput.setType("Beschikbaarheid2");
-    insertReportInput.setUnit("%");
-    insertReportInput.setNormComp(">");
-    insertReportInput.setNormValue("60");
+    insertReportInput.setType(type);
+    insertReportInput.setNormComp(delimiter);
+    insertReportInput.setNormValue(value);
     insertReportInput.setDepartmentList("NWD");
     insertReportInput.setIsKPI(true);
     insertReportInput.setIsHidden(false);
-    insertReportInput.setPeriod("11-2012");
+    insertReportInput.setPeriod(getReportPeriod());
     return insertReportInput;
+  }
+
+  private String getReportPeriod() {
+    final LocalDateTime now = LocalDateTime.now();
+    final StringBuilder period = new StringBuilder();
+    final int monthOfYear = now.getMonthOfYear();
+    period.append(now.getYear());
+    period.append('-');
+    if (monthOfYear <= 9) {
+      period.append("0");
+    }
+    period.append(monthOfYear);
+    return period.toString();
+  }
+
+  // TODO: Code duplication, copied from DashboardController
+  private NocStatisticsView getNocStatistics() {
+    final ReservationFilterViewFactory reservationFilterViewFactory = new ReservationFilterViewFactory();
+
+    final long countPhysicalPorts = physicalPortService.countAllocated();
+
+    final long countElapsedReservations = reservationService.countAllEntriesUsingFilter(reservationFilterViewFactory
+        .create(ReservationFilterViewFactory.ELAPSED));
+
+    final long countActiveReservations = reservationService.countAllEntriesUsingFilter(reservationFilterViewFactory
+        .create(ReservationFilterViewFactory.ACTIVE));
+
+    final long countComingReservations = reservationService.countAllEntriesUsingFilter(reservationFilterViewFactory
+        .create(ReservationFilterViewFactory.COMING));
+
+    final long countMissingPhysicalPorts = physicalPortService.countUnalignedPhysicalPorts();
+
+    final NocStatisticsView nocStatisticsView = new NocStatisticsView(countPhysicalPorts, countElapsedReservations,
+        countActiveReservations, countComingReservations, countMissingPhysicalPorts);
+
+    return nocStatisticsView;
   }
 
   public static class VersResponse {

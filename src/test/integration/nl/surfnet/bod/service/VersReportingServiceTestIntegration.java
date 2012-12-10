@@ -12,8 +12,9 @@
  */
 package nl.surfnet.bod.service;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 
 import java.io.IOException;
 
@@ -40,6 +41,7 @@ public class VersReportingServiceTestIntegration {
 
   @Resource
   private VersReportingService versReportingService;// = new VersReportingService();
+  
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -59,10 +61,10 @@ public class VersReportingServiceTestIntegration {
   }
 
   @Test
-  public void test() throws IOException {
+  public void should_fail_authentication() throws IOException {
     // authentication fails currently
-    assertThat(versReportingService.sendReport().getErrorCode(), is(-1));
-    assertThat(versReportingService.sendReport().getErrorMessage(), containsString("Authentication failed"));
+    assertThat(versReportingService.sendActiveReservationsReport().getErrorCode(), is(-1));
+    assertThat(versReportingService.sendActiveReservationsReport().getErrorMessage(), containsString("Authentication failed"));
   }
 
 }
