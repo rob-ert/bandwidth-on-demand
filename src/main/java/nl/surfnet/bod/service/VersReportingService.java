@@ -25,7 +25,10 @@ import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import com.google.common.annotations.VisibleForTesting;
 
 import surfnet_er.ErInsertReportDocument;
 import surfnet_er.ErInsertReportDocument.ErInsertReport;
@@ -36,7 +39,7 @@ import surfnet_er.InsertReportInput;
 public class VersReportingService {
 
   @Value("${vers.url}")
-  private String serviceURL = "https://rapportage-test.surfnet.nl:9011/interface.php";
+  private String serviceURL;
 
   @Value("${vers.user}")
   private String versUserName;
@@ -50,28 +53,31 @@ public class VersReportingService {
   @Resource
   private ReservationService reservationService;
 
-  private SURFnetErStub surFnetErStub;
+  private SURFnetErStub surfNetErStub;
 
   @SuppressWarnings("unused")
   private final Logger log = LoggerFactory.getLogger(getClass());
 
+  private final String firstDayOfTheMonthCronExpression = "0 0 0 1 * ?";
+
   @PostConstruct
   void init() throws IOException {
-    surFnetErStub = new SURFnetErStub(serviceURL);
+    surfNetErStub = new SURFnetErStub(serviceURL);
   }
 
-  public VersResponse sendActiveReservationsReportToAll() throws IOException {
-    return sendReportToAll("Active reservations", "=", Long.toString(getNocStatistics().getActiveReservationsAmount()));
+//  @Scheduled(cron = firstDayOfTheMonthCronExpression)
+  public void sendActiveReservationsReportToAll() throws IOException {
+    sendReportToAll("Active reservations", "=", Long.toString(getNocStatistics().getActiveReservationsAmount()));
   }
 
-  public VersResponse sendUnalignedPhysicalPortsReportToAll() throws IOException {
-    return sendReportToAll("Unaligned physical ports", "=",
+//  @Scheduled(cron = firstDayOfTheMonthCronExpression)
+  public void sendUnalignedPhysicalPortsReportToAll() throws IOException {
+    sendReportToAll("Unaligned physical ports", "=",
         Long.toString(getNocStatistics().getUnalignedPhysicalPortsAmount()));
   }
 
-  
-  private VersResponse sendReportToAll(final String type, final String delimiter, final String value)
-      throws IOException {
+  @VisibleForTesting
+  VersResponse sendReportToAll(final String type, final String delimiter, final String value) throws IOException {
     final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
     final InsertReportInput insertReportInput = InsertReportInput.Factory.newInstance();
     insertReportInput.setType(type);
@@ -82,7 +88,7 @@ public class VersReportingService {
     insertReportInput.setIsHidden(false);
     insertReportInput.setPeriod(getReportPeriod());
     versRequest.setErInsertReport(getErInsertReport(insertReportInput));
-    final ErInsertReportResponse versRepsonse = surFnetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
+    final ErInsertReportResponse versRepsonse = surfNetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
     return new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText());
   }
 
@@ -91,7 +97,7 @@ public class VersReportingService {
     final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
     insertReportInput.setPeriod(getReportPeriod());
     versRequest.setErInsertReport(getErInsertReport(insertReportInput));
-    final ErInsertReportResponse versRepsonse = surFnetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
+    final ErInsertReportResponse versRepsonse = surfNetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
     return new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText());
   }
 

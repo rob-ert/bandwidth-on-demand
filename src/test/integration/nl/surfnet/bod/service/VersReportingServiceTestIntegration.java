@@ -20,6 +20,8 @@ import java.io.IOException;
 
 import javax.annotation.Resource;
 
+import nl.surfnet.bod.service.VersReportingService.VersResponse;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -40,8 +42,8 @@ public class VersReportingServiceTestIntegration {
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   @Resource
-  private VersReportingService versReportingService;// = new VersReportingService();
-  
+  private VersReportingService versReportingService;// = new
+                                                    // VersReportingService();
 
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
@@ -63,8 +65,9 @@ public class VersReportingServiceTestIntegration {
   @Test
   public void should_fail_authentication() throws IOException {
     // authentication fails currently
-    assertThat(versReportingService.sendActiveReservationsReportToAll().getErrorCode(), is(-1));
-    assertThat(versReportingService.sendActiveReservationsReportToAll().getErrorMessage(), containsString("Authentication failed"));
+    final VersResponse versResponse = versReportingService.sendReportToAll("Active reservations", "=", "10");
+    assertThat(versResponse.getErrorCode(), is(-1));
+    assertThat(versResponse.getErrorMessage(), containsString("Authentication failed"));
   }
 
 }
