@@ -93,7 +93,7 @@ public final class WebUtils {
   }
 
   /**
-   * 
+   *
    * @return The user selected PhysicalResourceGroupId
    */
   public static Optional<Long> getSelectedPhysicalResourceGroupId() {
@@ -238,7 +238,7 @@ public final class WebUtils {
   /**
    * Replaces the logicalName with the given technialName in the searchString
    * E.g. 'name:test' might be mapped to 'virtualResourceGroup.name:test'
-   * 
+   *
    * @param searchString
    *          String to replace
    * @param logicalName

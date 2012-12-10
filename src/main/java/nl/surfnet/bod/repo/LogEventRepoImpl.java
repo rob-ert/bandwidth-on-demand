@@ -33,7 +33,16 @@ public class LogEventRepoImpl implements LogEventRepoCustom {
   private EntityManager entityManager;
 
   @Override
-  public List<Long> findIdsWithWhereClause(final Optional<Specification<LogEvent>> whereClause) {
+  public List<Long> findIdsWithWhereClause(final Specification<LogEvent> whereClause) {
+    return findIds(Optional.of(whereClause));
+  }
+
+  @Override
+  public List<Long> findAllIds() {
+    return findIds(Optional.<Specification<LogEvent>>absent());
+  }
+
+  private List<Long> findIds(Optional<Specification<LogEvent>> whereClause) {
     final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     final CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
     final Root<LogEvent> root = criteriaQuery.from(LogEvent.class);

@@ -14,10 +14,7 @@ package nl.surfnet.bod.web.manager;
 
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import nl.surfnet.bod.event.LogEvent;
-import nl.surfnet.bod.service.LogEventService;
 import nl.surfnet.bod.web.base.AbstractLogEventController;
 import nl.surfnet.bod.web.security.Security;
 
@@ -30,12 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(value = "/manager/" + LogEventController.PAGE_URL)
 public class LogEventController extends AbstractLogEventController {
 
-  @Resource
-  private LogEventService logEventService;
-
   @Override
   protected List<LogEvent> list(int firstPage, int maxItems, Sort sort, Model model) {
-    return logEventService.findByManagerRole(Security.getSelectedRole(), firstPage, maxItems, sort);
+    return getLogEventService().findByManagerRole(Security.getSelectedRole(), firstPage, maxItems, sort);
   }
 
   @Override
@@ -45,12 +39,12 @@ public class LogEventController extends AbstractLogEventController {
 
   @Override
   protected List<Long> getIdsOfAllAllowedEntries(Model model) {
-    return logEventService.findIdsForManagerOrNoc(Security.getUserDetails());
+    return getLogEventService().findIdsForManager(Security.getSelectedRole());
   }
 
   @Override
   protected long count(Model model) {
-    return logEventService.countByManagerRole(Security.getSelectedRole());
+    return getLogEventService().countByManagerRole(Security.getSelectedRole());
   }
 
 

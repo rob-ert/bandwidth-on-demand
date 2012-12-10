@@ -16,7 +16,6 @@ import java.util.List;
 
 import nl.surfnet.bod.event.LogEvent;
 import nl.surfnet.bod.web.base.AbstractLogEventController;
-import nl.surfnet.bod.web.security.Security;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
@@ -44,7 +43,7 @@ public class LogEventController extends AbstractLogEventController {
 
   @Override
   protected List<Long> getIdsOfAllAllowedEntries(Model model) {
-    return getLogEventService().findIdsForManagerOrNoc(Security.getUserDetails());
+    return getLogEventService().findAllIds();
   }
 
 }

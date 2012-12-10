@@ -181,26 +181,16 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
     return logEventRepo.findDistinctDomainObjectIdsWithWhereClause(spec);
   }
 
-  public List<Long> findIdsForManagerOrNoc(RichUserDetails userDetails) {
-    // final BodRole selectedRole = userDetails.getSelectedRole();
-    //
-    // if (selectedRole.isManagerRole()) {
-    // Set<String> adminGroups =
-    // managerService.findAllAdminGroupsForManager(Security.getSelectedRole());
-    // return
-    // logEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(adminGroups)));
-    // }
-    // else if (selectedRole.isNocRole()) {
-    // return
-    // logEventRepo.findIdsWithWhereClause(Optional.<Specification<LogEvent>>
-    // absent());
-    // }
-    // TODO fix manager/noc admingroup
-    return Collections.emptyList();
+  public List<Long> findIdsForManager(BodRole managerRole) {
+    return logEventRepo.findIdsWithWhereClause(specLogEventsByAdminGroups(ImmutableList.of(managerRole.getAdminGroup().get())));
   }
 
-  public List<Long> findIdsForUser(List<String> determinGroupsToSearchFor) {
-    return logEventRepo.findIdsWithWhereClause(Optional.of(specLogEventsByAdminGroups(determinGroupsToSearchFor)));
+  public List<Long> findIdsForUser(RichUserDetails user) {
+    return logEventRepo.findIdsWithWhereClause(specLogEventsByAdminGroups(determineAdminGroupsForUser(user)));
+  }
+
+  public List<Long> findAllIds() {
+    return logEventRepo.findAllIds();
   }
 
   public LogEvent findLatestStateChangeForReservationIdBeforeInAdminGroups(Long id, DateTime before,
@@ -312,4 +302,5 @@ public class LogEventService extends AbstractFullTextSearchService<LogEvent> {
   public List<LogEvent> findByUser(RichUserDetails userDetails, int firstResult, int maxResults, Sort sort) {
     return findByAdminGroups(determineAdminGroupsForUser(userDetails), firstResult, maxResults, sort);
   }
+
 }

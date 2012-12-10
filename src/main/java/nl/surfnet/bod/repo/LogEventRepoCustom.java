@@ -18,11 +18,11 @@ import nl.surfnet.bod.event.LogEvent;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import com.google.common.base.Optional;
-
 public interface LogEventRepoCustom {
 
-  List<Long> findIdsWithWhereClause(Optional<Specification<LogEvent>> whereClause);
+  List<Long> findIdsWithWhereClause(Specification<LogEvent> whereClause);
+
+  List<Long> findAllIds();
 
   List<Long> findDistinctDomainObjectIdsWithWhereClause(Specification<LogEvent> whereClause);
 
