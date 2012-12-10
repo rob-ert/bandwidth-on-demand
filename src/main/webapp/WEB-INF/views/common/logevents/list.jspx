@@ -10,7 +10,7 @@
 <jsp:directive.page contentType="text/html;charset=UTF-8" />
 <jsp:output omit-xml-declaration="yes" />
 
-<page:list id="pl_logEvent" path="/noc/events" renderActions="false">
+<page:list id="pl_logEvent" path="/events" renderActions="false">
 
   <util:search />
 
@@ -20,8 +20,6 @@
         <table:rowDetailsHeader />
         <table:sortableHeader labelCode="label_logevent_created"
           property="created" />
-        <!-- <table:sortableHeader labelCode="label_logevent_groupid"
-          property="adminGroups" />-->
         <table:sortableHeader labelCode="label_logevent_eventtype"
           property="eventType" />
         <table:sortableHeader labelCode="label_logevent_object"
@@ -63,16 +61,10 @@
               <dd>
                 <c:out value="${item.userId}" />
               </dd>
-              <!--  <dt>Group</dt>
-              <dd>
-                <c:out value="${item.adminGroups}" />
-              </dd>-->
             </dl>
           </table:rowDetailsColumn>
           <table:column item="${item}" property="createdAsText"
             styleClass="cw80" />
-          <!--  <table:column item="${item}" property="shortAdminGroup"
-            styleClass="cw80" />-->
           <table:column item="${item}" property="eventTypeWithCorrelationId"
             styleClass="cw80" />
           <table:column item="${item}" property="domainObjectClass" />
