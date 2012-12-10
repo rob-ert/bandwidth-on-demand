@@ -60,18 +60,37 @@ public class VersReportingService {
     surFnetErStub = new SURFnetErStub(serviceURL);
   }
 
-  public VersResponse sendActiveReservationsReport() throws IOException {
-    return sendReport("Active reservations", "=", Long.toString(getNocStatistics().getActiveReservationsAmount()));
+  public VersResponse sendActiveReservationsReportToAll() throws IOException {
+    return sendReportToAll("Active reservations", "=", Long.toString(getNocStatistics().getActiveReservationsAmount()));
   }
 
-  public VersResponse sendUnalignedPhyscalPortsReport() throws IOException {
-    return sendReport("Unaligned physical ports", "=",
+  public VersResponse sendUnalignedPhysicalPortsReportToAll() throws IOException {
+    return sendReportToAll("Unaligned physical ports", "=",
         Long.toString(getNocStatistics().getUnalignedPhysicalPortsAmount()));
   }
 
-  private VersResponse sendReport(final String type, final String delimiter, final String value) throws IOException {
+  
+  private VersResponse sendReportToAll(final String type, final String delimiter, final String value)
+      throws IOException {
     final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
-    versRequest.setErInsertReport(getErInsertReport(getReservationReport(type, delimiter, value)));
+    final InsertReportInput insertReportInput = InsertReportInput.Factory.newInstance();
+    insertReportInput.setType(type);
+    insertReportInput.setNormComp(delimiter);
+    insertReportInput.setNormValue(value);
+    insertReportInput.setDepartmentList("NWD");
+    insertReportInput.setIsKPI(true);
+    insertReportInput.setIsHidden(false);
+    insertReportInput.setPeriod(getReportPeriod());
+    versRequest.setErInsertReport(getErInsertReport(insertReportInput));
+    final ErInsertReportResponse versRepsonse = surFnetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
+    return new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText());
+  }
+
+  private VersResponse sendReportToOrganization(final InsertReportInput insertReportInput, final String iddShortName)
+      throws IOException {
+    final ErInsertReportDocument versRequest = ErInsertReportDocument.Factory.newInstance();
+    insertReportInput.setPeriod(getReportPeriod());
+    versRequest.setErInsertReport(getErInsertReport(insertReportInput));
     final ErInsertReportResponse versRepsonse = surFnetErStub.er_InsertReport(versRequest).getErInsertReportResponse();
     return new VersResponse(versRepsonse.getReturnCode(), versRepsonse.getReturnText());
   }
@@ -82,18 +101,6 @@ public class VersReportingService {
     messageBody.setPassword(versUserPassword);
     messageBody.setParameters(reportData);
     return messageBody;
-  }
-
-  private InsertReportInput getReservationReport(final String type, final String delimiter, final String value) {
-    final InsertReportInput insertReportInput = InsertReportInput.Factory.newInstance();
-    insertReportInput.setType(type);
-    insertReportInput.setNormComp(delimiter);
-    insertReportInput.setNormValue(value);
-    insertReportInput.setDepartmentList("NWD");
-    insertReportInput.setIsKPI(true);
-    insertReportInput.setIsHidden(false);
-    insertReportInput.setPeriod(getReportPeriod());
-    return insertReportInput;
   }
 
   private String getReportPeriod() {

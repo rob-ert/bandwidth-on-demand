@@ -63,8 +63,8 @@ public class VersReportingServiceTestIntegration {
   @Test
   public void should_fail_authentication() throws IOException {
     // authentication fails currently
-    assertThat(versReportingService.sendActiveReservationsReport().getErrorCode(), is(-1));
-    assertThat(versReportingService.sendActiveReservationsReport().getErrorMessage(), containsString("Authentication failed"));
+    assertThat(versReportingService.sendActiveReservationsReportToAll().getErrorCode(), is(-1));
+    assertThat(versReportingService.sendActiveReservationsReportToAll().getErrorMessage(), containsString("Authentication failed"));
   }
 
 }
